@@ -56,18 +56,16 @@ class GolemancyMediaCatalogTest extends AdaptTestBase {
   }
 
   @Test
-  void recipesCarryTheDefaultShapeKeysYieldAndTithe() {
+  void recipesCarryTheDefaultShapeKeysAndYield() {
     JsonObject crook = byId(catalog.getAsJsonArray("recipes"), "golemancy-crook");
 
     assertThat(strings(crook.getAsJsonArray("pattern"))).containsExactly(" A ", "RHR", " C ");
     assertThat(crook.getAsJsonObject("key").get("H").getAsString()).isEqualTo("IRON_HOE");
     assertThat(crook.get("result").getAsString()).isEqualTo("golemancy:crook");
     assertThat(crook.get("yield").getAsInt()).isEqualTo(1);
-    assertThat(crook.get("tithe").getAsInt()).isZero();
     JsonObject blankNode = byId(catalog.getAsJsonArray("recipes"), "golemancy-blank-node");
     assertThat(blankNode.get("yield").getAsInt()).isEqualTo(4);
     JsonObject guardian = byId(catalog.getAsJsonArray("recipes"), "golemancy-guardian-core");
-    assertThat(guardian.get("tithe").getAsInt()).isEqualTo(2);
     assertThat(guardian.getAsJsonObject("key").get("B").getAsString()).isEqualTo("golemancy:blank_core");
   }
 

@@ -74,8 +74,6 @@ def render_recipe(recipe: Recipe, catalog: Catalog, icons: textures.Icons, gui: 
         textures.text(scaled, ((result_x + textures.ICON) * textures.SCALE, (result_y + textures.ICON) * textures.SCALE), str(recipe.yield_count), COUNT_SIZE,
                       textures.WHITE, 'rb', True)
     lines: list[tuple[str, int, tuple[int, int, int, int]]] = [(catalog.name(recipe.result), NAME_SIZE, textures.INK)]
-    if recipe.tithe > 0:
-        lines.append(('Tithe: ' + plural(recipe.tithe, 'level'), DETAIL_SIZE, GREEN))
     caption(scaled, (PAD + content.height + CAPTION_TOP) * textures.SCALE, lines)
     return scaled
 

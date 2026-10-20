@@ -42,7 +42,6 @@ class ConfiguredShapedRecipeTomlTest {
         + "rows = [\"#P\", \"P#\"]\n"
         + "result = \"golemancy:crook\"\n"
         + "amount = 2\n"
-        + "tithe = 3\n"
         + "enabled = false\n"
         + "\n"
         + "[crook.keys]\n"
@@ -55,7 +54,6 @@ class ConfiguredShapedRecipeTomlTest {
     assertThat(crook.getKeys()).containsOnly(Map.entry("#", "#planks"), Map.entry("P", "golemancy:blank_core"));
     assertThat(crook.getResult()).isEqualTo("golemancy:crook");
     assertThat(crook.getAmount()).isEqualTo(2);
-    assertThat(crook.getTithe()).isEqualTo(3);
     assertThat(crook.isEnabled()).isFalse();
   }
 
@@ -72,7 +70,6 @@ class ConfiguredShapedRecipeTomlTest {
         .key('#', "#minecraft:planks")
         .key('R', "REDSTONE")
         .key('A', "AMETHYST_SHARD")
-        .result("golemancy:blank_node", 4)
-        .tithe(2)));
+        .result("golemancy:blank_node", 4)));
   }
 }

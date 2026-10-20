@@ -78,9 +78,9 @@ class GolemSorterCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(0)).getShapes()).containsExactly(" X ", "YBY", " Z ");
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(((AdaptRecipe.Shaped) recipes.get(2)).getShapes()).containsExactly(" X ", " B ", "   ");
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(INPUT_KEY))).isZero();
-    assertThat(GolemItems.recipeTithe().levels(keyed(FILTER_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(INPUT_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(FILTER_KEY))).isTrue();
   }
 
   @Test
@@ -90,12 +90,10 @@ class GolemSorterCoreExecutionTest extends AdaptTestBase {
     assertThat(config.sorterCoreRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "COMPARATOR", "Y", "QUARTZ",
         "Z", "COPPER_CHEST", "B", "golemancy:blank_core"));
     assertThat(config.sorterCoreRecipe.getResult()).isEqualTo("golemancy:core/sorter");
-    assertThat(config.sorterCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.inputNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "COPPER_CHEST", "B", "golemancy:blank_node"));
     assertThat(config.inputNodeRecipe.getResult()).isEqualTo("golemancy:node/input");
     assertThat(config.filterNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "ITEM_FRAME", "B", "golemancy:blank_node"));
     assertThat(config.filterNodeRecipe.getResult()).isEqualTo("golemancy:node/filter");
-    assertThat(config.filterNodeRecipe.getTithe()).isZero();
   }
 
   @Test

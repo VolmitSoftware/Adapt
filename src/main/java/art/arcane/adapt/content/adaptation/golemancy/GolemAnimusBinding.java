@@ -532,7 +532,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     int builderExclusiveSeconds = 300;
     @ConfigDoc(value = "Lets players bind iron golems that no player built, such as village iron golems.", impact = "Set to true to let any iron golem be bound.")
     boolean allowBindingVillageGolems = false;
-    @ConfigDoc(value = "Crafting recipe for the Artificer's Crook, unlocked at Animus Binding level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Artificer's Crook, unlocked at Animus Binding level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe crookRecipe = new ConfiguredShapedRecipe()
         .rows(" A ", "RHR", " C ")
         .key('H', "IRON_HOE")
@@ -540,13 +540,12 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
         .key('R', "REDSTONE")
         .key('C', "COPPER_INGOT")
         .result("golemancy:crook", 1);
-    @ConfigDoc(value = "Crafting recipe for the Blank Animus Core, unlocked at Animus Binding level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Blank Animus Core, unlocked at Animus Binding level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe blankCoreRecipe = new ConfiguredShapedRecipe()
         .rows("ARA", "RPR", "ARA")
         .key('A', "AMETHYST_SHARD")
         .key('R', "REDSTONE")
         .key('P', "ENDER_PEARL")
-        .result("golemancy:blank_core", 1)
-        .tithe(1);
+        .result("golemancy:blank_core", 1);
   }
 }

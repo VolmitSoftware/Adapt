@@ -196,14 +196,14 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   }
 
   @Test
-  void theBlankRuneRecipeRegistersAtLevelOneWithoutATithe() {
+  void theBlankRuneRecipeRegistersAtLevelOne() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(BLANK_RUNE_KEY);
     assertThat(recipes).allMatch(recipe -> recipe.getRequiredLevel() == 1);
     ShapedRecipe keyed = mock(ShapedRecipe.class);
     when(keyed.getKey()).thenReturn(BLANK_RUNE_KEY);
-    assertThat(GolemItems.recipeTithe().levels(keyed)).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed)).isTrue();
   }
 
   @Test

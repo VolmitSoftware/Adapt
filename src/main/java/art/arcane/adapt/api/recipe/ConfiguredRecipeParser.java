@@ -71,7 +71,6 @@ public final class ConfiguredRecipeParser {
     if (result != null && result.maxStack() > 0 && spec.getAmount() > result.maxStack()) {
       problems.add("amount " + spec.getAmount() + " is more than the result stacks to, " + result.maxStack());
     }
-    validateTithe(spec.getTithe(), problems);
     if (!problems.isEmpty()) {
       return new Result(null, List.of(), List.copyOf(problems));
     }
@@ -264,12 +263,6 @@ public final class ConfiguredRecipeParser {
   private static void validateAmount(int amount, List<String> problems) {
     if (amount < 1 || amount > MAX_AMOUNT) {
       problems.add("amount must be 1 to 64, found " + amount);
-    }
-  }
-
-  private static void validateTithe(int tithe, List<String> problems) {
-    if (tithe < 0) {
-      problems.add("tithe must be 0 or more levels, found " + tithe);
     }
   }
 

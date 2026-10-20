@@ -75,7 +75,7 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -84,8 +84,8 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -97,11 +97,9 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
         "Z", "SHIELD", "B", "golemancy:blank_core"));
     assertThat(config.guardianCoreRecipe.getResult()).isEqualTo("golemancy:core/guardian");
     assertThat(config.guardianCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.guardianCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.guardNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.guardNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "IRON_SWORD", "B", "golemancy:blank_node"));
     assertThat(config.guardNodeRecipe.getResult()).isEqualTo("golemancy:node/guard");
-    assertThat(config.guardNodeRecipe.getTithe()).isZero();
   }
 
   @Test

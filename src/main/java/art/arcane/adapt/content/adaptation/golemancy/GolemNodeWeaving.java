@@ -269,14 +269,14 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     List<Integer> filterSlotsByLevel = new ArrayList<>(List.of(3, 6, 6, 9, 18));
     @ConfigDoc(value = "Golemancy XP paid the first time you place each type of node.", impact = "Higher values reward trying each node type more; each type pays once per player.")
     double firstNodeXp = 200;
-    @ConfigDoc(value = "Crafting recipe for the Blank Node, unlocked at Node Weaving level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Blank Node, unlocked at Node Weaving level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe blankNodeRecipe = new ConfiguredShapedRecipe()
         .rows("CRC", "RAR", "CRC")
         .key('C', "CLAY_BALL")
         .key('R', "REDSTONE")
         .key('A', "AMETHYST_SHARD")
         .result("golemancy:blank_node", 4);
-    @ConfigDoc(value = "Crafting recipe for the Deposit Node, unlocked at Node Weaving level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Deposit Node, unlocked at Node Weaving level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe depositNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "CHEST")

@@ -73,7 +73,7 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -82,8 +82,8 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -95,11 +95,9 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
         "Z", "HOPPER", "B", "golemancy:blank_core"));
     assertThat(config.gathererCoreRecipe.getResult()).isEqualTo("golemancy:core/gatherer");
     assertThat(config.gathererCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.gathererCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.collectionNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.collectionNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "BUNDLE", "B", "golemancy:blank_node"));
     assertThat(config.collectionNodeRecipe.getResult()).isEqualTo("golemancy:node/collection");
-    assertThat(config.collectionNodeRecipe.getTithe()).isZero();
   }
 
   @Test

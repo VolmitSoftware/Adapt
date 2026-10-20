@@ -67,7 +67,7 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -76,8 +76,8 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -89,11 +89,9 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
         "Z", "DRIED_KELP", "B", "golemancy:blank_core"));
     assertThat(config.anglerCoreRecipe.getResult()).isEqualTo("golemancy:core/angler");
     assertThat(config.anglerCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.anglerCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.fishingNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.fishingNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "FISHING_ROD", "B", "golemancy:blank_node"));
     assertThat(config.fishingNodeRecipe.getResult()).isEqualTo("golemancy:node/fishing");
-    assertThat(config.fishingNodeRecipe.getTithe()).isZero();
   }
 
   @Test

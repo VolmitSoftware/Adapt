@@ -45,7 +45,9 @@ final class GolemancySupport {
   static void registerRecipe(SimpleAdaptation<?> adaptation, ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec, int level) {
     NamespacedKey key = new NamespacedKey(Adapt.instance, name);
     parser.builder(key, spec).ifPresent(builder -> adaptation.registerRecipe(builder.requiredLevel(level).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
+    if (spec.isEnabled()) {
+      GolemItems.craftCounter().track(key);
+    }
   }
 
   static int ownerLevel(SimpleAdaptation<?> core, GolemContext golem) {

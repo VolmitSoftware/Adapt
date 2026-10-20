@@ -343,16 +343,15 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     long lastStandCooldownMillis = 60_000L;
     @ConfigDoc(value = "Blocks within which frost Guardians shoot, from 1 to 10, the snow golem's throwing range. Frost Guardians attack only mobs this close to them and never chase mobs farther away.", impact = "Higher values let frost Guardians shoot mobs farther away.")
     double sentryRange = 10.0;
-    @ConfigDoc(value = "Crafting recipe for the Guardian Core, unlocked at Guardian Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Guardian Core, unlocked at Guardian Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe guardianCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "IRON_SWORD")
         .key('Y', "IRON_INGOT")
         .key('Z', "SHIELD")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/guardian", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Guard Node, unlocked at Guardian Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/guardian", 1);
+    @ConfigDoc(value = "Crafting recipe for the Guard Node, unlocked at Guardian Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe guardNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "IRON_SWORD")

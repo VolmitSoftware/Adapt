@@ -87,7 +87,7 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -96,8 +96,8 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -109,11 +109,9 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
         "Z", "LEAD", "B", "golemancy:blank_core"));
     assertThat(config.rancherCoreRecipe.getResult()).isEqualTo("golemancy:core/rancher");
     assertThat(config.rancherCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.rancherCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.pastureNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.pastureNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "LEAD", "B", "golemancy:blank_node"));
     assertThat(config.pastureNodeRecipe.getResult()).isEqualTo("golemancy:node/pasture");
-    assertThat(config.pastureNodeRecipe.getTithe()).isZero();
   }
 
   @Test

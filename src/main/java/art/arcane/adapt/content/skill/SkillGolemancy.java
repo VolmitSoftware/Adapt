@@ -314,7 +314,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemWorkXp.setSink(this::golemWorked);
     GolemRepairXp.setSink(this::payRepair);
     GolemWorkStats.setSink(new WorkStats());
-    GolemItems.recipeTithe().observe(this::rewardCraft);
+    GolemItems.craftCounter().observe(this::rewardCraft);
     SpatialMatter.registerSliceType(new NodeMatter());
     SpatialMatter.registerSliceType(new PlinthSlotMatter());
   }

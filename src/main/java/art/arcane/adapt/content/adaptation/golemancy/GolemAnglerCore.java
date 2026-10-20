@@ -189,16 +189,15 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     int treasureEnchantLevels = 30;
     @ConfigDoc(value = "Golemancy work XP paid for each catch, including junk the junk filter throws back. Values below 0 count as 0.", impact = "Higher values pay more XP for fishing.")
     double workXpPerCatch = 6;
-    @ConfigDoc(value = "Crafting recipe for the Angler Core, unlocked at Angler Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Angler Core, unlocked at Angler Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe anglerCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "FISHING_ROD")
         .key('Y', "PRISMARINE_SHARD")
         .key('Z', "DRIED_KELP")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/angler", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Fishing Node, unlocked at Angler Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/angler", 1);
+    @ConfigDoc(value = "Crafting recipe for the Fishing Node, unlocked at Angler Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe fishingNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "FISHING_ROD")

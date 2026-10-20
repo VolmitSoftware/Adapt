@@ -1,7 +1,6 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
-import art.arcane.adapt.api.golem.item.GolemItems;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -26,39 +24,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class SkillCraftingTitheCapTest {
-  private static final NamespacedKey TITHED = new NamespacedKey("adapt", "tithe-cap-test");
-
-  @AfterEach
-  void clearTithe() {
-    GolemItems.recipeTithe().set(TITHED, 0);
-  }
+class SkillCraftingShiftCraftTest {
+  private static final NamespacedKey RECIPE = new NamespacedKey("adapt", "shift-craft-test");
 
   @Test
-  void shiftCraftXpStopsAtTheCraftsATitheLetsThePlayerAfford() {
-    assertThat(SkillCrafting.tithedCraftCap(1, 1, 1, 64)).isEqualTo(1);
-    assertThat(SkillCrafting.tithedCraftCap(7, 3, 4, 64)).isEqualTo(8);
-    assertThat(SkillCrafting.tithedCraftCap(0, 2, 1, 64)).isZero();
-    assertThat(SkillCrafting.tithedCraftCap(100, 1, 4, 12)).isEqualTo(12);
-  }
-
-  @Test
-  void recipesWithoutATitheKeepTheFullShiftCraftAmount() {
-    assertThat(SkillCrafting.tithedCraftCap(1, 0, 1, 64)).isEqualTo(64);
-    assertThat(SkillCrafting.tithedCraftCap(0, 0, 4, 64)).isEqualTo(64);
-    assertThat(SkillCrafting.tithedCraftCap(5, 1, 0, 64)).isEqualTo(64);
-  }
-
-  @Test
-  void aShiftClickOnATithedRecipeCountsOnlyTheCraftsTheCraftersLevelsPayFor() throws ReflectiveOperationException {
-    GolemItems.recipeTithe().set(TITHED, 2);
-
-    assertThat(craftedItems(GameMode.SURVIVAL, 7)).containsExactly(6D);
-    assertThat(craftedItems(GameMode.CREATIVE, 7)).containsExactly(64D);
-
-    GolemItems.recipeTithe().set(TITHED, 0);
-
+  void aShiftClickCountsEveryCraftWhateverTheCraftersLevels() throws ReflectiveOperationException {
+    assertThat(craftedItems(GameMode.SURVIVAL, 0)).containsExactly(64D);
     assertThat(craftedItems(GameMode.SURVIVAL, 7)).containsExactly(64D);
+    assertThat(craftedItems(GameMode.CREATIVE, 0)).containsExactly(64D);
   }
 
   private static List<Double> craftedItems(GameMode mode, int levels) throws ReflectiveOperationException {
@@ -91,7 +64,7 @@ class SkillCraftingTitheCapTest {
   private static CraftItemEvent shiftCraft(GameMode mode, int levels) {
     ItemStack result = stack(2);
     ShapedRecipe recipe = mock(ShapedRecipe.class);
-    when(recipe.getKey()).thenReturn(TITHED);
+    when(recipe.getKey()).thenReturn(RECIPE);
     when(recipe.getResult()).thenReturn(result);
     ItemStack[] matrix = {stack(32), stack(32)};
     CraftingInventory grid = mock(CraftingInventory.class);

@@ -18,8 +18,6 @@ public class ConfiguredShapedRecipe {
   private String result = "";
   @ConfigDoc(value = "Number of result items one craft yields.", impact = "Accepts 1 to 64.")
   private int amount = 1;
-  @ConfigDoc(value = "Experience levels charged for each craft.", impact = "0 makes the recipe free. Players without enough levels see no result, shift-crafting stops at the number of crafts their levels cover, creative players craft free, and crafter blocks cannot craft a recipe with a tithe.")
-  private int tithe = 0;
   @ConfigDoc(value = "Registers this recipe.", impact = "Set to false to remove the recipe from crafting.")
   private boolean enabled = true;
 
@@ -36,11 +34,6 @@ public class ConfiguredShapedRecipe {
   public ConfiguredShapedRecipe result(String item, int count) {
     result = item;
     amount = count;
-    return this;
-  }
-
-  public ConfiguredShapedRecipe tithe(int levels) {
-    tithe = levels;
     return this;
   }
 }

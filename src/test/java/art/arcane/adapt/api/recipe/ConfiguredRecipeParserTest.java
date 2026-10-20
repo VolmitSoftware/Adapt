@@ -61,8 +61,7 @@ class ConfiguredRecipeParserTest {
         .key('A', "amethyst_shard")
         .key('R', "REDSTONE")
         .key('P', " ENDER_PEARL ")
-        .result("HEART_OF_THE_SEA", 3)
-        .tithe(1);
+        .result("HEART_OF_THE_SEA", 3);
 
     ConfiguredRecipeParser.Result result = parser.parse(spec);
 
@@ -356,18 +355,6 @@ class ConfiguredRecipeParserTest {
         .containsExactly("amount 17 is more than the result stacks to, 16");
     assertThat(parser.parse(new ConfiguredShapedRecipe().rows("P").key('P', "ENDER_PEARL").result("ENDER_PEARL", 16)).problems())
         .isEmpty();
-  }
-
-  @Test
-  void rejectsNegativeTithes() {
-    material("STONE");
-    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe()
-        .rows("S")
-        .key('S', "STONE")
-        .result("STONE", 1)
-        .tithe(-1);
-
-    assertThat(parser.parse(spec).problems()).containsExactly("tithe must be 0 or more levels, found -1");
   }
 
   @Test

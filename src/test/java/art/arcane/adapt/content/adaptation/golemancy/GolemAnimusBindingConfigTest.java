@@ -57,7 +57,7 @@ class GolemAnimusBindingConfigTest {
   }
 
   @Test
-  void theCrookRecipeParsesToItsPlanShapeWithoutATithe() {
+  void theCrookRecipeParsesToItsPlanShape() {
     Material hoe = material("IRON_HOE");
     Material shard = material("AMETHYST_SHARD");
     Material redstone = material("REDSTONE");
@@ -75,11 +75,10 @@ class GolemAnimusBindingConfigTest {
     assertThat(choice(shaped, 'C')).containsExactly(copper);
     assertThat(shaped.getResult()).isSameAs(crook);
     assertThat(config.crookRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.crookRecipe.getTithe()).isZero();
   }
 
   @Test
-  void theBlankCoreRecipeParsesToItsPlanShapeWithAOneLevelTithe() {
+  void theBlankCoreRecipeParsesToItsPlanShape() {
     Material shard = material("AMETHYST_SHARD");
     Material redstone = material("REDSTONE");
     Material pearl = material("ENDER_PEARL");
@@ -95,7 +94,6 @@ class GolemAnimusBindingConfigTest {
     assertThat(choice(shaped, 'P')).containsExactly(pearl);
     assertThat(shaped.getResult()).isSameAs(core);
     assertThat(config.blankCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.blankCoreRecipe.getTithe()).isEqualTo(1);
   }
 
   @Test

@@ -131,14 +131,14 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void bothRecipesRegisterAtLevelOneUnderGolemancyKeysWithoutTithes() {
+  void bothRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(BLANK_NODE_KEY, DEPOSIT_NODE_KEY);
     assertThat(recipes).allMatch(recipe -> recipe.getRequiredLevel() == 1);
     assertThat(book.satisfiedBy(BLANK_NODE_KEY, List.of())).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(BLANK_NODE_KEY))).isZero();
-    assertThat(GolemItems.recipeTithe().levels(keyed(DEPOSIT_NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(BLANK_NODE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(DEPOSIT_NODE_KEY))).isTrue();
   }
 
   @Test

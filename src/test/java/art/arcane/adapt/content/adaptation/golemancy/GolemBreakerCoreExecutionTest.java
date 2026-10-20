@@ -72,7 +72,7 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -81,8 +81,8 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -94,11 +94,9 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
         "Z", "PISTON", "B", "golemancy:blank_core"));
     assertThat(config.breakerCoreRecipe.getResult()).isEqualTo("golemancy:core/breaker");
     assertThat(config.breakerCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.breakerCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.breakerNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.breakerNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "IRON_PICKAXE", "B", "golemancy:blank_node"));
     assertThat(config.breakerNodeRecipe.getResult()).isEqualTo("golemancy:node/breaker");
-    assertThat(config.breakerNodeRecipe.getTithe()).isZero();
   }
 
   @Test

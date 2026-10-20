@@ -414,7 +414,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     int ironSlots = 3;
     @ConfigDoc(value = "Runes a golem body cannot use, as aspect:body entries such as ember:frost.", impact = "Listed runes cannot be slotted into that body, and any already slotted do nothing.")
     List<String> runeBodyBlocks = new ArrayList<>(List.of("ember:frost"));
-    @ConfigDoc(value = "Crafting recipe for the Blank Rune, unlocked at Runic Augments level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Blank Rune, unlocked at Runic Augments level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe blankRuneRecipe = new ConfiguredShapedRecipe()
         .rows(" A ", "ASA", " A ")
         .key('A', "AMETHYST_SHARD")

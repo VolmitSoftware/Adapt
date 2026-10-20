@@ -214,16 +214,15 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     int deathSiteSeconds = 300;
     @ConfigDoc(value = "Golemancy work XP a Gatherer earns you for each item stack it picks up.", impact = "Higher values make gathering level Golemancy faster.")
     double workXpPerStack = 0.5;
-    @ConfigDoc(value = "Crafting recipe for the Gatherer Core, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Gatherer Core, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe gathererCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "BUNDLE")
         .key('Y', "STRING")
         .key('Z', "HOPPER")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/gatherer", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Collection Node, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/gatherer", 1);
+    @ConfigDoc(value = "Crafting recipe for the Collection Node, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe collectionNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "BUNDLE")

@@ -41,11 +41,11 @@ CATALOG: dict = {
         'golemancy:rune/might/2': {'name': 'Might Rune', 'base': 'ARMS_UP_POTTERY_SHERD', 'tint': None, 'tier': 2},
     },
     'recipes': [
-        {'id': 'golemancy-crook', 'result': 'golemancy:crook', 'yield': 1, 'tithe': 0, 'pattern': [' A ', 'RHR', ' C '],
+        {'id': 'golemancy-crook', 'result': 'golemancy:crook', 'yield': 1, 'pattern': [' A ', 'RHR', ' C '],
          'key': {'H': 'IRON_HOE', 'A': 'AMETHYST_SHARD', 'R': 'REDSTONE', 'C': 'COPPER_INGOT'}},
-        {'id': 'golemancy-blank-core', 'result': 'golemancy:blank_core', 'yield': 2, 'tithe': 1, 'pattern': ['ARA', 'RPR', 'ARA'],
+        {'id': 'golemancy-blank-core', 'result': 'golemancy:blank_core', 'yield': 2, 'pattern': ['ARA', 'RPR', 'ARA'],
          'key': {'A': 'AMETHYST_SHARD', 'R': 'REDSTONE', 'P': 'ENDER_PEARL'}},
-        {'id': 'golemancy-log-hoe', 'result': 'golemancy:crook', 'yield': 1, 'tithe': 2, 'pattern': ['L', 'H'], 'key': {'L': '#logs', 'H': 'iron_hoe'}},
+        {'id': 'golemancy-log-hoe', 'result': 'golemancy:crook', 'yield': 1, 'pattern': ['L', 'H'], 'key': {'L': '#logs', 'H': 'iron_hoe'}},
     ],
     'infusions': [
         {'id': 'swiftness_1', 'center': 'golemancy:blank_rune', 'pedestals': ['SUGAR', 'SUGAR', 'FEATHER', 'FEATHER'],
@@ -137,7 +137,7 @@ class CatalogTest(unittest.TestCase):
 
         self.assertEqual([recipe.id for recipe in parsed.recipes], ['golemancy-crook', 'golemancy-blank-core', 'golemancy-log-hoe'])
         crook: media_catalog.Recipe = parsed.recipes[0]
-        self.assertEqual((crook.result, crook.yield_count, crook.tithe, crook.pattern), ('golemancy:crook', 1, 0, (' A ', 'RHR', ' C ')))
+        self.assertEqual((crook.result, crook.yield_count, crook.pattern), ('golemancy:crook', 1, (' A ', 'RHR', ' C ')))
         self.assertEqual(crook.key['H'], 'IRON_HOE')
         infusion: media_catalog.Infusion = parsed.infusions[0]
         self.assertEqual((infusion.center, infusion.pedestals, infusion.essence_levels, infusion.duration_ticks),
@@ -418,16 +418,16 @@ class RecipeRenderTest(MediaCase):
         self.assertEqual(image.getpixel(log_top)[:3], BLOCK_COLORS['oak_log_top'])
         self.assertEqual(image.getpixel(center(0, 0))[:3], (139, 139, 139))
 
-    def test_yield_and_tithe_change_the_caption_but_not_the_size(self) -> None:
-        free: Image.Image = self.render(0)
+    def test_the_caption_is_the_result_name_alone(self) -> None:
+        crook: Image.Image = self.render(0)
         counted: Image.Image = self.render(1)
-        tithed: Image.Image = self.render(2)
+        other_pattern: Image.Image = self.render(2)
 
-        self.assertEqual(free.size, counted.size)
-        self.assertEqual(free.size, tithed.size)
-        caption_free: Image.Image = free.crop((0, 270, free.width, free.height))
-        caption_tithed: Image.Image = tithed.crop((0, 270, tithed.width, tithed.height))
-        self.assertNotEqual(caption_free.tobytes(), caption_tithed.tobytes())
+        self.assertEqual(crook.size, counted.size)
+        self.assertEqual(crook.size, other_pattern.size)
+        caption_crook: Image.Image = crook.crop((0, 270, crook.width, crook.height))
+        caption_other: Image.Image = other_pattern.crop((0, 270, other_pattern.width, other_pattern.height))
+        self.assertEqual(caption_crook.tobytes(), caption_other.tobytes())
 
     def test_the_result_slot_shows_the_yield_count_only_above_one(self) -> None:
         parsed: media_catalog.Catalog = catalog()
@@ -446,7 +446,7 @@ class RecipeRenderTest(MediaCase):
         self.assertNotEqual(single.tobytes(), counted.tobytes())
         self.assertEqual(slot(1).tobytes(), single.tobytes())
 
-    def test_tithe_text_is_singular_for_one_level(self) -> None:
+    def test_level_text_is_singular_for_one_level(self) -> None:
         self.assertEqual(media_render.plural(1, 'level'), '1 level')
         self.assertEqual(media_render.plural(2, 'level'), '2 levels')
         self.assertEqual(media_render.seconds(100), '5 s')

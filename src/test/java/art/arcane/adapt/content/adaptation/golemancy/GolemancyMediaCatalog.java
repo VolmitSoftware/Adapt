@@ -118,7 +118,6 @@ final class GolemancyMediaCatalog {
     recipe.put("id", source.id());
     recipe.put("result", spec.getResult());
     recipe.put("yield", spec.getAmount());
-    recipe.put("tithe", spec.getTithe());
     recipe.put("pattern", List.copyOf(spec.getRows()));
     recipe.put("key", new LinkedHashMap<>(spec.getKeys()));
     describe(looks, items, spec.getResult());

@@ -154,16 +154,15 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     int netherLevel = 5;
     @ConfigDoc(value = "Golemancy work XP paid for each log or stem a Lumber golem fells. Leaves, wart blocks, shroomlights and replanting pay none. Values below 0 count as 0.", impact = "Higher values pay more XP for felling.")
     double workXpPerLog = 0.6;
-    @ConfigDoc(value = "Crafting recipe for the Lumber Core, unlocked at Lumber Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Lumber Core, unlocked at Lumber Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe lumberCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "IRON_AXE")
         .key('Y', "#logs")
         .key('Z', "#saplings")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/lumber", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Lumber Node, unlocked at Lumber Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/lumber", 1);
+    @ConfigDoc(value = "Crafting recipe for the Lumber Node, unlocked at Lumber Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe lumberNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "IRON_AXE")

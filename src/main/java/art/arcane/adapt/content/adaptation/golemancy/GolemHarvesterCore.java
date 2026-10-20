@@ -202,16 +202,15 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     double bountifulChance = 0.1;
     @ConfigDoc(value = "Golemancy work XP paid for each crop a Harvester harvests. Tilling, planting and tending pay none. Values below 0 count as 0.", impact = "Higher values pay more XP for harvests.")
     double workXpPerCrop = 0.4;
-    @ConfigDoc(value = "Crafting recipe for the Harvester Core, unlocked at Harvester Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Harvester Core, unlocked at Harvester Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe harvesterCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "IRON_HOE")
         .key('Y', "WHEAT")
         .key('Z', "COMPOSTER")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/harvester", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Harvest Node, unlocked at Harvester Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/harvester", 1);
+    @ConfigDoc(value = "Crafting recipe for the Harvest Node, unlocked at Harvester Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe harvestNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "IRON_HOE")

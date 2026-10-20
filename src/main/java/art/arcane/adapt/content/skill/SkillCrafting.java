@@ -26,8 +26,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.recipe.RecipeTithe;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBackpacks;
@@ -47,7 +45,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -263,23 +260,12 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
         if (capacity < maxCraftable) {
           maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
         }
-        if (e.getWhoClicked() instanceof Player crafter && crafter.getGameMode() != GameMode.CREATIVE) {
-          maxCraftable = tithedCraftCap(crafter.getLevel(), GolemItems.recipeTithe().levels(e.getRecipe()), recipeAmount, maxCraftable);
-        }
         recipeAmount = maxCraftable;
       }
       default -> {
       }
     }
     return recipeAmount;
-  }
-
-  static int tithedCraftCap(int playerLevel, int levelsPerCraft, int resultAmount, int maxCraftable) {
-    int affordable = RecipeTithe.affordableCrafts(playerLevel, levelsPerCraft);
-    if (affordable == Integer.MAX_VALUE || resultAmount <= 0) {
-      return maxCraftable;
-    }
-    return (int) Math.min(maxCraftable, (long) affordable * resultAmount);
   }
 
   private int fits(ItemStack stack, Inventory inv) {

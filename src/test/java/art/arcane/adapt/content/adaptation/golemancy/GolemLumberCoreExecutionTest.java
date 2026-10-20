@@ -110,7 +110,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void theCoreAndNodeRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CORE_KEY, NODE_KEY);
@@ -119,8 +119,8 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
-    assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
+    assertThat(GolemItems.craftCounter().tracks(keyed(CORE_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(NODE_KEY))).isTrue();
   }
 
   @Test
@@ -132,11 +132,9 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
         "Z", "#saplings", "B", "golemancy:blank_core"));
     assertThat(config.lumberCoreRecipe.getResult()).isEqualTo("golemancy:core/lumber");
     assertThat(config.lumberCoreRecipe.getAmount()).isEqualTo(1);
-    assertThat(config.lumberCoreRecipe.getTithe()).isEqualTo(2);
     assertThat(config.lumberNodeRecipe.getRows()).containsExactly(" X ", " B ", "   ");
     assertThat(config.lumberNodeRecipe.getKeys()).containsExactlyInAnyOrderEntriesOf(Map.of("X", "IRON_AXE", "B", "golemancy:blank_node"));
     assertThat(config.lumberNodeRecipe.getResult()).isEqualTo("golemancy:node/lumber");
-    assertThat(config.lumberNodeRecipe.getTithe()).isZero();
   }
 
   @Test

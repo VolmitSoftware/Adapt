@@ -263,22 +263,21 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     int maxServedContainers = 128;
     @ConfigDoc(value = "Golemancy work XP paid for each item stack a Sorter puts away or brings to you. Values below 0 count as 0.", impact = "Higher values pay more XP for sorting.")
     double workXpPerStack = 0.3;
-    @ConfigDoc(value = "Crafting recipe for the Sorter Core, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Sorter Core, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe sorterCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "COMPARATOR")
         .key('Y', "QUARTZ")
         .key('Z', "COPPER_CHEST")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/sorter", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Input Node, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/sorter", 1);
+    @ConfigDoc(value = "Crafting recipe for the Input Node, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe inputNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "COPPER_CHEST")
         .key('B', "golemancy:blank_node")
         .result("golemancy:node/input", 1);
-    @ConfigDoc(value = "Crafting recipe for the Filter Node, unlocked at the filterLevel Sorter Core level.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Filter Node, unlocked at the filterLevel Sorter Core level.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe filterNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "ITEM_FRAME")

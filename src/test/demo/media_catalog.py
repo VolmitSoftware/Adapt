@@ -12,7 +12,6 @@ class Recipe:
     id: str
     result: str
     yield_count: int
-    tithe: int
     pattern: tuple[str, ...]
     key: dict[str, str]
 
@@ -66,7 +65,7 @@ def parse(raw: dict) -> Catalog:
     try:
         items: dict[str, CustomItem] = {key: CustomItem(name=body['name'], base=body['base'], tint=body.get('tint'), tier=body.get('tier'))
                                         for key, body in raw['items'].items()}
-        recipes: tuple[Recipe, ...] = tuple(Recipe(id=body['id'], result=body['result'], yield_count=int(body['yield']), tithe=int(body['tithe']),
+        recipes: tuple[Recipe, ...] = tuple(Recipe(id=body['id'], result=body['result'], yield_count=int(body['yield']),
                                                    pattern=tuple(body['pattern']), key=dict(body['key'])) for body in raw['recipes'])
         infusions: tuple[Infusion, ...] = tuple(Infusion(id=body['id'], center=body['center'], pedestals=tuple(body['pedestals']), result=body['result'],
                                                          essence_levels=int(body['essenceLevels']), duration_ticks=int(body['durationTicks']))

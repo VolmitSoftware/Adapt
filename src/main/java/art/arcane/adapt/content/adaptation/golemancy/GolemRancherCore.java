@@ -261,16 +261,15 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     double workXpPerMilk = 1.0;
     @ConfigDoc(value = "Golemancy work XP paid for each animal a Rancher culls. Values below 0 load as 0.", impact = "Higher values pay more XP for culling.")
     double workXpPerCull = 1.0;
-    @ConfigDoc(value = "Crafting recipe for the Rancher Core, unlocked at Rancher Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Rancher Core, unlocked at Rancher Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe rancherCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "SHEARS")
         .key('Y', "WHEAT")
         .key('Z', "LEAD")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/rancher", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Pasture Node, unlocked at Rancher Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/rancher", 1);
+    @ConfigDoc(value = "Crafting recipe for the Pasture Node, unlocked at Rancher Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe pastureNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "LEAD")

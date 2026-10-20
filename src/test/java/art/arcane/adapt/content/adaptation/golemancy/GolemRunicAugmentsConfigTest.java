@@ -45,7 +45,6 @@ class GolemRunicAugmentsConfigTest {
     assertThat(choice(shaped, 'S')).containsExactly(stone);
     assertThat(shaped.getResult()).isSameAs(blankRune);
     assertThat(config.blankRuneRecipe.getAmount()).isEqualTo(2);
-    assertThat(config.blankRuneRecipe.getTithe()).isZero();
   }
 
   private Material material(String name) {

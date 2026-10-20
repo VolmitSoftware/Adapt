@@ -80,7 +80,6 @@ class GolemNodeWeavingConfigTest {
     assertThat(choice(shaped, 'A')).containsExactly(shard);
     assertThat(shaped.getResult()).isSameAs(blankNode);
     assertThat(config.blankNodeRecipe.getAmount()).isEqualTo(4);
-    assertThat(config.blankNodeRecipe.getTithe()).isZero();
   }
 
   @Test

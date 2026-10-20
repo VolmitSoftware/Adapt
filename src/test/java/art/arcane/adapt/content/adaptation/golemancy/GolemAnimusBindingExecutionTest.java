@@ -111,15 +111,15 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void bothRecipesRegisterAtLevelOneUnderGolemancyKeysWithTheirTithes() {
+  void bothRecipesRegisterAtLevelOneUnderGolemancyKeys() {
     List<AdaptRecipe> recipes = adaptation.getRecipes();
 
     assertThat(recipes).extracting(AdaptRecipe::getNSKey).containsExactly(CROOK_KEY, BLANK_CORE_KEY);
     assertThat(recipes).allMatch(recipe -> recipe.getRequiredLevel() == 1);
     assertThat(book.satisfiedBy(CROOK_KEY, List.of())).isTrue();
     assertThat(book.satisfiedBy(BLANK_CORE_KEY, List.of())).isTrue();
-    assertThat(GolemItems.recipeTithe().levels(keyed(CROOK_KEY))).isZero();
-    assertThat(GolemItems.recipeTithe().levels(keyed(BLANK_CORE_KEY))).isEqualTo(1);
+    assertThat(GolemItems.craftCounter().tracks(keyed(CROOK_KEY))).isTrue();
+    assertThat(GolemItems.craftCounter().tracks(keyed(BLANK_CORE_KEY))).isTrue();
   }
 
   @Test

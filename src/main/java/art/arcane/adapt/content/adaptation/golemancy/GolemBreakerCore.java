@@ -193,16 +193,15 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     List<String> blacklist = new ArrayList<>(BreakerRules.DEFAULT_BLACKLIST);
     @ConfigDoc(value = "Golemancy work XP paid for each block a Breaker breaks. Values below 0 count as 0.", impact = "Higher values pay more XP for mining.")
     double workXpPerBlock = 0.4;
-    @ConfigDoc(value = "Crafting recipe for the Breaker Core, unlocked at Breaker Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+    @ConfigDoc(value = "Crafting recipe for the Breaker Core, unlocked at Breaker Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe breakerCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
         .key('X', "IRON_PICKAXE")
         .key('Y', "REDSTONE")
         .key('Z', "PISTON")
         .key('B', "golemancy:blank_core")
-        .result("golemancy:core/breaker", 1)
-        .tithe(2);
-    @ConfigDoc(value = "Crafting recipe for the Breaker Node, unlocked at Breaker Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
+        .result("golemancy:core/breaker", 1);
+    @ConfigDoc(value = "Crafting recipe for the Breaker Node, unlocked at Breaker Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe breakerNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
         .key('X', "IRON_PICKAXE")
