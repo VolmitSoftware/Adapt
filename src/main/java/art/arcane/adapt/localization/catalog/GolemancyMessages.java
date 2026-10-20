@@ -110,6 +110,14 @@ public final class GolemancyMessages {
   public static final TextKey GUI_RUNE_EMPTY = TextKey.of("golemancy.gui.rune_empty", "Empty Rune Slot");
   public static final TextKey GUI_RUNE_EMPTY_LORE = TextKey.of("golemancy.gui.rune_empty_lore", "Pick up a rune and click here to slot it");
   public static final TextKey GUI_RUNE_REMOVE = TextKey.of("golemancy.gui.rune_remove", "Click to take this rune back");
+  public static final TextKey GUI_EQUIPMENT_EMPTY = TextKey.of("golemancy.gui.equipment_empty", "Empty {slot} Slot");
+  public static final TextKey GUI_EQUIPMENT_EMPTY_LORE = TextKey.of("golemancy.gui.equipment_empty_lore", "Pick up an item and click here to equip it");
+  public static final TextKey GUI_EQUIPMENT_HELMET = TextKey.of("golemancy.gui.equipment_helmet", "Helmet");
+  public static final TextKey GUI_EQUIPMENT_CHESTPLATE = TextKey.of("golemancy.gui.equipment_chestplate", "Chestplate");
+  public static final TextKey GUI_EQUIPMENT_LEGGINGS = TextKey.of("golemancy.gui.equipment_leggings", "Leggings");
+  public static final TextKey GUI_EQUIPMENT_BOOTS = TextKey.of("golemancy.gui.equipment_boots", "Boots");
+  public static final TextKey GUI_EQUIPMENT_MAIN_HAND = TextKey.of("golemancy.gui.equipment_main_hand", "Main Hand");
+  public static final TextKey GUI_EQUIPMENT_OFF_HAND = TextKey.of("golemancy.gui.equipment_off_hand", "Off Hand");
   public static final TextKey GUI_RUNE_ACTIVE = TextKey.of("golemancy.gui.rune_active", "Active");
   public static final TextKey GUI_RUNE_OVER_TIER = TextKey.of("golemancy.gui.rune_over_tier", "Inert: tier {tier} needs Runic Augments level {level}");
   public static final TextKey GUI_RUNE_SLOT_LOCKED = TextKey.of("golemancy.gui.rune_slot_locked", "Inert: this slot needs Runic Augments level {level}");
@@ -176,6 +184,8 @@ public final class GolemancyMessages {
   public static final TextKey MESSAGE_RUNE_SLOTTED = TextKey.of("golemancy.message.rune_slotted", "{aspect} rune slotted");
   public static final TextKey MESSAGE_RUNE_REMOVED = TextKey.of("golemancy.message.rune_removed", "{aspect} rune taken back");
   public static final TextKey MESSAGE_RUNE_NEEDED = TextKey.of("golemancy.message.rune_needed", "Pick up a rune first");
+  public static final TextKey MESSAGE_EQUIPMENT_NEEDED = TextKey.of("golemancy.message.equipment_needed", "Pick up an item first");
+  public static final TextKey MESSAGE_EQUIPMENT_REFUSED = TextKey.of("golemancy.message.equipment_refused", "That item doesn't fit the {slot} slot");
   public static final TextKey MESSAGE_RUNE_NO_SLOT = TextKey.of("golemancy.message.rune_no_slot", "This golem has no open rune slot");
   public static final TextKey MESSAGE_RUNE_DUPLICATE = TextKey.of("golemancy.message.rune_duplicate", "This golem already has a {aspect} rune");
   public static final TextKey MESSAGE_RUNE_BLOCKED = TextKey.of("golemancy.message.rune_blocked", "{aspect} runes don't work in a {body} golem");
@@ -325,7 +335,6 @@ public final class GolemancyMessages {
   public static final TextKey MASTERWORK_ALREADY = TextKey.of("golemancy.masterwork.already", "This golem is already a masterwork");
   public static final TextKey MASTERWORK_CAP = TextKey.of("golemancy.masterwork.cap", "You already have {count} masterwork golems");
   public static final TextKey MASTERWORK_LOCKED = TextKey.of("golemancy.masterwork.locked", "You need Masterwork to designate a masterwork golem");
-  public static final TextKey MASTERWORK_BODY = TextKey.of("golemancy.masterwork.body", "A {body} golem can't become a masterwork");
   public static final TextKey MASTERWORK_CORE_NEEDED = TextKey.of("golemancy.masterwork.core_needed", "Pick up a role core first");
   public static final TextKey MASTERWORK_CORE_SLOTTED = TextKey.of("golemancy.masterwork.core_slotted", "{core} core slotted");
   public static final TextKey MASTERWORK_CORE_REMOVED = TextKey.of("golemancy.masterwork.core_removed", "{core} core taken back");
@@ -682,6 +691,14 @@ public final class GolemancyMessages {
     builder.add(GUI_RUNE_EMPTY);
     builder.add(GUI_RUNE_EMPTY_LORE);
     builder.add(GUI_RUNE_REMOVE);
+    builder.add(GUI_EQUIPMENT_EMPTY);
+    builder.add(GUI_EQUIPMENT_EMPTY_LORE);
+    builder.add(GUI_EQUIPMENT_HELMET);
+    builder.add(GUI_EQUIPMENT_CHESTPLATE);
+    builder.add(GUI_EQUIPMENT_LEGGINGS);
+    builder.add(GUI_EQUIPMENT_BOOTS);
+    builder.add(GUI_EQUIPMENT_MAIN_HAND);
+    builder.add(GUI_EQUIPMENT_OFF_HAND);
     builder.add(GUI_RUNE_ACTIVE);
     builder.add(GUI_RUNE_OVER_TIER);
     builder.add(GUI_RUNE_SLOT_LOCKED);
@@ -748,6 +765,8 @@ public final class GolemancyMessages {
     builder.add(MESSAGE_RUNE_SLOTTED);
     builder.add(MESSAGE_RUNE_REMOVED);
     builder.add(MESSAGE_RUNE_NEEDED);
+    builder.add(MESSAGE_EQUIPMENT_NEEDED);
+    builder.add(MESSAGE_EQUIPMENT_REFUSED);
     builder.add(MESSAGE_RUNE_NO_SLOT);
     builder.add(MESSAGE_RUNE_DUPLICATE);
     builder.add(MESSAGE_RUNE_BLOCKED);
@@ -1046,7 +1065,6 @@ public final class GolemancyMessages {
     builder.add(MASTERWORK_ALREADY);
     builder.add(MASTERWORK_CAP);
     builder.add(MASTERWORK_LOCKED);
-    builder.add(MASTERWORK_BODY);
     builder.add(MASTERWORK_CORE_NEEDED);
     builder.add(MASTERWORK_CORE_SLOTTED);
     builder.add(MASTERWORK_CORE_REMOVED);

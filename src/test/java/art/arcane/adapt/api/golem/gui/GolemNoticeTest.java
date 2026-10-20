@@ -40,7 +40,6 @@ class GolemNoticeTest extends AdaptTestBase {
   void everyRefusalNoticeRendersItsEnglishText() {
     assertThat(refusal(GolemRegistry.Designation.LOCKED)).isEqualTo("You need Masterwork to designate a masterwork golem");
     assertThat(refusal(GolemRegistry.Designation.CAP)).isEqualTo("You already have 3 masterwork golems");
-    assertThat(refusal(GolemRegistry.Designation.BODY)).isEqualTo("A Bone golem can't become a masterwork");
     assertThat(refusal(GolemRegistry.Designation.ALREADY)).isEqualTo("This golem is already a masterwork");
     assertThat(refusal(GolemRegistry.Designation.UNAVAILABLE)).isEqualTo("Your golem roster isn't ready yet");
     assertThat(refusal(GolemMastery.CoreRefusal.UNAVAILABLE)).isEqualTo("Your golem roster isn't ready yet");
@@ -68,7 +67,7 @@ class GolemNoticeTest extends AdaptTestBase {
   }
 
   private static String refusal(GolemRegistry.Designation designation) {
-    return C.stripColor(GolemGuiActions.designationNotice(designation, 3, GolemBody.BONE).text());
+    return C.stripColor(GolemGuiActions.designationNotice(designation, 3).text());
   }
 
   private static String refusal(GolemMastery.CoreRefusal refusal) {

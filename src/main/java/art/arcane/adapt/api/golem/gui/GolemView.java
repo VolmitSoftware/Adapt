@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCombat;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
@@ -19,11 +20,12 @@ import org.bukkit.entity.Mob;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode, ChannelSet channels, Anchors anchors,
-                 RuneSlots runes, CarriedItems carried, Statistics stats, int essence, Toggles toggles) {
+                 RuneSlots runes, CarriedItems carried, Statistics stats, int essence, Toggles toggles, Equipment equipment) {
   static GolemView of(GolemHandle handle) {
     GolemState state = handle.state();
     Mob golem = handle.entity();
@@ -45,7 +47,8 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
         state.essencePoints(),
         new Toggles(state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false),
             state.masterwork(), GolemancyRuntime.registry().map(registry -> registry.masterworks(owner)).orElse(0), GolemMastery.maxMasterworks(owner),
-            GolemCombat.enabled(handle), GolemCombat.locked(handle)));
+            GolemCombat.enabled(handle), GolemCombat.locked(handle)),
+        new Equipment(state.body() == GolemBody.BONE ? state.equipment() : Map.of()));
   }
 
   Set<Section> changes(GolemView previous) {
@@ -81,6 +84,9 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
     if (!toggles.equals(previous.toggles)) {
       changed.add(Section.TOGGLES);
     }
+    if (!equipment.equals(previous.equipment)) {
+      changed.add(Section.EQUIPMENT);
+    }
     return changed;
   }
 
@@ -94,7 +100,8 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
     CARRIED,
     STATS,
     ESSENCE,
-    TOGGLES
+    TOGGLES,
+    EQUIPMENT
   }
 
   record Vitals(int health, long maxHealth, boolean dormant) {
@@ -116,6 +123,12 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
   }
 
   record Statistics(long kills, String damage, long tasks, long itemsMoved) {
+  }
+
+  record Equipment(Map<GolemEquipmentSlot, String> worn) {
+    Equipment {
+      worn = Map.copyOf(worn);
+    }
   }
 
   record Toggles(boolean snowTrail, boolean colossus, boolean colossusAvailable, boolean masterwork, int masterworks, int maxMasterworks,

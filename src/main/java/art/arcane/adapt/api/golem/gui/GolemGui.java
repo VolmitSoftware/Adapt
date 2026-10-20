@@ -2,8 +2,10 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.ChannelMask;
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemPacking;
@@ -54,6 +56,7 @@ public final class GolemGui {
   private static final int HEADER_ROW = 0;
   private static final int RUNE_ROW = 1;
   private static final int CARRIED_ROW = 2;
+  private static final int EQUIPMENT_ROW = 2;
   private static final int FOOTER_ROW = 4;
   private static final int LEFT_EDGE = -4;
   private static final int RIGHT_EDGE = 4;
@@ -211,6 +214,7 @@ public final class GolemGui {
       case STATS -> target.place(LEFT_EDGE, FOOTER_ROW, statsElement(view));
       case ESSENCE -> target.place(ESSENCE_SLOT, FOOTER_ROW, essenceElement(view));
       case TOGGLES -> placeToggles(target, view);
+      case EQUIPMENT -> placeEquipment(target, view, before);
     }
   }
 
@@ -454,6 +458,43 @@ public final class GolemGui {
     return null;
   }
 
+  private void placeEquipment(Placer target, GolemView view, GolemView before) {
+    if (view.body() != GolemBody.BONE) {
+      return;
+    }
+    int slots = GolemEquipmentSlot.values().length;
+    for (GolemEquipmentSlot slot : GolemEquipmentSlot.values()) {
+      String worn = view.equipment().worn().get(slot);
+      if (before == null || !Objects.equals(worn, before.equipment().worn().get(slot))) {
+        target.place(GuiLayout.centeredPosition(slot.ordinal(), slots), EQUIPMENT_ROW, equipmentElement(slot, worn));
+      }
+    }
+  }
+
+  private Element equipmentElement(GolemEquipmentSlot slot, String encoded) {
+    if (encoded != null) {
+      try {
+        ItemStack item = NMS.deserializeStack(encoded);
+        Element element = itemElement("golem-equipment-" + slot.id(), item.clone());
+        ItemMeta meta = item.getItemMeta();
+        List<String> lore = meta == null || meta.getLore() == null ? List.of() : meta.getLore();
+        for (String line : lore) {
+          element.addLore(line);
+        }
+        return element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TAKE))
+            .onLeftClick(clicked -> takeEquipment(slot, encoded))
+            .onShiftLeftClick(clicked -> takeEquipment(slot, encoded));
+      } catch (RuntimeException unreadable) {
+        Adapt.warn("Skipping unreadable equipped item on golem " + handle.id() + " in its menu; the stored entry is kept.", unreadable);
+      }
+    }
+    return GuiTheme.element("golem-equipment-" + slot.id(), Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "equipment_empty")
+        .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY, trusted("slot", AdaptLanguage.text(slot.displayName()))))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> equipFromCursor(slot));
+  }
+
   private Element statsElement(GolemView view) {
     return GuiTheme.element("golem-stats", Material.BOOK, "gui", "golemancy", "stats")
         .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_STATS))
@@ -469,7 +510,7 @@ public final class GolemGui {
     target.place(COMBAT_SLOT, HEADER_ROW, combatElement(toggles));
     target.place(0, FOOTER_ROW, utilityElement(view));
     target.place(MASTERWORK_SLOT, FOOTER_ROW,
-        GolemGuiActions.showsMasterwork(view.body(), toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
+        GolemGuiActions.showsMasterwork(toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
   }
 
   private Element combatElement(GolemView.Toggles toggles) {
@@ -563,6 +604,45 @@ public final class GolemGui {
     GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken));
   }
 
+  private void equipFromCursor(GolemEquipmentSlot slot) {
+    ItemStack cursor = player.getItemOnCursor();
+    if (cursor == null || GolemEquipmentSlot.isAir(cursor.getType())) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_EQUIPMENT_NEEDED);
+      return;
+    }
+    if (!slot.accepts(cursor.getType())) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_EQUIPMENT_REFUSED, trusted("slot", GolemGuiSupport.localized(slot.displayName())));
+      return;
+    }
+    ItemStack taken = takeOne(cursor);
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> equip(slot, taken));
+  }
+
+  private void equip(GolemEquipmentSlot slot, ItemStack taken) {
+    if (handle.isRetired() || !handle.entity().isValid()) {
+      handBack(taken);
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+      return;
+    }
+    if (!handle.equip(slot, taken)) {
+      handBack(taken);
+    }
+    snapshot();
+  }
+
+  private void takeEquipment(GolemEquipmentSlot slot, String encoded) {
+    Mob golem = handle.entity();
+    GolemGuiItems.fromGolem(golem, player, () -> {
+      if (handle.isRetired() || !golem.isValid()) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        return;
+      }
+      Optional<ItemStack> item = handle.unequip(slot, encoded);
+      item.ifPresent(this::handBack);
+      snapshot();
+    });
+  }
+
   private void designateFromCursor() {
     ItemStack cursor = player.getItemOnCursor();
     if (GolemItems.kindOf(cursor).orElse(null) != GolemItemKind.MASTERWORK_HEART) {
@@ -583,7 +663,7 @@ public final class GolemGui {
     GolemRegistry.Designation designation = registry.designate(handle, GolemMastery.maxMasterworks(handle.owner()));
     if (designation != GolemRegistry.Designation.DESIGNATED) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.designationNotice(designation, registry.masterworks(handle.owner()), handle.body()));
+      GolemGuiSupport.warn(player, GolemGuiActions.designationNotice(designation, registry.masterworks(handle.owner())));
       snapshot();
       return;
     }

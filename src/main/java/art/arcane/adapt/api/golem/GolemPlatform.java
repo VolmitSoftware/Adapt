@@ -58,6 +58,8 @@ interface GolemPlatform {
 
   void dropOwnerBound(Location at, ItemStack item, UUID owner);
 
+  void returnToOwner(UUID owner, Location at, ItemStack item);
+
   void upkeep(UUID owner, Set<UUID> golems);
 
   void crumble(Mob body);

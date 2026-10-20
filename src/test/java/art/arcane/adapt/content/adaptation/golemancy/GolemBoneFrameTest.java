@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationRequirement;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
@@ -51,6 +52,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -204,7 +206,9 @@ class GolemBoneFrameTest extends AdaptTestBase {
     Skeleton servant = servant();
     TragoulSkeletalServant pack = mock(TragoulSkeletalServant.class);
     when(pack.surrender(servant)).thenReturn(true);
-    try (MockedStatic<AdaptationRequirements> requirements = mockStatic(AdaptationRequirements.class)) {
+    try (MockedStatic<AdaptationRequirements> requirements = mockStatic(AdaptationRequirements.class);
+         MockedStatic<AdaptAttributeService> attributes = mockStatic(AdaptAttributeService.class)) {
+      attributes.when(AdaptAttributeService::get).thenReturn(mock(AdaptAttributeService.class));
       requirements.when(() -> AdaptationRequirements.find("tragoul-skeletal-servant")).thenReturn(pack);
       adaptation.onRuntimeActivated();
       ServantFrame.Frame frame = ServantFrame.frame().orElseThrow();
@@ -254,6 +258,74 @@ class GolemBoneFrameTest extends AdaptTestBase {
     verify(learned).strengthen(servant, GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 4.0D));
     verify(learned).fireproof(servant);
     verify(augments).ignite(victim, 80);
+  }
+
+  @Test
+  void bindingAServantStripsItsLatticeSoOnlyItsOwnRunesDriveItsStats() {
+    GolemBoneFrame learned = spy(adaptation);
+    GolemRunicAugments augments = augments(3);
+    Skeleton servant = servant();
+    LivingEntity victim = mock(Zombie.class);
+    roster.addLattice(new GolemRune(GolemRuneType.MIGHT, 3));
+    roster.addLattice(new GolemRune(GolemRuneType.EMBER, 2));
+    doReturn(2).when(learned).ownerLevel(OWNER);
+    doReturn(Optional.of(roster)).when(learned).roster(OWNER);
+    doReturn(Optional.of(augments)).when(learned).runicAugments();
+    doReturn(Optional.of(pack(servant))).when(learned).pack();
+    doNothing().when(learned).fireproof(servant);
+    doNothing().when(learned).unfireproof(servant);
+    doNothing().when(learned).strengthen(any(Skeleton.class), any(GolemStatDelta.class));
+    try (MockedStatic<AdaptAttributeService> attributes = mockStatic(AdaptAttributeService.class)) {
+      AdaptAttributeService service = mock(AdaptAttributeService.class);
+      attributes.when(AdaptAttributeService::get).thenReturn(service);
+      learned.summoned(owner(), servant);
+      learned.struck(servant, victim);
+      verify(augments, times(1)).ignite(victim, 80);
+
+      learned.unlattice(servant);
+      learned.struck(servant, victim);
+
+      verify(service).removeAll(servant, "golem-bone-frame");
+    }
+    verify(learned).unfireproof(servant);
+    verify(augments, times(1)).ignite(any(LivingEntity.class), anyInt());
+  }
+
+  @Test
+  void aServantThatNeverWoreAFireproofLatticeIsNotStrippedOfFireResistance() {
+    GolemBoneFrame learned = spy(adaptation);
+    Skeleton servant = servant();
+    doNothing().when(learned).unfireproof(servant);
+    try (MockedStatic<AdaptAttributeService> attributes = mockStatic(AdaptAttributeService.class)) {
+      attributes.when(AdaptAttributeService::get).thenReturn(mock(AdaptAttributeService.class));
+
+      learned.unlattice(servant);
+    }
+
+    verify(learned, never()).unfireproof(servant);
+  }
+
+  @Test
+  void theFrameStripsTheLatticeOnlyOnceTheTragoulPackHasSurrenderedTheServant() {
+    Skeleton surrendered = servant();
+    Skeleton refused = servant();
+    TragoulSkeletalServant pack = mock(TragoulSkeletalServant.class);
+    when(pack.surrender(surrendered)).thenReturn(true);
+    when(pack.surrender(refused)).thenReturn(false);
+    try (MockedStatic<AdaptationRequirements> requirements = mockStatic(AdaptationRequirements.class);
+         MockedStatic<AdaptAttributeService> attributes = mockStatic(AdaptAttributeService.class)) {
+      AdaptAttributeService service = mock(AdaptAttributeService.class);
+      attributes.when(AdaptAttributeService::get).thenReturn(service);
+      requirements.when(() -> AdaptationRequirements.find("tragoul-skeletal-servant")).thenReturn(pack);
+      adaptation.onRuntimeActivated();
+      ServantFrame.Frame frame = ServantFrame.frame().orElseThrow();
+
+      assertThat(frame.surrender(refused)).isFalse();
+      verify(service, never()).removeAll(any(LivingEntity.class), anyString());
+      assertThat(frame.surrender(surrendered)).isTrue();
+
+      verify(service).removeAll(surrendered, "golem-bone-frame");
+    }
   }
 
   @Test

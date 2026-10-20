@@ -172,6 +172,10 @@ public final class GolemRegistry extends TickedObject {
     UUID worldId = Objects.requireNonNull(at.getWorld()).getUID();
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), ownerId, body, core, GolemState.Anchor.at(at)));
     state.setPreviouslyBound(golem.getPersistentDataContainer().has(BOUND_ONCE_KEY, PersistentDataType.BYTE));
+    if (body == GolemBody.BONE) {
+      GolemEquipmentSlot.strip(golem);
+      golem.setCanPickupItems(false);
+    }
     writeBound(golem, state, Component.text(boundName(owner, body)));
     roster.add(new GolemRoster.Binding(state.id(), body, core, worldId, chunkKey(at), platform.nowMillis()));
     platform.rosterChanged(ownerId);
@@ -379,6 +383,7 @@ public final class GolemRegistry extends TickedObject {
     if (state.masterwork()) {
       drops.add(GolemItems.masterworkHeart());
     }
+    List<ItemStack> worn = handle.equipmentItems();
     int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
@@ -389,6 +394,9 @@ public final class GolemRegistry extends TickedObject {
     World world = golem.getWorld();
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
+    }
+    for (ItemStack item : worn) {
+      platform.returnToOwner(handle.owner(), at, item);
     }
     if (essence > 0) {
       returnEssence(golem, world, at, essence, platform.player(handle.owner()));
@@ -441,9 +449,6 @@ public final class GolemRegistry extends TickedObject {
     GolemState state = handle.state();
     if (handle.isRetired()) {
       return Designation.UNAVAILABLE;
-    }
-    if (state.body() == GolemBody.BONE) {
-      return Designation.BODY;
     }
     if (state.masterwork()) {
       return Designation.ALREADY;
@@ -983,6 +988,7 @@ public final class GolemRegistry extends TickedObject {
     GolemState state = handle.state();
     List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
+    drops.addAll(handle.equipmentItems());
     if (state.essencePoints() > 0) {
       e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
     }
@@ -1416,7 +1422,6 @@ public final class GolemRegistry extends TickedObject {
     DESIGNATED,
     LOCKED,
     CAP,
-    BODY,
     ALREADY,
     UNAVAILABLE
   }

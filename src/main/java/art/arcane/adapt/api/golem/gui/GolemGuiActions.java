@@ -157,20 +157,19 @@ public final class GolemGuiActions {
     };
   }
 
-  public static boolean showsMasterwork(GolemBody body, boolean masterwork, int maxMasterworks) {
-    return body != GolemBody.BONE && (masterwork || maxMasterworks > 0);
+  public static boolean showsMasterwork(boolean masterwork, int maxMasterworks) {
+    return masterwork || maxMasterworks > 0;
   }
 
   public static boolean showsSecondCore(List<GolemCoreType> cores, boolean dualCore) {
     return cores.size() > 1 || dualCore;
   }
 
-  public static Notice designationNotice(GolemRegistry.Designation designation, int masterworks, GolemBody body) {
+  public static Notice designationNotice(GolemRegistry.Designation designation, int masterworks) {
     return switch (designation) {
       case DESIGNATED -> notice(GolemancyMessages.MASTERWORK_DESIGNATED);
       case LOCKED -> notice(GolemancyMessages.MASTERWORK_LOCKED);
       case CAP -> notice(GolemancyMessages.MASTERWORK_CAP, trusted("count", masterworks));
-      case BODY -> notice(GolemancyMessages.MASTERWORK_BODY, bodyArgument(body));
       case ALREADY -> notice(GolemancyMessages.MASTERWORK_ALREADY);
       case UNAVAILABLE -> notice(GolemancyMessages.BINDING_UNAVAILABLE);
     };
