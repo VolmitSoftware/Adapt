@@ -438,6 +438,57 @@ class GolemRosterTest {
     assertThat(back.masterworkCount()).isEqualTo(1);
   }
 
+  @Test
+  void revokedBonesLeaveTheRosterAndCapsWithoutAffectingOtherBodies() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(GOLEM, GolemBody.BONE, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.add(binding(OTHER, 0L, 0L));
+    roster.markMasterwork(GOLEM, true);
+
+    assertThat(roster.revokeBones()).isTrue();
+    assertThat(roster.revokeBones()).isFalse();
+    assertThat(roster.golemCount()).isEqualTo(1);
+    assertThat(roster.golems()).extracting(GolemRoster.GolemEntry::id).containsExactly(OTHER);
+    assertThat(roster.matching(GOLEM.toString())).isEmpty();
+    assertThat(roster.masterworkCount()).isZero();
+    assertThat(roster.golem(GOLEM).orElseThrow().revoked()).isTrue();
+    assertThat(roster.golem(OTHER).orElseThrow().revoked()).isFalse();
+    assertThat(roster.seen(GOLEM, NETHER, 1L, 1L)).isFalse();
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.PACKED, "state")).isFalse();
+    assertThat(roster.raiseSighting(GOLEM, 1L)).isFalse();
+  }
+
+  @Test
+  void revokedBodyClaimsRequireTheCurrentSightingAndCanOnlySucceedOnceAfterReload() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(GOLEM, GolemBody.BONE, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.raiseSighting(GOLEM, 5L);
+    roster.revokeBones();
+    GolemRoster reloaded = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    assertThat(reloaded.claimRevokedBody(GOLEM, 4L)).isFalse();
+    assertThat(reloaded.claimRevokedItem(GOLEM, "wrong-state")).isFalse();
+    assertThat(reloaded.claimRevokedBody(GOLEM, 5L)).isTrue();
+    assertThat(reloaded.claimRevokedBody(GOLEM, 5L)).isFalse();
+    assertThat(reloaded.golem(GOLEM)).isEmpty();
+  }
+
+  @Test
+  void revocationPreservesThePackedSealUntilItsContentsAreClaimed() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(GOLEM, GolemBody.BONE, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.stow(GOLEM, GolemRoster.Status.PACKED, "sealed-state");
+    roster.revokeBones();
+    GolemRoster reloaded = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    assertThat(reloaded.unstow(GOLEM, GolemRoster.Status.PACKED, "sealed-state")).isFalse();
+    assertThat(reloaded.transition(GOLEM, GolemRoster.Status.PACKED, GolemRoster.Status.ACTIVE)).isFalse();
+    assertThat(reloaded.claimRevokedBody(GOLEM, 0L)).isFalse();
+    assertThat(reloaded.claimRevokedItem(GOLEM, "altered-state")).isFalse();
+    assertThat(reloaded.claimRevokedItem(GOLEM, "sealed-state")).isTrue();
+    assertThat(reloaded.claimRevokedItem(GOLEM, "sealed-state")).isFalse();
+  }
+
   private static GolemRoster.Binding binding(UUID id, long chunkKey, long seenAt) {
     return new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, chunkKey, seenAt);
   }

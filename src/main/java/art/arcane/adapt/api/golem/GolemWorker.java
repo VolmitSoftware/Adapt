@@ -584,6 +584,9 @@ final class GolemWorker {
   }
 
   private boolean fetchable(GolemToolNeed need, long nowMillis) {
+    if (handle.body() == GolemBody.BONE) {
+      return false;
+    }
     GolemState.Anchor chest = handle.state().homeChest();
     World world = home == null ? null : home.getWorld();
     Long missedUntil = toolMisses.get(need.id());

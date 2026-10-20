@@ -252,6 +252,10 @@ public final class GolemGui {
         .addLore(C.GRAY + coordinates(GolemancyMessages.GUI_HOME, view.anchors().home()))
         .setProgress(1D)
         .onLeftClick(clicked -> setHome()));
+    if (view.body() == GolemBody.BONE) {
+      target.place(RIGHT_EDGE, HEADER_ROW, null);
+      return;
+    }
     GolemState.Anchor homeChest = view.anchors().chest();
     Element chest = GuiTheme.element("golem-chest", Material.CHEST, "gui", "golemancy", "chest")
         .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_LINK_CHEST))

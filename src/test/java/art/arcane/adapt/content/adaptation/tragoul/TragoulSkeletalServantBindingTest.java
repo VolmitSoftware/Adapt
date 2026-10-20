@@ -2,6 +2,8 @@ package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.minion.MinionBurdens;
 import art.arcane.adapt.api.minion.ServantOrder;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -140,6 +143,39 @@ class TragoulSkeletalServantBindingTest extends AdaptTestBase {
     assertThat(adaptation.surrender(wild)).isFalse();
   }
 
+  @Test
+  void unlearningDismissesTheLivePackAndRevokesBoundServants() {
+    Skeleton servant = servant(OWNER);
+    adaptation.track(owner, servant, System.currentTimeMillis() + LIFETIME_MILLIS, LIFETIME_TICKS);
+    GolemRegistry golems = mock(GolemRegistry.class);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(golems));
+
+      adaptation.onLevelChanged(owner, 0);
+      for (Runnable task : List.copyOf(immediate)) {
+        task.run();
+      }
+    }
+
+    verify(servant).remove();
+    verify(golems).revokeBones(OWNER);
+    assertThat(adaptation.servants(OWNER)).isEmpty();
+    assertThat(burden.activeCount(OWNER)).isZero();
+  }
+
+  @Test
+  void loweringALearnedServantLevelKeepsThePackAndBoundServants() {
+    Skeleton servant = servant(OWNER);
+    adaptation.track(owner, servant, System.currentTimeMillis() + LIFETIME_MILLIS, LIFETIME_TICKS);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
+      adaptation.onLevelChanged(owner, 1);
+      runtime.verifyNoInteractions();
+    }
+
+    assertThat(adaptation.servants(OWNER)).containsExactly(servant);
+    assertThat(burden.activeCount(OWNER)).isEqualTo(1);
+    verify(servant, never()).remove();
+  }
   @Test
   void crumblingRemovesTheBodyWithTheServantRemovalEffect() {
     Skeleton bound = skeleton(Map.of());

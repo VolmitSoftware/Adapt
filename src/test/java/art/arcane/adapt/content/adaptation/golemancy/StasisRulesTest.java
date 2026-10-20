@@ -30,14 +30,6 @@ class StasisRulesTest {
   }
 
   @Test
-  void boneGolemsAreNeverPackedWhileEveryOtherBodyIs() {
-    assertThat(StasisRules.packable(GolemBody.BONE)).isFalse();
-    assertThat(StasisRules.packable(GolemBody.FROST)).isTrue();
-    assertThat(StasisRules.packable(GolemBody.COPPER)).isTrue();
-    assertThat(StasisRules.packable(GolemBody.IRON)).isTrue();
-  }
-
-  @Test
   void channelSecondsLoadFiniteAndWithinThirtySeconds() {
     List<Double> loaded = StasisRules.clampChannelSeconds(new ArrayList<>(Arrays.asList(-1D, Double.NaN, 45D, 2.5D, null)));
 

@@ -15,15 +15,21 @@ import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Leaves;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,12 +82,15 @@ class LumberNodeBehaviorTest {
   private final Set<String> stamped = new HashSet<>();
   private final List<GolemTask> posted = new ArrayList<>();
   private final List<ItemStack> carried = new ArrayList<>();
+  private final List<Item> dropped = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
   private final ItemStack[] chest = new ItemStack[9];
   private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).area(NodeCuboid.symmetric(3, 2, 3)).build();
   private GolemLumberCore core;
   private LumberNodeBehavior behavior;
   private MockedStatic<LumberFeedback> feedback;
+  private MockedStatic<J> scheduling;
+  private MockedStatic<ProtectionEventProbe> probes;
   private GolemBody body = GolemBody.IRON;
   private GolemState.Anchor homeChest;
   private int room = 64;
@@ -93,6 +103,23 @@ class LumberNodeBehaviorTest {
     level(5);
     behavior = new LumberNodeBehavior(core, fellings, rejections, new LumberActions(core, block -> stamped.contains(position(block))));
     feedback = mockStatic(LumberFeedback.class);
+    scheduling = mockStatic(J.class);
+    scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
+    scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class), anyDouble(), anyDouble())).thenReturn(true);
+    probes = mockStatic(ProtectionEventProbe.class);
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenReturn(true);
+    lenient().when(field.world.getNearbyEntities(any(BoundingBox.class), any())).thenAnswer(invocation -> {
+      BoundingBox bounds = invocation.getArgument(0);
+      Predicate<Entity> filter = invocation.getArgument(1);
+      List<Entity> found = new ArrayList<>();
+      for (Item item : dropped) {
+        Location at = item.getLocation();
+        if (bounds.contains(at.getX(), at.getY(), at.getZ()) && filter.test(item)) {
+          found.add(item);
+        }
+      }
+      return found;
+    });
     for (Material log : List.of(Material.OAK_LOG, Material.SPRUCE_LOG, Material.DARK_OAK_LOG, Material.CRIMSON_STEM,
         Material.NETHER_WART_BLOCK, Material.SHROOMLIGHT)) {
       field.drops(log, () -> CropField.stacks(log, 1));
@@ -102,6 +129,8 @@ class LumberNodeBehaviorTest {
 
   @AfterEach
   void close() {
+    probes.close();
+    scheduling.close();
     feedback.close();
   }
 
@@ -196,7 +225,7 @@ class LumberNodeBehaviorTest {
     assertThat(logs(0, 0)).isEmpty();
     assertThat(carriedCounts()).containsExactlyEntriesOf(Map.of("OAK_LOG", 5));
     assertThat(xp).containsExactly(0.6D, 1.2D, 0.6D, 0.6D);
-    assertThat(fellings.pending()).isFalse();
+    assertThat(fellings.pending()).isTrue();
     assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
     verify(field.block(0, 68, 0), never()).breakNaturally();
     verify(field.block(0, 68, 0), never()).breakNaturally(any(ItemStack.class));
@@ -405,6 +434,155 @@ class LumberNodeBehaviorTest {
     assertThat(chest[3].getAmount()).isEqualTo(1);
     Block home = field.block(CHEST.x(), CHEST.y(), CHEST.z());
     assertThat(created).anySatisfy(golem -> verify(golem).visit(home));
+  }
+
+  @Test
+  void replantingCollectsOnlyOneMatchingSaplingFromTheGround() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    Item oak = dropped(Material.OAK_SAPLING, 3, 1, 64, 0);
+    Item birch = dropped(Material.BIRCH_SAPLING, 2, 0, 64, 1);
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.OAK_SAPLING);
+    assertThat(oak.getItemStack().getAmount()).isEqualTo(2);
+    assertThat(birch.getItemStack().getAmount()).isEqualTo(2);
+    assertThat(carriedCounts()).doesNotContainKey("OAK_SAPLING");
+    assertThat(fellings.pending()).isFalse();
+  }
+
+  @Test
+  void aSaplingThatDropsAfterFellingIsReplantedWithoutWaitingForTheAreaCursor() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    assertThat(fellings.pending()).isTrue();
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    ScanBudget noBlocks = mock(ScanBudget.class);
+    when(noBlocks.hasTaskRoom()).thenReturn(true);
+
+    behavior.scan(node(NOW + 8_000L), noBlocks);
+    assertThat(posted).isEmpty();
+    Item sapling = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    behavior.scan(node(NOW + 10_000L), noBlocks);
+    assertThat(jobs()).containsExactly("fell 0,64,0");
+
+    assertThat(behavior.act(golem(0, NOW + 10_000L), posted.getFirst())).isEqualTo(GolemActResult.DONE);
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.OAK_SAPLING);
+    assertThat(dropped).doesNotContain(sapling);
+    assertThat(fellings.pending()).isFalse();
+  }
+
+  @Test
+  void anUnavailableSaplingReleasesTheGolemBetweenRetriesAndExpires() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    GolemTask task = fell(0, 64, 0);
+    assertThat(behavior.act(golem(0, NOW + 10_000L), task)).isEqualTo(GolemActResult.FAILED);
+    assertThat(fellings.pending()).isTrue();
+
+    behavior.scan(node(NOW + 12_000L), budget(true));
+    assertThat(posted).isEmpty();
+    fellings.keep(CropField.WORLD, base -> true, NOW + 304_000L);
+    fellings.sweep(NOW + 304_000L);
+    dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    behavior.scan(node(NOW + 305_000L), budget(true));
+
+    assertThat(fellings.pending()).isFalse();
+    assertThat(posted).isEmpty();
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+  }
+
+  @Test
+  void aReplantRetryDoesNotReplaceABlockOrConsumeSaplingsWhenTheSiteChanges() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    field.set(0, 64, 0, Material.STONE);
+    Item sapling = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+
+    assertThat(behavior.act(golem(0, NOW + 10_000L), fell(0, 64, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.STONE);
+    assertThat(dropped).contains(sapling);
+    assertThat(fellings.pending()).isFalse();
+  }
+
+  @Test
+  void replantingIgnoresOtherOwnersItemsAndItemsWithPickupRestrictions() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    Item owned = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    when(owned.getOwner()).thenReturn(GOLEM);
+    Item thrown = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    when(thrown.getThrower()).thenReturn(GOLEM);
+    Item delayed = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    when(delayed.getPickupDelay()).thenReturn(10);
+    Item restricted = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    when(restricted.canMobPickup()).thenReturn(false);
+    Item shop = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    when(shop.hasMetadata("shopitem")).thenReturn(true);
+    Item outside = dropped(Material.OAK_SAPLING, 1, 30, 64, 0);
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    assertThat(dropped).containsExactly(owned, thrown, delayed, restricted, shop, outside);
+    assertThat(carriedCounts()).doesNotContainKey("OAK_SAPLING");
+  }
+
+  @Test
+  void replantingHonorsPickupCancellationAndClaims() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    Item sapling = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), eq(sapling), anyInt())).thenReturn(false);
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), eq(sapling), anyInt())).thenReturn(true);
+    GolemContext golem = golem(0, NOW + 10_000L);
+    when(golem.canInteract(any(Location.class))).thenReturn(false);
+
+    assertThat(behavior.act(golem, fell(0, 64, 0))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(dropped).contains(sapling);
+    assertThat(carriedCounts()).doesNotContainKey("OAK_SAPLING");
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+  }
+
+  @Test
+  void replantingDoesNotCollectAcrossFoliaRegionOwnership() {
+    level(2);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    Item sapling = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
+    scheduling.when(J::isFoliaThreading).thenReturn(true);
+    scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class), anyDouble(), anyDouble())).thenReturn(false);
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(dropped).contains(sapling);
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    verify(field.world, never()).getNearbyEntities(any(BoundingBox.class), any());
+  }
+
+  @Test
+  void pairedTreesCombineCarriedStockAndGroundDropsWithoutTakingExtra() {
+    level(4);
+    tree(Material.DARK_OAK_LOG, Material.DARK_OAK_LEAVES, 0, 0, 3, true);
+    carried.add(GolemTestItems.stack(Material.DARK_OAK_SAPLING, 1));
+    homeChest = CHEST;
+    chest[3] = GolemTestItems.stack(Material.DARK_OAK_SAPLING, 1);
+    Item saplings = dropped(Material.DARK_OAK_SAPLING, 3, 2, 64, 0);
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(List.of(field.type(0, 64, 0), field.type(1, 64, 0), field.type(0, 64, 1), field.type(1, 64, 1)))
+        .containsOnly(Material.DARK_OAK_SAPLING);
+    assertThat(saplings.getItemStack().getAmount()).isEqualTo(1);
+    assertThat(chest[3]).isNull();
+    assertThat(carriedCounts()).doesNotContainKey("DARK_OAK_SAPLING");
   }
 
   @Test
@@ -843,6 +1021,7 @@ class LumberNodeBehaviorTest {
     lenient().when(golem.owns(any(Location.class))).thenReturn(true);
     lenient().when(golem.canBreak(any(Location.class))).thenReturn(true);
     lenient().when(golem.canPlace(any(Location.class))).thenReturn(true);
+    lenient().when(golem.canInteract(any(Location.class))).thenReturn(true);
     lenient().when(golem.room()).thenAnswer(invocation -> room);
     lenient().when(golem.carriedItems()).thenAnswer(invocation -> List.copyOf(carried));
     lenient().when(golem.withBonusYield(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -888,6 +1067,26 @@ class LumberNodeBehaviorTest {
       return null;
     }).when(inventory).setItem(anyInt(), any());
     return inventory;
+  }
+
+  private Item dropped(Material type, int amount, int x, int y, int z) {
+    Item item = mock(Item.class, withSettings().strictness(Strictness.LENIENT));
+    AtomicReference<ItemStack> stack = new AtomicReference<>(GolemTestItems.stack(type, amount));
+    lenient().when(item.getLocation()).thenAnswer(invocation -> new Location(field.world, x + 0.5D, y + 0.5D, z + 0.5D));
+    lenient().when(item.getItemStack()).thenAnswer(invocation -> stack.get());
+    lenient().when(item.isValid()).thenAnswer(invocation -> dropped.contains(item));
+    lenient().when(item.canPlayerPickup()).thenReturn(true);
+    lenient().when(item.canMobPickup()).thenReturn(true);
+    lenient().doAnswer(invocation -> {
+      stack.set(invocation.getArgument(0));
+      return null;
+    }).when(item).setItemStack(any(ItemStack.class));
+    lenient().doAnswer(invocation -> {
+      dropped.remove(item);
+      return null;
+    }).when(item).remove();
+    dropped.add(item);
+    return item;
   }
 
   private static GolemTask fell(int x, int y, int z) {

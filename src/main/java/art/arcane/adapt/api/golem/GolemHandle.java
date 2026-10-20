@@ -154,6 +154,46 @@ public final class GolemHandle {
     return items;
   }
 
+  Optional<ItemStack> equipped(GolemEquipmentSlot slot) {
+    String stored = state.equipment().get(slot);
+    if (stored == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(platform.decodeItem(stored));
+    } catch (RuntimeException corrupt) {
+      Adapt.warn("Skipping unreadable equipped item on golem " + id() + "; the stored entry is kept.", corrupt);
+      return Optional.empty();
+    }
+  }
+
+  void damageEquipment(GolemEquipmentSlot slot, int amount) {
+    if (retired || !entity.isValid() || body() != GolemBody.BONE || amount <= 0 || !state.equipment().containsKey(slot)) {
+      return;
+    }
+    EntityEquipment equipment = entity.getEquipment();
+    if (equipment == null) {
+      return;
+    }
+    entity.damageItemStack(slot.slot(), amount);
+    equipmentChanged(slot, equipment.getItem(slot.slot()));
+  }
+
+  void equipmentChanged(GolemEquipmentSlot slot, ItemStack item) {
+    if (retired || !entity.isValid() || body() != GolemBody.BONE) {
+      return;
+    }
+    String stored = state.equipment().get(slot);
+    if (stored == null) {
+      return;
+    }
+    String encoded = item == null || item.getAmount() <= 0 || GolemEquipmentSlot.isAir(item.getType()) ? null : platform.encodeItem(item);
+    if (!Objects.equals(stored, encoded)) {
+      state.setEquipment(slot, encoded);
+      flush();
+    }
+  }
+
   public void setCores(List<GolemCoreType> cores) {
     state.setCores(cores);
     if (GolemCombat.locked(this)) {

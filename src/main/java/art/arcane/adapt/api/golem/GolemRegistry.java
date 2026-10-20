@@ -17,6 +17,7 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.IronGolem;
@@ -33,6 +34,8 @@ import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
@@ -172,10 +175,6 @@ public final class GolemRegistry extends TickedObject {
     UUID worldId = Objects.requireNonNull(at.getWorld()).getUID();
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), ownerId, body, core, GolemState.Anchor.at(at)));
     state.setPreviouslyBound(golem.getPersistentDataContainer().has(BOUND_ONCE_KEY, PersistentDataType.BYTE));
-    if (body == GolemBody.BONE) {
-      GolemEquipmentSlot.strip(golem);
-      golem.setCanPickupItems(false);
-    }
     writeBound(golem, state, Component.text(boundName(owner, body)));
     roster.add(new GolemRoster.Binding(state.id(), body, core, worldId, chunkKey(at), platform.nowMillis()));
     platform.rosterChanged(ownerId);
@@ -299,7 +298,8 @@ public final class GolemRegistry extends TickedObject {
     UUID owner = handle.owner();
     Optional<GolemRoster> roster = platform.roster(owner);
     GolemRoster.Status status = roster.flatMap(known -> known.golem(handle.id())).map(GolemRoster.GolemEntry::status).orElse(null);
-    if (!handle.isValidated() || status != GolemRoster.Status.ACTIVE || handle.body() == GolemBody.BONE) {
+    if (!handle.isValidated() || status != GolemRoster.Status.ACTIVE
+        || roster.get().golem(handle.id()).map(GolemRoster.GolemEntry::revoked).orElse(true)) {
       return Optional.empty();
     }
     Location at = golem.getLocation();
@@ -369,39 +369,72 @@ public final class GolemRegistry extends TickedObject {
     requireOwned(golem, "release");
     Optional<GolemRoster> roster = platform.roster(handle.owner());
     GolemRoster.Status status = roster.flatMap(known -> known.golem(handle.id())).map(GolemRoster.GolemEntry::status).orElse(null);
-    if (!handle.isValidated() || status != GolemRoster.Status.ACTIVE) {
+    if (!handle.isValidated() || status != GolemRoster.Status.ACTIVE
+        || roster.get().golem(handle.id()).map(GolemRoster.GolemEntry::revoked).orElse(true)) {
       return false;
     }
-    GolemState state = handle.state();
-    List<ItemStack> drops = new ArrayList<>(state.carriedItems());
-    for (GolemCoreType core : state.cores()) {
+    releaseContents(handle, false);
+    return true;
+  }
+
+  public void revokeBones(UUID owner) {
+    Optional<GolemRoster> known = platform.roster(owner);
+    if (known.isEmpty()) {
+      return;
+    }
+    GolemRoster roster = known.get();
+    if (roster.revokeBones()) {
+      platform.rosterChanged(owner);
+    }
+    platform.upkeep(owner, upkept(roster));
+    for (GolemHandle handle : loadedOf(owner)) {
+      if (handle.body() == GolemBody.BONE) {
+        runOwned(handle, () -> evaluate(handle, true));
+      }
+    }
+    Player player = platform.player(owner);
+    if (player != null) {
+      platform.runEntity(player, () -> dissolveCarried(player), () -> {
+      });
+    }
+  }
+
+  public boolean dissolveRevoked(PackedGolem packed, Location at) {
+    if (!platform.owns(at)) {
+      throw new IllegalStateException("Dissolving a packed golem must run on the thread that owns its drop location.");
+    }
+    GolemSnapshot snapshot = GolemSnapshot.fromJson(packed.state()).orElse(null);
+    Optional<GolemRoster> roster = platform.roster(packed.owner());
+    if (snapshot == null || snapshot.body() != GolemBody.BONE || !snapshot.id().equals(packed.golemId())
+        || !snapshot.owner().equals(packed.owner()) || roster.isEmpty()
+        || !roster.get().claimRevokedItem(packed.golemId(), packed.state())) {
+      return false;
+    }
+    platform.rosterChanged(packed.owner());
+    List<ItemStack> drops = new ArrayList<>();
+    for (GolemCoreType core : snapshot.cores()) {
       drops.add(GolemItems.core(core));
     }
-    for (GolemRune rune : state.runes()) {
+    for (GolemRune rune : snapshot.runes()) {
       drops.add(GolemItems.rune(rune));
     }
-    if (state.masterwork()) {
+    if (snapshot.masterwork()) {
       drops.add(GolemItems.masterworkHeart());
     }
-    Optional<ItemStack> tool = heldTool(handle);
-    List<ItemStack> worn = handle.equipmentItems();
-    int essence = state.essencePoints();
-    Location at = golem.getLocation();
-    revert(handle);
-    forgetRosterEntry(handle);
-    if (handle.body() == GolemBody.BONE) {
-      platform.crumble(golem);
+    for (String encoded : snapshot.carried()) {
+      decodeDrop(snapshot.id(), encoded).ifPresent(drops::add);
     }
-    World world = golem.getWorld();
+    for (String encoded : snapshot.equipment().values()) {
+      decodeDrop(snapshot.id(), encoded).ifPresent(drops::add);
+    }
+    decodeDrop(snapshot.id(), snapshot.held()).ifPresent(drops::add);
+    World world = Objects.requireNonNull(at.getWorld());
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
     }
-    for (ItemStack item : worn) {
-      platform.returnToOwner(handle.owner(), at, item);
-    }
-    tool.ifPresent(item -> platform.returnToOwner(handle.owner(), at, item));
+    int essence = (int) snapshot.essence();
     if (essence > 0) {
-      returnEssence(golem, world, at, essence, platform.player(handle.owner()));
+      world.spawn(at, ExperienceOrb.class, orb -> orb.setExperience(essence));
     }
     return true;
   }
@@ -625,6 +658,10 @@ public final class GolemRegistry extends TickedObject {
   protected List<Listener> createCompanionListeners() {
     List<Listener> listeners = new ArrayList<>(3);
     listeners.add(new GolemGuardListener(platform::player, this::handle));
+    listeners.add(new GolemEquipmentListener(this::handle));
+    if (PaperCompat.hasClass("io.papermc.paper.event.entity.EntityEquipmentChangedEvent")) {
+      listeners.add(new GolemEquipmentListener.PaperChanges(this::handle));
+    }
     if (PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
       listeners.add(new PaperEntityListener(this));
     }
@@ -641,7 +678,8 @@ public final class GolemRegistry extends TickedObject {
   static Set<UUID> upkept(GolemRoster roster) {
     Set<UUID> bones = new HashSet<>();
     for (GolemRoster.GolemEntry entry : roster.golems()) {
-      if (entry.body() == GolemBody.BONE && (entry.status() == GolemRoster.Status.ACTIVE || entry.status() == GolemRoster.Status.MISSING)) {
+      if (entry.body() == GolemBody.BONE && (entry.status() == GolemRoster.Status.ACTIVE || entry.status() == GolemRoster.Status.MISSING
+          || entry.status() == GolemRoster.Status.PACKED)) {
         bones.add(entry.id());
       }
     }
@@ -802,12 +840,33 @@ public final class GolemRegistry extends TickedObject {
     UUID owner = handle.owner();
     Optional<GolemRoster> roster = ownerOnline ? platform.roster(owner) : Optional.empty();
     Optional<GolemRoster.GolemEntry> entry = roster.flatMap(known -> known.golem(handle.id()));
+    if (handle.body() == GolemBody.BONE && ownerOnline && !platform.ownerReady(owner)) {
+      pendingOwners.add(owner);
+      handle.setValidated(false);
+      applyDormancy(handle, DormancyReason.OWNER_UNKNOWN);
+      return;
+    }
+    if (handle.body() == GolemBody.BONE && entry.isPresent() && !entry.get().revoked()
+        && platform.ownerReady(owner) && !platform.keepsBoneGolems(owner)) {
+      revokeBones(owner);
+      return;
+    }
+    if (entry.isPresent() && entry.get().revoked()) {
+      boolean claimed = !isDuplicate(handle) && roster.get().claimRevokedBody(handle.id(), handle.state().sighting());
+      if (claimed) {
+        platform.rosterChanged(owner);
+        releaseContents(handle, true);
+      } else {
+        invalidate(handle);
+      }
+      return;
+    }
     GolemRoster.Status status = entry.map(GolemRoster.GolemEntry::status).orElse(null);
     boolean stale = entry.isPresent() && entry.get().outdates(handle.state().sighting());
     GolemValidation.Verdict verdict = GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status, stale);
     switch (verdict) {
       case REVERT -> {
-        revert(handle);
+        invalidate(handle);
         if (stale) {
           expectMissing(owner, entry.get(), platform.nowMillis());
         }
@@ -824,7 +883,8 @@ public final class GolemRegistry extends TickedObject {
         }
       }
     }
-    boolean offlineGuard = GolemDormancy.offlineGuard(settings.get().guardWhileOwnerOffline(), handle.core());
+    boolean offlineGuard = GolemDormancy.offlineGuard(settings.get().guardWhileOwnerOffline(), handle.core())
+        && (handle.body() != GolemBody.BONE || handle.isValidated());
     applyDormancy(handle, GolemDormancy.reason(ownerOnline, roster.isPresent(), offlineGuard, () -> claimAwake(handle)));
   }
 
@@ -918,7 +978,7 @@ public final class GolemRegistry extends TickedObject {
       other.setValidated(false);
       outdated = other;
     }
-    runOwned(outdated, () -> revert(outdated));
+    runOwned(outdated, () -> invalidate(outdated));
     return false;
   }
 
@@ -958,6 +1018,83 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
+  private void dissolveCarried(Player player) {
+    PlayerInventory inventory = player.getInventory();
+    if (inventory == null) {
+      return;
+    }
+    boolean changed = false;
+    for (int slot = 0; slot < inventory.getSize(); slot++) {
+      ItemStack item = inventory.getItem(slot);
+      Optional<PackedGolem> packed = GolemItems.packedGolemOf(item);
+      if (packed.isPresent() && packed.get().owner().equals(player.getUniqueId())
+          && dissolveRevoked(packed.get(), player.getLocation())) {
+        inventory.setItem(slot, null);
+        changed = true;
+      }
+    }
+    if (changed) {
+      player.saveData();
+    }
+  }
+
+  private Optional<ItemStack> decodeDrop(UUID id, String encoded) {
+    if (encoded == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.ofNullable(platform.decodeItem(encoded));
+    } catch (RuntimeException corrupt) {
+      Adapt.warn("Golem " + id + " contains an unreadable item; it could not be returned.", corrupt);
+      return Optional.empty();
+    }
+  }
+
+  private void releaseContents(GolemHandle handle, boolean dropEquipment) {
+    Mob golem = handle.entity();
+    GolemState state = handle.state();
+    List<ItemStack> drops = new ArrayList<>(state.carriedItems());
+    for (GolemCoreType core : state.cores()) {
+      drops.add(GolemItems.core(core));
+    }
+    for (GolemRune rune : state.runes()) {
+      drops.add(GolemItems.rune(rune));
+    }
+    if (state.masterwork()) {
+      drops.add(GolemItems.masterworkHeart());
+    }
+    Optional<ItemStack> tool = heldTool(handle);
+    List<ItemStack> worn = handle.equipmentItems();
+    int essence = state.essencePoints();
+    Location at = golem.getLocation();
+    revert(handle);
+    forgetRosterEntry(handle);
+    if (handle.body() == GolemBody.BONE) {
+      platform.crumble(golem);
+    }
+    World world = golem.getWorld();
+    for (ItemStack drop : drops) {
+      world.dropItemNaturally(at, drop);
+    }
+    for (ItemStack item : worn) {
+      if (dropEquipment) {
+        world.dropItemNaturally(at, item);
+      } else {
+        platform.returnToOwner(handle.owner(), at, item);
+      }
+    }
+    tool.ifPresent(item -> {
+      if (dropEquipment) {
+        world.dropItemNaturally(at, item);
+      } else {
+        platform.returnToOwner(handle.owner(), at, item);
+      }
+    });
+    if (essence > 0) {
+      returnEssence(golem, world, at, essence, platform.player(handle.owner()));
+    }
+  }
+
   private Optional<ItemStack> heldTool(GolemHandle handle) {
     String held = handle.state().held();
     if (held == null) {
@@ -990,6 +1127,14 @@ public final class GolemRegistry extends TickedObject {
     StackExclusion.include(golem);
     golem.setAware(true);
     golem.setInvulnerable(false);
+  }
+
+  private void invalidate(GolemHandle handle) {
+    revert(handle);
+    if (handle.body() == GolemBody.BONE) {
+      GolemEquipmentSlot.strip(handle.entity());
+      platform.crumble(handle.entity());
+    }
   }
 
   private void die(GolemHandle handle, EntityDeathEvent e) {
@@ -1142,6 +1287,20 @@ public final class GolemRegistry extends TickedObject {
     StackExclusion.exclude(golem);
     golem.setPersistent(true);
     golem.setRemoveWhenFarAway(false);
+    if (state.body() == GolemBody.BONE) {
+      GolemEquipmentSlot.strip(golem);
+      golem.setCanPickupItems(false);
+      if (golem instanceof AbstractSkeleton skeleton) {
+        PaperCompat.setShouldBurnInDay(skeleton, false);
+      }
+      EntityEquipment equipment = golem.getEquipment();
+      if (equipment != null) {
+        for (Map.Entry<GolemEquipmentSlot, String> entry : state.equipment().entrySet()) {
+          equipment.setItem(entry.getKey().slot(), platform.decodeItem(entry.getValue()));
+          equipment.setDropChance(entry.getKey().slot(), 0F);
+        }
+      }
+    }
     display(golem, name);
     AttributeInstance scale = platform.scaleOf(golem);
     if (scale != null) {
@@ -1205,11 +1364,14 @@ public final class GolemRegistry extends TickedObject {
 
   private void joinOwner(UUID owner) {
     Optional<GolemRoster> roster = platform.roster(owner);
-    if (roster.isEmpty()) {
+    if (roster.isEmpty() || !platform.ownerReady(owner)) {
       pendingOwners.add(owner);
       return;
     }
     pendingOwners.remove(owner);
+    if (!platform.keepsBoneGolems(owner)) {
+      revokeBones(owner);
+    }
     platform.upkeep(owner, upkept(roster.get()));
     for (GolemHandle handle : loadedOf(owner)) {
       runOwned(handle, () -> evaluate(handle, true));
@@ -1353,7 +1515,7 @@ public final class GolemRegistry extends TickedObject {
       return Optional.empty();
     }
     return platform.roster(handle.owner())
-        .filter(roster -> roster.golem(handle.id()).map(GolemRoster.GolemEntry::status).orElse(null) == GolemRoster.Status.ACTIVE);
+        .filter(roster -> roster.golem(handle.id()).filter(entry -> !entry.revoked() && entry.status() == GolemRoster.Status.ACTIVE).isPresent());
   }
 
   private void rememberPosition(GolemHandle handle, boolean expectReturn) {

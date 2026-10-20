@@ -56,11 +56,23 @@ public final class GolemRoster {
   }
 
   public List<GolemEntry> golems() {
-    return List.copyOf(golemMap().values());
+    List<GolemEntry> visible = new ArrayList<>();
+    for (GolemEntry entry : golemMap().values()) {
+      if (!entry.revoked()) {
+        visible.add(entry);
+      }
+    }
+    return List.copyOf(visible);
   }
 
   public int golemCount() {
-    return golemMap().size();
+    int count = 0;
+    for (GolemEntry entry : golemMap().values()) {
+      if (!entry.revoked()) {
+        count++;
+      }
+    }
+    return count;
   }
 
   public List<GolemEntry> matching(String idStart) {
@@ -70,7 +82,7 @@ public final class GolemRoster {
     String prefix = idStart.trim().toLowerCase(Locale.ROOT);
     List<GolemEntry> matches = new ArrayList<>(1);
     for (Map.Entry<String, GolemEntry> entry : golemMap().entrySet()) {
-      if (entry.getKey().startsWith(prefix)) {
+      if (!entry.getValue().revoked() && entry.getKey().startsWith(prefix)) {
         matches.add(entry.getValue());
       }
     }
@@ -83,7 +95,7 @@ public final class GolemRoster {
     }
     AtomicBoolean changed = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      if (entry.status() != from) {
+      if (entry.revoked() || entry.status() != from) {
         return entry;
       }
       changed.set(true);
@@ -99,7 +111,7 @@ public final class GolemRoster {
     String sealed = digest(itemState);
     AtomicBoolean changed = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      if (entry.status() != Status.ACTIVE) {
+      if (entry.revoked() || entry.status() != Status.ACTIVE) {
         return entry;
       }
       changed.set(true);
@@ -115,7 +127,7 @@ public final class GolemRoster {
     String sealed = digest(itemState);
     AtomicBoolean changed = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      if (entry.status() != from || !sealed.equals(entry.digest)) {
+      if (entry.revoked() || entry.status() != from || !sealed.equals(entry.digest)) {
         return entry;
       }
       changed.set(true);
@@ -126,7 +138,7 @@ public final class GolemRoster {
 
   public synchronized MasterworkMark markMasterworkWithin(UUID id, int maxMasterworks) {
     GolemEntry entry = id == null ? null : golemMap().get(id.toString());
-    if (entry == null || entry.status() != Status.ACTIVE || entry.masterwork) {
+    if (entry == null || entry.revoked() || entry.status() != Status.ACTIVE || entry.masterwork) {
       return MasterworkMark.UNAVAILABLE;
     }
     if (masterworkCount() >= maxMasterworks) {
@@ -141,7 +153,7 @@ public final class GolemRoster {
     }
     AtomicBoolean changed = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      if (entry.status() != Status.ACTIVE || entry.masterwork == masterwork) {
+      if (entry.revoked() || entry.status() != Status.ACTIVE || entry.masterwork == masterwork) {
         return entry;
       }
       changed.set(true);
@@ -153,7 +165,7 @@ public final class GolemRoster {
   public int masterworkCount() {
     int count = 0;
     for (GolemEntry entry : golemMap().values()) {
-      if (entry.masterwork) {
+      if (!entry.revoked() && entry.masterwork) {
         count++;
       }
     }
@@ -167,7 +179,7 @@ public final class GolemRoster {
     AtomicBoolean changed = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
       Status status = entry.status();
-      if (status != Status.ACTIVE && status != Status.MISSING) {
+      if (entry.revoked() || status != Status.ACTIVE && status != Status.MISSING) {
         return entry;
       }
       changed.set(true);
@@ -183,7 +195,7 @@ public final class GolemRoster {
     AtomicBoolean raised = new AtomicBoolean();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
       Status status = entry.status();
-      if ((status != Status.ACTIVE && status != Status.MISSING) || token <= entry.sighting) {
+      if (entry.revoked() || (status != Status.ACTIVE && status != Status.MISSING) || token <= entry.sighting) {
         return entry;
       }
       raised.set(true);
@@ -209,6 +221,46 @@ public final class GolemRoster {
       return null;
     });
     return removed.get();
+  }
+
+  public boolean revokeBones() {
+    AtomicBoolean changed = new AtomicBoolean();
+    for (String id : List.copyOf(golemMap().keySet())) {
+      golemMap().computeIfPresent(id, (key, entry) -> {
+        if (entry.body() != GolemBody.BONE || entry.revoked()) {
+          return entry;
+        }
+        changed.set(true);
+        GolemEntry copy = entry.copy();
+        copy.revoked = true;
+        return copy;
+      });
+    }
+    return changed.get();
+  }
+
+  public boolean claimRevokedBody(UUID id, long sighting) {
+    AtomicBoolean claimed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (!entry.revoked() || entry.digest != null || entry.outdates(sighting)) {
+        return entry;
+      }
+      claimed.set(true);
+      return null;
+    });
+    return claimed.get();
+  }
+
+  public boolean claimRevokedItem(UUID id, String state) {
+    AtomicBoolean claimed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (!entry.revoked() || !entry.holds(state)) {
+        return entry;
+      }
+      claimed.set(true);
+      return null;
+    });
+    return claimed.get();
   }
 
   public boolean addNode(NodeEntry node) {
@@ -349,6 +401,7 @@ public final class GolemRoster {
     private String digest;
     private boolean masterwork;
     private long sighting;
+    private boolean revoked;
 
     private GolemEntry() {
     }
@@ -410,6 +463,10 @@ public final class GolemRoster {
       return sighting;
     }
 
+    public boolean revoked() {
+      return revoked;
+    }
+
     public boolean outdates(long token) {
       return token < sighting;
     }
@@ -465,6 +522,7 @@ public final class GolemRoster {
       copy.digest = digest;
       copy.masterwork = masterwork;
       copy.sighting = sighting;
+      copy.revoked = revoked;
       return copy;
     }
   }

@@ -248,7 +248,7 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 0, false)).isEqualTo(Material.COPPER_BLOCK);
     assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 2, true)).isEqualTo(Material.WAXED_WEATHERED_COPPER);
     assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 9, false)).isEqualTo(Material.OXIDIZED_COPPER);
-    assertThatThrownBy(() -> GolemItems.dormantBlock(GolemBody.BONE, 0, false)).isInstanceOf(IllegalArgumentException.class);
+    assertThat(GolemItems.dormantBlock(GolemBody.BONE, 0, false)).isEqualTo(Material.BONE_BLOCK);
   }
 
   @Test

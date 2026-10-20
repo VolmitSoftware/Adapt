@@ -308,6 +308,7 @@
     "expect": {"sound": "minecraft:entity.zombie.infect", "particle": "spore_blossom_air"}, "maxTicks": 250
   },
   "tragoul-skeletal-servant": {
+    "povCapture": true,
     "set": "sparring", "level": 5,
     "camera": {"x": 6.5, "y": 6.0, "z": 5.5, "yaw": 137, "pitch": 25},
     "pre": [
@@ -322,14 +323,16 @@
       {"verb": "wait", "ticks": 4},
       {"verb": "click", "key": "use"},
       {"verb": "wait", "ticks": 30},
-      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5], "ticks": 8},
       {"verb": "keys", "hold": ["forward"], "ticks": 6},
-      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5], "ticks": 8},
       {"verb": "wait", "ticks": 4},
       {"verb": "click", "key": "attack"},
-      {"verb": "wait", "ticks": 120}
+      {"verb": "wait", "ticks": 120},
+      {"verb": "command", "text": "adapt clear adaptations player={actor}"},
+      {"verb": "wait", "ticks": 40}
     ],
-    "expect": {"sound": "minecraft:block.bone_block.place", "particle": "soul"}, "maxTicks": 300
+    "expect": {"sound": "minecraft:block.bone_block.place", "particle": "soul"}, "maxTicks": 460
   },
   "tragoul-soul-siphon": {
     "set": "sparring", "level": 5,

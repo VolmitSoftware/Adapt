@@ -30,6 +30,8 @@ interface GolemPlatform {
 
   boolean ownerReady(UUID owner);
 
+  boolean keepsBoneGolems(UUID owner);
+
   void rosterChanged(UUID owner);
 
   boolean owns(Entity entity);

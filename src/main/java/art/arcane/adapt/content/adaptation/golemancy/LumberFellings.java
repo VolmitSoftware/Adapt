@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,8 @@ import java.util.function.Predicate;
 
 final class LumberFellings {
   static final long STALE_MILLIS = 60_000L;
+  static final long REPLANT_RETRY_MILLIS = 5_000L;
+  static final long REPLANT_LIFETIME_MILLIS = 300_000L;
 
   private final Map<Key, Felling> fellings = new ConcurrentHashMap<>();
 
@@ -37,7 +40,18 @@ final class LumberFellings {
   }
 
   void sweep(long nowMillis) {
-    fellings.values().removeIf(felling -> nowMillis - felling.touchedAt() >= STALE_MILLIS);
+    fellings.values().removeIf(felling -> felling.expired(nowMillis) || nowMillis - felling.touchedAt() >= STALE_MILLIS);
+  }
+
+  List<Felling> replants(UUID world, Predicate<LumberTrees.Part> base, long nowMillis) {
+    List<Felling> ready = new ArrayList<>();
+    for (Map.Entry<Key, Felling> entry : fellings.entrySet()) {
+      Felling felling = entry.getValue();
+      if (entry.getKey().world().equals(world) && felling.replantReady(nowMillis) && base.test(felling.tree().base())) {
+        ready.add(felling);
+      }
+    }
+    return ready;
   }
 
   boolean pending() {
@@ -55,6 +69,8 @@ final class LumberFellings {
     private volatile long settleUntil;
     private volatile List<LumberTrees.Part> leaves;
     private volatile int swept;
+    private volatile long replantUntil;
+    private volatile long replantAt;
 
     private Felling(LumberTrees.Tree tree, long nowMillis) {
       this.tree = tree;
@@ -105,6 +121,25 @@ final class LumberFellings {
 
     boolean sweptAll() {
       return swept >= leaves().size();
+    }
+
+    boolean replanting() {
+      return replantUntil > 0L;
+    }
+
+    void retryReplant(long nowMillis) {
+      if (!replanting()) {
+        replantUntil = nowMillis + REPLANT_LIFETIME_MILLIS;
+      }
+      replantAt = nowMillis + REPLANT_RETRY_MILLIS;
+    }
+
+    boolean replantReady(long nowMillis) {
+      return replanting() && nowMillis >= replantAt && !expired(nowMillis);
+    }
+
+    boolean expired(long nowMillis) {
+      return replanting() && nowMillis >= replantUntil;
     }
 
     void touch(long nowMillis) {

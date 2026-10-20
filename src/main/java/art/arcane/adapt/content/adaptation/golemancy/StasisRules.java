@@ -35,10 +35,6 @@ final class StasisRules {
     return clamped;
   }
 
-  static boolean packable(GolemBody body) {
-    return body != GolemBody.BONE;
-  }
-
   static double packedHealth(double stored, double maximum, long takenAtMillis, long nowMillis, int intervalSeconds, double amount) {
     double base = Double.isFinite(stored) && stored > 0D ? stored : maximum;
     long intervals = Math.max(0L, nowMillis - takenAtMillis) / (Math.max(1, intervalSeconds) * MILLIS_PER_SECOND);

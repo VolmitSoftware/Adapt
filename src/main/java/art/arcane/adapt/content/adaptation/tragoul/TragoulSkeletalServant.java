@@ -206,6 +206,15 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   @Override
+  public void onLevelChanged(Player player, int level) {
+    if (level <= 0) {
+      UUID owner = player.getUniqueId();
+      dismissPack(owner);
+      GolemancyRuntime.registry().ifPresent(registry -> registry.revokeBones(owner));
+    }
+  }
+
+  @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     Player owner = player.getPlayer();
     UUID id = owner.getUniqueId();

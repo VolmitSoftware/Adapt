@@ -35,6 +35,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -501,6 +502,20 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(guard.isDormant()).isFalse();
     assertThat(follower.isDormant()).isTrue();
+  }
+
+  @Test
+  void offlineBoneGuardiansWaitForTheirOwnersServantOwnershipToBeValidated() {
+    settings.set(new GolemSettings(true, true, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 0.5D, 0.5D));
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+
+    registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+
+    assertThat(handle.isDormant()).isTrue();
+    assertThat(handle.isValidated()).isFalse();
+    assertThat(registry.activeCount()).isZero();
   }
 
   @Test
@@ -3216,14 +3231,148 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void aBoneGolemIsNeverPacked() {
-    onlineOwner();
+  void aBoneGolemPacksIntoBoneAndRetainsItsEquipmentAndHealthReservation() {
+    GolemRoster roster = onlineOwner();
     Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.BLANK);
+    ItemStack helmet = GolemTestItems.stack(Material.IRON_HELMET, 1);
+    ItemStack sword = GolemTestItems.stack(Material.IRON_SWORD, 1);
+    handle.equip(GolemEquipmentSlot.HELMET, helmet);
+    handle.equip(GolemEquipmentSlot.MAIN_HAND, sword);
 
-    assertThat(registry.pack(handle)).isEmpty();
-    assertThat(GolemState.has(bone)).isTrue();
-    verify(bone, never()).remove();
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemSnapshot saved = GolemSnapshot.fromJson(packing.packed().state()).orElseThrow();
+
+    assertThat(saved.equipment()).containsAllEntriesOf(handle.state().equipment());
+    assertThat(saved.homeChest()).isNull();
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.PACKED);
+    assertThat(GolemRegistry.upkept(roster)).containsExactly(handle.id());
+    verify(bone).remove();
+    verify(bone).setShouldBurnInDay(false);
+    ArgumentCaptor<DormantGolem> dormant = ArgumentCaptor.forClass(DormantGolem.class);
+    items.verify(() -> GolemItems.dormantGolem(dormant.capture()));
+    assertThat(dormant.getValue().block()).isEqualTo(Material.BONE_BLOCK);
+
+    Skeleton awakened = skeleton(new AtomicReference<>(at(3, 64, 3)));
+    EntityEquipment gear = mock(EntityEquipment.class);
+    when(awakened.getEquipment()).thenReturn(gear);
+    platform.spawns.add(awakened);
+    GolemHandle restored = registry.awaken(owner, at(3, 64, 3),
+        new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), spawned -> {
+        }).orElseThrow();
+
+    assertThat(restored.state().equipment()).isEqualTo(saved.equipment());
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+    verify(awakened).setShouldBurnInDay(false);
+    verify(gear).setItem(eq(EquipmentSlot.HEAD), argThat(item -> item != null && item.getType() == Material.IRON_HELMET));
+    verify(gear).setItem(eq(EquipmentSlot.HAND), argThat(item -> item != null && item.getType() == Material.IRON_SWORD));
+  }
+
+  @Test
+  void revokingLivingBonesDropsTheirSuppliedLoadoutOnceAndFreesHealth() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    handle.equip(GolemEquipmentSlot.MAIN_HAND, GolemTestItems.stack(Material.IRON_SWORD, 1));
+    handle.state().setRunes(List.of(new GolemRune(GolemRuneType.MIGHT, 1)));
+
+    registry.revokeBones(OWNER);
+    registry.revokeBones(OWNER);
+
+    assertThat(handle.isRetired()).isTrue();
+    assertThat(roster.golem(handle.id())).isEmpty();
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+    assertThat(platform.crumbled).containsExactly(bone);
+    assertThat(platform.returned).isEmpty();
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+    verify(world).dropItemNaturally(any(Location.class), eq(runeItem));
+    verify(world).dropItemNaturally(any(Location.class), argThat(item -> item.getType() == Material.IRON_SWORD));
+    verify(world, times(3)).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void revokedUnloadedBonesStayRevokedAcrossRestartAndOnlyOneBodyReturnsTheirItems() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    handle.equip(GolemEquipmentSlot.OFF_HAND, GolemTestItems.stack(Material.SHIELD, 1));
+    registry.unload(handle);
+    GolemState saved = GolemState.read(bone).orElseThrow();
+
+    registry.revokeBones(OWNER);
+    GolemRoster restoredRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+    platform.rosters.put(OWNER, restoredRoster);
+    GolemRegistry restarted = new GolemRegistry(platform, settings::get, lifecycle);
+    restarted.adopt(bone);
+    Skeleton duplicate = skeleton(new AtomicReference<>(at(1, 64, 0)));
+    saved.write(duplicate);
+    restarted.adopt(duplicate);
+
+    assertThat(restoredRoster.golem(handle.id())).isEmpty();
+    assertThat(restoredRoster.golemCount()).isZero();
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+    assertThat(platform.crumbled).containsExactly(bone, duplicate);
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+    verify(world).dropItemNaturally(any(Location.class), argThat(item -> item.getType() == Material.SHIELD));
+    verify(world, times(2)).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void revokedPackedBonesReturnEquipmentOnlyOnceAndCannotAwakenAfterRelearning() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    handle.equip(GolemEquipmentSlot.HELMET, GolemTestItems.stack(Material.IRON_HELMET, 1));
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+
+    registry.revokeBones(OWNER);
+    GolemRoster restored = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+    platform.rosters.put(OWNER, restored);
+    assertThat(restored.golemCount()).isZero();
+    assertThat(GolemRegistry.upkept(restored)).isEmpty();
+    assertThat(registry.awaken(owner, at(3, 64, 3), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), spawned -> {
+    })).isEmpty();
+    assertThat(registry.dissolveRevoked(packing.packed(), at(0, 64, 0))).isTrue();
+    assertThat(registry.dissolveRevoked(packing.packed(), at(0, 64, 0))).isFalse();
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+    verify(world).dropItemNaturally(any(Location.class), argThat(item -> item.getType() == Material.IRON_HELMET));
+    verify(world, times(2)).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void revocationConsumesAPackedBoneInTheOwnersInventoryAndDropsItsLoadout() {
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    when(owner.getInventory()).thenReturn(inventory);
+    when(owner.getLocation()).thenReturn(at(4, 64, 4));
+    when(inventory.getSize()).thenReturn(1);
+    when(inventory.getItem(0)).thenReturn(dormantItem);
+    items.when(() -> GolemItems.packedGolemOf(dormantItem)).thenReturn(Optional.of(packing.packed()));
+    platform.players.put(OWNER, owner);
+
+    registry.revokeBones(OWNER);
+
+    verify(inventory).setItem(0, null);
+    verify(owner).saveData();
+    verify(world).dropItemNaturally(eq(at(4, 64, 4)), eq(coreItem));
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+  }
+
+  @Test
+  void joiningWithoutSkeletalServantRevokesAnExistingBone() {
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    platform.keepsBoneGolems = false;
+
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(handle.isRetired()).isTrue();
+    assertThat(platform.crumbled).containsExactly(bone);
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
   }
 
   private Skeleton skeleton(AtomicReference<Location> location) {

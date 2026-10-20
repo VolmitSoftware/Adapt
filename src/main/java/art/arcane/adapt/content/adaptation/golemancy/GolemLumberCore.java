@@ -144,7 +144,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     List<Integer> copperTreeCapByLevel = new ArrayList<>(List.of(24, 32, 48, 64, 96));
     @ConfigDoc(value = "Most logs a tree can have for an iron golem to fell it, by Lumber Core level from level 1 upward. Values below 1 count as 1.", impact = "Higher values let iron golems fell bigger trees.")
     List<Integer> ironTreeCapByLevel = new ArrayList<>(List.of(64, 96, 128, 192, 256));
-    @ConfigDoc(value = "Lumber Core level at which Lumber golems replant a sapling at the base of each tree they fell, taken from what they carry or from their linked home chest.", impact = "Lower values unlock replanting sooner.")
+    @ConfigDoc(value = "Lumber Core level that unlocks replanting from carried saplings, the home chest, or eligible matching drops around the felled tree. Empty stumps receive another attempt every five seconds for up to five minutes.", impact = "Lower values unlock replanting sooner.")
     int replantLevel = 2;
     @ConfigDoc(value = "Lumber Core level at which Lumber golems break the leaves a felled tree leaves behind once they start to decay, and collect their saplings, sticks and apples.", impact = "Lower values unlock Leaf Sweep sooner.")
     int leafSweepLevel = 3;

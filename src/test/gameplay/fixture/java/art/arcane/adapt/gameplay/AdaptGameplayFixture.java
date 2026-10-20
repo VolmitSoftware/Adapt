@@ -67,9 +67,9 @@ public final class AdaptGameplayFixture extends JavaPlugin {
     public void onEnable() {
         try {
             String source = Files.readString(Path.of(".server-source"));
-            if (!"Paper".equals(Bukkit.getName()) || Bukkit.getOnlineMode() || !"127.0.0.1".equals(Bukkit.getIp())
+            if ((!"Paper".equals(Bukkit.getName()) && !"Leaf".equals(Bukkit.getName())) || Bukkit.getOnlineMode() || !"127.0.0.1".equals(Bukkit.getIp())
                     || !source.lines().anyMatch("isolated=true"::equals)) {
-                throw new IllegalStateException("Fixture requires an isolated offline loopback Paper Multiplexor instance");
+                throw new IllegalStateException("Fixture requires an isolated offline loopback Paper or Leaf Multiplexor instance");
             }
             DemoSkin.install(this);
             RangedFixtures.install(this);
@@ -114,7 +114,11 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             return true;
         }
         try {
-            if (args.length >= 3 && args[0].equals("temporal")) {
+            if (args.length >= 3 && args[0].equals("golem-lifecycle")) {
+                sendJson(sender, "GOLEM_LIFECYCLE " + args[2], GolemLifecycleFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("lumber-replant")) {
+                sendJson(sender, "LUMBER_REPLANT " + args[2], LumberReplantFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("temporal")) {
                 sendJson(sender, "TEMPORAL " + args[2], TemporalAuditFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("sense")) {
                 sendJson(sender, "SENSE " + args[2], SenseAuditFixtures.execute(ordinaryPlayer(args[1]), args));

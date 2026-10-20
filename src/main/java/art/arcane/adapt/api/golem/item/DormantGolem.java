@@ -11,7 +11,7 @@ public record DormantGolem(PackedGolem packed, Material block, List<GolemCoreTyp
   public DormantGolem {
     Objects.requireNonNull(packed);
     if (!GolemItems.isDormantBlock(block)) {
-      throw new IllegalArgumentException("Dormant golem block must be snow, copper or iron, found " + block);
+      throw new IllegalArgumentException("Dormant golem block must be snow, copper, iron or bone, found " + block);
     }
     cores = List.copyOf(cores);
     runes = List.copyOf(runes);

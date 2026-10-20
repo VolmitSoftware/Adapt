@@ -27,6 +27,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notification;
@@ -34,6 +35,7 @@ import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.preference.PlayerPreferenceData;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
@@ -56,6 +58,7 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -730,15 +733,13 @@ public class PlayerData {
       line.setLastXpTimestamp(0);
       line.setSkillStaleness(new PlayerSkillLine.RewardStalenessState());
       line.getActivityStaleness().clear();
-      line.getAdaptations().clear();
     }
     masterXp = 1;
     lastMasterXp = 0;
     inspiredSkill = "";
     inspiredAssignedAt = 0;
     inspiredPopupPending = false;
-    regionGrantedCount = 0;
-    refreshLearnedIndex();
+    clearAdaptations();
   }
 
   public void clearKnowledge() {
@@ -748,11 +749,41 @@ public class PlayerData {
   }
 
   public void clearAdaptations() {
+    AdaptPlayer owner = runtimeOwner;
+    List<Adaptation<?>> learned = learnedAdaptations(owner);
     for (PlayerSkillLine line : skillLines.values()) {
       line.getAdaptations().clear();
     }
     regionGrantedCount = 0;
     refreshLearnedIndex();
+    Player player = owner == null ? null : owner.getPlayer();
+    if (player == null) {
+      return;
+    }
+    for (Adaptation<?> adaptation : learned) {
+      AdaptAttributeService.get().removeAll(player, adaptation.getName());
+      adaptation.onLevelChanged(player, 0);
+    }
+  }
+
+  private List<Adaptation<?>> learnedAdaptations(AdaptPlayer owner) {
+    if (owner == null || owner.getServer() == null) {
+      return List.of();
+    }
+    SkillRegistry registry = owner.getServer().getSkillRegistry();
+    List<Adaptation<?>> learned = new ArrayList<>();
+    for (Map.Entry<String, PlayerSkillLine> entry : skillLines.entrySet()) {
+      Skill<?> skill = registry.getSkill(entry.getKey());
+      if (skill == null) {
+        continue;
+      }
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (entry.getValue().getAdaptationLevel(adaptation.getName()) > 0) {
+          learned.add(adaptation);
+        }
+      }
+    }
+    return learned;
   }
 
   public void clearStats() {

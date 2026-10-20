@@ -63,6 +63,16 @@ final class LumberNodeBehavior implements NodeBehavior {
     fellings.keep(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now);
     Map<Long, GolemTask> open = GolemancySupport.open(node);
     TreeView view = actions.view(node.world(), node::owns);
+    for (LumberFellings.Felling felling : fellings.replants(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now)) {
+      if (!budget.hasTaskRoom()) {
+        break;
+      }
+      LumberTrees.Part base = felling.tree().base();
+      if (view.owned(base.x(), base.y(), base.z())) {
+        Block block = node.world().getBlockAt(base.x(), base.y(), base.z());
+        keepOrDrop(node, block, plan, felling, open.get(NodeContainers.blockKey(base.x(), base.y(), base.z())), budget);
+      }
+    }
     for (int index = budget.start(); index < budget.end(); index++) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
@@ -75,7 +85,9 @@ final class LumberNodeBehavior implements NodeBehavior {
       GolemTask existing = open.isEmpty() ? null : open.get(NodeContainers.blockKey(x, y, z));
       Optional<LumberFellings.Felling> felling = fellings.get(world, x, y, z);
       if (felling.isPresent()) {
-        keepOrDrop(node, block, plan, felling.get(), existing, budget);
+        if (!felling.get().replanting()) {
+          keepOrDrop(node, block, plan, felling.get(), existing, budget);
+        }
         continue;
       }
       if (!LumberTrees.candidate(view, x, y, z, plan.nether())) {
@@ -123,6 +135,9 @@ final class LumberNodeBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     felling.touch(golem.nowMillis());
+    if (felling.replanting()) {
+      return complete(golem, view, felling, plan, world);
+    }
     if (golem.actIndex() == 0) {
       return GolemActResult.WORKING;
     }
@@ -177,8 +192,10 @@ final class LumberNodeBehavior implements NodeBehavior {
   }
 
   private GolemActResult complete(GolemContext golem, TreeView view, LumberFellings.Felling felling, LumberRules.Plan plan, UUID world) {
-    if (plan.replant()) {
-      actions.replant(golem, view, felling.tree());
+    if (plan.replant() && !felling.expired(golem.nowMillis()) && !actions.replant(golem, view, felling.tree())) {
+      boolean retry = felling.replanting();
+      felling.retryReplant(golem.nowMillis());
+      return retry ? GolemActResult.FAILED : GolemActResult.DONE;
     }
     fellings.finish(world, felling);
     return GolemActResult.DONE;

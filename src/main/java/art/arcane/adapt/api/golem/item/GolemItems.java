@@ -164,12 +164,13 @@ public final class GolemItems {
       case FROST -> Material.SNOW_BLOCK;
       case COPPER -> copperBlock(Math.max(0, Math.min(COPPER_BLOCKS.size() - 1, copperStage)), waxed);
       case IRON -> Material.IRON_BLOCK;
-      case BONE -> throw new IllegalArgumentException("Bone golems have no Dormant Golem block");
+      case BONE -> Material.BONE_BLOCK;
     };
   }
 
   public static boolean isDormantBlock(Material material) {
     return material == Material.SNOW_BLOCK
+        || material == Material.BONE_BLOCK
         || material == Material.IRON_BLOCK
         || COPPER_BLOCKS.contains(material)
         || WAXED_COPPER_BLOCKS.contains(material);

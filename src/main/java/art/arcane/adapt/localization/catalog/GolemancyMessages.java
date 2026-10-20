@@ -304,7 +304,6 @@ public final class GolemancyMessages {
   public static final TextKey STASIS_INTERRUPTED = TextKey.of("golemancy.stasis.interrupted", "Packing was interrupted");
   public static final TextKey STASIS_BUSY = TextKey.of("golemancy.stasis.busy", "You are already packing a golem");
   public static final TextKey STASIS_PACK_FAILED = TextKey.of("golemancy.stasis.pack_failed", "This golem can't be packed right now");
-  public static final TextKey STASIS_BONE = TextKey.of("golemancy.stasis.bone", "Bone golems can't be packed into a Dormant Golem");
   public static final TextKey STASIS_AWAKENED = TextKey.of("golemancy.stasis.awakened", "Your {body} golem awakens");
   public static final TextKey STASIS_VOID = TextKey.of("golemancy.stasis.void", "This Dormant Golem crumbles: it no longer holds its golem");
   public static final TextKey STASIS_NOT_OWNER = TextKey.of("golemancy.stasis.not_owner", "This Dormant Golem belongs to another player");
@@ -1043,7 +1042,6 @@ public final class GolemancyMessages {
     builder.add(STASIS_INTERRUPTED);
     builder.add(STASIS_BUSY);
     builder.add(STASIS_PACK_FAILED);
-    builder.add(STASIS_BONE);
     builder.add(STASIS_AWAKENED);
     builder.add(STASIS_VOID);
     builder.add(STASIS_NOT_OWNER);

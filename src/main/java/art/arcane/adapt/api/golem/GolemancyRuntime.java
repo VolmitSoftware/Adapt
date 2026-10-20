@@ -22,6 +22,7 @@ import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -388,6 +389,13 @@ public final class GolemancyRuntime {
     public boolean ownerReady(UUID owner) {
       AdaptPlayer player = onlinePlayer(owner);
       return player != null && player.isRuntimeReady();
+    }
+
+    @Override
+    public boolean keepsBoneGolems(UUID owner) {
+      AdaptPlayer player = onlinePlayer(owner);
+      PlayerSkillLine tragoul = player == null ? null : player.getData().getSkillLineNullable("tragoul");
+      return tragoul != null && tragoul.getAdaptationLevel("tragoul-skeletal-servant") > 0;
     }
 
     @Override

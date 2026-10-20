@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +37,7 @@ class GolemHandleEquipmentTest extends AdaptTestBase {
   private Skeleton skeleton;
   private EntityEquipment worn;
   private GolemHandle bone;
+  private Map<EquipmentSlot, ItemStack> visible;
 
   @BeforeEach
   void setUp() {
@@ -41,6 +45,12 @@ class GolemHandleEquipmentTest extends AdaptTestBase {
     platform.join(OWNER, new GolemRoster());
     skeleton = entity(Skeleton.class);
     worn = mock(EntityEquipment.class);
+    visible = new EnumMap<>(EquipmentSlot.class);
+    lenient().doAnswer(invocation -> {
+      visible.put(invocation.getArgument(0), invocation.getArgument(1));
+      return null;
+    }).when(worn).setItem(any(EquipmentSlot.class), any());
+    lenient().when(worn.getItem(any(EquipmentSlot.class))).thenAnswer(invocation -> visible.get(invocation.<EquipmentSlot>getArgument(0)));
     lenient().when(skeleton.getEquipment()).thenReturn(worn);
     bone = new GolemHandle(skeleton, state(GolemBody.BONE), platform);
   }
@@ -191,6 +201,66 @@ class GolemHandleEquipmentTest extends AdaptTestBase {
     List<ItemStack> items = bone.equipmentItems();
 
     assertThat(items).extracting(ItemStack::getType).containsExactly(Material.IRON_HELMET, Material.SHIELD);
+  }
+
+  @Test
+  void nativeDurabilityDamageIsSavedBeforeTheEquippedItemCanBeTakenBack() {
+    bone.equip(GolemEquipmentSlot.MAIN_HAND, GolemTestItems.tool(Material.IRON_SWORD, 20, 250));
+    doAnswer(invocation -> {
+      visible.put(EquipmentSlot.HAND, GolemTestItems.tool(Material.IRON_SWORD, 21, 250));
+      return null;
+    }).when(skeleton).damageItemStack(EquipmentSlot.HAND, 1);
+
+    bone.damageEquipment(GolemEquipmentSlot.MAIN_HAND, 1);
+
+    String encoded = bone.state().equipment().get(GolemEquipmentSlot.MAIN_HAND);
+    assertThat(GolemState.read(skeleton).orElseThrow().equipment()).containsEntry(GolemEquipmentSlot.MAIN_HAND, encoded);
+    assertThat(bone.unequip(GolemEquipmentSlot.MAIN_HAND, encoded)).hasValueSatisfying(item -> assertThat(GolemTestItems.damage(item)).isEqualTo(21));
+  }
+
+  @Test
+  void aBrokenItemIsRemovedFromStoredEquipmentAndCannotBeReturned() {
+    bone.equip(GolemEquipmentSlot.HELMET, GolemTestItems.tool(Material.IRON_HELMET, 164, 165));
+    String encoded = bone.state().equipment().get(GolemEquipmentSlot.HELMET);
+    doAnswer(invocation -> {
+      visible.remove(EquipmentSlot.HEAD);
+      return null;
+    }).when(skeleton).damageItemStack(EquipmentSlot.HEAD, 1);
+
+    bone.damageEquipment(GolemEquipmentSlot.HELMET, 1);
+
+    assertThat(bone.state().equipment()).isEmpty();
+    assertThat(GolemState.read(skeleton).orElseThrow().equipment()).isEmpty();
+    assertThat(bone.unequip(GolemEquipmentSlot.HELMET, encoded)).isEmpty();
+  }
+
+  @Test
+  void aBoneWorkerUsesItsEquippedRodWithoutReplacingItWithAVirtualTool() {
+    bone.equip(GolemEquipmentSlot.MAIN_HAND, GolemTestItems.tool(Material.FISHING_ROD, 12, 64));
+    GolemHeldTool tool = new GolemHeldTool(bone);
+
+    assertThat(tool.item()).hasValueSatisfying(item -> assertThat(GolemTestItems.damage(item)).isEqualTo(12));
+    assertThat(tool.hold(GolemTestItems.stack(Material.DIAMOND_PICKAXE, 1))).isFalse();
+    tool.sync();
+    tool.wear(() -> 0D);
+
+    verify(skeleton).damageItemStack(EquipmentSlot.HAND, 1);
+    assertThat(bone.state().held()).isNull();
+    assertThat(bone.equipped(GolemEquipmentSlot.MAIN_HAND)).hasValueSatisfying(item -> assertThat(item.getType()).isEqualTo(Material.FISHING_ROD));
+    verify(worn, never()).setItemInMainHand(any());
+  }
+
+  @Test
+  void nativeWearAndBreakageUpdatesOnlySlotsWithSuppliedEquipment() {
+    bone.equip(GolemEquipmentSlot.BOOTS, GolemTestItems.tool(Material.IRON_BOOTS, 5, 195));
+
+    bone.equipmentChanged(GolemEquipmentSlot.BOOTS, GolemTestItems.tool(Material.IRON_BOOTS, 7, 195));
+    bone.equipmentChanged(GolemEquipmentSlot.HELMET, GolemTestItems.stack(Material.DIAMOND_HELMET, 1));
+
+    assertThat(bone.equipped(GolemEquipmentSlot.BOOTS)).hasValueSatisfying(item -> assertThat(GolemTestItems.damage(item)).isEqualTo(7));
+    assertThat(bone.state().equipment()).containsOnlyKeys(GolemEquipmentSlot.BOOTS);
+    bone.equipmentChanged(GolemEquipmentSlot.BOOTS, GolemTestItems.stack(Material.AIR, 0));
+    assertThat(bone.state().equipment()).isEmpty();
   }
 
   private <T extends Mob> T entity(Class<T> type) {

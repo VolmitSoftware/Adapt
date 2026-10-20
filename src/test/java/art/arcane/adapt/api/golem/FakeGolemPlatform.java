@@ -69,6 +69,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   boolean refuseRetiring;
   boolean refuseRegions;
   boolean ownsLocations = true;
+  boolean keepsBoneGolems = true;
   int fullSignals;
   Adaptation<?> bindingPolicy;
   GolemNameMode nameMode = GolemNameMode.VANILLA;
@@ -158,6 +159,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public boolean ownerReady(UUID owner) {
     return online.contains(owner) && rosters.containsKey(owner);
+  }
+
+  @Override
+  public boolean keepsBoneGolems(UUID owner) {
+    return keepsBoneGolems;
   }
 
   @Override

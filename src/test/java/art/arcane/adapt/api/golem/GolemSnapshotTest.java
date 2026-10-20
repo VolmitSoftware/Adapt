@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +76,20 @@ class GolemSnapshotTest {
     assertThat(back).isEqualTo(snapshot);
   }
 
+  @Test
+  void boneEquipmentSurvivesPackingAndRestoringButNotShattering() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.BONE, GolemCoreType.GUARDIAN,
+        GolemState.Anchor.of(WORLD, 0, 64, 0)));
+    state.setEquipment(GolemEquipmentSlot.MAIN_HAND, "worn-sword");
+    state.setEquipment(GolemEquipmentSlot.CHESTPLATE, "worn-chestplate");
+    GolemSnapshot snapshot = GolemSnapshot.fromJson(GolemSnapshot.capture(state,
+        new GolemSnapshot.Traits(null, 10D, 0, false, true), TAKEN_AT).toJson()).orElseThrow();
+
+    assertThat(snapshot.equipment()).isEqualTo(Map.of(GolemEquipmentSlot.MAIN_HAND, "worn-sword",
+        GolemEquipmentSlot.CHESTPLATE, "worn-chestplate"));
+    assertThat(GolemState.restored(snapshot, state.home(), 0L).equipment()).isEqualTo(state.equipment());
+    assertThat(snapshot.withoutCargo().equipment()).isEmpty();
+  }
   @Test
   void aSnapshotWithoutAHomeChestOrNameRoundTrips() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
@@ -275,14 +290,14 @@ class GolemSnapshotTest {
     GolemSnapshot base = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
     return new GolemSnapshot(base.id(), base.owner(), base.body(), cores, base.runes(), base.channels(), base.mode(), base.home(),
         base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.combatOff(), base.essence(), base.carried(), base.held(),
-        base.health(),
+        base.equipment(), base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
   private static GolemSnapshot copy(GolemSnapshot base, String customName, GolemState.Anchor home, double essence) {
     return new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(), home,
         base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), base.combatOff(), essence, base.carried(), base.held(),
-        base.health(),
+        base.equipment(), base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 

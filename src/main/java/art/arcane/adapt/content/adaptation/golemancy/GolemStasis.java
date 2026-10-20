@@ -186,10 +186,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     if (level < 1 || !player.getUniqueId().equals(handle.owner())) {
       return;
     }
-    if (!StasisRules.packable(handle.body())) {
-      warn(player, GolemancyMessages.STASIS_BONE);
-      return;
-    }
     if (busy(player.getUniqueId(), handle.entity().getUniqueId(), System.currentTimeMillis())) {
       warn(player, GolemancyMessages.STASIS_BUSY);
       return;
@@ -207,10 +203,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     Config config = getConfig();
     UUID owner = player.getUniqueId();
     if (!GolemancyRules.unlocked(getActiveLevel(player), config.recallLevel) || !owner.equals(handle.owner())) {
-      return;
-    }
-    if (!StasisRules.packable(handle.body())) {
-      warn(player, GolemancyMessages.STASIS_BONE);
       return;
     }
     if (handle.isRetired() || !player.getWorld().equals(handle.entity().getWorld())) {
@@ -244,6 +236,11 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     at.setYaw(player.getLocation().getYaw() + 180F);
     at.setPitch(0F);
     Awaken awaken = new Awaken(player, e.getHand(), item, snapshot, at, GolemancyRuntime.registry().orElse(null), getActiveLevel(player));
+    if (item != null && snapshot != null && snapshot.body() == GolemBody.BONE && player.getUniqueId().equals(item.owner())
+        && roster(player).flatMap(known -> known.golem(item.golemId())).map(GolemRoster.GolemEntry::revoked).orElse(false)) {
+      crumble(awaken);
+      return;
+    }
     AwakenVerdict verdict = StasisRules.awakenVerdict(assess(awaken, e));
     switch (verdict) {
       case READY -> deploy(awaken);
@@ -539,7 +536,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     BlockState replaced = e.getBlockReplacedState();
     boolean waterlogged = replaced.getBlockData() instanceof Waterlogged wet && wet.isWaterlogged();
     return new AwakenCheck(snapshot != null, item != null && player.getUniqueId().equals(item.owner()), worldEnabled(awaken.at()), awaken.level(),
-        roster.isPresent(), entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> known.holds(item.state())).isPresent(),
+        roster.isPresent(), entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> !known.revoked() && known.holds(item.state())).isPresent(),
         bodyUnlocked, block, spaceClear(e), replaced.getType(), waterlogged, snapshot == null ? null : snapshot.body(),
         e.canBuild() && placeAllowed(player, awaken.at()));
   }
@@ -584,7 +581,11 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   private void crumble(Awaken awaken) {
     Player player = awaken.player();
+    if (awaken.registry() != null && awaken.item() != null) {
+      awaken.registry().dissolveRevoked(awaken.item(), player.getLocation());
+    }
     consumeOne(player.getInventory(), awaken.hand(), awaken.item());
+    player.saveData();
     crumbleFx(player);
     warn(player, GolemancyMessages.STASIS_VOID);
   }

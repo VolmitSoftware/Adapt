@@ -78,22 +78,35 @@ final class LumberActions {
     return index;
   }
 
-  void replant(GolemContext golem, TreeView view, LumberTrees.Tree tree) {
+  boolean replant(GolemContext golem, TreeView view, LumberTrees.Tree tree) {
     Material sapling = tree.sapling();
     if (sapling == null) {
-      return;
+      return true;
+    }
+    boolean pair = paired(golem, view, tree, sapling);
+    boolean single = TreeBlocks.growsAlone(sapling) && plantable(golem, view, tree.base(), sapling);
+    if (!pair && !single) {
+      return true;
+    }
+    int needed = pair ? PAIRED_SAPLINGS : 1;
+    int carried = count(golem.carriedItems().toArray(ItemStack[]::new), sapling);
+    Inventory chest = carried >= needed ? null : GolemancySupport.homeChest(golem).orElse(null);
+    int stocked = chest == null ? 0 : count(chest.getStorageContents(), sapling);
+    if (carried + stocked < needed) {
+      LumberSaplings.collect(golem, tree, needed - carried - stocked);
     }
     List<LumberTrees.Part> spots = paired(golem, view, tree, sapling) && take(golem, sapling, PAIRED_SAPLINGS) ? tree.bases() : List.of();
     if (spots.isEmpty() && TreeBlocks.growsAlone(sapling) && plantable(golem, view, tree.base(), sapling) && take(golem, sapling, 1)) {
       spots = List.of(tree.base());
     }
     if (spots.isEmpty()) {
-      return;
+      return false;
     }
     for (LumberTrees.Part spot : spots) {
       golem.world().getBlockAt(spot.x(), spot.y(), spot.z()).setType(sapling);
     }
     LumberFeedback.play(core, center(golem, tree.base()), tree.nether() ? LumberFeedback.Kind.PLANT_FUNGUS : LumberFeedback.Kind.PLANT);
+    return true;
   }
 
   private boolean paired(GolemContext golem, TreeView view, LumberTrees.Tree tree, Material sapling) {

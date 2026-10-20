@@ -75,7 +75,7 @@ final class GolemGuardListener implements Listener {
     }
   }
 
-  @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
     if (!(e.getRightClicked() instanceof CopperGolem golem) || !GolemState.has(golem) || !empty(e.getPlayer().getInventory().getItem(e.getHand()))) {
       return;

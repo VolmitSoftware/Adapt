@@ -343,25 +343,19 @@ class GolemStasisTest extends AdaptTestBase {
   }
 
   @Test
-  void packingOrRecallingABoneGolemIsRefusedWithAClearMessage() {
+  void boneGolemsCanPackAndRecall() {
     Packable bone = packable();
     when(bone.handle.body()).thenReturn(GolemBody.BONE);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
       invocation.<Runnable>getArgument(1).run();
       return true;
     });
-    List<String> shown = new ArrayList<>();
     try (MockedStatic<AdaptHud> hud = mockStatic(AdaptHud.class)) {
-      hud.when(() -> AdaptHud.actionBar(eq(player), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
-
-      learned(1).pack(player, bone.handle);
       learned(3).pack(player, bone.handle);
       learned(3).recall(player, bone.handle);
     }
 
-    verify(registry, never()).pack(any());
-    assertThat(shown).containsExactly("Bone golems can't be packed into a Dormant Golem", "Bone golems can't be packed into a Dormant Golem",
-        "Bone golems can't be packed into a Dormant Golem");
+    verify(registry, times(2)).pack(bone.handle);
   }
 
   @Test
@@ -521,7 +515,7 @@ class GolemStasisTest extends AdaptTestBase {
     verify(registry, never()).awaken(any(), any(), any(), any());
     verify(inventory).setItem(EquipmentSlot.HAND, null);
     verify(awakening.adaptation).crumbleFx(player);
-    verify(player, never()).saveData();
+    verify(player).saveData();
   }
 
   @Test
@@ -536,6 +530,30 @@ class GolemStasisTest extends AdaptTestBase {
 
     verify(registry, never()).awaken(any(), any(), any(), any());
     verify(inventory, never()).setItem(any(EquipmentSlot.class), any());
+  }
+
+  @Test
+  void aRevokedBoneReturnsItsItemsEvenWhenStasisIsUnlearned() {
+    Awakening awakening = awakening(0, GolemRoster.Status.PACKED);
+    UUID id = awakening.item.golemId();
+    GolemState state = GolemState.create(new GolemState.Seed(id, player.getUniqueId(), GolemBody.BONE, GolemCoreType.GUARDIAN,
+        GolemState.Anchor.of(WORLD, 0, 64, 0)));
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 20D, 0, false, true), 1L);
+    PackedGolem packed = new PackedGolem(id, player.getUniqueId(), snapshot.toJson());
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(id, GolemBody.BONE, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.stow(id, GolemRoster.Status.PACKED, packed.state());
+    roster.revokeBones();
+    doReturn(Optional.of(roster)).when(awakening.adaptation).roster(player);
+    when(awakening.held.getType()).thenReturn(Material.BONE_BLOCK);
+    items.when(() -> GolemItems.packedGolemOf(awakening.held)).thenReturn(Optional.of(packed));
+
+    awakening.adaptation.awaken(awakening.event);
+
+    verify(registry).dissolveRevoked(packed, player.getLocation());
+    verify(registry, never()).awaken(any(), any(), any(), any());
+    verify(inventory).setItem(EquipmentSlot.HAND, null);
+    verify(player).saveData();
   }
 
   @Test
@@ -561,7 +579,7 @@ class GolemStasisTest extends AdaptTestBase {
 
     verify(inventory).setItem(EquipmentSlot.HAND, null);
     verify(awakening.adaptation).crumbleFx(player);
-    verify(player, never()).saveData();
+    verify(player).saveData();
   }
 
   @Test

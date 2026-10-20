@@ -20,12 +20,14 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -260,6 +262,30 @@ class GolemGuardListenerTest extends AdaptTestBase {
     verify(vanilla, never()).setCancelled(anyBoolean());
     verify(nothingHeld, never()).setCancelled(anyBoolean());
     verify(withItem, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
+  void theEmptyOffHandCannotTakeAToolWhenTheMainHandHoldsSomethingElse() {
+    CopperGolem golem = holding(bound(CopperGolem.class, OWNER, GolemBody.COPPER), Material.FISHING_ROD);
+    PlayerInteractEntityEvent event = interact(golem, Material.STICK);
+    ItemStack empty = GolemTestItems.stack(Material.AIR, 1);
+    when(event.getHand()).thenReturn(EquipmentSlot.OFF_HAND);
+    when(event.getPlayer().getInventory().getItem(EquipmentSlot.OFF_HAND)).thenReturn(empty);
+
+    listener.on(event);
+
+    verify(event).setCancelled(true);
+  }
+
+  @Test
+  void aPreciseEntityInteractionUsesTheSameToolProtection() {
+    CopperGolem golem = holding(bound(CopperGolem.class, OWNER, GolemBody.COPPER), Material.FISHING_ROD);
+    PlayerInteractEntityEvent normal = interact(golem, Material.AIR);
+    PlayerInteractAtEntityEvent event = new PlayerInteractAtEntityEvent(normal.getPlayer(), golem, new Vector(), EquipmentSlot.HAND);
+
+    listener.on(event);
+
+    assertThat(event.isCancelled()).isTrue();
   }
 
   @Test

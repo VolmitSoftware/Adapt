@@ -90,6 +90,9 @@ public final class GolemState {
     state.homeChest = snapshot.homeChest();
     state.carried = new ArrayList<>(snapshot.carried());
     state.held = snapshot.held();
+    for (Map.Entry<GolemEquipmentSlot, String> entry : snapshot.equipment().entrySet()) {
+      state.setEquipment(entry.getKey(), entry.getValue());
+    }
     state.setEssence(snapshot.essence());
     GolemSnapshot.Stats stats = snapshot.stats();
     state.stats.addKills(stats.kills());

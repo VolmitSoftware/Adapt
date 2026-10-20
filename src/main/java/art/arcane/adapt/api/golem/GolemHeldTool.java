@@ -32,6 +32,9 @@ final class GolemHeldTool {
   }
 
   Optional<ItemStack> item() {
+    if (handle.body() == GolemBody.BONE) {
+      return handle.equipped(GolemEquipmentSlot.MAIN_HAND);
+    }
     String stored = handle.state().held();
     if (stored == null) {
       return Optional.empty();
@@ -49,6 +52,9 @@ final class GolemHeldTool {
   }
 
   boolean hold(ItemStack next) {
+    if (handle.body() == GolemBody.BONE) {
+      return false;
+    }
     ItemStack before = item().orElse(null);
     String stored = next == null ? null : handle.platform().encodeItem(next);
     if (!handle.setHeldEncoded(stored)) {
@@ -61,7 +67,7 @@ final class GolemHeldTool {
   }
 
   void sync() {
-    if (shown) {
+    if (shown || handle.body() == GolemBody.BONE) {
       return;
     }
     shown = true;
@@ -69,6 +75,10 @@ final class GolemHeldTool {
   }
 
   boolean wear(DoubleSupplier random) {
+    if (handle.body() == GolemBody.BONE) {
+      handle.damageEquipment(GolemEquipmentSlot.MAIN_HAND, 1);
+      return item().isEmpty();
+    }
     ItemStack tool = item().orElse(null);
     ItemMeta meta = tool == null ? null : tool.getItemMeta();
     if (!(meta instanceof Damageable damageable) || damageable.isUnbreakable()) {
