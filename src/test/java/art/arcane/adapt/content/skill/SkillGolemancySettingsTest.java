@@ -22,6 +22,16 @@ class SkillGolemancySettingsTest {
   }
 
   @Test
+  void copperAndIronGolemsBothTakeTheBreakerCoreByDefault() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+
+    assertThat(config.allowedCoresCopper).contains("BREAKER");
+    assertThat(config.allowedCoresIron).contains("BREAKER");
+    assertThat(SkillGolemancy.golemSettings(config).allows(GolemBody.COPPER, GolemCoreType.BREAKER)).isTrue();
+    assertThat(SkillGolemancy.golemSettings(config).allows(GolemBody.FROST, GolemCoreType.BREAKER)).isFalse();
+  }
+
+  @Test
   void configValuesReachTheRuntimeSettings() {
     SkillGolemancy.Config config = new SkillGolemancy.Config();
     config.dormantInvulnerable = false;

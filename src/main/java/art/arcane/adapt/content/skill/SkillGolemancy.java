@@ -1092,7 +1092,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Cores a frost golem can be bound with.", impact = "Remove a core to stop frost golems taking that role.")
     List<String> allowedCoresFrost = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "HARVESTER"));
     @ConfigDoc(value = "Cores a copper golem can be bound with.", impact = "Remove a core to stop copper golems taking that role.")
-    List<String> allowedCoresCopper = new ArrayList<>(List.of("BLANK", "GATHERER", "HARVESTER", "LUMBER", "RANCHER", "SORTER", "ANGLER"));
+    List<String> allowedCoresCopper = new ArrayList<>(List.of("BLANK", "GATHERER", "HARVESTER", "LUMBER", "BREAKER", "RANCHER", "SORTER", "ANGLER"));
     @ConfigDoc(value = "Cores an iron golem can be bound with.", impact = "Remove a core to stop iron golems taking that role.")
     List<String> allowedCoresIron = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "LUMBER", "BREAKER", "RANCHER", "ANGLER"));
     @ConfigDoc(value = "Chance that each core drops when a bound golem dies without leaving a Shattered Core.", impact = "Higher values return more cores on death; 1.0 always drops them.")
