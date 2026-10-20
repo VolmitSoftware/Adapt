@@ -152,35 +152,6 @@ class RevealServiceNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void insightFallsBackToTheNamedLabelForAnOwnerWithoutInsight() {
-    mode.set(GolemNameMode.INSIGHT);
-    golem(0D, 3D);
-
-    service.update(viewer);
-
-    assertThat(texts).hasSize(1);
-    assertThat(plain(texts.getFirst()).lines().findFirst()).contains("Clank");
-  }
-
-  @Test
-  void insightCarriesNameAndStatusForAnOwnerWithInsightAndOnlyTheNameForOthers() {
-    mode.set(GolemNameMode.INSIGHT);
-    when(insight.activeFor(viewer)).thenReturn(true);
-    GolemHandle golem = golem(0D, 3D);
-
-    service.update(viewer);
-
-    assertThat(spawned).isEmpty();
-    List<String> owned = EntityInsight.details(viewer, golem.entity());
-    assertThat(owned).hasSize(3);
-    assertThat(owned.getFirst()).contains("Clank");
-    assertThat(String.join("\n", owned)).contains("100/100", "Guardian");
-    List<String> seen = EntityInsight.details(viewer(STRANGER), golem.entity());
-    assertThat(seen).hasSize(1);
-    assertThat(seen.getFirst()).contains("Clank");
-  }
-
-  @Test
   void glossShowsNoLabelAndSendsTheLookedAtGolemsStatusWithoutItsName() {
     mode.set(GolemNameMode.GLOSS);
     GolemHandle golem = golem(0D, 3D);
@@ -230,11 +201,10 @@ class RevealServiceNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void hiddenStatusLabelsHideTheStatusInEveryModeButInsightStillNamesTheGolem() {
+  void hiddenStatusLabelsHideTheStatusInEveryMode() {
     GolemLabelPolicy labels = mock(GolemLabelPolicy.class);
     when(labels.hidesLabels(viewer)).thenReturn(true);
     runtime.when(GolemancyRuntime::labelPolicy).thenReturn(Optional.of(labels));
-    when(insight.activeFor(viewer)).thenReturn(true);
     GolemHandle golem = golem(0D, 3D);
 
     for (GolemNameMode next : GolemNameMode.values()) {
@@ -244,29 +214,21 @@ class RevealServiceNamesTest extends AdaptTestBase {
 
     assertThat(spawned).isEmpty();
     verify(gloss, never()).update(any(Player.class), any(LivingEntity.class), anyList(), anyLong());
-    mode.set(GolemNameMode.INSIGHT);
-    List<String> details = EntityInsight.details(viewer, golem.entity());
-    assertThat(details).hasSize(1);
-    assertThat(details.getFirst()).contains("Clank");
+    assertThat(EntityInsight.details(viewer, golem.entity())).isEmpty();
   }
 
   @Test
-  void aModeChangeRedrawsOrRemovesTheLabelWhenViewersAreRefreshed() {
+  void aModeChangeToGlossRemovesTheLabelWhenViewersAreRefreshed() {
     golem(0D, 3D);
     service.update(viewer);
     TextDisplay label = spawned.getFirst();
 
-    mode.set(GolemNameMode.INSIGHT);
+    mode.set(GolemNameMode.GLOSS);
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(() -> Bukkit.getPlayer(OWNER)).thenReturn(viewer);
       service.refreshViewers();
     }
-    ArgumentCaptor<Component> redrawn = ArgumentCaptor.forClass(Component.class);
-    verify(label).text(redrawn.capture());
-    assertThat(plain(redrawn.getValue()).lines().findFirst()).contains("Clank");
 
-    mode.set(GolemNameMode.GLOSS);
-    service.update(viewer);
     displays.verify(() -> HiddenDisplays.hide(viewer, label));
     verify(label).remove();
   }

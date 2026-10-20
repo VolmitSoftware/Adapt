@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class EntityInsight {
   private static final CopyOnWriteArrayList<Provider> PROVIDERS = new CopyOnWriteArrayList<>();
-  private static final CopyOnWriteArrayList<Runnable> LISTENERS = new CopyOnWriteArrayList<>();
   private static final AtomicReference<Display> DISPLAY = new AtomicReference<>();
 
   private EntityInsight() {
@@ -39,41 +38,15 @@ public final class EntityInsight {
 
   public static void attach(Display display) {
     DISPLAY.set(Objects.requireNonNull(display));
-    changed();
   }
 
   public static void detach(Display display) {
-    if (DISPLAY.compareAndSet(display, null)) {
-      changed();
-    }
-  }
-
-  public static boolean online() {
-    return DISPLAY.get() != null;
-  }
-
-  public static boolean activeFor(Player viewer) {
-    Display display = DISPLAY.get();
-    return display != null && display.activeFor(viewer);
+    DISPLAY.compareAndSet(display, null);
   }
 
   public static boolean showing(UUID viewerId) {
     Display display = DISPLAY.get();
     return display != null && display.showing(viewerId);
-  }
-
-  public static void addListener(Runnable listener) {
-    LISTENERS.addIfAbsent(Objects.requireNonNull(listener));
-  }
-
-  public static void removeListener(Runnable listener) {
-    LISTENERS.remove(listener);
-  }
-
-  private static void changed() {
-    for (Runnable listener : LISTENERS) {
-      listener.run();
-    }
   }
 
   @FunctionalInterface
@@ -82,8 +55,6 @@ public final class EntityInsight {
   }
 
   public interface Display {
-    boolean activeFor(Player viewer);
-
     boolean showing(UUID viewerId);
   }
 }

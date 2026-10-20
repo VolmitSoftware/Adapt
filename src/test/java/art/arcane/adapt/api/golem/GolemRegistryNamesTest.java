@@ -13,7 +13,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.world.EntitiesLoadEvent;
-import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,7 +73,7 @@ class GolemRegistryNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void bindingStoresTheDefaultNameAndVanillaShowsItOnTheEntity() {
+  void bindingStoresTheDefaultNameAndShowsItOnTheEntity() {
     IronGolem golem = golem(at(0, 64, 0));
 
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
@@ -85,29 +84,7 @@ class GolemRegistryNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void glossKeepsTheCustomNameForItsOverlay() {
-    platform.nameMode = GolemNameMode.GLOSS;
-    IronGolem golem = golem(at(0, 64, 0));
-
-    registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
-
-    assertThat(plain(golem.customName())).isEqualTo("Steve's Iron Golem");
-  }
-
-  @Test
-  void insightStoresTheNameButLeavesTheEntityUnnamed() {
-    platform.nameMode = GolemNameMode.INSIGHT;
-    IronGolem golem = golem(at(0, 64, 0));
-    golem.customName(Component.text("Village Guard"));
-
-    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
-
-    assertThat(golem.customName()).isNull();
-    assertThat(plain(handle.state().name().orElseThrow())).isEqualTo("Steve's Iron Golem");
-  }
-
-  @Test
-  void aRenameIsStoredFlushedAndShownByTheMode() {
+  void aRenameIsStoredFlushedAndShown() {
     IronGolem golem = golem(at(0, 64, 0));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
 
@@ -116,11 +93,6 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     assertThat(handle.state().name()).contains(CLANK);
     assertThat(GolemState.read(golem).orElseThrow().name()).contains(CLANK);
     assertThat(golem.customName()).isEqualTo(CLANK);
-
-    platform.nameMode = GolemNameMode.INSIGHT;
-    registry.rename(handle, Component.text("Bolt"));
-    assertThat(GolemState.read(golem).orElseThrow().name()).contains(Component.text("Bolt"));
-    assertThat(golem.customName()).isNull();
   }
 
   @Test
@@ -143,7 +115,6 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     assertThat(packing.snapshot().name()).contains(CLANK);
     IronGolem body = golem(at(30, 70, 30));
     platform.spawns.add(body);
-    platform.nameMode = GolemNameMode.GLOSS;
 
     GolemHandle awakened = registry.awaken(owner, at(30, 70, 30), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
     }).orElseThrow();
@@ -162,41 +133,16 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     GolemRoster roster = platform.rosters.get(OWNER);
     PackedGolem item = new PackedGolem(handle.id(), OWNER, shattered.toJson());
     roster.stow(handle.id(), GolemRoster.Status.SHATTERED, item.state());
-    platform.nameMode = GolemNameMode.INSIGHT;
     IronGolem fresh = golem(at(4, 64, 4));
 
     GolemHandle rebuilt = registry.restore(owner, fresh, new GolemRegistry.Restore(item, GolemRoster.Status.SHATTERED)).orElseThrow();
 
     assertThat(rebuilt.state().name()).contains(CLANK);
-    assertThat(fresh.customName()).isNull();
+    assertThat(fresh.customName()).isEqualTo(CLANK);
   }
 
   @Test
-  void aModeChangeReappliesNamesToEveryLoadedGolemOnItsThread() {
-    IronGolem first = golem(at(0, 64, 0));
-    IronGolem second = golem(at(40, 64, 40));
-    GolemHandle firstHandle = registry.bind(owner, first, GolemBody.IRON, GolemCoreType.GUARDIAN);
-    registry.bind(owner, second, GolemBody.IRON, GolemCoreType.GATHERER);
-    registry.rename(firstHandle, CLANK);
-    platform.nameMode = GolemNameMode.INSIGHT;
-    platform.ownsEntities = false;
-
-    registry.showNames();
-
-    assertThat(first.customName()).isEqualTo(CLANK);
-    platform.ownsEntities = true;
-    platform.runDelayed();
-    assertThat(first.customName()).isNull();
-    assertThat(second.customName()).isNull();
-
-    platform.nameMode = GolemNameMode.GLOSS;
-    registry.showNames();
-    assertThat(first.customName()).isEqualTo(CLANK);
-    assertThat(plain(second.customName())).isEqualTo("Steve's Iron Golem");
-  }
-
-  @Test
-  void aLoadedGolemTakesTheCurrentModesName() {
+  void aLoadedGolemTakesItsStoredName() {
     IronGolem stored = golem(at(0, 64, 0));
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.IRON, GolemCoreType.BLANK,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
@@ -204,16 +150,10 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     state.write(stored);
     platform.rosters.get(OWNER).add(new GolemRoster.Binding(state.id(), GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
     stored.customName(Component.text("Stale"));
-    platform.nameMode = GolemNameMode.INSIGHT;
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stored)));
 
     assertThat(registry.handle(stored)).isPresent();
-    assertThat(stored.customName()).isNull();
-
-    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(stored)));
-    platform.nameMode = GolemNameMode.VANILLA;
-    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stored)));
     assertThat(stored.customName()).isEqualTo(CLANK);
   }
 

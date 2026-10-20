@@ -349,14 +349,6 @@ public final class GolemRegistry extends TickedObject {
     display(handle.entity(), name);
   }
 
-  public void showNames() {
-    for (GolemHandle handle : List.copyOf(handles.values())) {
-      if (!handle.isRetired()) {
-        runOwned(handle, () -> display(handle.entity(), handle.state().name().orElse(null)));
-      }
-    }
-  }
-
   public boolean release(GolemHandle handle) {
     if (handle.isRetired()) {
       return false;
@@ -1125,9 +1117,8 @@ public final class GolemRegistry extends TickedObject {
   }
 
   private void display(Mob golem, Component name) {
-    Component shown = platform.nameMode().showsCustomName() ? name : null;
-    if (!Objects.equals(PaperCompat.customName(golem), shown)) {
-      PaperCompat.customName(golem, shown);
+    if (!Objects.equals(PaperCompat.customName(golem), name)) {
+      PaperCompat.customName(golem, name);
     }
   }
 
