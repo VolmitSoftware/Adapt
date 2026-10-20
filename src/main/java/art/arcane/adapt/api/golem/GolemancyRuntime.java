@@ -527,6 +527,12 @@ public final class GolemancyRuntime {
       return NMS.deserializeStack(encoded);
     }
 
+    @Override
+    public GolemNameMode nameMode() {
+      GolemNames local = names;
+      return local == null ? GolemNameMode.VANILLA : local.mode();
+    }
+
     private static AdaptPlayer onlinePlayer(UUID owner) {
       Adapt plugin = Adapt.instance;
       AdaptServer server = plugin == null ? null : plugin.getAdaptServer();

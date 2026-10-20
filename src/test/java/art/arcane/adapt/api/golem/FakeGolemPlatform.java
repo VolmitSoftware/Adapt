@@ -68,6 +68,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   boolean ownsLocations = true;
   int fullSignals;
   Adaptation<?> bindingPolicy;
+  GolemNameMode nameMode = GolemNameMode.VANILLA;
   long now = 1_000_000L;
 
   void join(UUID owner, GolemRoster roster) {
@@ -335,6 +336,11 @@ final class FakeGolemPlatform implements GolemPlatform {
     String key = "item-" + encoded.size();
     encoded.put(key, item.clone());
     return key;
+  }
+
+  @Override
+  public GolemNameMode nameMode() {
+    return nameMode;
   }
 
   @Override

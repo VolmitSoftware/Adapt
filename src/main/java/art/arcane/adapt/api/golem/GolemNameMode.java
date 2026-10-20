@@ -7,4 +7,8 @@ public enum GolemNameMode {
   public static GolemNameMode resolve(boolean glossOverlay) {
     return glossOverlay ? GLOSS : VANILLA;
   }
+
+  public boolean showsCustomName() {
+    return this == VANILLA;
+  }
 }

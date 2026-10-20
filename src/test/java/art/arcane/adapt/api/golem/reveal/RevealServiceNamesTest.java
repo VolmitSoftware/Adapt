@@ -152,7 +152,7 @@ class RevealServiceNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void glossShowsNoLabelAndSendsTheLookedAtGolemsStatusWithoutItsName() {
+  void glossShowsNoLabelAndSendsTheLookedAtGolemsNameThenItsStatus() {
     mode.set(GolemNameMode.GLOSS);
     GolemHandle golem = golem(0D, 3D);
     LivingEntity body = golem.entity();
@@ -163,15 +163,57 @@ class RevealServiceNamesTest extends AdaptTestBase {
     ArgumentCaptor<List<String>> lines = linesCaptor();
     ArgumentCaptor<Long> duration = ArgumentCaptor.forClass(Long.class);
     verify(gloss).update(eq(viewer), eq(body), lines.capture(), duration.capture());
-    assertThat(lines.getValue()).hasSize(2);
-    assertThat(String.join("\n", lines.getValue())).contains("100/100", "Guardian").doesNotContain("Clank");
+    assertThat(lines.getValue()).hasSize(3);
+    assertThat(lines.getValue().getFirst()).contains("Clank");
+    assertThat(String.join("\n", lines.getValue().subList(1, 3))).contains("100/100", "Guardian").doesNotContain("Clank");
     assertThat(duration.getValue()).isGreaterThan(RevealSettings.defaults().pollMillis());
-    assertThat(EntityInsight.details(viewer, golem.entity())).hasSize(2);
-    assertThat(EntityInsight.details(viewer(STRANGER), golem.entity())).isEmpty();
 
     when(golem.entity().getBoundingBox()).thenReturn(BoundingBox.of(new Location(world, 6D, 65D, 3D), 0.7D, 1.35D, 0.7D));
     service.update(viewer);
     verify(gloss).clear(OWNER);
+  }
+
+  @Test
+  void glossInsightPutsTheNameFirstForAnyViewerAndTheStatusOnlyForTheOwner() {
+    mode.set(GolemNameMode.GLOSS);
+    GolemHandle golem = golem(0D, 3D);
+    service.update(viewer);
+
+    List<String> owned = EntityInsight.details(viewer, golem.entity());
+    assertThat(owned).hasSize(3);
+    assertThat(owned.getFirst()).contains("Clank");
+    assertThat(String.join("\n", owned.subList(1, 3))).contains("100/100", "Guardian").doesNotContain("Clank");
+
+    List<String> seen = EntityInsight.details(viewer(STRANGER), golem.entity());
+    assertThat(seen).hasSize(1);
+    assertThat(seen.getFirst()).contains("Clank");
+  }
+
+  @Test
+  void glossInsightKeepsTheNameWhenTheOwnerHidesStatusLabels() {
+    mode.set(GolemNameMode.GLOSS);
+    GolemLabelPolicy labels = mock(GolemLabelPolicy.class);
+    when(labels.hidesLabels(viewer)).thenReturn(true);
+    runtime.when(GolemancyRuntime::labelPolicy).thenReturn(Optional.of(labels));
+    GolemHandle golem = golem(0D, 3D);
+    service.update(viewer);
+
+    List<String> owned = EntityInsight.details(viewer, golem.entity());
+
+    assertThat(owned).hasSize(1);
+    assertThat(owned.getFirst()).contains("Clank");
+  }
+
+  @Test
+  void vanillaInsightCarriesOnlyTheOwnersStatusBecauseTheNametagHoldsTheName() {
+    GolemHandle golem = golem(0D, 3D);
+    service.update(viewer);
+
+    List<String> owned = EntityInsight.details(viewer, golem.entity());
+
+    assertThat(owned).hasSize(2);
+    assertThat(String.join("\n", owned)).contains("100/100", "Guardian").doesNotContain("Clank");
+    assertThat(EntityInsight.details(viewer(STRANGER), golem.entity())).isEmpty();
   }
 
   @Test
@@ -198,6 +240,7 @@ class RevealServiceNamesTest extends AdaptTestBase {
     verify(gloss).update(eq(viewer), eq(servant), lines.capture(), anyLong());
     assertThat(lines.getValue()).hasSize(3);
     assertThat(lines.getValue().getFirst()).contains("Skeletal Servant");
+    assertThat(EntityInsight.details(viewer, servant)).isEqualTo(lines.getValue());
   }
 
   @Test
@@ -215,6 +258,8 @@ class RevealServiceNamesTest extends AdaptTestBase {
     assertThat(spawned).isEmpty();
     verify(gloss, never()).update(any(Player.class), any(LivingEntity.class), anyList(), anyLong());
     assertThat(EntityInsight.details(viewer, golem.entity())).isEmpty();
+    mode.set(GolemNameMode.GLOSS);
+    assertThat(EntityInsight.details(viewer, golem.entity())).hasSize(1);
   }
 
   @Test
