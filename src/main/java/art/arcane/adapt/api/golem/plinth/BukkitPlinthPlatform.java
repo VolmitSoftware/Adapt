@@ -42,14 +42,15 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class BukkitPlinthPlatform implements PlinthPlatform {
   private static final double POP_SPEED = 0.2D;
-  private static final int STREAM_POINTS = 8;
   private static final float DENY_VOLUME = 0.7F;
   private static final float DENY_PITCH = 1F;
 
   private final Supplier<PlinthHost> host;
+  private final InfusionVisuals visuals;
 
   BukkitPlinthPlatform(Supplier<PlinthHost> host) {
     this.host = Objects.requireNonNull(host);
+    this.visuals = new InfusionVisuals(host);
   }
 
   @Override
@@ -212,7 +213,7 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
   }
 
   @Override
-  public void effect(PlinthEffect effect, Location at, double progress) {
+  public void effect(PlinthEffect effect, Location at) {
     PlinthHost active = host.get();
     if (active == null) {
       return;
@@ -227,26 +228,22 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
       case STARTED -> active.fx(at, FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 2D, 16, 0.6D)
           .sound(Sound.BLOCK_BEACON_ACTIVATE, 0.6F, 1.4F);
-      case HUM -> active.fx(at, FxPriority.AMBIENT)
-          .particle(Particles.ENCHANTMENT_TABLE, 12, 0D, 1D, 0D, 0.6D, 0.4D)
-          .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.7F, 0.8F + (float) progress * 0.8F);
-      case FIZZLE -> active.fx(at, FxPriority.AMBIENT)
-          .burst(Particles.SMOKE, 10, 0.4D)
-          .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.4F, 1.6F);
-      case COMPLETED -> active.fx(at, FxPriority.TRANSITION)
-          .burst(Particles.END_ROD, 24, 0.5D)
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.8F, 1.2F)
-          .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.5F, 1.6F);
     }
   }
 
   @Override
-  public void stream(Location from, Location to) {
-    PlinthHost active = host.get();
-    if (active == null) {
-      return;
-    }
-    active.fx(from, FxPriority.AMBIENT).line(Particles.REDSTONE, to.getX(), to.getY(), to.getZ(), STREAM_POINTS);
+  public void swirl(Location center, InfusionRitual ritual) {
+    visuals.swirl(center, ritual);
+  }
+
+  @Override
+  public void fizzle(Location center, InfusionRitual ritual) {
+    visuals.fizzle(center, ritual);
+  }
+
+  @Override
+  public void collide(Location center, InfusionTint tint) {
+    visuals.collide(center, tint);
   }
 
   @Override

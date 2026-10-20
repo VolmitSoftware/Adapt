@@ -4890,12 +4890,25 @@
           "key": "use"
         },
         {
+          "verb": "keys",
+          "hold": [
+            "back"
+          ],
+          "ticks": 12
+        },
+        {
+          "verb": "look",
+          "yaw": 135.0,
+          "pitch": 4.0,
+          "ticks": 8
+        },
+        {
           "verb": "wait",
-          "ticks": 190
+          "ticks": 170
         }
       ],
       "expect": {
-        "visual": "Four pedestals ring the lodestone; their items lift and dust streams to the spinning center, and a Swiftness rune pops out."
+        "visual": "Four pedestals ring the lodestone; their items lift, four pale cyan streams spiral in around the spinning center and collide in a flash, and a Swiftness rune pops out."
       },
       "stills": [
         {
@@ -4905,7 +4918,7 @@
         },
         {
           "angle": "observer",
-          "at": 12.0,
+          "at": 12.1,
           "name": "plinth-ritual"
         }
       ],
@@ -4913,10 +4926,10 @@
       "maxTicks": 900,
       "camera": {
         "x": 4.8,
-        "y": 3.0,
+        "y": 4.6,
         "z": -8.6,
         "yaw": 41.9,
-        "pitch": 18.0
+        "pitch": 27.0
       }
     },
     {

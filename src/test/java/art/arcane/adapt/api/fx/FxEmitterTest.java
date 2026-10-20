@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -251,6 +252,51 @@ class FxEmitterTest extends AdaptTestBase {
       assertThat(transition.getValue().getColor()).isEqualTo(emitterColor);
       assertThat(transition.getValue().getToColor()).isEqualTo(emitterColor);
       assertThat(transition.getValue().getSize()).isEqualTo(1.0F);
+    } finally {
+      FxViewers.reset();
+      FxBudget.resetTick();
+    }
+  }
+
+  @Test
+  void orbitSpawnsOneParticlePerArmEvenlyAroundTheAnchor() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer adaptPlayer = mock(AdaptPlayer.class);
+    Player player = mock(Player.class);
+    World world = mock(World.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayerSnapshot()).thenReturn(List.of(adaptPlayer));
+    when(adaptPlayer.getData()).thenReturn(new PlayerData());
+    when(adaptPlayer.getPlayer()).thenReturn(player);
+    when(adaptPlayer.getFxPosition()).thenReturn(new AdaptPlayer.FxPosition(world, 10.0D, 64.0D, -4.0D));
+
+    FxViewers.reset();
+    FxViewers.bumpTick();
+    FxBudget.resetTick();
+    Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(10, 20, 30), 1.2F);
+    AtomicReference<Runnable> ownerTask = new AtomicReference<>();
+
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.runEntity(same(player), any(Runnable.class))).thenAnswer(invocation -> {
+        ownerTask.set(invocation.getArgument(1));
+        return true;
+      });
+
+      FxEmitter emitter = FxEmitter.create(world, 10.0D, 64.0D, -4.0D, FxPriority.GAMEPLAY, 24.0D, true, false, Color.WHITE);
+      double start = Math.PI / 6.0D;
+      emitter.orbit(Particle.DUST, 4, 2.0D, start, 1.5D, dust);
+      ownerTask.get().run();
+
+      ArgumentCaptor<Double> xs = ArgumentCaptor.forClass(Double.class);
+      ArgumentCaptor<Double> ys = ArgumentCaptor.forClass(Double.class);
+      ArgumentCaptor<Double> zs = ArgumentCaptor.forClass(Double.class);
+      verify(player, times(4)).spawnParticle(same(Particle.DUST), xs.capture(), ys.capture(), zs.capture(), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D), same(dust));
+      for (int arm = 0; arm < 4; arm++) {
+        double angle = start + (arm * Math.PI / 2.0D);
+        assertThat(xs.getAllValues().get(arm)).as("arm %d", arm).isCloseTo(10.0D + (2.0D * Math.cos(angle)), within(1.0E-9D));
+        assertThat(ys.getAllValues().get(arm)).as("arm %d", arm).isEqualTo(65.5D);
+        assertThat(zs.getAllValues().get(arm)).as("arm %d", arm).isCloseTo(-4.0D + (2.0D * Math.sin(angle)), within(1.0E-9D));
+      }
     } finally {
       FxViewers.reset();
       FxBudget.resetTick();

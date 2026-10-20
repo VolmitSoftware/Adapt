@@ -55,12 +55,6 @@ public final class PlinthService extends TickedObject {
   private static final int SAVE_RETRY_TICKS = 2;
   private static final int REVALIDATE_DELAY_TICKS = 1;
   private static final int PULSE_TICKS = 1;
-  private static final int STREAM_INTERVAL_TICKS = 4;
-  private static final int HUM_INTERVAL_TICKS = 20;
-  private static final float MAX_LIFT = 0.6F;
-  private static final float CENTER_LIFT_SHARE = 0.5F;
-  private static final float MAX_CENTER_DEGREES_PER_TICK = 30F;
-  private static final double LIFT_PHASE = 3D;
   private static final double RESULT_HEIGHT = 1.25D;
   private static final double CENTER = 0.5D;
   private static final Runnable NOTHING = () -> {
@@ -258,7 +252,7 @@ public final class PlinthService extends TickedObject {
     index.put(spot, stored);
     renderer.spawn(world, spot, single);
     abortCovering(spot);
-    platform.effect(PlinthEffect.LOADED, at, 0D);
+    platform.effect(PlinthEffect.LOADED, at);
     previewCost(player, world, target.center(), activeHost);
   }
 
@@ -268,7 +262,7 @@ public final class PlinthService extends TickedObject {
       return;
     }
     Location at = spot.center(world);
-    platform.effect(PlinthEffect.RETRIEVED, at, 0D);
+    platform.effect(PlinthEffect.RETRIEVED, at);
     previewCost(player, world, target.center(), activeHost);
     if (!stored.readable()) {
       return;
@@ -303,7 +297,7 @@ public final class PlinthService extends TickedObject {
     InfusionRitual ritual = new InfusionRitual(player, center, assessment.infusion(), slots, now);
     ritualsByCenter.put(center, ritual);
     ritualsByPlayer.put(player.getUniqueId(), ritual);
-    platform.effect(PlinthEffect.STARTED, center.center(world), 0D);
+    platform.effect(PlinthEffect.STARTED, center.center(world));
     showCost(player, center, assessment);
     schedulePulse(world, ritual);
   }
@@ -345,22 +339,12 @@ public final class PlinthService extends TickedObject {
   private void animate(World world, InfusionRitual ritual) {
     PlinthSpot center = ritual.center();
     double progress = ritual.progress();
-    float lift = (float) (MAX_LIFT * Math.min(1D, progress * LIFT_PHASE));
-    float centerLift = lift * CENTER_LIFT_SHARE;
-    float centerSpin = PlinthRenderer.IDLE_DEGREES_PER_TICK + (float) ((MAX_CENTER_DEGREES_PER_TICK - PlinthRenderer.IDLE_DEGREES_PER_TICK) * progress);
-    renderer.animate(center, centerLift, centerSpin);
-    for (PlinthSlot slot : PlinthSlot.PEDESTALS) {
-      renderer.animate(center.slot(slot), lift, PlinthRenderer.IDLE_DEGREES_PER_TICK);
+    int elapsed = ritual.elapsed();
+    renderer.animate(center, InfusionVortex.centerLift(progress), InfusionVortex.centerSpin(progress));
+    for (int pedestal = 0; pedestal < PlinthSlot.PEDESTALS.size(); pedestal++) {
+      renderer.animate(center.slot(PlinthSlot.PEDESTALS.get(pedestal)), InfusionVortex.pedestalLift(progress, elapsed, pedestal), PlinthRenderer.IDLE_DEGREES_PER_TICK);
     }
-    if (ritual.elapsed() % STREAM_INTERVAL_TICKS == 0) {
-      Location target = PlinthRenderer.itemAt(world, center, centerLift);
-      for (PlinthSlot slot : PlinthSlot.PEDESTALS) {
-        platform.stream(PlinthRenderer.itemAt(world, center.slot(slot), lift), target);
-      }
-    }
-    if (ritual.elapsed() % HUM_INTERVAL_TICKS == 0) {
-      platform.effect(PlinthEffect.HUM, center.center(world), progress);
-    }
+    platform.swirl(center.center(world), ritual);
   }
 
   private void complete(World world, InfusionRitual ritual) {
@@ -403,17 +387,19 @@ public final class PlinthService extends TickedObject {
       removed.put(spot, entry.getValue());
     }
     Location at = center.center(world);
-    saveThen(world, List.copyOf(removed.keySet()), at, () -> deliver(world, player, center, infusion, charge.get()), () -> {
+    saveThen(world, List.copyOf(removed.keySet()), at, () -> deliver(world, ritual, infusion, charge.get()), () -> {
       restore(world, removed);
       refund(player, charge.get(), true);
     }, "the infusion at the Animus Plinth at " + describe(center));
   }
 
-  private void deliver(World world, Player player, PlinthSpot center, Infusion infusion, PlinthCharge charge) {
+  private void deliver(World world, InfusionRitual ritual, Infusion infusion, PlinthCharge charge) {
+    Player player = ritual.player();
+    PlinthSpot center = ritual.center();
     Location at = new Location(world, center.x() + CENTER, center.y() + RESULT_HEIGHT, center.z() + CENTER);
     platform.popResult(at, infusion.resultItem().get());
     charge.settle();
-    platform.effect(PlinthEffect.COMPLETED, at, 1D);
+    platform.collide(center.center(world), ritual.tint());
     platform.tell(player, false, GolemancyMessages.PLINTH_COMPLETE);
     PlinthHost activeHost = host.get();
     if (activeHost != null) {
@@ -481,7 +467,7 @@ public final class PlinthService extends TickedObject {
     for (PlinthSlot slot : PlinthSlot.values()) {
       renderer.rest(center.slot(slot));
     }
-    platform.effect(PlinthEffect.FIZZLE, center.center(world), ritual.progress());
+    platform.fizzle(center.center(world), ritual);
     if (announce) {
       platform.tell(ritual.player(), true, GolemancyMessages.PLINTH_INTERRUPTED);
     }
