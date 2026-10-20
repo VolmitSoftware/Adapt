@@ -32,11 +32,13 @@ import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -54,6 +56,7 @@ import java.util.UUID;
 
 public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   static final String SOURCE = "masterwork";
+  private static final int HEART_COST_LORE = 7;
   private static final long MILLIS_PER_TICK = 50L;
   private static final double MAX_TIER_THREE_BOOST = 4D;
   private static final Color AURA_COLOR = Color.fromRGB(0xFFC83D);
@@ -93,6 +96,9 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
       unlockLore(v, GolemancyMessages.MASTERWORK_LORE5);
       statLore(v, Form.pc(config.tierThreeBoost, 0), 6);
     }
+    GolemancyRuntime.plinthSettings().recipes()
+        .levelSpan(infusion -> InfusionRecipe.MASTERWORK.equals(infusion.unlockAdaptation()) && infusion.runeTier() == 0 && infusion.unlockLevel() <= level)
+        .ifPresent(span -> statLore(v, C.RED, "- ", span.label(), HEART_COST_LORE));
   }
 
   @Override

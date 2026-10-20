@@ -135,6 +135,46 @@ class InfusionRecipesTest {
   }
 
   @Test
+  void aRuneInfusionKnowsItsTierAndTheHeartHasNone() {
+    InfusionRecipes recipes = InfusionRecipes.parse(InfusionRecipe.defaults(), resolver, warnings::add);
+    ItemStack blankRune = resolver.exactItem("golemancy:blank_rune");
+    List<ItemStack> sugarAndFeathers = List.of(plain(Material.SUGAR), plain(Material.SUGAR), plain(Material.FEATHER), plain(Material.FEATHER));
+    List<ItemStack> blocks = List.of(plain(Material.SNOW_BLOCK), plain(Material.COPPER_BLOCK), plain(Material.IRON_BLOCK), plain(Material.DIAMOND_BLOCK));
+
+    assertThat(recipes.match(blankRune, sugarAndFeathers).orElseThrow().runeTier()).isEqualTo(1);
+    assertThat(recipes.match(resolver.exactItem("golemancy:rune/tide/2"),
+        List.of(plain(Material.HEART_OF_THE_SEA), plain(Material.PRISMARINE_CRYSTALS), plain(Material.PRISMARINE_CRYSTALS), plain(Material.PRISMARINE_CRYSTALS)))
+        .orElseThrow().runeTier()).isEqualTo(3);
+    assertThat(recipes.match(plain(Material.HEART_OF_THE_SEA), blocks).orElseThrow().runeTier()).isZero();
+  }
+
+  @Test
+  void aLevelSpanCoversTheCostsOfTheInfusionsAFilterKeeps() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    InfusionRecipes uniform = InfusionRecipes.parse(specs, resolver, warnings::add);
+
+    assertThat(uniform.levelSpan(infusion -> infusion.runeTier() == 1)).contains(new LevelSpan(2, 2));
+    assertThat(uniform.levelSpan(infusion -> infusion.runeTier() == 2)).contains(new LevelSpan(5, 5));
+    assertThat(uniform.levelSpan(infusion -> infusion.runeTier() == 3)).contains(new LevelSpan(10, 10));
+    assertThat(uniform.levelSpan(infusion -> infusion.unlockAdaptation().equals(InfusionRecipe.MASTERWORK))).contains(new LevelSpan(15, 15));
+    assertThat(uniform.levelSpan(infusion -> infusion.runeTier() == 4)).isEmpty();
+    assertThat(InfusionRecipes.EMPTY.levelSpan(infusion -> true)).isEmpty();
+
+    specs.get("might_2").essence(8);
+    specs.get("ember_2").essence(3);
+    InfusionRecipes varied = InfusionRecipes.parse(specs, resolver, warnings::add);
+
+    assertThat(varied.levelSpan(infusion -> infusion.runeTier() == 2)).contains(new LevelSpan(3, 8));
+    assertThat(varied.levelSpan(infusion -> infusion.runeTier() == 1)).contains(new LevelSpan(2, 2));
+  }
+
+  @Test
+  void aLevelSpanLabelIsOneNumberOrARange() {
+    assertThat(new LevelSpan(5, 5).label()).isEqualTo("5");
+    assertThat(new LevelSpan(3, 8).label()).isEqualTo("3-8");
+  }
+
+  @Test
   void theFirstMatchingRecipeWins() {
     Map<String, InfusionRecipe> specs = new LinkedHashMap<>();
     specs.put("first", recipe("golemancy:rune/order/1").pedestals("STONE", "STONE", "STONE", "STONE"));

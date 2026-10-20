@@ -3,10 +3,12 @@ package art.arcane.adapt.api.golem.plinth;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -26,6 +28,7 @@ import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -35,9 +38,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+
 final class BukkitPlinthPlatform implements PlinthPlatform {
   private static final double POP_SPEED = 0.2D;
   private static final int STREAM_POINTS = 8;
+  private static final float DENY_VOLUME = 0.7F;
+  private static final float DENY_PITCH = 1F;
 
   private final Supplier<PlinthHost> host;
 
@@ -185,6 +192,23 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
   @Override
   public void tell(Player player, boolean warning, TextKey key, MessageArgument... arguments) {
     J.runEntity(player, () -> AdaptHud.actionBar(player, (warning ? C.RED : C.AQUA) + AdaptLanguage.text(key, arguments)));
+  }
+
+  @Override
+  public void denied(Player player) {
+    J.runEntity(player, () -> player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, DENY_VOLUME, DENY_PITCH));
+  }
+
+  @Override
+  public String resultName(Infusion infusion) {
+    ItemStack item = infusion.resultItem().get();
+    ItemMeta meta = item.getItemMeta();
+    String name = meta != null && meta.hasDisplayName() ? C.stripColor(meta.getDisplayName()) : item.getType().name();
+    Optional<GolemRune> rune = GolemItems.runeOf(item);
+    if (rune.isEmpty()) {
+      return name;
+    }
+    return name + " (" + AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", rune.get().tier())) + ")";
   }
 
   @Override

@@ -3,6 +3,8 @@ package art.arcane.adapt.api.golem.plinth;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.volmlib.util.event.ProtectionProbe;
 import net.kyori.adventure.text.Component;
@@ -46,6 +48,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
@@ -495,9 +498,243 @@ class PlinthServiceTest extends AdaptTestBase {
     when(player.getLevel()).thenReturn(9);
     events.clear();
     click(CENTER, EquipmentSlot.HAND);
-    assertThat(events).containsExactly("warn golemancy.plinth.levels");
+    assertThat(events).containsExactly("warn golemancy.plinth.levels", "denied");
     tick(5);
     assertThat(platform.store).hasSize(5);
+  }
+
+  @Test
+  void loadingTheLastItemOfAnAffordableInfusionShowsItsResultAndCost() {
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(stock.get(PlinthSlot.WEST));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.told).hasSize(1);
+    FakePlinthPlatform.Told preview = platform.told.getFirst();
+    assertThat(preview.warning()).isFalse();
+    assertThat(preview.key()).isEqualTo(GolemancyMessages.PLINTH_PREVIEW);
+    assertThat(preview.values()).containsExactly(entry("result", "Result swiftness_1"), entry("levels", 2));
+    assertThat(AdaptLanguage.text(preview.key(), preview.arguments())).isEqualTo("Result swiftness_1 costs 2 levels");
+  }
+
+  @Test
+  void anUnaffordableInfusionPreviewIsRedAndStatesTheLevelsYouHave() {
+    when(player.getLevel()).thenReturn(1);
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(stock.get(PlinthSlot.WEST));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.told).hasSize(1);
+    FakePlinthPlatform.Told preview = platform.told.getFirst();
+    assertThat(preview.warning()).isTrue();
+    assertThat(preview.key()).isEqualTo(GolemancyMessages.PLINTH_PREVIEW_SHORT);
+    assertThat(preview.values()).containsExactly(entry("result", "Result swiftness_1"), entry("levels", 2), entry("have", 1));
+    assertThat(AdaptLanguage.text(preview.key(), preview.arguments())).isEqualTo("Result swiftness_1 costs 2 levels and you have 1");
+    assertThat(events).doesNotContain("denied");
+  }
+
+  @Test
+  void creativePlayersSeeTheInfusionIsFree() {
+    when(player.getGameMode()).thenReturn(GameMode.CREATIVE);
+    when(player.getLevel()).thenReturn(0);
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(stock.get(PlinthSlot.WEST));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.told).hasSize(1);
+    FakePlinthPlatform.Told preview = platform.told.getFirst();
+    assertThat(preview.warning()).isFalse();
+    assertThat(preview.key()).isEqualTo(GolemancyMessages.PLINTH_PREVIEW_FREE);
+    assertThat(preview.values()).containsExactly(entry("result", "Result swiftness_1"));
+    assertThat(AdaptLanguage.text(preview.key(), preview.arguments())).isEqualTo("Result swiftness_1 is free");
+  }
+
+  @Test
+  void aRecipeThatCostsNothingIsFreeToEveryone() {
+    settings = new PlinthSettings(settings.pedestals(), recipes(Map.of("swiftness_1", new InfusionRecipe().result("golemancy:rune/swiftness/1")
+        .center("SCRAPE_POTTERY_SHERD").pedestals("SUGAR", "SUGAR", "FEATHER", "FEATHER").essence(0).duration(DURATION).unlock(InfusionRecipe.RUNIC_AUGMENTS, 1))));
+    when(player.getLevel()).thenReturn(0);
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(stock.get(PlinthSlot.WEST));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.told).extracting(FakePlinthPlatform.Told::key).containsExactly(GolemancyMessages.PLINTH_PREVIEW_FREE);
+  }
+
+  @Test
+  void loadingAnItemThatFormsNoInfusionShowsNoCost() {
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(item(Material.SUGAR));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.store).hasSize(5);
+    assertThat(platform.told).isEmpty();
+  }
+
+  @Test
+  void anInfusionYouHaveNotUnlockedShowsNoCost() {
+    settings = new PlinthSettings(settings.pedestals(), swiftness(5, InfusionRecipe.RUNIC_AUGMENTS));
+    host.levels.put(InfusionRecipe.RUNIC_AUGMENTS, 3);
+    stockPlinthExcept(PlinthSlot.WEST);
+    holding(stock.get(PlinthSlot.WEST));
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.store).hasSize(5);
+    assertThat(platform.told).isEmpty();
+  }
+
+  @Test
+  void takingAnItemOffAFullPlinthShowsNoCost() {
+    stockPlinth();
+    holding(null);
+
+    click(CENTER.slot(PlinthSlot.WEST), EquipmentSlot.HAND);
+
+    assertThat(platform.store).hasSize(4);
+    assertThat(events).contains("give");
+    assertThat(platform.told).isEmpty();
+  }
+
+  @Test
+  void startingARitualShowsTheCostAndTakesNoLevelsUntilItCompletes() {
+    stockPlinth();
+    holdCrook();
+
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION - 1);
+
+    assertThat(platform.told).extracting(FakePlinthPlatform.Told::key).containsExactly(GolemancyMessages.PLINTH_PREVIEW);
+    assertThat(events.stream().filter(event -> event.startsWith("pay"))).isEmpty();
+    verify(player, never()).giveExpLevels(anyInt());
+
+    tick(1);
+
+    assertThat(events.stream().filter(event -> event.startsWith("pay"))).containsExactly("pay golem-runic-augments 2");
+  }
+
+  @Test
+  void startingAnUnaffordableInfusionRefusesWithTheCostAndYourLevelsAndChargesNothing() {
+    when(player.getLevel()).thenReturn(1);
+    stockPlinth();
+    holdCrook();
+
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION);
+
+    assertThat(events).containsExactly("warn golemancy.plinth.levels", "denied");
+    assertThat(platform.told).hasSize(1);
+    FakePlinthPlatform.Told refusal = platform.told.getFirst();
+    assertThat(refusal.warning()).isTrue();
+    assertThat(refusal.key()).isEqualTo(GolemancyMessages.PLINTH_LEVELS);
+    assertThat(refusal.values()).containsExactly(entry("levels", 2), entry("have", 1));
+    assertThat(AdaptLanguage.text(refusal.key(), refusal.arguments()))
+        .isEqualTo("Not enough experience: this infusion costs 2 levels and you have 1");
+    assertThat(platform.store).hasSize(5);
+    verify(player, never()).giveExpLevels(anyInt());
+  }
+
+  @Test
+  void levelsLostDuringTheRitualRefuseAtCompletionWithoutCharging() {
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION - 1);
+    when(player.getLevel()).thenReturn(1);
+
+    tick(1);
+
+    assertThat(events).contains("warn golemancy.plinth.levels", "denied");
+    assertThat(events.stream().filter(event -> event.startsWith("pay") || event.startsWith("pop"))).isEmpty();
+    FakePlinthPlatform.Told refusal = platform.told.getLast();
+    assertThat(refusal.key()).isEqualTo(GolemancyMessages.PLINTH_LEVELS);
+    assertThat(refusal.values()).containsExactly(entry("levels", 2), entry("have", 1));
+    assertThat(platform.store).hasSize(5);
+    verify(player, never()).giveExpLevels(anyInt());
+  }
+
+  @Test
+  void aChargeRefusedAtCompletionStillRefusesWithTheCostArguments() {
+    stockPlinth();
+    host.refuseCharge = true;
+    holdCrook();
+
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION);
+
+    FakePlinthPlatform.Told refusal = platform.told.getLast();
+    assertThat(refusal.key()).isEqualTo(GolemancyMessages.PLINTH_LEVELS);
+    assertThat(refusal.values()).containsExactly(entry("levels", 2), entry("have", 30));
+    assertThat(events).contains("denied");
+    assertThat(events).doesNotContain("settle");
+    assertThat(platform.store).hasSize(5);
+  }
+
+  @Test
+  void anIdenticalPreviewDoesNotRepeatInsideTheThrottleWindow() {
+    stockPlinthExcept(PlinthSlot.WEST);
+    PlinthSpot west = CENTER.slot(PlinthSlot.WEST);
+    ItemStack feather = stock.get(PlinthSlot.WEST);
+    holding(feather);
+    click(west, EquipmentSlot.HAND);
+    holding(null);
+    click(west, EquipmentSlot.HAND);
+    holding(feather);
+
+    platform.now += PlinthService.PREVIEW_THROTTLE_MILLIS - 1L;
+    click(west, EquipmentSlot.HAND);
+
+    assertThat(platform.told).hasSize(1);
+    assertThat(platform.store).hasSize(5);
+    holding(null);
+    click(west, EquipmentSlot.HAND);
+    holding(feather);
+
+    platform.now += 1L;
+    click(west, EquipmentSlot.HAND);
+
+    assertThat(platform.told).extracting(FakePlinthPlatform.Told::key)
+        .containsExactly(GolemancyMessages.PLINTH_PREVIEW, GolemancyMessages.PLINTH_PREVIEW);
+  }
+
+  @Test
+  void aPreviewThatChangedShowsAtOnceInsideTheThrottleWindow() {
+    stockPlinthExcept(PlinthSlot.WEST);
+    PlinthSpot west = CENTER.slot(PlinthSlot.WEST);
+    ItemStack feather = stock.get(PlinthSlot.WEST);
+    holding(feather);
+    click(west, EquipmentSlot.HAND);
+    holding(null);
+    click(west, EquipmentSlot.HAND);
+    holding(feather);
+    when(player.getLevel()).thenReturn(1);
+
+    click(west, EquipmentSlot.HAND);
+
+    assertThat(platform.told).extracting(FakePlinthPlatform.Told::key)
+        .containsExactly(GolemancyMessages.PLINTH_PREVIEW, GolemancyMessages.PLINTH_PREVIEW_SHORT);
+  }
+
+  @Test
+  void aViewerWhoLeavesStartsWithoutAThrottledPreview() {
+    stockPlinthExcept(PlinthSlot.WEST);
+    PlinthSpot west = CENTER.slot(PlinthSlot.WEST);
+    ItemStack feather = stock.get(PlinthSlot.WEST);
+    holding(feather);
+    click(west, EquipmentSlot.HAND);
+    holding(null);
+    click(west, EquipmentSlot.HAND);
+    holding(feather);
+    service.on(new PlayerQuitEvent(player, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+
+    click(west, EquipmentSlot.HAND);
+
+    assertThat(platform.told).hasSize(2);
   }
 
   @Test
@@ -733,6 +970,18 @@ class PlinthServiceTest extends AdaptTestBase {
     }
     service.on(new ChunkLoadEvent(chunk(0, 0), false));
     events.clear();
+    platform.told.clear();
+  }
+
+  private void stockPlinthExcept(PlinthSlot missing) {
+    for (Map.Entry<PlinthSlot, ItemStack> entry : stock.entrySet()) {
+      if (entry.getKey() != missing) {
+        platform.store.put(CENTER.slot(entry.getKey()), PlinthSlotItem.of(UUID.randomUUID(), entry.getValue()));
+      }
+    }
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    events.clear();
+    platform.told.clear();
   }
 
   private void readyChunk() {
@@ -856,6 +1105,7 @@ class PlinthServiceTest extends AdaptTestBase {
     private final Map<String, Integer> levels = new HashMap<>(Map.of(InfusionRecipe.RUNIC_AUGMENTS, 5));
     private boolean canStore = true;
     private boolean canInfuse = true;
+    private boolean refuseCharge;
 
     private FakeHost(List<String> events) {
       this.events = events;
@@ -879,6 +1129,9 @@ class PlinthServiceTest extends AdaptTestBase {
     @Override
     public Optional<PlinthCharge> chargeLevels(Player player, String adaptationId, int levels) {
       events.add("pay " + adaptationId + " " + levels);
+      if (refuseCharge) {
+        return Optional.empty();
+      }
       return Optional.of(new PlinthCharge() {
         @Override
         public void settle() {

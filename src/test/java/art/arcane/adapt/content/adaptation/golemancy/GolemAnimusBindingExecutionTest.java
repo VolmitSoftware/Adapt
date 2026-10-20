@@ -30,12 +30,16 @@ import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.registry.RegistryAccess;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -56,6 +60,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -71,10 +76,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -98,6 +105,17 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
   private MockedStatic<ConfiguredRecipeParser> parsers;
   private MockedStatic<GolemancyRuntime> runtime;
   private GolemAnimusBinding adaptation;
+
+  @BeforeAll
+  static void initializeSounds() {
+    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
+    try (MockedStatic<RegistryAccess> registries = mockStatic(RegistryAccess.class)) {
+      registries.when(RegistryAccess::registryAccess).thenReturn(access);
+      Registry<Sound> sounds = Registry.SOUNDS;
+      doAnswer(call -> mock(Sound.class)).when(sounds).getOrThrow(any(Key.class));
+      assertThat(Sound.ENTITY_VILLAGER_NO).isNotNull();
+    }
+  }
 
   @BeforeEach
   void construct() {
@@ -297,6 +315,76 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
       ritual.assertReturnedOnce();
       verify(golem).setAware(true);
       verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void aBindingWithoutEnoughLevelsIsRefusedInRedWithTheCostYourLevelsAndADenySound() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      doReturn(1).when(ritual.learned).getActiveLevel(ritual.owner);
+      when(ritual.owner.getLevel()).thenReturn(0);
+
+      ritual.click(golem);
+
+      String refusal = "Not enough experience: binding this golem costs 1 levels and you have 0";
+      assertThat(ritual.shown).containsExactly(refusal);
+      assertThat(ritual.shownRaw).containsExactly(C.RED + refusal);
+      verify(ritual.owner).playSound(any(Location.class), eq(Sound.ENTITY_VILLAGER_NO), anyFloat(), anyFloat());
+      assertThat(ritual.pulses).isEmpty();
+      verify(ritual.held, never()).setAmount(anyInt());
+      verify(ritual.owner, never()).giveExpLevels(anyInt());
+    }
+  }
+
+  @Test
+  void bindingLevelsAreTakenOnlyWhenTheRitualCompletes() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      doReturn(1).when(ritual.learned).getActiveLevel(ritual.owner);
+
+      ritual.click(golem);
+      ritual.pulse(2);
+
+      verify(ritual.owner, never()).giveExpLevels(anyInt());
+      ritual.finish();
+
+      verify(ritual.owner).giveExpLevels(-1);
+      assertThat(ritual.shown).containsExactly("Your Frost golem is now bound to you");
+    }
+  }
+
+  @Test
+  void levelsLostDuringTheRitualRefuseAtTheEndReturnTheCoreAndChargeNothing() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      doReturn(1).when(ritual.learned).getActiveLevel(ritual.owner);
+      ritual.click(golem);
+      ritual.pulse(2);
+      when(ritual.owner.getLevel()).thenReturn(0);
+
+      ritual.finish();
+
+      assertThat(ritual.shown).containsExactly("Not enough experience: binding this golem costs 1 levels and you have 0");
+      verify(ritual.owner).playSound(any(Location.class), eq(Sound.ENTITY_VILLAGER_NO), anyFloat(), anyFloat());
+      ritual.assertReturnedOnce();
+      verify(ritual.owner, never()).giveExpLevels(anyInt());
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void theTithesTheLoreShowsAreTheTithesABindingCharges() {
+    GolemAnimusBinding.Config config = adaptation.getConfig();
+
+    for (int level = 1; level <= adaptation.getMaxLevel(); level++) {
+      assertThat(lore(level)).as("level %s", level).contains(
+          "- " + GolemAnimusBinding.tithe(config, GolemBody.FROST, level) + " Levels to Bind a Frost Golem",
+          "- " + GolemAnimusBinding.tithe(config, GolemBody.COPPER, level) + " Levels to Bind a Copper Golem",
+          "- " + GolemAnimusBinding.tithe(config, GolemBody.IRON, level) + " Levels to Bind an Iron Golem");
     }
   }
 
@@ -533,6 +621,7 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
     private final GolemRegistry registry = mock(GolemRegistry.class);
     private final List<Runnable> pulses = new ArrayList<>();
     private final List<String> shown = new ArrayList<>();
+    private final List<String> shownRaw = new ArrayList<>();
     private final GolemAnimusBinding learned;
     private final MockedStatic<J> scheduling;
     private final MockedStatic<GolemItems> items;
@@ -583,7 +672,10 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
       drops = mockStatic(OwnerBoundDrop.class);
       scales = mockStatic(GolemScale.class);
       hud = mockStatic(AdaptHud.class);
-      hud.when(() -> AdaptHud.actionBar(eq(owner), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
+      hud.when(() -> AdaptHud.actionBar(eq(owner), anyString())).thenAnswer(invocation -> {
+        shownRaw.add(invocation.getArgument(1));
+        return shown.add(C.stripColor(invocation.getArgument(1)));
+      });
       doReturn(5).when(learned).getActiveLevel(owner);
       doReturn(1).when(learned).getActiveSiblingLevel(eq(owner), anyString());
       doReturn(true).when(learned).canInteract(any(Player.class), any(Location.class));

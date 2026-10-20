@@ -188,7 +188,7 @@ public final class GolemancyMessages {
   public static final TextKey BINDING_UNAVAILABLE = TextKey.of("golemancy.binding.unavailable", "Your golem roster isn't ready yet");
   public static final TextKey BINDING_GOLEM_CAP = TextKey.of("golemancy.binding.golem_cap", "You already own your limit of {count} golems");
   public static final TextKey BINDING_CHUNK_CAP = TextKey.of("golemancy.binding.chunk_cap", "This area already holds {count} bound golems");
-  public static final TextKey BINDING_LEVELS = TextKey.of("golemancy.binding.levels", "Binding this golem costs {levels} levels");
+  public static final TextKey BINDING_LEVELS = TextKey.of("golemancy.binding.levels", "Not enough experience: binding this golem costs {levels} levels and you have {have}");
   public static final TextKey BINDING_INTERRUPTED = TextKey.of("golemancy.binding.interrupted", "The binding was interrupted");
   public static final TextKey BINDING_BOUND = TextKey.of("golemancy.binding.bound", "Your {body} golem is now bound to you");
   public static final TextKey ANIMUS_BINDING_NAME = TextKey.of("golemancy.animus_binding.name", "Animus Binding");
@@ -232,7 +232,10 @@ public final class GolemancyMessages {
   public static final TextKey RUNIC_AUGMENTS_LORE1 = TextKey.of("golemancy.runic_augments.lore1", "Extra Rune Slots per Golem");
   public static final TextKey RUNIC_AUGMENTS_LORE2 = TextKey.of("golemancy.runic_augments.lore2", "Highest Usable Rune Tier");
   public static final TextKey RUNIC_AUGMENTS_LORE3 = TextKey.of("golemancy.runic_augments.lore3", "Animus Plinth and Blank Rune Recipe");
-  public static final LinesKey RUNIC_AUGMENTS_LORE = LinesKey.of("golemancy.runic_augments.lore", "Extra Rune Slots per Golem", "Highest Usable Rune Tier", "Animus Plinth and Blank Rune Recipe");
+  public static final TextKey RUNIC_AUGMENTS_LORE4 = TextKey.of("golemancy.runic_augments.lore4", "Levels to Infuse a Tier 1 Rune");
+  public static final TextKey RUNIC_AUGMENTS_LORE5 = TextKey.of("golemancy.runic_augments.lore5", "Levels to Infuse a Tier 2 Rune");
+  public static final TextKey RUNIC_AUGMENTS_LORE6 = TextKey.of("golemancy.runic_augments.lore6", "Levels to Infuse a Tier 3 Rune");
+  public static final LinesKey RUNIC_AUGMENTS_LORE = LinesKey.of("golemancy.runic_augments.lore", "Extra Rune Slots per Golem", "Highest Usable Rune Tier", "Animus Plinth and Blank Rune Recipe", "Levels to Infuse a Tier 1 Rune", "Levels to Infuse a Tier 2 Rune", "Levels to Infuse a Tier 3 Rune");
   public static final TextKey OVERSEER_NAME = TextKey.of("golemancy.overseer.name", "Overseer");
   public static final TextKey OVERSEER_DESCRIPTION = TextKey.of("golemancy.overseer.description", "Lets you signal your bound golems with the Artificer's Crook to follow you, hold, go home or work, and as it grows, to attack what you look at, answer by channel, rally to you and guard you in formation.");
   public static final TextKey OVERSEER_LORE1 = TextKey.of("golemancy.overseer.lore1", "Block Signal Radius");
@@ -300,7 +303,8 @@ public final class GolemancyMessages {
   public static final TextKey MASTERWORK_LORE4 = TextKey.of("golemancy.masterwork.lore4", "Second Core Slot on a Masterwork");
   public static final TextKey MASTERWORK_LORE5 = TextKey.of("golemancy.masterwork.lore5", "Masterwork Runes Act One Tier Higher");
   public static final TextKey MASTERWORK_LORE6 = TextKey.of("golemancy.masterwork.lore6", "Bonus to Tier 3 Runes on a Masterwork");
-  public static final LinesKey MASTERWORK_LORE = LinesKey.of("golemancy.masterwork.lore", "Masterwork Golems", "Extra Rune Slots on a Masterwork", "Max Health on a Masterwork", "Second Core Slot on a Masterwork", "Masterwork Runes Act One Tier Higher", "Bonus to Tier 3 Runes on a Masterwork");
+  public static final TextKey MASTERWORK_LORE7 = TextKey.of("golemancy.masterwork.lore7", "Levels to Infuse a Masterwork Heart");
+  public static final LinesKey MASTERWORK_LORE = LinesKey.of("golemancy.masterwork.lore", "Masterwork Golems", "Extra Rune Slots on a Masterwork", "Max Health on a Masterwork", "Second Core Slot on a Masterwork", "Masterwork Runes Act One Tier Higher", "Bonus to Tier 3 Runes on a Masterwork", "Levels to Infuse a Masterwork Heart");
   public static final TextKey MASTERWORK_SLOT = TextKey.of("golemancy.masterwork.slot", "Masterwork Heart");
   public static final TextKey MASTERWORK_SLOT_LORE = TextKey.of("golemancy.masterwork.slot_lore", "Click to take the Heart back with the second core and the extra runes");
   public static final TextKey MASTERWORK_SLOT_EMPTY = TextKey.of("golemancy.masterwork.slot_empty", "Masterwork Slot");
@@ -540,7 +544,10 @@ public final class GolemancyMessages {
   public static final TextKey PLINTH_BUSY = TextKey.of("golemancy.plinth.busy", "An infusion is already running");
   public static final TextKey PLINTH_NO_RECIPE = TextKey.of("golemancy.plinth.no_recipe", "These items do not form an infusion");
   public static final TextKey PLINTH_LOCKED = TextKey.of("golemancy.plinth.locked", "You have not learned this infusion yet");
-  public static final TextKey PLINTH_LEVELS = TextKey.of("golemancy.plinth.levels", "This infusion costs {levels} levels");
+  public static final TextKey PLINTH_LEVELS = TextKey.of("golemancy.plinth.levels", "Not enough experience: this infusion costs {levels} levels and you have {have}");
+  public static final TextKey PLINTH_PREVIEW = TextKey.of("golemancy.plinth.preview", "{result} costs {levels} levels");
+  public static final TextKey PLINTH_PREVIEW_SHORT = TextKey.of("golemancy.plinth.preview_short", "{result} costs {levels} levels and you have {have}");
+  public static final TextKey PLINTH_PREVIEW_FREE = TextKey.of("golemancy.plinth.preview_free", "{result} is free");
   public static final TextKey PLINTH_INTERRUPTED = TextKey.of("golemancy.plinth.interrupted", "The infusion was interrupted");
   public static final TextKey PLINTH_COMPLETE = TextKey.of("golemancy.plinth.complete", "The infusion is complete");
   public static final TextKey PLINTH_FAILED = TextKey.of("golemancy.plinth.failed", "The infusion failed and your levels were returned");
@@ -925,6 +932,9 @@ public final class GolemancyMessages {
     builder.add(RUNIC_AUGMENTS_LORE1);
     builder.add(RUNIC_AUGMENTS_LORE2);
     builder.add(RUNIC_AUGMENTS_LORE3);
+    builder.add(RUNIC_AUGMENTS_LORE4);
+    builder.add(RUNIC_AUGMENTS_LORE5);
+    builder.add(RUNIC_AUGMENTS_LORE6);
     builder.add(RUNIC_AUGMENTS_LORE);
     builder.add(OVERSEER_NAME);
     builder.add(OVERSEER_DESCRIPTION);
@@ -993,6 +1003,7 @@ public final class GolemancyMessages {
     builder.add(MASTERWORK_LORE4);
     builder.add(MASTERWORK_LORE5);
     builder.add(MASTERWORK_LORE6);
+    builder.add(MASTERWORK_LORE7);
     builder.add(MASTERWORK_LORE);
     builder.add(MASTERWORK_SLOT);
     builder.add(MASTERWORK_SLOT_LORE);
@@ -1084,6 +1095,9 @@ public final class GolemancyMessages {
     builder.add(PLINTH_NO_RECIPE);
     builder.add(PLINTH_LOCKED);
     builder.add(PLINTH_LEVELS);
+    builder.add(PLINTH_PREVIEW);
+    builder.add(PLINTH_PREVIEW_SHORT);
+    builder.add(PLINTH_PREVIEW_FREE);
     builder.add(PLINTH_INTERRUPTED);
     builder.add(PLINTH_COMPLETE);
     builder.add(PLINTH_FAILED);
