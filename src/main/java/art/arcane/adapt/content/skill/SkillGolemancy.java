@@ -148,6 +148,13 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private static final long CARE_CHECK_STALE_MILLIS = 5_000L;
   private static final String PRE_ATTACK_EVENT = "io.papermc.paper.event.player.PrePlayerAttackEntityEvent";
   private static final String RESOURCES_RELOADED_EVENT = "io.papermc.paper.event.server.ServerResourcesReloadedEvent";
+  static final List<List<String>> ROW_GROUPS = List.of(
+      List.of("golem-animus-binding", "golem-node-weaving"),
+      List.of("golem-frost-frame", "golem-copper-frame", "golem-iron-frame", "golem-bone-frame"),
+      List.of("golem-guardian-core", "golem-gatherer-core", "golem-harvester-core", "golem-lumber-core",
+          "golem-breaker-core", "golem-rancher-core", "golem-sorter-core", "golem-angler-core"),
+      List.of("golem-runic-augments", "golem-masterwork", "golem-overseer", "golem-mending", "golem-stasis")
+  );
 
   private final GolemBuildAttribution buildAttribution = new GolemBuildAttribution();
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
@@ -318,6 +325,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemItems.craftCounter().observe(this::rewardCraft);
     SpatialMatter.registerSliceType(new NodeMatter());
     SpatialMatter.registerSliceType(new PlinthSlotMatter());
+  }
+
+  @Override
+  public List<List<String>> getAdaptationRowGroups() {
+    return ROW_GROUPS;
   }
 
   @Override
