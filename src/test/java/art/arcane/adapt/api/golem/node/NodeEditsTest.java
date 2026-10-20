@@ -72,6 +72,18 @@ class NodeEditsTest {
   }
 
   @Test
+  void shiftClickResizesByFourWithinTheLevelCap() {
+    NodeRecord record = record().radii(2, 8, 30).build();
+
+    assertThat(NodeEdits.SHIFT_STEP).isEqualTo(4);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 32).radiusX()).isEqualTo(6);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 10).radiusY()).isEqualTo(10);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, NodeEdits.SHIFT_STEP, 32).radiusZ()).isEqualTo(32);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.SHIFT_STEP, 32).radiusX()).isZero();
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -NodeEdits.SHIFT_STEP, 32).radiusY()).isEqualTo(4);
+  }
+
+  @Test
   void anAreaAboveALoweredCapCanShrinkButNeverGrow() {
     NodeRecord record = record().radii(6, 6, 6).build();
 

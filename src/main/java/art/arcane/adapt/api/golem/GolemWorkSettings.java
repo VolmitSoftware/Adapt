@@ -12,7 +12,7 @@ public record GolemWorkSettings(int taskLeaseSeconds, double baseWorkRadius, int
   public static final int MAX_STUCK_RELEASES = 100;
   public static final int MAX_STUCK_PAUSE_SECONDS = 600;
 
-  private static final double DEFAULT_WORK_RADIUS = 24D;
+  private static final double DEFAULT_WORK_RADIUS = 32D;
   private static final GolemWorkSettings DEFAULTS = new GolemWorkSettings(20, DEFAULT_WORK_RADIUS, 4, 3, 15);
 
   public GolemWorkSettings {

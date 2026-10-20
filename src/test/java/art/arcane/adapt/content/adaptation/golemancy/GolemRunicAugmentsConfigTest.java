@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemBrainSettings;
+import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -45,6 +47,14 @@ class GolemRunicAugmentsConfigTest {
     assertThat(choice(shaped, 'S')).containsExactly(stone);
     assertThat(shaped.getResult()).isSameAs(blankRune);
     assertThat(config.blankRuneRecipe.getAmount()).isEqualTo(2);
+  }
+
+  @Test
+  void theLeashHoldsTheWorkRadiusOfTheBiggestTideRune() {
+    double largestTideBonus = config.tideRadiusByTier.stream().mapToDouble(Double::doubleValue).max().orElseThrow();
+
+    assertThat(GolemBrainSettings.defaults().leashRadius())
+        .isGreaterThanOrEqualTo(GolemWorkSettings.defaults().baseWorkRadius() + largestTideBonus);
   }
 
   private Material material(String name) {

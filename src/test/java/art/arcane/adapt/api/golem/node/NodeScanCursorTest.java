@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.block.BlockFace;
 import org.junit.jupiter.api.Test;
 
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -73,5 +74,49 @@ class NodeScanCursorTest {
 
     assertThat(cursor.next(64, 100)).isEqualTo(new NodeScanCursor.Window(0, 64));
     assertThat(cursor.next(0, 100)).isEqualTo(new NodeScanCursor.Window(64, 0));
+  }
+
+  @Test
+  void aRadiusThirtyTwoAreaIsScannedInFullAtTheSameBudgetPerPass() {
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+    int volume = NodeArea.volume(node);
+    int budget = NodeSettings.defaults().blocksPerScan();
+    NodeScanCursor cursor = new NodeScanCursor();
+    int expectedStart = 0;
+    int passes = 0;
+
+    while (expectedStart < volume) {
+      NodeScanCursor.Window window = cursor.next(budget, volume);
+      assertThat(window.start()).isEqualTo(expectedStart);
+      assertThat(window.count()).isBetween(1, budget);
+      expectedStart += window.count();
+      passes++;
+    }
+
+    assertThat(volume).isEqualTo(65 * 65 * 65).isPositive();
+    assertThat(expectedStart).isEqualTo(volume);
+    assertThat(passes).isEqualTo((volume + budget - 1) / budget);
+    assertThat(cursor.next(budget, volume)).isEqualTo(new NodeScanCursor.Window(0, budget));
+  }
+
+  @Test
+  void everyIndexOfARadiusThirtyTwoAreaMapsToItsOwnBlockWithoutOverflow() {
+    NodeKey key = new NodeKey(WORLD, 29_999_900, 120, -29_999_900, BlockFace.UP);
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+    int[] center = NodeArea.center(key);
+    BitSet seen = new BitSet(NodeArea.volume(node));
+
+    for (int index = 0; index < NodeArea.volume(node); index++) {
+      int[] position = NodeArea.position(key, node, index);
+      int offsetX = position[0] - (center[0] - 32);
+      int offsetY = position[1] - (center[1] - 32);
+      int offsetZ = position[2] - (center[2] - 32);
+      assertThat(NodeArea.covers(key, node, position[0] + 0.5D, position[1] + 0.5D, position[2] + 0.5D)).isTrue();
+      seen.set((offsetY * 65 + offsetZ) * 65 + offsetX);
+    }
+
+    assertThat(seen.cardinality()).isEqualTo(NodeArea.volume(node));
+    assertThat(NodeArea.position(key, node, 0)).containsExactly(center[0] - 32, center[1] - 32, center[2] - 32);
+    assertThat(NodeArea.position(key, node, NodeArea.volume(node) - 1)).containsExactly(center[0] + 32, center[1] + 32, center[2] + 32);
   }
 }

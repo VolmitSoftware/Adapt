@@ -316,6 +316,38 @@ class GolemTaskBoardTest {
   }
 
   @Test
+  void aRadiusThirtyTwoNodeOffersItsWholeAreaWithinTheDefaultWorkRadius() {
+    NodeKey wide = new NodeKey(WORLD, 60, 64, 0, BlockFace.UP);
+    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    board.offer(crop(wide, 31, 64, 0), 16);
+    board.offer(crop(wide, 33, 64, 0), 16);
+    double radius = GolemWorkSettings.defaults().baseWorkRadius();
+    GolemTaskBoard.Seeker golem = new GolemTaskBoard.Seeker(GOLEM, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.IRON, ChannelMask.NONE,
+        0.5D, 64D, 0.5D, radius, 0.5D, 64D, 0.5D);
+
+    assertThat(targetsX(board.candidates(golem, ignored -> false, now))).containsExactly(31);
+  }
+
+  @Test
+  void everyExtremeOfARadiusThirtyTwoAreaAtTheWorldBorderKeepsItsOwnTask() {
+    int borderX = 29_999_950;
+    int borderZ = -29_999_950;
+    NodeKey wide = new NodeKey(WORLD, borderX, 120, borderZ, BlockFace.UP);
+    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    int[] edges = {-32, 32};
+
+    for (int dx : edges) {
+      for (int dy : edges) {
+        for (int dz : edges) {
+          assertThat(board.offer(crop(wide, borderX + dx, 121 + dy, borderZ + dz), 16)).isEqualTo(GolemTaskBoard.Offer.ADDED);
+        }
+      }
+    }
+
+    assertThat(board.openCount(wide)).isEqualTo(8);
+  }
+
+  @Test
   void candidatesSortByPriorityThenDistanceFromTheGolem() {
     NodeKey low = harvestNode(0, 64, 0, null, 1);
     NodeKey high = harvestNode(16, 64, 0, null, 5);

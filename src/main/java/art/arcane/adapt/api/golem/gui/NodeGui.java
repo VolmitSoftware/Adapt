@@ -268,10 +268,13 @@ public final class NodeGui {
           GuiTheme.element("node-area-" + axis.name(), areaIcon(axis), "gui", "golemancy", "area_" + axis.name().toLowerCase(Locale.ROOT))
               .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA, trusted("axis", axis.name()), trusted("radius", NodeEdits.radius(record, axis))))
               .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_LORE))
+              .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_SHIFT, trusted("step", NodeEdits.SHIFT_STEP)))
               .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_CAP, trusted("radius", maxRadius)))
               .setProgress(1D)
-              .onLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, 1, maxRadius)))
-              .onRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -1, maxRadius))));
+              .onLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.STEP, maxRadius)))
+              .onRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -NodeEdits.STEP, maxRadius)))
+              .onShiftLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.SHIFT_STEP, maxRadius)))
+              .onShiftRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -NodeEdits.SHIFT_STEP, maxRadius))));
     }
   }
 

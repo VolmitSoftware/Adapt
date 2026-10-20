@@ -60,7 +60,7 @@ class SkillGolemancySettingsTest {
   @Test
   void configDefaultsProduceTheBrainDefaults() {
     assertThat(SkillGolemancy.brainSettings(new SkillGolemancy.Config())).isEqualTo(GolemBrainSettings.defaults());
-    assertThat(GolemBrainSettings.defaults()).isEqualTo(new GolemBrainSettings(5, 32D, 32D, 8, 10));
+    assertThat(GolemBrainSettings.defaults()).isEqualTo(new GolemBrainSettings(5, 32D, 48D, 8, 10));
   }
 
   @Test

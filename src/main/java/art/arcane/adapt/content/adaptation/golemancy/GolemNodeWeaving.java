@@ -189,7 +189,10 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   }
 
   static int maxAreaRadius(Config config, int level) {
-    return Math.max(0, Math.min(NodeRecord.MAX_RADIUS, AnimusBindingRules.atLevel(config.maxAreaRadiusByLevel, level, 0)));
+    if (level < 1) {
+      return 0;
+    }
+    return Math.clamp(AnimusBindingRules.atLevel(config.maxAreaRadiusByLevel, level, 1), 1, NodeRecord.MAX_RADIUS);
   }
 
   static int filterSlots(Config config, int level) {
@@ -263,8 +266,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Most nodes you can own at once, by Node Weaving level from level 1 upward.", impact = "Higher values let players place more nodes.")
     List<Integer> nodeCapByLevel = new ArrayList<>(List.of(4, 8, 12, 18, 24));
-    @ConfigDoc(value = "Largest work area radius in blocks a node can be set to, by Node Weaving level from level 1 upward. Each value is capped at 32.", impact = "Higher values let nodes cover larger areas; new nodes start at radius 2 or this cap, whichever is lower.")
-    List<Integer> maxAreaRadiusByLevel = new ArrayList<>(List.of(2, 3, 4, 6, 8));
+    @ConfigDoc(value = "Largest work area radius in blocks a node can be set to, by Node Weaving level from level 1 upward. Each value is clamped to 1 through 32.", impact = "Higher values let nodes cover larger areas; new nodes start at radius 2 or this cap, whichever is lower.")
+    List<Integer> maxAreaRadiusByLevel = new ArrayList<>(List.of(8, 12, 16, 24, 32));
     @ConfigDoc(value = "Filter entries a node can hold, by Node Weaving level from level 1 upward. Each value is capped at 18.", impact = "Higher values let a node filter more items and tags.")
     List<Integer> filterSlotsByLevel = new ArrayList<>(List.of(3, 6, 6, 9, 18));
     @ConfigDoc(value = "Golemancy XP paid the first time you place each type of node.", impact = "Higher values reward trying each node type more; each type pays once per player.")

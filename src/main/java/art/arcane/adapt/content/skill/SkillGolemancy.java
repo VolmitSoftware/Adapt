@@ -1103,8 +1103,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int brainIntervalTicks = 5;
     @ConfigDoc(value = "Blocks from its owner, in the same world, at which a following golem teleports to them instead of walking. The minimum is 8.", impact = "Lower values teleport golems sooner; higher values make them walk farther first.")
     double followTeleportDistance = 32;
-    @ConfigDoc(value = "Blocks a fighting golem may stray from its owner, home, or stay spot before it drops the fight and walks back. It is also the farthest a linked home chest may be from the golem's home. The minimum is 8.", impact = "Higher values let golems chase enemies farther.")
-    double leashRadius = 32;
+    @ConfigDoc(value = "Blocks a fighting or working golem may stray from its owner, home, or stay spot before it drops the fight or job and walks back. It is also the farthest a linked home chest may be from the golem's home. The minimum is 8.", impact = "Higher values let golems chase enemies and work farther out; keep it at least baseWorkRadius plus the largest Tide rune bonus so golems can finish jobs at the edge of their reach.")
+    double leashRadius = 48;
     @ConfigDoc(value = "Seconds a working golem stands idle away from home before it walks back.", impact = "Lower values send idle golems home sooner; 0 sends them home at once.")
     int idleReturnSeconds = 8;
     @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 2-20.", impact = "Lower values keep copper golems on course; higher values leave a copper golem standing longer after something, such as taking damage, stops its path.")
@@ -1128,7 +1128,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Seconds a golem keeps its claim on a node job without making progress before another golem may take it, clamped to 5-600.", impact = "Lower values let other golems take over stalled jobs sooner; higher values tolerate slow walks to far jobs.")
     int taskLeaseSeconds = 20;
     @ConfigDoc(value = "Blocks around its home within which a working golem takes node jobs, finds Deposit Nodes and defends Guard Nodes, clamped to 4-128.", impact = "Higher values let golems work, deliver and guard farther from home.")
-    double baseWorkRadius = 24;
+    double baseWorkRadius = 32;
     @ConfigDoc(value = "Seconds a golem walking to a job or a container may go without getting half a block closer before it gives up and skips that job or container for 10 seconds, clamped to 1-60.", impact = "Lower values give up on blocked paths sooner; higher values keep trying longer.")
     int stuckTimeoutSeconds = 4;
     @ConfigDoc(value = "Jobs or containers in a row a golem may give up because it got stuck before it rests for stuckPauseSeconds, clamped to 1-100.", impact = "Lower values rest trapped golems sooner; higher values keep them trying longer.")

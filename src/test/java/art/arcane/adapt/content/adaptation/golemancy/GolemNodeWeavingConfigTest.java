@@ -35,7 +35,7 @@ class GolemNodeWeavingConfigTest {
   @Test
   void nodeCapsAreaRadiiAndFilterSlotsFollowTheLevelTable() {
     assertThat(perLevel(level -> GolemNodeWeaving.nodeCap(config, level))).containsExactly(4, 8, 12, 18, 24);
-    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(2, 3, 4, 6, 8);
+    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(8, 12, 16, 24, 32);
     assertThat(perLevel(level -> GolemNodeWeaving.filterSlots(config, level))).containsExactly(3, 6, 6, 9, 18);
   }
 
@@ -56,6 +56,19 @@ class GolemNodeWeavingConfigTest {
     assertThat(GolemNodeWeaving.maxAreaRadius(config, 1)).isEqualTo(NodeRecord.MAX_RADIUS);
     assertThat(GolemNodeWeaving.filterSlots(config, 1)).isEqualTo(NodeRecord.MAX_FILTER_ENTRIES);
     assertThat(GolemNodeWeaving.nodeCap(config, 1)).isZero();
+  }
+
+  @Test
+  void theTopAreaRadiusReachesTheLargestAreaANodeCanHold() {
+    assertThat(GolemNodeWeaving.maxAreaRadius(config, 5)).isEqualTo(NodeRecord.MAX_RADIUS).isEqualTo(32);
+  }
+
+  @Test
+  void configuredAreaRadiiAreClampedFromOneThroughThirtyTwo() {
+    config.maxAreaRadiusByLevel = List.of(0, -4, 99, 32);
+
+    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(1, 1, 32, 32, 32);
+    assertThat(GolemNodeWeaving.maxAreaRadius(config, 0)).isZero();
   }
 
   @Test

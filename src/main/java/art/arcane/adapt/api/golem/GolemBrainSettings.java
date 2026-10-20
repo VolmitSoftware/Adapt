@@ -14,7 +14,7 @@ public record GolemBrainSettings(
   public static final int MAX_COPPER_REPATH_TICKS = 20;
 
   private static final double DEFAULT_FOLLOW_TELEPORT_DISTANCE = 32D;
-  private static final double DEFAULT_LEASH_RADIUS = 32D;
+  private static final double DEFAULT_LEASH_RADIUS = 48D;
   private static final GolemBrainSettings DEFAULTS = new GolemBrainSettings(5, DEFAULT_FOLLOW_TELEPORT_DISTANCE, DEFAULT_LEASH_RADIUS, 8, 10);
 
   public GolemBrainSettings {

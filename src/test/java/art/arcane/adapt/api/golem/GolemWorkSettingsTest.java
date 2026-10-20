@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,13 +11,19 @@ class GolemWorkSettingsTest {
     GolemWorkSettings defaults = GolemWorkSettings.defaults();
 
     assertThat(defaults.taskLeaseSeconds()).isEqualTo(20);
-    assertThat(defaults.baseWorkRadius()).isEqualTo(24D);
+    assertThat(defaults.baseWorkRadius()).isEqualTo(32D);
     assertThat(defaults.stuckTimeoutSeconds()).isEqualTo(4);
     assertThat(defaults.leaseMillis()).isEqualTo(20_000L);
     assertThat(defaults.stuckMillis()).isEqualTo(4_000L);
     assertThat(defaults.stuckReleasesBeforePause()).isEqualTo(3);
     assertThat(defaults.stuckPauseSeconds()).isEqualTo(15);
     assertThat(defaults.stuckPauseMillis()).isEqualTo(15_000L);
+  }
+
+  @Test
+  void theDefaultWorkRadiusReachesTheEdgeOfTheLargestNodeArea() {
+    assertThat(GolemWorkSettings.defaults().baseWorkRadius()).isGreaterThanOrEqualTo(NodeRecord.MAX_RADIUS);
+    assertThat(GolemWorkSettings.MAX_WORK_RADIUS).isGreaterThan(NodeRecord.MAX_RADIUS);
   }
 
   @Test
@@ -35,6 +42,6 @@ class GolemWorkSettingsTest {
     assertThat(high.stuckTimeoutSeconds()).isEqualTo(GolemWorkSettings.MAX_STUCK_SECONDS);
     assertThat(high.stuckReleasesBeforePause()).isEqualTo(GolemWorkSettings.MAX_STUCK_RELEASES);
     assertThat(high.stuckPauseSeconds()).isEqualTo(GolemWorkSettings.MAX_STUCK_PAUSE_SECONDS);
-    assertThat(broken.baseWorkRadius()).isEqualTo(24D);
+    assertThat(broken.baseWorkRadius()).isEqualTo(32D);
   }
 }

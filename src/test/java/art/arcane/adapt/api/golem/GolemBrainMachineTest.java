@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GolemBrainMachineTest {
   private static final double NONE = Double.NaN;
-  private static final GolemBrainSettings SETTINGS = GolemBrainSettings.defaults();
+  private static final GolemBrainSettings SETTINGS = new GolemBrainSettings(5, 32D, 32D, 8, 10);
 
   private final GolemBrainMachine machine = new GolemBrainMachine();
   private long now = 10_000L;
