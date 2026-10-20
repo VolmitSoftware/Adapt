@@ -2,12 +2,10 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.ChannelMask;
-import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
-import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRune;
@@ -16,7 +14,6 @@ import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemStats;
-import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
@@ -46,8 +43,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -69,13 +66,22 @@ public final class GolemGui {
   private final Player player;
   private final GolemHandle handle;
   private final CrookGestures<GolemHandle> gestures;
+  private final LiveRefresh<GolemView> live;
   private UIWindow window;
   private Page page = Page.MAIN;
+  private Page renderedPage;
+  private GolemView shown;
+  private List<Carried> renderedCarried = List.of();
+  private int renderedHidden;
 
   private GolemGui(Player player, GolemHandle handle, CrookGestures<GolemHandle> gestures) {
     this.player = player;
     this.handle = handle;
     this.gestures = gestures;
+    this.live = new LiveRefresh<>(new LiveRefresh.Hooks<>(
+        (task, delay, retired) -> J.runEntity(handle.entity(), task, delay, retired),
+        (task, delay, retired) -> J.runEntity(player, task, delay, retired),
+        this::read, this::render, this::gone, this::isOpen));
   }
 
   public static void open(Player player, GolemHandle handle, CrookGestures<GolemHandle> gestures) {
@@ -87,15 +93,27 @@ public final class GolemGui {
   }
 
   private void snapshot() {
-    if (handle.isRetired() || !handle.entity().isValid()) {
+    Optional<GolemView> view = read();
+    if (view.isEmpty()) {
       gone();
       return;
     }
-    View view = View.of(handle);
-    J.runEntity(player, () -> render(view));
+    J.runEntity(player, () -> render(view.get()));
+  }
+
+  private Optional<GolemView> read() {
+    if (handle.isRetired() || !handle.entity().isValid()) {
+      return Optional.empty();
+    }
+    return Optional.of(GolemView.of(handle));
+  }
+
+  private boolean isOpen() {
+    return player.isOnline() && window != null && window.isVisible();
   }
 
   private void gone() {
+    live.stop();
     GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
     J.runEntity(player, () -> {
       if (window != null && window.isVisible()) {
@@ -104,35 +122,69 @@ public final class GolemGui {
     });
   }
 
-  private void render(View view) {
+  private void render(GolemView view) {
     if (!player.isOnline() || (window != null && !window.isVisible())) {
       return;
     }
+    GolemView before = shown;
+    boolean initial = window == null || renderedPage != page;
+    if (!initial && view.equals(before)) {
+      return;
+    }
     try (LanguageAudience.Scope audience = LanguageAudience.open(player.getUniqueId())) {
-      UIWindow next = new UIWindow(Adapt.instance, player);
-      GuiTheme.apply(next, "golemancy-golem");
-      next.setViewportHeight(ROWS);
-      next.batch(() -> {
-        if (page == Page.CHANNELS) {
-          placeChannelPicker(next, view);
-          return;
+      if (initial) {
+        draw(view);
+      } else if (page == Page.CHANNELS) {
+        if (!view.channels().equals(before.channels())) {
+          draw(view);
         }
-        placeHeader(next, view);
-        placeRunes(next, view);
-        placeCarried(next, view);
-        placeFooter(next, view);
-      });
-      next.setTitle(page == Page.CHANNELS
-          ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_TITLE)
-          : AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(view.body().displayName()))));
-      window = next;
-      next.open();
-      Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), next);
-      Inventory top = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
-      next.onClosed(closed -> closed(next, top));
-      if (top != null) {
-        GuiCursor.track(player.getUniqueId(), top);
+      } else {
+        update(view, before);
       }
+    }
+    shown = view;
+    live.start();
+  }
+
+  private void draw(GolemView view) {
+    UIWindow next = new UIWindow(Adapt.instance, player);
+    GuiTheme.apply(next, "golemancy-golem");
+    next.setViewportHeight(ROWS);
+    Placer target = (position, row, element) -> {
+      if (element != null) {
+        next.setElement(position, row, element);
+      }
+    };
+    renderedCarried = List.of();
+    renderedHidden = 0;
+    next.batch(() -> {
+      if (page == Page.CHANNELS) {
+        placeChannelPicker(target, view);
+        return;
+      }
+      for (GolemView.Section section : GolemView.Section.values()) {
+        place(target, section, view, null);
+      }
+      placeActions(target, view);
+    });
+    next.setTitle(page == Page.CHANNELS
+        ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_TITLE)
+        : AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(view.body().displayName()))));
+    renderedPage = page;
+    window = next;
+    next.open();
+    Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), next);
+    Inventory top = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
+    next.onClosed(closed -> closed(next, top));
+    if (top != null) {
+      GuiCursor.track(player.getUniqueId(), top);
+    }
+  }
+
+  private void update(GolemView view, GolemView before) {
+    UIWindow target = window;
+    for (GolemView.Section section : view.changes(before)) {
+      place(target::updateElement, section, view, before);
     }
   }
 
@@ -141,48 +193,73 @@ public final class GolemGui {
     if (top != null) {
       GuiCursor.untrack(player.getUniqueId(), top);
     }
+    if (closed == window) {
+      live.stop();
+    }
   }
 
-  private void placeHeader(UIWindow target, View view) {
+  private void place(Placer target, GolemView.Section section, GolemView view, GolemView before) {
+    switch (section) {
+      case BODY -> target.place(LEFT_EDGE, HEADER_ROW, bodyElement(view));
+      case CORES -> placeCores(target, view);
+      case MODE -> target.place(0, HEADER_ROW, modeElement(view));
+      case CHANNELS -> target.place(1, HEADER_ROW, channelElement(view));
+      case ANCHORS -> placeAnchors(target, view);
+      case RUNES -> placeRunes(target, view, before);
+      case CARRIED -> placeCarried(target, view);
+      case STATS -> target.place(LEFT_EDGE, FOOTER_ROW, statsElement(view));
+      case ESSENCE -> target.place(ESSENCE_SLOT, FOOTER_ROW, essenceElement(view));
+      case TOGGLES -> placeToggles(target, view);
+    }
+  }
+
+  private Element bodyElement(GolemView view) {
     Element body = GuiTheme.element("golem-body", GolemGuiActions.bodyIcon(view.body()), "gui", "golemancy", "body")
         .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(view.body().displayName()))))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_HEALTH,
-            trusted("health", (int) Math.ceil(Math.max(0D, view.health()))),
-            trusted("maximum", Math.round(Math.max(0D, view.maxHealth())))));
-    if (view.dormant()) {
+            trusted("health", view.vitals().health()),
+            trusted("maximum", view.vitals().maxHealth())));
+    if (view.vitals().dormant()) {
       body.addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_DORMANT));
     }
-    target.setElement(LEFT_EDGE, HEADER_ROW, body.setProgress(1D));
-    target.setElement(PRIMARY_CORE_SLOT, HEADER_ROW, itemElement("golem-core-0", GolemItems.core(view.cores().getFirst())));
-    if (GolemGuiActions.showsSecondCore(view.cores(), view.dualCore())) {
-      target.setElement(SECOND_CORE_SLOT, HEADER_ROW, secondCoreElement(view));
-    }
-    target.setElement(0, HEADER_ROW, GuiTheme.element("golem-mode", GolemGuiActions.modeIcon(view.mode()), "gui", "golemancy", "mode")
+    return body.setProgress(1D);
+  }
+
+  private void placeCores(Placer target, GolemView view) {
+    List<GolemCoreType> cores = view.cores().slotted();
+    target.place(PRIMARY_CORE_SLOT, HEADER_ROW, itemElement("golem-core-0", GolemItems.core(cores.getFirst())));
+    target.place(SECOND_CORE_SLOT, HEADER_ROW, GolemGuiActions.showsSecondCore(cores, view.cores().dualCore()) ? secondCoreElement(view) : null);
+  }
+
+  private Element modeElement(GolemView view) {
+    return GuiTheme.element("golem-mode", GolemGuiActions.modeIcon(view.mode()), "gui", "golemancy", "mode")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_MODE, trusted("mode", AdaptLanguage.text(view.mode().displayName()))))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
         .setProgress(1D)
         .onLeftClick(clicked -> cycleMode(true))
-        .onRightClick(clicked -> cycleMode(false)));
-    target.setElement(1, HEADER_ROW, channelElement(view));
-    target.setElement(RIGHT_EDGE - 1, HEADER_ROW, GuiTheme.element("golem-home", Material.COMPASS, "gui", "golemancy", "home")
-        .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_SET_HOME))
-        .addLore(C.GRAY + coordinates(GolemancyMessages.GUI_HOME, view.home()))
-        .setProgress(1D)
-        .onLeftClick(clicked -> setHome()));
-    Element chest = GuiTheme.element("golem-chest", Material.CHEST, "gui", "golemancy", "chest")
-        .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_LINK_CHEST))
-        .addLore(C.GRAY + (view.homeChest() == null
-            ? AdaptLanguage.text(GolemancyMessages.GUI_NO_HOME_CHEST)
-            : coordinates(GolemancyMessages.GUI_HOME_CHEST, view.homeChest())))
-        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_LINK_HINT))
-        .setProgress(1D)
-        .onLeftClick(clicked -> armChestLink());
-    target.setElement(RIGHT_EDGE, HEADER_ROW, chest);
+        .onRightClick(clicked -> cycleMode(false));
   }
 
-  private Element secondCoreElement(View view) {
-    if (view.cores().size() > 1) {
-      GolemCoreType core = view.cores().get(1);
+  private void placeAnchors(Placer target, GolemView view) {
+    target.place(RIGHT_EDGE - 1, HEADER_ROW, GuiTheme.element("golem-home", Material.COMPASS, "gui", "golemancy", "home")
+        .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_SET_HOME))
+        .addLore(C.GRAY + coordinates(GolemancyMessages.GUI_HOME, view.anchors().home()))
+        .setProgress(1D)
+        .onLeftClick(clicked -> setHome()));
+    GolemState.Anchor homeChest = view.anchors().chest();
+    target.place(RIGHT_EDGE, HEADER_ROW, GuiTheme.element("golem-chest", Material.CHEST, "gui", "golemancy", "chest")
+        .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_LINK_CHEST))
+        .addLore(C.GRAY + (homeChest == null
+            ? AdaptLanguage.text(GolemancyMessages.GUI_NO_HOME_CHEST)
+            : coordinates(GolemancyMessages.GUI_HOME_CHEST, homeChest)))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_LINK_HINT))
+        .setProgress(1D)
+        .onLeftClick(clicked -> armChestLink()));
+  }
+
+  private Element secondCoreElement(GolemView view) {
+    if (view.cores().slotted().size() > 1) {
+      GolemCoreType core = view.cores().slotted().get(1);
       return itemElement("golem-core-1", GolemItems.core(core))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_REMOVE))
           .onLeftClick(clicked -> takeCore(core));
@@ -194,8 +271,8 @@ public final class GolemGui {
         .onLeftClick(clicked -> slotCoreFromCursor());
   }
 
-  private Element masterworkElement(View view) {
-    if (view.masterwork()) {
+  private Element masterworkElement(GolemView view) {
+    if (view.toggles().masterwork()) {
       return itemElement("golem-masterwork", GolemItems.masterworkHeart())
           .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_LORE))
@@ -205,66 +282,90 @@ public final class GolemGui {
     return GuiTheme.element("golem-masterwork", Material.YELLOW_STAINED_GLASS_PANE, "gui", "golemancy", "masterwork_empty")
         .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_EMPTY))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_EMPTY_LORE,
-            trusted("count", view.masterworks()), trusted("maximum", view.maxMasterworks())))
+            trusted("count", view.toggles().masterworks()), trusted("maximum", view.toggles().maxMasterworks())))
         .setProgress(1D)
         .onLeftClick(clicked -> designateFromCursor());
   }
 
-  private Element channelElement(View view) {
-    if (view.channelSlots() <= 1) {
-      return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(view.channels()), "gui", "golemancy", "channel")
+  private Element channelElement(GolemView view) {
+    int mask = view.channels().mask();
+    if (view.channels().slots() <= 1) {
+      return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
           .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL,
-              trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(view.channels())))))
+              trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(mask)))))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
           .setProgress(1D)
           .onLeftClick(clicked -> cycleChannel(true))
           .onRightClick(clicked -> cycleChannel(false));
     }
-    return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(view.channels()), "gui", "golemancy", "channel")
-        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS, trusted("channels", channelList(view.channels()))))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_LORE, trusted("count", view.channelSlots())))
+    return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS, trusted("channels", channelList(mask))))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_LORE, trusted("count", view.channels().slots())))
         .setProgress(1D)
         .onLeftClick(clicked -> show(Page.CHANNELS));
   }
 
-  private void placeChannelPicker(UIWindow target, View view) {
+  private void placeChannelPicker(Placer target, GolemView view) {
+    int mask = view.channels().mask();
     DyeColor[] colors = DyeColor.values();
     for (int index = 0; index < colors.length; index++) {
       DyeColor color = colors[index];
-      int mask = ChannelMask.of(color);
-      boolean selected = ChannelMask.contains(view.channels(), color);
-      target.setElement(GuiLayout.centeredPosition(index % CHANNELS_PER_ROW, CHANNELS_PER_ROW), index / CHANNELS_PER_ROW,
-          GuiTheme.element("golem-channel-" + color.name().toLowerCase(Locale.ROOT), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
-              .setName((selected ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(mask)))
+      int colorMask = ChannelMask.of(color);
+      boolean selected = ChannelMask.contains(mask, color);
+      target.place(GuiLayout.centeredPosition(index % CHANNELS_PER_ROW, CHANNELS_PER_ROW), index / CHANNELS_PER_ROW,
+          GuiTheme.element("golem-channel-" + color.name().toLowerCase(Locale.ROOT), GolemGuiActions.channelIcon(colorMask), "gui", "golemancy", "channel")
+              .setName((selected ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(colorMask)))
               .addLore(selected ? C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT))
               .setEnchanted(selected)
               .setProgress(1D)
               .onLeftClick(clicked -> toggleChannel(color)));
     }
-    target.setElement(LEFT_EDGE, FOOTER_ROW, GuiTheme.element("golem-channels-back", Material.ARROW, "gui", "golemancy", "back")
+    target.place(LEFT_EDGE, FOOTER_ROW, GuiTheme.element("golem-channels-back", Material.ARROW, "gui", "golemancy", "back")
         .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_BACK))
         .setProgress(1D)
         .onLeftClick(clicked -> show(Page.MAIN)));
-    target.setElement(0, FOOTER_ROW, GuiTheme.element("golem-channels-summary", GolemGuiActions.channelIcon(view.channels()), "gui", "golemancy", "channel")
-        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS, trusted("channels", channelList(view.channels()))))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_LORE, trusted("count", view.channelSlots())))
+    target.place(0, FOOTER_ROW, GuiTheme.element("golem-channels-summary", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS, trusted("channels", channelList(mask))))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_LORE, trusted("count", view.channels().slots())))
         .setProgress(1D));
-    target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-channels-clear", Material.GLASS_BOTTLE, "gui", "golemancy", "channels_clear")
+    target.place(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-channels-clear", Material.GLASS_BOTTLE, "gui", "golemancy", "channels_clear")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_CLEAR))
         .setProgress(1D)
         .onLeftClick(clicked -> mutate(() -> handle.setChannels(ChannelMask.NONE))));
   }
 
-  private void placeRunes(UIWindow target, View view) {
-    int slots = Math.max(view.runeLayout().maxSlots(), view.runes().size());
+  private void placeRunes(Placer target, GolemView view, GolemView before) {
+    int slots = runeSlots(view);
+    if (before != null) {
+      int previous = runeSlots(before);
+      for (int index = 0; index < previous; index++) {
+        int position = GuiLayout.centeredPosition(index, previous);
+        if (!occupies(position, slots)) {
+          target.place(position, RUNE_ROW, null);
+        }
+      }
+    }
     for (int index = 0; index < slots; index++) {
-      target.setElement(GuiLayout.centeredPosition(index, slots), RUNE_ROW, runeElement(view, index));
+      target.place(GuiLayout.centeredPosition(index, slots), RUNE_ROW, runeElement(view, index));
     }
   }
 
-  private Element runeElement(View view, int index) {
-    List<GolemRune> runes = view.runes();
-    GolemRuneLayout layout = view.runeLayout();
+  private static int runeSlots(GolemView view) {
+    return Math.max(view.runes().layout().maxSlots(), view.runes().slotted().size());
+  }
+
+  private static boolean occupies(int position, int slots) {
+    for (int index = 0; index < slots; index++) {
+      if (GuiLayout.centeredPosition(index, slots) == position) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private Element runeElement(GolemView view, int index) {
+    List<GolemRune> runes = view.runes().slotted();
+    GolemRuneLayout layout = view.runes().layout();
     if (index < runes.size()) {
       GolemRune rune = runes.get(index);
       ItemStack item = GolemItems.rune(rune);
@@ -293,10 +394,46 @@ public final class GolemGui {
         .setProgress(1D);
   }
 
-  private void placeCarried(UIWindow target, View view) {
-    List<Carried> carried = view.carried();
-    for (int index = 0; index < carried.size(); index++) {
-      Carried entry = carried.get(index);
+  private void placeCarried(Placer target, GolemView view) {
+    List<Carried> entries = readCarried(view);
+    int hidden = view.carried().total() - entries.size();
+    int cells = Math.max(cellCount(entries, hidden), cellCount(renderedCarried, renderedHidden));
+    for (int index = 0; index < cells; index++) {
+      if (!Objects.equals(carriedKey(entries, hidden, index), carriedKey(renderedCarried, renderedHidden, index))) {
+        target.place(LEFT_EDGE + index % GuiLayout.WIDTH, CARRIED_ROW + index / GuiLayout.WIDTH, carriedCell(entries, hidden, index));
+      }
+    }
+    renderedCarried = entries;
+    renderedHidden = hidden;
+  }
+
+  private List<Carried> readCarried(GolemView view) {
+    List<String> stored = view.carried().shown();
+    List<Carried> entries = new ArrayList<>(stored.size());
+    for (String encoded : stored) {
+      try {
+        entries.add(new Carried(encoded, NMS.deserializeStack(encoded)));
+      } catch (RuntimeException unreadable) {
+        Adapt.warn("Skipping unreadable carried item on golem " + handle.id() + " in its menu; the stored entry is kept.", unreadable);
+      }
+    }
+    return List.copyOf(entries);
+  }
+
+  private static int cellCount(List<Carried> entries, int hidden) {
+    return entries.size() + (hidden > 0 ? 1 : 0);
+  }
+
+  private static Object carriedKey(List<Carried> entries, int hidden, int index) {
+    if (index < entries.size()) {
+      return entries.get(index).encoded();
+    }
+    return index == entries.size() && hidden > 0 ? Integer.valueOf(hidden) : null;
+  }
+
+  private Element carriedCell(List<Carried> entries, int hidden, int index) {
+    if (index < entries.size()) {
+      Carried entry = entries.get(index);
       ItemStack item = entry.item();
       Element element = itemElement("golem-carried-" + index, item.clone()).setCount(item.getAmount());
       ItemMeta meta = item.getItemMeta();
@@ -304,61 +441,74 @@ public final class GolemGui {
       for (String line : lore) {
         element.addLore(line);
       }
-      element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TAKE))
+      return element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TAKE))
           .onLeftClick(clicked -> take(entry))
           .onShiftLeftClick(clicked -> take(entry));
-      target.setElement(LEFT_EDGE + index % GuiLayout.WIDTH, CARRIED_ROW + index / GuiLayout.WIDTH, element);
     }
-    int hidden = view.carriedTotal() - carried.size();
-    if (hidden > 0) {
-      int slot = carried.size();
-      target.setElement(LEFT_EDGE + slot % GuiLayout.WIDTH, CARRIED_ROW + slot / GuiLayout.WIDTH,
-          GuiTheme.element("golem-carried-more", Material.PAPER, "gui", "golemancy", "carried_more")
-              .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_MORE_CARRIED, trusted("count", hidden)))
-              .setProgress(1D));
+    if (index == entries.size() && hidden > 0) {
+      return GuiTheme.element("golem-carried-more", Material.PAPER, "gui", "golemancy", "carried_more")
+          .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_MORE_CARRIED, trusted("count", hidden)))
+          .setProgress(1D);
     }
+    return null;
   }
 
-  private void placeFooter(UIWindow target, View view) {
-    target.setElement(LEFT_EDGE, FOOTER_ROW, GuiTheme.element("golem-stats", Material.BOOK, "gui", "golemancy", "stats")
+  private Element statsElement(GolemView view) {
+    return GuiTheme.element("golem-stats", Material.BOOK, "gui", "golemancy", "stats")
         .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_STATS))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_KILLS, trusted("value", view.kills())))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_DAMAGE, trusted("value", String.format(Locale.ROOT, "%.1f", view.damage()))))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TASKS, trusted("value", view.tasks())))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_ITEMS_MOVED, trusted("value", view.itemsMoved())))
-        .setProgress(1D));
-    if (GolemGuiActions.hasSnowTrail(view.body())) {
-      target.setElement(0, FOOTER_ROW, GuiTheme.element("golem-snow-trail", GolemGuiActions.snowTrailIcon(view.snowTrail()), "gui", "golemancy", "snow_trail")
-          .setName(C.AQUA + AdaptLanguage.text(GolemGuiActions.snowTrailName(view.snowTrail())))
-          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_SNOW_TRAIL_LORE))
-          .setProgress(1D)
-          .onLeftClick(clicked -> toggleSnowTrail()));
-    }
-    if (view.colossusAvailable()) {
-      target.setElement(0, FOOTER_ROW, GuiTheme.element("golem-colossus", GolemGuiActions.colossusIcon(view.colossus()), "gui", "golemancy", "colossus")
-          .setName(C.GOLD + AdaptLanguage.text(GolemGuiActions.colossusName(view.colossus())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_KILLS, trusted("value", view.stats().kills())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_DAMAGE, trusted("value", view.stats().damage())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TASKS, trusted("value", view.stats().tasks())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_ITEMS_MOVED, trusted("value", view.stats().itemsMoved())))
+        .setProgress(1D);
+  }
+
+  private void placeToggles(Placer target, GolemView view) {
+    GolemView.Toggles toggles = view.toggles();
+    target.place(0, FOOTER_ROW, utilityElement(view));
+    target.place(MASTERWORK_SLOT, FOOTER_ROW,
+        GolemGuiActions.showsMasterwork(view.body(), toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
+  }
+
+  private Element utilityElement(GolemView view) {
+    GolemView.Toggles toggles = view.toggles();
+    if (toggles.colossusAvailable()) {
+      return GuiTheme.element("golem-colossus", GolemGuiActions.colossusIcon(toggles.colossus()), "gui", "golemancy", "colossus")
+          .setName(C.GOLD + AdaptLanguage.text(GolemGuiActions.colossusName(toggles.colossus())))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_COLOSSUS_LORE))
           .setProgress(1D)
-          .onLeftClick(clicked -> toggleColossus()));
+          .onLeftClick(clicked -> toggleColossus());
     }
-    if (GolemGuiActions.showsMasterwork(view.body(), view.masterwork(), view.maxMasterworks())) {
-      target.setElement(MASTERWORK_SLOT, FOOTER_ROW, masterworkElement(view));
-    }
-    if (GolemGuiActions.showsEssence(view.cores(), view.essence())) {
-      target.setElement(ESSENCE_SLOT, FOOTER_ROW, GuiTheme.element("golem-essence", Material.EXPERIENCE_BOTTLE, "gui", "golemancy", "essence")
-          .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE, trusted("value", view.essence())))
-          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE_LORE))
+    if (GolemGuiActions.hasSnowTrail(view.body())) {
+      return GuiTheme.element("golem-snow-trail", GolemGuiActions.snowTrailIcon(toggles.snowTrail()), "gui", "golemancy", "snow_trail")
+          .setName(C.AQUA + AdaptLanguage.text(GolemGuiActions.snowTrailName(toggles.snowTrail())))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_SNOW_TRAIL_LORE))
           .setProgress(1D)
-          .onLeftClick(clicked -> withdrawEssence()));
+          .onLeftClick(clicked -> toggleSnowTrail());
     }
+    return null;
+  }
+
+  private Element essenceElement(GolemView view) {
+    if (!GolemGuiActions.showsEssence(view.cores().slotted(), view.essence())) {
+      return null;
+    }
+    return GuiTheme.element("golem-essence", Material.EXPERIENCE_BOTTLE, "gui", "golemancy", "essence")
+        .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE, trusted("value", view.essence())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> withdrawEssence());
+  }
+
+  private void placeActions(Placer target, GolemView view) {
     if (GolemPacking.packs(player)) {
-      target.setElement(RIGHT_EDGE - 1, FOOTER_ROW, GuiTheme.element("golem-pack", GolemGuiActions.bodyIcon(view.body()), "gui", "golemancy", "pack")
+      target.place(RIGHT_EDGE - 1, FOOTER_ROW, GuiTheme.element("golem-pack", GolemGuiActions.bodyIcon(view.body()), "gui", "golemancy", "pack")
           .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_PACK))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_PACK_LORE))
           .setProgress(1D)
           .onLeftClick(clicked -> pack()));
     }
-    target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
+    target.place(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE_LORE))
         .setProgress(1D)
@@ -704,6 +854,11 @@ public final class GolemGui {
     return AdaptLanguage.text(key, trusted("x", anchor.x()), trusted("y", anchor.y()), trusted("z", anchor.z()));
   }
 
+  @FunctionalInterface
+  private interface Placer {
+    void place(int position, int row, Element element);
+  }
+
   private record Carried(String encoded, ItemStack item) {
   }
 
@@ -716,43 +871,5 @@ public final class GolemGui {
   private enum Page {
     MAIN,
     CHANNELS
-  }
-
-  private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
-                      List<GolemRune> runes, GolemRuneLayout runeLayout, GolemMode mode, int channels, int channelSlots,
-                      GolemState.Anchor home, GolemState.Anchor homeChest, List<Carried> carried, int carriedTotal, long kills, double damage,
-                      long tasks, long itemsMoved, boolean snowTrail, boolean colossus, boolean colossusAvailable, int essence,
-                      boolean masterwork, boolean dualCore, int masterworks, int maxMasterworks) {
-    private static View of(GolemHandle handle) {
-      GolemState state = handle.state();
-      Mob golem = handle.entity();
-      GolemState.Stats stats = state.stats();
-      GolemRuneEffects runes = GolemRunes.effects(handle);
-      UUID owner = handle.owner();
-      List<GolemCoreType> cores = state.cores();
-      return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), cores.isEmpty() ? List.of(state.primaryCore()) : cores,
-          state.runes(), GolemRunes.layout(state.body(), owner, state.masterwork()), state.mode(), runes.channels(state.channels()), runes.channelSlots(),
-          state.home(), state.homeChest(), carried(handle), state.carried().size(), stats.kills(), stats.damage(), stats.tasks(),
-          stats.itemsMoved(), state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false),
-          state.essencePoints(), state.masterwork(), GolemMastery.perks(handle).dualCore(),
-          GolemancyRuntime.registry().map(registry -> registry.masterworks(owner)).orElse(0), GolemMastery.maxMasterworks(owner));
-    }
-
-    private static List<Carried> carried(GolemHandle handle) {
-      List<String> stored = handle.state().carried();
-      int shown = GolemGuiActions.carriedShown(stored.size());
-      List<Carried> carried = new ArrayList<>(shown);
-      for (String encoded : stored) {
-        if (carried.size() >= shown) {
-          break;
-        }
-        try {
-          carried.add(new Carried(encoded, NMS.deserializeStack(encoded)));
-        } catch (RuntimeException unreadable) {
-          Adapt.warn("Skipping unreadable carried item on golem " + handle.id() + " in its menu; the stored entry is kept.", unreadable);
-        }
-      }
-      return List.copyOf(carried);
-    }
   }
 }

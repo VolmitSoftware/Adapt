@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.gui;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemRegistry;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -89,6 +91,7 @@ public final class RosterGui {
       int current = GuiLayout.clampPage(page, plan.pageCount());
       int start = current * plan.itemsPerPage();
       int end = Math.min(entries.size(), start + plan.itemsPerPage());
+      RosterView shown = view(player, entries, loaded, current, channelFilter, recalls, lattice);
 
       UIWindow window = new UIWindow(Adapt.instance, player);
       GuiTheme.apply(window, "golemancy-roster");
@@ -115,9 +118,19 @@ public final class RosterGui {
         }
       });
       window.setTitle(AdaptLanguage.text(GolemancyMessages.ROSTER_TITLE));
-      window.onClosed(closed -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window));
+      LiveRefresh<RosterView> live = new LiveRefresh<>(new LiveRefresh.Hooks<>(
+          playerScheduler(player), playerScheduler(player),
+          () -> readView(player, current),
+          next -> redrawIfChanged(player, current, shown, next),
+          window::close,
+          () -> player.isOnline() && window.isVisible()));
+      window.onClosed(closed -> {
+        Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window);
+        live.stop();
+      });
       window.open();
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
+      live.start();
     }
   }
 
@@ -134,6 +147,54 @@ public final class RosterGui {
 
   public static String lastSeen(GolemRoster.GolemEntry entry) {
     return AdaptLanguage.text(GolemancyMessages.ROSTER_LAST_SEEN, lastSeenArguments(entry));
+  }
+
+  static RosterView view(Player player, List<GolemRoster.GolemEntry> entries, Map<UUID, GolemHandle> loaded, int page, boolean channelFilter,
+                         boolean recalls, boolean lattice) {
+    GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter || lattice);
+    int current = GuiLayout.clampPage(page, plan.pageCount());
+    int start = current * plan.itemsPerPage();
+    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+    List<Row> rows = new ArrayList<>(Math.max(0, end - start));
+    for (int index = start; index < end; index++) {
+      GolemRoster.GolemEntry entry = entries.get(index);
+      rows.add(row(player, entry, loaded.get(entry.id())));
+    }
+    return new RosterView(current, entries.size(), List.copyOf(rows), channelFilter, recalls, lattice);
+  }
+
+  private static Row row(Player player, GolemRoster.GolemEntry entry, GolemHandle handle) {
+    Mob golem = readable(handle);
+    boolean loaded = handle != null && !handle.isRetired();
+    boolean sameWorld = loaded && player.getWorld().equals(handle.entity().getWorld());
+    if (golem == null) {
+      return new Row(entry.id(), entry.body(), entry.core(), entry.status(), entry.world(), entry.chunkKey(), loaded, sameWorld,
+          -1, -1L, "", 0, 0, 0);
+    }
+    Location at = golem.getLocation();
+    return new Row(entry.id(), entry.body(), entry.core(), entry.status(), entry.world(), entry.chunkKey(), loaded, sameWorld,
+        (int) Math.ceil(Math.max(0D, golem.getHealth())), Math.round(GolemVitals.maxHealth(golem)), golem.getWorld().getName(),
+        at.getBlockX(), at.getBlockY(), at.getBlockZ());
+  }
+
+  private static Optional<RosterView> readView(Player player, int page) {
+    AdaptServer server = Adapt.instance.getAdaptServer();
+    AdaptPlayer adaptPlayer = server == null ? null : server.getOnlineAdaptPlayer(player.getUniqueId());
+    if (adaptPlayer == null) {
+      return Optional.empty();
+    }
+    return Optional.of(view(player, entries(adaptPlayer.getData().getGolemancy()), loaded(player.getUniqueId()), page,
+        filtersChannels(player), GolemPacking.recalls(player), ServantFrame.servantMenuUnlocked(player)));
+  }
+
+  private static void redrawIfChanged(Player player, int page, RosterView shown, RosterView next) {
+    if (!next.equals(shown)) {
+      open(player, page);
+    }
+  }
+
+  private static LiveRefresh.Scheduler playerScheduler(Player player) {
+    return (task, delay, retired) -> J.runEntity(player, task, delay, retired);
   }
 
   private static void openCrookChannels(Player player, int page) {
@@ -350,5 +411,12 @@ public final class RosterGui {
   }
 
   private record EntryContext(Player player, UIWindow window, int page, boolean recalls) {
+  }
+
+  record RosterView(int page, int total, List<Row> rows, boolean channelFilter, boolean recalls, boolean lattice) {
+  }
+
+  record Row(UUID id, GolemBody body, GolemCoreType core, GolemRoster.Status status, UUID world, long chunkKey, boolean loaded,
+             boolean sameWorld, int health, long maxHealth, String where, int x, int y, int z) {
   }
 }
