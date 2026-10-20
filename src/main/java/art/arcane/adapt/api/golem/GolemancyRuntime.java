@@ -143,7 +143,6 @@ public final class GolemancyRuntime {
       localNodes.shutdown();
     }
     if (localNames != null) {
-      localNames.stop();
       Adapt.instance.unregisterListener(localNames);
     }
     if (localReveal != null) {
@@ -521,12 +520,6 @@ public final class GolemancyRuntime {
     @Override
     public String encodeItem(ItemStack item) {
       return GolemState.encodeItem(item);
-    }
-
-    @Override
-    public GolemNameMode nameMode() {
-      GolemNames local = names;
-      return local == null ? GolemNameMode.VANILLA : local.mode();
     }
 
     @Override

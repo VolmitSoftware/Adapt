@@ -43,7 +43,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,7 +84,6 @@ class GolemNamesTest extends AdaptTestBase {
 
   @AfterEach
   void tearDown() {
-    names.stop();
     EntityInsight.detach(insight);
     hud.close();
     scheduling.close();
@@ -94,22 +92,33 @@ class GolemNamesTest extends AdaptTestBase {
   }
 
   @Test
-  void glossWithItsOverlayRunningSelectsGlossEvenWhenInsightIsOn() {
+  void glossWithItsOverlayRunningSelectsGloss() {
     Player probe = player(OWNER);
     online.add(probe);
     when(gloss.available()).thenReturn(true);
     when(gloss.overlayActive(probe)).thenReturn(true);
-    EntityInsight.attach(insight);
 
     names.start();
 
     assertThat(names.mode()).isEqualTo(GolemNameMode.GLOSS);
-    verify(registry).showNames();
     verify(reveal).refreshViewers();
   }
 
   @Test
-  void glossWithItsOverlayOffFallsToInsightWhenInsightIsEnabled() {
+  void glossWithItsOverlayOffStaysVanilla() {
+    Player probe = player(OWNER);
+    online.add(probe);
+    when(gloss.available()).thenReturn(true);
+    when(gloss.overlayActive(probe)).thenReturn(false);
+
+    names.start();
+
+    assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
+    verify(reveal, never()).refreshViewers();
+  }
+
+  @Test
+  void anInsightReadoutWithoutTheGlossOverlayLeavesTheNameVanilla() {
     Player probe = player(OWNER);
     online.add(probe);
     when(gloss.available()).thenReturn(true);
@@ -118,29 +127,16 @@ class GolemNamesTest extends AdaptTestBase {
 
     names.start();
 
-    assertThat(names.mode()).isEqualTo(GolemNameMode.INSIGHT);
+    assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
   }
 
   @Test
-  void withoutGlossOrInsightTheNameStaysVanillaAndNothingIsReapplied() {
+  void withoutGlossTheNameStaysVanillaAndNothingIsRefreshed() {
     names.start();
 
     assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
-    verify(registry, never()).showNames();
+    verify(reveal, never()).refreshViewers();
     verify(gloss, never()).overlayActive(any());
-  }
-
-  @Test
-  void insightComingAndGoingSwitchesTheModeAndReappliesNames() {
-    names.start();
-
-    EntityInsight.attach(insight);
-    assertThat(names.mode()).isEqualTo(GolemNameMode.INSIGHT);
-    EntityInsight.detach(insight);
-    assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
-
-    verify(registry, times(2)).showNames();
-    verify(reveal, times(2)).refreshViewers();
   }
 
   @Test

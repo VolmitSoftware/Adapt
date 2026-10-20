@@ -65,10 +65,6 @@ public final class GolemLabel {
     return legacy;
   }
 
-  public static String legacyName(Component name) {
-    return LegacyComponentSerializer.legacySection().serialize(name.colorIfAbsent(NamedTextColor.WHITE));
-  }
-
   private static Component nameLine(Content content) {
     Component name = content.name().colorIfAbsent(NamedTextColor.WHITE);
     if (!content.masterwork()) {

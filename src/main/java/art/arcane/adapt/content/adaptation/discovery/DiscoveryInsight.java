@@ -533,11 +533,6 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
   private final class Readout implements EntityInsight.Display {
     @Override
-    public boolean activeFor(Player viewer) {
-      return runtimeActive && getActiveLevel(viewer) > 0 && gloss.overlayActive(viewer);
-    }
-
-    @Override
     public boolean showing(UUID viewerId) {
       return huds.containsKey(viewerId);
     }

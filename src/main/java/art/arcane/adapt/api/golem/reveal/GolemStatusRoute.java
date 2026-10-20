@@ -5,16 +5,14 @@ import art.arcane.adapt.api.golem.GolemNameMode;
 public enum GolemStatusRoute {
   HIDDEN,
   LABEL,
-  GLOSS,
-  INSIGHT;
+  GLOSS;
 
-  public static GolemStatusRoute of(GolemNameMode mode, boolean statusShown, boolean insightActive) {
+  public static GolemStatusRoute of(GolemNameMode mode, boolean statusShown) {
     if (!statusShown) {
       return HIDDEN;
     }
     return switch (mode) {
       case GLOSS -> GLOSS;
-      case INSIGHT -> insightActive ? INSIGHT : LABEL;
       case VANILLA -> LABEL;
     };
   }

@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 final class CollectionNodeBehavior implements NodeBehavior {
   private final Adaptation<?> policy;
@@ -50,10 +52,11 @@ final class CollectionNodeBehavior implements NodeBehavior {
     UUID owner = node.owner();
     long now = node.nowMillis();
     Map<UUID, Item> collectable = new LinkedHashMap<>();
+    Predicate<Material> accepts = box::accepts;
     for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, center, box.halfX(), box.halfY(), box.halfZ())) {
       Location at = item.getLocation();
       ItemStack stack = item.getItemStack();
-      if (box.contains(at.getX(), at.getY(), at.getZ()) && GathererWork.collectable(stack) && box.accepts(stack.getType())
+      if (box.contains(at.getX(), at.getY(), at.getZ()) && GathererWork.collectable(stack) && ReactSuperStacks.accepts(stack, accepts)
           && work.eligible(item, owner, now)) {
         collectable.put(item.getUniqueId(), item);
       }

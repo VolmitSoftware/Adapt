@@ -1,7 +1,6 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.api.golem.reveal.RevealService;
-import art.arcane.adapt.api.insight.EntityInsight;
 import art.arcane.adapt.api.insight.GlossInsight;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -38,7 +37,6 @@ public final class GolemNames implements Listener {
   private static final String GLOSS_PLUGIN = "Gloss";
 
   private final GlossInsight gloss;
-  private final Runnable insightChanged = this::evaluate;
   private volatile GolemNameMode mode = GolemNameMode.VANILLA;
   private volatile boolean provisional;
 
@@ -47,12 +45,7 @@ public final class GolemNames implements Listener {
   }
 
   public void start() {
-    EntityInsight.addListener(insightChanged);
     evaluate();
-  }
-
-  public void stop() {
-    EntityInsight.removeListener(insightChanged);
   }
 
   public GolemNameMode mode() {
@@ -122,14 +115,13 @@ public final class GolemNames implements Listener {
   }
 
   private void settle(boolean glossOverlay) {
-    GolemNameMode next = GolemNameMode.resolve(glossOverlay, EntityInsight.online());
+    GolemNameMode next = GolemNameMode.resolve(glossOverlay);
     synchronized (this) {
       if (mode == next) {
         return;
       }
       mode = next;
     }
-    GolemancyRuntime.registry().ifPresent(GolemRegistry::showNames);
     GolemancyRuntime.reveal().ifPresent(RevealService::refreshViewers);
   }
 
