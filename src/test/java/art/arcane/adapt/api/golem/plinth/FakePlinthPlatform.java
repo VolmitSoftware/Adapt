@@ -208,13 +208,23 @@ final class FakePlinthPlatform implements PlinthPlatform {
   }
 
   @Override
-  public void effect(PlinthEffect effect, Location at, double progress) {
+  public void effect(PlinthEffect effect, Location at) {
     events.add("effect " + effect.name());
   }
 
   @Override
-  public void stream(Location from, Location to) {
-    events.add("stream");
+  public void swirl(Location center, InfusionRitual ritual) {
+    events.add("swirl " + ritual.elapsed());
+  }
+
+  @Override
+  public void fizzle(Location center, InfusionRitual ritual) {
+    events.add("fizzle " + ritual.elapsed());
+  }
+
+  @Override
+  public void collide(Location center, InfusionTint tint) {
+    events.add("collide");
   }
 
   @Override

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
@@ -935,6 +936,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @Override
     public FxEmitter fx(Location at, FxPriority priority) {
       return SkillGolemancy.this.fx(at, priority);
+    }
+
+    @Override
+    public FxTimeline timeline(Location at) {
+      return SkillGolemancy.this.timeline(at);
     }
 
     @Override
