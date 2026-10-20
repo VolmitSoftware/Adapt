@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -24,6 +25,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -49,6 +52,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -71,9 +75,12 @@ class CollectionNodeBehaviorTest {
   private final List<GolemTask> withdrawn = new ArrayList<>();
   private final AtomicInteger room = new AtomicInteger(16);
   private final AtomicInteger carried = new AtomicInteger();
+  private final List<ItemStack> carriedStacks = new ArrayList<>();
+  private final AtomicBoolean reactEnabled = new AtomicBoolean(true);
   private final GolemGathererCore.Config config = new GolemGathererCore.Config();
   private final GatherDeathSites deathSites = new GatherDeathSites();
   private MockedStatic<J> scheduling;
+  private MockedStatic<Bukkit> bukkit;
   private MockedStatic<ProtectionEventProbe> probes;
   private World world;
   private GolemGathererCore core;
@@ -85,6 +92,10 @@ class CollectionNodeBehaviorTest {
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class))).thenReturn(true);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class), anyDouble(), anyDouble())).thenReturn(true);
+    PluginManager plugins = mock(PluginManager.class);
+    lenient().when(plugins.isPluginEnabled("React")).thenAnswer(invocation -> reactEnabled.get());
+    bukkit = mockStatic(Bukkit.class);
+    bukkit.when(Bukkit::getPluginManager).thenReturn(plugins);
     probes = mockStatic(ProtectionEventProbe.class);
     probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenReturn(true);
     world = mock(World.class, withSettings().strictness(Strictness.LENIENT));
@@ -110,6 +121,7 @@ class CollectionNodeBehaviorTest {
   @AfterEach
   void close() {
     probes.close();
+    bukkit.close();
     scheduling.close();
   }
 
@@ -217,6 +229,55 @@ class CollectionNodeBehaviorTest {
     assertThat(carried.get()).isZero();
   }
 
+  @Test
+  void scanningPostsAJobForASuperStackWhenTheFilterAcceptsAnythingInsideIt() {
+    record = record.toBuilder().filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build();
+    Item mixed = item(ReactBundles.superStack(GolemTestItems.stack(Material.WHEAT, 2), GolemTestItems.stack(Material.CARROT, 3)), at(11.5D, 65D, 0.5D));
+    item(ReactBundles.superStack(GolemTestItems.stack(Material.WHEAT, 2)), at(10.5D, 65D, 0.5D));
+    item(ReactBundles.superStack(), at(9.5D, 65D, 0.5D));
+
+    behavior.scan(node(), budget(16));
+
+    assertThat(posted).extracting(task -> task.target().entity()).containsExactly(mixed.getUniqueId());
+  }
+
+  @Test
+  void aSuperStackIsOnlyAJobWhileReactIsEnabled() {
+    record = record.toBuilder().filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build();
+    item(ReactBundles.superStack(GolemTestItems.stack(Material.CARROT, 3)), at(11.5D, 65D, 0.5D));
+    reactEnabled.set(false);
+
+    behavior.scan(node(), budget(16));
+
+    assertThat(posted).isEmpty();
+  }
+
+  @Test
+  void actingUnpacksASuperStackInsideTheNodeArea() {
+    Item bundle = item(ReactBundles.superStack(GolemTestItems.stack(Material.WHEAT, 2), GolemTestItems.stack(Material.CARROT, 3)), at(11.5D, 65D, 0.5D));
+
+    assertThat(behavior.act(golem(bundle), task(bundle))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("WHEATx2", "CARROTx3");
+    assertThat(carriedStacks).noneMatch(stack -> stack.getType() == Material.BUNDLE);
+    assertThat(removed).contains(bundle);
+  }
+
+  @Test
+  void actingTakesOnlyWhatTheFilterAcceptsFromASuperStackAndKeepsTheRest() {
+    record = record.toBuilder().filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build();
+    Item bundle = item(ReactBundles.superStack(GolemTestItems.stack(Material.WHEAT, 2), GolemTestItems.stack(Material.CARROT, 3)), at(11.5D, 65D, 0.5D));
+    Item wheatOnly = item(ReactBundles.superStack(GolemTestItems.stack(Material.WHEAT, 2)), at(10.5D, 65D, 0.5D));
+
+    assertThat(behavior.act(golem(bundle), task(bundle))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(wheatOnly), task(wheatOnly))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("CARROTx3");
+    assertThat(removed).doesNotContain(bundle, wheatOnly);
+    assertThat(ReactBundles.summary(ReactBundles.contents(bundle.getItemStack()))).containsExactly("WHEATx2");
+    assertThat(ReactBundles.lore(bundle.getItemStack())).containsExactly(ReactBundles.MARKER);
+  }
+
   private GolemTask task(Item item) {
     return GolemTask.builder(KEY, NodeType.COLLECTION, GathererWork.PICKUP, GolemTarget.entity(item)).build();
   }
@@ -272,16 +333,22 @@ class CollectionNodeBehaviorTest {
     when(context.canBreak(any(Location.class))).thenReturn(true);
     when(context.room()).thenAnswer(invocation -> 64 - carried.get());
     when(context.carry(any(ItemStack.class))).thenAnswer(invocation -> {
-      carried.addAndGet(invocation.<ItemStack>getArgument(0).getAmount());
+      ItemStack stack = invocation.getArgument(0);
+      carriedStacks.add(stack);
+      carried.addAndGet(stack.getAmount());
       return Optional.empty();
     });
     return context;
   }
 
   private Item item(Material type, Location location) {
+    return item(GolemTestItems.stack(type, 1), location);
+  }
+
+  private Item item(ItemStack held, Location location) {
     Item item = mock(Item.class, withSettings().strictness(Strictness.LENIENT));
     AtomicReference<Location> where = new AtomicReference<>(location);
-    AtomicReference<ItemStack> stack = new AtomicReference<>(GolemTestItems.stack(type, 1));
+    AtomicReference<ItemStack> stack = new AtomicReference<>(held);
     AtomicInteger delay = new AtomicInteger();
     UUID id = UUID.randomUUID();
     positions.put(item, where);
@@ -289,6 +356,10 @@ class CollectionNodeBehaviorTest {
     when(item.getWorld()).thenReturn(world);
     when(item.getLocation()).thenAnswer(invocation -> where.get().clone());
     when(item.getItemStack()).thenAnswer(invocation -> stack.get());
+    doAnswer(invocation -> {
+      stack.set(invocation.getArgument(0));
+      return null;
+    }).when(item).setItemStack(any());
     when(item.getPickupDelay()).thenAnswer(invocation -> delay.get());
     doAnswer(invocation -> {
       delay.set(invocation.getArgument(0));

@@ -58,7 +58,7 @@ final class GathererWork implements GolemCoreBehavior {
   }
 
   static boolean collectable(ItemStack stack) {
-    return stack != null && stack.getType() != Material.AIR && stack.getAmount() > 0;
+    return stack != null && stack.getType() != Material.AIR && stack.getAmount() > 0 && !ReactSuperStacks.hollow(stack);
   }
 
   @Override
@@ -138,7 +138,7 @@ final class GathererWork implements GolemCoreBehavior {
       Location at = item.getLocation();
       double distance = at.distanceSquared(here);
       ItemStack stack = item.getItemStack();
-      if (distance > reach * reach || !collectable(stack) || !area.collects(at, stack.getType()) || !golem.inWorkRadius(at)
+      if (distance > reach * reach || !collectable(stack) || !collects(area, at, stack) || !golem.inWorkRadius(at)
           || !eligible(item, handle.owner(), now)) {
         continue;
       }
@@ -167,9 +167,12 @@ final class GathererWork implements GolemCoreBehavior {
   GolemActResult pickUp(GolemContext golem, Item item, GatherArea area) {
     ItemStack stack = item.getItemStack();
     Location at = item.getLocation();
-    if (!collectable(stack) || !area.collects(at, stack.getType()) || !golem.inWorkRadius(at)
+    if (!collectable(stack) || !collects(area, at, stack) || !golem.inWorkRadius(at)
         || !eligible(item, golem.handle().owner(), golem.nowMillis())) {
       return GolemActResult.FAILED;
+    }
+    if (ReactSuperStacks.isSuperStack(stack)) {
+      return unpack(golem, item, stack, area, at);
     }
     int amount = stack.getAmount();
     int taking = Math.min(golem.room(), amount);
@@ -227,6 +230,26 @@ final class GathererWork implements GolemCoreBehavior {
 
   void forget() {
     areas.clear();
+  }
+
+  private GolemActResult unpack(GolemContext golem, Item item, ItemStack bundle, GatherArea area, Location at) {
+    if (golem.room() <= 0) {
+      return GolemActResult.FAILED;
+    }
+    if (!claimAllows(golem, at) || !ProtectionEventProbe.attemptEntityItemPickup(golem.golem(), item, 0)) {
+      return GolemActResult.BLOCKED;
+    }
+    ItemStack current = item.getItemStack();
+    if (!item.isValid() || item.isDead() || !ReactSuperStacks.isSuperStack(current) || !current.isSimilar(bundle)) {
+      return GolemActResult.FAILED;
+    }
+    ReactSuperStacks.Unpacked unpacked = ReactSuperStacks.unpack(golem, current, type -> area.collects(at, type));
+    if (unpacked.carried() <= 0) {
+      return GolemActResult.FAILED;
+    }
+    settle(item, current, unpacked.leftovers());
+    golem.workXp(core.config().workXpPerStack);
+    return GolemActResult.DONE;
   }
 
   private GolemActResult absorb(GolemContext golem, ExperienceOrb orb, GatherArea area, int level) {
@@ -327,6 +350,31 @@ final class GathererWork implements GolemCoreBehavior {
       }
     }
     return List.copyOf(found.values());
+  }
+
+  private static boolean collects(GatherArea area, Location at, ItemStack stack) {
+    if (stack.getType() != Material.BUNDLE) {
+      return area.collects(at, stack.getType());
+    }
+    return ReactSuperStacks.accepts(stack, type -> area.collects(at, type));
+  }
+
+  private static void settle(Item item, ItemStack bundle, List<ItemStack> leftovers) {
+    if (leftovers.isEmpty()) {
+      item.remove();
+      return;
+    }
+    Optional<ItemStack> rebuilt = ReactSuperStacks.rebuild(bundle, leftovers);
+    if (rebuilt.isPresent()) {
+      item.setItemStack(rebuilt.get());
+      return;
+    }
+    World world = item.getWorld();
+    Location at = item.getLocation();
+    item.remove();
+    for (ItemStack leftover : leftovers) {
+      world.dropItemNaturally(at, leftover);
+    }
   }
 
   private static boolean claimAllows(GolemContext golem, Location at) {

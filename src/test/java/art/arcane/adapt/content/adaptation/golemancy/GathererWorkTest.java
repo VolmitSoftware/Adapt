@@ -22,6 +22,7 @@ import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -35,6 +36,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
@@ -98,6 +100,9 @@ class GathererWorkTest {
   private final AtomicReference<Predicate<Location>> interact = new AtomicReference<>(location -> true);
   private final AtomicReference<Predicate<Location>> breakable = new AtomicReference<>(location -> true);
   private final List<Entity> probedEntities = new ArrayList<>();
+  private final List<ItemStack> carriedStacks = new ArrayList<>();
+  private final List<ItemStack> dropped = new ArrayList<>();
+  private final AtomicBoolean reactEnabled = new AtomicBoolean(true);
   private final List<Item> probedItems = new ArrayList<>();
   private final AtomicReference<Double> workRadius = new AtomicReference<>(24D);
   private final AtomicReference<GolemState.Anchor> home = new AtomicReference<>(GolemState.Anchor.of(WORLD, 0, 64, 0));
@@ -105,6 +110,7 @@ class GathererWorkTest {
   private final GatherDeathSites deathSites = new GatherDeathSites();
   private final List<GolemRunes.Augments> augments = new ArrayList<>();
   private MockedStatic<J> scheduling;
+  private MockedStatic<Bukkit> bukkit;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<ProtectionEventProbe> probes;
   private World world;
@@ -122,6 +128,10 @@ class GathererWorkTest {
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class))).thenReturn(true);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
+    PluginManager plugins = mock(PluginManager.class);
+    lenient().when(plugins.isPluginEnabled("React")).thenAnswer(invocation -> reactEnabled.get());
+    bukkit = mockStatic(Bukkit.class);
+    bukkit.when(Bukkit::getPluginManager).thenReturn(plugins);
     world = world(WORLD);
     nether = world(UUID.fromString("00000000-0000-0000-0000-0000000000d4"));
     index = mock(NodeIndex.class);
@@ -162,6 +172,7 @@ class GathererWorkTest {
     }
     probes.close();
     runtime.close();
+    bukkit.close();
     scheduling.close();
   }
 
@@ -781,6 +792,215 @@ class GathererWorkTest {
     assertThat(carried.get()).isZero();
   }
 
+  @Test
+  void aReactSuperStackIsSoughtAsOneItem() {
+    Item bundle = item(ReactBundles.superStack(wheat(4), carrot(3)), at(2.5D, 64D, 0.5D));
+
+    assertThat(work.seek(golem)).hasValueSatisfying(task -> {
+      assertThat(task.type()).isEqualTo(GathererWork.PICKUP);
+      assertThat(task.target().entity()).isEqualTo(bundle.getUniqueId());
+    });
+  }
+
+  @Test
+  void aSuperStackWithNothingToUnpackIsNeverSoughtOrTaken() {
+    Item hollow = item(ReactBundles.superStack(), at(2.5D, 64D, 0.5D));
+    target.set(hollow);
+
+    assertThat(work.seek(golem)).isEmpty();
+    assertThat(work.act(golem, pickup(hollow))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(carriedStacks).isEmpty();
+    assertThat(removed).doesNotContain(hollow);
+  }
+
+  @Test
+  void pickingUpASuperStackTakesTheItemsAndRemovesTheEmptyBundle() {
+    Item bundle = item(ReactBundles.superStack(wheat(4), carrot(3)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("WHEATx4", "CARROTx3");
+    assertThat(carriedStacks).noneMatch(stack -> stack.getType() == Material.BUNDLE);
+    assertThat(carried.get()).isEqualTo(7);
+    assertThat(removed).contains(bundle);
+    assertThat(dropped).isEmpty();
+    assertThat(probedRemaining).containsExactly(0);
+    assertThat(probedItems).containsExactly(bundle);
+    assertThat(workXp).containsExactly(0.5D);
+  }
+
+  @Test
+  void aSuperStackBiggerThanTheRoomKeepsTheRestAsASuperStackInOrder() {
+    capacity.set(10);
+    Item bundle = item(ReactBundles.superStack(wheat(4), carrot(4), GolemTestItems.stack(Material.DIAMOND, 6)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("WHEATx4", "CARROTx4", "DIAMONDx2");
+    assertThat(carried.get()).isEqualTo(10);
+    assertThat(removed).doesNotContain(bundle);
+    assertThat(ReactSuperStacks.isSuperStack(bundle.getItemStack())).isTrue();
+    assertThat(ReactBundles.lore(bundle.getItemStack())).containsExactly(ReactBundles.MARKER);
+    assertThat(ReactBundles.summary(ReactBundles.contents(bundle.getItemStack()))).containsExactly("DIAMONDx4");
+    assertThat(dropped).isEmpty();
+  }
+
+  @Test
+  void aSuperStackTheGolemCannotTakeAnythingFromIsLeftWhole() {
+    carried.set(64);
+    Item bundle = item(ReactBundles.superStack(wheat(4)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+    ItemStack before = bundle.getItemStack();
+
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(carriedStacks).isEmpty();
+    assertThat(bundle.getItemStack()).isSameAs(before);
+    assertThat(removed).doesNotContain(bundle);
+    assertThat(probedRemaining).isEmpty();
+  }
+
+  @Test
+  void leftoversAReplacementBundleCannotHoldAreDroppedAsPlainItems() {
+    capacity.set(5);
+    Item bundle = item(ReactBundles.rejecting(wheat(4), carrot(4), GolemTestItems.stack(Material.DIAMOND, 2)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("WHEATx4", "CARROTx1");
+    assertThat(removed).contains(bundle);
+    assertThat(ReactBundles.summary(dropped)).containsExactly("CARROTx3", "DIAMONDx2");
+    assertThat(dropped).noneMatch(stack -> stack.getType() == Material.BUNDLE);
+  }
+
+  @Test
+  void aBundleIsOnlyUnpackedWhileReactIsEnabledAndTheMarkerIsExact() {
+    Item lookalike = item(ReactBundles.bundle(List.of("REACT SUPER STACK", "mine"), 1, wheat(4)), at(1.5D, 64D, 0.5D));
+    target.set(lookalike);
+
+    assertThat(work.act(golem, pickup(lookalike))).isEqualTo(GolemActResult.DONE);
+    assertThat(carriedStacks).extracting(ItemStack::getType).containsExactly(Material.BUNDLE);
+    assertThat(removed).contains(lookalike);
+
+    carriedStacks.clear();
+    reactEnabled.set(false);
+    Item bundle = item(ReactBundles.superStack(wheat(4)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.DONE);
+    assertThat(carriedStacks).extracting(ItemStack::getType).containsExactly(Material.BUNDLE);
+    assertThat(removed).contains(bundle);
+  }
+
+  @Test
+  void theProtectionProbeAndTheClaimCheckStillGuardASuperStack() {
+    Item bundle = item(ReactBundles.superStack(wheat(4)), at(2.5D, 64D, 0.5D));
+    target.set(bundle);
+    probe.set(false);
+
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(probedRemaining).containsExactly(0);
+
+    probe.set(true);
+    interact.set(location -> false);
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.BLOCKED);
+    interact.set(location -> true);
+    breakable.set(location -> false);
+    assertThat(work.act(golem, pickup(bundle))).isEqualTo(GolemActResult.BLOCKED);
+
+    assertThat(probedRemaining).containsExactly(0);
+    assertThat(carriedStacks).isEmpty();
+    assertThat(removed).doesNotContain(bundle);
+    assertThat(ReactBundles.summary(ReactBundles.contents(bundle.getItemStack()))).containsExactly("WHEATx4");
+  }
+
+  @Test
+  void aSuperStackFollowsTheEligibilityAndDeathSiteRules() {
+    Item thrown = item(ReactBundles.superStack(wheat(4)), at(2.5D, 64D, 0.5D));
+    when(thrown.getThrower()).thenReturn(STRANGER);
+    Item waiting = item(ReactBundles.superStack(wheat(4)), at(1.5D, 64D, 0.5D));
+    waiting.setPickupDelay(10);
+    Item grave = item(ReactBundles.superStack(wheat(4)), at(0.5D, 64D, 3.5D));
+    deathSites.record(WORLD, 0.5D, 64D, 3.5D, clock.get(), FIVE_MINUTES);
+
+    assertThat(work.seek(golem)).isEmpty();
+    target.set(thrown);
+    assertThat(work.act(golem, pickup(thrown))).isEqualTo(GolemActResult.FAILED);
+    target.set(waiting);
+    assertThat(work.act(golem, pickup(waiting))).isEqualTo(GolemActResult.FAILED);
+    target.set(grave);
+    assertThat(work.act(golem, pickup(grave))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(carriedStacks).isEmpty();
+  }
+
+  @Test
+  void instantPickupUnpacksASuperStackWithinReach() {
+    level.set(5);
+    Item bundle = item(ReactBundles.superStack(wheat(4), carrot(3)), at(1.0D, 64D, 0.5D));
+
+    work.tick(golem);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("WHEATx4", "CARROTx3");
+    assertThat(removed).contains(bundle);
+    assertThat(velocities).isEmpty();
+  }
+
+  @Test
+  void theMagnetPullsASuperStackTowardTheGolemWithoutUnpackingIt() {
+    level.set(4);
+    Item bundle = item(ReactBundles.superStack(wheat(4)), at(2.5D, 64D, 0.5D));
+
+    work.tick(golem);
+
+    assertThat(velocities).containsOnlyKeys(bundle);
+    assertThat(carriedStacks).isEmpty();
+    assertThat(removed).doesNotContain(bundle);
+  }
+
+  @Test
+  void aCollectionNodeFilterAppliesToWhatIsInsideASuperStack() {
+    level.set(5);
+    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(3, 1, 3)
+        .filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build());
+    Item mixed = item(ReactBundles.superStack(wheat(2), carrot(3), GolemTestItems.stack(Material.DIAMOND, 1)), at(1.0D, 64D, 0.5D));
+    Item wheatOnly = item(ReactBundles.superStack(wheat(5)), at(0.5D, 64D, 1.5D));
+
+    work.tick(golem);
+
+    assertThat(ReactBundles.summary(carriedStacks)).containsExactly("CARROTx3");
+    assertThat(removed).doesNotContain(mixed, wheatOnly);
+    assertThat(ReactBundles.summary(ReactBundles.contents(mixed.getItemStack()))).containsExactly("WHEATx2", "DIAMONDx1");
+    assertThat(ReactBundles.summary(ReactBundles.contents(wheatOnly.getItemStack()))).containsExactly("WHEATx5");
+  }
+
+  @Test
+  void aSuperStackNeverReachesTheCarryWhateverTheRoom() {
+    for (int room = 0; room <= 12; room++) {
+      carried.set(64 - room);
+      carriedStacks.clear();
+      Item bundle = item(ReactBundles.superStack(wheat(4), carrot(4), GolemTestItems.stack(Material.DIAMOND, 4)), at(2.5D, 64D, 0.5D));
+      target.set(bundle);
+
+      work.act(golem, pickup(bundle));
+
+      assertThat(carriedStacks).as("room %d", room).noneMatch(stack -> stack.getType() == Material.BUNDLE);
+      int left = removed.contains(bundle) ? 0 : ReactBundles.contents(bundle.getItemStack()).stream().mapToInt(ItemStack::getAmount).sum();
+      assertThat(carriedStacks.stream().mapToInt(ItemStack::getAmount).sum() + left).as("room %d", room).isEqualTo(12);
+    }
+  }
+
+  private static ItemStack wheat(int amount) {
+    return GolemTestItems.stack(Material.WHEAT, amount);
+  }
+
+  private static ItemStack carrot(int amount) {
+    return GolemTestItems.stack(Material.CARROT, amount);
+  }
+
   private GolemTask pickup(Entity entity) {
     return GolemTask.builder(GathererWork.PICKUP, GolemTarget.entity(entity)).build();
   }
@@ -810,9 +1030,13 @@ class GathererWorkTest {
   }
 
   private Item item(Material type, int amount, Location location) {
+    return item(GolemTestItems.stack(type, amount), location);
+  }
+
+  private Item item(ItemStack held, Location location) {
     Item item = mock(Item.class, withSettings().strictness(Strictness.LENIENT));
     AtomicReference<Location> where = new AtomicReference<>(location);
-    AtomicReference<ItemStack> stack = new AtomicReference<>(GolemTestItems.stack(type, amount));
+    AtomicReference<ItemStack> stack = new AtomicReference<>(held);
     AtomicInteger delay = new AtomicInteger();
     UUID id = UUID.randomUUID();
     positions.put(item, where);
@@ -908,6 +1132,11 @@ class GathererWorkTest {
     when(context.carry(any(ItemStack.class))).thenAnswer(invocation -> {
       ItemStack stack = invocation.getArgument(0);
       int taking = Math.min(stack.getAmount(), Math.max(0, capacity.get() - carried.get()));
+      if (taking > 0) {
+        ItemStack taken = stack.clone();
+        taken.setAmount(taking);
+        carriedStacks.add(taken);
+      }
       carried.addAndGet(taking);
       if (taking == stack.getAmount()) {
         return Optional.empty();
@@ -937,6 +1166,10 @@ class GathererWorkTest {
   private World world(UUID id) {
     World created = mock(World.class, withSettings().strictness(Strictness.LENIENT));
     when(created.getUID()).thenReturn(id);
+    when(created.dropItemNaturally(any(Location.class), any(ItemStack.class))).thenAnswer(invocation -> {
+      dropped.add(invocation.getArgument(1));
+      return mock(Item.class);
+    });
     when(created.getNearbyEntities(any(BoundingBox.class), any())).thenAnswer(invocation -> {
       BoundingBox box = invocation.getArgument(0);
       Predicate<Entity> filter = invocation.getArgument(1);
