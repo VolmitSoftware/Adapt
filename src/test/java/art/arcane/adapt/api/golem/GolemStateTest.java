@@ -181,6 +181,36 @@ class GolemStateTest {
   }
 
   @Test
+  void equippedItemsStartEmptyAndSurviveTheJsonRoundTripBySlot() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.BONE, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.equipment()).isEmpty();
+
+    state.setEquipment(GolemEquipmentSlot.HELMET, "rO0AB-helm");
+    state.setEquipment(GolemEquipmentSlot.MAIN_HAND, "rO0AB-bow");
+    state.setEquipment(GolemEquipmentSlot.BOOTS, "rO0AB-boots");
+    state.setEquipment(GolemEquipmentSlot.BOOTS, null);
+    GolemState back = reloaded(state);
+
+    assertThat(back.equipment()).containsOnlyKeys(GolemEquipmentSlot.HELMET, GolemEquipmentSlot.MAIN_HAND)
+        .containsEntry(GolemEquipmentSlot.HELMET, "rO0AB-helm")
+        .containsEntry(GolemEquipmentSlot.MAIN_HAND, "rO0AB-bow");
+    JsonObject json = new Gson().fromJson(state.toJson(), JsonObject.class);
+    assertThat(json.getAsJsonObject("equipment").get("main_hand").getAsString()).isEqualTo("rO0AB-bow");
+  }
+
+  @Test
+  void unknownOrBlankEquipmentEntriesAreDroppedAndMissingEquipmentReadsEmpty() {
+    String base = "{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"bone\"";
+
+    GolemState noisy = readPayload(base + ",\"equipment\":{\"helmet\":\"rO0AB-helm\",\"cape\":\"rO0AB-cape\",\"boots\":\" \"}}").orElseThrow();
+
+    assertThat(noisy.equipment()).containsOnlyKeys(GolemEquipmentSlot.HELMET);
+    assertThat(readPayload(base + "}").orElseThrow().equipment()).isEmpty();
+    assertThat(readPayload(base + ",\"equipment\":null}").orElseThrow().equipment()).isEmpty();
+  }
+
+  @Test
   void enumsAreStoredByStableIds() {
     JsonObject json = new Gson().fromJson(populated().toJson(), JsonObject.class);
 

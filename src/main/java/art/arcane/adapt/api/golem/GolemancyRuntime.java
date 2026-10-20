@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.gui.GolemGuiItems;
 import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -460,6 +461,16 @@ public final class GolemancyRuntime {
     @Override
     public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
       OwnerBoundDrop.drop(at, item, owner);
+    }
+
+    @Override
+    public void returnToOwner(UUID owner, Location at, ItemStack item) {
+      Player online = Bukkit.getPlayer(owner);
+      if (online == null) {
+        Objects.requireNonNull(at.getWorld()).dropItemNaturally(at, item);
+        return;
+      }
+      GolemGuiItems.toPlayer(online, item, at);
     }
 
     @Override

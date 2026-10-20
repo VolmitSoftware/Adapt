@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.gui;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRune;
@@ -30,6 +31,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +45,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,12 +78,15 @@ class GolemGuiLiveTest extends AdaptTestBase {
   private static final GolemRuneLayout BONE_LAYOUT = new GolemRuneLayout(3, List.of(1, 1, 3, 5), 2, List.of(1, 3, 5), Set.of());
   private static final int RUNE_ROW = 1;
   private static final int CARRIED_ROW = 2;
+  private static final int EQUIPMENT_ROW = 2;
   private static final int CARRIED_FIRST = -4;
   private static final int HEADER_ROW = 0;
   private static final int FOOTER_ROW = 4;
 
   private final ManualScheduler scheduler = new ManualScheduler();
   private final AtomicReference<GolemBody> body = new AtomicReference<>(GolemBody.IRON);
+  private final AtomicReference<Map<GolemEquipmentSlot, String>> equipment = new AtomicReference<>(Map.of());
+  private final PlayerInventory inventory = mock(PlayerInventory.class);
   private final AtomicReference<List<String>> carried = new AtomicReference<>(List.of("cobblestone-12", "oak_log-4"));
   private final AtomicReference<List<GolemCoreType>> cores = new AtomicReference<>(List.of(GolemCoreType.BREAKER));
   private final AtomicReference<List<GolemRune>> runes = new AtomicReference<>(List.of());
@@ -131,6 +137,9 @@ class GolemGuiLiveTest extends AdaptTestBase {
     lenient().when(state.mode()).thenAnswer(invocation -> mode.get());
     lenient().when(state.home()).thenReturn(GolemState.Anchor.of(WORLD, 0, 64, 0));
     lenient().when(state.carried()).thenAnswer(invocation -> carried.get());
+    lenient().when(state.equipment()).thenAnswer(invocation -> equipment.get());
+    lenient().when(player.getInventory()).thenReturn(inventory);
+    lenient().when(inventory.addItem(any(ItemStack[].class))).thenReturn(new java.util.HashMap<>());
     lenient().when(state.essencePoints()).thenAnswer(invocation -> essence.get());
     lenient().when(state.stats()).thenReturn(stats);
     handle = mock(GolemHandle.class);
@@ -405,6 +414,151 @@ class GolemGuiLiveTest extends AdaptTestBase {
   }
 
   @Test
+  void aBoneGolemShowsASixSlotEquipmentRowAndOtherBodiesDoNot() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    openAndDraw();
+    UIWindow bone = onlyWindow();
+
+    ArgumentCaptor<Element> placed = ArgumentCaptor.forClass(Element.class);
+    verify(bone, times(GolemEquipmentSlot.values().length)).setElement(anyInt(), eq(EQUIPMENT_ROW), placed.capture());
+    assertThat(placed.getAllValues()).extracting(Element::getId).containsExactly("golem-equipment-helmet", "golem-equipment-chestplate",
+        "golem-equipment-leggings", "golem-equipment-boots", "golem-equipment-main_hand", "golem-equipment-off_hand");
+    for (int index = 0; index < GolemEquipmentSlot.values().length; index++) {
+      verify(bone).setElement(eq(GuiLayout.centeredPosition(index, GolemEquipmentSlot.values().length)), eq(EQUIPMENT_ROW), any(Element.class));
+    }
+  }
+
+  @Test
+  void aNonBoneGolemHasNoEquipmentRow() {
+    carried.set(List.of());
+    equipment.set(Map.of(GolemEquipmentSlot.HELMET, "iron_helmet-1"));
+    openAndDraw();
+
+    verify(onlyWindow(), never()).setElement(anyInt(), eq(EQUIPMENT_ROW), any(Element.class));
+  }
+
+  @Test
+  void aWornItemUpdatesOnlyItsOwnSlot() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    openAndDraw();
+    UIWindow window = onlyWindow();
+    equipment.set(Map.of(GolemEquipmentSlot.BOOTS, "iron_boots-1"));
+
+    scheduler.advance(LiveRefresh.POLL_TICKS);
+
+    verify(window, times(1)).updateElement(anyInt(), anyInt(), any());
+    verify(window).updateElement(eq(GuiLayout.centeredPosition(GolemEquipmentSlot.BOOTS.ordinal(), GolemEquipmentSlot.values().length)),
+        eq(EQUIPMENT_ROW), any(Element.class));
+  }
+
+  @Test
+  void clickingAWornItemTwiceHandsItBackOnlyOnce() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    equipment.set(Map.of(GolemEquipmentSlot.BOOTS, "iron_boots-1"));
+    ItemStack boots = GolemTestItems.stack(Material.IRON_BOOTS, 1);
+    when(handle.unequip(GolemEquipmentSlot.BOOTS, "iron_boots-1")).thenReturn(Optional.of(boots)).thenReturn(Optional.empty());
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-boots");
+
+    element.call(ElementEvent.LEFT, element);
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    verify(handle, times(2)).unequip(GolemEquipmentSlot.BOOTS, "iron_boots-1");
+    verify(inventory, times(1)).addItem(any(ItemStack[].class));
+    assertThat(scheduler.violations()).isEmpty();
+  }
+
+  @Test
+  void aShiftClickOnAWornItemTakesItBackOnce() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    equipment.set(Map.of(GolemEquipmentSlot.MAIN_HAND, "bow-1"));
+    ItemStack bow = GolemTestItems.stack(Material.BOW, 1);
+    when(handle.unequip(GolemEquipmentSlot.MAIN_HAND, "bow-1")).thenReturn(Optional.of(bow)).thenReturn(Optional.empty());
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-main_hand");
+
+    element.call(ElementEvent.SHIFT_LEFT, element);
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    verify(inventory, times(1)).addItem(any(ItemStack[].class));
+  }
+
+  @Test
+  void anItemFromTheCursorIsEquippedOneAtATimeIntoAnEmptySlot() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    ItemStack cursor = GolemTestItems.stack(Material.IRON_HELMET, 2);
+    when(player.getItemOnCursor()).thenReturn(cursor);
+    when(handle.equip(eq(GolemEquipmentSlot.HELMET), any(ItemStack.class))).thenReturn(true);
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-helmet");
+
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    ArgumentCaptor<ItemStack> equipped = ArgumentCaptor.forClass(ItemStack.class);
+    verify(handle).equip(eq(GolemEquipmentSlot.HELMET), equipped.capture());
+    assertThat(equipped.getValue().getAmount()).isEqualTo(1);
+    assertThat(cursor.getAmount()).isEqualTo(1);
+    verify(inventory, never()).addItem(any(ItemStack[].class));
+  }
+
+  @Test
+  void anItemThatDoesNotFitTheSlotStaysOnTheCursor() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    ItemStack cursor = GolemTestItems.stack(Material.IRON_BOOTS, 1);
+    when(player.getItemOnCursor()).thenReturn(cursor);
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-helmet");
+
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    verify(handle, never()).equip(any(GolemEquipmentSlot.class), any(ItemStack.class));
+    verify(player, never()).setItemOnCursor(any());
+    assertThat(cursor.getAmount()).isEqualTo(1);
+    hud.verify(() -> AdaptHud.actionBar(eq(player), anyString()), times(1));
+  }
+
+  @Test
+  void anEmptyCursorOnAnEmptySlotAsksForAnItem() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    when(player.getItemOnCursor()).thenReturn(null);
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-main_hand");
+
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    verify(handle, never()).equip(any(GolemEquipmentSlot.class), any(ItemStack.class));
+    hud.verify(() -> AdaptHud.actionBar(eq(player), anyString()), times(1));
+  }
+
+  @Test
+  void aRefusedEquipHandsTheTakenItemBackToThePlayer() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    ItemStack cursor = GolemTestItems.stack(Material.SHIELD, 1);
+    when(player.getItemOnCursor()).thenReturn(cursor);
+    when(handle.equip(any(GolemEquipmentSlot.class), any(ItemStack.class))).thenReturn(false);
+    openAndDraw();
+    Element element = equipmentElement("golem-equipment-off_hand");
+
+    element.call(ElementEvent.LEFT, element);
+    scheduler.advance(0);
+
+    verify(inventory, times(1)).addItem(any(ItemStack[].class));
+  }
+
+  @Test
   void aStateThatNeverChangesUpdatesNothingForever() {
     openAndDraw();
     UIWindow window = onlyWindow();
@@ -541,6 +695,12 @@ class GolemGuiLiveTest extends AdaptTestBase {
     scheduler.advance(0);
     assertThat(windows.constructed()).hasSize(1);
     assertThat(scheduler.pending()).as("one pending poll after the first draw").isEqualTo(1);
+  }
+
+  private Element equipmentElement(String id) {
+    ArgumentCaptor<Element> placed = ArgumentCaptor.forClass(Element.class);
+    verify(onlyWindow(), times(GolemEquipmentSlot.values().length)).setElement(anyInt(), eq(EQUIPMENT_ROW), placed.capture());
+    return placed.getAllValues().stream().filter(element -> id.equals(element.getId())).findFirst().orElseThrow();
   }
 
   private UIWindow onlyWindow() {

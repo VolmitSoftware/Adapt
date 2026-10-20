@@ -1,14 +1,19 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.Adapt;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Mob;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class GolemHandle {
@@ -88,6 +93,51 @@ public final class GolemHandle {
     state.setCarried(remaining);
     flush();
     return true;
+  }
+
+  public boolean equip(GolemEquipmentSlot slot, ItemStack item) {
+    if (retired || !entity.isValid() || body() != GolemBody.BONE || item.getAmount() != 1 || !slot.accepts(item.getType())
+        || state.equipment().containsKey(slot)) {
+      return false;
+    }
+    state.setEquipment(slot, platform.encodeItem(item));
+    flush();
+    wear(slot, item.clone());
+    return true;
+  }
+
+  public Optional<ItemStack> unequip(GolemEquipmentSlot slot, String expected) {
+    if (retired || !entity.isValid()) {
+      return Optional.empty();
+    }
+    String stored = state.equipment().get(slot);
+    if (stored == null || !stored.equals(expected)) {
+      return Optional.empty();
+    }
+    ItemStack item;
+    try {
+      item = platform.decodeItem(stored);
+    } catch (RuntimeException corrupt) {
+      Adapt.warn("Skipping unreadable equipped item on golem " + id() + "; the stored entry is kept.", corrupt);
+      return Optional.empty();
+    }
+    state.setEquipment(slot, null);
+    flush();
+    wear(slot, null);
+    return Optional.of(item);
+  }
+
+  public List<ItemStack> equipmentItems() {
+    Map<GolemEquipmentSlot, String> stored = state.equipment();
+    List<ItemStack> items = new ArrayList<>(stored.size());
+    for (String encoded : stored.values()) {
+      try {
+        items.add(platform.decodeItem(encoded));
+      } catch (RuntimeException corrupt) {
+        Adapt.warn("Skipping unreadable equipped item on golem " + id() + "; the stored entry is kept.", corrupt);
+      }
+    }
+    return items;
   }
 
   public void setCores(List<GolemCoreType> cores) {
@@ -276,6 +326,15 @@ public final class GolemHandle {
 
   void retire() {
     retired = true;
+  }
+
+  private void wear(GolemEquipmentSlot slot, ItemStack item) {
+    EntityEquipment equipment = entity.getEquipment();
+    if (equipment == null) {
+      return;
+    }
+    equipment.setItem(slot.slot(), item);
+    equipment.setDropChance(slot.slot(), 0F);
   }
 
   private void fillHealth() {

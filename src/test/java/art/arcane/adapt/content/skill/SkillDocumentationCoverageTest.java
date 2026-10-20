@@ -82,7 +82,7 @@ class SkillDocumentationCoverageTest {
     }
 
     assertThat(documentedSkillFields).isEqualTo(408);
-    assertThat(documentedAdaptationFields).isEqualTo(2347);
+    assertThat(documentedAdaptationFields).isEqualTo(2348);
   }
 
   private static int assertSkillConfigTable(
