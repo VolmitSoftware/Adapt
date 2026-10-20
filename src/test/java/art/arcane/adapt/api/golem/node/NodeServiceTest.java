@@ -24,6 +24,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Cow;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -43,12 +46,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -60,6 +65,8 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -426,8 +433,8 @@ class NodeServiceTest extends AdaptTestBase {
     platform.runScheduled();
 
     assertThat(passes).hasSize(2);
-    assertThat(passes.get(0).window()).isEqualTo(new NodeScanCursor.Window(0, 64));
-    assertThat(passes.get(1).window()).isEqualTo(new NodeScanCursor.Window(64, 61));
+    assertThat(passes.get(0).window().indices()).containsExactly(IntStream.range(0, 64).toArray());
+    assertThat(passes.get(1).window().indices()).containsExactly(IntStream.range(64, 128).map(index -> index % 125).toArray());
     assertThat(passes.get(0).maxOpenTasks()).isEqualTo(16);
   }
 
@@ -488,10 +495,11 @@ class NodeServiceTest extends AdaptTestBase {
 
     assertThat(service.remove(owner, key)).isTrue();
 
-    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "pending");
     verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
     platform.runAsync();
     assertThat(platform.events).containsExactly("save 3,3");
+    platform.drainAsync();
     verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
   }
 
@@ -505,11 +513,11 @@ class NodeServiceTest extends AdaptTestBase {
     verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
     verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
     assertThat(logged).anySatisfy(record -> assertThat(record.getThrown()).hasMessage("disk full"));
-    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "pending");
   }
 
   @Test
-  void aPlateThatStaysBusyIsRetriedThenGivenUpLoudlyWithoutAnItem() {
+  void aPlateThatStaysBusyKeepsItsPendingReturnForALaterRetry() {
     Player owner = placedGuard();
     platform.busySaves = 1000;
 
@@ -518,7 +526,7 @@ class NodeServiceTest extends AdaptTestBase {
 
     assertThat(platform.events).hasSize(20);
     verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
-    assertThat(logged).anySatisfy(record -> assertThat(record.getThrown()).hasMessageContaining("busy"));
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "pending");
   }
 
   @Test
@@ -529,7 +537,7 @@ class NodeServiceTest extends AdaptTestBase {
     service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
     platform.drainAsync();
 
-    assertThat(platform.events).hasSize(3);
+    assertThat(platform.events).hasSize(5);
     verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
   }
 
@@ -540,7 +548,7 @@ class NodeServiceTest extends AdaptTestBase {
     service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
     when(owner.isOnline()).thenReturn(false);
 
-    platform.runAsync();
+    platform.drainAsync();
 
     verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
     verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
@@ -660,6 +668,76 @@ class NodeServiceTest extends AdaptTestBase {
     service.status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST), NodeStatus.FULL);
     assertThat(service.renderer().bundle(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST))).isEmpty();
     verify(bundle.label(), times(2)).text(any(Component.class));
+  }
+
+  @Test
+  void aRemoteScanStatusReturnsToTheAnchorRegionBeforeChangingTheLabel() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+    platform.scheduled.clear();
+    platform.ownsEverything = false;
+
+    service.status(key, NodeStatus.WORKING);
+
+    verify(bundle.label(), never()).text(any(Component.class));
+    assertThat(platform.scheduled).singleElement().satisfies(task -> assertThat(task.location()).isEqualTo(key.center(world)));
+    platform.ownsEverything = true;
+    platform.runScheduled();
+    verify(bundle.label()).text(any(Component.class));
+  }
+
+  @Test
+  void aQueuedStatusCannotChangeAReplacementScanGeneration() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeRecord original = service.node(key).orElseThrow();
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+    platform.scheduled.clear();
+    platform.ownsEverything = false;
+    service.status(key, NodeStatus.BLOCKED);
+    platform.ownsEverything = true;
+    service.update(OWNER, key, record -> record.toBuilder().priority(5).build());
+    service.index().put(key, original);
+    clearInvocations(bundle.label());
+
+    platform.runScheduled();
+
+    verify(bundle.label(), never()).text(any(Component.class));
+  }
+
+  @Test
+  void renderingFailuresKeepTheFullStackOnceAndDoNotEscape() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+    IllegalStateException failure = new IllegalStateException("label update failed");
+    doThrow(failure).when(bundle.label()).text(any(Component.class));
+
+    service.status(key, NodeStatus.WORKING);
+    service.status(key, NodeStatus.BLOCKED);
+
+    assertThat(logged).filteredOn(record -> record.getThrown() == failure).hasSize(1);
+    assertThat(platform.scheduled).hasSize(1);
+  }
+
+  @Test
+  void aFailingRemoteBatchStillSchedulesTheNextPassAndLogsItsFullStackOnce() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    IllegalStateException failure = new IllegalStateException("scan callback failed");
+    service.setScanHook(pass -> {
+      throw failure;
+    });
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.HARVEST, policy);
+
+    platform.runScheduled();
+    assertThat(platform.scheduled).hasSize(1);
+    platform.runScheduled();
+
+    assertThat(platform.scheduled).hasSize(1);
+    assertThat(logged).filteredOn(record -> record.getThrown() == failure).hasSize(1);
   }
 
   @Test
@@ -793,6 +871,177 @@ class NodeServiceTest extends AdaptTestBase {
     service.on(new WorldUnloadEvent(world));
 
     assertThat(unloaded).containsExactly(WORLD);
+  }
+
+  @Test
+  void anUnavailableChunkStaysUnreadyAndRecoversOnItsRetry() {
+    platform.chunkReadFailure = new IllegalStateException("region unavailable");
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isFalse();
+
+    platform.chunkReadFailure = null;
+    platform.runAsync();
+
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
+    assertThat(platform.chunkReads).isEqualTo(2);
+  }
+
+  @Test
+  void anUnavailableLoadsRetryCannotReplaceANewerGeneration() {
+    platform.chunkReadFailure = new IllegalStateException("region unavailable");
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    platform.chunkReadFailure = null;
+    service.on(new ChunkLoadEvent(chunk(0, 0), true));
+    platform.runAsync();
+    assertThat(platform.chunkReads).isEqualTo(1);
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
+  }
+
+  @Test
+  void aFailedRefundRecoversAfterReloadWithoutExposingAnActiveNode() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    platform.saveFailure = new IllegalStateException("disk unavailable");
+    service.remove(owner, key);
+    platform.drainAsync();
+    service.shutdown();
+    platform.saveFailure = null;
+    service = new NodeService(platform, NodeSettings::defaults, RevealSettings::defaults);
+
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    platform.drainAsync();
+
+    assertThat(service.node(key)).isEmpty();
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
+  }
+
+  @Test
+  void aRejectedRefundHandoverRemainsPendingAndRetriesOnJoin() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    platform.refuseRunAt = true;
+    service.remove(owner, key);
+    platform.drainAsync();
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "pending");
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+
+    platform.refuseRunAt = false;
+    service.on(new PlayerJoinEvent(owner, (Component) null));
+    platform.drainAsync();
+
+    verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+  }
+
+  @Test
+  void unloadingTheWorldPausesAReturnBeforeItTouchesRetiredStorage() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    platform.deferAsync = true;
+    service.remove(owner, key);
+    platform.worlds.remove(WORLD);
+    platform.saveFailure = new IllegalStateException("world is no longer loaded");
+
+    platform.drainAsync();
+
+    assertThat(platform.events).isEmpty();
+    assertThat(logged).noneMatch(record -> record.getThrown() != null && "world is no longer loaded".equals(record.getThrown().getMessage()));
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "pending");
+    platform.saveFailure = null;
+    platform.worlds.put(WORLD, world);
+    service.onTick();
+    platform.drainAsync();
+    verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
+  }
+
+  @Test
+  void anAmbiguousRefundIsNotReplayedAfterRestartUntilResolved() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    PlayerInventory inventory = owner.getInventory();
+    doThrow(new IllegalStateException("inventory failure")).when(inventory).addItem(any(ItemStack[].class));
+    service.remove(owner, key);
+    platform.drainAsync();
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).data()).containsEntry("adapt:return", "delivering");
+    service.shutdown();
+    service = new NodeService(platform, NodeSettings::defaults, RevealSettings::defaults);
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    platform.drainAsync();
+    verify(owner.getInventory(), times(1)).addItem(nodeItems.get(NodeType.GUARD));
+    assertThat(service.node(key)).isEmpty();
+
+    assertThat(service.resolveReturn(STRANGER, key, true)).isFalse();
+    assertThat(service.resolveReturn(OWNER, key, true)).isTrue();
+    platform.drainAsync();
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+  }
+
+  @Test
+  void editingTheWorkAreaKeepsKnownTargetsInWorldCoordinates() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(pass -> {
+      passes.add(pass);
+      if (passes.size() == 1) {
+        pass.discovery().remember(20, true);
+      }
+    });
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.HARVEST, policy);
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeRecord original = service.node(key).orElseThrow();
+    int[] target = NodeArea.position(key, original, 20);
+    platform.runScheduled();
+
+    service.update(OWNER, key, record -> record.toBuilder().area(NodeCuboid.symmetric(7, 7, 7)).build());
+    platform.runScheduled();
+
+    assertThat(passes.subList(1, passes.size())).anySatisfy(pass -> {
+      assertThat(IntStream.of(pass.window().indices()).anyMatch(index -> Arrays.equals(NodeArea.position(key, pass.record(), index), target))).isTrue();
+    });
+    assertThat(passes.getFirst().current().getAsBoolean()).isFalse();
+  }
+
+  @Test
+  void itemSpawnsWakeOnlyCollectionQueriesInsideTheNodeArea() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.COLLECTION, policy);
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.emptyQuery(key, service.node(key).orElseThrow(), platform.now);
+    assertThat(service.queryDue(key, platform.now + 1)).isFalse();
+    ItemSpawnEvent outside = mock(ItemSpawnEvent.class);
+    when(outside.getLocation()).thenReturn(new Location(world, 100D, 65D, 100D));
+    service.on(outside);
+    assertThat(service.queryDue(key, platform.now + 1)).isFalse();
+
+    ItemSpawnEvent inside = mock(ItemSpawnEvent.class);
+    when(inside.getLocation()).thenReturn(new Location(world, 3.5D, 65D, 3.5D));
+    service.on(inside);
+    assertThat(service.queryDue(key, platform.now + 1)).isTrue();
+  }
+
+  @Test
+  void animalSpawnsWakeEmptyPasturesBeforeTheTenSecondReconciliation() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.PASTURE, policy);
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.emptyQuery(key, service.node(key).orElseThrow(), platform.now);
+    assertThat(service.queryDue(key, platform.now + 9_999)).isFalse();
+    assertThat(service.queryDue(key, platform.now + 10_000)).isTrue();
+    service.emptyQuery(key, service.node(key).orElseThrow(), platform.now);
+    CreatureSpawnEvent spawn = mock(CreatureSpawnEvent.class);
+    when(spawn.getEntity()).thenReturn(mock(Cow.class));
+    when(spawn.getLocation()).thenReturn(new Location(world, 3.5D, 65D, 3.5D));
+
+    service.on(spawn);
+
+    assertThat(service.queryDue(key, platform.now + 1)).isTrue();
   }
 
   private Player placedGuard() {

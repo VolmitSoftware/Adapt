@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreBehavior;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemWorkStatus;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeIndex;
@@ -48,14 +49,15 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     GolemHarvesterCore.Config config = core.config();
     List<ItemStack> carried = golem.carriedItems();
     UUID owner = golem.handle().owner();
-    boolean planting = GolemancyRules.unlocked(level, config.tillingLevel) && carriesSeed(carried) && core.tills(owner);
+    boolean planting = GolemancyRules.unlocked(level, config.tillingLevel) && core.tills(owner);
     boolean tending = GolemancyRules.unlocked(level, config.tendingLevel) && core.tendReady(golem.handle().id(), golem.nowMillis())
         && core.tends(owner);
     if (!planting && !tending) {
       return Optional.empty();
     }
     World world = golem.world();
-    List<Candidate> candidates = candidates(golem, world, level, planting, tending, carried);
+    List<ItemStack> stock = planting ? actions.seedStock(golem) : List.of();
+    List<Candidate> candidates = candidates(golem, world, level, planting, tending, carried, stock);
     boolean boneMeal = false;
     boolean chestChecked = false;
     for (Candidate candidate : candidates) {
@@ -159,15 +161,20 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     return GolemActResult.DONE;
   }
 
-  private List<Candidate> candidates(GolemContext golem, World world, int level, boolean planting, boolean tending, List<ItemStack> carried) {
+  private List<Candidate> candidates(GolemContext golem, World world, int level, boolean planting, boolean tending, List<ItemStack> carried, List<ItemStack> stock) {
     Location here = golem.golem().getLocation();
     List<Candidate> candidates = new ArrayList<>();
     for (NodeIndex.Entry entry : GolemancySupport.ownedNodes(golem, world, NodeType.HARVEST)) {
-      boolean plants = planting && plantable(actions.plan(level, entry.record()), carried);
+      HarvesterRules.Plan plan = actions.plan(level, entry.record());
+      boolean plants = planting && (plantable(plan, carried) || plantable(plan, stock));
+      List<HarvestSpots.Mark> marks = spots.of(entry.key());
+      if (planting && !plants && marks.stream().anyMatch(mark -> mark.kind() == HarvesterRules.Spot.PLANT)) {
+        golem.waiting(GolemWorkStatus.NEEDS_SEEDS);
+      }
       if (!plants && !tending) {
         continue;
       }
-      for (HarvestSpots.Mark mark : spots.of(entry.key())) {
+      for (HarvestSpots.Mark mark : marks) {
         boolean inArea = NodeArea.covers(entry.key(), entry.record(), mark.x() + 0.5D, mark.y() + 0.5D, mark.z() + 0.5D);
         if (inArea && (mark.kind() == HarvesterRules.Spot.PLANT ? plants : tending)) {
           candidates.add(new Candidate(entry.key(), mark, distanceSquared(here, mark)));
@@ -176,16 +183,6 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     }
     candidates.sort(Comparator.comparingDouble(Candidate::distanceSquared));
     return candidates;
-  }
-
-  private boolean carriesSeed(List<ItemStack> carried) {
-    HarvestCrops crops = core.crops();
-    for (ItemStack item : carried) {
-      if (crops.farmlandCrop(item.getType()) != null) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private static boolean plantable(HarvesterRules.Plan plan, List<ItemStack> carried) {

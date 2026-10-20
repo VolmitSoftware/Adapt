@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -232,7 +233,7 @@ class GolemStasisTest extends AdaptTestBase {
     Packable packable = packable();
     GolemStasis channeling = learned(1);
     doNothing().when(channeling).channel(any(), any(), anyInt());
-    when(registry.pack(packable.handle)).thenReturn(Optional.empty());
+    when(registry.pack(packable.handle)).thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
     channeling.pack(player, packable.handle);
     verify(channeling).channel(player, packable.handle, 40);
@@ -245,7 +246,7 @@ class GolemStasisTest extends AdaptTestBase {
   }
 
   @Test
-  void aPackSealsTheEntryThenGivesTheDormantGolemThenSavesThePlayer() {
+  void aPackDelegatesItsDurableHandoverBeforeEffects() {
     Packable packable = packable();
     GolemStasis learned = learned(2);
 
@@ -253,8 +254,7 @@ class GolemStasisTest extends AdaptTestBase {
 
     InOrder order = inOrder(registry, inventory, player);
     order.verify(registry).pack(packable.handle);
-    order.verify(inventory).addItem(dormantStack);
-    order.verify(player).saveData();
+    order.verify(registry).deliverPacked(player, packable.packing.packed(), dormantStack);
     verify(learned).packFx(packable.packing.at(), GolemBody.IRON);
     drops.verifyNoInteractions();
   }
@@ -265,10 +265,9 @@ class GolemStasisTest extends AdaptTestBase {
     GolemStasis learned = learned(2);
     doThrow(new IllegalStateException("effects failed")).when(learned).packFx(any(), any());
 
-    assertThatThrownBy(() -> learned.pack(player, packable.handle)).hasMessage("effects failed");
+    learned.pack(player, packable.handle);
 
-    verify(inventory).addItem(dormantStack);
-    verify(player).saveData();
+    verify(registry).deliverPacked(player, packable.packing.packed(), dormantStack);
   }
 
   @Test
@@ -284,56 +283,13 @@ class GolemStasisTest extends AdaptTestBase {
     verify(registry).pack(next.handle);
   }
 
-  @Test
-  void aFullInventoryDropsTheDormantGolemBoundToItsOwner() {
-    Packable packable = packable();
-    Map<Integer, ItemStack> leftover = new HashMap<>();
-    leftover.put(0, dormantStack);
-    when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>(leftover));
 
-    learned(3).pack(player, packable.handle);
 
-    drops.verify(() -> OwnerBoundDrop.drop(player.getLocation(), dormantStack, player.getUniqueId()));
-    verify(player).saveData();
-  }
-
-  @Test
-  void aPackTellsThePlayerTheGolemIsPackedOrThatTheDormantGolemDropped() {
-    Packable roomy = packable();
-    Packable crowded = packable();
-    Map<Integer, ItemStack> leftover = new HashMap<>();
-    leftover.put(0, dormantStack);
-    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
-      invocation.<Runnable>getArgument(1).run();
-      return true;
-    });
-    List<String> shown = new ArrayList<>();
-    try (MockedStatic<AdaptHud> hud = mockStatic(AdaptHud.class)) {
-      hud.when(() -> AdaptHud.actionBar(eq(player), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
-
-      learned(3).pack(player, roomy.handle);
-      when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>(leftover));
-      learned(3).pack(player, crowded.handle);
-    }
-
-    assertThat(shown).containsExactly("Your Iron golem is packed into a Dormant Golem", "Your inventory is full, so your Dormant Golem dropped at your feet");
-  }
-
-  @Test
-  void anOwnerWhoLeftGetsTheDormantGolemDroppedWhereTheGolemStood() {
-    Packable packable = packable();
-    playerReachable.set(false);
-
-    learned(2).pack(player, packable.handle);
-
-    drops.verify(() -> OwnerBoundDrop.drop(packable.packing.at(), dormantStack, player.getUniqueId()), times(1));
-    verify(inventory, never()).addItem(any(ItemStack[].class));
-  }
 
   @Test
   void aRefusedPackKeepsTheGolemAndHandsOutNothing() {
     Packable packable = packable();
-    when(registry.pack(packable.handle)).thenReturn(Optional.empty());
+    when(registry.pack(packable.handle)).thenReturn(CompletableFuture.completedFuture(Optional.empty()));
 
     learned(2).pack(player, packable.handle);
 
@@ -382,7 +338,7 @@ class GolemStasisTest extends AdaptTestBase {
     assertThat(pulses).isEqualTo(40);
     verify(packable.golem, times(40)).setTarget(null);
     verify(registry).pack(packable.handle);
-    verify(player).saveData();
+    verify(registry).deliverPacked(player, packable.packing.packed(), dormantStack);
   }
 
   @Test
@@ -605,14 +561,14 @@ class GolemStasisTest extends AdaptTestBase {
 
     verify(registry).pack(first.handle);
     verify(registry, never()).pack(second.handle);
-    verify(player, times(1)).saveData();
+    verify(registry).deliverPacked(player, first.packing.packed(), dormantStack);
   }
 
   @Test
   void aFailedRecallFreesTheCooldown() {
     Packable refused = packable();
     Packable next = packable();
-    when(registry.pack(refused.handle)).thenReturn(Optional.empty());
+    when(registry.pack(refused.handle)).thenReturn(CompletableFuture.completedFuture(Optional.empty()));
     GolemStasis learned = learned(3);
 
     learned.recall(player, refused.handle);
@@ -656,7 +612,7 @@ class GolemStasisTest extends AdaptTestBase {
     GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 40D, 0, false, true), 1L);
     GolemRegistry.Packing packing = new GolemRegistry.Packing(new PackedGolem(golemId, playerId, snapshot.toJson()), snapshot, dormantStack,
         new Location(world, 2.5D, 64D, 0.5D));
-    lenient().when(registry.pack(handle)).thenReturn(Optional.of(packing));
+    lenient().when(registry.pack(handle)).thenReturn(CompletableFuture.completedFuture(Optional.of(packing)));
     return new Packable(handle, golem, packing);
   }
 

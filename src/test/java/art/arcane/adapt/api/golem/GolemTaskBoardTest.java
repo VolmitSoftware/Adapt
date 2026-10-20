@@ -92,6 +92,21 @@ class GolemTaskBoardTest {
   }
 
   @Test
+  void protectionCooldownIsSharedAcrossWorkersAndRediscoveredTasks() {
+    NodeKey node = harvestNode(0, 64, 0, null, 3);
+    GolemTask original = crop(node, 1, 64, 1);
+    board.offer(original, 16);
+    board.block(original, now);
+    board.withdraw(original);
+    GolemTask foundAgain = crop(node, 1, 64, 1);
+    board.offer(foundAgain, 16);
+
+    assertThat(board.claim(seeker(GOLEM), ignored -> false, now + 1, LEASE)).isEmpty();
+    assertThat(board.claim(seeker(RIVAL), ignored -> false, now + 1, LEASE)).isEmpty();
+    assertThat(board.claim(seeker(RIVAL), ignored -> false, now + GolemTaskBoard.BLOCKED_MILLIS, LEASE)).containsSame(foundAgain);
+  }
+
+  @Test
   void concurrentClaimsOfOneTaskHaveExactlyOneWinner() throws Exception {
     NodeKey node = harvestNode(0, 64, 0, null, 3);
     GolemTask task = crop(node, 1, 64, 1);

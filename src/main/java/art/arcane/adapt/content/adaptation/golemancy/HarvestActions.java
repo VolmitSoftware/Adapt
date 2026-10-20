@@ -15,6 +15,7 @@ import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -115,12 +116,100 @@ final class HarvestActions {
       return false;
     }
     Material seed = HarvesterRules.seedToPlant(plan, golem.carriedItems(), spot, owned);
-    if (seed == null || golem.take(item -> item.getType() == seed, 1) < 1) {
+    Inventory chest = null;
+    int slot = -1;
+    if (seed == null) {
+      chest = GolemancySupport.homeChest(golem).orElse(null);
+      List<ItemStack> stock = seedStock(chest);
+      seed = HarvesterRules.seedToPlant(plan, stock, spot, owned);
+      slot = seedSlot(chest, seed);
+    }
+    if (seed == null) {
       return false;
     }
-    spot.setType(plan.crops().farmlandCrop(seed));
+    Material chosen = seed;
+    ItemStack spent;
+    if (chest == null) {
+      spent = golem.carriedItems().stream().filter(item -> item.getType() == chosen).findFirst().orElseThrow().clone();
+      spent.setAmount(1);
+      if (golem.take(item -> item.getType() == chosen, 1) < 1) {
+        return false;
+      }
+    } else {
+      if (slot < 0) {
+        return false;
+      }
+      ItemStack held = chest.getItem(slot);
+      if (held == null || held.getType() != seed || held.getAmount() <= 0) {
+        return false;
+      }
+      spent = held.clone();
+      spent.setAmount(1);
+      ItemStack rest = held.clone();
+      rest.setAmount(held.getAmount() - 1);
+      chest.setItem(slot, rest.getAmount() == 0 ? null : rest);
+    }
+    try {
+      spot.setType(plan.crops().farmlandCrop(seed));
+    } catch (RuntimeException failure) {
+      refundSeed(golem, chest, slot, spent, spot);
+      throw failure;
+    }
+    if (chest != null) {
+      GolemancySupport.visitHomeChest(golem);
+    }
     HarvestFeedback.play(core, center(spot), HarvestFeedback.Kind.PLANT);
     return true;
+  }
+
+  List<ItemStack> seedStock(GolemContext golem) {
+    return seedStock(GolemancySupport.homeChest(golem).orElse(null));
+  }
+
+  private List<ItemStack> seedStock(Inventory chest) {
+    if (chest == null) {
+      return List.of();
+    }
+    List<ItemStack> stock = new ArrayList<>();
+    for (ItemStack item : chest.getStorageContents()) {
+      if (item != null && item.getAmount() > 0 && core.crops().farmlandCrop(item.getType()) != null) {
+        stock.add(item);
+      }
+    }
+    return stock;
+  }
+
+  private static int seedSlot(Inventory chest, Material seed) {
+    if (chest == null || seed == null) {
+      return -1;
+    }
+    ItemStack[] contents = chest.getStorageContents();
+    for (int index = 0; index < contents.length; index++) {
+      ItemStack item = contents[index];
+      if (item != null && item.getType() == seed && item.getAmount() > 0) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  private static void refundSeed(GolemContext golem, Inventory chest, int slot, ItemStack spent, Block spot) {
+    if (chest == null) {
+      golem.carry(spent).ifPresent(left -> spot.getWorld().dropItemNaturally(spot.getLocation(), left));
+      return;
+    }
+    ItemStack held = chest.getItem(slot);
+    if (held == null) {
+      chest.setItem(slot, spent);
+    } else if (held.isSimilar(spent) && held.getAmount() < held.getMaxStackSize()) {
+      ItemStack restored = held.clone();
+      restored.setAmount(held.getAmount() + 1);
+      chest.setItem(slot, restored);
+    } else {
+      for (ItemStack left : chest.addItem(spent).values()) {
+        spot.getWorld().dropItemNaturally(spot.getLocation(), left);
+      }
+    }
   }
 
   boolean canHarvest(GolemContext golem, Block block, HarvesterRules.Plan plan) {

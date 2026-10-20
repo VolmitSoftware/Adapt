@@ -211,7 +211,7 @@ public final class GolemancyMessages {
   public static final TextKey BINDING_CHUNK_CAP = TextKey.of("golemancy.binding.chunk_cap", "This area already holds {count} bound golems");
   public static final TextKey BINDING_LEVELS = TextKey.of("golemancy.binding.levels", "Not enough experience: binding this golem costs {levels} levels and you have {have}");
   public static final TextKey BINDING_INTERRUPTED = TextKey.of("golemancy.binding.interrupted", "The binding was interrupted");
-  public static final TextKey BINDING_BOUND = TextKey.of("golemancy.binding.bound", "Your {body} golem is now bound to you");
+  public static final TextKey BINDING_BOUND = TextKey.of("golemancy.binding.bound", "Your {body} golem is bound. Right-click it with your Crook to manage it");
   public static final TextKey ANIMUS_BINDING_NAME = TextKey.of("golemancy.animus_binding.name", "Animus Binding");
   public static final TextKey ANIMUS_BINDING_DESCRIPTION = TextKey.of("golemancy.animus_binding.description", "Sneak-right-click a golem while holding an Animus Core to bind it to you as a companion.");
   public static final TextKey ANIMUS_BINDING_LORE1 = TextKey.of("golemancy.animus_binding.lore1", "Golems You Can Own");
@@ -560,20 +560,7 @@ public final class GolemancyMessages {
   public static final TextKey NODE_GUI_TAG = TextKey.of("golemancy.node_gui.tag", "Item tag");
   public static final TextKey NODE_GUI_TAG_ADD = TextKey.of("golemancy.node_gui.tag_add", "Add Tag");
   public static final TextKey NODE_GUI_TAG_ADD_LORE = TextKey.of("golemancy.node_gui.tag_add_lore", "Click, then type an item tag such as #logs in chat");
-  public static final TextKey NODE_AREA_SELECT = TextKey.of("golemancy.node_area.select", "Select Area with the Crook");
-  public static final TextKey NODE_AREA_STOP = TextKey.of("golemancy.node_area.stop", "Stop Selecting the Area");
-  public static final TextKey NODE_AREA_STARTED = TextKey.of("golemancy.node_area.started", "Left-click a block with the Crook for corner 1, right-click a block for corner 2");
-  public static final TextKey NODE_AREA_STARTED_HINT = TextKey.of("golemancy.node_area.started_hint", "Sneak + right-click to apply, sneak + left-click to cancel");
-  public static final TextKey NODE_AREA_CORNER = TextKey.of("golemancy.node_area.corner", "Corner {corner}: {x}, {y}, {z}");
-  public static final TextKey NODE_AREA_APPLIED = TextKey.of("golemancy.node_area.applied", "Work area set: {x} × {y} × {z} blocks");
-  public static final TextKey NODE_AREA_INCOMPLETE = TextKey.of("golemancy.node_area.incomplete", "Set both corners before applying");
-  public static final TextKey NODE_AREA_MISSING_CENTER = TextKey.of("golemancy.node_area.missing_center", "The area must hold the block in front of the node");
-  public static final TextKey NODE_AREA_TOO_FAR = TextKey.of("golemancy.node_area.too_far", "The {face} face is {distance} blocks from the area center; your limit is {max}");
-  public static final TextKey NODE_AREA_CANCELLED = TextKey.of("golemancy.node_area.cancelled", "Area selection cancelled");
-  public static final TextKey NODE_AREA_TIMED_OUT = TextKey.of("golemancy.node_area.timed_out", "Area selection timed out");
-  public static final TextKey NODE_AREA_PUT_AWAY = TextKey.of("golemancy.node_area.put_away", "Area selection ended: the Crook was put away");
-  public static final TextKey NODE_AREA_WORLD_CHANGED = TextKey.of("golemancy.node_area.world_changed", "Area selection ended: you left the node's world");
-  public static final TextKey NODE_AREA_NODE_GONE = TextKey.of("golemancy.node_area.node_gone", "Area selection ended: the node is no longer here");
+  public static final TextKey NODE_AREA_STOP = TextKey.of("golemancy.node_area.stop", "Finish Shifting the Area");
   public static final TextKey PLINTH_LOADING = TextKey.of("golemancy.plinth.loading", "This plinth is still loading");
   public static final TextKey PLINTH_OCCUPIED = TextKey.of("golemancy.plinth.occupied", "This pedestal already holds an item");
   public static final TextKey PLINTH_PROTECTED = TextKey.of("golemancy.plinth.protected", "You cannot use this plinth here");
@@ -593,6 +580,8 @@ public final class GolemancyMessages {
 
   public static void addTo(MessageCatalog.Builder builder) {
     GolemancyPreferences.addMessages(builder);
+    GolemHelpMessages.addTo(builder);
+    GolemWorkMessages.addTo(builder);
     builder.add(CROOK_NAME);
     builder.add(CROOK_LORE);
     builder.add(BLANK_CORE_NAME);
@@ -1146,20 +1135,7 @@ public final class GolemancyMessages {
     builder.add(NODE_GUI_TAG);
     builder.add(NODE_GUI_TAG_ADD);
     builder.add(NODE_GUI_TAG_ADD_LORE);
-    builder.add(NODE_AREA_SELECT);
     builder.add(NODE_AREA_STOP);
-    builder.add(NODE_AREA_STARTED);
-    builder.add(NODE_AREA_STARTED_HINT);
-    builder.add(NODE_AREA_CORNER);
-    builder.add(NODE_AREA_APPLIED);
-    builder.add(NODE_AREA_INCOMPLETE);
-    builder.add(NODE_AREA_MISSING_CENTER);
-    builder.add(NODE_AREA_TOO_FAR);
-    builder.add(NODE_AREA_CANCELLED);
-    builder.add(NODE_AREA_TIMED_OUT);
-    builder.add(NODE_AREA_PUT_AWAY);
-    builder.add(NODE_AREA_WORLD_CHANGED);
-    builder.add(NODE_AREA_NODE_GONE);
     builder.add(PLINTH_LOADING);
     builder.add(PLINTH_OCCUPIED);
     builder.add(PLINTH_PROTECTED);

@@ -17,6 +17,7 @@ final class WorldTreeView implements TreeView {
   private final Predicate<Block> owns;
   private final Predicate<Block> placed;
   private final Map<Long, Boolean> chunks = new HashMap<>(4);
+  private boolean complete = true;
 
   WorldTreeView(World world, Predicate<Block> owns, Predicate<Block> placed) {
     this.world = Objects.requireNonNull(world);
@@ -36,11 +37,18 @@ final class WorldTreeView implements TreeView {
     long chunk = (long) chunkX << 32 | (chunkZ & 0xFFFFFFFFL);
     Boolean known = chunks.get(chunk);
     if (known != null) {
+      complete &= known;
       return known;
     }
     boolean owned = world.isChunkLoaded(chunkX, chunkZ) && owns.test(world.getBlockAt(x, y, z));
     chunks.put(chunk, owned);
+    complete &= owned;
     return owned;
+  }
+
+  @Override
+  public boolean complete() {
+    return complete;
   }
 
   @Override

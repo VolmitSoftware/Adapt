@@ -101,7 +101,11 @@ class NodeGuiLiveTest extends AdaptTestBase {
     scheduler.installAt(scheduling, anchor);
     themes = mockStatic(GuiTheme.class);
     bukkit = mockStatic(Bukkit.class);
-    bukkit.when(() -> Bukkit.getWorld(WORLD_ID)).thenReturn(mock(World.class));
+    World world = mock(World.class);
+    lenient().when(world.getMinHeight()).thenReturn(-64);
+    lenient().when(world.getMaxHeight()).thenReturn(320);
+    lenient().when(player.getWorld()).thenReturn(world);
+    bukkit.when(() -> Bukkit.getWorld(WORLD_ID)).thenReturn(world);
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
     runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));

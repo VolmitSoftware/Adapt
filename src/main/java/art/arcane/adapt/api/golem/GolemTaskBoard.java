@@ -23,6 +23,8 @@ public final class GolemTaskBoard {
   public static final long RESERVATION_MILLIS = 5_000L;
 
   private static final long PURGE_INTERVAL_MILLIS = 5_000L;
+  private static final int MAX_BLOCKED_TARGETS = 4096;
+  public static final long BLOCKED_MILLIS = 30_000L;
   private static final Comparator<Candidate> ORDER = Comparator.comparingInt(Candidate::priority).reversed()
       .thenComparingDouble(Candidate::distanceSquared);
 
@@ -32,6 +34,7 @@ public final class GolemTaskBoard {
   private final Map<Long, Set<NodeKey>> chunks = new ConcurrentHashMap<>();
   private final Map<NodeKey, Activity> activity = new ConcurrentHashMap<>();
   private final Map<TaskKey, GolemTask> reservations = new ConcurrentHashMap<>();
+  private final Map<TaskKey, Long> blocked = new ConcurrentHashMap<>();
   private final AtomicLong nextPurgeAt = new AtomicLong();
   private final AtomicInteger reach = new AtomicInteger();
 
@@ -206,6 +209,18 @@ public final class GolemTaskBoard {
     activity.computeIfAbsent(node, ignored -> new Activity()).workedAt = nowMillis;
   }
 
+  public synchronized void block(GolemTask task, long nowMillis) {
+    blocked.values().removeIf(until -> until <= nowMillis);
+    if (blocked.size() < MAX_BLOCKED_TARGETS || blocked.containsKey(task.key())) {
+      blocked.put(task.key(), nowMillis + BLOCKED_MILLIS);
+    }
+  }
+
+  public boolean blocked(GolemTask task, long nowMillis) {
+    Long until = blocked.get(task.key());
+    return until != null && until > nowMillis;
+  }
+
   public void markBlocked(NodeKey node, long nowMillis) {
     activity.computeIfAbsent(node, ignored -> new Activity()).blockedAt = nowMillis;
   }
@@ -230,6 +245,7 @@ public final class GolemTaskBoard {
   }
 
   public void purge(long nowMillis) {
+    blocked.values().removeIf(until -> until <= nowMillis);
     for (Map.Entry<NodeKey, NodeTasks> entry : tasks.entrySet()) {
       NodeKey key = entry.getKey();
       NodeTasks open = entry.getValue();
@@ -291,6 +307,7 @@ public final class GolemTaskBoard {
       GolemTarget target = task.target();
       if (!task.openFor(seeker.golem(), nowMillis)
           || !task.allows(seeker.body())
+          || blocked(task, nowMillis)
           || target.distanceSquared(seeker.homeX(), seeker.homeY(), seeker.homeZ()) > radiusSquared
           || skip.test(task)) {
         continue;

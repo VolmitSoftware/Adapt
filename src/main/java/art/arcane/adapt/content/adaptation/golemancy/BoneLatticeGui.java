@@ -121,13 +121,13 @@ final class BoneLatticeGui {
       return runeElement(view, lattice.get(index), index);
     }
     if (index < view.slots()) {
-      return GuiTheme.element("bone-lattice-" + index, Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "rune_empty")
-          .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY))
-          .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY_LORE, trusted("aspects", aspectNames(view.frame().aspects()))))
+      return GuiTheme.element("bone-lattice-" + index, Material.MAGENTA_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "rune_empty")
+          .setName(C.LIGHT_PURPLE + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY_LORE, trusted("aspects", aspectNames(view.frame().aspects()))))
           .setProgress(1D)
           .onLeftClick(clicked -> insert(view));
     }
-    return GuiTheme.element("bone-lattice-" + index, Material.BARRIER, "gui", "golemancy", "rune_locked")
+    return GuiTheme.element("bone-lattice-" + index, Material.BLACK_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "rune_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_LOCKED))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_UNLOCK_LEVEL, trusted("level", view.frame().slotUnlockLevel(index))))
         .setProgress(1D);

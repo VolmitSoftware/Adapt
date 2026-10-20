@@ -94,6 +94,11 @@ public final class CommandRuntimeMessages {
   public static final TextKey GOLEM_RELEASE_FAILED = TextKey.of("command.runtime.golem_release_failed", "Golem {id} of {player} could not be released. Try again.");
   public static final TextKey GOLEM_RELEASE_ACTIVE_UNLOADED = TextKey.of("command.runtime.golem_release_active_unloaded", "Golem {id} of {player} is active in an unloaded chunk. Load its chunk to release it, or release it once it shows as missing.");
   public static final TextKey GOLEMS_WOKEN = TextKey.of("command.runtime.golems_woken", "Waking {player}'s {count} loaded golems.");
+  public static final TextKey GOLEM_RETURNS_HEADER = TextKey.of("command.runtime.golem_returns_header", "Unresolved node returns discovered in loaded chunks: {count}. Confirm delivery before selecting outcome=delivered or outcome=missing.");
+  public static final TextKey GOLEM_RETURN_ENTRY = TextKey.of("command.runtime.golem_return_entry", "{id}: owner {owner}, node {type}.");
+  public static final TextKey GOLEM_RETURN_OUTCOME = TextKey.of("command.runtime.golem_return_outcome", "Use outcome=list, delivered, or missing. Select missing only after confirming no item was delivered.");
+  public static final TextKey GOLEM_RETURN_UNAVAILABLE = TextKey.of("command.runtime.golem_return_unavailable", "The node return is unavailable, already resolved, or still processing. Load its chunk and retry.");
+  public static final TextKey GOLEM_RETURN_RESOLVED = TextKey.of("command.runtime.golem_return_resolved", "Recorded node return {id} as {outcome}.");
   public static final TextKey GOLEM_GIVE_DEBUG_REQUIRED = TextKey.of("command.runtime.golem_give_debug_required", "Giving Golemancy items needs Adapt debug mode. Turn it on with /adapt debug mode.");
   public static final TextKey GOLEM_GIVE_UNKNOWN_ITEM = TextKey.of("command.runtime.golem_give_unknown_item", "{item} is not a Golemancy item id. Tab-complete item= to list them.");
   public static final TextKey GOLEM_GIVEN = TextKey.of("command.runtime.golem_given", "Gave {amount} x {item} to {player}.");
@@ -194,6 +199,11 @@ public final class CommandRuntimeMessages {
     builder.add(GOLEM_RELEASE_FAILED);
     builder.add(GOLEM_RELEASE_ACTIVE_UNLOADED);
     builder.add(GOLEMS_WOKEN);
+    builder.add(GOLEM_RETURNS_HEADER);
+    builder.add(GOLEM_RETURN_ENTRY);
+    builder.add(GOLEM_RETURN_OUTCOME);
+    builder.add(GOLEM_RETURN_UNAVAILABLE);
+    builder.add(GOLEM_RETURN_RESOLVED);
     builder.add(GOLEM_GIVE_DEBUG_REQUIRED);
     builder.add(GOLEM_GIVE_UNKNOWN_ITEM);
     builder.add(GOLEM_GIVEN);

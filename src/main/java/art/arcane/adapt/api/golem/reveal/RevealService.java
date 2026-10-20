@@ -5,6 +5,7 @@ import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemNameMode;
 import art.arcane.adapt.api.golem.GolemNames;
@@ -182,7 +183,7 @@ public final class RevealService extends TickedObject implements EntityInsight.P
     Optional<NodeWeavingPolicy> nodeWeaving = GolemancyRuntime.nodeWeaving();
     boolean revealsNodes = nodeWeaving.isEmpty() || !nodeWeaving.get().crookOnlyReveal(viewer) || holdsCrook(viewer);
     applyNodes(viewer, nodes.update(viewerId, revealsNodes ? nodesInRange(viewer) : Set.of()));
-    if (revealsNodes && (nodeWeaving.isEmpty() || !nodeWeaving.get().hidesOutline(viewer))) {
+    if (holdsCrook(viewer) && revealsNodes && (nodeWeaving.isEmpty() || !nodeWeaving.get().hidesOutline(viewer))) {
       outlineLookedAtNode(viewer);
     } else {
       outline.forget(viewerId);
@@ -268,6 +269,11 @@ public final class RevealService extends TickedObject implements EntityInsight.P
 
   public void nodeGone(NodeKey key) {
     nodes.drop(key);
+  }
+
+  public void selectArea(Player viewer, NodeKey key) {
+    outline.select(viewer.getUniqueId(), key);
+    requestUpdate(viewer);
   }
 
   public void locate(Player owner, GolemHandle handle) {
@@ -699,8 +705,12 @@ public final class RevealService extends TickedObject implements EntityInsight.P
     try (LanguageAudience.Scope audience = LanguageAudience.open(handle.owner())) {
       Mob golem = handle.entity();
       GolemState state = handle.state();
+      String mode = AdaptLanguage.text(state.mode().displayName());
+      if (state.mode() == GolemMode.WORK) {
+        mode += ": " + handle.workStatus().describe(handle.toolNote());
+      }
       return new GolemLabel.Content(golemName(handle), golem.getHealth(), GolemVitals.maxHealth(golem), coreNames(GolemMastery.cores(handle)),
-          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork(), named);
+          mode, GolemRunes.channels(handle), state.masterwork(), named);
     }
   }
 

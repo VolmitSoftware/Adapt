@@ -43,7 +43,7 @@ export default {
       await context.step('A later ground drop replants without waiting for the full area scan', async () => {
         const dropped = await lumber('seed')
         context.expect(dropped.seedRemaining === 2 && dropped.stump === 'AIR', 'Two saplings drop only after the original job completes', dropped)
-        context.expect(dropped.areaVolume === 274625, 'The node spans a full radius-32 cube for the retry', dropped)
+        context.expect(dropped.areaVolume === 4096, 'The node spans the maximum sixteen-block cube for the retry', dropped)
         await context.waitUntil(async () => {
           replanted = await lumber('snapshot')
           return replanted.stump === 'OAK_SAPLING'
@@ -61,7 +61,11 @@ export default {
         player.bot.clearControlStates()
         if (player.bot.currentWindow) player.bot.closeWindow(player.bot.currentWindow)
       }
-      if ((staged || prepared) && !context.signal.aborted) await lumber('cleanup')
+      if ((staged || prepared) && !context.signal.aborted) {
+        await lumber('cleanup')
+        await context.waitUntil(async () => (await lumber('settled')).settled,
+          { label: 'Removed Lumber node completes its persisted return before world cleanup', timeoutMs: 10000, intervalMs: 100 })
+      }
       if (setup && !context.signal.aborted) await context.command('/adaptqa cleanup', /^ADAPT_QA CLEANUP$/, 15000)
     }
   },

@@ -51,6 +51,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
@@ -320,6 +321,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
     ScanBudget budget = mock(ScanBudget.class);
     when(budget.start()).thenReturn(0);
     when(budget.end()).thenReturn(125);
+    when(budget.indices()).thenReturn(IntStream.range(0, 125).toArray());
     when(budget.hasTaskRoom()).thenReturn(true);
     return budget;
   }

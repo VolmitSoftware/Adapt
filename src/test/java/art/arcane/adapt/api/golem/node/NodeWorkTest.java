@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -156,7 +157,7 @@ class NodeWorkTest extends AdaptTestBase {
     NodeScanPass pass = new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16);
 
     work.scan(pass);
-    assertThat(statuses).containsEntry(KEY, NodeStatus.IDLE);
+    assertThat(statuses).containsEntry(KEY, NodeStatus.WAITING);
 
     board.claim(new GolemTaskBoard.Seeker(GOLEM, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.IRON, ChannelMask.NONE,
         0.5D, 64D, 0.5D, 24D, 0.5D, 64D, 0.5D), ignored -> false, platform.now, 20_000L);
@@ -312,7 +313,7 @@ class NodeWorkTest extends AdaptTestBase {
   }
 
   @Test
-  void anInactiveNodeWithdrawsItsOpenTasksAndShowsIdle() {
+  void anInactiveNodeWithdrawsItsOpenTasksAndShowsPaused() {
     NodeRecord record = harvest();
     GolemTask open = crop(1);
     GolemTask leased = crop(2);
@@ -327,7 +328,37 @@ class NodeWorkTest extends AdaptTestBase {
     assertThat(open.isClosed()).isTrue();
     assertThat(leased.isClosed()).isTrue();
     assertThat(board.openCount(KEY)).isZero();
-    assertThat(statuses).containsEntry(KEY, NodeStatus.IDLE);
+    assertThat(statuses).containsEntry(KEY, NodeStatus.PAUSED);
+  }
+
+  @Test
+  void aStaleScanCannotPostTasksAfterTheNodeIsEdited() {
+    NodeRecord record = harvest();
+    AtomicBoolean current = new AtomicBoolean(true);
+    behavior(NodeType.HARVEST, (node, budget) -> {
+      current.set(false);
+      assertThat(node.post(node.task("harvest", GolemTarget.block(WORLD, 1, 64, 1)).build())).isFalse();
+    });
+    NodeScanPass pass = new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16, new NodeDiscovery(), current::get);
+
+    work.scan(pass);
+
+    assertThat(board.openCount(KEY)).isZero();
+    assertThat(statuses).isEmpty();
+  }
+
+  @Test
+  void invalidatingANodeWithdrawsBothOpenAndClaimedWork() {
+    harvest();
+    GolemTask task = crop(1);
+    board.offer(task, 16);
+    board.claim(new GolemTaskBoard.Seeker(GOLEM, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.IRON, ChannelMask.NONE,
+        0.5D, 64D, 0.5D, 24D, 0.5D, 64D, 0.5D), ignored -> false, platform.now, 20_000L);
+
+    work.invalidated(KEY);
+
+    assertThat(task.isClosed()).isTrue();
+    assertThat(board.openCount(KEY)).isZero();
   }
 
   @Test

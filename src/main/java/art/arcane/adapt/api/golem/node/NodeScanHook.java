@@ -9,6 +9,9 @@ public interface NodeScanHook {
   default void inactive(NodeKey key) {
   }
 
+  default void invalidated(NodeKey key) {
+  }
+
   default void worldUnloaded(UUID world) {
   }
 }

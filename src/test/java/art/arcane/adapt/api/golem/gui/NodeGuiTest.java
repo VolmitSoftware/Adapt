@@ -34,6 +34,7 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,6 +84,10 @@ class NodeGuiTest extends AdaptTestBase {
     InventoryView view = mock(InventoryView.class);
     when(view.getTopInventory()).thenReturn(firstTop, redrawnTop);
     player = mock(Player.class);
+    World world = mock(World.class);
+    lenient().when(world.getMinHeight()).thenReturn(-64);
+    lenient().when(world.getMaxHeight()).thenReturn(320);
+    lenient().when(player.getWorld()).thenReturn(world);
     lenient().when(player.getUniqueId()).thenReturn(VIEWER);
     lenient().when(player.isOnline()).thenReturn(true);
     lenient().when(player.getOpenInventory()).thenReturn(view);
@@ -94,6 +99,24 @@ class NodeGuiTest extends AdaptTestBase {
     GuiCursor.untrack(VIEWER, redrawnTop);
     windows.close();
     themes.close();
+  }
+
+  @Test
+  void theChannelPickerRendersItsOwnTitleWithoutNodeArguments() throws ReflectiveOperationException {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).build();
+    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
+    constructor.setAccessible(true);
+    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class), areas);
+    Field picker = NodeGui.class.getDeclaredField("channelPicker");
+    picker.setAccessible(true);
+    picker.setBoolean(gui, true);
+    Method render = NodeGui.class.getDeclaredMethod("render", NodeRecord.class);
+    render.setAccessible(true);
+
+    render.invoke(gui, record);
+
+    verify(windows.constructed().getFirst()).setTitle("Choose node channel");
   }
 
   @Test
@@ -159,7 +182,10 @@ class NodeGuiTest extends AdaptTestBase {
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
          MockedStatic<J> scheduling = mockStatic(J.class);
          MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
-      bukkit.when(() -> Bukkit.getWorld(WORLD)).thenReturn(mock(World.class));
+      World world = mock(World.class);
+      when(world.getMinHeight()).thenReturn(-64);
+      when(world.getMaxHeight()).thenReturn(320);
+      bukkit.when(() -> Bukkit.getWorld(WORLD)).thenReturn(world);
       scheduling.when(() -> J.runAt(any(Location.class), any(Runnable.class))).thenAnswer(invocation -> {
         invocation.<Runnable>getArgument(1).run();
         return true;
@@ -180,22 +206,22 @@ class NodeGuiTest extends AdaptTestBase {
       Element x = placed.getAllValues().get(0);
       Element y = placed.getAllValues().get(1);
       Element z = placed.getAllValues().get(2);
-      assertThat(x.getLore()).anyMatch(line -> line.contains("Shift-click to change by 4"));
+      assertThat(x.getLore()).anyMatch(line -> line.contains("Shift: 4 blocks"));
       assertThat(x.getName()).contains("X Area: -2 to +2");
-      assertThat(z.getName()).contains("Z Area: -30 to +30");
+      assertThat(z.getName()).contains("Z Area: -8 to +7");
 
       x.call(ElementEvent.LEFT, x);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(3, 8, 30));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(-2, -8, -8, 3, 7, 7));
       x.call(ElementEvent.SHIFT_LEFT, x);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(6, 8, 30));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(-4, -8, -8, 4, 7, 7));
       x.call(ElementEvent.RIGHT, x);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(1, 8, 30));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(-2, -8, -8, 1, 7, 7));
       x.call(ElementEvent.SHIFT_RIGHT, x);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(0, 8, 30));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(0, -8, -8, 0, 7, 7));
       y.call(ElementEvent.SHIFT_LEFT, y);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(2, 10, 30));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(-2, -8, -8, 2, 7, 7));
       z.call(ElementEvent.SHIFT_RIGHT, z);
-      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(2, 8, 26));
+      assertThat(result.get().area()).isEqualTo(new NodeCuboid(-2, -8, -6, 2, 7, 5));
       assertThat(NodeEdits.SHIFT_STEP).isEqualTo(4);
     }
   }
@@ -224,7 +250,7 @@ class NodeGuiTest extends AdaptTestBase {
     assertThat(x.getName()).contains("X Area: 0 to +5");
     assertThat(y.getName()).contains("Y Area: -1 to +2");
     assertThat(z.getName()).contains("Z Area: -3 to 0");
-    assertThat(select.getName()).contains("Select Area with the Crook");
+    assertThat(select.getName()).contains("Shift work area");
 
     select.call(ElementEvent.LEFT, select);
 

@@ -36,6 +36,7 @@ final class FakeNodePlatform implements NodePlatform {
   boolean refuseRunAt;
   int busySaves;
   RuntimeException saveFailure;
+  RuntimeException chunkReadFailure;
   int chunkReads;
   int powerReads;
   long now = 1_000_000L;
@@ -72,6 +73,9 @@ final class FakeNodePlatform implements NodePlatform {
   @Override
   public Map<NodeKey, NodeRecord> readChunk(World world, int chunkX, int chunkZ) {
     chunkReads++;
+    if (chunkReadFailure != null) {
+      throw chunkReadFailure;
+    }
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
     for (Map.Entry<String, NodeFaces> entry : store.entrySet()) {
       String[] parts = entry.getKey().split(",");

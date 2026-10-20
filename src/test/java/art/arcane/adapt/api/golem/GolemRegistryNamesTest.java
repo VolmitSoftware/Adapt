@@ -115,7 +115,7 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
     registry.rename(handle, CLANK);
 
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     assertThat(packing.snapshot().name()).contains(CLANK);
     IronGolem body = golem(at(30, 70, 30));
     platform.spawns.add(body);
@@ -181,7 +181,7 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     IronGolem golem = golem(at(3, 64, 3));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
     registry.rename(handle, CLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(at(30, 70, 30));
     platform.spawns.add(body);
     platform.nameMode = GolemNameMode.GLOSS;

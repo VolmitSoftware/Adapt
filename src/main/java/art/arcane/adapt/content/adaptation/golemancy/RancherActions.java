@@ -9,6 +9,7 @@ import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.AbstractCow;
@@ -71,6 +72,24 @@ final class RancherActions implements Listener {
   RancherRules.Levels levels() {
     GolemRancherCore.Config config = core.config();
     return new RancherRules.Levels(config.shearLevel, config.milkLevel, config.cullLevel);
+  }
+
+  boolean surveyable(World world, NodeKey key, NodeRecord record) {
+    int[] center = NodeArea.center(key);
+    NodeCuboid area = record.area();
+    Location middle = new Location(world, center[0] + (area.minX() + area.maxX() + 1) * HALF_BLOCK,
+        center[1] + (area.minY() + area.maxY() + 1) * HALF_BLOCK, center[2] + (area.minZ() + area.maxZ() + 1) * HALF_BLOCK);
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(middle, area.spanX() * HALF_BLOCK, area.spanZ() * HALF_BLOCK)) {
+      return false;
+    }
+    for (int chunkX = (center[0] + area.minX()) >> 4; chunkX <= (center[0] + area.maxX()) >> 4; chunkX++) {
+      for (int chunkZ = (center[2] + area.minZ()) >> 4; chunkZ <= (center[2] + area.maxZ()) >> 4; chunkZ++) {
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   List<Animals> herd(World world, NodeKey key, NodeRecord record) {

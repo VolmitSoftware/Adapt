@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
+import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +73,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -2156,7 +2158,7 @@ class GolemRegistryTest extends AdaptTestBase {
     doAnswer(invocation -> order.add("remove")).when(golem).remove();
     int detachedBefore = lifecycle.kinds().size();
 
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
 
     assertThat(order).containsExactly("save PACKED", "remove");
     assertThat(lifecycle.kinds().subList(detachedBefore, lifecycle.kinds().size())).containsExactly(RecordingGolemLifecycle.Kind.DETACHED);
@@ -2167,7 +2169,7 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(entry.holds(packing.packed().state())).isTrue();
     assertThat(packing.packed().golemId()).isEqualTo(handle.id());
     assertThat(packing.packed().owner()).isEqualTo(OWNER);
-    assertThat(packing.packed().state()).isEqualTo(packing.snapshot().toJson());
+    assertThat(GolemSnapshot.fromJson(packing.packed().state())).contains(packing.snapshot());
     assertThat(packing.snapshot().carried()).containsExactly("stack-a", "stack-b");
     assertThat(packing.snapshot().essence()).isEqualTo(12D);
     assertThat(packing.snapshot().health()).isEqualTo(40D);
@@ -2198,8 +2200,8 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemHandle waitingHandle = registry.handle(waiting).orElseThrow();
     platform.join(OWNER, roster);
 
-    assertThat(registry.pack(missingHandle)).isEmpty();
-    assertThat(registry.pack(waitingHandle)).isEmpty();
+    assertThat(registry.pack(missingHandle).join()).isEmpty();
+    assertThat(registry.pack(waitingHandle).join()).isEmpty();
 
     verify(missing, never()).remove();
     verify(waiting, never()).remove();
@@ -2215,7 +2217,7 @@ class GolemRegistryTest extends AdaptTestBase {
     int changesBefore = platform.changes(OWNER);
     items.when(() -> GolemItems.dormantGolem(any(DormantGolem.class))).thenThrow(new IllegalStateException("model broken"));
 
-    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("model broken");
+    assertThatThrownBy(() -> registry.pack(handle).join()).hasMessage("model broken");
 
     verify(golem, never()).remove();
     assertThat(registry.handle(golem)).isPresent();
@@ -2230,7 +2232,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     platform.spawns.add(body);
 
@@ -2250,7 +2252,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     doThrow(new IllegalStateException("remove failed")).when(body).remove();
     platform.spawns.add(body);
@@ -2272,7 +2274,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     platform.spawns.add(golem(new AtomicReference<>(at(9, 64, 9))));
     AtomicBoolean failedOnce = new AtomicBoolean();
     platform.rosterListener = changed -> {
@@ -2291,6 +2293,203 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void packingWaitsForTheDurableSnapshotBeforeRemovingTheFrozenBody() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+
+    CompletableFuture<Optional<GolemRegistry.Packing>> packing = registry.pack(handle);
+
+    verify(golem, never()).remove();
+    verify(golem).setInvulnerable(true);
+    assertThat(packing).isNotDone();
+    assertThat(roster.golem(handle.id()).orElseThrow().pendingPackedState()).isPresent();
+    platform.checkpoint.complete(null);
+    assertThat(packing.join()).isPresent();
+    verify(golem).remove();
+  }
+
+  @Test
+  void aRefusedPackingCallbackKeepsTheBodyTrackedUntilRemovalBeforeDelivery() {
+    GolemRoster roster = onlineOwner();
+    platform.players.put(OWNER, owner);
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    when(owner.getInventory()).thenReturn(inventory);
+    when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>());
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+    CompletableFuture<Optional<GolemRegistry.Packing>> packing = registry.pack(handle);
+    platform.refusing.add(golem);
+    platform.checkpoint.complete(null);
+
+    registry.onTick();
+
+    assertThat(packing.join()).isEmpty();
+    verify(golem, never()).remove();
+    verify(inventory, never()).addItem(any(ItemStack[].class));
+    assertThat(registry.hasTickDemand()).isTrue();
+    platform.refusing.remove(golem);
+    registry.onTick();
+
+    InOrder order = inOrder(golem, inventory);
+    order.verify(golem).remove();
+    order.verify(inventory).addItem(dormantItem);
+    assertThat(roster.golem(handle.id()).orElseThrow().pendingPackedState()).isEmpty();
+  }
+
+  @Test
+  void aStalePackingCallbackCannotRemoveABodyWhoseTransferMarkerChanged() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+    CompletableFuture<Optional<GolemRegistry.Packing>> packing = registry.pack(handle);
+    golem.getPersistentDataContainer().set(new NamespacedKey("adapt", "golem_packing_token"), PersistentDataType.STRING, "another transfer");
+
+    platform.checkpoint.complete(null);
+
+    assertThat(packing.join()).isEmpty();
+    verify(golem, never()).remove();
+  }
+
+  @Test
+  void aRefusedRollbackRestoresTheCurrentCargoAndClearsThePersistentFreezeOnRetry() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    handle.setCarriedEncoded(List.of("current cargo"));
+    when(golem.isAware()).thenReturn(true);
+    when(golem.getCanPickupItems()).thenReturn(true);
+    platform.checkpoint = new CompletableFuture<>();
+    registry.pack(handle);
+    platform.refusing.add(golem);
+    platform.checkpoint.completeExceptionally(new IllegalStateException("disk full"));
+    platform.refusing.remove(golem);
+
+    registry.onTick();
+
+    assertThat(registry.handle(golem).orElseThrow().state().carried()).containsExactly("current cargo");
+    assertThat(golem.getPersistentDataContainer().has(new NamespacedKey("adapt", "golem_packing"))).isFalse();
+    verify(golem).setCanPickupItems(true);
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void restartRemovesAMarkedPackedBodyAndRecoversItsSnapshotOnce() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+    registry.pack(handle);
+    GolemRoster recovered = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+    platform.rosters.put(OWNER, recovered);
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
+
+    registry.adopt(golem);
+
+    verify(golem).remove();
+    assertThat(registry.handle(golem)).isEmpty();
+    assertThat(recovered.golem(handle.id()).orElseThrow().pendingPackedState()).isPresent();
+  }
+
+  @Test
+  void restartThawsAMarkedBodyWhenPackingNeverReachedDurableStorage() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    when(golem.getCanPickupItems()).thenReturn(true);
+    GolemRoster beforePacking = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+    platform.checkpoint = new CompletableFuture<>();
+    registry.pack(handle);
+    platform.rosters.put(OWNER, beforePacking);
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
+
+    registry.adopt(golem);
+
+    verify(golem, never()).remove();
+    verify(golem).setCanPickupItems(true);
+    assertThat(registry.handle(golem)).isPresent();
+    assertThat(golem.getPersistentDataContainer().has(new NamespacedKey("adapt", "golem_packing"))).isFalse();
+  }
+
+  @Test
+  void aFailedDurableCheckpointRestoresTheActiveBody() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+    CompletableFuture<Optional<GolemRegistry.Packing>> packing = registry.pack(handle);
+
+    platform.checkpoint.completeExceptionally(new IllegalStateException("disk full"));
+
+    assertThat(packing).isCompletedExceptionally();
+    verify(golem, never()).remove();
+    assertThat(registry.handle(golem)).isPresent();
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(roster.golem(handle.id()).orElseThrow().pendingPackedState()).isEmpty();
+  }
+
+  @Test
+  void aFailedCheckpointWithARejectedBodyCallbackCannotMakeAnUnpersistedItemDeliverable() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.checkpoint = new CompletableFuture<>();
+    CompletableFuture<Optional<GolemRegistry.Packing>> packing = registry.pack(handle);
+    platform.refusing.add(golem);
+
+    platform.checkpoint.completeExceptionally(new IllegalStateException("disk full"));
+
+    assertThat(packing).isCompletedExceptionally();
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(roster.golem(handle.id()).orElseThrow().pendingPackedState()).isEmpty();
+    verify(golem, never()).remove();
+  }
+
+  @Test
+  void refusedPackedDeliveryRecoversAfterRosterSerializationAndCanOnlyAwakenOnce() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
+    platform.refusing.add(owner);
+
+    registry.deliverPacked(owner, packing.packed(), packing.item());
+
+    verify(owner, never()).saveData();
+    String json = Json.toJson(roster, false);
+    GolemRoster recovered = Json.fromJson(json, GolemRoster.class);
+    assertThat(recovered.golem(handle.id()).orElseThrow().pendingPackedState()).contains(packing.packed().state());
+    platform.rosters.put(OWNER, recovered);
+    platform.players.put(OWNER, owner);
+    platform.refusing.remove(owner);
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    when(owner.getInventory()).thenReturn(inventory);
+    when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>());
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    verify(inventory).addItem(dormantItem);
+    verify(owner).saveData();
+    assertThat(recovered.golem(handle.id()).orElseThrow().pendingPackedState()).isEmpty();
+    assertThat(recovered.unstow(handle.id(), GolemRoster.Status.PACKED, packing.packed().state())).isTrue();
+    assertThat(recovered.unstow(handle.id(), GolemRoster.Status.PACKED, packing.packed().state())).isFalse();
+  }
+
+  @Test
+  void aNewPackGenerationCannotBeAwakenedWithThePriorPackedItem() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing first = registry.pack(handle).join().orElseThrow();
+    assertThat(roster.unstow(handle.id(), GolemRoster.Status.PACKED, first.packed().state())).isTrue();
+    assertThat(roster.stow(handle.id(), GolemRoster.Status.PACKED, first.snapshot().toPackedJson(UUID.randomUUID()))).isTrue();
+    assertThat(roster.unstow(handle.id(), GolemRoster.Status.PACKED, first.packed().state())).isFalse();
+  }
+
+  @Test
   void aFailedSaveOfThePackedEntryLeavesTheGolemBoundAndActive() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
@@ -2302,7 +2501,7 @@ class GolemRegistryTest extends AdaptTestBase {
       }
     };
 
-    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("save refused");
+    assertThatThrownBy(() -> registry.pack(handle).join()).hasMessage("save refused");
 
     verify(golem, never()).remove();
     assertThat(registry.handle(golem)).isPresent();
@@ -2327,13 +2526,13 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void aBodyRemovalFailureAfterThePackedEntrySavesRollsThePackBack() {
+  void aBodyRemovalFailureWithAValidBodyRollsThePackBack() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     doThrow(new IllegalStateException("removal refused")).when(golem).remove();
 
-    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("removal refused");
+    assertThatThrownBy(() -> registry.pack(handle).join()).hasRootCauseMessage("removal refused");
 
     assertThat(registry.handle(golem)).isPresent();
     assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
@@ -2346,7 +2545,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     when(golem.isPlayerCreated()).thenThrow(new IllegalStateException("traits unreadable"));
 
-    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("traits unreadable");
+    assertThatThrownBy(() -> registry.pack(handle).join()).hasMessage("traits unreadable");
 
     verify(golem, never()).remove();
     assertThat(registry.handle(golem)).isPresent();
@@ -2360,7 +2559,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     platform.ownsEntities = false;
 
-    assertThatThrownBy(() -> registry.pack(handle)).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> registry.pack(handle).join()).isInstanceOf(IllegalStateException.class);
     verify(golem, never()).remove();
   }
 
@@ -2373,7 +2572,7 @@ class GolemRegistryTest extends AdaptTestBase {
     handle.setEssence(12D);
     handle.setRunes(List.of(new GolemRune(GolemRuneType.MIGHT, 2)));
     handle.addKills(7L);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     Location spot = at(30, 70, 30);
     IronGolem body = golem(new AtomicReference<>(spot));
     platform.spawns.add(body);
@@ -2409,7 +2608,7 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
     GolemState prePackChunk = GolemState.read(golem).orElseThrow();
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     Location spot = at(30, 70, 30);
     IronGolem body = golem(new AtomicReference<>(spot));
     platform.spawns.add(body);
@@ -2437,7 +2636,7 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
     GolemState prePackChunk = GolemState.read(golem).orElseThrow();
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     Location spot = at(30, 70, 30);
     IronGolem body = golem(new AtomicReference<>(spot));
     platform.spawns.add(body);
@@ -2485,7 +2684,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     PackedGolem stale = new PackedGolem(handle.id(), OWNER, packing.snapshot().withoutCargo().toJson().replace("\"takenAt\"", "\"takenAt\" "));
     int changesBefore = platform.changes(OWNER);
 
@@ -2504,7 +2703,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     when(body.isValid()).thenReturn(false);
     platform.spawns.add(body);
@@ -2524,7 +2723,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     platform.spawns.add(body);
 
@@ -2563,7 +2762,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     GolemRegistry.Restore request = new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED);
     platform.ownsLocations = false;
     assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), request, mob -> {
@@ -2602,7 +2801,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     platform.spawns.add(body);
     lifecycle.awakeFailure = new IllegalStateException("brain refused");
@@ -2995,7 +3194,7 @@ class GolemRegistryTest extends AdaptTestBase {
     items.when(GolemItems::masterworkHeart).thenReturn(heart);
     registry.designate(handle, 1);
 
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
 
     assertThat(packing.snapshot().masterwork()).isTrue();
     assertThat(GolemSnapshot.fromJson(packing.packed().state()).orElseThrow().masterwork()).isTrue();
@@ -3240,7 +3439,7 @@ class GolemRegistryTest extends AdaptTestBase {
     handle.equip(GolemEquipmentSlot.HELMET, helmet);
     handle.equip(GolemEquipmentSlot.MAIN_HAND, sword);
 
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     GolemSnapshot saved = GolemSnapshot.fromJson(packing.packed().state()).orElseThrow();
 
     assertThat(saved.equipment()).containsAllEntriesOf(handle.state().equipment());
@@ -3323,7 +3522,7 @@ class GolemRegistryTest extends AdaptTestBase {
     Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
     handle.equip(GolemEquipmentSlot.HELMET, GolemTestItems.stack(Material.IRON_HELMET, 1));
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
 
     registry.revokeBones(OWNER);
     GolemRoster restored = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
@@ -3344,7 +3543,7 @@ class GolemRegistryTest extends AdaptTestBase {
     onlineOwner();
     Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
-    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    GolemRegistry.Packing packing = registry.pack(handle).join().orElseThrow();
     PlayerInventory inventory = mock(PlayerInventory.class);
     when(owner.getInventory()).thenReturn(inventory);
     when(owner.getLocation()).thenReturn(at(4, 64, 4));

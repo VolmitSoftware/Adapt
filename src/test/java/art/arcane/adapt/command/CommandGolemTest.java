@@ -7,6 +7,10 @@ import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.gui.RosterGui;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.NodeType;
+import org.bukkit.block.BlockFace;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -59,6 +63,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
@@ -199,6 +204,54 @@ class CommandGolemTest extends AdaptTestBase {
     assertThat(messages(player)).hasSize(3).allSatisfy(message -> assertThat(message).contains(CommandGolem.ADMIN_PERMISSION));
     verify(registry, never()).releaseFor(any(), any());
     verify(registry, never()).wake(any());
+  }
+
+  @Test
+  void nodeReturnRecoveryRequiresOperatorStatusEvenWithAdminPermission() {
+    NodeService nodes = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
+
+    new CommandGolem().returns("---", "list");
+
+    verify(nodes, never()).unresolvedReturns();
+    assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("operators"));
+  }
+
+  @Test
+  void nodeReturnRecoveryListsStableIdentifiersAndDispatchesOnlyTheMatchingOwnersReturn() {
+    when(admin.isOp()).thenReturn(true);
+    NodeService nodes = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeService.ReturnRecord pending = new NodeService.ReturnRecord(key, OWNER, NodeType.GUARD);
+    when(nodes.unresolvedReturns()).thenReturn(List.of(pending));
+    when(nodes.resolveReturn(OWNER, key, false)).thenReturn(true);
+    scheduling.when(() -> J.runAt(any(Location.class), any(Runnable.class))).thenAnswer(call -> {
+      call.<Runnable>getArgument(1).run();
+      return true;
+    });
+    World world = mock(World.class);
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.getWorld(WORLD)).thenReturn(world);
+      new CommandGolem().returns("---", "list");
+      assertThat(messages(admin)).anySatisfy(message -> assertThat(message).contains(NodeService.returnId(key)).contains(OWNER.toString()));
+      new CommandGolem().returns(NodeService.returnId(key), "missing");
+    }
+
+    verify(nodes).resolveReturn(OWNER, key, false);
+  }
+
+  @Test
+  void anInvalidNodeReturnOutcomeDoesNotResolveAnything() {
+    when(admin.isOp()).thenReturn(true);
+    NodeService nodes = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
+    when(nodes.unresolvedReturns()).thenReturn(List.of());
+
+    new CommandGolem().returns("---", "retry");
+
+    verify(nodes, never()).resolveReturn(any(), any(), anyBoolean());
+    assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("confirming no item"));
   }
 
   @Test

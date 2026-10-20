@@ -76,14 +76,13 @@
       },
       {
         "verb": "wait",
-        "ticks": 70
+        "ticks": 4
       }
     ],
     "expect": {
       "sound": "minecraft:block.enchantment_table.use",
       "particle": "end_rod"
     },
-    "povCapture": true,
     "maxTicks": 420,
     "camera": {
       "x": 4.6,
@@ -421,6 +420,10 @@
         "ticks": 14
       },
       {
+        "verb": "slot",
+        "index": 8
+      },
+      {
         "verb": "command",
         "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
@@ -587,9 +590,11 @@
       "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run fill ~-2 ~-1 ~-7 ~2 ~-1 ~-5 minecraft:farmland",
       "execute at {actor} run fill ~-2 ~ ~-7 ~2 ~ ~-5 minecraft:wheat[age=7]",
+      "execute at {actor} run fill ~-2 ~-1 ~-4 ~0 ~-1 ~-4 minecraft:farmland",
       "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
       "adaptqa demo give {actor} 4 node/deposit 2",
-      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest"
+      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest",
+      "execute at {actor} run data merge block ~-3 ~ ~-2 {Items:[{Slot:0b,id:\"minecraft:wheat_seeds\",count:16}]}"
     ],
     "prelude": [
       {
@@ -686,6 +691,55 @@
       },
       {
         "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.0
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 8
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "look",
+        "yaw": 128.7,
+        "pitch": 13.5,
+        "ticks": 8
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
         "index": 2
       },
       {
@@ -742,6 +796,10 @@
         "ticks": 10
       },
       {
+        "verb": "slot",
+        "index": 8
+      },
+      {
         "verb": "command",
         "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
@@ -754,7 +812,7 @@
       "sound": "minecraft:block.crop.break"
     },
     "povCapture": true,
-    "maxTicks": 1100,
+    "maxTicks": 1250,
     "camera": {
       "x": 5.5,
       "y": 2.4,
@@ -1506,7 +1564,11 @@
       },
       {
         "verb": "lookAt",
-        "offset": [0.5, 0.9, -2.5],
+        "offset": [
+          0.5,
+          0.9,
+          -2.5
+        ],
         "ticks": 8
       },
       {
@@ -1709,6 +1771,10 @@
         "ticks": 10
       },
       {
+        "verb": "slot",
+        "index": 8
+      },
+      {
         "verb": "command",
         "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
@@ -1836,12 +1902,40 @@
       },
       {
         "verb": "window",
+        "action": "hover",
+        "slot": 22
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "window",
         "action": "click",
-        "slot": 12
+        "slot": 22
       },
       {
         "verb": "wait",
         "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 11
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 11
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 12
       },
       {
         "verb": "window",
@@ -1858,6 +1952,129 @@
       },
       {
         "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": -90,
+        "pitch": 0,
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "look",
+        "yaw": -90,
+        "pitch": -75,
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 2
+      },
+      {
+        "verb": "wait",
         "ticks": 40
       }
     ],
@@ -1866,7 +2083,7 @@
       "particle": "end_rod"
     },
     "povCapture": true,
-    "maxTicks": 400,
+    "maxTicks": 650,
     "camera": {
       "x": 3.4,
       "y": 1.7,
@@ -2135,6 +2352,10 @@
         "ticks": 10
       },
       {
+        "verb": "slot",
+        "index": 8
+      },
+      {
         "verb": "command",
         "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
@@ -2281,6 +2502,24 @@
       {
         "verb": "wait",
         "ticks": 50
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
       },
       {
         "verb": "window",

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -74,6 +75,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   Adaptation<?> bindingPolicy;
   GolemNameMode nameMode = GolemNameMode.VANILLA;
   long now = 1_000_000L;
+  CompletableFuture<Void> checkpoint = CompletableFuture.completedFuture(null);
 
   void join(UUID owner, GolemRoster roster) {
     online.add(owner);
@@ -170,6 +172,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   public void rosterChanged(UUID owner) {
     rosterListener.accept(owner);
     rosterChanges.merge(owner, 1, Integer::sum);
+  }
+
+  @Override
+  public CompletableFuture<Void> checkpoint(UUID owner) {
+    return checkpoint;
   }
 
   @Override

@@ -107,6 +107,11 @@ class GolemRunesTest extends AdaptTestBase {
     }
 
     @Override
+    public List<String> describe(GolemRune rune, GolemMastery.Perks perks) {
+      return List.of();
+    }
+
+    @Override
     public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
       return layout;
     }

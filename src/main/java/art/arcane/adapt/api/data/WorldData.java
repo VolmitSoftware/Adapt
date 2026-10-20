@@ -24,7 +24,6 @@ import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.util.common.parallel.MultiBurst;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.spatial.mantle.MantleRegion;
 import art.arcane.spatial.matter.ClassReader;
 import art.arcane.spatial.matter.Matter;
 import art.arcane.spatial.matter.MatterSlice;
@@ -98,11 +97,7 @@ public class WorldData extends TickedObject {
 
       @Override
       public Matter readSection(CountingDataInputStream din) throws IOException {
-        try {
-          return Matter.readDin(din);
-        } catch (ClassNotFoundException e) {
-          throw new IOException("Failed to deserialize mantle section", e);
-        }
+        return WorldData.readSection(din);
       }
 
       @Override
@@ -164,31 +159,38 @@ public class WorldData extends TickedObject {
     };
   }
 
+  static Matter readSection(CountingDataInputStream in) throws IOException {
+    int width = in.readInt();
+    int height = in.readInt();
+    int depth = in.readInt();
+    if (width != 16 || height != 16 || depth != 16) {
+      throw new IOException("Mantle section dimensions must be 16 by 16 by 16");
+    }
+    Matter section = new SpatialMatter(width, height, depth);
+    int count = in.readUnsignedByte();
+    section.getHeader().read(in);
+    for (int index = 0; index < count; index++) {
+      String name = in.readUTF();
+      try {
+        Class<?> type = section.getClass(ClassReader.find(name));
+        if (section.hasSlice(type)) {
+          throw new IOException("Duplicate mantle slice " + name);
+        }
+        MatterSlice<?> slice = section.createSlice(type, section);
+        if (slice == null) {
+          throw new IOException("Unavailable mantle slice codec " + name);
+        }
+        slice.read(in);
+        section.putSlice(type, slice);
+      } catch (ClassNotFoundException | RuntimeException failure) {
+        throw new IOException("Could not read mantle slice " + name, failure);
+      }
+    }
+    return section;
+  }
+
   private static MantleHooks createHooks() {
     return new MantleHooks() {
-      @Override
-      public void onReadSectionFailure(int index,
-                                       long start,
-                                       long end,
-                                       CountingDataInputStream din,
-                                       IOException error) {
-        Adapt.warn("Failed to read mantle chunk section, skipping it.");
-        Adapt.error(error.getMessage() == null ? "Unknown mantle section read error" : error.getMessage());
-        Adapt.error(error);
-        TectonicPlate.addError();
-      }
-
-      @Override
-      public void onReadChunkFailure(int index,
-                                     long start,
-                                     long end,
-                                     CountingDataInputStream din,
-                                     Throwable error) {
-        Adapt.warn("Failed to read mantle chunk, creating a new chunk instead.");
-        Adapt.error(error.getMessage() == null ? "Unknown mantle chunk read error" : error.getMessage());
-        Adapt.error(error);
-      }
-
       @Override
       public String formatDuration(double millis) {
         return Form.duration(millis, 0);
@@ -226,17 +228,7 @@ public class WorldData extends TickedObject {
     return new art.arcane.volmlib.util.mantle.Mantle.RegionIO<>() {
       @Override
       public TectonicPlate<Matter> read(String name) throws IOException {
-        try {
-          return worker.read(name, (regionName, in) -> TectonicPlate.read(worldHeight, in, true, adapter, hooks));
-        } catch (IOException e) {
-          TectonicPlate<Matter> migrated = readLegacy(dataFolder, worldHeight, name, adapter, hooks, e);
-          if (migrated != null) {
-            Adapt.warn("Migrated legacy mantle region " + name + " to shared mantle format.");
-            return migrated;
-          }
-
-          throw e;
-        }
+        return worker.read(name, (regionName, in) -> TectonicPlate.read(worldHeight, in, true, adapter, hooks));
       }
 
       @Override
@@ -249,55 +241,6 @@ public class WorldData extends TickedObject {
         worker.close();
       }
     };
-  }
-
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static TectonicPlate<Matter> readLegacy(File dataFolder,
-                                                  int worldHeight,
-                                                  String name,
-                                                  MantleDataAdapter<Matter> adapter,
-                                                  MantleHooks hooks,
-                                                  IOException original) {
-    File file = new File(dataFolder, name);
-    if (!file.exists()) {
-      return null;
-    }
-
-    try {
-      MantleRegion region = MantleRegion.read(worldHeight, file);
-      TectonicPlate<Matter> plate = new TectonicPlate<>(worldHeight, region.getX(), region.getZ(), adapter, hooks);
-      int sectionCount = worldHeight >> 4;
-
-      for (int x = 0; x < 32; x++) {
-        for (int z = 0; z < 32; z++) {
-          art.arcane.spatial.mantle.MantleChunk legacyChunk = region.get(x, z);
-          if (legacyChunk == null) {
-            continue;
-          }
-
-          art.arcane.volmlib.util.mantle.runtime.MantleChunk<Matter> chunk = plate.getOrCreate(x, z);
-          for (int section = 0; section < sectionCount; section++) {
-            Matter legacySection = legacyChunk.get(section);
-            if (legacySection == null || legacySection.getSliceMap().isEmpty()) {
-              continue;
-            }
-
-            Matter target = chunk.getOrCreate(section);
-            target.clearSlices();
-
-            Matter copy = legacySection.copy();
-            for (java.util.Map.Entry<java.lang.Class<?>, art.arcane.spatial.matter.MatterSlice<?>> entry : copy.getSliceMap().entrySet()) {
-              target.putSlice(entry.getKey(), (MatterSlice) entry.getValue());
-            }
-          }
-        }
-      }
-
-      return plate;
-    } catch (Throwable t) {
-      original.addSuppressed(t);
-      return null;
-    }
   }
 
   public static void stop() {

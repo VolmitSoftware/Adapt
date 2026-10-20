@@ -60,45 +60,40 @@ class NodeEditsTest {
   }
 
   @Test
-  void theAreaGrowsUpToTheLevelCapAndShrinksToZero() {
-    NodeRecord record = record().area(NodeCuboid.symmetric(2, 1, 0)).build();
-
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 3).area()).isEqualTo(NodeCuboid.symmetric(3, 1, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2)).isSameAs(record);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -1, 3).area()).isEqualTo(NodeCuboid.symmetric(2, 0, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, -1, 3)).isSameAs(record);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, 1, 3).area()).isEqualTo(NodeCuboid.symmetric(2, 1, 1));
+  void resizingAddsOneBlockAndSupportsEverySizeThroughSixteen() {
+    NodeRecord record = record().area(NodeCuboid.symmetric(0, 0, 0)).build();
+    for (int size = 2; size <= 16; size++) {
+      record = NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.STEP, 32);
+      assertThat(record.area().spanX()).isEqualTo(size);
+      assertThat(record.area().contains(0, 0, 0)).isTrue();
+    }
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 32)).isSameAs(record);
+    for (int size = 15; size >= 1; size--) {
+      record = NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.STEP, 32);
+      assertThat(record.area().spanX()).isEqualTo(size);
+      assertThat(record.area().contains(0, 0, 0)).isTrue();
+    }
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -1, 32)).isSameAs(record);
   }
 
   @Test
-  void shiftClickResizesByFourWithinTheLevelCap() {
-    NodeRecord record = record().area(NodeCuboid.symmetric(2, 8, 30)).build();
-
-    assertThat(NodeEdits.SHIFT_STEP).isEqualTo(4);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(6, 8, 30));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 10).area()).isEqualTo(NodeCuboid.symmetric(2, 10, 30));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(2, 8, 32));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(0, 8, 30));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(2, 4, 30));
+  void shiftClickAddsFourTotalBlocksWhileRespectingSizeAndReach() {
+    NodeRecord record = record().build();
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 4, 32).area().spanX()).isEqualTo(9);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 4, 2)).isSameAs(record);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -4, 32).area().spanX()).isEqualTo(1);
+    NodeRecord maximum = record().area(new NodeCuboid(-8, -8, -8, 7, 7, 7)).build();
+    assertThat(NodeEdits.resize(maximum, NodeEdits.Axis.Y, 4, 32)).isSameAs(maximum);
   }
 
   @Test
-  void theAxisButtonsMoveBothFacesOfALopsidedCuboid() {
+  void lopsidedAreasGrowTowardTheNodeAndShrinkFromTheFartherFace() {
     NodeRecord record = record().area(new NodeCuboid(-1, 0, -5, 4, 2, 0)).build();
-
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.STEP, 8).area()).isEqualTo(new NodeCuboid(-2, 0, -5, 5, 2, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.STEP, 8).area()).isEqualTo(new NodeCuboid(0, 0, -5, 3, 2, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 6).area()).isEqualTo(new NodeCuboid(-5, 0, -5, 6, 2, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 8).area()).isEqualTo(new NodeCuboid(-1, -4, -5, 4, 6, 0));
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, -NodeEdits.SHIFT_STEP, 8).area()).isEqualTo(new NodeCuboid(-1, 0, -1, 4, 2, 0));
-  }
-
-  @Test
-  void anAreaAboveALoweredCapCanShrinkButNeverGrow() {
-    NodeRecord record = record().area(NodeCuboid.symmetric(6, 6, 6)).build();
-
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2)).isSameAs(record);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -1, 2).area()).isEqualTo(NodeCuboid.symmetric(5, 6, 6));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 8).area()).isEqualTo(new NodeCuboid(-2, 0, -5, 4, 2, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -1, 8).area()).isEqualTo(new NodeCuboid(-1, 0, -5, 3, 2, 0));
+    NodeRecord overCap = record().area(NodeCuboid.symmetric(6, 6, 6)).build();
+    assertThat(NodeEdits.resize(overCap, NodeEdits.Axis.X, 1, 2)).isSameAs(overCap);
+    assertThat(NodeEdits.resize(overCap, NodeEdits.Axis.X, -1, 2).area()).isEqualTo(new NodeCuboid(-6, -6, -6, 5, 6, 6));
   }
 
   @Test

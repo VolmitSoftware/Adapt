@@ -65,10 +65,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -98,6 +100,7 @@ class RancherBehaviorTest {
   private GolemRancherCore core;
   private RancherActions actions;
   private RancherBehavior behavior;
+  private NodeService nodes;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<RancherFeedback> feedback;
   private GolemState.Anchor homeChest = CHEST;
@@ -144,8 +147,9 @@ class RancherBehaviorTest {
     });
     NodeIndex index = mock(NodeIndex.class);
     lenient().when(index.near(eq(WORLD), anyDouble(), anyDouble(), anyDouble(), anyDouble())).thenAnswer(invocation -> List.copyOf(nearby));
-    NodeService nodes = mock(NodeService.class);
+    nodes = mock(NodeService.class);
     lenient().when(nodes.index()).thenReturn(index);
+    lenient().when(nodes.queryDue(any(NodeKey.class), anyLong())).thenReturn(true);
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(RancherFeedback.class);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
@@ -155,6 +159,29 @@ class RancherBehaviorTest {
   void close() {
     feedback.close();
     runtime.close();
+  }
+
+  @Test
+  void anEmptyPastureDefersItsQueryAndADeferredSeekDoesNotSurveyEntities() {
+    node();
+    assertThat(seek(golem(0))).isEmpty();
+    verify(nodes).emptyQuery(KEY, record, NOW);
+    when(nodes.queryDue(KEY, NOW)).thenReturn(false);
+    clearInvocations(world);
+
+    assertThat(seek(golem(0))).isEmpty();
+
+    verify(world, never()).getNearbyEntities(any(BoundingBox.class), any());
+  }
+
+  @Test
+  void unloadedPastureCoverageIsNotCachedAsAnEmptyHerd() {
+    node();
+    when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(false);
+
+    assertThat(seek(golem(0))).isEmpty();
+
+    verify(nodes, never()).emptyQuery(any(NodeKey.class), any(NodeRecord.class), anyLong());
   }
 
   @Test

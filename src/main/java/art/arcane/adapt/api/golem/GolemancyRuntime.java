@@ -41,6 +41,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -404,6 +405,12 @@ public final class GolemancyRuntime {
       if (player != null) {
         player.requestSave();
       }
+    }
+
+    @Override
+    public CompletableFuture<Void> checkpoint(UUID owner) {
+      AdaptPlayer player = onlinePlayer(owner);
+      return player == null ? CompletableFuture.failedFuture(new IllegalStateException("Golem owner is unavailable: " + owner)) : player.checkpoint();
     }
 
     @Override

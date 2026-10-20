@@ -47,8 +47,8 @@ class NodeRecordTest {
     assertThat(low.priority()).isEqualTo(NodeRecord.MIN_PRIORITY);
     assertThat(low.area()).isEqualTo(new NodeCuboid(0, 0, 0, 0, 0, 0));
     assertThat(high.priority()).isEqualTo(NodeRecord.MAX_PRIORITY);
-    assertThat(high.area()).isEqualTo(NodeCuboid.symmetric(NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS));
-    assertThat(lopsided.area()).isEqualTo(new NodeCuboid(-32, 0, -5, 7, 32, 0));
+    assertThat(high.area()).isEqualTo(new NodeCuboid(-8, -8, -8, 7, 7, 7));
+    assertThat(lopsided.area()).isEqualTo(new NodeCuboid(-8, 0, -5, 7, 15, 0));
   }
 
   @Test

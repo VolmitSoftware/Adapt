@@ -53,6 +53,7 @@ import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -101,6 +102,7 @@ class CollectionNodeBehaviorTest {
     probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenReturn(true);
     world = mock(World.class, withSettings().strictness(Strictness.LENIENT));
     when(world.getUID()).thenReturn(WORLD);
+    when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
     when(world.getNearbyEntities(any(BoundingBox.class), any())).thenAnswer(invocation -> {
       BoundingBox box = invocation.<BoundingBox>getArgument(0).clone().expand(ITEM_HALF_WIDTH);
       Predicate<Entity> filter = invocation.getArgument(1);
@@ -124,6 +126,19 @@ class CollectionNodeBehaviorTest {
     probes.close();
     bukkit.close();
     scheduling.close();
+  }
+
+  @Test
+  void anEmptyQueryReportsItsBackoffAndADeferredScanDoesNotQueryTheWorld() {
+    NodeContext node = node();
+    behavior.scan(node, budget(16));
+    verify(node).queryResult(false);
+    when(node.queryDue()).thenReturn(false);
+    clearInvocations(world);
+
+    behavior.scan(node, budget(16));
+
+    verify(world, never()).getNearbyEntities(any(BoundingBox.class), any());
   }
 
   @Test
@@ -286,6 +301,7 @@ class CollectionNodeBehaviorTest {
   private NodeContext node() {
     NodeContext context = mock(NodeContext.class, withSettings().strictness(Strictness.LENIENT));
     when(context.world()).thenReturn(world);
+    when(context.queryDue()).thenReturn(true);
     when(context.key()).thenReturn(KEY);
     when(context.record()).thenAnswer(invocation -> record);
     when(context.owner()).thenReturn(OWNER);

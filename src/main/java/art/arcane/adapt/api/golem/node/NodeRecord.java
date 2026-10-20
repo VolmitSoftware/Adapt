@@ -40,7 +40,7 @@ public final class NodeRecord {
     this.channel = builder.channel;
     this.priority = Math.max(MIN_PRIORITY, Math.min(MAX_PRIORITY, builder.priority));
     this.redstone = builder.redstone;
-    this.area = builder.area.clamp(MAX_RADIUS);
+    this.area = builder.area.bounded(MAX_RADIUS);
     this.filterItems = List.copyOf(builder.filterItems);
     this.filterTags = List.copyOf(builder.filterTags);
     this.whitelist = builder.whitelist;

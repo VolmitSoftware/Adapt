@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.gui.GolemGuiActions;
 import art.arcane.adapt.api.golem.gui.RosterGui;
+import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
@@ -22,6 +23,8 @@ import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import art.arcane.volmlib.util.localization.LanguageAudience;
@@ -132,6 +135,53 @@ public class CommandGolem {
     }
     int count = Math.max(MIN_GIVE_AMOUNT, Math.min(MAX_GIVE_AMOUNT, amount));
     CommandTargetExecutor.run(target, () -> giveTarget(id, everything, count, target, sender), sender);
+  }
+
+  @Director(description = "Inspect unresolved node returns or confirm their delivery status")
+  public void returns(
+      @Param(description = "Return identifier from the pending list", defaultValue = "---") String id,
+      @Param(description = "list, delivered, or missing; missing confirms no item was delivered", defaultValue = "list") String outcome
+  ) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.isOp()) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(sender);
+      return;
+    }
+    if (!admin(sender)) {
+      return;
+    }
+    NodeService nodes = GolemancyRuntime.nodes().orElse(null);
+    if (nodes == null) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_DISABLED, untrusted("skill", SKILL))).send(sender);
+      return;
+    }
+    List<NodeService.ReturnRecord> returns = nodes.unresolvedReturns();
+    if ("list".equals(outcome)) {
+      CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURNS_HEADER, trusted("count", returns.size()))));
+      for (NodeService.ReturnRecord pending : returns) {
+        CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_ENTRY,
+            trusted("id", NodeService.returnId(pending.key())), trusted("owner", pending.owner()), trusted("type", pending.type().id()))));
+      }
+      return;
+    }
+    if (!"delivered".equals(outcome) && !"missing".equals(outcome)) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_OUTCOME)));
+      return;
+    }
+    NodeService.ReturnRecord pending = returns.stream().filter(candidate -> NodeService.returnId(candidate.key()).equals(id)).findFirst().orElse(null);
+    World world = pending == null ? null : Bukkit.getWorld(pending.key().world());
+    if (world == null) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_UNAVAILABLE)));
+      return;
+    }
+    if (!J.runAt(pending.key().center(world), () -> {
+      boolean resolved = nodes.resolveReturn(pending.owner(), pending.key(), "delivered".equals(outcome));
+      CommandTargetExecutor.send(sender, resolved
+          ? FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_RESOLVED, trusted("id", id), trusted("outcome", outcome)))
+          : FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_UNAVAILABLE)));
+    })) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RETURN_UNAVAILABLE)));
+    }
   }
 
   private void listOnline(Player target, CommandSender sender) {

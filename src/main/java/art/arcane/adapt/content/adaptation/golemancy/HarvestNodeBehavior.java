@@ -51,16 +51,22 @@ final class HarvestNodeBehavior implements NodeBehavior {
     }
     NodeKey key = node.key();
     HarvesterRules.Plan plan = actions.plan(level, node.record());
+    node.surveyCriteria(plan.criteria(level));
     Predicate<Block> owned = node::owns;
     Map<Long, GolemTask> open = GolemancySupport.open(node);
     spots.scanned(key, node.record(), node.nowMillis());
-    for (int index = budget.start(); index < budget.end(); index++) {
+    for (int index : budget.indices()) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
         continue;
       }
       Block block = found.get();
       HarvesterRules.Spot spot = HarvesterRules.survey(block, plan, owned);
+      if (spot == HarvesterRules.Spot.UNAVAILABLE) {
+        node.candidate(index, true);
+        continue;
+      }
+      node.candidate(index, spot != HarvesterRules.Spot.NONE);
       spots.record(key, block.getX(), block.getY(), block.getZ(), spot);
       String type = jobType(spot);
       GolemTask existing = open.isEmpty() ? null : open.get(NodeContainers.blockKey(block.getX(), block.getY(), block.getZ()));
@@ -188,7 +194,7 @@ final class HarvestNodeBehavior implements NodeBehavior {
     return switch (spot) {
       case RIPE -> HarvesterRules.HARVEST;
       case TILL -> HarvesterRules.TILL;
-      case NONE, TEND, PLANT -> null;
+      case NONE, UNAVAILABLE, TEND, PLANT -> null;
     };
   }
 }

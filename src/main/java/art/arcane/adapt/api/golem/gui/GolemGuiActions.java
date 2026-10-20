@@ -28,7 +28,6 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public final class GolemGuiActions {
   public static final int CARRIED_SLOTS = 18;
-  private static final List<DyeColor> COLORS = List.of(DyeColor.values());
 
   private GolemGuiActions() {
   }
@@ -42,13 +41,6 @@ public final class GolemGuiActions {
     return modes.get(Math.floorMod(position + (forward ? 1 : -1), modes.size()));
   }
 
-  public static int cycleChannel(int mask, boolean forward) {
-    DyeColor current = channelColor(mask);
-    int position = current == null ? COLORS.size() : current.ordinal();
-    int next = Math.floorMod(position + (forward ? 1 : -1), COLORS.size() + 1);
-    return next == COLORS.size() ? ChannelMask.NONE : ChannelMask.of(COLORS.get(next));
-  }
-
   public static DyeColor channelColor(int mask) {
     List<DyeColor> colors = ChannelMask.colors(mask);
     return colors.isEmpty() ? null : colors.getFirst();
@@ -57,6 +49,9 @@ public final class GolemGuiActions {
   public static int toggleChannel(int mask, DyeColor color, int slots) {
     if (ChannelMask.contains(mask, color)) {
       return ChannelMask.without(mask, color);
+    }
+    if (slots == 1) {
+      return ChannelMask.of(color);
     }
     return Integer.bitCount(ChannelMask.normalize(mask)) >= slots ? mask : ChannelMask.with(mask, color);
   }

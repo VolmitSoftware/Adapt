@@ -98,8 +98,8 @@ class NodeScanCursorTest {
   }
 
   @Test
-  void aRadiusThirtyTwoAreaIsScannedInFullAtTheSameBudgetPerPass() {
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build();
+  void aSixteenBlockAreaIsScannedInFullAtTheSameBudgetPerPass() {
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(new NodeCuboid(-8, -8, -8, 7, 7, 7)).build();
     int volume = NodeArea.volume(node);
     int budget = NodeSettings.defaults().blocksPerScan();
     NodeScanCursor cursor = new NodeScanCursor();
@@ -114,30 +114,30 @@ class NodeScanCursorTest {
       passes++;
     }
 
-    assertThat(volume).isEqualTo(65 * 65 * 65).isPositive();
+    assertThat(volume).isEqualTo(16 * 16 * 16).isPositive();
     assertThat(expectedStart).isEqualTo(volume);
     assertThat(passes).isEqualTo((volume + budget - 1) / budget);
     assertThat(cursor.next(budget, volume)).isEqualTo(new NodeScanCursor.Window(0, budget));
   }
 
   @Test
-  void everyIndexOfARadiusThirtyTwoAreaMapsToItsOwnBlockWithoutOverflow() {
+  void everyIndexOfASixteenBlockAreaMapsToItsOwnBlockWithoutOverflow() {
     NodeKey key = new NodeKey(WORLD, 29_999_900, 120, -29_999_900, BlockFace.UP);
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build();
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(new NodeCuboid(-8, -8, -8, 7, 7, 7)).build();
     int[] center = NodeArea.center(key);
     BitSet seen = new BitSet(NodeArea.volume(node));
 
     for (int index = 0; index < NodeArea.volume(node); index++) {
       int[] position = NodeArea.position(key, node, index);
-      int offsetX = position[0] - (center[0] - 32);
-      int offsetY = position[1] - (center[1] - 32);
-      int offsetZ = position[2] - (center[2] - 32);
+      int offsetX = position[0] - (center[0] - 8);
+      int offsetY = position[1] - (center[1] - 8);
+      int offsetZ = position[2] - (center[2] - 8);
       assertThat(NodeArea.covers(key, node, position[0] + 0.5D, position[1] + 0.5D, position[2] + 0.5D)).isTrue();
-      seen.set((offsetY * 65 + offsetZ) * 65 + offsetX);
+      seen.set((offsetY * 16 + offsetZ) * 16 + offsetX);
     }
 
     assertThat(seen.cardinality()).isEqualTo(NodeArea.volume(node));
-    assertThat(NodeArea.position(key, node, 0)).containsExactly(center[0] - 32, center[1] - 32, center[2] - 32);
-    assertThat(NodeArea.position(key, node, NodeArea.volume(node) - 1)).containsExactly(center[0] + 32, center[1] + 32, center[2] + 32);
+    assertThat(NodeArea.position(key, node, 0)).containsExactly(center[0] - 8, center[1] - 8, center[2] - 8);
+    assertThat(NodeArea.position(key, node, NodeArea.volume(node) - 1)).containsExactly(center[0] + 7, center[1] + 7, center[2] + 7);
   }
 }

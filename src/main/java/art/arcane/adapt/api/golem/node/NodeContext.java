@@ -99,11 +99,42 @@ public final class NodeContext {
     return GolemTask.builder(pass.key(), pass.record().type(), type, target);
   }
 
+  public void surveyCriteria(long criteria) {
+    if (pass.discovery() != null && pass.current().getAsBoolean()) {
+      pass.discovery().surveyCriteria(criteria);
+    }
+  }
+
+  public boolean queryDue() {
+    return pass.discovery() == null || pass.discovery().queryDue(nowMillis);
+  }
+
+  public void queryResult(boolean found) {
+    if (pass.discovery() != null && pass.current().getAsBoolean()) {
+      pass.discovery().queryResult(found, nowMillis);
+    }
+  }
+
+  public void candidate(int areaIndex, boolean candidate) {
+    if (pass.discovery() != null && pass.current().getAsBoolean()) {
+      pass.discovery().remember(areaIndex, candidate);
+    }
+  }
+
   public boolean post(GolemTask task) {
+    if (!pass.current().getAsBoolean() || !board.node(pass.key()).filter(pass.record()::equals).isPresent()) {
+      return false;
+    }
     if (!task.node().filter(pass.key()::equals).isPresent()) {
       throw new IllegalArgumentException("Node " + pass.key() + " cannot post a task for " + task);
     }
     GolemTaskBoard.Offer offer = board.offer(task, pass.maxOpenTasks());
+    if (!pass.current().getAsBoolean()) {
+      if (offer == GolemTaskBoard.Offer.ADDED) {
+        board.withdraw(task);
+      }
+      return false;
+    }
     if (offer == GolemTaskBoard.Offer.ADDED) {
       budget.taken();
     }

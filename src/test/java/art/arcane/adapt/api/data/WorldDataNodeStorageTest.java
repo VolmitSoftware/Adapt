@@ -5,7 +5,10 @@ import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeFaces;
 import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.spatial.matter.Matter;
 import art.arcane.spatial.matter.SpatialMatter;
+import art.arcane.volmlib.util.io.CountingDataInputStream;
+import art.arcane.volmlib.util.mantle.Mantle;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -15,11 +18,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -105,6 +115,45 @@ class WorldDataNodeStorageTest extends AdaptTestBase {
   @Test
   void savingAPlateThatWasNeverLoadedSucceeds() {
     assertThat(open().savePlate(10_000, 10_000)).isTrue();
+  }
+
+  @Test
+  void aMalformedCurrentRegionCannotBeReplacedAndHealthyRegionsRemainUsable() throws Exception {
+    WorldData data = open();
+    data.set(3, 64, 3, faces(BlockFace.UP));
+    assertThat(data.savePlate(3, 3)).isTrue();
+    data.unregister();
+    opened.remove(data);
+    File folder = new File(dataFolder, "data/mantle/minecraft/overworld");
+    File target = Mantle.fileForRegion(folder, 0, 0);
+    byte[] truncated = Arrays.copyOf(Files.readAllBytes(target.toPath()), 12);
+    Files.write(target.toPath(), truncated);
+    WorldData fresh = open();
+
+    assertThatThrownBy(() -> fresh.get(3, 64, 3, NodeFaces.class)).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> fresh.set(3, 64, 3, faces(BlockFace.NORTH))).isInstanceOf(RuntimeException.class);
+    fresh.set(1_024, 64, 3, faces(BlockFace.EAST));
+    assertThat(fresh.get(1_024, 64, 3, NodeFaces.class)).isEqualTo(faces(BlockFace.EAST));
+    assertThat(Files.readAllBytes(target.toPath())).isEqualTo(truncated);
+  }
+
+  @Test
+  void duplicateCurrentSlicesRejectTheWholeSection() throws Exception {
+    Matter section = new SpatialMatter(16, 16, 16);
+    section.slice(NodeFaces.class).set(3, 0, 3, faces(BlockFace.UP));
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(bytes)) {
+      out.writeInt(16);
+      out.writeInt(16);
+      out.writeInt(16);
+      out.writeByte(2);
+      section.getHeader().write(out);
+      section.getSlice(NodeFaces.class).write(out);
+      section.getSlice(NodeFaces.class).write(out);
+    }
+    try (CountingDataInputStream in = CountingDataInputStream.wrap(new ByteArrayInputStream(bytes.toByteArray()))) {
+      assertThatThrownBy(() -> WorldData.readSection(in)).isInstanceOf(IOException.class).hasMessageContaining("Duplicate");
+    }
   }
 
   private WorldData open() {

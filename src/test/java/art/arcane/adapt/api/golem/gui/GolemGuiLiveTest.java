@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemWorkStatus;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
@@ -33,6 +34,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,6 +147,7 @@ class GolemGuiLiveTest extends AdaptTestBase {
     lenient().when(state.essencePoints()).thenAnswer(invocation -> essence.get());
     lenient().when(state.stats()).thenReturn(stats);
     handle = mock(GolemHandle.class);
+    lenient().when(handle.workStatus()).thenReturn(GolemWorkStatus.WAITING);
     lenient().when(handle.entity()).thenReturn(golem);
     lenient().when(handle.owner()).thenReturn(OWNER);
     lenient().when(handle.id()).thenReturn(UUID.randomUUID());
@@ -174,7 +177,11 @@ class GolemGuiLiveTest extends AdaptTestBase {
     nms.when(() -> NMS.deserializeStack(anyString())).thenAnswer(invocation -> stack(invocation.getArgument(0)));
     items = mockStatic(GolemItems.class);
     items.when(() -> GolemItems.core(any(GolemCoreType.class))).thenAnswer(invocation -> GolemTestItems.stack(Material.PAPER, 1));
-    items.when(() -> GolemItems.rune(any(GolemRune.class))).thenAnswer(invocation -> GolemTestItems.stack(Material.AMETHYST_SHARD, 1));
+    items.when(() -> GolemItems.rune(any(GolemRune.class))).thenAnswer(invocation -> {
+      ItemStack rune = GolemTestItems.stack(Material.AMETHYST_SHARD, 1);
+      lenient().when(rune.getItemMeta()).thenReturn(mock(ItemMeta.class));
+      return rune;
+    });
     runeEffects = mockStatic(GolemRunes.class);
     runeEffects.when(() -> GolemRunes.effects(any(GolemHandle.class))).thenReturn(GolemRuneEffects.NONE);
     runeEffects.when(() -> GolemRunes.layout(any(GolemBody.class), any(UUID.class), anyBoolean())).thenReturn(LAYOUT);
@@ -330,14 +337,15 @@ class GolemGuiLiveTest extends AdaptTestBase {
   }
 
   @Test
-  void aModeChangeUpdatesTheModeElement() {
+  void aModeChangeUpdatesTheModeAndWorkStatus() {
     openAndDraw();
     UIWindow window = onlyWindow();
     mode.set(GolemMode.FOLLOW);
 
     scheduler.advance(LiveRefresh.POLL_TICKS);
 
-    verify(window, times(1)).updateElement(anyInt(), anyInt(), any());
+    verify(window, times(2)).updateElement(anyInt(), anyInt(), any());
+    verify(window).updateElement(eq(-4), eq(HEADER_ROW), any(Element.class));
     verify(window).updateElement(eq(0), eq(HEADER_ROW), any(Element.class));
   }
 

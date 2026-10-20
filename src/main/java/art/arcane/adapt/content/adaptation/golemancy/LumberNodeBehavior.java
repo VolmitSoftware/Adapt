@@ -6,7 +6,6 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
-import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContainers;
 import art.arcane.adapt.api.golem.node.NodeContext;
@@ -30,7 +29,7 @@ final class LumberNodeBehavior implements NodeBehavior {
   static final long SETTLE_MILLIS = 2_000L;
 
   private static final Set<LumberTrees.Verdict> REMEMBERED = EnumSet.of(LumberTrees.Verdict.TOO_BIG, LumberTrees.Verdict.NO_LEAVES,
-      LumberTrees.Verdict.BUILT, LumberTrees.Verdict.PLACED, LumberTrees.Verdict.TOO_WIDE, LumberTrees.Verdict.UNOWNED);
+      LumberTrees.Verdict.BUILT, LumberTrees.Verdict.PLACED, LumberTrees.Verdict.TOO_WIDE);
 
   private final GolemLumberCore core;
   private final LumberFellings fellings;
@@ -57,23 +56,12 @@ final class LumberNodeBehavior implements NodeBehavior {
     }
     LumberRules.Plan plan = actions.plan(level);
     NodeKey key = node.key();
-    NodeRecord record = node.record();
     UUID world = key.world();
     long now = node.nowMillis();
-    fellings.keep(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now);
     Map<Long, GolemTask> open = GolemancySupport.open(node);
     TreeView view = actions.view(node.world(), node::owns);
-    for (LumberFellings.Felling felling : fellings.replants(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now)) {
-      if (!budget.hasTaskRoom()) {
-        break;
-      }
-      LumberTrees.Part base = felling.tree().base();
-      if (view.owned(base.x(), base.y(), base.z())) {
-        Block block = node.world().getBlockAt(base.x(), base.y(), base.z());
-        keepOrDrop(node, block, plan, felling, open.get(NodeContainers.blockKey(base.x(), base.y(), base.z())), budget);
-      }
-    }
-    for (int index = budget.start(); index < budget.end(); index++) {
+    int surveys = 0;
+    for (int index : budget.indices()) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
         continue;
@@ -85,13 +73,19 @@ final class LumberNodeBehavior implements NodeBehavior {
       GolemTask existing = open.isEmpty() ? null : open.get(NodeContainers.blockKey(x, y, z));
       Optional<LumberFellings.Felling> felling = fellings.get(world, x, y, z);
       if (felling.isPresent()) {
-        if (!felling.get().replanting()) {
+        node.candidate(index, true);
+        felling.get().touch(now);
+        if (!felling.get().replanting() || felling.get().replantReady(now)) {
           keepOrDrop(node, block, plan, felling.get(), existing, budget);
         }
         continue;
       }
-      if (!LumberTrees.candidate(view, x, y, z, plan.nether())) {
-        if (existing != null) {
+      boolean candidate = LumberTrees.candidate(view, x, y, z, plan.nether());
+      if (candidate || view.complete()) {
+        node.candidate(index, candidate);
+      }
+      if (!candidate) {
+        if (view.complete() && existing != null) {
           node.withdraw(existing);
         }
         continue;
@@ -99,6 +93,10 @@ final class LumberNodeBehavior implements NodeBehavior {
       if (existing != null || !budget.hasTaskRoom() || rejections.rejected(key, x, y, z, now)) {
         continue;
       }
+      if (surveys >= 1) {
+        continue;
+      }
+      surveys++;
       LumberTrees.Survey survey = LumberTrees.survey(view, x, y, z, plan.reach(plan.largestCap()));
       if (survey.verdict() == LumberTrees.Verdict.NATURAL && at(survey.tree().base(), x, y, z)) {
         post(node, block, LumberRules.bodies(core.config(), level, survey.tree().logs()));

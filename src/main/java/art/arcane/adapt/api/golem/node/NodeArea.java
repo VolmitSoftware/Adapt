@@ -17,6 +17,11 @@ public final class NodeArea {
     return record.area().volume();
   }
 
+  public static boolean inWorld(NodeKey key, NodeCuboid area, int minimumHeight, int maximumHeight) {
+    int centerY = key.y() + key.face().getModY();
+    return (long) centerY + area.minY() >= minimumHeight && (long) centerY + area.maxY() < maximumHeight;
+  }
+
   public static int[] position(NodeKey key, NodeRecord record, int index) {
     NodeCuboid area = record.area();
     int spanX = area.spanX();

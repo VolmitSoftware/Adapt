@@ -6,7 +6,9 @@ import art.arcane.adapt.util.common.io.SQLManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class PlayerDataPersistenceQueue implements AutoCloseable {
+  private static final CompletableFuture<Void> NO_CHECKPOINT = CompletableFuture.completedFuture(null);
   private static final String DELETE_JOURNAL_HEADER = "ADAPT_DELETE_JOURNAL_V1";
   private static final String DELETE_JOURNAL_SAVE = "SAVE";
   private static final String SQL_RECOVERY_HEADER = "ADAPT_SQL_RECOVERY_V1";
@@ -97,31 +100,55 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     queueSave(uuid, json, localFile, purgeGeneration, null);
   }
 
+  CompletableFuture<Void> checkpoint(FencedPlayerSnapshot snapshot, File localFile, long purgeGeneration) {
+    CompletableFuture<Void> completion = new CompletableFuture<>();
+    queueSave(snapshot.playerId(), snapshot.json(), localFile, purgeGeneration, snapshot, completion, true);
+    return completion;
+  }
+
+  CompletableFuture<Void> checkpoint(UUID owner, String json, File localFile, long purgeGeneration) {
+    CompletableFuture<Void> completion = new CompletableFuture<>();
+    queueSave(owner, json, localFile, purgeGeneration, null, completion, true);
+    return completion;
+  }
+
   private void queueSave(UUID uuid, String json, File localFile, long purgeGeneration,
                          FencedPlayerSnapshot fencedSnapshot) {
+    queueSave(uuid, json, localFile, purgeGeneration, fencedSnapshot, NO_CHECKPOINT, false);
+  }
+
+  private void queueSave(UUID uuid, String json, File localFile, long purgeGeneration,
+                         FencedPlayerSnapshot fencedSnapshot, CompletableFuture<Void> completion, boolean checkpoint) {
     if (uuid == null || json == null || !acceptingTasks.get()
         || !PlayerDataPurgeGuard.allowsSave(uuid, purgeGeneration)) {
+      completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
       return;
     }
 
     SaveTarget target;
     try {
       target = captureSaveTarget(localFile);
+      if (checkpoint && target instanceof LocalSaveTarget local) {
+        target = new LocalSaveTarget(local.file(), true);
+      }
     } catch (RuntimeException error) {
       Adapt.warn("Failed to capture player data save target for " + uuid + ": " + error.getMessage());
       Adapt.error(error);
+      completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
       return;
     }
     if (target instanceof SqlSaveTarget && fencedSnapshot == null) {
       Adapt.warn("Refusing unfenced SQL player data save for " + uuid);
+      completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
       return;
     }
 
-    SaveRequest request = new SaveRequest(uuid, json, fencedSnapshot, target, 0);
+    SaveRequest request = new SaveRequest(uuid, json, fencedSnapshot, target, 0, completion);
     Object operationLock = deleteOperationLock(uuid);
     synchronized (operationLock) {
       synchronized (lifecycleLock) {
         if (!acceptingTasks.get() || !PlayerDataPurgeGuard.allowsSave(uuid, purgeGeneration)) {
+          completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
           return;
         }
         DeleteRequest activeDelete = pendingDeletes.get(uuid);
@@ -129,6 +156,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
           if (hasInvalidDeleteJournal(activeDelete.deleteMarker())) {
             Adapt.warn("Refusing to replace invalid player data deletion journal for " + uuid + ": "
                 + activeDelete.deleteMarker().getAbsolutePath());
+            completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
             return;
           }
           long revision = nextDeleteRevision(activeDelete.deleteMarker(), activeDelete);
@@ -139,20 +167,27 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
             Adapt.warn("Failed to attach player data save behind deletion for " + uuid + ": " + error.getMessage());
             Adapt.error(error);
             pendingSaves.put(uuid, request);
+            completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
             return;
           }
           pendingSaves.remove(uuid);
           if (!pendingDeletes.replace(uuid, activeDelete, replacement)) {
             Adapt.warn("Failed to replace the active player data deletion for " + uuid
                 + " after its successor journal was written.");
+            completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
             return;
           }
+          request.complete();
           submitDelete(replacement);
           return;
         }
         SaveRequest current = pendingSaves.get(uuid);
         if (!canReplacePendingSave(current, request)) {
+          completion.completeExceptionally(new IllegalStateException("Player data checkpoint was not accepted"));
           return;
+        }
+        if (current != null) {
+          current.fail("Player data checkpoint was superseded before persistence");
         }
         pendingSaves.put(uuid, request);
         scheduleDrain(uuid);
@@ -628,7 +663,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
       return new SqlSaveTarget(sqlManager, recoveryFile);
     }
 
-    return new LocalSaveTarget(capturedFile);
+    return new LocalSaveTarget(capturedFile, false);
   }
 
   private void scheduleDrain(UUID uuid) {
@@ -649,6 +684,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     }
 
     if (!submitDrain(uuid)) {
+      request.fail("Player data checkpoint scheduling was rejected");
       drainTokens.remove(uuid);
     }
   }
@@ -708,6 +744,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
           return;
         }
 
+        request.complete();
         if (pendingSaves.remove(uuid, request)) {
           return;
         }
@@ -734,6 +771,11 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
       return;
     }
     if (!submitSqlDrain()) {
+      for (SaveRequest request : pendingSaves.values()) {
+        if (request.target() instanceof SqlSaveTarget) {
+          request.fail("SQL player data checkpoint scheduling was rejected");
+        }
+      }
       sqlDrainScheduled.set(false);
     }
   }
@@ -850,6 +892,13 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
           } else {
             target.completeCommittedWrite(request.fencedSnapshot());
           }
+          if (result.status() == SQLManager.FencedWriteStatus.FENCED) {
+            request.fail("Player data ownership changed before checkpoint");
+          } else if (result.status() == SQLManager.FencedWriteStatus.SUPERSEDED) {
+            request.fail("Player data checkpoint was superseded in storage");
+          } else {
+            request.complete();
+          }
           pendingSaves.remove(request.uuid(), request);
         } catch (Throwable error) {
           Adapt.warn("SQL player data post-write handling failed for " + request.uuid()
@@ -937,6 +986,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
   }
 
   private boolean retainTerminalSqlRequestLocked(SaveRequest request) {
+    request.fail("SQL player data checkpoint failed");
     try {
       request.target().persistForShutdown(
           request.uuid(), request.json(), request.fencedSnapshot());
@@ -1048,6 +1098,9 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
   }
 
   private void releaseDrain(UUID uuid, SaveRequest terminalFailure) {
+    if (terminalFailure != null) {
+      terminalFailure.fail("Player data checkpoint failed");
+    }
     drainTokens.remove(uuid);
     SaveRequest latest = pendingSaves.get(uuid);
     if (latest != null && latest != terminalFailure && acceptingTasks.get()) {
@@ -1164,10 +1217,10 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     void persistForShutdown(UUID uuid, String json, FencedPlayerSnapshot snapshot) throws Exception;
   }
 
-  private record LocalSaveTarget(File file) implements SaveTarget {
+  private record LocalSaveTarget(File file, boolean requireAtomicMove) implements SaveTarget {
     @Override
     public void persist(UUID uuid, String json) throws IOException {
-      writeSnapshot(file, json);
+      writeSnapshot(file, json, requireAtomicMove);
     }
 
     @Override
@@ -1212,6 +1265,11 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     Path temporary = Files.createTempFile(parent, target.getFileName().toString() + ".", ".tmp");
     try {
       Files.writeString(temporary, json, StandardCharsets.UTF_8);
+      if (requireAtomicMove) {
+        try (FileChannel staging = FileChannel.open(temporary, StandardOpenOption.WRITE)) {
+          staging.force(true);
+        }
+      }
       try {
         Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
       } catch (AtomicMoveNotSupportedException error) {
@@ -1219,6 +1277,11 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
           throw error;
         }
         Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
+      }
+      if (requireAtomicMove) {
+        try (FileChannel directory = FileChannel.open(parent, StandardOpenOption.READ)) {
+          directory.force(true);
+        }
       }
     } finally {
       Files.deleteIfExists(temporary);
@@ -1363,14 +1426,28 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
   }
 
   private record SaveRequest(UUID uuid, String json, FencedPlayerSnapshot fencedSnapshot,
-                             SaveTarget target, int attempt) {
+                             SaveTarget target, int attempt, CompletableFuture<Void> completion) {
+    private SaveRequest(UUID uuid, String json, FencedPlayerSnapshot fencedSnapshot, SaveTarget target, int attempt) {
+      this(uuid, json, fencedSnapshot, target, attempt, NO_CHECKPOINT);
+    }
+
+    private void complete() {
+      completion.complete(null);
+    }
+
+    private void fail(String message) {
+      if (!completion.isDone()) {
+        completion.completeExceptionally(new IllegalStateException(message));
+      }
+    }
+
     private SaveRequest retry() {
-      return new SaveRequest(uuid, json, fencedSnapshot, target, attempt + 1);
+      return new SaveRequest(uuid, json, fencedSnapshot, target, attempt + 1, completion);
     }
 
     private SaveRequest terminalFailure() {
       return new SaveRequest(
-          uuid, json, fencedSnapshot, target, RETRY_BACKOFF_MILLIS.length + 1);
+          uuid, json, fencedSnapshot, target, RETRY_BACKOFF_MILLIS.length + 1, completion);
     }
 
     private boolean exhausted() {

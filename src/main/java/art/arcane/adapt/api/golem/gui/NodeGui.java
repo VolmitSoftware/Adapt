@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeCuboid;
+import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeEdits;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeKey;
@@ -14,6 +15,7 @@ import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.NodeEditorMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -25,6 +27,7 @@ import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Bukkit;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -56,6 +59,7 @@ public final class NodeGui {
   private NodeRecord shownRecord;
   private int shownLevel;
   private List<String> shownPanel = List.of();
+  private boolean channelPicker;
 
   private NodeGui(Player player, NodeKey key, NodeTagPrompt prompt, NodeAreaSelector areas) {
     this.player = player;
@@ -136,7 +140,15 @@ public final class NodeGui {
 
   private void edit(UnaryOperator<NodeRecord> change) {
     onAnchor(() -> {
-      Optional<NodeRecord> updated = GolemancyRuntime.nodes().flatMap(service -> service.update(player.getUniqueId(), key, change));
+      World world = Bukkit.getWorld(key.world());
+      Optional<NodeRecord> updated = GolemancyRuntime.nodes().flatMap(service -> service.update(player.getUniqueId(), key, current -> {
+        NodeRecord next = change.apply(current);
+        if (!next.area().equals(current.area()) && (world == null || !NodeArea.inWorld(key, next.area(), world.getMinHeight(), world.getMaxHeight()))) {
+          GolemGuiSupport.warn(player, NodeEditorMessages.WORLD_LIMIT);
+          return current;
+        }
+        return next;
+      }));
       if (updated.isEmpty()) {
         gone();
         return;
@@ -168,12 +180,17 @@ public final class NodeGui {
       GuiTheme.apply(next, "golemancy-node");
       next.setViewportHeight(ROWS);
       next.batch(() -> {
+        if (channelPicker) {
+          placeChannels(next, record);
+          return;
+        }
         placeHeader(next, record, level, slots);
         placeArea(next, record, maxRadius);
         placeFilter(next, record, slots);
         placePanel(next, controls);
       });
-      next.setTitle(AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))));
+      next.setTitle(channelPicker ? AdaptLanguage.text(NodeEditorMessages.CHANNEL_TITLE)
+          : AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))));
       window = next;
       shownRecord = record;
       shownLevel = level;
@@ -205,10 +222,26 @@ public final class NodeGui {
     int mask = record.channel() == null ? ChannelMask.NONE : ChannelMask.of(record.channel());
     target.setElement(-2, HEADER_ROW, GuiTheme.element("node-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL, trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(mask)))))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
+        .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.CHANNEL_PICK))
         .setProgress(1D)
-        .onLeftClick(clicked -> edit(current -> current.toBuilder().channel(NodeEdits.nextChannel(current.channel(), true)).build()))
-        .onRightClick(clicked -> edit(current -> current.toBuilder().channel(NodeEdits.nextChannel(current.channel(), false)).build())));
+        .onLeftClick(clicked -> {
+          channelPicker = true;
+          render(record);
+        }));
+    target.setElement(-3, HEADER_ROW, GuiTheme.element("node-copy", Material.WRITABLE_BOOK, "gui", "golemancy", "copy")
+        .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.COPY))
+        .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.COPY_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> onAnchor(() -> read().ifPresent(current -> {
+          if (NodeSettingsClipboard.copy(player.getUniqueId(), current)) {
+            GolemGuiSupport.notify(player, NodeEditorMessages.COPIED);
+          }
+        }))));
+    target.setElement(4, HEADER_ROW, GuiTheme.element("node-paste", Material.BOOK, "gui", "golemancy", "paste")
+        .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.PASTE))
+        .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.PASTE_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> paste()));
     Element priority = GuiTheme.element("node-priority", Material.GOLD_NUGGET, "gui", "golemancy", "priority")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_PRIORITY, trusted("priority", record.priority())))
         .setCount(record.priority())
@@ -273,9 +306,12 @@ public final class NodeGui {
           GuiTheme.element("node-area-" + axis.name(), areaIcon(axis), "gui", "golemancy", "area_" + axis.name().toLowerCase(Locale.ROOT))
               .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA, trusted("axis", axis.name()),
                   trusted("min", Integer.toString(area.min(axis))), trusted("max", signed(area.max(axis)))))
-              .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_LORE))
-              .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_SHIFT, trusted("step", NodeEdits.SHIFT_STEP)))
-              .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_CAP, trusted("radius", maxRadius)))
+              .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE, trusted("x", area.spanX()), trusted("y", area.spanY()), trusted("z", area.spanZ())))
+              .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_LORE))
+              .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.RESIZE_PREVIEW, trusted("axis", axis.name()),
+                  trusted("grow", resizePreview(area, axis, NodeEdits.STEP, maxRadius)),
+                  trusted("shrink", resizePreview(area, axis, -NodeEdits.STEP, maxRadius))))
+              .addLore(C.DARK_GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_CAP, trusted("radius", maxRadius)))
               .setProgress(1D)
               .onLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.STEP, maxRadius)))
               .onRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -NodeEdits.STEP, maxRadius)))
@@ -285,10 +321,9 @@ public final class NodeGui {
     boolean selecting = areas.selecting(player, key);
     target.setElement(GuiLayout.centeredPosition(axes.length, controls), AREA_ROW,
         GuiTheme.element("node-area-select", selecting ? Material.BARRIER : Material.IRON_HOE, "gui", "golemancy", "area_select")
-            .setName(C.GREEN + AdaptLanguage.text(selecting ? GolemancyMessages.NODE_AREA_STOP : GolemancyMessages.NODE_AREA_SELECT))
-            .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_AREA_STARTED))
-            .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_AREA_STARTED_HINT))
-            .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_CAP, trusted("radius", maxRadius)))
+            .setName(C.GREEN + AdaptLanguage.text(selecting ? GolemancyMessages.NODE_AREA_STOP : NodeEditorMessages.SHIFT_TITLE))
+            .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SHIFT_LORE))
+            .addLore(C.DARK_GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_CAP, trusted("radius", maxRadius)))
             .setProgress(1D)
             .onLeftClick(clicked -> areas.toggle(player, key, record)));
   }
@@ -308,7 +343,7 @@ public final class NodeGui {
     if (index < items.size()) {
       ItemStack shown = items.get(index);
       return itemElement(id, shown.clone())
-          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_SET))
+          .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR))
           .onLeftClick(clicked -> replaceFromCursor(shown))
           .onRightClick(clicked -> edit(current -> NodeFilters.removeItem(current, shown)));
@@ -323,13 +358,13 @@ public final class NodeGui {
           .onRightClick(clicked -> edit(current -> NodeFilters.removeTag(current, tag)));
     }
     if (index < slots) {
-      return GuiTheme.element(id, Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "filter_empty")
-          .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_EMPTY))
-          .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_SET))
+      return GuiTheme.element(id, Material.LIME_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "filter_empty")
+          .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_EMPTY))
+          .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE))
           .setProgress(1D)
           .onLeftClick(clicked -> addFromCursor(slots));
     }
-    return GuiTheme.element(id, Material.BARRIER, "gui", "golemancy", "filter_locked")
+    return GuiTheme.element(id, Material.BLACK_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "filter_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED_LORE))
         .setProgress(1D);
@@ -381,7 +416,11 @@ public final class NodeGui {
   }
 
   private void replaceFromCursor(ItemStack shown) {
-    cursorGhost().ifPresent(ghost -> edit(current -> NodeFilters.replaceItem(current, shown, ghost).record()));
+    cursorGhost().ifPresent(ghost -> edit(current -> {
+      NodeFilters.FilterEdit change = NodeFilters.replaceItem(current, shown, ghost);
+      GolemGuiSupport.notify(player, NodeEditorMessages.FILTER_COPIED);
+      return change.record();
+    }));
   }
 
   private void addFromCursor(int slots) {
@@ -389,6 +428,8 @@ public final class NodeGui {
       NodeFilters.FilterEdit change = NodeFilters.addItem(current, ghost, slots);
       if (change.outcome() == NodeFilters.Outcome.FULL) {
         GolemGuiSupport.warn(player, GolemancyMessages.NODE_FILTER_FULL, trusted("count", slots));
+      } else {
+        GolemGuiSupport.notify(player, NodeEditorMessages.FILTER_COPIED);
       }
       return change.record();
     }));
@@ -396,7 +437,71 @@ public final class NodeGui {
 
   private Optional<ItemStack> cursorGhost() {
     ItemStack cursor = player.getItemOnCursor();
-    return cursor.getType() == Material.AIR ? Optional.empty() : Optional.of(NodeFilters.ghost(cursor));
+    if (cursor.getType() == Material.AIR) {
+      GolemGuiSupport.warn(player, NodeEditorMessages.FILTER_EMPTY_CURSOR);
+      return Optional.empty();
+    }
+    return Optional.of(NodeFilters.ghost(cursor));
+  }
+
+  private void placeChannels(UIWindow target, NodeRecord record) {
+    DyeColor[] colors = DyeColor.values();
+    for (int index = 0; index < colors.length; index++) {
+      DyeColor color = colors[index];
+      int mask = ChannelMask.of(color);
+      target.setElement(-3 + index % 8, 1 + index / 8,
+          GuiTheme.element("node-channel-" + color.name(), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+              .setName((record.channel() == color ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(mask)))
+              .setProgress(record.channel() == color ? 1D : 0D)
+              .onLeftClick(clicked -> chooseChannel(color)));
+    }
+    target.setElement(0, 3, GuiTheme.element("node-channel-clear", Material.GLASS_BOTTLE, "gui", "golemancy", "channels_clear")
+        .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.CHANNEL_CLEAR)).setProgress(1D)
+        .onLeftClick(clicked -> chooseChannel(null)));
+    target.setElement(-4, 4, GuiTheme.element("node-channel-back", Material.ARROW, "gui", "golemancy", "back")
+        .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_BACK)).setProgress(1D)
+        .onLeftClick(clicked -> {
+          channelPicker = false;
+          render(record);
+        }));
+  }
+
+  private void chooseChannel(DyeColor color) {
+    channelPicker = false;
+    edit(current -> current.toBuilder().channel(color).build());
+  }
+
+  private void paste() {
+    int level = level(player);
+    int maxRadius = GolemancyRuntime.nodeWeaving().map(policy -> policy.maxAreaRadius(level)).orElse(0);
+    int slots = filterSlots(level);
+    edit(current -> {
+      Optional<NodeRecord> pasted = NodeSettingsClipboard.pasted(player.getUniqueId(), current, level, maxRadius, slots);
+      World world = Bukkit.getWorld(key.world());
+      if (pasted.isEmpty() || world == null || !NodeArea.inWorld(key, pasted.get().area(), world.getMinHeight(), world.getMaxHeight())) {
+        GolemGuiSupport.warn(player, NodeEditorMessages.PASTE_INVALID);
+        return current;
+      }
+      GolemGuiSupport.notify(player, NodeEditorMessages.PASTED);
+      return pasted.get();
+    });
+  }
+
+  private static int span(NodeCuboid area, NodeEdits.Axis axis) {
+    return area.max(axis) - area.min(axis) + 1;
+  }
+
+  private String resizePreview(NodeCuboid current, NodeEdits.Axis axis, int delta, int maxRadius) {
+    NodeCuboid next = NodeEdits.resizedArea(current, axis, delta, maxRadius);
+    int size = span(next, axis);
+    if (current.equals(next)) {
+      return AdaptLanguage.text(NodeEditorMessages.SIZE_LIMIT, trusted("size", size));
+    }
+    World world = player.getWorld();
+    if (!NodeArea.inWorld(key, next, world.getMinHeight(), world.getMaxHeight())) {
+      return AdaptLanguage.text(NodeEditorMessages.SIZE_WORLD_LIMIT, trusted("size", size));
+    }
+    return Integer.toString(size);
   }
 
   private void beginTag(NodeRecord record, int slots) {

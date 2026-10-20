@@ -5,6 +5,7 @@ import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemWorkStatus;
 import art.arcane.adapt.api.golem.GolemNameMode;
 import art.arcane.adapt.api.golem.GolemNames;
 import art.arcane.adapt.api.golem.GolemRegistry;
@@ -290,6 +291,7 @@ class RevealServiceNamesTest extends AdaptTestBase {
     lenient().when(golem.getHealth()).thenReturn(100D);
     GolemState state = namedState("Clank");
     GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.workStatus()).thenReturn(GolemWorkStatus.WAITING);
     lenient().when(handle.entityId()).thenReturn(entityId);
     lenient().when(handle.entity()).thenReturn(golem);
     lenient().when(handle.owner()).thenReturn(OWNER);

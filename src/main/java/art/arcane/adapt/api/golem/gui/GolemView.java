@@ -37,12 +37,14 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
     List<String> stored = state.carried();
     int shown = GolemGuiActions.carriedShown(stored.size());
     return new GolemView(state.body(),
-        new Vitals((int) Math.ceil(Math.max(0D, golem.getHealth())), Math.round(Math.max(0D, GolemVitals.maxHealth(golem))), handle.isDormant()),
+        new Vitals((int) Math.ceil(Math.max(0D, golem.getHealth())), Math.round(Math.max(0D, GolemVitals.maxHealth(golem))), handle.isDormant(), state.mode() == GolemMode.WORK
+            ? handle.workStatus().describe(handle.toolNote()) : ""),
         new CoreSlots(slotted.isEmpty() ? List.of(state.primaryCore()) : slotted, GolemMastery.perks(handle).dualCore()),
         state.mode(),
         new ChannelSet(effects.channels(state.channels()), effects.channelSlots()),
-        new Anchors(state.home(), state.homeChest(), handle.toolNote(), state.held()),
-        new RuneSlots(state.runes(), GolemRunes.layout(state.body(), owner, state.masterwork())),
+        new Anchors(state.home(), state.homeChest(), handle.toolNote(), state.held(),
+            GolemancyRuntime.workSettings().baseWorkRadius() + effects.radiusBonus(), GolemancyRuntime.brainSettings().leashRadius()),
+        new RuneSlots(state.runes(), GolemRunes.layout(state.body(), owner, state.masterwork()), GolemMastery.perks(handle)),
         new CarriedItems(List.copyOf(stored.subList(0, shown)), stored.size()),
         new Statistics(stats.kills(), String.format(Locale.ROOT, "%.1f", stats.damage()), stats.tasks(), stats.itemsMoved()),
         state.essencePoints(),
@@ -105,7 +107,7 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
     EQUIPMENT
   }
 
-  record Vitals(int health, long maxHealth, boolean dormant) {
+  record Vitals(int health, long maxHealth, boolean dormant, String workStatus) {
   }
 
   record CoreSlots(List<GolemCoreType> slotted, boolean dualCore) {
@@ -114,10 +116,10 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
   record ChannelSet(int mask, int slots) {
   }
 
-  record Anchors(GolemState.Anchor home, GolemState.Anchor chest, GolemToolNote toolNote, String held) {
+  record Anchors(GolemState.Anchor home, GolemState.Anchor chest, GolemToolNote toolNote, String held, double workReach, double leash) {
   }
 
-  record RuneSlots(List<GolemRune> slotted, GolemRuneLayout layout) {
+  record RuneSlots(List<GolemRune> slotted, GolemRuneLayout layout, GolemMastery.Perks perks) {
   }
 
   record CarriedItems(List<String> shown, int total) {

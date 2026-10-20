@@ -71,7 +71,7 @@ class NodeMatterTest extends AdaptTestBase {
     assertThat(read).isEqualTo(faces);
     assertThat(read.get(BlockFace.NORTH)).isEqualTo(deposit);
     assertThat(read.get(BlockFace.NORTH).filterItems()).containsExactly(cobble, wheat);
-    assertThat(read.get(BlockFace.NORTH).area()).isEqualTo(new NodeCuboid(-4, 0, -32, 9, 1, 6));
+    assertThat(read.get(BlockFace.NORTH).area()).isEqualTo(deposit.area());
     assertThat(read.get(BlockFace.UP)).isEqualTo(guard);
     assertThat(read.get(BlockFace.UP).area()).isEqualTo(NodeRecord.DEFAULT_AREA);
     assertThat(read.get(BlockFace.UP).channel()).isNull();
@@ -84,7 +84,7 @@ class NodeMatterTest extends AdaptTestBase {
   }
 
   @Test
-  void aCorruptRecordIsSkippedWithoutLosingTheOtherFaces() throws IOException {
+  void aCorruptRecordRejectsTheWholeBlock() throws IOException {
     ItemStack lost = item("lost");
     NodeRecord broken = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.EAST).filterItems(List.of(lost)).build();
     NodeRecord intact = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.WEST).area(NodeCuboid.symmetric(2, 2, 2)).build();
@@ -92,14 +92,11 @@ class NodeMatterTest extends AdaptTestBase {
     byte[] bytes = write(faces);
     decoded.remove("lost");
 
-    NodeFaces read = read(bytes);
-
-    assertThat(read.get(BlockFace.EAST)).isNull();
-    assertThat(read.get(BlockFace.WEST)).isEqualTo(intact);
+    assertThatThrownBy(() -> read(bytes)).isInstanceOf(IOException.class).hasCauseInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
-  void theStreamStaysAlignedForTheNextValueAfterASkippedRecord() throws IOException {
+  void aCorruptRecordThrowsInsteadOfPublishingAnEmptyValue() throws IOException {
     NodeRecord unknown = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.DOWN).filterItems(List.of(item("gone"))).build();
     NodeRecord next = NodeRecord.builder(OTHER, NodeType.BREAKER, BlockFace.SOUTH).priority(1).build();
     NodeMatter matter = new NodeMatter();
@@ -111,7 +108,7 @@ class NodeMatterTest extends AdaptTestBase {
     decoded.remove("gone");
 
     try (DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
-      assertThat(matter.readNode(in).isEmpty()).isTrue();
+      assertThatThrownBy(() -> matter.readNode(in)).isInstanceOf(IOException.class);
       assertThat(matter.readNode(in).get(BlockFace.SOUTH)).isEqualTo(next);
     }
   }
@@ -141,7 +138,7 @@ class NodeMatterTest extends AdaptTestBase {
   }
 
   @Test
-  void aFilterItemLengthPastTheRecordSkipsOnlyThatRecord() throws IOException {
+  void aFilterItemLengthPastTheRecordRejectsTheWholeBlock() throws IOException {
     NodeRecord intact = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
     byte[] good = write(NodeFaces.EMPTY.with(intact));
     ByteArrayOutputStream record = new ByteArrayOutputStream();
@@ -166,14 +163,11 @@ class NodeMatterTest extends AdaptTestBase {
       out.write(good, 1, good.length - 1);
     }
 
-    NodeFaces read = read(bytes.toByteArray());
-
-    assertThat(read.get(BlockFace.EAST)).isNull();
-    assertThat(read.get(BlockFace.UP)).isEqualTo(intact);
+    assertThatThrownBy(() -> read(bytes.toByteArray())).isInstanceOf(IOException.class);
   }
 
   @Test
-  void aStoredAreaThatMissesItsCenterOrPassesTheLimitSkipsOnlyThatRecord() throws IOException {
+  void aStoredAreaThatMissesItsCenterOrPassesTheLimitRejectsTheWholeBlock() throws IOException {
     NodeRecord intact = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
     byte[] good = write(NodeFaces.EMPTY.with(intact));
     for (NodeCuboid stored : new NodeCuboid[]{new NodeCuboid(1, 0, 0, 4, 2, 2), new NodeCuboid(-33, 0, 0, 0, 0, 0)}) {
@@ -200,11 +194,36 @@ class NodeMatterTest extends AdaptTestBase {
         out.write(good, 1, good.length - 1);
       }
 
-      NodeFaces read = read(bytes.toByteArray());
-
-      assertThat(read.get(BlockFace.EAST)).as("stored area %s", stored).isNull();
-      assertThat(read.get(BlockFace.UP)).isEqualTo(intact);
+      assertThatThrownBy(() -> read(bytes.toByteArray())).as("stored area %s", stored).isInstanceOf(IOException.class);
     }
+  }
+
+  @Test
+  void canonicalWideStoredCoordinatesAreNormalizedUsingTheCurrentRuntimeBounds() throws IOException {
+    NodeCuboid wide = NodeCuboid.symmetric(NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS);
+    ByteArrayOutputStream record = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(record)) {
+      out.writeLong(OWNER.getMostSignificantBits());
+      out.writeLong(OWNER.getLeastSignificantBits());
+      out.writeUTF("guard");
+      out.writeUTF("");
+      out.writeByte(3);
+      out.writeUTF("ignore");
+      writeArea(out, wide);
+      out.writeBoolean(true);
+      out.writeByte(0);
+      out.writeByte(0);
+      out.writeShort(0);
+    }
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(bytes)) {
+      out.writeByte(1);
+      out.writeUTF("UP");
+      out.writeInt(record.size());
+      out.write(record.toByteArray());
+    }
+    NodeCuboid bounded = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(wide).build().area();
+    assertThat(read(bytes.toByteArray()).get(BlockFace.UP).area()).isEqualTo(bounded);
   }
 
   @Test

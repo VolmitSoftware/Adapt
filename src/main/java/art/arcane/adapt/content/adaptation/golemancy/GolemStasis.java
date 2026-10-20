@@ -35,7 +35,6 @@ import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.DormantGolemPlacement;
 import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.runtime.AdaptationGate;
@@ -464,30 +463,38 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   private void packNow(Player player, GolemHandle handle, Runnable refused) {
     GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
-    Optional<GolemRegistry.Packing> packing;
+    if (registry == null || handle.isRetired()) {
+      refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
+      return;
+    }
     try {
-      packing = registry == null || handle.isRetired() ? Optional.empty() : registry.pack(handle);
+      registry.pack(handle).whenComplete((packing, failure) -> {
+        if (failure != null) {
+          refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
+          Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
+          return;
+        }
+        if (packing.isEmpty()) {
+          refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
+          return;
+        }
+        GolemRegistry.Packing packed = packing.get();
+        registry.deliverPacked(player, packed.packed(), packed.item());
+        GolemancyRuntime.reveal().ifPresent(reveal -> reveal.forget(handle));
+        try {
+          packFx(packed.at(), packed.snapshot().body());
+        } catch (RuntimeException effects) {
+          Adapt.warn("Packed golem " + handle.id() + " could not show its packing effects.", effects);
+        }
+      });
     } catch (Throwable failure) {
-      try {
-        refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
-      } catch (Throwable undo) {
-        failure.addSuppressed(undo);
-      }
+      refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
       if (failure instanceof RuntimeException) {
         Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
         return;
       }
       throw failure;
     }
-    if (packing.isEmpty()) {
-      refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
-      return;
-    }
-    GolemRegistry.Packing packed = packing.get();
-    GolemBody body = packed.snapshot().body();
-    handOver(player, packed.item(), packed.at(), body);
-    GolemancyRuntime.reveal().ifPresent(reveal -> reveal.forget(handle));
-    packFx(packed.at(), body);
   }
 
   private static void refuse(Player player, Runnable refused, TextKey message) {
@@ -495,31 +502,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       refused.run();
     } finally {
       warn(player, message);
-    }
-  }
-
-  private void handOver(Player player, ItemStack item, Location at, GolemBody body) {
-    UUID owner = player.getUniqueId();
-    AtomicBoolean settled = new AtomicBoolean();
-    Runnable give = () -> {
-      if (!settled.compareAndSet(false, true)) {
-        return;
-      }
-      boolean dropped = give(player, item);
-      player.saveData();
-      if (dropped) {
-        notify(player, GolemancyMessages.STASIS_DROPPED);
-        return;
-      }
-      notify(player, GolemancyMessages.STASIS_PACKED, trusted("body", AdaptLanguage.text(body.displayName())));
-    };
-    Runnable drop = () -> {
-      if (settled.compareAndSet(false, true)) {
-        dropAt(at, item, owner);
-      }
-    };
-    if (!J.runEntity(player, give, drop)) {
-      drop.run();
     }
   }
 
@@ -614,20 +596,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     CopperCare.restored(body, snapshot.copperStage());
     if (body instanceof IronGolem iron) {
       iron.setPlayerCreated(snapshot.playerCreated());
-    }
-  }
-
-  private static boolean give(Player player, ItemStack item) {
-    Map<Integer, ItemStack> leftovers = player.getInventory().addItem(item);
-    for (ItemStack leftover : leftovers.values()) {
-      OwnerBoundDrop.drop(player.getLocation(), leftover, player.getUniqueId());
-    }
-    return !leftovers.isEmpty();
-  }
-
-  private static void dropAt(Location at, ItemStack item, UUID owner) {
-    if (!J.runAt(at, () -> OwnerBoundDrop.drop(at, item, owner))) {
-      Adapt.warn("Stasis could not drop the Dormant Golem of " + owner + " at " + at + "; the packed golem was lost.");
     }
   }
 

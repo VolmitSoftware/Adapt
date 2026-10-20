@@ -269,6 +269,25 @@ class ChoreographyTest(unittest.TestCase):
             with self.subTest(entry=identifier):
                 self.assertTrue(entries[identifier].pov_capture)
 
+    def test_node_weaving_selects_a_channel_before_demonstrating_three_axis_shifting(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'golemancy').entries['golem-node-weaving']
+        clicks: list[int] = [beat['slot'] for beat in entry.beats if beat.get('verb') == 'window' and beat.get('action') == 'click']
+        self.assertEqual(clicks[:2], [2, 22])
+        self.assertIn(11, clicks)
+        self.assertIn(12, clicks)
+        turns: list[dict] = [beat for beat in entry.beats if beat.get('verb') == 'look']
+        self.assertTrue(any(beat['yaw'] == -90 and beat['pitch'] == 0 for beat in turns))
+        self.assertTrue(any(beat['pitch'] < -60 for beat in turns))
+        self.assertTrue(any(beat['yaw'] == 180 and beat['pitch'] == 0 for beat in turns))
+        self.assertGreaterEqual(sum(beat.get('verb') == 'tap' and beat.get('key') == 'sneak' for beat in entry.beats), 4)
+        self.assertEqual(sum(beat.get('verb') == 'slot' and beat.get('index') == 2 for beat in entry.beats), 3)
+
+    def test_harvester_demo_links_a_seed_chest_and_includes_bare_farmland(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'golemancy').entries['golem-harvester-core']
+        self.assertTrue(any('wheat_seeds' in text and 'data merge block' in text for text in entry.pre))
+        self.assertTrue(any('fill ~-2 ~-1 ~-4 ~0 ~-1 ~-4 minecraft:farmland' in text for text in entry.pre))
+        self.assertTrue(any(beat.get('verb') == 'window' and beat.get('action') == 'click' and beat.get('slot') == 8 for beat in entry.beats))
+
     def test_golemancy_clips_that_show_nodes_or_labels_arm_the_reveal_with_a_hotbar_switch(self) -> None:
         entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
         crook: str = 'demo give {actor} 1 crook'

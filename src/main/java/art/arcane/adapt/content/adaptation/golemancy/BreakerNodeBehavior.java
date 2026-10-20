@@ -55,13 +55,14 @@ final class BreakerNodeBehavior implements NodeBehavior {
       return;
     }
     BreakerRules.Plan plan = plan(level, record);
-    for (int index = budget.start(); index < budget.end(); index++) {
+    for (int index : budget.indices()) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
         continue;
       }
       Block block = found.get();
       boolean breakable = breakable(block, plan);
+      node.candidate(index, breakable);
       GolemTask existing = open.isEmpty() ? null : open.get(NodeContainers.blockKey(block.getX(), block.getY(), block.getZ()));
       if (existing != null && !breakable) {
         node.withdraw(existing);

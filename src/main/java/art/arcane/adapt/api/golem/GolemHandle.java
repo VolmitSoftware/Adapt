@@ -30,6 +30,7 @@ public final class GolemHandle {
   private volatile int patinaStage;
   private volatile boolean fullHealthOwed;
   private volatile GolemToolNote toolNote;
+  private volatile GolemWorkStatus workStatus = GolemWorkStatus.WAITING;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
     this.entity = Objects.requireNonNull(entity);
@@ -81,6 +82,14 @@ public final class GolemHandle {
 
   public int patinaStage() {
     return patinaStage;
+  }
+
+  public GolemWorkStatus workStatus() {
+    return workStatus;
+  }
+
+  void setWorkStatus(GolemWorkStatus status) {
+    workStatus = Objects.requireNonNull(status);
   }
 
   public GolemToolNote toolNote() {

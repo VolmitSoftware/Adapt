@@ -4,6 +4,8 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemContext;
+import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +47,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
@@ -60,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 class HarvestNodeBehaviorTest {
@@ -550,6 +555,50 @@ class HarvestNodeBehaviorTest {
     field.set(block.getX(), block.getY(), block.getZ(), grown);
   }
 
+  @Test
+  void unavailableNeighboursPreservePlantMarksAndKeepTheirPositionsEligible() {
+    field.set(1, 63, 1, Material.FARMLAND);
+    spots.scanned(KEY, record, NOW);
+    HarvestSpots.Mark mark = new HarvestSpots.Mark(HarvesterRules.Spot.PLANT, 1, 63, 1);
+    spots.record(KEY, mark.x(), mark.y(), mark.z(), mark.kind());
+    NodeContext node = node();
+    when(node.owns(any(Block.class))).thenAnswer(invocation -> invocation.<Block>getArgument(0).getX() <= 1);
+    int index = IntStream.range(0, NodeArea.volume(record)).filter(candidate -> {
+      int[] at = NodeArea.position(KEY, record, candidate);
+      return at[0] == mark.x() && at[1] == mark.y() && at[2] == mark.z();
+    }).findFirst().orElseThrow();
+
+    behavior.scan(node, budget(index, index + 1, true));
+
+    assertThat(spots.of(KEY)).contains(mark);
+    verify(node).candidate(index, true);
+    verify(node, never()).candidate(index, false);
+    when(node.owns(any(Block.class))).thenReturn(true);
+    behavior.scan(node, budget(index, index + 1, true));
+    assertThat(spots.of(KEY)).contains(mark);
+  }
+
+  @Test
+  void unlockingOrTogglingTillingChangesTheNegativeSurveyCriteria() {
+    NodeContext node = node();
+    ScanBudget empty = budget(0, 0, true);
+    ArgumentCaptor<Long> criteria = ArgumentCaptor.forClass(Long.class);
+    level(3);
+    behavior.scan(node, empty);
+    level(4);
+    behavior.scan(node, empty);
+    when(core.tills(OWNER)).thenReturn(false);
+    behavior.scan(node, empty);
+    when(core.tills(OWNER)).thenReturn(true);
+    behavior.scan(node, empty);
+
+    verify(node, times(4)).surveyCriteria(criteria.capture());
+    List<Long> values = criteria.getAllValues();
+    assertThat(values.get(0)).isNotEqualTo(values.get(1));
+    assertThat(values.get(1)).isNotEqualTo(values.get(2));
+    assertThat(values.get(3)).isEqualTo(values.get(1));
+  }
+
   private void plot() {
     field.set(-1, 63, -1, Material.FARMLAND);
     wheat(-1, 64, -1);
@@ -592,12 +641,16 @@ class HarvestNodeBehaviorTest {
     ScanBudget budget = mock(ScanBudget.class);
     lenient().when(budget.start()).thenReturn(start);
     lenient().when(budget.end()).thenReturn(end);
+    lenient().when(budget.indices()).thenReturn(IntStream.range(start, end).toArray());
     lenient().when(budget.hasTaskRoom()).thenReturn(room);
     return budget;
   }
 
   private GolemContext golem(int actIndex) {
     GolemContext golem = mock(GolemContext.class);
+    GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.state()).thenReturn(mock(GolemState.class));
+    lenient().when(golem.handle()).thenReturn(handle);
     Player owner = mock(Player.class);
     lenient().when(owner.getUniqueId()).thenReturn(OWNER);
     Mob body = mock(Mob.class);

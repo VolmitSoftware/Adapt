@@ -68,6 +68,12 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
     return Json.toJson(new Stored(this), false);
   }
 
+  public String toPackedJson(UUID transfer) {
+    Stored stored = new Stored(this);
+    stored.transfer = Objects.requireNonNull(transfer);
+    return Json.toJson(stored, false);
+  }
+
   public GolemCoreType primaryCore() {
     return cores.getFirst();
   }
@@ -131,6 +137,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
     private boolean waxed;
     private boolean playerCreated;
     private long takenAt;
+    private UUID transfer;
 
     private Stored() {
     }

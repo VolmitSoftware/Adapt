@@ -6,12 +6,14 @@ import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreBehavior;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -119,8 +121,16 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
                                      RancherActions.Stock stock) {
     NodeKey key = entry.key();
     NodeRecord record = entry.record();
+    NodeService nodes = GolemancyRuntime.nodes().orElse(null);
+    long now = golem.nowMillis();
+    if (nodes != null && !nodes.queryDue(key, now)) {
+      return Optional.empty();
+    }
     List<Animals> herd = actions.herd(world, key, record);
     if (herd.isEmpty()) {
+      if (nodes != null && actions.surveyable(world, key, record)) {
+        nodes.emptyQuery(key, record, now);
+      }
       return Optional.empty();
     }
     UUID owner = golem.handle().owner();

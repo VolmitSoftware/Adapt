@@ -37,6 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -44,6 +45,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -388,6 +390,82 @@ class HarvesterCoreBehaviorTest {
     assertThat(behavior.actIntervalTicks(golem(0, List.of()), task("plant", 1, 63, 0))).isEqualTo(30);
     level(4);
     assertThat(behavior.actIntervalTicks(golem(0, List.of()), task("plant", 1, 63, 0))).isEqualTo(18);
+  }
+
+  @Test
+  void plantingUsesLinkedChestStockAndResumesWhenStockReturns() {
+    node();
+    farmland(1, 63, 0);
+    GolemContext golem = golem(1, List.of());
+    assertThat(seek(golem)).isEmpty();
+
+    chest[3] = GolemTestItems.stack(Material.WHEAT_SEEDS, 2);
+    assertThat(seek(golem)).isEqualTo("plant 1,63,0");
+    assertThat(behavior.act(golem(0, List.of()), task("plant", 1, 63, 0))).isEqualTo(GolemActResult.WORKING);
+    assertThat(chest[3].getAmount()).isEqualTo(2);
+    assertThat(behavior.act(golem, task("plant", 1, 63, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(chest[3].getAmount()).isEqualTo(1);
+    assertThat(field.type(1, 64, 0)).isEqualTo(Material.WHEAT);
+    verify(golem, never()).take(any(), anyInt());
+  }
+
+  @Test
+  void plantingPrefersCargoAndDoesNotMoveChestStockIntoCargo() {
+    field.set(1, 63, 0, Material.FARMLAND);
+    chest[3] = GolemTestItems.stack(Material.CARROT, 4);
+    GolemContext golem = golem(1, seeds(Material.WHEAT_SEEDS));
+    when(golem.take(any(), eq(1))).thenReturn(1);
+
+    assertThat(behavior.act(golem, task("plant", 1, 63, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(field.type(1, 64, 0)).isEqualTo(Material.WHEAT);
+    assertThat(chest[3].getAmount()).isEqualTo(4);
+    verify(golem, never()).carry(any());
+  }
+
+  @Test
+  void plantingWithChestStockRespectsFiltersStemsAndProtection() {
+    node();
+    farmland(1, 63, 0);
+    record = record.toBuilder().filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build();
+    nearby.clear();
+    node();
+    chest[3] = GolemTestItems.stack(Material.WHEAT_SEEDS, 4);
+    assertThat(seek(golem(1, List.of()))).isEmpty();
+    chest[3] = GolemTestItems.stack(Material.CARROT, 4);
+    GolemContext denied = golem(1, List.of());
+    when(denied.canPlace(any(Location.class))).thenReturn(false);
+    assertThat(behavior.act(denied, task("plant", 1, 63, 0))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(chest[3].getAmount()).isEqualTo(4);
+
+    field.set(2, 64, 0, Material.MELON_STEM);
+    assertThat(behavior.act(golem(1, List.of()), task("plant", 1, 63, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(chest[3].getAmount()).isEqualTo(4);
+  }
+
+  @Test
+  void deniedOrUnownedChestStockIsNeverReadOrConsumed() {
+    node();
+    farmland(1, 63, 0);
+    chest[3] = GolemTestItems.stack(Material.WHEAT_SEEDS, 4);
+    GolemContext golem = golem(1, List.of());
+    when(golem.owns(new Location(field.world, CHEST.x(), CHEST.y(), CHEST.z()))).thenReturn(false);
+
+    assertThat(seek(golem)).isEmpty();
+    assertThat(behavior.act(golem, task("plant", 1, 63, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(chest[3].getAmount()).isEqualTo(4);
+    verify(golem, never()).container(any(Block.class));
+  }
+
+  @Test
+  void failedPlacementReturnsItsSeedToTheChest() {
+    field.set(1, 63, 0, Material.FARMLAND);
+    chest[3] = GolemTestItems.stack(Material.WHEAT_SEEDS, 1);
+    Block spot = field.block(1, 64, 0);
+    doThrow(new IllegalStateException("placement refused")).when(spot).setType(Material.WHEAT);
+
+    assertThatThrownBy(() -> behavior.act(golem(1, List.of()), task("plant", 1, 63, 0)))
+        .isInstanceOf(IllegalStateException.class);
+    assertThat(chest[3].getAmount()).isEqualTo(1);
   }
 
   private void node() {

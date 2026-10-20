@@ -13,6 +13,17 @@ class NodeAreaTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000022f2");
 
   @Test
+  void worldHeightUsesTheFaceOffsetAndExclusiveMaximum() {
+    NodeKey top = new NodeKey(WORLD, 0, 318, 0, BlockFace.UP);
+    NodeCuboid point = NodeCuboid.symmetric(0, 0, 0);
+    assertThat(NodeArea.inWorld(top, point, -64, 320)).isTrue();
+    assertThat(NodeArea.inWorld(top, point.withAxis(NodeEdits.Axis.Y, 0, 1), -64, 320)).isFalse();
+    NodeKey bottom = new NodeKey(WORLD, 0, -63, 0, BlockFace.DOWN);
+    assertThat(NodeArea.inWorld(bottom, point, -64, 320)).isTrue();
+    assertThat(NodeArea.inWorld(bottom, point.withAxis(NodeEdits.Axis.Y, -1, 0), -64, 320)).isFalse();
+  }
+
+  @Test
   void theAreaIsTheBoxOfBlocksAroundTheBlockInFrontOfTheFace() {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
     NodeRecord record = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 3)).build();

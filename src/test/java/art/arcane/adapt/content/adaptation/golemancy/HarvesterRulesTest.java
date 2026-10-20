@@ -116,7 +116,7 @@ class HarvesterRulesTest {
     assertThat(survey(0, 64, 12, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(1, 64, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(0, 64, 8, 5)).isEqualTo(HarvesterRules.Spot.NONE);
-    assertThat(HarvesterRules.survey(field.block(0, 64, 0), plan(5), block -> block.getX() == 0)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.survey(field.block(0, 64, 0), plan(5), block -> block.getX() == 0)).isEqualTo(HarvesterRules.Spot.UNAVAILABLE);
   }
 
   @Test
@@ -193,7 +193,7 @@ class HarvesterRulesTest {
     assertThat(survey(0, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(4, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(8, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.TILL);
-    assertThat(HarvesterRules.survey(field.block(8, 63, 0), plan(5), block -> block.getX() == 8)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.survey(field.block(8, 63, 0), plan(5), block -> block.getX() == 8)).isEqualTo(HarvesterRules.Spot.UNAVAILABLE);
   }
 
   @Test
@@ -208,7 +208,7 @@ class HarvesterRulesTest {
     assertThat(survey(1, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(4, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(4, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.NONE);
-    assertThat(HarvesterRules.survey(field.block(0, 63, 0), plan(5), block -> block.getX() == 0)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.survey(field.block(0, 63, 0), plan(5), block -> block.getX() == 0)).isEqualTo(HarvesterRules.Spot.UNAVAILABLE);
   }
 
   @Test
@@ -225,15 +225,23 @@ class HarvesterRulesTest {
   }
 
   @Test
-  void neighboursInUnloadedChunksAreNeverReadAndCountAgainstTheSpot() {
+  void aVisibleAttachedStemProvesARipeGourdEvenWithOtherUnavailableNeighbours() {
+    field.set(15, 64, 0, Material.MELON).set(14, 64, 0, Material.ATTACHED_MELON_STEM, CropField.facing(BlockFace.EAST));
+    when(field.world.isChunkLoaded(1, 0)).thenReturn(false);
+
+    assertThat(survey(15, 64, 0, 5)).isEqualTo(HarvesterRules.Spot.RIPE);
+  }
+
+  @Test
+  void neighboursInUnloadedChunksAreNeverReadAndLeaveTheSpotUnavailable() {
     field.set(15, 64, 0, Material.MELON).set(16, 64, 0, Material.ATTACHED_MELON_STEM, CropField.facing(BlockFace.WEST));
     field.set(15, 63, 4, Material.DIRT);
     field.set(15, 64, 8, Material.AIR).set(16, 64, 8, Material.CARROTS, CropField.ageable(2, 7));
     when(field.world.isChunkLoaded(1, 0)).thenReturn(false);
     List<ItemStack> carried = List.of(GolemTestItems.stack(Material.WHEAT_SEEDS, 3), GolemTestItems.stack(Material.CARROT, 2));
 
-    assertThat(survey(15, 64, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
-    assertThat(survey(15, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(survey(15, 64, 0, 5)).isEqualTo(HarvesterRules.Spot.UNAVAILABLE);
+    assertThat(survey(15, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.UNAVAILABLE);
     assertThat(HarvesterRules.seedToPlant(plan(4), carried, field.block(15, 64, 8), OWNED)).isEqualTo(Material.WHEAT_SEEDS);
     verify(field.block(16, 64, 0), never()).getType();
     verify(field.block(16, 64, 4), never()).getType();

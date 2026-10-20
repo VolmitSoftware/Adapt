@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -551,6 +552,7 @@ class BreakerNodeBehaviorTest {
     ScanBudget budget = mock(ScanBudget.class);
     lenient().when(budget.start()).thenReturn(0);
     lenient().when(budget.end()).thenReturn(NodeArea.volume(record));
+    lenient().when(budget.indices()).thenReturn(IntStream.range(0, NodeArea.volume(record)).toArray());
     lenient().when(budget.hasTaskRoom()).thenReturn(room);
     return budget;
   }

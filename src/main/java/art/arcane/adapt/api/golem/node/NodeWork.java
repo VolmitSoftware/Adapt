@@ -31,6 +31,9 @@ public final class NodeWork implements NodeScanHook {
 
   @Override
   public void scan(NodeScanPass pass) {
+    if (!pass.current().getAsBoolean()) {
+      return;
+    }
     NodeRecord record = pass.record();
     NodeBehavior behavior = NodeBehaviors.of(record.type()).orElse(null);
     if (behavior == null) {
@@ -41,9 +44,9 @@ public final class NodeWork implements NodeScanHook {
     long now = platform.nowMillis();
     board.purgeIfDue(now);
     NodeScanCursor.Window window = pass.window();
-    ScanBudget budget = new ScanBudget(window.start(), window.count(), pass.maxOpenTasks() - board.openCount(key));
+    ScanBudget budget = new ScanBudget(window, pass.maxOpenTasks() - board.openCount(key));
     NodeContext context = new NodeContext(platform, pass, board, budget, behavior.policy(), now);
-    if (NodeRules.lacksContainer(record.type(), context.anchor().getType())) {
+    if (NodeRules.needsContainer(record.type()) && NodeRules.lacksContainer(record.type(), context.anchor().getType())) {
       withdrawAll(board, key);
       status.accept(key, NodeStatus.NO_CONTAINER);
       return;
@@ -55,13 +58,25 @@ public final class NodeWork implements NodeScanHook {
         Adapt.warn("Golemancy " + record.type().id() + " node scan failed at " + key + "; the node keeps scanning.", failure);
       }
     }
-    status.accept(key, context.status().orElseGet(() -> board.status(key, now)));
+    if (pass.current().getAsBoolean()) {
+      NodeStatus reported = context.status().orElseGet(() -> board.status(key, now));
+      status.accept(key, reported == NodeStatus.IDLE && board.openCount(key) > 0 ? NodeStatus.WAITING : reported);
+    }
   }
 
   @Override
   public void inactive(NodeKey key) {
     withdrawAll(boards.board(key.world()), key);
-    status.accept(key, NodeStatus.IDLE);
+    status.accept(key, NodeStatus.PAUSED);
+  }
+
+  @Override
+  public void invalidated(NodeKey key) {
+    withdrawAll(boards.board(key.world()), key);
+  }
+
+  static boolean discovery(NodeType type) {
+    return type == NodeType.HARVEST || type == NodeType.BREAKER || type == NodeType.LUMBER;
   }
 
   @Override

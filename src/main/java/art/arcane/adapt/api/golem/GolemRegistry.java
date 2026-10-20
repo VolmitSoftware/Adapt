@@ -5,6 +5,8 @@ import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -68,6 +70,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 public final class GolemRegistry extends TickedObject {
   private static final long TICK_INTERVAL_MILLIS = 1_000L;
   private static final long PRUNE_INTERVAL_MILLIS = 30_000L;
+  private static final NamespacedKey PACKING_TOKEN_KEY = new NamespacedKey("adapt", "golem_packing_token");
+  private static final NamespacedKey PACKING_KEY = new NamespacedKey("adapt", "golem_packing");
   private static final NamespacedKey BOUND_ONCE_KEY = new NamespacedKey("adapt", "golem_bound_once");
 
   private final GolemPlatform platform;
@@ -77,6 +81,12 @@ public final class GolemRegistry extends TickedObject {
   private final Map<UUID, GolemHandle> handles = new ConcurrentHashMap<>();
   private final Map<UUID, UUID> entityByGolem = new ConcurrentHashMap<>();
   private final Map<UUID, Set<UUID>> entitiesByOwner = new ConcurrentHashMap<>();
+  private final Set<UUID> pendingPackOwners = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> deliveringPacked = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Mob> packingBodies = new ConcurrentHashMap<>();
+  private final Set<UUID> packingRecoveryScheduled = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, PackCompletion> packingCompletions = new ConcurrentHashMap<>();
+  private final Set<UUID> packingInFlight = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingOwners = ConcurrentHashMap.newKeySet();
   private final Set<UUID> awake = new LinkedHashSet<>();
   private final Set<UUID> capQueue = new LinkedHashSet<>();
@@ -289,9 +299,9 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
-  public Optional<Packing> pack(GolemHandle handle) {
+  public CompletableFuture<Optional<Packing>> pack(GolemHandle handle) {
     if (handle.isRetired()) {
-      return Optional.empty();
+      return CompletableFuture.completedFuture(Optional.empty());
     }
     Mob golem = handle.entity();
     requireOwned(golem, "pack");
@@ -300,7 +310,7 @@ public final class GolemRegistry extends TickedObject {
     GolemRoster.Status status = roster.flatMap(known -> known.golem(handle.id())).map(GolemRoster.GolemEntry::status).orElse(null);
     if (!handle.isValidated() || status != GolemRoster.Status.ACTIVE
         || roster.get().golem(handle.id()).map(GolemRoster.GolemEntry::revoked).orElse(true)) {
-      return Optional.empty();
+      return CompletableFuture.completedFuture(Optional.empty());
     }
     Location at = golem.getLocation();
     AttributeInstance maximum = platform.attribute(golem, GolemStat.MAX_HEALTH);
@@ -310,31 +320,213 @@ public final class GolemRegistry extends TickedObject {
     PackedGolem packed;
     ItemStack item;
     boolean stowed = false;
+    PackingBody body = new PackingBody(golem.isInvulnerable(), golem.isAware(), golem.getCanPickupItems());
+    packingInFlight.add(handle.id());
+    packingBodies.put(handle.id(), golem);
     try {
+      if (!handle.flush()) {
+        throw new IllegalStateException("Could not persist golem state before packing " + handle.id());
+      }
+      golem.getPersistentDataContainer().set(PACKING_KEY, PersistentDataType.BYTE, body.flags());
+      golem.setInvulnerable(true);
+      golem.setAware(false);
+      golem.setCanPickupItems(false);
+      golem.setTarget(null);
       unindex(handle);
       snapshot = snapshot(handle);
-      packed = new PackedGolem(handle.id(), owner, snapshot.toJson());
+      packed = new PackedGolem(handle.id(), owner, snapshot.toPackedJson(UUID.randomUUID()));
+      golem.getPersistentDataContainer().set(PACKING_TOKEN_KEY, PersistentDataType.STRING, GolemRoster.digest(packed.state()));
       item = GolemItems.dormantGolem(new DormantGolem(packed, GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
           snapshot.cores(), snapshot.runes(), snapshot.health(), maxHealth));
       stowed = known.stow(handle.id(), GolemRoster.Status.PACKED, packed.state());
       if (stowed) {
         missingWatch.forget(handle.id());
+        pendingPackOwners.add(owner);
         platform.rosterChanged(owner);
-        golem.remove();
       }
     } catch (Throwable failure) {
       try {
+        restorePackingBody(golem, body);
+        forgetPacking(handle.id());
         undoPack(golem, owner, known, handle.id(), stowed);
       } catch (Throwable undo) {
         failure.addSuppressed(undo);
       }
+      forgetPacking(handle.id());
       throw failure;
     }
     if (!stowed) {
+      forgetPacking(handle.id());
       adopt(golem);
-      return Optional.empty();
+      restorePackingBody(golem, body);
+      return CompletableFuture.completedFuture(Optional.empty());
     }
-    return Optional.of(new Packing(packed, snapshot, item, at));
+    Packing packing = new Packing(packed, snapshot, item, at);
+    CompletableFuture<Optional<Packing>> completion = new CompletableFuture<>();
+    CompletableFuture<Void> persisted;
+    try {
+      persisted = platform.checkpoint(owner);
+    } catch (RuntimeException failure) {
+      finishPack(golem, known, packing, body, completion, failure);
+      return completion;
+    }
+    persisted.whenComplete((ignored, failure) -> {
+      PackCompletion pending = new PackCompletion(known, packing, body, completion, failure, new AtomicBoolean());
+      packingCompletions.put(handle.id(), pending);
+      schedulePackCompletion(handle.id(), pending);
+    });
+    return completion;
+  }
+
+  private void schedulePackCompletion(UUID id, PackCompletion pending) {
+    Mob golem = packingBodies.get(id);
+    if (golem == null || !pending.scheduled().compareAndSet(false, true)) {
+      return;
+    }
+    Runnable finish = () -> finishPack(golem, pending.roster(), pending.packing(), pending.body(), pending.completion(), pending.failure());
+    Runnable refused = () -> {
+      pending.scheduled().set(false);
+      if (pending.failure() != null) {
+        try {
+          if (pending.roster().transition(id, GolemRoster.Status.PACKED, GolemRoster.Status.ACTIVE)) {
+            platform.rosterChanged(pending.packing().packed().owner());
+          }
+        } finally {
+          pending.completion().completeExceptionally(pending.failure());
+        }
+      } else {
+        pending.completion().complete(Optional.empty());
+      }
+    };
+    if (!platform.runEntity(golem, finish, refused)) {
+      refused.run();
+    }
+  }
+
+  private void forgetPacking(UUID id) {
+    packingRecoveryScheduled.remove(id);
+    packingCompletions.remove(id);
+    packingBodies.remove(id);
+    packingInFlight.remove(id);
+  }
+
+  private void finishPack(Mob golem, GolemRoster roster, Packing packing, PackingBody body,
+                          CompletableFuture<Optional<Packing>> completion, Throwable failure) {
+    String marker = golem.getPersistentDataContainer().get(PACKING_TOKEN_KEY, PersistentDataType.STRING);
+    if (!GolemRoster.digest(packing.packed().state()).equals(marker)) {
+      forgetPacking(packing.packed().golemId());
+      completion.complete(Optional.empty());
+      return;
+    }
+    if (failure != null) {
+      try {
+        restorePackingBody(golem, body);
+        forgetPacking(packing.packed().golemId());
+        undoPack(golem, packing.packed().owner(), roster, packing.packed().golemId(), true);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
+      }
+      forgetPacking(packing.packed().golemId());
+      completion.completeExceptionally(failure);
+      return;
+    }
+    try {
+      golem.remove();
+      forgetPacking(packing.packed().golemId());
+      completion.complete(Optional.of(packing));
+    } catch (Throwable removal) {
+      if (golem.isValid()) {
+        try {
+          restorePackingBody(golem, body);
+          forgetPacking(packing.packed().golemId());
+          undoPack(golem, packing.packed().owner(), roster, packing.packed().golemId(), true);
+        } catch (Throwable undo) {
+          removal.addSuppressed(undo);
+        }
+      }
+      forgetPacking(packing.packed().golemId());
+      completion.completeExceptionally(removal);
+    }
+  }
+
+  private static void restorePackingBody(Mob golem, PackingBody body) {
+    golem.getPersistentDataContainer().remove(PACKING_KEY);
+    golem.getPersistentDataContainer().remove(PACKING_TOKEN_KEY);
+    golem.setInvulnerable(body.invulnerable());
+    golem.setAware(body.aware());
+    golem.setCanPickupItems(body.pickup());
+  }
+
+  public void deliverPacked(Player player, PackedGolem packed, ItemStack item) {
+    Optional<GolemRoster> known = platform.roster(packed.owner());
+    if (known.flatMap(roster -> roster.golem(packed.golemId())).flatMap(GolemRoster.GolemEntry::pendingPackedState)
+        .filter(packed.state()::equals).isEmpty() || !deliveringPacked.add(packed.golemId())) {
+      return;
+    }
+    Runnable retired = () -> deliveringPacked.remove(packed.golemId());
+    boolean accepted = platform.runEntity(player, () -> deliverPackedOwned(player, packed, item), retired);
+    if (!accepted) {
+      retired.run();
+    }
+  }
+
+  private void deliverPackedOwned(Player player, PackedGolem packed, ItemStack item) {
+    GolemRoster roster = platform.roster(packed.owner()).orElse(null);
+    if (roster == null || roster.golem(packed.golemId()).flatMap(GolemRoster.GolemEntry::pendingPackedState).filter(packed.state()::equals).isEmpty()) {
+      deliveringPacked.remove(packed.golemId());
+      return;
+    }
+    try {
+      Map<Integer, ItemStack> leftovers = player.getInventory().addItem(item);
+      for (ItemStack leftover : leftovers.values()) {
+        platform.dropOwnerBound(player.getLocation(), leftover, packed.owner());
+      }
+      player.saveData();
+      if (roster.completePackedDelivery(packed.golemId(), packed.state())) {
+        platform.rosterChanged(packed.owner());
+      }
+      if (!leftovers.isEmpty()) {
+        AdaptHud.actionBar(player, C.AQUA + AdaptLanguage.text(GolemancyMessages.STASIS_DROPPED));
+      } else {
+        GolemSnapshot.fromJson(packed.state()).ifPresent(snapshot -> AdaptHud.actionBar(player, C.AQUA + AdaptLanguage.text(GolemancyMessages.STASIS_PACKED,
+            trusted("body", AdaptLanguage.text(snapshot.body().displayName())))));
+      }
+    } catch (RuntimeException failure) {
+      Adapt.warn("Could not confirm packed golem delivery " + packed.golemId() + "; the same packed identity remains recoverable.", failure);
+    } finally {
+      deliveringPacked.remove(packed.golemId());
+    }
+  }
+
+  private void recoverPacked(UUID owner, GolemRoster roster) {
+    Player player = platform.player(owner);
+    if (player == null) {
+      return;
+    }
+    boolean pending = false;
+    for (GolemRoster.GolemEntry entry : roster.golems()) {
+      pending |= entry.pendingPackedState().isPresent();
+      if (packingBodies.containsKey(entry.id())) {
+        continue;
+      }
+      UUID entity = entityByGolem.get(entry.id());
+      GolemHandle loaded = entity == null ? null : handles.get(entity);
+      if (entry.status() == GolemRoster.Status.PACKED && loaded != null) {
+        runOwned(loaded, () -> evaluate(loaded, true));
+        continue;
+      }
+      entry.pendingPackedState().ifPresent(state -> GolemSnapshot.fromJson(state).ifPresent(snapshot -> {
+        PackedGolem packed = new PackedGolem(entry.id(), owner, state);
+        ItemStack item = GolemItems.dormantGolem(new DormantGolem(packed, GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
+            snapshot.cores(), snapshot.runes(), snapshot.health(), snapshot.maxHealthMark()));
+        deliverPacked(player, packed, item);
+      }));
+    }
+    if (pending) {
+      pendingPackOwners.add(owner);
+    } else {
+      pendingPackOwners.remove(owner);
+    }
   }
 
   public GolemSnapshot snapshot(GolemHandle handle) {
@@ -639,13 +831,19 @@ public final class GolemRegistry extends TickedObject {
 
   @Override
   public boolean hasTickDemand() {
-    return !handles.isEmpty() || !pendingOwners.isEmpty() || missingWatch.hasDeadlines();
+    return !handles.isEmpty() || !pendingOwners.isEmpty() || !pendingPackOwners.isEmpty() || !packingBodies.isEmpty() || missingWatch.hasDeadlines();
   }
 
   @Override
   public void onTick() {
     long now = platform.nowMillis();
     retryPendingOwners();
+    retryPackingBodies();
+    for (UUID owner : List.copyOf(pendingPackOwners)) {
+      if (platform.isOnline(owner)) {
+        platform.roster(owner).ifPresent(roster -> recoverPacked(owner, roster));
+      }
+    }
     wakeQueued();
     markMissing(missingWatch.expired(now));
     if (now >= nextPruneAt) {
@@ -687,12 +885,24 @@ public final class GolemRegistry extends TickedObject {
   }
 
   void adopt(Mob mob) {
+    Optional<GolemState> packedState = GolemState.read(mob);
+    if (packedState.isPresent() && mob.getPersistentDataContainer().has(PACKING_KEY, PersistentDataType.BYTE)) {
+      Mob previous = packingBodies.putIfAbsent(packedState.get().id(), mob);
+      if (previous != null && !previous.getUniqueId().equals(mob.getUniqueId())) {
+        mob.remove();
+        return;
+      }
+      packingBodies.put(packedState.get().id(), mob);
+      if (!recoverPackingBody(mob, packedState.get())) {
+        return;
+      }
+    }
     AttributeInstance scale = platform.scaleOf(mob);
     GolemRitualMarker.recover(mob, scale);
     if (handle(mob).isPresent()) {
       return;
     }
-    Optional<GolemState> state = GolemState.read(mob);
+    Optional<GolemState> state = packedState;
     if (state.isEmpty()) {
       return;
     }
@@ -709,6 +919,50 @@ public final class GolemRegistry extends TickedObject {
     if (index(handle)) {
       display(mob, handle.state().name().orElse(null));
       evaluate(handle, platform.isOnline(handle.owner()));
+    }
+  }
+
+  private boolean recoverPackingBody(Mob mob, GolemState state) {
+    if (packingInFlight.contains(state.id())) {
+      PackCompletion pending = packingCompletions.get(state.id());
+      if (pending != null) {
+        schedulePackCompletion(state.id(), pending);
+      }
+      return false;
+    }
+    Optional<GolemRoster> roster = platform.roster(state.owner());
+    if (roster.isEmpty() || !platform.ownerReady(state.owner())) {
+      return false;
+    }
+    GolemRoster.GolemEntry entry = roster.get().golem(state.id()).orElse(null);
+    if (entry == null || entry.status() != GolemRoster.Status.ACTIVE && entry.status() != GolemRoster.Status.MISSING || entry.sighting() > state.sighting()) {
+      mob.remove();
+      forgetPacking(state.id());
+      return false;
+    }
+    Byte flags = mob.getPersistentDataContainer().get(PACKING_KEY, PersistentDataType.BYTE);
+    restorePackingBody(mob, PackingBody.fromFlags(flags == null ? (byte) 0 : flags));
+    forgetPacking(state.id());
+    return true;
+  }
+
+  private void retryPackingBodies() {
+    for (Map.Entry<UUID, Mob> entry : packingBodies.entrySet()) {
+      PackCompletion pending = packingCompletions.get(entry.getKey());
+      if (pending != null) {
+        schedulePackCompletion(entry.getKey(), pending);
+      } else if (!packingInFlight.contains(entry.getKey()) && packingRecoveryScheduled.add(entry.getKey())) {
+        Runnable retired = () -> packingRecoveryScheduled.remove(entry.getKey());
+        if (!platform.runEntity(entry.getValue(), () -> {
+          try {
+            adopt(entry.getValue());
+          } finally {
+            retired.run();
+          }
+        }, retired)) {
+          retired.run();
+        }
+      }
     }
   }
 
@@ -863,6 +1117,12 @@ public final class GolemRegistry extends TickedObject {
     }
     GolemRoster.Status status = entry.map(GolemRoster.GolemEntry::status).orElse(null);
     boolean stale = entry.isPresent() && entry.get().outdates(handle.state().sighting());
+    if (status == GolemRoster.Status.PACKED) {
+      handle.entity().remove();
+      GolemState.clear(handle.entity());
+      unindex(handle);
+      return;
+    }
     GolemValidation.Verdict verdict = GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status, stale);
     switch (verdict) {
       case REVERT -> {
@@ -1369,6 +1629,7 @@ public final class GolemRegistry extends TickedObject {
       return;
     }
     pendingOwners.remove(owner);
+    recoverPacked(owner, roster.get());
     if (!platform.keepsBoneGolems(owner)) {
       revokeBones(owner);
     }
@@ -1576,6 +1837,20 @@ public final class GolemRegistry extends TickedObject {
     public Restore {
       Objects.requireNonNull(item);
       Objects.requireNonNull(from);
+    }
+  }
+
+  private record PackCompletion(GolemRoster roster, Packing packing, PackingBody body,
+                                CompletableFuture<Optional<Packing>> completion, Throwable failure, AtomicBoolean scheduled) {
+  }
+
+  private record PackingBody(boolean invulnerable, boolean aware, boolean pickup) {
+    private byte flags() {
+      return (byte) ((invulnerable ? 1 : 0) | (aware ? 2 : 0) | (pickup ? 4 : 0));
+    }
+
+    private static PackingBody fromFlags(byte flags) {
+      return new PackingBody((flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0);
     }
   }
 

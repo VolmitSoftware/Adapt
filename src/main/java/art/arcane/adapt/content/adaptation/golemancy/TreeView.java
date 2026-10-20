@@ -10,4 +10,8 @@ interface TreeView {
   boolean placed(int x, int y, int z);
 
   boolean decaying(int x, int y, int z);
+
+  default boolean complete() {
+    return true;
+  }
 }

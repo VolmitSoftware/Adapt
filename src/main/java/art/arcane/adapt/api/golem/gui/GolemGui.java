@@ -21,6 +21,7 @@ import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.GolemHelpMessages;
 import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiConfirm;
@@ -225,6 +226,9 @@ public final class GolemGui {
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_HEALTH,
             trusted("health", view.vitals().health()),
             trusted("maximum", view.vitals().maxHealth())));
+    if (!view.vitals().workStatus().isEmpty()) {
+      body.addLore(C.YELLOW + view.vitals().workStatus());
+    }
     if (view.vitals().dormant()) {
       body.addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_DORMANT));
     }
@@ -233,13 +237,20 @@ public final class GolemGui {
 
   private void placeCores(Placer target, GolemView view) {
     List<GolemCoreType> cores = view.cores().slotted();
-    target.place(PRIMARY_CORE_SLOT, HEADER_ROW, itemElement("golem-core-0", GolemItems.core(cores.getFirst())));
+    target.place(PRIMARY_CORE_SLOT, HEADER_ROW, itemElement("golem-core-0", GolemItems.core(cores.getFirst()))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.CORE_FIXED)));
     target.place(SECOND_CORE_SLOT, HEADER_ROW, GolemGuiActions.showsSecondCore(cores, view.cores().dualCore()) ? secondCoreElement(view) : null);
   }
 
   private Element modeElement(GolemView view) {
     return GuiTheme.element("golem-mode", GolemGuiActions.modeIcon(view.mode()), "gui", "golemancy", "mode")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_MODE, trusted("mode", AdaptLanguage.text(view.mode().displayName()))))
+        .addLore(C.GRAY + AdaptLanguage.text(switch (view.mode()) {
+          case WORK -> GolemHelpMessages.MODE_WORK;
+          case FOLLOW -> GolemHelpMessages.MODE_FOLLOW;
+          case STAY -> GolemHelpMessages.MODE_STAY;
+          case HOME -> GolemHelpMessages.MODE_HOME;
+        }))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
         .setProgress(1D)
         .onLeftClick(clicked -> cycleMode(true))
@@ -250,6 +261,8 @@ public final class GolemGui {
     target.place(RIGHT_EDGE - 1, HEADER_ROW, GuiTheme.element("golem-home", Material.COMPASS, "gui", "golemancy", "home")
         .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_SET_HOME))
         .addLore(C.GRAY + coordinates(GolemancyMessages.GUI_HOME, view.anchors().home()))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.HOME_REACH, trusted("value", view.anchors().workReach())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.HOME_LEASH, trusted("value", view.anchors().leash())))
         .setProgress(1D)
         .onLeftClick(clicked -> setHome()));
     if (view.body() == GolemBody.BONE) {
@@ -296,9 +309,9 @@ public final class GolemGui {
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_REMOVE))
           .onLeftClick(clicked -> takeCore(core));
     }
-    return GuiTheme.element("golem-core-1", Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "core_empty")
+    return GuiTheme.element("golem-core-1", Material.ORANGE_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "core_empty")
         .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_EMPTY))
-        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_EMPTY_LORE))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_EMPTY_LORE))
         .setProgress(1D)
         .onLeftClick(clicked -> slotCoreFromCursor());
   }
@@ -321,18 +334,12 @@ public final class GolemGui {
 
   private Element channelElement(GolemView view) {
     int mask = view.channels().mask();
-    if (view.channels().slots() <= 1) {
-      return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
-          .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL,
-              trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(mask)))))
-          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
-          .setProgress(1D)
-          .onLeftClick(clicked -> cycleChannel(true))
-          .onRightClick(clicked -> cycleChannel(false));
-    }
     return GuiTheme.element("golem-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS, trusted("channels", channelList(mask))))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNELS_LORE, trusted("count", view.channels().slots())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.CHANNEL_PICK))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.CHANNEL_MATCH))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.CHANNEL_NONE))
         .setProgress(1D)
         .onLeftClick(clicked -> show(Page.CHANNELS));
   }
@@ -401,26 +408,29 @@ public final class GolemGui {
     if (index < runes.size()) {
       GolemRune rune = runes.get(index);
       ItemStack item = GolemItems.rune(rune);
-      Element element = itemElement("golem-rune-" + index, item);
-      ItemMeta meta = item.getItemMeta();
-      if (meta != null && meta.getLore() != null) {
-        for (String line : meta.getLore()) {
-          element.addLore(line);
+      GolemGuiActions.RuneNote note = GolemGuiActions.runeNote(layout, runes, index, view.body());
+      List<String> lore = new ArrayList<>();
+      lore.add(C.GRAY + AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", rune.tier())));
+      lore.add((note.active() ? C.GREEN : C.RED) + note.notice().text());
+      if (note.active()) {
+        for (String line : GolemRunes.describe(rune, view.runes().perks())) {
+          lore.add(C.GRAY + line);
         }
       }
-      GolemGuiActions.RuneNote note = GolemGuiActions.runeNote(layout, runes, index, view.body());
-      return element.addLore((note.active() ? C.GREEN : C.RED) + note.notice().text())
-          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE))
-          .onLeftClick(clicked -> takeRune(index, rune));
+      lore.add(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE));
+      ItemMeta meta = item.getItemMeta();
+      meta.setLore(lore);
+      item.setItemMeta(meta);
+      return itemElement("golem-rune-" + index, item).onLeftClick(clicked -> takeRune(index, rune));
     }
     if (index < layout.unlockedSlots()) {
-      return GuiTheme.element("golem-rune-" + index, Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "rune_empty")
-          .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_EMPTY))
-          .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_EMPTY_LORE))
+      return GuiTheme.element("golem-rune-" + index, Material.MAGENTA_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "rune_empty")
+          .setName(C.LIGHT_PURPLE + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_EMPTY))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_EMPTY_LORE))
           .setProgress(1D)
           .onLeftClick(clicked -> slotFromCursor());
     }
-    return GuiTheme.element("golem-rune-" + index, Material.BARRIER, "gui", "golemancy", "rune_locked")
+    return GuiTheme.element("golem-rune-" + index, Material.BLACK_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "rune_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_LOCKED))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_UNLOCK_LEVEL, trusted("level", layout.slotUnlockLevel(index))))
         .setProgress(1D);
@@ -515,9 +525,9 @@ public final class GolemGui {
         Adapt.warn("Skipping unreadable equipped item on golem " + handle.id() + " in its menu; the stored entry is kept.", unreadable);
       }
     }
-    return GuiTheme.element("golem-equipment-" + slot.id(), Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "equipment_empty")
-        .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY, trusted("slot", AdaptLanguage.text(slot.displayName()))))
-        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY_LORE))
+    return GuiTheme.element("golem-equipment-" + slot.id(), Material.CYAN_STAINED_GLASS_PANE, "gui", "golemancy", "slots", "equipment_empty")
+        .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY, trusted("slot", AdaptLanguage.text(slot.displayName()))))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_EQUIPMENT_EMPTY_LORE))
         .setProgress(1D)
         .onLeftClick(clicked -> equipFromCursor(slot));
   }
@@ -595,10 +605,6 @@ public final class GolemGui {
 
   private void cycleMode(boolean forward) {
     mutate(() -> handle.setMode(GolemGuiActions.cycleMode(GolemMastery.cores(handle), handle.state().mode(), forward)));
-  }
-
-  private void cycleChannel(boolean forward) {
-    mutate(() -> handle.setChannels(GolemGuiActions.cycleChannel(handle.state().channels(), forward)));
   }
 
   private void toggleChannel(DyeColor color) {

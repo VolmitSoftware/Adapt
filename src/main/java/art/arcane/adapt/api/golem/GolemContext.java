@@ -224,6 +224,10 @@ public final class GolemContext {
     GolemWorkXp.pay(worker.handle(), scope.core(), xp);
   }
 
+  public void waiting(GolemWorkStatus reason) {
+    worker.status(reason);
+  }
+
   public boolean progress() {
     GolemTask task = scope.task();
     return task != null && worker.renew(task, scope.nowMillis());

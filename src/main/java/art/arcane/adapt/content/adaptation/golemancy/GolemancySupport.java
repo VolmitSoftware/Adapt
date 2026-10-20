@@ -81,7 +81,8 @@ final class GolemancySupport {
   private static Optional<Block> homeChestBlock(GolemContext golem) {
     GolemState.Anchor chest = golem.handle().state().homeChest();
     World world = golem.world();
-    if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)) {
+    if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)
+        || !golem.owns(new Location(world, chest.x(), chest.y(), chest.z()))) {
       return Optional.empty();
     }
     return Optional.of(world.getBlockAt(chest.x(), chest.y(), chest.z()));

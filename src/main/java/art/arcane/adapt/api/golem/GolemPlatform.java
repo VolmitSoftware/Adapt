@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 interface GolemPlatform {
@@ -33,6 +34,8 @@ interface GolemPlatform {
   boolean keepsBoneGolems(UUID owner);
 
   void rosterChanged(UUID owner);
+
+  CompletableFuture<Void> checkpoint(UUID owner);
 
   boolean owns(Entity entity);
 

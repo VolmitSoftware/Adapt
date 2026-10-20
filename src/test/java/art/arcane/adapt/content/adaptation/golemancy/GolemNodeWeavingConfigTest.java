@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
@@ -35,7 +36,7 @@ class GolemNodeWeavingConfigTest {
   @Test
   void nodeCapsAreaRadiiAndFilterSlotsFollowTheLevelTable() {
     assertThat(perLevel(level -> GolemNodeWeaving.nodeCap(config, level))).containsExactly(4, 8, 12, 18, 24);
-    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(8, 12, 16, 24, 32);
+    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(8, 12, 15, 15, 15);
     assertThat(perLevel(level -> GolemNodeWeaving.filterSlots(config, level))).containsExactly(3, 6, 6, 9, 18);
   }
 
@@ -53,21 +54,21 @@ class GolemNodeWeavingConfigTest {
     config.filterSlotsByLevel = List.of(40);
     config.nodeCapByLevel = List.of(-3);
 
-    assertThat(GolemNodeWeaving.maxAreaRadius(config, 1)).isEqualTo(NodeRecord.MAX_RADIUS);
+    assertThat(GolemNodeWeaving.maxAreaRadius(config, 1)).isEqualTo(NodeCuboid.MAX_SPAN - 1);
     assertThat(GolemNodeWeaving.filterSlots(config, 1)).isEqualTo(NodeRecord.MAX_FILTER_ENTRIES);
     assertThat(GolemNodeWeaving.nodeCap(config, 1)).isZero();
   }
 
   @Test
   void theTopAreaRadiusReachesTheLargestAreaANodeCanHold() {
-    assertThat(GolemNodeWeaving.maxAreaRadius(config, 5)).isEqualTo(NodeRecord.MAX_RADIUS).isEqualTo(32);
+    assertThat(GolemNodeWeaving.maxAreaRadius(config, 5)).isEqualTo(NodeCuboid.MAX_SPAN - 1).isEqualTo(15);
   }
 
   @Test
-  void configuredAreaRadiiAreClampedFromOneThroughThirtyTwo() {
+  void configuredAreaRadiiAreClampedFromOneThroughFifteen() {
     config.maxAreaRadiusByLevel = List.of(0, -4, 99, 32);
 
-    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(1, 1, 32, 32, 32);
+    assertThat(perLevel(level -> GolemNodeWeaving.maxAreaRadius(config, level))).containsExactly(1, 1, 15, 15, 15);
     assertThat(GolemNodeWeaving.maxAreaRadius(config, 0)).isZero();
   }
 

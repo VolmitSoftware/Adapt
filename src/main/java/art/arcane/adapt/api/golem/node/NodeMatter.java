@@ -39,8 +39,7 @@ public class NodeMatter extends RawMatter<NodeFaces> {
     for (NodeRecord record : faces.records()) {
       byte[] bytes = encode(record);
       if (bytes.length > MAX_RECORD_BYTES) {
-        Adapt.error("Not saving Golemancy node " + record + ": it encodes to " + bytes.length + " bytes, more than the " + MAX_RECORD_BYTES + " byte limit.");
-        continue;
+        throw new IOException("Golemancy node " + record + " encodes to " + bytes.length + " bytes, more than the " + MAX_RECORD_BYTES + " byte limit");
       }
       encoded.put(record.face(), bytes);
     }
@@ -68,9 +67,13 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       byte[] bytes = new byte[length];
       in.readFully(bytes);
       try {
-        faces = faces.with(decode(BlockFace.valueOf(faceName), bytes));
+        BlockFace face = BlockFace.valueOf(faceName);
+        if (faces.has(face)) {
+          throw new IOException("Duplicate Golemancy node face " + faceName);
+        }
+        faces = faces.with(decode(face, bytes));
       } catch (IOException | RuntimeException corrupt) {
-        Adapt.warn("Skipping unreadable Golemancy node on face " + faceName + "; the rest of the block's nodes are kept.", corrupt);
+        throw new IOException("Unreadable Golemancy node on face " + faceName, corrupt);
       }
     }
     return faces;
@@ -108,6 +111,9 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       for (String tag : record.filterTags()) {
         out.writeUTF(tag);
       }
+      if (record.data().size() > 65_535) {
+        throw new IOException("Golemancy node data contains too many entries");
+      }
       out.writeShort(record.data().size());
       for (Map.Entry<String, String> entry : record.data().entrySet()) {
         out.writeUTF(entry.getKey());
@@ -127,7 +133,9 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       String redstoneId = in.readUTF();
       RedstoneMode redstone = RedstoneMode.fromId(redstoneId).orElseThrow(() -> new IOException("Unknown redstone mode " + redstoneId));
       NodeCuboid area = new NodeCuboid(in.readByte(), in.readByte(), in.readByte(), in.readByte(), in.readByte(), in.readByte());
-      if (!area.check(NodeRecord.MAX_RADIUS).fits()) {
+      if (!area.contains(0, 0, 0) || area.minX() < -NodeRecord.MAX_RADIUS || area.minY() < -NodeRecord.MAX_RADIUS
+          || area.minZ() < -NodeRecord.MAX_RADIUS || area.maxX() > NodeRecord.MAX_RADIUS
+          || area.maxY() > NodeRecord.MAX_RADIUS || area.maxZ() > NodeRecord.MAX_RADIUS) {
         throw new IOException("Node area " + area + " must hold its center block and reach at most " + NodeRecord.MAX_RADIUS + " blocks from it");
       }
       boolean whitelist = in.readBoolean();
@@ -151,6 +159,9 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       Map<String, String> data = new LinkedHashMap<>(dataCount * 2);
       for (int index = 0; index < dataCount; index++) {
         data.put(in.readUTF(), in.readUTF());
+      }
+      if (in.available() != 0) {
+        throw new IOException("Unexpected trailing Golemancy node data");
       }
       return NodeRecord.builder(owner, type, face)
           .channel(channel.isEmpty() ? null : DyeColor.valueOf(channel))

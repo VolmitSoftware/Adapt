@@ -30,7 +30,7 @@ public final class GuiConfirm {
     }
 
     UIWindow w = new UIWindow(Adapt.instance, player);
-    GuiTheme.apply(w, "confirm");
+    GuiTheme.apply(w, "golemancy-confirm");
     w.setViewportHeight(3);
 
     w.setElement(0, 0, GuiTheme.element("confirm-msg", Material.PAPER, "gui", "confirmation", "message")

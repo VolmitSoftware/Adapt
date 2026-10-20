@@ -1,20 +1,17 @@
 package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
-import org.bukkit.Color;
 import org.bukkit.DyeColor;
-import org.bukkit.FluidCollisionMode;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -25,17 +22,16 @@ import java.util.function.LongSupplier;
 
 public final class NodeOutline {
   public static final String CHANNEL = "golemancy-node-outline";
-  public static final double LOOK_DISTANCE = 6D;
   public static final int DURATION_TICKS = 200;
+  private static final int MAX_BOXES = 24;
+  private static final double RANGE = 32D;
   private static final long TICK_MILLIS = 50L;
   private static final int REFRESH_MARGIN_TICKS = 10;
-  private static final double THICKNESS = 0.04D;
-  private static final String EDGE_KEY = "edge-";
-  private static final int EDGES = 12;
 
   private final Function<DyeColor, BlockData> blocks;
   private final LongSupplier clock;
-  private final Map<UUID, Outlined> outlined = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<NodeKey, Outlined>> outlined = new ConcurrentHashMap<>();
+  private final Map<UUID, NodeKey> selected = new ConcurrentHashMap<>();
 
   public NodeOutline() {
     this(NodeOutline::glass, System::currentTimeMillis);
@@ -46,42 +42,6 @@ public final class NodeOutline {
     this.clock = Objects.requireNonNull(clock);
   }
 
-  public static List<Edge> edges(NodeKey key, NodeCuboid area) {
-    int[] center = NodeArea.center(key);
-    double minX = center[0] + area.minX();
-    double minY = center[1] + area.minY();
-    double minZ = center[2] + area.minZ();
-    double maxX = center[0] + area.maxX() + 1D;
-    double maxY = center[1] + area.maxY() + 1D;
-    double maxZ = center[2] + area.maxZ() + 1D;
-    List<Edge> edges = new ArrayList<>(EDGES);
-    for (double y : new double[]{minY, maxY}) {
-      for (double z : new double[]{minZ, maxZ}) {
-        edges.add(new Edge(new Vector(minX, y, z), new Vector(maxX, y, z)));
-      }
-    }
-    for (double x : new double[]{minX, maxX}) {
-      for (double z : new double[]{minZ, maxZ}) {
-        edges.add(new Edge(new Vector(x, minY, z), new Vector(x, maxY, z)));
-      }
-    }
-    for (double x : new double[]{minX, maxX}) {
-      for (double y : new double[]{minY, maxY}) {
-        edges.add(new Edge(new Vector(x, y, minZ), new Vector(x, y, maxZ)));
-      }
-    }
-    return edges;
-  }
-
-  public static void show(String channel, Player viewer, List<Edge> edges, BlockData block, Color glow) {
-    World world = viewer.getWorld();
-    for (int index = 0; index < edges.size(); index++) {
-      Edge edge = edges.get(index);
-      ViewerDisplayDirector.showLine(channel, EDGE_KEY + index, viewer, edge.start().toLocation(world), edge.end().toLocation(world),
-          block, glow, THICKNESS, DURATION_TICKS);
-    }
-  }
-
   public static BlockData glass(DyeColor channel) {
     Material glass = channel == null ? Material.WHITE_STAINED_GLASS : Material.valueOf(channel.name() + "_STAINED_GLASS");
     return glass.createBlockData();
@@ -89,60 +49,79 @@ public final class NodeOutline {
 
   public void update(Player viewer, NodeIndex index, int pollTicks) {
     UUID viewerId = viewer.getUniqueId();
-    NodeKey key = lookedAt(viewer);
-    NodeRecord record = key == null ? null : index.get(key).filter(found -> found.owner().equals(viewerId)).orElse(null);
-    if (record == null) {
-      forget(viewerId);
-      return;
-    }
+    Location location = viewer.getLocation();
+    List<NodeIndex.Entry> nearby = new ArrayList<>(index.near(viewer.getWorld().getUID(), location.getX(), location.getY(), location.getZ(), RANGE));
+    nearby.removeIf(entry -> !entry.record().owner().equals(viewerId));
+    nearby.sort(Comparator.comparingDouble(entry -> entry.key().distanceSquared(location.getX(), location.getY(), location.getZ())));
+    Map<NodeKey, Outlined> previous = outlined.computeIfAbsent(viewerId, ignored -> new HashMap<>());
+    Map<NodeKey, Outlined> next = new HashMap<>();
     long now = clock.getAsLong();
-    Outlined previous = outlined.get(viewerId);
-    boolean same = previous != null && previous.key().equals(key) && sameShape(previous.record(), record);
-    if (same && now < previous.expiresAt() - (pollTicks + REFRESH_MARGIN_TICKS) * TICK_MILLIS) {
-      return;
+    for (int position = 0; position < Math.min(MAX_BOXES, nearby.size()); position++) {
+      NodeIndex.Entry entry = nearby.get(position);
+      boolean editing = entry.key().equals(selected.get(viewerId));
+      Outlined shown = previous.get(entry.key());
+      if (shown == null || shown.editing() != editing || !sameShape(shown.record(), entry.record())
+          || now >= shown.expiresAt() - (pollTicks + REFRESH_MARGIN_TICKS) * TICK_MILLIS) {
+        clear(viewerId, entry.key());
+        shown = new Outlined(entry.key(), entry.record(), now + DURATION_TICKS * TICK_MILLIS, editing);
+        showBox(viewer, shown);
+      }
+      next.put(entry.key(), shown);
     }
-    if (previous != null && !same) {
-      ViewerDisplayDirector.clearViewer(CHANNEL, viewerId);
+    for (NodeKey key : previous.keySet()) {
+      if (!next.containsKey(key)) {
+        clear(viewerId, key);
+      }
     }
-    Outlined next = new Outlined(key, record, now + DURATION_TICKS * TICK_MILLIS);
     outlined.put(viewerId, next);
-    draw(viewer, next);
   }
 
   public void forget(UUID viewer) {
+    selected.remove(viewer);
     if (outlined.remove(viewer) != null) {
       ViewerDisplayDirector.clearViewer(CHANNEL, viewer);
     }
   }
 
   public void shutdown() {
+    selected.clear();
     outlined.clear();
     ViewerDisplayDirector.clearChannel(CHANNEL);
   }
 
-  private void draw(Player viewer, Outlined target) {
-    DyeColor channel = target.record().channel();
-    show(CHANNEL, viewer, edges(target.key(), target.record().area()), blocks.apply(channel), channel == null ? Color.WHITE : channel.getColor());
+  public void select(UUID viewer, NodeKey key) {
+    if (key == null) {
+      selected.remove(viewer);
+    } else {
+      selected.put(viewer, key);
+    }
+  }
+
+  private void showBox(Player viewer, Outlined target) {
+    NodeCuboid area = target.record().area();
+    int[] center = NodeArea.center(target.key());
+    Location minimum = new Location(viewer.getWorld(), center[0] + area.minX(), center[1] + area.minY(), center[2] + area.minZ());
+    Vector size = new Vector(area.spanX(), area.spanY(), area.spanZ());
+    BlockData glass = blocks.apply(target.record().channel());
+    String id = boxKey(target.key());
+    Color glow = target.editing() ? target.record().channel() == null ? Color.WHITE : target.record().channel().getColor() : null;
+    ViewerDisplayDirector.showCuboid(CHANNEL, id + "-outside", viewer, minimum, size, glass, glow, false, DURATION_TICKS);
+    ViewerDisplayDirector.showCuboid(CHANNEL, id + "-inside", viewer, minimum, size, glass, glow, true, DURATION_TICKS);
+  }
+
+  private static String boxKey(NodeKey key) {
+    return key.x() + ":" + key.y() + ":" + key.z() + ":" + key.face();
+  }
+
+  private static void clear(UUID viewer, NodeKey key) {
+    ViewerDisplayDirector.clearViewerKey(CHANNEL, boxKey(key) + "-outside", viewer);
+    ViewerDisplayDirector.clearViewerKey(CHANNEL, boxKey(key) + "-inside", viewer);
   }
 
   private static boolean sameShape(NodeRecord drawn, NodeRecord current) {
     return drawn.area().equals(current.area()) && drawn.channel() == current.channel();
   }
 
-  private static NodeKey lookedAt(Player viewer) {
-    Location eye = viewer.getEyeLocation();
-    RayTraceResult hit = viewer.getWorld().rayTraceBlocks(eye, eye.getDirection(), LOOK_DISTANCE, FluidCollisionMode.NEVER, true);
-    if (hit == null) {
-      return null;
-    }
-    Block block = hit.getHitBlock();
-    BlockFace face = hit.getHitBlockFace();
-    return block == null || face == null || !NodeRecord.isNodeFace(face) ? null : NodeKey.of(block, face);
-  }
-
-  public record Edge(Vector start, Vector end) {
-  }
-
-  private record Outlined(NodeKey key, NodeRecord record, long expiresAt) {
+  private record Outlined(NodeKey key, NodeRecord record, long expiresAt, boolean editing) {
   }
 }

@@ -18,6 +18,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.GolemHelpMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiConfirm;
@@ -99,7 +100,9 @@ public final class RosterGui {
       window.batch(() -> {
         if (entries.isEmpty()) {
           window.setElement(0, 0, GuiTheme.element("roster-empty", Material.PAPER, "gui", "golemancy", "roster_empty")
-              .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_EMPTY)));
+              .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_EMPTY))
+              .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.ROSTER_BIND))
+              .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.ROSTER_WORKER)));
         }
         for (int index = start; index < end; index++) {
           int slot = index - start;

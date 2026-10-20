@@ -115,7 +115,12 @@ public final class GolemRoster {
         return entry;
       }
       changed.set(true);
-      return entry.stowed(to, sealed);
+      GolemEntry copy = entry.stowed(to, sealed);
+      if (to == Status.PACKED) {
+        copy.packedState = itemState;
+        copy.deliveryPending = true;
+      }
+      return copy;
     });
     return changed.get();
   }
@@ -134,6 +139,20 @@ public final class GolemRoster {
       return entry.withStatus(Status.ACTIVE).withSighting(entry.sighting + 1L);
     });
     return changed.get();
+  }
+
+  public boolean completePackedDelivery(UUID id, String itemState) {
+    AtomicBoolean completed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (!entry.deliveryPending || entry.status() != Status.PACKED || !entry.holds(itemState)) {
+        return entry;
+      }
+      GolemEntry copy = entry.copy();
+      copy.deliveryPending = false;
+      completed.set(true);
+      return copy;
+    });
+    return completed.get();
   }
 
   public synchronized MasterworkMark markMasterworkWithin(UUID id, int maxMasterworks) {
@@ -399,6 +418,8 @@ public final class GolemRoster {
     private long chunkKey;
     private long lastSeen;
     private String digest;
+    private String packedState;
+    private boolean deliveryPending;
     private boolean masterwork;
     private long sighting;
     private boolean revoked;
@@ -451,6 +472,10 @@ public final class GolemRoster {
       return lastSeen;
     }
 
+    public Optional<String> pendingPackedState() {
+      return deliveryPending && status() == Status.PACKED ? Optional.ofNullable(packedState) : Optional.empty();
+    }
+
     public String digest() {
       return digest;
     }
@@ -479,6 +504,8 @@ public final class GolemRoster {
       GolemEntry copy = copy();
       copy.state = next.name();
       copy.digest = null;
+      copy.packedState = null;
+      copy.deliveryPending = false;
       return copy;
     }
 
@@ -520,6 +547,8 @@ public final class GolemRoster {
       copy.chunkKey = chunkKey;
       copy.lastSeen = lastSeen;
       copy.digest = digest;
+      copy.packedState = packedState;
+      copy.deliveryPending = deliveryPending;
       copy.masterwork = masterwork;
       copy.sighting = sighting;
       copy.revoked = revoked;

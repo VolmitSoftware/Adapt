@@ -406,12 +406,17 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     public GolemRuneEffects effects(GolemHandle handle) {
       return GolemRunicAugments.this.effects(handle);
     }
+
+    @Override
+    public List<String> describe(GolemRune rune, GolemMastery.Perks perks) {
+      return RuneLore.describe(getConfig(), rune, perks);
+    }
   }
 
   @ConfigDescription("Lets you infuse runes at the Animus Plinth and slot them into your bound golems for speed, carrying, fire, reach, channels, yield and armor.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Extra rune slots every bound golem you own gets on top of its body's slots, by Runic Augments level from level 1 upward.", impact = "Higher values let golems hold more runes.")
-    List<Integer> extraSlotsByLevel = new ArrayList<>(List.of(0, 0, 1, 1, 2));
+    List<Integer> extraSlotsByLevel = new ArrayList<>(List.of(0, 1, 1, 2, 2));
     @ConfigDoc(value = "Highest rune tier your bound golems can use, by Runic Augments level from level 1 upward. Slotted runes above it stay in place but do nothing.", impact = "Higher values let golems use stronger runes sooner.")
     List<Integer> maxTierByLevel = new ArrayList<>(List.of(1, 1, 2, 2, 3));
     @ConfigDoc(value = "Rune slots a bound frost golem has before Runic Augments adds extra slots, from 0 to 9.", impact = "Higher values let frost golems hold more runes.")

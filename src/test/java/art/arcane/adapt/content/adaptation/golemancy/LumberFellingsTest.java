@@ -64,19 +64,17 @@ class LumberFellingsTest {
   }
 
   @Test
-  void replantRetriesAreScopedToTheWorldAndAreaAndWaitFiveSeconds() {
+  void replantRetriesWaitFiveSeconds() {
     LumberFellings.Felling felling = fellings.start(WORLD, tree, 1_000L);
     felling.retryReplant(2_000L);
 
-    assertThat(fellings.replants(WORLD, base -> true, 6_999L)).isEmpty();
-    assertThat(fellings.replants(OTHER, base -> true, 7_000L)).isEmpty();
-    assertThat(fellings.replants(WORLD, base -> false, 7_000L)).isEmpty();
-    assertThat(fellings.replants(WORLD, base -> true, 7_000L)).containsExactly(felling);
+    assertThat(felling.replantReady(6_999L)).isFalse();
+    assertThat(felling.replantReady(7_000L)).isTrue();
 
     felling.retryReplant(7_000L);
 
-    assertThat(fellings.replants(WORLD, base -> true, 11_999L)).isEmpty();
-    assertThat(fellings.replants(WORLD, base -> true, 12_000L)).containsExactly(felling);
+    assertThat(felling.replantReady(11_999L)).isFalse();
+    assertThat(felling.replantReady(12_000L)).isTrue();
   }
 
   @Test
@@ -84,11 +82,11 @@ class LumberFellingsTest {
     LumberFellings.Felling felling = fellings.start(WORLD, tree, 1_000L);
     felling.retryReplant(2_000L);
     felling.retryReplant(200_000L);
-    fellings.keep(WORLD, base -> true, 300_000L);
+    felling.touch(300_000L);
     fellings.sweep(301_999L);
 
-    assertThat(fellings.replants(WORLD, base -> true, 301_999L)).containsExactly(felling);
-    assertThat(fellings.replants(WORLD, base -> true, 302_000L)).isEmpty();
+    assertThat(felling.replantReady(301_999L)).isTrue();
+    assertThat(felling.replantReady(302_000L)).isFalse();
 
     fellings.sweep(302_000L);
 

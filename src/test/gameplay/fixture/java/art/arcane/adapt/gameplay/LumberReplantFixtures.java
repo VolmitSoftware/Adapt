@@ -64,6 +64,7 @@ public final class LumberReplantFixtures {
             case "seed" -> seed(player);
             case "snapshot" -> snapshot(player, current(player));
             case "cleanup" -> cleanup(player);
+            case "settled" -> settled(player);
             default -> throw new IllegalArgumentException("Unknown lumber replant action " + args[2]);
         };
     }
@@ -169,7 +170,7 @@ public final class LumberReplantFixtures {
             throw new IllegalStateException("Seed must follow a completed felling without a sapling");
         }
         GolemancyRuntime.nodes().orElseThrow().update(player.getUniqueId(), stage.node,
-            record -> record.toBuilder().area(NodeCuboid.symmetric(32, 32, 32)).build()).orElseThrow();
+            record -> record.toBuilder().area(new NodeCuboid(-8, -8, -8, 7, 7, 7)).build()).orElseThrow();
         stage.seed = player.getWorld().dropItem(new Location(player.getWorld(), TREE_X + 1.5D, TREE_Y + 0.2D, TREE_Z + 0.5D),
             new ItemStack(Material.OAK_SAPLING, 2));
         stage.seed.setOwner(player.getUniqueId());
@@ -241,6 +242,15 @@ public final class LumberReplantFixtures {
 
     private static Stage current(Player player) {
         return Objects.requireNonNull(STAGES.get(player.getUniqueId()), "Stage Lumber first");
+    }
+
+    private static JsonObject settled(Player player) {
+        JsonObject result = new JsonObject();
+        result.addProperty("settled", WorldData.loaded(player.getWorld()).map(data -> {
+            NodeFaces faces = data.get(0, TREE_Y - 1, 0, NodeFaces.class);
+            return faces == null || faces.get(BlockFace.UP) == null;
+        }).orElse(false));
+        return result;
     }
 
     private static int count(ItemStack[] items, Material type) {

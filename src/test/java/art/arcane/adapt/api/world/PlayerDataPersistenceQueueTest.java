@@ -35,6 +35,55 @@ import static org.mockito.Mockito.when;
 
 class PlayerDataPersistenceQueueTest extends AdaptTestBase {
   @Test
+  void aCheckpointCompletesOnlyAfterItsExactSnapshotIsPersisted() throws Exception {
+    CapturingExecutor executor = new CapturingExecutor();
+    PlayerDataPersistenceQueue queue = new PlayerDataPersistenceQueue(executor);
+    UUID owner = UUID.randomUUID();
+    File target = new File(dataFolder, "checkpoint.json");
+    FencedPlayerSnapshot snapshot = new FencedPlayerSnapshot(owner, UUID.randomUUID(), 1L, 1L, "pending packed state");
+
+    CompletableFuture<Void> completion = queue.checkpoint(snapshot, target, PlayerDataPurgeGuard.generation(owner));
+    assertThat(completion).isNotDone();
+    executor.runNext();
+    assertThat(completion).isCompleted();
+    assertThat(Files.readString(target.toPath())).isEqualTo(snapshot.json());
+  }
+
+  @Test
+  void aSupersededCheckpointCannotAcknowledgeAnUnrelatedSnapshot() {
+    CapturingExecutor executor = new CapturingExecutor();
+    PlayerDataPersistenceQueue queue = new PlayerDataPersistenceQueue(executor);
+    UUID owner = UUID.randomUUID();
+    File target = new File(dataFolder, "superseded-checkpoint.json");
+    FencedPlayerSnapshot snapshot = new FencedPlayerSnapshot(owner, UUID.randomUUID(), 1L, 1L, "pending packed state");
+    CompletableFuture<Void> completion = queue.checkpoint(snapshot, target, PlayerDataPurgeGuard.generation(owner));
+
+    queue.queueSave(owner, "unrelated state", target);
+
+    assertThat(completion).isCompletedExceptionally();
+  }
+
+  @Test
+  void aSupersededSqlRevisionCannotAcknowledgeTheCheckpoint() {
+    CapturingExecutor executor = new CapturingExecutor();
+    PlayerDataPersistenceQueue queue = new PlayerDataPersistenceQueue(executor);
+    UUID owner = UUID.randomUUID();
+    AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sql = stubSqlSettings(config);
+    when(sql.isEnabled()).thenReturn(true);
+    SQLManager manager = mock(SQLManager.class);
+    when(plugin.getSqlManager()).thenReturn(manager);
+    when(manager.updateFencedDataBatch(any())).thenAnswer(call -> fencedResults(call.getArgument(0), SQLManager.FencedWriteStatus.SUPERSEDED));
+    FencedPlayerSnapshot snapshot = new FencedPlayerSnapshot(owner, UUID.randomUUID(), 1L, 1L, "pending packed state");
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(config);
+      CompletableFuture<Void> completion = queue.checkpoint(snapshot, new File(dataFolder, "superseded-sql.json"), PlayerDataPurgeGuard.generation(owner));
+      executor.runNext();
+      assertThat(completion).isCompletedExceptionally();
+    }
+  }
+
+  @Test
   void snapshotReplacementLeavesNoPartialWriteFile() throws Exception {
     File target = new File(dataFolder, "atomic/player.json");
     PlayerDataPersistenceQueue.writeSnapshot(target, "first");

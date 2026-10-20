@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
@@ -65,7 +66,7 @@ class GolemViewTest {
 
   @Test
   void healthShowsTheBodyChange() {
-    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(19, 100, false), cores(), GolemMode.WORK, channels(), anchors(),
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(19, 100, false, ""), cores(), GolemMode.WORK, channels(), anchors(),
         runes(), carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(BODY);
@@ -73,7 +74,7 @@ class GolemViewTest {
 
   @Test
   void maximumHealthShowsTheBodyChange() {
-    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 120, false), cores(), GolemMode.WORK, channels(), anchors(),
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 120, false, ""), cores(), GolemMode.WORK, channels(), anchors(),
         runes(), carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(BODY);
@@ -81,7 +82,7 @@ class GolemViewTest {
 
   @Test
   void dormancyShowsTheBodyChange() {
-    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 100, true), cores(), GolemMode.WORK, channels(), anchors(),
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 100, true, ""), cores(), GolemMode.WORK, channels(), anchors(),
         runes(), carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(BODY);
@@ -114,7 +115,7 @@ class GolemViewTest {
   @Test
   void aSlottedRuneShowsTheRuneChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
-        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1), new GolemRune(GolemRuneType.EMBER, 2)), LAYOUT),
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1), new GolemRune(GolemRuneType.EMBER, 2)), LAYOUT, GolemMastery.Perks.NONE),
         carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(RUNES);
@@ -123,7 +124,7 @@ class GolemViewTest {
   @Test
   void aRuneTierShowsTheRuneChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
-        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 2)), LAYOUT), carried(), stats(), 0, toggles(), equipment());
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 2)), LAYOUT, GolemMastery.Perks.NONE), carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(RUNES);
   }
@@ -131,7 +132,7 @@ class GolemViewTest {
   @Test
   void aUnlockedRuneSlotShowsTheRuneChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
-        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), new GolemRuneLayout(1, List.of(1, 2), 3, List.of(1, 2, 3), Set.of())),
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), new GolemRuneLayout(1, List.of(1, 2), 3, List.of(1, 2, 3), Set.of()), GolemMastery.Perks.NONE),
         carried(), stats(), 0, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(RUNES);
@@ -156,7 +157,7 @@ class GolemViewTest {
   @Test
   void theHomeChestShowsTheAnchorChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
-        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), GolemState.Anchor.of(WORLD, 2, 64, 2), null, null), runes(), carried(), stats(), 0,
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), GolemState.Anchor.of(WORLD, 2, 64, 2), null, null, 16D, 48D), runes(), carried(), stats(), 0,
         toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(ANCHORS);
@@ -165,10 +166,10 @@ class GolemViewTest {
   @Test
   void aToolNoteOrAHeldToolShowsTheAnchorChange() {
     GolemView noted = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
-        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_ROD, null), null), runes(),
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_ROD, null), null, 16D, 48D), runes(),
         carried(), stats(), 0, toggles(), equipment());
     GolemView holding = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
-        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, "rod"), runes(), carried(), stats(), 0, toggles(), equipment());
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, "rod", 16D, 48D), runes(), carried(), stats(), 0, toggles(), equipment());
 
     assertThat(noted.changes(base())).containsExactly(ANCHORS);
     assertThat(holding.changes(base())).containsExactly(ANCHORS);
@@ -212,7 +213,7 @@ class GolemViewTest {
 
   @Test
   void severalChangesAreAllReported() {
-    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(10, 100, false), cores(), GolemMode.STAY, channels(), anchors(), runes(),
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(10, 100, false, ""), cores(), GolemMode.STAY, channels(), anchors(), runes(),
         new GolemView.CarriedItems(List.of("cobblestone-1"), 1), stats(), 3, toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactlyInAnyOrder(BODY, MODE, CARRIED, ESSENCE);
@@ -223,7 +224,7 @@ class GolemViewTest {
   }
 
   private static GolemView.Vitals vitals() {
-    return new GolemView.Vitals(20, 100, false);
+    return new GolemView.Vitals(20, 100, false, "");
   }
 
   private static GolemView.CoreSlots cores() {
@@ -235,11 +236,11 @@ class GolemViewTest {
   }
 
   private static GolemView.Anchors anchors() {
-    return new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, null);
+    return new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, null, 16D, 48D);
   }
 
   private static GolemView.RuneSlots runes() {
-    return new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), LAYOUT);
+    return new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), LAYOUT, GolemMastery.Perks.NONE);
   }
 
   private static GolemView.CarriedItems carried() {

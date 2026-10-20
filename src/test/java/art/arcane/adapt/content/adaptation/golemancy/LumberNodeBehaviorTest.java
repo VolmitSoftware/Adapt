@@ -46,6 +46,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -146,6 +147,8 @@ class LumberNodeBehaviorTest {
     tree(Material.SPRUCE_LOG, Material.SPRUCE_LEAVES, -3, -3, 5, true);
 
     behavior.scan(node(), budget(true));
+    assertThat(posted).hasSize(1);
+    behavior.scan(node(), budget(true));
 
     assertThat(jobs()).containsExactly("fell -3,64,-3", "fell 0,64,0");
     assertThat(posted).allMatch(task -> EnumSet.allOf(GolemBody.class).stream().allMatch(task::allows));
@@ -157,6 +160,7 @@ class LumberNodeBehaviorTest {
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
     tree(Material.SPRUCE_LOG, Material.SPRUCE_LEAVES, -3, -3, 5, true);
 
+    behavior.scan(node(), budget(true));
     behavior.scan(node(), budget(true));
 
     assertThat(jobs()).containsExactly("fell 0,64,0");
@@ -247,7 +251,7 @@ class LumberNodeBehaviorTest {
   }
 
   @Test
-  void wideAndUnownedTreesAreRememberedToo() {
+  void wideTreesAreRememberedAndUnavailableRegionsRemainRetryable() {
     level(3);
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
     field.set(1, 63, 0, Material.GRASS_BLOCK).set(1, 64, 0, Material.OAK_LOG).set(1, 65, 0, Material.OAK_LOG).set(1, 66, 0, Material.OAK_LOG);
@@ -260,7 +264,7 @@ class LumberNodeBehaviorTest {
     field.set(1, 64, 0, Material.AIR).set(1, 65, 0, Material.AIR).set(1, 66, 0, Material.AIR);
     behavior.scan(node(NOW, block -> block.getX() >= 0), budget(true));
     assertThat(posted).isEmpty();
-    assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isTrue();
+    assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isFalse();
   }
 
   @Test
@@ -459,13 +463,17 @@ class LumberNodeBehaviorTest {
     assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
     assertThat(fellings.pending()).isTrue();
     assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
-    ScanBudget noBlocks = mock(ScanBudget.class);
-    when(noBlocks.hasTaskRoom()).thenReturn(true);
+    ScanBudget knownBase = mock(ScanBudget.class);
+    lenient().when(knownBase.indices()).thenReturn(IntStream.range(0, AREA).filter(index -> {
+      int[] position = NodeArea.position(KEY, record, index);
+      return position[0] == 0 && position[1] == 64 && position[2] == 0;
+    }).toArray());
+    when(knownBase.hasTaskRoom()).thenReturn(true);
 
-    behavior.scan(node(NOW + 8_000L), noBlocks);
+    behavior.scan(node(NOW + 8_000L), knownBase);
     assertThat(posted).isEmpty();
     Item sapling = dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
-    behavior.scan(node(NOW + 10_000L), noBlocks);
+    behavior.scan(node(NOW + 10_000L), knownBase);
     assertThat(jobs()).containsExactly("fell 0,64,0");
 
     assertThat(behavior.act(golem(0, NOW + 10_000L), posted.getFirst())).isEqualTo(GolemActResult.DONE);
@@ -485,7 +493,7 @@ class LumberNodeBehaviorTest {
 
     behavior.scan(node(NOW + 12_000L), budget(true));
     assertThat(posted).isEmpty();
-    fellings.keep(CropField.WORLD, base -> true, NOW + 304_000L);
+    fellings.get(CropField.WORLD, 0, 64, 0).orElseThrow().touch(NOW + 304_000L);
     fellings.sweep(NOW + 304_000L);
     dropped(Material.OAK_SAPLING, 1, 1, 64, 0);
     behavior.scan(node(NOW + 305_000L), budget(true));
@@ -989,6 +997,7 @@ class LumberNodeBehaviorTest {
     ScanBudget budget = mock(ScanBudget.class);
     lenient().when(budget.start()).thenReturn(0);
     lenient().when(budget.end()).thenReturn(AREA);
+    lenient().when(budget.indices()).thenReturn(IntStream.range(0, AREA).toArray());
     lenient().when(budget.hasTaskRoom()).thenReturn(room);
     return budget;
   }

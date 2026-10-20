@@ -140,7 +140,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   void defaultsMatchTheBrief() {
     GolemRunicAugments.Config config = new GolemRunicAugments.Config();
 
-    assertThat(config.extraSlotsByLevel).containsExactly(0, 0, 1, 1, 2);
+    assertThat(config.extraSlotsByLevel).containsExactly(0, 1, 1, 2, 2);
     assertThat(config.maxTierByLevel).containsExactly(1, 1, 2, 2, 3);
     assertThat(config.frostSlots).isEqualTo(1);
     assertThat(config.boneSlots).isEqualTo(2);
@@ -194,8 +194,9 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   @Test
   void everyLevelShowsItsExtraSlotsTierAndThePlinth() {
     assertThat(lore(1)).containsExactly("+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
-    assertThat(lore(2)).containsExactly("+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(2)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
     assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(4)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
     assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
   }
 
@@ -208,7 +209,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     String three = "- 10 Levels to Infuse a Tier 3 Rune";
 
     assertThat(lore(1)).containsExactly("+ 1 Highest Usable Rune Tier", slots, one);
-    assertThat(lore(2)).containsExactly("+ 1 Highest Usable Rune Tier", slots, one);
+    assertThat(lore(2)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 1 Highest Usable Rune Tier", slots, one);
     assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", slots, one, two);
     assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", slots, one, two, three);
   }
@@ -308,10 +309,10 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     GolemRuneLayout iron = learned.layout(GolemBody.IRON, OWNER, false);
 
     assertThat(frost.unlockedSlots()).isEqualTo(2);
-    assertThat(frost.slotUnlockLevels()).containsExactly(1, 3, 5);
+    assertThat(frost.slotUnlockLevels()).containsExactly(1, 2, 4);
     assertThat(frost.blocks(GolemRuneType.EMBER)).isTrue();
     assertThat(iron.unlockedSlots()).isEqualTo(4);
-    assertThat(iron.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
+    assertThat(iron.slotUnlockLevels()).containsExactly(1, 1, 1, 2, 4);
     assertThat(iron.maxTier()).isEqualTo(2);
     assertThat(iron.blocks(GolemRuneType.EMBER)).isFalse();
     assertThat(learned(0).layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isZero();
@@ -324,7 +325,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     GolemRuneLayout bone = learned.layout(GolemBody.BONE, OWNER, false);
 
     assertThat(bone.unlockedSlots()).isEqualTo(3);
-    assertThat(bone.slotUnlockLevels()).containsExactly(1, 1, 3, 5);
+    assertThat(bone.slotUnlockLevels()).containsExactly(1, 1, 2, 4);
     assertThat(bone.maxTier()).isEqualTo(2);
     assertThat(bone.blocked()).isEmpty();
     assertThat(learned(1).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isEqualTo(2);
@@ -354,7 +355,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
 
       assertThat(plain.unlockedSlots()).isEqualTo(3);
       assertThat(masterwork.unlockedSlots()).isEqualTo(4);
-      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 2, 4);
       assertThat(learned.layout(GolemBody.BONE, OWNER, true)).isSameAs(masterwork);
     } finally {
       GolemMastery.unregister(source);
@@ -528,7 +529,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
 
       assertThat(plain.unlockedSlots()).isEqualTo(4);
       assertThat(masterwork.unlockedSlots()).isEqualTo(5);
-      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 3, 5);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 2, 4);
       assertThat(learned.layout(GolemBody.IRON, OWNER, true)).isSameAs(masterwork);
       assertThat(learned.layout(GolemBody.IRON, OWNER, false)).isSameAs(plain);
 

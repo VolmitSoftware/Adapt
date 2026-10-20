@@ -146,7 +146,7 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     runtime.verify(() -> GolemancyRuntime.setNodeWeaving(adaptation));
     assertThat(adaptation).isInstanceOf(NodeWeavingPolicy.class);
     assertThat(adaptation.nodeCap(3)).isEqualTo(12);
-    assertThat(adaptation.maxAreaRadius(4)).isEqualTo(24);
+    assertThat(adaptation.maxAreaRadius(4)).isEqualTo(15);
     assertThat(adaptation.filterSlots(5)).isEqualTo(18);
   }
 
@@ -169,10 +169,10 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
   void everyLevelShowsItsCapsAndTheUnlocksItHasReached() {
     assertThat(lore(1)).containsExactly("+ 4 Nodes You Can Own", "+ 8 Block Work Area Radius", "+ 3 Filter Slots");
     assertThat(lore(2)).containsExactly("+ 8 Nodes You Can Own", "+ 12 Block Work Area Radius", "+ 6 Filter Slots");
-    assertThat(lore(3)).containsExactly("+ 12 Nodes You Can Own", "+ 16 Block Work Area Radius", "+ 6 Filter Slots", "+ Node Priority 1-5");
-    assertThat(lore(4)).containsExactly("+ 18 Nodes You Can Own", "+ 24 Block Work Area Radius", "+ 9 Filter Slots", "+ Node Priority 1-5",
+    assertThat(lore(3)).containsExactly("+ 12 Nodes You Can Own", "+ 15 Block Work Area Radius", "+ 6 Filter Slots", "+ Node Priority 1-5");
+    assertThat(lore(4)).containsExactly("+ 18 Nodes You Can Own", "+ 15 Block Work Area Radius", "+ 9 Filter Slots", "+ Node Priority 1-5",
         "+ Redstone Gating");
-    assertThat(lore(5)).containsExactly("+ 24 Nodes You Can Own", "+ 32 Block Work Area Radius", "+ 18 Filter Slots", "+ Node Priority 1-5",
+    assertThat(lore(5)).containsExactly("+ 24 Nodes You Can Own", "+ 15 Block Work Area Radius", "+ 18 Filter Slots", "+ Node Priority 1-5",
         "+ Redstone Gating", "+ Blacklist and Tag Filters");
   }
 

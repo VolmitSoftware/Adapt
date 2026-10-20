@@ -22,6 +22,12 @@ public final class GuiTheme {
       window.setTag(tag);
     }
 
+    if (tag != null && tag.startsWith("golemancy-")) {
+      window.setDecorator((w, position, row) -> element("bg-" + row + "-" + position, Material.BLACK_STAINED_GLASS_PANE,
+          "gui", "golemancy", "background").setName(" "));
+      return;
+    }
+
     window.setDecorator((w, position, row) -> element("bg-" + row + "-" + position, background(row, position, w.getViewportHeight()),
         "gui", "background", backgroundKey(row, position, w.getViewportHeight())).setName(" "));
   }

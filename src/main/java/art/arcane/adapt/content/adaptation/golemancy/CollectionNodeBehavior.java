@@ -42,6 +42,9 @@ final class CollectionNodeBehavior implements NodeBehavior {
 
   @Override
   public void scan(NodeContext node, ScanBudget budget) {
+    if (!node.queryDue()) {
+      return;
+    }
     NodeRecord record = node.record();
     GatherArea.Box box = GatherArea.Box.of(node.key(), record);
     World world = node.world();
@@ -60,6 +63,9 @@ final class CollectionNodeBehavior implements NodeBehavior {
           && work.eligible(item, owner, now)) {
         collectable.put(item.getUniqueId(), item);
       }
+    }
+    if (!collectable.isEmpty() || covered(world, box)) {
+      node.queryResult(!collectable.isEmpty());
     }
     for (GolemTask open : node.tasks()) {
       if (!collectable.containsKey(open.target().entity())) {
@@ -83,5 +89,20 @@ final class CollectionNodeBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     return work.pickUp(golem, item, GatherArea.nodes(key.world(), List.of(GatherArea.Box.of(key, record))));
+  }
+
+  private static boolean covered(World world, GatherArea.Box box) {
+    int minX = (int) Math.floor(box.centerX() - box.halfX()) >> 4;
+    int maxX = (int) Math.ceil(box.centerX() + box.halfX()) - 1 >> 4;
+    int minZ = (int) Math.floor(box.centerZ() - box.halfZ()) >> 4;
+    int maxZ = (int) Math.ceil(box.centerZ() + box.halfZ()) - 1 >> 4;
+    for (int chunkX = minX; chunkX <= maxX; chunkX++) {
+      for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }

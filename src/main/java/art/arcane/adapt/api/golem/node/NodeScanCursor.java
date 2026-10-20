@@ -1,5 +1,7 @@
 package art.arcane.adapt.api.golem.node;
 
+import java.util.Arrays;
+
 public final class NodeScanCursor {
   private int position;
 
@@ -13,6 +15,13 @@ public final class NodeScanCursor {
     return new Window(start, count);
   }
 
-  public record Window(int start, int count) {
+  public record Window(int start, int count, int[] indices) {
+    public Window(int start, int count) {
+      this(start, count, null);
+    }
+
+    Window(int[] indices, int count) {
+      this(0, count, Arrays.copyOf(indices, count));
+    }
   }
 }

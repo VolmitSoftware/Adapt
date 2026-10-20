@@ -28,6 +28,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.DepositBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -192,7 +193,7 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     if (level < 1) {
       return 0;
     }
-    return Math.clamp(AnimusBindingRules.atLevel(config.maxAreaRadiusByLevel, level, 1), 1, NodeRecord.MAX_RADIUS);
+    return Math.clamp(AnimusBindingRules.atLevel(config.maxAreaRadiusByLevel, level, 1), 1, NodeCuboid.MAX_SPAN - 1);
   }
 
   static int filterSlots(Config config, int level) {
@@ -266,8 +267,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Most nodes you can own at once, by Node Weaving level from level 1 upward.", impact = "Higher values let players place more nodes.")
     List<Integer> nodeCapByLevel = new ArrayList<>(List.of(4, 8, 12, 18, 24));
-    @ConfigDoc(value = "Largest work area radius in blocks a node can be set to, by Node Weaving level from level 1 upward. Each value is clamped to 1 through 32.", impact = "Higher values let nodes cover larger areas; new nodes start at radius 2 or this cap, whichever is lower.")
-    List<Integer> maxAreaRadiusByLevel = new ArrayList<>(List.of(8, 12, 16, 24, 32));
+    @ConfigDoc(value = "Largest face distance from a node in blocks, by Node Weaving level from level 1 upward. Values are clamped to 1 through 15; each area dimension is at most 16 blocks.", impact = "Higher values let players shift areas farther from the node while keeping it inside; new nodes start at radius 2 or this cap, whichever is lower.")
+    List<Integer> maxAreaRadiusByLevel = new ArrayList<>(List.of(8, 12, 15, 15, 15));
     @ConfigDoc(value = "Filter entries a node can hold, by Node Weaving level from level 1 upward. Each value is capped at 18.", impact = "Higher values let a node filter more items and tags.")
     List<Integer> filterSlotsByLevel = new ArrayList<>(List.of(3, 6, 6, 9, 18));
     @ConfigDoc(value = "Golemancy XP paid the first time you place each type of node.", impact = "Higher values reward trying each node type more; each type pays once per player.")

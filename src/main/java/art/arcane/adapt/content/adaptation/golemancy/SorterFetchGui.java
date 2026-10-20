@@ -153,11 +153,12 @@ final class SorterFetchGui {
       int choice = AMOUNTS.get(index);
       boolean selected = choice == amount;
       window.setElement(GuiLayout.centeredPosition(index, AMOUNTS.size()), row,
-          GuiTheme.element("fetch-amount-" + choice, selected ? Material.LIME_STAINED_GLASS_PANE : Material.GRAY_STAINED_GLASS_PANE,
-                  "gui", "golemancy", selected ? "fetch_amount_selected" : "fetch_amount")
-              .setName((selected ? C.GREEN : C.GRAY) + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_AMOUNT, trusted("amount", choice)))
+          GuiTheme.element("fetch-amount-" + choice, selected ? Material.LIME_STAINED_GLASS_PANE : Material.WHITE_STAINED_GLASS_PANE,
+                  "gui", "golemancy", "fetch", selected ? "amount_selected" : "amount_available")
+              .setName((selected ? C.GREEN : C.WHITE) + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_AMOUNT, trusted("amount", choice)))
               .setCount(choice)
               .setProgress(1D)
+              .setEnchanted(selected)
               .onLeftClick(clicked -> render(player, key, listing, page, choice)));
     }
   }

@@ -460,6 +460,19 @@ tasks.register('gameplayFixtureJar', com.github.jengelman.gradle.plugins.shadow.
     archiveFileName = 'AdaptGameplayFixture.jar'
 }
 
+tasks.register('golemFoliaFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Folia golem fixture for an existing world.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output) {
+        exclude('plugin.yml')
+    }
+    from('src/test/gameplay/fixture-folia')
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptGolemFoliaFixture.jar'
+}
+
 tasks.register('gameplayContractTest', Exec) {
     group = 'verification'
     commandLine(['node', '--test'] + fileTree('src/test/gameplay').matching { include '*.test.mjs' }.files.collect { File file -> file.path }.sort())

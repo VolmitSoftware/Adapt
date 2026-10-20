@@ -6,6 +6,7 @@ import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemWorkStatus;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
@@ -27,6 +28,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -62,11 +64,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -87,12 +92,15 @@ class RevealServiceTest extends AdaptTestBase {
   private MockedStatic<GolemItems> items;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<GolemVitals> vitals;
+  private MockedStatic<NodeOutline> outlineBlocks;
   private World world;
   private Player viewer;
   private GolemRegistry registry;
 
   @BeforeEach
   void setUp() {
+    outlineBlocks = mockStatic(NodeOutline.class);
+    outlineBlocks.when(() -> NodeOutline.glass(nullable(DyeColor.class))).thenReturn(mock(BlockData.class));
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> runIfAccepted(invocation.getArgument(1)));
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt())).thenAnswer(invocation -> runIfAccepted(invocation.getArgument(1)));
@@ -125,6 +133,7 @@ class RevealServiceTest extends AdaptTestBase {
 
   @AfterEach
   void tearDown() {
+    outlineBlocks.close();
     vitals.close();
     runtime.close();
     items.close();
@@ -283,26 +292,19 @@ class RevealServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void anArmedViewerLookingAtTheirNodeSeesItsOutlineUntilTheyPutTheRevealItemAway() {
+  void aCrookViewerSeesNearbyOwnedAreasUntilTheyPutTheCrookAway() {
     NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
     nodeBundle(key, OWNER);
     runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
     lenient().when(viewer.getWorld()).thenReturn(world);
-    Block anchor = mock(Block.class);
-    lenient().when(anchor.getWorld()).thenReturn(world);
-    lenient().when(anchor.getX()).thenReturn(4);
-    lenient().when(anchor.getY()).thenReturn(64);
-    lenient().when(anchor.getZ()).thenReturn(0);
-    when(world.rayTraceBlocks(any(Location.class), any(Vector.class), eq(NodeOutline.LOOK_DISTANCE), eq(FluidCollisionMode.NEVER), eq(true)))
-        .thenReturn(new RayTraceResult(new Vector(4.5D, 65D, 0.5D), anchor, BlockFace.UP));
     RevealService service = new RevealService(RevealSettings::defaults);
 
     try (MockedStatic<ViewerDisplayDirector> director = mockStatic(ViewerDisplayDirector.class);
          MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(() -> Bukkit.createBlockData(any(Material.class))).thenReturn(mock(BlockData.class));
       service.update(viewer);
-      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
-          any(BlockData.class), any(Color.class), anyDouble(), eq(NodeOutline.DURATION_TICKS)), times(12));
+      director.verify(() -> ViewerDisplayDirector.showCuboid(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Vector.class),
+          any(BlockData.class), isNull(), anyBoolean(), eq(NodeOutline.DURATION_TICKS)), times(2));
 
       items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.empty());
       service.update(viewer);
@@ -369,26 +371,19 @@ class RevealServiceTest extends AdaptTestBase {
     when(policy.hidesOutline(viewer)).thenReturn(true);
     runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
     lenient().when(viewer.getWorld()).thenReturn(world);
-    Block anchor = mock(Block.class);
-    lenient().when(anchor.getWorld()).thenReturn(world);
-    lenient().when(anchor.getX()).thenReturn(4);
-    lenient().when(anchor.getY()).thenReturn(64);
-    lenient().when(anchor.getZ()).thenReturn(0);
-    lenient().when(world.rayTraceBlocks(any(Location.class), any(Vector.class), eq(NodeOutline.LOOK_DISTANCE), eq(FluidCollisionMode.NEVER), eq(true)))
-        .thenReturn(new RayTraceResult(new Vector(4.5D, 65D, 0.5D), anchor, BlockFace.UP));
     RevealService service = new RevealService(RevealSettings::defaults);
 
     try (MockedStatic<ViewerDisplayDirector> director = mockStatic(ViewerDisplayDirector.class);
          MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(() -> Bukkit.createBlockData(any(Material.class))).thenReturn(mock(BlockData.class));
       service.update(viewer);
-      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
-          any(BlockData.class), any(Color.class), anyDouble(), eq(NodeOutline.DURATION_TICKS)), never());
+      director.verify(() -> ViewerDisplayDirector.showCuboid(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Vector.class),
+          any(BlockData.class), isNull(), anyBoolean(), eq(NodeOutline.DURATION_TICKS)), never());
 
       when(policy.hidesOutline(viewer)).thenReturn(false);
       service.update(viewer);
-      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
-          any(BlockData.class), any(Color.class), anyDouble(), eq(NodeOutline.DURATION_TICKS)), times(12));
+      director.verify(() -> ViewerDisplayDirector.showCuboid(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Vector.class),
+          any(BlockData.class), isNull(), anyBoolean(), eq(NodeOutline.DURATION_TICKS)), times(2));
     }
   }
 
@@ -466,6 +461,7 @@ class RevealServiceTest extends AdaptTestBase {
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.IRON, GolemCoreType.GUARDIAN,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
     GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.workStatus()).thenReturn(GolemWorkStatus.WAITING);
     lenient().when(handle.entityId()).thenReturn(entityId);
     lenient().when(handle.entity()).thenReturn(golem);
     lenient().when(handle.owner()).thenReturn(OWNER);

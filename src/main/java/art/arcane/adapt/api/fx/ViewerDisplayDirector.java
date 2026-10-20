@@ -103,6 +103,22 @@ public final class ViewerDisplayDirector {
     return showBlockRequest(channel, key, viewer, location, blockData, glowColor, 0);
   }
 
+  public static boolean showCuboid(String channel, String key, Player viewer, Location minimum, Vector size,
+                                   BlockData blockData, Color glowColor, boolean inside, int durationTicks) {
+    if (!Double.isFinite(size.getX()) || !Double.isFinite(size.getY()) || !Double.isFinite(size.getZ())
+        || size.getX() <= 0D || size.getY() <= 0D || size.getZ() <= 0D) {
+      return false;
+    }
+    Vector3f scale = new Vector3f((float) size.getX(), (float) size.getY(), (float) size.getZ());
+    Vector3f translation = new Vector3f();
+    if (inside) {
+      translation.set(scale);
+      scale.negate();
+    }
+    return submitRequest(new DisplayRequestSpec(displayKey(channel, key, viewer, minimum), viewer, minimum.clone(),
+        blockData.clone(), glowColor, new Transformation(translation, new Quaternionf(), scale, new Quaternionf()), clampDuration(durationTicks)));
+  }
+
   private static boolean showBlockRequest(String channel, String key, Player viewer, Location location,
                                           BlockData blockData, Color glowColor, int durationTicks) {
     DisplayKey displayKey = displayKey(channel, key, viewer, location);
@@ -542,7 +558,7 @@ public final class ViewerDisplayDirector {
     display.setBrightness(new Display.Brightness(15, 15));
     display.setBlock(request.blockData());
     display.setGlowColorOverride(request.glowColor());
-    display.setGlowing(true);
+    display.setGlowing(request.glowColor() != null);
     display.setTransformation(request.transformation());
     display.addScoreboardTag(DISPLAY_TAG);
   }
@@ -554,7 +570,7 @@ public final class ViewerDisplayDirector {
     display.teleport(request.location());
     display.setBlock(request.blockData());
     display.setGlowColorOverride(request.glowColor());
-    display.setGlowing(true);
+    display.setGlowing(request.glowColor() != null);
     display.setTransformation(request.transformation());
   }
 

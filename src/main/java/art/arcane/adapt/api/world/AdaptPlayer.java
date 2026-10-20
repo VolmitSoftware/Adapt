@@ -669,6 +669,23 @@ public class AdaptPlayer extends TickedObject {
     save();
   }
 
+  public synchronized CompletableFuture<Void> checkpoint() {
+    UUID owner = player.getUniqueId();
+    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue == null || !isRuntimeReady() || LOAD_FAILURE_GUARD.contains(owner)
+        || pendingDataDeletion || !PlayerDataPurgeGuard.allowsSave(owner, purgeGeneration)) {
+      return CompletableFuture.failedFuture(new IllegalStateException("Player data checkpoint is unavailable for " + owner));
+    }
+    if (!AdaptConfig.get().getSql().isEnabled()) {
+      return queue.checkpoint(owner, data.toJson(false), getPlayerDataFile(owner), purgeGeneration);
+    }
+    FencedPlayerSnapshot snapshot = captureFencedSnapshot();
+    if (snapshot == null) {
+      return CompletableFuture.failedFuture(new IllegalStateException("Player data ownership is unavailable for " + owner));
+    }
+    return queue.checkpoint(snapshot, getPlayerDataFile(owner), purgeGeneration);
+  }
+
   public synchronized FencedPlayerSnapshot captureFencedSnapshot() {
     return capturePersistenceSnapshot(true);
   }

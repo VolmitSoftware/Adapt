@@ -41,7 +41,7 @@ final class BukkitNodePlatform implements NodePlatform {
 
   @Override
   public NodeFaces read(World world, int x, int y, int z) {
-    NodeFaces faces = WorldData.loaded(world).map(data -> data.get(x, y, z, NodeFaces.class)).orElse(null);
+    NodeFaces faces = loaded(world).get(x, y, z, NodeFaces.class);
     return faces == null ? NodeFaces.EMPTY : faces;
   }
 
@@ -57,13 +57,10 @@ final class BukkitNodePlatform implements NodePlatform {
 
   @Override
   public Map<NodeKey, NodeRecord> readChunk(World world, int chunkX, int chunkZ) {
-    Optional<WorldData> data = WorldData.loaded(world);
-    if (data.isEmpty()) {
-      return Map.of();
-    }
+    WorldData data = loaded(world);
     UUID worldId = world.getUID();
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
-    data.get().iterateChunk(chunkX, chunkZ, NodeFaces.class, (x, y, z, faces) -> {
+    data.iterateChunk(chunkX, chunkZ, NodeFaces.class, (x, y, z, faces) -> {
       for (NodeRecord record : faces.records()) {
         nodes.put(new NodeKey(worldId, x, y, z, record.face()), record);
       }

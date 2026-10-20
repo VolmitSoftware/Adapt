@@ -89,30 +89,10 @@ class GolemGuiActionsTest {
   }
 
   @Test
-  void channelCyclesThroughNoneAndAllSixteenDyes() {
-    int mask = ChannelMask.NONE;
-    Set<Integer> seen = new HashSet<>();
-    for (int step = 0; step < 17; step++) {
-      seen.add(mask);
-      mask = GolemGuiActions.cycleChannel(mask, true);
-    }
-
-    assertThat(mask).isEqualTo(ChannelMask.NONE);
-    assertThat(seen).hasSize(17);
-    assertThat(GolemGuiActions.cycleChannel(ChannelMask.NONE, true)).isEqualTo(ChannelMask.of(DyeColor.WHITE));
-    assertThat(GolemGuiActions.cycleChannel(ChannelMask.of(DyeColor.BLACK), true)).isEqualTo(ChannelMask.NONE);
-    assertThat(GolemGuiActions.cycleChannel(ChannelMask.NONE, false)).isEqualTo(ChannelMask.of(DyeColor.BLACK));
-    assertThat(GolemGuiActions.cycleChannel(ChannelMask.of(DyeColor.WHITE), false)).isEqualTo(ChannelMask.NONE);
-    assertThat(GolemGuiActions.cycleChannel(ChannelMask.of(DyeColor.RED), true)).isEqualTo(ChannelMask.of(DyeColor.BLACK));
-  }
-
-  @Test
-  void aMultiChannelMaskCyclesFromItsFirstChannelToASingleOne() {
-    int mask = ChannelMask.of(DyeColor.ORANGE, DyeColor.BLUE);
-
-    assertThat(GolemGuiActions.channelColor(mask)).isEqualTo(DyeColor.ORANGE);
-    assertThat(GolemGuiActions.cycleChannel(mask, true)).isEqualTo(ChannelMask.of(DyeColor.MAGENTA));
-    assertThat(GolemGuiActions.cycleChannel(mask, false)).isEqualTo(ChannelMask.of(DyeColor.WHITE));
+  void aSingleChannelPickerReplacesOrClearsTheCurrentChoice() {
+    int red = ChannelMask.of(DyeColor.RED);
+    assertThat(GolemGuiActions.toggleChannel(red, DyeColor.BLUE, 1)).isEqualTo(ChannelMask.of(DyeColor.BLUE));
+    assertThat(GolemGuiActions.toggleChannel(red, DyeColor.RED, 1)).isEqualTo(ChannelMask.NONE);
     assertThat(GolemGuiActions.channelColor(ChannelMask.NONE)).isNull();
   }
 

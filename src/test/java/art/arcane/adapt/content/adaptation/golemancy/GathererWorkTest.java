@@ -1,5 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemMastery;
+import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemBody;
@@ -1016,6 +1018,11 @@ class GathererWorkTest {
 
   private void tide(double bonus) {
     GolemRunes.Augments fixed = new GolemRunes.Augments() {
+      @Override
+      public List<String> describe(GolemRune rune, GolemMastery.Perks perks) {
+        return List.of();
+      }
+
       @Override
       public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
         return GolemRuneLayout.NONE;

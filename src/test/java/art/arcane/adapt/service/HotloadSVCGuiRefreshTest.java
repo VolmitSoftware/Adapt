@@ -56,7 +56,7 @@ class HotloadSVCGuiRefreshTest extends AdaptTestBase {
 
   @ParameterizedTest
   @NullAndEmptySource
-  @ValueSource(strings = {"golemancy-golem", "golemancy-node", "golemancy-roster", "golemancy-fetch", "confirm"})
+  @ValueSource(strings = {"golemancy-golem", "golemancy-node", "golemancy-roster", "golemancy-fetch", "golemancy-confirm"})
   void windowWithATagTheServiceCannotRebuildStaysOpenAndUntouched(String tag) throws Exception {
     when(window.getTag()).thenReturn(tag);
 

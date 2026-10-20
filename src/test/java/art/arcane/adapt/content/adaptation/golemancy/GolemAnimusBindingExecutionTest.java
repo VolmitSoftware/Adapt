@@ -261,7 +261,7 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
       verify(ritual.registry).bind(ritual.owner, golem, GolemBody.FROST, GolemCoreType.BLANK);
       verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
       verify(ritual.held, times(1)).setAmount(anyInt());
-      assertThat(ritual.shown).containsExactly("Your Frost golem is now bound to you");
+      assertThat(ritual.shown).containsExactly("Your Frost golem is bound. Right-click it with your Crook to manage it");
     }
   }
 
@@ -352,7 +352,7 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
       ritual.finish();
 
       verify(ritual.owner).giveExpLevels(-1);
-      assertThat(ritual.shown).containsExactly("Your Frost golem is now bound to you");
+      assertThat(ritual.shown).containsExactly("Your Frost golem is bound. Right-click it with your Crook to manage it");
     }
   }
 
@@ -520,7 +520,7 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
       verify(frame).surrender(servant);
       verify(ritual.registry).bind(ritual.owner, servant, GolemBody.BONE, GolemCoreType.BLANK);
       verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
-      assertThat(ritual.shown).containsExactly("Your Bone golem is now bound to you");
+      assertThat(ritual.shown).containsExactly("Your Bone golem is bound. Right-click it with your Crook to manage it");
     } finally {
       ServantFrame.unregister(frame);
     }

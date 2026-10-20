@@ -3,6 +3,8 @@ package art.arcane.adapt.api.golem.item;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRunes;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -11,6 +13,7 @@ import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeCraftCounter;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.GolemHelpMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
@@ -63,12 +66,15 @@ public final class GolemItems {
 
   public static ItemStack crook() {
     return build(new Spec(GolemItemKind.CROOK, baseMaterial(GolemItemKind.CROOK), GolemItemData.EMPTY,
-        AdaptLanguage.text(GolemancyMessages.CROOK_NAME), List.of(AdaptLanguage.text(GolemancyMessages.CROOK_LORE))));
+        AdaptLanguage.text(GolemancyMessages.CROOK_NAME), List.of(AdaptLanguage.text(GolemHelpMessages.CROOK_MANAGE),
+            AdaptLanguage.text(GolemHelpMessages.CROOK_ROSTER), AdaptLanguage.text(GolemHelpMessages.CROOK_AREAS),
+            AdaptLanguage.text(GolemHelpMessages.CROOK_SHIFT), AdaptLanguage.text(GolemHelpMessages.CROOK_SCROLL))));
   }
 
   public static ItemStack blankCore() {
     return build(new Spec(GolemItemKind.BLANK_CORE, baseMaterial(GolemItemKind.BLANK_CORE), GolemItemData.EMPTY,
-        AdaptLanguage.text(GolemancyMessages.BLANK_CORE_NAME), List.of(AdaptLanguage.text(GolemancyMessages.BLANK_CORE_LORE))));
+        AdaptLanguage.text(GolemancyMessages.BLANK_CORE_NAME), List.of(AdaptLanguage.text(GolemHelpMessages.CORE_COMPANION),
+            AdaptLanguage.text(GolemHelpMessages.CORE_CRAFT), AdaptLanguage.text(GolemHelpMessages.CORE_BIND))));
   }
 
   public static ItemStack core(GolemCoreType role) {
@@ -78,7 +84,8 @@ public final class GolemItems {
     String roleName = AdaptLanguage.text(role.displayName());
     return build(new Spec(GolemItemKind.CORE, baseMaterial(GolemItemKind.CORE), GolemItemData.role(role),
         AdaptLanguage.text(GolemancyMessages.CORE_NAME, trusted("role", roleName)),
-        List.of(AdaptLanguage.text(GolemancyMessages.CORE_LORE, trusted("role", roleName)))));
+        List.of(AdaptLanguage.text(GolemancyMessages.CORE_LORE, trusted("role", roleName)),
+            AdaptLanguage.text(GolemHelpMessages.CORE_BIND))));
   }
 
   public static ItemStack blankNode() {
@@ -100,10 +107,12 @@ public final class GolemItems {
 
   public static ItemStack rune(GolemRune rune) {
     String aspectName = AdaptLanguage.text(Objects.requireNonNull(rune).aspect().displayName());
+    List<String> lore = new ArrayList<>();
+    lore.add(AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", pips(rune.tier()))));
+    lore.addAll(GolemRunes.describe(rune, GolemMastery.Perks.NONE));
+    lore.add(AdaptLanguage.text(GolemancyMessages.RUNE_LORE));
     return build(new Spec(GolemItemKind.RUNE, runeBase(rune.aspect()), GolemItemData.rune(rune),
-        AdaptLanguage.text(GolemancyMessages.RUNE_NAME, trusted("aspect", aspectName)),
-        List.of(AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", pips(rune.tier()))),
-            AdaptLanguage.text(GolemancyMessages.RUNE_LORE))));
+        AdaptLanguage.text(GolemancyMessages.RUNE_NAME, trusted("aspect", aspectName)), lore));
   }
 
   public static ItemStack dormantGolem(DormantGolem golem) {

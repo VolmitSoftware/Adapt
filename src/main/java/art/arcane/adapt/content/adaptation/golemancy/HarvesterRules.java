@@ -52,11 +52,11 @@ final class HarvesterRules {
     Material type = block.getType();
     if (type == Material.DIRT) {
       Block above = block.getRelative(BlockFace.UP);
-      return plan.tilling() && air(above.getType()) && !nearStem(above, owned) ? Spot.TILL : Spot.NONE;
+      return plan.tilling() && air(above.getType()) ? openFarmland(above, owned, Spot.TILL) : Spot.NONE;
     }
     if (type == Material.FARMLAND) {
       Block above = block.getRelative(BlockFace.UP);
-      return plan.tilling() && air(above.getType()) && !nearStem(above, owned) ? Spot.PLANT : Spot.NONE;
+      return plan.tilling() && air(above.getType()) ? openFarmland(above, owned, Spot.PLANT) : Spot.NONE;
     }
     HarvestCrops.Kind kind = plan.crops().kind(type);
     if (kind == HarvestCrops.Kind.NONE || !wanted(plan, type)) {
@@ -66,7 +66,7 @@ final class HarvesterRules {
       case CROP, BERRY_BUSH -> growth(block.getBlockData(), plan.tending() && plan.crops().tendable(type));
       case TORCHFLOWER -> torchflower(block, type, plan);
       case CAVE_VINES -> block.getBlockData() instanceof CaveVinesPlant vines && PaperCompat.hasBerries(vines) ? Spot.RIPE : Spot.NONE;
-      case GOURD -> plan.extended() && attached(block, type, owned) ? Spot.RIPE : Spot.NONE;
+      case GOURD -> plan.extended() ? attached(block, type, owned) : Spot.NONE;
       case COLUMN -> plan.extended() && aboveBase(block, type) ? Spot.RIPE : Spot.NONE;
       case NONE -> Spot.NONE;
     };
@@ -136,16 +136,36 @@ final class HarvesterRules {
     return plan.tending() ? Spot.TEND : Spot.NONE;
   }
 
-  private static boolean attached(Block fruit, Material type, Predicate<Block> owned) {
+  private static Spot attached(Block fruit, Material type, Predicate<Block> owned) {
     Material stem = type == Material.MELON ? Material.ATTACHED_MELON_STEM : Material.ATTACHED_PUMPKIN_STEM;
+    boolean unavailable = false;
     for (BlockFace side : SIDES) {
       Block neighbor = fruit.getRelative(side);
-      if (readable(neighbor, owned) && neighbor.getType() == stem && neighbor.getBlockData() instanceof Directional facing
+      if (!readable(neighbor, owned)) {
+        unavailable = true;
+        continue;
+      }
+      if (neighbor.getType() == stem && neighbor.getBlockData() instanceof Directional facing
           && facing.getFacing() == side.getOppositeFace()) {
-        return true;
+        return Spot.RIPE;
       }
     }
-    return false;
+    return unavailable ? Spot.UNAVAILABLE : Spot.NONE;
+  }
+
+  private static Spot openFarmland(Block spot, Predicate<Block> owned, Spot work) {
+    boolean unavailable = false;
+    for (BlockFace side : SIDES) {
+      Block neighbor = spot.getRelative(side);
+      if (!readable(neighbor, owned)) {
+        unavailable = true;
+        continue;
+      }
+      if (stem(neighbor.getType())) {
+        return Spot.NONE;
+      }
+    }
+    return unavailable ? Spot.UNAVAILABLE : work;
   }
 
   private static boolean aboveBase(Block block, Material type) {
@@ -184,6 +204,7 @@ final class HarvesterRules {
 
   enum Spot {
     NONE,
+    UNAVAILABLE,
     RIPE,
     TEND,
     PLANT,
@@ -191,6 +212,10 @@ final class HarvesterRules {
   }
 
   record Plan(HarvestCrops crops, boolean extended, boolean tending, boolean tilling, boolean bountiful, NodeRecord node, NodeTagLookup tags) {
+    long criteria(int level) {
+      return (long) level << 4 | (extended ? 1L : 0L) | (tending ? 2L : 0L) | (tilling ? 4L : 0L) | (bountiful ? 8L : 0L);
+    }
+
     Plan withPractices(boolean tending, boolean tilling) {
       return new Plan(crops, extended, tending, tilling, bountiful, node, tags);
     }

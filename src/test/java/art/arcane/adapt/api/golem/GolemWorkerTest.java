@@ -2045,6 +2045,71 @@ class GolemWorkerTest extends AdaptTestBase {
     assertThat(sought).containsExactly(GolemCoreType.GATHERER, GolemCoreType.GATHERER, GolemCoreType.BREAKER);
   }
 
+  @Test
+  void changingANodeChannelReleasesAClaimBeforeAnotherActOrRenewal() {
+    List<GolemTask> acted = new ArrayList<>();
+    collector((golem, task) -> {
+      acted.add(task);
+      return GolemActResult.WORKING;
+    });
+    collectionNode(3);
+    GolemTask task = pickup(20, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+    platform.runDelayed();
+    assertThat(task.heldBy(brain.handle().id(), platform.now)).isTrue();
+
+    platform.nodes.put(COLLECTION, platform.nodes.get(COLLECTION).toBuilder().channel(DyeColor.RED).build());
+    position.set(at(20, 64, 0));
+    pulse(250L);
+
+    assertThat(task.holder(platform.now)).isEmpty();
+    assertThat(acted).isEmpty();
+  }
+
+  @Test
+  void changingTheGolemChannelsReleasesAnExistingClaim() {
+    collectionNode(3);
+    platform.nodes.put(COLLECTION, platform.nodes.get(COLLECTION).toBuilder().channel(DyeColor.RED).build());
+    brain.handle().state().setChannels(ChannelMask.of(DyeColor.RED));
+    List<GolemTask> acted = new ArrayList<>();
+    collector((golem, task) -> {
+      acted.add(task);
+      return GolemActResult.DONE;
+    });
+    GolemTask task = pickup(20, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+    platform.runDelayed();
+    assertThat(task.heldBy(brain.handle().id(), platform.now)).isTrue();
+
+    brain.handle().state().setChannels(ChannelMask.NONE);
+    position.set(at(20, 64, 0));
+    pulse(250L);
+
+    assertThat(task.holder(platform.now)).isEmpty();
+    assertThat(acted).isEmpty();
+  }
+
+  @Test
+  void theCachedWorkReasonTracksMovingActingAndMissingTools() {
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    collectionNode(3);
+    board.offer(pickup(20, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+    assertThat(brain.handle().workStatus()).isEqualTo(GolemWorkStatus.MOVING);
+
+    position.set(at(20, 64, 0));
+    pulse(250L);
+    assertThat(brain.handle().workStatus()).isEqualTo(GolemWorkStatus.WORKING);
+
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    pulse(1_000L);
+    assertThat(brain.handle().workStatus()).isEqualTo(GolemWorkStatus.NEEDS_TOOL);
+    assertThat(brain.handle().toolNote()).isEqualTo(ROD_NOTE);
+  }
+
   private void pulse(long millis) {
     platform.now += millis;
     platform.runDelayed();
@@ -2080,6 +2145,11 @@ class GolemWorkerTest extends AdaptTestBase {
 
   private void runes(GolemRuneEffects effects) {
     GolemRunes.Augments fixed = new GolemRunes.Augments() {
+      @Override
+      public List<String> describe(GolemRune rune, GolemMastery.Perks perks) {
+        return List.of();
+      }
+
       @Override
       public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
         return GolemRuneLayout.NONE;

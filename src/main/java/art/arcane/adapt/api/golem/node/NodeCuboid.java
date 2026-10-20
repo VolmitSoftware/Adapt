@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.node;
 
 public record NodeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+  public static final int MAX_SPAN = 16;
   private static final NodeEdits.Axis[] AXES = NodeEdits.Axis.values();
   private static final Limit FITS = new Limit(Verdict.FITS, NodeEdits.Axis.X, false, 0);
 
@@ -52,6 +53,26 @@ public record NodeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int m
     };
   }
 
+  public NodeCuboid shift(NodeEdits.Axis axis, int delta) {
+    return withAxis(axis, min(axis) + delta, max(axis) + delta);
+  }
+
+  public NodeCuboid bounded(int maxRadius) {
+    NodeCuboid result = clamp(maxRadius);
+    for (NodeEdits.Axis axis : AXES) {
+      int low = result.min(axis);
+      int high = result.max(axis);
+      if (high - low + 1 > MAX_SPAN) {
+        int originalLow = low;
+        low = Math.max(low, -MAX_SPAN / 2);
+        high = Math.min(high, low + MAX_SPAN - 1);
+        low = Math.max(originalLow, high - MAX_SPAN + 1);
+        result = result.withAxis(axis, low, high);
+      }
+    }
+    return result;
+  }
+
   public int horizontalReach() {
     return Math.max(Math.max(-minX, maxX), Math.max(-minZ, maxZ));
   }
@@ -65,6 +86,11 @@ public record NodeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int m
     for (NodeEdits.Axis axis : AXES) {
       if (min(axis) > 0 || max(axis) < 0) {
         return new Limit(Verdict.MISSING_CENTER, axis, max(axis) < 0, 0);
+      }
+    }
+    for (NodeEdits.Axis axis : AXES) {
+      if ((long) max(axis) - min(axis) + 1L > MAX_SPAN) {
+        return new Limit(Verdict.TOO_LARGE, axis, false, max(axis) - min(axis) + 1);
       }
     }
     Limit farthest = FITS;
@@ -85,6 +111,7 @@ public record NodeCuboid(int minX, int minY, int minZ, int maxX, int maxY, int m
   public enum Verdict {
     FITS,
     MISSING_CENTER,
+    TOO_LARGE,
     TOO_FAR
   }
 
