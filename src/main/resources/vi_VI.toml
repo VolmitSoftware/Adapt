@@ -4388,6 +4388,8 @@ bone = "Xương"
 
 [golemancy.golem]
 name = "Golem {body} của {owner}"
+renamed = "Golem của bạn giờ tên là {name}"
+rename_refused = "Chỉ chủ của golem mới có thể đổi tên nó"
 
 [golemancy.mode]
 work = "Làm việc"

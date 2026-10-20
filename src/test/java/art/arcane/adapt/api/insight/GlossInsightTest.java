@@ -1,4 +1,4 @@
-package art.arcane.adapt.content.adaptation.discovery;
+package art.arcane.adapt.api.insight;
 
 import art.arcane.gloss.api.GlossAPI;
 import org.bukkit.entity.LivingEntity;
@@ -24,17 +24,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class GlossInsightIntegrationTest {
+class GlossInsightTest {
   @TempDir
   Path temporaryDirectory;
 
@@ -54,6 +58,32 @@ class GlossInsightIntegrationTest {
     verify(fixture.provider, times(2)).updateEntityInsight(fixture.adapt, viewer, target, details, 2000L);
     verify(fixture.provider).clearEntityInsight(fixture.adapt, viewerId);
     verify(fixture.services).getKnownServices();
+  }
+
+  @Test
+  void theOverlayProbeReportsWhetherGlossEntityOverlaysAreRunning() {
+    Fixture fixture = new Fixture();
+    Player probe = mock(Player.class);
+    when(fixture.provider.refreshEntityOverlay(probe, 1)).thenReturn(true, false);
+
+    assertThat(fixture.integration.overlayActive(probe)).isTrue();
+    assertThat(fixture.integration.overlayActive(probe)).isFalse();
+
+    when(fixture.gloss.isEnabled()).thenReturn(false);
+    fixture.integration.refresh();
+    assertThat(fixture.integration.overlayActive(probe)).isFalse();
+    verify(fixture.provider, times(2)).refreshEntityOverlay(probe, 1);
+  }
+
+  @Test
+  void anInstanceThatNeverRestrictsLeavesTheOverlayRestrictionAlone() {
+    Fixture fixture = new Fixture();
+
+    assertThat(fixture.integration.available()).isTrue();
+    fixture.integration.refresh();
+    assertThat(fixture.integration.available()).isTrue();
+
+    verify(fixture.provider, never()).restrictEntityOverlays(any(Plugin.class), anyBoolean());
   }
 
   @Test
@@ -84,6 +114,8 @@ class GlossInsightIntegrationTest {
     fixture.clock.addAndGet(5000L);
     assertThat(fixture.integration.available()).isFalse();
     verify(fixture.services, times(2)).getKnownServices();
+    assertThat(fixture.integration.overlayActive(mock(Player.class))).isFalse();
+    verify(fixture.provider, never()).refreshEntityOverlay(any(LivingEntity.class), anyInt());
 
     when(fixture.services.getKnownServices()).thenReturn(Set.of(GlossAPI.class));
     fixture.integration.refresh();
@@ -99,7 +131,7 @@ class GlossInsightIntegrationTest {
     assertThat(ToolProvider.getSystemJavaCompiler().run(null, null, null,
         "-d", temporaryDirectory.toString(), source.toString())).isZero();
     try (URLClassLoader loader = new URLClassLoader(new URL[]{temporaryDirectory.toUri().toURL()}, null)) {
-      Class<?> unsupported = loader.loadClass(GlossInsightIntegration.API_CLASS);
+      Class<?> unsupported = loader.loadClass(GlossInsight.API_CLASS);
       when(fixture.services.getKnownServices()).thenReturn(Set.of(unsupported));
       doReturn(List.of(registration(unsupported, fixture.gloss)))
           .when(fixture.services).getRegistrations(unsupported);
@@ -134,8 +166,8 @@ class GlossInsightIntegrationTest {
     private final GlossAPI provider = mock(GlossAPI.class);
     private final Logger logger = mock(Logger.class);
     private final AtomicLong clock = new AtomicLong(1000L);
-    private final GlossInsightIntegration integration = new GlossInsightIntegration(
-        adapt, new GlossInsightIntegration.Access(() -> services, clock::get));
+    private final GlossInsight integration = new GlossInsight(
+        adapt, new GlossInsight.Access(() -> services, clock::get));
 
     private Fixture() {
       when(gloss.isEnabled()).thenReturn(true);

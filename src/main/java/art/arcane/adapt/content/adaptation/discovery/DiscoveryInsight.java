@@ -29,6 +29,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.insight.EntityInsight;
+import art.arcane.adapt.api.insight.GlossInsight;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -90,7 +92,8 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns hudUpdateThrottle = cooldowns();
   private final InsightRequestGate requestGate = new InsightRequestGate();
-  private final GlossInsightIntegration gloss = new GlossInsightIntegration(Adapt.instance);
+  private final GlossInsight gloss = new GlossInsight(Adapt.instance);
+  private final EntityInsight.Display display = new Readout();
   private final ConcurrentLinkedQueue<MovedViewer> movedViewers = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedMovedViewers = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingViewerUpdates = ConcurrentHashMap.newKeySet();
@@ -176,7 +179,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   @EventHandler(priority = EventPriority.MONITOR)
   @RunsWithoutLearnedAdaptation
   public void on(ServiceRegisterEvent event) {
-    if (event.getProvider().getService().getName().equals(GlossInsightIntegration.API_CLASS)) {
+    if (event.getProvider().getService().getName().equals(GlossInsight.API_CLASS)) {
       gloss.refresh();
     }
   }
@@ -185,6 +188,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   public void unregister() {
     if (lifecycleCleanupStarted.compareAndSet(false, true)) {
       runtimeActive = false;
+      EntityInsight.detach(display);
       requestGate.clear();
       movedViewers.clear();
       queuedMovedViewers.clear();
@@ -220,6 +224,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     runtimeActive = true;
     Config config = getConfig();
     gloss.setRestricted(config.enabled && config.restrictGlossToInsight);
+    EntityInsight.attach(display);
   }
 
   @Override
@@ -396,20 +401,21 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     }
 
     UUID targetId = target.getUniqueId();
+    List<String> provided = EntityInsight.details(owner, target);
     List<String> details = buildInsightDetails(readStats(target));
-    if (!J.runEntity(owner, () -> acceptInspectionOwned(owner, target, targetId, details, token))) {
+    if (!J.runEntity(owner, () -> acceptInspectionOwned(owner, target, targetId, provided, details, token))) {
       clearHudIfCurrent(playerId, token);
     }
   }
 
   private void acceptInspectionOwned(Player owner, LivingEntity target, UUID targetId,
-                                     List<String> details, long token) {
+                                     List<String> provided, List<String> details, long token) {
     UUID playerId = owner.getUniqueId();
     if (lifecycleCleanupStarted.get() || !requestGate.isCurrent(playerId, token)) {
       return;
     }
     if (!owner.isOnline() || getActiveLevel(owner) <= 0
-        || !gloss.update(owner, target, preferenceEnabled(owner, FULL) ? details : details.subList(0, Math.min(1, details.size())), INSIGHT_DURATION_MILLIS)) {
+        || !gloss.update(owner, target, readout(provided, details, preferenceEnabled(owner, FULL)), INSIGHT_DURATION_MILLIS)) {
       clearHudIfCurrent(playerId, token);
       return;
     }
@@ -473,6 +479,17 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return List.copyOf(details);
   }
 
+  static List<String> readout(List<String> provided, List<String> details, boolean full) {
+    List<String> shown = full ? details : details.subList(0, Math.min(1, details.size()));
+    if (provided.isEmpty()) {
+      return shown;
+    }
+    List<String> lines = new ArrayList<>(provided.size() + shown.size());
+    lines.addAll(provided);
+    lines.addAll(shown);
+    return lines;
+  }
+
   private static void appendStat(StringBuilder text, TextKey label, double value, int decimals) {
     if (!Double.isFinite(value)) {
       return;
@@ -496,8 +513,9 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   }
 
   private void clearHud(UUID playerId) {
-    huds.remove(playerId);
-    gloss.clear(playerId);
+    if (huds.remove(playerId) != null) {
+      gloss.clear(playerId);
+    }
   }
 
   private void clearHudIfCurrent(UUID playerId, long token) {
@@ -511,6 +529,18 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   }
 
   private record InsightHud(Player owner, UUID targetId) {
+  }
+
+  private final class Readout implements EntityInsight.Display {
+    @Override
+    public boolean activeFor(Player viewer) {
+      return runtimeActive && getActiveLevel(viewer) > 0 && gloss.overlayActive(viewer);
+    }
+
+    @Override
+    public boolean showing(UUID viewerId) {
+      return huds.containsKey(viewerId);
+    }
   }
 
   private record MovedViewer(UUID playerId, Player player) {

@@ -6,6 +6,8 @@ import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
+import art.arcane.adapt.api.golem.GolemNameMode;
+import art.arcane.adapt.api.golem.GolemNames;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
@@ -20,6 +22,7 @@ import art.arcane.adapt.api.golem.node.NodeOutline;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
+import art.arcane.adapt.api.insight.EntityInsight;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -36,6 +39,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -78,7 +82,7 @@ import java.util.function.Supplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
-public final class RevealService extends TickedObject {
+public final class RevealService extends TickedObject implements EntityInsight.Provider {
   public static final long LOCATE_MILLIS = 10_000L;
   private static final int LOCATE_PULSE_TICKS = 10;
   private static final ChatColor LOCATE_COLOR = ChatColor.AQUA;
@@ -98,6 +102,8 @@ public final class RevealService extends TickedObject {
   private final Map<UUID, Integer> glowIds = new ConcurrentHashMap<>();
   private final NodeOutline outline = new NodeOutline();
   private final Set<UUID> armed = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> statusViewers = ConcurrentHashMap.newKeySet();
+  private final GlossStatus glossStatus = new GlossStatus(statusViewers::contains);
   private final Set<UUID> pendingUpdates = ConcurrentHashMap.newKeySet();
   private final Set<UUID> spawning = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingRefresh = ConcurrentHashMap.newKeySet();
@@ -141,24 +147,38 @@ public final class RevealService extends TickedObject {
     }
     if (!holdsRevealItem(viewer)) {
       armed.remove(viewerId);
+      statusViewers.remove(viewerId);
       apply(viewer, golems.update(viewerId, Set.of()), Map.of());
       hideServants(viewer);
+      glossStatus.release(viewerId);
       applyNodes(viewer, nodes.update(viewerId, Set.of()));
       outline.forget(viewerId);
       return;
     }
     armed.add(viewerId);
+    GolemStatusRoute route = GolemStatusRoute.of(nameMode(), !hidesLabels(viewer), EntityInsight.activeFor(viewer));
+    if (route == GolemStatusRoute.HIDDEN) {
+      statusViewers.remove(viewerId);
+    } else {
+      statusViewers.add(viewerId);
+    }
     Map<UUID, GolemHandle> inRange = golemsInRange(viewer);
     RevealTracker.Delta<UUID> delta = golems.update(viewerId, inRange.keySet());
-    if (hidesLabels(viewer)) {
-      apply(viewer, delta, Map.of());
-      hideLabels(viewer, inRange.keySet());
-    } else {
+    if (route == GolemStatusRoute.LABEL) {
       apply(viewer, delta, inRange);
       syncStayingLabels(viewer, inRange, delta);
+    } else {
+      apply(viewer, delta, Map.of());
+      hideLabels(viewer, inRange.keySet());
     }
     glowGolems(viewer, inRange);
-    revealServants(viewer);
+    List<GlossStatus.Target> statusTargets = route == GolemStatusRoute.GLOSS ? golemTargets(inRange) : List.of();
+    revealServants(viewer, route, statusTargets);
+    if (route == GolemStatusRoute.GLOSS) {
+      glossStatus.push(viewer, statusTargets, settings.get().pollMillis());
+    } else {
+      glossStatus.release(viewerId);
+    }
     Optional<NodeWeavingPolicy> nodeWeaving = GolemancyRuntime.nodeWeaving();
     boolean revealsNodes = nodeWeaving.isEmpty() || !nodeWeaving.get().crookOnlyReveal(viewer) || holdsCrook(viewer);
     applyNodes(viewer, nodes.update(viewerId, revealsNodes ? nodesInRange(viewer) : Set.of()));
@@ -172,6 +192,8 @@ public final class RevealService extends TickedObject {
   public void reset(Player viewer) {
     UUID viewerId = viewer.getUniqueId();
     armed.remove(viewerId);
+    statusViewers.remove(viewerId);
+    glossStatus.release(viewerId);
     for (UUID golem : golems.reset(viewerId)) {
       hideLabel(viewer, golem);
       unglow(viewer, golem);
@@ -209,6 +231,29 @@ public final class RevealService extends TickedObject {
     UUID golem = handle.entityId();
     unglowFor(golems.drop(golem), golem);
     retireLabel(golem);
+  }
+
+  public void refreshViewers() {
+    for (UUID viewerId : List.copyOf(armed)) {
+      Player viewer = Bukkit.getPlayer(viewerId);
+      if (viewer != null) {
+        requestUpdate(viewer);
+      }
+    }
+  }
+
+  @Override
+  public List<String> details(Player viewer, LivingEntity target) {
+    UUID viewerId = viewer.getUniqueId();
+    boolean status = statusViewers.contains(viewerId);
+    Optional<GolemHandle> golem = GolemancyRuntime.handle(target);
+    if (golem.isPresent()) {
+      return golemDetails(golem.get(), viewerId, status);
+    }
+    if (status && target instanceof Skeleton servant) {
+      return servantDetails(servant, viewerId);
+    }
+    return List.of();
   }
 
   public void nodeSpawned(NodeKey key) {
@@ -269,6 +314,8 @@ public final class RevealService extends TickedObject {
     labelRetries.clear();
     glowIds.clear();
     armed.clear();
+    statusViewers.clear();
+    glossStatus.clear();
     pendingUpdates.clear();
     spawning.clear();
     pendingRefresh.clear();
@@ -563,7 +610,7 @@ public final class RevealService extends TickedObject {
       if (handle.isRetired() || !entity.isValid() || !golems.isShown(viewer.getUniqueId(), golem)) {
         return;
       }
-      attachLabel(viewer, entity, handle.owner(), content(handle), settings.get().labelViewRange(), golems);
+      attachLabel(viewer, entity, handle.owner(), content(handle, labelNamed()), settings.get().labelViewRange(), golems);
     } finally {
       spawning.remove(golem);
     }
@@ -635,7 +682,7 @@ public final class RevealService extends TickedObject {
   }
 
   private void applyText(GolemHandle handle, Label label) {
-    applyContent(handle.entityId(), label, content(handle));
+    applyContent(handle.entityId(), label, content(handle, labelNamed()));
   }
 
   private void applyContent(UUID carrier, Label label, GolemLabel.Content content) {
@@ -648,17 +695,57 @@ public final class RevealService extends TickedObject {
     }
   }
 
-  private GolemLabel.Content content(GolemHandle handle) {
+  private GolemLabel.Content content(GolemHandle handle, boolean named) {
     try (LanguageAudience.Scope audience = LanguageAudience.open(handle.owner())) {
       Mob golem = handle.entity();
       GolemState state = handle.state();
-      Component name = PaperCompat.customName(golem);
-      if (name == null) {
-        name = Component.text(AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(state.body().displayName()))));
-      }
-      return new GolemLabel.Content(name, golem.getHealth(), GolemVitals.maxHealth(golem), coreNames(GolemMastery.cores(handle)),
-          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork());
+      return new GolemLabel.Content(golemName(handle), golem.getHealth(), GolemVitals.maxHealth(golem), coreNames(GolemMastery.cores(handle)),
+          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork(), named);
     }
+  }
+
+  private static Component golemName(GolemHandle handle) {
+    GolemState state = handle.state();
+    return state.name().orElseGet(() -> Component.text(AdaptLanguage.text(GolemancyMessages.GUI_TITLE,
+        trusted("body", AdaptLanguage.text(state.body().displayName())))));
+  }
+
+  private static GolemNameMode nameMode() {
+    return GolemancyRuntime.names().map(GolemNames::mode).orElse(GolemNameMode.VANILLA);
+  }
+
+  private static boolean labelNamed() {
+    return !nameMode().showsCustomName();
+  }
+
+  private List<String> golemDetails(GolemHandle handle, UUID viewerId, boolean status) {
+    boolean named = labelNamed();
+    if (status && handle.owner().equals(viewerId)) {
+      return GolemLabel.legacyLines(content(handle, named));
+    }
+    if (!named) {
+      return List.of();
+    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(viewerId)) {
+      return List.of(GolemLabel.legacyName(golemName(handle)));
+    }
+  }
+
+  private List<String> servantDetails(Skeleton servant, UUID viewerId) {
+    ServantFrame.Frame frame = ServantFrame.frame().filter(found -> found.level(viewerId) >= 1).orElse(null);
+    if (frame == null || !frame.servants(viewerId).contains(servant)) {
+      return List.of();
+    }
+    return GolemLabel.legacyLines(servantContent(servant, new ServantView(frame, frame.channels(viewerId)), viewerId));
+  }
+
+  private List<GlossStatus.Target> golemTargets(Map<UUID, GolemHandle> inRange) {
+    double range = settings.get().labelRange();
+    List<GlossStatus.Target> targets = new ArrayList<>(inRange.size() + 2);
+    for (GolemHandle handle : inRange.values()) {
+      targets.add(new GlossStatus.Target(handle.entity(), range, () -> content(handle, false)));
+    }
+    return targets;
   }
 
   private static String coreNames(List<GolemCoreType> cores) {
@@ -675,7 +762,7 @@ public final class RevealService extends TickedObject {
     }
   }
 
-  private void revealServants(Player viewer) {
+  private void revealServants(Player viewer, GolemStatusRoute route, List<GlossStatus.Target> statusTargets) {
     UUID viewerId = viewer.getUniqueId();
     ServantFrame.Frame frame = ServantFrame.frame().filter(found -> found.level(viewerId) >= 1).orElse(null);
     if (frame == null) {
@@ -683,7 +770,7 @@ public final class RevealService extends TickedObject {
       return;
     }
     Map<UUID, Skeleton> glowing = servantsInRange(viewer, frame.servants(viewerId), settings.get().revealRange(), servantGlows);
-    Map<UUID, Skeleton> labeled = hidesLabels(viewer) ? Map.of() : servantsInRange(viewer, glowing.values(), frame.labelRange(), servantLabels);
+    Map<UUID, Skeleton> labeled = route == GolemStatusRoute.LABEL ? servantsInRange(viewer, glowing.values(), frame.labelRange(), servantLabels) : Map.of();
     int channels = frame.channels(viewerId);
     for (UUID servant : servantGlows.update(viewerId, glowing.keySet()).leaving()) {
       unglow(viewer, servant);
@@ -699,6 +786,11 @@ public final class RevealService extends TickedObject {
     ServantView view = new ServantView(frame, channels);
     for (Skeleton servant : labeled.values()) {
       showServantLabel(viewer, servant, view, delta.entering().contains(servant.getUniqueId()));
+    }
+    if (route == GolemStatusRoute.GLOSS) {
+      for (Skeleton servant : glowing.values()) {
+        statusTargets.add(new GlossStatus.Target(servant, frame.labelRange(), () -> servantContent(servant, view, viewerId)));
+      }
     }
   }
 
@@ -766,7 +858,7 @@ public final class RevealService extends TickedObject {
     try (LanguageAudience.Scope audience = LanguageAudience.open(owner)) {
       long seconds = RevealRules.secondsLeft(view.frame().expiresAt(servant), M.ms());
       return new GolemLabel.Content(Component.text(AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_NAME)), servant.getHealth(),
-          GolemVitals.maxHealth(servant), AdaptLanguage.text(GolemancyMessages.BONE_FRAME_TIME_LEFT, trusted("seconds", seconds)), "", view.channels(), false);
+          GolemVitals.maxHealth(servant), AdaptLanguage.text(GolemancyMessages.BONE_FRAME_TIME_LEFT, trusted("seconds", seconds)), "", view.channels(), false, true);
     }
   }
 
@@ -811,6 +903,8 @@ public final class RevealService extends TickedObject {
 
   private void forgetViewer(UUID viewerId) {
     armed.remove(viewerId);
+    statusViewers.remove(viewerId);
+    glossStatus.forget(viewerId);
     pendingUpdates.remove(viewerId);
     for (UUID golem : golems.reset(viewerId)) {
       glowIds.remove(golem);

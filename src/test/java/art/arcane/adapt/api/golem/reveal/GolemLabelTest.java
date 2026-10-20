@@ -36,7 +36,7 @@ class GolemLabelTest {
   @Test
   void labelShowsNameHealthCoreModeAndChannel() {
     Component label = GolemLabel.compose(new GolemLabel.Content(
-        Component.text("Steve's Iron Golem"), 73.2D, 100D, "Guardian", "Work", ChannelMask.of(DyeColor.RED), false));
+        Component.text("Steve's Iron Golem"), 73.2D, 100D, "Guardian", "Work", ChannelMask.of(DyeColor.RED), false, true));
 
     String plain = PlainTextComponentSerializer.plainText().serialize(label);
 
@@ -48,7 +48,7 @@ class GolemLabelTest {
   @Test
   void aGolemWithoutAChannelShowsTheEmptySwatch() {
     Component label = GolemLabel.compose(new GolemLabel.Content(
-        Component.text("Golem"), 4D, 4D, "Companion", "Follow", ChannelMask.NONE, false));
+        Component.text("Golem"), 4D, 4D, "Companion", "Follow", ChannelMask.NONE, false, true));
 
     String plain = PlainTextComponentSerializer.plainText().serialize(label);
 
@@ -58,7 +58,7 @@ class GolemLabelTest {
   @Test
   void everyChannelGetsItsOwnSwatch() {
     Component label = GolemLabel.compose(new GolemLabel.Content(
-        Component.text("Golem"), 4D, 4D, "Sorter", "Work", ChannelMask.of(DyeColor.BLUE, DyeColor.LIME), false));
+        Component.text("Golem"), 4D, 4D, "Sorter", "Work", ChannelMask.of(DyeColor.BLUE, DyeColor.LIME), false, true));
 
     assertThat(colorsOf(label, GolemLabel.SWATCH)).containsExactly(
         TextColor.color(DyeColor.LIME.getColor().asRGB()), TextColor.color(DyeColor.BLUE.getColor().asRGB()));
@@ -66,19 +66,19 @@ class GolemLabelTest {
 
   @Test
   void equalContentComparesEqualSoRefreshesCanBeSkipped() {
-    GolemLabel.Content first = new GolemLabel.Content(Component.text("Golem"), 4D, 4D, "Sorter", "Work", 3, false);
-    GolemLabel.Content second = new GolemLabel.Content(Component.text("Golem"), 4D, 4D, "Sorter", "Work", 3, false);
+    GolemLabel.Content first = new GolemLabel.Content(Component.text("Golem"), 4D, 4D, "Sorter", "Work", 3, false, true);
+    GolemLabel.Content second = new GolemLabel.Content(Component.text("Golem"), 4D, 4D, "Sorter", "Work", 3, false, true);
 
     assertThat(first).isEqualTo(second);
-    assertThat(first).isNotEqualTo(new GolemLabel.Content(Component.text("Golem"), 3D, 4D, "Sorter", "Work", 3, false));
+    assertThat(first).isNotEqualTo(new GolemLabel.Content(Component.text("Golem"), 3D, 4D, "Sorter", "Work", 3, false, true));
   }
 
   @Test
   void aMasterworkLabelFramesItsNameInGold() {
     Component label = GolemLabel.compose(new GolemLabel.Content(
-        Component.text("Steve's Iron Golem"), 100D, 125D, "Harvester + Guardian", "Work", ChannelMask.NONE, true));
+        Component.text("Steve's Iron Golem"), 100D, 125D, "Harvester + Guardian", "Work", ChannelMask.NONE, true, true));
     Component plainLabel = GolemLabel.compose(new GolemLabel.Content(
-        Component.text("Steve's Iron Golem"), 100D, 125D, "Harvester + Guardian", "Work", ChannelMask.NONE, false));
+        Component.text("Steve's Iron Golem"), 100D, 125D, "Harvester + Guardian", "Work", ChannelMask.NONE, false, true));
 
     String plain = PlainTextComponentSerializer.plainText().serialize(label);
 
@@ -87,6 +87,46 @@ class GolemLabelTest {
     assertThat(colorsOf(label, GolemLabel.MASTERWORK_TRIM + " ")).containsExactly(NamedTextColor.GOLD);
     assertThat(colorsOf(label, " " + GolemLabel.MASTERWORK_TRIM)).containsExactly(NamedTextColor.GOLD);
     assertThat(PlainTextComponentSerializer.plainText().serialize(plainLabel)).doesNotContain(GolemLabel.MASTERWORK_TRIM);
+  }
+
+  @Test
+  void anUnnamedLabelLeavesTheNameToTheNametagAndKeepsTheStatusLines() {
+    Component label = GolemLabel.compose(new GolemLabel.Content(
+        Component.text("Steve's Iron Golem"), 50D, 100D, "Guardian", "Work", ChannelMask.of(DyeColor.RED), false, false));
+
+    String plain = PlainTextComponentSerializer.plainText().serialize(label);
+
+    assertThat(plain).doesNotContain("Steve's Iron Golem").contains("50/100", "Guardian", "Work", GolemLabel.SWATCH);
+    assertThat(plain.lines().toList()).hasSize(2);
+  }
+
+  @Test
+  void anUnnamedMasterworkLabelMarksItsHealthLineInGold() {
+    Component label = GolemLabel.compose(new GolemLabel.Content(
+        Component.text("Steve's Iron Golem"), 100D, 125D, "Harvester + Guardian", "Work", ChannelMask.NONE, true, false));
+
+    String plain = PlainTextComponentSerializer.plainText().serialize(label);
+
+    assertThat(plain.lines().findFirst()).hasValueSatisfying(line -> assertThat(line)
+        .startsWith(GolemLabel.MASTERWORK_TRIM + " ").endsWith(" " + GolemLabel.MASTERWORK_TRIM).contains("100/125"));
+    assertThat(colorsOf(label, GolemLabel.MASTERWORK_TRIM + " ")).containsExactly(NamedTextColor.GOLD);
+  }
+
+  @Test
+  void legacyLinesCarryTheSameLinesAsFormattedText() {
+    GolemLabel.Content named = new GolemLabel.Content(
+        Component.text("Clank"), 40D, 100D, "Sorter", "Work", ChannelMask.of(DyeColor.BLUE), false, true);
+
+    List<String> lines = GolemLabel.legacyLines(named);
+    List<String> unnamed = GolemLabel.legacyLines(new GolemLabel.Content(
+        Component.text("Clank"), 40D, 100D, "Sorter", "Work", ChannelMask.of(DyeColor.BLUE), false, false));
+
+    assertThat(lines).hasSize(3);
+    assertThat(lines.getFirst()).contains("Clank").contains("§");
+    assertThat(lines.get(1)).contains("40/100");
+    assertThat(lines.get(2)).contains("Sorter", "Work", GolemLabel.SWATCH);
+    assertThat(unnamed).containsExactlyElementsOf(lines.subList(1, 3));
+    assertThat(GolemLabel.legacyName(Component.text("Clank"))).contains("Clank").startsWith("§");
   }
 
   private static List<TextColor> colorsOf(Component root, String content) {

@@ -4388,6 +4388,8 @@ bone = "Kemik"
 
 [golemancy.golem]
 name = "{body} Golemi ({owner})"
+renamed = "Golemin artık {name} adını taşıyor"
+rename_refused = "Golemi yalnızca sahibi yeniden adlandırabilir"
 
 [golemancy.mode]
 work = "Çalış"

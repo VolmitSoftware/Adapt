@@ -4388,6 +4388,8 @@ bone = "Bot"
 
 [golemancy.golem]
 name = "{body}golem van {owner}"
+renamed = "Je golem heet nu {name}"
+rename_refused = "Alleen de eigenaar van de golem kan hem hernoemen"
 
 [golemancy.mode]
 work = "Werken"

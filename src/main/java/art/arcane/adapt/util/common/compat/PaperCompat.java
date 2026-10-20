@@ -63,6 +63,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
@@ -793,6 +794,18 @@ public final class PaperCompat {
       entity.customName(name);
     } catch (NoSuchMethodError absent) {
       entity.setCustomName(name == null ? null : LegacyComponentSerializer.legacySection().serialize(name));
+    }
+  }
+
+  public static Component displayName(ItemStack item) {
+    ItemMeta meta = item.getItemMeta();
+    if (meta == null || !meta.hasDisplayName()) {
+      return null;
+    }
+    try {
+      return meta.displayName();
+    } catch (NoSuchMethodError absent) {
+      return LegacyComponentSerializer.legacySection().deserialize(meta.getDisplayName());
     }
   }
 

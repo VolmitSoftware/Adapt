@@ -4388,6 +4388,8 @@ bone = "Костяной"
 
 [golemancy.golem]
 name = "{body} голем игрока {owner}"
+renamed = "Теперь ваш голем зовётся {name}"
+rename_refused = "Переименовать голема может только его владелец"
 
 [golemancy.mode]
 work = "Работа"

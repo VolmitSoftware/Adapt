@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
@@ -136,6 +137,11 @@ public final class GolemHandle {
 
   public void setSnowTrail(boolean snowTrail) {
     state.setSnowTrail(snowTrail);
+    flush();
+  }
+
+  void setName(Component name) {
+    state.setName(Objects.requireNonNull(name));
     flush();
   }
 

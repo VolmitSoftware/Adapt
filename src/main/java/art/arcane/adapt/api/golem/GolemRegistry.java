@@ -332,9 +332,26 @@ public final class GolemRegistry extends TickedObject {
 
   public GolemSnapshot snapshot(GolemHandle handle) {
     Mob golem = handle.entity();
-    GolemSnapshot.Traits traits = new GolemSnapshot.Traits(GolemSnapshot.serializeName(PaperCompat.customName(golem)), golem.getHealth(),
+    GolemSnapshot.Traits traits = new GolemSnapshot.Traits(handle.state().customName(), golem.getHealth(),
         platform.patinaStage(golem), platform.waxed(golem), !(golem instanceof IronGolem iron) || iron.isPlayerCreated());
     return GolemSnapshot.capture(handle.state(), traits, platform.nowMillis());
+  }
+
+  public void rename(GolemHandle handle, Component name) {
+    requireOwned(handle.entity(), "rename");
+    if (handle.isRetired()) {
+      return;
+    }
+    handle.setName(name);
+    display(handle.entity(), name);
+  }
+
+  public void showNames() {
+    for (GolemHandle handle : List.copyOf(handles.values())) {
+      if (!handle.isRetired()) {
+        runOwned(handle, () -> display(handle.entity(), handle.state().name().orElse(null)));
+      }
+    }
   }
 
   public boolean release(GolemHandle handle) {
@@ -627,6 +644,7 @@ public final class GolemRegistry extends TickedObject {
     }
     GolemHandle handle = new GolemHandle(mob, state.get(), platform);
     if (index(handle)) {
+      display(mob, handle.state().name().orElse(null));
       evaluate(handle, platform.isOnline(handle.owner()));
     }
   }
@@ -1071,15 +1089,23 @@ public final class GolemRegistry extends TickedObject {
 
   private void writeBound(Mob golem, GolemState state, Component name) {
     state.setHostileDamagePool(HostileDamagePool.takeUnbound(golem));
+    state.setName(name);
     state.write(golem);
     golem.getPersistentDataContainer().set(BOUND_ONCE_KEY, PersistentDataType.BYTE, (byte) 1);
     StackExclusion.exclude(golem);
     golem.setPersistent(true);
     golem.setRemoveWhenFarAway(false);
-    PaperCompat.customName(golem, name);
+    display(golem, name);
     AttributeInstance scale = platform.scaleOf(golem);
     if (scale != null) {
       GolemScale.setModifier(scale, GolemScale.modifierAmount(settings.get().bodyScale(state.body())));
+    }
+  }
+
+  private void display(Mob golem, Component name) {
+    Component shown = platform.nameMode().showsCustomName() ? name : null;
+    if (!Objects.equals(PaperCompat.customName(golem), shown)) {
+      PaperCompat.customName(golem, shown);
     }
   }
 

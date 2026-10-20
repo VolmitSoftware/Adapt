@@ -4388,6 +4388,8 @@ bone = "Kościany"
 
 [golemancy.golem]
 name = "{body} golem gracza {owner}"
+renamed = "Twój golem nazywa się teraz {name}"
+rename_refused = "Tylko właściciel golema może zmienić jego nazwę"
 
 [golemancy.mode]
 work = "Praca"

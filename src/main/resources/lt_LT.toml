@@ -4388,6 +4388,8 @@ bone = "Kaulo"
 
 [golemancy.golem]
 name = "{body} golemas ({owner})"
+renamed = "Tavo golemas dabar vadinasi {name}"
+rename_refused = "Tik golemo savininkas gali jį pervadinti"
 
 [golemancy.mode]
 work = "Darbas"

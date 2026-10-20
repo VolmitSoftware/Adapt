@@ -2,10 +2,15 @@ package art.arcane.adapt.api.golem.reveal;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.DyeColor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class GolemLabel {
   public static final int HEALTH_SEGMENTS = 10;
@@ -16,6 +21,7 @@ public final class GolemLabel {
   private static final String SEPARATOR = " · ";
   private static final double HEALTHY_FRACTION = 0.5D;
   private static final double WOUNDED_FRACTION = 0.25D;
+  private static final int MAX_LINES = 3;
 
   private GolemLabel() {
   }
@@ -37,37 +43,70 @@ public final class GolemLabel {
   }
 
   public static Component compose(Content content) {
-    TextComponent.Builder label = Component.text();
-    appendName(label, content);
-    label.append(Component.newline());
-    appendHealth(label, content.health(), content.maxHealth());
-    label.append(Component.newline());
-    label.append(Component.text(content.core(), NamedTextColor.AQUA));
-    label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
-    if (!content.mode().isEmpty()) {
-      label.append(Component.text(content.mode(), NamedTextColor.YELLOW));
-      label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
-    }
-    appendChannels(label, content.channels());
-    return label.build();
+    return Component.join(JoinConfiguration.newlines(), lines(content));
   }
 
-  private static void appendName(TextComponent.Builder label, Content content) {
+  public static List<Component> lines(Content content) {
+    List<Component> lines = new ArrayList<>(MAX_LINES);
+    if (content.named()) {
+      lines.add(nameLine(content));
+    }
+    lines.add(healthLine(content));
+    lines.add(statusLine(content));
+    return lines;
+  }
+
+  public static List<String> legacyLines(Content content) {
+    List<Component> lines = lines(content);
+    List<String> legacy = new ArrayList<>(lines.size());
+    for (Component line : lines) {
+      legacy.add(LegacyComponentSerializer.legacySection().serialize(line));
+    }
+    return legacy;
+  }
+
+  public static String legacyName(Component name) {
+    return LegacyComponentSerializer.legacySection().serialize(name.colorIfAbsent(NamedTextColor.WHITE));
+  }
+
+  private static Component nameLine(Content content) {
     Component name = content.name().colorIfAbsent(NamedTextColor.WHITE);
     if (!content.masterwork()) {
-      label.append(name);
-      return;
+      return name;
     }
-    label.append(Component.text(MASTERWORK_TRIM + " ", NamedTextColor.GOLD));
-    label.append(name);
-    label.append(Component.text(" " + MASTERWORK_TRIM, NamedTextColor.GOLD));
+    return trimmed(name);
   }
 
-  private static void appendHealth(TextComponent.Builder label, double health, double maxHealth) {
+  private static Component healthLine(Content content) {
+    double health = content.health();
+    double maxHealth = content.maxHealth();
     int filled = filledSegments(health, maxHealth);
-    label.append(Component.text(SEGMENT.repeat(filled), healthColor(health, maxHealth)));
-    label.append(Component.text(SEGMENT.repeat(HEALTH_SEGMENTS - filled), NamedTextColor.DARK_GRAY));
-    label.append(Component.text(" " + (int) Math.ceil(Math.max(0D, health)) + "/" + Math.round(Math.max(0D, maxHealth)), NamedTextColor.GRAY));
+    Component bar = Component.text()
+        .append(Component.text(SEGMENT.repeat(filled), healthColor(health, maxHealth)))
+        .append(Component.text(SEGMENT.repeat(HEALTH_SEGMENTS - filled), NamedTextColor.DARK_GRAY))
+        .append(Component.text(" " + (int) Math.ceil(Math.max(0D, health)) + "/" + Math.round(Math.max(0D, maxHealth)), NamedTextColor.GRAY))
+        .build();
+    return content.masterwork() && !content.named() ? trimmed(bar) : bar;
+  }
+
+  private static Component statusLine(Content content) {
+    TextComponent.Builder line = Component.text();
+    line.append(Component.text(content.core(), NamedTextColor.AQUA));
+    line.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
+    if (!content.mode().isEmpty()) {
+      line.append(Component.text(content.mode(), NamedTextColor.YELLOW));
+      line.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
+    }
+    appendChannels(line, content.channels());
+    return line.build();
+  }
+
+  private static Component trimmed(Component inner) {
+    return Component.text()
+        .append(Component.text(MASTERWORK_TRIM + " ", NamedTextColor.GOLD))
+        .append(inner)
+        .append(Component.text(" " + MASTERWORK_TRIM, NamedTextColor.GOLD))
+        .build();
   }
 
   private static void appendChannels(TextComponent.Builder label, int channels) {
@@ -80,6 +119,7 @@ public final class GolemLabel {
     }
   }
 
-  public record Content(Component name, double health, double maxHealth, String core, String mode, int channels, boolean masterwork) {
+  public record Content(Component name, double health, double maxHealth, String core, String mode, int channels, boolean masterwork,
+                        boolean named) {
   }
 }

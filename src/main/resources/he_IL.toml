@@ -4388,6 +4388,8 @@ bone = "עצם"
 
 [golemancy.golem]
 name = "גולם {body} של {owner}"
+renamed = "הגולם שלך נקרא כעת {name}"
+rename_refused = "רק הבעלים של הגולם יכול לשנות את שמו"
 
 [golemancy.mode]
 work = "עבודה"
