@@ -4493,6 +4493,13 @@ combat_locked_lore = "Un golem Guardiano difende sempre, quindi il suo combattim
 pack = "Impacchetta"
 pack_lore = "Comprime questo golem in un blocco di Golem dormiente che puoi piazzare per risvegliarlo"
 
+[golemancy.tools]
+needs_rod = "Serve una canna da pesca nel suo baule di casa"
+needs_silk = "Serve un piccone con Tocco di velluto nel suo baule di casa"
+needs_fortune = "Serve un piccone con Fortuna nel suo baule di casa"
+needs_tier = "Serve nel suo baule di casa: {tool}"
+holding = "Tiene: {tool}"
+
 [golemancy.roster]
 title = "Elenco dei golem"
 empty = "Non hai golem"
@@ -4672,17 +4679,18 @@ lore1 = "Durezza massima dei blocchi"
 lore2 = "Secondi per blocco"
 lore3 = "Attrezzo da scavo"
 lore4 = "Interruttore Tocco di velluto sui Nodi di Scavo"
-lore5 = "Interruttore Fortuna I sui Nodi di Scavo"
-lore = ["Durezza massima dei blocchi", "Secondi per blocco", "Attrezzo da scavo", "Interruttore Tocco di velluto sui Nodi di Scavo", "Interruttore Fortuna I sui Nodi di Scavo"]
+lore5 = "Interruttore Fortuna sui Nodi di Scavo"
+lore6 = "Scava i blocchi oltre il livello ferro con un piccone adatto dal baule di casa"
+lore = ["Durezza massima dei blocchi", "Secondi per blocco", "Attrezzo da scavo", "Interruttore Tocco di velluto sui Nodi di Scavo", "Interruttore Fortuna sui Nodi di Scavo", "Scava i blocchi oltre il livello ferro con un piccone adatto dal baule di casa"]
 filter_ready = "Rompe i blocchi del filtro"
 filter_needed = "Aggiungi blocchi alla lista bianca"
 filter_lore = "I demolitori rompono solo i blocchi elencati da una lista bianca"
 silk_on = "Tocco di velluto: attivo"
 silk_off = "Tocco di velluto: disattivo"
-fortune_on = "Fortuna I: attiva"
-fortune_off = "Fortuna I: disattiva"
+fortune_on = "Fortuna: attiva"
+fortune_off = "Fortuna: disattiva"
 locked = "Si sblocca con Nucleo di Demolitore al livello {level}"
-exclusive = "Tocco di velluto e Fortuna I si disattivano a vicenda"
+exclusive = "Tocco di velluto e Fortuna si disattivano a vicenda"
 
 [golemancy.rancher_core]
 name = "Nucleo di Allevatore"
@@ -4754,7 +4762,8 @@ lore2 = "Fortuna di pesca"
 lore3 = "Interruttore del filtro spazzatura sui Nodi di Pesca"
 lore4 = "Tempo di cattura ridotto sotto la pioggia"
 lore5 = "Probabilità di una cattura doppia"
-lore = ["Secondi per cattura", "Fortuna di pesca", "Interruttore del filtro spazzatura sui Nodi di Pesca", "Tempo di cattura ridotto sotto la pioggia", "Probabilità di una cattura doppia"]
+lore6 = "Pesca con una canna da pesca dal baule di casa"
+lore = ["Secondi per cattura", "Fortuna di pesca", "Interruttore del filtro spazzatura sui Nodi di Pesca", "Tempo di cattura ridotto sotto la pioggia", "Probabilità di una cattura doppia", "Pesca con una canna da pesca dal baule di casa"]
 water_ready = "Acqua aperta trovata"
 water_needed = "Serve acqua aperta"
 water_lore = "I pescatori hanno bisogno di uno specchio d'acqua aperta di 5 per 5 davanti al nodo"

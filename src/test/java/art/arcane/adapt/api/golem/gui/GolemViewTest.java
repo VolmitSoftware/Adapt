@@ -8,6 +8,8 @@ import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemToolNote;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -154,10 +156,22 @@ class GolemViewTest {
   @Test
   void theHomeChestShowsTheAnchorChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
-        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), GolemState.Anchor.of(WORLD, 2, 64, 2)), runes(), carried(), stats(), 0,
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), GolemState.Anchor.of(WORLD, 2, 64, 2), null, null), runes(), carried(), stats(), 0,
         toggles(), equipment());
 
     assertThat(next.changes(base())).containsExactly(ANCHORS);
+  }
+
+  @Test
+  void aToolNoteOrAHeldToolShowsTheAnchorChange() {
+    GolemView noted = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_ROD, null), null), runes(),
+        carried(), stats(), 0, toggles(), equipment());
+    GolemView holding = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, "rod"), runes(), carried(), stats(), 0, toggles(), equipment());
+
+    assertThat(noted.changes(base())).containsExactly(ANCHORS);
+    assertThat(holding.changes(base())).containsExactly(ANCHORS);
   }
 
   @Test
@@ -221,7 +235,7 @@ class GolemViewTest {
   }
 
   private static GolemView.Anchors anchors() {
-    return new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null);
+    return new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null, null, null);
   }
 
   private static GolemView.RuneSlots runes() {

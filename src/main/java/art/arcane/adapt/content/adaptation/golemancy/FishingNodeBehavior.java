@@ -5,6 +5,10 @@ import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemToolEnchants;
+import art.arcane.adapt.api.golem.GolemToolNeed;
+import art.arcane.adapt.api.golem.GolemToolNote;
+import art.arcane.adapt.api.golem.GolemToolPlan;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
@@ -12,8 +16,10 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +31,8 @@ import java.util.function.DoubleSupplier;
 final class FishingNodeBehavior implements NodeBehavior {
   private static final double CENTER = 0.5D;
   private static final double SURFACE = 1.0D;
+  private static final GolemToolPlan RODS = new GolemToolPlan(List.of(new GolemToolNeed("fishing_rod", item -> item.getType() == Material.FISHING_ROD,
+      item -> 0, new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_ROD, null))), false);
 
   private final GolemAnglerCore core;
   private final AnglerWaters waters;
@@ -39,6 +47,16 @@ final class FishingNodeBehavior implements NodeBehavior {
   @Override
   public Adaptation<?> policy() {
     return core;
+  }
+
+  @Override
+  public boolean deliversBeforeClaiming() {
+    return true;
+  }
+
+  @Override
+  public GolemToolPlan tools(GolemContext golem, GolemTask task) {
+    return RODS;
   }
 
   @Override
@@ -98,11 +116,12 @@ final class FishingNodeBehavior implements NodeBehavior {
       return GolemActResult.WORKING;
     }
     int caught = reel(golem, config, level, AnglerRules.discardJunk(config, level, record));
+    golem.wearTool();
     AnglerFeedback.play(core, splash, AnglerFeedback.Kind.CATCH);
     if (caught > 0) {
       golem.workXp(config.workXpPerCatch * caught);
     }
-    return golem.room() <= 0 ? GolemActResult.DONE : GolemActResult.WORKING;
+    return golem.room() <= 0 || golem.carried() > 0 ? GolemActResult.DONE : GolemActResult.WORKING;
   }
 
   @Override
@@ -111,14 +130,16 @@ final class FishingNodeBehavior implements NodeBehavior {
     int level = GolemancySupport.ownerLevel(core, golem);
     boolean rain = GolemancyRules.unlocked(level, config.rainLevel)
         && task.node().flatMap(waters::get).map(AnglerWater.Survey::raining).orElse(false);
-    return AnglerRules.intervalTicks(AnglerRules.catchSeconds(config.catchIntervalSecondsByLevel, level), rain ? config.rainIntervalMultiplier : 1D);
+    int seconds = AnglerRules.lureSeconds(AnglerRules.catchSeconds(config.catchIntervalSecondsByLevel, level),
+        golem.heldTool().map(GolemToolEnchants::lure).orElse(0));
+    return AnglerRules.intervalTicks(seconds, rain ? config.rainIntervalMultiplier : 1D);
   }
 
   private int reel(GolemContext golem, GolemAnglerCore.Config config, int level, boolean discardJunk) {
     int catches = GolemancyRules.unlocked(level, config.doubleCatchLevel) && random.getAsDouble() < config.doubleCatchChance ? 2 : 1;
     AnglerLoot.Tables tables = core.loot();
     AnglerLoot.Weights weights = AnglerRules.weights(config);
-    int luck = AnglerRules.luck(config.luckByLevel, level);
+    int luck = AnglerRules.luck(config.luckByLevel, level) + golem.heldTool().map(GolemToolEnchants::luckOfTheSea).orElse(0);
     int caught = 0;
     for (int index = 0; index < catches; index++) {
       Optional<AnglerLoot.Catch> roll = AnglerLoot.roll(tables, weights, luck, random);

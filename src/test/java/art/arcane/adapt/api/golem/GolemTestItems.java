@@ -3,6 +3,8 @@ package art.arcane.adapt.api.golem;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.mockito.quality.Strictness;
 
 import java.util.HashMap;
@@ -38,6 +40,30 @@ public final class GolemTestItems {
     lenient().when(stack.clone()).thenAnswer(invocation -> stack(type, count.get()));
     lenient().when(stack.toString()).thenAnswer(invocation -> type + "x" + count.get());
     return stack;
+  }
+
+  public static ItemStack tool(Material type, int damage, int maxDamage) {
+    ItemStack stack = mock(ItemStack.class, withSettings().strictness(Strictness.LENIENT));
+    AtomicInteger worn = new AtomicInteger(damage);
+    lenient().when(stack.getType()).thenReturn(type);
+    lenient().when(stack.getAmount()).thenReturn(1);
+    lenient().when(stack.getMaxStackSize()).thenReturn(1);
+    lenient().when(stack.getItemMeta()).thenAnswer(invocation -> damageable(worn.get(), maxDamage));
+    lenient().when(stack.setItemMeta(any())).thenAnswer(invocation -> {
+      worn.set(((Damageable) invocation.<ItemMeta>getArgument(0)).getDamage());
+      return true;
+    });
+    lenient().when(stack.isSimilar(any())).thenAnswer(invocation -> {
+      ItemStack other = invocation.getArgument(0);
+      return other != null && other.getType() == type;
+    });
+    lenient().when(stack.clone()).thenAnswer(invocation -> tool(type, worn.get(), maxDamage));
+    lenient().when(stack.toString()).thenAnswer(invocation -> type + "@" + worn.get() + "/" + maxDamage);
+    return stack;
+  }
+
+  public static int damage(ItemStack tool) {
+    return ((Damageable) tool.getItemMeta()).getDamage();
   }
 
   public static Inventory inventory(int slots) {
@@ -83,6 +109,19 @@ public final class GolemTestItems {
       }
     }
     return total;
+  }
+
+  private static Damageable damageable(int damage, int maxDamage) {
+    Damageable meta = mock(Damageable.class, withSettings().strictness(Strictness.LENIENT));
+    AtomicInteger current = new AtomicInteger(damage);
+    lenient().when(meta.getDamage()).thenAnswer(invocation -> current.get());
+    lenient().doAnswer(invocation -> {
+      current.set(invocation.getArgument(0));
+      return null;
+    }).when(meta).setDamage(anyInt());
+    lenient().when(meta.hasMaxDamage()).thenReturn(true);
+    lenient().when(meta.getMaxDamage()).thenReturn(maxDamage);
+    return meta;
   }
 
   private static int insert(ItemStack[] contents, ItemStack item) {

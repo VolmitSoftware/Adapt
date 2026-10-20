@@ -5,6 +5,10 @@ import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTestItems;
+import art.arcane.adapt.api.golem.GolemToolEnchants;
+import art.arcane.adapt.api.golem.GolemToolNeed;
+import art.arcane.adapt.api.golem.GolemToolPlan;
+import art.arcane.adapt.api.golem.GolemToolRules;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
@@ -15,6 +19,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -42,7 +47,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -54,6 +58,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +83,8 @@ class BreakerNodeBehaviorTest {
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<BreakerFeedback> feedback;
   private MockedStatic<XpProvenance> provenance;
+  private MockedStatic<GolemToolEnchants> enchants;
+  private ItemStack inUse;
 
   @BeforeEach
   void setUp() {
@@ -89,20 +96,19 @@ class BreakerNodeBehaviorTest {
     List<Material> pickaxes = BreakerRules.tools(BreakerRules.DEFAULT_TOOLS, type -> true, name -> {
     });
     lenient().when(core.pickaxe(anyInt())).thenAnswer(invocation -> BreakerRules.toolAt(pickaxes, invocation.getArgument(0)));
-    lenient().when(core.tool(any(Material.class), anyBoolean(), anyBoolean())).thenAnswer(invocation -> {
-      ItemStack tool = GolemTestItems.stack(invocation.getArgument(0), 1);
-      String label = invocation.getArgument(0).toString() + (invocation.<Boolean>getArgument(1) ? "+silk" : "")
-          + (invocation.<Boolean>getArgument(2) ? "+fortune" : "");
-      tools.put(tool, label);
-      return tool;
-    });
+    lenient().when(core.tool(any(Material.class))).thenAnswer(invocation -> pick(invocation.getArgument(0), ""));
     level(2);
     hardness.putAll(Map.of(Material.COBBLESTONE, 2.0F, Material.STONE, 1.5F, Material.DEEPSLATE, 3.0F, Material.BEDROCK, -1.0F,
         Material.OBSIDIAN, 50.0F, Material.CHEST, 2.5F, Material.IRON_ORE, 3.0F, Material.COAL_ORE, 3.0F, Material.DIRT, 0.5F,
         Material.WATER, 100.0F));
     tileEntities.add(Material.CHEST);
     field.toolDrops(Material.STONE, tool -> CropField.stacks(tools.get(tool).contains("silk") ? Material.STONE : Material.COBBLESTONE, 1));
-    field.toolDrops(Material.COAL_ORE, tool -> CropField.stacks(Material.COAL, tools.get(tool).contains("fortune") ? 2 : 1));
+    field.toolDrops(Material.COAL_ORE, tool -> CropField.stacks(Material.COAL, 1 + fortuneOf(tool)));
+    field.toolDrops(Material.OBSIDIAN, tool -> CropField.stacks(Material.OBSIDIAN, 1));
+    field.toolDrops(Material.DIAMOND_ORE, tool -> CropField.stacks(tools.get(tool).contains("silk") ? Material.DIAMOND_ORE : Material.DIAMOND, 1));
+    field.needsTier(Material.OBSIDIAN, Material.DIAMOND_PICKAXE);
+    field.needsTier(Material.DIAMOND_ORE, Material.IRON_PICKAXE);
+    field.needsTier(Material.STONE, Material.WOODEN_PICKAXE);
     field.toolDrops(Material.COBBLESTONE, tool -> CropField.stacks(Material.COBBLESTONE, 1));
     field.toolDrops(Material.DIAMOND_BLOCK, tool -> CropField.stacks(Material.DIAMOND_BLOCK, 1));
     field.unharvestable(Material.IRON_ORE);
@@ -110,10 +116,15 @@ class BreakerNodeBehaviorTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(BreakerFeedback.class);
     provenance = mockStatic(XpProvenance.class);
+    enchants = mockStatic(GolemToolEnchants.class);
+    enchants.when(() -> GolemToolEnchants.silkTouch(any(ItemStack.class)))
+        .thenAnswer(invocation -> tools.getOrDefault(invocation.<ItemStack>getArgument(0), "").contains("+silk") ? 1 : 0);
+    enchants.when(() -> GolemToolEnchants.fortune(any(ItemStack.class))).thenAnswer(invocation -> fortuneOf(invocation.getArgument(0)));
   }
 
   @AfterEach
   void close() {
+    enchants.close();
     provenance.close();
     feedback.close();
     runtime.close();
@@ -234,41 +245,145 @@ class BreakerNodeBehaviorTest {
     assertThat(field.physicsFree).isEmpty();
     assertThat(carriedCounts()).containsExactlyEntriesOf(Map.of("COBBLESTONE", 1));
     assertThat(xp).containsExactly(0.4D);
-    verify(core, atLeastOnce()).tool(Material.IRON_PICKAXE, false, false);
-    verify(core, never()).tool(Material.IRON_PICKAXE, true, false);
+    verify(core, atLeastOnce()).tool(Material.IRON_PICKAXE);
     feedback.verify(() -> BreakerFeedback.play(eq(core), any(Location.class), any(BlockData.class)));
   }
 
   @Test
-  void silkTouchMinesBlocksWholeOnceUnlockedAndTurnedOn() {
+  void silkTouchMinesBlocksWholeOnlyWhileTheGolemHoldsASilkTouchPickaxeAndWearsIt() {
     record = BreakerRules.toggleSilk(record);
     stone(1, 64, 1);
     stone(1, 64, 0);
-
-    level(2);
-    assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
     level(3);
-    assertThat(behavior.act(golem(1), task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
+    GolemContext free = golem(1);
+
+    assertThat(behavior.act(free, task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
+    inUse = pick(Material.IRON_PICKAXE, "+silk");
+    GolemContext silky = golem(1);
+    assertThat(behavior.act(silky, task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
 
     assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("COBBLESTONE", 1, "STONE", 1));
-    verify(core).tool(Material.IRON_PICKAXE, true, false);
+    verify(free, never()).wearTool();
+    verify(silky, times(1)).wearTool();
   }
 
   @Test
-  void fortuneAppliesFromItsLevelWithTheNetheritePickaxe() {
+  void fortuneAppliesAtTheLevelOfTheFortunePickaxeAndNotAtAllWithoutOne() {
     record = BreakerRules.toggleFortune(record);
     field.set(1, 64, 1, Material.COAL_ORE, BreakerRulesTest.placed(Material.COAL_ORE));
     field.set(1, 64, 0, Material.COAL_ORE, BreakerRulesTest.placed(Material.COAL_ORE));
-
-    level(4);
-    assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
     level(5);
+
+    assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
+    inUse = pick(Material.IRON_PICKAXE, "+fortune3");
     assertThat(behavior.act(golem(1), task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
 
-    assertThat(carriedCounts()).containsExactlyEntriesOf(Map.of("COAL", 3));
-    verify(core, atLeastOnce()).tool(Material.DIAMOND_PICKAXE, false, false);
-    verify(core, never()).tool(Material.DIAMOND_PICKAXE, false, true);
-    verify(core).tool(Material.NETHERITE_PICKAXE, false, true);
+    assertThat(carriedCounts()).containsExactlyEntriesOf(Map.of("COAL", 5));
+  }
+
+  @Test
+  void aPlainBreakOfABlockAnIronPickaxeHarvestsNeedsNoToolAtAnyLevel() {
+    stone(1, 64, 1);
+    field.set(1, 64, 0, Material.DIAMOND_ORE, BreakerRulesTest.placed(Material.DIAMOND_ORE));
+    level(5);
+
+    assertThat(behavior.tools(golem(0), task(1, 64, 1)).needs()).isEmpty();
+    assertThat(behavior.tools(golem(0), task(1, 64, 0)).needs()).isEmpty();
+  }
+
+  @Test
+  void aBlockAboveIronTierNeedsTheCheapestPickaxeOfItsTierAndIsSkippedWithoutOne() {
+    field.set(1, 64, 1, Material.OBSIDIAN, BreakerRulesTest.placed(Material.OBSIDIAN));
+    level(5);
+
+    GolemToolPlan plan = behavior.tools(golem(0), task(1, 64, 1));
+
+    assertThat(plan.free()).isFalse();
+    GolemToolNeed need = plan.needs().getFirst();
+    assertThat(plan.needs()).hasSize(1);
+    assertThat(need.suits().test(pick(Material.IRON_PICKAXE, ""))).isFalse();
+    assertThat(need.suits().test(pick(Material.DIAMOND_PICKAXE, ""))).isTrue();
+    assertThat(need.suits().test(pick(Material.NETHERITE_PICKAXE, ""))).isTrue();
+    assertThat(need.note().key()).isEqualTo(GolemancyMessages.TOOLS_NEEDS_TIER);
+    assertThat(need.note().tool()).isEqualTo("Diamond Pickaxe");
+    ItemStack[] chest = {pick(Material.NETHERITE_PICKAXE, ""), pick(Material.IRON_PICKAXE, ""), pick(Material.DIAMOND_PICKAXE, "+silk")};
+    assertThat(GolemToolRules.slot(chest, need)).isEqualTo(2);
+    assertThat(GolemToolRules.choose(plan, null, ignored -> false).kind()).isEqualTo(GolemToolRules.Kind.MISSING);
+  }
+
+  @Test
+  void aBlockAboveIronTierWearsThePickaxeAndDropsAsAPlainPickaxeOfItsMaterial() {
+    field.set(1, 64, 1, Material.OBSIDIAN, BreakerRulesTest.placed(Material.OBSIDIAN));
+    level(5);
+    inUse = pick(Material.DIAMOND_PICKAXE, "+silk");
+    GolemContext golem = golem(1);
+
+    assertThat(behavior.act(golem, task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(carriedCounts()).containsExactlyEntriesOf(Map.of("OBSIDIAN", 1));
+    verify(golem, times(1)).wearTool();
+    verify(core, atLeastOnce()).tool(Material.DIAMOND_PICKAXE);
+  }
+
+  @Test
+  void silkModePrefersASilkTouchPickaxeThatHarvestsTheBlockAndOtherwiseBreaksFree() {
+    record = BreakerRules.toggleSilk(record);
+    field.set(1, 64, 1, Material.DIAMOND_ORE, BreakerRulesTest.placed(Material.DIAMOND_ORE));
+    level(3);
+
+    GolemToolPlan plan = behavior.tools(golem(0), task(1, 64, 1));
+
+    assertThat(plan.free()).isTrue();
+    assertThat(plan.needs()).singleElement().satisfies(need -> {
+      assertThat(need.suits().test(pick(Material.IRON_PICKAXE, "+silk"))).isTrue();
+      assertThat(need.suits().test(pick(Material.STONE_PICKAXE, "+silk"))).isFalse();
+      assertThat(need.suits().test(pick(Material.IRON_PICKAXE, ""))).isFalse();
+      assertThat(need.note().key()).isEqualTo(GolemancyMessages.TOOLS_NEEDS_SILK);
+    });
+  }
+
+  @Test
+  void silkModeAboveIronTierFallsBackToAPlainPickaxeOfTheTier() {
+    record = BreakerRules.toggleSilk(record);
+    field.set(1, 64, 1, Material.OBSIDIAN, BreakerRulesTest.placed(Material.OBSIDIAN));
+    level(5);
+
+    GolemToolPlan plan = behavior.tools(golem(0), task(1, 64, 1));
+
+    assertThat(plan.free()).isFalse();
+    assertThat(plan.needs()).hasSize(2);
+    assertThat(plan.needs().get(0).suits().test(pick(Material.DIAMOND_PICKAXE, "+silk"))).isTrue();
+    assertThat(plan.needs().get(0).suits().test(pick(Material.IRON_PICKAXE, "+silk"))).isFalse();
+    assertThat(plan.needs().get(1).suits().test(pick(Material.DIAMOND_PICKAXE, ""))).isTrue();
+    GolemToolRules.Choice fallback = GolemToolRules.choose(plan, pick(Material.DIAMOND_PICKAXE, ""), ignored -> false);
+    assertThat(fallback.kind()).isEqualTo(GolemToolRules.Kind.HELD);
+    assertThat(fallback.note().key()).isEqualTo(GolemancyMessages.TOOLS_NEEDS_SILK);
+  }
+
+  @Test
+  void fortuneModeNeedsAFortunePickaxeThatHarvestsTheBlock() {
+    record = BreakerRules.toggleFortune(record);
+    field.set(1, 64, 1, Material.COAL_ORE, BreakerRulesTest.placed(Material.COAL_ORE));
+    level(5);
+
+    GolemToolPlan plan = behavior.tools(golem(0), task(1, 64, 1));
+
+    assertThat(plan.free()).isTrue();
+    assertThat(plan.needs()).singleElement().satisfies(need -> {
+      assertThat(need.suits().test(pick(Material.WOODEN_PICKAXE, "+fortune1"))).isTrue();
+      assertThat(need.suits().test(pick(Material.DIAMOND_PICKAXE, "+silk"))).isFalse();
+      assertThat(need.note().key()).isEqualTo(GolemancyMessages.TOOLS_NEEDS_FORTUNE);
+    });
+  }
+
+  @Test
+  void aBlockOutsideTheGolemsRegionNeedsNoToolYet() {
+    field.set(1, 64, 1, Material.OBSIDIAN, BreakerRulesTest.placed(Material.OBSIDIAN));
+    level(5);
+    GolemContext golem = golem(0);
+    when(golem.owns(any(Location.class))).thenReturn(false);
+
+    assertThat(behavior.tools(golem, task(1, 64, 1))).isEqualTo(GolemToolPlan.NONE);
   }
 
   @Test
@@ -312,6 +427,7 @@ class BreakerNodeBehaviorTest {
     assertThat(behavior.act(golem, task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
     assertThat(behavior.act(golem, task(0, 64, 1))).isEqualTo(GolemActResult.DONE);
     record = BreakerRules.toggleSilk(record);
+    inUse = pick(Material.NETHERITE_PICKAXE, "+silk");
     assertThat(behavior.act(golem, task(-1, 64, 1))).isEqualTo(GolemActResult.DONE);
 
     assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("DIAMOND_BLOCK", 1, "COAL", 3, "STONE", 1));
@@ -454,6 +570,7 @@ class BreakerNodeBehaviorTest {
     lenient().when(golem.owns(any(Location.class))).thenReturn(true);
     lenient().when(golem.canBreak(any(Location.class))).thenReturn(true);
     lenient().when(golem.withBonusYield(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+    lenient().when(golem.toolInUse()).thenAnswer(invocation -> Optional.ofNullable(inUse));
     lenient().when(golem.carry(any(ItemStack.class))).thenAnswer(invocation -> {
       ItemStack item = invocation.getArgument(0);
       if (roomLeft <= 0) {
@@ -465,6 +582,18 @@ class BreakerNodeBehaviorTest {
     });
     lenient().doAnswer(invocation -> xp.add(invocation.getArgument(0))).when(golem).workXp(anyDouble());
     return golem;
+  }
+
+  private ItemStack pick(Material type, String enchant) {
+    ItemStack tool = GolemTestItems.stack(type, 1);
+    tools.put(tool, type + enchant);
+    return tool;
+  }
+
+  private int fortuneOf(ItemStack tool) {
+    String label = tools.getOrDefault(tool, "");
+    int at = label.indexOf("+fortune");
+    return at < 0 ? 0 : Integer.parseInt(label.substring(at + "+fortune".length()));
   }
 
   private static NodeRecord record(boolean whitelist, Material... filter) {

@@ -38,7 +38,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.block.TileState;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -53,12 +52,11 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
   static final String CORE_RECIPE = "golemancy-breaker-core";
   static final String NODE_RECIPE = "golemancy-breaker-node";
   private static final int RECIPE_LEVEL = 1;
-  private static final int ENCHANTMENT_LEVEL = 1;
   private static final double TICKS_PER_SECOND = 20D;
   private static final NamespacedKey PICKAXES = NamespacedKey.minecraft("pickaxes");
 
   private final Map<Material, Boolean> tileEntities = new ConcurrentHashMap<>();
-  private final Map<Tool, ItemStack> tools = new ConcurrentHashMap<>();
+  private final Map<Material, ItemStack> tools = new ConcurrentHashMap<>();
   private final BreakerNodeBehavior breaker = new BreakerNodeBehavior(this);
   private final BreakerNodePanel panel = new BreakerNodePanel(this, ItemStack::new);
   private volatile ParsedBlacklist parsed;
@@ -104,6 +102,9 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     if (GolemancyRules.unlocked(level, config.fortuneLevel)) {
       unlockLore(v, GolemancyMessages.BREAKER_CORE_LORE5);
     }
+    if (BreakerRules.aboveFree(pickaxe(level))) {
+      unlockLore(v, GolemancyMessages.BREAKER_CORE_LORE6);
+    }
   }
 
   Config config() {
@@ -139,18 +140,8 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     return tileEntities.computeIfAbsent(type, GolemBreakerCore::blockEntity);
   }
 
-  ItemStack tool(Material type, boolean silk, boolean fortune) {
-    return tools.computeIfAbsent(new Tool(type, silk, fortune), GolemBreakerCore::virtualTool);
-  }
-
-  private static ItemStack virtualTool(Tool spec) {
-    ItemStack tool = new ItemStack(spec.type());
-    if (spec.silk()) {
-      tool.addUnsafeEnchantment(Enchantment.SILK_TOUCH, ENCHANTMENT_LEVEL);
-    } else if (spec.fortune()) {
-      tool.addUnsafeEnchantment(Enchantment.FORTUNE, ENCHANTMENT_LEVEL);
-    }
-    return tool;
+  ItemStack tool(Material type) {
+    return tools.computeIfAbsent(type, ItemStack::new);
   }
 
   private static boolean blockEntity(Material type) {
@@ -174,20 +165,17 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
   private record ParsedTools(List<String> names, List<Material> tools) {
   }
 
-  private record Tool(Material type, boolean silk, boolean fortune) {
-  }
-
   @ConfigDescription("Golems bound with a Breaker Core break the blocks a Breaker Node's filter lists inside its area and carry the drops, mining harder blocks with better pickaxes as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Ticks a Breaker spends on each block after it reaches it, by Breaker Core level from level 1 upward. Swiftness runes shorten it. Values below 1 count as 1.", impact = "Lower values make Breakers mine faster.")
     List<Integer> intervalTicksByLevel = new ArrayList<>(List.of(40, 30, 20, 15, 10));
     @ConfigDoc(value = "Hardest block a Breaker breaks, by Breaker Core level from level 1 upward. Stone is 1.5, cobblestone 2, deepslate 3 and obsidian 50.", impact = "Higher values let Breakers mine harder blocks sooner.")
     List<Double> maxHardnessByLevel = new ArrayList<>(List.of(2.0D, 3.0D, 5.0D, 10.0D, 50.0D));
-    @ConfigDoc(value = "Pickaxe a Breaker mines with, by item name and Breaker Core level from level 1 upward. Drops are rolled as if this pickaxe broke the block, and blocks it cannot harvest are left alone. Names that are not a pickaxe use the default pickaxe for that level, with a warning.", impact = "Better pickaxes harvest more blocks, such as diamond ore with an iron pickaxe or obsidian with a diamond pickaxe.")
+    @ConfigDoc(value = "Best pickaxe tier a Breaker may mine with, by item name and Breaker Core level from level 1 upward. Up to an iron pickaxe it mines without a tool, and drops are rolled as if that pickaxe broke the block. Blocks that need a better pickaxe, such as obsidian, are broken only while the Breaker holds a pickaxe of that tier from its home chest, which wears with each of those breaks. Blocks this tier cannot harvest are left alone. Names that are not a pickaxe use the default pickaxe for that level, with a warning.", impact = "Better tiers let Breakers harvest more blocks, such as diamond ore with an iron pickaxe or obsidian with a diamond pickaxe from the home chest.")
     List<String> toolByLevel = new ArrayList<>(BreakerRules.DEFAULT_TOOLS);
-    @ConfigDoc(value = "Breaker Core level at which Breaker Nodes can turn on Silk Touch, so Breakers mine blocks whole.", impact = "Lower values unlock Silk Touch sooner.")
+    @ConfigDoc(value = "Breaker Core level at which Breaker Nodes can turn on Silk Touch. A Breaker mines blocks whole only while it holds a Silk Touch pickaxe from its home chest, which wears with each of those breaks.", impact = "Lower values unlock Silk Touch sooner.")
     int silkTouchLevel = 3;
-    @ConfigDoc(value = "Breaker Core level at which Breaker Nodes can turn on Fortune I, which raises ore drops. Silk Touch and Fortune I never apply together.", impact = "Lower values unlock Fortune I sooner.")
+    @ConfigDoc(value = "Breaker Core level at which Breaker Nodes can turn on Fortune, which raises ore drops at the Fortune level of the pickaxe the Breaker holds from its home chest. Without a Fortune pickaxe no Fortune applies. Silk Touch and Fortune never apply together.", impact = "Lower values unlock Fortune sooner.")
     int fortuneLevel = 5;
     @ConfigDoc(value = "Blocks Breakers never break, by block name or #block_tag. Breakers also never break blocks with a block entity, such as chests, furnaces, signs and spawners, the block under any node, or the blocks of an Animus Plinth.", impact = "Add a block or tag to protect it from Breakers.")
     List<String> blacklist = new ArrayList<>(BreakerRules.DEFAULT_BLACKLIST);

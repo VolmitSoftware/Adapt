@@ -4493,6 +4493,13 @@ combat_locked_lore = "Un gólem Guardián siempre defiende, así que su combate 
 pack = "Empaquetar"
 pack_lore = "Comprime este gólem en un bloque de Gólem latente que puedes colocar para despertarlo"
 
+[golemancy.tools]
+needs_rod = "Necesita una caña de pescar en su cofre del hogar"
+needs_silk = "Necesita un pico con Toque de seda en su cofre del hogar"
+needs_fortune = "Necesita un pico con Fortuna en su cofre del hogar"
+needs_tier = "Necesita en su cofre del hogar: {tool}"
+holding = "Lleva: {tool}"
+
 [golemancy.roster]
 title = "Lista de gólems"
 empty = "No tienes gólems"
@@ -4672,17 +4679,18 @@ lore1 = "Dureza máxima de bloque"
 lore2 = "Segundos por bloque"
 lore3 = "Herramienta de minería"
 lore4 = "Interruptor de Toque de seda en los Nodos de Minería"
-lore5 = "Interruptor de Fortuna I en los Nodos de Minería"
-lore = ["Dureza máxima de bloque", "Segundos por bloque", "Herramienta de minería", "Interruptor de Toque de seda en los Nodos de Minería", "Interruptor de Fortuna I en los Nodos de Minería"]
+lore5 = "Interruptor de Fortuna en los Nodos de Minería"
+lore6 = "Rompe bloques por encima del nivel de hierro con un pico adecuado del cofre del hogar"
+lore = ["Dureza máxima de bloque", "Segundos por bloque", "Herramienta de minería", "Interruptor de Toque de seda en los Nodos de Minería", "Interruptor de Fortuna en los Nodos de Minería", "Rompe bloques por encima del nivel de hierro con un pico adecuado del cofre del hogar"]
 filter_ready = "Rompe los bloques del filtro"
 filter_needed = "Añade bloques a la lista blanca"
 filter_lore = "Los rompedores solo rompen los bloques que indica una lista blanca"
 silk_on = "Toque de seda: Sí"
 silk_off = "Toque de seda: No"
-fortune_on = "Fortuna I: Sí"
-fortune_off = "Fortuna I: No"
+fortune_on = "Fortuna: Sí"
+fortune_off = "Fortuna: No"
 locked = "Se desbloquea con Núcleo de Rompedor nivel {level}"
-exclusive = "Toque de seda y Fortuna I se desactivan entre sí"
+exclusive = "Toque de seda y Fortuna se desactivan entre sí"
 
 [golemancy.rancher_core]
 name = "Núcleo de Ganadero"
@@ -4754,7 +4762,8 @@ lore2 = "Suerte de pesca"
 lore3 = "Interruptor del filtro de basura en los Nodos de Pesca"
 lore4 = "Menos tiempo por captura bajo la lluvia"
 lore5 = "Probabilidad de una captura doble"
-lore = ["Segundos por captura", "Suerte de pesca", "Interruptor del filtro de basura en los Nodos de Pesca", "Menos tiempo por captura bajo la lluvia", "Probabilidad de una captura doble"]
+lore6 = "Pesca con una caña de pescar del cofre del hogar"
+lore = ["Segundos por captura", "Suerte de pesca", "Interruptor del filtro de basura en los Nodos de Pesca", "Menos tiempo por captura bajo la lluvia", "Probabilidad de una captura doble", "Pesca con una caña de pescar del cofre del hogar"]
 water_ready = "Agua abierta encontrada"
 water_needed = "Necesita agua abierta"
 water_lore = "Los pescadores necesitan un área de agua abierta de 5 por 5 frente al nodo"

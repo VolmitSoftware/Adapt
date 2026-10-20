@@ -67,7 +67,7 @@ class BreakerNodePanelTest {
     assertThat(plain(controls.get(1).name())).isEqualTo("Silk Touch: Off");
     assertThat(lore(controls.get(1))).containsExactly("Unlocks at Breaker Core level 3");
     assertThat(controls.get(1).leftClick()).isNull();
-    assertThat(plain(controls.get(2).name())).isEqualTo("Fortune I: Off");
+    assertThat(plain(controls.get(2).name())).isEqualTo("Fortune: Off");
     assertThat(lore(controls.get(2))).containsExactly("Unlocks at Breaker Core level 5");
     assertThat(controls.get(2).leftClick()).isNull();
   }
@@ -83,11 +83,11 @@ class BreakerNodePanelTest {
     NodeRecord lucky = silkyControls.get(2).leftClick().apply(silky);
     List<NodePanelControl> luckyControls = panel.controls(context(lucky));
 
-    assertThat(lore(controls.get(1))).containsExactly("Click to switch", "Silk Touch and Fortune I turn each other off");
+    assertThat(lore(controls.get(1))).containsExactly("Click to switch", "Silk Touch and Fortune turn each other off");
     assertThat(plain(silkyControls.get(1).name())).isEqualTo("Silk Touch: On");
-    assertThat(plain(silkyControls.get(2).name())).isEqualTo("Fortune I: Off");
+    assertThat(plain(silkyControls.get(2).name())).isEqualTo("Fortune: Off");
     assertThat(plain(luckyControls.get(1).name())).isEqualTo("Silk Touch: Off");
-    assertThat(plain(luckyControls.get(2).name())).isEqualTo("Fortune I: On");
+    assertThat(plain(luckyControls.get(2).name())).isEqualTo("Fortune: On");
     assertThat(BreakerRules.on(lucky, BreakerRules.SILK_KEY)).isFalse();
     assertThat(luckyControls.get(2).leftClick().apply(lucky).data()).isEmpty();
   }
@@ -98,7 +98,7 @@ class BreakerNodePanelTest {
 
     List<NodePanelControl> controls = panel.controls(context(BreakerRules.toggleFortune(record(true, Material.STONE))));
 
-    assertThat(plain(controls.get(2).name())).isEqualTo("Fortune I: Off");
+    assertThat(plain(controls.get(2).name())).isEqualTo("Fortune: Off");
   }
 
   @Test

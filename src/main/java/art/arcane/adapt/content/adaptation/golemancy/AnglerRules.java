@@ -20,6 +20,7 @@ final class AnglerRules {
   private static final double TICKS_PER_SECOND = 20D;
   private static final double MIN_RAIN_MULTIPLIER = 0.05D;
   private static final int MAX_ENCHANT_LEVELS = 30;
+  private static final int LURE_SECONDS_PER_LEVEL = 5;
 
   private AnglerRules() {
   }
@@ -30,6 +31,10 @@ final class AnglerRules {
 
   static int luck(List<Integer> byLevel, int level) {
     return Math.max(0, AnimusBindingRules.atLevel(byLevel, Math.max(1, level), 0));
+  }
+
+  static int lureSeconds(int seconds, int lure) {
+    return Math.max(1, seconds - LURE_SECONDS_PER_LEVEL * Math.max(0, lure));
   }
 
   static int intervalTicks(int seconds, double multiplier) {

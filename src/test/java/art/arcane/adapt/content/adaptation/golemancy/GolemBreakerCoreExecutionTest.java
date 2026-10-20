@@ -132,14 +132,15 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
   @Test
   void everyLevelShowsItsHardnessPaceToolAndUnlocks() {
     String silk = "+ Silk Touch Toggle on Breaker Nodes";
-    String fortune = "+ Fortune I Toggle on Breaker Nodes";
+    String fortune = "+ Fortune Toggle on Breaker Nodes";
+    String tiers = "+ Breaks Blocks Above Iron Tier with a Matching Pickaxe from the Home Chest";
 
     try (MockedStatic<Bukkit> bukkit = pickaxes()) {
       assertThat(lore(1)).containsExactly("+ 2 Max Block Hardness", "* 2 Seconds per Block", "+ Stone Pickaxe Mining Tool");
       assertThat(lore(2)).containsExactly("+ 3 Max Block Hardness", "* 1.5 Seconds per Block", "+ Iron Pickaxe Mining Tool");
       assertThat(lore(3)).containsExactly("+ 5 Max Block Hardness", "* 1 Seconds per Block", "+ Iron Pickaxe Mining Tool", silk);
-      assertThat(lore(4)).containsExactly("+ 10 Max Block Hardness", "* 0.75 Seconds per Block", "+ Diamond Pickaxe Mining Tool", silk);
-      assertThat(lore(5)).containsExactly("+ 50 Max Block Hardness", "* 0.5 Seconds per Block", "+ Netherite Pickaxe Mining Tool", silk, fortune);
+      assertThat(lore(4)).containsExactly("+ 10 Max Block Hardness", "* 0.75 Seconds per Block", "+ Diamond Pickaxe Mining Tool", silk, tiers);
+      assertThat(lore(5)).containsExactly("+ 50 Max Block Hardness", "* 0.5 Seconds per Block", "+ Netherite Pickaxe Mining Tool", silk, fortune, tiers);
     }
   }
 

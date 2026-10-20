@@ -174,6 +174,29 @@ class GolemStateTest {
   }
 
   @Test
+  void theHeldToolStartsEmptyAndSurvivesTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.COPPER, GolemCoreType.ANGLER, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.held()).isNull();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"copper\"}").orElseThrow().held()).isNull();
+
+    state.setHeld("rod-stack");
+
+    assertThat(reloaded(state).held()).isEqualTo("rod-stack");
+  }
+
+  @Test
+  void aRestoredStateKeepsTheHeldToolOfItsSnapshot() {
+    GolemState original = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.BREAKER, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+    original.setHeld("pickaxe-stack");
+    GolemSnapshot snapshot = GolemSnapshot.capture(original, new GolemSnapshot.Traits(null, 20D, 0, false, true), 0L);
+
+    GolemState restored = GolemState.restored(snapshot, GolemState.Anchor.of(WORLD, 1, 70, 1), 9L);
+
+    assertThat(restored.held()).isEqualTo("pickaxe-stack");
+  }
+
+  @Test
   void aRestoredStateStartsFromTheSightingItIsGiven() {
     GolemState original = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 70, 0)));
     original.setSighting(3L);

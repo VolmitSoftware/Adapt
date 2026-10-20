@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 final class GolemWorker {
   static final double REACH = 2.5D;
@@ -35,6 +36,8 @@ final class GolemWorker {
   static final long FULL_SIGNAL_MILLIS = 3_000L;
   static final long SEEK_INTERVAL_MILLIS = 1_000L;
   static final long REROUTE_INTERVAL_MILLIS = 3_000L;
+  static final long TOOL_MISS_MILLIS = 30_000L;
+  static final int MAX_TOOL_SKIPS = 8;
   static final String DELIVER_TYPE = "deliver";
 
   private static final double MOVE_SPEED = 1D;
@@ -45,6 +48,9 @@ final class GolemWorker {
   private final GolemBrain.Context context;
   private final GolemCargo cargo;
   private final GolemStuckWatch stuck = new GolemStuckWatch();
+  private final GolemHeldTool held;
+  private final Map<String, Long> toolMisses = new HashMap<>();
+  private final Map<TaskKey, Long> toolBackoff = new HashMap<>();
   private final Map<TaskKey, Long> taskBackoff = new HashMap<>();
   private final Map<TaskKey, Failure> failures = new HashMap<>();
   private final Map<GolemState.Anchor, Long> containerBackoff = new HashMap<>();
@@ -52,9 +58,12 @@ final class GolemWorker {
   private Location home;
   private Job job;
   private Delivery delivery;
+  private Fetch fetch;
+  private GolemState.Anchor toolChest;
   private WorkedNode lastNode;
   private boolean arrived;
   private boolean routeHeld;
+  private boolean toolMissing;
   private int stuckReleases;
   private int pulseCapacity = -1;
   private GolemRuneEffects pulseRunes;
@@ -71,6 +80,7 @@ final class GolemWorker {
     this.controller = Objects.requireNonNull(controller);
     this.context = Objects.requireNonNull(context);
     this.cargo = new GolemCargo(handle);
+    this.held = new GolemHeldTool(handle);
   }
 
   GolemBrainState pulse(long nowMillis, Location here, Player currentOwner, Location currentHome, GolemBrainSettings brain) {
@@ -79,6 +89,7 @@ final class GolemWorker {
     pulseCapacity = -1;
     pulseRunes = null;
     pulseCores = null;
+    held.sync();
     if (!canWork(here, brain)) {
       abandon();
       return null;
@@ -98,6 +109,12 @@ final class GolemWorker {
         return delivering;
       }
     }
+    if (fetch != null) {
+      GolemBrainState fetching = fetchTool(nowMillis, here, settings);
+      if (fetching != null) {
+        return fetching;
+      }
+    }
     int carried = cargo.count();
     if (carried == 0) {
       routeHeld = false;
@@ -106,7 +123,7 @@ final class GolemWorker {
     if (!full && nowMillis >= nextSeekAt && !deliveringFirst(carried)) {
       nextSeekAt = nowMillis + SEEK_INTERVAL_MILLIS;
       if (claim(nowMillis, here, settings) || seekCores(nowMillis)) {
-        return pursue(nowMillis, here, settings);
+        return pursueClaimed(nowMillis, here, settings);
       }
     }
     if (carried > 0 && nowMillis >= nextRouteAt && route(nowMillis, here)) {
@@ -124,6 +141,7 @@ final class GolemWorker {
     }
     job = null;
     delivery = null;
+    fetch = null;
     arrived = false;
     stuck.reset();
   }
@@ -198,6 +216,19 @@ final class GolemWorker {
     return job == null ? 0 : job.actIndex;
   }
 
+  Optional<ItemStack> heldTool() {
+    return held.item();
+  }
+
+  Optional<ItemStack> toolInUse() {
+    Job current = job;
+    return current == null || current.tool == null ? Optional.empty() : Optional.of(current.tool.clone());
+  }
+
+  void wearTool() {
+    held.wear(() -> ThreadLocalRandom.current().nextDouble());
+  }
+
   void interact(Block container, int ticks) {
     if (!context.platform().owns(container.getLocation())) {
       return;
@@ -207,7 +238,8 @@ final class GolemWorker {
   }
 
   boolean skips(GolemTask task, long nowMillis) {
-    return taskBackoff.containsKey(task.key()) || board(task.target().world()).reservedByOther(task, handle.id(), nowMillis);
+    return taskBackoff.containsKey(task.key()) || toolBackoff.containsKey(task.key())
+        || board(task.target().world()).reservedByOther(task, handle.id(), nowMillis);
   }
 
   boolean renew(GolemTask leased, long nowMillis) {
@@ -228,6 +260,22 @@ final class GolemWorker {
       return false;
     }
     return here.distanceSquared(home) <= brain.leashRadius() * brain.leashRadius();
+  }
+
+  private GolemBrainState pursueClaimed(long nowMillis, Location here, GolemWorkSettings settings) {
+    for (int skipped = 0; ; skipped++) {
+      toolMissing = false;
+      GolemBrainState pursuing = pursue(nowMillis, here, settings);
+      if (pursuing != null) {
+        return pursuing;
+      }
+      if (fetch != null) {
+        return fetchTool(nowMillis, here, settings);
+      }
+      if (!toolMissing || skipped >= MAX_TOOL_SKIPS || !(claim(nowMillis, here, settings) || seekCores(nowMillis))) {
+        return null;
+      }
+    }
   }
 
   private GolemBrainState pursue(long nowMillis, Location here, GolemWorkSettings settings) {
@@ -255,6 +303,12 @@ final class GolemWorker {
     if (!world.getUID().equals(task.target().world())) {
       giveUp(nowMillis, false);
       return null;
+    }
+    if (!current.toolsChecked) {
+      current.toolsChecked = true;
+      if (!readyTools(current, record, nowMillis)) {
+        return null;
+      }
     }
     Location target = context.platform().targetLocation(task.target(), world);
     double distance = here.distance(target);
@@ -290,6 +344,9 @@ final class GolemWorker {
     if (record != null && !nodeActive(world, key, record)) {
       closeJob();
       return current.acting();
+    }
+    if (!readyTools(current, record, nowMillis)) {
+      return null;
     }
     act(current, key, record, nowMillis, settings);
     int carried = cargo.count();
@@ -490,6 +547,128 @@ final class GolemWorker {
     if (inventory != null && golem.deliver(inventory, item -> !NodeContainers.nests(container, item)) > 0) {
       golem.visit(block);
     }
+  }
+
+  private boolean readyTools(Job current, NodeRecord record, long nowMillis) {
+    GolemContext golem = new GolemContext(this, new GolemContext.Scope(current.actor.policy(), current.task, record, current.core, nowMillis));
+    GolemToolPlan plan;
+    try {
+      plan = Objects.requireNonNull(current.actor.tools(golem, current.task), "GolemActor.tools returned null");
+    } catch (RuntimeException failure) {
+      logFailure(current.task, failure);
+      giveUp(nowMillis, false);
+      return false;
+    }
+    ItemStack tool = held.item().orElse(null);
+    GolemToolRules.Choice choice = GolemToolRules.choose(plan, tool, need -> fetchable(need, nowMillis));
+    if (!plan.needs().isEmpty()) {
+      handle.setToolNote(choice.note());
+    }
+    switch (choice.kind()) {
+      case HELD -> current.tool = tool;
+      case FREE -> current.tool = null;
+      case FETCH -> {
+        fetch = new Fetch(handle.state().homeChest(), plan.needs().get(choice.need()));
+        dropJob();
+        return false;
+      }
+      case MISSING -> {
+        toolBackoff.put(current.task.key(), nowMillis + TOOL_MISS_MILLIS);
+        toolChest = handle.state().homeChest();
+        toolMissing = true;
+        dropJob();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean fetchable(GolemToolNeed need, long nowMillis) {
+    GolemState.Anchor chest = handle.state().homeChest();
+    World world = home == null ? null : home.getWorld();
+    Long missedUntil = toolMisses.get(need.id());
+    if (chest == null || world == null || !world.getUID().equals(chest.world()) || (missedUntil != null && missedUntil > nowMillis)
+        || containerBackoff.containsKey(chest)) {
+      return false;
+    }
+    Location at = new Location(world, chest.x(), chest.y(), chest.z());
+    if (!context.platform().owns(at)) {
+      return true;
+    }
+    Optional<Inventory> inventory = containerContext(nowMillis).container(world.getBlockAt(chest.x(), chest.y(), chest.z()));
+    if (inventory.isPresent() && GolemToolRules.slot(inventory.get().getStorageContents(), need) >= 0) {
+      return true;
+    }
+    missTool(need, nowMillis);
+    return false;
+  }
+
+  private GolemBrainState fetchTool(long nowMillis, Location here, GolemWorkSettings settings) {
+    World world = here.getWorld();
+    GolemState.Anchor chest = fetch.chest();
+    if (chest == null || !world.getUID().equals(chest.world())) {
+      missTool(fetch.need(), nowMillis);
+      finishFetch();
+      return null;
+    }
+    Location target = new Location(world, chest.x() + 0.5D, chest.y() + 0.5D, chest.z() + 0.5D);
+    double distance = here.distance(target);
+    if (distance > REACH) {
+      arrived = false;
+      if (stuck.track(nowMillis, distance, settings.stuckMillis()) == GolemStuckWatch.Progress.STUCK) {
+        containerBackoff.put(chest, nowMillis + BACKOFF_MILLIS);
+        missTool(fetch.need(), nowMillis);
+        stuckReleases++;
+        finishFetch();
+        controller.stop();
+        pauseIfTrapped(nowMillis, settings);
+        return null;
+      }
+      controller.moveTo(target, MOVE_SPEED);
+      return GolemBrainState.DELIVER;
+    }
+    Block block = world.getBlockAt(chest.x(), chest.y(), chest.z());
+    if (!arrived) {
+      arrive();
+      long interval = intervalMillis(GolemActor.DEFAULT_ACT_INTERVAL_TICKS);
+      interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
+      nextActAt = nowMillis + interval;
+      return GolemBrainState.DELIVER;
+    }
+    if (nowMillis < nextActAt) {
+      return GolemBrainState.DELIVER;
+    }
+    takeTool(block, fetch.need(), nowMillis);
+    finishFetch();
+    nextSeekAt = nowMillis;
+    return GolemBrainState.DELIVER;
+  }
+
+  private void takeTool(Block block, GolemToolNeed need, long nowMillis) {
+    GolemContext golem = containerContext(nowMillis);
+    Inventory inventory = golem.container(block).orElse(null);
+    int slot = inventory == null ? -1 : GolemToolRules.slot(inventory.getStorageContents(), need);
+    if (slot < 0) {
+      missTool(need, nowMillis);
+      return;
+    }
+    ItemStack taken = inventory.getItem(slot).clone();
+    inventory.setItem(slot, held.item().orElse(null));
+    if (!held.hold(taken)) {
+      inventory.setItem(slot, taken);
+      return;
+    }
+    golem.visit(block);
+    toolMisses.remove(need.id());
+  }
+
+  private void missTool(GolemToolNeed need, long nowMillis) {
+    toolMisses.put(need.id(), nowMillis + TOOL_MISS_MILLIS);
+    toolChest = handle.state().homeChest();
+  }
+
+  private GolemContext containerContext(long nowMillis) {
+    return new GolemContext(this, new GolemContext.Scope(context.platform().bindingPolicy(), null, null, handle.core(), nowMillis));
   }
 
   private boolean route(long nowMillis, Location here) {
@@ -740,6 +919,12 @@ final class GolemWorker {
     stuck.reset();
   }
 
+  private void finishFetch() {
+    fetch = null;
+    arrived = false;
+    stuck.reset();
+  }
+
   private void expireBackoff(long nowMillis) {
     if (!taskBackoff.isEmpty()) {
       taskBackoff.values().removeIf(until -> until <= nowMillis);
@@ -749,6 +934,18 @@ final class GolemWorker {
     }
     if (!failures.isEmpty()) {
       failures.values().removeIf(failure -> nowMillis - failure.at() > FAILURE_MEMORY_MILLIS);
+    }
+    GolemState.Anchor chest = handle.state().homeChest();
+    if (!Objects.equals(chest, toolChest)) {
+      toolChest = chest;
+      toolMisses.clear();
+      toolBackoff.clear();
+    }
+    if (!toolMisses.isEmpty()) {
+      toolMisses.values().removeIf(until -> until <= nowMillis);
+    }
+    if (!toolBackoff.isEmpty()) {
+      toolBackoff.values().removeIf(until -> until <= nowMillis);
     }
   }
 
@@ -792,6 +989,9 @@ final class GolemWorker {
   private record Delivery(GolemDeliveryRoute.Kind kind, NodeKey deposit, GolemState.Anchor chest) {
   }
 
+  private record Fetch(GolemState.Anchor chest, GolemToolNeed need) {
+  }
+
   private record WorkedNode(NodeKey key, NodeType type) {
   }
 
@@ -805,6 +1005,8 @@ final class GolemWorker {
     private final GolemCoreType core;
     private final WorkedNode node;
     private boolean reached;
+    private boolean toolsChecked;
+    private ItemStack tool;
     private int actIndex;
 
     private Job(GolemTask task, GolemActor actor, Source source, GolemCoreType core, WorkedNode node) {

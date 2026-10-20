@@ -4493,6 +4493,13 @@ combat_locked_lore = "Golem Strażnik zawsze broni, więc jego walki nie można 
 pack = "Spakuj"
 pack_lore = "Kompresuje tego golema do bloku Uśpionego golema, który możesz postawić, aby go obudzić"
 
+[golemancy.tools]
+needs_rod = "Potrzebuje wędki w skrzyni domowej"
+needs_silk = "Potrzebuje kilofa z Jedwabnym dotykiem w skrzyni domowej"
+needs_fortune = "Potrzebuje kilofa ze Szczęściem w skrzyni domowej"
+needs_tier = "Potrzebuje w skrzyni domowej: {tool}"
+holding = "Trzyma: {tool}"
+
 [golemancy.roster]
 title = "Spis golemów"
 empty = "Nie masz golemów"
@@ -4672,17 +4679,18 @@ lore1 = "Maksymalna twardość bloku"
 lore2 = "Sekundy na blok"
 lore3 = "Narzędzie wydobywcze"
 lore4 = "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia"
-lore5 = "Przełącznik Szczęścia I w Węzłach Wydobycia"
-lore = ["Maksymalna twardość bloku", "Sekundy na blok", "Narzędzie wydobywcze", "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia", "Przełącznik Szczęścia I w Węzłach Wydobycia"]
+lore5 = "Przełącznik Szczęścia w Węzłach Wydobycia"
+lore6 = "Wydobywa bloki powyżej poziomu żelaza pasującym kilofem ze skrzyni domowej"
+lore = ["Maksymalna twardość bloku", "Sekundy na blok", "Narzędzie wydobywcze", "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia", "Przełącznik Szczęścia w Węzłach Wydobycia", "Wydobywa bloki powyżej poziomu żelaza pasującym kilofem ze skrzyni domowej"]
 filter_ready = "Niszczy bloki z filtra"
 filter_needed = "Dodaj bloki do białej listy"
 filter_lore = "Burzyciele niszczą tylko bloki wymienione na białej liście"
 silk_on = "Jedwabny dotyk: wł."
 silk_off = "Jedwabny dotyk: wył."
-fortune_on = "Szczęście I: wł."
-fortune_off = "Szczęście I: wył."
+fortune_on = "Szczęście: wł."
+fortune_off = "Szczęście: wył."
 locked = "Odblokowuje się na poziomie {level} Rdzenia Burzyciela"
-exclusive = "Jedwabny dotyk i Szczęście I wyłączają się nawzajem"
+exclusive = "Jedwabny dotyk i Szczęście wyłączają się nawzajem"
 
 [golemancy.rancher_core]
 name = "Rdzeń Hodowcy"
@@ -4754,7 +4762,8 @@ lore2 = "Szczęście wędkarskie"
 lore3 = "Przełącznik filtra śmieci w Węzłach Wędkowania"
 lore4 = "Krótszy czas połowu w deszczu"
 lore5 = "Szansa na podwójny połów"
-lore = ["Sekundy na połów", "Szczęście wędkarskie", "Przełącznik filtra śmieci w Węzłach Wędkowania", "Krótszy czas połowu w deszczu", "Szansa na podwójny połów"]
+lore6 = "Łowi wędką ze skrzyni domowej"
+lore = ["Sekundy na połów", "Szczęście wędkarskie", "Przełącznik filtra śmieci w Węzłach Wędkowania", "Krótszy czas połowu w deszczu", "Szansa na podwójny połów", "Łowi wędką ze skrzyni domowej"]
 water_ready = "Znaleziono otwartą wodę"
 water_needed = "Wymaga otwartej wody"
 water_lore = "Wędkarze potrzebują przed węzłem otwartej wody o wymiarach 5 na 5"

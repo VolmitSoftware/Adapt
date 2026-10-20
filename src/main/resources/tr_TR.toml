@@ -4493,6 +4493,13 @@ combat_locked_lore = "Muhafız golemi her zaman savunur, bu yüzden savaşı kap
 pack = "Paketle"
 pack_lore = "Bu golemi, yerleştirerek uyandırabileceğin bir Uykudaki Golem bloğuna sıkıştırır"
 
+[golemancy.tools]
+needs_rod = "Ev sandığında bir olta gerekli"
+needs_silk = "Ev sandığında İpek Dokunuşu kazması gerekli"
+needs_fortune = "Ev sandığında Servet kazması gerekli"
+needs_tier = "Ev sandığında gerekli: {tool}"
+holding = "Elinde: {tool}"
+
 [golemancy.roster]
 title = "Golem Listesi"
 empty = "Hiç golemin yok"
@@ -4672,17 +4679,18 @@ lore1 = "En yüksek blok sertliği"
 lore2 = "Blok başına saniye"
 lore3 = "Kazı aleti"
 lore4 = "Kazı Düğümlerinde İpek Dokunuşu anahtarı"
-lore5 = "Kazı Düğümlerinde Servet I anahtarı"
-lore = ["En yüksek blok sertliği", "Blok başına saniye", "Kazı aleti", "Kazı Düğümlerinde İpek Dokunuşu anahtarı", "Kazı Düğümlerinde Servet I anahtarı"]
+lore5 = "Kazı Düğümlerinde Servet anahtarı"
+lore6 = "Demir seviyesinin üstündeki blokları ev sandığındaki uygun kazmayla kırar"
+lore = ["En yüksek blok sertliği", "Blok başına saniye", "Kazı aleti", "Kazı Düğümlerinde İpek Dokunuşu anahtarı", "Kazı Düğümlerinde Servet anahtarı", "Demir seviyesinin üstündeki blokları ev sandığındaki uygun kazmayla kırar"]
 filter_ready = "Filtredeki blokları kırar"
 filter_needed = "Beyaz listeye blok ekleyin"
 filter_lore = "Yıkıcılar yalnızca beyaz listenin listelediği blokları kırar"
 silk_on = "İpek Dokunuşu: açık"
 silk_off = "İpek Dokunuşu: kapalı"
-fortune_on = "Servet I: açık"
-fortune_off = "Servet I: kapalı"
+fortune_on = "Servet: açık"
+fortune_off = "Servet: kapalı"
 locked = "Yıkıcı Çekirdeği {level}. seviyede açılır"
-exclusive = "İpek Dokunuşu ve Servet I birbirini kapatır"
+exclusive = "İpek Dokunuşu ve Servet birbirini kapatır"
 
 [golemancy.rancher_core]
 name = "Çoban Çekirdeği"
@@ -4754,7 +4762,8 @@ lore2 = "Balıkçılık şansı"
 lore3 = "Balıkçılık Düğümlerinde çöp filtresi anahtarı"
 lore4 = "Yağmurda daha kısa av süresi"
 lore5 = "Çift av şansı"
-lore = ["Av başına saniye", "Balıkçılık şansı", "Balıkçılık Düğümlerinde çöp filtresi anahtarı", "Yağmurda daha kısa av süresi", "Çift av şansı"]
+lore6 = "Ev sandığındaki oltayla balık tutar"
+lore = ["Av başına saniye", "Balıkçılık şansı", "Balıkçılık Düğümlerinde çöp filtresi anahtarı", "Yağmurda daha kısa av süresi", "Çift av şansı", "Ev sandığındaki oltayla balık tutar"]
 water_ready = "Açık su bulundu"
 water_needed = "Açık su gerekli"
 water_lore = "Balıkçıların düğümün önünde 5'e 5 açık suya ihtiyacı var"

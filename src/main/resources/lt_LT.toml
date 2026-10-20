@@ -4493,6 +4493,13 @@ combat_locked_lore = "Sargo golemas visada gina, todėl jo kovos išjungti negal
 pack = "Supakuoti"
 pack_lore = "Suspaudžia šį golemą į Snaudžiančio golemo bloką, kurį padėjęs jį pažadinsi"
 
+[golemancy.tools]
+needs_rod = "Reikia meškerės namų skrynioje"
+needs_silk = "Reikia kirtiklio su Šilkiniu prisilietimu namų skrynioje"
+needs_fortune = "Reikia kirtiklio su Sėkme namų skrynioje"
+needs_tier = "Namų skrynioje reikia: {tool}"
+holding = "Laiko: {tool}"
+
 [golemancy.roster]
 title = "Golemų sąrašas"
 empty = "Neturite golemų"
@@ -4672,17 +4679,18 @@ lore1 = "Didžiausias bloko kietumas"
 lore2 = "Sekundės vienam blokui"
 lore3 = "Kasimo įrankis"
 lore4 = "Šilkinio prisilietimo jungiklis Kasimo mazguose"
-lore5 = "Sėkmės I jungiklis Kasimo mazguose"
-lore = ["Didžiausias bloko kietumas", "Sekundės vienam blokui", "Kasimo įrankis", "Šilkinio prisilietimo jungiklis Kasimo mazguose", "Sėkmės I jungiklis Kasimo mazguose"]
+lore5 = "Sėkmės jungiklis Kasimo mazguose"
+lore6 = "Kasa aukštesnės nei geležies pakopos blokus tinkamu kirtikliu iš namų skrynios"
+lore = ["Didžiausias bloko kietumas", "Sekundės vienam blokui", "Kasimo įrankis", "Šilkinio prisilietimo jungiklis Kasimo mazguose", "Sėkmės jungiklis Kasimo mazguose", "Kasa aukštesnės nei geležies pakopos blokus tinkamu kirtikliu iš namų skrynios"]
 filter_ready = "Ardo filtre nurodytus blokus"
 filter_needed = "Pridėkite blokų į leidžiamųjų sąrašą"
 filter_lore = "Griovėjai ardo tik blokus, kuriuos nurodo leidžiamųjų sąrašas"
 silk_on = "Šilkinis prisilietimas: įjungtas"
 silk_off = "Šilkinis prisilietimas: išjungtas"
-fortune_on = "Sėkmė I: įjungta"
-fortune_off = "Sėkmė I: išjungta"
+fortune_on = "Sėkmė: įjungta"
+fortune_off = "Sėkmė: išjungta"
 locked = "Atrakinama pasiekus Griovėjo šerdies {level} lygį"
-exclusive = "Šilkinis prisilietimas ir Sėkmė I išjungia vienas kitą"
+exclusive = "Šilkinis prisilietimas ir Sėkmė išjungia vienas kitą"
 
 [golemancy.rancher_core]
 name = "Gyvulininko šerdis"
@@ -4754,7 +4762,8 @@ lore2 = "Žvejybos sėkmė"
 lore3 = "Šlamšto filtro jungiklis Žvejybos mazguose"
 lore4 = "Trumpesnis laimikio laikas lyjant"
 lore5 = "Tikimybė sugauti dvigubą laimikį"
-lore = ["Sekundės vienam laimikiui", "Žvejybos sėkmė", "Šlamšto filtro jungiklis Žvejybos mazguose", "Trumpesnis laimikio laikas lyjant", "Tikimybė sugauti dvigubą laimikį"]
+lore6 = "Žvejoja meškere iš namų skrynios"
+lore = ["Sekundės vienam laimikiui", "Žvejybos sėkmė", "Šlamšto filtro jungiklis Žvejybos mazguose", "Trumpesnis laimikio laikas lyjant", "Tikimybė sugauti dvigubą laimikį", "Žvejoja meškere iš namų skrynios"]
 water_ready = "Rastas atviras vanduo"
 water_needed = "Reikia atviro vandens"
 water_lore = "Žvejams reikia 5 × 5 blokų atviro vandens ploto priešais mazgą"

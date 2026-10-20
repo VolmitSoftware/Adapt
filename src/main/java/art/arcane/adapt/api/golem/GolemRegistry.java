@@ -383,6 +383,7 @@ public final class GolemRegistry extends TickedObject {
     if (state.masterwork()) {
       drops.add(GolemItems.masterworkHeart());
     }
+    Optional<ItemStack> tool = heldTool(handle);
     List<ItemStack> worn = handle.equipmentItems();
     int essence = state.essencePoints();
     Location at = golem.getLocation();
@@ -398,6 +399,7 @@ public final class GolemRegistry extends TickedObject {
     for (ItemStack item : worn) {
       platform.returnToOwner(handle.owner(), at, item);
     }
+    tool.ifPresent(item -> platform.returnToOwner(handle.owner(), at, item));
     if (essence > 0) {
       returnEssence(golem, world, at, essence, platform.player(handle.owner()));
     }
@@ -956,9 +958,25 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
+  private Optional<ItemStack> heldTool(GolemHandle handle) {
+    String held = handle.state().held();
+    if (held == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(platform.decodeItem(held));
+    } catch (RuntimeException corrupt) {
+      Adapt.warn("Golem " + handle.id() + " holds an unreadable tool; it is not dropped.", corrupt);
+      return Optional.empty();
+    }
+  }
+
   private void revert(GolemHandle handle) {
     Mob golem = handle.entity();
     double pool = handle.hostileDamagePool();
+    if (handle.state().held() != null) {
+      GolemHeldTool.hide(golem);
+    }
     unindex(handle);
     GolemState.clear(golem);
     HostileDamagePool.putUnbound(golem, pool);
@@ -988,6 +1006,7 @@ public final class GolemRegistry extends TickedObject {
     GolemState state = handle.state();
     List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
+    heldTool(handle).ifPresent(drops::add);
     drops.addAll(handle.equipmentItems());
     if (state.essencePoints() > 0) {
       e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));

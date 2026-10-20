@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.GolemRuneEffects;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemToolNote;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import org.bukkit.entity.Mob;
@@ -40,7 +41,7 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
         new CoreSlots(slotted.isEmpty() ? List.of(state.primaryCore()) : slotted, GolemMastery.perks(handle).dualCore()),
         state.mode(),
         new ChannelSet(effects.channels(state.channels()), effects.channelSlots()),
-        new Anchors(state.home(), state.homeChest()),
+        new Anchors(state.home(), state.homeChest(), handle.toolNote(), state.held()),
         new RuneSlots(state.runes(), GolemRunes.layout(state.body(), owner, state.masterwork())),
         new CarriedItems(List.copyOf(stored.subList(0, shown)), stored.size()),
         new Statistics(stats.kills(), String.format(Locale.ROOT, "%.1f", stats.damage()), stats.tasks(), stats.itemsMoved()),
@@ -113,7 +114,7 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
   record ChannelSet(int mask, int slots) {
   }
 
-  record Anchors(GolemState.Anchor home, GolemState.Anchor chest) {
+  record Anchors(GolemState.Anchor home, GolemState.Anchor chest, GolemToolNote toolNote, String held) {
   }
 
   record RuneSlots(List<GolemRune> slotted, GolemRuneLayout layout) {

@@ -4493,6 +4493,13 @@ combat_locked_lore = "守护者魔像始终会防御，因此无法关闭其战�
 pack = "打包"
 pack_lore = "将这个魔像压缩成休眠魔像方块，放下即可唤醒它"
 
+[golemancy.tools]
+needs_rod = "家用箱子里需要钓鱼竿"
+needs_silk = "家用箱子里需要精准采集镐"
+needs_fortune = "家用箱子里需要时运镐"
+needs_tier = "家用箱子里需要：{tool}"
+holding = "手持：{tool}"
+
 [golemancy.roster]
 title = "魔像名册"
 empty = "你没有魔像"
@@ -4672,17 +4679,18 @@ lore1 = "最大方块硬度"
 lore2 = "每个方块的秒数"
 lore3 = "采掘工具"
 lore4 = "采掘节点的精准采集开关"
-lore5 = "采掘节点的时运 I 开关"
-lore = ["最大方块硬度", "每个方块的秒数", "采掘工具", "采掘节点的精准采集开关", "采掘节点的时运 I 开关"]
+lore5 = "采掘节点的时运开关"
+lore6 = "用家用箱子里合适的镐开采高于铁等级的方块"
+lore = ["最大方块硬度", "每个方块的秒数", "采掘工具", "采掘节点的精准采集开关", "采掘节点的时运开关", "用家用箱子里合适的镐开采高于铁等级的方块"]
 filter_ready = "破坏过滤器中的方块"
 filter_needed = "向白名单添加方块"
 filter_lore = "破坏者只破坏白名单所列的方块"
 silk_on = "精准采集：开"
 silk_off = "精准采集：关"
-fortune_on = "时运 I：开"
-fortune_off = "时运 I：关"
+fortune_on = "时运：开"
+fortune_off = "时运：关"
 locked = "破坏者核心{level}级解锁"
-exclusive = "精准采集和时运 I 会互相关闭"
+exclusive = "精准采集和时运会互相关闭"
 
 [golemancy.rancher_core]
 name = "牧场主核心"
@@ -4754,7 +4762,8 @@ lore2 = "钓鱼运气"
 lore3 = "钓鱼节点的垃圾过滤开关"
 lore4 = "雨天渔获时间缩短"
 lore5 = "双份渔获的几率"
-lore = ["每次渔获的秒数", "钓鱼运气", "钓鱼节点的垃圾过滤开关", "雨天渔获时间缩短", "双份渔获的几率"]
+lore6 = "用家用箱子里的钓鱼竿钓鱼"
+lore = ["每次渔获的秒数", "钓鱼运气", "钓鱼节点的垃圾过滤开关", "雨天渔获时间缩短", "双份渔获的几率", "用家用箱子里的钓鱼竿钓鱼"]
 water_ready = "已找到开阔水域"
 water_needed = "需要开阔水域"
 water_lore = "垂钓者需要节点前方有 5×5 的开阔水域"

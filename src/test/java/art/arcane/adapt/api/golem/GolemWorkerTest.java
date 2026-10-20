@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,6 +26,8 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
@@ -47,12 +50,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 class GolemWorkerTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000201");
@@ -60,6 +65,10 @@ class GolemWorkerTest extends AdaptTestBase {
   private static final NodeKey COLLECTION = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
   private static final NodeKey DEPOSIT = new NodeKey(WORLD, 0, 64, 6, BlockFace.UP);
   private static final GolemState.Anchor HOME_CHEST = GolemState.Anchor.of(WORLD, -6, 64, 0);
+  private static final GolemToolNote ROD_NOTE = new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_ROD, null);
+  private static final GolemToolNeed ROD = new GolemToolNeed("fishing_rod", item -> item.getType() == Material.FISHING_ROD, item -> 0, ROD_NOTE);
+  private static final GolemToolNeed NETHERITE = new GolemToolNeed("netherite", item -> item.getType() == Material.NETHERITE_PICKAXE, item -> 0,
+      new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_SILK, null));
 
   private final AtomicReference<GolemBrainSettings> settings = new AtomicReference<>(GolemBrainSettings.defaults());
   private final AtomicReference<GolemWorkSettings> work = new AtomicReference<>(GolemWorkSettings.defaults());
@@ -1541,6 +1550,288 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aGolemThatNeedsARodFetchesOneFromItsHomeChestBeforeItClaimsTheWork() {
+    Inventory chest = homeChest(27);
+    chest.setItem(4, GolemTestItems.stack(Material.STICK, 1));
+    chest.setItem(5, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add(golem.heldTool().map(tool -> tool.getType().name()).orElse("none"));
+      return GolemActResult.WORKING;
+    });
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    GolemTask task = pickup(4, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+
+    platform.runDelayed();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.DELIVER);
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+    assertThat(task.holder(platform.now)).isEmpty();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    assertThat(controller.calls).contains("interact:-6,64,0");
+    pulse(1_000L);
+    assertThat(chest.getItem(5)).isNull();
+    assertThat(chest.getItem(4).getType()).isEqualTo(Material.STICK);
+    assertThat(brain.handle().state().held()).isNotNull();
+    assertThat(GolemState.read(brain.handle().entity()).orElseThrow().held()).isEqualTo(brain.handle().state().held());
+
+    position.set(at(4, 64, 0));
+    pulse(1_000L);
+    assertThat(acted).containsExactly("FISHING_ROD");
+    assertThat(brain.handle().toolNote()).isNull();
+  }
+
+  @Test
+  void aToolFetchHoldsTheLidFromArrivalAndTouchesItAgainWhenTheToolIsTaken() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35", "-6,64,0 15");
+    assertThat(chest.getItem(0)).isNull();
+  }
+
+  @Test
+  void aToolFetchThatFindsNothingTakesNothingAndLeavesTheLidAlone() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+
+    chest.setItem(0, null);
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    pulse(1_000L);
+
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+    assertThat(brain.handle().state().held()).isNull();
+  }
+
+  @Test
+  void withoutARodAnywhereTheGolemIdlesWithTheNoteAndNeverWorks() {
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add("act");
+      return GolemActResult.WORKING;
+    });
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    GolemTask task = pickup(4, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 12; i++) {
+      pulse(1_000L);
+    }
+
+    assertThat(acted).isEmpty();
+    assertThat(brain.handle().toolNote()).isEqualTo(ROD_NOTE);
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:4.5"));
+  }
+
+  @Test
+  void aHomeChestWithoutARodLeavesTheGolemIdleWithTheNote() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.COD, 3));
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add("act");
+      return GolemActResult.WORKING;
+    });
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+
+    assertThat(acted).isEmpty();
+    assertThat(brain.handle().toolNote()).isEqualTo(ROD_NOTE);
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:-5.5"));
+  }
+
+  @Test
+  void tasksThatNeedAMissingToolAreSkippedInOnePulseSoOtherWorkGoesOn() {
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.DONE);
+    behavior.tools = (golem, task) -> task.target().blockX() < 8 ? new GolemToolPlan(List.of(ROD), false) : GolemToolPlan.NONE;
+    collectionNode(1);
+    List<GolemTask> gated = new ArrayList<>();
+    for (int x = 1; x <= 6; x++) {
+      GolemTask task = pickup(x, 64, 0);
+      gated.add(task);
+      board.offer(task, 16);
+    }
+    GolemTask free = pickup(9, 64, 0);
+    board.offer(free, 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(free.heldBy(brain.handle().id(), platform.now)).isTrue();
+    assertThat(controller.lastMove()).isEqualTo("9.5,64.5,0.5");
+    assertThat(gated).allSatisfy(task -> assertThat(task.holder(platform.now)).isEmpty());
+    assertThat(brain.handle().toolNote()).isEqualTo(ROD_NOTE);
+  }
+
+  @Test
+  void linkingAHomeChestEndsTheWaitForAMissingTool() {
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    GolemTask task = pickup(4, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+    platform.runDelayed();
+    assertThat(brain.handle().toolNote()).isEqualTo(ROD_NOTE);
+
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    pulse(1_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.DELIVER);
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+  }
+
+  @Test
+  void anOptionalToolThatIsMissingLetsTheWorkGoOnWithoutItAndShowsTheNote() {
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add(golem.toolInUse().map(tool -> tool.getType().name()).orElse("free"));
+      return GolemActResult.DONE;
+    });
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(NETHERITE), true);
+    collectionNode(1);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+
+    assertThat(acted).containsExactly("free");
+    assertThat(brain.handle().toolNote()).isEqualTo(NETHERITE.note());
+  }
+
+  @Test
+  void eachUseWearsTheHeldToolAndABreakRemovesItAndSendsTheGolemForTheNextOne() {
+    try (MockedStatic<GolemToolEnchants> enchants = mockStatic(GolemToolEnchants.class)) {
+      Inventory chest = homeChest(27);
+      chest.setItem(2, GolemTestItems.tool(Material.FISHING_ROD, 0, 64));
+      assertThat(brain.handle().setHeldEncoded(platform.encodeItem(GolemTestItems.tool(Material.FISHING_ROD, 62, 64)))).isTrue();
+      List<Integer> damage = new ArrayList<>();
+      ScriptedBehavior behavior = collector((golem, task) -> {
+        golem.wearTool();
+        damage.add(golem.heldTool().map(GolemTestItems::damage).orElse(-1));
+        return GolemActResult.WORKING;
+      });
+      behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+      collectionNode(1);
+      board.offer(pickup(1, 64, 0), 16);
+      brain.start();
+
+      platform.runDelayed();
+      pulse(1_000L);
+      assertThat(damage).containsExactly(63, -1);
+      assertThat(brain.handle().state().held()).isNull();
+      verify(brain.handle().entity()).broadcastSlotBreak(EquipmentSlot.HAND);
+
+      pulse(1_000L);
+      assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+      position.set(at(-5, 64, 0));
+      pulse(250L);
+      pulse(1_000L);
+      assertThat(chest.getItem(2)).isNull();
+      assertThat(GolemTestItems.damage(platform.decodeItem(brain.handle().state().held()))).isZero();
+    }
+  }
+
+  @Test
+  void fetchingABetterToolPutsTheHeldOneBackInItsSlot() {
+    Inventory chest = homeChest(27);
+    chest.setItem(3, GolemTestItems.stack(Material.NETHERITE_PICKAXE, 1));
+    assertThat(brain.handle().setHeldEncoded(platform.encodeItem(GolemTestItems.stack(Material.DIAMOND_PICKAXE, 1)))).isTrue();
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(NETHERITE), true);
+    collectionNode(1);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    pulse(1_000L);
+
+    assertThat(chest.getItem(3).getType()).isEqualTo(Material.DIAMOND_PICKAXE);
+    assertThat(platform.decodeItem(brain.handle().state().held()).getType()).isEqualTo(Material.NETHERITE_PICKAXE);
+    assertThat(GolemTestItems.count(chest, Material.NETHERITE_PICKAXE)).isZero();
+  }
+
+  @Test
+  void aGolemReleasedOnItsWayToTheChestTakesNothing() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+
+    brain.handle().retire();
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    pulse(1_000L);
+    pulse(1_000L);
+
+    assertThat(chest.getItem(0).getType()).isEqualTo(Material.FISHING_ROD);
+    assertThat(brain.handle().state().held()).isNull();
+  }
+
+  @Test
+  void theHeldToolShowsInTheMainHandWithoutADropChanceAndAForeignItemFallsOut() {
+    EntityEquipment equipment = mock(EntityEquipment.class);
+    ItemStack ingot = GolemTestItems.stack(Material.COPPER_INGOT, 2);
+    lenient().when(equipment.getItemInMainHand()).thenReturn(ingot);
+    lenient().when(brain.handle().entity().getEquipment()).thenReturn(equipment);
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    pulse(1_000L);
+
+    verify(equipment).setItemInMainHand(argThat(item -> item != null && item.getType() == Material.FISHING_ROD));
+    verify(equipment).setItemInMainHandDropChance(0F);
+    verify(world).dropItemNaturally(any(Location.class), argThat(item -> item == ingot));
+  }
+
+  @Test
   void aTideRuneWidensTheWorkRadiusAroundHome() {
     runes(new GolemRuneEffects(8D, 0, 1D, 0D));
     List<String> seen = new ArrayList<>();
@@ -1919,6 +2210,7 @@ class GolemWorkerTest extends AdaptTestBase {
     private final BiFunction<GolemContext, GolemTask, GolemActResult> act;
     private int intervalTicks = DEFAULT_ACT_INTERVAL_TICKS;
     private BiFunction<GolemContext, List<ItemStack>, Optional<GolemTask>> route = (golem, carried) -> Optional.empty();
+    private BiFunction<GolemContext, GolemTask, GolemToolPlan> tools = (golem, task) -> GolemToolPlan.NONE;
     private boolean deliversFirst;
 
     private ScriptedBehavior(BiFunction<GolemContext, GolemTask, GolemActResult> act) {
@@ -1952,6 +2244,11 @@ class GolemWorkerTest extends AdaptTestBase {
     @Override
     public boolean deliversBeforeClaiming() {
       return deliversFirst;
+    }
+
+    @Override
+    public GolemToolPlan tools(GolemContext golem, GolemTask task) {
+      return tools.apply(golem, task);
     }
   }
 

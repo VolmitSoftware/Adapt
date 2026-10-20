@@ -8,6 +8,8 @@ import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
 import art.arcane.adapt.api.golem.GolemTaskBoards;
 import art.arcane.adapt.api.golem.GolemTestItems;
+import art.arcane.adapt.api.golem.GolemToolEnchants;
+import art.arcane.adapt.api.golem.GolemToolPlan;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeContext;
@@ -15,6 +17,7 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -79,6 +82,8 @@ class FishingNodeBehaviorTest {
   private int roomLeft = 64;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<AnglerFeedback> feedback;
+  private MockedStatic<GolemToolEnchants> enchants;
+  private ItemStack rod;
 
   @BeforeEach
   void setUp() {
@@ -95,10 +100,12 @@ class FishingNodeBehaviorTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
     feedback = mockStatic(AnglerFeedback.class);
+    enchants = mockStatic(GolemToolEnchants.class);
   }
 
   @AfterEach
   void close() {
+    enchants.close();
     feedback.close();
     runtime.close();
   }
@@ -274,7 +281,7 @@ class FishingNodeBehaviorTest {
     board.reserve(second, SECOND, now, LEASE);
 
     assertThat(behavior.act(golem(0), fish(KEY, 0))).isEqualTo(GolemActResult.FAILED);
-    assertThat(behavior.act(golem(3), fish(KEY, 0))).isEqualTo(GolemActResult.WORKING);
+    assertThat(behavior.act(golem(3), fish(KEY, 0))).isEqualTo(GolemActResult.DONE);
     assertThat(carriedTypes()).containsExactly(Material.COD);
   }
 
@@ -301,10 +308,10 @@ class FishingNodeBehaviorTest {
   }
 
   @Test
-  void eachLaterActLandsACatchPaysWorkXpAndKeepsFishing() {
+  void eachLaterActLandsACatchPaysWorkXpAndEndsTheTripSoTheCatchIsDelivered() {
     survey(true, false);
 
-    assertThat(behavior.act(golem(1), fish(KEY, 0))).isEqualTo(GolemActResult.WORKING);
+    assertThat(behavior.act(golem(1), fish(KEY, 0))).isEqualTo(GolemActResult.DONE);
 
     assertThat(carriedTypes()).containsExactly(Material.COD);
     assertThat(xp).containsExactly(6.0D);
@@ -401,6 +408,82 @@ class FishingNodeBehaviorTest {
   }
 
   @Test
+  void anAnglerDeliversItsCatchBeforeItClaimsAnotherSeat() {
+    assertThat(behavior.deliversBeforeClaiming()).isTrue();
+  }
+
+  @Test
+  void everySeatNeedsAFishingRodFromTheHomeChest() {
+    GolemToolPlan plan = behavior.tools(golem(0), fish(KEY, 0));
+
+    assertThat(plan.free()).isFalse();
+    assertThat(plan.needs()).singleElement().satisfies(need -> {
+      assertThat(need.suits().test(GolemTestItems.stack(Material.FISHING_ROD, 1))).isTrue();
+      assertThat(need.suits().test(GolemTestItems.stack(Material.STICK, 1))).isFalse();
+      assertThat(need.note().key()).isEqualTo(GolemancyMessages.TOOLS_NEEDS_ROD);
+    });
+  }
+
+  @Test
+  void eachCatchWearsTheRodOnceAndTheCastDoesNot() {
+    survey(true, false);
+    GolemContext casting = golem(0);
+    GolemContext reeling = golem(1);
+    level(5);
+    rolls.add(0.05D);
+
+    behavior.act(casting, fish(KEY, 0));
+    behavior.act(reeling, fish(KEY, 0));
+
+    verify(casting, never()).wearTool();
+    verify(reeling, times(1)).wearTool();
+    assertThat(carried).hasSize(2);
+  }
+
+  @Test
+  void aThrownBackJunkCatchStillWearsTheRodAndKeepsFishing() {
+    survey(true, false);
+    level(3);
+    record = AnglerRules.toggleJunk(record);
+    rolls.add(0.9D);
+    GolemContext golem = golem(1);
+
+    assertThat(behavior.act(golem, fish(KEY, 0))).isEqualTo(GolemActResult.WORKING);
+
+    verify(golem).wearTool();
+  }
+
+  @Test
+  void luckOfTheSeaOnTheRodAddsToTheLevelLuck() {
+    survey(true, false);
+    holdRod(3, 0);
+    rolls.add(0.9D);
+    behavior.act(golem(1), fish(KEY, 0));
+
+    holdRod(0, 0);
+    rolls.add(0.9D);
+    behavior.act(golem(1), fish(KEY, 0));
+
+    assertThat(carriedTypes()).containsExactly(Material.NAME_TAG, Material.LILY_PAD);
+  }
+
+  @Test
+  void lureTakesFiveSecondsPerLevelOffTheCatchTimeBeforeTheRainButNeverBelowOneSecond() {
+    survey(true, true);
+    holdRod(0, 3);
+
+    level(1);
+    assertThat(behavior.actIntervalTicks(golem(0), fish(KEY, 0))).isEqualTo(900);
+    level(5);
+    assertThat(behavior.actIntervalTicks(golem(0), fish(KEY, 0))).isEqualTo(150);
+    survey(true, false);
+    assertThat(behavior.actIntervalTicks(golem(0), fish(KEY, 0))).isEqualTo(200);
+    config.catchIntervalSecondsByLevel = new ArrayList<>(List.of(4));
+    level(1);
+    assertThat(behavior.actIntervalTicks(golem(0), fish(KEY, 0))).isEqualTo(20);
+  }
+
+  @Test
   void theCatchIntervalFollowsTheLevelAndShrinksInTheRainFromLevelFour() {
     survey(true, true);
 
@@ -424,6 +507,13 @@ class FishingNodeBehaviorTest {
         field.set(x, 64, z, Material.WATER, AnglerWaterTest.levelled(0));
       }
     }
+  }
+
+  private void holdRod(int luckOfTheSea, int lure) {
+    rod = GolemTestItems.stack(Material.FISHING_ROD, 1);
+    ItemStack held = rod;
+    enchants.when(() -> GolemToolEnchants.luckOfTheSea(held)).thenReturn(luckOfTheSea);
+    enchants.when(() -> GolemToolEnchants.lure(held)).thenReturn(lure);
   }
 
   private void survey(boolean open, boolean raining) {
@@ -479,6 +569,8 @@ class FishingNodeBehaviorTest {
     lenient().when(golem.canInteract(any(Location.class))).thenReturn(true);
     lenient().when(golem.withBonusYield(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
     lenient().when(golem.room()).thenAnswer(invocation -> Math.max(0, roomLeft));
+    lenient().when(golem.carried()).thenAnswer(invocation -> carried.stream().mapToInt(ItemStack::getAmount).sum());
+    lenient().when(golem.heldTool()).thenAnswer(invocation -> Optional.ofNullable(rod));
     lenient().when(golem.carry(any(ItemStack.class))).thenAnswer(invocation -> {
       ItemStack item = invocation.getArgument(0);
       if (roomLeft <= 0) {

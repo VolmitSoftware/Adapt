@@ -45,6 +45,7 @@ final class CropField {
   private final Map<Material, Supplier<List<ItemStack>>> drops = new EnumMap<>(Material.class);
   private final Map<Material, Function<ItemStack, List<ItemStack>>> toolDrops = new EnumMap<>(Material.class);
   private final Set<Material> unharvestable = EnumSet.noneOf(Material.class);
+  private final Map<Material, Material> tiers = new EnumMap<>(Material.class);
 
   CropField() {
     lenient().when(world.getUID()).thenReturn(WORLD);
@@ -112,6 +113,30 @@ final class CropField {
   CropField unharvestable(Material type) {
     unharvestable.add(type);
     return this;
+  }
+
+  CropField needsTier(Material type, Material pickaxe) {
+    tiers.put(type, pickaxe);
+    return this;
+  }
+
+  private boolean harvests(Material type, ItemStack tool) {
+    if (unharvestable.contains(type)) {
+      return false;
+    }
+    Material needed = tiers.get(type);
+    return needed == null || tier(tool.getType()) >= tier(needed);
+  }
+
+  private static int tier(Material pickaxe) {
+    return switch (pickaxe) {
+      case WOODEN_PICKAXE, GOLDEN_PICKAXE -> 0;
+      case STONE_PICKAXE, COPPER_PICKAXE -> 1;
+      case IRON_PICKAXE -> 2;
+      case DIAMOND_PICKAXE -> 3;
+      case NETHERITE_PICKAXE -> 4;
+      default -> -1;
+    };
   }
 
   Material type(int x, int y, int z) {
@@ -185,7 +210,7 @@ final class CropField {
       Function<ItemStack, List<ItemStack>> rolled = toolDrops.get(type(x, y, z));
       return rolled == null ? List.of() : rolled.apply(invocation.getArgument(0));
     });
-    lenient().when(block.isPreferredTool(any(ItemStack.class))).thenAnswer(invocation -> !unharvestable.contains(type(x, y, z)));
+    lenient().when(block.isPreferredTool(any(ItemStack.class))).thenAnswer(invocation -> harvests(type(x, y, z), invocation.getArgument(0)));
     lenient().when(block.isLiquid()).thenAnswer(invocation -> type(x, y, z) == Material.WATER || type(x, y, z) == Material.LAVA);
     lenient().when(block.applyBoneMeal(any(BlockFace.class))).thenAnswer(invocation -> {
       if (!(data(x, y, z) instanceof Ageable crop) || crop.getAge() >= crop.getMaximumAge()) {
