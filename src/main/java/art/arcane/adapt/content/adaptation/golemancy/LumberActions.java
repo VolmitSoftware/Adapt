@@ -128,6 +128,7 @@ final class LumberActions {
     int taken = carried > 0 ? golem.take(item -> item.getType() == sapling, Math.min(amount, carried)) : 0;
     if (taken < amount && chest != null) {
       withdraw(chest, sapling, amount - taken);
+      GolemancySupport.visitHomeChest(golem);
     }
     return true;
   }

@@ -69,6 +69,7 @@ class LumberNodeBehaviorTest {
 
   private final GolemLumberCore.Config config = new GolemLumberCore.Config();
   private final CropField field = new CropField();
+  private final List<GolemContext> created = new ArrayList<>();
   private final LumberFellings fellings = new LumberFellings();
   private final LumberRejections rejections = new LumberRejections();
   private final Set<String> stamped = new HashSet<>();
@@ -402,6 +403,8 @@ class LumberNodeBehaviorTest {
 
     assertThat(field.type(0, 64, 0)).isEqualTo(Material.OAK_SAPLING);
     assertThat(chest[3].getAmount()).isEqualTo(1);
+    Block home = field.block(CHEST.x(), CHEST.y(), CHEST.z());
+    assertThat(created).anySatisfy(golem -> verify(golem).visit(home));
   }
 
   @Test
@@ -818,6 +821,7 @@ class LumberNodeBehaviorTest {
 
   private GolemContext golem(int actIndex, long nowMillis) {
     GolemContext golem = mock(GolemContext.class);
+    created.add(golem);
     Player owner = mock(Player.class);
     lenient().when(owner.getUniqueId()).thenReturn(OWNER);
     Mob entity = mock(Mob.class);

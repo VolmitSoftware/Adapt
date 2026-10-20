@@ -3,6 +3,7 @@ package art.arcane.adapt.gameplay;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
 import art.arcane.adapt.api.golem.node.NodeRecord;
@@ -103,8 +104,8 @@ public final class LumberProbeFixtures {
             return "ADAPT_QA LUMBER NODE " + verdict;
         }
         NodeKey key = NodeKey.of(anchor, BlockFace.UP);
-        Optional<NodeRecord> widened = service.update(owner.getUniqueId(), key, record -> record.toBuilder().radii(radius, radius, radius).build());
-        return "ADAPT_QA LUMBER NODE " + verdict + " radius=" + widened.map(NodeRecord::radiusX).orElse(-1);
+        Optional<NodeRecord> widened = service.update(owner.getUniqueId(), key, record -> record.toBuilder().area(NodeCuboid.symmetric(radius, radius, radius)).build());
+        return "ADAPT_QA LUMBER NODE " + verdict + " radius=" + widened.map(record -> record.area().maxX()).orElse(-1);
     }
 
     private static Anatomy anatomy(World world, int x, int y, int z, Set<Long> visited) {
