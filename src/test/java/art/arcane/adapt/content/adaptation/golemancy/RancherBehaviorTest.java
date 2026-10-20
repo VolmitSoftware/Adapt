@@ -63,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
@@ -327,6 +328,47 @@ class RancherBehaviorTest {
 
     assertThat(chest[3].getAmount()).isEqualTo(2);
     verify(core).markFed(target.getUniqueId(), NOW, true);
+  }
+
+  @Test
+  void foodTakenFromTheHomeChestOpensItsLidButFoodFromCargoDoesNot() {
+    Cow target = cow(1, 64, 0);
+    stock(3, Material.WHEAT, 3);
+    GolemContext fromChest = golem(1);
+
+    assertThat(behavior.act(fromChest, task("breed", target))).isEqualTo(GolemActResult.DONE);
+    verify(fromChest).visit(argThat(this::isHomeChest));
+
+    carry(Material.WHEAT, 1);
+    GolemContext fromCargo = golem(1);
+    assertThat(behavior.act(fromCargo, task("breed", target))).isEqualTo(GolemActResult.DONE);
+    verify(fromCargo, never()).visit(any(Block.class));
+  }
+
+  @Test
+  void aBucketOrBowlTakenFromTheHomeChestOpensItsLid() {
+    Cow cow = cow(1, 64, 0);
+    stock(2, Material.BUCKET, 1);
+    GolemContext milking = golem(1);
+
+    assertThat(behavior.act(milking, task("milk", cow))).isEqualTo(GolemActResult.DONE);
+    verify(milking).visit(argThat(this::isHomeChest));
+
+    MushroomCow mooshroom = mooshroom(2, 64, 0);
+    stock(5, Material.BOWL, 2);
+    GolemContext stewing = golem(1);
+    assertThat(behavior.act(stewing, task("milk", mooshroom))).isEqualTo(GolemActResult.DONE);
+    verify(stewing).visit(argThat(this::isHomeChest));
+  }
+
+  @Test
+  void aTakeThatFindsNothingInTheHomeChestLeavesItsLidAlone() {
+    Cow cow = cow(1, 64, 0);
+    GolemContext golem = golem(1);
+
+    assertThat(behavior.act(golem, task("milk", cow))).isEqualTo(GolemActResult.FAILED);
+
+    verify(golem, never()).visit(any(Block.class));
   }
 
   @Test
@@ -734,6 +776,10 @@ class RancherBehaviorTest {
     });
     lenient().when(golem.targetEntity()).thenAnswer(invocation -> target());
     return golem;
+  }
+
+  private boolean isHomeChest(Block block) {
+    return block.getX() == CHEST.x() && block.getY() == CHEST.y() && block.getZ() == CHEST.z();
   }
 
   private Optional<Entity> target() {

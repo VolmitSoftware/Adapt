@@ -52,8 +52,10 @@ public final class DepositBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     Material container = anchor.getType();
-    return golem.deliver(inventory.get(), item -> !NodeContainers.nests(container, item) && accepts(record, item)) > 0
-        ? GolemActResult.DONE
-        : GolemActResult.FAILED;
+    if (golem.deliver(inventory.get(), item -> !NodeContainers.nests(container, item) && accepts(record, item)) <= 0) {
+      return GolemActResult.FAILED;
+    }
+    golem.visit(anchor);
+    return GolemActResult.DONE;
   }
 }

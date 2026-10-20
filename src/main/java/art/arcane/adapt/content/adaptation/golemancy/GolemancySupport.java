@@ -28,6 +28,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
@@ -70,12 +71,20 @@ final class GolemancySupport {
   }
 
   static Optional<Inventory> homeChest(GolemContext golem) {
+    return homeChestBlock(golem).flatMap(golem::container);
+  }
+
+  static void visitHomeChest(GolemContext golem) {
+    homeChestBlock(golem).ifPresent(golem::visit);
+  }
+
+  private static Optional<Block> homeChestBlock(GolemContext golem) {
     GolemState.Anchor chest = golem.handle().state().homeChest();
     World world = golem.world();
     if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)) {
       return Optional.empty();
     }
-    return golem.container(world.getBlockAt(chest.x(), chest.y(), chest.z()));
+    return Optional.of(world.getBlockAt(chest.x(), chest.y(), chest.z()));
   }
 
   static List<NodeIndex.Entry> ownedNodes(GolemContext golem, World world, NodeType type) {

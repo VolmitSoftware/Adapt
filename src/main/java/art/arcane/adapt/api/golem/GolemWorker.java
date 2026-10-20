@@ -16,6 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -195,6 +196,14 @@ final class GolemWorker {
 
   int actIndex() {
     return job == null ? 0 : job.actIndex;
+  }
+
+  void interact(Block container, int ticks) {
+    if (!context.platform().owns(container.getLocation())) {
+      return;
+    }
+    controller.interact(container, ticks);
+    context.platform().visitLid(container, ticks + ContainerLids.CLOSE_TICKS);
   }
 
   boolean skips(GolemTask task, long nowMillis) {
@@ -430,9 +439,7 @@ final class GolemWorker {
     if (!arrived) {
       arrive();
       long interval = intervalMillis(GolemActor.DEFAULT_ACT_INTERVAL_TICKS);
-      if (context.platform().owns(block.getLocation())) {
-        controller.interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
-      }
+      interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
       nextActAt = nowMillis + interval;
       return GolemBrainState.DELIVER;
     }
@@ -479,7 +486,10 @@ final class GolemWorker {
   private void homeInto(Block block, long nowMillis) {
     GolemContext golem = new GolemContext(this, new GolemContext.Scope(context.platform().bindingPolicy(), null, null, handle.core(), nowMillis));
     Material container = block.getType();
-    golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> !NodeContainers.nests(container, item)));
+    Inventory inventory = golem.container(block).orElse(null);
+    if (inventory != null && golem.deliver(inventory, item -> !NodeContainers.nests(container, item)) > 0) {
+      golem.visit(block);
+    }
   }
 
   private boolean route(long nowMillis, Location here) {

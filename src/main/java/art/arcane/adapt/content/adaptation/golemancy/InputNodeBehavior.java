@@ -195,6 +195,7 @@ final class InputNodeBehavior implements NodeBehavior {
     if (moved.items() <= 0) {
       return GolemActResult.FAILED;
     }
+    golem.visit(block);
     SorterFeedback.play(core, center(block), SorterFeedback.Kind.TAKE);
     return GolemActResult.DONE;
   }
@@ -326,6 +327,7 @@ final class InputNodeBehavior implements NodeBehavior {
     if (moved <= 0) {
       return GolemActResult.FAILED;
     }
+    golem.visit(block);
     SorterFeedback.play(core, center(block), SorterFeedback.Kind.DROP);
     return GolemActResult.DONE;
   }
@@ -335,6 +337,7 @@ final class InputNodeBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     golem.workXp(stacks * core.config().workXpPerStack);
+    golem.visit(block);
     SorterFeedback.play(core, center(block), SorterFeedback.Kind.DROP);
     return GolemActResult.DONE;
   }
