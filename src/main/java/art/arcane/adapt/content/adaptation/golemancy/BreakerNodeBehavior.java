@@ -150,12 +150,7 @@ final class BreakerNodeBehavior implements NodeBehavior {
     }
     Material type = block.getType();
     return BreakerRules.minable(type, core.hardness(type), plan) && !block.isLiquid() && !core.tileEntity(type)
-        && block.isPreferredTool(plan.tool()) && !anchored(block) && !plinth(block);
-  }
-
-  private static boolean anchored(Block block) {
-    return GolemancyRuntime.nodes().map(nodes -> nodes.index().mayAnchor(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ()))
-        .orElse(true);
+        && block.isPreferredTool(plan.tool()) && !plinth(block);
   }
 
   private static boolean plinth(Block block) {

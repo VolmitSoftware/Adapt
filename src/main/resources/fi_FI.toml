@@ -4853,6 +4853,7 @@ idle = "Joutilas"
 working = "Työssä"
 blocked = "Suojauksen estämä"
 full = "Säiliö täynnä"
+no_container = "Ei säiliötä"
 
 [golemancy.node_label]
 priority = "P{priority}"

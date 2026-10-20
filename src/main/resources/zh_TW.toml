@@ -4853,6 +4853,7 @@ idle = "閒置"
 working = "工作中"
 blocked = "被保護阻擋"
 full = "容器已滿"
+no_container = "沒有容器"
 
 [golemancy.node_label]
 priority = "P{priority}"

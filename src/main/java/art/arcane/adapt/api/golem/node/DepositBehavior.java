@@ -41,7 +41,7 @@ public final class DepositBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     Block anchor = golem.world().getBlockAt(key.x(), key.y(), key.z());
-    if (!NodeRules.active(record, anchor)) {
+    if (NodeRules.lacksContainer(record.type(), anchor.getType()) || !NodeRules.active(record, anchor)) {
       return GolemActResult.FAILED;
     }
     if (!golem.canAccessChest(anchor.getLocation())) {

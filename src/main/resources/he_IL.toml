@@ -4853,6 +4853,7 @@ idle = "במנוחה"
 working = "עובד"
 blocked = "חסום על ידי הגנה"
 full = "המכל מלא"
+no_container = "אין מכל"
 
 [golemancy.node_label]
 priority = "P{priority}"

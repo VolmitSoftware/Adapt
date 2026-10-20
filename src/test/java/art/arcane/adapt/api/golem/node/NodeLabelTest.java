@@ -37,7 +37,8 @@ class NodeLabelTest {
 
   @Test
   void everyStatusHasItsOwnColor() {
-    assertThat(List.of(NodeStatus.IDLE.color(), NodeStatus.WORKING.color(), NodeStatus.BLOCKED.color(), NodeStatus.FULL.color()))
+    assertThat(List.of(NodeStatus.IDLE.color(), NodeStatus.WORKING.color(), NodeStatus.BLOCKED.color(), NodeStatus.FULL.color(),
+        NodeStatus.NO_CONTAINER.color()))
         .doesNotHaveDuplicates();
   }
 

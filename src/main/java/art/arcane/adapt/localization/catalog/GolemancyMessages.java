@@ -473,6 +473,7 @@ public final class GolemancyMessages {
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
   public static final TextKey NODE_STATUS_BLOCKED = TextKey.of("golemancy.node_status.blocked", "Blocked by protection");
   public static final TextKey NODE_STATUS_FULL = TextKey.of("golemancy.node_status.full", "Container full");
+  public static final TextKey NODE_STATUS_NO_CONTAINER = TextKey.of("golemancy.node_status.no_container", "No container");
   public static final TextKey NODE_LABEL_PRIORITY = TextKey.of("golemancy.node_label.priority", "P{priority}");
   public static final TextKey NODE_LABEL_FILTERS = TextKey.of("golemancy.node_label.filters", "Filter: {count}");
   public static final TextKey NODE_PLACED = TextKey.of("golemancy.node_message.placed", "{node} Node placed");
@@ -1012,6 +1013,7 @@ public final class GolemancyMessages {
     builder.add(NODE_STATUS_WORKING);
     builder.add(NODE_STATUS_BLOCKED);
     builder.add(NODE_STATUS_FULL);
+    builder.add(NODE_STATUS_NO_CONTAINER);
     builder.add(NODE_LABEL_PRIORITY);
     builder.add(NODE_LABEL_FILTERS);
     builder.add(NODE_PLACED);

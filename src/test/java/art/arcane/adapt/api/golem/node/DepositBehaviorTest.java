@@ -1,17 +1,26 @@
 package art.arcane.adapt.api.golem.node;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.GolemActResult;
+import art.arcane.adapt.api.golem.GolemContext;
+import art.arcane.adapt.api.golem.GolemTarget;
+import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.NodeType;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.Inventory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -82,6 +91,40 @@ class DepositBehaviorTest {
 
     verify(anchor, never()).isBlockPowered();
     verify(anchor, never()).isBlockIndirectlyPowered();
+  }
+
+  @Test
+  void aDepositDeliversOnlyIntoAnAnchorThatIsStillAContainer() {
+    UUID worldId = UUID.fromString("00000000-0000-0000-0000-0000000000f2");
+    NodeKey key = new NodeKey(worldId, 0, 64, 0, BlockFace.UP);
+    GolemTask task = GolemTask.builder(key, NodeType.DEPOSIT, "deliver", GolemTarget.block(worldId, 0, 64, 0)).build();
+    DepositBehavior behavior = new DepositBehavior(mock(Adaptation.class));
+    Inventory inventory = GolemTestItems.inventory(27);
+
+    GolemContext hopper = golem(worldId, Material.HOPPER, inventory, deposit().build());
+    assertThat(behavior.act(hopper, task)).isEqualTo(GolemActResult.FAILED);
+    verify(hopper, never()).deliver(any(Inventory.class), any());
+
+    GolemContext chest = golem(worldId, Material.CHEST, inventory, deposit().build());
+    when(chest.deliver(any(Inventory.class), any())).thenReturn(1);
+    assertThat(behavior.act(chest, task)).isEqualTo(GolemActResult.DONE);
+    verify(chest).deliver(any(Inventory.class), any());
+  }
+
+  private static GolemContext golem(UUID worldId, Material anchorType, Inventory inventory, NodeRecord record) {
+    World world = mock(World.class);
+    Block anchor = mock(Block.class);
+    Location at = new Location(world, 0, 64, 0);
+    lenient().when(world.getUID()).thenReturn(worldId);
+    lenient().when(world.getBlockAt(0, 64, 0)).thenReturn(anchor);
+    lenient().when(anchor.getType()).thenReturn(anchorType);
+    lenient().when(anchor.getLocation()).thenReturn(at);
+    GolemContext golem = mock(GolemContext.class);
+    lenient().when(golem.world()).thenReturn(world);
+    lenient().when(golem.node()).thenReturn(Optional.of(record));
+    lenient().when(golem.canAccessChest(at)).thenReturn(true);
+    lenient().when(golem.container(anchor)).thenReturn(Optional.of(inventory));
+    return golem;
   }
 
   private static NodeRecord.Builder deposit() {

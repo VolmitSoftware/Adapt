@@ -97,20 +97,20 @@ class NodeRulesTest {
 
   @ParameterizedTest
   @EnumSource(value = NodeType.class, names = {"DEPOSIT", "INPUT", "FILTER"})
-  void containerNodesDropWhenTheirContainerIsGoneOrReplaced(NodeType type) {
-    assertThat(NodeRules.validate(type, Material.CHEST)).isEqualTo(NodeValidation.KEEP);
-    assertThat(NodeRules.validate(type, Material.BARREL)).isEqualTo(NodeValidation.KEEP);
-    assertThat(NodeRules.validate(type, Material.STONE)).isEqualTo(NodeValidation.DROP);
-    assertThat(NodeRules.validate(type, Material.AIR)).isEqualTo(NodeValidation.DROP);
+  void containerNodesLackTheirContainerWhenTheAnchorIsNotOne(NodeType type) {
+    assertThat(NodeRules.lacksContainer(type, Material.CHEST)).isFalse();
+    assertThat(NodeRules.lacksContainer(type, Material.BARREL)).isFalse();
+    assertThat(NodeRules.lacksContainer(type, Material.RED_SHULKER_BOX)).isFalse();
+    for (Material material : List.of(Material.STONE, Material.AIR, Material.WATER, Material.HOPPER, Material.FURNACE)) {
+      assertThat(NodeRules.lacksContainer(type, material)).as(material.name()).isTrue();
+    }
   }
 
   @ParameterizedTest
   @EnumSource(value = NodeType.class, names = {"GUARD", "COLLECTION", "HARVEST", "LUMBER", "BREAKER", "PASTURE", "FISHING"})
-  void otherNodesDropOnlyWhenTheirAnchorIsGone(NodeType type) {
-    assertThat(NodeRules.validate(type, Material.STONE)).isEqualTo(NodeValidation.KEEP);
-    assertThat(NodeRules.validate(type, Material.CHEST)).isEqualTo(NodeValidation.KEEP);
-    for (Material empty : List.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.LAVA, Material.FIRE, Material.BUBBLE_COLUMN)) {
-      assertThat(NodeRules.validate(type, empty)).as(empty.name()).isEqualTo(NodeValidation.DROP);
+  void areaNodesNeverLackAContainer(NodeType type) {
+    for (Material material : List.of(Material.STONE, Material.CHEST, Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA, Material.FIRE)) {
+      assertThat(NodeRules.lacksContainer(type, material)).as(material.name()).isFalse();
     }
   }
 

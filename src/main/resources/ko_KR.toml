@@ -4853,6 +4853,7 @@ idle = "대기 중"
 working = "작업 중"
 blocked = "보호로 차단됨"
 full = "보관함 가득 참"
+no_container = "보관함 없음"
 
 [golemancy.node_label]
 priority = "P{priority}"

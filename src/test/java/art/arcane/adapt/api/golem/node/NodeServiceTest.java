@@ -37,6 +37,8 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
@@ -144,14 +146,14 @@ class NodeServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void loadingAChunkIndexesValidNodesAndDropsOnesWhoseAnchorIsGone() {
-    blocks.put("1,64,1", Material.STONE);
+  void loadingAChunkKeepsEveryNodeWhoseAnchorIsGone() {
     blocks.put("2,64,1", Material.STONE);
     NodeRecord guard = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
     NodeRecord deposit = NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.NORTH).build();
     platform.put(WORLD, 1, 64, 1, NodeFaces.EMPTY.with(guard));
     platform.put(WORLD, 2, 64, 1, NodeFaces.EMPTY.with(deposit));
     GolemRoster roster = onlineRoster(OWNER);
+    roster.addNode(GolemRoster.NodeEntry.at(GolemState.Anchor.of(WORLD, 1, 64, 1), BlockFace.UP, NodeType.GUARD));
     roster.addNode(GolemRoster.NodeEntry.at(GolemState.Anchor.of(WORLD, 2, 64, 1), BlockFace.NORTH, NodeType.DEPOSIT));
 
     service.on(new ChunkLoadEvent(chunk(0, 0), false));
@@ -159,13 +161,16 @@ class NodeServiceTest extends AdaptTestBase {
     NodeKey guardKey = new NodeKey(WORLD, 1, 64, 1, BlockFace.UP);
     NodeKey depositKey = new NodeKey(WORLD, 2, 64, 1, BlockFace.NORTH);
     assertThat(service.node(guardKey)).contains(guard);
-    assertThat(service.node(depositKey)).isEmpty();
-    assertThat(platform.stored(WORLD, 2, 64, 1).isEmpty()).isTrue();
-    assertThat(roster.nodeCount()).isZero();
-    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.DEPOSIT)));
+    assertThat(service.node(depositKey)).contains(deposit);
+    assertThat(platform.stored(WORLD, 1, 64, 1).get(BlockFace.UP)).isEqualTo(guard);
+    assertThat(platform.stored(WORLD, 2, 64, 1).get(BlockFace.NORTH)).isEqualTo(deposit);
+    assertThat(roster.nodeCount()).isEqualTo(2);
+    assertThat(platform.events).isEmpty();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
     assertThat(service.renderer().bundle(guardKey)).isPresent();
-    assertThat(service.renderer().bundle(depositKey)).isEmpty();
+    assertThat(service.renderer().bundle(depositKey)).isPresent();
     verify(reveal).nodeSpawned(guardKey);
+    verify(reveal).nodeSpawned(depositKey);
   }
 
   @Test
@@ -307,13 +312,15 @@ class NodeServiceTest extends AdaptTestBase {
     verify(reveal).nodeGone(key);
   }
 
-  @Test
-  void aScanDropsANodeWhoseAnchorBrokeSinceTheLastPassAndOtherwiseReschedules() {
+  @ParameterizedTest
+  @EnumSource(NodeType.class)
+  void aScanKeepsEveryNodeTypeWhoseAnchorBrokeSinceTheLastPass(NodeType type) {
     readyChunk();
-    blocks.put("3,64,3", Material.STONE);
+    blocks.put("3,64,3", Material.CHEST);
     GolemRoster roster = onlineRoster(OWNER);
-    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.GUARD, policy);
-    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.NORTH, type, policy);
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.NORTH);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
 
     platform.runScheduled();
     assertThat(platform.scheduled).hasSize(1);
@@ -321,11 +328,71 @@ class NodeServiceTest extends AdaptTestBase {
 
     blocks.put("3,64,3", Material.AIR);
     platform.runScheduled();
+    platform.runAsync();
+
+    assertThat(service.node(key)).isPresent();
+    assertThat(platform.scheduled).hasSize(1);
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.NORTH)).isNotNull();
+    assertThat(roster.nodeCount()).isEqualTo(1);
+    assertThat(service.renderer().bundle(key)).containsSame(bundle);
+    assertThat(platform.events).isEmpty();
+    verify(bundle.icon(), never()).remove();
+    verify(bundle.hitbox(), never()).remove();
+    verify(bundle.label(), never()).remove();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    verify(reveal, never()).nodeGone(key);
+  }
+
+  @Test
+  void aNodeKeepsScanningThroughAnAnchorThatIsLostAndReplaced() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+
+    for (Material material : List.of(Material.AIR, Material.WATER, Material.LAVA, Material.FIRE, Material.OAK_LEAVES, Material.STONE)) {
+      blocks.put("3,64,3", material);
+      platform.runScheduled();
+      assertThat(service.node(key)).as(material.name()).isPresent();
+      assertThat(platform.scheduled).as(material.name()).hasSize(1);
+    }
+    assertThat(platform.events).isEmpty();
+  }
+
+  @Test
+  void aFaceStaysOccupiedAfterItsAnchorBreaks() {
+    Player owner = placedGuard();
+    blocks.put("3,64,3", Material.AIR);
+    platform.runScheduled();
+
+    NodePlacementVerdict verdict = service.place(owner, block(3, 64, 3), BlockFace.UP, NodeType.HARVEST, policy);
+
+    assertThat(verdict).isEqualTo(NodePlacementVerdict.OCCUPIED);
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP).type()).isEqualTo(NodeType.GUARD);
+  }
+
+  @ParameterizedTest
+  @EnumSource(NodeType.class)
+  void theOwnerRemovesAnyNodeWhoseAnchorIsGoneAndGetsTheItemBack(NodeType type) {
+    readyChunk();
+    blocks.put("3,64,3", Material.CHEST);
+    GolemRoster roster = onlineRoster(OWNER);
+    Player owner = player(OWNER);
+    service.place(owner, block(3, 64, 3), BlockFace.NORTH, type, policy);
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.NORTH);
+    blocks.put("3,64,3", Material.AIR);
+    platform.runScheduled();
+    assertThat(service.node(key)).isPresent();
+
+    assertThat(service.remove(player(STRANGER), key)).isFalse();
+    assertThat(service.node(key)).isPresent();
+    assertThat(service.remove(owner, key)).isTrue();
 
     assertThat(service.node(key)).isEmpty();
-    assertThat(platform.scheduled).isEmpty();
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
     assertThat(roster.nodeCount()).isZero();
-    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
+    assertThat(service.renderer().bundle(key)).isEmpty();
+    verify(owner.getInventory()).addItem(nodeItems.get(type));
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    verify(reveal).nodeGone(key);
   }
 
   @Test
@@ -480,19 +547,6 @@ class NodeServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void aBrokenAnchorDropsItsItemOnlyAfterTheSave() {
-    placedGuard();
-    blocks.put("3,64,3", Material.AIR);
-    platform.deferAsync = true;
-
-    platform.runScheduled();
-
-    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
-    platform.runAsync();
-    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
-  }
-
-  @Test
   void aNodeWhoseStoredRecordIsAlreadyGoneYieldsNoItem() {
     Player owner = placedGuard();
     NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
@@ -503,18 +557,6 @@ class NodeServiceTest extends AdaptTestBase {
     assertThat(service.node(key)).isEmpty();
     assertThat(platform.events).isEmpty();
     verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
-  }
-
-  @Test
-  void aBrokenAnchorWhoseRecordIsAlreadyGoneDropsNothing() {
-    placedGuard();
-    platform.store.clear();
-    blocks.put("3,64,3", Material.AIR);
-
-    platform.runScheduled();
-
-    assertThat(platform.events).isEmpty();
-    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
   }
 
   @Test
