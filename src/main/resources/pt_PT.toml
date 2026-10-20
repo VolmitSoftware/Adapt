@@ -4479,6 +4479,13 @@ colossus_lore = "Clica para alternar o tamanho real para combate; um golem cresc
 pack = "Embalar"
 pack_lore = "Comprime este golem num bloco de Golem adormecido que podes colocar para o despertar"
 
+[golemancy.tools]
+needs_rod = "Precisa de uma cana de pesca no baú de casa"
+needs_silk = "Precisa de uma picareta com Toque de seda no baú de casa"
+needs_fortune = "Precisa de uma picareta com Fortuna no baú de casa"
+needs_tier = "Precisa no baú de casa: {tool}"
+holding = "Segura: {tool}"
+
 [golemancy.roster]
 title = "Lista de golems"
 empty = "Não tens golems"
@@ -4656,17 +4663,18 @@ lore1 = "Dureza máxima de bloco"
 lore2 = "Segundos por bloco"
 lore3 = "Ferramenta de mineração"
 lore4 = "Interruptor de Toque de seda nos Nós de Escavação"
-lore5 = "Interruptor de Fortuna I nos Nós de Escavação"
-lore = ["Dureza máxima de bloco", "Segundos por bloco", "Ferramenta de mineração", "Interruptor de Toque de seda nos Nós de Escavação", "Interruptor de Fortuna I nos Nós de Escavação"]
+lore5 = "Interruptor de Fortuna nos Nós de Escavação"
+lore6 = "Parte blocos acima do nível de ferro com uma picareta adequada do baú de casa"
+lore = ["Dureza máxima de bloco", "Segundos por bloco", "Ferramenta de mineração", "Interruptor de Toque de seda nos Nós de Escavação", "Interruptor de Fortuna nos Nós de Escavação", "Parte blocos acima do nível de ferro com uma picareta adequada do baú de casa"]
 filter_ready = "Parte os blocos do filtro"
 filter_needed = "Adiciona blocos à lista branca"
 filter_lore = "Os demolidores só partem os blocos que uma lista branca indica"
 silk_on = "Toque de seda: ligado"
 silk_off = "Toque de seda: desligado"
-fortune_on = "Fortuna I: ligada"
-fortune_off = "Fortuna I: desligada"
+fortune_on = "Fortuna: ligada"
+fortune_off = "Fortuna: desligada"
 locked = "Desbloqueia-se com Núcleo de Demolidor no nível {level}"
-exclusive = "Toque de seda e Fortuna I desligam-se mutuamente"
+exclusive = "Toque de seda e Fortuna desligam-se mutuamente"
 
 [golemancy.rancher_core]
 name = "Núcleo de Criador"
@@ -4738,7 +4746,8 @@ lore2 = "Sorte de pesca"
 lore3 = "Interruptor do filtro de lixo nos Nós de Pesca"
 lore4 = "Menos tempo por captura à chuva"
 lore5 = "Probabilidade de uma captura dupla"
-lore = ["Segundos por captura", "Sorte de pesca", "Interruptor do filtro de lixo nos Nós de Pesca", "Menos tempo por captura à chuva", "Probabilidade de uma captura dupla"]
+lore6 = "Pesca com uma cana de pesca do baú de casa"
+lore = ["Segundos por captura", "Sorte de pesca", "Interruptor do filtro de lixo nos Nós de Pesca", "Menos tempo por captura à chuva", "Probabilidade de uma captura dupla", "Pesca com uma cana de pesca do baú de casa"]
 water_ready = "Água aberta encontrada"
 water_needed = "Precisa de água aberta"
 water_lore = "Os pescadores precisam de uma área de água aberta de 5 por 5 à frente do nó"

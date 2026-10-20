@@ -18,6 +18,11 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -156,6 +161,27 @@ class GolemGuardListenerTest extends AdaptTestBase {
   }
 
   @Test
+  void anEmptyHandCannotTakeTheToolABoundCopperGolemHolds() {
+    CopperGolem holding = holding(bound(CopperGolem.class, OWNER, GolemBody.COPPER), Material.FISHING_ROD);
+    CopperGolem unbound = holding(living(CopperGolem.class), Material.FISHING_ROD);
+    CopperGolem emptyHanded = holding(bound(CopperGolem.class, OWNER, GolemBody.COPPER), Material.AIR);
+    PlayerInteractEntityEvent bare = interact(holding, Material.AIR);
+    PlayerInteractEntityEvent vanilla = interact(unbound, Material.AIR);
+    PlayerInteractEntityEvent nothingHeld = interact(emptyHanded, Material.AIR);
+    PlayerInteractEntityEvent withItem = interact(holding, Material.COPPER_INGOT);
+
+    listener.on(bare);
+    listener.on(vanilla);
+    listener.on(nothingHeld);
+    listener.on(withItem);
+
+    verify(bare).setCancelled(true);
+    verify(vanilla, never()).setCancelled(anyBoolean());
+    verify(nothingHeld, never()).setCancelled(anyBoolean());
+    verify(withItem, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
   void boundFrostGolemsLeaveSnowOnlyWhenTheirTrailIsOn() {
     Snowman unloaded = bound(Snowman.class, OWNER, GolemBody.FROST);
     Snowman trailOff = bound(Snowman.class, OWNER, GolemBody.FROST);
@@ -236,6 +262,27 @@ class GolemGuardListenerTest extends AdaptTestBase {
   private static EntityBlockFormEvent blockForm(Entity entity) {
     EntityBlockFormEvent event = mock(EntityBlockFormEvent.class);
     lenient().when(event.getEntity()).thenReturn(entity);
+    return event;
+  }
+
+  private static CopperGolem holding(CopperGolem golem, Material held) {
+    EntityEquipment equipment = mock(EntityEquipment.class);
+    ItemStack shown = GolemTestItems.stack(held, 1);
+    lenient().when(equipment.getItemInMainHand()).thenReturn(shown);
+    lenient().when(golem.getEquipment()).thenReturn(equipment);
+    return golem;
+  }
+
+  private PlayerInteractEntityEvent interact(Entity clicked, Material hand) {
+    Player player = player(OWNER);
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    ItemStack item = GolemTestItems.stack(hand, 1);
+    lenient().when(inventory.getItem(EquipmentSlot.HAND)).thenReturn(item);
+    lenient().when(player.getInventory()).thenReturn(inventory);
+    PlayerInteractEntityEvent event = mock(PlayerInteractEntityEvent.class);
+    lenient().when(event.getRightClicked()).thenReturn(clicked);
+    lenient().when(event.getPlayer()).thenReturn(player);
+    lenient().when(event.getHand()).thenReturn(EquipmentSlot.HAND);
     return event;
   }
 

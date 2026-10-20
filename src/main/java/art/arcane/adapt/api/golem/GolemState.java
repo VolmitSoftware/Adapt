@@ -40,6 +40,7 @@ public final class GolemState {
   private Anchor home;
   private Anchor homeChest;
   private List<String> carried = new ArrayList<>();
+  private String held;
   private double essence;
   private double hostileDamagePool;
   private Stats stats = new Stats();
@@ -84,6 +85,7 @@ public final class GolemState {
     state.home = snapshot.home() == null ? Objects.requireNonNull(fallbackHome) : snapshot.home();
     state.homeChest = snapshot.homeChest();
     state.carried = new ArrayList<>(snapshot.carried());
+    state.held = snapshot.held();
     state.setEssence(snapshot.essence());
     GolemSnapshot.Stats stats = snapshot.stats();
     state.stats.addKills(stats.kills());
@@ -220,6 +222,10 @@ public final class GolemState {
     return items;
   }
 
+  public String held() {
+    return held;
+  }
+
   public double essence() {
     return essence;
   }
@@ -332,6 +338,10 @@ public final class GolemState {
   void setCarried(List<String> encoded) {
     carried = new ArrayList<>(encoded);
     carriedRevision++;
+  }
+
+  void setHeld(String encoded) {
+    held = encoded;
   }
 
   int carriedRevision() {

@@ -4479,6 +4479,13 @@ colossus_lore = "Nhấp để bật hoặc tắt kích thước đầy đủ khi
 pack = "Đóng gói"
 pack_lore = "Nén golem này thành một khối Golem Ngủ Đông mà bạn có thể đặt xuống để đánh thức nó"
 
+[golemancy.tools]
+needs_rod = "Cần một cần câu trong rương nhà"
+needs_silk = "Cần một cuốc Chạm Lụa trong rương nhà"
+needs_fortune = "Cần một cuốc Gia Tài trong rương nhà"
+needs_tier = "Cần trong rương nhà: {tool}"
+holding = "Đang cầm: {tool}"
+
 [golemancy.roster]
 title = "Danh sách golem"
 empty = "Bạn không có golem nào"
@@ -4656,17 +4663,18 @@ lore1 = "Độ cứng khối tối đa"
 lore2 = "Số giây mỗi khối"
 lore3 = "Công cụ khai thác"
 lore4 = "Công tắc Chạm Lụa trên Nút Khai Thác"
-lore5 = "Công tắc Gia Tài I trên Nút Khai Thác"
-lore = ["Độ cứng khối tối đa", "Số giây mỗi khối", "Công cụ khai thác", "Công tắc Chạm Lụa trên Nút Khai Thác", "Công tắc Gia Tài I trên Nút Khai Thác"]
+lore5 = "Công tắc Gia Tài trên Nút Khai Thác"
+lore6 = "Đào khối trên cấp sắt bằng cuốc phù hợp từ rương nhà"
+lore = ["Độ cứng khối tối đa", "Số giây mỗi khối", "Công cụ khai thác", "Công tắc Chạm Lụa trên Nút Khai Thác", "Công tắc Gia Tài trên Nút Khai Thác", "Đào khối trên cấp sắt bằng cuốc phù hợp từ rương nhà"]
 filter_ready = "Phá các khối trong bộ lọc"
 filter_needed = "Thêm khối vào danh sách trắng"
 filter_lore = "Kẻ Phá Vỡ chỉ phá các khối mà danh sách trắng liệt kê"
 silk_on = "Chạm Lụa: Bật"
 silk_off = "Chạm Lụa: Tắt"
-fortune_on = "Gia Tài I: Bật"
-fortune_off = "Gia Tài I: Tắt"
+fortune_on = "Gia Tài: Bật"
+fortune_off = "Gia Tài: Tắt"
 locked = "Mở khóa ở Lõi Kẻ Phá Vỡ cấp {level}"
-exclusive = "Chạm Lụa và Gia Tài I tắt lẫn nhau"
+exclusive = "Chạm Lụa và Gia Tài tắt lẫn nhau"
 
 [golemancy.rancher_core]
 name = "Lõi Người Chăn Nuôi"
@@ -4738,7 +4746,8 @@ lore2 = "May mắn câu cá"
 lore3 = "Công tắc bộ lọc rác trên Nút Câu Cá"
 lore4 = "Thời gian câu ngắn hơn khi trời mưa"
 lore5 = "Cơ hội câu được mẻ đôi"
-lore = ["Số giây mỗi mẻ câu", "May mắn câu cá", "Công tắc bộ lọc rác trên Nút Câu Cá", "Thời gian câu ngắn hơn khi trời mưa", "Cơ hội câu được mẻ đôi"]
+lore6 = "Câu cá bằng cần câu từ rương nhà"
+lore = ["Số giây mỗi mẻ câu", "May mắn câu cá", "Công tắc bộ lọc rác trên Nút Câu Cá", "Thời gian câu ngắn hơn khi trời mưa", "Cơ hội câu được mẻ đôi", "Câu cá bằng cần câu từ rương nhà"]
 water_ready = "Đã tìm thấy nước mở"
 water_needed = "Cần nước mở"
 water_lore = "Ngư Phủ cần một vùng nước mở 5 x 5 ở phía trước nút"

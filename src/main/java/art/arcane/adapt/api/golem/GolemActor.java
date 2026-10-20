@@ -12,4 +12,8 @@ public interface GolemActor {
   default int actIntervalTicks(GolemContext golem, GolemTask task) {
     return DEFAULT_ACT_INTERVAL_TICKS;
   }
+
+  default GolemToolPlan tools(GolemContext golem, GolemTask task) {
+    return GolemToolPlan.NONE;
+  }
 }

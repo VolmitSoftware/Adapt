@@ -4475,6 +4475,13 @@ colossus_lore = "Cliquez pour passer en taille réelle pour le combat ; un golem
 pack = "Emballer"
 pack_lore = "Compresse ce golem en un bloc de Golem dormant que tu peux poser pour le réveiller"
 
+[golemancy.tools]
+needs_rod = "Il lui faut une canne à pêche dans son coffre de maison"
+needs_silk = "Il lui faut une pioche Toucher de soie dans son coffre de maison"
+needs_fortune = "Il lui faut une pioche Fortune dans son coffre de maison"
+needs_tier = "Il lui faut dans son coffre de maison : {tool}"
+holding = "Tient : {tool}"
+
 [golemancy.roster]
 title = "Registre des golems"
 empty = "Vous n'avez aucun golem"
@@ -4652,17 +4659,18 @@ lore1 = "Dureté maximale des blocs"
 lore2 = "Secondes par bloc"
 lore3 = "Outil de minage"
 lore4 = "Interrupteur Toucher de soie sur les Nœuds de Minage"
-lore5 = "Interrupteur Fortune I sur les Nœuds de Minage"
-lore = ["Dureté maximale des blocs", "Secondes par bloc", "Outil de minage", "Interrupteur Toucher de soie sur les Nœuds de Minage", "Interrupteur Fortune I sur les Nœuds de Minage"]
+lore5 = "Interrupteur Fortune sur les Nœuds de Minage"
+lore6 = "Casse les blocs au-delà du niveau fer avec une pioche adaptée du coffre de la maison"
+lore = ["Dureté maximale des blocs", "Secondes par bloc", "Outil de minage", "Interrupteur Toucher de soie sur les Nœuds de Minage", "Interrupteur Fortune sur les Nœuds de Minage", "Casse les blocs au-delà du niveau fer avec une pioche adaptée du coffre de la maison"]
 filter_ready = "Casse les blocs du filtre"
 filter_needed = "Ajoutez des blocs à la liste blanche"
 filter_lore = "Les briseurs ne cassent que les blocs listés par une liste blanche"
 silk_on = "Toucher de soie : activé"
 silk_off = "Toucher de soie : désactivé"
-fortune_on = "Fortune I : activée"
-fortune_off = "Fortune I : désactivée"
+fortune_on = "Fortune : activée"
+fortune_off = "Fortune : désactivée"
 locked = "Se débloque au niveau {level} de Noyau de Briseur"
-exclusive = "Toucher de soie et Fortune I se désactivent mutuellement"
+exclusive = "Toucher de soie et Fortune se désactivent mutuellement"
 
 [golemancy.rancher_core]
 name = "Noyau d'Éleveur"
@@ -4734,7 +4742,8 @@ lore2 = "Chance de pêche"
 lore3 = "Interrupteur du filtre à déchets sur les Nœuds de Pêche"
 lore4 = "Temps de prise réduit sous la pluie"
 lore5 = "Chance d'une prise double"
-lore = ["Secondes par prise", "Chance de pêche", "Interrupteur du filtre à déchets sur les Nœuds de Pêche", "Temps de prise réduit sous la pluie", "Chance d'une prise double"]
+lore6 = "Pêche avec une canne à pêche du coffre de la maison"
+lore = ["Secondes par prise", "Chance de pêche", "Interrupteur du filtre à déchets sur les Nœuds de Pêche", "Temps de prise réduit sous la pluie", "Chance d'une prise double", "Pêche avec une canne à pêche du coffre de la maison"]
 water_ready = "Eau libre trouvée"
 water_needed = "Il faut de l'eau libre"
 water_lore = "Les pêcheurs ont besoin d'une étendue d'eau libre de 5 sur 5 devant le nœud"

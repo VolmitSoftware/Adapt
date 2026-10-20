@@ -45,6 +45,7 @@ class GolemSnapshotTest {
     assertThat(snapshot.snowTrail()).isTrue();
     assertThat(snapshot.essence()).isEqualTo(42.5D);
     assertThat(snapshot.carried()).containsExactly("stack-one", "stack-two");
+    assertThat(snapshot.held()).isEqualTo("held-tool");
     assertThat(snapshot.health()).isEqualTo(17.5D);
     assertThat(snapshot.maxHealthMark()).isEqualTo(36D);
     assertThat(snapshot.copperStage()).isEqualTo(2);
@@ -118,6 +119,7 @@ class GolemSnapshotTest {
     GolemSnapshot emptied = snapshot.withoutCargo();
 
     assertThat(emptied.carried()).isEmpty();
+    assertThat(emptied.held()).isNull();
     assertThat(emptied.essence()).isZero();
     assertThat(emptied.cores()).isEqualTo(snapshot.cores());
     assertThat(emptied.runes()).isEqualTo(snapshot.runes());
@@ -256,13 +258,13 @@ class GolemSnapshotTest {
   private static GolemSnapshot snapshotWithCores(List<GolemCoreType> cores) {
     GolemSnapshot base = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
     return new GolemSnapshot(base.id(), base.owner(), base.body(), cores, base.runes(), base.channels(), base.mode(), base.home(),
-        base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.essence(), base.carried(), base.health(),
+        base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.essence(), base.carried(), base.held(), base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
   private static GolemSnapshot copy(GolemSnapshot base, String customName, GolemState.Anchor home, double essence) {
     return new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(), home,
-        base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), essence, base.carried(), base.health(),
+        base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), essence, base.carried(), base.held(), base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
@@ -286,6 +288,7 @@ class GolemSnapshotTest {
     state.setMode(GolemMode.HOME);
     state.setHomeChest(GolemState.Anchor.of(WORLD, 11, 65, 20));
     state.setCarried(List.of("stack-one", "stack-two"));
+    state.setHeld("held-tool");
     state.setEssence(42.5D);
     state.setHostileDamagePool(7.25D);
     state.stats().addKills(3L);

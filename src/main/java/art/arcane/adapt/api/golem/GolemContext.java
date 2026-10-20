@@ -167,6 +167,18 @@ public final class GolemContext {
     return worker.cargo().items();
   }
 
+  public Optional<ItemStack> heldTool() {
+    return worker.heldTool();
+  }
+
+  public Optional<ItemStack> toolInUse() {
+    return worker.toolInUse();
+  }
+
+  public void wearTool() {
+    worker.wearTool();
+  }
+
   public Optional<ItemStack> carry(ItemStack stack) {
     return worker.cargo().add(stack, capacity());
   }

@@ -4479,6 +4479,13 @@ colossus_lore = "Klicken, um für den Kampf volle Größe umzuschalten; ein gewa
 pack = "Verpacken"
 pack_lore = "Verdichtet diesen Golem zu einem Ruhender-Golem-Block, den du platzieren kannst, um ihn zu erwecken"
 
+[golemancy.tools]
+needs_rod = "Braucht eine Angel in seiner Heimtruhe"
+needs_silk = "Braucht eine Behutsamkeit-Spitzhacke in seiner Heimtruhe"
+needs_fortune = "Braucht eine Glück-Spitzhacke in seiner Heimtruhe"
+needs_tier = "Braucht in seiner Heimtruhe: {tool}"
+holding = "Hält: {tool}"
+
 [golemancy.roster]
 title = "Golem-Liste"
 empty = "Du hast keine Golems"
@@ -4656,17 +4663,18 @@ lore1 = "Maximale Blockhärte"
 lore2 = "Sekunden pro Block"
 lore3 = "Abbauwerkzeug"
 lore4 = "Behutsamkeit-Schalter an Abbau-Knoten"
-lore5 = "Glück-I-Schalter an Abbau-Knoten"
-lore = ["Maximale Blockhärte", "Sekunden pro Block", "Abbauwerkzeug", "Behutsamkeit-Schalter an Abbau-Knoten", "Glück-I-Schalter an Abbau-Knoten"]
+lore5 = "Glück-Schalter an Abbau-Knoten"
+lore6 = "Baut Blöcke über der Eisenstufe mit einer passenden Spitzhacke aus der Heimtruhe ab"
+lore = ["Maximale Blockhärte", "Sekunden pro Block", "Abbauwerkzeug", "Behutsamkeit-Schalter an Abbau-Knoten", "Glück-Schalter an Abbau-Knoten", "Baut Blöcke über der Eisenstufe mit einer passenden Spitzhacke aus der Heimtruhe ab"]
 filter_ready = "Baut die Blöcke im Filter ab"
 filter_needed = "Füge der Positivliste Blöcke hinzu"
 filter_lore = "Brecher bauen nur Blöcke ab, die eine Positivliste aufführt"
 silk_on = "Behutsamkeit: An"
 silk_off = "Behutsamkeit: Aus"
-fortune_on = "Glück I: An"
-fortune_off = "Glück I: Aus"
+fortune_on = "Glück: An"
+fortune_off = "Glück: Aus"
 locked = "Wird mit Brecher-Kern Stufe {level} freigeschaltet"
-exclusive = "Behutsamkeit und Glück I schalten sich gegenseitig aus"
+exclusive = "Behutsamkeit und Glück schalten sich gegenseitig aus"
 
 [golemancy.rancher_core]
 name = "Viehhüter-Kern"
@@ -4738,7 +4746,8 @@ lore2 = "Angelglück"
 lore3 = "Plunderfilter-Schalter an Fischen-Knoten"
 lore4 = "Kürzere Fangzeit bei Regen"
 lore5 = "Chance auf einen doppelten Fang"
-lore = ["Sekunden pro Fang", "Angelglück", "Plunderfilter-Schalter an Fischen-Knoten", "Kürzere Fangzeit bei Regen", "Chance auf einen doppelten Fang"]
+lore6 = "Angelt mit einer Angel aus der Heimtruhe"
+lore = ["Sekunden pro Fang", "Angelglück", "Plunderfilter-Schalter an Fischen-Knoten", "Kürzere Fangzeit bei Regen", "Chance auf einen doppelten Fang", "Angelt mit einer Angel aus der Heimtruhe"]
 water_ready = "Offenes Wasser gefunden"
 water_needed = "Braucht offenes Wasser"
 water_lore = "Angler brauchen eine 5 mal 5 Blöcke große offene Wasserfläche vor dem Knoten"

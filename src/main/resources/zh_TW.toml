@@ -4479,6 +4479,13 @@ colossus_lore = "點擊切換戰鬥用的原尺寸；變大的魔像不會工作
 pack = "打包"
 pack_lore = "將這個魔像壓縮成休眠魔像方塊，放下即可喚醒它"
 
+[golemancy.tools]
+needs_rod = "家用箱子裡需要釣竿"
+needs_silk = "家用箱子裡需要絲綢之觸鎬"
+needs_fortune = "家用箱子裡需要幸運鎬"
+needs_tier = "家用箱子裡需要：{tool}"
+holding = "手持：{tool}"
+
 [golemancy.roster]
 title = "魔像名冊"
 empty = "你沒有魔像"
@@ -4656,17 +4663,18 @@ lore1 = "最大方塊硬度"
 lore2 = "每個方塊的秒數"
 lore3 = "採掘工具"
 lore4 = "採掘節點的絲綢之觸開關"
-lore5 = "採掘節點的幸運 I 開關"
-lore = ["最大方塊硬度", "每個方塊的秒數", "採掘工具", "採掘節點的絲綢之觸開關", "採掘節點的幸運 I 開關"]
+lore5 = "採掘節點的幸運開關"
+lore6 = "用家用箱子裡合適的鎬開採高於鐵等級的方塊"
+lore = ["最大方塊硬度", "每個方塊的秒數", "採掘工具", "採掘節點的絲綢之觸開關", "採掘節點的幸運開關", "用家用箱子裡合適的鎬開採高於鐵等級的方塊"]
 filter_ready = "破壞過濾器中的方塊"
 filter_needed = "向白名單新增方塊"
 filter_lore = "破壞者只破壞白名單所列的方塊"
 silk_on = "絲綢之觸：開"
 silk_off = "絲綢之觸：關"
-fortune_on = "幸運 I：開"
-fortune_off = "幸運 I：關"
+fortune_on = "幸運：開"
+fortune_off = "幸運：關"
 locked = "破壞者核心{level}級解鎖"
-exclusive = "絲綢之觸和幸運 I 會互相關閉"
+exclusive = "絲綢之觸和幸運會互相關閉"
 
 [golemancy.rancher_core]
 name = "牧場主核心"
@@ -4738,7 +4746,8 @@ lore2 = "釣魚運氣"
 lore3 = "釣魚節點的垃圾過濾開關"
 lore4 = "雨天漁獲時間縮短"
 lore5 = "雙份漁獲的機率"
-lore = ["每次漁獲的秒數", "釣魚運氣", "釣魚節點的垃圾過濾開關", "雨天漁獲時間縮短", "雙份漁獲的機率"]
+lore6 = "用家用箱子裡的釣竿釣魚"
+lore = ["每次漁獲的秒數", "釣魚運氣", "釣魚節點的垃圾過濾開關", "雨天漁獲時間縮短", "雙份漁獲的機率", "用家用箱子裡的釣竿釣魚"]
 water_ready = "已找到開闊水域"
 water_needed = "需要開闊水域"
 water_lore = "垂釣者需要節點前方有 5×5 的開闊水域"

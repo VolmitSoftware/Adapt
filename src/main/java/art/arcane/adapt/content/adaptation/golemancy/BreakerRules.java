@@ -1,8 +1,14 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemToolEnchants;
+import art.arcane.adapt.api.golem.GolemToolNeed;
+import art.arcane.adapt.api.golem.GolemToolNote;
+import art.arcane.adapt.api.golem.GolemToolPlan;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeTagLookup;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
@@ -13,6 +19,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -30,6 +37,14 @@ final class BreakerRules {
 
   private static final String ON = "true";
   private static final char TAG_PREFIX = '#';
+  private static final String PICKAXE_SUFFIX = "_PICKAXE";
+  private static final Material FREE_TIER = Material.IRON_PICKAXE;
+  private static final List<Material> PICKAXE_COSTS = List.of(Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.COPPER_PICKAXE,
+      Material.GOLDEN_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
+  private static final List<Material> TIER_LADDER = List.of(Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE,
+      Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
+  private static final GolemToolNote SILK_NOTE = new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_SILK, null);
+  private static final GolemToolNote FORTUNE_NOTE = new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_FORTUNE, null);
 
   private BreakerRules() {
   }
@@ -67,6 +82,50 @@ final class BreakerRules {
   static Material toolAt(List<Material> tools, int level) {
     int at = Math.max(1, level);
     return AnimusBindingRules.atLevel(tools, at, defaultTool(at));
+  }
+
+  static Material freeTool(Material levelTool) {
+    return aboveFree(levelTool) ? FREE_TIER : levelTool;
+  }
+
+  static boolean aboveFree(Material levelTool) {
+    return tier(levelTool) > tier(FREE_TIER);
+  }
+
+  static int cost(ItemStack pickaxe) {
+    int at = PICKAXE_COSTS.indexOf(pickaxe.getType());
+    return at < 0 ? PICKAXE_COSTS.size() : at;
+  }
+
+  static GolemToolPlan toolPlan(Predicate<ItemStack> harvests, Function<Material, ItemStack> virtual, Material levelTool, boolean silk, boolean fortune) {
+    boolean gated = !harvests.test(virtual.apply(freeTool(levelTool)));
+    Material required = gated ? requiredTool(harvests, virtual) : FREE_TIER;
+    String tier = required.name();
+    List<GolemToolNeed> needs = new ArrayList<>(2);
+    if (silk) {
+      needs.add(new GolemToolNeed("pickaxe:silk:" + tier, item -> pickaxe(item) && GolemToolEnchants.silkTouch(item) > 0 && harvests.test(item),
+          BreakerRules::cost, SILK_NOTE));
+    } else if (fortune) {
+      needs.add(new GolemToolNeed("pickaxe:fortune:" + tier, item -> pickaxe(item) && GolemToolEnchants.fortune(item) > 0 && harvests.test(item),
+          BreakerRules::cost, FORTUNE_NOTE));
+    }
+    if (gated) {
+      needs.add(new GolemToolNeed("pickaxe:" + tier, item -> pickaxe(item) && harvests.test(item), BreakerRules::cost,
+          new GolemToolNote(GolemancyMessages.TOOLS_NEEDS_TIER, toolName(required))));
+    }
+    return needs.isEmpty() ? GolemToolPlan.NONE : new GolemToolPlan(needs, !gated);
+  }
+
+  static ItemStack dropsTool(ItemStack held, boolean silk, boolean fortune, ItemStack free, Function<Material, ItemStack> virtual) {
+    if (held == null) {
+      return free;
+    }
+    boolean enchanted = silk ? GolemToolEnchants.silkTouch(held) > 0 : fortune && GolemToolEnchants.fortune(held) > 0;
+    return enchanted ? held : virtual.apply(held.getType());
+  }
+
+  static String toolName(Material type) {
+    return Form.capitalizeWords(type.name().toLowerCase(Locale.ROOT).replace('_', ' '));
   }
 
   static Set<Material> blacklist(List<String> names, Function<String, Collection<Material>> tags) {
@@ -132,6 +191,29 @@ final class BreakerRules {
 
   static NodeRecord toggleFortune(NodeRecord node) {
     return toggle(node, FORTUNE_KEY, SILK_KEY);
+  }
+
+  private static boolean pickaxe(ItemStack item) {
+    return item.getType().name().endsWith(PICKAXE_SUFFIX);
+  }
+
+  private static Material requiredTool(Predicate<ItemStack> harvests, Function<Material, ItemStack> virtual) {
+    for (Material type : TIER_LADDER) {
+      if (harvests.test(virtual.apply(type))) {
+        return type;
+      }
+    }
+    return TIER_LADDER.getLast();
+  }
+
+  private static int tier(Material pickaxe) {
+    return switch (pickaxe) {
+      case STONE_PICKAXE, COPPER_PICKAXE -> 1;
+      case IRON_PICKAXE -> 2;
+      case DIAMOND_PICKAXE -> 3;
+      case NETHERITE_PICKAXE -> 4;
+      default -> 0;
+    };
   }
 
   private static Material defaultTool(int level) {

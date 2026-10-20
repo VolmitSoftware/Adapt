@@ -134,12 +134,13 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
   void everyLevelShowsItsCatchTimeLuckAndUnlocks() {
     String junk = "+ Junk Filter Toggle on Fishing Nodes";
     String rain = "+ 25% Shorter Catch Time in Rain";
+    String rod = "+ Fishes with a Fishing Rod from the Home Chest";
 
-    assertThat(lore(1)).containsExactly("* 60 Seconds per Catch");
-    assertThat(lore(2)).containsExactly("* 50 Seconds per Catch");
-    assertThat(lore(3)).containsExactly("* 40 Seconds per Catch", "+ 1 Fishing Luck", junk);
-    assertThat(lore(4)).containsExactly("* 32 Seconds per Catch", "+ 1 Fishing Luck", junk, rain);
-    assertThat(lore(5)).containsExactly("* 25 Seconds per Catch", "+ 2 Fishing Luck", junk, rain, "+ 10% Chance of a Double Catch");
+    assertThat(lore(1)).containsExactly("* 60 Seconds per Catch", rod);
+    assertThat(lore(2)).containsExactly("* 50 Seconds per Catch", rod);
+    assertThat(lore(3)).containsExactly("* 40 Seconds per Catch", "+ 1 Fishing Luck", junk, rod);
+    assertThat(lore(4)).containsExactly("* 32 Seconds per Catch", "+ 1 Fishing Luck", junk, rain, rod);
+    assertThat(lore(5)).containsExactly("* 25 Seconds per Catch", "+ 2 Fishing Luck", junk, rain, "+ 10% Chance of a Double Catch", rod);
   }
 
   @Test

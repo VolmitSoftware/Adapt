@@ -26,6 +26,7 @@ import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.data.MaterialBlock;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
@@ -247,14 +248,36 @@ public final class GolemGui {
         .setProgress(1D)
         .onLeftClick(clicked -> setHome()));
     GolemState.Anchor homeChest = view.anchors().chest();
-    target.place(RIGHT_EDGE, HEADER_ROW, GuiTheme.element("golem-chest", Material.CHEST, "gui", "golemancy", "chest")
+    Element chest = GuiTheme.element("golem-chest", Material.CHEST, "gui", "golemancy", "chest")
         .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_LINK_CHEST))
         .addLore(C.GRAY + (homeChest == null
             ? AdaptLanguage.text(GolemancyMessages.GUI_NO_HOME_CHEST)
-            : coordinates(GolemancyMessages.GUI_HOME_CHEST, homeChest)))
+            : coordinates(GolemancyMessages.GUI_HOME_CHEST, homeChest)));
+    String tools = toolLine(view.anchors());
+    if (tools != null) {
+      chest.addLore(tools);
+    }
+    target.place(RIGHT_EDGE, HEADER_ROW, chest
         .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_LINK_HINT))
         .setProgress(1D)
         .onLeftClick(clicked -> armChestLink()));
+  }
+
+  private String toolLine(GolemView.Anchors anchors) {
+    if (anchors.toolNote() != null) {
+      return C.RED + anchors.toolNote().text();
+    }
+    if (anchors.held() == null) {
+      return null;
+    }
+    try {
+      Material type = NMS.deserializeStack(anchors.held()).getType();
+      return C.GRAY + AdaptLanguage.text(GolemancyMessages.TOOLS_HOLDING,
+          trusted("tool", Form.capitalizeWords(type.name().toLowerCase(Locale.ROOT).replace('_', ' '))));
+    } catch (RuntimeException unreadable) {
+      Adapt.warn("Skipping the unreadable held tool of golem " + handle.id() + " in its menu; the stored entry is kept.", unreadable);
+      return null;
+    }
   }
 
   private Element secondCoreElement(GolemView view) {

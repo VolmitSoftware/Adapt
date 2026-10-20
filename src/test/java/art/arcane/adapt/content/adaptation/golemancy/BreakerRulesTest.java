@@ -48,6 +48,25 @@ class BreakerRulesTest {
   private final CropField field = new CropField();
 
   @Test
+  void theFreeToolIsTheLevelsPickaxeCappedAtIron() {
+    assertThat(BreakerRules.freeTool(Material.STONE_PICKAXE)).isEqualTo(Material.STONE_PICKAXE);
+    assertThat(BreakerRules.freeTool(Material.IRON_PICKAXE)).isEqualTo(Material.IRON_PICKAXE);
+    assertThat(BreakerRules.freeTool(Material.DIAMOND_PICKAXE)).isEqualTo(Material.IRON_PICKAXE);
+    assertThat(BreakerRules.freeTool(Material.NETHERITE_PICKAXE)).isEqualTo(Material.IRON_PICKAXE);
+    assertThat(BreakerRules.aboveFree(Material.DIAMOND_PICKAXE)).isTrue();
+    assertThat(BreakerRules.aboveFree(Material.IRON_PICKAXE)).isFalse();
+  }
+
+  @Test
+  void pickaxesCostByMaterialFromWoodToNetherite() {
+    List<Material> order = List.of(Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.COPPER_PICKAXE, Material.GOLDEN_PICKAXE,
+        Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
+    for (int index = 1; index < order.size(); index++) {
+      assertThat(BreakerRules.cost(GolemTestItems.stack(order.get(index - 1), 1))).isLessThan(BreakerRules.cost(GolemTestItems.stack(order.get(index), 1)));
+    }
+  }
+
+  @Test
   void levelValuesReadTheirArraysAndNeverDropBelowTheirFloor() {
     assertThat(List.of(1, 2, 3, 4, 5)).extracting(level -> BreakerRules.intervalTicks(config.intervalTicksByLevel, level))
         .containsExactly(40, 30, 20, 15, 10);

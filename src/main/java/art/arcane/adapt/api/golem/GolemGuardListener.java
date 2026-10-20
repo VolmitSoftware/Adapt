@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -14,6 +15,9 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -62,6 +66,17 @@ final class GolemGuardListener implements Listener {
     }
   }
 
+  @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+  public void on(PlayerInteractEntityEvent e) {
+    if (!(e.getRightClicked() instanceof CopperGolem golem) || !GolemState.has(golem) || !empty(e.getPlayer().getInventory().getItem(e.getHand()))) {
+      return;
+    }
+    EntityEquipment equipment = golem.getEquipment();
+    if (equipment != null && !empty(equipment.getItemInMainHand())) {
+      e.setCancelled(true);
+    }
+  }
+
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityBlockFormEvent e) {
     Entity golem = e.getEntity();
@@ -75,6 +90,10 @@ final class GolemGuardListener implements Listener {
 
   static boolean isCopperStatue(Material material) {
     return material != null && material.name().endsWith(COPPER_STATUE_SUFFIX);
+  }
+
+  private static boolean empty(ItemStack item) {
+    return item == null || item.getType() == Material.AIR;
   }
 
   private boolean cancels(Entity damager, Entity victim) {

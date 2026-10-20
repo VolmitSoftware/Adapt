@@ -24,6 +24,7 @@ public final class GolemHandle {
   private volatile GolemStatPlan appliedStats;
   private volatile int patinaStage;
   private volatile boolean fullHealthOwed;
+  private volatile GolemToolNote toolNote;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
     this.entity = Objects.requireNonNull(entity);
@@ -77,6 +78,10 @@ public final class GolemHandle {
     return patinaStage;
   }
 
+  public GolemToolNote toolNote() {
+    return toolNote;
+  }
+
   public boolean removeCarried(String encoded) {
     if (retired || !entity.isValid()) {
       return false;
@@ -86,6 +91,15 @@ public final class GolemHandle {
       return false;
     }
     state.setCarried(remaining);
+    flush();
+    return true;
+  }
+
+  public boolean setHeldEncoded(String encoded) {
+    if (retired || !entity.isValid()) {
+      return false;
+    }
+    state.setHeld(encoded);
     flush();
     return true;
   }
@@ -268,6 +282,10 @@ public final class GolemHandle {
       position = new ChunkPosition(worldId, chunkKey);
     }
     return position;
+  }
+
+  void setToolNote(GolemToolNote note) {
+    toolNote = note;
   }
 
   void setDormant(boolean next) {

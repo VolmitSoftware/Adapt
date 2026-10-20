@@ -4479,6 +4479,13 @@ colossus_lore = "Napsauta vaihtaaksesi täyden koon taistelua varten; kasvanut g
 pack = "Pakkaa"
 pack_lore = "Tiivistää tämän golemin Uinuva golem -kuutioksi, jonka voit asettaa herättääksesi sen"
 
+[golemancy.tools]
+needs_rod = "Tarvitsee ongen kotiarkkuunsa"
+needs_silk = "Tarvitsee Silkkikosketus-hakun kotiarkkuunsa"
+needs_fortune = "Tarvitsee Onni-hakun kotiarkkuunsa"
+needs_tier = "Tarvitsee kotiarkkuunsa: {tool}"
+holding = "Pitää: {tool}"
+
 [golemancy.roster]
 title = "Golemiluettelo"
 empty = "Sinulla ei ole golemeja"
@@ -4656,17 +4663,18 @@ lore1 = "Kuution enimmäiskovuus"
 lore2 = "Sekuntia kuutiota kohden"
 lore3 = "Louhintatyökalu"
 lore4 = "Silkkikosketuksen kytkin louhintasolmuissa"
-lore5 = "Onni I -kytkin louhintasolmuissa"
-lore = ["Kuution enimmäiskovuus", "Sekuntia kuutiota kohden", "Louhintatyökalu", "Silkkikosketuksen kytkin louhintasolmuissa", "Onni I -kytkin louhintasolmuissa"]
+lore5 = "Onni-kytkin louhintasolmuissa"
+lore6 = "Louhii rautatason yläpuoliset kuutiot sopivalla hakulla kotiarkusta"
+lore = ["Kuution enimmäiskovuus", "Sekuntia kuutiota kohden", "Louhintatyökalu", "Silkkikosketuksen kytkin louhintasolmuissa", "Onni-kytkin louhintasolmuissa", "Louhii rautatason yläpuoliset kuutiot sopivalla hakulla kotiarkusta"]
 filter_ready = "Rikkoo suodattimen kuutiot"
 filter_needed = "Lisää kuutioita sallittujen listaan"
 filter_lore = "Murtajat rikkovat vain kuutioita, jotka sallittujen lista luettelee"
 silk_on = "Silkkikosketus: päällä"
 silk_off = "Silkkikosketus: pois"
-fortune_on = "Onni I: päällä"
-fortune_off = "Onni I: pois"
+fortune_on = "Onni: päällä"
+fortune_off = "Onni: pois"
 locked = "Avautuu Murtajaytimen tasolla {level}"
-exclusive = "Silkkikosketus ja Onni I kytkevät toisensa pois"
+exclusive = "Silkkikosketus ja Onni kytkevät toisensa pois"
 
 [golemancy.rancher_core]
 name = "Karjanhoitajaydin"
@@ -4738,7 +4746,8 @@ lore2 = "Kalastusonni"
 lore3 = "Roinasuodattimen kytkin kalastussolmuissa"
 lore4 = "Lyhyempi saalisaika sateella"
 lore5 = "Mahdollisuus tuplasaaliiseen"
-lore = ["Sekuntia saalista kohden", "Kalastusonni", "Roinasuodattimen kytkin kalastussolmuissa", "Lyhyempi saalisaika sateella", "Mahdollisuus tuplasaaliiseen"]
+lore6 = "Kalastaa ongella kotiarkusta"
+lore = ["Sekuntia saalista kohden", "Kalastusonni", "Roinasuodattimen kytkin kalastussolmuissa", "Lyhyempi saalisaika sateella", "Mahdollisuus tuplasaaliiseen", "Kalastaa ongella kotiarkusta"]
 water_ready = "Avovesi löytyi"
 water_needed = "Tarvitsee avovettä"
 water_lore = "Kalastajat tarvitsevat solmun eteen 5 × 5 kuution avovesialueen"

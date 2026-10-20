@@ -105,6 +105,7 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     if (GolemancyRules.unlocked(level, config.doubleCatchLevel)) {
       statLore(v, Form.pc(config.doubleCatchChance, 0), 5);
     }
+    unlockLore(v, GolemancyMessages.ANGLER_CORE_LORE6);
   }
 
   @Override
@@ -149,11 +150,11 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
   private record ParsedLoot(List<String> fish, List<String> junk, List<String> treasure, AnglerLoot.Tables tables) {
   }
 
-  @ConfigDescription("Golems bound with an Angler Core fish the open water in front of a Fishing Node and carry the catch, with more luck, a junk filter, faster catches in the rain and double catches as the core grows stronger.")
+  @ConfigDescription("Golems bound with an Angler Core fish the open water in front of a Fishing Node with a fishing rod from their home chest and deliver each catch, with more luck, a junk filter, faster catches in the rain and double catches as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Seconds an Angler waits for each catch, by Angler Core level from level 1 upward. Swiftness runes and Copper Frame's Static Overdrive shorten it. Values below 1 count as 1.", impact = "Lower values make Anglers catch more often.")
+    @ConfigDoc(value = "Seconds an Angler waits for each catch, by Angler Core level from level 1 upward. Each Lure level on its rod takes 5 seconds off, down to 1 second, before the rain multiplier. Swiftness runes and Copper Frame's Static Overdrive shorten it. Values below 1 count as 1.", impact = "Lower values make Anglers catch more often.")
     List<Integer> catchIntervalSecondsByLevel = new ArrayList<>(List.of(60, 50, 40, 32, 25));
-    @ConfigDoc(value = "Fishing luck of each catch, by Angler Core level from level 1 upward. Each point changes the category weights by their luck shifts, as Luck of the Sea does. Values below 0 count as 0.", impact = "Higher values catch more treasure and less junk.")
+    @ConfigDoc(value = "Fishing luck of each catch, by Angler Core level from level 1 upward. Luck of the Sea on the Angler's rod adds its level. Each point changes the category weights by their luck shifts, as Luck of the Sea does. Values below 0 count as 0.", impact = "Higher values catch more treasure and less junk.")
     List<Integer> luckByLevel = new ArrayList<>(List.of(0, 0, 1, 1, 2));
     @ConfigDoc(value = "Angler Core level at which Fishing Nodes can turn on the junk filter, which throws junk catches back.", impact = "Lower values unlock the junk filter sooner.")
     int junkFilterLevel = 3;

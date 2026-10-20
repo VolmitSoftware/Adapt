@@ -33,6 +33,7 @@ import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -61,6 +62,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -542,6 +544,73 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golem(handle.id())).isEmpty();
     assertThat(registry.handle(golem)).isEmpty();
     assertThat(registry.activeCount()).isZero();
+  }
+
+  @Test
+  void releaseReturnsTheHeldToolToTheOwnersInventoryAndDropsWhatDoesNotFitAtTheirFeet() {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    when(owner.getInventory()).thenReturn(inventory);
+    when(owner.getWorld()).thenReturn(world);
+    Location feet = at(3, 64, 3);
+    when(owner.getLocation()).thenReturn(feet);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BREAKER);
+    ItemStack pickaxe = GolemTestItems.stack(Material.DIAMOND_PICKAXE, 1);
+    assertThat(handle.setHeldEncoded(platform.encodeItem(pickaxe))).isTrue();
+    when(inventory.addItem(any(ItemStack[].class))).thenAnswer(invocation -> {
+      ItemStack given = invocation.getArgument(0);
+      return given.getType() == Material.DIAMOND_PICKAXE ? new HashMap<>(Map.of(0, given)) : new HashMap<>();
+    });
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(inventory).addItem(argThat((ItemStack item) -> item.getType() == Material.DIAMOND_PICKAXE));
+    verify(world).dropItemNaturally(eq(feet), argThat(item -> item.getType() == Material.DIAMOND_PICKAXE));
+    verify(world, never()).dropItemNaturally(eq(at(0, 64, 0)), argThat(item -> item != null && item.getType() == Material.DIAMOND_PICKAXE));
+  }
+
+  @Test
+  void releaseWhileTheOwnerIsAwayDropsTheHeldToolWithTheLoadout() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.ANGLER);
+    assertThat(handle.setHeldEncoded(platform.encodeItem(GolemTestItems.stack(Material.FISHING_ROD, 1)))).isTrue();
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world, times(1)).dropItemNaturally(any(Location.class), argThat(item -> item != null && item.getType() == Material.FISHING_ROD));
+  }
+
+  @Test
+  void deathDropsTheHeldToolWithTheCarriedItems() {
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 0D, 0D));
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.ANGLER);
+    assertThat(handle.setHeldEncoded(platform.encodeItem(GolemTestItems.stack(Material.FISHING_ROD, 1)))).isTrue();
+    List<ItemStack> drops = new ArrayList<>();
+    EntityDeathEvent death = mock(EntityDeathEvent.class);
+    when(death.getEntity()).thenReturn(golem);
+    when(death.getDrops()).thenReturn(drops);
+
+    registry.on(death);
+
+    assertThat(drops).extracting(ItemStack::getType).containsExactly(Material.FISHING_ROD);
+  }
+
+  @Test
+  void aRetiredGolemRefusesANewHeldTool() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.ANGLER);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    assertThat(handle.setHeldEncoded(platform.encodeItem(GolemTestItems.stack(Material.FISHING_ROD, 1)))).isFalse();
+    assertThat(handle.state().held()).isNull();
   }
 
   @Test

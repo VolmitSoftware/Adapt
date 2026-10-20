@@ -379,6 +379,7 @@ public final class GolemRegistry extends TickedObject {
     if (state.masterwork()) {
       drops.add(GolemItems.masterworkHeart());
     }
+    Optional<ItemStack> tool = heldTool(handle);
     int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
@@ -390,6 +391,7 @@ public final class GolemRegistry extends TickedObject {
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
     }
+    tool.ifPresent(item -> returnTool(handle.owner(), world, at, item));
     if (essence > 0) {
       returnEssence(golem, world, at, essence, platform.player(handle.owner()));
     }
@@ -951,9 +953,39 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
+  private Optional<ItemStack> heldTool(GolemHandle handle) {
+    String held = handle.state().held();
+    if (held == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(platform.decodeItem(held));
+    } catch (RuntimeException corrupt) {
+      Adapt.warn("Golem " + handle.id() + " holds an unreadable tool; it is not dropped.", corrupt);
+      return Optional.empty();
+    }
+  }
+
+  private void returnTool(UUID owner, World world, Location at, ItemStack tool) {
+    Player player = platform.player(owner);
+    if (player == null || !player.isOnline()
+        || !platform.runEntity(player, () -> giveTool(player, tool), () -> platform.runAt(at, () -> world.dropItemNaturally(at, tool)))) {
+      world.dropItemNaturally(at, tool);
+    }
+  }
+
+  private static void giveTool(Player player, ItemStack tool) {
+    for (ItemStack left : player.getInventory().addItem(tool).values()) {
+      player.getWorld().dropItemNaturally(player.getLocation(), left);
+    }
+  }
+
   private void revert(GolemHandle handle) {
     Mob golem = handle.entity();
     double pool = handle.hostileDamagePool();
+    if (handle.state().held() != null) {
+      GolemHeldTool.hide(golem);
+    }
     unindex(handle);
     GolemState.clear(golem);
     HostileDamagePool.putUnbound(golem, pool);
@@ -983,6 +1015,7 @@ public final class GolemRegistry extends TickedObject {
     GolemState state = handle.state();
     List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
+    heldTool(handle).ifPresent(drops::add);
     if (state.essencePoints() > 0) {
       e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
     }

@@ -4479,6 +4479,13 @@ colossus_lore = "Klik om volle grootte voor gevechten aan of uit te zetten; een 
 pack = "Inpakken"
 pack_lore = "Perst deze golem samen tot een Sluimerende golem-blok dat je kunt plaatsen om hem te wekken"
 
+[golemancy.tools]
+needs_rod = "Heeft een hengel in zijn thuiskist nodig"
+needs_silk = "Heeft een houweel met Zijden aanraking in zijn thuiskist nodig"
+needs_fortune = "Heeft een houweel met Fortuin in zijn thuiskist nodig"
+needs_tier = "Heeft in zijn thuiskist nodig: {tool}"
+holding = "Houdt vast: {tool}"
+
 [golemancy.roster]
 title = "Golemlijst"
 empty = "Je hebt geen golems"
@@ -4656,17 +4663,18 @@ lore1 = "Maximale blokhardheid"
 lore2 = "Seconden per blok"
 lore3 = "Mijngereedschap"
 lore4 = "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten"
-lore5 = "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"
-lore = ["Maximale blokhardheid", "Seconden per blok", "Mijngereedschap", "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten", "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"]
+lore5 = "Schakelaar voor Fortuin op Mijnbouw-knooppunten"
+lore6 = "Breekt blokken boven ijzerniveau met een passend houweel uit de thuiskist"
+lore = ["Maximale blokhardheid", "Seconden per blok", "Mijngereedschap", "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten", "Schakelaar voor Fortuin op Mijnbouw-knooppunten", "Breekt blokken boven ijzerniveau met een passend houweel uit de thuiskist"]
 filter_ready = "Breekt de blokken in het filter"
 filter_needed = "Voeg blokken toe aan de witte lijst"
 filter_lore = "Brekers breken alleen blokken die een witte lijst opsomt"
 silk_on = "Zijden aanraking: aan"
 silk_off = "Zijden aanraking: uit"
-fortune_on = "Fortuin I: aan"
-fortune_off = "Fortuin I: uit"
+fortune_on = "Fortuin: aan"
+fortune_off = "Fortuin: uit"
 locked = "Ontgrendeld op Breker-kern-niveau {level}"
-exclusive = "Zijden aanraking en Fortuin I zetten elkaar uit"
+exclusive = "Zijden aanraking en Fortuin zetten elkaar uit"
 
 [golemancy.rancher_core]
 name = "Veehoeder-kern"
@@ -4738,7 +4746,8 @@ lore2 = "Visgeluk"
 lore3 = "Schakelaar voor het rommelfilter op Visserij-knooppunten"
 lore4 = "Kortere vangsttijd in de regen"
 lore5 = "Kans op een dubbele vangst"
-lore = ["Seconden per vangst", "Visgeluk", "Schakelaar voor het rommelfilter op Visserij-knooppunten", "Kortere vangsttijd in de regen", "Kans op een dubbele vangst"]
+lore6 = "Vist met een hengel uit de thuiskist"
+lore = ["Seconden per vangst", "Visgeluk", "Schakelaar voor het rommelfilter op Visserij-knooppunten", "Kortere vangsttijd in de regen", "Kans op een dubbele vangst", "Vist met een hengel uit de thuiskist"]
 water_ready = "Open water gevonden"
 water_needed = "Heeft open water nodig"
 water_lore = "Vissers hebben een open wateroppervlak van 5 bij 5 voor het knooppunt nodig"

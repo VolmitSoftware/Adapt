@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemToolPlan;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
@@ -17,6 +18,7 @@ import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
@@ -52,7 +54,7 @@ final class BreakerNodeBehavior implements NodeBehavior {
     if (!BreakerRules.filtered(record)) {
       return;
     }
-    BreakerRules.Plan plan = plan(level, record, false, false);
+    BreakerRules.Plan plan = plan(level, record);
     for (int index = budget.start(); index < budget.end(); index++) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
@@ -78,7 +80,7 @@ final class BreakerNodeBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     GolemBreakerCore.Config config = core.config();
-    BreakerRules.Plan plan = plan(level, record, BreakerRules.silk(config, level, record), BreakerRules.fortune(config, level, record));
+    BreakerRules.Plan plan = plan(level, record);
     GolemTarget target = task.target();
     Block block = golem.world().getBlockAt(target.blockX(), target.blockY(), target.blockZ());
     if (!golem.owns(block.getLocation()) || !breakable(block, plan)) {
@@ -90,9 +92,31 @@ final class BreakerNodeBehavior implements NodeBehavior {
     if (golem.actIndex() == 0) {
       return GolemActResult.WORKING;
     }
-    mine(golem, block, plan.tool());
+    boolean silk = BreakerRules.silk(config, level, record);
+    boolean fortune = BreakerRules.fortune(config, level, record);
+    ItemStack held = golem.toolInUse().orElse(null);
+    mine(golem, block, BreakerRules.dropsTool(held, silk, fortune, core.tool(BreakerRules.freeTool(core.pickaxe(level))), core::tool));
+    if (held != null) {
+      golem.wearTool();
+    }
     golem.workXp(config.workXpPerBlock);
     return GolemActResult.DONE;
+  }
+
+  @Override
+  public GolemToolPlan tools(GolemContext golem, GolemTask task) {
+    int level = GolemancySupport.ownerLevel(core, golem);
+    NodeRecord record = golem.node().orElse(null);
+    GolemTarget target = task.target();
+    World world = golem.world();
+    if (level < 1 || record == null || !BreakerRules.BREAK.equals(task.type())
+        || !golem.owns(new Location(world, target.blockX(), target.blockY(), target.blockZ()))) {
+      return GolemToolPlan.NONE;
+    }
+    Block block = world.getBlockAt(target.blockX(), target.blockY(), target.blockZ());
+    GolemBreakerCore.Config config = core.config();
+    return BreakerRules.toolPlan(block::isPreferredTool, core::tool, core.pickaxe(level), BreakerRules.silk(config, level, record),
+        BreakerRules.fortune(config, level, record));
   }
 
   @Override
@@ -139,9 +163,8 @@ final class BreakerNodeBehavior implements NodeBehavior {
     return kept;
   }
 
-  private BreakerRules.Plan plan(int level, NodeRecord record, boolean silk, boolean fortune) {
-    ItemStack tool = core.tool(core.pickaxe(level), silk, fortune);
-    return BreakerRules.plan(core.config(), core.blacklist(), level, record, NodeItemTags.shared(), tool);
+  private BreakerRules.Plan plan(int level, NodeRecord record) {
+    return BreakerRules.plan(core.config(), core.blacklist(), level, record, NodeItemTags.shared(), core.tool(core.pickaxe(level)));
   }
 
   private boolean breakable(Block block, BreakerRules.Plan plan) {
