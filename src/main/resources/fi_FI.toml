@@ -4388,6 +4388,8 @@ bone = "Luu"
 
 [golemancy.golem]
 name = "{body}golemi ({owner})"
+renamed = "Golemisi nimi on nyt {name}"
+rename_refused = "Vain golemin omistaja voi nimetä sen uudelleen"
 
 [golemancy.mode]
 work = "Työ"

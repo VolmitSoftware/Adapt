@@ -28,7 +28,7 @@ class RevealServantRulesTest {
 
   @Test
   void aServantLabelWithoutAModeShowsTimeLeftBesideTheChannel() {
-    Component label = GolemLabel.compose(new GolemLabel.Content(Component.text("Skeletal Servant"), 12D, 24D, "40s left", "", ChannelMask.of(DyeColor.RED), false));
+    Component label = GolemLabel.compose(new GolemLabel.Content(Component.text("Skeletal Servant"), 12D, 24D, "40s left", "", ChannelMask.of(DyeColor.RED), false, true));
 
     String plain = PlainTextComponentSerializer.plainText().serialize(label);
 

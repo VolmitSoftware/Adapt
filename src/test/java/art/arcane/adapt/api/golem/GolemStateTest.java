@@ -2,6 +2,8 @@ package art.arcane.adapt.api.golem;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.Test;
@@ -260,6 +262,21 @@ class GolemStateTest {
 
     assertThat(GolemState.has(golem)).isTrue();
     assertThat(GolemState.read(golem)).isEmpty();
+  }
+
+  @Test
+  void theGolemNameIsStoredWithTheStateAndSurvivesAReload() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 64, 0)));
+    assertThat(state.name()).isEmpty();
+    assertThat(state.customName()).isNull();
+
+    state.setName(Component.text("Clank", NamedTextColor.GOLD));
+
+    assertThat(state.name()).contains(Component.text("Clank", NamedTextColor.GOLD));
+    assertThat(state.name().orElseThrow()).isSameAs(state.name().orElseThrow());
+    assertThat(reloaded(state).name()).contains(Component.text("Clank", NamedTextColor.GOLD));
+    assertThat(GolemSnapshot.fromJson(GolemSnapshot.capture(state, new GolemSnapshot.Traits(state.customName(), 20D, 0, false, true), 0L).toJson())
+        .orElseThrow().name()).contains(Component.text("Clank", NamedTextColor.GOLD));
   }
 
   private static GolemState reloaded(GolemState state) {

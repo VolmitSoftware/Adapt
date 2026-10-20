@@ -4388,6 +4388,8 @@ bone = "骨"
 
 [golemancy.golem]
 name = "{owner}的{body}魔像"
+renamed = "你的魔像现在名为{name}"
+rename_refused = "只有魔像的主人才能为它改名"
 
 [golemancy.mode]
 work = "工作"

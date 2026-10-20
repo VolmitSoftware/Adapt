@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemNames;
 import art.arcane.adapt.api.golem.GolemRepairXp;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
@@ -444,6 +445,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.configureNodes(nodeSettings(newConfig));
     GolemancyRuntime.configurePlinths(plinthSettings(newConfig));
     GolemancyRuntime.configureWork(workSettings(newConfig));
+    GolemancyRuntime.names().ifPresent(GolemNames::evaluate);
   }
 
   @Override
@@ -1107,9 +1109,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int idleReturnSeconds = 8;
     @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 2-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
     int copperRepathTicks = 10;
-    @ConfigDoc(value = "Blocks around you within which your golems show their status labels and channel glow, your skeletal servants glow with Bone Frame, and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
+    @ConfigDoc(value = "Blocks around you within which your golems glow in their channel color and show you their status, your skeletal servants glow with Bone Frame, and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
     double revealRange = 32.0;
-    @ConfigDoc(value = "Blocks within which revealed golem and node labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
+    @ConfigDoc(value = "Blocks within which revealed golem and node labels are drawn on screen, and within which a golem you look at shows you its status in the Gloss entity overlay.", impact = "Higher values let you read labels and golem status from farther away.")
     double labelRange = 8.0;
     @ConfigDoc(value = "Ticks between checks that reveal or hide golems and nodes as you move while holding the Crook, a Node, a Core or a Dormant Golem.", impact = "Lower values react to movement faster; holding none of them costs nothing.")
     int revealPollTicks = 10;

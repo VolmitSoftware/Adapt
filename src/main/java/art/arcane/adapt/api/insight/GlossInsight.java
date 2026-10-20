@@ -1,4 +1,4 @@
-package art.arcane.adapt.content.adaptation.discovery;
+package art.arcane.adapt.api.insight;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -20,9 +20,10 @@ import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
-final class GlossInsightIntegration {
-  static final String API_CLASS = "art.arcane.gloss.api.GlossAPI";
+public final class GlossInsight {
+  public static final String API_CLASS = "art.arcane.gloss.api.GlossAPI";
   private static final long DISCOVERY_RETRY_MILLIS = 5000L;
+  private static final int SINGLE_STACK = 1;
 
   private final Plugin owner;
   private final Access access;
@@ -30,22 +31,36 @@ final class GlossInsightIntegration {
   private final Set<Class<?>> unsupportedServices = Collections.newSetFromMap(new WeakHashMap<>());
   private volatile Binding binding;
   private volatile long nextDiscoveryAt;
+  private volatile boolean restrictionManaged;
   private volatile boolean restricted;
 
-  GlossInsightIntegration(Plugin owner) {
+  public GlossInsight(Plugin owner) {
     this(owner, new Access(Bukkit::getServicesManager, System::currentTimeMillis));
   }
 
-  GlossInsightIntegration(Plugin owner, Access access) {
+  GlossInsight(Plugin owner, Access access) {
     this.owner = Objects.requireNonNull(owner);
     this.access = Objects.requireNonNull(access);
   }
 
-  boolean available() {
+  public boolean available() {
     return resolveBinding() != null;
   }
 
-  boolean update(Player viewer, LivingEntity target, List<String> details, long durationMillis) {
+  public boolean overlayActive(LivingEntity probe) {
+    Binding active = resolveBinding();
+    if (active == null) {
+      return false;
+    }
+    try {
+      return Boolean.TRUE.equals(active.overlay().invoke(active.provider(), probe, SINGLE_STACK));
+    } catch (IllegalAccessException | InvocationTargetException | RuntimeException exception) {
+      reportFailure(active, exception);
+      return false;
+    }
+  }
+
+  public boolean update(Player viewer, LivingEntity target, List<String> details, long durationMillis) {
     Binding active = resolveBinding();
     if (active == null) {
       return false;
@@ -59,7 +74,7 @@ final class GlossInsightIntegration {
     }
   }
 
-  void clear(UUID viewerId) {
+  public void clear(UUID viewerId) {
     Binding active = resolveBinding();
     if (active == null) {
       return;
@@ -71,7 +86,8 @@ final class GlossInsightIntegration {
     }
   }
 
-  synchronized void setRestricted(boolean value) {
+  public synchronized void setRestricted(boolean value) {
+    restrictionManaged = true;
     restricted = value;
     Binding active = resolveBinding();
     if (active != null) {
@@ -79,7 +95,7 @@ final class GlossInsightIntegration {
     }
   }
 
-  synchronized void refresh() {
+  public synchronized void refresh() {
     binding = null;
     nextDiscoveryAt = 0L;
     resolveBinding();
@@ -129,6 +145,7 @@ final class GlossInsightIntegration {
         }
         try {
           return new Binding(plugin, provider,
+              service.getMethod("refreshEntityOverlay", LivingEntity.class, int.class),
               service.getMethod("updateEntityInsight", Plugin.class, Player.class, LivingEntity.class,
                   List.class, long.class),
               service.getMethod("clearEntityInsight", Plugin.class, UUID.class),
@@ -137,9 +154,9 @@ final class GlossInsightIntegration {
           unsupportedServices.add(service);
           owner.getLogger().log(Level.WARNING,
               "Loaded " + plugin.getName() + " " + plugin.getDescription().getVersion()
-                  + " does not provide the entity-overlay API required by Discovery Insight."
+                  + " does not provide the entity-overlay API required by Discovery Insight and golem names."
                   + " Install the current Gloss build and restart the server."
-                  + " Insight remains unavailable for this loaded Gloss API.", exception);
+                  + " The Gloss entity overlay stays unavailable to Adapt for this loaded Gloss API.", exception);
           break;
         }
       }
@@ -148,6 +165,9 @@ final class GlossInsightIntegration {
   }
 
   private void applyRestriction(Binding active) {
+    if (!restrictionManaged) {
+      return;
+    }
     try {
       active.restrict().invoke(active.provider(), owner, restricted);
     } catch (IllegalAccessException | InvocationTargetException | RuntimeException exception) {
@@ -164,7 +184,7 @@ final class GlossInsightIntegration {
         ? invocation.getCause() : exception;
     String key = failure.getClass().getName() + ":" + failure.getMessage();
     if (reportedFailures.add(key)) {
-      owner.getLogger().log(Level.WARNING, "Could not update Gloss Discovery Insight. The integration will retry.", failure);
+      owner.getLogger().log(Level.WARNING, "Could not update the Gloss entity overlay. The integration will retry.", failure);
     }
   }
 
@@ -175,6 +195,6 @@ final class GlossInsightIntegration {
     }
   }
 
-  private record Binding(Plugin plugin, Object provider, Method update, Method clear, Method restrict) {
+  private record Binding(Plugin plugin, Object provider, Method overlay, Method update, Method clear, Method restrict) {
   }
 }

@@ -14,6 +14,8 @@ import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
+import art.arcane.adapt.api.insight.EntityInsight;
+import art.arcane.adapt.api.insight.GlossInsight;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
@@ -60,6 +62,7 @@ public final class GolemancyRuntime {
   private static volatile GolemWorkSettings workSettings = GolemWorkSettings.defaults();
   private static volatile GolemTaskBoards boards;
   private static volatile RevealService reveal;
+  private static volatile GolemNames names;
   private static volatile RevealSettings revealSettings = RevealSettings.defaults();
   private static volatile NodeService nodes;
   private static volatile NodeSettings nodeSettings = NodeSettings.defaults();
@@ -80,6 +83,10 @@ public final class GolemancyRuntime {
     if (registry != null) {
       return;
     }
+    GolemNames createdNames = new GolemNames(new GlossInsight(Adapt.instance));
+    names = createdNames;
+    createdNames.start();
+    Adapt.instance.registerListener(createdNames);
     GolemPlatform platform = new BukkitGolemPlatform();
     GolemTaskBoards createdBoards = new GolemTaskBoards(key -> nodes().flatMap(service -> service.node(key)));
     GolemBrains createdBrains = new GolemBrains(new GolemBrain.Context(platform, GolemancyRuntime::brainSettings, GolemancyRuntime::targetPolicy,
@@ -94,6 +101,7 @@ public final class GolemancyRuntime {
     RevealService createdReveal = new RevealService(GolemancyRuntime::revealSettings);
     createdReveal.activateRuntime();
     reveal = createdReveal;
+    EntityInsight.register(createdReveal);
     NodeService createdNodes = NodeService.create(GolemancyRuntime::nodeSettings, GolemancyRuntime::revealSettings);
     createdNodes.setScanHook(NodeWork.create(createdBoards, createdNodes));
     createdNodes.activateRuntime();
@@ -110,6 +118,7 @@ public final class GolemancyRuntime {
   public static boolean shutdown(long timeoutMillis) {
     GolemRegistry local;
     RevealService localReveal;
+    GolemNames localNames;
     NodeService localNodes;
     PlinthService localPlinths;
     synchronized (GolemancyRuntime.class) {
@@ -119,6 +128,8 @@ public final class GolemancyRuntime {
       brains = null;
       localReveal = reveal;
       reveal = null;
+      localNames = names;
+      names = null;
       localNodes = nodes;
       nodes = null;
       localPlinths = plinths;
@@ -131,7 +142,12 @@ public final class GolemancyRuntime {
     if (localNodes != null) {
       localNodes.shutdown();
     }
+    if (localNames != null) {
+      localNames.stop();
+      Adapt.instance.unregisterListener(localNames);
+    }
     if (localReveal != null) {
+      EntityInsight.unregister(localReveal);
       localReveal.shutdown();
     }
     if (local == null) {
@@ -164,6 +180,10 @@ public final class GolemancyRuntime {
 
   public static Optional<RevealService> reveal() {
     return Optional.ofNullable(reveal);
+  }
+
+  public static Optional<GolemNames> names() {
+    return Optional.ofNullable(names);
   }
 
   public static Optional<NodeService> nodes() {
@@ -501,6 +521,12 @@ public final class GolemancyRuntime {
     @Override
     public String encodeItem(ItemStack item) {
       return GolemState.encodeItem(item);
+    }
+
+    @Override
+    public GolemNameMode nameMode() {
+      GolemNames local = names;
+      return local == null ? GolemNameMode.VANILLA : local.mode();
     }
 
     @Override

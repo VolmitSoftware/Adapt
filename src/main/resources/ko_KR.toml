@@ -4388,6 +4388,8 @@ bone = "뼈"
 
 [golemancy.golem]
 name = "{owner}의 {body} 골렘"
+renamed = "골렘의 이름이 이제 {name}입니다"
+rename_refused = "골렘의 주인만 이름을 바꿀 수 있습니다"
 
 [golemancy.mode]
 work = "작업"

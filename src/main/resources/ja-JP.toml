@@ -4388,6 +4388,8 @@ bone = "骨"
 
 [golemancy.golem]
 name = "{owner}の{body}ゴーレム"
+renamed = "ゴーレムの名前を{name}にしました"
+rename_refused = "ゴーレムの名前を変更できるのは持ち主だけです"
 
 [golemancy.mode]
 work = "作業"

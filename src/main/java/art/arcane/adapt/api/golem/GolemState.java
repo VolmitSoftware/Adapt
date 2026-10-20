@@ -4,6 +4,8 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.util.common.io.Json;
 import com.google.gson.JsonParseException;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -49,10 +51,12 @@ public final class GolemState {
   private double maxHealthMark;
   private long sighting;
   private Map<String, Integer> ownerLevels = new HashMap<>();
+  private String customName;
   private transient int carriedRevision;
   private transient GolemBody bodyValue;
   private transient List<GolemCoreType> coresValue;
   private transient GolemMode modeValue;
+  private transient Component nameValue;
 
   private GolemState() {
   }
@@ -260,9 +264,31 @@ public final class GolemState {
     return sighting;
   }
 
+  public Optional<Component> name() {
+    Component value = nameValue;
+    if (value == null && customName != null && !customName.isBlank()) {
+      try {
+        value = GsonComponentSerializer.gson().deserialize(customName);
+        nameValue = value;
+      } catch (JsonParseException | IllegalArgumentException | IllegalStateException malformed) {
+        return Optional.empty();
+      }
+    }
+    return Optional.ofNullable(value);
+  }
+
+  public String customName() {
+    return customName;
+  }
+
   public int ownerLevel(String adaptation) {
     Integer level = ownerLevels == null ? null : ownerLevels.get(adaptation);
     return level == null ? 0 : level;
+  }
+
+  void setName(Component name) {
+    customName = GolemSnapshot.serializeName(name);
+    nameValue = name;
   }
 
   void setCores(List<GolemCoreType> next) {
@@ -382,6 +408,7 @@ public final class GolemState {
     bodyValue = null;
     coresValue = null;
     modeValue = null;
+    nameValue = null;
     channels = ChannelMask.normalize(channels);
     setHostileDamagePool(hostileDamagePool);
     setSighting(sighting);

@@ -2263,9 +2263,9 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    when(golem.customName()).thenThrow(new IllegalStateException("name unreadable"));
+    when(golem.isPlayerCreated()).thenThrow(new IllegalStateException("traits unreadable"));
 
-    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("name unreadable");
+    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("traits unreadable");
 
     verify(golem, never()).remove();
     assertThat(registry.handle(golem)).isPresent();
@@ -2618,13 +2618,13 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void snapshotsReadTheLiveHealthNameAndCopperState() {
+  void snapshotsReadTheLiveHealthStoredNameAndCopperState() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     when(golem.getHealth()).thenReturn(33D);
     when(golem.isPlayerCreated()).thenReturn(true);
-    when(golem.customName()).thenReturn(Component.text("Plate"));
+    registry.rename(handle, Component.text("Plate"));
     platform.patina.put(golem.getUniqueId(), 2);
     platform.waxedGolems.add(golem.getUniqueId());
 

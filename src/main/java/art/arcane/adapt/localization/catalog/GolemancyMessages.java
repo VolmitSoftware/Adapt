@@ -61,6 +61,8 @@ public final class GolemancyMessages {
   public static final TextKey BODY_IRON = TextKey.of("golemancy.body.iron", "Iron");
   public static final TextKey BODY_BONE = TextKey.of("golemancy.body.bone", "Bone");
   public static final TextKey GOLEM_NAME = TextKey.of("golemancy.golem.name", "{owner}'s {body} Golem");
+  public static final TextKey GOLEM_RENAMED = TextKey.of("golemancy.golem.renamed", "Your golem is now named {name}");
+  public static final TextKey GOLEM_RENAME_REFUSED = TextKey.of("golemancy.golem.rename_refused", "Only the golem's owner can rename it");
   public static final TextKey MODE_WORK = TextKey.of("golemancy.mode.work", "Work");
   public static final TextKey MODE_FOLLOW = TextKey.of("golemancy.mode.follow", "Follow");
   public static final TextKey MODE_STAY = TextKey.of("golemancy.mode.stay", "Stay");
@@ -602,6 +604,8 @@ public final class GolemancyMessages {
     builder.add(BODY_IRON);
     builder.add(BODY_BONE);
     builder.add(GOLEM_NAME);
+    builder.add(GOLEM_RENAMED);
+    builder.add(GOLEM_RENAME_REFUSED);
     builder.add(MODE_WORK);
     builder.add(MODE_FOLLOW);
     builder.add(MODE_STAY);

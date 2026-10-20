@@ -60,6 +60,19 @@ class DiscoveryInsightRuntimeTest {
   }
 
   @Test
+  void providedTargetLinesLeadTheReadoutAndSurviveCompactDetails() {
+    List<String> provided = List.of("Clank", "|||||||||| 100/100", "Guardian · Work");
+    List<String> details = List.of("Iron Golem", "Speed 0.25", "Detection Range 16");
+
+    assertThat(DiscoveryInsight.readout(provided, details, true)).containsExactly(
+        "Clank", "|||||||||| 100/100", "Guardian · Work", "Iron Golem", "Speed 0.25", "Detection Range 16");
+    assertThat(DiscoveryInsight.readout(provided, details, false)).containsExactly(
+        "Clank", "|||||||||| 100/100", "Guardian · Work", "Iron Golem");
+    assertThat(DiscoveryInsight.readout(List.of(), details, false)).containsExactly("Iron Golem");
+    assertThat(DiscoveryInsight.readout(List.of(), List.of(), false)).isEmpty();
+  }
+
+  @Test
   void insightLeavesNearbyGlossOverlaysEnabledByDefault() {
     assertThat(new DiscoveryInsight.Config().restrictGlossToInsight).isFalse();
   }

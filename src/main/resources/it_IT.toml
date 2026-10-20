@@ -4388,6 +4388,8 @@ bone = "Osso"
 
 [golemancy.golem]
 name = "Golem di {body} di {owner}"
+renamed = "Il tuo golem ora si chiama {name}"
+rename_refused = "Solo il proprietario del golem può rinominarlo"
 
 [golemancy.mode]
 work = "Lavoro"
