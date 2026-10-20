@@ -85,6 +85,7 @@ class GolemGuiLiveTest extends AdaptTestBase {
   private final AtomicReference<Double> health = new AtomicReference<>(20D);
   private final AtomicInteger essence = new AtomicInteger();
   private final AtomicLong tasks = new AtomicLong(4L);
+  private final AtomicBoolean combatOff = new AtomicBoolean();
   private final AtomicBoolean valid = new AtomicBoolean(true);
   private final AtomicBoolean retired = new AtomicBoolean();
   private final AtomicBoolean online = new AtomicBoolean(true);
@@ -126,6 +127,7 @@ class GolemGuiLiveTest extends AdaptTestBase {
     lenient().when(state.primaryCore()).thenAnswer(invocation -> cores.get().getFirst());
     lenient().when(state.runes()).thenAnswer(invocation -> runes.get());
     lenient().when(state.mode()).thenAnswer(invocation -> mode.get());
+    lenient().when(state.combatOff()).thenAnswer(invocation -> combatOff.get());
     lenient().when(state.home()).thenReturn(GolemState.Anchor.of(WORLD, 0, 64, 0));
     lenient().when(state.carried()).thenAnswer(invocation -> carried.get());
     lenient().when(state.essencePoints()).thenAnswer(invocation -> essence.get());
@@ -144,6 +146,11 @@ class GolemGuiLiveTest extends AdaptTestBase {
       mode.set(invocation.getArgument(0));
       return null;
     }).when(handle).setMode(any(GolemMode.class));
+    lenient().doAnswer(invocation -> {
+      scheduler.expect(golem, "combat change");
+      combatOff.set(!invocation.<Boolean>getArgument(0));
+      return true;
+    }).when(handle).setCombat(anyBoolean());
     gestures = mock(CrookGestures.class);
 
     scheduling = mockStatic(J.class);
@@ -319,6 +326,69 @@ class GolemGuiLiveTest extends AdaptTestBase {
 
     verify(window, times(1)).updateElement(anyInt(), anyInt(), any());
     verify(window).updateElement(eq(0), eq(HEADER_ROW), any(Element.class));
+  }
+
+  @Test
+  void theMainPagePlacesTheCombatToggleNextToMode() {
+    openAndDraw();
+
+    verify(onlyWindow()).setElement(eq(-1), eq(HEADER_ROW), any(Element.class));
+  }
+
+  @Test
+  void clickingTheCombatToggleTurnsCombatOffOnTheGolemSchedulerAndUpdatesInPlace() {
+    openAndDraw();
+    UIWindow window = onlyWindow();
+    Element toggle = placed(window, -1, HEADER_ROW);
+
+    toggle.call(ElementEvent.LEFT, toggle);
+    scheduler.advance(0);
+
+    assertThat(combatOff.get()).isTrue();
+    verify(handle).setCombat(false);
+    verify(window).updateElement(eq(-1), eq(HEADER_ROW), any(Element.class));
+    assertThat(windows.constructed()).hasSize(1);
+    assertThat(scheduler.violations()).isEmpty();
+  }
+
+  @Test
+  void clickingTheCombatToggleAgainTurnsCombatBackOn() {
+    combatOff.set(true);
+    openAndDraw();
+    UIWindow window = onlyWindow();
+    Element toggle = placed(window, -1, HEADER_ROW);
+
+    toggle.call(ElementEvent.LEFT, toggle);
+    scheduler.advance(0);
+
+    assertThat(combatOff.get()).isFalse();
+    verify(handle).setCombat(true);
+    assertThat(scheduler.violations()).isEmpty();
+  }
+
+  @Test
+  void aCombatChangeFromElsewhereUpdatesTheToggleInPlace() {
+    openAndDraw();
+    UIWindow window = onlyWindow();
+    combatOff.set(true);
+
+    scheduler.advance(LiveRefresh.POLL_TICKS);
+
+    verify(window).updateElement(eq(-1), eq(HEADER_ROW), any(Element.class));
+    assertThat(scheduler.violations()).isEmpty();
+  }
+
+  @Test
+  void aGuardiansCombatToggleIsLockedAndIgnoresClicks() {
+    cores.set(List.of(GolemCoreType.GUARDIAN));
+    openAndDraw();
+    Element toggle = placed(onlyWindow(), -1, HEADER_ROW);
+
+    toggle.call(ElementEvent.LEFT, toggle);
+    scheduler.advance(0);
+
+    assertThat(combatOff.get()).isFalse();
+    verify(handle, never()).setCombat(anyBoolean());
   }
 
   @Test
@@ -509,6 +579,12 @@ class GolemGuiLiveTest extends AdaptTestBase {
     scheduler.advance(0);
     assertThat(windows.constructed()).hasSize(1);
     assertThat(scheduler.pending()).as("one pending poll after the first draw").isEqualTo(1);
+  }
+
+  private static Element placed(UIWindow window, int position, int row) {
+    ArgumentCaptor<Element> element = ArgumentCaptor.forClass(Element.class);
+    verify(window).setElement(eq(position), eq(row), element.capture());
+    return element.getValue();
   }
 
   private UIWindow onlyWindow() {

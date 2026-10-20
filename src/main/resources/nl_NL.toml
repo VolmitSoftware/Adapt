@@ -4476,6 +4476,12 @@ snow_trail_lore = "Klik om de sneeuw die deze golem achterlaat aan of uit te zet
 colossus_on = "Kolossusvorm: aan"
 colossus_off = "Kolossusvorm: uit"
 colossus_lore = "Klik om volle grootte voor gevechten aan of uit te zetten; een gegroeide golem werkt niet"
+combat_on = "Gevecht: aan"
+combat_off = "Gevecht: uit"
+combat_locked = "Gevecht: aan (vergrendeld)"
+combat_on_lore = "Klik om deze golem te laten stoppen met vechten, zodat gevechten hem nooit van zijn werk houden"
+combat_off_lore = "Deze golem vecht nooit en blijft werken. Klik om hem weer te laten vechten"
+combat_locked_lore = "Een Beschermer-golem verdedigt altijd, dus zijn gevecht kan niet worden uitgezet"
 pack = "Inpakken"
 pack_lore = "Perst deze golem samen tot een Sluimerende golem-blok dat je kunt plaatsen om hem te wekken"
 
@@ -4770,6 +4776,7 @@ signal = "Sein: {signal}"
 sent = "Verzonden: {signal}"
 sent_channel = "Verzonden: {signal} naar kanaal {channel}"
 no_target = "Kijk naar een wezen dat je mag aanvallen binnen {range} blokken om Pak te seinen"
+sic_ignored = "Golems met gevecht uit hebben Pak genegeerd: {count}"
 
 [golemancy.mending]
 name = "Golemherstel"

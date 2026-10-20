@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
+import art.arcane.adapt.api.golem.GolemCombat;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
@@ -43,7 +44,8 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
         new Statistics(stats.kills(), String.format(Locale.ROOT, "%.1f", stats.damage()), stats.tasks(), stats.itemsMoved()),
         state.essencePoints(),
         new Toggles(state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false),
-            state.masterwork(), GolemancyRuntime.registry().map(registry -> registry.masterworks(owner)).orElse(0), GolemMastery.maxMasterworks(owner)));
+            state.masterwork(), GolemancyRuntime.registry().map(registry -> registry.masterworks(owner)).orElse(0), GolemMastery.maxMasterworks(owner),
+            GolemCombat.enabled(handle), GolemCombat.locked(handle)));
   }
 
   Set<Section> changes(GolemView previous) {
@@ -116,6 +118,7 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
   record Statistics(long kills, String damage, long tasks, long itemsMoved) {
   }
 
-  record Toggles(boolean snowTrail, boolean colossus, boolean colossusAvailable, boolean masterwork, int masterworks, int maxMasterworks) {
+  record Toggles(boolean snowTrail, boolean colossus, boolean colossusAvailable, boolean masterwork, int masterworks, int maxMasterworks,
+                 boolean combat, boolean combatLocked) {
   }
 }

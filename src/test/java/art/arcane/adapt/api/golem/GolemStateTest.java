@@ -131,6 +131,21 @@ class GolemStateTest {
   }
 
   @Test
+  void combatDefaultsOnAndSurvivesTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.combatOff()).isFalse();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().combatOff()).isFalse();
+    assertThat(reloaded(state).combatOff()).isFalse();
+
+    state.setCombatOff(true);
+
+    assertThat(reloaded(state).combatOff()).isTrue();
+    state.setCombatOff(false);
+    assertThat(reloaded(state).combatOff()).isFalse();
+  }
+
+  @Test
   void theSightingStartsAtZeroAndSurvivesTheJsonRoundTrip() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 

@@ -46,6 +46,7 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameMode;
@@ -93,7 +94,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   private final GolemXpCooldowns<UUID> signalCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> rallyCooldowns = new GolemXpCooldowns<>();
   private final OverseerFormation formation = new OverseerFormation(() -> getConfig().formationRingRadius);
-  private final OverseerGolems golems = new OverseerGolems(this::sentryRange);
+  private final OverseerGolems golems = new OverseerGolems(this::sentryRange, GolemOverseer::noteIgnoredSic);
   private final OverseerGlow glow = new OverseerGlow();
   private final Overseer.Commander commander = new Commander();
 
@@ -333,6 +334,13 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   private void dropFormation(Player player) {
     formation.forget(player.getUniqueId());
     OverseerArmor.remove(this, player);
+  }
+
+  private static void noteIgnoredSic(UUID owner, int count) {
+    Player player = Bukkit.getPlayer(owner);
+    if (player != null) {
+      GolemGuiSupport.notify(player, GolemancyMessages.OVERSEER_SIC_IGNORED, trusted("count", count));
+    }
   }
 
   private static boolean sightable(Player owner, Entity entity) {

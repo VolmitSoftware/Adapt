@@ -4476,6 +4476,12 @@ snow_trail_lore = "Klicken, um den Schnee umzuschalten, den dieser Golem hinterl
 colossus_on = "Kolossform: An"
 colossus_off = "Kolossform: Aus"
 colossus_lore = "Klicken, um für den Kampf volle Größe umzuschalten; ein gewachsener Golem arbeitet nicht"
+combat_on = "Kampf: An"
+combat_off = "Kampf: Aus"
+combat_locked = "Kampf: An (Gesperrt)"
+combat_on_lore = "Klicken, damit dieser Golem nicht mehr kämpft und der Kampf ihn nie von seiner Arbeit abhält"
+combat_off_lore = "Dieser Golem kämpft nie und arbeitet weiter. Klicken, damit er wieder kämpft"
+combat_locked_lore = "Ein Wächter-Golem verteidigt immer, daher lässt sich sein Kampf nicht ausschalten"
 pack = "Verpacken"
 pack_lore = "Verdichtet diesen Golem zu einem Ruhender-Golem-Block, den du platzieren kannst, um ihn zu erwecken"
 
@@ -4770,6 +4776,7 @@ signal = "Signal: {signal}"
 sent = "{signal} gesendet"
 sent_channel = "{signal} an den Kanal {channel} gesendet"
 no_target = "Sieh eine Kreatur, die du angreifen darfst, im Umkreis von {range} Blöcken an, um Fass zu senden"
+sic_ignored = "Golems mit ausgeschaltetem Kampf haben Fass ignoriert: {count}"
 
 [golemancy.mending]
 name = "Golemheilung"

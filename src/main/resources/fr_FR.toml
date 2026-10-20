@@ -4472,6 +4472,12 @@ snow_trail_lore = "Cliquez pour activer ou désactiver la neige que laisse ce go
 colossus_on = "Forme Colosse : activée"
 colossus_off = "Forme Colosse : désactivée"
 colossus_lore = "Cliquez pour passer en taille réelle pour le combat ; un golem agrandi ne travaille pas"
+combat_on = "Combat : activé"
+combat_off = "Combat : désactivé"
+combat_locked = "Combat : activé (verrouillé)"
+combat_on_lore = "Cliquez pour empêcher ce golem de combattre afin que le combat ne l'éloigne jamais de son travail"
+combat_off_lore = "Ce golem ne combat jamais et continue de travailler. Cliquez pour le laisser combattre à nouveau"
+combat_locked_lore = "Un golem Gardien défend toujours, donc son combat ne peut pas être désactivé"
 pack = "Emballer"
 pack_lore = "Compresse ce golem en un bloc de Golem dormant que tu peux poser pour le réveiller"
 
@@ -4766,6 +4772,7 @@ signal = "Signal : {signal}"
 sent = "Envoyé : {signal}"
 sent_channel = "Envoyé : {signal} au canal {channel}"
 no_target = "Regardez une créature que vous pouvez attaquer à {range} blocs ou moins pour envoyer Attaque"
+sic_ignored = "Golems dont le combat est désactivé et qui ont ignoré Attaque : {count}"
 
 [golemancy.mending]
 name = "Réparation de Golem"
