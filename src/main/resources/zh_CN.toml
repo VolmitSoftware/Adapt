@@ -6705,6 +6705,9 @@ list_a_player_s_golems = "列出玩家的魔像"
 release_one_of_a_player_s_golems = "释放玩家的一个魔像"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "魔像 ID，或足以只匹配一个魔像的开头字符"
 wake_a_player_s_loaded_golems = "唤醒玩家已加载的魔像"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "在调试模式下发放用于测试的魔像术物品。休眠魔像和破碎核心与所有者绑定，不在发放范围内。"
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "物品 ID，例如 crook、core/guardian、node/deposit、rune/might/2 或 masterwork_heart；all 表示每种各一个"
+amount_from_1_to_64_defaults_to_1 = "数量，范围 1 到 64，默认为 1"
 
 [command.runtime]
 missing_permission = "你缺少权限“{permission}”。"
@@ -6797,6 +6800,11 @@ golem_released = "已将魔像 {id} 从 {player} 的名册中释放。"
 golem_release_failed = "无法释放魔像 {id}（{player}）。请重试。"
 golem_release_active_unloaded = "魔像 {id}（{player}）正在未加载的区块中活动。请加载其区块后再释放，或在它显示为失踪后释放。"
 golems_woken = "正在唤醒 {player} 已加载的 {count} 个魔像。"
+golem_give_debug_required = "发放魔像术物品需要开启 Adapt 调试模式。请使用 /adapt debug mode 开启。"
+golem_give_unknown_item = "{item} 不是魔像术物品 ID。在 item= 处按 Tab 补全可列出全部 ID。"
+golem_given = "已向 {player} 发放 {amount} 个 {item}。"
+golem_given_all = "已向 {player} 发放每种魔像术物品各一个（符文含所有阶级）：共 {count} 个。"
+golem_give_dropped = "放不下的物品已丢在 {player} 脚边：{count} 个。"
 
 [language.menu]
 your_language = "个人语言"

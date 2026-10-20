@@ -6705,6 +6705,9 @@ list_a_player_s_golems = "הצג את הגולמים של שחקן"
 release_one_of_a_player_s_golems = "שחרר אחד מהגולמים של שחקן"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "מזהה הגולם, או מספיק מהתווים הראשונים שלו כדי להתאים לגולם אחד"
 wake_a_player_s_loaded_golems = "הער את הגולמים הטעונים של שחקן"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "מתן פריטי כישוף גולמים לבדיקות במצב ניפוי שגיאות. גולמים רדומים וליבות מנופצות קשורים לבעליהם ולכן אינם נכללים."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "מזהה פריט, כגון crook, core/guardian, node/deposit, rune/might/2 או masterwork_heart, או all לאחד מכל סוג"
+amount_from_1_to_64_defaults_to_1 = "כמות בין 1 ל-64, ברירת מחדל 1"
 
 [command.runtime]
 missing_permission = "אין לך רשות '{permission}'."
@@ -6797,6 +6800,11 @@ golem_released = "הגולם {id} שוחרר מהרשימה של {player}."
 golem_release_failed = "לא ניתן היה לשחרר את הגולם {id} של {player}. נסה שוב."
 golem_release_active_unloaded = "הגולם {id} של {player} פעיל בצ'אנק שאינו טעון. טען את הצ'אנק שלו כדי לשחרר אותו, או שחרר אותו כשהוא מסומן כנעדר."
 golems_woken = "מעיר את הגולמים הטעונים של {player}: {count}."
+golem_give_debug_required = "מתן פריטי כישוף גולמים דורש את מצב ניפוי השגיאות של Adapt. הפעל אותו באמצעות /adapt debug mode."
+golem_give_unknown_item = "{item} אינו מזהה של פריט כישוף גולמים. השלם item= עם Tab כדי לראות את כולם."
+golem_given = "ניתנו {amount} x {item} ל-{player}."
+golem_given_all = "{player} קיבל אחד מכל פריט כישוף גולמים, רונות בכל דרגה: {count} פריטים."
+golem_give_dropped = "פריטים שלא נכנסו הושלכו לרגלי {player}: {count}."
 
 [language.menu]
 your_language = "השפה שלך"

@@ -69,6 +69,9 @@ public final class CommandMessages {
   public static final TextKey HELP_RELEASE_ONE_OF_A_PLAYER_S_GOLEMS = TextKey.of("command.help.release_one_of_a_player_s_golems", "Release one of a player's golems");
   public static final TextKey HELP_GOLEM_ID_OR_ENOUGH_OF_ITS_FIRST_CHARACTERS_TO_MATCH_ONE_GOLEM = TextKey.of("command.help.golem_id_or_enough_of_its_first_characters_to_match_one_golem", "Golem id, or enough of its first characters to match one golem");
   public static final TextKey HELP_WAKE_A_PLAYER_S_LOADED_GOLEMS = TextKey.of("command.help.wake_a_player_s_loaded_golems", "Wake a player's loaded golems");
+  public static final TextKey HELP_GIVE_GOLEMANCY_ITEMS_FOR_TESTING_IN_DEBUG_MODE_DORMANT_GOLEMS_AND_SHATTERED_CORES_ARE_OWNER_BOUND_AND_EXCLUDED = TextKey.of("command.help.give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded", "Give Golemancy items for testing in debug mode. Dormant Golems and Shattered Cores are owner-bound and excluded.");
+  public static final TextKey HELP_ITEM_ID_SUCH_AS_CROOK_CORE_GUARDIAN_NODE_DEPOSIT_RUNE_MIGHT_2_OR_MASTERWORK_HEART_OR_ALL_FOR_ONE_OF_EACH = TextKey.of("command.help.item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each", "Item id such as crook, core/guardian, node/deposit, rune/might/2 or masterwork_heart, or all for one of each");
+  public static final TextKey HELP_AMOUNT_FROM_1_TO_64_DEFAULTS_TO_1 = TextKey.of("command.help.amount_from_1_to_64_defaults_to_1", "Amount from 1 to 64, defaults to 1");
 
   private CommandMessages() {
   }
@@ -139,5 +142,8 @@ public final class CommandMessages {
     builder.add(HELP_RELEASE_ONE_OF_A_PLAYER_S_GOLEMS);
     builder.add(HELP_GOLEM_ID_OR_ENOUGH_OF_ITS_FIRST_CHARACTERS_TO_MATCH_ONE_GOLEM);
     builder.add(HELP_WAKE_A_PLAYER_S_LOADED_GOLEMS);
+    builder.add(HELP_GIVE_GOLEMANCY_ITEMS_FOR_TESTING_IN_DEBUG_MODE_DORMANT_GOLEMS_AND_SHATTERED_CORES_ARE_OWNER_BOUND_AND_EXCLUDED);
+    builder.add(HELP_ITEM_ID_SUCH_AS_CROOK_CORE_GUARDIAN_NODE_DEPOSIT_RUNE_MIGHT_2_OR_MASTERWORK_HEART_OR_ALL_FOR_ONE_OF_EACH);
+    builder.add(HELP_AMOUNT_FROM_1_TO_64_DEFAULTS_TO_1);
   }
 }

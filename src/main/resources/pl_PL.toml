@@ -6705,6 +6705,9 @@ list_a_player_s_golems = "Wyświetl golemy gracza"
 release_one_of_a_player_s_golems = "Uwolnij jednego z golemów gracza"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golema albo tyle jego pierwszych znaków, by pasował tylko jeden golem"
 wake_a_player_s_loaded_golems = "Obudź załadowane golemy gracza"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Przekaż przedmioty Golemancji do testów w trybie debugowania. Uśpione golemy i roztrzaskane rdzenie są przypisane do właściciela i zostają pominięte."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "ID przedmiotu, na przykład crook, core/guardian, node/deposit, rune/might/2 lub masterwork_heart, albo all dla po jednym z każdego"
+amount_from_1_to_64_defaults_to_1 = "Ilość od 1 do 64, domyślnie 1"
 
 [command.runtime]
 missing_permission = "Brakuje ci pozwolenia. '{permission}'."
@@ -6797,6 +6800,11 @@ golem_released = "Golem {id} został uwolniony ze spisu gracza {player}."
 golem_release_failed = "Nie udało się uwolnić golema {id} gracza {player}. Spróbuj ponownie."
 golem_release_active_unloaded = "Golem {id} gracza {player} jest aktywny w niezaładowanym chunku. Załaduj jego chunk, aby go uwolnić, albo uwolnij go, gdy zostanie oznaczony jako zaginiony."
 golems_woken = "Budzenie załadowanych golemów gracza {player}: {count}."
+golem_give_debug_required = "Przekazywanie przedmiotów Golemancji wymaga trybu debugowania Adapt. Włącz go poleceniem /adapt debug mode."
+golem_give_unknown_item = "{item} nie jest ID przedmiotu Golemancji. Użyj Tab przy item=, aby je wyświetlić."
+golem_given = "Przekazano graczowi {player}: {amount} x {item}."
+golem_given_all = "Przekazano graczowi {player} po jednym przedmiocie Golemancji, z runami każdego poziomu: {count} przedmiotów."
+golem_give_dropped = "Przedmioty, które się nie zmieściły, upuszczono pod nogami gracza {player}: {count}."
 
 [language.menu]
 your_language = "Twój język"

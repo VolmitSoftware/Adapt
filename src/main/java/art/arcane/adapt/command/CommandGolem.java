@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.gui.GolemGuiActions;
 import art.arcane.adapt.api.golem.gui.RosterGui;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -14,6 +15,7 @@ import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.command.Feedback;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.director.specialhandlers.GolemItemIdHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullableOfflinePlayerHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -24,8 +26,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +41,8 @@ public class CommandGolem {
   static final String ADMIN_PERMISSION = "adapt.golemancy.admin";
   private static final String SKILL = "golemancy";
   private static final int SHORT_ID_LENGTH = 8;
+  private static final int MIN_GIVE_AMOUNT = 1;
+  private static final int MAX_GIVE_AMOUNT = 64;
 
   @Director(origin = DirectorOrigin.PLAYER, description = "Open your golem roster", descriptionKey = "command.help.open_your_golem_roster")
   public void roster() {
@@ -99,6 +105,33 @@ public class CommandGolem {
       return;
     }
     CommandTargetExecutor.run(target, () -> wakeTarget(registry, target, sender), sender);
+  }
+
+  @Director(description = "Give Golemancy items for testing in debug mode. Dormant Golems and Shattered Cores are owner-bound and excluded.", descriptionKey = "command.help.give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded")
+  public void give(
+      @Param(description = "Item id such as crook, core/guardian, node/deposit, rune/might/2 or masterwork_heart, or all for one of each", customHandler = GolemItemIdHandler.class, descriptionKey = "command.help.item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each")
+      String item,
+      @Param(description = "Amount from 1 to 64, defaults to 1", defaultValue = "1", descriptionKey = "command.help.amount_from_1_to_64_defaults_to_1")
+      int amount,
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      Player player
+  ) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!admin(sender) || !debugModeAllowed(sender)) {
+      return;
+    }
+    String id = GolemGiveCatalog.normalize(item);
+    boolean everything = GolemGiveCatalog.ALL.equals(id);
+    if (!everything && !GolemGiveCatalog.isItem(id)) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_GIVE_UNKNOWN_ITEM, untrusted("item", item.trim()))).send(sender);
+      return;
+    }
+    Player target = player != null ? player : senderTarget(sender);
+    if (target == null) {
+      return;
+    }
+    int count = Math.max(MIN_GIVE_AMOUNT, Math.min(MAX_GIVE_AMOUNT, amount));
+    CommandTargetExecutor.run(target, () -> giveTarget(id, everything, count, target, sender), sender);
   }
 
   private void listOnline(Player target, CommandSender sender) {
@@ -167,6 +200,29 @@ public class CommandGolem {
         trusted("count", loaded))));
   }
 
+  private void giveTarget(String id, boolean everything, int amount, Player target, CommandSender sender) {
+    List<ItemStack> stacks = everything ? GolemGiveCatalog.everything() : GolemGiveCatalog.stacks(id, amount);
+    int dropped = hand(target, stacks);
+    String name = target.getName();
+    CommandTargetExecutor.send(sender, FConst.success(everything
+        ? AdaptLanguage.text(CommandRuntimeMessages.GOLEM_GIVEN_ALL, untrusted("player", name), trusted("count", stacks.size()))
+        : AdaptLanguage.text(CommandRuntimeMessages.GOLEM_GIVEN, trusted("amount", amount), trusted("item", id), untrusted("player", name))));
+    if (dropped > 0) {
+      CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_GIVE_DROPPED,
+          untrusted("player", name), trusted("count", dropped))));
+    }
+  }
+
+  private static int hand(Player target, List<ItemStack> stacks) {
+    Map<Integer, ItemStack> leftovers = target.getInventory().addItem(stacks.toArray(ItemStack[]::new));
+    int dropped = 0;
+    for (ItemStack leftover : leftovers.values()) {
+      target.getWorld().dropItemNaturally(target.getLocation(), leftover);
+      dropped += leftover.getAmount();
+    }
+    return dropped;
+  }
+
   private static String describe(GolemRoster.GolemEntry entry) {
     String golem = AdaptLanguage.text(GolemancyMessages.ROSTER_ENTRY,
         trusted("body", AdaptLanguage.text(entry.body().displayName())),
@@ -206,6 +262,14 @@ public class CommandGolem {
       return true;
     }
     FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", ADMIN_PERMISSION))).send(sender);
+    return false;
+  }
+
+  private static boolean debugModeAllowed(CommandSender sender) {
+    if (!(sender instanceof Player player) || AdaptDebugMode.isActive(player)) {
+      return true;
+    }
+    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_GIVE_DEBUG_REQUIRED)).send(sender);
     return false;
   }
 

@@ -6701,6 +6701,9 @@ list_a_player_s_golems = "Lister les golems d'un joueur"
 release_one_of_a_player_s_golems = "Libérer l'un des golems d'un joueur"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Identifiant du golem, ou assez de ses premiers caractères pour désigner un seul golem"
 wake_a_player_s_loaded_golems = "Réveiller les golems chargés d'un joueur"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Donner des objets de Golémancie pour les tests en mode débogage. Les golems dormants et les noyaux brisés sont liés à leur propriétaire et exclus."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "Identifiant d'objet, comme crook, core/guardian, node/deposit, rune/might/2 ou masterwork_heart, ou all pour un de chaque"
+amount_from_1_to_64_defaults_to_1 = "Quantité de 1 à 64, 1 par défaut"
 
 [command.runtime]
 missing_permission = "Il vous manque la permission '{permission}'."
@@ -6793,6 +6796,11 @@ golem_released = "Golem {id} libéré du registre de {player}."
 golem_release_failed = "Le golem {id} de {player} n'a pas pu être libéré. Réessayez."
 golem_release_active_unloaded = "Le golem {id} de {player} est actif dans un chunk non chargé. Chargez son chunk pour le libérer, ou libérez-le une fois qu'il apparaît comme disparu."
 golems_woken = "Réveil des golems chargés de {player} : {count}."
+golem_give_debug_required = "Donner des objets de Golémancie nécessite le mode débogage d'Adapt. Activez-le avec /adapt debug mode."
+golem_give_unknown_item = "{item} n'est pas un identifiant d'objet de Golémancie. Complétez item= avec Tab pour les lister."
+golem_given = "{amount} x {item} donné à {player}."
+golem_given_all = "{player} a reçu un exemplaire de chaque objet de Golémancie, runes de chaque niveau : {count} objets."
+golem_give_dropped = "Les objets qui ne rentraient pas ont été jetés aux pieds de {player} : {count}."
 
 [language.menu]
 your_language = "Votre langue"

@@ -6705,6 +6705,9 @@ list_a_player_s_golems = "列出玩家的魔像"
 release_one_of_a_player_s_golems = "釋放玩家的一個魔像"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "魔像 ID，或足以只符合一個魔像的開頭字元"
 wake_a_player_s_loaded_golems = "喚醒玩家已載入的魔像"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "在除錯模式下發放用於測試的魔像術物品。休眠魔像與破碎核心已綁定擁有者，不在發放範圍內。"
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "物品 ID，例如 crook、core/guardian、node/deposit、rune/might/2 或 masterwork_heart；all 代表每種各一個"
+amount_from_1_to_64_defaults_to_1 = "數量，範圍 1 到 64，預設為 1"
 
 [command.runtime]
 missing_permission = "你沒有權限 '{permission}'。"
@@ -6797,6 +6800,11 @@ golem_released = "已將魔像 {id} 從 {player} 的名冊中釋放。"
 golem_release_failed = "無法釋放魔像 {id}（{player}）。請再試一次。"
 golem_release_active_unloaded = "魔像 {id}（{player}）正在未載入的區塊中活動。請載入其區塊後再釋放，或在它顯示為失蹤後釋放。"
 golems_woken = "正在喚醒 {player} 已載入的 {count} 個魔像。"
+golem_give_debug_required = "發放魔像術物品需要開啟 Adapt 除錯模式。請使用 /adapt debug mode 開啟。"
+golem_give_unknown_item = "{item} 不是魔像術物品 ID。在 item= 處按 Tab 補全可列出全部 ID。"
+golem_given = "已向 {player} 發放 {amount} 個 {item}。"
+golem_given_all = "已向 {player} 發放每種魔像術物品各一個（符文含所有階級）：共 {count} 個。"
+golem_give_dropped = "放不下的物品已丟在 {player} 腳邊：{count} 個。"
 
 [language.menu]
 your_language = "您的語言"
