@@ -22,7 +22,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -247,20 +246,10 @@ public final class NodeService extends TickedObject {
       index.unload(worldId, chunkKey, generation);
       return;
     }
-    Map<NodeKey, NodeRecord> valid = new HashMap<>(stored.size() * 2);
-    for (Map.Entry<NodeKey, NodeRecord> entry : stored.entrySet()) {
-      NodeKey key = entry.getKey();
-      NodeRecord record = entry.getValue();
-      if (anchorValid(world, key, record)) {
-        valid.put(key, record);
-      } else {
-        drop(world, key, record);
-      }
-    }
-    if (!index.completeLoad(worldId, chunkKey, generation, valid)) {
+    if (!index.completeLoad(worldId, chunkKey, generation, stored)) {
       return;
     }
-    for (Map.Entry<NodeKey, NodeRecord> entry : valid.entrySet()) {
+    for (Map.Entry<NodeKey, NodeRecord> entry : stored.entrySet()) {
       try {
         track(world, entry.getKey(), entry.getValue());
       } catch (RuntimeException failure) {
@@ -294,10 +283,6 @@ public final class NodeService extends TickedObject {
       scans.remove(key, state);
       return;
     }
-    if (!anchorValid(world, key, record)) {
-      drop(world, key, record);
-      return;
-    }
     NodeScanHook hook = scanHook;
     NodeSettings current = settings.get();
     if (hook != null && active(world, key, record)) {
@@ -311,16 +296,6 @@ public final class NodeService extends TickedObject {
 
   private boolean active(World world, NodeKey key, NodeRecord record) {
     return record.redstone() == RedstoneMode.IGNORE || NodeRules.active(record.redstone(), platform.powered(world, key.x(), key.y(), key.z()));
-  }
-
-  private boolean anchorValid(World world, NodeKey key, NodeRecord record) {
-    return NodeRules.validate(record.type(), world.getBlockAt(key.x(), key.y(), key.z()).getType()) == NodeValidation.KEEP;
-  }
-
-  private void drop(World world, NodeKey key, NodeRecord record) {
-    if (release(world, key, record)) {
-      saveThen(world, key, () -> world.dropItemNaturally(dropLocation(world, key), GolemItems.node(record.type())), SAVE_ATTEMPTS, 0);
-    }
   }
 
   private boolean release(World world, NodeKey key, NodeRecord record) {

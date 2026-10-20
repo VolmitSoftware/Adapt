@@ -47,12 +47,8 @@ public final class NodeRules {
     return NodePlacementVerdict.READY;
   }
 
-  public static NodeValidation validate(NodeType type, Material anchor) {
-    return anchorValid(type, anchor) ? NodeValidation.KEEP : NodeValidation.DROP;
-  }
-
-  public static boolean anchorValid(NodeType type, Material anchor) {
-    return needsContainer(type) ? isContainer(anchor) : !isEmpty(anchor);
+  public static boolean lacksContainer(NodeType type, Material anchor) {
+    return needsContainer(type) && !isContainer(anchor);
   }
 
   public static boolean faceAllowed(NodeType type, BlockFace face) {
@@ -120,12 +116,5 @@ public final class NodeRules {
       }
     }
     return true;
-  }
-
-  private static boolean isEmpty(Material material) {
-    return switch (material) {
-      case AIR, CAVE_AIR, VOID_AIR, WATER, LAVA, BUBBLE_COLUMN, FIRE, SOUL_FIRE, LIGHT, STRUCTURE_VOID -> true;
-      default -> false;
-    };
   }
 }

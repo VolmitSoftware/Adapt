@@ -2,7 +2,6 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
-import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTestItems;
@@ -10,10 +9,8 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeContext;
-import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.xp.XpProvenance;
@@ -34,7 +31,6 @@ import org.mockito.MockedStatic;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +58,11 @@ import static org.mockito.Mockito.when;
 
 class BreakerNodeBehaviorTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000024c1");
-  private static final UUID STRANGER = UUID.fromString("00000000-0000-0000-0000-0000000024c2");
   private static final NodeKey KEY = new NodeKey(CropField.WORLD, 0, 63, 0, BlockFace.UP);
-  private static final NodeKey NEIGHBOR = new NodeKey(CropField.WORLD, 2, 64, -2, BlockFace.NORTH);
   private static final long NOW = 70_000L;
 
   private final GolemBreakerCore.Config config = new GolemBreakerCore.Config();
   private final CropField field = new CropField();
-  private final NodeIndex index = new NodeIndex();
   private final List<GolemTask> posted = new ArrayList<>();
   private final List<ItemStack> carried = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
@@ -112,17 +105,10 @@ class BreakerNodeBehaviorTest {
     field.toolDrops(Material.COBBLESTONE, tool -> CropField.stacks(Material.COBBLESTONE, 1));
     field.toolDrops(Material.DIAMOND_BLOCK, tool -> CropField.stacks(Material.DIAMOND_BLOCK, 1));
     field.unharvestable(Material.IRON_ORE);
-    load(-1, -1);
-    load(-1, 0);
-    load(0, -1);
-    load(0, 0);
     behavior = new BreakerNodeBehavior(core);
-    NodeService nodes = mock(NodeService.class);
-    lenient().when(nodes.index()).thenReturn(index);
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(BreakerFeedback.class);
     provenance = mockStatic(XpProvenance.class);
-    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
   }
 
   @AfterEach
@@ -143,7 +129,7 @@ class BreakerNodeBehaviorTest {
 
     behavior.scan(node(), budget(true));
 
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,63,0", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -152,12 +138,12 @@ class BreakerNodeBehaviorTest {
 
     level(1);
     behavior.scan(node(), budget(true));
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,63,0", "break 1,64,1");
 
     posted.clear();
     level(5);
     behavior.scan(node(), budget(true));
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break -1,64,1", "break 0,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break -1,64,1", "break 0,63,0", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -194,16 +180,19 @@ class BreakerNodeBehaviorTest {
   }
 
   @Test
-  void nodeAnchorsAndBlocksWhoseNodesAreNotLoadedYetAreLeftAlone() {
+  void aNodeAnchorIsBrokenLikeAnyOtherBlock() {
     field.set(0, 63, 0, Material.STONE, BreakerRulesTest.placed(Material.STONE));
     field.set(2, 64, -2, Material.STONE, BreakerRulesTest.placed(Material.STONE));
     field.set(-2, 64, -2, Material.STONE, BreakerRulesTest.placed(Material.STONE));
     field.set(2, 64, 2, Material.STONE, BreakerRulesTest.placed(Material.STONE));
-    index.unload(CropField.WORLD, GolemRoster.chunkKey(-1, -1));
 
     behavior.scan(node(), budget(true));
 
-    assertThat(jobs()).containsExactly("break 2,64,2");
+    assertThat(jobs()).containsExactly("break -2,64,-2", "break 0,63,0", "break 2,64,-2", "break 2,64,2");
+    assertThat(behavior.act(golem(1), task(0, 63, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task(2, 64, -2))).isEqualTo(GolemActResult.DONE);
+    assertThat(field.type(0, 63, 0)).isEqualTo(Material.AIR);
+    assertThat(field.type(2, 64, -2)).isEqualTo(Material.AIR);
   }
 
   @Test
@@ -218,7 +207,7 @@ class BreakerNodeBehaviorTest {
     behavior.scan(node(), budget(true));
 
     assertThat(posted).contains(open).doesNotContain(stale, outside);
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,63,0", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -361,17 +350,14 @@ class BreakerNodeBehaviorTest {
   }
 
   @Test
-  void aBlockThatNoLongerMatchesOrSitsOutsideTheAreaOrUnderTheNodeFails() {
+  void aBlockThatNoLongerMatchesOrSitsOutsideTheAreaFails() {
     field.set(1, 64, 1, Material.DIRT, BreakerRulesTest.placed(Material.DIRT));
     stone(3, 64, 3);
-    stone(0, 63, 0);
 
     assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.FAILED);
     assertThat(behavior.act(golem(1), task(3, 64, 3))).isEqualTo(GolemActResult.FAILED);
-    assertThat(behavior.act(golem(1), task(0, 63, 0))).isEqualTo(GolemActResult.FAILED);
 
     assertThat(field.type(3, 64, 3)).isEqualTo(Material.STONE);
-    assertThat(field.type(0, 63, 0)).isEqualTo(Material.STONE);
     assertThat(carried).isEmpty();
   }
 
@@ -422,19 +408,6 @@ class BreakerNodeBehaviorTest {
 
   private void level(int level) {
     lenient().when(core.ownerLevel(OWNER)).thenReturn(level);
-  }
-
-  private void load(int chunkX, int chunkZ) {
-    long chunk = GolemRoster.chunkKey(chunkX, chunkZ);
-    long generation = index.beginLoad(CropField.WORLD, chunk);
-    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
-    if (chunk == KEY.chunkKey()) {
-      nodes.put(KEY, record);
-    }
-    if (chunk == NEIGHBOR.chunkKey()) {
-      nodes.put(NEIGHBOR, NodeRecord.builder(STRANGER, NodeType.GUARD, BlockFace.NORTH).build());
-    }
-    index.completeLoad(CropField.WORLD, chunk, generation, nodes);
   }
 
   private NodeContext node() {

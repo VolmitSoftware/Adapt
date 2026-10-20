@@ -4851,6 +4851,7 @@ idle = "Простаивает"
 working = "Работает"
 blocked = "Заблокирован защитой"
 full = "Хранилище заполнено"
+no_container = "Нет хранилища"
 
 [golemancy.node_label]
 priority = "P{priority}"

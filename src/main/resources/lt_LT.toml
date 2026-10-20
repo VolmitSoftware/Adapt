@@ -4851,6 +4851,7 @@ idle = "Laukia"
 working = "Dirba"
 blocked = "Užblokuota apsaugos"
 full = "Talpykla pilna"
+no_container = "Nėra talpyklos"
 
 [golemancy.node_label]
 priority = "P{priority}"

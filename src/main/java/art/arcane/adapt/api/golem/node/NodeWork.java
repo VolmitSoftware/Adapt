@@ -43,6 +43,11 @@ public final class NodeWork implements NodeScanHook {
     NodeScanCursor.Window window = pass.window();
     ScanBudget budget = new ScanBudget(window.start(), window.count(), pass.maxOpenTasks() - board.openCount(key));
     NodeContext context = new NodeContext(platform, pass, board, budget, behavior.policy(), now);
+    if (NodeRules.lacksContainer(record.type(), context.anchor().getType())) {
+      withdrawAll(board, key);
+      status.accept(key, NodeStatus.NO_CONTAINER);
+      return;
+    }
     try {
       behavior.scan(context, budget);
     } catch (RuntimeException failure) {
@@ -55,15 +60,18 @@ public final class NodeWork implements NodeScanHook {
 
   @Override
   public void inactive(NodeKey key) {
-    GolemTaskBoard board = boards.board(key.world());
-    for (GolemTask task : board.tasks(key)) {
-      board.withdraw(task);
-    }
+    withdrawAll(boards.board(key.world()), key);
     status.accept(key, NodeStatus.IDLE);
   }
 
   @Override
   public void worldUnloaded(UUID world) {
     boards.forget(world);
+  }
+
+  private static void withdrawAll(GolemTaskBoard board, NodeKey key) {
+    for (GolemTask task : board.tasks(key)) {
+      board.withdraw(task);
+    }
   }
 }

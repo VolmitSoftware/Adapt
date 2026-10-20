@@ -83,19 +83,6 @@ public final class NodeIndex {
     return chunk == null ? Optional.empty() : Optional.ofNullable(chunk.nodes.get(key));
   }
 
-  public boolean mayAnchor(UUID world, int x, int y, int z) {
-    ChunkNodes chunk = chunk(world, GolemRoster.chunkKey(x >> 4, z >> 4));
-    if (chunk == null || !chunk.ready) {
-      return true;
-    }
-    for (NodeKey key : chunk.nodes.keySet()) {
-      if (key.x() == x && key.y() == y && key.z() == z) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   public int count(UUID world, long chunkKey) {
     ChunkNodes chunk = chunk(world, chunkKey);
     return chunk == null ? 0 : chunk.nodes.size();

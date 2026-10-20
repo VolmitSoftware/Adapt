@@ -4851,6 +4851,7 @@ idle = "Inactief"
 working = "Aan het werk"
 blocked = "Geblokkeerd door bescherming"
 full = "Opslagblok vol"
+no_container = "Geen opslagblok"
 
 [golemancy.node_label]
 priority = "P{priority}"

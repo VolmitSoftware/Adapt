@@ -8,7 +8,8 @@ public enum NodeStatus {
   IDLE,
   WORKING,
   BLOCKED,
-  FULL;
+  FULL,
+  NO_CONTAINER;
 
   public TextKey displayName() {
     return switch (this) {
@@ -16,6 +17,7 @@ public enum NodeStatus {
       case WORKING -> GolemancyMessages.NODE_STATUS_WORKING;
       case BLOCKED -> GolemancyMessages.NODE_STATUS_BLOCKED;
       case FULL -> GolemancyMessages.NODE_STATUS_FULL;
+      case NO_CONTAINER -> GolemancyMessages.NODE_STATUS_NO_CONTAINER;
     };
   }
 
@@ -25,6 +27,7 @@ public enum NodeStatus {
       case WORKING -> NamedTextColor.GREEN;
       case BLOCKED -> NamedTextColor.RED;
       case FULL -> NamedTextColor.GOLD;
+      case NO_CONTAINER -> NamedTextColor.LIGHT_PURPLE;
     };
   }
 }

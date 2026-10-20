@@ -4851,6 +4851,7 @@ idle = "Boşta"
 working = "Çalışıyor"
 blocked = "Koruma tarafından engellendi"
 full = "Depo dolu"
+no_container = "Depo yok"
 
 [golemancy.node_label]
 priority = "P{priority}"

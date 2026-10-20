@@ -25,6 +25,8 @@ import org.bukkit.inventory.Inventory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,8 +78,9 @@ class NodeWorkTest extends AdaptTestBase {
   @AfterEach
   void tearDown() {
     for (NodeBehavior behavior : registered) {
-      NodeBehaviors.unregister(NodeType.HARVEST, behavior);
-      NodeBehaviors.unregister(NodeType.DEPOSIT, behavior);
+      for (NodeType type : NodeType.values()) {
+        NodeBehaviors.unregister(type, behavior);
+      }
     }
   }
 
@@ -265,6 +268,47 @@ class NodeWorkTest extends AdaptTestBase {
     work.scan(pass);
     assertThat(statuses).containsEntry(KEY, NodeStatus.FULL);
     assertThat(board.openCount(KEY)).isZero();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = NodeType.class, names = {"DEPOSIT", "INPUT", "FILTER"})
+  void aContainerNodeWithoutItsContainerPausesWithdrawsItsTasksAndResumesWhenOneReturns(NodeType type) {
+    NodeRecord record = NodeRecord.builder(OWNER, type, BlockFace.UP).build();
+    records.put(KEY, record);
+    lenient().when(block(0, 64, 0).getType()).thenReturn(Material.AIR);
+    GolemTask open = GolemTask.builder(KEY, type, "work", GolemTarget.block(WORLD, 1, 64, 1)).build();
+    board.offer(open, 16);
+    List<NodeKey> scans = new ArrayList<>();
+    behavior(type, (node, budget) -> scans.add(node.key()));
+    NodeScanPass pass = new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16);
+
+    work.scan(pass);
+
+    assertThat(scans).isEmpty();
+    assertThat(statuses).containsEntry(KEY, NodeStatus.NO_CONTAINER);
+    assertThat(open.isClosed()).isTrue();
+    assertThat(board.openCount(KEY)).isZero();
+
+    containerBlock(0, 64, 0, GolemTestItems.inventory(27));
+    work.scan(pass);
+
+    assertThat(scans).containsExactly(KEY);
+    assertThat(statuses).containsEntry(KEY, NodeStatus.IDLE);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = NodeType.class, names = {"GUARD", "COLLECTION", "HARVEST", "LUMBER", "BREAKER", "PASTURE", "FISHING"})
+  void anAreaNodeKeepsScanningWithoutItsAnchor(NodeType type) {
+    NodeRecord record = NodeRecord.builder(OWNER, type, BlockFace.UP).build();
+    records.put(KEY, record);
+    lenient().when(block(0, 64, 0).getType()).thenReturn(Material.AIR);
+    List<NodeKey> scans = new ArrayList<>();
+    behavior(type, (node, budget) -> scans.add(node.key()));
+
+    work.scan(new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16));
+
+    assertThat(scans).containsExactly(KEY);
+    assertThat(statuses).containsEntry(KEY, NodeStatus.IDLE);
   }
 
   @Test

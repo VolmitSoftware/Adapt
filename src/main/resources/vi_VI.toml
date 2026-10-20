@@ -4851,6 +4851,7 @@ idle = "Đang rảnh"
 working = "Đang làm việc"
 blocked = "Bị bảo vệ chặn"
 full = "Vật chứa đã đầy"
+no_container = "Không có vật chứa"
 
 [golemancy.node_label]
 priority = "P{priority}"

@@ -4851,6 +4851,7 @@ idle = "待機中"
 working = "作業中"
 blocked = "保護により停止"
 full = "コンテナが満杯"
+no_container = "コンテナなし"
 
 [golemancy.node_label]
 priority = "P{priority}"
