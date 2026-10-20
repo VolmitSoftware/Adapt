@@ -16,6 +16,12 @@ class GolemNameModeTest {
   }
 
   @Test
+  void onlyVanillaPutsTheNameOnTheEntity() {
+    assertThat(GolemNameMode.VANILLA.showsCustomName()).isTrue();
+    assertThat(GolemNameMode.GLOSS.showsCustomName()).isFalse();
+  }
+
+  @Test
   void glossAndVanillaAreTheOnlyModes() {
     assertThat(GolemNameMode.values()).containsExactly(GolemNameMode.GLOSS, GolemNameMode.VANILLA);
   }

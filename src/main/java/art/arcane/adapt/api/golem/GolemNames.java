@@ -122,6 +122,7 @@ public final class GolemNames implements Listener {
       }
       mode = next;
     }
+    GolemancyRuntime.registry().ifPresent(GolemRegistry::showNames);
     GolemancyRuntime.reveal().ifPresent(RevealService::refreshViewers);
   }
 

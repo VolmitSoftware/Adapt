@@ -80,4 +80,6 @@ interface GolemPlatform {
   String encodeItem(ItemStack item);
 
   ItemStack decodeItem(String encoded);
+
+  GolemNameMode nameMode();
 }

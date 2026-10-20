@@ -610,7 +610,7 @@ public final class RevealService extends TickedObject implements EntityInsight.P
       if (handle.isRetired() || !entity.isValid() || !golems.isShown(viewer.getUniqueId(), golem)) {
         return;
       }
-      attachLabel(viewer, entity, handle.owner(), content(handle), settings.get().labelViewRange(), golems);
+      attachLabel(viewer, entity, handle.owner(), content(handle, false), settings.get().labelViewRange(), golems);
     } finally {
       spawning.remove(golem);
     }
@@ -682,7 +682,7 @@ public final class RevealService extends TickedObject implements EntityInsight.P
   }
 
   private void applyText(GolemHandle handle, Label label) {
-    applyContent(handle.entityId(), label, content(handle));
+    applyContent(handle.entityId(), label, content(handle, false));
   }
 
   private void applyContent(UUID carrier, Label label, GolemLabel.Content content) {
@@ -695,12 +695,12 @@ public final class RevealService extends TickedObject implements EntityInsight.P
     }
   }
 
-  private GolemLabel.Content content(GolemHandle handle) {
+  private GolemLabel.Content content(GolemHandle handle, boolean named) {
     try (LanguageAudience.Scope audience = LanguageAudience.open(handle.owner())) {
       Mob golem = handle.entity();
       GolemState state = handle.state();
       return new GolemLabel.Content(golemName(handle), golem.getHealth(), GolemVitals.maxHealth(golem), coreNames(GolemMastery.cores(handle)),
-          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork(), false);
+          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork(), named);
     }
   }
 
@@ -715,7 +715,16 @@ public final class RevealService extends TickedObject implements EntityInsight.P
   }
 
   private List<String> golemDetails(GolemHandle handle, UUID viewerId, boolean status) {
-    return status && handle.owner().equals(viewerId) ? GolemLabel.legacyLines(content(handle)) : List.of();
+    boolean named = !nameMode().showsCustomName();
+    if (status && handle.owner().equals(viewerId)) {
+      return GolemLabel.legacyLines(content(handle, named));
+    }
+    if (!named) {
+      return List.of();
+    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(viewerId)) {
+      return List.of(GolemLabel.legacyName(golemName(handle)));
+    }
   }
 
   private List<String> servantDetails(Skeleton servant, UUID viewerId) {
@@ -730,7 +739,7 @@ public final class RevealService extends TickedObject implements EntityInsight.P
     double range = settings.get().labelRange();
     List<GlossStatus.Target> targets = new ArrayList<>(inRange.size() + 2);
     for (GolemHandle handle : inRange.values()) {
-      targets.add(new GlossStatus.Target(handle.entity(), range, () -> content(handle)));
+      targets.add(new GlossStatus.Target(handle.entity(), range, () -> content(handle, true)));
     }
     return targets;
   }

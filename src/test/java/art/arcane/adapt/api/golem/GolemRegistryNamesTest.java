@@ -11,7 +11,9 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
@@ -36,6 +38,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 class GolemRegistryNamesTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
@@ -142,6 +146,121 @@ class GolemRegistryNamesTest extends AdaptTestBase {
   }
 
   @Test
+  void glossLeavesTheEntityUnnamedWhileBindingStoresTheName() {
+    platform.nameMode = GolemNameMode.GLOSS;
+    IronGolem golem = golem(at(0, 64, 0));
+    golem.customName(Component.text("Village Guard"));
+
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+    assertThat(golem.customName()).isNull();
+    assertThat(plain(handle.state().name().orElseThrow())).isEqualTo("Steve's Iron Golem");
+    assertThat(plain(GolemState.read(golem).orElseThrow().name().orElseThrow())).isEqualTo("Steve's Iron Golem");
+  }
+
+  @Test
+  void glossLeavesABoundBoneGolemUnnamedAndVanillaNamesIt() {
+    platform.nameMode = GolemNameMode.GLOSS;
+    Skeleton glossBone = entity(Skeleton.class, at(0, 64, 0));
+
+    GolemHandle glossHandle = registry.bind(owner, glossBone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+
+    assertThat(glossBone.customName()).isNull();
+    assertThat(plain(glossHandle.state().name().orElseThrow())).isEqualTo("Steve's Bone Golem");
+
+    platform.nameMode = GolemNameMode.VANILLA;
+    Skeleton vanillaBone = entity(Skeleton.class, at(20, 64, 20));
+
+    registry.bind(owner, vanillaBone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+
+    assertThat(plain(vanillaBone.customName())).isEqualTo("Steve's Bone Golem");
+  }
+
+  @Test
+  void glossLeavesAnAwakenedAndARebuiltGolemUnnamed() {
+    IronGolem golem = golem(at(3, 64, 3));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    registry.rename(handle, CLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    IronGolem body = golem(at(30, 70, 30));
+    platform.spawns.add(body);
+    platform.nameMode = GolemNameMode.GLOSS;
+
+    GolemHandle awakened = registry.awaken(owner, at(30, 70, 30), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    }).orElseThrow();
+
+    assertThat(awakened.state().name()).contains(CLANK);
+    assertThat(body.customName()).isNull();
+
+    GolemSnapshot shattered = registry.snapshot(awakened).withoutCargo();
+    PackedGolem item = new PackedGolem(awakened.id(), OWNER, shattered.toJson());
+    platform.rosters.get(OWNER).stow(awakened.id(), GolemRoster.Status.SHATTERED, item.state());
+    IronGolem fresh = golem(at(4, 64, 4));
+
+    GolemHandle rebuilt = registry.restore(owner, fresh, new GolemRegistry.Restore(item, GolemRoster.Status.SHATTERED)).orElseThrow();
+
+    assertThat(rebuilt.state().name()).contains(CLANK);
+    assertThat(fresh.customName()).isNull();
+  }
+
+  @Test
+  void aRenameInGlossStoresTheNameAndLeavesTheEntityAlone() {
+    platform.nameMode = GolemNameMode.GLOSS;
+    IronGolem golem = golem(at(0, 64, 0));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+    registry.rename(handle, CLANK);
+
+    assertThat(handle.state().name()).contains(CLANK);
+    assertThat(GolemState.read(golem).orElseThrow().name()).contains(CLANK);
+    assertThat(golem.customName()).isNull();
+    verify(golem, never()).customName(any());
+  }
+
+  @Test
+  void aSwitchBetweenGlossAndVanillaClearsAndRestoresEachGolemsNameOnItsThread() {
+    IronGolem first = golem(at(0, 64, 0));
+    IronGolem second = golem(at(40, 64, 40));
+    GolemHandle firstHandle = registry.bind(owner, first, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    registry.bind(owner, second, GolemBody.IRON, GolemCoreType.GATHERER);
+    registry.rename(firstHandle, CLANK);
+    platform.nameMode = GolemNameMode.GLOSS;
+    platform.ownsEntities = false;
+
+    registry.showNames();
+
+    assertThat(first.customName()).isEqualTo(CLANK);
+    platform.ownsEntities = true;
+    platform.runDelayed();
+    assertThat(first.customName()).isNull();
+    assertThat(second.customName()).isNull();
+    assertThat(firstHandle.state().name()).contains(CLANK);
+
+    platform.nameMode = GolemNameMode.VANILLA;
+    platform.ownsEntities = false;
+    registry.showNames();
+    assertThat(first.customName()).isNull();
+    platform.ownsEntities = true;
+    platform.runDelayed();
+
+    assertThat(first.customName()).isEqualTo(CLANK);
+    assertThat(plain(second.customName())).isEqualTo("Steve's Iron Golem");
+  }
+
+  @Test
+  void aSwitchToVanillaNamesABoneGolemToo() {
+    platform.nameMode = GolemNameMode.GLOSS;
+    Skeleton bone = entity(Skeleton.class, at(0, 64, 0));
+    registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    assertThat(bone.customName()).isNull();
+
+    platform.nameMode = GolemNameMode.VANILLA;
+    registry.showNames();
+
+    assertThat(plain(bone.customName())).isEqualTo("Steve's Bone Golem");
+  }
+
+  @Test
   void aLoadedGolemTakesItsStoredName() {
     IronGolem stored = golem(at(0, 64, 0));
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.IRON, GolemCoreType.BLANK,
@@ -157,8 +276,30 @@ class GolemRegistryNamesTest extends AdaptTestBase {
     assertThat(stored.customName()).isEqualTo(CLANK);
   }
 
+  @Test
+  void aLoadedGolemInGlossModeLosesAStaleNameAndKeepsTheStoredOne() {
+    IronGolem stored = golem(at(0, 64, 0));
+    GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.IRON, GolemCoreType.BLANK,
+        GolemState.Anchor.of(WORLD, 0, 64, 0)));
+    state.setName(CLANK);
+    state.write(stored);
+    platform.rosters.get(OWNER).add(new GolemRoster.Binding(state.id(), GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    stored.customName(CLANK);
+    platform.nameMode = GolemNameMode.GLOSS;
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stored)));
+
+    GolemHandle handle = registry.handle(stored).orElseThrow();
+    assertThat(stored.customName()).isNull();
+    assertThat(handle.state().name()).contains(CLANK);
+  }
+
   private IronGolem golem(Location location) {
-    IronGolem golem = GolemTestEntities.entity(IronGolem.class);
+    return entity(IronGolem.class, location);
+  }
+
+  private <T extends Mob> T entity(Class<T> type, Location location) {
+    T golem = GolemTestEntities.entity(type);
     AtomicReference<Component> shown = new AtomicReference<>();
     lenient().when(golem.customName()).thenAnswer(invocation -> shown.get());
     lenient().doAnswer(invocation -> {

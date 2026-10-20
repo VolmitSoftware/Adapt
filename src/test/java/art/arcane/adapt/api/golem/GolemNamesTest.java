@@ -26,6 +26,7 @@ import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -39,10 +40,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +104,9 @@ class GolemNamesTest extends AdaptTestBase {
     names.start();
 
     assertThat(names.mode()).isEqualTo(GolemNameMode.GLOSS);
-    verify(reveal).refreshViewers();
+    InOrder order = inOrder(registry, reveal);
+    order.verify(registry).showNames();
+    order.verify(reveal).refreshViewers();
   }
 
   @Test
@@ -115,6 +120,7 @@ class GolemNamesTest extends AdaptTestBase {
 
     assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
     verify(reveal, never()).refreshViewers();
+    verify(registry, never()).showNames();
   }
 
   @Test
@@ -136,6 +142,7 @@ class GolemNamesTest extends AdaptTestBase {
 
     assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
     verify(reveal, never()).refreshViewers();
+    verify(registry, never()).showNames();
     verify(gloss, never()).overlayActive(any());
   }
 
@@ -149,6 +156,7 @@ class GolemNamesTest extends AdaptTestBase {
     when(gloss.overlayActive(first)).thenReturn(false);
     names.on(new PlayerJoinEvent(first, Component.empty()));
     assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
+    verify(registry, times(2)).showNames();
 
     Player second = player(STRANGER);
     names.on(new PlayerJoinEvent(second, Component.empty()));
@@ -173,9 +181,11 @@ class GolemNamesTest extends AdaptTestBase {
     names.on(new PluginEnableEvent(glossPlugin));
     assertThat(names.mode()).isEqualTo(GolemNameMode.GLOSS);
     verify(gloss).refresh();
+    verify(registry).showNames();
 
     names.on(new PluginDisableEvent(glossPlugin));
     assertThat(names.mode()).isEqualTo(GolemNameMode.VANILLA);
+    verify(registry, times(2)).showNames();
   }
 
   @Test
@@ -191,6 +201,47 @@ class GolemNamesTest extends AdaptTestBase {
     verify(registry).rename(handle, Component.text("Clank"));
     verify(tag).setAmount(2);
     hud.verify(() -> AdaptHud.actionBar(eq(player), contains("Clank")));
+  }
+
+  @Test
+  void inGlossModeTheOwnersNameTagStillRenamesTheStoredNameAndIsUsedUp() {
+    Player probe = player(OWNER);
+    online.add(probe);
+    when(gloss.available()).thenReturn(true);
+    when(gloss.overlayActive(probe)).thenReturn(true);
+    names.start();
+    assertThat(names.mode()).isEqualTo(GolemNameMode.GLOSS);
+    Player player = player(OWNER);
+    GolemHandle handle = boundGolem();
+    ItemStack tag = nameTag(player, EquipmentSlot.HAND, "Clank", 3);
+    PlayerInteractEntityEvent event = new PlayerInteractEntityEvent(player, handle.entity(), EquipmentSlot.HAND);
+
+    names.on(event);
+
+    assertThat(event.isCancelled()).isTrue();
+    verify(registry).rename(handle, Component.text("Clank"));
+    verify(tag).setAmount(2);
+    hud.verify(() -> AdaptHud.actionBar(eq(player), contains("Clank")));
+  }
+
+  @Test
+  void inGlossModeAStrangersNameTagIsStillRefusedAndKept() {
+    Player probe = player(OWNER);
+    online.add(probe);
+    when(gloss.available()).thenReturn(true);
+    when(gloss.overlayActive(probe)).thenReturn(true);
+    names.start();
+    Player stranger = player(STRANGER);
+    GolemHandle handle = boundGolem();
+    ItemStack tag = nameTag(stranger, EquipmentSlot.HAND, "Mine Now", 1);
+    PlayerInteractEntityEvent event = new PlayerInteractEntityEvent(stranger, handle.entity(), EquipmentSlot.HAND);
+
+    names.on(event);
+
+    assertThat(event.isCancelled()).isTrue();
+    verify(registry, never()).rename(any(), any());
+    verify(tag, never()).setAmount(anyInt());
+    verify(stranger.getInventory(), never()).setItem(any(EquipmentSlot.class), any());
   }
 
   @Test

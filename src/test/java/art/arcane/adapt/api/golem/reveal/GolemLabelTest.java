@@ -126,6 +126,7 @@ class GolemLabelTest {
     assertThat(lines.get(1)).contains("40/100");
     assertThat(lines.get(2)).contains("Sorter", "Work", GolemLabel.SWATCH);
     assertThat(unnamed).containsExactlyElementsOf(lines.subList(1, 3));
+    assertThat(GolemLabel.legacyName(Component.text("Clank"))).contains("Clank").startsWith("§");
   }
 
   private static List<TextColor> colorsOf(Component root, String content) {
