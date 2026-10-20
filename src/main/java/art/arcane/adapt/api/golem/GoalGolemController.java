@@ -26,6 +26,10 @@ final class GoalGolemController implements GolemController {
   private static final List<VanillaGoal> FROST_GOALS = List.of(
       VanillaGoal.of("nearest_attackable", 1),
       VanillaGoal.of("water_avoiding_random_stroll", 2));
+  private static final List<VanillaGoal> BONE_GOALS = List.of(
+      VanillaGoal.of("flee_sun", 3),
+      VanillaGoal.of("avoid_entity", 3),
+      VanillaGoal.of("water_avoiding_random_stroll", 5));
 
   private final Mob golem;
   private final GolemBody body;
@@ -49,7 +53,8 @@ final class GoalGolemController implements GolemController {
     return switch (body) {
       case IRON -> IRON_GOALS;
       case FROST -> FROST_GOALS;
-      case COPPER, BONE -> List.of();
+      case BONE -> BONE_GOALS;
+      case COPPER -> List.of();
     };
   }
 

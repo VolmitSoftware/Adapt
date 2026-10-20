@@ -81,10 +81,47 @@ class GolemBrainMachineTest {
   }
 
   @Test
-  void stayWalksBackToItsSpotAfterBeingPushedAway() {
-    assertThat(step(senses(GolemMode.STAY).anchor(6D))).isEqualTo(decision(GolemBrainState.STAY, Movement.ANCHOR));
-    assertThat(step(senses(GolemMode.STAY).anchor(2D))).isEqualTo(decision(GolemBrainState.STAY, Movement.ANCHOR));
+  void stayNeverWalksBackToItsSpotOnItsOwn() {
+    for (double anchor : new double[] {6D, 20D, 31D, 2D}) {
+      for (int pulse = 0; pulse < 40; pulse++) {
+        now += 250L;
+        assertThat(step(senses(GolemMode.STAY).anchor(anchor))).isEqualTo(decision(GolemBrainState.STAY, Movement.NONE));
+      }
+    }
+  }
+
+  @Test
+  void stayStopsARunningPathWhereverTheGolemStands() {
+    assertThat(step(senses(GolemMode.HOME).home(20D))).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
+
+    assertThat(step(senses(GolemMode.STAY).anchor(6D))).isEqualTo(decision(GolemBrainState.STAY, Movement.STOP));
+    assertThat(step(senses(GolemMode.STAY).anchor(6D))).isEqualTo(decision(GolemBrainState.STAY, Movement.NONE));
+  }
+
+  @Test
+  void stayStillRetaliatesAndStandsWhereTheFightEnds() {
+    assertThat(step(senses(GolemMode.STAY).anchor(0D).target())).isEqualTo(decision(GolemBrainState.COMBAT, Movement.NONE));
+    assertThat(step(senses(GolemMode.STAY).anchor(9D).target())).isEqualTo(decision(GolemBrainState.COMBAT, Movement.NONE));
+
+    assertThat(step(senses(GolemMode.STAY).anchor(9D))).isEqualTo(decision(GolemBrainState.STAY, Movement.NONE));
+  }
+
+  @Test
+  void aStayGolemWhoseFightBrokeTheLeashWalksAllTheWayBackToItsSpot() {
+    assertThat(step(senses(GolemMode.STAY).anchor(33D).target())).isEqualTo(dropping(GolemBrainState.STAY, Movement.ANCHOR));
+    assertThat(step(senses(GolemMode.STAY).anchor(20D))).isEqualTo(dropping(GolemBrainState.STAY, Movement.ANCHOR));
+    assertThat(step(senses(GolemMode.STAY).anchor(10D))).isEqualTo(decision(GolemBrainState.STAY, Movement.ANCHOR));
     assertThat(step(senses(GolemMode.STAY).anchor(1.4D))).isEqualTo(decision(GolemBrainState.STAY, Movement.STOP));
+    assertThat(step(senses(GolemMode.STAY).anchor(6D))).isEqualTo(decision(GolemBrainState.STAY, Movement.NONE));
+  }
+
+  @Test
+  void aModeChangeEndsAStayGolemsWalkBack() {
+    step(senses(GolemMode.STAY).anchor(33D).target());
+    step(senses(GolemMode.STAY).anchor(10D));
+    step(senses(GolemMode.HOME).home(1D));
+
+    assertThat(step(senses(GolemMode.STAY).anchor(10D))).isEqualTo(decision(GolemBrainState.STAY, Movement.NONE));
   }
 
   @Test
@@ -164,12 +201,22 @@ class GolemBrainMachineTest {
   }
 
   @Test
-  void workWandersNearHomeOnAFixedInterval() {
-    assertThat(step(senses(GolemMode.WORK).home(1D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
-    now += GolemBrainMachine.WANDER_INTERVAL_MILLIS - 1L;
+  void anIdleWorkingGolemNearHomeNeverMoves() {
+    for (double home : new double[] {0D, 1D, 3D, GolemBrainMachine.NEAR_HOME_DISTANCE}) {
+      for (int pulse = 0; pulse < 240; pulse++) {
+        now += 250L;
+        assertThat(step(senses(GolemMode.WORK).home(home))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
+      }
+    }
+  }
+
+  @Test
+  void anIdleWorkingGolemStopsTheMomentItsJobEnds() {
+    assertThat(step(senses(GolemMode.WORK).home(40D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
+    machine.working(now);
+
     assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
-    now += 1L;
-    assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
   }
 
   @Test
@@ -183,7 +230,10 @@ class GolemBrainMachineTest {
     assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
     assertThat(step(senses(GolemMode.WORK).home(4D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
     assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.STOP));
-    assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
+    for (int pulse = 0; pulse < 240; pulse++) {
+      now += 250L;
+      assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
+    }
   }
 
   @Test

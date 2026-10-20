@@ -623,6 +623,33 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void aStayGolemPushedOffItsSpotIssuesNoMovement() {
+    AtomicReference<Location> position = new AtomicReference<>(at(0, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, position), GolemBody.IRON);
+    brain.handle().setMode(GolemMode.STAY);
+    brain.start();
+
+    platform.runDelayed();
+    position.set(at(6, 64, 0));
+    pulseFor(30_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.STAY);
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:"));
+  }
+
+  @Test
+  void aWorkingGolemWithNothingToDoNearHomeIssuesNoMovement() {
+    GolemBrain brain = brain(golem(CopperGolem.class, at(2, 64, 1)), GolemBody.COPPER);
+    brain.handle().setMode(GolemMode.WORK);
+    brain.start();
+
+    pulseFor(30_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:"));
+  }
+
+  @Test
   void fightingBodiesTickTheirTargetPolicyOnEveryPulseWithTheOwner() {
     Player owner = owner(at(10, 64, 0));
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);

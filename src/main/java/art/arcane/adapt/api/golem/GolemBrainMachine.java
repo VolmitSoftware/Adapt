@@ -9,18 +9,15 @@ final class GolemBrainMachine {
   static final double RESUME_DISTANCE = 2.5D;
   static final double SLOT_ARRIVE_DISTANCE = 0.75D;
   static final double SLOT_RESUME_DISTANCE = 1.5D;
-  static final double WANDER_RADIUS = 4D;
-  static final double NEAR_HOME_DISTANCE = WANDER_RADIUS + ARRIVE_DISTANCE;
-  static final long WANDER_INTERVAL_MILLIS = 6_000L;
+  static final double NEAR_HOME_DISTANCE = 5.5D;
   static final long TELEPORT_COOLDOWN_MILLIS = 2_000L;
 
   private GolemBrainState state = GolemBrainState.IDLE;
   private boolean primed;
   private boolean moving;
   private boolean leashBroken;
+  private boolean recalling;
   private long idleSince;
-  private boolean wandered;
-  private long lastWanderAt;
   private boolean teleported;
   private long lastTeleportAt;
 
@@ -31,6 +28,9 @@ final class GolemBrainMachine {
       idleSince = now;
     }
     updateLeash(senses, settings.leashRadius());
+    if (senses.mode() != GolemMode.STAY) {
+      recalling = false;
+    }
     if (senses.hasTarget() && !leashBroken) {
       return settle(now, GolemBrainState.COMBAT, Desire.STAND);
     }
@@ -62,7 +62,7 @@ final class GolemBrainMachine {
     primed = false;
     moving = false;
     leashBroken = false;
-    wandered = false;
+    recalling = false;
     teleported = false;
   }
 
@@ -100,19 +100,24 @@ final class GolemBrainMachine {
   }
 
   private Decision stay(Senses senses) {
-    return approach(senses.nowMillis(), GolemBrainState.STAY, senses.anchorDistance(), Desire.ANCHOR, GolemBrainState.STAY);
+    double distance = senses.anchorDistance();
+    if (leashBroken) {
+      recalling = true;
+    }
+    if (recalling && (Double.isNaN(distance) || distance <= ARRIVE_DISTANCE)) {
+      recalling = false;
+    }
+    return settle(senses.nowMillis(), GolemBrainState.STAY, recalling ? Desire.ANCHOR : Desire.STAND);
   }
 
   private Decision home(Senses senses) {
-    return approach(senses.nowMillis(), GolemBrainState.HOME, senses.homeDistance(), Desire.HOME, GolemBrainState.IDLE);
-  }
-
-  private Decision approach(long now, GolemBrainState next, double distance, Desire desire, GolemBrainState unreachable) {
+    long now = senses.nowMillis();
+    double distance = senses.homeDistance();
     if (Double.isNaN(distance)) {
-      return settle(now, unreachable, Desire.STAND);
+      return settle(now, GolemBrainState.IDLE, Desire.STAND);
     }
     double threshold = moving ? ARRIVE_DISTANCE : RESUME_DISTANCE;
-    return settle(now, next, distance > threshold ? desire : Desire.STAND);
+    return settle(now, GolemBrainState.HOME, distance > threshold ? Desire.HOME : Desire.STAND);
   }
 
   private Decision work(Senses senses, GolemBrainSettings settings) {
@@ -126,18 +131,10 @@ final class GolemBrainMachine {
           ? settle(now, GolemBrainState.RETURN_HOME, Desire.HOME)
           : settle(now, GolemBrainState.SEEK, Desire.STAND);
     }
-    if (distance > NEAR_HOME_DISTANCE) {
-      boolean idleTooLong = idle(state) && now - idleSince >= settings.idleReturnMillis();
-      return distance > settings.leashRadius() || idleTooLong
-          ? settle(now, GolemBrainState.RETURN_HOME, Desire.HOME)
-          : settle(now, GolemBrainState.SEEK, Desire.STAND);
-    }
-    if (!wandered || now - lastWanderAt >= WANDER_INTERVAL_MILLIS) {
-      wandered = true;
-      lastWanderAt = now;
-      return settle(now, GolemBrainState.SEEK, Desire.WANDER);
-    }
-    return settle(now, GolemBrainState.SEEK, Desire.KEEP);
+    boolean idleTooLong = distance > NEAR_HOME_DISTANCE && idle(state) && now - idleSince >= settings.idleReturnMillis();
+    return distance > settings.leashRadius() || idleTooLong
+        ? settle(now, GolemBrainState.RETURN_HOME, Desire.HOME)
+        : settle(now, GolemBrainState.SEEK, Desire.STAND);
   }
 
   private boolean teleportReady(long now) {
@@ -153,14 +150,12 @@ final class GolemBrainMachine {
       case OWNER -> move(Movement.OWNER);
       case HOME -> move(Movement.HOME);
       case ANCHOR -> move(Movement.ANCHOR);
-      case WANDER -> move(Movement.WANDER);
       case SLOT -> move(Movement.SLOT);
       case TELEPORT -> {
         moving = false;
         yield Movement.TELEPORT;
       }
       case STAND -> stand();
-      case KEEP -> Movement.NONE;
     };
     return new Decision(state, movement, leashBroken);
   }
@@ -188,7 +183,6 @@ final class GolemBrainMachine {
     OWNER,
     HOME,
     ANCHOR,
-    WANDER,
     TELEPORT,
     SLOT
   }
@@ -198,10 +192,8 @@ final class GolemBrainMachine {
     SLOT,
     HOME,
     ANCHOR,
-    WANDER,
     TELEPORT,
-    STAND,
-    KEEP
+    STAND
   }
 
   record Senses(long nowMillis, GolemMode mode, double ownerDistance, boolean ownerGrounded, double homeDistance,
