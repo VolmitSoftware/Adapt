@@ -2,13 +2,18 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 import java.util.function.IntSupplier;
 
 final class GolemPathing {
   private static final double RETARGET_DISTANCE_SQUARED = 1D;
+  private static final Map<Entity, Location> DESTINATIONS = Collections.synchronizedMap(new WeakHashMap<>());
 
   private final Mob mob;
   private final IntSupplier intervalTicks;
@@ -25,6 +30,15 @@ final class GolemPathing {
     this.reissueWhilePathing = reissueWhilePathing;
   }
 
+  static boolean leadsTo(Entity entity, Location target) {
+    Location destination = DESTINATIONS.get(entity);
+    return destination != null
+        && Objects.equals(destination.getWorld(), target.getWorld())
+        && destination.getBlockX() == target.getBlockX()
+        && destination.getBlockY() == target.getBlockY()
+        && destination.getBlockZ() == target.getBlockZ();
+  }
+
   boolean hasDestination() {
     return destination != null;
   }
@@ -38,6 +52,7 @@ final class GolemPathing {
     }
     destination = next.clone();
     retarget = true;
+    DESTINATIONS.put(mob, destination);
   }
 
   void stop() {
@@ -47,6 +62,7 @@ final class GolemPathing {
     destination = null;
     retarget = false;
     issued = false;
+    DESTINATIONS.remove(mob);
     PaperCompat.stopPathfinding(mob);
   }
 

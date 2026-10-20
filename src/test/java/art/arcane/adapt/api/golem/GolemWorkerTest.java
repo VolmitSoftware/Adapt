@@ -527,6 +527,48 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void anIdleWorkingGolemAtHomeIssuesNoMovement() {
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 120; i++) {
+      pulse(250L);
+    }
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:"));
+  }
+
+  @Test
+  void anIdleWorkingGolemWalksHomeOnceThenStandsUntilAJobAppears() {
+    collector((golem, task) -> GolemActResult.DONE);
+    collectionNode(3);
+    position.set(at(12, 64, 0));
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 32; i++) {
+      pulse(250L);
+    }
+    assertThat(brain.state()).isEqualTo(GolemBrainState.RETURN_HOME);
+    assertThat(controller.lastMove()).isEqualTo("0.5,64.0,0.5");
+
+    position.set(at(0, 64, 1));
+    pulse(250L);
+    assertThat(controller.calls).endsWith("stop");
+    controller.calls.clear();
+    for (int i = 0; i < 120; i++) {
+      pulse(250L);
+    }
+    assertThat(controller.calls).noneMatch(call -> call.startsWith("move:"));
+
+    board.offer(pickup(6, 64, 0), 16);
+    pulse(1_000L);
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+    assertThat(controller.lastMove()).isEqualTo("6.5,64.5,0.5");
+  }
+
+  @Test
   void arrivingResetsTheStuckWatchSoDriftAfterALongJobIsNotStuck() {
     collector((golem, task) -> GolemActResult.WORKING);
     collectionNode(3);

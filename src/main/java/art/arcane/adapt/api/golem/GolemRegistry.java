@@ -596,8 +596,8 @@ public final class GolemRegistry extends TickedObject {
     if (PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
       listeners.add(new PaperEntityListener(this));
     }
-    if (PaperCompat.hasClass(CopperTransportGuard.EVENT_CLASS)) {
-      listeners.add(new CopperTransportGuard());
+    if (PaperCompat.hasClass(CopperBrainGuard.EVENT_CLASS)) {
+      listeners.add(new CopperBrainGuard());
     }
     return listeners;
   }

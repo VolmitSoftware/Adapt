@@ -9,6 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Zombie;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -37,8 +38,8 @@ import static org.mockito.Mockito.when;
 
 class GoalGolemControllerTest {
   private static final List<String> KEPT = List.of(
-      "minecraft:melee_attack", "minecraft:ranged_attack", "minecraft:hurt_by", "minecraft:move_towards",
-      "minecraft:look_at_player", "minecraft:random_look_around");
+      "minecraft:melee_attack", "minecraft:ranged_attack", "minecraft:ranged_bow_attack", "minecraft:skeleton_melee", "minecraft:hurt_by",
+      "minecraft:move_towards", "minecraft:look_at_player", "minecraft:random_look_around");
 
   @Test
   void ironRemovesVillageFlowerAndNearestAttackableGoals() {
@@ -56,9 +57,23 @@ class GoalGolemControllerTest {
   }
 
   @Test
-  void copperAndBoneKeepTheirVanillaGoals() {
+  void boneRemovesItsSunFleeingWolfAvoidingAndStrollGoals() {
+    assertThat(keys(GolemBody.BONE)).containsExactly(
+        "minecraft:flee_sun",
+        "minecraft:avoid_entity",
+        "minecraft:water_avoiding_random_stroll");
+  }
+
+  @Test
+  void copperKeepsItsVanillaGoals() {
     assertThat(GoalGolemController.removedGoals(GolemBody.COPPER)).isEmpty();
-    assertThat(GoalGolemController.removedGoals(GolemBody.BONE)).isEmpty();
+  }
+
+  @Test
+  void everyGoalThatWalksABoundBodyOnItsOwnIsRemoved() {
+    assertThat(keys(GolemBody.IRON)).contains("minecraft:move_back_to_village", "minecraft:golem_random_stroll_in_village");
+    assertThat(keys(GolemBody.FROST)).contains("minecraft:water_avoiding_random_stroll");
+    assertThat(keys(GolemBody.BONE)).contains("minecraft:flee_sun", "minecraft:avoid_entity", "minecraft:water_avoiding_random_stroll");
   }
 
   @Test
@@ -79,6 +94,29 @@ class GoalGolemControllerTest {
     assertThat(priorities(GolemBody.FROST)).containsExactlyInAnyOrderEntriesOf(Map.of(
         "minecraft:nearest_attackable", 1,
         "minecraft:water_avoiding_random_stroll", 2));
+    assertThat(priorities(GolemBody.BONE)).containsExactlyInAnyOrderEntriesOf(Map.of(
+        "minecraft:flee_sun", 3,
+        "minecraft:avoid_entity", 3,
+        "minecraft:water_avoiding_random_stroll", 5));
+  }
+
+  @Test
+  void boneAttachKeepsItsSunPathingAttackAndLookGoals() {
+    Mob golem = mock(Skeleton.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaBoneGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+
+    new GoalGolemController(golem, GolemBody.BONE, goals).attach();
+
+    for (Goal<Mob> goal : vanilla) {
+      String key = goal.getKey().getNamespacedKey().getKey();
+      if (List.of("flee_sun", "avoid_entity", "water_avoiding_random_stroll").contains(key)) {
+        verify(goals).removeGoal(golem, goal);
+      } else {
+        verify(goals, never()).removeGoal(golem, goal);
+      }
+    }
   }
 
   @Test
@@ -156,6 +194,7 @@ class GoalGolemControllerTest {
     for (int seed = 0; seed < 12; seed++) {
       assertRestoredInAnyOrder(GolemBody.IRON, vanillaIronGoals(), seed);
       assertRestoredInAnyOrder(GolemBody.FROST, vanillaFrostGoals(), seed);
+      assertRestoredInAnyOrder(GolemBody.BONE, vanillaBoneGoals(), seed);
     }
   }
 
@@ -292,6 +331,21 @@ class GoalGolemControllerTest {
         vanillaGoal("water_avoiding_random_stroll", EnumSet.of(GoalType.MOVE)),
         vanillaGoal("look_at_player", EnumSet.of(GoalType.LOOK)),
         vanillaGoal("random_look_around", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
+        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)));
+  }
+
+  private static List<Goal<Mob>> vanillaBoneGoals() {
+    return List.of(
+        vanillaGoal("restrict_sun", EnumSet.noneOf(GoalType.class)),
+        vanillaGoal("flee_sun", EnumSet.of(GoalType.MOVE)),
+        vanillaGoal("avoid_entity", EnumSet.of(GoalType.MOVE)),
+        vanillaGoal("ranged_bow_attack", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
+        vanillaGoal("water_avoiding_random_stroll", EnumSet.of(GoalType.MOVE)),
+        vanillaGoal("look_at_player", EnumSet.of(GoalType.LOOK)),
+        vanillaGoal("random_look_around", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
+        vanillaGoal("hurt_by", EnumSet.of(GoalType.TARGET)),
+        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)),
+        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)),
         vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)));
   }
 

@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
@@ -336,7 +335,6 @@ public final class GolemBrain {
       case OWNER -> controller.moveTo(ownerAt, MOVE_SPEED);
       case HOME -> controller.moveTo(home, MOVE_SPEED);
       case ANCHOR -> controller.moveTo(stayAnchor, MOVE_SPEED);
-      case WANDER -> controller.moveTo(wanderPoint(home), MOVE_SPEED);
       case TELEPORT -> {
         controller.stop();
         GolemTeleport.teleport(handle, ownerAt.clone());
@@ -380,13 +378,6 @@ public final class GolemBrain {
     return handle.body() == GolemBody.COPPER
         ? Math.min(settings.brainIntervalTicks(), settings.copperRepathTicks())
         : settings.brainIntervalTicks();
-  }
-
-  private static Location wanderPoint(Location home) {
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-    double angle = random.nextDouble(Math.PI * 2D);
-    double radius = random.nextDouble(GolemBrainMachine.WANDER_RADIUS);
-    return home.clone().add(Math.cos(angle) * radius, 0D, Math.sin(angle) * radius);
   }
 
   private static double distance(Location from, Location to) {

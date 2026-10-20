@@ -1428,7 +1428,7 @@ class GolemRegistryTest extends AdaptTestBase {
   void companionsGuardBoundGolemsAndBlockCopperTransport() {
     assertThat(registry.createCompanionListeners())
         .hasAtLeastOneElementOfType(GolemGuardListener.class)
-        .hasAtLeastOneElementOfType(CopperTransportGuard.class)
+        .hasAtLeastOneElementOfType(CopperBrainGuard.class)
         .hasAtLeastOneElementOfType(GolemRegistry.PaperEntityListener.class);
   }
 
