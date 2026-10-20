@@ -50,7 +50,7 @@ class CopperGolemControllerTest {
 
   @Test
   void combatChangesLeaveACopperGolemAlone() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
     clearInvocations(golem, pathfinder);
 
     controller.setCombat(false);
