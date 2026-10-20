@@ -6,7 +6,10 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -16,12 +19,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public final class ConfiguredRecipeParser {
   private static final String RECIPE_NAMESPACE = "adapt";
   private static final String MINECRAFT_PREFIX = "minecraft:";
   private static final int MAX_GRID_SIZE = 3;
   private static final int MAX_AMOUNT = 64;
+  private static final Method PREDICATE_CHOICE = predicateChoiceFactory();
 
   private final RecipeItemCatalog catalog;
   private final ExactItemResolver exactItems;
@@ -147,8 +152,7 @@ public final class ConfiguredRecipeParser {
       return tag == null ? null : new Ingredient(new MaterialChar(symbol, tag), null);
     }
     if (ingredient.indexOf(':') >= 0 && !ingredient.startsWith(MINECRAFT_PREFIX)) {
-      ExactIngredient exact = resolveExactIngredient(subject, ingredient, problems);
-      return exact == null ? null : new Ingredient(new MaterialChar(symbol, exact.base()), exact);
+      return resolveExactIngredient(symbol, subject, ingredient, problems);
     }
 
     Material material = resolveMaterial(subject, withoutMinecraftPrefix(ingredient), problems);
@@ -201,7 +205,7 @@ public final class ConfiguredRecipeParser {
     return tag;
   }
 
-  private ExactIngredient resolveExactIngredient(String subject, String raw, List<String> problems) {
+  private Ingredient resolveExactIngredient(char symbol, String subject, String raw, List<String> problems) {
     NamespacedKey key = exactKey(subject, raw, problems);
     if (key == null) {
       return null;
@@ -210,8 +214,41 @@ public final class ConfiguredRecipeParser {
     ExactIngredient ingredient = exactItems.ingredient(key);
     if (ingredient == null) {
       problems.add(subject + " item \"" + raw + "\" is not a known item");
+      return null;
     }
-    return ingredient;
+    ItemStack example = exactItems.result(key);
+    if (example == null || example.getType().isAir()) {
+      problems.add(subject + " item \"" + raw + "\" has no recipe item");
+      return null;
+    }
+    if (example.getType() != ingredient.base()) {
+      problems.add(subject + " item \"" + raw + "\" has a recipe item with the wrong material");
+      return null;
+    }
+    ItemStack representative = example.clone();
+    representative.setAmount(1);
+    return new Ingredient(new MaterialChar(symbol, customChoice(ingredient, representative)), ingredient);
+  }
+
+  private static RecipeChoice customChoice(ExactIngredient ingredient, ItemStack example) {
+    if (PREDICATE_CHOICE == null) {
+      return new RecipeChoice.ExactChoice(example);
+    }
+    try {
+      Predicate<ItemStack> matches = item -> item != null && item.getAmount() > 0
+          && item.getType() == ingredient.base() && ingredient.matches().test(item);
+      return (RecipeChoice) PREDICATE_CHOICE.invoke(null, matches, example);
+    } catch (IllegalAccessException | InvocationTargetException failure) {
+      throw new IllegalStateException("Could not register custom recipe ingredient", failure);
+    }
+  }
+
+  private static Method predicateChoiceFactory() {
+    try {
+      return RecipeChoice.class.getMethod("predicateChoice", Predicate.class, ItemStack.class);
+    } catch (NoSuchMethodException unavailable) {
+      return null;
+    }
   }
 
   private ItemStack resolveExactResult(String raw, List<String> problems) {

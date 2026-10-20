@@ -192,6 +192,51 @@ class RunBeatsTest(unittest.TestCase):
         self.assertEqual(ctx.bridge.command.call_count, 2)
         ctx.bridge.command.assert_called_with('window', action='button', index=1, containerId=9)
 
+    def recipe_ctx(self) -> beats.BeatContext:
+        ctx: beats.BeatContext = self.make_ctx()
+        names: list[str] = ['recipeBook.toggle', 'recipeBook.all', 'recipeBook.filter', 'recipeBook.search', 'Guardian Core']
+        ctx.bridge.state.return_value.update(cursor={'x': 10, 'y': 20}, container={
+            'id': 9, 'recipeBookVisible': False, 'recipeBookFiltering': True,
+            'slots': [{'index': 0, 'name': 'Guardian Core', 'count': 1}],
+            'controls': [{'index': index, 'name': name, 'screenX': 28, 'screenY': 20} for index, name in enumerate(names)],
+        })
+        return ctx
+
+    def test_recipe_book_search_uses_visible_controls_and_waits_for_the_named_result(self) -> None:
+        ctx: beats.BeatContext = self.recipe_ctx()
+        beats.run_beats(entry_with([{'verb': 'window', 'action': 'recipe', 'name': 'Guardian Core'}]), ctx)
+        actions: list = [call for call in ctx.bridge.command.call_args_list if call.args != ('cursor',)]
+        self.assertEqual(actions, [mock.call('window', action='button', index=index, containerId=9) for index in range(4)]
+                         + [mock.call('recipe-search', text='Guardian Core', containerId=9),
+                            mock.call('window', action='button', index=4, containerId=9)])
+
+    def test_recipe_book_preserves_an_open_book_and_all_recipes_filter(self) -> None:
+        ctx: beats.BeatContext = self.recipe_ctx()
+        ctx.bridge.state.return_value['container'].update(recipeBookVisible=True, recipeBookFiltering=False)
+        beats.run_beats(entry_with([{'verb': 'window', 'action': 'recipe', 'name': 'Guardian Core'}]), ctx)
+        clicks: list[int] = [call.kwargs['index'] for call in ctx.bridge.command.call_args_list if call.args == ('window',)]
+        self.assertEqual(clicks, [1, 3, 4])
+
+    def test_recipe_book_missing_named_recipe_fails_before_crafting(self) -> None:
+        ctx: beats.BeatContext = self.recipe_ctx()
+        ctx.bridge.state.return_value['container']['controls'].pop()
+        with self.assertRaisesRegex(RuntimeError, 'Expected one visible container control named Guardian Core, found 0'):
+            beats.run_beats(entry_with([{'verb': 'window', 'action': 'recipe', 'name': 'Guardian Core'}]), ctx)
+        ctx.bridge.command.assert_called_with('recipe-search', text='Guardian Core', containerId=9)
+
+    def test_recipe_book_ghost_output_does_not_count_as_a_crafted_result(self) -> None:
+        ctx: beats.BeatContext = self.recipe_ctx()
+        ctx.bridge.state.return_value['container']['slots'][0]['count'] = 0
+        with self.assertRaisesRegex(beats.BeatTimeout, 'Recipe book did not place craftable ingredients'):
+            beats.run_beats(entry_with([{'verb': 'window', 'action': 'recipe', 'name': 'Guardian Core'}]), ctx)
+        self.assertEqual(ctx.wait_ticks.call_args_list[-20:], [mock.call(2)] * 20)
+
+    def test_recipe_book_requires_a_supported_open_container(self) -> None:
+        ctx: beats.BeatContext = self.make_ctx()
+        with self.assertRaisesRegex(RuntimeError, 'Recipe selection requires a crafting screen'):
+            beats.run_beats(entry_with([{'verb': 'window', 'action': 'recipe', 'name': 'Guardian Core'}]), ctx)
+        ctx.bridge.command.assert_not_called()
+
     def test_inventory_list_and_close_do_not_move_cursor(self) -> None:
         ctx: beats.BeatContext = self.make_ctx()
         beats.run_beats(entry_with([{'verb': 'window', 'action': 'list'}, {'verb': 'window', 'action': 'close'}]), ctx)

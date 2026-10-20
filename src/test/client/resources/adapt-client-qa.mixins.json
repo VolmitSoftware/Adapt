@@ -16,6 +16,8 @@
     "MouseHandlerMixin",
     "ScreenMixin",
     "StonecutterScreenAccessor",
+    "RecipeBookComponentAccessor",
+    "RecipeBookPageAccessor",
     "WindowMixin",
     "WindowAccessor",
     "GlfwInitMixin",

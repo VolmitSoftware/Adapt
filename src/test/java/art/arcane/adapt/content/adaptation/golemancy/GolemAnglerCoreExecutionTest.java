@@ -55,6 +55,8 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
     }
     result("core/angler");
     result("node/fishing");
+    result("blank_core");
+    result("blank_node");
     ConfiguredRecipeParser parser = new ConfiguredRecipeParser(new FakeCatalog(), new FakeResolver(), book);
     parsers = mockStatic(ConfiguredRecipeParser.class, CALLS_REAL_METHODS);
     parsers.when(() -> ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
@@ -235,7 +237,14 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
   private void result(String id) {
     ItemStack template = mock(ItemStack.class);
     ItemStack copy = mock(ItemStack.class);
+    Material material = id.equals("blank_node") ? materials.get("CLAY_BALL")
+        : id.startsWith("node/") ? Material.BRICK : materials.get("FIREWORK_STAR");
+    when(template.getType()).thenReturn(material);
+    when(copy.getType()).thenReturn(material);
+    when(template.getAmount()).thenReturn(1);
+    when(copy.getAmount()).thenReturn(1);
     when(template.clone()).thenReturn(copy);
+    when(copy.clone()).thenReturn(copy);
     results.put(new NamespacedKey("golemancy", id), template);
   }
 

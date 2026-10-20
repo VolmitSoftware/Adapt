@@ -3792,18 +3792,13 @@
       ],
       "pre": [
         "execute at {actor} run gamerule show_advancement_messages false",
-        "experience set {actor} 5 levels",
         "execute at {actor} run setblock ~ ~ ~-2 minecraft:crafting_table",
-        "item replace entity {actor} hotbar.0 with minecraft:amethyst_shard 1",
-        "item replace entity {actor} hotbar.1 with minecraft:redstone 2",
-        "item replace entity {actor} hotbar.2 with minecraft:iron_hoe 1",
-        "item replace entity {actor} hotbar.3 with minecraft:copper_ingot 1",
-        "item replace entity {actor} hotbar.4 with minecraft:amethyst_shard 4",
-        "item replace entity {actor} hotbar.5 with minecraft:redstone 4",
-        "item replace entity {actor} hotbar.6 with minecraft:ender_pearl 1",
-        "item replace entity {actor} hotbar.7 with minecraft:iron_sword 1",
-        "item replace entity {actor} hotbar.8 with minecraft:iron_ingot 2",
-        "item replace entity {actor} inventory.0 with minecraft:shield 1"
+        "item replace entity {actor} hotbar.0 with minecraft:amethyst_shard 4",
+        "item replace entity {actor} hotbar.1 with minecraft:redstone 4",
+        "item replace entity {actor} hotbar.2 with minecraft:ender_pearl 1",
+        "item replace entity {actor} hotbar.3 with minecraft:iron_sword 1",
+        "item replace entity {actor} hotbar.4 with minecraft:iron_ingot 2",
+        "item replace entity {actor} hotbar.5 with minecraft:shield 1"
       ],
       "prelude": [
         {
@@ -3826,61 +3821,12 @@
         },
         {
           "verb": "wait",
-          "ticks": 14
+          "ticks": 10
         },
         {
           "verb": "window",
-          "action": "click",
-          "slot": 37
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 2,
-          "button": 0
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 38
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 4,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 6,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 39
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 5,
-          "button": 0
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 40
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 8,
-          "button": 0
-        },
-        {
-          "verb": "wait",
-          "ticks": 6
+          "action": "recipe",
+          "name": "Blank Animus Core"
         },
         {
           "verb": "window",
@@ -3888,71 +3834,13 @@
           "slot": 0
         },
         {
-          "verb": "window",
-          "action": "shift",
-          "slot": 0
-        },
-        {
           "verb": "wait",
-          "ticks": 10
+          "ticks": 24
         },
         {
           "verb": "window",
           "action": "click",
-          "slot": 41
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 1,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 3,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 7,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 9,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 42
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 2,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 4,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 6,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 8,
-          "button": 1
+          "slot": 0
         },
         {
           "verb": "window",
@@ -3960,14 +3848,22 @@
           "slot": 43
         },
         {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
           "verb": "window",
-          "action": "click",
-          "slot": 5,
-          "button": 0
+          "action": "recipe",
+          "name": "Guardian Core"
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 5
         },
         {
           "verb": "wait",
-          "ticks": 6
+          "ticks": 24
         },
         {
           "verb": "window",
@@ -3975,13 +3871,13 @@
           "slot": 0
         },
         {
-          "verb": "window",
-          "action": "shift",
-          "slot": 0
+          "verb": "wait",
+          "ticks": 24
         },
         {
-          "verb": "wait",
-          "ticks": 10
+          "verb": "window",
+          "action": "click",
+          "slot": 0
         },
         {
           "verb": "window",
@@ -3989,83 +3885,27 @@
           "slot": 44
         },
         {
-          "verb": "window",
-          "action": "click",
-          "slot": 2
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 45
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 4,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 6,
-          "button": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 43
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 5
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 10
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 8
-        },
-        {
           "verb": "wait",
           "ticks": 6
-        },
-        {
-          "verb": "window",
-          "action": "hover",
-          "slot": 0
-        },
-        {
-          "verb": "window",
-          "action": "shift",
-          "slot": 0
-        },
-        {
-          "verb": "wait",
-          "ticks": 10
-        },
-        {
-          "verb": "wait",
-          "ticks": 30
         },
         {
           "verb": "window",
           "action": "close"
         },
         {
+          "verb": "slot",
+          "index": 7
+        },
+        {
           "verb": "wait",
-          "ticks": 20
+          "ticks": 30
         }
       ],
       "expect": {
-        "visual": "The Artificer's Crook, a Blank Animus Core and a Guardian Core come out of the crafting table with their tooltips shown."
+        "visual": "The recipe book fills the Blank Animus Core recipe, then uses that named core to fill the Guardian Core recipe. The required Blank Animus Core and crafted Guardian Core tooltips are readable."
       },
       "povCapture": true,
-      "maxTicks": 1500,
+      "maxTicks": 800,
       "camera": {
         "x": 3.0,
         "y": 1.8,
@@ -4076,17 +3916,12 @@
       "stills": [
         {
           "angle": "pov",
-          "at": 8.03,
-          "name": "crook-grid"
-        },
-        {
-          "angle": "pov",
-          "at": 18.4,
+          "at": 5.5,
           "name": "blank-core-grid"
         },
         {
           "angle": "pov",
-          "at": 27.6,
+          "at": 12.5,
           "name": "guardian-core-grid"
         }
       ]

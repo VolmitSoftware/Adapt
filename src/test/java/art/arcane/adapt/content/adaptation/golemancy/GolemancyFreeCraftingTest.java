@@ -65,7 +65,7 @@ class GolemancyFreeCraftingTest extends AdaptTestBase {
         "SHIELD", "FIREWORK_STAR", "CLAY_BALL")) {
       material(name);
     }
-    for (String id : List.of("crook", "blank_core", "core/guardian", "node/guard")) {
+    for (String id : List.of("crook", "blank_core", "blank_node", "core/guardian", "node/guard")) {
       result(id);
     }
     ConfiguredRecipeParser parser = new ConfiguredRecipeParser(new FakeCatalog(), new FakeResolver(), book);
@@ -178,6 +178,9 @@ class GolemancyFreeCraftingTest extends AdaptTestBase {
   private void result(String id) {
     ItemStack template = mock(ItemStack.class);
     ItemStack copy = mock(ItemStack.class);
+    Material material = materials.get(id.contains("node") ? "CLAY_BALL" : "FIREWORK_STAR");
+    when(template.getType()).thenReturn(material);
+    when(copy.getType()).thenReturn(material);
     when(template.clone()).thenReturn(copy);
     results.put(new NamespacedKey("golemancy", id), template);
   }

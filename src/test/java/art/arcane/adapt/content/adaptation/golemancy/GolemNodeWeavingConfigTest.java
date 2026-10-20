@@ -102,6 +102,7 @@ class GolemNodeWeavingConfigTest {
     Material clay = material("CLAY_BALL");
     ExactIngredient blankNode = new ExactIngredient(clay, item -> true);
     ingredients.put(new NamespacedKey("golemancy", "blank_node"), blankNode);
+    ItemStack blank = result("blank_node");
     ItemStack deposit = result("node/deposit");
 
     ConfiguredRecipeParser.Result parsed = parser.parse(config.depositNodeRecipe);
@@ -110,7 +111,10 @@ class GolemNodeWeavingConfigTest {
     AdaptRecipe.Shaped shaped = parsed.builder().key("test").build();
     assertThat(shaped.getShapes()).containsExactly(" X ", " B ", "   ");
     assertThat(choice(shaped, 'X')).containsExactly(chest);
-    assertThat(choice(shaped, 'B')).containsExactly(clay);
+    RecipeChoice blankChoice = shaped.getIngredients().stream().filter(ingredient -> ingredient.getCharacter() == 'B')
+        .findFirst().orElseThrow().getChoice();
+    assertThat(blankChoice).isInstanceOf(RecipeChoice.ExactChoice.class);
+    assertThat(((RecipeChoice.ExactChoice) blankChoice).getChoices()).containsExactly(blank);
     assertThat(parsed.exactIngredients()).containsExactly(blankNode);
     assertThat(shaped.getResult()).isSameAs(deposit);
     assertThat(config.depositNodeRecipe.getAmount()).isEqualTo(1);
@@ -131,6 +135,8 @@ class GolemNodeWeavingConfigTest {
   private ItemStack result(String id) {
     ItemStack template = mock(ItemStack.class);
     ItemStack copy = mock(ItemStack.class);
+    when(template.getType()).thenReturn(materials.get("CLAY_BALL"));
+    when(copy.getType()).thenReturn(materials.get("CLAY_BALL"));
     when(template.clone()).thenReturn(copy);
     results.put(new NamespacedKey("golemancy", id), template);
     return copy;

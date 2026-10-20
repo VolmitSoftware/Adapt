@@ -3,6 +3,8 @@ package art.arcane.adapt.clientqa;
 import art.arcane.adapt.clientqa.mixin.AnvilScreenAccessor;
 import art.arcane.adapt.clientqa.mixin.ContainerScreenAccessor;
 import art.arcane.adapt.clientqa.mixin.StonecutterScreenAccessor;
+import art.arcane.adapt.clientqa.mixin.RecipeBookComponentAccessor;
+import art.arcane.adapt.clientqa.mixin.RecipeBookPageAccessor;
 import art.arcane.adapt.clientqa.mixin.DefaultPlayerSkinAccessor;
 import art.arcane.adapt.clientqa.mixin.MinecraftAccessor;
 import art.arcane.adapt.clientqa.mixin.KeyMappingAccessor;
@@ -29,6 +31,8 @@ import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -36,6 +40,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.client.gui.screens.recipebook.RecipeButton;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.multiplayer.ServerData;
@@ -408,6 +414,7 @@ public final class ClientBridge {
             case "slot" -> selectSlot(client, requiredInt(input, "index"));
             case "window" -> window(client, input);
             case "anvil-name" -> anvilName(client, input.get("text").getAsString());
+            case "recipe-search" -> recipeSearch(client, input);
             case "dismiss" -> client.gui.setScreen(null);
             case "connect" -> {
                 String address = input.get("address").getAsString();
@@ -751,7 +758,7 @@ public final class ClientBridge {
                         || player.experienceLevel < index + 1 || player.experienceLevel < enchantment.costs[index])) {
                     continue;
                 }
-                controls.add(new ContainerControl(index, position.adaptLeftPos() + 114, position.adaptTopPos() + 23 + 19 * index));
+                controls.add(new ContainerControl(index, position.adaptLeftPos() + 114, position.adaptTopPos() + 23 + 19 * index, ""));
             }
         } else if (screen instanceof StonecutterScreen && menu instanceof StonecutterMenu stonecutter) {
             StonecutterScreenAccessor recipes = (StonecutterScreenAccessor) screen;
@@ -761,11 +768,75 @@ public final class ClientBridge {
                 for (int index = start; index < end; index++) {
                     int offset = index - start;
                     controls.add(new ContainerControl(index, position.adaptLeftPos() + 60 + offset % 4 * 16,
-                            position.adaptTopPos() + 23 + offset / 4 * 18));
+                            position.adaptTopPos() + 23 + offset / 4 * 18, ""));
                 }
             }
         }
+        addRecipeBookControls(screen, controls);
         return controls;
+    }
+
+    private static RecipeBookComponent<?> recipeBook(AbstractContainerScreen<?> screen) {
+        for (GuiEventListener child : screen.children()) {
+            if (child instanceof RecipeBookComponent<?> book) {
+                return book;
+            }
+        }
+        return null;
+    }
+
+    private static void addRecipeBookControls(AbstractContainerScreen<?> screen, List<ContainerControl> controls) {
+        RecipeBookComponent<?> book = recipeBook(screen);
+        if (book == null) {
+            return;
+        }
+        for (GuiEventListener child : screen.children()) {
+            if (child instanceof ImageButton button && button.visible && button.active) {
+                controls.add(widgetControl(1000, button, "recipeBook.toggle"));
+                break;
+            }
+        }
+        if (!book.isVisible()) {
+            return;
+        }
+        RecipeBookComponentAccessor access = (RecipeBookComponentAccessor) book;
+        controls.add(widgetControl(1001, access.adaptSearchBox(), "recipeBook.search"));
+        controls.add(widgetControl(1002, access.adaptFilterButton(), "recipeBook.filter"));
+        controls.add(widgetControl(1003, access.adaptTabButtons().getFirst(), "recipeBook.all"));
+        List<RecipeButton> buttons = ((RecipeBookPageAccessor) access.adaptRecipeBookPage()).adaptButtons();
+        for (int index = 0; index < buttons.size(); index++) {
+            RecipeButton button = buttons.get(index);
+            if (button.visible && button.active) {
+                controls.add(widgetControl(1100 + index, button, button.getDisplayStack().getHoverName().getString()));
+            }
+        }
+    }
+
+    private static ContainerControl widgetControl(int index, AbstractWidget widget, String name) {
+        return new ContainerControl(index, widget.getX() + widget.getWidth() / 2, widget.getY() + widget.getHeight() / 2, name);
+    }
+
+    private static void recipeSearch(Minecraft client, JsonObject input) {
+        requirePlayer(client);
+        if (!(client.gui.screen() instanceof AbstractContainerScreen<?> screen)) {
+            throw new IllegalStateException("No container screen is open");
+        }
+        checkContainer(client, input);
+        RecipeBookComponent<?> book = recipeBook(screen);
+        if (book == null || !book.isVisible()) {
+            throw new IllegalStateException("No recipe book is open");
+        }
+        String text = input.get("text").getAsString();
+        if (text.isBlank() || text.length() > 50) {
+            throw new IllegalArgumentException("Recipe search must have 1 to 50 characters");
+        }
+        RecipeBookComponentAccessor access = (RecipeBookComponentAccessor) book;
+        EditBox search = access.adaptSearchBox();
+        if (!search.isFocused()) {
+            throw new IllegalStateException("Click the recipe search field before typing");
+        }
+        search.setValue(text);
+        access.adaptCheckSearchStringUpdate();
     }
 
     private static void anvilName(Minecraft client, String text) {
@@ -1054,9 +1125,16 @@ public final class ClientBridge {
             entry.addProperty("index", control.index());
             entry.addProperty("screenX", control.screenX());
             entry.addProperty("screenY", control.screenY());
+            entry.addProperty("name", control.name());
             controls.add(entry);
         }
         container.add("controls", controls);
+        RecipeBookComponent<?> book = recipeBook(screen);
+        if (book != null) {
+            container.addProperty("recipeBookVisible", book.isVisible());
+            container.addProperty("recipeBookFiltering", book.isVisible()
+                    && ((RecipeBookComponentAccessor) book).adaptFilterButton().getValue());
+        }
         container.add("carried", itemEntry(menu.getCarried()));
         return container;
     }
@@ -1066,6 +1144,7 @@ public final class ClientBridge {
         entry.addProperty("index", index);
         entry.addProperty("item", itemId(stack));
         entry.addProperty("count", stack.getCount());
+        entry.addProperty("name", stack.getHoverName().getString());
         return entry;
     }
 
@@ -1103,7 +1182,7 @@ public final class ClientBridge {
         return response;
     }
 
-    private record ContainerControl(int index, int screenX, int screenY) {
+    private record ContainerControl(int index, int screenX, int screenY, String name) {
     }
 
     private record Request(JsonObject input, CompletableFuture<JsonObject> result) {

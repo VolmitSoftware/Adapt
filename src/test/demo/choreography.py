@@ -13,7 +13,7 @@ CLICK_KEYS: tuple[str, ...] = ('attack', 'use', 'swapHands', 'drop', 'inventory'
 MIN_LEASE_TICKS: int = 1
 MAX_LEASE_TICKS: int = 200
 HOTBAR_SLOTS: int = 9
-WINDOW_ACTIONS: tuple[str, ...] = ('list', 'click', 'shift', 'drop', 'hover', 'button', 'close')
+WINDOW_ACTIONS: tuple[str, ...] = ('list', 'click', 'shift', 'drop', 'hover', 'button', 'recipe', 'close')
 WINDOW_SLOT_ACTIONS: frozenset[str] = frozenset({'click', 'shift', 'drop', 'hover'})
 WINDOW_BUTTONS: tuple[int, ...] = (0, 1)
 MAX_ANVIL_NAME: int = 50
@@ -351,6 +351,9 @@ def window_problems(beat: dict) -> list[str]:
         return ['window action must be ' + ', '.join(WINDOW_ACTIONS[:-1]) + ' or ' + WINDOW_ACTIONS[-1] + ', not ' + str(action)]
     if action == 'button':
         return [] if integer(beat.get('index')) and beat['index'] >= 0 else ['window button needs a control index of at least 0']
+    if action == 'recipe':
+        name: object = beat.get('name')
+        return [] if isinstance(name, str) and 1 <= len(name.strip()) <= 50 else ['window recipe needs an item name of 1 to 50 characters']
     if action not in WINDOW_SLOT_ACTIONS:
         return ['window ' + action + ' takes no slot or button'] if 'slot' in beat or 'button' in beat else []
     problems: list[str] = []

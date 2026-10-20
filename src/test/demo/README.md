@@ -302,6 +302,8 @@ Slot clicks, shift-clicks, and drops move a visible cursor to the slot over 2–
 
 `window` with `action: hover` moves to `slot` without clicking and holds for 12 ticks so its tooltip can be read (allow up to 18 ticks total). `action: button` uses `index` for an available enchanting offer (0–2) or visible stonecutter recipe, moves to its button, then invokes the actual screen click (allow up to nine ticks). Bridge state lists available button centers under `container.controls`; an unavailable control fails before input.
 
+`window` with `action: recipe` and `name` selects a crafting recipe by its displayed output name. It opens the recipe book, selects all recipes, types into its search field, and clicks the matching visible recipe with the same eased pointer. Ingredients must already be in the inventory. The beat requires the named result to appear within 40 ticks and fails if the control is missing, ambiguous, or the container changes. Allow up to 50 ticks for the control interactions before the result wait.
+
 The `slot` of a `window` beat is the open menu's slot number, not the inventory index. The menu of a block lists the block's own slots first, then the 27 inventory slots, then the 9 hotbar slots:
 
 | Screen | Slots |

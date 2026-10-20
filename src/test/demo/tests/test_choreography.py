@@ -566,7 +566,13 @@ class ChoreographyTest(unittest.TestCase):
         for beat in ({'verb': 'window', 'action': 'open'}, {'verb': 'window'}):
             with tempfile.TemporaryDirectory() as tmp:
                 problems: list[str] = beat_problems(tmp, beat)
-                self.assertEqual(problems, ['x-one: beat 0 window action must be list, click, shift, drop, hover, button or close, not ' + str(beat.get('action'))])
+                self.assertEqual(problems, ['x-one: beat 0 window action must be list, click, shift, drop, hover, button, recipe or close, not ' + str(beat.get('action'))])
+
+    def test_recipe_book_requires_a_bounded_item_name(self) -> None:
+        for name in (None, '', '   ', 1, 'x' * 51):
+            self.assertEqual(choreography.window_problems({'action': 'recipe', 'name': name}),
+                             ['window recipe needs an item name of 1 to 50 characters'])
+        self.assertEqual(choreography.window_problems({'action': 'recipe', 'name': 'Blank Animus Core'}), [])
 
     def test_window_click_shift_and_drop_need_a_slot_index(self) -> None:
         for action in ('click', 'shift', 'drop'):

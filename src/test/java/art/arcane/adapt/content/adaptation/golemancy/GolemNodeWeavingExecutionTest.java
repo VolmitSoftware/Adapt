@@ -408,7 +408,13 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
   private void result(String id) {
     ItemStack template = mock(ItemStack.class);
     ItemStack copy = mock(ItemStack.class);
+    Material material = id.equals("blank_node") ? materials.get("CLAY_BALL") : Material.BRICK;
+    when(template.getType()).thenReturn(material);
+    when(copy.getType()).thenReturn(material);
+    when(template.getAmount()).thenReturn(1);
+    when(copy.getAmount()).thenReturn(1);
     when(template.clone()).thenReturn(copy);
+    when(copy.clone()).thenReturn(copy);
     results.put(new NamespacedKey("golemancy", id), template);
   }
 

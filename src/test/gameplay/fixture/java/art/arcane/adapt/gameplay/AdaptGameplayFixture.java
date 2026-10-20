@@ -114,7 +114,9 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             return true;
         }
         try {
-            if (args.length >= 3 && args[0].equals("golem-controls")) {
+            if (args.length >= 3 && args[0].equals("custom-recipes")) {
+                sendJson(sender, "CUSTOM_RECIPES " + args[2], CustomRecipeFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("golem-controls")) {
                 sendJson(sender, "GOLEM_CONTROLS " + args[2], GolemControlsFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("golem-lifecycle")) {
                 sendJson(sender, "GOLEM_LIFECYCLE " + args[2], GolemLifecycleFixtures.execute(ordinaryPlayer(args[1]), args));

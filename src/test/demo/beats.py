@@ -134,6 +134,9 @@ def press_keys(bridge: BridgeClient, hold: list[str], off: list[str], ticks: int
 def window(beat: dict, bridge: BridgeClient, wait_ticks: Callable[[int], None]) -> None:
     values: dict[str, int] = {name: int(beat[name]) for name in ('slot', 'button', 'index') if name in beat}
     action: str = str(beat['action'])
+    if action == 'recipe':
+        recipe(str(beat['name']), bridge, wait_ticks)
+        return
     if action in choreography.WINDOW_SLOT_ACTIONS:
         values['containerId'] = move_to_slot(bridge, values['slot'], wait_ticks)
         if action == 'hover':
@@ -146,6 +149,40 @@ def window(beat: dict, bridge: BridgeClient, wait_ticks: Callable[[int], None]) 
     bridge.command('window', action=action, **values)
     if action in choreography.WINDOW_SLOT_ACTIONS or action == 'button':
         wait_ticks(2)
+
+
+def recipe(name: str, bridge: BridgeClient, wait_ticks: Callable[[int], None]) -> None:
+    container: dict | None = bridge.state().get('container')
+    if container is None or 'recipeBookVisible' not in container:
+        raise RuntimeError('Recipe selection requires a crafting screen with a recipe book')
+    if not container['recipeBookVisible']:
+        named_control('recipeBook.toggle', bridge, wait_ticks)
+    named_control('recipeBook.all', bridge, wait_ticks)
+    if bridge.state()['container']['recipeBookFiltering']:
+        named_control('recipeBook.filter', bridge, wait_ticks)
+    named_control('recipeBook.search', bridge, wait_ticks)
+    container_id: int = int(bridge.state()['container']['id'])
+    bridge.command('recipe-search', text=name, containerId=container_id)
+    wait_ticks(4)
+    named_control(name, bridge, wait_ticks)
+    for attempt in range(21):
+        current: dict | None = bridge.state().get('container')
+        if current is None or int(current['id']) != container_id:
+            raise RuntimeError('Container changed while placing recipe ' + name)
+        result: dict | None = next((slot for slot in current.get('slots', []) if slot['index'] == 0), None)
+        if result is not None and result.get('name') == name and result.get('count', 0) > 0:
+            return
+        if attempt < 20:
+            wait_ticks(2)
+    raise BeatTimeout('Recipe book did not place craftable ingredients for ' + name)
+
+
+def named_control(name: str, bridge: BridgeClient, wait_ticks: Callable[[int], None]) -> None:
+    container: dict | None = bridge.state().get('container')
+    controls: list[dict] = [] if container is None else [control for control in container.get('controls', []) if control.get('name') == name]
+    if len(controls) != 1:
+        raise RuntimeError('Expected one visible container control named ' + name + ', found ' + str(len(controls)))
+    window({'action': 'button', 'index': int(controls[0]['index'])}, bridge, wait_ticks)
 
 
 def move_to_slot(bridge: BridgeClient, index: int, wait_ticks: Callable[[int], None], targets: str = 'slots') -> int:

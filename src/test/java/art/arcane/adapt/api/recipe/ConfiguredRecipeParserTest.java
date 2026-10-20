@@ -98,7 +98,7 @@ class ConfiguredRecipeParserTest {
   }
 
   @Test
-  void namespacedIngredientsBecomeBaseMaterialChoicesAndExactResultsClone() {
+  void namespacedIngredientsKeepTheirCustomStacksAndExactResultsClone() {
     Material star = material("FIREWORK_STAR");
     ExactIngredient blankCore = exactIngredient(new NamespacedKey("golemancy", "blank_core"), star);
     ItemStack crook = exactResult(new NamespacedKey("golemancy", "crook"), "IRON_HOE");
@@ -115,7 +115,11 @@ class ConfiguredRecipeParserTest {
 
     assertThat(result.problems()).isEmpty();
     AdaptRecipe.Shaped shaped = result.builder().key("test").build();
-    assertThat(materialChoices(shaped, 'C')).containsExactly(star);
+    assertThat(choice(shaped, 'C')).isInstanceOf(RecipeChoice.ExactChoice.class);
+    ItemStack representative = ((RecipeChoice.ExactChoice) choice(shaped, 'C')).getChoices().getFirst();
+    assertThat(representative).isSameAs(exactResults.get(new NamespacedKey("golemancy", "blank_core")).clone());
+    assertThat(representative.getType()).isSameAs(star);
+    assertThat(representative.getAmount()).isEqualTo(1);
     assertThat(result.exactIngredients()).containsExactly(blankCore, blankCore);
     assertThat(shaped.getResult()).isSameAs(crookCopy);
     assertThat(shaped.getResult().getAmount()).isEqualTo(2);
@@ -127,6 +131,7 @@ class ConfiguredRecipeParserTest {
     Material star = material("FIREWORK_STAR");
     ItemStack blank = mock(ItemStack.class);
     exactIngredients.put(new NamespacedKey("golemancy", "blank_core"), new ExactIngredient(star, item -> item == blank));
+    exactResult(new NamespacedKey("golemancy", "blank_core"), "FIREWORK_STAR");
     ItemStack guardianCore = exactResult(new NamespacedKey("golemancy", "core/guardian"), "FIREWORK_STAR");
     ItemStack guardianCopy = countedItem();
     when(guardianCore.clone()).thenReturn(guardianCopy);
@@ -321,6 +326,33 @@ class ConfiguredRecipeParserTest {
   }
 
   @Test
+  void customIngredientsRequireAnItemRepresentation() {
+    NamespacedKey key = new NamespacedKey("golemancy", "blank_core");
+    exactIngredient(key, material("FIREWORK_STAR"));
+    exactResults.remove(key);
+    material("STONE");
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe().rows("C").key('C', key.toString()).result("STONE", 1);
+
+    ConfiguredRecipeParser.Result parsed = parser.parse(spec);
+
+    assertThat(parsed.builder()).isNull();
+    assertThat(parsed.problems()).containsExactly("key 'C' item \"golemancy:blank_core\" has no recipe item");
+  }
+
+  @Test
+  void customIngredientRepresentationsMustUseTheirRequiredMaterial() {
+    NamespacedKey key = new NamespacedKey("golemancy", "blank_core");
+    exactIngredient(key, material("FIREWORK_STAR"));
+    exactResult(key, "STONE");
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe().rows("C").key('C', key.toString()).result("STONE", 1);
+
+    ConfiguredRecipeParser.Result parsed = parser.parse(spec);
+
+    assertThat(parsed.builder()).isNull();
+    assertThat(parsed.problems()).containsExactly("key 'C' item \"golemancy:blank_core\" has a recipe item with the wrong material");
+  }
+
+  @Test
   void rejectsAmountsOutsideOneToSixtyFour() {
     material("STONE");
 
@@ -412,6 +444,7 @@ class ConfiguredRecipeParserTest {
   private ExactIngredient exactIngredient(NamespacedKey key, Material base) {
     ExactIngredient ingredient = new ExactIngredient(base, item -> false);
     exactIngredients.put(key, ingredient);
+    exactResult(key, base.name());
     return ingredient;
   }
 
@@ -419,6 +452,9 @@ class ConfiguredRecipeParserTest {
     Material material = materials.containsKey(materialName) ? materials.get(materialName) : material(materialName);
     ItemStack item = mock(ItemStack.class);
     when(item.getType()).thenReturn(material);
+    ItemStack copy = countedItem();
+    when(copy.getType()).thenReturn(material);
+    when(item.clone()).thenReturn(copy);
     exactResults.put(key, item);
     return item;
   }
