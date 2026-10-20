@@ -57,8 +57,9 @@ class GoalGolemControllerTest {
   }
 
   @Test
-  void boneRemovesItsSunFleeingWolfAvoidingAndStrollGoals() {
+  void boneRemovesItsSunWolfAvoidingAndStrollGoals() {
     assertThat(keys(GolemBody.BONE)).containsExactly(
+        "minecraft:restrict_sun",
         "minecraft:flee_sun",
         "minecraft:avoid_entity",
         "minecraft:water_avoiding_random_stroll");
@@ -73,7 +74,7 @@ class GoalGolemControllerTest {
   void everyGoalThatWalksABoundBodyOnItsOwnIsRemoved() {
     assertThat(keys(GolemBody.IRON)).contains("minecraft:move_back_to_village", "minecraft:golem_random_stroll_in_village");
     assertThat(keys(GolemBody.FROST)).contains("minecraft:water_avoiding_random_stroll");
-    assertThat(keys(GolemBody.BONE)).contains("minecraft:flee_sun", "minecraft:avoid_entity", "minecraft:water_avoiding_random_stroll");
+    assertThat(keys(GolemBody.BONE)).contains("minecraft:restrict_sun", "minecraft:flee_sun", "minecraft:avoid_entity", "minecraft:water_avoiding_random_stroll");
   }
 
   @Test
@@ -95,13 +96,14 @@ class GoalGolemControllerTest {
         "minecraft:nearest_attackable", 1,
         "minecraft:water_avoiding_random_stroll", 2));
     assertThat(priorities(GolemBody.BONE)).containsExactlyInAnyOrderEntriesOf(Map.of(
+        "minecraft:restrict_sun", 2,
         "minecraft:flee_sun", 3,
         "minecraft:avoid_entity", 3,
         "minecraft:water_avoiding_random_stroll", 5));
   }
 
   @Test
-  void boneAttachKeepsItsSunPathingAttackAndLookGoals() {
+  void boneAttachKeepsItsAttackAndLookGoals() {
     Mob golem = mock(Skeleton.class);
     MobGoals goals = mock(MobGoals.class);
     List<Goal<Mob>> vanilla = vanillaBoneGoals();
@@ -111,7 +113,7 @@ class GoalGolemControllerTest {
 
     for (Goal<Mob> goal : vanilla) {
       String key = goal.getKey().getNamespacedKey().getKey();
-      if (List.of("flee_sun", "avoid_entity", "water_avoiding_random_stroll").contains(key)) {
+      if (List.of("restrict_sun", "flee_sun", "avoid_entity", "water_avoiding_random_stroll").contains(key)) {
         verify(goals).removeGoal(golem, goal);
       } else {
         verify(goals, never()).removeGoal(golem, goal);

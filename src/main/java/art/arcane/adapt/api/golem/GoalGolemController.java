@@ -27,6 +27,7 @@ final class GoalGolemController implements GolemController {
       VanillaGoal.of("nearest_attackable", 1),
       VanillaGoal.of("water_avoiding_random_stroll", 2));
   private static final List<VanillaGoal> BONE_GOALS = List.of(
+      VanillaGoal.of("restrict_sun", 2),
       VanillaGoal.of("flee_sun", 3),
       VanillaGoal.of("avoid_entity", 3),
       VanillaGoal.of("water_avoiding_random_stroll", 5));
