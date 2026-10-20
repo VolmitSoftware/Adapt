@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ final class FakePlinthPlatform implements PlinthPlatform {
   final List<Integer> entityDelays = new ArrayList<>();
   final List<Runnable> asyncTasks = new ArrayList<>();
   final List<String> events;
+  final List<Told> told = new ArrayList<>();
   final List<ItemDisplay> displays = new ArrayList<>();
   final Map<Player, ItemStack> held = new HashMap<>();
   final Set<ItemStack> crooks = new HashSet<>();
@@ -188,6 +190,21 @@ final class FakePlinthPlatform implements PlinthPlatform {
   @Override
   public void tell(Player player, boolean warning, TextKey key, MessageArgument... arguments) {
     events.add((warning ? "warn " : "notify ") + key.id());
+    Map<String, Object> values = new LinkedHashMap<>();
+    for (MessageArgument argument : arguments) {
+      values.put(argument.name(), argument.value());
+    }
+    told.add(new Told(warning, key, values, arguments));
+  }
+
+  @Override
+  public void denied(Player player) {
+    events.add("denied");
+  }
+
+  @Override
+  public String resultName(Infusion infusion) {
+    return "Result " + infusion.id();
   }
 
   @Override
@@ -227,5 +244,8 @@ final class FakePlinthPlatform implements PlinthPlatform {
         task.run();
       }
     }
+  }
+
+  record Told(boolean warning, TextKey key, Map<String, Object> values, MessageArgument[] arguments) {
   }
 }

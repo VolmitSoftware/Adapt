@@ -52,6 +52,10 @@ interface PlinthPlatform {
 
   void tell(Player player, boolean warning, TextKey key, MessageArgument... arguments);
 
+  void denied(Player player);
+
+  String resultName(Infusion infusion);
+
   void effect(PlinthEffect effect, Location at, double progress);
 
   void stream(Location from, Location to);

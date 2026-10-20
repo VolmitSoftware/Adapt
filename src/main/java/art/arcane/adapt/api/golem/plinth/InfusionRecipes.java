@@ -26,7 +26,6 @@ public final class InfusionRecipes {
   public static final int MAX_DURATION_TICKS = 6000;
   public static final InfusionRecipes EMPTY = new InfusionRecipes(List.of());
   private static final String MASTERWORK_HEART = "masterwork_heart";
-  private static final String RUNE_PREFIX = "rune/";
   private static final Set<Material> AIR = EnumSet.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR);
 
   private final List<Infusion> infusions;
@@ -71,6 +70,18 @@ public final class InfusionRecipes {
       }
     }
     return Optional.empty();
+  }
+
+  public Optional<LevelSpan> levelSpan(Predicate<Infusion> filter) {
+    int lowest = Integer.MAX_VALUE;
+    int highest = Integer.MIN_VALUE;
+    for (Infusion infusion : infusions) {
+      if (filter.test(infusion)) {
+        lowest = Math.min(lowest, infusion.essenceLevels());
+        highest = Math.max(highest, infusion.essenceLevels());
+      }
+    }
+    return lowest > highest ? Optional.empty() : Optional.of(new LevelSpan(lowest, highest));
   }
 
   private static Infusion parse(String id, InfusionRecipe spec, Resolver resolver, List<String> problems) {
@@ -168,7 +179,7 @@ public final class InfusionRecipes {
       if (id.getKey().equals(MASTERWORK_HEART)) {
         return GolemItems::masterworkHeart;
       }
-      if (id.getKey().startsWith(RUNE_PREFIX) && GolemItems.ingredient(id) != null) {
+      if (id.getKey().startsWith(Infusion.RUNE_PREFIX) && GolemItems.ingredient(id) != null) {
         return () -> GolemItems.resolve(id);
       }
       return null;

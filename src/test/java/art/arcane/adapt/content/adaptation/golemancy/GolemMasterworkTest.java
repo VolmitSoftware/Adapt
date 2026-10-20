@@ -33,6 +33,7 @@ import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,6 +66,7 @@ class GolemMasterworkTest extends AdaptTestBase {
     lenient().when(plugin.namespace()).thenReturn("adapt");
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.empty());
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.none());
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
       invocation.<Runnable>getArgument(1).run();
@@ -156,6 +158,30 @@ class GolemMasterworkTest extends AdaptTestBase {
     assertThat(lore(2)).containsExactly("+ 1" + cap, slots, health, dual);
     assertThat(lore(3)).containsExactly("+ 2" + cap, slots, health, dual, "+ Masterwork Runes Act One Tier Higher",
         "+ 25% Bonus to Tier 3 Runes on a Masterwork");
+  }
+
+  @Test
+  void everyLevelListsTheLevelsToInfuseAMasterworkHeart() {
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.defaults());
+    String heart = "- 15 Levels to Infuse a Masterwork Heart";
+
+    assertThat(lore(1)).endsWith(heart);
+    assertThat(lore(2)).endsWith(heart);
+    assertThat(lore(3)).endsWith(heart);
+  }
+
+  @Test
+  void theHeartCostFollowsTheConfiguredInfusion() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    specs.get("masterwork_heart").essence(9);
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(1)).endsWith("- 9 Levels to Infuse a Masterwork Heart");
+
+    specs.get("masterwork_heart").enabled(false);
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(1)).noneMatch(line -> line.contains("Masterwork Heart"));
   }
 
   @Test

@@ -9,6 +9,8 @@ import java.util.function.Supplier;
 
 public record Infusion(String id, NamespacedKey result, Supplier<ItemStack> resultItem, InfusionIngredient center,
                        List<InfusionIngredient> pedestals, int essenceLevels, int durationTicks, String unlockAdaptation, int unlockLevel) {
+  static final String RUNE_PREFIX = "rune/";
+
   public Infusion {
     Objects.requireNonNull(id);
     Objects.requireNonNull(result);
@@ -16,5 +18,15 @@ public record Infusion(String id, NamespacedKey result, Supplier<ItemStack> resu
     Objects.requireNonNull(center);
     pedestals = List.copyOf(pedestals);
     Objects.requireNonNull(unlockAdaptation);
+  }
+
+  public int runeTier() {
+    String key = result.getKey();
+    int slash = key.lastIndexOf('/');
+    if (!key.startsWith(RUNE_PREFIX) || slash != key.length() - 2) {
+      return 0;
+    }
+    int tier = key.charAt(slash + 1) - '0';
+    return tier >= 1 && tier <= 9 ? tier : 0;
   }
 }

@@ -100,6 +100,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     parsers.when(() -> ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(() -> GolemancyRuntime.handle(any())).thenReturn(Optional.empty());
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.none());
     statSources = GolemRegistrations.stats();
     carrySources = GolemRegistrations.carry();
     workSpeedSources = GolemRegistrations.workSpeed();
@@ -193,6 +194,44 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(lore(2)).containsExactly("+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
     assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
     assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+  }
+
+  @Test
+  void everyLevelListsTheLevelsToInfuseEachTierItUnlocks() {
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.defaults());
+    String slots = "+ Animus Plinth and Blank Rune Recipe";
+    String one = "- 2 Levels to Infuse a Tier 1 Rune";
+    String two = "- 5 Levels to Infuse a Tier 2 Rune";
+    String three = "- 10 Levels to Infuse a Tier 3 Rune";
+
+    assertThat(lore(1)).containsExactly("+ 1 Highest Usable Rune Tier", slots, one);
+    assertThat(lore(2)).containsExactly("+ 1 Highest Usable Rune Tier", slots, one);
+    assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", slots, one, two);
+    assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", slots, one, two, three);
+  }
+
+  @Test
+  void aTierWhoseAspectsCostDifferentLevelsShowsTheRangeAndFollowsTheConfiguredCosts() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    specs.get("might_1").essence(4);
+    specs.get("tide_3").essence(0);
+    specs.get("ember_2").unlock(InfusionRecipe.RUNIC_AUGMENTS, 4);
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(1)).contains("- 2-4 Levels to Infuse a Tier 1 Rune");
+    assertThat(lore(3)).contains("- 5 Levels to Infuse a Tier 2 Rune");
+    assertThat(lore(4)).contains("- 5 Levels to Infuse a Tier 2 Rune");
+    assertThat(lore(5)).contains("- 0-10 Levels to Infuse a Tier 3 Rune");
+  }
+
+  @Test
+  void aTierWithNoEnabledInfusionListsNoCost() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    specs.entrySet().removeIf(entry -> entry.getKey().endsWith("_3"));
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(5)).noneMatch(line -> line.contains("Tier 3 Rune"));
+    assertThat(lore(5)).contains("- 5 Levels to Infuse a Tier 2 Rune");
   }
 
   @Test

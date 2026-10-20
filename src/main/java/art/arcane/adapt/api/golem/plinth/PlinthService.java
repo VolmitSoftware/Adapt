@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.volmlib.util.localization.MessageArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -49,6 +50,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public final class PlinthService extends TickedObject {
   public static final String LOADING_ADAPTATION = InfusionRecipe.RUNIC_AUGMENTS;
   public static final int LOADING_LEVEL = 1;
+  static final long PREVIEW_THROTTLE_MILLIS = 1_000L;
   private static final int SAVE_ATTEMPTS = 20;
   private static final int SAVE_RETRY_TICKS = 2;
   private static final int REVALIDATE_DELAY_TICKS = 1;
@@ -71,6 +73,7 @@ public final class PlinthService extends TickedObject {
   private final PlinthRenderer renderer;
   private final Map<PlinthSpot, InfusionRitual> ritualsByCenter = new ConcurrentHashMap<>();
   private final Map<UUID, InfusionRitual> ritualsByPlayer = new ConcurrentHashMap<>();
+  private final Map<UUID, Preview> previewsByViewer = new ConcurrentHashMap<>();
 
   PlinthService(PlinthPlatform platform, Supplier<PlinthSettings> settings, Supplier<PlinthHost> host) {
     super("golemancy", "golem-plinths");
@@ -105,6 +108,7 @@ public final class PlinthService extends TickedObject {
         forget(ritual);
       }
     }
+    previewsByViewer.clear();
     renderer.shutdown();
   }
 
@@ -140,7 +144,7 @@ public final class PlinthService extends TickedObject {
     }
     e.setCancelled(true);
     if (e.getHand() == EquipmentSlot.HAND) {
-      load(player, world, target.get().spot(), held, activeHost);
+      load(player, world, target.get(), held, activeHost);
     }
   }
 
@@ -181,6 +185,7 @@ public final class PlinthService extends TickedObject {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
+    previewsByViewer.remove(e.getPlayer().getUniqueId());
     InfusionRitual ritual = ritualsByPlayer.get(e.getPlayer().getUniqueId());
     if (ritual != null) {
       onPlinthThread(ritual, () -> abort(ritual, false));
@@ -224,7 +229,8 @@ public final class PlinthService extends TickedObject {
     }
   }
 
-  private void load(Player player, World world, PlinthSpot spot, ItemStack held, PlinthHost activeHost) {
+  private void load(Player player, World world, PlinthStructure.PlinthTarget target, ItemStack held, PlinthHost activeHost) {
+    PlinthSpot spot = target.spot();
     Location at = spot.center(world);
     if (!index.isReady(spot.world(), spot.chunkKey()) || !platform.owns(at)) {
       platform.tell(player, true, GolemancyMessages.PLINTH_LOADING);
@@ -237,7 +243,7 @@ public final class PlinthService extends TickedObject {
     PlinthSlotItem current = platform.read(world, spot);
     if (held == null || held.getType() == Material.AIR) {
       if (current != null) {
-        retrieve(player, world, spot, current);
+        retrieve(player, world, target, current, activeHost);
       }
       return;
     }
@@ -253,14 +259,17 @@ public final class PlinthService extends TickedObject {
     renderer.spawn(world, spot, single);
     abortCovering(spot);
     platform.effect(PlinthEffect.LOADED, at, 0D);
+    previewCost(player, world, target.center(), activeHost);
   }
 
-  private void retrieve(Player player, World world, PlinthSpot spot, PlinthSlotItem stored) {
+  private void retrieve(Player player, World world, PlinthStructure.PlinthTarget target, PlinthSlotItem stored, PlinthHost activeHost) {
+    PlinthSpot spot = target.spot();
     if (!release(world, spot, stored)) {
       return;
     }
     Location at = spot.center(world);
     platform.effect(PlinthEffect.RETRIEVED, at, 0D);
+    previewCost(player, world, target.center(), activeHost);
     if (!stored.readable()) {
       return;
     }
@@ -295,6 +304,7 @@ public final class PlinthService extends TickedObject {
     ritualsByCenter.put(center, ritual);
     ritualsByPlayer.put(player.getUniqueId(), ritual);
     platform.effect(PlinthEffect.STARTED, center.center(world), 0D);
+    showCost(player, center, assessment);
     schedulePulse(world, ritual);
   }
 
@@ -527,20 +537,47 @@ public final class PlinthService extends TickedObject {
   private Assessment assess(Player player, World world, PlinthSpot center, Map<PlinthSlot, PlinthSlotItem> slots, PlinthHost activeHost, PlinthSettings current) {
     Optional<Infusion> match = current.recipes().match(readable(slots.get(PlinthSlot.CENTER)), pedestalItems(slots));
     if (match.isEmpty()) {
-      return new Assessment(Verdict.NO_RECIPE, null, 0);
+      return new Assessment(Verdict.NO_RECIPE, null, 0, 0);
     }
     Infusion infusion = match.get();
     int levels = InfusionRitual.levelCost(infusion, player.getGameMode() == GameMode.CREATIVE);
+    int have = player.getLevel();
     if (activeHost.level(player, infusion.unlockAdaptation()) < infusion.unlockLevel()) {
-      return new Assessment(Verdict.LOCKED, infusion, levels);
+      return new Assessment(Verdict.LOCKED, infusion, levels, have);
     }
     if (!activeHost.canInfuse(player, infusion.unlockAdaptation(), center.center(world))) {
-      return new Assessment(Verdict.PROTECTED, infusion, levels);
+      return new Assessment(Verdict.PROTECTED, infusion, levels, have);
     }
-    if (player.getLevel() < levels) {
-      return new Assessment(Verdict.NOT_ENOUGH_LEVELS, infusion, levels);
+    if (have < levels) {
+      return new Assessment(Verdict.NOT_ENOUGH_LEVELS, infusion, levels, have);
     }
-    return new Assessment(Verdict.READY, infusion, levels);
+    return new Assessment(Verdict.READY, infusion, levels, have);
+  }
+
+  private void previewCost(Player player, World world, PlinthSpot center, PlinthHost activeHost) {
+    showCost(player, center, assess(player, world, center, snapshot(center), activeHost, settings.get()));
+  }
+
+  private void showCost(Player player, PlinthSpot center, Assessment assessment) {
+    if (assessment.verdict() != Verdict.READY && assessment.verdict() != Verdict.NOT_ENOUGH_LEVELS) {
+      return;
+    }
+    Infusion infusion = assessment.infusion();
+    long now = platform.nowMillis();
+    Preview preview = new Preview(center, infusion.id(), assessment.levels(), assessment.have(), now);
+    Preview last = previewsByViewer.get(player.getUniqueId());
+    if (last != null && last.sameCost(preview) && now - last.shownAt() < PREVIEW_THROTTLE_MILLIS) {
+      return;
+    }
+    previewsByViewer.put(player.getUniqueId(), preview);
+    MessageArgument result = trusted("result", platform.resultName(infusion));
+    if (assessment.levels() <= 0) {
+      platform.tell(player, false, GolemancyMessages.PLINTH_PREVIEW_FREE, result);
+    } else if (assessment.verdict() == Verdict.READY) {
+      platform.tell(player, false, GolemancyMessages.PLINTH_PREVIEW, result, trusted("levels", assessment.levels()));
+    } else {
+      platform.tell(player, true, GolemancyMessages.PLINTH_PREVIEW_SHORT, result, trusted("levels", assessment.levels()), trusted("have", assessment.have()));
+    }
   }
 
   private void deny(Player player, Assessment assessment) {
@@ -550,7 +587,10 @@ public final class PlinthService extends TickedObject {
       case NO_RECIPE -> platform.tell(player, true, GolemancyMessages.PLINTH_NO_RECIPE);
       case LOCKED -> platform.tell(player, true, GolemancyMessages.PLINTH_LOCKED);
       case PROTECTED -> platform.tell(player, true, GolemancyMessages.PLINTH_PROTECTED);
-      case NOT_ENOUGH_LEVELS -> platform.tell(player, true, GolemancyMessages.PLINTH_LEVELS, trusted("levels", assessment.levels()));
+      case NOT_ENOUGH_LEVELS -> {
+        platform.tell(player, true, GolemancyMessages.PLINTH_LEVELS, trusted("levels", assessment.levels()), trusted("have", assessment.have()));
+        platform.denied(player);
+      }
     }
   }
 
@@ -785,9 +825,15 @@ public final class PlinthService extends TickedObject {
     NOT_ENOUGH_LEVELS
   }
 
-  private record Assessment(Verdict verdict, Infusion infusion, int levels) {
+  private record Assessment(Verdict verdict, Infusion infusion, int levels, int have) {
     private Assessment withVerdict(Verdict next) {
-      return new Assessment(next, infusion, levels);
+      return new Assessment(next, infusion, levels, have);
+    }
+  }
+
+  private record Preview(PlinthSpot center, String infusion, int levels, int have, long shownAt) {
+    private boolean sameCost(Preview other) {
+      return center.equals(other.center) && infusion.equals(other.infusion) && levels == other.levels && have == other.have;
     }
   }
 

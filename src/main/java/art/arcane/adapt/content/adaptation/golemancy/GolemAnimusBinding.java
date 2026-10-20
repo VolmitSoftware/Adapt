@@ -95,6 +95,8 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final int TICKS_PER_SECOND = 20;
   private static final int SOUND_INTERVAL_TICKS = 10;
+  private static final float DENY_VOLUME = 0.7F;
+  private static final float DENY_PITCH = 1F;
   private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.STATUS_LABELS);
 
   private final Map<UUID, BindingRitual> ritualsByGolem = new ConcurrentHashMap<>();
@@ -485,13 +487,14 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     GolemCoreType core = target.core();
     int cap = golemCap(config, level, GolemancyRuntime.settings().hardCapPerPlayer());
     int tithe = owner.getGameMode() == GameMode.CREATIVE ? 0 : tithe(config, target.body(), level);
+    int have = owner.getLevel();
     boolean exclusive = builderExclusive(golem, owner.getUniqueId(), System.currentTimeMillis());
     boolean coreUnlocked = core == GolemCoreType.BLANK || getActiveSiblingLevel(owner, "golem-" + core.id() + "-core") >= 1;
     Location at = golem.getLocation();
     BindingCheck check = new BindingCheck(registry.bindBlock(owner, golem, target.body(), core).orElse(null),
         servantOwned(owner, golem, target.body()), playerCreated(golem), config.allowBindingVillageGolems, exclusive,
-        bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, at) && canBlockPlace(owner, at), ownedGolems(owner), cap, owner.getLevel(), tithe);
-    return new Assessment(AnimusBindingRules.verdict(check), cap, tithe);
+        bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, at) && canBlockPlace(owner, at), ownedGolems(owner), cap, have, tithe);
+    return new Assessment(AnimusBindingRules.verdict(check), cap, tithe, have);
   }
 
   private int ownedGolems(Player owner) {
@@ -528,7 +531,10 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       case GOLEM_CAP -> warn(owner, GolemancyMessages.BINDING_GOLEM_CAP, trusted("count", assessment.golemCap()));
       case CHUNK_CAP -> warn(owner, GolemancyMessages.BINDING_CHUNK_CAP,
           trusted("count", GolemancyRuntime.settings().maxBoundGolemsPerChunk()));
-      case NOT_ENOUGH_LEVELS -> warn(owner, GolemancyMessages.BINDING_LEVELS, trusted("levels", assessment.tithe()));
+      case NOT_ENOUGH_LEVELS -> {
+        warn(owner, GolemancyMessages.BINDING_LEVELS, trusted("levels", assessment.tithe()), trusted("have", assessment.have()));
+        denySound(owner);
+      }
     }
   }
 
@@ -602,9 +608,13 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     J.runEntity(player, () -> AdaptHud.actionBar(player, C.RED + AdaptLanguage.text(key, arguments)));
   }
 
-  private record Assessment(BindingVerdict verdict, int golemCap, int tithe) {
+  private static void denySound(Player player) {
+    J.runEntity(player, () -> player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, DENY_VOLUME, DENY_PITCH));
+  }
+
+  private record Assessment(BindingVerdict verdict, int golemCap, int tithe, int have) {
     private Assessment withVerdict(BindingVerdict next) {
-      return new Assessment(next, golemCap, tithe);
+      return new Assessment(next, golemCap, tithe, have);
     }
   }
 

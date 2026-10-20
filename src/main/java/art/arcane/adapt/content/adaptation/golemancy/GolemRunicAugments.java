@@ -37,11 +37,14 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -69,6 +72,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
   static final String SOURCE = "runic_augments";
   static final String BLANK_RUNE_RECIPE = "golemancy-blank-rune";
   private static final int RECIPE_LEVEL = 1;
+  private static final int INFUSION_COST_LORE_BASE = 3;
   private static final int TICKS_PER_SECOND = 20;
   private static final double MIN_WORK_INTERVAL = 0.05D;
 
@@ -113,6 +117,13 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     }
     statLore(v, RunicAugmentsRules.maxTier(config.maxTierByLevel, level), 2);
     unlockLore(v, GolemancyMessages.RUNIC_AUGMENTS_LORE3);
+    InfusionRecipes infusions = GolemancyRuntime.plinthSettings().recipes();
+    for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+      int infusedTier = tier;
+      infusions.levelSpan(infusion -> InfusionRecipe.RUNIC_AUGMENTS.equals(infusion.unlockAdaptation()) && infusion.runeTier() == infusedTier
+              && infusion.unlockLevel() <= level)
+          .ifPresent(span -> statLore(v, C.RED, "- ", span.label(), INFUSION_COST_LORE_BASE + infusedTier));
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
