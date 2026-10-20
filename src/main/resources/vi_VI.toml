@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "Liệt kê các golem của một người chơi"
 release_one_of_a_player_s_golems = "Giải phóng một golem của người chơi"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golem, hoặc đủ số ký tự đầu để khớp với một golem duy nhất"
 wake_a_player_s_loaded_golems = "Đánh thức các golem đã tải của một người chơi"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Tặng vật phẩm Thuật Golem để thử nghiệm ở chế độ gỡ lỗi. Golem Ngủ Đông và Lõi Vỡ Nát gắn với chủ sở hữu nên bị loại trừ."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "ID vật phẩm, như crook, core/guardian, node/deposit, rune/might/2 hoặc masterwork_heart, hoặc all để nhận mỗi loại một cái"
+amount_from_1_to_64_defaults_to_1 = "Số lượng từ 1 đến 64, mặc định là 1"
 
 [command.runtime]
 missing_permission = "Bạn không có quyền '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "Đã giải phóng golem {id} khỏi danh sách của {player}
 golem_release_failed = "Không thể giải phóng golem {id} của {player}. Hãy thử lại."
 golem_release_active_unloaded = "Golem {id} của {player} đang hoạt động trong một chunk chưa tải. Hãy tải chunk của nó để giải phóng, hoặc giải phóng khi nó được đánh dấu là mất tích."
 golems_woken = "Đang đánh thức các golem đã tải của {player}: {count}."
+golem_give_debug_required = "Tặng vật phẩm Thuật Golem cần chế độ gỡ lỗi của Adapt. Bật bằng /adapt debug mode."
+golem_give_unknown_item = "{item} không phải ID vật phẩm Thuật Golem. Dùng Tab tại item= để xem danh sách."
+golem_given = "Đã tặng {amount} x {item} cho {player}."
+golem_given_all = "Đã tặng {player} mỗi vật phẩm Thuật Golem một cái, rune ở mọi cấp: {count} vật phẩm."
+golem_give_dropped = "Vật phẩm không vừa đã được thả dưới chân {player}: {count}."
 
 [language.menu]
 your_language = "Ngôn ngữ của bạn"

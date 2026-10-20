@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "De golems van een speler weergeven"
 release_one_of_a_player_s_golems = "Een van de golems van een speler vrijlaten"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID, of genoeg van de eerste tekens om één golem aan te wijzen"
 wake_a_player_s_loaded_golems = "De geladen golems van een speler wekken"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Geef Golemantie-voorwerpen voor tests in debugmodus. Sluimerende golems en verbrijzelde kernen zijn aan hun eigenaar gebonden en uitgesloten."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "Voorwerp-id, zoals crook, core/guardian, node/deposit, rune/might/2 of masterwork_heart, of all voor één van elk"
+amount_from_1_to_64_defaults_to_1 = "Aantal van 1 tot 64, standaard 1"
 
 [command.runtime]
 missing_permission = "Je hebt geen toestemming. '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "Golem {id} is vrijgelaten uit de lijst van {player}."
 golem_release_failed = "Golem {id} van {player} kon niet worden vrijgelaten. Probeer het opnieuw."
 golem_release_active_unloaded = "Golem {id} van {player} is actief in een niet-geladen chunk. Laad zijn chunk om hem vrij te laten, of laat hem vrij zodra hij als vermist staat."
 golems_woken = "De geladen golems van {player} worden gewekt: {count}."
+golem_give_debug_required = "Voor het geven van Golemantie-voorwerpen is de debugmodus van Adapt nodig. Zet hem aan met /adapt debug mode."
+golem_give_unknown_item = "{item} is geen id van een Golemantie-voorwerp. Vul item= aan met Tab om ze te tonen."
+golem_given = "{amount} x {item} gegeven aan {player}."
+golem_given_all = "{player} kreeg van elk Golemantie-voorwerp één, runen in elk niveau: {count} voorwerpen."
+golem_give_dropped = "Voorwerpen die niet pasten, zijn voor de voeten van {player} neergelegd: {count}."
 
 [language.menu]
 your_language = "Jouw taal"

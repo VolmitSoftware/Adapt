@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "Listaa pelaajan golemit"
 release_one_of_a_player_s_golems = "Vapauta yksi pelaajan golemeista"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golemin tunnus tai niin monta sen alkumerkkiä, että vain yksi golemi täsmää"
 wake_a_player_s_loaded_golems = "Herätä pelaajan ladatut golemit"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Anna Golemantia-esineitä testaukseen virheenkorjaustilassa. Uinuvat golemit ja särkyneet ytimet ovat omistajaan sidottuja ja jätetään pois."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "Esineen tunnus, esimerkiksi crook, core/guardian, node/deposit, rune/might/2 tai masterwork_heart, tai all yhtä jokaista varten"
+amount_from_1_to_64_defaults_to_1 = "Määrä väliltä 1–64, oletus 1"
 
 [command.runtime]
 missing_permission = "Sinulla ei ole lupaa. '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "Golemi {id} vapautettiin pelaajan {player} luettelosta."
 golem_release_failed = "Golemia {id} pelaajalta {player} ei voitu vapauttaa. Yritä uudelleen."
 golem_release_active_unloaded = "Golemi {id} pelaajalta {player} on aktiivinen lataamattomassa lohkossa. Lataa sen lohko vapauttaaksesi sen, tai vapauta se, kun se näkyy kadonneena."
 golems_woken = "Herätetään pelaajan {player} ladatut golemit: {count}."
+golem_give_debug_required = "Golemantia-esineiden antaminen vaatii Adapt-virheenkorjaustilan. Ota se käyttöön komennolla /adapt debug mode."
+golem_give_unknown_item = "{item} ei ole Golemantia-esineen tunnus. Tab-täydennä item= nähdäksesi ne."
+golem_given = "Annettiin {amount} x {item} pelaajalle {player}."
+golem_given_all = "Annettiin pelaajalle {player} yksi jokaista Golemantia-esinettä, riimuja kaikilla tasoilla: {count} esinettä."
+golem_give_dropped = "Esineet, jotka eivät mahtuneet, pudotettiin pelaajan {player} jalkojen juureen: {count}."
 
 [language.menu]
 your_language = "Oma kielesi"

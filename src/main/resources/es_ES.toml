@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "Listar los gólems de un jugador"
 release_one_of_a_player_s_golems = "Liberar uno de los gólems de un jugador"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID del gólem, o suficientes de sus primeros caracteres para coincidir con un solo gólem"
 wake_a_player_s_loaded_golems = "Despertar los gólems cargados de un jugador"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Dar objetos de Golemancia para pruebas en modo de depuración. Los gólems latentes y los núcleos destrozados están ligados a su dueño y quedan excluidos."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "ID del objeto, como crook, core/guardian, node/deposit, rune/might/2 o masterwork_heart, o all para uno de cada"
+amount_from_1_to_64_defaults_to_1 = "Cantidad de 1 a 64, por defecto 1"
 
 [command.runtime]
 missing_permission = "No tienes el permiso '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "Gólem {id} liberado de la lista de {player}."
 golem_release_failed = "No se pudo liberar el gólem {id} de {player}. Inténtalo de nuevo."
 golem_release_active_unloaded = "El gólem {id} de {player} está activo en un chunk sin cargar. Carga su chunk para liberarlo, o libéralo cuando aparezca como desaparecido."
 golems_woken = "Despertando los gólems cargados de {player}: {count}."
+golem_give_debug_required = "Dar objetos de Golemancia requiere el modo de depuración de Adapt. Actívalo con /adapt debug mode."
+golem_give_unknown_item = "{item} no es un ID de objeto de Golemancia. Usa el autocompletado de item= para verlos."
+golem_given = "Se dieron {amount} x {item} a {player}."
+golem_given_all = "Se dio a {player} uno de cada objeto de Golemancia, con runas de todos los niveles: {count} objetos."
+golem_give_dropped = "Los objetos que no cabían se soltaron a los pies de {player}: {count}."
 
 [language.menu]
 your_language = "Tu idioma"

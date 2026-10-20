@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "Die Golems eines Spielers auflisten"
 release_one_of_a_player_s_golems = "Einen Golem eines Spielers freilassen"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID oder so viele ihrer ersten Zeichen, dass genau ein Golem passt"
 wake_a_player_s_loaded_golems = "Die geladenen Golems eines Spielers aufwecken"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Golemantie-Gegenstände zum Testen im Debug-Modus ausgeben. Ruhende Golems und Zersplitterte Kerne sind an ihren Besitzer gebunden und ausgenommen."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "Gegenstands-ID, etwa crook, core/guardian, node/deposit, rune/might/2 oder masterwork_heart, oder all für je einen"
+amount_from_1_to_64_defaults_to_1 = "Menge von 1 bis 64, Standard 1"
 
 [command.runtime]
 missing_permission = "Sie haben keine Genehmigung für {permission}."
@@ -6798,6 +6801,11 @@ golem_released = "Golem {id} wurde aus der Liste von {player} freigelassen."
 golem_release_failed = "Golem {id} von {player} konnte nicht freigelassen werden. Versuche es erneut."
 golem_release_active_unloaded = "Golem {id} von {player} ist aktiv, aber nicht geladen. Lade seinen Chunk, um ihn freizulassen, oder lass ihn frei, sobald er als vermisst gilt."
 golems_woken = "Die geladenen Golems von {player} werden aufgeweckt: {count}."
+golem_give_debug_required = "Für Golemantie-Gegenstände ist der Adapt-Debug-Modus nötig. Schalte ihn mit /adapt debug mode ein."
+golem_give_unknown_item = "{item} ist keine Golemantie-Gegenstands-ID. Mit Tab bei item= werden alle aufgelistet."
+golem_given = "{amount} x {item} an {player} gegeben."
+golem_given_all = "{player} hat je einen Golemantie-Gegenstand erhalten, Runen in jeder Stufe: {count} Gegenstände."
+golem_give_dropped = "Nicht passende Gegenstände wurden zu {player}s Füßen fallen gelassen: {count}."
 
 [language.menu]
 your_language = "Ihre Sprache"

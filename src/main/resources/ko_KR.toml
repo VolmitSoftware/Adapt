@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "플레이어의 골렘 목록 보기"
 release_one_of_a_player_s_golems = "플레이어의 골렘 하나 해방하기"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "골렘 ID, 또는 골렘 하나와 일치할 만큼의 앞부분 글자"
 wake_a_player_s_loaded_golems = "플레이어의 로드된 골렘 깨우기"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "디버그 모드에서 테스트용 골렘술 아이템을 지급합니다. 휴면 골렘과 부서진 핵은 소유자에게 묶여 있어 제외됩니다."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "아이템 ID. 예: crook, core/guardian, node/deposit, rune/might/2, masterwork_heart. all은 종류별 하나씩"
+amount_from_1_to_64_defaults_to_1 = "1~64 사이의 수량, 기본값 1"
 
 [command.runtime]
 missing_permission = "'{permission}' 권한이 없습니다."
@@ -6798,6 +6801,11 @@ golem_released = "골렘 {id}을(를) {player}님의 명단에서 해방했습�
 golem_release_failed = "골렘 {id}의 해방에 실패했습니다. 소유자: {player}. 다시 시도하세요."
 golem_release_active_unloaded = "골렘 {id}(소유자 {player})은(는) 로드되지 않은 청크에서 활동 중입니다. 청크를 로드한 뒤 해방하거나, 실종 상태가 된 뒤 해방하세요."
 golems_woken = "{player}님의 로드된 골렘을 깨우는 중입니다: {count}개."
+golem_give_debug_required = "골렘술 아이템을 지급하려면 Adapt 디버그 모드가 필요합니다. /adapt debug mode 로 켜세요."
+golem_give_unknown_item = "{item}은(는) 골렘술 아이템 ID가 아닙니다. item= 에서 Tab 자동 완성으로 목록을 확인하세요."
+golem_given = "{player}님에게 {item} {amount}개를 지급했습니다."
+golem_given_all = "{player}님에게 모든 골렘술 아이템을 하나씩 지급했습니다(룬은 모든 단계): {count}개."
+golem_give_dropped = "들어가지 않은 아이템은 {player}님의 발치에 떨어뜨렸습니다: {count}개."
 
 [language.menu]
 your_language = "내 언어"

@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "Bir oyuncunun golemlerini listele"
 release_one_of_a_player_s_golems = "Bir oyuncunun golemlerinden birini serbest bırak"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem kimliği veya tek bir golemle eşleşecek kadar ilk karakterleri"
 wake_a_player_s_loaded_golems = "Bir oyuncunun yüklü golemlerini uyandır"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "Hata ayıklama modunda test için Golemcilik eşyaları verir. Uykudaki Golem ve Parçalanmış Çekirdek sahibine bağlıdır ve hariç tutulur."
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "Eşya kimliği; örneğin crook, core/guardian, node/deposit, rune/might/2 veya masterwork_heart, ya da her birinden bir tane için all"
+amount_from_1_to_64_defaults_to_1 = "1 ile 64 arası miktar, varsayılan 1"
 
 [command.runtime]
 missing_permission = "İzinden yoksunsunuz '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "Golem {id}, {player} oyuncusunun listesinden serbest bırakıl
 golem_release_failed = "Golem {id} ({player}) serbest bırakılamadı. Tekrar dene."
 golem_release_active_unloaded = "Golem {id} ({player}) yüklenmemiş bir chunk içinde etkin. Serbest bırakmak için chunk'ını yükle veya kayıp olarak görününce serbest bırak."
 golems_woken = "{player} oyuncusunun {count} yüklü golemi uyandırılıyor."
+golem_give_debug_required = "Golemcilik eşyaları vermek için Adapt hata ayıklama modu gerekir. /adapt debug mode ile açın."
+golem_give_unknown_item = "{item} bir Golemcilik eşya kimliği değil. Listelemek için item= üzerinde Tab ile tamamlayın."
+golem_given = "{player} oyuncusuna {amount} x {item} verildi."
+golem_given_all = "{player} oyuncusuna her Golemcilik eşyasından bir tane verildi, her kademeden rünler: {count} eşya."
+golem_give_dropped = "Sığmayan eşyalar {player} oyuncusunun ayaklarının dibine bırakıldı: {count}."
 
 [language.menu]
 your_language = "Diliniz"

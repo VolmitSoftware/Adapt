@@ -6706,6 +6706,9 @@ list_a_player_s_golems = "プレイヤーのゴーレムを一覧表示する"
 release_one_of_a_player_s_golems = "プレイヤーのゴーレムを1体解放する"
 golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ゴーレムのID、または1体だけに一致するだけの先頭の文字"
 wake_a_player_s_loaded_golems = "プレイヤーの読み込まれたゴーレムを起こす"
+give_golemancy_items_for_testing_in_debug_mode_dormant_golems_and_shattered_cores_are_owner_bound_and_excluded = "デバッグモードでテスト用のゴーレム術アイテムを渡します。休眠ゴーレムと砕けたコアは所有者に紐づくため対象外です。"
+item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_heart_or_all_for_one_of_each = "アイテムID。例：crook、core/guardian、node/deposit、rune/might/2、masterwork_heart。all で各1個"
+amount_from_1_to_64_defaults_to_1 = "1～64の数量、デフォルトは1"
 
 [command.runtime]
 missing_permission = "あなたは許可を欠く '{permission}'."
@@ -6798,6 +6801,11 @@ golem_released = "ゴーレム{id}を{player}の名簿から解放しました�
 golem_release_failed = "ゴーレム{id}（{player}）を解放できませんでした。もう一度お試しください。"
 golem_release_active_unloaded = "ゴーレム{id}（{player}）は読み込まれていないチャンクで稼働中です。チャンクを読み込んでから解放するか、行方不明になってから解放してください。"
 golems_woken = "{player}の読み込まれたゴーレムを起こしています：{count}体。"
+golem_give_debug_required = "ゴーレム術アイテムを渡すにはAdaptのデバッグモードが必要です。/adapt debug mode で有効にしてください。"
+golem_give_unknown_item = "{item}はゴーレム術アイテムのIDではありません。item= をTabで補完すると一覧が表示されます。"
+golem_given = "{player}に{item}を{amount}個渡しました。"
+golem_given_all = "{player}に全種類のゴーレム術アイテムを1個ずつ渡しました（ルーンは全ティア）：{count}個。"
+golem_give_dropped = "入りきらなかったアイテムは{player}の足元に落としました：{count}個。"
 
 [language.menu]
 your_language = "あなたの言語"
