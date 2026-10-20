@@ -86,6 +86,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   private static final double RISE_FROM_SCALE = 0.1D;
   private static final long MILLIS_PER_SECOND = 1_000L;
   private static final int TICKS_PER_SECOND = 20;
+  private static final int MAX_RECALL_COOLDOWN_SECONDS = 60;
   private static final int CHANNEL_SOUND_INTERVAL_TICKS = 10;
 
   private final Map<UUID, PackChannel> channelsByGolem = new ConcurrentHashMap<>();
@@ -168,7 +169,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     loadedConfig.channelAbortDistance = GolemancyRules.nonNegative(loadedConfig.channelAbortDistance);
     loadedConfig.packedHealAmount = GolemancyRules.nonNegative(loadedConfig.packedHealAmount);
     loadedConfig.packedHealIntervalSeconds = Math.max(1, loadedConfig.packedHealIntervalSeconds);
-    loadedConfig.recallCooldownSeconds = Math.max(0, loadedConfig.recallCooldownSeconds);
+    loadedConfig.recallCooldownSeconds = Math.clamp(loadedConfig.recallCooldownSeconds, 0, MAX_RECALL_COOLDOWN_SECONDS);
     loadedConfig.awakenRiseTicks = Math.max(0, loadedConfig.awakenRiseTicks);
   }
 
@@ -688,8 +689,8 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     int packedHealIntervalSeconds = 10;
     @ConfigDoc(value = "Stasis level at which Pocket Roster lets you recall a loaded golem in your world from the Roster GUI.", impact = "Lower values unlock Pocket Roster sooner.")
     int recallLevel = 3;
-    @ConfigDoc(value = "Seconds after a Pocket Roster recall before you can recall another golem. Values below 0 load as 0.", impact = "Lower values let you recall golems more often.")
-    int recallCooldownSeconds = 120;
+    @ConfigDoc(value = "Seconds after a Pocket Roster recall before you can recall another golem. Values load clamped to 0 through 60.", impact = "Lower values let you recall golems more often.")
+    int recallCooldownSeconds = 60;
     @ConfigDoc(value = "Ticks an awakened golem takes to rise from a tenth of a block to its bound size. 0 skips the rise.", impact = "Higher values make the rise slower.")
     int awakenRiseTicks = 20;
 

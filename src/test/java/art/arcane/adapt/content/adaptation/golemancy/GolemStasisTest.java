@@ -171,7 +171,7 @@ class GolemStasisTest extends AdaptTestBase {
     assertThat(config.packedHealAmount).isEqualTo(1D);
     assertThat(config.packedHealIntervalSeconds).isEqualTo(10);
     assertThat(config.recallLevel).isEqualTo(3);
-    assertThat(config.recallCooldownSeconds).isEqualTo(120);
+    assertThat(config.recallCooldownSeconds).isEqualTo(60);
     assertThat(config.awakenRiseTicks).isEqualTo(20);
     assertThat(config.requires).containsExactly("golem-animus-binding:2");
     assertThat(config.maxLevel).isEqualTo(3);
@@ -212,12 +212,19 @@ class GolemStasisTest extends AdaptTestBase {
   }
 
   @Test
+  void loadingCapsTheRecallCooldownAtSixtySeconds() {
+    assertThat(adaptation.reloadConfigSnapshot("recallCooldownSeconds = 500\n", dataFolder.toPath().resolve("cap.toml").toFile(), false)).isTrue();
+
+    assertThat(adaptation.getConfig().recallCooldownSeconds).isEqualTo(60);
+  }
+
+  @Test
   void everyLevelShowsItsPackingHealingAndRecall() {
     String awaken = "+ Place a Dormant Golem to Awaken It";
     assertThat(lore(1)).containsExactly("* 2 Seconds to Pack a Golem", awaken);
     assertThat(lore(2)).containsExactly("+ Instant Packing", awaken, "+ 1 Health Healed While Packed", "* 10 Seconds Between Packed Heals");
     assertThat(lore(3)).containsExactly("+ Instant Packing", awaken, "+ 1 Health Healed While Packed", "* 10 Seconds Between Packed Heals",
-        "+ Pocket Roster: Recall Golems from the Roster", "* 120 Seconds Between Recalls");
+        "+ Pocket Roster: Recall Golems from the Roster", "* 60 Seconds Between Recalls");
   }
 
   @Test
