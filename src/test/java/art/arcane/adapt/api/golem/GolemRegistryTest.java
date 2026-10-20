@@ -17,6 +17,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.IronGolem;
@@ -194,6 +195,24 @@ class GolemRegistryTest extends AdaptTestBase {
     settings.set(GolemSettings.defaults());
     registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     assertThat(registry.bindBlock(owner, golem, GolemBody.IRON, GolemCoreType.BLANK)).contains(GolemRegistry.BindBlock.ALREADY_BOUND);
+  }
+
+  @Test
+  void aCopperGolemTakesTheBreakerCoreAtBind() {
+    CopperGolem golem = GolemTestEntities.entity(CopperGolem.class);
+    Location location = at(0, 64, 0);
+    lenient().when(golem.getLocation()).thenAnswer(invocation -> location.clone());
+    lenient().when(golem.getWorld()).thenReturn(world);
+    lenient().when(golem.isValid()).thenReturn(true);
+    track(golem, location);
+    platform.online.add(OWNER);
+    onlineOwner();
+
+    assertThat(registry.bindBlock(owner, golem, GolemBody.COPPER, GolemCoreType.BREAKER)).isEmpty();
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.COPPER, GolemCoreType.BREAKER);
+
+    assertThat(handle.body()).isEqualTo(GolemBody.COPPER);
+    assertThat(handle.core()).isEqualTo(GolemCoreType.BREAKER);
   }
 
   @Test

@@ -32,7 +32,7 @@ class GolemBrainTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000d1");
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000d2");
 
-  private final AtomicReference<GolemBrainSettings> settings = new AtomicReference<>(GolemBrainSettings.defaults());
+  private final AtomicReference<GolemBrainSettings> settings = new AtomicReference<>(new GolemBrainSettings(5, 32D, 32D, 8, 10));
   private final RecordingController controller = new RecordingController();
   private final ScriptedPolicy policy = new ScriptedPolicy();
   private FakeGolemPlatform platform;

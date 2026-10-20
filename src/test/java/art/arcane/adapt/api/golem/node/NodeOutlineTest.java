@@ -108,6 +108,32 @@ class NodeOutlineTest {
   }
 
   @Test
+  void aRadiusThirtyTwoAreaStillTracesTwelveEdgesOfSixtyFiveBlocks() {
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+
+    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, record);
+
+    assertThat(edges).hasSize(12);
+    Set<Vector> corners = new HashSet<>();
+    for (NodeOutline.Edge edge : edges) {
+      corners.add(edge.start());
+      corners.add(edge.end());
+      assertThat(edge.end().clone().subtract(edge.start()).length()).isEqualTo(65D);
+    }
+    assertThat(corners).hasSize(8).contains(new Vector(-32, 33, -32), new Vector(33, 98, 33));
+  }
+
+  @Test
+  void lookingAtARadiusThirtyTwoNodeDrawsTheSameTwelveLines() {
+    index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    lookAt(0, 64, 0, BlockFace.UP);
+
+    outline.update(viewer, index, 10);
+
+    verifyLines(12);
+  }
+
+  @Test
   void lookingAtYourOwnNodeDrawsItsOutlineForYouAlone() {
     index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).channel(DyeColor.LIME).build());
     lookAt(0, 64, 0, BlockFace.UP);

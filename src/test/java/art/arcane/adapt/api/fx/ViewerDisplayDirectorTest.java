@@ -65,6 +65,14 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
   }
 
   @Test
+  void aSixtyFiveBlockEdgeKeepsItsExactLength() {
+    Transformation transformation = ViewerDisplayDirector.lineTransformation(new Vector(65D, 0D, 0D), 0.04D);
+
+    assertThat(ViewerDisplayDirector.isRenderableLine(new Vector(65D, 0D, 0D))).isTrue();
+    assertThat(transformation.getScale().z).isEqualTo(65F);
+  }
+
+  @Test
   void lineTransformationRemainsFiniteWithSanitizedThickness() {
     double thickness = ViewerDisplayDirector.sanitizeLineThickness(Double.NaN);
     Transformation transformation = ViewerDisplayDirector.lineTransformation(new Vector(0D, 0D, 5D), thickness);

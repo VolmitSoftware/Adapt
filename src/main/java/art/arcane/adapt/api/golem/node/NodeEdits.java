@@ -6,6 +6,9 @@ import org.bukkit.Material;
 import java.util.Optional;
 
 public final class NodeEdits {
+  public static final int STEP = 1;
+  public static final int SHIFT_STEP = 4;
+
   private static final DyeColor[] COLORS = DyeColor.values();
   private static final RedstoneMode[] REDSTONE_MODES = RedstoneMode.values();
 

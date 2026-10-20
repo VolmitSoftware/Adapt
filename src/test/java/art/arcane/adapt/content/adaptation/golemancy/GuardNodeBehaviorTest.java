@@ -190,9 +190,9 @@ class GuardNodeBehaviorTest {
   void aTideRuneWidensTheGuardNodeSearchAroundHome() {
     World world = mock(World.class);
     when(world.getUID()).thenReturn(WORLD);
-    NodeKey near = new NodeKey(WORLD, 20, 64, 0, BlockFace.UP);
-    NodeKey tideOnly = new NodeKey(WORLD, 28, 64, 0, BlockFace.UP);
-    NodeKey beyond = new NodeKey(WORLD, 36, 64, 0, BlockFace.UP);
+    NodeKey near = new NodeKey(WORLD, 28, 64, 0, BlockFace.UP);
+    NodeKey tideOnly = new NodeKey(WORLD, 36, 64, 0, BlockFace.UP);
+    NodeKey beyond = new NodeKey(WORLD, 44, 64, 0, BlockFace.UP);
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
     nodes.put(near, guard(OWNER).build());
     nodes.put(tideOnly, guard(OWNER).build());

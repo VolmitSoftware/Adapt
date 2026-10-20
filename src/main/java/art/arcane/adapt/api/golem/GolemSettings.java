@@ -30,7 +30,7 @@ public record GolemSettings(
       Map.of(
           GolemBody.FROST, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.HARVESTER),
           GolemBody.COPPER, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GATHERER, GolemCoreType.HARVESTER, GolemCoreType.LUMBER,
-              GolemCoreType.RANCHER, GolemCoreType.SORTER, GolemCoreType.ANGLER),
+              GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.SORTER, GolemCoreType.ANGLER),
           GolemBody.IRON, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.LUMBER,
               GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.ANGLER)),
       0.5D,

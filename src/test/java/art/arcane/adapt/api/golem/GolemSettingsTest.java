@@ -25,7 +25,7 @@ class GolemSettingsTest {
         GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.HARVESTER);
     assertThat(settings.allowedCores(GolemBody.COPPER)).containsExactlyInAnyOrder(
         GolemCoreType.BLANK, GolemCoreType.GATHERER, GolemCoreType.HARVESTER, GolemCoreType.LUMBER,
-        GolemCoreType.RANCHER, GolemCoreType.SORTER, GolemCoreType.ANGLER);
+        GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.SORTER, GolemCoreType.ANGLER);
     assertThat(settings.allowedCores(GolemBody.IRON)).containsExactlyInAnyOrder(
         GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.LUMBER,
         GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.ANGLER);
@@ -41,7 +41,7 @@ class GolemSettingsTest {
     GolemSettings settings = GolemSettings.defaults();
 
     assertThat(settings.allows(GolemBody.IRON, GolemCoreType.BREAKER)).isTrue();
-    assertThat(settings.allows(GolemBody.COPPER, GolemCoreType.BREAKER)).isFalse();
+    assertThat(settings.allows(GolemBody.COPPER, GolemCoreType.BREAKER)).isTrue();
     assertThat(settings.allows(GolemBody.FROST, GolemCoreType.SORTER)).isFalse();
     assertThat(settings.allows(GolemBody.COPPER, GolemCoreType.GUARDIAN)).isFalse();
   }

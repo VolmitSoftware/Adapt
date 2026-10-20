@@ -1383,14 +1383,14 @@ class GolemWorkerTest extends AdaptTestBase {
     coreSeeker(golem -> {
       Location home = golem.home();
       seen.add(home.getBlockX() + "," + home.getBlockY() + "," + home.getBlockZ() + " r" + golem.workRadius());
-      seen.add(golem.inWorkRadius(at(23, 64, 0)) + "," + golem.inWorkRadius(at(25, 64, 0)));
-      return Optional.of(gather(25));
+      seen.add(golem.inWorkRadius(at(31, 64, 0)) + "," + golem.inWorkRadius(at(33, 64, 0)));
+      return Optional.of(gather(33));
     }, (golem, task) -> GolemActResult.DONE);
     brain.start();
 
     platform.runDelayed();
 
-    assertThat(seen).containsExactly("0,64,0 r24.0", "true,false");
+    assertThat(seen).containsExactly("0,64,0 r32.0", "true,false");
     assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
   }
 
@@ -1498,21 +1498,49 @@ class GolemWorkerTest extends AdaptTestBase {
     List<String> seen = new ArrayList<>();
     coreSeeker(golem -> {
       seen.add("r" + golem.workRadius());
-      seen.add(golem.inWorkRadius(at(31, 64, 0)) + "," + golem.inWorkRadius(at(33, 64, 0)));
+      seen.add(golem.inWorkRadius(at(39, 64, 0)) + "," + golem.inWorkRadius(at(41, 64, 0)));
       return Optional.empty();
     }, (golem, task) -> GolemActResult.DONE);
     brain.start();
 
     platform.runDelayed();
 
-    assertThat(seen).containsExactly("r32.0", "true,false");
+    assertThat(seen).containsExactly("r40.0", "true,false");
+  }
+
+  @Test
+  void aGolemClaimsTasksOutToTheEdgeOfARadiusThirtyTwoNodeArea() {
+    collector((golem, task) -> GolemActResult.DONE);
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    GolemTask edge = pickup(31, 64, 0);
+    board.offer(edge, 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(edge.heldBy(brain.handle().id(), platform.now)).isTrue();
+  }
+
+  @Test
+  void aTideGolemWorkingOutAtTheEdgeOfARadiusThirtyTwoAreaIsNotLeashedHome() {
+    runes(new GolemRuneEffects(12D, 0, 1D, 0D));
+    collector((golem, task) -> GolemActResult.DONE);
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    GolemTask edge = pickup(43, 64, 0);
+    board.offer(edge, 16);
+    position.set(at(40, 64, 0));
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(edge.heldBy(brain.handle().id(), platform.now)).isTrue();
   }
 
   @Test
   void aTideRuneLetsTheGolemClaimBoardTasksFartherFromHome() {
     collector((golem, task) -> GolemActResult.DONE);
     collectionNode(3);
-    GolemTask far = pickup(28, 64, 0);
+    GolemTask far = pickup(36, 64, 0);
     board.offer(far, 16);
     brain.start();
 

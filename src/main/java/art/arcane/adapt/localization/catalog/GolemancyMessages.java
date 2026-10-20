@@ -513,6 +513,7 @@ public final class GolemancyMessages {
   public static final TextKey NODE_GUI_AREA = TextKey.of("golemancy.node_gui.area", "{axis} Radius: {radius}");
   public static final TextKey NODE_GUI_AREA_LORE = TextKey.of("golemancy.node_gui.area_lore", "Left-click to grow, right-click to shrink");
   public static final TextKey NODE_GUI_AREA_CAP = TextKey.of("golemancy.node_gui.area_cap", "Largest radius: {radius}");
+  public static final TextKey NODE_GUI_AREA_SHIFT = TextKey.of("golemancy.node_gui.area_shift", "Shift-click to change by {step}");
   public static final TextKey NODE_GUI_PRIORITY = TextKey.of("golemancy.node_gui.priority", "Priority: {priority}");
   public static final TextKey NODE_GUI_REDSTONE = TextKey.of("golemancy.node_gui.redstone", "Redstone: {mode}");
   public static final TextKey NODE_GUI_REDSTONE_IGNORE = TextKey.of("golemancy.node_gui.redstone_ignore", "Ignored");
@@ -1055,6 +1056,7 @@ public final class GolemancyMessages {
     builder.add(NODE_GUI_AREA);
     builder.add(NODE_GUI_AREA_LORE);
     builder.add(NODE_GUI_AREA_CAP);
+    builder.add(NODE_GUI_AREA_SHIFT);
     builder.add(NODE_GUI_PRIORITY);
     builder.add(NODE_GUI_REDSTONE);
     builder.add(NODE_GUI_REDSTONE_IGNORE);
