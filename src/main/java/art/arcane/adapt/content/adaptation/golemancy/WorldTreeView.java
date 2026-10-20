@@ -49,11 +49,6 @@ final class WorldTreeView implements TreeView {
   }
 
   @Override
-  public boolean persistent(int x, int y, int z) {
-    return world.getBlockAt(x, y, z).getBlockData() instanceof Leaves leaves && leaves.isPersistent();
-  }
-
-  @Override
   public boolean decaying(int x, int y, int z) {
     return world.getBlockAt(x, y, z).getBlockData() instanceof Leaves leaves && leaves.getDistance() >= MAX_LEAF_DISTANCE;
   }

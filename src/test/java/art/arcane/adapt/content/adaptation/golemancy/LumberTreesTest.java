@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class LumberTreesTest {
   private static final LumberTrees.Reach SMALL = new LumberTrees.Reach(false, false, 64);
@@ -56,12 +57,100 @@ class LumberTreesTest {
   }
 
   @Test
+  void aPoplarWithFlaredRootsWoodRingsAndCrookedBranchesIsOneNaturalTree() {
+    TreeGrid poplar = poplar(Material.BIRCH_LOG, Material.BIRCH_WOOD, Material.BIRCH_LEAVES);
+
+    LumberTrees.Survey survey = LumberTrees.survey(poplar, 0, 64, 0, SMALL);
+
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    LumberTrees.Tree tree = survey.tree();
+    assertThat(tree.logs()).isEqualTo(17);
+    assertThat(tree.bases()).extracting(LumberTreesTest::position).containsExactly("0,64,0");
+    assertThat(tree.parts()).extracting(LumberTreesTest::position)
+        .contains("1,64,0", "1,65,0", "0,64,1", "-1,64,1", "0,66,0", "0,70,0", "1,73,1", "2,74,1", "-1,73,-1", "-1,74,0");
+    assertThat(tree.parts()).extracting(LumberTrees.Part::y).isSortedAccordingTo((first, second) -> Integer.compare(second, first));
+    assertThat(tree.sapling()).isEqualTo(Material.BIRCH_SAPLING);
+    assertThat(LumberTrees.survey(poplar, -1, 64, 1, SMALL).tree().base()).isEqualTo(tree.base());
+  }
+
+  @Test
+  void aFlaredRootBesideItsTrunkIsNoCandidate() {
+    TreeGrid poplar = poplar(Material.BIRCH_LOG, Material.BIRCH_WOOD, Material.BIRCH_LEAVES);
+
+    assertThat(LumberTrees.candidate(poplar, 0, 64, 0, false)).isTrue();
+    assertThat(LumberTrees.candidate(poplar, 1, 64, 0, false)).isFalse();
+    assertThat(LumberTrees.candidate(poplar, 0, 64, 1, false)).isFalse();
+  }
+
+  @Test
+  void aTaprootTreeStandsOnTheTipOfItsRoot() {
+    TreeGrid taproot = poplar(Material.BIRCH_LOG, Material.BIRCH_WOOD, Material.BIRCH_LEAVES).ground(-5, -5, 5, 5, 61, Material.DIRT)
+        .set(0, 63, 0, Material.BIRCH_LOG).set(0, 62, 0, Material.BIRCH_LOG);
+
+    LumberTrees.Survey survey = LumberTrees.survey(taproot, 0, 62, 0, SMALL);
+
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(survey.tree().bases()).extracting(LumberTreesTest::position).containsExactly("0,62,0");
+    assertThat(survey.tree().logs()).isEqualTo(19);
+  }
+
+  @Test
+  void poplarLogsLeavesAndSaplingsAreTreeBlocksWhereTheServerHasThem() {
+    Material log = Material.getMaterial("POPLAR_LOG");
+    Material wood = Material.getMaterial("POPLAR_WOOD");
+    Material leaves = Material.getMaterial("YELLOW_POPLAR_LEAVES");
+    assumeTrue(log != null && wood != null && leaves != null, "this Paper API has no poplars");
+
+    LumberTrees.Survey survey = LumberTrees.survey(poplar(log, wood, leaves), 0, 64, 0, SMALL);
+
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(survey.tree().logs()).isEqualTo(17);
+    assertThat(survey.tree().sapling()).isEqualTo(Material.getMaterial("POPLAR_SAPLING"));
+  }
+
+  @Test
+  void woodBlocksStrippedWoodAndOtherSpeciesInOneCrownAreFelledAsOneTree() {
+    TreeGrid mixed = ground(Material.STONE).set(0, 63, 0, Material.ANDESITE).column(0, 0, 64, 70, Material.SPRUCE_WOOD)
+        .set(1, 71, 1, Material.DARK_OAK_WOOD).set(2, 72, 2, Material.DARK_OAK_WOOD)
+        .set(-1, 71, -1, Material.STRIPPED_DARK_OAK_WOOD).set(-2, 72, -1, Material.STRIPPED_SPRUCE_WOOD)
+        .canopy(0, 69, 73, 0, 2, Material.SPRUCE_LEAVES);
+
+    LumberTrees.Survey survey = LumberTrees.survey(mixed, 0, 64, 0, SMALL);
+
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(survey.tree().logs()).isEqualTo(11);
+    assertThat(survey.tree().parts()).extracting(LumberTreesTest::position).contains("2,72,2", "-2,72,-1", "1,71,1", "-1,71,-1");
+    assertThat(survey.tree().sapling()).isEqualTo(Material.SPRUCE_SAPLING);
+  }
+
+  @Test
+  void treesStandOnTheGroundTheirWorldGeneratorUses() {
+    for (Material ground : List.of(Material.COARSE_DIRT, Material.STONE, Material.ANDESITE, Material.GRAVEL, Material.SNOW_BLOCK,
+        Material.CYAN_TERRACOTTA, Material.CALCITE)) {
+      assertThat(LumberTrees.survey(oak().set(0, 63, 0, ground), 0, 64, 0, SMALL).verdict()).as("oak on %s", ground)
+          .isEqualTo(LumberTrees.Verdict.NATURAL);
+    }
+  }
+
+  @Test
   void jungleTrunksWithCocoaVinesAndBeeNestsAreNatural() {
     TreeGrid jungle = ground(Material.GRASS_BLOCK).column(0, 0, 64, 73, Material.JUNGLE_LOG)
         .set(1, 66, 0, Material.COCOA).set(0, 67, -1, Material.VINE).set(-1, 70, 0, Material.BEE_NEST)
         .canopy(0, 72, 74, 0, 2, Material.JUNGLE_LEAVES);
 
     assertThat(verdictAndLogs(jungle, SMALL)).isEqualTo("NATURAL 10");
+  }
+
+  @Test
+  void logsTouchingTheGroundPlantsAndRocksAroundTreesStayTrees() {
+    for (Material near : List.of(Material.DIRT, Material.COARSE_DIRT, Material.PODZOL, Material.VINE, Material.COCOA, Material.SNOW,
+        Material.MOSS_CARPET, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM_BLOCK, Material.BEE_NEST, Material.STONE, Material.ANDESITE,
+        Material.COAL_ORE, Material.GRAVEL, Material.CYAN_TERRACOTTA, Material.LEAF_LITTER, Material.BUSH, Material.SWEET_BERRY_BUSH,
+        Material.MOSSY_COBBLESTONE, Material.CALCITE, Material.TUFF, Material.PACKED_ICE)) {
+      TreeGrid tree = oak().set(1, 65, 0, near);
+
+      assertThat(LumberTrees.survey(tree, 0, 64, 0, SMALL).verdict()).as("log touching %s", near).isEqualTo(LumberTrees.Verdict.NATURAL);
+    }
   }
 
   @Test
@@ -75,7 +164,6 @@ class LumberTreesTest {
     spruce.canopy(0, 70, 76, 0, 3, Material.SPRUCE_LEAVES);
 
     assertThat(LumberTrees.survey(spruce, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
-    assertThat(spruce.reads()).isLessThan(100);
     LumberTrees.Survey survey = LumberTrees.survey(spruce, 0, 64, 0, MEGA);
     assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
     assertThat(survey.tree().logs()).isEqualTo(48);
@@ -117,6 +205,22 @@ class LumberTreesTest {
   }
 
   @Test
+  void theTallestColumnOfAWideTrunkIsItsBase() {
+    TreeGrid darkOak = ground(Material.GRASS_BLOCK);
+    for (int x = 0; x <= 1; x++) {
+      for (int z = 0; z <= 1; z++) {
+        darkOak.column(x, z, 64, x == 1 ? 71 : 68, Material.DARK_OAK_LOG);
+      }
+    }
+    darkOak.canopy(1, 70, 72, 1, 3, Material.DARK_OAK_LEAVES);
+
+    assertThat(position(LumberTrees.survey(darkOak, 0, 64, 0, MEGA).tree().base())).isEqualTo("1,64,0");
+    assertThat(LumberTrees.candidate(darkOak, 1, 64, 0, false)).isTrue();
+    assertThat(LumberTrees.candidate(darkOak, 0, 64, 0, false)).isFalse();
+    assertThat(LumberTrees.candidate(darkOak, 1, 64, 1, false)).isFalse();
+  }
+
+  @Test
   void mangrovesStandOnTheirOwnRootsAboveTheMud() {
     TreeGrid mangrove = mangrove();
 
@@ -133,6 +237,17 @@ class LumberTreesTest {
   }
 
   @Test
+  void aMangroveLogStandingOnAnotherRootStaysPartOfItsTrunk() {
+    TreeGrid mangrove = mangrove().set(1, 65, 0, Material.MANGROVE_LOG);
+
+    LumberTrees.Survey survey = LumberTrees.survey(mangrove, 0, 64, 0, SMALL);
+
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(survey.tree().logs()).isEqualTo(6);
+    assertThat(survey.tree().bases()).extracting(LumberTreesTest::position).containsExactly("0,64,0");
+  }
+
+  @Test
   void otherLogsNeverStandOnMangroveRoots() {
     TreeGrid oak = oak().set(0, 63, 0, Material.MANGROVE_ROOTS);
 
@@ -140,23 +255,24 @@ class LumberTreesTest {
   }
 
   @Test
-  void aPlacedLogBesideANaturalTrunkIsRefusedAtTheMegaLevel() {
+  void aStampedLogBesideANaturalTrunkIsRefused() {
     TreeGrid spruce = ground(Material.PODZOL).column(0, 0, 64, 71, Material.SPRUCE_LOG)
         .canopy(0, 66, 69, 0, 2, Material.SPRUCE_LEAVES).canopy(0, 70, 72, 0, 1, Material.SPRUCE_LEAVES)
         .set(1, 64, 0, Material.SPRUCE_LOG).stamp(1, 64, 0);
     TreeGrid oak = oak().set(1, 64, 0, Material.OAK_LOG).stamp(1, 64, 0);
 
-    assertThat(LumberTrees.survey(spruce, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
-    assertThat(LumberTrees.survey(oak, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(LumberTrees.survey(spruce, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
+    assertThat(LumberTrees.survey(spruce, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
+    assertThat(LumberTrees.survey(oak, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
   }
 
   @Test
-  void onlyAFull2x2TrunkOfAMegaSpeciesIsOneTree() {
+  void aTrunkWiderThanOneBlockOfAnySpeciesIsAMegaTree() {
     TreeGrid oak = ground(Material.GRASS_BLOCK);
     TreeGrid corner = ground(Material.PODZOL);
     for (int x = 0; x <= 1; x++) {
       for (int z = 0; z <= 1; z++) {
-        oak.column(x, z, 64, 68, Material.OAK_LOG);
+        oak.column(x, z, 64, 68, Material.OAK_WOOD);
         if (x == 0 || z == 0) {
           corner.column(x, z, 64, 68, Material.SPRUCE_LOG);
         }
@@ -165,8 +281,10 @@ class LumberTreesTest {
     oak.canopy(0, 67, 69, 0, 2, Material.OAK_LEAVES);
     corner.canopy(0, 67, 69, 0, 2, Material.SPRUCE_LEAVES);
 
-    assertThat(LumberTrees.survey(oak, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
-    assertThat(LumberTrees.survey(corner, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(LumberTrees.survey(oak, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(LumberTrees.survey(corner, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(verdictAndLogs(oak, MEGA)).isEqualTo("NATURAL 20");
+    assertThat(LumberTrees.survey(corner, 0, 64, 0, MEGA).tree().bases()).hasSize(3);
   }
 
   @Test
@@ -185,7 +303,7 @@ class LumberTreesTest {
         .stamp(1, 64, 0).stamp(0, 64, 1).stamp(1, 64, 1);
 
     assertThat(LumberTrees.survey(planted, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
-    assertThat(LumberTrees.survey(planted, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(LumberTrees.survey(planted, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
   }
 
   @Test
@@ -251,8 +369,11 @@ class LumberTreesTest {
 
   @Test
   void logsTouchingBuildingBlocksAreNeverCut() {
-    for (Material built : List.of(Material.OAK_PLANKS, Material.GLASS, Material.OAK_STAIRS, Material.TORCH, Material.COBBLESTONE,
-        Material.OAK_FENCE, Material.STRIPPED_OAK_LOG, Material.OAK_WOOD, Material.CHEST, Material.WHITE_WOOL)) {
+    for (Material built : List.of(Material.OAK_PLANKS, Material.GLASS, Material.WHITE_STAINED_GLASS_PANE, Material.OAK_DOOR,
+        Material.SPRUCE_TRAPDOOR, Material.OAK_STAIRS, Material.STONE_SLAB, Material.OAK_FENCE, Material.OAK_FENCE_GATE,
+        Material.COBBLESTONE_WALL, Material.TORCH, Material.LANTERN, Material.WHITE_WOOL, Material.RED_CARPET, Material.WHITE_CONCRETE,
+        Material.BRICKS, Material.STONE_BRICKS, Material.COBBLESTONE, Material.CHEST, Material.OAK_SIGN, Material.RED_BED,
+        Material.CRAFTING_TABLE, Material.STONE_BUTTON, Material.LADDER, Material.BOOKSHELF, Material.POLISHED_ANDESITE)) {
       TreeGrid house = oak().set(1, 65, 0, built);
 
       assertThat(LumberTrees.survey(house, 0, 64, 0, SMALL).verdict()).as("log touching %s", built).isEqualTo(LumberTrees.Verdict.BUILT);
@@ -260,8 +381,8 @@ class LumberTreesTest {
   }
 
   @Test
-  void placedLeavesTouchingALogMarkABuild() {
-    TreeGrid roof = oak().persist(1, 66, 0);
+  void stampedLeavesTouchingALogMarkABuild() {
+    TreeGrid roof = oak().stamp(1, 66, 0);
 
     assertThat(LumberTrees.survey(roof, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.BUILT);
   }
@@ -276,11 +397,12 @@ class LumberTreesTest {
         if (wall) {
           cabin.column(x, z, 64, 66, corner ? Material.SPRUCE_LOG : Material.SPRUCE_PLANKS);
         }
-        cabin.set(x, 67, z, Material.SPRUCE_LEAVES).persist(x, 67, z);
+        cabin.set(x, 67, z, Material.SPRUCE_LEAVES).stamp(x, 67, z);
       }
     }
 
     assertThat(LumberTrees.survey(cabin, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.BUILT);
+    assertThat(LumberTrees.survey(cabin, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.BUILT);
   }
 
   @Test
@@ -290,11 +412,11 @@ class LumberTreesTest {
   }
 
   @Test
-  void aTreeNeedsNaturalLeavesWithinTwoBlocksOfItsTopLogs() {
+  void aTreeNeedsUnstampedLeavesWithinTwoBlocksOfItsTopLogs() {
     TreeGrid pillar = ground(Material.GRASS_BLOCK).column(0, 0, 64, 68, Material.OAK_LOG);
     TreeGrid distant = ground(Material.GRASS_BLOCK).column(0, 0, 64, 68, Material.OAK_LOG).canopy(3, 72, 72, 0, 0, Material.OAK_LEAVES);
     TreeGrid decorated = ground(Material.GRASS_BLOCK).column(0, 0, 64, 68, Material.OAK_LOG)
-        .set(2, 69, 0, Material.OAK_LEAVES).persist(2, 69, 0);
+        .set(2, 69, 0, Material.OAK_LEAVES).stamp(2, 69, 0);
     TreeGrid near = ground(Material.GRASS_BLOCK).column(0, 0, 64, 68, Material.OAK_LOG).set(2, 70, 2, Material.OAK_LEAVES);
 
     assertThat(LumberTrees.survey(pillar, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NO_LEAVES);
@@ -304,9 +426,13 @@ class LumberTreesTest {
   }
 
   @Test
-  void treesWithMoreLogsThanTheCapAreLeftStanding() {
+  void treesWithMoreLogsThanTheCapAreLeftStandingBeforeTheyAreReadWhole() {
+    TreeGrid tall = ground(Material.GRASS_BLOCK).column(0, 0, 64, 263, Material.OAK_LOG).canopy(0, 262, 264, 0, 1, Material.OAK_LEAVES);
+
     assertThat(LumberTrees.survey(oak(), 0, 64, 0, new LumberTrees.Reach(false, false, 4)).verdict()).isEqualTo(LumberTrees.Verdict.TOO_BIG);
     assertThat(LumberTrees.survey(oak(), 0, 64, 0, new LumberTrees.Reach(false, false, 5)).verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(LumberTrees.survey(tall, 0, 64, 0, new LumberTrees.Reach(false, false, 8)).verdict()).isEqualTo(LumberTrees.Verdict.TOO_BIG);
+    assertThat(tall.reads()).isLessThan(300);
   }
 
   @Test
@@ -319,30 +445,38 @@ class LumberTreesTest {
   @Test
   void aLoneLogALogOffTheGroundOrANonLogIsNoTree() {
     TreeGrid lone = ground(Material.GRASS_BLOCK).set(0, 64, 0, Material.OAK_LOG).canopy(0, 65, 65, 0, 1, Material.OAK_LEAVES);
-    TreeGrid stone = oak().set(0, 63, 0, Material.STONE);
+    TreeGrid water = oak().set(0, 63, 0, Material.WATER);
 
     assertThat(LumberTrees.survey(lone, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NOT_A_TREE);
-    assertThat(LumberTrees.survey(stone, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NOT_A_TREE);
+    assertThat(LumberTrees.survey(water, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NOT_A_TREE);
     assertThat(LumberTrees.survey(oak(), 0, 65, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NOT_A_TREE);
     assertThat(LumberTrees.survey(oak(), 0, 63, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.NOT_A_TREE);
   }
 
   @Test
-  void twoTreesJoinedByABranchAreTooWideEvenAtTheMegaLevel() {
-    TreeGrid joined = oak().column(4, 0, 64, 68, Material.OAK_LOG).canopy(4, 66, 67, 0, 1, Material.OAK_LEAVES)
+  void treesJoinedByRootsOrBranchesAreFelledTogetherFromTheMegaLevel() {
+    TreeGrid roots = joinedPoplars();
+    TreeGrid branch = oak().column(4, 0, 64, 68, Material.OAK_LOG).canopy(4, 66, 67, 0, 1, Material.OAK_LEAVES)
         .set(1, 68, 0, Material.OAK_LOG).set(2, 68, 0, Material.OAK_LOG).set(3, 68, 0, Material.OAK_LOG);
 
-    assertThat(LumberTrees.survey(joined, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(LumberTrees.survey(roots, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    LumberTrees.Survey survey = LumberTrees.survey(roots, 0, 64, 0, MEGA);
+    assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(survey.tree().bases()).extracting(LumberTreesTest::position).containsExactly("0,64,0", "0,64,3");
+    assertThat(survey.tree().logs()).isEqualTo(16);
+    assertThat(LumberTrees.survey(branch, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    assertThat(verdictAndLogs(branch, MEGA)).isEqualTo("NATURAL 13");
   }
 
   @Test
-  void anotherSpeciesTouchingTheTrunkIsLeftOutOfTheTree() {
+  void anotherSpeciesTouchingTheTrunkJoinsTheTree() {
     TreeGrid mixed = oak().column(1, 0, 64, 66, Material.BIRCH_LOG);
 
-    LumberTrees.Survey survey = LumberTrees.survey(mixed, 0, 64, 0, SMALL);
-
+    assertThat(LumberTrees.survey(mixed, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+    LumberTrees.Survey survey = LumberTrees.survey(mixed, 0, 64, 0, MEGA);
     assertThat(survey.verdict()).isEqualTo(LumberTrees.Verdict.NATURAL);
-    assertThat(survey.tree().parts()).extracting(LumberTrees.Part::type).containsOnly(Material.OAK_LOG);
+    assertThat(survey.tree().parts()).extracting(LumberTrees.Part::type).contains(Material.OAK_LOG, Material.BIRCH_LOG);
+    assertThat(survey.tree().logs()).isEqualTo(8);
   }
 
   @Test
@@ -355,10 +489,12 @@ class LumberTreesTest {
     assertThat(LumberTrees.intact(tree, log)).isEqualTo(LumberTrees.Verdict.BUILT);
     assertThat(LumberTrees.intact(oak().stamp(0, 66, 0), log)).isEqualTo(LumberTrees.Verdict.PLACED);
     assertThat(LumberTrees.intact(oak().stamp(0, 64, 0), new LumberTrees.Part(0, 64, 0, Material.OAK_LOG))).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(LumberTrees.intact(oak().set(0, 66, 1, Material.SPRUCE_WOOD), log)).isEqualTo(LumberTrees.Verdict.NATURAL);
+    assertThat(LumberTrees.intact(oak().stamp(0, 66, 1).set(0, 66, 1, Material.OAK_LEAVES), log)).isEqualTo(LumberTrees.Verdict.BUILT);
   }
 
   @Test
-  void leafSweepCandidatesAreTheLeavesWithinSixStepsOfTheFelledLogs() {
+  void leafSweepCandidatesAreTheUnstampedLeavesWithinSixStepsOfTheFelledLogs() {
     TreeGrid tree = oak();
     for (int x = 3; x <= 9; x++) {
       tree.set(x, 66, 0, Material.OAK_LEAVES);
@@ -367,7 +503,7 @@ class LumberTreesTest {
     for (LumberTrees.Part log : logs) {
       tree.set(log.x(), log.y(), log.z(), Material.AIR);
     }
-    tree.loosen(1, 66, 0).loosen(1, 67, 0).persist(1, 67, 0);
+    tree.loosen(1, 66, 0).loosen(1, 67, 0).stamp(1, 67, 0);
 
     List<String> candidates = new ArrayList<>();
     for (LumberTrees.Part leaf : LumberTrees.leafCandidates(tree, logs)) {
@@ -393,6 +529,22 @@ class LumberTreesTest {
   static TreeGrid oak() {
     return ground(Material.GRASS_BLOCK).set(0, 63, 0, Material.DIRT).column(0, 0, 64, 68, Material.OAK_LOG)
         .canopy(0, 66, 67, 0, 2, Material.OAK_LEAVES).canopy(0, 68, 69, 0, 1, Material.OAK_LEAVES);
+  }
+
+  static TreeGrid poplar(Material log, Material wood, Material leaves) {
+    return new TreeGrid().ground(-5, -5, 5, 5, 62, Material.DIRT).ground(-5, -5, 5, 5, 63, Material.COARSE_DIRT)
+        .column(0, 0, 64, 72, log).set(0, 66, 0, wood).set(0, 70, 0, wood)
+        .set(1, 64, 0, log).set(1, 65, 0, log).set(0, 64, 1, log).set(-1, 64, 1, wood)
+        .set(1, 73, 1, log).set(2, 74, 1, log).set(-1, 73, -1, wood).set(-1, 74, 0, log)
+        .canopy(0, 67, 75, 0, 1, leaves).set(0, 76, 0, leaves)
+        .set(-1, 65, 0, Material.BROWN_MUSHROOM).set(0, 64, -1, Material.LEAF_LITTER);
+  }
+
+  static TreeGrid joinedPoplars() {
+    return new TreeGrid().ground(-5, -5, 5, 8, 62, Material.DIRT).ground(-5, -5, 5, 8, 63, Material.GRASS_BLOCK)
+        .column(0, 0, 64, 71, Material.BIRCH_LOG).column(0, 3, 64, 69, Material.BIRCH_LOG)
+        .set(0, 63, 1, Material.BIRCH_LOG).set(0, 63, 2, Material.BIRCH_LOG)
+        .canopy(0, 68, 72, 0, 1, Material.BIRCH_LEAVES).canopy(0, 67, 70, 3, 1, Material.BIRCH_LEAVES);
   }
 
   static TreeGrid mangrove() {

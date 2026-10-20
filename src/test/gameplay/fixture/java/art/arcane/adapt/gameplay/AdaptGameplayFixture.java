@@ -215,8 +215,21 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             case "bind" -> GolemancyFixtures.bind(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3), demoArgument(args, 4));
             case "probe" -> loggedProbe(ordinaryPlayer(demoArgument(args, 2)));
             case "near" -> GolemancyFixtures.near(ordinaryPlayer(demoArgument(args, 2)));
+            case "lumber" -> lumber(args);
             case "reset" -> demoStudio.reset();
             default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
+        };
+    }
+
+    private String lumber(String[] args) {
+        return switch (demoArgument(args, 2)) {
+            case "scan" -> LumberProbeFixtures.scan(demoArgument(args, 3), Integer.parseInt(demoArgument(args, 4)), Integer.parseInt(demoArgument(args, 5)),
+                    Integer.parseInt(demoArgument(args, 6)), getLogger());
+            case "dump" -> LumberProbeFixtures.dump(demoArgument(args, 3), Integer.parseInt(demoArgument(args, 4)), Integer.parseInt(demoArgument(args, 5)),
+                    Integer.parseInt(demoArgument(args, 6)), getLogger());
+            case "node" -> LumberProbeFixtures.node(ordinaryPlayer(demoArgument(args, 3)), Integer.parseInt(demoArgument(args, 4)),
+                    Integer.parseInt(demoArgument(args, 5)), Integer.parseInt(demoArgument(args, 6)), Integer.parseInt(demoArgument(args, 7)));
+            default -> throw new IllegalArgumentException("Unknown lumber probe " + args[2]);
         };
     }
 

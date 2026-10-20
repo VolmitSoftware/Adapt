@@ -9,7 +9,5 @@ interface TreeView {
 
   boolean placed(int x, int y, int z);
 
-  boolean persistent(int x, int y, int z);
-
   boolean decaying(int x, int y, int z);
 }

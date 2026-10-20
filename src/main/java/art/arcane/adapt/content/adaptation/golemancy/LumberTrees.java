@@ -16,7 +16,8 @@ final class LumberTrees {
   static final int CROWN_REACH = 2;
   static final int CAP_REACH = 3;
   static final int MAX_FUNGUS_BASES = 9;
-  static final int PAIRED_BASES = 4;
+  static final int MIN_TRUNK_RUN = 3;
+  static final int MAX_RUN = 64;
   static final int MAX_CAP_BLOCKS = 512;
   static final int SWEEP_DEPTH = 6;
   static final int MAX_SWEEP_LEAVES = 1024;
@@ -27,6 +28,7 @@ final class LumberTrees {
       .thenComparingInt(part -> TreeBlocks.cap(part.type()) ? 0 : 1)
       .thenComparingInt(Part::x)
       .thenComparingInt(Part::z);
+  private static final Comparator<Part> NORTH_WEST = Comparator.comparingInt(Part::x).thenComparingInt(Part::z).thenComparingInt(Part::y);
 
   private LumberTrees() {
   }
@@ -39,30 +41,36 @@ final class LumberTrees {
     if (!TreeBlocks.trunk(type, nether) || !footing(view, x, y, z, type)) {
       return false;
     }
-    return !base(view, x - 1, y, z, type) && !base(view, x, y, z - 1, type);
+    int run = run(view, x, y, z, type);
+    return !outranked(view, x - 1, y, z, type, run, true) && !outranked(view, x, y, z - 1, type, run, true)
+        && !outranked(view, x + 1, y, z, type, run, false) && !outranked(view, x, y, z + 1, type, run, false);
   }
 
   static Survey survey(TreeView view, int x, int y, int z, Reach reach) {
     if (!view.owned(x, y, z)) {
       return Survey.of(Verdict.UNOWNED);
     }
-    Material species = view.type(x, y, z);
-    if (!TreeBlocks.trunk(species, reach.nether()) || !footing(view, x, y, z, species)) {
+    Material start = view.type(x, y, z);
+    if (!TreeBlocks.trunk(start, reach.nether()) || !footing(view, x, y, z, start)) {
       return Survey.of(Verdict.NOT_A_TREE);
     }
     List<Part> logs = new ArrayList<>(16);
-    List<Part> bases = new ArrayList<>(4);
-    Verdict grown = grow(view, new Part(x, y, z, species), reach, logs, bases);
+    List<Part> grounded = new ArrayList<>(4);
+    Verdict grown = grow(view, new Part(x, y, z, start), reach, logs, grounded);
     if (grown != Verdict.NATURAL) {
       return Survey.of(grown);
     }
-    if (logs.size() == bases.size()) {
+    if (logs.size() == grounded.size()) {
       return Survey.of(Verdict.NOT_A_TREE);
     }
-    boolean nether = TreeBlocks.stem(species);
-    Verdict spread = spread(view, bases, species, nether);
+    boolean nether = TreeBlocks.stem(start);
+    Trunk trunk = trunk(view, grounded);
+    Verdict spread = spread(view, trunk.bases(), reach, nether);
     if (spread != Verdict.NATURAL) {
       return Survey.of(spread);
+    }
+    if (placedBeside(view, grounded, trunk.bases())) {
+      return Survey.of(Verdict.PLACED);
     }
     if (!crowned(view, logs, nether)) {
       return Survey.of(Verdict.NO_LEAVES);
@@ -72,8 +80,8 @@ final class LumberTrees {
       return Survey.of(Verdict.UNOWNED);
     }
     parts.sort(TOP_DOWN);
-    bases.sort(Comparator.comparingInt(Part::x).thenComparingInt(Part::z));
-    return new Survey(Verdict.NATURAL, new Tree(species, bases.getFirst(), List.copyOf(bases), List.copyOf(parts), logs.size(),
+    Material species = trunk.base().type();
+    return new Survey(Verdict.NATURAL, new Tree(species, trunk.base(), trunk.bases(), List.copyOf(parts), logs.size(),
         sapling(view, logs, species)));
   }
 
@@ -92,7 +100,7 @@ final class LumberTrees {
         return Verdict.UNOWNED;
       }
       Material type = view.type(nx, ny, nz);
-      if (type != log.type() && !natural(view, nx, ny, nz, type)) {
+      if (!member(type, log.type()) && !natural(view, nx, ny, nz, type)) {
         return Verdict.BUILT;
       }
     }
@@ -122,7 +130,7 @@ final class LumberTrees {
           continue;
         }
         Material type = view.type(nx, ny, nz);
-        if (!TreeBlocks.leaves(type) || view.persistent(nx, ny, nz)) {
+        if (!TreeBlocks.leaves(type) || view.placed(nx, ny, nz)) {
           continue;
         }
         depth.put(neighbor, next);
@@ -139,7 +147,7 @@ final class LumberTrees {
 
   static boolean sweepable(TreeView view, Part leaf) {
     return view.owned(leaf.x(), leaf.y(), leaf.z()) && TreeBlocks.leaves(view.type(leaf.x(), leaf.y(), leaf.z()))
-        && !view.persistent(leaf.x(), leaf.y(), leaf.z()) && view.decaying(leaf.x(), leaf.y(), leaf.z());
+        && !view.placed(leaf.x(), leaf.y(), leaf.z()) && view.decaying(leaf.x(), leaf.y(), leaf.z());
   }
 
   static boolean footing(TreeView view, int x, int y, int z, Material species) {
@@ -150,13 +158,13 @@ final class LumberTrees {
     if (TreeBlocks.stem(species)) {
       return TreeBlocks.nylium(below);
     }
-    if (TreeBlocks.soil(below)) {
+    if (TreeBlocks.ground(below)) {
       return true;
     }
-    return species == Material.MANGROVE_LOG && below == Material.MANGROVE_ROOTS;
+    return below == Material.MANGROVE_ROOTS && TreeBlocks.sapling(species) == Material.MANGROVE_PROPAGULE;
   }
 
-  private static Verdict grow(TreeView view, Part start, Reach reach, List<Part> logs, List<Part> bases) {
+  private static Verdict grow(TreeView view, Part start, Reach reach, List<Part> logs, List<Part> grounded) {
     Material species = start.type();
     Set<Long> seen = new HashSet<>(64);
     Deque<Part> pending = new ArrayDeque<>();
@@ -164,16 +172,13 @@ final class LumberTrees {
     pending.add(start);
     while (!pending.isEmpty()) {
       Part log = pending.poll();
-      boolean base = footing(view, log.x(), log.y(), log.z(), species);
-      if (!base && view.placed(log.x(), log.y(), log.z())) {
+      boolean footed = footing(view, log.x(), log.y(), log.z(), log.type());
+      if (!footed && view.placed(log.x(), log.y(), log.z())) {
         return Verdict.PLACED;
       }
       logs.add(log);
-      if (base) {
-        bases.add(log);
-      }
-      if (bases.size() > 1 && !widens(reach, species, bases.size())) {
-        return Verdict.TOO_WIDE;
+      if (footed) {
+        grounded.add(log);
       }
       if (logs.size() > reach.cap()) {
         return Verdict.TOO_BIG;
@@ -186,9 +191,9 @@ final class LumberTrees {
           return Verdict.UNOWNED;
         }
         Material type = view.type(nx, ny, nz);
-        if (type == species) {
+        if (member(type, species)) {
           if (seen.add(key(nx, ny, nz))) {
-            pending.add(new Part(nx, ny, nz, species));
+            pending.add(new Part(nx, ny, nz, type));
           }
           continue;
         }
@@ -200,23 +205,33 @@ final class LumberTrees {
     return Verdict.NATURAL;
   }
 
-  private static boolean widens(Reach reach, Material species, int bases) {
-    if (!reach.mega()) {
-      return false;
+  private static Trunk trunk(TreeView view, List<Part> grounded) {
+    int[] runs = new int[grounded.size()];
+    int best = 0;
+    for (int index = 0; index < grounded.size(); index++) {
+      Part log = grounded.get(index);
+      runs[index] = run(view, log.x(), log.y(), log.z(), log.type());
+      if (runs[index] > runs[best] || (runs[index] == runs[best] && NORTH_WEST.compare(log, grounded.get(best)) < 0)) {
+        best = index;
+      }
     }
-    return TreeBlocks.stem(species) ? bases <= MAX_FUNGUS_BASES : TreeBlocks.mega(species) && bases <= PAIRED_BASES;
+    int threshold = Math.max(MIN_TRUNK_RUN, (runs[best] + 1) / 2);
+    List<Part> bases = new ArrayList<>(4);
+    for (int index = 0; index < grounded.size(); index++) {
+      if (index == best || runs[index] >= threshold) {
+        bases.add(grounded.get(index));
+      }
+    }
+    bases.sort(NORTH_WEST);
+    return new Trunk(grounded.get(best), List.copyOf(bases));
   }
 
-  private static Verdict spread(TreeView view, List<Part> bases, Material species, boolean nether) {
+  private static Verdict spread(TreeView view, List<Part> bases, Reach reach, boolean nether) {
     if (bases.size() == 1) {
       return Verdict.NATURAL;
     }
-    boolean square = nether ? compact(bases, 2) : bases.size() == PAIRED_BASES && compact(bases, 1);
-    if (!square) {
+    if (!reach.mega() || (nether && (bases.size() > MAX_FUNGUS_BASES || !compact(bases, 2)))) {
       return Verdict.TOO_WIDE;
-    }
-    if (!nether && !rises(view, bases, species)) {
-      return Verdict.PLACED;
     }
     int placed = 0;
     for (Part base : bases) {
@@ -228,27 +243,44 @@ final class LumberTrees {
     return planted ? Verdict.NATURAL : Verdict.PLACED;
   }
 
-  private static boolean rises(TreeView view, List<Part> bases, Material species) {
-    for (Part base : bases) {
-      if (view.type(base.x(), base.y() + 1, base.z()) != species) {
-        return false;
+  private static boolean placedBeside(TreeView view, List<Part> grounded, List<Part> bases) {
+    for (Part log : grounded) {
+      if (!bases.contains(log) && view.placed(log.x(), log.y(), log.z())) {
+        return true;
       }
     }
-    return true;
+    return false;
+  }
+
+  private static int run(TreeView view, int x, int y, int z, Material species) {
+    int run = 1;
+    while (run < MAX_RUN && view.owned(x, y + run, z) && member(view.type(x, y + run, z), species)) {
+      run++;
+    }
+    return run;
+  }
+
+  private static boolean outranked(TreeView view, int x, int y, int z, Material species, int run, boolean northWest) {
+    if (!view.owned(x, y, z)) {
+      return false;
+    }
+    Material type = view.type(x, y, z);
+    if (!member(type, species) || !footing(view, x, y, z, type)) {
+      return false;
+    }
+    int other = run(view, x, y, z, type);
+    return northWest ? other >= run : other > run;
+  }
+
+  private static boolean member(Material type, Material species) {
+    return TreeBlocks.stem(species) ? type == species : TreeBlocks.trunk(type, false);
   }
 
   private static boolean natural(TreeView view, int x, int y, int z, Material type) {
-    if (TreeBlocks.leaves(type)) {
-      return !view.persistent(x, y, z);
-    }
-    if (TreeBlocks.cap(type)) {
+    if (TreeBlocks.leaves(type) || TreeBlocks.cap(type)) {
       return !view.placed(x, y, z);
     }
-    return TreeBlocks.natural(type);
-  }
-
-  private static boolean base(TreeView view, int x, int y, int z, Material species) {
-    return view.owned(x, y, z) && view.type(x, y, z) == species && footing(view, x, y, z, species);
+    return !TreeBlocks.building(type);
   }
 
   private static boolean compact(List<Part> bases, int span) {
@@ -290,7 +322,7 @@ final class LumberTrees {
             continue;
           }
           Material type = view.type(x, y, z);
-          boolean crown = nether ? TreeBlocks.cap(type) && !view.placed(x, y, z) : TreeBlocks.leaves(type) && !view.persistent(x, y, z);
+          boolean crown = nether ? TreeBlocks.cap(type) && !view.placed(x, y, z) : TreeBlocks.leaves(type) && !view.placed(x, y, z);
           if (crown) {
             return true;
           }
@@ -342,7 +374,7 @@ final class LumberTrees {
 
   private static Material sapling(TreeView view, List<Part> logs, Material species) {
     Material sapling = TreeBlocks.sapling(species);
-    if (species != Material.OAK_LOG) {
+    if (sapling != Material.OAK_SAPLING) {
       return sapling;
     }
     int top = top(logs);
@@ -359,7 +391,7 @@ final class LumberTrees {
             int x = log.x() + dx;
             int y = log.y() + dy;
             int z = log.z() + dz;
-            if (!view.owned(x, y, z) || view.persistent(x, y, z)) {
+            if (!view.owned(x, y, z) || view.placed(x, y, z)) {
               continue;
             }
             Material type = view.type(x, y, z);
@@ -446,15 +478,22 @@ final class LumberTrees {
       return bases.size() > 1;
     }
 
+    boolean square() {
+      return bases.size() == 4 && compact(bases, 1);
+    }
+
     List<Part> logParts() {
       List<Part> logs = new ArrayList<>(this.logs);
       for (Part part : parts) {
-        if (part.type() == species) {
+        if (!TreeBlocks.cap(part.type())) {
           logs.add(part);
         }
       }
       return logs;
     }
+  }
+
+  private record Trunk(Part base, List<Part> bases) {
   }
 
   record Survey(Verdict verdict, Tree tree) {
