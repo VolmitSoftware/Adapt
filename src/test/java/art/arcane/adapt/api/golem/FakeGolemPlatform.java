@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -56,6 +57,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   final List<Class<?>> spawnedTypes = new ArrayList<>();
   final Map<UUID, Set<UUID>> upkeep = new HashMap<>();
   final List<Mob> crumbled = new ArrayList<>();
+  final List<String> lidVisits = new ArrayList<>();
   Consumer<Mob> spawnListener = spawned -> {
   };
   Consumer<UUID> rosterListener = owner -> {
@@ -324,6 +326,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public void signalFull(Mob golem) {
     fullSignals++;
+  }
+
+  @Override
+  public void visitLid(Block container, int holdTicks) {
+    lidVisits.add(container.getX() + "," + container.getY() + "," + container.getZ() + " " + holdTicks);
   }
 
   @Override

@@ -111,6 +111,24 @@ class DepositBehaviorTest {
     verify(chest).deliver(any(Inventory.class), any());
   }
 
+  @Test
+  void aDepositThatMovedItemsOpensTheAnchorLidAndOneThatMovedNothingDoesNot() {
+    UUID worldId = UUID.fromString("00000000-0000-0000-0000-0000000000f3");
+    NodeKey key = new NodeKey(worldId, 0, 64, 0, BlockFace.UP);
+    GolemTask task = GolemTask.builder(key, NodeType.DEPOSIT, "deliver", GolemTarget.block(worldId, 0, 64, 0)).build();
+    DepositBehavior behavior = new DepositBehavior(mock(Adaptation.class));
+    GolemContext golem = golem(worldId, Material.CHEST, GolemTestItems.inventory(27), deposit().build());
+    Block anchor = golem.world().getBlockAt(0, 64, 0);
+
+    when(golem.deliver(any(Inventory.class), any())).thenReturn(0);
+    assertThat(behavior.act(golem, task)).isEqualTo(GolemActResult.FAILED);
+    verify(golem, never()).visit(any(Block.class));
+
+    when(golem.deliver(any(Inventory.class), any())).thenReturn(3);
+    assertThat(behavior.act(golem, task)).isEqualTo(GolemActResult.DONE);
+    verify(golem).visit(anchor);
+  }
+
   private static GolemContext golem(UUID worldId, Material anchorType, Inventory inventory, NodeRecord record) {
     World world = mock(World.class);
     Block anchor = mock(Block.class);

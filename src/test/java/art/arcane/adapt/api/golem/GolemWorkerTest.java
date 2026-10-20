@@ -416,6 +416,53 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aDepositDeliveryHoldsTheLidFromArrivalAndTouchesItAgainWhenTheItemsMove() {
+    deposit(NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).build());
+    chest(DEPOSIT.x(), DEPOSIT.y(), DEPOSIT.z(), 27);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(0, 64, 5));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("0,64,6 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("0,64,6 35", "0,64,6 15");
+  }
+
+  @Test
+  void aHomeChestDeliveryHoldsTheLidFromArrivalAndTouchesItAgainWhenTheItemsMove() {
+    Inventory homeInventory = homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35", "-6,64,0 15");
+    assertThat(GolemTestItems.count(homeInventory, Material.WHEAT)).isEqualTo(20);
+  }
+
+  @Test
+  void aSlowerGolemHoldsTheLidThroughItsLongerInteraction() {
+    speed(2D);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 55");
+  }
+
+  @Test
   void itemsADepositRefusesGoToTheHomeChest() {
     deposit(NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build());
     Inventory depositInventory = chest(DEPOSIT.x(), DEPOSIT.y(), DEPOSIT.z(), 27);

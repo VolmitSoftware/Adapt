@@ -175,7 +175,14 @@ final class RancherActions implements Listener {
   }
 
   private boolean take(GolemContext golem, Predicate<ItemStack> matches) {
-    return golem.take(matches, 1) > 0 || spend(GolemancySupport.homeChest(golem).orElse(null), matches);
+    if (golem.take(matches, 1) > 0) {
+      return true;
+    }
+    if (!spend(GolemancySupport.homeChest(golem).orElse(null), matches)) {
+      return false;
+    }
+    GolemancySupport.visitHomeChest(golem);
+    return true;
   }
 
   private static boolean tends(Animals animal, NodeKey key, NodeRecord record, List<EntityType> tended) {

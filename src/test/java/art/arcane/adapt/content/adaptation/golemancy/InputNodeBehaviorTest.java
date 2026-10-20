@@ -81,6 +81,7 @@ class InputNodeBehaviorTest {
   private final List<ItemStack> cargo = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
   private final List<String> interactions = new ArrayList<>();
+  private final List<String> visits = new ArrayList<>();
   private final List<Integer> countedMoves = new ArrayList<>();
   private final Map<UUID, Player> players = new HashMap<>();
   private final Set<UUID> away = new HashSet<>();
@@ -222,6 +223,95 @@ class InputNodeBehaviorTest {
     assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.FAILED);
     cargo.clear();
     assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.FAILED);
+  }
+
+  @Test
+  void pullingFromTheInputOpensItsLidOnlyWhenItemsComeOut() {
+    fill(input, items.item(Material.COBBLESTONE, 30));
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1));
+    GolemTask sort = task(SorterRules.SORT, 0, 64, 0, items.item(Material.COBBLESTONE, 1));
+
+    assertThat(behavior.act(golem(0), sort)).isEqualTo(GolemActResult.WORKING);
+    assertThat(visits).isEmpty();
+
+    assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.DONE);
+    assertThat(visits).containsExactly("0,64,0");
+  }
+
+  @Test
+  void aTakeThatMovesNothingLeavesTheLidAlone() {
+    level = 3;
+    fill(input, items.item(Material.COBBLESTONE, 30));
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1));
+    GolemTask sort = task(SorterRules.SORT, 0, 64, 0, items.item(Material.COBBLESTONE, 1));
+    input.setItem(0, null);
+
+    assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(visits).isEmpty();
+  }
+
+  @Test
+  void droppingIntoADestinationOpensThatContainersLid() {
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1));
+    cargo.add(items.item(Material.COBBLESTONE, 10));
+    GolemTask drop = behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow();
+
+    assertThat(behavior.act(golem(0), drop)).isEqualTo(GolemActResult.WORKING);
+    assertThat(visits).isEmpty();
+
+    assertThat(behavior.act(golem(1), drop)).isEqualTo(GolemActResult.DONE);
+    assertThat(visits).containsExactly("3,64,0");
+  }
+
+  @Test
+  void aDropThatLeavesNothingBehindLeavesTheLidAlone() {
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1));
+    cargo.add(items.item(Material.STONE, 5));
+
+    assertThat(behavior.act(golem(1), task(SorterRules.DROP, 3, 64, 0, null))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(visits).isEmpty();
+  }
+
+  @Test
+  void givingItemsBackToTheInputOpensItsLid() {
+    cargo.add(items.item(Material.COBBLESTONE, 12));
+
+    assertThat(behavior.act(golem(1), task(SorterRules.RETURN, 0, 64, 0, null))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(visits).containsExactly("0,64,0");
+  }
+
+  @Test
+  void restockingOpensTheSourceLidAndThenTheFilterLid() {
+    level = 4;
+    yard.chest(2, 64, 2, items.item(Material.TORCH, 4));
+    yard.node(2, 64, 2, NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.UP).filterItems(List.of(items.item(Material.TORCH, 1)))
+        .data(Map.of(SorterRules.RESTOCK_TARGET, "16")).build());
+    yard.chest(6, 64, 0, items.item(Material.TORCH, 64));
+    behavior.scan(node(), budget(true));
+
+    assertThat(behavior.act(golem(1), posted.getFirst())).isEqualTo(GolemActResult.DONE);
+    assertThat(visits).containsExactly("6,64,0");
+
+    GolemTask stock = behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow();
+    assertThat(behavior.act(golem(1), stock)).isEqualTo(GolemActResult.DONE);
+    assertThat(visits).containsExactly("6,64,0", "2,64,2");
+  }
+
+  @Test
+  void fetchingOpensTheSourceLid() {
+    level = 5;
+    capacity = 64;
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 64));
+    Player player = player(items.item(Material.COBBLESTONE, 30));
+    fetches.request(player.getUniqueId(), KEY, items.item(Material.COBBLESTONE, 1), 40, NOW);
+    behavior.scan(node(), budget(true));
+
+    assertThat(behavior.act(golem(1), posted.getFirst())).isEqualTo(GolemActResult.DONE);
+
+    assertThat(visits).containsExactly("3,64,0");
   }
 
   @Test
@@ -589,6 +679,11 @@ class InputNodeBehaviorTest {
       interactions.add(block.getX() + "," + block.getY() + "," + block.getZ());
       return null;
     }).when(golem).interact(any(Block.class), anyInt());
+    lenient().doAnswer(invocation -> {
+      Block block = invocation.getArgument(0);
+      visits.add(block.getX() + "," + block.getY() + "," + block.getZ());
+      return null;
+    }).when(golem).visit(any(Block.class));
     lenient().doAnswer(invocation -> xp.add(invocation.getArgument(0))).when(golem).workXp(anyDouble());
     return golem;
   }

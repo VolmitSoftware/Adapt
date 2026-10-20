@@ -11,14 +11,12 @@ import java.util.function.IntSupplier;
 final class CopperGolemController implements GolemController {
   private final CopperGolem golem;
   private final GolemPathing pathing;
-  private final GolemLids lids;
-  private Block interaction;
+  private boolean interacting;
   private int interactionEndsAt;
 
-  CopperGolemController(CopperGolem golem, IntSupplier repathTicks, GolemLids lids) {
+  CopperGolemController(CopperGolem golem, IntSupplier repathTicks) {
     this.golem = Objects.requireNonNull(golem);
     this.pathing = new GolemPathing(golem, repathTicks, true);
-    this.lids = Objects.requireNonNull(lids);
   }
 
   @Override
@@ -32,7 +30,7 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void stop() {
-    endInteraction();
+    interacting = false;
     if (golem.getGolemState() != CopperGolem.State.IDLE) {
       golem.setGolemState(CopperGolem.State.IDLE);
     }
@@ -46,19 +44,17 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void interact(Block container, int ticks) {
-    endInteraction();
-    interaction = Objects.requireNonNull(container);
+    interacting = true;
     interactionEndsAt = golem.getTicksLived() + Math.max(1, ticks);
     golem.setGolemState(CopperGolem.State.DROPPING_ITEM);
-    lids.open(container);
   }
 
   @Override
   public void tick() {
-    if (interaction != null && golem.getTicksLived() >= interactionEndsAt) {
-      endInteraction();
+    if (interacting && golem.getTicksLived() >= interactionEndsAt) {
+      interacting = false;
     }
-    if (interaction == null && golem.getGolemState() != CopperGolem.State.IDLE) {
+    if (!interacting && golem.getGolemState() != CopperGolem.State.IDLE) {
       golem.setGolemState(CopperGolem.State.IDLE);
       pathing.restart();
     }
@@ -67,16 +63,7 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void release() {
-    endInteraction();
+    interacting = false;
     pathing.stop();
-  }
-
-  private void endInteraction() {
-    if (interaction == null) {
-      return;
-    }
-    Block container = interaction;
-    interaction = null;
-    lids.close(container);
   }
 }

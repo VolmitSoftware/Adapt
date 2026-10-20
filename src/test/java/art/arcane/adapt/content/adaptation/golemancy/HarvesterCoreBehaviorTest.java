@@ -227,6 +227,32 @@ class HarvesterCoreBehaviorTest {
   }
 
   @Test
+  void tendingOpensTheHomeChestLidOnceTheBoneMealComesOut() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(5);
+    GolemTask task = task("tend", 2, 64, 2);
+    GolemContext winding = golem(0, List.of());
+
+    assertThat(behavior.act(winding, task)).isEqualTo(GolemActResult.WORKING);
+    verify(winding, never()).visit(any(Block.class));
+
+    GolemContext tending = golem(1, List.of());
+    assertThat(behavior.act(tending, task)).isEqualTo(GolemActResult.DONE);
+    verify(tending).visit(field.block(CHEST.x(), CHEST.y(), CHEST.z()));
+  }
+
+  @Test
+  void tendingWithoutBoneMealLeavesTheHomeChestLidAlone() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(0);
+    GolemContext golem = golem(1, List.of());
+
+    assertThat(behavior.act(golem, task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+
+    verify(golem, never()).visit(any(Block.class));
+  }
+
+  @Test
   void theLastBoneMealEmptiesItsSlot() {
     field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
     boneMeal(1);
