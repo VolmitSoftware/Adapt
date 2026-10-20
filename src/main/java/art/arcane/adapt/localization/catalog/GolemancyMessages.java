@@ -318,7 +318,6 @@ public final class GolemancyMessages {
   public static final TextKey MASTERWORK_ALREADY = TextKey.of("golemancy.masterwork.already", "This golem is already a masterwork");
   public static final TextKey MASTERWORK_CAP = TextKey.of("golemancy.masterwork.cap", "You already have {count} masterwork golems");
   public static final TextKey MASTERWORK_LOCKED = TextKey.of("golemancy.masterwork.locked", "You need Masterwork to designate a masterwork golem");
-  public static final TextKey MASTERWORK_BODY = TextKey.of("golemancy.masterwork.body", "A {body} golem can't become a masterwork");
   public static final TextKey MASTERWORK_CORE_NEEDED = TextKey.of("golemancy.masterwork.core_needed", "Pick up a role core first");
   public static final TextKey MASTERWORK_CORE_SLOTTED = TextKey.of("golemancy.masterwork.core_slotted", "{core} core slotted");
   public static final TextKey MASTERWORK_CORE_REMOVED = TextKey.of("golemancy.masterwork.core_removed", "{core} core taken back");
@@ -1018,7 +1017,6 @@ public final class GolemancyMessages {
     builder.add(MASTERWORK_ALREADY);
     builder.add(MASTERWORK_CAP);
     builder.add(MASTERWORK_LOCKED);
-    builder.add(MASTERWORK_BODY);
     builder.add(MASTERWORK_CORE_NEEDED);
     builder.add(MASTERWORK_CORE_SLOTTED);
     builder.add(MASTERWORK_CORE_REMOVED);

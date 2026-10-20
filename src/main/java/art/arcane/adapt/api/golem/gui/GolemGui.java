@@ -467,7 +467,7 @@ public final class GolemGui {
     GolemView.Toggles toggles = view.toggles();
     target.place(0, FOOTER_ROW, utilityElement(view));
     target.place(MASTERWORK_SLOT, FOOTER_ROW,
-        GolemGuiActions.showsMasterwork(view.body(), toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
+        GolemGuiActions.showsMasterwork(toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
   }
 
   private Element utilityElement(GolemView view) {
@@ -573,7 +573,7 @@ public final class GolemGui {
     GolemRegistry.Designation designation = registry.designate(handle, GolemMastery.maxMasterworks(handle.owner()));
     if (designation != GolemRegistry.Designation.DESIGNATED) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.designationNotice(designation, registry.masterworks(handle.owner()), handle.body()));
+      GolemGuiSupport.warn(player, GolemGuiActions.designationNotice(designation, registry.masterworks(handle.owner())));
       snapshot();
       return;
     }

@@ -2700,14 +2700,10 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void designationIsRefusedForBoneBodiesTwiceWithoutTheLevelOrWithoutTheRoster() {
+  void designationIsRefusedWithoutTheLevelOrWithoutTheRoster() {
     GolemRoster roster = onlineOwner();
     GolemHandle handle = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
-    Skeleton skeleton = GolemTestEntities.entity(Skeleton.class);
-    GolemHandle bone = new GolemHandle(skeleton, GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.BONE, GolemCoreType.GUARDIAN,
-        GolemState.Anchor.of(WORLD, 0, 64, 0))), platform);
 
-    assertThat(registry.designate(bone, 1)).isEqualTo(GolemRegistry.Designation.BODY);
     assertThat(registry.designate(handle, 0)).isEqualTo(GolemRegistry.Designation.LOCKED);
     platform.rosters.remove(OWNER);
     assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.UNAVAILABLE);
@@ -2715,6 +2711,50 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.DESIGNATED);
     assertThat(registry.designate(handle, 2)).isEqualTo(GolemRegistry.Designation.ALREADY);
     assertThat(roster.masterworkCount()).isEqualTo(1);
+  }
+
+  @Test
+  void aBoundBoneGolemCanBeDesignatedAMasterworkWithoutTouchingItsHealthCost() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.BLANK);
+    ItemStack heart = mock(ItemStack.class);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+
+    assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.DESIGNATED);
+
+    assertThat(handle.state().masterwork()).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isTrue();
+    assertThat(GolemState.read(bone).orElseThrow().masterwork()).isTrue();
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+    assertThat(registry.undesignate(handle, 0)).contains(List.of(heart));
+    assertThat(handle.state().masterwork()).isFalse();
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+  }
+
+  @Test
+  void aMasterworkBoneGolemTakesAGuardianSecondCoreFromTheCoresBoneAllows() {
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.BLANK);
+    items.when(GolemItems::masterworkHeart).thenReturn(mock(ItemStack.class));
+    FakeMastery mastery = new FakeMastery();
+    mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+    GolemMastery.register(mastery);
+    try {
+      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      registry.designate(handle, 1);
+
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
+      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN)).isEmpty();
+
+      assertThat(GolemState.read(bone).orElseThrow().cores()).containsExactly(GolemCoreType.BLANK, GolemCoreType.GUARDIAN);
+      assertThat(registry.removeCore(handle, GolemCoreType.GUARDIAN)).isTrue();
+      assertThat(GolemState.read(bone).orElseThrow().cores()).containsExactly(GolemCoreType.BLANK);
+    } finally {
+      GolemMastery.unregister(mastery);
+    }
   }
 
   @Test

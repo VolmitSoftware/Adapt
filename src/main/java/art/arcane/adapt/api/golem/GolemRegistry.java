@@ -442,9 +442,6 @@ public final class GolemRegistry extends TickedObject {
     if (handle.isRetired()) {
       return Designation.UNAVAILABLE;
     }
-    if (state.body() == GolemBody.BONE) {
-      return Designation.BODY;
-    }
     if (state.masterwork()) {
       return Designation.ALREADY;
     }
@@ -1416,7 +1413,6 @@ public final class GolemRegistry extends TickedObject {
     DESIGNATED,
     LOCKED,
     CAP,
-    BODY,
     ALREADY,
     UNAVAILABLE
   }

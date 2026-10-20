@@ -216,19 +216,28 @@ class GolemMasterworkTest extends AdaptTestBase {
   void theHealthSourceAddsAQuarterOfMaximumHealthToMasterworksOfLearnedOwners() {
     GolemMasterwork.Config config = new GolemMasterwork.Config();
 
-    assertThat(GolemMasterwork.healthStats(config, true, GolemBody.IRON, 1))
+    assertThat(GolemMasterwork.healthStats(config, true, 1))
         .containsExactly(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, 0.25D));
-    assertThat(GolemMasterwork.healthStats(config, false, GolemBody.IRON, 3)).isEmpty();
-    assertThat(GolemMasterwork.healthStats(config, true, GolemBody.IRON, 0)).isEmpty();
-    assertThat(GolemMasterwork.healthStats(config, true, GolemBody.BONE, 3)).isEmpty();
+    assertThat(GolemMasterwork.healthStats(config, false, 3)).isEmpty();
+    assertThat(GolemMasterwork.healthStats(config, true, 0)).isEmpty();
     config.healthBonusFraction = 0D;
-    assertThat(GolemMasterwork.healthStats(config, true, GolemBody.FROST, 3)).isEmpty();
+    assertThat(GolemMasterwork.healthStats(config, true, 3)).isEmpty();
 
     learnedOwner(1);
     adaptation.onRuntimeActivated();
     GolemStatSource source = statSources.registered().stream().filter(candidate -> candidate.id().equals(GolemMasterwork.SOURCE)).findFirst().orElseThrow();
     assertThat(source.deltas(handle(true, false))).containsExactly(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, 0.25D));
     assertThat(source.deltas(handle(false, false))).isEmpty();
+  }
+
+  @Test
+  void aMasterworkBoneGolemGainsTheSameQuarterOfMaximumHealth() {
+    learnedOwner(1);
+    adaptation.onRuntimeActivated();
+    GolemStatSource source = statSources.registered().stream().filter(candidate -> candidate.id().equals(GolemMasterwork.SOURCE)).findFirst().orElseThrow();
+
+    assertThat(source.deltas(handle(GolemBody.BONE, true, false))).containsExactly(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, 0.25D));
+    assertThat(source.deltas(handle(GolemBody.BONE, false, false))).isEmpty();
   }
 
   @Test
@@ -345,13 +354,17 @@ class GolemMasterworkTest extends AdaptTestBase {
   }
 
   private static GolemHandle handle(boolean masterwork, boolean dormant) {
+    return handle(GolemBody.IRON, masterwork, dormant);
+  }
+
+  private static GolemHandle handle(GolemBody body, boolean masterwork, boolean dormant) {
     GolemState state = mock(GolemState.class);
     lenient().when(state.masterwork()).thenReturn(masterwork);
     GolemHandle handle = mock(GolemHandle.class);
     IronGolem golem = mock(IronGolem.class);
     lenient().when(handle.id()).thenReturn(UUID.randomUUID());
     lenient().when(handle.owner()).thenReturn(OWNER);
-    lenient().when(handle.body()).thenReturn(GolemBody.IRON);
+    lenient().when(handle.body()).thenReturn(body);
     lenient().when(handle.state()).thenReturn(state);
     lenient().when(handle.entity()).thenReturn(golem);
     lenient().when(handle.isDormant()).thenReturn(dormant);

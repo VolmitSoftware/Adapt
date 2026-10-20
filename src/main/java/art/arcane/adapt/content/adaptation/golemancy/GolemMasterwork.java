@@ -21,7 +21,6 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
@@ -188,8 +187,8 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     return level < 1 ? 0 : Math.max(0, AnimusBindingRules.atLevel(config.maxMasterworksByLevel, level, 0));
   }
 
-  static List<GolemStatDelta> healthStats(Config config, boolean masterwork, GolemBody body, int level) {
-    if (!masterwork || body == GolemBody.BONE || level < 1 || !(config.healthBonusFraction > 0D)) {
+  static List<GolemStatDelta> healthStats(Config config, boolean masterwork, int level) {
+    if (!masterwork || level < 1 || !(config.healthBonusFraction > 0D)) {
       return List.of();
     }
     return List.of(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, config.healthBonusFraction));
@@ -210,7 +209,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
       if (!handle.state().masterwork()) {
         return List.of();
       }
-      return healthStats(getConfig(), true, handle.body(), ownerLevel(handle.owner()));
+      return healthStats(getConfig(), true, ownerLevel(handle.owner()));
     }
   }
 

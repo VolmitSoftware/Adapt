@@ -287,10 +287,9 @@ class GolemGuiActionsTest {
 
   @Test
   void theMasterworkSlotShowsForEveryBodyButBoneOnceTheOwnerCanDesignate() {
-    assertThat(GolemGuiActions.showsMasterwork(GolemBody.IRON, false, 1)).isTrue();
-    assertThat(GolemGuiActions.showsMasterwork(GolemBody.FROST, true, 0)).isTrue();
-    assertThat(GolemGuiActions.showsMasterwork(GolemBody.COPPER, false, 0)).isFalse();
-    assertThat(GolemGuiActions.showsMasterwork(GolemBody.BONE, false, 2)).isFalse();
+    assertThat(GolemGuiActions.showsMasterwork(false, 1)).isTrue();
+    assertThat(GolemGuiActions.showsMasterwork(true, 0)).isTrue();
+    assertThat(GolemGuiActions.showsMasterwork(false, 0)).isFalse();
   }
 
   @Test
@@ -304,7 +303,7 @@ class GolemGuiActionsTest {
   void everyDesignationAndCoreRefusalHasAMessageWithItsArguments() {
     Set<TextKey> designations = new HashSet<>();
     for (GolemRegistry.Designation designation : GolemRegistry.Designation.values()) {
-      designations.add(GolemGuiActions.designationNotice(designation, 2, GolemBody.IRON).key());
+      designations.add(GolemGuiActions.designationNotice(designation, 2).key());
     }
     Set<TextKey> refusals = new HashSet<>();
     for (GolemMastery.CoreRefusal refusal : GolemMastery.CoreRefusal.values()) {
@@ -313,11 +312,9 @@ class GolemGuiActionsTest {
 
     assertThat(designations).hasSize(GolemRegistry.Designation.values().length);
     assertThat(refusals).hasSize(GolemMastery.CoreRefusal.values().length);
-    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.CAP, 2, GolemBody.IRON))
+    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.CAP, 2))
         .isEqualTo(notice(GolemancyMessages.MASTERWORK_CAP, trusted("count", 2)));
-    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.BODY, 2, GolemBody.IRON))
-        .isEqualTo(notice(GolemancyMessages.MASTERWORK_BODY, trusted("body", GolemGuiSupport.localized(GolemancyMessages.BODY_IRON))));
-    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.LOCKED, 2, GolemBody.IRON))
+    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.LOCKED, 2))
         .isEqualTo(notice(GolemancyMessages.MASTERWORK_LOCKED));
     assertThat(GolemGuiActions.coreRefusalNotice(GolemMastery.CoreRefusal.NOT_ALLOWED, GolemCoreType.GUARDIAN, GolemBody.IRON))
         .isEqualTo(notice(GolemancyMessages.BINDING_CORE_NOT_ALLOWED, trusted("body", GolemGuiSupport.localized(GolemancyMessages.BODY_IRON)),
