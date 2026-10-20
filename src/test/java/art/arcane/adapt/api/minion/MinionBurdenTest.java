@@ -1,11 +1,20 @@
 package art.arcane.adapt.api.minion;
 
 import art.arcane.adapt.api.attribute.StubAttribute;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.entity.StackExclusion;
+import org.bukkit.Bukkit;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +30,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class MinionBurdenTest {
 
@@ -323,6 +336,134 @@ class MinionBurdenTest {
         assertThat(registry.ownerSnapshot()).containsExactlyInAnyOrder(first, second);
         registry.clearAll();
         assertThat(registry.hasOwners()).isFalse();
+    }
+
+    @Test
+    void heldMinionsCostHealthWithoutAnEntityAndNeverDoubleUp() {
+        HealthBar health = new HealthBar();
+        MinionBurden burden = inlineBurden(health);
+        UUID bone = UUID.randomUUID();
+        try (MockedStatic<Bukkit> bukkit = online(health)) {
+            burden.hold(health.ownerId, Set.of(bone));
+            burden.hold(health.ownerId, Set.of(bone));
+
+            assertThat(burden.activeCount(health.ownerId)).isEqualTo(1);
+            assertThat(health.maximum()).isCloseTo(18D, within(1e-9));
+            assertThat(health.modifiers).hasSize(1);
+        }
+    }
+
+    @Test
+    void releasingAHeldMinionLiftsItsCost() {
+        HealthBar health = new HealthBar();
+        MinionBurden burden = inlineBurden(health);
+        UUID first = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+        try (MockedStatic<Bukkit> bukkit = online(health)) {
+            burden.hold(health.ownerId, Set.of(first, second));
+            assertThat(health.maximum()).isCloseTo(16D, within(1e-9));
+
+            burden.hold(health.ownerId, Set.of(second));
+            assertThat(health.maximum()).isCloseTo(18D, within(1e-9));
+
+            burden.hold(health.ownerId, Set.of());
+            assertThat(burden.activeCount(health.ownerId)).isZero();
+            assertThat(health.maximum()).isCloseTo(20D, within(1e-9));
+            assertThat(health.modifiers).isEmpty();
+            assertThat(burden.hasTickDemand()).isFalse();
+        }
+    }
+
+    @Test
+    void heldMinionsSurviveAnOwnerClearAndReturnOnTheNextMaintenancePass() throws Exception {
+        HealthBar health = new HealthBar();
+        MinionBurden burden = inlineBurden(health);
+        UUID bone = UUID.randomUUID();
+        try (MockedStatic<Bukkit> bukkit = online(health)) {
+            burden.hold(health.ownerId, Set.of(bone));
+            burden.clearOwner(health.ownerId);
+
+            assertThat(health.maximum()).isCloseTo(20D, within(1e-9));
+            assertThat(burden.activeCount(health.ownerId)).isEqualTo(1);
+            assertThat(burden.hasTickDemand()).isTrue();
+
+            dueForMaintenance(burden);
+            burden.onTick();
+
+            assertThat(health.maximum()).isCloseTo(18D, within(1e-9));
+            assertThat(health.modifiers).hasSize(1);
+        }
+    }
+
+    @Test
+    void heldAndSummonedMinionsAddUpWithoutCountingTheSameMinionTwice() {
+        HealthBar health = new HealthBar();
+        MinionBurden burden = inlineBurden(health);
+        LivingEntity servant = mock(LivingEntity.class);
+        UUID servantId = UUID.randomUUID();
+        when(servant.getUniqueId()).thenReturn(servantId);
+        UUID bone = UUID.randomUUID();
+        try (MockedStatic<Bukkit> bukkit = online(health);
+             MockedStatic<J> scheduling = mockStatic(J.class);
+             MockedStatic<StackExclusion> stacks = mockStatic(StackExclusion.class)) {
+            scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
+            burden.register(health.owner, servant);
+            burden.hold(health.ownerId, Set.of(bone));
+
+            assertThat(burden.activeCount(health.ownerId)).isEqualTo(2);
+            assertThat(health.maximum()).isCloseTo(16D, within(1e-9));
+
+            burden.unregister(health.ownerId, servant);
+
+            assertThat(burden.activeCount(health.ownerId)).isEqualTo(1);
+            assertThat(health.maximum()).isCloseTo(18D, within(1e-9));
+        }
+    }
+
+    private static MinionBurden inlineBurden(HealthBar health) {
+        return new MinionBurden((player, action) -> {
+            action.run();
+            return true;
+        }, health.attribute);
+    }
+
+    private static MockedStatic<Bukkit> online(HealthBar health) {
+        MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
+        bukkit.when(() -> Bukkit.getPlayer(health.ownerId)).thenReturn(health.owner);
+        return bukkit;
+    }
+
+    private static void dueForMaintenance(MinionBurden burden) throws Exception {
+        Field due = MinionBurden.class.getDeclaredField("nextMaintenanceAt");
+        due.setAccessible(true);
+        due.setLong(burden, 0L);
+    }
+
+    private static final class HealthBar {
+        private final StubAttribute attribute = new StubAttribute("max-health");
+        private final UUID ownerId = UUID.randomUUID();
+        private final Player owner = mock(Player.class);
+        private final AttributeInstance instance = mock(AttributeInstance.class);
+        private final List<AttributeModifier> modifiers = new ArrayList<>();
+
+        private HealthBar() {
+            when(owner.getUniqueId()).thenReturn(ownerId);
+            when(owner.isOnline()).thenReturn(true);
+            when(owner.getAttribute(attribute)).thenReturn(instance);
+            when(instance.getModifiers()).thenAnswer(invocation -> List.copyOf(modifiers));
+            when(instance.getValue()).thenAnswer(invocation -> maximum());
+            doAnswer(invocation -> modifiers.add(invocation.getArgument(0))).when(instance).addTransientModifier(any(AttributeModifier.class));
+            doAnswer(invocation -> modifiers.add(invocation.getArgument(0))).when(instance).addModifier(any(AttributeModifier.class));
+            doAnswer(invocation -> modifiers.remove(invocation.<AttributeModifier>getArgument(0))).when(instance).removeModifier(any(AttributeModifier.class));
+        }
+
+        private double maximum() {
+            double value = 20D;
+            for (AttributeModifier modifier : modifiers) {
+                value += modifier.getAmount();
+            }
+            return value;
+        }
     }
 
     private static void awaitBlocked(AtomicReference<Thread> worker, long timeoutMillis) {

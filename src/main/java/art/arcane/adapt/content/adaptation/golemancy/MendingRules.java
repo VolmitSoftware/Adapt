@@ -45,8 +45,8 @@ final class MendingRules {
     return Math.max(0D, Math.max(owner, home));
   }
 
-  static boolean shatters(boolean validated, boolean ownerOnline, int level, int shatterLevel) {
-    return validated && ownerOnline && GolemancyRules.unlocked(level, shatterLevel);
+  static boolean shatters(GolemBody body, boolean validated, boolean ownerOnline, int level, int shatterLevel) {
+    return body != GolemBody.BONE && validated && ownerOnline && GolemancyRules.unlocked(level, shatterLevel);
   }
 
   static boolean withinReach(Vector eye, BoundingBox body) {

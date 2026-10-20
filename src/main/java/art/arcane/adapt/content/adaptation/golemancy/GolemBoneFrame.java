@@ -25,11 +25,9 @@ import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.golem.ChannelMask;
-import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemStatDelta;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
@@ -40,12 +38,10 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
-import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
-import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -63,7 +59,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private static final String SERVANT_ADAPTATION = "tragoul-skeletal-servant";
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
-  private static final String SCALE_SLOT = "scale";
   private static final String LATTICE_SLOT = "lattice_";
   private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.OBEY_OVERSEER);
 
@@ -205,7 +200,6 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     if (level < 1) {
       return;
     }
-    BoneFrameRules.scaleAmount(level, GolemancyRuntime.settings().bodyScale(GolemBody.BONE)).ifPresent(amount -> resize(servant, amount));
     int slots = latticeSlots(level);
     Optional<GolemRunicAugments> runic = runicAugments();
     if (slots <= 0 || runic.isEmpty()) {
@@ -223,10 +217,6 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     if (ember != null) {
       runicAugments().ifPresent(runic -> runic.ignite(victim, ember.igniteTicks()));
     }
-  }
-
-  void resize(Skeleton servant, double amount) {
-    AdaptAttributeService.get().apply(servant, getName(), SCALE_SLOT, Attributes.SCALE, amount, AttributeModifier.Operation.ADD_NUMBER);
   }
 
   void strengthen(Skeleton servant, GolemStatDelta delta) {
@@ -305,6 +295,16 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     @Override
     public void openLattice(Player player, int rosterPage) {
       BoneLatticeGui.open(GolemBoneFrame.this, player, rosterPage);
+    }
+
+    @Override
+    public boolean surrender(Skeleton servant) {
+      return pack().map(found -> found.surrender(servant)).orElse(false);
+    }
+
+    @Override
+    public void crumble(Skeleton servant) {
+      pack().ifPresentOrElse(found -> found.crumble(servant), servant::remove);
     }
   }
 

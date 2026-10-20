@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -55,6 +56,10 @@ interface GolemPlatform {
   double heal(LivingEntity entity, double amount);
 
   void dropOwnerBound(Location at, ItemStack item, UUID owner);
+
+  void upkeep(UUID owner, Set<UUID> golems);
+
+  void crumble(Mob body);
 
   <T extends Mob> T spawn(Location at, Class<T> type, Consumer<? super T> prepare);
 

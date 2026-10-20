@@ -176,6 +176,7 @@ public final class GolemancyMessages {
   public static final TextKey MESSAGE_CROOK_NEEDED = TextKey.of("golemancy.message.crook_needed", "Hold your Crook in your main hand to set its channel");
   public static final TextKey BINDING_BUSY = TextKey.of("golemancy.binding.busy", "A binding ritual is already underway");
   public static final TextKey BINDING_ALREADY_BOUND = TextKey.of("golemancy.binding.already_bound", "That golem is already bound");
+  public static final TextKey BINDING_NOT_OWNER = TextKey.of("golemancy.binding.not_owner", "That skeletal servant belongs to another player");
   public static final TextKey BINDING_VILLAGE = TextKey.of("golemancy.binding.village", "Only golems that players built can be bound");
   public static final TextKey BINDING_BUILDER = TextKey.of("golemancy.binding.builder", "Only the player who built this golem can bind it right now");
   public static final TextKey BINDING_BODY_LOCKED = TextKey.of("golemancy.binding.body_locked", "You can't bind {body} golems yet");
@@ -276,6 +277,7 @@ public final class GolemancyMessages {
   public static final TextKey STASIS_INTERRUPTED = TextKey.of("golemancy.stasis.interrupted", "Packing was interrupted");
   public static final TextKey STASIS_BUSY = TextKey.of("golemancy.stasis.busy", "You are already packing a golem");
   public static final TextKey STASIS_PACK_FAILED = TextKey.of("golemancy.stasis.pack_failed", "This golem can't be packed right now");
+  public static final TextKey STASIS_BONE = TextKey.of("golemancy.stasis.bone", "Bone golems can't be packed into a Dormant Golem");
   public static final TextKey STASIS_AWAKENED = TextKey.of("golemancy.stasis.awakened", "Your {body} golem awakens");
   public static final TextKey STASIS_VOID = TextKey.of("golemancy.stasis.void", "This Dormant Golem crumbles: it no longer holds its golem");
   public static final TextKey STASIS_NOT_OWNER = TextKey.of("golemancy.stasis.not_owner", "This Dormant Golem belongs to another player");
@@ -714,6 +716,7 @@ public final class GolemancyMessages {
     builder.add(MESSAGE_CROOK_NEEDED);
     builder.add(BINDING_BUSY);
     builder.add(BINDING_ALREADY_BOUND);
+    builder.add(BINDING_NOT_OWNER);
     builder.add(BINDING_VILLAGE);
     builder.add(BINDING_BUILDER);
     builder.add(BINDING_BODY_LOCKED);
@@ -963,6 +966,7 @@ public final class GolemancyMessages {
     builder.add(STASIS_INTERRUPTED);
     builder.add(STASIS_BUSY);
     builder.add(STASIS_PACK_FAILED);
+    builder.add(STASIS_BONE);
     builder.add(STASIS_AWAKENED);
     builder.add(STASIS_VOID);
     builder.add(STASIS_NOT_OWNER);

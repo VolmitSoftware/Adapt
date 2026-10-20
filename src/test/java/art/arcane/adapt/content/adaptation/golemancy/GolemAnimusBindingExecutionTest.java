@@ -1,11 +1,24 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxEmitter;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
+import art.arcane.adapt.api.golem.GolemBindListener;
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
@@ -13,23 +26,35 @@ import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,19 +71,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class GolemAnimusBindingExecutionTest extends AdaptTestBase {
   private static final NamespacedKey CROOK_KEY = new NamespacedKey("adapt", "golemancy-crook");
   private static final NamespacedKey BLANK_CORE_KEY = new NamespacedKey("adapt", "golemancy-blank-core");
+  private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
 
   private final Map<String, Material> materials = new HashMap<>();
   private final Map<NamespacedKey, ItemStack> results = new HashMap<>();
@@ -181,6 +213,458 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
     verify(snowGolem).setCancelled(true);
   }
 
+  @Test
+  void theCoreLeavesTheHandTheMomentTheRitualStarts() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+
+      ritual.click(golem);
+
+      verify(ritual.held).setAmount(2);
+      assertThat(ritual.pulses).hasSize(1);
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+      verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
+    }
+  }
+
+  @Test
+  void aFinishedRitualBindsTheGolemAndKeepsTheCoreEvenWhenTheHandChanged() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(5);
+      when(ritual.inventory.getItemInMainHand()).thenReturn(mock(ItemStack.class));
+      when(ritual.inventory.getHeldItemSlot()).thenReturn(7);
+
+      ritual.finish();
+
+      verify(ritual.registry).bind(ritual.owner, golem, GolemBody.FROST, GolemCoreType.BLANK);
+      verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
+      verify(ritual.held, times(1)).setAmount(anyInt());
+      assertThat(ritual.shown).containsExactly("Your Frost golem is now bound to you");
+    }
+  }
+
+  @Test
+  void walkingAwayReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(3);
+      when(ritual.owner.getLocation()).thenReturn(new Location(ritual.world, 0D, 64D, 12D));
+
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+      assertThat(ritual.shown).containsExactly("The binding was interrupted");
+    }
+  }
+
+  @Test
+  void anAttackOnTheGolemReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(2);
+      EntityDamageByEntityEvent hit = mock(EntityDamageByEntityEvent.class);
+      when(hit.getEntity()).thenReturn(golem);
+      when(hit.getCause()).thenReturn(EntityDamageEvent.DamageCause.ENTITY_ATTACK);
+
+      ritual.learned.on(hit);
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void loggingOutReturnsTheCoreToTheInventoryBeforeTheSave() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(2);
+
+      ritual.learned.on(new PlayerQuitEvent(ritual.owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(golem).setAware(true);
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void aGolemThatDiesMidRitualReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(2);
+      when(golem.isDead()).thenReturn(true);
+
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+    }
+  }
+
+  @Test
+  void aServerStopMidRitualReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(2);
+
+      ritual.learned.unregister();
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void aCoreReturnedToAFullInventoryDropsAtTheOwnersFeetForThemAlone() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      HashMap<Integer, ItemStack> leftover = new HashMap<>();
+      leftover.put(0, ritual.escrow);
+      when(ritual.inventory.addItem(any(ItemStack[].class))).thenReturn(leftover);
+      when(ritual.owner.getLocation()).thenReturn(new Location(ritual.world, 0D, 64D, 12D));
+
+      ritual.finish();
+
+      ritual.drops.verify(() -> OwnerBoundDrop.drop(any(Location.class), eq(ritual.escrow), eq(ritual.ownerId)));
+    }
+  }
+
+  @Test
+  void aBindingRefusedAtTheEndReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      when(ritual.registry.bindBlock(any(), any(), any(), any())).thenReturn(Optional.of(GolemRegistry.BindBlock.CHUNK_CAP));
+
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void aBindThatFailsBeforeTheGolemIsBoundReturnsTheCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      when(ritual.registry.bind(any(), any(), any(), any())).thenThrow(new IllegalStateException("refused"));
+
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+    }
+  }
+
+  @Test
+  void anAbortRacingACompletedRitualNeverReturnsTheSpentCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.finish();
+      EntityDamageByEntityEvent hit = mock(EntityDamageByEntityEvent.class);
+      when(hit.getEntity()).thenReturn(golem);
+      when(hit.getCause()).thenReturn(EntityDamageEvent.DamageCause.ENTITY_ATTACK);
+
+      ritual.learned.on(hit);
+      ritual.learned.on(new PlayerQuitEvent(ritual.owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+      ritual.learned.unregister();
+
+      verify(ritual.registry, times(1)).bind(any(), any(), any(), any());
+      verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
+    }
+  }
+
+  @Test
+  void aPulseRacingAnAbortedRitualNeverBindsOrReturnsTheCoreTwice() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Snowman golem = ritual.golem(Snowman.class);
+      ritual.click(golem);
+      ritual.pulse(38);
+      Runnable pending = ritual.pulses.getFirst();
+
+      ritual.learned.on(new PlayerQuitEvent(ritual.owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+      pending.run();
+      pending.run();
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    }
+  }
+
+  @Test
+  void yourOwnServantBindsAsABoneCompanionAndLeavesTragoulTracking() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    ServantFrame.Frame frame = mock(ServantFrame.Frame.class);
+    ServantFrame.register(frame);
+    try (ritual) {
+      Skeleton servant = ritual.servant(ritual.ownerId);
+      when(frame.surrender(servant)).thenReturn(true);
+
+      ritual.click(servant);
+      verify(ritual.held).setAmount(2);
+      ritual.finish();
+
+      verify(frame).surrender(servant);
+      verify(ritual.registry).bind(ritual.owner, servant, GolemBody.BONE, GolemCoreType.BLANK);
+      verify(ritual.inventory, never()).addItem(any(ItemStack[].class));
+      assertThat(ritual.shown).containsExactly("Your Bone golem is now bound to you");
+    } finally {
+      ServantFrame.unregister(frame);
+    }
+  }
+
+  @Test
+  void theGuardianCoreBindsYourServantAsABoneGuardian() {
+    Ritual ritual = ritual(GolemCoreType.GUARDIAN);
+    ServantFrame.Frame frame = mock(ServantFrame.Frame.class);
+    ServantFrame.register(frame);
+    try (ritual) {
+      Skeleton servant = ritual.servant(ritual.ownerId);
+      when(frame.surrender(servant)).thenReturn(true);
+
+      ritual.click(servant);
+      ritual.finish();
+
+      verify(ritual.registry).bind(ritual.owner, servant, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    } finally {
+      ServantFrame.unregister(frame);
+    }
+  }
+
+  @Test
+  void someoneElsesServantIsRefusedAndKeepsYourCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Skeleton servant = ritual.servant(UUID.randomUUID());
+
+      PlayerInteractEntityEvent click = ritual.click(servant);
+
+      verify(click).setCancelled(true);
+      verify(ritual.held, never()).setAmount(anyInt());
+      assertThat(ritual.pulses).isEmpty();
+      assertThat(ritual.shown).containsExactly("That skeletal servant belongs to another player");
+    }
+  }
+
+  @Test
+  void bindingYourServantNeedsBoneFrame() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    try (ritual) {
+      Skeleton servant = ritual.servant(ritual.ownerId);
+      doReturn(0).when(ritual.learned).getActiveSiblingLevel(ritual.owner, "golem-bone-frame");
+
+      ritual.click(servant);
+
+      verify(ritual.held, never()).setAmount(anyInt());
+      assertThat(ritual.pulses).isEmpty();
+      assertThat(ritual.shown).containsExactly("You can't bind Bone golems yet");
+    }
+  }
+
+  @Test
+  void aWorkCoreIsRefusedForYourServantWithTheCoreRefusalMessage() {
+    Ritual ritual = ritual(GolemCoreType.GATHERER);
+    try (ritual) {
+      Skeleton servant = ritual.servant(ritual.ownerId);
+      when(ritual.registry.bindBlock(ritual.owner, servant, GolemBody.BONE, GolemCoreType.GATHERER))
+          .thenReturn(Optional.of(GolemRegistry.BindBlock.CORE_NOT_ALLOWED));
+
+      ritual.click(servant);
+
+      verify(ritual.held, never()).setAmount(anyInt());
+      assertThat(ritual.shown).containsExactly("A Bone golem can't take a Gatherer core");
+    }
+  }
+
+  @Test
+  void aServantTragoulWillNotHandOverIsReturnedWithItsCore() {
+    Ritual ritual = ritual(GolemCoreType.BLANK);
+    ServantFrame.Frame frame = mock(ServantFrame.Frame.class);
+    ServantFrame.register(frame);
+    try (ritual) {
+      Skeleton servant = ritual.servant(ritual.ownerId);
+
+      ritual.click(servant);
+      ritual.finish();
+
+      ritual.assertReturnedOnce();
+      verify(ritual.registry, never()).bind(any(), any(), any(), any());
+    } finally {
+      ServantFrame.unregister(frame);
+    }
+  }
+
+  private Ritual ritual(GolemCoreType core) {
+    return new Ritual(spy(adaptation), core);
+  }
+
+  private final class Ritual implements AutoCloseable {
+    private final UUID ownerId = UUID.randomUUID();
+    private final World world = mock(World.class);
+    private final Player owner = mock(Player.class);
+    private final PlayerInventory inventory = mock(PlayerInventory.class);
+    private final ItemStack held = mock(ItemStack.class);
+    private final ItemStack escrow = mock(ItemStack.class);
+    private final GolemRegistry registry = mock(GolemRegistry.class);
+    private final List<Runnable> pulses = new ArrayList<>();
+    private final List<String> shown = new ArrayList<>();
+    private final GolemAnimusBinding learned;
+    private final MockedStatic<J> scheduling;
+    private final MockedStatic<GolemItems> items;
+    private final MockedStatic<Fx> effects;
+    private final MockedStatic<FxTimeline> timelines;
+    private final MockedStatic<OwnerBoundDrop> drops;
+    private final MockedStatic<AdaptHud> hud;
+    private final MockedStatic<GolemScale> scales;
+
+    private Ritual(GolemAnimusBinding learned, GolemCoreType core) {
+      this.learned = learned;
+      when(held.clone()).thenReturn(escrow);
+      when(held.getAmount()).thenReturn(3);
+      when(owner.getUniqueId()).thenReturn(ownerId);
+      when(owner.getName()).thenReturn("Alex");
+      when(owner.isSneaking()).thenReturn(true);
+      when(owner.isOnline()).thenReturn(true);
+      when(owner.isValid()).thenReturn(true);
+      when(owner.getInventory()).thenReturn(inventory);
+      when(owner.getGameMode()).thenReturn(GameMode.SURVIVAL);
+      when(owner.getLevel()).thenReturn(30);
+      when(owner.getLocation()).thenReturn(new Location(world, 0D, 64D, 2D));
+      when(inventory.getItemInMainHand()).thenReturn(held);
+      when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>());
+      when(registry.bindBlock(any(), any(), any(), any())).thenReturn(Optional.empty());
+      when(registry.bind(any(), any(), any(), any())).thenReturn(mock(GolemHandle.class));
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      runtime.when(GolemancyRuntime::bindListener).thenReturn(mock(GolemBindListener.class));
+      AdaptServer server = mock(AdaptServer.class);
+      when(plugin.getAdaptServer()).thenReturn(server);
+      scheduling = mockStatic(J.class);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt(), any(Runnable.class))).thenAnswer(invocation -> pulses.add(invocation.getArgument(1)));
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
+        invocation.<Runnable>getArgument(1).run();
+        return true;
+      });
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
+        invocation.<Runnable>getArgument(1).run();
+        return true;
+      });
+      items = mockStatic(GolemItems.class, CALLS_REAL_METHODS);
+      items.when(() -> GolemItems.coreOf(held)).thenReturn(Optional.of(core));
+      effects = mockStatic(Fx.class);
+      effects.when(() -> Fx.now(any(Adaptation.class), any(Entity.class), any(FxPriority.class))).thenReturn(mock(FxEmitter.class, RETURNS_SELF));
+      timelines = mockStatic(FxTimeline.class);
+      timelines.when(() -> FxTimeline.follow(any(Adaptation.class), any(Entity.class))).thenReturn(mock(FxTimeline.class, RETURNS_SELF));
+      drops = mockStatic(OwnerBoundDrop.class);
+      scales = mockStatic(GolemScale.class);
+      hud = mockStatic(AdaptHud.class);
+      hud.when(() -> AdaptHud.actionBar(eq(owner), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
+      doReturn(5).when(learned).getActiveLevel(owner);
+      doReturn(1).when(learned).getActiveSiblingLevel(eq(owner), anyString());
+      doReturn(true).when(learned).canInteract(any(Player.class), any(Location.class));
+      doReturn(true).when(learned).canBlockPlace(any(Player.class), any(Location.class));
+      doNothing().when(learned).boundFx(any(Mob.class), any(GolemBody.class));
+      doNothing().when(learned).fizzle(any(Mob.class));
+    }
+
+    private <T extends Mob> T golem(Class<T> type) {
+      T golem = mock(type);
+      PersistentDataContainer data = mapBacked(new HashMap<>());
+      when(golem.getPersistentDataContainer()).thenReturn(data);
+      when(golem.getUniqueId()).thenReturn(UUID.randomUUID());
+      when(golem.getLocation()).thenAnswer(invocation -> new Location(world, 0D, 64D, 0D));
+      when(golem.getVelocity()).thenAnswer(invocation -> new Vector());
+      when(golem.isValid()).thenReturn(true);
+      when(golem.isAware()).thenReturn(true);
+      when(golem.getHeight()).thenReturn(1.9D);
+      return golem;
+    }
+
+    private Skeleton servant(UUID servantOwner) {
+      Skeleton servant = golem(Skeleton.class);
+      servant.getPersistentDataContainer().set(SERVANT_KEY, PersistentDataType.STRING, servantOwner.toString());
+      return servant;
+    }
+
+    private PlayerInteractEntityEvent click(Mob target) {
+      PlayerInteractEntityEvent event = mock(PlayerInteractEntityEvent.class);
+      when(event.getHand()).thenReturn(EquipmentSlot.HAND);
+      when(event.getPlayer()).thenReturn(owner);
+      when(event.getRightClicked()).thenReturn(target);
+      learned.on(event);
+      return event;
+    }
+
+    private void pulse(int count) {
+      for (int index = 0; index < count; index++) {
+        pulses.removeFirst().run();
+      }
+    }
+
+    private void finish() {
+      while (!pulses.isEmpty()) {
+        pulses.removeFirst().run();
+      }
+    }
+
+    private void assertReturnedOnce() {
+      verify(inventory, times(1)).addItem(any(ItemStack[].class));
+      verify(inventory).addItem(escrow);
+      verify(held, times(1)).setAmount(anyInt());
+    }
+
+    @Override
+    public void close() {
+      scales.close();
+      hud.close();
+      drops.close();
+      timelines.close();
+      effects.close();
+      items.close();
+      scheduling.close();
+    }
+  }
+
+  private static PersistentDataContainer mapBacked(Map<NamespacedKey, Object> values) {
+    PersistentDataContainer data = mock(PersistentDataContainer.class);
+    lenient().when(data.has(any(NamespacedKey.class), any(PersistentDataType.class)))
+        .thenAnswer(invocation -> values.containsKey(invocation.<NamespacedKey>getArgument(0)));
+    lenient().when(data.has(any(NamespacedKey.class))).thenAnswer(invocation -> values.containsKey(invocation.<NamespacedKey>getArgument(0)));
+    lenient().when(data.get(any(NamespacedKey.class), any(PersistentDataType.class)))
+        .thenAnswer(invocation -> values.get(invocation.<NamespacedKey>getArgument(0)));
+    lenient().doAnswer(invocation -> {
+      values.put(invocation.getArgument(0), invocation.getArgument(2));
+      return null;
+    }).when(data).set(any(NamespacedKey.class), any(PersistentDataType.class), any());
+    lenient().doAnswer(invocation -> values.remove(invocation.<NamespacedKey>getArgument(0))).when(data).remove(any(NamespacedKey.class));
+    return data;
+  }
+
   private PlayerInteractEntityEvent coreClick(Mob target) {
     Player player = mock(Player.class);
     PlayerInventory inventory = mock(PlayerInventory.class);
@@ -188,6 +672,8 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
     when(player.isSneaking()).thenReturn(true);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());
     when(target.getUniqueId()).thenReturn(UUID.randomUUID());
+    PersistentDataContainer data = mapBacked(new HashMap<>());
+    when(target.getPersistentDataContainer()).thenReturn(data);
     when(player.getInventory()).thenReturn(inventory);
     when(inventory.getItemInMainHand()).thenReturn(core);
     PlayerInteractEntityEvent event = mock(PlayerInteractEntityEvent.class);

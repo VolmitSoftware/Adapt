@@ -2915,6 +2915,153 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golem(missed).orElseThrow().masterwork()).isTrue();
   }
 
+  @Test
+  void bindingASkeletalServantShrinksItToFitOneBlockAndKeepsItsHealthCost() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.BLANK);
+
+    assertThat(platform.scale(bone)).singleElement().satisfies(modifier -> {
+      assertThat(modifier.getKey()).isEqualTo(GolemScale.MODIFIER_KEY);
+      assertThat(modifier.getAmount()).isCloseTo(-0.51D, offset(1e-9));
+    });
+    verify(bone).setPersistent(true);
+    verify(bone).setRemoveWhenFarAway(false);
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(roster.golemCount()).isEqualTo(1);
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+  }
+
+  @Test
+  void aGuardianCoreBindsABoneBodyWhileWorkCoresAreRefused() {
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+
+    assertThat(registry.bindBlock(owner, bone, GolemBody.BONE, GolemCoreType.GATHERER)).contains(GolemRegistry.BindBlock.CORE_NOT_ALLOWED);
+    assertThat(registry.bindBlock(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN)).isEmpty();
+    assertThat(registry.bindBlock(owner, bone, GolemBody.BONE, GolemCoreType.BLANK)).isEmpty();
+  }
+
+  @Test
+  void onlyActiveOrMissingBoneEntriesKeepAHealthCostWhenTheirOwnerJoins() {
+    GolemRoster roster = onlineOwner();
+    UUID awake = UUID.randomUUID();
+    UUID missing = UUID.randomUUID();
+    UUID iron = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(awake, GolemBody.BONE, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.add(new GolemRoster.Binding(missing, GolemBody.BONE, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.add(new GolemRoster.Binding(iron, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(platform.upkeep.get(OWNER)).containsExactlyInAnyOrder(awake, missing);
+  }
+
+  @Test
+  void theHealthCostLeavesWithItsOwnerAndReturnsOnRejoinAndAfterARestart() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+
+    registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+    platform.quit(OWNER);
+
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+
+    platform.join(OWNER, roster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(handle.id());
+
+    FakeGolemPlatform restarted = new FakeGolemPlatform();
+    restarted.join(OWNER, roster);
+    new GolemRegistry(restarted, settings::get, new RecordingGolemLifecycle()).joinOnlineOwners();
+
+    assertThat(restarted.upkeep.get(OWNER)).containsExactly(handle.id());
+  }
+
+  @Test
+  void aDyingBoneGolemDropsItsRolledCoreButNoSkeletonLootAndEndsItsHealthCost() {
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 1D, 0D));
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+    ItemStack arrows = mock(ItemStack.class);
+    List<ItemStack> drops = new ArrayList<>(List.of(arrows));
+    EntityDeathEvent death = mock(EntityDeathEvent.class);
+    when(death.getEntity()).thenReturn(bone);
+    when(death.getDrops()).thenReturn(drops);
+
+    registry.on(death);
+
+    assertThat(drops).containsExactly(coreItem);
+    verify(death).setDroppedExp(0);
+    assertThat(roster.golem(handle.id())).isEmpty();
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+  }
+
+  @Test
+  void releasingABoneGolemCrumblesTheSkeletonReturnsItsCoreAndEndsItsHealthCost() {
+    GolemRoster roster = onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.GUARDIAN);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+    assertThat(platform.crumbled).containsExactly(bone);
+    assertThat(roster.golem(handle.id())).isEmpty();
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+    assertThat(platform.scale(bone)).isEmpty();
+  }
+
+  @Test
+  void releasingAnIronGolemNeverCrumblesIt() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    assertThat(platform.crumbled).isEmpty();
+  }
+
+  @Test
+  void releasingAMissingBoneEntryEndsItsHealthCost() {
+    GolemRoster roster = onlineOwner();
+    UUID missing = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(missing, GolemBody.BONE, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+    assertThat(platform.upkeep.get(OWNER)).containsExactly(missing);
+
+    assertThat(registry.releaseEntry(OWNER, missing)).isTrue();
+
+    assertThat(platform.upkeep.get(OWNER)).isEmpty();
+  }
+
+  @Test
+  void aBoneGolemIsNeverPacked() {
+    onlineOwner();
+    Skeleton bone = skeleton(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, bone, GolemBody.BONE, GolemCoreType.BLANK);
+
+    assertThat(registry.pack(handle)).isEmpty();
+    assertThat(GolemState.has(bone)).isTrue();
+    verify(bone, never()).remove();
+  }
+
+  private Skeleton skeleton(AtomicReference<Location> location) {
+    Skeleton skeleton = GolemTestEntities.entity(Skeleton.class);
+    lenient().when(skeleton.getLocation()).thenAnswer(invocation -> location.get().clone());
+    lenient().when(skeleton.getWorld()).thenReturn(world);
+    lenient().when(skeleton.isValid()).thenReturn(true);
+    track(skeleton, location.get());
+    return skeleton;
+  }
+
   private <T extends Listener> T companion(Class<T> type) {
     for (Listener listener : registry.createCompanionListeners()) {
       if (type.isInstance(listener)) {

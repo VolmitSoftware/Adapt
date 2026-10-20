@@ -31,7 +31,9 @@ import art.arcane.adapt.api.golem.GolemRitualMarker;
 import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -39,6 +41,7 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -68,6 +71,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -76,6 +80,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -84,6 +89,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   static final String BLANK_CORE_RECIPE = "golemancy-blank-core";
   private static final String COPPER_FRAME = "golem-copper-frame";
   private static final String IRON_FRAME = "golem-iron-frame";
+  private static final String BONE_FRAME = "golem-bone-frame";
   private static final int RECIPE_LEVEL = 1;
   private static final double OWNER_REACH = 4D;
   private static final long MILLIS_PER_SECOND = 1000L;
@@ -143,7 +149,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     }
     Optional<GolemCoreType> core = GolemItems.coreOf(player.getInventory().getItemInMainHand());
     Optional<GolemBody> body = GolemBody.of(golem);
-    if (core.isEmpty() || body.isEmpty() || body.get() == GolemBody.BONE) {
+    if (core.isEmpty() || body.isEmpty() || !bindable(golem, body.get())) {
       return;
     }
     int level = getActiveLevel(player);
@@ -165,15 +171,17 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     BindingRitual ritual = ritualsByOwner.get(e.getPlayer().getUniqueId());
-    if (ritual != null) {
-      onGolemThread(ritual, () -> abort(ritual, false));
+    if (ritual != null && settle(ritual)) {
+      onGolemThread(ritual, () -> fail(ritual));
     }
   }
 
   @Override
   public void unregister() {
     for (BindingRitual ritual : List.copyOf(ritualsByGolem.values())) {
-      onGolemThread(ritual, () -> abort(ritual, false));
+      if (settle(ritual)) {
+        onGolemThread(ritual, () -> fail(ritual));
+      }
     }
     super.unregister();
   }
@@ -193,7 +201,16 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   }
 
   boolean bodyUnlocked(Player player, GolemBody body) {
-    return AnimusBindingRules.bodyUnlocked(body, getActiveSiblingLevel(player, COPPER_FRAME), getActiveSiblingLevel(player, IRON_FRAME));
+    return AnimusBindingRules.bodyUnlocked(body, getActiveSiblingLevel(player, COPPER_FRAME), getActiveSiblingLevel(player, IRON_FRAME),
+        getActiveSiblingLevel(player, BONE_FRAME));
+  }
+
+  private static boolean bindable(Mob golem, GolemBody body) {
+    return body != GolemBody.BONE || GolemState.has(golem) || TragoulSkeletalServant.isServant(golem);
+  }
+
+  private static boolean servantOwned(Player owner, Mob golem, GolemBody body) {
+    return body != GolemBody.BONE || GolemState.has(golem) || owner.getUniqueId().equals(TragoulSkeletalServant.getServantOwnerId(golem));
   }
 
   static boolean playerCreated(Mob golem) {
@@ -236,7 +253,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       return;
     }
     int ticks = ritualTicks(getConfig(), level);
-    BindingRitual ritual = new BindingRitual(target, ticks, now);
+    BindingRitual ritual = new BindingRitual(target, ticks, now, takeCore(owner));
     ritualsByOwner.put(owner.getUniqueId(), ritual);
     ritualsByGolem.put(golem.getUniqueId(), ritual);
     GolemRitualMarker.start(golem, ritual.wasAware());
@@ -290,8 +307,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     return golem.isValid() && !golem.isDead()
         && owner.isOnline() && owner.isValid() && !owner.isDead()
         && J.isOwnedByCurrentRegion(owner)
-        && ritual.withinReach(OWNER_REACH)
-        && ritual.stillHeld();
+        && ritual.withinReach(OWNER_REACH);
   }
 
   private void complete(BindingRitual ritual) {
@@ -304,57 +320,125 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     Player owner = target.owner();
     Optional<GolemRegistry> registry = GolemancyRuntime.registry();
     int level = getActiveLevel(owner);
-    if (registry.isEmpty() || level <= 0 || !ritual.stillHeld()) {
-      fail(ritual);
+    if (registry.isEmpty() || level <= 0) {
+      refuse(ritual);
       warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
       return;
     }
     Assessment assessment = assess(target, level, registry.get());
     if (assessment.verdict() != BindingVerdict.READY) {
-      fail(ritual);
+      refuse(ritual);
       deny(target, assessment);
       return;
     }
     if (!payTithe(owner, assessment.tithe())) {
-      fail(ritual);
+      refuse(ritual);
       deny(target, assessment.withVerdict(BindingVerdict.NOT_ENOUGH_LEVELS));
       return;
     }
     unwind(ritual);
+    if (target.body() == GolemBody.BONE && !GolemState.has(golem) && !ServantFrame.surrender(golem)) {
+      refundTithe(owner, assessment.tithe());
+      returnCore(ritual);
+      fizzle(golem);
+      warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
+      return;
+    }
     Optional<GolemHandle> handle;
     try {
       handle = Optional.of(registry.get().bind(owner, golem, target.body(), target.core()));
     } catch (RuntimeException failure) {
       if (!GolemState.has(golem)) {
         refundTithe(owner, assessment.tithe());
+        returnCore(ritual);
         fizzle(golem);
+        if (target.body() == GolemBody.BONE) {
+          ServantFrame.crumble(golem);
+        }
         warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
-        Adapt.warn("Animus Binding could not bind golem " + golem.getUniqueId() + " for " + owner.getName() + "; the tithe was refunded.", failure);
+        Adapt.warn("Animus Binding could not bind golem " + golem.getUniqueId() + " for " + owner.getName() + "; the core and the tithe were returned.", failure);
         return;
       }
-      Adapt.warn("Animus Binding failed after golem " + golem.getUniqueId() + " was bound to " + owner.getName() + "; the core was taken and the tithe was kept.", failure);
+      Adapt.warn("Animus Binding failed after golem " + golem.getUniqueId() + " was bound to " + owner.getName() + "; the core was used and the tithe was kept.", failure);
       handle = registry.get().handle(golem);
     }
-    decrementItemstack(owner.getInventory().getItemInMainHand(), owner);
-    fx(golem, FxPriority.TRANSITION)
-        .burst(Particles.END_ROD, 24, 0.5D)
-        .burst(bodyParticle(target.body()), 12, 0.4D)
-        .sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.8F, 1.2F)
-        .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.5F, 1.6F);
+    ritual.takeCore();
+    boundFx(golem, target.body());
     notify(owner, GolemancyMessages.BINDING_BOUND, trusted("body", AdaptLanguage.text(target.body().displayName())));
     handle.ifPresent(bound -> GolemancyRuntime.bindListener().bound(owner, bound));
   }
 
   private void abort(BindingRitual ritual, boolean announce) {
-    if (!ritual.finish()) {
+    if (!settle(ritual)) {
       return;
     }
-    forget(ritual);
     BindingTarget target = ritual.target();
     fail(ritual);
     if (announce && target.owner().isOnline()) {
       warn(target.owner(), GolemancyMessages.BINDING_INTERRUPTED);
     }
+  }
+
+  private boolean settle(BindingRitual ritual) {
+    if (!ritual.finish()) {
+      return false;
+    }
+    forget(ritual);
+    returnCore(ritual);
+    return true;
+  }
+
+  private void refuse(BindingRitual ritual) {
+    fail(ritual);
+    returnCore(ritual);
+  }
+
+  private static void returnCore(BindingRitual ritual) {
+    ItemStack core = ritual.takeCore();
+    if (core != null) {
+      giveBack(ritual.target().owner(), core, ritual.anchor());
+    }
+  }
+
+  private static void giveBack(Player owner, ItemStack core, Location fallback) {
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable give = () -> {
+      if (settled.compareAndSet(false, true)) {
+        handBack(owner, core);
+      }
+    };
+    Runnable drop = () -> {
+      if (settled.compareAndSet(false, true)) {
+        dropBack(owner.getUniqueId(), core, fallback);
+      }
+    };
+    if (owner.isOnline() && J.isOwnedByCurrentRegion(owner)) {
+      give.run();
+      return;
+    }
+    if (!J.runEntity(owner, give, drop)) {
+      drop.run();
+    }
+  }
+
+  private static void handBack(Player owner, ItemStack core) {
+    for (ItemStack leftover : owner.getInventory().addItem(core).values()) {
+      OwnerBoundDrop.drop(owner.getLocation(), leftover, owner.getUniqueId());
+    }
+  }
+
+  private static void dropBack(UUID owner, ItemStack core, Location at) {
+    if (!J.runAt(at, () -> OwnerBoundDrop.drop(at, core, owner))) {
+      Adapt.warn("Animus Binding could not return the Animus Core of " + owner + " at " + at + "; the core was lost.");
+    }
+  }
+
+  private ItemStack takeCore(Player owner) {
+    ItemStack held = owner.getInventory().getItemInMainHand();
+    ItemStack core = held.clone();
+    core.setAmount(1);
+    decrementItemstack(held, owner);
+    return core;
   }
 
   private void forget(BindingRitual ritual) {
@@ -389,7 +473,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   }
 
   private void lose(BindingRitual ritual) {
-    ritual.finish();
+    settle(ritual);
     forget(ritual);
     GolemRitualMarker.release(ritual.target().golem());
   }
@@ -405,7 +489,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     boolean coreUnlocked = core == GolemCoreType.BLANK || getActiveSiblingLevel(owner, "golem-" + core.id() + "-core") >= 1;
     Location at = golem.getLocation();
     BindingCheck check = new BindingCheck(registry.bindBlock(owner, golem, target.body(), core).orElse(null),
-        playerCreated(golem), config.allowBindingVillageGolems, exclusive,
+        servantOwned(owner, golem, target.body()), playerCreated(golem), config.allowBindingVillageGolems, exclusive,
         bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, at) && canBlockPlace(owner, at), ownedGolems(owner), cap, owner.getLevel(), tithe);
     return new Assessment(AnimusBindingRules.verdict(check), cap, tithe);
   }
@@ -433,6 +517,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       case READY -> {
       }
       case ALREADY_BOUND -> warn(owner, GolemancyMessages.BINDING_ALREADY_BOUND);
+      case NOT_OWNER -> warn(owner, GolemancyMessages.BINDING_NOT_OWNER);
       case VILLAGE_GOLEM -> warn(owner, GolemancyMessages.BINDING_VILLAGE);
       case NOT_BUILDER -> warn(owner, GolemancyMessages.BINDING_BUILDER);
       case BODY_LOCKED -> warn(owner, GolemancyMessages.BINDING_BODY_LOCKED, trusted("body", body));
@@ -479,7 +564,15 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     return golem.isValid();
   }
 
-  private void fizzle(Mob golem) {
+  void boundFx(Mob golem, GolemBody body) {
+    fx(golem, FxPriority.TRANSITION)
+        .burst(Particles.END_ROD, 24, 0.5D)
+        .burst(bodyParticle(body), 12, 0.4D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.8F, 1.2F)
+        .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.5F, 1.6F);
+  }
+
+  void fizzle(Mob golem) {
     fx(golem, FxPriority.AMBIENT)
         .burst(Particles.SMOKE, 10, 0.4D)
         .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.4F, 1.6F);

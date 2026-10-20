@@ -41,6 +41,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,6 +71,7 @@ public final class MinionBurden extends TickedObject {
   private final Attribute maxHealthAttribute;
   private final MinionRegistry registry = new MinionRegistry();
   private final Map<UUID, LivingEntity> minions = new ConcurrentHashMap<>();
+  private final Map<UUID, Set<UUID>> held = new ConcurrentHashMap<>();
   private final Set<UUID> livenessStrikes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingLivenessChecks = ConcurrentHashMap.newKeySet();
   private final AtomicLong taskGeneration = new AtomicLong();
@@ -163,7 +165,7 @@ public final class MinionBurden extends TickedObject {
 
   @Override
   public boolean hasTickDemand() {
-    return registry.hasOwners();
+    return registry.hasOwners() || !held.isEmpty();
   }
 
   @Override
@@ -174,7 +176,7 @@ public final class MinionBurden extends TickedObject {
         setInterval(nextMaintenanceAt - now);
         return;
       }
-      maintenanceOwners = registry.ownerSnapshot();
+      maintenanceOwners = burdenedOwners();
       maintenanceIndex = 0;
       nextMaintenanceAt = now + MAINTENANCE_INTERVAL_MS;
     }
@@ -231,6 +233,24 @@ public final class MinionBurden extends TickedObject {
     recompute(ownerId);
   }
 
+  public void hold(UUID ownerId, Set<UUID> minionIds) {
+    if (ownerId == null) {
+      return;
+    }
+
+    Set<UUID> next = minionIds == null ? Set.of() : Set.copyOf(minionIds);
+    Set<UUID> previous;
+    synchronized (lifecycleLock) {
+      if (!acceptingRegistrations && !next.isEmpty()) {
+        return;
+      }
+      previous = next.isEmpty() ? held.remove(ownerId) : held.put(ownerId, next);
+    }
+    if (!next.equals(previous == null ? Set.of() : previous)) {
+      recompute(ownerId);
+    }
+  }
+
   public void unregister(Player owner, Entity minion) {
     if (owner == null) {
       return;
@@ -268,7 +288,8 @@ public final class MinionBurden extends TickedObject {
   }
 
   public int activeCount(UUID ownerId) {
-    return registry.count(ownerId);
+    Set<UUID> kept = held.get(ownerId);
+    return registry.count(ownerId) + (kept == null ? 0 : kept.size());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -307,7 +328,7 @@ public final class MinionBurden extends TickedObject {
       return;
     }
 
-    int count = registry.count(ownerId);
+    int count = activeCount(ownerId);
     double currentBurden = 0;
     for (AttributeModifier modifier : attribute.getModifiers()) {
       if (BURDEN_KEY.equals(modifier.getKey())) {
@@ -381,8 +402,18 @@ public final class MinionBurden extends TickedObject {
     }
   }
 
+  private List<UUID> burdenedOwners() {
+    List<UUID> owners = registry.ownerSnapshot();
+    if (held.isEmpty()) {
+      return owners;
+    }
+    Set<UUID> union = new LinkedHashSet<>(owners);
+    union.addAll(held.keySet());
+    return List.copyOf(union);
+  }
+
   private void scrubRegisteredOwners() {
-    for (UUID ownerId : registry.ownerIds()) {
+    for (UUID ownerId : burdenedOwners()) {
       Player owner = Bukkit.getPlayer(ownerId);
       if (owner == null || !owner.isOnline()) {
         continue;
@@ -397,6 +428,7 @@ public final class MinionBurden extends TickedObject {
     stopRegistrations();
     synchronized (lifecycleLock) {
       registry.clearAll();
+      held.clear();
       minions.clear();
       livenessStrikes.clear();
       pendingLivenessChecks.clear();

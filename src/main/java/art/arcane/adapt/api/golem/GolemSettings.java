@@ -18,14 +18,14 @@ public record GolemSettings(
     Map<GolemBody, Set<GolemCoreType>> allowedCores,
     double deathDropCoreChance,
     double deathDropRuneChance) {
-  private static final Set<GolemCoreType> BONE_CORES = Set.of(GolemCoreType.GUARDIAN);
+  private static final Set<GolemCoreType> BONE_CORES = Set.of(GolemCoreType.BLANK, GolemCoreType.GUARDIAN);
   private static final GolemSettings DEFAULTS = new GolemSettings(
       true,
       false,
       1500,
       8,
       32,
-      Map.of(GolemBody.FROST, 0.50D, GolemBody.COPPER, 1.00D, GolemBody.IRON, 0.36D, GolemBody.BONE, 1.00D),
+      Map.of(GolemBody.FROST, 0.50D, GolemBody.COPPER, 1.00D, GolemBody.IRON, 0.36D, GolemBody.BONE, 0.49D),
       Map.of(GolemBody.FROST, 8, GolemBody.COPPER, 16, GolemBody.IRON, 64),
       Map.of(
           GolemBody.FROST, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.HARVESTER),

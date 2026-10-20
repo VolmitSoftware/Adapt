@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 
@@ -32,6 +33,19 @@ public final class ServantFrame {
     return frame().map(frame -> frame.servantMenuUnlocked(player)).orElse(false);
   }
 
+  public static boolean surrender(Mob body) {
+    return body instanceof Skeleton servant && frame().map(frame -> frame.surrender(servant)).orElse(false);
+  }
+
+  public static void crumble(Mob body) {
+    Optional<Frame> frame = frame();
+    if (body instanceof Skeleton servant && frame.isPresent()) {
+      frame.get().crumble(servant);
+      return;
+    }
+    body.remove();
+  }
+
   public interface Frame {
     int level(UUID owner);
 
@@ -52,5 +66,9 @@ public final class ServantFrame {
     boolean servantMenuUnlocked(Player player);
 
     void openLattice(Player player, int rosterPage);
+
+    boolean surrender(Skeleton servant);
+
+    void crumble(Skeleton servant);
   }
 }

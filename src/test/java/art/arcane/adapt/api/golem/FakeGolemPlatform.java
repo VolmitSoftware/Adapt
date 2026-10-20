@@ -54,6 +54,8 @@ final class FakeGolemPlatform implements GolemPlatform {
   final List<Mob> spawns = new ArrayList<>();
   final List<Location> spawnedAt = new ArrayList<>();
   final List<Class<?>> spawnedTypes = new ArrayList<>();
+  final Map<UUID, Set<UUID>> upkeep = new HashMap<>();
+  final List<Mob> crumbled = new ArrayList<>();
   Consumer<Mob> spawnListener = spawned -> {
   };
   Consumer<UUID> rosterListener = owner -> {
@@ -269,6 +271,16 @@ final class FakeGolemPlatform implements GolemPlatform {
     spawnListener.accept(spawned);
     prepare.accept(spawned);
     return spawned;
+  }
+
+  @Override
+  public void upkeep(UUID owner, Set<UUID> golems) {
+    upkeep.put(owner, Set.copyOf(golems));
+  }
+
+  @Override
+  public void crumble(Mob body) {
+    crumbled.add(body);
   }
 
   @Override

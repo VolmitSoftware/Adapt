@@ -29,7 +29,7 @@ class GolemSettingsTest {
     assertThat(settings.allowedCores(GolemBody.IRON)).containsExactlyInAnyOrder(
         GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.LUMBER,
         GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.ANGLER);
-    assertThat(settings.allowedCores(GolemBody.BONE)).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(settings.allowedCores(GolemBody.BONE)).containsExactlyInAnyOrder(GolemCoreType.BLANK, GolemCoreType.GUARDIAN);
     assertThat(settings.bodyCarry(GolemBody.FROST)).isEqualTo(8);
     assertThat(settings.bodyCarry(GolemBody.COPPER)).isEqualTo(16);
     assertThat(settings.bodyCarry(GolemBody.IRON)).isEqualTo(64);
@@ -47,6 +47,19 @@ class GolemSettingsTest {
   }
 
   @Test
+  void boneBodiesTakeOnlyTheBlankAndGuardianCores() {
+    GolemSettings settings = GolemSettings.defaults();
+
+    assertThat(settings.allows(GolemBody.BONE, GolemCoreType.BLANK)).isTrue();
+    assertThat(settings.allows(GolemBody.BONE, GolemCoreType.GUARDIAN)).isTrue();
+    for (GolemCoreType core : GolemCoreType.values()) {
+      if (core != GolemCoreType.BLANK && core != GolemCoreType.GUARDIAN) {
+        assertThat(settings.allows(GolemBody.BONE, core)).as("bone with %s", core).isFalse();
+      }
+    }
+  }
+
+  @Test
   void valuesAreClampedAtTheBoundary() {
     GolemSettings settings = new GolemSettings(true, true, -5, -1, -2,
         Map.of(GolemBody.FROST, 0.001D, GolemBody.IRON, 400D), Map.of(GolemBody.FROST, -4, GolemBody.IRON, 200, GolemBody.BONE, 30),
@@ -61,7 +74,7 @@ class GolemSettingsTest {
     assertThat(settings.deathDropCoreChance()).isEqualTo(1D);
     assertThat(settings.deathDropRuneChance()).isZero();
     assertThat(settings.allowedCores(GolemBody.FROST)).isEmpty();
-    assertThat(settings.allowedCores(GolemBody.BONE)).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(settings.allowedCores(GolemBody.BONE)).containsExactlyInAnyOrder(GolemCoreType.BLANK, GolemCoreType.GUARDIAN);
     assertThat(settings.bodyCarry(GolemBody.FROST)).isZero();
     assertThat(settings.bodyCarry(GolemBody.IRON)).isEqualTo(200);
     assertThat(settings.bodyCarry(GolemBody.COPPER)).isZero();

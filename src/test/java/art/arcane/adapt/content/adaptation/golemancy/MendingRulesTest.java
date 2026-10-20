@@ -92,12 +92,17 @@ class MendingRulesTest {
 
   @Test
   void aGolemShattersOnlyWhenValidatedWithItsOwnerOnlineAtTheShatterLevel() {
-    assertThat(MendingRules.shatters(true, true, 4, 4)).isTrue();
-    assertThat(MendingRules.shatters(true, true, 5, 4)).isTrue();
-    assertThat(MendingRules.shatters(true, true, 3, 4)).isFalse();
-    assertThat(MendingRules.shatters(true, false, 5, 4)).isFalse();
-    assertThat(MendingRules.shatters(false, true, 5, 4)).isFalse();
-    assertThat(MendingRules.shatters(true, true, 0, 0)).isFalse();
+    assertThat(MendingRules.shatters(GolemBody.IRON, true, true, 4, 4)).isTrue();
+    assertThat(MendingRules.shatters(GolemBody.FROST, true, true, 5, 4)).isTrue();
+    assertThat(MendingRules.shatters(GolemBody.COPPER, true, true, 3, 4)).isFalse();
+    assertThat(MendingRules.shatters(GolemBody.IRON, true, false, 5, 4)).isFalse();
+    assertThat(MendingRules.shatters(GolemBody.IRON, false, true, 5, 4)).isFalse();
+    assertThat(MendingRules.shatters(GolemBody.IRON, true, true, 0, 0)).isFalse();
+  }
+
+  @Test
+  void boneGolemsNeverLeaveAShatteredCore() {
+    assertThat(MendingRules.shatters(GolemBody.BONE, true, true, 5, 4)).isFalse();
   }
 
   @Test

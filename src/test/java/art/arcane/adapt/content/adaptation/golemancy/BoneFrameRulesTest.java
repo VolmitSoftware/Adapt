@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.Mockito.mock;
 
 class BoneFrameRulesTest {
@@ -100,15 +99,6 @@ class BoneFrameRulesTest {
     assertThat(BoneFrameRules.refuse(lattice, new GolemRune(GolemRuneType.MIGHT, 3), 2, ALLOWED)).contains(BoneFrameRules.Refusal.DUPLICATE);
     assertThat(BoneFrameRules.refuse(lattice, new GolemRune(GolemRuneType.EMBER, 2), 1, ALLOWED)).contains(BoneFrameRules.Refusal.NO_SLOT);
     assertThat(BoneFrameRules.refuse(lattice, new GolemRune(GolemRuneType.EMBER, 2), 2, ALLOWED)).isEmpty();
-  }
-
-  @Test
-  void boneScaleAppliesOnlyWithBoneFrameAndAScaleOtherThanOne() {
-    assertThat(BoneFrameRules.scaleAmount(0, 0.8D)).isEmpty();
-    assertThat(BoneFrameRules.scaleAmount(1, 1.0D)).isEmpty();
-    assertThat(BoneFrameRules.scaleAmount(1, 0.8D).orElseThrow()).isCloseTo(-0.2D, offset(1e-9));
-    assertThat(BoneFrameRules.scaleAmount(3, 1.5D).orElseThrow()).isCloseTo(0.5D, offset(1e-9));
-    assertThat(BoneFrameRules.scaleAmount(2, Double.NaN)).isEmpty();
   }
 
   @Test

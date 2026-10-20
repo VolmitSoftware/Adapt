@@ -1080,7 +1080,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Size of a bound iron golem as a multiple of its normal size.", impact = "Lower values make bound iron golems smaller; 1.0 keeps the normal size.")
     double bodyScaleIron = 0.36;
     @ConfigDoc(value = "Size of a bound bone golem as a multiple of its normal size.", impact = "Lower values make bound bone golems smaller; 1.0 keeps the normal size.")
-    double bodyScaleBone = 1.00;
+    double bodyScaleBone = 0.49;
     @ConfigDoc(value = "Items a bound frost golem can carry at once.", impact = "Higher values let working frost golems move more items per trip.")
     int bodyCarryFrost = 8;
     @ConfigDoc(value = "Items a bound copper golem can carry at once before Copper Frame raises it.", impact = "Higher values let working copper golems move more items per trip.")
