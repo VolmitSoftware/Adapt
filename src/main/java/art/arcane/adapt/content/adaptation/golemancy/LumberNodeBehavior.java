@@ -212,7 +212,7 @@ final class LumberNodeBehavior implements NodeBehavior {
     int index = felling.cursor();
     while (index < parts.size() && taken.size() < room) {
       LumberTrees.Part part = parts.get(index);
-      boolean log = part.type() == tree.species();
+      boolean log = !TreeBlocks.cap(part.type());
       if (log && logs >= allowance) {
         break;
       }

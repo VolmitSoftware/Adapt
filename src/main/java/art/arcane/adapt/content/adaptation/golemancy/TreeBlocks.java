@@ -2,41 +2,76 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import org.bukkit.Material;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 final class TreeBlocks {
-  private static final Map<Material, Material> SAPLINGS = Map.ofEntries(
-      Map.entry(Material.OAK_LOG, Material.OAK_SAPLING),
-      Map.entry(Material.SPRUCE_LOG, Material.SPRUCE_SAPLING),
-      Map.entry(Material.BIRCH_LOG, Material.BIRCH_SAPLING),
-      Map.entry(Material.JUNGLE_LOG, Material.JUNGLE_SAPLING),
-      Map.entry(Material.ACACIA_LOG, Material.ACACIA_SAPLING),
-      Map.entry(Material.DARK_OAK_LOG, Material.DARK_OAK_SAPLING),
-      Map.entry(Material.MANGROVE_LOG, Material.MANGROVE_PROPAGULE),
-      Map.entry(Material.CHERRY_LOG, Material.CHERRY_SAPLING),
-      Map.entry(Material.PALE_OAK_LOG, Material.PALE_OAK_SAPLING),
-      Map.entry(Material.CRIMSON_STEM, Material.CRIMSON_FUNGUS),
-      Map.entry(Material.WARPED_STEM, Material.WARPED_FUNGUS));
+  private static final String LEGACY = "LEGACY_";
+  private static final String STRIPPED = "STRIPPED_";
+  private static final List<String> WOOD_SUFFIXES = List.of("_LOG", "_WOOD");
+  private static final List<String> SAPLING_SUFFIXES = List.of("_SAPLING", "_PROPAGULE", "_FUNGUS");
+  private static final List<String> BUILDING_PREFIXES = List.of("POTTED_", "POLISHED_", "SMOOTH_", "CUT_", "CHISELED_");
+  private static final List<String> BUILDING_SUFFIXES = List.of("_PLANKS", "_STAIRS", "_SLAB", "_FENCE", "_FENCE_GATE", "_WALL", "_DOOR",
+      "_TRAPDOOR", "GLASS", "_PANE", "_WOOL", "_CARPET", "_CONCRETE", "_GLAZED_TERRACOTTA", "_BED", "_BANNER", "_SIGN", "_BUTTON",
+      "_PRESSURE_PLATE", "BRICKS", "_TILES", "CANDLE", "_BARS", "SHULKER_BOX", "LANTERN", "TORCH", "RAIL", "CHEST", "_SHELF", "CHAIN",
+      "_COPPER", "_GRATE", "_BULB");
+  private static final Set<String> BUILDING_NAMES = Set.of("COBBLESTONE", "BOOKSHELF", "LADDER", "CRAFTING_TABLE", "FURNACE",
+      "BLAST_FURNACE", "SMOKER", "BARREL", "LECTERN", "LEVER", "QUARTZ_BLOCK", "QUARTZ_PILLAR", "SCAFFOLDING", "HAY_BLOCK", "FLOWER_POT",
+      "TARGET", "ANVIL", "CHIPPED_ANVIL", "DAMAGED_ANVIL", "CAULDRON", "COMPOSTER", "CARTOGRAPHY_TABLE", "FLETCHING_TABLE",
+      "SMITHING_TABLE", "LOOM", "STONECUTTER", "GRINDSTONE", "BELL", "BREWING_STAND", "ENCHANTING_TABLE", "JUKEBOX", "NOTE_BLOCK",
+      "BEACON", "CAMPFIRE", "SOUL_CAMPFIRE", "IRON_BLOCK", "GOLD_BLOCK", "DIAMOND_BLOCK", "EMERALD_BLOCK", "LAPIS_BLOCK",
+      "REDSTONE_BLOCK", "NETHERITE_BLOCK", "COAL_BLOCK", "COPPER_BLOCK", "TNT", "PACKED_MUD", "DECORATED_POT", "BEEHIVE", "HOPPER",
+      "DISPENSER", "DROPPER", "OBSERVER", "PISTON", "STICKY_PISTON", "REPEATER", "COMPARATOR", "REDSTONE_WIRE", "DAYLIGHT_DETECTOR",
+      "TRIPWIRE_HOOK", "END_ROD", "LIGHTNING_ROD", "CRAFTER", "SEA_LANTERN", "GLOWSTONE", "REDSTONE_LAMP", "SPONGE", "WET_SPONGE");
+  private static final Set<String> NOT_BUILDING = Set.of("MOSS_CARPET", "PALE_MOSS_CARPET", "SMOOTH_BASALT");
   private static final Set<Material> STEMS = EnumSet.of(Material.CRIMSON_STEM, Material.WARPED_STEM);
-  private static final Set<Material> PAIRED = EnumSet.of(Material.DARK_OAK_LOG, Material.PALE_OAK_LOG);
-  private static final Set<Material> MEGA = EnumSet.of(Material.SPRUCE_LOG, Material.JUNGLE_LOG, Material.DARK_OAK_LOG, Material.PALE_OAK_LOG);
-  private static final Set<Material> LEAVES = EnumSet.of(Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.BIRCH_LEAVES,
-      Material.JUNGLE_LEAVES, Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES, Material.MANGROVE_LEAVES, Material.CHERRY_LEAVES,
-      Material.AZALEA_LEAVES, Material.FLOWERING_AZALEA_LEAVES, Material.PALE_OAK_LEAVES);
+  private static final Set<Material> PAIRED = EnumSet.of(Material.DARK_OAK_SAPLING, Material.PALE_OAK_SAPLING);
   private static final Set<Material> CAPS = EnumSet.of(Material.NETHER_WART_BLOCK, Material.WARPED_WART_BLOCK, Material.SHROOMLIGHT);
   private static final Set<Material> SOIL = EnumSet.of(Material.DIRT, Material.GRASS_BLOCK, Material.PODZOL, Material.COARSE_DIRT,
       Material.ROOTED_DIRT, Material.MYCELIUM, Material.MOSS_BLOCK, Material.PALE_MOSS_BLOCK, Material.MUD, Material.MUDDY_MANGROVE_ROOTS,
       Material.FARMLAND);
+  private static final Set<Material> GROUND = EnumSet.of(Material.STONE, Material.ANDESITE, Material.DIORITE, Material.GRANITE,
+      Material.TUFF, Material.CALCITE, Material.DEEPSLATE, Material.GRAVEL, Material.CLAY, Material.SAND, Material.RED_SAND,
+      Material.SNOW_BLOCK, Material.ICE, Material.PACKED_ICE, Material.BLUE_ICE);
   private static final Set<Material> NYLIUM = EnumSet.of(Material.CRIMSON_NYLIUM, Material.WARPED_NYLIUM);
-  private static final Set<Material> NATURAL = natural();
+  private static final Set<Material> WOOD = EnumSet.noneOf(Material.class);
+  private static final Set<Material> LEAVES = EnumSet.noneOf(Material.class);
+  private static final Set<Material> BUILDING = EnumSet.noneOf(Material.class);
+  private static final Map<Material, Material> SAPLINGS = new EnumMap<>(Material.class);
+
+  static {
+    GROUND.addAll(SOIL);
+    for (Material type : Material.values()) {
+      String name = type.name();
+      if (name.startsWith(LEGACY)) {
+        continue;
+      }
+      if (wood(name)) {
+        WOOD.add(type);
+      } else if (name.endsWith("_LEAVES")) {
+        LEAVES.add(type);
+      } else if (name.endsWith("TERRACOTTA") && !name.endsWith("_GLAZED_TERRACOTTA")) {
+        GROUND.add(type);
+      } else if (building(name)) {
+        BUILDING.add(type);
+      }
+    }
+    for (Material type : WOOD) {
+      sapling(type, family(type.name()));
+    }
+    for (Material type : STEMS) {
+      sapling(type, family(type.name()));
+    }
+  }
 
   private TreeBlocks() {
   }
 
   static boolean trunk(Material type, boolean nether) {
-    return SAPLINGS.containsKey(type) && (nether || !STEMS.contains(type));
+    return WOOD.contains(type) || (nether && STEMS.contains(type));
   }
 
   static boolean stem(Material type) {
@@ -55,12 +90,16 @@ final class TreeBlocks {
     return SOIL.contains(type);
   }
 
+  static boolean ground(Material type) {
+    return GROUND.contains(type);
+  }
+
   static boolean nylium(Material type) {
     return NYLIUM.contains(type);
   }
 
-  static boolean natural(Material type) {
-    return NATURAL.contains(type);
+  static boolean building(Material type) {
+    return BUILDING.contains(type);
   }
 
   static boolean air(Material type) {
@@ -71,36 +110,51 @@ final class TreeBlocks {
     return SAPLINGS.get(species);
   }
 
-  static boolean growsAlone(Material species) {
-    return !PAIRED.contains(species);
+  static boolean growsAlone(Material sapling) {
+    return !PAIRED.contains(sapling);
   }
 
-  static boolean mega(Material species) {
-    return MEGA.contains(species);
+  private static boolean wood(String name) {
+    for (String suffix : WOOD_SUFFIXES) {
+      if (name.endsWith(suffix)) {
+        return true;
+      }
+    }
+    return false;
   }
 
-  private static Set<Material> natural() {
-    Set<Material> natural = EnumSet.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.SNOW, Material.SNOW_BLOCK,
-        Material.POWDER_SNOW, Material.STONE, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.DEEPSLATE, Material.TUFF,
-        Material.CALCITE, Material.GRAVEL, Material.SAND, Material.RED_SAND, Material.CLAY, Material.MANGROVE_ROOTS, Material.NETHERRACK,
-        Material.SOUL_SOIL, Material.SOUL_SAND, Material.BASALT, Material.BLACKSTONE, Material.SHORT_GRASS, Material.TALL_GRASS, Material.FERN,
-        Material.LARGE_FERN, Material.SHORT_DRY_GRASS, Material.TALL_DRY_GRASS, Material.BUSH, Material.FIREFLY_BUSH, Material.DEAD_BUSH,
-        Material.LEAF_LITTER, Material.MOSS_CARPET, Material.PALE_MOSS_CARPET, Material.PALE_HANGING_MOSS, Material.GLOW_LICHEN,
-        Material.HANGING_ROOTS, Material.VINE, Material.COCOA, Material.BEE_NEST, Material.RESIN_CLUMP, Material.SWEET_BERRY_BUSH,
-        Material.SUGAR_CANE, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.LILY_PAD, Material.AZALEA, Material.FLOWERING_AZALEA,
-        Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.BROWN_MUSHROOM_BLOCK, Material.RED_MUSHROOM_BLOCK, Material.MUSHROOM_STEM,
-        Material.BAMBOO, Material.BAMBOO_SAPLING, Material.MELON, Material.PUMPKIN, Material.MOSSY_COBBLESTONE,
-        Material.DANDELION, Material.POPPY, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET, Material.RED_TULIP,
-        Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP, Material.OXEYE_DAISY, Material.CORNFLOWER,
-        Material.LILY_OF_THE_VALLEY, Material.SUNFLOWER, Material.LILAC, Material.ROSE_BUSH, Material.PEONY, Material.PINK_PETALS,
-        Material.WILDFLOWERS, Material.OPEN_EYEBLOSSOM, Material.CLOSED_EYEBLOSSOM, Material.CRIMSON_ROOTS, Material.WARPED_ROOTS,
-        Material.NETHER_SPROUTS, Material.WEEPING_VINES, Material.WEEPING_VINES_PLANT, Material.TWISTING_VINES,
-        Material.TWISTING_VINES_PLANT, Material.CRIMSON_FUNGUS, Material.WARPED_FUNGUS, Material.OAK_SAPLING, Material.SPRUCE_SAPLING,
-        Material.BIRCH_SAPLING, Material.JUNGLE_SAPLING, Material.ACACIA_SAPLING, Material.DARK_OAK_SAPLING, Material.CHERRY_SAPLING,
-        Material.PALE_OAK_SAPLING, Material.MANGROVE_PROPAGULE);
-    natural.addAll(SOIL);
-    natural.addAll(NYLIUM);
-    natural.addAll(SAPLINGS.keySet());
-    return natural;
+  private static boolean building(String name) {
+    if (NOT_BUILDING.contains(name)) {
+      return false;
+    }
+    if (BUILDING_NAMES.contains(name)) {
+      return true;
+    }
+    for (String prefix : BUILDING_PREFIXES) {
+      if (name.startsWith(prefix)) {
+        return true;
+      }
+    }
+    for (String suffix : BUILDING_SUFFIXES) {
+      if (name.endsWith(suffix)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String family(String name) {
+    String bare = name.startsWith(STRIPPED) ? name.substring(STRIPPED.length()) : name;
+    return bare.substring(0, bare.lastIndexOf('_'));
+  }
+
+  private static void sapling(Material species, String family) {
+    for (String suffix : SAPLING_SUFFIXES) {
+      Material sapling = Material.getMaterial(family + suffix);
+      if (sapling != null) {
+        SAPLINGS.put(species, sapling);
+        return;
+      }
+    }
   }
 }

@@ -217,15 +217,16 @@ class LumberNodeBehaviorTest {
 
   @Test
   void wideAndUnownedTreesAreRememberedToo() {
+    level(3);
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
-    field.set(1, 63, 0, Material.GRASS_BLOCK).set(1, 64, 0, Material.OAK_LOG);
+    field.set(1, 63, 0, Material.GRASS_BLOCK).set(1, 64, 0, Material.OAK_LOG).set(1, 65, 0, Material.OAK_LOG).set(1, 66, 0, Material.OAK_LOG);
 
     behavior.scan(node(NOW), budget(true));
     assertThat(posted).isEmpty();
     assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isTrue();
 
     rejections.forget();
-    field.set(1, 64, 0, Material.AIR);
+    field.set(1, 64, 0, Material.AIR).set(1, 65, 0, Material.AIR).set(1, 66, 0, Material.AIR);
     behavior.scan(node(NOW, block -> block.getX() >= 0), budget(true));
     assertThat(posted).isEmpty();
     assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isTrue();
@@ -406,7 +407,8 @@ class LumberNodeBehaviorTest {
   void leafSweepWaitsForTheLeavesToComeLooseThenCollectsTheirDrops() {
     level(3);
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
-    field.set(-1, 69, -1, Material.OAK_LEAVES, leaves(true, 7));
+    field.set(-1, 69, -1, Material.OAK_LEAVES, leaves(false, 7));
+    stamped.add("-1,69,-1");
     GolemTask task = fell(0, 64, 0);
     behavior.act(golem(0, NOW), task);
     behavior.act(golem(1, NOW + 1_000L), task);
@@ -415,7 +417,7 @@ class LumberNodeBehaviorTest {
     assertThat(behavior.act(golem(3, NOW + 3_000L), task)).isEqualTo(GolemActResult.WORKING);
     assertThat(logs(0, 0)).isEmpty();
     assertThat(behavior.act(golem(4, NOW + 4_000L), task)).isEqualTo(GolemActResult.WORKING);
-    field.set(1, 68, 0, Material.OAK_LEAVES, leaves(false, 7));
+    field.set(1, 68, 0, Material.OAK_LEAVES, leaves(true, 7));
     field.set(0, 69, 0, Material.OAK_LEAVES, leaves(false, 7));
     field.set(0, 68, 1, Material.OAK_LEAVES, leaves(false, 3));
     field.set(-1, 68, 0, Material.OAK_LEAVES, leaves(false, 7));
@@ -433,6 +435,63 @@ class LumberNodeBehaviorTest {
     assertThat(field.type(0, 64, 0)).isEqualTo(Material.OAK_SAPLING);
     assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("OAK_LOG", 5, "OAK_SAPLING", 1, "STICK", 2));
     feedback.verify(() -> LumberFeedback.play(eq(core), any(Location.class), eq(LumberFeedback.Kind.SWEEP)));
+  }
+
+  @Test
+  void aGeneratedTreeWithPersistentLeavesGetsAJobAndIsFelled() {
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    for (int y = 68; y <= 69; y++) {
+      for (int x = -1; x <= 1; x++) {
+        for (int z = -1; z <= 1; z++) {
+          if (field.type(x, y, z) == Material.OAK_LEAVES) {
+            field.set(x, y, z, Material.OAK_LEAVES, leaves(true, 1));
+          }
+        }
+      }
+    }
+
+    behavior.scan(node(), budget(true));
+
+    assertThat(jobs()).containsExactly("fell 0,64,0");
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    assertThat(logs(0, 0)).isEmpty();
+  }
+
+  @Test
+  void anOddTreeIsFelledWithoutLeavingWoodBehind() {
+    level(1);
+    for (int x = -3; x <= 3; x++) {
+      for (int z = -3; z <= 3; z++) {
+        field.set(x, 63, z, Material.COARSE_DIRT);
+      }
+    }
+    for (int y = 64; y <= 69; y++) {
+      field.set(0, y, 0, y == 66 ? Material.OAK_WOOD : Material.OAK_LOG);
+    }
+    field.set(1, 64, 0, Material.OAK_WOOD).set(-1, 64, 1, Material.OAK_LOG).set(1, 70, 1, Material.STRIPPED_SPRUCE_WOOD)
+        .set(2, 71, 2, Material.SPRUCE_WOOD).set(-1, 70, -1, Material.DARK_OAK_WOOD);
+    for (int y = 69; y <= 72; y++) {
+      for (int x = -2; x <= 2; x++) {
+        for (int z = -2; z <= 2; z++) {
+          if (field.type(x, y, z) == Material.AIR) {
+            field.set(x, y, z, Material.OAK_LEAVES, leaves(true, 2));
+          }
+        }
+      }
+    }
+
+    behavior.scan(node(), budget(true));
+
+    assertThat(jobs()).containsExactly("fell 0,64,0");
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+    for (int y = 60; y <= 75; y++) {
+      for (int x = -3; x <= 3; x++) {
+        for (int z = -3; z <= 3; z++) {
+          assertThat(TreeBlocks.trunk(field.type(x, y, z), false)).as("wood left at %s,%s,%s", x, y, z).isFalse();
+        }
+      }
+    }
+    assertThat(xp).hasSize(11).allMatch(amount -> amount == 0.6D);
   }
 
   @Test

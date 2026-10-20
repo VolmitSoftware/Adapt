@@ -148,7 +148,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     int replantLevel = 2;
     @ConfigDoc(value = "Lumber Core level at which Lumber golems break the leaves a felled tree leaves behind once they start to decay, and collect their saplings, sticks and apples.", impact = "Lower values unlock Leaf Sweep sooner.")
     int leafSweepLevel = 3;
-    @ConfigDoc(value = "Lumber Core level at which Lumber golems fell spruce, jungle, dark oak and pale oak trees with a full 2x2 trunk.", impact = "Lower values unlock mega trees sooner.")
+    @ConfigDoc(value = "Lumber Core level at which Lumber golems fell mega trees: trees with a trunk wider than one block, such as a 2x2 spruce, jungle, dark oak or pale oak, and trees whose trunks are joined by roots or branches.", impact = "Lower values unlock mega trees sooner.")
     int megaTreeLevel = 4;
     @ConfigDoc(value = "Lumber Core level at which Lumber golems fell huge crimson and warped fungi with their wart blocks and shroomlights, and replant fungus on nylium.", impact = "Lower values unlock nether fungi sooner.")
     int netherLevel = 5;
