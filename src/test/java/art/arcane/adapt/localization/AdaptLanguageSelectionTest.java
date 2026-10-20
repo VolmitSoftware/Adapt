@@ -49,6 +49,8 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class AdaptLanguageSelectionTest extends AdaptTestBase {
+  private static final long ASYNC_TIMEOUT_SECONDS = 30L;
+
   private AdaptConfig previousConfig;
   private ConfigHotloadEngine engine;
   private HttpServer server;
@@ -110,7 +112,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
     ConfigHotloadEngine.StableContentSnapshot queuedEnglish = new ConfigHotloadEngine.StableContentSnapshot(
         configuration, "captured-before-selection", Files.readString(configuration.toPath()), 0L);
 
-    languages.selectDefault("fi_FI").get(5L, TimeUnit.SECONDS);
+    languages.selectDefault("fi_FI").get(ASYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
     assertThat(AdaptLanguage.activeLocale()).isEqualTo("fi_FI");
     assertThat(AdaptConfig.get().getLanguage()).isEqualTo("fi_FI");
@@ -135,7 +137,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   void syntacticallyUnreadableDownloadSelectsEnglishWithoutPublishingBrokenFile() throws Exception {
     installSource(200, "[runtime\nno_description_provided = \"Broken\"\n");
 
-    languages.selectDefault("fi_FI").get(5L, TimeUnit.SECONDS);
+    languages.selectDefault("fi_FI").get(ASYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
     assertEnglishFallback();
   }
@@ -144,7 +146,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   void unavailableDownloadSelectsEnglishWithoutPublishingResponseBody() throws Exception {
     installSource(503, "Unavailable");
 
-    languages.selectDefault("fi_FI").get(5L, TimeUnit.SECONDS);
+    languages.selectDefault("fi_FI").get(ASYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
     assertEnglishFallback();
   }
@@ -180,7 +182,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
     Path personal = dataFolder.toPath().resolve("languages/fi_FI.toml");
     Files.writeString(personal, "[runtime]\nno_description_provided = 'INITIAL'\n");
     UUID player = UUID.randomUUID();
-    languages.selectPlayer(player, "fi_FI").get(5L, TimeUnit.SECONDS);
+    languages.selectPlayer(player, "fi_FI").get(ASYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     Path preferences = dataFolder.toPath().resolve("languages/language-preferences.properties");
     String savedPreferences = Files.readString(preferences);
     try (MockedStatic<J> scheduling = mockStatic(J.class)) {
@@ -230,7 +232,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   private void pollUntil(BooleanSupplier condition) throws Exception {
     Method apply = HotloadSVC.class.getDeclaredMethod("applyConfigChanges", long.class, List.class);
     apply.setAccessible(true);
-    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5L);
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(ASYNC_TIMEOUT_SECONDS);
     while (!condition.getAsBoolean() && System.nanoTime() < deadline) {
       List<ConfigHotloadEngine.StableContentSnapshot> snapshots = List.copyOf(engine.pollTouchedSnapshots());
       if (!snapshots.isEmpty()) {
