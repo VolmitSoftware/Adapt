@@ -46,14 +46,14 @@ public final class NodeOutline {
     this.clock = Objects.requireNonNull(clock);
   }
 
-  public static List<Edge> edges(NodeKey key, NodeRecord record) {
+  public static List<Edge> edges(NodeKey key, NodeCuboid area) {
     int[] center = NodeArea.center(key);
-    double minX = center[0] - record.radiusX();
-    double minY = center[1] - record.radiusY();
-    double minZ = center[2] - record.radiusZ();
-    double maxX = center[0] + record.radiusX() + 1D;
-    double maxY = center[1] + record.radiusY() + 1D;
-    double maxZ = center[2] + record.radiusZ() + 1D;
+    double minX = center[0] + area.minX();
+    double minY = center[1] + area.minY();
+    double minZ = center[2] + area.minZ();
+    double maxX = center[0] + area.maxX() + 1D;
+    double maxY = center[1] + area.maxY() + 1D;
+    double maxZ = center[2] + area.maxZ() + 1D;
     List<Edge> edges = new ArrayList<>(EDGES);
     for (double y : new double[]{minY, maxY}) {
       for (double z : new double[]{minZ, maxZ}) {
@@ -71,6 +71,20 @@ public final class NodeOutline {
       }
     }
     return edges;
+  }
+
+  public static void show(String channel, Player viewer, List<Edge> edges, BlockData block, Color glow) {
+    World world = viewer.getWorld();
+    for (int index = 0; index < edges.size(); index++) {
+      Edge edge = edges.get(index);
+      ViewerDisplayDirector.showLine(channel, EDGE_KEY + index, viewer, edge.start().toLocation(world), edge.end().toLocation(world),
+          block, glow, THICKNESS, DURATION_TICKS);
+    }
+  }
+
+  public static BlockData glass(DyeColor channel) {
+    Material glass = channel == null ? Material.WHITE_STAINED_GLASS : Material.valueOf(channel.name() + "_STAINED_GLASS");
+    return glass.createBlockData();
   }
 
   public void update(Player viewer, NodeIndex index, int pollTicks) {
@@ -107,21 +121,12 @@ public final class NodeOutline {
   }
 
   private void draw(Player viewer, Outlined target) {
-    World world = viewer.getWorld();
     DyeColor channel = target.record().channel();
-    Color glow = channel == null ? Color.WHITE : channel.getColor();
-    BlockData block = blocks.apply(channel);
-    List<Edge> edges = edges(target.key(), target.record());
-    for (int index = 0; index < edges.size(); index++) {
-      Edge edge = edges.get(index);
-      ViewerDisplayDirector.showLine(CHANNEL, EDGE_KEY + index, viewer, edge.start().toLocation(world), edge.end().toLocation(world),
-          block, glow, THICKNESS, DURATION_TICKS);
-    }
+    show(CHANNEL, viewer, edges(target.key(), target.record().area()), blocks.apply(channel), channel == null ? Color.WHITE : channel.getColor());
   }
 
   private static boolean sameShape(NodeRecord drawn, NodeRecord current) {
-    return drawn.radiusX() == current.radiusX() && drawn.radiusY() == current.radiusY() && drawn.radiusZ() == current.radiusZ()
-        && drawn.channel() == current.channel();
+    return drawn.area().equals(current.area()) && drawn.channel() == current.channel();
   }
 
   private static NodeKey lookedAt(Player viewer) {
@@ -133,11 +138,6 @@ public final class NodeOutline {
     Block block = hit.getHitBlock();
     BlockFace face = hit.getHitBlockFace();
     return block == null || face == null || !NodeRecord.isNodeFace(face) ? null : NodeKey.of(block, face);
-  }
-
-  private static BlockData glass(DyeColor channel) {
-    Material glass = channel == null ? Material.WHITE_STAINED_GLASS : Material.valueOf(channel.name() + "_STAINED_GLASS");
-    return glass.createBlockData();
   }
 
   public record Edge(Vector start, Vector end) {

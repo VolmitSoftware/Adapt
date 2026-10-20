@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -73,7 +74,7 @@ class HarvestNodeBehaviorTest {
   private final List<GolemTask> posted = new ArrayList<>();
   private final List<ItemStack> carried = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
-  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(2, 1, 2).build();
+  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 2)).build();
   private final GolemTaskBoards boards = new GolemTaskBoards(key -> Optional.of(record));
   private GolemHarvesterCore core;
   private HarvestActions actions;

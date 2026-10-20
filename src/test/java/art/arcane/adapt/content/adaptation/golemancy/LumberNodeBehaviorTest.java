@@ -11,6 +11,7 @@ import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -75,7 +76,7 @@ class LumberNodeBehaviorTest {
   private final List<ItemStack> carried = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
   private final ItemStack[] chest = new ItemStack[9];
-  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).radii(3, 2, 3).build();
+  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).area(NodeCuboid.symmetric(3, 2, 3)).build();
   private GolemLumberCore core;
   private LumberNodeBehavior behavior;
   private MockedStatic<LumberFeedback> feedback;

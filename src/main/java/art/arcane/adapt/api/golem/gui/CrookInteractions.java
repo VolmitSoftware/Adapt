@@ -33,6 +33,11 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public final class CrookInteractions implements Listener {
   private final CrookGestures<GolemHandle> gestures = new CrookGestures<>();
+  private final NodeAreaSelector areas;
+
+  public CrookInteractions(NodeAreaSelector areas) {
+    this.areas = Objects.requireNonNull(areas);
+  }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEntityEvent e) {
@@ -40,7 +45,7 @@ public final class CrookInteractions implements Listener {
       return;
     }
     Player player = e.getPlayer();
-    if (!isCrook(player.getInventory().getItemInMainHand())) {
+    if (!isCrook(player.getInventory().getItemInMainHand()) || areas.swallows(player)) {
       return;
     }
     Optional<GolemHandle> handle = GolemancyRuntime.handle(e.getRightClicked());
@@ -64,7 +69,7 @@ public final class CrookInteractions implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEvent e) {
-    if (ProtectionEventProbe.isActive(e) || e.getHand() != EquipmentSlot.HAND || !isCrook(e.getItem())) {
+    if (ProtectionEventProbe.isActive(e) || e.getHand() != EquipmentSlot.HAND || !isCrook(e.getItem()) || areas.swallows(e.getPlayer())) {
       return;
     }
     Player player = e.getPlayer();

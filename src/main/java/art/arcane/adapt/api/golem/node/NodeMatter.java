@@ -90,9 +90,13 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       out.writeUTF(record.channel() == null ? NO_CHANNEL : record.channel().name());
       out.writeByte(record.priority());
       out.writeUTF(record.redstone().id());
-      out.writeByte(record.radiusX());
-      out.writeByte(record.radiusY());
-      out.writeByte(record.radiusZ());
+      NodeCuboid area = record.area();
+      out.writeByte(area.minX());
+      out.writeByte(area.minY());
+      out.writeByte(area.minZ());
+      out.writeByte(area.maxX());
+      out.writeByte(area.maxY());
+      out.writeByte(area.maxZ());
       out.writeBoolean(record.whitelist());
       out.writeByte(record.filterItems().size());
       for (ItemStack item : record.filterItems()) {
@@ -122,9 +126,10 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       int priority = in.readUnsignedByte();
       String redstoneId = in.readUTF();
       RedstoneMode redstone = RedstoneMode.fromId(redstoneId).orElseThrow(() -> new IOException("Unknown redstone mode " + redstoneId));
-      int radiusX = in.readUnsignedByte();
-      int radiusY = in.readUnsignedByte();
-      int radiusZ = in.readUnsignedByte();
+      NodeCuboid area = new NodeCuboid(in.readByte(), in.readByte(), in.readByte(), in.readByte(), in.readByte(), in.readByte());
+      if (!area.check(NodeRecord.MAX_RADIUS).fits()) {
+        throw new IOException("Node area " + area + " must hold its center block and reach at most " + NodeRecord.MAX_RADIUS + " blocks from it");
+      }
       boolean whitelist = in.readBoolean();
       int itemCount = in.readUnsignedByte();
       List<ItemStack> items = new ArrayList<>(itemCount);
@@ -151,7 +156,7 @@ public class NodeMatter extends RawMatter<NodeFaces> {
           .channel(channel.isEmpty() ? null : DyeColor.valueOf(channel))
           .priority(priority)
           .redstone(redstone)
-          .radii(radiusX, radiusY, radiusZ)
+          .area(area)
           .whitelist(whitelist)
           .filterItems(items)
           .filterTags(tags)

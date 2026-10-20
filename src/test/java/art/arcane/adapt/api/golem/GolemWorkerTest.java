@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.node.DepositBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
@@ -1511,7 +1512,7 @@ class GolemWorkerTest extends AdaptTestBase {
   @Test
   void aGolemClaimsTasksOutToTheEdgeOfARadiusThirtyTwoNodeArea() {
     collector((golem, task) -> GolemActResult.DONE);
-    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     GolemTask edge = pickup(31, 64, 0);
     board.offer(edge, 16);
     brain.start();
@@ -1525,7 +1526,7 @@ class GolemWorkerTest extends AdaptTestBase {
   void aTideGolemWorkingOutAtTheEdgeOfARadiusThirtyTwoAreaIsNotLeashedHome() {
     runes(new GolemRuneEffects(12D, 0, 1D, 0D));
     collector((golem, task) -> GolemActResult.DONE);
-    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     GolemTask edge = pickup(43, 64, 0);
     board.offer(edge, 16);
     position.set(at(40, 64, 0));

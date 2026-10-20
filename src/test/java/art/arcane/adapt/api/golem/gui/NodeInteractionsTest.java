@@ -55,7 +55,8 @@ class NodeInteractionsTest extends AdaptTestBase {
   private static final UUID STRANGER = UUID.fromString("00000000-0000-0000-0000-0000000000b2");
   private static final NodeKey KEY = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
 
-  private final NodeTagPrompt prompt = new NodeTagPrompt(mock(NodeTagLookup.class));
+  private final NodeAreaSelector areas = new NodeAreaSelector();
+  private final NodeTagPrompt prompt = new NodeTagPrompt(mock(NodeTagLookup.class), areas);
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<GolemItems> items;
   private MockedStatic<J> scheduling;
@@ -107,7 +108,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     gui = mockStatic(NodeGui.class);
     gui.when(() -> NodeGui.level(any(Player.class))).thenAnswer(invocation -> level);
     gui.when(() -> NodeGui.filterSlots(any(Integer.class))).thenReturn(3);
-    interactions = new NodeInteractions(prompt);
+    interactions = new NodeInteractions(prompt, areas);
   }
 
   @AfterEach
@@ -127,7 +128,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     interactions.on(probe);
 
     assertThat(probe.isCancelled()).isFalse();
-    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class)), never());
+    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class), any(NodeAreaSelector.class)), never());
   }
 
   @Test
@@ -138,7 +139,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     interactions.on(click);
 
     verify(click).setCancelled(true);
-    gui.verify(() -> NodeGui.open(owner, KEY, prompt));
+    gui.verify(() -> NodeGui.open(owner, KEY, prompt, areas));
   }
 
   @Test
@@ -149,7 +150,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     interactions.on(click);
 
     verify(click).setCancelled(true);
-    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class)), never());
+    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class), any(NodeAreaSelector.class)), never());
   }
 
   @Test
@@ -169,7 +170,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     interactions.on(rightClick(stranger, hitbox, EquipmentSlot.HAND));
     interactions.attacked(stranger, hitbox, mock(Cancellable.class));
 
-    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class)), never());
+    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class), any(NodeAreaSelector.class)), never());
     verify(service, never()).update(any(UUID.class), any(NodeKey.class), any());
   }
 

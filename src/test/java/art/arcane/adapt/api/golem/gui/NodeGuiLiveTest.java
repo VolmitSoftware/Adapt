@@ -272,7 +272,7 @@ class NodeGuiLiveTest extends AdaptTestBase {
   }
 
   private void openAndDraw() {
-    NodeGui.open(player, KEY, mock(NodeTagPrompt.class));
+    NodeGui.open(player, KEY, mock(NodeTagPrompt.class), mock(NodeAreaSelector.class));
     scheduler.advance(0);
     assertThat(windows.constructed()).hasSize(1);
     assertThat(scheduler.pending()).as("one pending poll after the first draw").isEqualTo(1);

@@ -77,9 +77,9 @@ class NodeOutlineTest {
 
   @Test
   void theOutlineTracesTheTwelveEdgesOfTheWorkArea() {
-    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(1, 0, 2).build();
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(1, 0, 2)).build();
 
-    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, record);
+    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, record.area());
 
     assertThat(edges).hasSize(12);
     Set<Vector> corners = new HashSet<>();
@@ -109,9 +109,9 @@ class NodeOutlineTest {
 
   @Test
   void aRadiusThirtyTwoAreaStillTracesTwelveEdgesOfSixtyFiveBlocks() {
-    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build();
 
-    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, record);
+    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, record.area());
 
     assertThat(edges).hasSize(12);
     Set<Vector> corners = new HashSet<>();
@@ -124,8 +124,37 @@ class NodeOutlineTest {
   }
 
   @Test
+  void aLopsidedAreaOutlinesItsOwnFaces() {
+    NodeCuboid area = new NodeCuboid(-1, 0, -4, 5, 2, 0);
+
+    List<NodeOutline.Edge> edges = NodeOutline.edges(KEY, area);
+
+    Set<Vector> corners = new HashSet<>();
+    for (NodeOutline.Edge edge : edges) {
+      corners.add(edge.start());
+      corners.add(edge.end());
+    }
+    assertThat(edges).hasSize(12);
+    assertThat(corners).hasSize(8).contains(new Vector(-1, 65, -4), new Vector(6, 68, 1), new Vector(-1, 68, 1), new Vector(6, 65, -4));
+  }
+
+  @Test
+  void movingOneFaceRedrawsTheOutline() {
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).build();
+    index.put(KEY, record);
+    lookAt(0, 64, 0, BlockFace.UP);
+    outline.update(viewer, index, 10);
+
+    index.put(KEY, record.toBuilder().area(new NodeCuboid(-2, -2, -2, 5, 2, 2)).build());
+    outline.update(viewer, index, 10);
+
+    director.verify(() -> ViewerDisplayDirector.clearViewer(NodeOutline.CHANNEL, OWNER), times(1));
+    verifyLines(24);
+  }
+
+  @Test
   void lookingAtARadiusThirtyTwoNodeDrawsTheSameTwelveLines() {
-    index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     lookAt(0, 64, 0, BlockFace.UP);
 
     outline.update(viewer, index, 10);
@@ -166,7 +195,7 @@ class NodeOutlineTest {
     lookAt(0, 64, 0, BlockFace.UP);
     outline.update(viewer, index, 10);
 
-    index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(3, 2, 2).build());
+    index.put(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(3, 2, 2)).build());
     outline.update(viewer, index, 10);
 
     director.verify(() -> ViewerDisplayDirector.clearViewer(NodeOutline.CHANNEL, OWNER), times(1));

@@ -61,34 +61,44 @@ class NodeEditsTest {
 
   @Test
   void theAreaGrowsUpToTheLevelCapAndShrinksToZero() {
-    NodeRecord record = record().radii(2, 1, 0).build();
+    NodeRecord record = record().area(NodeCuboid.symmetric(2, 1, 0)).build();
 
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 3).radiusX()).isEqualTo(3);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2).radiusX()).isEqualTo(2);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -1, 3).radiusY()).isZero();
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, -1, 3).radiusZ()).isZero();
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, 1, 3).radiusZ()).isEqualTo(1);
-    assertThat(NodeEdits.radius(record, NodeEdits.Axis.Y)).isEqualTo(1);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 3).area()).isEqualTo(NodeCuboid.symmetric(3, 1, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2)).isSameAs(record);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -1, 3).area()).isEqualTo(NodeCuboid.symmetric(2, 0, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, -1, 3)).isSameAs(record);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, 1, 3).area()).isEqualTo(NodeCuboid.symmetric(2, 1, 1));
   }
 
   @Test
   void shiftClickResizesByFourWithinTheLevelCap() {
-    NodeRecord record = record().radii(2, 8, 30).build();
+    NodeRecord record = record().area(NodeCuboid.symmetric(2, 8, 30)).build();
 
     assertThat(NodeEdits.SHIFT_STEP).isEqualTo(4);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 32).radiusX()).isEqualTo(6);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 10).radiusY()).isEqualTo(10);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, NodeEdits.SHIFT_STEP, 32).radiusZ()).isEqualTo(32);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.SHIFT_STEP, 32).radiusX()).isZero();
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -NodeEdits.SHIFT_STEP, 32).radiusY()).isEqualTo(4);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(6, 8, 30));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 10).area()).isEqualTo(NodeCuboid.symmetric(2, 10, 30));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(2, 8, 32));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(0, 8, 30));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, -NodeEdits.SHIFT_STEP, 32).area()).isEqualTo(NodeCuboid.symmetric(2, 4, 30));
+  }
+
+  @Test
+  void theAxisButtonsMoveBothFacesOfALopsidedCuboid() {
+    NodeRecord record = record().area(new NodeCuboid(-1, 0, -5, 4, 2, 0)).build();
+
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.STEP, 8).area()).isEqualTo(new NodeCuboid(-2, 0, -5, 5, 2, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -NodeEdits.STEP, 8).area()).isEqualTo(new NodeCuboid(0, 0, -5, 3, 2, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, NodeEdits.SHIFT_STEP, 6).area()).isEqualTo(new NodeCuboid(-5, 0, -5, 6, 2, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Y, NodeEdits.SHIFT_STEP, 8).area()).isEqualTo(new NodeCuboid(-1, -4, -5, 4, 6, 0));
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.Z, -NodeEdits.SHIFT_STEP, 8).area()).isEqualTo(new NodeCuboid(-1, 0, -1, 4, 2, 0));
   }
 
   @Test
   void anAreaAboveALoweredCapCanShrinkButNeverGrow() {
-    NodeRecord record = record().radii(6, 6, 6).build();
+    NodeRecord record = record().area(NodeCuboid.symmetric(6, 6, 6)).build();
 
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2).radiusX()).isEqualTo(6);
-    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -1, 2).radiusX()).isEqualTo(5);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, 1, 2)).isSameAs(record);
+    assertThat(NodeEdits.resize(record, NodeEdits.Axis.X, -1, 2).area()).isEqualTo(NodeCuboid.symmetric(5, 6, 6));
   }
 
   @Test

@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
@@ -318,7 +319,7 @@ class GolemTaskBoardTest {
   @Test
   void aRadiusThirtyTwoNodeOffersItsWholeAreaWithinTheDefaultWorkRadius() {
     NodeKey wide = new NodeKey(WORLD, 60, 64, 0, BlockFace.UP);
-    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     board.offer(crop(wide, 31, 64, 0), 16);
     board.offer(crop(wide, 33, 64, 0), 16);
     double radius = GolemWorkSettings.defaults().baseWorkRadius();
@@ -329,11 +330,22 @@ class GolemTaskBoardTest {
   }
 
   @Test
+  void aLopsidedNodeReachesTheTasksAtItsFarFace() {
+    NodeKey lopsided = new NodeKey(WORLD, 64, 64, 0, BlockFace.UP);
+    nodes.put(lopsided, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(new NodeCuboid(-32, 0, 0, 0, 0, 0)).build());
+    board.offer(crop(lopsided, 32, 65, 0), 16);
+    GolemTaskBoard.Seeker golem = new GolemTaskBoard.Seeker(GOLEM, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.IRON, ChannelMask.NONE,
+        8.5D, 64D, 0.5D, GolemWorkSettings.defaults().baseWorkRadius(), 8.5D, 64D, 0.5D);
+
+    assertThat(targetsX(board.candidates(golem, ignored -> false, now))).containsExactly(32);
+  }
+
+  @Test
   void everyExtremeOfARadiusThirtyTwoAreaAtTheWorldBorderKeepsItsOwnTask() {
     int borderX = 29_999_950;
     int borderZ = -29_999_950;
     NodeKey wide = new NodeKey(WORLD, borderX, 120, borderZ, BlockFace.UP);
-    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build());
+    nodes.put(wide, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     int[] edges = {-32, 32};
 
     for (int dx : edges) {

@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -300,7 +301,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   }
 
   private static NodeContext node(CropField field) {
-    NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).radii(2, 2, 2).build();
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).area(NodeCuboid.symmetric(2, 2, 2)).build();
     NodeContext node = mock(NodeContext.class);
     when(node.owner()).thenReturn(OWNER);
     when(node.key()).thenReturn(KEY);
@@ -335,7 +336,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
     when(handle.body()).thenReturn(GolemBody.IRON);
     when(golem.owner()).thenReturn(owner);
     when(golem.handle()).thenReturn(handle);
-    when(golem.node()).thenReturn(Optional.of(NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).radii(2, 2, 2).build()));
+    when(golem.node()).thenReturn(Optional.of(NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).area(NodeCuboid.symmetric(2, 2, 2)).build()));
     when(golem.world()).thenReturn(field.world);
     when(golem.owns(any(Location.class))).thenReturn(true);
     when(golem.nowMillis()).thenReturn(NOW);

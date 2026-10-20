@@ -186,7 +186,7 @@ class NodeServiceTest extends AdaptTestBase {
     NodeRecord stored = platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP);
     assertThat(stored.owner()).isEqualTo(OWNER);
     assertThat(stored.type()).isEqualTo(NodeType.GUARD);
-    assertThat(stored.radiusX()).isEqualTo(2);
+    assertThat(stored.area()).isEqualTo(NodeRecord.DEFAULT_AREA).isEqualTo(new NodeCuboid(-2, -2, -2, 2, 2, 2));
     assertThat(service.node(key)).contains(stored);
     assertThat(roster.nodes()).extracting(GolemRoster.NodeEntry::type).containsExactly(NodeType.GUARD);
     assertThat(platform.rosterSaves).containsEntry(OWNER, 1);
@@ -204,7 +204,7 @@ class NodeServiceTest extends AdaptTestBase {
     service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.HARVEST, policy);
 
     NodeRecord stored = platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP);
-    assertThat(List.of(stored.radiusX(), stored.radiusY(), stored.radiusZ())).containsOnly(1);
+    assertThat(stored.area()).isEqualTo(NodeCuboid.symmetric(1, 1, 1));
   }
 
   @Test

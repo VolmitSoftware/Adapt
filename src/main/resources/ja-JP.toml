@@ -4891,7 +4891,7 @@ tag_timed_out = "タグの入力が時間切れになりました"
 
 [golemancy.node_gui]
 position = "ブロック：{x}, {y}, {z}"
-area = "{axis}半径：{radius}"
+area = "{axis}範囲：{min}～{max}"
 area_lore = "左クリックで広げ、右クリックで狭めます"
 area_cap = "最大半径：{radius}"
 area_shift = "Shiftクリックで{step}ずつ変更します"
@@ -4915,6 +4915,22 @@ filter_locked_lore = "ノード織りのレベルを上げるとこの枠が解�
 tag = "アイテムタグ"
 tag_add = "タグを追加"
 tag_add_lore = "クリックしてから、#logsのようなアイテムタグをチャットに入力"
+
+[golemancy.node_area]
+select = "杖で範囲を選択"
+stop = "範囲の選択をやめる"
+started = "杖でブロックを左クリックすると角1、ブロックを右クリックすると角2になります"
+started_hint = "スニークしながら右クリックで適用、スニークしながら左クリックでキャンセルします"
+corner = "角{corner}：{x}, {y}, {z}"
+applied = "作業範囲を設定しました：{x} × {y} × {z} ブロック"
+incomplete = "適用する前に両方の角を設定してください"
+missing_center = "範囲にはノードの前のブロックを含める必要があります"
+too_far = "{face}面は範囲の中心から{distance}ブロック離れています。上限は{max}です"
+cancelled = "範囲の選択をキャンセルしました"
+timed_out = "範囲の選択が時間切れになりました"
+put_away = "範囲の選択を終了しました：杖をしまいました"
+world_changed = "範囲の選択を終了しました：ノードのワールドを離れました"
+node_gone = "範囲の選択を終了しました：ノードはもうここにありません"
 
 [golemancy.node_weaving]
 name = "ノード織り"

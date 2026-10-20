@@ -4891,7 +4891,7 @@ tag_timed_out = "태그 입력 시간이 초과되었습니다"
 
 [golemancy.node_gui]
 position = "블록: {x}, {y}, {z}"
-area = "{axis} 반경: {radius}"
+area = "{axis} 범위: {min} ~ {max}"
 area_lore = "좌클릭: 넓히기, 우클릭: 좁히기"
 area_cap = "최대 반경: {radius}"
 area_shift = "Shift 클릭: {step}씩 변경"
@@ -4915,6 +4915,22 @@ filter_locked_lore = "노드 엮기 레벨을 더 올리면 이 칸이 해제됩
 tag = "아이템 태그"
 tag_add = "태그 추가"
 tag_add_lore = "클릭한 다음 #logs 같은 아이템 태그를 채팅에 입력하세요"
+
+[golemancy.node_area]
+select = "지팡이로 범위 선택"
+stop = "범위 선택 중지"
+started = "지팡이로 블록을 좌클릭하면 모서리 1, 블록을 우클릭하면 모서리 2가 지정됩니다"
+started_hint = "웅크린 채 우클릭하면 적용, 웅크린 채 좌클릭하면 취소합니다"
+corner = "모서리 {corner}: {x}, {y}, {z}"
+applied = "작업 범위 설정: {x} × {y} × {z} 블록"
+incomplete = "적용하기 전에 두 모서리를 모두 지정하세요"
+missing_center = "범위에는 노드 앞의 블록이 포함되어야 합니다"
+too_far = "{face} 면이 범위 중심에서 {distance}블록 떨어져 있습니다. 한도는 {max}입니다"
+cancelled = "범위 선택을 취소했습니다"
+timed_out = "범위 선택 시간이 초과되었습니다"
+put_away = "범위 선택 종료: 지팡이를 집어넣었습니다"
+world_changed = "범위 선택 종료: 노드가 있는 월드를 떠났습니다"
+node_gone = "범위 선택 종료: 노드가 더 이상 여기에 없습니다"
 
 [golemancy.node_weaving]
 name = "노드 엮기"

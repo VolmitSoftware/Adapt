@@ -4891,7 +4891,7 @@ tag_timed_out = "输入标签已超时"
 
 [golemancy.node_gui]
 position = "方块：{x}, {y}, {z}"
-area = "{axis}半径：{radius}"
+area = "{axis}范围：{min} 至 {max}"
 area_lore = "左击扩大，右击缩小"
 area_cap = "最大半径：{radius}"
 area_shift = "Shift 点击：每次改变 {step}"
@@ -4915,6 +4915,22 @@ filter_locked_lore = "提升节点编织等级可解锁此槽位"
 tag = "物品标签"
 tag_add = "添加标签"
 tag_add_lore = "点击后在聊天栏输入物品标签，例如#logs"
+
+[golemancy.node_area]
+select = "用巧匠之杖选择范围"
+stop = "停止选择范围"
+started = "用巧匠之杖左击方块设为角 1，右击方块设为角 2"
+started_hint = "潜行并右击以应用，潜行并左击以取消"
+corner = "角 {corner}：{x}, {y}, {z}"
+applied = "工作范围已设置：{x} × {y} × {z} 个方块"
+incomplete = "请先设置两个角再应用"
+missing_center = "范围必须包含节点前方的方块"
+too_far = "{face} 面距离范围中心 {distance} 格；你的上限是 {max}"
+cancelled = "已取消范围选择"
+timed_out = "范围选择已超时"
+put_away = "范围选择已结束：已收起巧匠之杖"
+world_changed = "范围选择已结束：你离开了节点所在的世界"
+node_gone = "范围选择已结束：此节点已不在这里"
 
 [golemancy.node_weaving]
 name = "节点编织"

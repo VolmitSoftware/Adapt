@@ -4891,7 +4891,7 @@ tag_timed_out = "La entrada de etiqueta ha caducado"
 
 [golemancy.node_gui]
 position = "Bloque: {x}, {y}, {z}"
-area = "Radio {axis}: {radius}"
+area = "Área {axis}: de {min} a {max}"
 area_lore = "Clic izquierdo: ampliar, clic derecho: reducir"
 area_cap = "Radio máximo: {radius}"
 area_shift = "Mayús + clic: cambia {step} a la vez"
@@ -4915,6 +4915,22 @@ filter_locked_lore = "Más niveles de Tejido de nodos desbloquean este espacio"
 tag = "Etiqueta de objeto"
 tag_add = "Añadir etiqueta"
 tag_add_lore = "Haz clic y escribe en el chat una etiqueta de objeto, como #logs"
+
+[golemancy.node_area]
+select = "Seleccionar área con el cayado"
+stop = "Dejar de seleccionar el área"
+started = "Haz clic izquierdo en un bloque con el cayado para la esquina 1 y clic derecho en un bloque para la esquina 2"
+started_hint = "Agáchate + clic derecho para aplicar, agáchate + clic izquierdo para cancelar"
+corner = "Esquina {corner}: {x}, {y}, {z}"
+applied = "Área de trabajo fijada: {x} × {y} × {z} bloques"
+incomplete = "Marca las dos esquinas antes de aplicar"
+missing_center = "El área debe incluir el bloque situado delante del nodo"
+too_far = "La cara {face} está a {distance} bloques del centro del área; tu límite es {max}"
+cancelled = "Selección de área cancelada"
+timed_out = "La selección de área ha caducado"
+put_away = "Selección de área terminada: has guardado el cayado"
+world_changed = "Selección de área terminada: has salido del mundo del nodo"
+node_gone = "Selección de área terminada: el nodo ya no está aquí"
 
 [golemancy.node_weaving]
 name = "Tejido de nodos"

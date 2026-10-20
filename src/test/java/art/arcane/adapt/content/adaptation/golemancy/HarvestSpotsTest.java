@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.block.BlockFace;
@@ -65,7 +66,7 @@ class HarvestSpotsTest {
     spots.scanned(KEY, AREA, 0L);
     spots.record(KEY, 1, 64, 1, HarvesterRules.Spot.TEND);
 
-    spots.scanned(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(2, 1, 2).priority(5).build(), 100L);
+    spots.scanned(KEY, NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 2)).priority(5).build(), 100L);
     assertThat(spots.of(KEY)).hasSize(1);
 
     spots.scanned(KEY, area(1, 1, 2), 200L);
@@ -84,6 +85,6 @@ class HarvestSpotsTest {
   }
 
   private static NodeRecord area(int x, int y, int z) {
-    return NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(x, y, z).build();
+    return NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(x, y, z)).build();
   }
 }

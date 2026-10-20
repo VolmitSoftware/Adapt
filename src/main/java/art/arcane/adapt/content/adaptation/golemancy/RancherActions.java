@@ -2,6 +2,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.node.NodeArea;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.minion.MinionTargeting;
@@ -74,9 +75,11 @@ final class RancherActions implements Listener {
 
   List<Animals> herd(World world, NodeKey key, NodeRecord record) {
     int[] center = NodeArea.center(key);
-    Location middle = new Location(world, center[0] + HALF_BLOCK, center[1] + HALF_BLOCK, center[2] + HALF_BLOCK);
-    List<Animals> found = PaperCompat.nearbyEntitiesByType(Animals.class, middle, record.radiusX() + HALF_BLOCK,
-        record.radiusY() + HALF_BLOCK, record.radiusZ() + HALF_BLOCK);
+    NodeCuboid area = record.area();
+    Location middle = new Location(world, center[0] + (area.minX() + area.maxX() + 1) * HALF_BLOCK,
+        center[1] + (area.minY() + area.maxY() + 1) * HALF_BLOCK, center[2] + (area.minZ() + area.maxZ() + 1) * HALF_BLOCK);
+    List<Animals> found = PaperCompat.nearbyEntitiesByType(Animals.class, middle, area.spanX() * HALF_BLOCK, area.spanY() * HALF_BLOCK,
+        area.spanZ() * HALF_BLOCK);
     List<EntityType> tended = core.species();
     found.removeIf(animal -> !animal.isValid() || animal.isDead() || !tends(animal, key, record, tended));
     return found;

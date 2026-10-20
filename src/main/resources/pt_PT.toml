@@ -4891,7 +4891,7 @@ tag_timed_out = "A introdução da etiqueta expirou"
 
 [golemancy.node_gui]
 position = "Bloco: {x}, {y}, {z}"
-area = "Raio {axis}: {radius}"
+area = "Área {axis}: de {min} a {max}"
 area_lore = "Clique esquerdo: aumentar, clique direito: diminuir"
 area_cap = "Raio máximo: {radius}"
 area_shift = "Shift + clique: alterar {step} de cada vez"
@@ -4915,6 +4915,22 @@ filter_locked_lore = "Mais níveis de Tecelagem de nós desbloqueiam este espaç
 tag = "Etiqueta de item"
 tag_add = "Adicionar etiqueta"
 tag_add_lore = "Clica e depois escreve no chat uma etiqueta de item, como #logs"
+
+[golemancy.node_area]
+select = "Selecionar área com o cajado"
+stop = "Parar de selecionar a área"
+started = "Clica com o botão esquerdo num bloco com o cajado para o canto 1 e com o direito num bloco para o canto 2"
+started_hint = "Agachar + clique direito para aplicar, agachar + clique esquerdo para cancelar"
+corner = "Canto {corner}: {x}, {y}, {z}"
+applied = "Área de trabalho definida: {x} × {y} × {z} blocos"
+incomplete = "Define os dois cantos antes de aplicar"
+missing_center = "A área tem de incluir o bloco à frente do nó"
+too_far = "A face {face} está a {distance} blocos do centro da área; o teu limite é {max}"
+cancelled = "Seleção de área cancelada"
+timed_out = "A seleção de área expirou"
+put_away = "Seleção de área terminada: o cajado foi guardado"
+world_changed = "Seleção de área terminada: saíste do mundo do nó"
+node_gone = "Seleção de área terminada: o nó já não está aqui"
 
 [golemancy.node_weaving]
 name = "Tecelagem de nós"
