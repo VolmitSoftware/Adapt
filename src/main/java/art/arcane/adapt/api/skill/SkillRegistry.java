@@ -167,7 +167,7 @@ public class SkillRegistry extends TickedObject {
     scheduleDeferredBootstrapRecipeRegistration();
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerExpChangeEvent e) {
     Player p = e.getPlayer();
     AdaptPlayer adaptPlayer = resolveReadyPlayer(p);

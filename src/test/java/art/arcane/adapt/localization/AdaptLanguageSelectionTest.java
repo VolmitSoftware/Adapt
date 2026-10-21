@@ -20,6 +20,7 @@ import art.arcane.volmlib.util.localization.PluginLanguageEditor;
 import art.arcane.volmlib.util.localization.PluralSelector;
 import art.arcane.volmlib.util.localization.RemoteLanguageCatalog;
 import art.arcane.volmlib.util.localization.TextValue;
+import art.arcane.volmlib.util.localization.TomlLanguageWriter;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,6 +54,9 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   private static final long ASYNC_TIMEOUT_SECONDS = 30L;
 
   private AdaptConfig previousConfig;
+  private LocalizationManager manager;
+  private LocalizationSnapshot previousSnapshot;
+  private String previousLocale;
   private ConfigHotloadEngine engine;
   private HttpServer server;
   private URLClassLoader resources;
@@ -63,12 +68,21 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
 
   @BeforeEach
   void prepareSelectionRuntime() throws Exception {
+    manager = (LocalizationManager) field(AdaptLanguage.class, "MANAGER").get(null);
+    previousSnapshot = manager.snapshot();
+    previousLocale = AdaptLanguage.activeLocale();
     previousConfig = (AdaptConfig) field(AdaptConfig.class, "config").get(null);
     field(AdaptConfig.class, "config").set(null, new AdaptConfig());
     hotload = new HotloadSVC();
     KMap<Class<? extends AdaptService>, AdaptService> services = new KMap<>();
     services.put(HotloadSVC.class, hotload);
     field(Adapt.class, "services").set(plugin, services);
+    Path english = dataFolder.toPath().resolve("languages/en_US.toml");
+    Files.createDirectories(english.getParent());
+    Files.writeString(english, TomlLanguageWriter.render(Map.of(
+        RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), RuntimeMessages.NO_DESCRIPTION_PROVIDED.englishValue(),
+        CommandRuntimeMessages.MISSING_PERMISSION.id(), CommandRuntimeMessages.MISSING_PERMISSION.englishValue(),
+        CommandRuntimeMessages.PLAYER_ONLY.id(), CommandRuntimeMessages.PLAYER_ONLY.englishValue()), List.of()));
     AdaptLanguage.initialize();
     AdaptConfig.selectLanguage("en_US");
     File configuration = new File(dataFolder, "adapt.toml");
@@ -102,6 +116,8 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
       engine.clear();
     }
     field(AdaptConfig.class, "config").set(null, previousConfig);
+    manager.install(previousSnapshot);
+    field(AdaptLanguage.class, "activeLocale").set(null, previousLocale);
   }
 
   @Test
@@ -170,7 +186,6 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
     AdaptServer adaptServer = mock(AdaptServer.class);
     when(plugin.getAdaptServer()).thenReturn(adaptServer);
     when(adaptServer.getSkillRegistry()).thenReturn(mock(SkillRegistry.class));
-    LocalizationManager manager = (LocalizationManager) field(AdaptLanguage.class, "MANAGER").get(null);
     languages.close();
     languages = new PluginLanguageService(new PluginLanguageService.Options(
         dataFolder.toPath().resolve("languages/language-preferences.properties"),

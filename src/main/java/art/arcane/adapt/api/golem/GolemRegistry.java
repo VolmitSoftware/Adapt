@@ -10,6 +10,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
+import art.arcane.volmlib.util.bukkit.BukkitExperience;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
 import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
@@ -1591,7 +1592,7 @@ public final class GolemRegistry extends TickedObject {
     };
     Runnable give = () -> {
       if (settled.compareAndSet(false, true)) {
-        owner.giveExp(points);
+        BukkitExperience.award(owner, points);
       }
     };
     AtomicBoolean fellBack = new AtomicBoolean();

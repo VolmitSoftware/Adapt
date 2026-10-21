@@ -15,6 +15,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.CopperGolem;
@@ -26,6 +27,7 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
@@ -38,6 +40,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -92,6 +95,7 @@ class GolemRegistryTest extends AdaptTestBase {
   private GolemRegistry registry;
   private World world;
   private Player owner;
+  private PluginManager experienceEvents;
   private MockedStatic<GolemItems> items;
   private ItemStack coreItem;
   private ItemStack runeItem;
@@ -106,6 +110,10 @@ class GolemRegistryTest extends AdaptTestBase {
     lenient().when(world.getUID()).thenReturn(WORLD);
     lenient().when(world.getChunkAt(any(Location.class))).thenAnswer(invocation -> chunk(invocation.<Location>getArgument(0)));
     owner = mock(Player.class);
+    Server server = mock(Server.class);
+    experienceEvents = mock(PluginManager.class);
+    lenient().when(owner.getServer()).thenReturn(server);
+    lenient().when(server.getPluginManager()).thenReturn(experienceEvents);
     lenient().when(owner.getUniqueId()).thenReturn(OWNER);
     lenient().when(owner.getName()).thenReturn("Steve");
     coreItem = mock(ItemStack.class);
@@ -636,6 +644,8 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.release(handle)).isTrue();
 
     verify(owner).giveExp(60);
+    verify(experienceEvents).callEvent(argThat(event -> event instanceof PlayerExpChangeEvent experience
+        && experience.getPlayer() == owner && experience.getAmount() == 60));
     verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
   }
 

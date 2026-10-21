@@ -54,11 +54,11 @@ public final class DiscoveryMessages {
   public static final TextKey ARMOR_STRENGTH = TextKey.of("discovery.armor.strength", "Armor Strength: +{strength}");
   public static final LinesKey ARMOR_LORE = LinesKey.of("discovery.armor.lore", "Passive Armor", "Based on nearby block hardness", "Armor Strength:");
   public static final TextKey UNITY_NAME = TextKey.of("discovery.unity.name", "Experimental Unity");
-  public static final TextKey UNITY_DESCRIPTION = TextKey.of("discovery.unity.description", "Collecting Experience Orbs adds XP to random skills.");
+  public static final TextKey UNITY_DESCRIPTION = TextKey.of("discovery.unity.description", "Gaining vanilla experience adds XP to random skills.");
   public static final TextKey UNITY_LORE1 = TextKey.of("discovery.unity.lore1", "XP ");
-  public static final TextKey UNITY_LORE2 = TextKey.of("discovery.unity.lore2", "Per Orb");
-  public static final TextKey UNITY_PER_ORB = TextKey.of("discovery.unity.per_orb", "+ {xp} XP per orb");
-  public static final LinesKey UNITY_LORE = LinesKey.of("discovery.unity.lore", "XP ", "Per Orb");
+  public static final TextKey UNITY_LORE2 = TextKey.of("discovery.unity.lore2", "Per XP Award");
+  public static final TextKey UNITY_PER_ORB = TextKey.of("discovery.unity.per_orb", "+ {xp} XP per XP award");
+  public static final LinesKey UNITY_LORE = LinesKey.of("discovery.unity.lore", "XP ", "Per XP Award");
   public static final TextKey RESIST_NAME = TextKey.of("discovery.resist.name", "Experimental Resistance");
   public static final TextKey RESIST_DESCRIPTION = TextKey.of("discovery.resist.description", "Consume experience to mitigate damage only when a hit would drop you below 5 hearts or kill you.");
   public static final TextKey RESIST_LORE0 = TextKey.of("discovery.resist.lore0", "Triggers only at critical health (<= 5 hearts) once per 15 seconds");

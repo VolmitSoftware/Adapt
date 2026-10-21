@@ -27,6 +27,7 @@ import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.bukkit.BukkitExperience;
 import com.francobm.magicosmetics.api.CosmeticType;
 import com.francobm.magicosmetics.api.MagicAPI;
 import org.bukkit.Bukkit;
@@ -398,13 +399,11 @@ public interface Component {
       return;
     }
 
-    giveExp(p, exp);
+    p.giveExp(exp);
   }
 
   default void giveExp(Player p, int exp) {
-    if (exp > 0) {
-      p.giveExp(exp);
-    }
+    BukkitExperience.award(p, exp);
   }
 
   default void takeExp(Player p, int exp) {

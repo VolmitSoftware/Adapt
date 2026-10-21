@@ -159,7 +159,7 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     }
     int xp = Math.max(0, (int) Math.round(getBonusXp(pending.level())));
     if (xp > 0 && preferenceEnabled(p, BONUS_XP)) {
-      p.giveExp(xp);
+      giveExp(p, xp);
     }
 
     p.setCooldown(Material.GRINDSTONE, getCooldownTicks(pending.level()));

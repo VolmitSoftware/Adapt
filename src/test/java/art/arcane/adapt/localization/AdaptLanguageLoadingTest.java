@@ -3,11 +3,15 @@ package art.arcane.adapt.localization;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.volmlib.util.localization.LocalizationManager;
+import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,10 +24,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 class AdaptLanguageLoadingTest extends AdaptTestBase {
+  private LocalizationManager manager;
+  private LocalizationSnapshot previousSnapshot;
+  private Field activeLocale;
+  private String previousLocale;
+
+  @BeforeEach
+  void retainLanguageState() throws Exception {
+    Field managerField = AdaptLanguage.class.getDeclaredField("MANAGER");
+    managerField.setAccessible(true);
+    manager = (LocalizationManager) managerField.get(null);
+    previousSnapshot = manager.snapshot();
+    activeLocale = AdaptLanguage.class.getDeclaredField("activeLocale");
+    activeLocale.setAccessible(true);
+    previousLocale = (String) activeLocale.get(null);
+  }
 
   @AfterEach
-  void restoreEnglishSnapshot() {
-    AdaptLanguage.initialize();
+  void restoreLanguageState() throws Exception {
+    manager.install(previousSnapshot);
+    activeLocale.set(null, previousLocale);
   }
 
   @Test

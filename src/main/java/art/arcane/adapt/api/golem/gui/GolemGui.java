@@ -28,6 +28,7 @@ import art.arcane.adapt.util.common.inventorygui.GuiConfirm;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.bukkit.BukkitExperience;
 import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -955,7 +956,7 @@ public final class GolemGui {
     };
     Runnable give = () -> {
       if (settled.compareAndSet(false, true)) {
-        player.giveExp(points);
+        BukkitExperience.award(player, points);
       }
     };
     if (J.runEntity(player, give, () -> GolemGuiItems.fromGolem(handle.entity(), player, restore))) {

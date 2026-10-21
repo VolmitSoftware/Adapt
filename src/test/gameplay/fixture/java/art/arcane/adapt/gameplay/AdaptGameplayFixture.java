@@ -90,6 +90,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new TraversalFixtures(), this);
             getServer().getPluginManager().registerEvents(new NatureFixtures(), this);
             getServer().getPluginManager().registerEvents(new NetherFixtures(), this);
+            getServer().getPluginManager().registerEvents(new ExperienceFixtures(), this);
             UtilityFixtures.install(this);
             KineticsFixtures.install(this);
         } catch (IOException | IllegalStateException failure) {
@@ -114,7 +115,9 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             return true;
         }
         try {
-            if (args.length >= 3 && args[0].equals("custom-recipes")) {
+            if (args.length >= 3 && args[0].equals("experience")) {
+                sendJson(sender, "EXPERIENCE " + args[2], ExperienceFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("custom-recipes")) {
                 sendJson(sender, "CUSTOM_RECIPES " + args[2], CustomRecipeFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("golem-controls")) {
                 sendJson(sender, "GOLEM_CONTROLS " + args[2], GolemControlsFixtures.execute(ordinaryPlayer(args[1]), args));
@@ -721,6 +724,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         NetherFixtures.cleanup();
         ProjectileTargetingFixtures.cleanup();
         DiscoveryFixtures.cleanup();
+        ExperienceFixtures.cleanup();
         Bukkit.unloadWorld(arena, false);
         arena = null;
         actor = null;

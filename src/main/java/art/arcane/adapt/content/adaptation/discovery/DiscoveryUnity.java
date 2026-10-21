@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
-import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.catalog.DiscoveryMessages;
-
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -31,6 +28,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -46,8 +45,8 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 import java.util.List;
 import java.util.UUID;
 
-import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 
 public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   private final Cooldowns chimeThrottle = cooldowns();
@@ -82,7 +81,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   }
 
   //Give random XP to the player when they gain XP!
-  @EventHandler(priority = EventPriority.LOW)
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerExpChangeEvent e) {
     Player p = e.getPlayer();
     if (!hasActiveAdaptation(p) || e.getAmount() <= 0) {
@@ -124,7 +123,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   }
 
 
-  @ConfigDescription("Collecting Experience Orbs adds XP to random skills.")
+  @ConfigDescription("Gaining vanilla experience adds XP to random skills.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Gained Multiplier for the Discovery Unity adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpGainedMultiplier = 8;

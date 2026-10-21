@@ -2578,7 +2578,7 @@
       "triggers": [
         "PlayerExpChangeEvent"
       ],
-      "expectation": "Collecting Experience Orbs adds XP to random skills.",
+      "expectation": "Gaining vanilla experience adds XP to random skills.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/discovery/DiscoveryUnity.java",
       "sounds": [
         "BLOCK_AMETHYST_BLOCK_CHIME",

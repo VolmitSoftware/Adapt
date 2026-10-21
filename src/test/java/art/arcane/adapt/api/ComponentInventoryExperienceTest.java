@@ -1,8 +1,11 @@
 package art.arcane.adapt.api;
 
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -10,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -94,5 +98,27 @@ class ComponentInventoryExperienceTest {
 
     verify(player).setTotalExperience(0);
     verify(player).giveExp(97);
+    verify(player, never()).getServer();
+  }
+
+  @Test
+  void earnedExperienceHonorsTheExperienceEventAmount() {
+    Player player = mock(Player.class);
+    Server server = mock(Server.class);
+    PluginManager events = mock(PluginManager.class);
+    when(player.getServer()).thenReturn(server);
+    when(server.getPluginManager()).thenReturn(events);
+    doAnswer(invocation -> {
+      PlayerExpChangeEvent event = invocation.getArgument(0);
+      assertThat(event.getAmount()).isEqualTo(12);
+      assertThat(event.getPlayer()).isSameAs(player);
+      event.setAmount(6);
+      return null;
+    }).when(events).callEvent(any(PlayerExpChangeEvent.class));
+
+    component.giveExp(player, 12);
+
+    verify(events).callEvent(any(PlayerExpChangeEvent.class));
+    verify(player).giveExp(6);
   }
 }
