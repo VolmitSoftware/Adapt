@@ -121,7 +121,7 @@ Install Java JDK 25, clone the repository, and run the Gradle wrapper from the A
 ./gradlew build
 ```
 
-`./gradlew build` emits the shaded runtime jar. `./gradlew shadowJar` builds only the jar, and `./gradlew adapt` creates the convenience jar copy `build/Adapt-<version>.jar`. Locale sources remain outside the jar; the build embeds their pinned revision and checksums for verified on-demand downloads.
+`./gradlew build` runs checks and creates the packed runtime jar in `build/libs`. `./gradlew shadowJar` creates the intermediate shaded jar. Multiplexor reads `gradle/multiplexor.gradle` to build the runtime jar in an isolated workspace and deliver it to a selected destination. Locale sources remain outside the jar; the build embeds their pinned revision and checksums for verified on-demand downloads.
 
 ## Credits
 

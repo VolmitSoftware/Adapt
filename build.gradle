@@ -18,7 +18,6 @@
 import art.arcane.volmit.packaging.PackagingMode
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.resolver.data.Mirror
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.WriteProperties
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
@@ -98,22 +97,6 @@ def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Ja
     exclude('com/fren_gor/ultimateAdvancementAPI/util/Versions.class')
     exclude('com/fren_gor/ultimateAdvancementAPI/database/impl/MySQL.class')
 }
-
-// ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
-// ======================== WINDOWS =============================
-registerCustomOutputTask('Cyberpwn', 'C://Users/cyberpwn/Documents/development/server/plugins')
-registerCustomOutputTask('Psycho', 'C://Dan/MinecraftDevelopment/Server/plugins')
-registerCustomOutputTask('ArcaneArts', 'C://Users/arcane/Documents/development/server/plugins')
-registerCustomOutputTask('Vatuu', 'D://Minecraft/Servers/1.20/plugins')
-registerCustomOutputTask('Nowhere', 'E://Desktop/server/plugins')
-registerCustomOutputTask('CrazyDev22', 'C://Users/Julian/Desktop/server/plugins')
-registerCustomOutputTask('Pixel', 'D://Iris Dimension Engine//1.20.4 - Development//plugins')
-registerCustomOutputTask('SwiftSwamp', 'C://VolmitSoftware/BUILDS')
-// ========================== UNIX ==============================
-registerCustomOutputTaskUnix('CyberpwnLT', '/Users/danielmills/development/server/plugins')
-registerCustomOutputTaskUnix('PsychoLT', '/Users/brianfopiano/Developer/RemoteGit/[Minecraft Server]/consumers/plugin-consumers/dropins/plugins')
-registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraft/adapt-testserver/plugins/update/', false)
-// ==============================================================
 
 /**
  * Expand properties into plugin yml
@@ -498,49 +481,6 @@ tasks.named('check').configure {
     dependsOn(verifyLanguagePackagingTask)
 }
 
-tasks.register('adapt', Copy) {
-    dependsOn('packedJar')
-    from({ tasks.named('packedJar').get().outputJar })
-    into(layout.buildDirectory)
-    rename { String ignored -> "Adapt-${version}.jar" }
-}
-
-void registerCustomOutputTask(String name, String path, boolean doRename = true) {
-    if (!System.getProperty('os.name').toLowerCase().contains('windows')) {
-        return
-    }
-    createOutputTask(name, path, doRename)
-}
-
-void registerCustomOutputTaskUnix(String name, String path, boolean doRename = true) {
-    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
-        return
-    }
-
-    createOutputTask(name, path, doRename)
-}
-
-void createOutputTask(String name, String path, boolean doRename = true) {
-    tasks.register("build${name}", Copy) {
-        group = 'development'
-        outputs.upToDateWhen { false }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        dependsOn('packedJar')
-        from({ tasks.named('packedJar').get().outputJar })
-        into(file(path))
-        rename { String fileName -> doRename ? 'Adapt.jar' : fileName.replaceFirst(/-packed\.jar$/, '.jar') }
-        if (name == 'PsychoLT') {
-            doLast {
-                project.copy {
-                    from(tasks.named('packedJar').get().outputJar.get().asFile)
-                    into(project.file('../PluginOuts'))
-                    rename { String ignored -> "Adapt v${project.version} [CraftBukkit] ${project.bukkitMinecraftRange}.jar" }
-                }
-            }
-        }
-    }
-}
-
 pluginPackaging {
     artifacts {
         create('distribution') {
@@ -568,3 +508,5 @@ pluginPackaging {
         }
     }
 }
+
+apply from: 'gradle/multiplexor.gradle'
