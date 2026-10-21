@@ -15,8 +15,8 @@ afterEvaluate {
             tasks: ['build'],
             arguments: [],
             java: 25,
-            memoryMiB: 6144,
-            workers: 2,
+            memoryMiB: 8192,
+            workers: 4,
             dependsOn: [],
             artifacts: [[
                 path: relativePath(packedArchive),
