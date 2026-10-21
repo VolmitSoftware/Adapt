@@ -304,6 +304,9 @@ dependencies {
 }
 
 tasks.named('test', Test) {
+    inputs.dir(file('../docs/adapt'))
+            .withPropertyName('skillDocumentation')
+            .withPathSensitivity(PathSensitivity.RELATIVE)
     useJUnitPlatform {
         excludeTags('media-export')
     }
