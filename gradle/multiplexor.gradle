@@ -9,6 +9,7 @@ afterEvaluate {
         sandbox: 'per-target',
         parallelTargets: true,
         sourceDependencies: ['volmlib', 'iris', 'hiddenore'],
+        sourceInputs: ['docs/adapt'],
         targets: [[
             id: 'bukkit',
             tasks: ['build'],
