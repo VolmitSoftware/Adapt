@@ -113,8 +113,7 @@ public class XpProvenanceListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityChangeBlockEvent e) {
-    if (!(e.getEntity() instanceof FallingBlock fallingBlock)
-        || fallingBlock.getBlockData().getMaterial() != Material.DRAGON_EGG) {
+    if (!(e.getEntity() instanceof FallingBlock fallingBlock)) {
       return;
     }
     PersistentDataContainer data = fallingBlock.getPersistentDataContainer();
@@ -125,9 +124,6 @@ public class XpProvenanceListener implements Listener {
         data.remove(PLAYER_MODIFIED_FALLING_BLOCK_KEY);
       }
       XpProvenance.clearPlacementRecord(e.getBlock());
-      return;
-    }
-    if (e.getTo() != Material.DRAGON_EGG) {
       return;
     }
     if (data.has(PLAYER_MODIFIED_FALLING_BLOCK_KEY, PersistentDataType.BYTE)) {

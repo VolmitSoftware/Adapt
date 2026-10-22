@@ -26,6 +26,7 @@ import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XpAward;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.format.Form;
@@ -143,13 +144,14 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
       for (Map.Entry<String, Double> entry : experienceMap.entrySet()) {
         Double experience = entry.getValue();
         PlayerSkillLine skillLine = adaptPlayer.getSkillLine(entry.getKey());
-        if (experience == null || !Double.isFinite(experience) || skillLine == null) {
+        if (experience == null || !Double.isFinite(experience) || experience <= 0D || skillLine == null) {
           return false;
         }
         awards.merge(skillLine, experience, Double::sum);
       }
       for (Map.Entry<PlayerSkillLine, Double> award : awards.entrySet()) {
-        award.getKey().giveXPFresh(adaptPlayer.getNot(), award.getValue());
+        XpAward redemption = new XpAward("consumable:experience-orb", award.getValue(), null, true, XpAward.Kind.CONSUMABLE);
+        award.getKey().award(adaptPlayer.getNot(), redemption, award.getValue(), adaptPlayer.getData().getXpEarnings());
       }
       return true;
     }

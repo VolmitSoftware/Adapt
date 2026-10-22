@@ -436,6 +436,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
         return;
       }
 
+      awardUsageBaselineXp(p, getLevel(p));
       Location arrival = p.getLocation().clone();
       fx(arrival, FxPriority.TRANSITION)
           .helix(Particle.PORTAL, 0.8D, 2.5D, 16, 0)

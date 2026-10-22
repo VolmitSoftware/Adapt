@@ -18,33 +18,39 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
-import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.catalog.AdvancementMessages;
-import art.arcane.adapt.localization.catalog.CraftingMessages;
-
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.xp.CraftingXpTransaction;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.AdvancementMessages;
+import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.inventory.ItemStack;
+
+import java.util.Map;
+import java.util.UUID;
 
 
 public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
   private final Cooldowns xpCooldown = cooldowns();
+  private final Map<UUID, CraftingXpTransaction> pendingCrafts = playerState();
 
 
   public CraftingXP() {
@@ -86,68 +92,52 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
-    Player p = (Player) e.getWhoClicked();
-    ItemStack result = e.getInventory().getResult();
-    if (result == null || result.getAmount() <= 0 || !hasActiveAdaptation(p)) {
+    if (!(e.getWhoClicked() instanceof Player player)) {
       return;
     }
-
-    ItemStack cursor = e.getCursor();
-    if (cursor == null || cursor.getAmount() >= 64) {
+    pendingCrafts.remove(player.getUniqueId());
+    if (!hasActiveAdaptation(player)) {
       return;
     }
-
-    if (!resultFitsInventory(p.getInventory().getStorageContents(), result)) {
+    CraftingXpTransaction transaction = CraftingXpTransaction.open(e);
+    if (transaction == null) {
       return;
     }
+    pendingCrafts.put(player.getUniqueId(), transaction);
+    J.runEntity(player, () -> rewardCommittedCraft(player, transaction), 1);
+  }
 
-    int level = getActiveLevel(p);
-    int rewardXp = rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerCraft);
-    if (rewardXp <= 0) {
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    CraftingXpTransaction transaction = pendingCrafts.get(e.getPlayer().getUniqueId());
+    if (transaction != null) {
+      transaction.accept(e.getCraftedItem());
+    }
+  }
+
+  private void rewardCommittedCraft(Player player, CraftingXpTransaction transaction) {
+    pendingCrafts.remove(player.getUniqueId(), transaction);
+    if (transaction.committedItems() <= 0 || !player.isOnline()) {
       return;
     }
-
-    long cooldownMillis = getConfig().cooldownMillis;
-    if (!xpCooldown.isReady(p.getUniqueId(), cooldownMillis)) {
+    int level = getActiveLevel(player);
+    if (level <= 0 || !xpCooldown.isReady(player.getUniqueId(), getConfig().cooldownMillis)) {
       return;
     }
-
-    xpCooldown.mark(p.getUniqueId());
-    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(rewardXp);
-    addStat(p, "crafting.xp.items-crafted", 1);
-    xpShimmer(p.getLocation().add(0, 1, 0), level);
+    int reward = rewardXp(level, getConfig().vanillaXpAtLevelOne,
+        getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerCraft);
+    if (reward <= 0) {
+      return;
+    }
+    xpCooldown.mark(player.getUniqueId());
+    player.getWorld().spawn(player.getLocation(), ExperienceOrb.class).setExperience(reward);
+    addStat(player, "crafting.xp.items-crafted", transaction.committedItems());
+    xpShimmer(player.getLocation().add(0, 1, 0), level);
   }
 
   static int rewardXp(int level, int atLevelOne, int perAdditionalLevel, int maximum) {
     long reward = Math.max(0, atLevelOne) + ((long) Math.max(0, level - 1) * Math.max(0, perAdditionalLevel));
     return (int) Math.min(Math.max(0, maximum), reward);
-  }
-
-  private boolean resultFitsInventory(ItemStack[] storage, ItemStack result) {
-    ItemStack probe = result.clone();
-    int emptySlots = 0;
-    int partialRoom = 0;
-    for (ItemStack slot : storage) {
-      if (slot == null || slot.getType().isAir()) {
-        emptySlots++;
-        continue;
-      }
-
-      if (slot.isSimilar(probe)) {
-        partialRoom += Math.max(0, slot.getMaxStackSize() - slot.getAmount());
-      }
-    }
-
-    return canFit(probe.getAmount(), probe.getMaxStackSize(), emptySlots, partialRoom);
-  }
-
-  static boolean canFit(int amount, int maxStackSize, int emptySlots, int partialRoom) {
-    if (amount <= 0) {
-      return true;
-    }
-
-    long capacity = ((long) Math.max(0, emptySlots) * Math.max(1, maxStackSize)) + Math.max(0, partialRoom);
-    return capacity >= amount;
   }
 
   private void xpShimmer(Location center, int level) {

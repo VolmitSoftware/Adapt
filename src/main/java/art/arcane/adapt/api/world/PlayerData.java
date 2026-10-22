@@ -38,6 +38,10 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.xp.CombatXpLedger;
+import art.arcane.adapt.api.xp.XpEarnings;
+import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.api.xp.ItemTransferXpLedger;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
@@ -126,8 +130,13 @@ public class PlayerData {
   private Discovery<String> seenBlocks = new Discovery<>();
   private KList<XPMultiplier> multipliers = new KList<>();
   private long wisdom = 0;
-  private double multiplier = 0;
+  private double multiplier = 1D;
   private long lastLogin = 0;
+  private long lastLogout = 0;
+  private XpNovelty.State xpNovelty = new XpNovelty.State();
+  private CombatXpLedger combatXp = new CombatXpLedger();
+  private XpEarnings xpEarnings = new XpEarnings();
+  private ItemTransferXpLedger itemTransferXp = new ItemTransferXpLedger();
   private double masterXp = 1;
   private double lastMasterXp = 0;
   private volatile boolean effectsEnabled = true;
@@ -182,6 +191,34 @@ public class PlayerData {
       preferences = new PlayerPreferenceData();
     }
     return preferences;
+  }
+
+  public XpNovelty.State getXpNovelty() {
+    if (xpNovelty == null) {
+      xpNovelty = new XpNovelty.State();
+    }
+    return xpNovelty;
+  }
+
+  public CombatXpLedger getCombatXp() {
+    if (combatXp == null) {
+      combatXp = new CombatXpLedger();
+    }
+    return combatXp;
+  }
+
+  public XpEarnings getXpEarnings() {
+    if (xpEarnings == null) {
+      xpEarnings = new XpEarnings();
+    }
+    return xpEarnings;
+  }
+
+  public ItemTransferXpLedger getItemTransferXp() {
+    if (itemTransferXp == null) {
+      itemTransferXp = new ItemTransferXpLedger();
+    }
+    return itemTransferXp;
   }
 
   public void giveMasterXp(double xp) {
@@ -535,7 +572,7 @@ public class PlayerData {
     return skillLines.get(skillLine);
   }
 
-  public void resetMonotonyForOtherSkills(String currentSkill) {
+  public void noteActivity(String currentSkill) {
     if (currentSkill == null || currentSkill.isBlank() || currentSkill.equals(last)) {
       return;
     }
@@ -550,7 +587,7 @@ public class PlayerData {
         continue;
       }
 
-      double recoveredPressure = line.relaxStalenessForActivitySwitch();
+      double recoveredPressure = line.recoverStaleness(System.currentTimeMillis());
       if (isBetterInspiredCandidate(lineId, recoveredPressure, inspiredCandidate, inspiredPressure)) {
         inspiredCandidate = lineId;
         inspiredPressure = recoveredPressure;
@@ -927,7 +964,15 @@ public class PlayerData {
           line.flushXpPool(null);
         }
       }
-      return Json.toJson(this, !raw);
+      synchronized (getXpNovelty()) {
+        synchronized (getCombatXp()) {
+          synchronized (getXpEarnings()) {
+            synchronized (getItemTransferXp()) {
+              return Json.toJson(this, !raw);
+            }
+          }
+        }
+      }
     }
   }
 

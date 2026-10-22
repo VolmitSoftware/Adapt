@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -28,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeChisel;
@@ -42,6 +40,8 @@ import art.arcane.adapt.content.adaptation.pickaxe.PickaxeStoneSkin;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeTunnelBore;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeUnbreakablePact;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -163,11 +163,16 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
-      AdaptPlayer adaptPlayer = getPlayer(p);
-      adaptPlayer.getData().addStat("pickaxe.damage", e.getDamage());
-      if (beginCooldown(p)) {
-        xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+      if (!beginCooldown(p)) {
+        return;
       }
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      adaptPlayer.getData().addStat("pickaxe.damage", creditedDamage);
+      xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * creditedDamage, "pickaxe:combat");
     });
   }
 
@@ -180,6 +185,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
+      if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0D) {
+        return;
+      }
       Material blockType = e.getBlock().getType();
       double blockValue = getValue(blockType);
       AdaptPlayer adaptPlayer = getPlayer(p);
@@ -190,7 +198,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         adaptPlayer.getData().addStat("pickaxe.ores", 1);
       }
 
-      if (!beginCooldown(p) || XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+      if (!beginCooldown(p)) {
         return;
       }
       if (mainHand.containsEnchantment(Enchantment.SILK_TOUCH)) {

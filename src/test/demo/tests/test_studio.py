@@ -252,6 +252,25 @@ def http_error(code: int, error: str) -> urllib.error.HTTPError:
 
 
 class DemoBridgeTest(unittest.TestCase):
+    def test_capture_commands_allow_the_encoder_deadline_to_complete(self) -> None:
+        bridge: studio.DemoBridge = studio.DemoBridge(4321, 'token')
+        for action in ('start', 'stop'):
+            response = mock.MagicMock()
+            response.__enter__.return_value = io.BytesIO(b'{"ok":true}')
+            with mock.patch.object(studio.urllib.request, 'urlopen', return_value=response) as urlopen:
+                result: dict = bridge.command('capture', action=action)
+            self.assertEqual(result, {'ok': True})
+            self.assertEqual(urlopen.call_args.kwargs['timeout'], 35.0)
+            self.assertEqual(json.loads(urlopen.call_args.args[0].data), {'op': 'capture', 'action': action})
+
+    def test_other_commands_retain_the_normal_transport_deadline(self) -> None:
+        bridge: studio.DemoBridge = studio.DemoBridge(4321, 'token')
+        response = mock.MagicMock()
+        response.__enter__.return_value = io.BytesIO(b'{"ok":true}')
+        with mock.patch.object(studio.urllib.request, 'urlopen', return_value=response) as urlopen:
+            bridge.command('record', action='start')
+        self.assertEqual(urlopen.call_args.kwargs['timeout'], 10.0)
+
     def test_state_respects_the_remaining_window_fit_timeout(self) -> None:
         bridge: studio.DemoBridge = studio.DemoBridge(4321, 'token')
         response = mock.MagicMock()

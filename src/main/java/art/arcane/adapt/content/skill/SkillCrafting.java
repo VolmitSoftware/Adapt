@@ -18,16 +18,14 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.xp.CraftingXpTransaction;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBackpacks;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBulkArtisan;
 import art.arcane.adapt.content.adaptation.crafting.CraftingCompactor;
@@ -41,9 +39,13 @@ import art.arcane.adapt.content.adaptation.crafting.CraftingStations;
 import art.arcane.adapt.content.adaptation.crafting.CraftingThriftyHands;
 import art.arcane.adapt.content.adaptation.crafting.CraftingTinkerer;
 import art.arcane.adapt.content.adaptation.crafting.CraftingXP;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
 import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -54,15 +56,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, CraftingXpTransaction> pendingCrafts = playerState();
   private final Map<String, Long> furnaceXpMarks = new ConcurrentHashMap<>();
 
   public SkillCrafting() {
@@ -162,35 +163,58 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
     }
+    pendingCrafts.remove(p.getUniqueId());
     shouldReturnForPlayer(p, e, () -> {
-      if (!isValidCraftEvent(e)) {
+      CraftingXpTransaction transaction = CraftingXpTransaction.open(e);
+      if (transaction == null) {
         return;
       }
-      int recipeAmount = calculateRecipeAmount(e);
-      if (recipeAmount > 0) {
-        double v = recipeAmount * getValue(e.getRecipe().getResult()) * getConfig().craftingValueXPMultiplier;
-        addStat(p, "crafted.items", recipeAmount);
-        addStat(p, "crafted.value", v);
-        Material resultType = e.getRecipe().getResult().getType();
-        String typeName = resultType.name();
-        if (typeName.contains("_PICKAXE") || typeName.contains("_AXE") || typeName.contains("_SHOVEL") || typeName.contains("_HOE") || typeName.contains("_SWORD")) {
-          addStat(p, "crafting.tools", recipeAmount);
-        }
-        if (typeName.contains("_HELMET") || typeName.contains("_CHESTPLATE") || typeName.contains("_LEGGINGS") || typeName.contains("_BOOTS")) {
-          addStat(p, "crafting.armor", recipeAmount);
-        }
-        xp(p, v + getConfig().baseCraftingXP);
-        float chimePitch = (float) Math.min(1.8D, 0.9D + (Math.min(1.0D, v / 200.0D) * 0.9D));
-        fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
-            .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0.2D, 0, 0.3D, 0.3D)
-            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, chimePitch);
-      }
+      pendingCrafts.put(p.getUniqueId(), transaction);
+      J.runEntity(p, () -> completeCraft(p, transaction), 1);
     });
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    CraftingXpTransaction transaction = pendingCrafts.get(e.getPlayer().getUniqueId());
+    if (transaction != null) {
+      transaction.accept(e.getCraftedItem());
+    }
+  }
+
+  private void completeCraft(Player player, CraftingXpTransaction transaction) {
+    pendingCrafts.remove(player.getUniqueId(), transaction);
+    shouldReturnForPlayer(player, () -> rewardCraft(player, transaction));
+  }
+
+  private void rewardCraft(Player player, CraftingXpTransaction transaction) {
+    int amount = transaction.committedItems();
+    if (amount <= 0 || !cooldowns.isReady(player.getUniqueId(), getConfig().cooldownDelay)) {
+      return;
+    }
+    cooldowns.mark(player.getUniqueId());
+    double value = amount * getValue(transaction.material()) * getConfig().craftingValueXPMultiplier;
+    addStat(player, "crafted.items", amount);
+    addStat(player, "crafted.value", value);
+    String type = transaction.material().name();
+    if (type.endsWith("_PICKAXE") || type.endsWith("_AXE") || type.endsWith("_SHOVEL")
+        || type.endsWith("_HOE") || type.endsWith("_SWORD")) {
+      addStat(player, "crafting.tools", amount);
+    }
+    if (type.endsWith("_HELMET") || type.endsWith("_CHESTPLATE")
+        || type.endsWith("_LEGGINGS") || type.endsWith("_BOOTS")) {
+      addStat(player, "crafting.armor", amount);
+    }
+    xp(player, value + getConfig().baseCraftingXP, transaction.rewardKey());
+    float pitch = (float) Math.min(1.8D, 0.9D + Math.min(1.0D, value / 200.0D) * 0.9D);
+    fx(player.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+        .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0.2D, 0, 0.3D, 0.3D)
+        .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, pitch);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(FurnaceSmeltEvent e) {
-    if (shouldReturnForWorld(e.getBlock().getWorld(), this)) {
+    if (e.isCancelled() || shouldReturnForWorld(e.getBlock().getWorld(), this)) {
       return;
     }
     String furnaceKey = e.getBlock().getWorld().getUID() + ":" + e.getBlock().getX() + ":" + e.getBlock().getY() + ":" + e.getBlock().getZ();
@@ -221,86 +245,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     }
     return marks.replace(key, previous, now);
   }
-
-  private boolean isValidCraftEvent(CraftItemEvent e) {
-    Player p = (Player) e.getWhoClicked();
-    ItemStack result = e.getInventory().getResult();
-    ItemStack cursor = e.getCursor();
-    if (result == null || result.getAmount() <= 0 || (cursor != null && cursor.getAmount() >= cursor.getMaxStackSize())) {
-      return false;
-    }
-
-    if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
-      return false;
-    }
-    cooldowns.mark(p.getUniqueId());
-    return true;
-  }
-
-  private int calculateRecipeAmount(CraftItemEvent e) {
-    int recipeAmount = e.getInventory().getResult().getAmount();
-    switch (e.getClick()) {
-      case NUMBER_KEY -> {
-        if (e.getWhoClicked().getInventory().getItem(e.getHotbarButton()) != null) {
-          recipeAmount = 0;
-        }
-      }
-      case DROP, CONTROL_DROP -> {
-        ItemStack cursor = e.getCursor();
-        if (!(cursor == null || cursor.getType().isAir())) {
-          recipeAmount = 0;
-        }
-      }
-      case SHIFT_RIGHT, SHIFT_LEFT -> {
-        if (recipeAmount == 0) {
-          break;
-        }
-        int maxCraftable = getMaxCraftAmount(e.getInventory());
-        int capacity = fits(e.getRecipe().getResult(), e.getView().getBottomInventory());
-        if (capacity < maxCraftable) {
-          maxCraftable = ((capacity + recipeAmount - 1) / recipeAmount) * recipeAmount;
-        }
-        recipeAmount = maxCraftable;
-      }
-      default -> {
-      }
-    }
-    return recipeAmount;
-  }
-
-  private int fits(ItemStack stack, Inventory inv) {
-    ItemStack[] contents = inv.getContents();
-    int maxStackSize = stack.getMaxStackSize();
-    int result = 0;
-
-    for (ItemStack is : contents) {
-      if (is == null) {
-        result += maxStackSize;
-      } else if (is.isSimilar(stack)) {
-        result += Math.max(maxStackSize - is.getAmount(), 0);
-      }
-    }
-
-    return result;
-  }
-
-  private int getMaxCraftAmount(CraftingInventory inv) {
-    if (inv.getResult() == null) {
-      return 0;
-    }
-
-    int resultCount = inv.getResult().getAmount();
-    int materialCount = Integer.MAX_VALUE;
-
-    for (ItemStack is : inv.getMatrix()) {
-      if (is != null && is.getAmount() < materialCount) {
-        materialCount = is.getAmount();
-      }
-    }
-
-    return resultCount * materialCount;
-  }
-
 
   @Override
   public void unregister() {

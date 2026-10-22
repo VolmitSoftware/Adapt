@@ -32,6 +32,8 @@ import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
@@ -833,6 +835,7 @@ public class AdaptPlayer extends TickedObject {
 
   private void retireRuntime() {
     lastSeen = M.ms();
+    data.setLastLogout(lastSeen);
     runtimeReady = false;
     data.unbindRuntimeOwner(this);
     data.stripRegionGrantedAdaptations();
@@ -968,23 +971,26 @@ public class AdaptPlayer extends TickedObject {
   public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {
     for (PlayerSkillLine i : p.getData().getSkillLines().v()) {
       if (M.ms() - i.getLast() < ms) {
-        i.giveXP(not, xpGained);
+        XP.xp(p, getServer().getSkillRegistry().getSkill(i.getLine()), xpGained, "reward:recent-skill");
       }
     }
   }
 
   public void giveXPToRandom(AdaptPlayer p, double xpGained) {
-    p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
+    PlayerSkillLine line = p.getData().getSkillLines().v().getRandom();
+    if (line != null) {
+      XP.xp(p, getServer().getSkillRegistry().getSkill(line.getLine()), xpGained, "reward:random-skill");
+    }
   }
 
   public void boostXPToRandom(AdaptPlayer p, double boost, long ms) {
     p.getData().getSkillLines().v().getRandom().boost(boost, ms);
   }
 
-  public void boostXPToRecents(double boost, long ms) {
+  public void refreshRecentXpBoost(String source, double boost, long ms) {
     for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
       if (M.ms() - i.getLast() < ms) {
-        i.boost(boost, ms);
+        i.boostOwned(source, boost, ms);
       }
     }
   }
@@ -1003,15 +1009,17 @@ public class AdaptPlayer extends TickedObject {
         reconcileStatTrackers();
       }
       if (AdaptConfig.get().isLoginBonus()) {
-        long timeGone = M.ms() - getData().getLastLogin();
+        long timeGone = getData().getLastLogout() <= 0L ? 0L : Math.max(0L, M.ms() - getData().getLastLogout());
         boolean first = getData().getLastLogin() == 0;
         getData().setLastLogin(M.ms());
+        getData().setLastLogout(0L);
         long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
         if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
           return;
         }
         double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
-        getData().globalXPMultiplier(boostAmount, boostTime);
+        getData().removeGlobalXPMultipliers("rested-login");
+        getData().globalXPMultiplier(XPMultiplier.owned("rested-login", boostAmount, boostTime));
         if (!AdaptConfig.get().isWelcomeMessage())
           return;
         getNot().queue(AdvancementNotification.builder()

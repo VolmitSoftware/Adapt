@@ -6,10 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class SkillSeaborneTest {
   @Test
-  void normalSwimmersRetainAirBasedQualification() {
-    assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(true, false, 299, 300, false, false)).isTrue();
-    assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(false, true, 299, 300, false, false)).isTrue();
+  void normalSwimmersRequireMovementAndAirLoss() {
+    assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(true, false, 299, 300, false, false)).isFalse();
+    assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(false, true, 299, 300, false, false)).isFalse();
     assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(true, true, 300, 300, false, true)).isFalse();
+    assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(true, true, 299, 300, false, true)).isTrue();
   }
 
   @Test

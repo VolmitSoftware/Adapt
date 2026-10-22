@@ -65,10 +65,16 @@ class RegionPolicyServiceTest extends AdaptTestBase {
   void throwingSourceIsQuarantined() {
     source.setFailure(new IllegalStateException("worldguard exploded"));
 
-    assertThat(RegionPolicyService.resolve(player, location)).isSameAs(RegionPolicy.DEFAULT);
+    RegionPolicy failed = RegionPolicyService.resolve(player, location);
+    assertThat(failed.xpAllowed()).isFalse();
+    assertThat(RegionPolicyService.adjustXp(25D, failed)).isZero();
+    assertThat(failed.xpMultiplier()).isEqualTo(RegionPolicy.DEFAULT.xpMultiplier());
+    assertThat(failed.powerBonus()).isEqualTo(RegionPolicy.DEFAULT.powerBonus());
+    assertThat(failed.unlockedAdaptations()).isEqualTo(RegionPolicy.DEFAULT.unlockedAdaptations());
     assertThat(RegionPolicyService.isActive()).isFalse();
 
-    assertThat(RegionPolicyService.resolve(player, location)).isSameAs(RegionPolicy.DEFAULT);
+    assertThat(RegionPolicyService.resolve(player, location)).isSameAs(failed);
+    assertThat(RegionPolicyService.resolve(player, null)).isSameAs(failed);
     assertThat(source.getCalls()).isEqualTo(1);
   }
 
@@ -82,8 +88,23 @@ class RegionPolicyServiceTest extends AdaptTestBase {
     RegionPolicyService.install(source);
 
     assertThat(RegionPolicyService.isActive()).isTrue();
-    assertThat(RegionPolicyService.resolve(player, location)).isSameAs(RegionPolicy.DEFAULT);
+    RegionPolicy recovered = RegionPolicyService.resolve(player, location);
+    assertThat(recovered).isSameAs(RegionPolicy.DEFAULT);
+    assertThat(RegionPolicyService.adjustXp(25D, recovered)).isEqualTo(25D);
     assertThat(source.getCalls()).isEqualTo(2);
+  }
+
+  @Test
+  void removingAFailedSourceRestoresTheNoProviderDefault() {
+    source.setFailure(new IllegalStateException("worldguard exploded"));
+    assertThat(RegionPolicyService.resolve(player, location).xpAllowed()).isFalse();
+
+    RegionPolicyService.clear();
+
+    RegionPolicy absent = RegionPolicyService.resolve(player, location);
+    assertThat(absent).isSameAs(RegionPolicy.DEFAULT);
+    assertThat(RegionPolicyService.adjustXp(25D, absent)).isEqualTo(25D);
+    assertThat(source.getCalls()).isEqualTo(1);
   }
 
   @Test

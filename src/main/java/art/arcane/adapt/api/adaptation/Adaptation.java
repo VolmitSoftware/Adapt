@@ -109,10 +109,11 @@ public interface Adaptation<T> extends Ticked, Component {
    * suffix.
    */
   default void xp(Player p, double amount, String rewardKey) {
-    if (!isPlayerEnabled(p)) {
+    if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
-    getSkill().xp(p, amount, adaptationRewardKey(rewardKey));
+    double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
+    getSkill().xp(p, amount + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**
@@ -127,20 +128,22 @@ public interface Adaptation<T> extends Ticked, Component {
    * suffix.
    */
   default void xp(Player p, Location l, double amount, String rewardKey) {
-    if (!isPlayerEnabled(p)) {
+    if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
-    getSkill().xp(p, l, amount, adaptationRewardKey(rewardKey));
+    double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
+    getSkill().xp(p, l, amount + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**
    * Grants silent adaptation-attributed xp with an optional reward key suffix.
    */
   default void xpSilent(Player p, double amount, String rewardKey) {
-    if (!isPlayerEnabled(p)) {
+    if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
-    getSkill().xpSilent(p, amount, adaptationRewardKey(rewardKey));
+    double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
+    getSkill().xpSilent(p, amount + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**

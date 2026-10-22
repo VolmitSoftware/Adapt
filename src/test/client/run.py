@@ -87,8 +87,9 @@ class Bridge:
     def state(self, *, timeout: float = 10.0) -> dict:
         return self.request(timeout=timeout)
 
-    def command(self, operation: str, **values):
-        return self.request({'op': operation, **values})
+    def command(self, operation: str, **values) -> dict:
+        timeout: float = 35.0 if operation == 'capture' else 10.0
+        return self.request({'op': operation, **values}, timeout=timeout)
 
     def wait(self, predicate, label: str, timeout: float = 10):
         deadline = time.monotonic() + timeout

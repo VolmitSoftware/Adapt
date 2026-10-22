@@ -28,9 +28,8 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.api.skill.SkillConfig;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
 import art.arcane.adapt.content.adaptation.rift.RiftAccess;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
@@ -47,7 +46,6 @@ import art.arcane.adapt.content.adaptation.rift.RiftVoidMagnet;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidSkin;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -219,25 +217,31 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     });
   }
 
-  private void handleEntityDamageByEntity(Entity entity, Player p, double damage) {
+  private void handleEntityDamageByEntity(Player p, EntityDamageByEntityEvent event) {
+    Entity entity = event.getEntity();
     if (entity instanceof EnderCrystal) {
       rewardEndCrystalDestruction(p, entity);
       return;
     }
 
-    if (!(entity instanceof LivingEntity living)) {
+    if (!(entity instanceof LivingEntity)) {
       return;
     }
 
-    IAttribute attribute = Version.get().getAttribute(living, Attributes.MAX_HEALTH);
-    double baseHealth = attribute == null ? 1 : attribute.getBaseValue();
     double multiplier = switch (entity.getType()) {
       case ENDERMAN -> getConfig().damageEndermanXPMultiplier;
       case ENDERMITE -> getConfig().damageEndermiteXPMultiplier;
       case ENDER_DRAGON -> getConfig().damageEnderdragonXPMultiplier;
       default -> 0;
     };
-    double xp = multiplier * Math.min(damage, baseHealth);
+    if (multiplier <= 0D) {
+      return;
+    }
+    double damage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, event);
+    if (damage <= 0D) {
+      return;
+    }
+    double xp = multiplier * damage;
     String rewardKey = switch (entity.getType()) {
       case ENDERMAN -> "rift:damage:enderman";
       case ENDERMITE -> "rift:damage:endermite";
@@ -264,9 +268,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player p) {
-      shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(e.getEntity(), p, e.getDamage()));
+      shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(p, e));
     } else if (e.getDamager() instanceof Projectile j && j.getShooter() instanceof Player p) {
-      shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(e.getEntity(), p, e.getDamage()));
+      shouldReturnForPlayer(p, e, () -> handleEntityDamageByEntity(p, e));
     }
   }
 

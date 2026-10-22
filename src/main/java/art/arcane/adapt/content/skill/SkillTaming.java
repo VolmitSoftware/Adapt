@@ -18,17 +18,15 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.minion.MinionIdentity;
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.taming.TamingAlphasCommand;
 import art.arcane.adapt.content.adaptation.taming.TamingBattleBond;
@@ -44,6 +42,8 @@ import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
 import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.content.adaptation.taming.TamingWildEmpathy;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -176,11 +176,16 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Tameable tameable && tameable.isTamed() && tameable.getOwner() instanceof Player p) {
       shouldReturnForPlayer(p, e, () -> {
-        addStat(p, "taming.pet.damage", e.getDamage());
-        if (!isOnCooldown(p)) {
-          setCooldown(p);
-          xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().tameDamageXPMultiplier);
+        if (isOnCooldown(p)) {
+          return;
         }
+        double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+        if (creditedDamage <= 0D) {
+          return;
+        }
+        addStat(p, "taming.pet.damage", creditedDamage);
+        setCooldown(p);
+        xp(p, e.getEntity().getLocation(), creditedDamage * getConfig().tameDamageXPMultiplier, "taming:pet-combat");
       });
     }
   }

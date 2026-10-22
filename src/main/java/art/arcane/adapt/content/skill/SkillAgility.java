@@ -18,16 +18,14 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.MovementXp;
 import art.arcane.adapt.content.adaptation.agility.AgilityAirDash;
 import art.arcane.adapt.content.adaptation.agility.AgilityArmorUp;
 import art.arcane.adapt.content.adaptation.agility.AgilityCatReflexes;
@@ -41,6 +39,8 @@ import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityVault;
 import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -50,9 +50,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
+  private final Map<UUID, Location> lastPassivePositions = playerState();
 
   public SkillAgility() {
     super("agility", SkillPresentation.of(SkillMessages.AGILITY_NAME, SkillMessages.AGILITY_ICON, SkillMessages.AGILITY_DESCRIPTION));
@@ -154,6 +159,10 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerMoveEvent e) {
+    if (e instanceof PlayerTeleportEvent || e.getPlayer().isInsideVehicle()) {
+      lastPassivePositions.remove(e.getPlayer().getUniqueId());
+      return;
+    }
     Location from = e.getFrom();
     Location to = e.getTo();
     if (to == null || from.getWorld() != to.getWorld()
@@ -164,13 +173,20 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
       double distance = from.distance(to);
+      if (!Double.isFinite(distance) || distance > 8D) {
+        return;
+      }
       AdaptPlayer adaptPlayer = getPlayer(p);
       adaptPlayer.getData().addStat("move", distance);
 
+      if (p.isFlying() || p.isGliding()) {
+        adaptPlayer.getData().addStat("move.fly", distance);
+        lastPassivePositions.remove(p.getUniqueId());
+        return;
+      }
+
       if (p.isSneaking()) {
         adaptPlayer.getData().addStat("move.sneak", distance);
-      } else if (p.isFlying()) {
-        adaptPlayer.getData().addStat("move.fly", distance);
       } else if (p.isSwimming()) {
         adaptPlayer.getData().addStat("move.swim", distance);
       } else if (p.isSprinting()) {
@@ -182,6 +198,11 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   }
 
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent event) {
+    lastPassivePositions.remove(event.getPlayer().getUniqueId());
+  }
+
   @Override
   public void unregister() {
     ownerPulse.unregister();
@@ -190,6 +211,12 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
   private void pulsePassiveXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
     shouldReturnForPlayer(player, () -> {
+      Location current = player.getLocation();
+      Location previous = lastPassivePositions.put(player.getUniqueId(), current);
+      if (player.isInsideVehicle() || player.isFlying() || player.isGliding()
+          || !MovementXp.moved(previous, current)) {
+        return;
+      }
       double cadenceScale = (double) elapsedMillis / cadenceMillis;
       if (player.isSprinting() && !player.isFlying() && !player.isSwimming() && !player.isSneaking()) {
         xpSilent(player, getConfig().sprintXpPassive * cadenceScale, "agility:sprint");
@@ -199,7 +226,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         xpSilent(player, getConfig().swimXpPassive * cadenceScale, "agility:swim");
       }
 
-      if (!player.isOnGround() && !player.isFlying() && !player.isSneaking()) {
+      if (!player.isOnGround() && player.getVelocity().getY() > 0D && !player.isFlying() && !player.isSneaking()) {
         xpSilent(player, getConfig().jumpXpPassive * cadenceScale, "agility:jump");
       }
 

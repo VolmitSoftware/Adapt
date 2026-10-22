@@ -173,6 +173,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   public void on(BlockPlaceEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
+      if (XpProvenance.placeXpMultiplier(e.getBlock()) <= 0D) {
+        return;
+      }
       if (!isStorage(e.getBlock().getType().createBlockData())) {
         double v = getValue(e.getBlock()) * getConfig().xpValueMultiplier;
         AdaptPlayer adaptPlayer = getPlayer(p);
@@ -208,6 +211,9 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
+      if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0D) {
+        return;
+      }
       AdaptPlayer adaptPlayer = getPlayer(p);
       adaptPlayer.getData().addStat("blocks.broken", 1);
       adaptPlayer.getData().addStat("architect.demolish.value", getValue(e.getBlock()));

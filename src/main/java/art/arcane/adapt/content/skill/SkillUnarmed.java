@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -30,6 +27,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedComboChain;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedDisarm;
@@ -42,6 +40,8 @@ import art.arcane.adapt.content.adaptation.unarmed.UnarmedPressurePoint;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSecondWind;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedShockwaveClap;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -184,26 +184,28 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
-      if (e.getEntity().isDead()
-          || e.getEntity().isInvulnerable()
-          || p.isInvulnerable()) {
+      if (p.isInvulnerable()) {
         return;
       }
 
-      AdaptPlayer a = getPlayer(p);
-      a.getData().addStat("unarmed.hits", 1);
-      a.getData().addStat("unarmed.damage", e.getDamage());
-      if (p.getFallDistance() > 0 && !p.isOnGround()) {
-        a.getData().addStat("unarmed.critical", 1);
-      }
-      if (e.getDamage() > 6) {
-        a.getData().addStat("unarmed.heavy", 1);
-      }
       if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
       }
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
+      AdaptPlayer a = getPlayer(p);
+      a.getData().addStat("unarmed.hits", 1);
+      a.getData().addStat("unarmed.damage", creditedDamage);
+      if (p.getFallDistance() > 0 && !p.isOnGround()) {
+        a.getData().addStat("unarmed.critical", 1);
+      }
+      if (creditedDamage > 6) {
+        a.getData().addStat("unarmed.heavy", 1);
+      }
       cooldowns.mark(p.getUniqueId());
-      xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
+      xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * creditedDamage, "unarmed:combat");
     });
   }
 

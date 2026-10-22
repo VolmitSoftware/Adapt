@@ -263,6 +263,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     handleHerbCooldown(p, () -> {
       if (block.getBlockData() instanceof Ageable ageableBlock) {
         double integrity = XpProvenance.harvestXpMultiplier(block) * XpNovelty.fieldCycleMultiplier(p, block);
+        if (integrity <= 0D) {
+          return;
+        }
         xp(p, block.getLocation().clone().add(0.5, 0.5, 0.5), getConfig().harvestPerAgeXP * ageableBlock.getAge() * integrity);
         addStat(p, stat, 1);
       }

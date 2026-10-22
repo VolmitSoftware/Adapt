@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -29,6 +26,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.nether.NetherAshwalker;
 import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
 import art.arcane.adapt.content.adaptation.nether.NetherCrimsonFeast;
@@ -43,6 +42,8 @@ import art.arcane.adapt.content.adaptation.nether.NetherSoulStrider;
 import art.arcane.adapt.content.adaptation.nether.NetherStriderBond;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherHarvest;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -206,6 +207,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
     Player p = e.getPlayer();
     shouldReturnForPlayer(p, e, () -> {
+      if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0D) {
+        return;
+      }
       long cooldownMillis = Math.max(0L, (long) getConfig().getWitherRoseBreakCooldown() * 50L);
       if (!witherRoseCooldowns.isReady(p.getUniqueId(), cooldownMillis)) {
         return;
@@ -254,6 +258,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     }
     shouldReturnForPlayer(p, e, () -> {
       if (!witherAttackCooldowns.isReady(p.getUniqueId(), getConfig().getWitherAttackXpCooldown())) {
+        return;
+      }
+      if (CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e) <= 0D) {
         return;
       }
       witherAttackCooldowns.mark(p.getUniqueId());

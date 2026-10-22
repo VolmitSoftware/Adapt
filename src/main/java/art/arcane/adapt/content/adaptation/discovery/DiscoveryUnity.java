@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -99,7 +100,8 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     }
 
     PlayerSkillLine skill = skills.get(RANDOM.nextInt(skills.size()));
-    skill.giveXPFresh(ap.getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));
+    XP.xp(ap, getServer().getSkillRegistry().getSkill(skill.getLine()),
+        getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1), "adaptation:discovery-unity:distribution");
     double distributed = ap.getData().getStat("discovery.unity.orbs-distributed");
     ap.getData().addStat("discovery.unity.orbs-distributed", 1);
 

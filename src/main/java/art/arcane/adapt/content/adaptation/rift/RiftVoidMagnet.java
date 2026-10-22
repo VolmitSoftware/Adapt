@@ -373,8 +373,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         item.setItemStack(stack);
       }
 
-      addStat(player, "rift.void-magnet.items-pulled", moved);
-      xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+      if (item.getThrower() == null) {
+        addStat(player, "rift.void-magnet.items-pulled", moved);
+        xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+      }
       if (pulse.feedback.compareAndSet(false, true)) {
         fx(player, FxPriority.TRAIL)
             .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)

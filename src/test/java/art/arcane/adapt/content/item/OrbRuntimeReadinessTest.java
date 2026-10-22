@@ -5,6 +5,8 @@ import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.xp.XpAward;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,11 +55,14 @@ class OrbRuntimeReadinessTest extends AdaptTestBase {
     when(adaptPlayer.getPlayer()).thenReturn(player);
     when(adaptPlayer.getSkillLine("pickaxe")).thenReturn(skillLine);
     when(adaptPlayer.getNot()).thenReturn(notifier);
+    PlayerData data = new PlayerData();
+    when(adaptPlayer.getData()).thenReturn(data);
 
     boolean applied = new ExperienceOrb.Data("pickaxe", 25D).apply(player);
 
     assertThat(applied).isTrue();
-    verify(skillLine).giveXPFresh(notifier, 25D);
+    verify(skillLine).award(notifier,
+        new XpAward("consumable:experience-orb", 25D, null, true, XpAward.Kind.CONSUMABLE), 25D, data.getXpEarnings());
   }
 
   @Test

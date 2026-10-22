@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -31,6 +28,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.sword.SwordsBladeFlow;
 import art.arcane.adapt.content.adaptation.sword.SwordsBloodyBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsCrescentGuard;
@@ -45,6 +43,8 @@ import art.arcane.adapt.content.adaptation.sword.SwordsMachete;
 import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
 import art.arcane.adapt.content.adaptation.sword.SwordsWhetstoneRitual;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -189,25 +189,30 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
+      if (isOnCooldown(p)) {
+        return;
+      }
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
       addStat(p, "sword.hits", 1);
-      addStat(p, "sword.damage", e.getDamage());
+      addStat(p, "sword.damage", creditedDamage);
       boolean crit = p.getFallDistance() > 0 && !p.isOnGround();
-      boolean heavy = e.getDamage() > 8;
+      boolean heavy = creditedDamage > 8;
       if (crit) {
         addStat(p, "sword.critical", 1);
       }
       if (heavy) {
         addStat(p, "sword.heavy.hits", 1);
       }
-      if (!isOnCooldown(p)) {
-        setCooldown(p);
-        xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * e.getDamage());
-        FxEmitter pulse = fx(e.getEntity().getLocation().add(0, 1, 0), FxPriority.AMBIENT)
-            .particle(Particle.CRIT, heavy ? 8 : (crit ? 5 : 3), 0, 0, 0, 0.25D, 0.05D)
-            .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
-        if (heavy) {
-          pulse.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.35F, 0.9F);
-        }
+      setCooldown(p);
+      xp(p, e.getEntity().getLocation(), getConfig().damageXPMultiplier * creditedDamage, "swords:combat");
+      FxEmitter pulse = fx(e.getEntity().getLocation().add(0, 1, 0), FxPriority.AMBIENT)
+          .particle(Particle.CRIT, heavy ? 8 : (crit ? 5 : 3), 0, 0, 0, 0.25D, 0.05D)
+          .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2F, 1.4F);
+      if (heavy) {
+        pulse.sound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 0.35F, 0.9F);
       }
     });
   }

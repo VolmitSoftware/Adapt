@@ -123,6 +123,7 @@ public class AdaptConfig {
   private FarmPrevention farmPrevention = new FarmPrevention();
   private AdaptationXp adaptationXp = new AdaptationXp();
   private XpIntegrity xpIntegrity = new XpIntegrity();
+  private XpEarningLimits xpEarningLimits = new XpEarningLimits();
   private RedisConfig redis = new RedisConfig();
   private SqlSettings sql = new SqlSettings();
   private Protector protectorSupport = new Protector();
@@ -321,6 +322,8 @@ public class AdaptConfig {
     levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.175D);
     actionbarXpDurationMillis = normalizePopupDuration(actionbarXpDurationMillis);
     actionbarLevelDurationMillis = normalizePopupDuration(actionbarLevelDurationMillis);
+    xpEarningLimits = xpEarningLimits == null ? new XpEarningLimits() : xpEarningLimits;
+    xpEarningLimits.normalize();
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
@@ -443,15 +446,14 @@ public class AdaptConfig {
     private long skillRecoveryMillis = 180000;
     private long activityRecoveryMillis = 300000;
     private long activityStateTtlMillis = 1800000;
-    private double skillBasePressure = 1.0;
-    private double skillXpPressure = 0.02;
+    private double skillBasePressure = 0.01;
+    private double skillXpPressure = 0.0002;
     private double skillDecayCurve = 14.0;
     private double skillFloorMultiplier = 0.08;
-    private double activityBasePressure = 1.0;
-    private double activityXpPressure = 0.03;
+    private double activityBasePressure = 0.01;
+    private double activityXpPressure = 0.0003;
     private double activityDecayCurve = 9.0;
     private double activityFloorMultiplier = 0.12;
-    private double crossSkillRecoveryFactor = 0.9;
   }
 
   @Getter
@@ -485,6 +487,32 @@ public class AdaptConfig {
     private long pooledIdleFlushMillis = 8000;
     private boolean inspiredPopupEnabled = false;
     private long inspiredCooldownMillis = 300000;
+  }
+
+  @Getter
+  public static class XpEarningLimits {
+    private boolean enabled = true;
+    private double skillBurstXp = 10000D;
+    private double skillXpPerMinute = 6000D;
+    private double playerBurstXp = 20000D;
+    private double playerXpPerMinute = 12000D;
+    private double absoluteBurstXp = 80000D;
+    private double absoluteXpPerMinute = 48000D;
+    private double maximumAllowanceBoost = 4D;
+
+    private void normalize() {
+      skillBurstXp = positive(skillBurstXp, 10000D);
+      skillXpPerMinute = positive(skillXpPerMinute, 6000D);
+      playerBurstXp = positive(playerBurstXp, 20000D);
+      playerXpPerMinute = positive(playerXpPerMinute, 12000D);
+      absoluteBurstXp = positive(absoluteBurstXp, 80000D);
+      absoluteXpPerMinute = positive(absoluteXpPerMinute, 48000D);
+      maximumAllowanceBoost = Math.max(1D, Math.min(100D, positive(maximumAllowanceBoost, 4D)));
+    }
+
+    private static double positive(double value, double fallback) {
+      return Double.isFinite(value) && value > 0D ? value : fallback;
+    }
   }
 
   @Getter

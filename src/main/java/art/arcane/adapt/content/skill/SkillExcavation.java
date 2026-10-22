@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -28,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationBurrow;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
@@ -41,6 +39,8 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationSoftFall;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -164,8 +164,12 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
         return;
       }
       cooldowns.mark(p.getUniqueId());
-      addStat(p, "excavation.damage", e.getDamage());
-      xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
+      addStat(p, "excavation.damage", creditedDamage);
+      xp(a.getPlayer(), e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * creditedDamage, "excavation:combat");
     }
   }
 
@@ -180,6 +184,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   }
 
   private void handleBlockBreakWithShovel(Player p, BlockBreakEvent e) {
+    if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
+      return;
+    }
+
     addStat(p, "excavation.blocks.broken", 1);
     addStat(p, "excavation.blocks.value", getValue(e.getBlock().getBlockData()));
     Material blockType = e.getBlock().getType();
@@ -191,9 +199,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
       return;
     }
     cooldowns.mark(p.getUniqueId());
-    if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0) {
-      return;
-    }
     double v = getValue(e.getBlock().getType());
     xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), v));
   }

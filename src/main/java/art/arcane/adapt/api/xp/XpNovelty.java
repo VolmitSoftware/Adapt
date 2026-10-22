@@ -18,7 +18,9 @@
 
 package art.arcane.adapt.api.xp;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -27,17 +29,16 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class XpNovelty {
-  private static final Map<UUID, State> STATES = new ConcurrentHashMap<>();
   private static final String NULL_KEY = "null";
-  private static final int STILLNESS_RING = 32;
-  private static final float STILLNESS_YAW_RANGE = 10.0f;
   private static final double ENTROPY_SATURATION_KEYS = 3.0;
+  private static final int MAX_HISTORY_SIZE = 4096;
 
   private XpNovelty() {
   }
@@ -47,27 +48,23 @@ public final class XpNovelty {
     if (!config.isNoveltyEnabled() || p == null) {
       return 1.0;
     }
-
-    State state = stateOf(p.getUniqueId(), config);
+    State state = stateOf(p);
+    if (state == null) {
+      return 1.0;
+    }
     long now = M.ms();
     synchronized (state) {
-      double spatial = 1.0;
-      if (at != null && at.getWorld() != null) {
-        long key = cellKey(at.getWorld(), at.getBlockX(), at.getBlockY(), at.getBlockZ(), config.getSpatialCellShift());
-        spatial = state.spatialVisit(key, now, config);
-      }
-
-      String entropyKey = rewardKey == null ? NULL_KEY : rewardKey;
-      double entropy = state.entropySample(entropyKey, config);
+      state.prepare(config);
+      double spatial = at == null || at.getWorld() == null ? 1.0
+          : state.spatialVisit(cellKey(at, config.getSpatialCellShift()), now, config);
+      double entropy = state.entropySample(rewardKey == null ? NULL_KEY : rewardKey, now, config);
       double combined = spatial * entropy;
-
       if (config.isStillnessEnabled()) {
-        Location pos = p.getLocation(state.scratch);
-        if (state.stillnessSample(pos.getX(), pos.getY(), pos.getZ(), pos.getYaw(), now, config)) {
-          combined = Math.min(combined, config.getStillnessFloorMultiplier());
+        Location position = p.getLocation(state.scratch);
+        if (state.stillnessSample(position, now, config)) {
+          combined *= config.getStillnessFloorMultiplier();
         }
       }
-
       double floor = config.getSpatialFloorMultiplier() * config.getEntropyFloorMultiplier() * config.getStillnessFloorMultiplier();
       return Math.max(combined, floor);
     }
@@ -78,29 +75,29 @@ public final class XpNovelty {
     if (!config.isAdjacencyBonusEnabled() || p == null || placed == null) {
       return 1.0;
     }
-
+    State state = stateOf(p);
+    if (state == null) {
+      return 1.0;
+    }
     boolean touching = XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.DOWN))
         || XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.UP))
         || XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.NORTH))
         || XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.SOUTH))
         || XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.EAST))
         || XpProvenance.isPlayerPlaced(placed.getRelative(BlockFace.WEST));
-    State state = stateOf(p.getUniqueId(), config);
     double perStreak = config.getAdjacencyBonusPerStreak();
     double max = config.getAdjacencyBonusMax();
     synchronized (state) {
+      state.prepare(config);
       if (touching) {
-        long key = cellKey(placed.getWorld(), placed.getX(), placed.getY(), placed.getZ(), config.getSpatialCellShift());
-        int visits = state.spatialPeek(key, M.ms(), config);
+        int visits = state.spatialPeek(cellKey(placed.getLocation(), config.getSpatialCellShift()), M.ms(), config);
         if (perStreak > 0.0 && visits * config.getSpatialRepeatDecay() <= 1.0 && state.adjacencyStreak * perStreak < max) {
           state.adjacencyStreak++;
         }
       } else {
         state.adjacencyStreak >>= 1;
       }
-
-      double bonus = Math.min(max, state.adjacencyStreak * perStreak);
-      return 1.0 + Math.max(0.0, bonus);
+      return 1.0 + Math.max(0.0, Math.min(max, state.adjacencyStreak * perStreak));
     }
   }
 
@@ -109,36 +106,30 @@ public final class XpNovelty {
     if (!config.isNoveltyEnabled() || p == null || crop == null) {
       return 1.0;
     }
-
-    State state = stateOf(p.getUniqueId(), config);
-    long now = M.ms();
-    long key = cellKey(crop.getWorld(), crop.getX(), crop.getY(), crop.getZ(), config.getSpatialCellShift());
+    State state = stateOf(p);
+    if (state == null) {
+      return 1.0;
+    }
     synchronized (state) {
-      return state.fieldCycle(key, now, config);
+      state.prepare(config);
+      return state.fieldCycle(cellKey(crop.getLocation(), config.getSpatialCellShift()), M.ms(), config);
     }
   }
 
-  public static void clear(UUID id) {
-    STATES.remove(id);
-  }
-
-  private static State stateOf(UUID id, AdaptConfig.XpIntegrity config) {
-    State state = STATES.get(id);
-    if (state != null) {
-      return state;
+  private static State stateOf(Player player) {
+    Adapt plugin = Adapt.instance;
+    if (plugin == null || plugin.getAdaptServer() == null) {
+      return null;
     }
-
-    State created = new State(config);
-    State prior = STATES.putIfAbsent(id, created);
-    return prior == null ? created : prior;
+    AdaptPlayer runtime = plugin.getAdaptServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return runtime == null || !runtime.isRuntimeReady() || runtime.getPlayer() != player
+        ? null : runtime.getData().getXpNovelty();
   }
 
-  private static long cellKey(World world, int x, int y, int z, int shift) {
-    long cx = x >> shift;
-    long cy = y >> shift;
-    long cz = z >> shift;
-    long key = ((cx & 0x3FFFFFFL) << 38) | ((cy & 0xFFFL) << 26) | (cz & 0x3FFFFFFL);
-    return key ^ ((long) world.hashCode() * 0x9E3779B97F4A7C15L);
+  private static String cellKey(Location at, int shift) {
+    int boundedShift = Math.clamp(shift, 0, 30);
+    return at.getWorld().getUID() + ":" + boundedShift + ":" + (at.getBlockX() >> boundedShift)
+        + ":" + (at.getBlockY() >> boundedShift) + ":" + (at.getBlockZ() >> boundedShift);
   }
 
   private static final class Cell {
@@ -146,32 +137,16 @@ public final class XpNovelty {
     private long touch;
   }
 
-  private static final class LruMap extends LinkedHashMap<Long, Cell> {
-    private final int cap;
-
-    private LruMap(int cap) {
-      super(16, 0.75f, true);
-      this.cap = Math.max(1, cap);
-    }
-
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<Long, Cell> eldest) {
-      return size() > cap;
-    }
-  }
-
-  private static final class State {
-    private final LruMap spatialCells;
-    private final LruMap fieldCells;
-    private final String[] window;
-    private final HashMap<String, Integer> counts;
-    private final long[] times;
-    private final Location scratch;
+  public static final class State {
+    private LinkedHashMap<String, Cell> spatialCells = new LinkedHashMap<>();
+    private LinkedHashMap<String, Cell> fieldCells = new LinkedHashMap<>();
+    private String[] window = new String[0];
     private int entropyHead;
     private int entropyFilled;
-    private int distinct;
-    private int stillHead;
-    private int stillCount;
+    private long entropyTouchedAt;
+    private long stillStartedAt;
+    private long stillTouchedAt;
+    private UUID stillWorld;
     private int runEvents;
     private double minX;
     private double maxX;
@@ -179,172 +154,203 @@ public final class XpNovelty {
     private double maxY;
     private double minZ;
     private double maxZ;
-    private float minYaw;
-    private float maxYaw;
     private int adjacencyStreak;
+    private transient HashMap<String, Integer> counts;
+    private transient long frequencySquares;
+    private transient Location scratch;
 
-    private State(AdaptConfig.XpIntegrity config) {
-      this.spatialCells = new LruMap(config.getSpatialCellCap());
-      this.fieldCells = new LruMap(config.getSpatialCellCap());
-      int windowSize = config.getEntropyWindow();
-      this.window = windowSize > 1 ? new String[windowSize] : null;
-      this.counts = new HashMap<>();
-      this.times = new long[STILLNESS_RING];
-      this.scratch = new Location(null, 0.0, 0.0, 0.0);
+    public State() {
     }
 
-    private double spatialVisit(long key, long now, AdaptConfig.XpIntegrity config) {
-      Cell cell = spatialCells.get(key);
-      if (cell == null) {
-        cell = new Cell();
-        spatialCells.put(key, cell);
+    private void prepare(AdaptConfig.XpIntegrity config) {
+      if (spatialCells == null) {
+        spatialCells = new LinkedHashMap<>();
       }
+      if (fieldCells == null) {
+        fieldCells = new LinkedHashMap<>();
+      }
+      int cap = Math.clamp(config.getSpatialCellCap(), 1, MAX_HISTORY_SIZE);
+      trim(spatialCells, cap);
+      trim(fieldCells, cap);
+      int size = Math.clamp(config.getEntropyWindow(), 0, MAX_HISTORY_SIZE);
+      if (window == null || window.length != size) {
+        resizeWindow(size);
+      }
+      entropyFilled = Math.clamp(entropyFilled, 0, window.length);
+      entropyHead = window.length == 0 ? 0 : Math.floorMod(entropyHead, window.length);
+      if (counts == null) {
+        rebuildCounts();
+      }
+      if (scratch == null) {
+        scratch = new Location(null, 0.0, 0.0, 0.0);
+      }
+    }
 
+    private void resizeWindow(int size) {
+      String[] resized = new String[size];
+      int available = window == null ? 0 : Math.clamp(entropyFilled, 0, window.length);
+      int retained = Math.min(size, available);
+      if (retained > 0) {
+        int start = Math.floorMod(entropyHead - retained, window.length);
+        for (int index = 0; index < retained; index++) {
+          resized[index] = window[(start + index) % window.length];
+        }
+      }
+      window = resized;
+      entropyFilled = retained;
+      entropyHead = size == 0 ? 0 : retained % size;
+      counts = null;
+    }
+
+    private void rebuildCounts() {
+      counts = new HashMap<>();
+      frequencySquares = 0L;
+      for (int index = 0; index < entropyFilled; index++) {
+        String key = window[index] == null ? NULL_KEY : window[index];
+        window[index] = key;
+        int previous = counts.getOrDefault(key, 0);
+        counts.put(key, previous + 1);
+        frequencySquares += 2L * previous + 1L;
+      }
+    }
+
+    private double spatialVisit(String key, long now, AdaptConfig.XpIntegrity config) {
+      Cell cell = touch(spatialCells, key, config.getSpatialCellCap());
       long ttl = config.getSpatialCellTtlMillis();
       if (ttl > 0 && now - cell.touch > ttl) {
         cell.count = 0;
       }
-
-      int n = cell.count;
-      cell.count = n + 1;
+      int repeats = Math.max(0, cell.count);
+      cell.count = repeats == Integer.MAX_VALUE ? repeats : repeats + 1;
       cell.touch = now;
-      double m = 1.0 / (1.0 + config.getSpatialRepeatDecay() * n);
-      return Math.max(config.getSpatialFloorMultiplier(), m);
+      return Math.max(config.getSpatialFloorMultiplier(), 1.0 / (1.0 + config.getSpatialRepeatDecay() * repeats));
     }
 
-    private int spatialPeek(long key, long now, AdaptConfig.XpIntegrity config) {
+    private int spatialPeek(String key, long now, AdaptConfig.XpIntegrity config) {
       Cell cell = spatialCells.get(key);
-      if (cell == null) {
-        return 0;
-      }
-
       long ttl = config.getSpatialCellTtlMillis();
-      if (ttl > 0 && now - cell.touch > ttl) {
-        return 0;
-      }
-
-      return cell.count;
+      return cell == null || (ttl > 0 && now - cell.touch > ttl) ? 0 : cell.count;
     }
 
-    private double entropySample(String key, AdaptConfig.XpIntegrity config) {
-      if (window == null) {
+    private double entropySample(String key, long now, AdaptConfig.XpIntegrity config) {
+      if (window.length <= 1) {
         return 1.0;
       }
-
+      long ttl = config.getSpatialCellTtlMillis();
+      if (ttl > 0 && now - entropyTouchedAt > ttl) {
+        entropyHead = 0;
+        entropyFilled = 0;
+        counts.clear();
+        frequencySquares = 0L;
+      }
+      entropyTouchedAt = now;
       if (entropyFilled == window.length) {
         String old = window[entropyHead];
-        Integer oldCount = counts.get(old);
-        if (oldCount != null) {
-          if (oldCount.intValue() <= 1) {
-            counts.remove(old);
-            distinct--;
-          } else {
-            counts.put(old, oldCount.intValue() - 1);
-          }
+        int oldCount = counts.getOrDefault(old, 0);
+        frequencySquares -= 2L * oldCount - 1L;
+        if (oldCount <= 1) {
+          counts.remove(old);
+        } else {
+          counts.put(old, oldCount - 1);
         }
-      }
-
-      window[entropyHead] = key;
-      entropyHead = entropyHead + 1 == window.length ? 0 : entropyHead + 1;
-      if (entropyFilled < window.length) {
+      } else {
         entropyFilled++;
       }
-
-      Integer newCount = counts.get(key);
-      if (newCount == null) {
-        counts.put(key, 1);
-        distinct++;
-      } else {
-        counts.put(key, newCount.intValue() + 1);
-      }
-
+      window[entropyHead] = key;
+      entropyHead = (entropyHead + 1) % window.length;
+      int previous = counts.getOrDefault(key, 0);
+      counts.put(key, previous + 1);
+      frequencySquares += 2L * previous + 1L;
       if (entropyFilled < window.length) {
         return 1.0;
       }
-
-      double floor = config.getEntropyFloorMultiplier();
-      double normalized = (distinct - 1) / (ENTROPY_SATURATION_KEYS - 1.0);
-      double smooth = normalized >= 1.0 ? 1.0 : Math.sqrt(Math.max(0.0, normalized));
-      return floor + (1.0 - floor) * smooth;
+      double effectiveActivities = (double) entropyFilled * entropyFilled / frequencySquares;
+      double normalized = (effectiveActivities - 1.0) / (ENTROPY_SATURATION_KEYS - 1.0);
+      double smooth = Math.sqrt(Math.clamp(normalized, 0.0, 1.0));
+      return config.getEntropyFloorMultiplier() + (1.0 - config.getEntropyFloorMultiplier()) * smooth;
     }
 
-    private boolean stillnessSample(double x, double y, double z, float yaw, long now, AdaptConfig.XpIntegrity config) {
-      double eps = config.getStillnessEpsilon();
-      if (runEvents == 0) {
-        beginRun(x, y, z, yaw, now);
+    private boolean stillnessSample(Location position, long now, AdaptConfig.XpIntegrity config) {
+      World world = position.getWorld();
+      UUID worldId = world == null ? null : world.getUID();
+      double eps = Math.max(0.0, config.getStillnessEpsilon());
+      double x = position.getX();
+      double y = position.getY();
+      double z = position.getZ();
+      if (runEvents == 0 || !Objects.equals(stillWorld, worldId)
+          || now < stillTouchedAt || now - stillTouchedAt > config.getStillnessWindowMillis()) {
+        beginRun(position, now);
         return false;
       }
-
       double nMinX = Math.min(minX, x);
       double nMaxX = Math.max(maxX, x);
       double nMinY = Math.min(minY, y);
       double nMaxY = Math.max(maxY, y);
       double nMinZ = Math.min(minZ, z);
       double nMaxZ = Math.max(maxZ, z);
-      float nMinYaw = Math.min(minYaw, yaw);
-      float nMaxYaw = Math.max(maxYaw, yaw);
-      if (nMaxX - nMinX >= eps || nMaxY - nMinY >= eps || nMaxZ - nMinZ >= eps || nMaxYaw - nMinYaw >= STILLNESS_YAW_RANGE) {
-        beginRun(x, y, z, yaw, now);
+      if (nMaxX - nMinX >= eps || nMaxY - nMinY >= eps || nMaxZ - nMinZ >= eps) {
+        beginRun(position, now);
         return false;
       }
-
       minX = nMinX;
       maxX = nMaxX;
       minY = nMinY;
       maxY = nMaxY;
       minZ = nMinZ;
       maxZ = nMaxZ;
-      minYaw = nMinYaw;
-      maxYaw = nMaxYaw;
-      times[stillHead] = now;
-      stillHead = stillHead + 1 == STILLNESS_RING ? 0 : stillHead + 1;
-      if (stillCount < STILLNESS_RING) {
-        stillCount++;
-      }
-      runEvents++;
-
-      if (runEvents < config.getStillnessMinEvents()) {
-        return false;
-      }
-
-      long oldest = stillCount == STILLNESS_RING ? times[stillHead] : times[0];
-      return now - oldest >= config.getStillnessWindowMillis();
+      stillTouchedAt = now;
+      runEvents = runEvents == Integer.MAX_VALUE ? runEvents : runEvents + 1;
+      return runEvents >= config.getStillnessMinEvents() && now - stillStartedAt >= config.getStillnessWindowMillis();
     }
 
-    private void beginRun(double x, double y, double z, float yaw, long now) {
-      minX = x;
-      maxX = x;
-      minY = y;
-      maxY = y;
-      minZ = z;
-      maxZ = z;
-      minYaw = yaw;
-      maxYaw = yaw;
-      times[0] = now;
-      stillHead = 1;
-      stillCount = 1;
+    private void beginRun(Location position, long now) {
+      minX = position.getX();
+      maxX = minX;
+      minY = position.getY();
+      maxY = minY;
+      minZ = position.getZ();
+      maxZ = minZ;
+      stillWorld = position.getWorld() == null ? null : position.getWorld().getUID();
+      stillStartedAt = now;
+      stillTouchedAt = now;
       runEvents = 1;
     }
 
-    private double fieldCycle(long key, long now, AdaptConfig.XpIntegrity config) {
-      Cell cell = fieldCells.get(key);
+    private double fieldCycle(String key, long now, AdaptConfig.XpIntegrity config) {
+      Cell cell = touch(fieldCells, key, config.getSpatialCellCap());
       double result = 1.0;
-      if (cell == null) {
-        cell = new Cell();
-        fieldCells.put(key, cell);
-      } else {
-        long cycle = config.getFieldCycleMillis();
-        if (cycle > 0) {
-          long elapsed = now - cell.touch;
-          if (elapsed < cycle) {
-            double floor = config.getFieldCycleFloorMultiplier();
-            result = floor + (1.0 - floor) * ((double) elapsed / (double) cycle);
-          }
+      long cycle = config.getFieldCycleMillis();
+      if (cell.count > 0 && cycle > 0) {
+        long elapsed = Math.max(0L, now - cell.touch);
+        if (elapsed < cycle) {
+          double floor = config.getFieldCycleFloorMultiplier();
+          result = floor + (1.0 - floor) * ((double) elapsed / cycle);
         }
       }
-
+      cell.count = 1;
       cell.touch = now;
       return result;
+    }
+
+    private static Cell touch(LinkedHashMap<String, Cell> cells, String key, int configuredCap) {
+      Cell cell = cells.remove(key);
+      if (cell == null) {
+        cell = new Cell();
+      }
+      cells.put(key, cell);
+      trim(cells, Math.clamp(configuredCap, 1, MAX_HISTORY_SIZE));
+      return cell;
+    }
+
+    private static void trim(LinkedHashMap<String, Cell> cells, int cap) {
+      if (cells.size() <= cap) {
+        return;
+      }
+      Iterator<Map.Entry<String, Cell>> iterator = cells.entrySet().iterator();
+      while (cells.size() > cap && iterator.hasNext()) {
+        iterator.next();
+        iterator.remove();
+      }
     }
   }
 }

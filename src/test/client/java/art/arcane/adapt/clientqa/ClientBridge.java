@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.moulberry.flashback.Flashback;
 import com.moulberry.flashback.combo_options.AudioCodec;
@@ -334,11 +335,13 @@ public final class ClientBridge {
             respond(exchange, 429, error("Client command queue is full"));
             return;
         }
+        long timeoutSeconds = input.get("op") instanceof JsonPrimitive operation
+                && operation.isString() && operation.getAsString().equals("capture") ? 30L : 5L;
         try {
-            respond(exchange, 200, result.get(5, TimeUnit.SECONDS));
+            respond(exchange, 200, result.get(timeoutSeconds, TimeUnit.SECONDS));
         } catch (TimeoutException failure) {
             result.cancel(false);
-            respond(exchange, 504, error("Client did not process command within five seconds"));
+            respond(exchange, 504, error("Client did not process command within " + timeoutSeconds + " seconds"));
         } catch (InterruptedException failure) {
             Thread.currentThread().interrupt();
             result.cancel(false);

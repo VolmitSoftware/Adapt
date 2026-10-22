@@ -2322,7 +2322,8 @@
         "kind": "always"
       },
       "triggers": [
-        "CraftItemEvent"
+        "CraftItemEvent",
+        "ItemCraftedEvent"
       ],
       "expectation": "Committed crafts periodically grant a bounded vanilla XP orb.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingXP.java",

@@ -4,11 +4,13 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -16,15 +18,23 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -181,6 +191,62 @@ class XpProvenanceTest extends AdaptTestBase {
       assertThat(placements.get(placed).getBrokenAt()).isEqualTo(5);
       assertThat(placements.get(placed).getBonemealedAt()).isEqualTo(7);
     }
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = Material.class, names = {"SAND", "RED_SAND", "GRAVEL", "ANVIL", "WHITE_CONCRETE_POWDER", "DRAGON_EGG"})
+  void fallingPlacedBlocksRemainIneligibleForBreakXp(Material type) {
+    Block source = block(type, 1, 70, 0);
+    Block destination = block(type, 1, 64, 0);
+    FallingBlock falling = fallingBlock();
+    XpProvenanceListener listener = new XpProvenanceListener();
+    try (PlacementStore placements = new PlacementStore()) {
+      placements.put(source, new PlacementStamp(nowSeconds(), 0, 0));
+      listener.on(change(falling, source, Material.AIR));
+      assertThat(placements.get(source)).isNull();
+      listener.on(change(falling, destination, type));
+      assertThat(XpProvenance.isPlayerPlaced(destination)).isTrue();
+      assertThat(XpProvenance.breakXpMultiplier(destination)).isZero();
+    }
+  }
+
+  @Test
+  void naturallyFallingBlocksRemainEligibleForBreakXp() {
+    Block source = block(Material.SAND, 1, 70, 0);
+    Block destination = block(Material.SAND, 1, 64, 0);
+    FallingBlock falling = fallingBlock();
+    XpProvenanceListener listener = new XpProvenanceListener();
+    try (PlacementStore placements = new PlacementStore()) {
+      listener.on(change(falling, source, Material.AIR));
+      listener.on(change(falling, destination, Material.SAND));
+      assertThat(placements.get(destination)).isNull();
+      assertThat(XpProvenance.breakXpMultiplier(destination)).isEqualTo(1D);
+    }
+  }
+
+  private static FallingBlock fallingBlock() {
+    FallingBlock falling = mock(FallingBlock.class);
+    PersistentDataContainer data = mock(PersistentDataContainer.class);
+    AtomicBoolean placed = new AtomicBoolean();
+    when(falling.getPersistentDataContainer()).thenReturn(data);
+    doAnswer(invocation -> {
+      placed.set(true);
+      return null;
+    }).when(data).set(any(NamespacedKey.class), eq(PersistentDataType.BYTE), anyByte());
+    doAnswer(invocation -> {
+      placed.set(false);
+      return null;
+    }).when(data).remove(any(NamespacedKey.class));
+    when(data.has(any(NamespacedKey.class), eq(PersistentDataType.BYTE))).thenAnswer(invocation -> placed.get());
+    return falling;
+  }
+
+  private static EntityChangeBlockEvent change(FallingBlock falling, Block block, Material to) {
+    EntityChangeBlockEvent event = mock(EntityChangeBlockEvent.class);
+    when(event.getEntity()).thenReturn(falling);
+    when(event.getBlock()).thenReturn(block);
+    when(event.getTo()).thenReturn(to);
+    return event;
   }
 
   private static Block block(Material type, int x, int y, int z) {

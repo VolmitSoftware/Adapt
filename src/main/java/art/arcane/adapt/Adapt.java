@@ -54,7 +54,6 @@ import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
-import art.arcane.adapt.api.xp.XpNoveltyListener;
 import art.arcane.adapt.api.xp.XpProvenanceListener;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.papi.AdaptPlaceholderInstaller;
@@ -388,7 +387,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerListener(new BonusBlockBreaks());
     registerListener(new SimpleAdaptation.PlayerDamageListener());
     registerListener(new XpProvenanceListener());
-    registerListener(new XpNoveltyListener());
     registerListener(new GolemItemGuard(GolemItems.recipeBook()));
     registerListener(GolemItems.craftCounter());
     registerListener(Version.get());

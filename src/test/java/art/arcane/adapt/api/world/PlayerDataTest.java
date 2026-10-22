@@ -329,7 +329,7 @@ class PlayerDataTest extends AdaptTestBase {
     }
 
     @Test
-    @DisplayName("cross-skill recovery is applied once per actual skill switch")
+    @DisplayName("elapsed recovery is checked once per actual skill switch")
     void crossSkillRecoveryOnlyRunsOnSwitch() {
         PlayerData data = new PlayerData();
         CountingSkillLine axes = new CountingSkillLine("axes");
@@ -337,13 +337,13 @@ class PlayerDataTest extends AdaptTestBase {
         data.getSkillLines().put("axes", axes);
         data.getSkillLines().put("swords", swords);
 
-        data.resetMonotonyForOtherSkills("axes");
-        data.resetMonotonyForOtherSkills("axes");
+        data.noteActivity("axes");
+        data.noteActivity("axes");
 
         assertThat(axes.recoveryCalls).isZero();
         assertThat(swords.recoveryCalls).isEqualTo(1);
 
-        data.resetMonotonyForOtherSkills("swords");
+        data.noteActivity("swords");
 
         assertThat(axes.recoveryCalls).isEqualTo(1);
         assertThat(swords.recoveryCalls).isEqualTo(1);
@@ -372,14 +372,14 @@ class PlayerDataTest extends AdaptTestBase {
         data.getSkillLines().put("swords", swords);
         data.getSkillLines().put("crafting", crafting);
 
-        data.resetMonotonyForOtherSkills("axes");
+        data.noteActivity("axes");
 
         assertThat(data.getInspiredSkill()).isEqualTo("crafting");
         long firstAssignment = data.getInspiredAssignedAt();
         assertThat(firstAssignment).isPositive();
 
         crafting.inspiredPressure = 100.0D;
-        data.resetMonotonyForOtherSkills("swords");
+        data.noteActivity("swords");
 
         assertThat(data.getInspiredSkill()).isEqualTo("crafting");
         assertThat(data.getInspiredAssignedAt()).isEqualTo(firstAssignment);
@@ -388,7 +388,7 @@ class PlayerDataTest extends AdaptTestBase {
         swords.inspiredPressure = 40.0D;
         long expiredAssignment = firstAssignment - 300000L;
         data.setInspiredAssignedAt(expiredAssignment);
-        data.resetMonotonyForOtherSkills("crafting");
+        data.noteActivity("crafting");
 
         assertThat(data.getInspiredSkill()).isEqualTo("axes");
         assertThat(data.getInspiredAssignedAt()).isGreaterThan(expiredAssignment);
@@ -432,7 +432,7 @@ class PlayerDataTest extends AdaptTestBase {
         }
 
         @Override
-        public double relaxStalenessForActivitySwitch() {
+        public double recoverStaleness(long now) {
             recoveryCalls++;
             return inspiredPressure;
         }

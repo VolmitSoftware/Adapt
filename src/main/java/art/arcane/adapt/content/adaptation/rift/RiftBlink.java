@@ -393,6 +393,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       }
 
       lastBlink.mark(operation.playerId());
+      awardUsageBaselineXp(p, getLevel(p));
       if (getActiveSiblingLevel(p, "rift-resist") > 0) {
         RiftResist.riftResistStackAdd(this, p, 10, 5);
       }

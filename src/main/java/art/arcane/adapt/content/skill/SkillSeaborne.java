@@ -18,21 +18,18 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemKillCredit;
-import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneBrineSkin;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneCoralGardener;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneDeepSalvager;
@@ -47,9 +44,10 @@ import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidecaller;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTridentMastery;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.reflect.registries.Attributes;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -67,6 +65,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.Map;
 import java.util.UUID;
@@ -193,6 +192,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseSwimmingXp);
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent event) {
+    lastWaterMovementAt.remove(event.getPlayer().getUniqueId());
+  }
+
   @Override
   public void unregister() {
     ownerPulse.unregister();
@@ -205,7 +209,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     shouldReturnForPlayer(player, () -> {
       UUID playerId = player.getUniqueId();
       boolean waterBreathing = hasWaterBreathingEffect(player);
-      boolean recentWaterMovement = waterBreathing && isRecentWaterMovement(
+      boolean recentWaterMovement = isRecentWaterMovement(
           lastWaterMovementAt.get(playerId),
           System.currentTimeMillis(),
           WATER_MOVEMENT_GRACE_MILLIS);
@@ -243,12 +247,16 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
-    if (e instanceof PlayerTeleportEvent || !hasPositionChanged(e)) {
+    if (e instanceof PlayerTeleportEvent) {
+      lastWaterMovementAt.remove(e.getPlayer().getUniqueId());
+      return;
+    }
+    if (!hasPositionChanged(e) || e.getFrom().distanceSquared(e.getTo()) > 64D) {
       return;
     }
 
     Player player = e.getPlayer();
-    if (player.isInWater() && hasWaterBreathingEffect(player)) {
+    if (player.isInWater() && !player.isInsideVehicle() && !player.isFlying()) {
       lastWaterMovementAt.put(player.getUniqueId(), System.currentTimeMillis());
     }
   }
@@ -278,7 +286,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     shouldReturnForPlayer(e.getPlayer(), e, () -> {
-      if (!p.isSwimming() && !p.isInWater()) {
+      if ((!p.isSwimming() && !p.isInWater()) || XpProvenance.breakXpMultiplier(e.getBlock()) <= 0D) {
         return;
       }
 
@@ -332,32 +340,35 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         if (!drownedDamageCooldowns.isReady(p.getUniqueId(), getConfig().drownedDamageXpCooldown)) {
           return;
         }
+        double damage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+        if (damage <= 0D) {
+          return;
+        }
         drownedDamageCooldowns.mark(p.getUniqueId());
-        xp(p, getConfig().damagedrownxpmultiplier * Math.min(e.getDamage(), getBaseHealth(entity)));
+        xp(p, getConfig().damagedrownxpmultiplier * damage, "seaborne:drowned-hit");
       });
     } else if (e.getDamager().getType() == EntityType.TRIDENT) {
-      org.bukkit.projectiles.ProjectileSource shooter = ((Trident) e.getDamager()).getShooter();
+      ProjectileSource shooter = ((Trident) e.getDamager()).getShooter();
       if (shooter instanceof Player p) {
-        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e.getDamage(), entity));
+        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e));
       }
     } else if (e.getDamager() instanceof Player p) {
       if (p.getInventory().getItemInMainHand().getType().equals(Material.TRIDENT)) {
-        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e.getDamage(), entity));
+        shouldReturnForPlayer(p, e, () -> grantTridentDamageXp(p, e));
       }
     }
   }
 
-  private void grantTridentDamageXp(Player p, double damage, LivingEntity entity) {
+  private void grantTridentDamageXp(Player p, EntityDamageByEntityEvent event) {
     if (!tridentDamageCooldowns.isReady(p.getUniqueId(), getConfig().tridentDamageXpCooldown)) {
       return;
     }
+    double damage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, event);
+    if (damage <= 0D) {
+      return;
+    }
     tridentDamageCooldowns.mark(p.getUniqueId());
-    xp(p, getConfig().tridentxpmultiplier * Math.min(damage, getBaseHealth(entity)));
-  }
-
-  private double getBaseHealth(LivingEntity entity) {
-    IAttribute attribute = Version.get().getAttribute(entity, Attributes.MAX_HEALTH);
-    return attribute == null ? 0 : attribute.getBaseValue();
+    xp(p, getConfig().tridentxpmultiplier * damage, "seaborne:trident-hit");
   }
 
   static boolean qualifiesForPassiveSwimXp(
@@ -367,8 +378,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
       int maximumAir,
       boolean waterBreathing,
       boolean recentWaterMovement) {
+    if (!recentWaterMovement) {
+      return false;
+    }
     if (waterBreathing) {
-      return inWater && recentWaterMovement;
+      return inWater;
     }
     return (inWater || swimming) && remainingAir < maximumAir;
   }

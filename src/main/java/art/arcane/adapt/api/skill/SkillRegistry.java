@@ -172,7 +172,7 @@ public class SkillRegistry extends TickedObject {
     Player p = e.getPlayer();
     AdaptPlayer adaptPlayer = resolveReadyPlayer(p);
     if (adaptPlayer != null && e.getAmount() > 0) {
-      adaptPlayer.boostXPToRecents(0.03, 10000);
+      adaptPlayer.refreshRecentXpBoost("vanilla-xp", 0.03, 10000);
     }
   }
 

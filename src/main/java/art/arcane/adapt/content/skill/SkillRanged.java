@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -29,6 +26,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.ranged.RangedArrowRecovery;
 import art.arcane.adapt.content.adaptation.ranged.RangedFetchShot;
 import art.arcane.adapt.content.adaptation.ranged.RangedFloaters;
@@ -41,6 +39,8 @@ import art.arcane.adapt.content.adaptation.ranged.RangedPinningShot;
 import art.arcane.adapt.content.adaptation.ranged.RangedRicochetBolt;
 import art.arcane.adapt.content.adaptation.ranged.RangedTrajectorySight;
 import art.arcane.adapt.content.adaptation.ranged.RangedWebBomb;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -211,6 +211,13 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
+      if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
+        return;
+      }
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
       Location targetLocation = e.getEntity().getLocation();
       Location playerLocation = p.getLocation();
       double distance = 0D;
@@ -227,13 +234,10 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
               .chord(Sound.ENTITY_ARROW_HIT, 0.7F, 1.6F, Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 2.0F);
         }
       }
-      addStat(p, "ranged.damage", e.getDamage());
-      addStat(p, "ranged.damage." + projectileType, e.getDamage());
-      if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
-        return;
-      }
+      addStat(p, "ranged.damage", creditedDamage);
+      addStat(p, "ranged.damage." + projectileType, creditedDamage);
       cooldowns.mark(p.getUniqueId());
-      xp(p, targetLocation, (getConfig().hitDamageXPMultiplier * e.getDamage()) + (distance * getConfig().hitDistanceXPMultiplier));
+      xp(p, targetLocation, (getConfig().hitDamageXPMultiplier * creditedDamage) + (distance * getConfig().hitDistanceXPMultiplier), "ranged:combat");
 
     });
   }

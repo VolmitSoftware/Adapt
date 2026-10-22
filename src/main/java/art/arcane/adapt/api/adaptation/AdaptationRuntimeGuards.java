@@ -65,7 +65,6 @@ import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 final class AdaptationRuntimeGuards {
-  private static final Map<UUID, Map<String, Long>> USAGE_BASELINE_XP_COOLDOWNS = PlayerStateRegistry.newPlayerMap();
   private static final Map<UUID, Map<String, ActiveLevelCacheEntry>> ACTIVE_LEVEL_CACHE = PlayerStateRegistry.newPlayerMap();
   private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
@@ -177,33 +176,41 @@ final class AdaptationRuntimeGuards {
   }
 
   static void awardUsageBaselineXp(Adaptation<?> adaptation, Player p, int level) {
+    double reward = claimUsageBaselineXp(adaptation, p, level);
+    if (reward > 0D) {
+      adaptation.getSkill().xpSilent(p, reward, adaptationRewardKey(adaptation, "baseline-use"));
+    }
+  }
+
+  static double claimUsageBaselineXp(Adaptation<?> adaptation, Player p, int level) {
     if (adaptation == null || p == null || level <= 0 || !PlayerClientAccess.matchesServerPlayer(p) || runtimePlayer(p) == null) {
-      return;
+      return 0D;
     }
 
     AdaptConfig.AdaptationXp cfg = AdaptConfig.get().getAdaptationXp();
     if (cfg == null || !cfg.isUsageBaselineEnabled()) {
-      return;
+      return 0D;
     }
 
     long now = M.ms();
     long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
-    Map<String, Long> playerCooldowns = USAGE_BASELINE_XP_COOLDOWNS.computeIfAbsent(
-        p.getUniqueId(),
-        ignored -> new ConcurrentHashMap<>()
-    );
-    Long next = playerCooldowns.get(adaptation.getName());
-    if (next != null && next > now) {
-      return;
+    PlayerSkillLine line = runtimePlayer(p).getSkillLine(adaptation.getSkill().getName());
+    PlayerAdaptation learned = line == null ? null : line.getAdaptation(adaptation.getName());
+    if (learned == null) {
+      return 0D;
+    }
+    Object previous = learned.getStorage().get("usage-xp-at");
+    if (previous instanceof Number number && now - number.longValue() < cooldown) {
+      return 0D;
     }
 
     double reward = cfg.getUsageBaselineXp() + ((Math.max(1, level) - 1) * cfg.getUsageBaselineXpPerLevel());
-    if (reward <= 0) {
-      return;
+    if (!Double.isFinite(reward) || reward <= 0D) {
+      return 0D;
     }
 
-    playerCooldowns.put(adaptation.getName(), now + cooldown);
-    adaptation.xpSilent(p, reward, "baseline-use");
+    learned.getStorage().put("usage-xp-at", now);
+    return reward;
   }
 
   static boolean canUse(Adaptation<?> adaptation, AdaptPlayer player) {
@@ -822,7 +829,6 @@ final class AdaptationRuntimeGuards {
       return 0;
     }
 
-    awardUsageBaselineXp(adaptation, p, level);
     if (verbose) {
       Adapt.verbose("Player " + p.getName() + " used adaptation " + adaptation.getName());
     }

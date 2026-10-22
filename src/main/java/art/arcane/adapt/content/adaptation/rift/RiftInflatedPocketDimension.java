@@ -222,8 +222,17 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     fx(p, FxPriority.TRANSITION)
         .particle(Particle.PORTAL, 5, 0, 1.0, 0, 0.2, 0.03)
         .sound(Sound.BLOCK_ENDER_CHEST_CLOSE, 0.5f, 1.4f);
-    addStat(p, "rift.inflated-pocket.items-stored", dropped.getAmount());
-    xp(p, dropped.getAmount() * getConfig().xpPerTransferredItem, "rift:inflated-pocket:store");
+    double credited = getPlayer(p).getData().getItemTransferXp().claim(dropped.getType().name(),
+        dropped.getAmount(), dropped.getMaxStackSize(), getConfig().transferXpWindowMillis, System.currentTimeMillis());
+    if (credited > 0D) {
+      addStat(p, "rift.inflated-pocket.items-stored", credited);
+      xp(p, credited * getConfig().xpPerTransferredItem, "rift:inflated-pocket:store");
+    }
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config config) {
+    config.transferXpWindowMillis = Math.max(1000L, Math.min(86400000L, config.transferXpWindowMillis));
   }
 
   private int moveFromEnderToPlayer(Player p, Material type, int amount, boolean preferMainHand) {
@@ -348,6 +357,8 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     int rightClickPullAmount = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Per Transferred Item for the Rift Inflated Pocket Dimension adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTransferredItem = 0.08;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds to replenish one stack of storage XP credit per material.", impact = "Higher values reduce rewards for repeatedly storing the same material.")
+    long transferXpWindowMillis = 600000L;
 
     public Config() {
       permanent = true;

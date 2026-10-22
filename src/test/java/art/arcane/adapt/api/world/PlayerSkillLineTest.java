@@ -1,5 +1,7 @@
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.api.xp.XpAward;
+import art.arcane.adapt.api.xp.XpEarnings;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -30,7 +32,7 @@ class PlayerSkillLineTest extends AdaptTestBase {
     @DisplayName("granted xp is realized after the pool is flushed")
     void grantedXpRealizedAfterFlush() {
         PlayerSkillLine line = new PlayerSkillLine();
-        line.giveXP(null, 100.0);
+        line.award(null, new XpAward("test:work", 100.0, null, false, XpAward.Kind.GAMEPLAY), 100.0, new XpEarnings());
         line.flushXpPool(null);
         assertThat(line.getXp()).isGreaterThan(0.0);
     }

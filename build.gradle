@@ -464,6 +464,19 @@ tasks.register('gameplayContractTest', Exec) {
     commandLine(['node', '--test'] + fileTree('src/test/gameplay').matching { include '*.test.mjs' }.files.collect { File file -> file.path }.sort())
 }
 
+tasks.register('xpIntegrityFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Paper and Folia XP gameplay fixture.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output) {
+        exclude('plugin.yml')
+    }
+    from('src/test/gameplay/fixture-xp')
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptXpIntegrityFixture.jar'
+}
+
 tasks.register('prepareGameplay', Sync) {
     group = 'verification'
     description = 'Stages the current runtime and isolated gameplay fixture under build/gameplay/plugins.'

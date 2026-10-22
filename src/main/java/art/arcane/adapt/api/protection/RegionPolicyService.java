@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class RegionPolicyService {
+  private static final RegionPolicy FAILED_SOURCE_POLICY = new RegionPolicy(false,
+      RegionPolicy.DEFAULT.xpMultiplier(), RegionPolicy.DEFAULT.powerBonus(), RegionPolicy.DEFAULT.unlockedAdaptations());
   private static final AtomicReference<RegionPolicySource> SOURCE = new AtomicReference<>();
   private static final AtomicBoolean QUARANTINED = new AtomicBoolean();
 
@@ -48,7 +50,13 @@ public final class RegionPolicyService {
 
   public static RegionPolicy resolve(Player player, Location location) {
     RegionPolicySource source = SOURCE.get();
-    if (source == null || player == null || location == null || QUARANTINED.get()) {
+    if (source == null) {
+      return RegionPolicy.DEFAULT;
+    }
+    if (QUARANTINED.get()) {
+      return FAILED_SOURCE_POLICY;
+    }
+    if (player == null || location == null) {
       return RegionPolicy.DEFAULT;
     }
 
@@ -57,7 +65,7 @@ public final class RegionPolicyService {
       return policy == null ? RegionPolicy.DEFAULT : policy;
     } catch (Throwable error) {
       quarantine(source, error);
-      return RegionPolicy.DEFAULT;
+      return FAILED_SOURCE_POLICY;
     }
   }
 
@@ -74,7 +82,7 @@ public final class RegionPolicyService {
       return;
     }
 
-    Adapt.warn("Region policy source " + source.getName() + " failed; Adapt region flags are now inert: "
+    Adapt.warn("Region policy source " + source.getName() + " failed; gameplay XP is paused and other region flags use defaults until plugin reload: "
         + error.getClass().getSimpleName()
         + (error.getMessage() == null ? "" : " - " + error.getMessage()));
     Adapt.error(error);

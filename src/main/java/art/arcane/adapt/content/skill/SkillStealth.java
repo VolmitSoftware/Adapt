@@ -18,11 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -30,10 +26,13 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.golem.GolemKillCredit;
-import art.arcane.adapt.api.skill.SkillOwnerPulse;
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MovementXp;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.stealth.StealthAssassinate;
 import art.arcane.adapt.content.adaptation.stealth.StealthCore;
@@ -49,24 +48,32 @@ import art.arcane.adapt.content.adaptation.stealth.StealthSnatch;
 import art.arcane.adapt.content.adaptation.stealth.StealthSpeed;
 import art.arcane.adapt.content.adaptation.stealth.StealthTrapSense;
 import art.arcane.adapt.content.adaptation.stealth.StealthUmbralRecovery;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   private final Cooldowns cooldowns = cooldowns();
   private final SkillOwnerPulse.Registration ownerPulse;
+  private final Map<UUID, Location> lastPassivePositions = playerState();
 
   public SkillStealth() {
     super("stealth", SkillPresentation.of(SkillMessages.STEALTH_NAME, SkillMessages.STEALTH_ICON, SkillMessages.STEALTH_DESCRIPTION));
@@ -180,12 +187,16 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
-      addStat(p, "stealth.damage.sneaking", e.getDamage());
       if (!cooldowns.isReady(p.getUniqueId(), getConfig().sneakCombatXpCooldown)) {
         return;
       }
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
+      addStat(p, "stealth.damage.sneaking", creditedDamage);
       cooldowns.mark(p.getUniqueId());
-      xp(p, e.getEntity().getLocation(), e.getDamage() * getConfig().sneakCombatXPMultiplier);
+      xp(p, e.getEntity().getLocation(), creditedDamage * getConfig().sneakCombatXPMultiplier, "stealth:combat");
     });
   }
 
@@ -224,6 +235,11 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     }
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent event) {
+    lastPassivePositions.remove(event.getPlayer().getUniqueId());
+  }
+
   @Override
   public void unregister() {
     ownerPulse.unregister();
@@ -232,7 +248,10 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
   private void pulseSneakingXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
     shouldReturnForPlayer(player, () -> {
-      if (!player.isSneaking() || player.isSwimming() || player.isSprinting()
+      Location current = player.getLocation();
+      Location previous = lastPassivePositions.put(player.getUniqueId(), current);
+      if (!MovementXp.moved(previous, current) || player.isInsideVehicle()
+          || !player.isSneaking() || player.isSwimming() || player.isSprinting()
           || player.isFlying() || player.isGliding()) {
         return;
       }

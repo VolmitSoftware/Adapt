@@ -32,6 +32,10 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.api.xp.XpAward;
+import art.arcane.adapt.api.xp.XpEarnings;
+import art.arcane.adapt.api.xp.XpReceipt;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -184,41 +188,46 @@ public class PlayerSkillLine {
     }
   }
 
-  public void giveXP(Notifier p, double xp) {
-    giveXP(p, xp, null);
-  }
-
-  public void giveXP(Notifier p, double xp, String rewardKey) {
-    freshness -= 0.012 + (xp * 0.00025);
-
+  public XpReceipt award(Notifier p, XpAward award, double contextual, XpEarnings earnings) {
     long now = System.currentTimeMillis();
-    lastXpTimestamp = now;
-    monotonyCounter++;
-    monotonyMultiplier = computeStalenessMultiplier(xp, rewardKey, now);
-
-    xp = multiplier * monotonyMultiplier * xp;
-
+    double accepted = Double.isFinite(contextual) ? Math.max(0D, contextual) : 0D;
+    double boosted = accepted;
+    double eligible = accepted;
+    double credited = accepted;
+    if (award.kind() == XpAward.Kind.GAMEPLAY && accepted > 0D) {
+      freshness -= 0.012 + (accepted * 0.00025);
+      lastXpTimestamp = now;
+      monotonyCounter++;
+      monotonyMultiplier = computeStalenessMultiplier(accepted, award.source(), now);
+      double safeMultiplier = Double.isFinite(multiplier) ? Math.max(0D, multiplier) : 0D;
+      boosted = Math.min(Double.MAX_VALUE, accepted * safeMultiplier);
+      eligible = boosted * monotonyMultiplier;
+      credited = earnings.claim(line, eligible, safeMultiplier, now);
+    }
+    XpReceipt receipt = new XpReceipt(line, award.source(), award.kind(), award.amount(), accepted,
+        boosted, eligible, credited, now);
+    earnings.record(receipt);
+    AdaptRuntimeTelemetry.recordXpPayout(now, credited);
+    if (!Double.isFinite(credited) || credited <= 0D) {
+      return receipt;
+    }
+    last = now;
     if (AdaptConfig.get().getXpIntegrity().isPooledPayoutEnabled()) {
       if (pooledXp == 0) {
         poolStartedAt = now;
       }
-      pooledXp += xp;
+      pooledXp += credited;
       poolLastEarnAt = now;
       if (p != null) {
-        last = M.ms();
-        pooledNotifyXp += xp;
+        pooledNotifyXp += credited;
       }
-      return;
-    }
-
-    this.xp += xp;
-
-    if (p != null) {
-      last = M.ms();
-      if (AdaptConfig.get().isActionbarNotifyXp()) {
-        p.notifyXP(line, xp);
+    } else {
+      this.xp += credited;
+      if (p != null && AdaptConfig.get().isActionbarNotifyXp()) {
+        p.notifyXP(line, credited);
       }
     }
+    return receipt;
   }
 
   private void flushPoolIfReady(AdaptPlayer p) {
@@ -259,7 +268,7 @@ public class PlayerSkillLine {
     }
   }
 
-  public double relaxStalenessForActivitySwitch() {
+  public double recoverStaleness(long now) {
     AdaptConfig.FarmPrevention prevention = AdaptConfig.get().getFarmPrevention();
     if (prevention == null || !prevention.isEnabled()) {
       monotonyCounter = 0;
@@ -267,18 +276,14 @@ public class PlayerSkillLine {
       return 0.0D;
     }
 
-    double factor = clamp(prevention.getCrossSkillRecoveryFactor(), 0.0, 1.0);
     double curve = prevention.getSkillDecayCurve();
     RewardStalenessState state = ensureSkillStaleness();
-    double inspiredPressure = factor < 1.0 && curve > 0 && state.getPressure() > curve * 0.25
-        ? state.getPressure()
-        : 0.0D;
-    applyRecoveryFactor(state, factor);
+    double pressure = state.getPressure();
+    decayState(state, now, prevention.getSkillRecoveryMillis());
     for (RewardStalenessState activityState : activityStaleness.values()) {
-      applyRecoveryFactor(activityState, factor);
+      decayState(activityState, now, prevention.getActivityRecoveryMillis());
     }
-    monotonyCounter = 0;
-    return inspiredPressure;
+    return curve > 0D && pressure > curve * 0.25 && state.getPressure() < pressure ? pressure : 0D;
   }
 
   private double computeStalenessMultiplier(double awardXp, String rewardKey, long now) {
@@ -339,16 +344,12 @@ public class PlayerSkillLine {
     }
 
     decayState(state, now, recoveryMillis);
-    state.setPressure(clamp(state.getPressure() + Math.max(0.0, gain), 0.0, 100000.0));
-    state.setLastAwardAt(now);
-
     double clampedFloor = clamp(floor, 0.0, 1.0);
-    if (curve <= 0) {
-      return 1.0;
-    }
-
-    double scaled = Math.exp(-state.getPressure() / curve);
-    return clamp(clampedFloor + ((1.0 - clampedFloor) * scaled), clampedFloor, 1.0);
+    double multiplier = curve <= 0D ? 1D
+        : clamp(clampedFloor + ((1.0 - clampedFloor) * Math.exp(-state.getPressure() / curve)), clampedFloor, 1.0);
+    state.setPressure(clamp(state.getPressure() + Math.max(0.0, gain), 0.0, 100000.0));
+    state.setLastAwardAt(Math.max(state.getLastAwardAt(), now));
+    return multiplier;
   }
 
   private void decayState(RewardStalenessState state, long now, long recoveryMillis) {
@@ -356,9 +357,9 @@ public class PlayerSkillLine {
       return;
     }
 
-    long lastAward = state.getLastAwardAt();
+    long lastAward = Math.max(state.getLastAwardAt(), state.getLastDecayAt());
     if (lastAward <= 0) {
-      state.setLastAwardAt(now);
+      state.setLastDecayAt(now);
       return;
     }
 
@@ -369,6 +370,7 @@ public class PlayerSkillLine {
 
     double decay = Math.exp(-(double) elapsed / (double) recoveryMillis);
     state.setPressure(Math.max(0.0, state.getPressure() * decay));
+    state.setLastDecayAt(Math.max(state.getLastDecayAt(), now));
   }
 
   private void cleanupActivityStaleness(long now, long ttl) {
@@ -386,13 +388,6 @@ public class PlayerSkillLine {
     lastStalenessCleanup = now;
   }
 
-  private void applyRecoveryFactor(RewardStalenessState state, double factor) {
-    if (state == null) {
-      return;
-    }
-    state.setPressure(Math.max(0.0, state.getPressure() * factor));
-  }
-
   private String normalizeRewardKey(String rewardKey) {
     if (rewardKey == null) {
       return null;
@@ -403,18 +398,6 @@ public class PlayerSkillLine {
 
   private double clamp(double value, double min, double max) {
     return Math.max(min, Math.min(max, value));
-  }
-
-  public void giveXPFresh(Notifier p, double xp) {
-    xp = multiplier * xp;
-    this.xp += xp;
-
-    if (p != null) {
-      last = M.ms();
-      if (AdaptConfig.get().isActionbarNotifyXp()) {
-        p.notifyXP(line, xp);
-      }
-    }
   }
 
   public boolean hasEarnedWithin(long ms) {
@@ -639,6 +622,14 @@ public class PlayerSkillLine {
     multipliers.add(new XPMultiplier(v, i));
   }
 
+  public void boostOwned(String source, double bonus, long durationMillis) {
+    multipliers.removeIf(active -> active != null && source.equals(active.getSource()));
+    multipliers.add(XPMultiplier.owned(source, bonus, durationMillis));
+    if (runtimeOwner != null) {
+      updateMultiplier(runtimeOwner.getData());
+    }
+  }
+
   public boolean spendKnowledge(int c) {
     if (isDebugLearning()) {
       return true;
@@ -675,6 +666,7 @@ public class PlayerSkillLine {
   public static class RewardStalenessState {
     private double pressure = 0;
     private long lastAwardAt = 0;
+    private long lastDecayAt = 0;
   }
 
   private record LevelCache(long xpBits, Curves curve, int maximumLevel, double level) {

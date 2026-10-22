@@ -1,100 +1,144 @@
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
-import org.bukkit.GameMode;
+import art.arcane.adapt.api.xp.CraftingXpTransaction;
+import io.papermc.paper.registry.RegistryAccess;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.Registry;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockType;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import org.mockito.MockedStatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class SkillCraftingShiftCraftTest {
-  private static final NamespacedKey RECIPE = new NamespacedKey("adapt", "shift-craft-test");
+  @BeforeAll
+  static void initializeBlockRegistry() {
+    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
+    try (MockedStatic<RegistryAccess> registry = mockStatic(RegistryAccess.class)) {
+      registry.when(RegistryAccess::registryAccess).thenReturn(access);
+      Registry<BlockType> blocks = Registry.BLOCK;
+      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).get(any(NamespacedKey.class));
+      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).getOrThrow(any(Key.class));
+    }
+  }
 
   @Test
-  void aShiftClickCountsEveryCraftWhateverTheCraftersLevels() throws ReflectiveOperationException {
-    assertThat(craftedItems(GameMode.SURVIVAL, 0)).containsExactly(64D);
-    assertThat(craftedItems(GameMode.SURVIVAL, 7)).containsExactly(64D);
-    assertThat(craftedItems(GameMode.CREATIVE, 0)).containsExactly(64D);
+  void shiftCraftCountsOnlyTheResultsActuallyPickedUp() {
+    CraftItemEvent event = craft(Material.STICK, stack(Material.OAK_PLANKS, 32));
+    CraftingXpTransaction transaction = CraftingXpTransaction.open(event);
+    assertThat(transaction).isNotNull();
+    assertThat(transaction.committedItems()).isZero();
+    transaction.accept(stack(Material.STICK, 32));
+    transaction.accept(stack(Material.STICK, 32));
+    assertThat(transaction.committedItems()).isEqualTo(64);
   }
 
-  private static List<Double> craftedItems(GameMode mode, int levels) throws ReflectiveOperationException {
-    List<Double> crafted = new ArrayList<>();
-    SkillCrafting.Config config = new SkillCrafting.Config();
-    SkillCrafting skill = mock(SkillCrafting.class, invocation -> switch (invocation.getMethod().getName()) {
-      case "shouldReturnForPlayer" -> {
-        invocation.<Runnable>getArgument(2).run();
-        yield null;
-      }
-      case "getConfig" -> config;
-      case "getValue" -> 1D;
-      case "addStat" -> {
-        if ("crafted.items".equals(invocation.getArgument(1))) {
-          crafted.add(invocation.getArgument(2));
+  @Test
+  void noOpAndCancelledClicksCannotOpenAReward() {
+    CraftItemEvent event = craft(Material.STICK, stack(Material.OAK_PLANKS, 32));
+    when(event.getAction()).thenReturn(InventoryAction.NOTHING);
+    assertThat(CraftingXpTransaction.open(event)).isNull();
+    when(event.getAction()).thenReturn(InventoryAction.CLONE_STACK);
+    assertThat(CraftingXpTransaction.open(event)).isNull();
+    when(event.getAction()).thenReturn(InventoryAction.PICKUP_ALL);
+    when(event.isCancelled()).thenReturn(true);
+    assertThat(CraftingXpTransaction.open(event)).isNull();
+  }
+
+  @Test
+  void missingOrMismatchedCommittedResultsNeverPay() {
+    CraftItemEvent event = craft(Material.STICK, stack(Material.OAK_PLANKS, 32));
+    CraftingXpTransaction transaction = CraftingXpTransaction.open(event);
+    transaction.accept(null);
+    transaction.accept(stack(Material.STICK, 0));
+    transaction.accept(stack(Material.DIAMOND, 64));
+    assertThat(transaction.committedItems()).isZero();
+    transaction.accept(stack(Material.STICK, 4));
+    when(event.isCancelled()).thenReturn(true);
+    assertThat(transaction.committedItems()).isZero();
+  }
+
+  @Test
+  void resourceNeutralConversionsDoNotRewardEitherDirection() {
+    Material[][] families = {
+        {Material.IRON_NUGGET, Material.IRON_INGOT, Material.IRON_BLOCK},
+        {Material.GOLD_NUGGET, Material.GOLD_INGOT, Material.GOLD_BLOCK},
+        {Material.COPPER_INGOT, Material.COPPER_BLOCK},
+        {Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK},
+        {Material.RAW_IRON, Material.RAW_IRON_BLOCK},
+        {Material.RAW_GOLD, Material.RAW_GOLD_BLOCK},
+        {Material.RAW_COPPER, Material.RAW_COPPER_BLOCK},
+        {Material.DIAMOND, Material.DIAMOND_BLOCK},
+        {Material.EMERALD, Material.EMERALD_BLOCK},
+        {Material.LAPIS_LAZULI, Material.LAPIS_BLOCK},
+        {Material.REDSTONE, Material.REDSTONE_BLOCK},
+        {Material.COAL, Material.COAL_BLOCK},
+        {Material.WHEAT, Material.HAY_BLOCK},
+        {Material.DRIED_KELP, Material.DRIED_KELP_BLOCK},
+        {Material.SLIME_BALL, Material.SLIME_BLOCK},
+        {Material.BONE_MEAL, Material.BONE_BLOCK},
+        {Material.HONEY_BOTTLE, Material.HONEY_BLOCK}
+    };
+    for (Material[] family : families) {
+      for (Material input : family) {
+        for (Material output : family) {
+          assertThat(CraftingXpTransaction.open(craft(output, stack(input, 9)))).isNull();
         }
-        yield null;
       }
-      case "xp" -> throw new XpGranted();
-      default -> invocation.callRealMethod();
-    });
-    Field cooldowns = SkillCrafting.class.getDeclaredField("cooldowns");
-    cooldowns.setAccessible(true);
-    cooldowns.set(skill, PlayerStateRegistry.newCooldowns());
-
-    assertThatThrownBy(() -> skill.on(shiftCraft(mode, levels))).isInstanceOf(XpGranted.class);
-    return crafted;
+    }
+    assertThat(CraftingXpTransaction.open(craft(Material.IRON_PICKAXE,
+        stack(Material.IRON_INGOT, 3), stack(Material.STICK, 2)))).isNotNull();
+    assertThat(CraftingXpTransaction.open(craft(Material.QUARTZ_BLOCK, stack(Material.QUARTZ, 4)))).isNotNull();
   }
 
-  private static CraftItemEvent shiftCraft(GameMode mode, int levels) {
-    ItemStack result = stack(2);
-    ShapedRecipe recipe = mock(ShapedRecipe.class);
-    when(recipe.getKey()).thenReturn(RECIPE);
-    when(recipe.getResult()).thenReturn(result);
-    ItemStack[] matrix = {stack(32), stack(32)};
-    CraftingInventory grid = mock(CraftingInventory.class);
-    when(grid.getResult()).thenReturn(result);
-    when(grid.getMatrix()).thenReturn(matrix);
-    Inventory bottom = mock(Inventory.class);
-    when(bottom.getContents()).thenReturn(new ItemStack[36]);
-    InventoryView view = mock(InventoryView.class);
-    when(view.getBottomInventory()).thenReturn(bottom);
-    Player crafter = mock(Player.class);
-    when(crafter.getUniqueId()).thenReturn(UUID.randomUUID());
-    when(crafter.getGameMode()).thenReturn(mode);
-    when(crafter.getLevel()).thenReturn(levels);
+  @Test
+  void cancelledFurnacesCannotCreateSpatialRewards() {
+    SkillCrafting skill = mock(SkillCrafting.class, CALLS_REAL_METHODS);
+    FurnaceSmeltEvent event = mock(FurnaceSmeltEvent.class);
+    Block block = mock(Block.class);
+    when(event.isCancelled()).thenReturn(true);
+    when(event.getBlock()).thenReturn(block);
+    skill.on(event);
+    verifyNoInteractions(block);
+  }
+
+  private static CraftItemEvent craft(Material output, ItemStack... matrix) {
+    CraftingInventory inventory = mock(CraftingInventory.class);
+    ItemStack result = stack(output, 1);
+    when(inventory.getMatrix()).thenReturn(matrix);
+    when(inventory.getResult()).thenReturn(result);
     CraftItemEvent event = mock(CraftItemEvent.class);
-    when(event.getInventory()).thenReturn(grid);
-    when(event.getClick()).thenReturn(ClickType.SHIFT_LEFT);
-    when(event.getRecipe()).thenReturn(recipe);
-    when(event.getView()).thenReturn(view);
-    when(event.getWhoClicked()).thenReturn(crafter);
+    when(event.getInventory()).thenReturn(inventory);
+    when(event.getAction()).thenReturn(InventoryAction.PICKUP_ALL);
     return event;
   }
 
-  private static ItemStack stack(int amount) {
+  private static ItemStack stack(Material material, int amount) {
     ItemStack stack = mock(ItemStack.class);
-    when(stack.getType()).thenReturn(Material.STONE);
+    when(stack.getType()).thenReturn(material);
     when(stack.getAmount()).thenReturn(amount);
-    when(stack.getMaxStackSize()).thenReturn(64);
+    when(stack.clone()).thenReturn(stack);
+    when(stack.isSimilar(any(ItemStack.class))).thenAnswer(invocation -> {
+      ItemStack other = invocation.getArgument(0);
+      return other.getType() == material;
+    });
     return stack;
-  }
-
-  private static final class XpGranted extends RuntimeException {
   }
 }

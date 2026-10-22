@@ -21,6 +21,9 @@ package art.arcane.adapt.api.xp;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.protection.RegionPolicyService;
+import art.arcane.adapt.api.runtime.AdaptationGate;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.util.math.M;
@@ -41,14 +44,10 @@ public class XP {
   }
 
   public static void xp(AdaptPlayer p, Skill<?> skill, double xp, String rewardKey) {
-    if (!runtimeReady(p) || skill == null) {
+    if (!runtimeReady(p) || skill == null || !Double.isFinite(xp) || xp <= 0D) {
       return;
     }
-    PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
-    if (skillLine != null) {
-      p.getData().resetMonotonyForOtherSkills(skill.getName());
-      skillLine.giveXP(p.getNot(), xp, rewardKey);
-    }
+    award(p, skill, new XpAward(source(skill, rewardKey), xp, null, true, XpAward.Kind.GAMEPLAY));
   }
 
   public static void xpSilent(Player p, Skill<?> skill, double xp) {
@@ -64,16 +63,49 @@ public class XP {
   }
 
   public static void xpSilent(AdaptPlayer p, Skill<?> skill, double xp, String rewardKey) {
-    if (!runtimeReady(p) || skill == null) {
+    if (!runtimeReady(p) || skill == null || !Double.isFinite(xp) || xp <= 0D) {
       return;
     }
-    PlayerSkillLine skillLine = p.getSkillLine(skill.getName());
-    if (skillLine == null) {
-      return;
-    }
+    award(p, skill, new XpAward(source(skill, rewardKey), xp, null, false, XpAward.Kind.GAMEPLAY));
+  }
 
-    p.getData().resetMonotonyForOtherSkills(skill.getName());
-    skillLine.giveXP(null, xp, rewardKey);
+  public static void award(Player player, Skill<?> skill, XpAward award) {
+    award(runtimePlayer(player), skill, award);
+  }
+
+  public static void award(AdaptPlayer player, Skill<?> skill, XpAward award) {
+    if (!runtimeReady(player) || skill == null || award == null || player.getPlayer() == null) {
+      return;
+    }
+    Player bukkitPlayer = player.getPlayer();
+    if (!J.isOwnedByCurrentRegion(bukkitPlayer)) {
+      J.runEntity(bukkitPlayer, () -> award(player, skill, award));
+      return;
+    }
+    if (award.kind() == XpAward.Kind.GAMEPLAY && AdaptationGate.shouldSkipPlayer(bukkitPlayer, skill, true)) {
+      return;
+    }
+    PlayerSkillLine line = player.getSkillLine(skill.getName());
+    if (line == null) {
+      return;
+    }
+    double contextual = award.amount();
+    if (award.kind() == XpAward.Kind.GAMEPLAY) {
+      Location location = award.location() == null ? bukkitPlayer.getLocation() : award.location();
+      contextual = RegionPolicyService.adjustXp(contextual, RegionPolicyService.resolve(bukkitPlayer, location));
+      if (Double.isFinite(contextual) && contextual > 0D) {
+        contextual *= XpNovelty.noveltyMultiplier(bukkitPlayer, location, award.source());
+        player.getData().noteActivity(skill.getName());
+      }
+    }
+    line.award(award.notifyPlayer() ? player.getNot() : null, award, contextual, player.getData().getXpEarnings());
+  }
+
+  public static String source(Skill<?> skill, String rewardKey) {
+    if (rewardKey == null || rewardKey.isBlank()) {
+      return "skill:" + skill.getName() + ":general";
+    }
+    return rewardKey.trim();
   }
 
   public static void spatialXP(Location l, Skill<?> skill, double xp, int rad, long duration) {

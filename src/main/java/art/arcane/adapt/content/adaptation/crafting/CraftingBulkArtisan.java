@@ -36,6 +36,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import io.papermc.paper.event.inventory.ItemCraftedEvent;
+import art.arcane.adapt.api.xp.CraftingXpTransaction;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -136,7 +137,8 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     throttle.mark(p.getUniqueId());
 
     int cap = (int) Math.floor(getBatchCap(level) * preference(p, BATCH).multiplier());
-    PendingBatch pending = new PendingBatch(e, perCraft, result.getType(), result.getAmount(), cap);
+    PendingBatch pending = new PendingBatch(e, perCraft, result.getType(), result.getAmount(), cap,
+        !CraftingXpTransaction.isResourceConversion(e.getInventory().getMatrix(), result.getType()));
     pendingBatches.put(playerId, pending);
     J.runEntity(p, () -> pendingBatches.remove(playerId, pending), 1);
   }
@@ -148,7 +150,7 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     if (pending != null) {
       ItemStack template = e.getCraftedItem().clone();
       template.setAmount(pending.resultAmount());
-      J.runEntity(player, () -> augmentBatch(player, pending.choices(), template, pending.cap()), 1);
+      J.runEntity(player, () -> augmentBatch(player, pending, template), 1);
     }
   }
 
@@ -161,13 +163,13 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     return pending;
   }
 
-  private void augmentBatch(Player p, List<RecipeChoice> perCraft, ItemStack template, int capItems) {
+  private void augmentBatch(Player p, PendingBatch pending, ItemStack template) {
     if (!p.isOnline() || getActiveLevel(p) <= 0) {
       return;
     }
 
     int resultAmount = Math.max(1, template.getAmount());
-    int maxCrafts = capItems / resultAmount;
+    int maxCrafts = pending.cap() / resultAmount;
     if (maxCrafts <= 0) {
       return;
     }
@@ -179,7 +181,7 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     }
 
     ItemStack[] storage = p.getInventory().getStorageContents();
-    CraftingIngredients.BatchPlan plan = CraftingIngredients.plan(perCraft, storage, maxCrafts, preference(p, RESERVE).amount());
+    CraftingIngredients.BatchPlan plan = CraftingIngredients.plan(pending.choices(), storage, maxCrafts, preference(p, RESERVE).amount());
     if (plan.crafts() <= 0 || !payItemCost(p, "materials", null, plan.crafts(), () -> consumePlan(p, storage, plan))) {
       return;
     }
@@ -194,11 +196,18 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       }
     }
 
-    addStat(p, "crafting.bulk-artisan.batch-crafted", produced);
-    xp(p, produced * getConfig().xpPerBatchItem);
+    rewardBatch(p, pending, produced);
     fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
         .particle(Particles.CRIT_MAGIC, Math.min(16, 4 + produced / 4), 0, 0.2D, 0, 0.35D, 0.2D)
         .chord(Sound.BLOCK_BARREL_CLOSE, 0.5F, 1.4F, Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.2F);
+  }
+
+  void rewardBatch(Player player, PendingBatch pending, int produced) {
+    if (!pending.rewardEligible() || produced <= 0) {
+      return;
+    }
+    addStat(player, "crafting.bulk-artisan.batch-crafted", produced);
+    xp(player, produced * getConfig().xpPerBatchItem);
   }
 
   private boolean consumePlan(Player p, ItemStack[] storage, CraftingIngredients.BatchPlan plan) {
@@ -233,7 +242,8 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     return capacity;
   }
 
-  record PendingBatch(CraftItemEvent event, List<RecipeChoice> choices, Material result, int resultAmount, int cap) {
+  record PendingBatch(CraftItemEvent event, List<RecipeChoice> choices, Material result,
+                      int resultAmount, int cap, boolean rewardEligible) {
   }
 
   @ConfigDescription("Shift-click a craft result to pull extra ingredients from your inventory and craft a bigger batch in one action.")

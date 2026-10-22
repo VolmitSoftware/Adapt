@@ -145,27 +145,6 @@ class CraftingScalingTest {
   }
 
   @Test
-  void craftingXpFitUsesEmptySlotsAndPartialStackRoom() {
-    assertThat(CraftingXP.canFit(1, 64, 1, 0)).isTrue();
-    assertThat(CraftingXP.canFit(64, 64, 1, 0)).isTrue();
-    assertThat(CraftingXP.canFit(65, 64, 1, 0)).isFalse();
-    assertThat(CraftingXP.canFit(64, 64, 0, 63)).isFalse();
-    assertThat(CraftingXP.canFit(64, 64, 0, 64)).isTrue();
-    assertThat(CraftingXP.canFit(10, 64, 0, 4)).isFalse();
-    assertThat(CraftingXP.canFit(10, 64, 0, 10)).isTrue();
-    assertThat(CraftingXP.canFit(2, 1, 1, 0)).isFalse();
-    assertThat(CraftingXP.canFit(2, 1, 2, 0)).isTrue();
-  }
-
-  @Test
-  void craftingXpFitToleratesDegenerateInputs() {
-    assertThat(CraftingXP.canFit(0, 64, 0, 0)).isTrue();
-    assertThat(CraftingXP.canFit(-1, 64, 0, 0)).isTrue();
-    assertThat(CraftingXP.canFit(1, 0, 1, 0)).isTrue();
-    assertThat(CraftingXP.canFit(1, 64, -3, -5)).isFalse();
-  }
-
-  @Test
   void bundleRecipeWrapsAChestInLeather() {
     assertThat(CraftingBackpacks.recipeShape()).isEqualTo(List.of("LLL", "LCL", "LLL"));
   }

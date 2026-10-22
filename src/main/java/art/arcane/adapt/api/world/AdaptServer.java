@@ -37,7 +37,6 @@ import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.SpatialXP;
-import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.item.ExperienceOrb;
@@ -304,7 +303,7 @@ public class AdaptServer extends TickedObject {
     try {
       SpatialXpLedger.Claim claim = spatialXpLedger.claim(playerLocation, M.ms());
       if (claim != null) {
-        XP.xp(p, claim.skill(), claim.xp());
+        XP.xp(p, claim.skill(), claim.xp(), "skill:" + claim.skill().getName() + ":spatial");
       }
     } catch (Throwable error) {
       if (spatialFailureReported.compareAndSet(false, true)) {
@@ -1738,7 +1737,6 @@ public class AdaptServer extends TickedObject {
 
     MinionBurden.get().clearOwner(playerId);
     AdaptPotionRegistry.forget(playerId);
-    XpNovelty.clear(playerId);
     PlayerStateRegistry.clearPlayer(playerId);
     ViewerDisplayDirector.retireViewer(playerId);
     onlineMembershipRevision.incrementAndGet();
@@ -1755,7 +1753,6 @@ public class AdaptServer extends TickedObject {
     }
     AdaptAttributeService.get().clearAllAdapt(player);
     MinionBurden.get().clearOwner(playerId);
-    XpNovelty.clear(playerId);
     PlayerStateRegistry.clearPlayer(playerId);
     ViewerDisplayDirector.clearViewer(playerId);
     ViewerGlowCoordinator glow = Adapt.instance.getViewerGlowCoordinator();

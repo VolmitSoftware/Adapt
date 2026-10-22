@@ -1,0 +1,12 @@
+name: AdaptXpIntegrityFixture
+version: 1.0.0
+main: art.arcane.adapt.gameplay.XpIntegrityFixture
+api-version: '26.1'
+folia-supported: true
+depend: [Adapt]
+commands:
+  xpqa:
+    permission: xpqa.admin
+permissions:
+  xpqa.admin:
+    default: op

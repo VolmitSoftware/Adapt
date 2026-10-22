@@ -56,7 +56,7 @@ class SkillRegistryRuntimeReadinessTest extends AdaptTestBase {
 
     registry.on(event);
 
-    verify(adaptPlayer).boostXPToRecents(0.03D, 10000L);
+    verify(adaptPlayer).refreshRecentXpBoost("vanilla-xp", 0.03D, 10000L);
     verify(server, never()).getPlayer(player);
   }
 
@@ -73,7 +73,7 @@ class SkillRegistryRuntimeReadinessTest extends AdaptTestBase {
     registry.on(event);
 
     verify(event, never()).getAmount();
-    verify(adaptPlayer, never()).boostXPToRecents(0.03D, 10000L);
+    verify(adaptPlayer, never()).refreshRecentXpBoost("vanilla-xp", 0.03D, 10000L);
   }
 
   @Test

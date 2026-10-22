@@ -18,19 +18,17 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.blocking.BlockingBastionStance;
 import art.arcane.adapt.content.adaptation.blocking.BlockingBulwarkBash;
 import art.arcane.adapt.content.adaptation.blocking.BlockingChainArmorer;
@@ -45,6 +43,8 @@ import art.arcane.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import art.arcane.adapt.content.adaptation.blocking.BlockingShieldWall;
 import art.arcane.adapt.content.adaptation.blocking.BlockingShieldbearersResolve;
 import art.arcane.adapt.content.adaptation.blocking.BlockingTemperedGuard;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -52,18 +52,22 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.util.Vector;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   private static final BlockData IRON_BLOCK_DATA = Material.IRON_BLOCK.createBlockData();
   private final Cooldowns blockCooldowns = cooldowns();
   private final SkillOwnerPulse.Registration ownerPulse;
+  private final Map<UUID, Long> recentBlocks = playerState();
 
   public SkillBlocking() {
     super("blocking", SkillPresentation.of(SkillMessages.BLOCKING_NAME, SkillMessages.BLOCKING_ICON, SkillMessages.BLOCKING_DESCRIPTION));
@@ -189,23 +193,30 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
+      if (!beginCooldown(p) || !e.isApplicable(EntityDamageByEntityEvent.DamageModifier.BLOCKING)) {
+        return;
+      }
+      double damage = CombatXp.creditDefense(getPlayer(p).getData().getCombatXp(), getName(), p, e,
+          Math.max(0D, -e.getDamage(EntityDamageByEntityEvent.DamageModifier.BLOCKING)));
+      if (damage <= 0D) {
+        return;
+      }
       AdaptPlayer adaptPlayer = getPlayer(p);
       adaptPlayer.getData().addStat("blocked.hits", 1);
-      adaptPlayer.getData().addStat("blocked.damage", e.getDamage());
+      adaptPlayer.getData().addStat("blocked.damage", damage);
       if (e.getDamager() instanceof Projectile) {
         adaptPlayer.getData().addStat("blocked.projectiles", 1);
       } else {
         adaptPlayer.getData().addStat("blocked.melee", 1);
       }
-      boolean heavy = e.getDamage() > 5;
+      boolean heavy = damage > 5;
       if (heavy) {
         adaptPlayer.getData().addStat("blocked.heavy", 1);
       }
 
-      if (beginCooldown(p)) {
-        xp(p, getConfig().xpOnBlockedAttack);
-        blockFlash(p, heavy);
-      }
+      recentBlocks.put(p.getUniqueId(), System.currentTimeMillis());
+      xp(p, getConfig().xpOnBlockedAttack, "blocking:blocked-hit");
+      blockFlash(p, heavy);
     });
   }
 
@@ -232,6 +243,10 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
 
   private void pulseShieldXp(AdaptPlayer adaptPlayer, Player player, long elapsedMillis, long cadenceMillis) {
     shouldReturnForPlayer(player, () -> {
+      Long blockedAt = recentBlocks.get(player.getUniqueId());
+      if (!player.isBlocking() || blockedAt == null || System.currentTimeMillis() - blockedAt > 2500L) {
+        return;
+      }
       long passiveXp = getConfig().passiveXpForUsingShield;
       if (passiveXp <= 0) {
         return;

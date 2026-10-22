@@ -23,16 +23,14 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
-import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.runtime.AdaptationGate;
-import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.api.xp.XpAward;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import org.bukkit.Location;
@@ -219,17 +217,7 @@ final class SkillRuntimeGuards {
       return;
     }
     try {
-      xp *= XpNovelty.noveltyMultiplier(player, location, rewardKey);
-      xp = RegionPolicyService.adjustXp(xp, RegionPolicyService.resolve(player, location));
-      if (!isValidXp(xp)) {
-        return;
-      }
-      if (silent) {
-        XP.xpSilent(player, skill, xp, rewardKey);
-      } else {
-        XP.xp(player, skill, xp, rewardKey);
-      }
-      AdaptRuntimeTelemetry.recordXpPayout(System.currentTimeMillis(), xp);
+      XP.award(player, skill, new XpAward(XP.source(skill, rewardKey), xp, location, !silent, XpAward.Kind.GAMEPLAY));
 
       if (visualBurst && location != null && xp > 50 && skill.areParticlesEnabled() && AdaptConfig.get().isUseEnchantmentTableParticleForActiveEffects()) {
         Fx.targeted(player, Particles.ENCHANTMENT_TABLE, location, Math.min((int) xp / 10, 20), 0.5, 0.5, 0.5, 1);
@@ -246,16 +234,7 @@ final class SkillRuntimeGuards {
   }
 
   static void grantXpSilent(Skill<?> skill, Player player, double xp, String rewardKey) {
-    if (!canGrantXp(skill, player) || !isValidXp(xp)) {
-      return;
-    }
-    try {
-      XP.xpSilent(player, skill, xp, rewardKey);
-      AdaptRuntimeTelemetry.recordXpPayout(System.currentTimeMillis(), xp);
-    } catch (Exception failure) {
-      Adapt.verbose(() -> "Skipped silent XP grant because the player runtime moved before delivery: "
-          + failure.getClass().getSimpleName());
-    }
+    grantXp(skill, player, null, xp, rewardKey, true, false);
   }
 
   static void grantKnowledge(Skill<?> skill, Player player, long knowledge) {

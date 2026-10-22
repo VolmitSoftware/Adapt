@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -35,6 +32,7 @@ import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulBloodPact;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulBoneHarvest;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulCorpseExplosion;
@@ -49,6 +47,8 @@ import art.arcane.adapt.content.adaptation.tragoul.TragoulPlagueBearer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSoulSiphon;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulThorns;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -147,14 +147,19 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
           || !checkValidEntity(e.getEntity().getType())) {
         return;
       }
-      AdaptPlayer a = getPlayer(p);
-      a.getData().addStat("trag.hitsrecieved", 1);
-      a.getData().addStat("trag.damage", e.getDamage());
       if (!cooldowns.isReady(p.getUniqueId(), getConfig().cooldownDelay)) {
         return;
       }
+      double damage = CombatXp.creditDefense(getPlayer(p).getData().getCombatXp(), getName(), p, e,
+          CombatXp.effectiveDamage(e.getFinalDamage(), p.getHealth()));
+      if (damage <= 0D) {
+        return;
+      }
+      AdaptPlayer a = getPlayer(p);
+      a.getData().addStat("trag.hitsrecieved", 1);
+      a.getData().addStat("trag.damage", damage);
       cooldowns.mark(p.getUniqueId());
-      xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * e.getDamage());
+      xp(a.getPlayer(), getConfig().damageReceivedXpMultiplier * damage, "tragoul:damage-received");
       if (getConfig().showParticles) {
         fx(p.getLocation().add(0, 1.0, 0), FxPriority.AMBIENT).particle(Particle.SOUL, 2, 0, 0, 0, 0.2, 0.03);
       }

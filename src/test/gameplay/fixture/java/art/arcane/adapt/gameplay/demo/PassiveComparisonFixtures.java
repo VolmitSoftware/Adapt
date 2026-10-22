@@ -160,7 +160,7 @@ public final class PassiveComparisonFixtures {
         sword.setMonotonyMultiplier(1.0D);
         sword.setSkillStaleness(new RewardStalenessState());
         sword.getActivityStaleness().clear();
-        XpNovelty.clear(player.getUniqueId());
+        data.setXpNovelty(new XpNovelty.State());
         if (!comparison.learned) {
             data.removeGlobalXPMultipliers(comparison.adaptation.getName());
         }

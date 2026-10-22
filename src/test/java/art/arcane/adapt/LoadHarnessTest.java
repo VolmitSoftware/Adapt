@@ -1,5 +1,6 @@
 package art.arcane.adapt;
 
+import art.arcane.adapt.api.xp.XpAward;
 import art.arcane.adapt.api.EventHandlerInvoker;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -58,7 +59,7 @@ class LoadHarnessTest extends AdaptTestBase {
                 PlayerData pd = data.get(i);
                 pd.addStat("blocks", 1.0);
                 PlayerSkillLine line = lines.get(i);
-                line.giveXP(null, 1.0);
+                line.award(null, new XpAward("test:work", 1.0, null, false, XpAward.Kind.GAMEPLAY), 1.0, pd.getXpEarnings());
                 if ((i & 7) == 0) {
                     line.flushXpPool(null);
                 }
@@ -91,7 +92,7 @@ class LoadHarnessTest extends AdaptTestBase {
 
         System.out.println("==================== ADAPT 1K LOAD HARNESS ====================");
         System.out.println("players                : " + players);
-        System.out.println("work per player/tick   : addStat + giveXP (flush 1/8) + 3 LMF event dispatches");
+        System.out.println("work per player/tick   : addStat + XP award (flush 1/8) + 3 LMF event dispatches");
         System.out.println("excluded runtime work  : Bukkit players, schedulers, stat trackers, world/entity scans, persistence IO");
         System.out.println("interpretation         : micro-harness only; not a production 1K-server capacity claim");
         System.out.printf("median tick time       : %.3f ms%n", msPerTick);

@@ -18,16 +18,14 @@
 
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.localization.catalog.SkillMessages;
-
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.axe.AxeBarkHide;
 import art.arcane.adapt.content.adaptation.axe.AxeChop;
@@ -42,6 +40,8 @@ import art.arcane.adapt.content.adaptation.axe.AxeSunder;
 import art.arcane.adapt.content.adaptation.axe.AxeThrowingAxe;
 import art.arcane.adapt.content.adaptation.axe.AxeWoodVeinminer;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
+import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -163,16 +163,20 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
-      if (e.getEntity().isDead() || e.getEntity().isInvulnerable() || p.isDead() || p.isInvulnerable()) {
+      if (p.isDead() || p.isInvulnerable()) {
         return;
       }
       if (!beginCooldown(p)) {
         return;
       }
 
+      double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
+      if (creditedDamage <= 0D) {
+        return;
+      }
       AdaptPlayer adaptPlayer = getPlayer(p);
-      adaptPlayer.getData().addStat("axes.damage", e.getDamage());
-      xp(p, e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * e.getDamage());
+      adaptPlayer.getData().addStat("axes.damage", creditedDamage);
+      xp(p, e.getEntity().getLocation(), getConfig().axeDamageXPMultiplier * creditedDamage, "axes:combat");
     });
   }
 
@@ -184,6 +188,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
+      if (XpProvenance.breakXpMultiplier(e.getBlock()) <= 0D) {
+        return;
+      }
       Material blockType = e.getBlock().getType();
       String typeName = blockType.name();
       if (isLogMaterial(blockType, typeName)) {
@@ -191,7 +198,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         AdaptPlayer adaptPlayer = getPlayer(p);
         adaptPlayer.getData().addStat("axes.blocks.broken", 1);
         adaptPlayer.getData().addStat("axes.blocks.value", getValue(e.getBlock().getBlockData()));
-        if (beginCooldown(p) && XpProvenance.breakXpMultiplier(e.getBlock()) > 0) {
+        if (beginCooldown(p)) {
           xp(p, e.getBlock().getLocation().clone().add(0.5, 0.5, 0.5), blockXP(e.getBlock(), value));
         }
       }
