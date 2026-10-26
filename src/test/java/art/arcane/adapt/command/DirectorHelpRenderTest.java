@@ -88,12 +88,16 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
       if (group.getChildren().isEmpty()) {
         continue;
       }
-      DirectorHelpPage page = new DirectorHelpPage(group, List.copyOf(group.getChildren()), 0, 1);
-      List<String> lines = DirectorMiniMenu.render(
-          page,
-          DirectorMiniMenu.Theme.adaptRed(),
-          AdaptLanguage.directorResolver()
-      );
+      List<String> lines = new ArrayList<>();
+      DirectorHelpPage first = new DirectorHelpPage(group, group.getChildren(), 0, DirectorMiniMenu.MAX_ENTRIES_PER_PAGE);
+      int pages = DirectorMiniMenu.helpWindow(first, DirectorMiniMenu.Theme.adaptRed(), AdaptLanguage.directorResolver()).pages();
+      for (int pageIndex = 0; pageIndex < pages; pageIndex++) {
+        lines.addAll(DirectorMiniMenu.render(
+            new DirectorHelpPage(group, group.getChildren(), pageIndex, DirectorMiniMenu.MAX_ENTRIES_PER_PAGE),
+            DirectorMiniMenu.Theme.adaptRed(),
+            AdaptLanguage.directorResolver()
+        ));
+      }
       for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
         String rawLine = lines.get(lineIndex);
         String label = group.path() + " line " + lineIndex;
