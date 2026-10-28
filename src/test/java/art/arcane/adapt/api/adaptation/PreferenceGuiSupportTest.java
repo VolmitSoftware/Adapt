@@ -4,9 +4,14 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import org.bukkit.inventory.ItemStack;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferenceData;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
+import art.arcane.adapt.api.preference.PreferenceToggleGroup;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
@@ -42,6 +47,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -63,6 +69,16 @@ class PreferenceGuiSupportTest {
           new PlayerPreference.Choice<>(Mode.OFF, TextKey.of("test.off", "Off"), Material.RED_STAINED_GLASS_PANE, 1),
           new PlayerPreference.Choice<>(Mode.ON, TextKey.of("test.on", "On"), Material.LIME_STAINED_GLASS_PANE, 1),
           new PlayerPreference.Choice<>(Mode.REACTIVE, TextKey.of("test.reactive", "Reactive"), Material.ENDER_PEARL, 2))));
+
+  private static final PlayerPreference<CommonPreferences.Toggle> WHEAT = CommonPreferences.toggle("growable-wheat",
+      TextKey.of("test.wheat", "Wheat"));
+  private static final PlayerPreference<CommonPreferences.Toggle> GLOW_BERRIES = CommonPreferences.toggle("growable-glow-berries",
+      TextKey.of("test.glow-berries", "Glow berries"));
+  private static final PlayerPreference<CommonPreferences.Toggle> KELP = CommonPreferences.toggle("growable-kelp",
+      TextKey.of("test.kelp", "Kelp"));
+  private static final PreferenceToggleGroup GROWABLES = new PreferenceToggleGroup("growables", TextKey.of("test.growables", "Growables"),
+      Material.WHEAT_SEEDS, List.of(new PreferenceToggleGroup.Entry(WHEAT, Material.WHEAT),
+      new PreferenceToggleGroup.Entry(GLOW_BERRIES, Material.GLOW_BERRIES), new PreferenceToggleGroup.Entry(KELP, Material.KELP)));
 
   private MockedStatic<CustomModel> models;
   private Adapt previousPlugin;
@@ -164,7 +180,7 @@ class PreferenceGuiSupportTest {
     preferences = new PlayerPreferenceData();
     when(data.getPreferences()).thenReturn(preferences);
     when(adaptPlayer.getData()).thenReturn(data);
-    PreferenceGuiSupport.populate(adaptation, window, 2);
+    PreferenceGuiSupport.populate(adaptation, window, 2, 0);
     ArgumentCaptor<Element> initial = ArgumentCaptor.forClass(Element.class);
     verify(window).setElement(eq(-1), eq(2), initial.capture());
     control = initial.getValue();
@@ -330,7 +346,7 @@ class PreferenceGuiSupportTest {
     clearInvocations(window);
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
       configured.when(AdaptConfig::get).thenReturn(config);
-      PreferenceGuiSupport.populate(adaptation, window, 0);
+      PreferenceGuiSupport.populate(adaptation, window, 0, 0);
     }
     verify(window, never()).setElement(anyInt(), anyInt(), any());
   }
@@ -344,7 +360,7 @@ class PreferenceGuiSupportTest {
     when(adaptation.getPlayerPreferences()).thenReturn(List.of(PREFERENCE, dependent, other));
     when(adaptation.isPlayerPreferenceVisible(eq(adaptPlayer), eq(dependent)))
         .thenAnswer(call -> "ON".equals(preferences.get("test-adaptation", "mode")));
-    PreferenceGuiSupport.populate(adaptation, window, 2);
+    PreferenceGuiSupport.populate(adaptation, window, 2, 0);
     ArgumentCaptor<Element> toggle = ArgumentCaptor.forClass(Element.class);
     ArgumentCaptor<Element> otherControl = ArgumentCaptor.forClass(Element.class);
     ArgumentCaptor<Element> resetControl = ArgumentCaptor.forClass(Element.class);
@@ -396,7 +412,7 @@ class PreferenceGuiSupportTest {
           "mode" + index, PREFERENCE.label(), PREFERENCE.defaultValue(), PREFERENCE.choices())));
     }
     when(adaptation.getPlayerPreferences()).thenReturn(declarations);
-    PreferenceGuiSupport.populate(adaptation, window, 2);
+    PreferenceGuiSupport.populate(adaptation, window, 2, 0);
     ArgumentCaptor<Element> nextControl = ArgumentCaptor.forClass(Element.class);
     verify(window).setElement(eq(3), eq(2), nextControl.capture());
     Element next = nextControl.getValue();
@@ -408,6 +424,85 @@ class PreferenceGuiSupportTest {
     verify(sounds).play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
     verify(window, never()).updateInventory();
     verify(window, never()).reopen();
+  }
+
+  @Test
+  void toggleGroupSharesOneSettingsSlotAndCountsOnlyEnabledUnblockedEntries() {
+    when(adaptation.getPlayerPreferences()).thenReturn(List.of(PREFERENCE, WHEAT, GLOW_BERRIES, KELP));
+    when(adaptation.getPlayerPreferenceGroups()).thenReturn(List.of(GROWABLES));
+    when(adaptation.isPlayerPreferenceBlocked(GLOW_BERRIES)).thenReturn(true);
+    preferences.set("test-adaptation", KELP.id(), "OFF");
+    AdaptConfig defaults = new AdaptConfig();
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(defaults);
+      PreferenceGuiSupport.populate(adaptation, window, 2, 0);
+    }
+
+    ArgumentCaptor<Element> mode = ArgumentCaptor.forClass(Element.class);
+    ArgumentCaptor<Element> group = ArgumentCaptor.forClass(Element.class);
+    ArgumentCaptor<Element> resetControl = ArgumentCaptor.forClass(Element.class);
+    verify(window).setElement(eq(-1), eq(2), mode.capture());
+    verify(window).setElement(eq(0), eq(2), group.capture());
+    verify(window).setElement(eq(1), eq(2), resetControl.capture());
+    assertThat(mode.getValue().getId()).isEqualTo("preference-mode");
+    assertThat(group.getValue().getId()).isEqualTo("preference-group-growables");
+    assertThat(group.getValue().getMaterial().getMaterial()).isEqualTo(Material.WHEAT_SEEDS);
+    assertThat(resetControl.getValue().getId()).isEqualTo("preference-reset");
+    language.verify(() -> AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_GROUP_ENABLED,
+        trusted("enabled", 1), trusted("total", 3)));
+  }
+
+  @Test
+  void toggleGroupMenuPersistsEachEntryIndependentlyAndUpdatesItsSlot() {
+    when(adaptation.getPlayerPreferences()).thenReturn(List.of(PREFERENCE, WHEAT, GLOW_BERRIES, KELP));
+    AdaptConfig defaults = new AdaptConfig();
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(defaults);
+      PreferenceGroupGui.populate(adaptation, GROWABLES, window, 0);
+      ArgumentCaptor<Element> wheat = ArgumentCaptor.forClass(Element.class);
+      verify(window).setViewportHeight(2);
+      verify(window).setElement(eq(-1), eq(0), wheat.capture());
+      verify(window).setElement(eq(0), eq(0), any(Element.class));
+      verify(window).setElement(eq(1), eq(0), any(Element.class));
+      verify(window).setElement(eq(0), eq(1), any(Element.class));
+      assertThat(wheat.getValue().getMaterial().getMaterial()).isEqualTo(Material.WHEAT);
+      assertThat(wheat.getValue().isEnchanted()).isTrue();
+
+      wheat.getValue().call(ElementEvent.LEFT, wheat.getValue());
+
+      assertThat(preferences.get("test-adaptation", WHEAT.id())).isEqualTo("OFF");
+      assertThat(preferences.get("test-adaptation", KELP.id())).isNull();
+      ArgumentCaptor<Element> replacement = ArgumentCaptor.forClass(Element.class);
+      verify(window).updateElement(eq(-1), eq(0), replacement.capture());
+      assertThat(replacement.getValue().getMaterial().getMaterial()).isEqualTo(Material.WHEAT);
+      assertThat(replacement.getValue().isEnchanted()).isFalse();
+      verify(sounds).play(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.3F, 1.2F);
+    }
+  }
+
+  @Test
+  void serverBlockedEntriesRenderLockedAndRejectChanges() {
+    when(adaptation.getPlayerPreferences()).thenReturn(List.of(PREFERENCE, WHEAT, GLOW_BERRIES, KELP));
+    when(adaptation.isPlayerPreferenceBlocked(GLOW_BERRIES)).thenReturn(true);
+    AdaptConfig defaults = new AdaptConfig();
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(defaults);
+      PreferenceGroupGui.populate(adaptation, GROWABLES, window, 0);
+      ArgumentCaptor<Element> blocked = ArgumentCaptor.forClass(Element.class);
+      verify(window).setElement(eq(0), eq(0), blocked.capture());
+      assertThat(blocked.getValue().getMaterial().getMaterial()).isEqualTo(Material.GRAY_STAINED_GLASS_PANE);
+      assertThat(blocked.getValue().isEnchanted()).isFalse();
+      models.verify(() -> CustomModel.get(Material.GRAY_STAINED_GLASS_PANE,
+          "gui", "preferences", "adaptation", "test-adaptation", GLOW_BERRIES.id(), "locked"));
+
+      blocked.getValue().call(ElementEvent.LEFT, blocked.getValue());
+
+      assertThat(preferences.get("test-adaptation", GLOW_BERRIES.id())).isNull();
+      assertThat(PlayerPreferences.set(adaptation, adaptPlayer, GLOW_BERRIES, CommonPreferences.Toggle.OFF)).isFalse();
+      assertThat(PlayerPreferences.set(adaptation, adaptPlayer, KELP, CommonPreferences.Toggle.OFF)).isTrue();
+      verify(adaptPlayer).requestSave();
+      verify(sounds).play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
+    }
   }
 
   private enum Mode {

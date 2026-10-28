@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -310,7 +311,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           BlockData data = b.getBlockData();
           if (data instanceof Ageable ageable && isCropCandidate(b.getType())) {
             if (ageable.getAge() < ageable.getMaximumAge()) {
-              if (immatureCrops.size() < MAX_TRACKED_IMMATURE_CROPS) {
+              if (immatureCrops.size() < MAX_TRACKED_IMMATURE_CROPS && !AdaptConfig.get().isGrowthBlacklisted(b.getType())) {
                 immatureCrops.add(b);
               }
               continue;

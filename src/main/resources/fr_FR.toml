@@ -6960,6 +6960,9 @@ cycle = "Clic gauche : suivant / Clic droit : précédent"
 learn_first = "Apprenez cette adaptation pour modifier ses réglages."
 reset = "Réinitialiser les réglages personnels"
 reset_description = "Utiliser les valeurs du serveur pour cette adaptation."
+server_blocked = "Indisponible sur ce serveur"
+group_enabled = "Activés : {enabled}/{total}"
+group_open = "Cliquez pour ouvrir"
 
 [rift.blink.setting]
 enabled = "Téléportation"
@@ -7501,6 +7504,28 @@ tending = "Entretien"
 tilling = "Labour"
 work_area_outline = "Contour de la zone de travail"
 
+[herbalism.preferences.growable]
+bamboo = "Bambou"
+beetroots = "Betteraves"
+cactus = "Cactus"
+carrots = "Carottes"
+chorus = "Fleurs de chorus"
+cocoa = "Cacao"
+glow-berries = "Baies lumineuses"
+kelp = "Varech"
+mangrove-propagules = "Propagules de palétuvier"
+melons = "Pastèques"
+nether-vines = "Lianes pleureuses et tordues"
+nether-wart = "Verrue du Nether"
+other = "Autres blocs en croissance"
+pitcher-plants = "Sarracénies"
+potatoes = "Pommes de terre"
+pumpkins = "Citrouilles"
+sugar-cane = "Canne à sucre"
+sweet-berries = "Baies sucrées"
+torchflowers = "Fleurs-torches"
+wheat = "Blé"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Attraction des abeilles"
 food-reserve = "Conserver 8 points de nourriture"
@@ -7520,7 +7545,7 @@ seeds-only = "Récupérer uniquement les objets à planter"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Conserver 16 points de nourriture"
-materials = "Végétaux autorisés"
+growables = "Plantes à faire pousser"
 radius = "Rayon de croissance"
 surface-only = "Cultures en surface uniquement"
 

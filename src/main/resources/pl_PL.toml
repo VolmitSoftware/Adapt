@@ -6964,6 +6964,9 @@ cycle = "Lewy przycisk: następne / Prawy przycisk: poprzednie"
 learn_first = "Naucz się tej adaptacji, aby zmienić jej ustawienia."
 reset = "Przywróć ustawienia osobiste"
 reset_description = "Użyj ustawień domyślnych serwera dla tej adaptacji."
+server_blocked = "Niedostępne na tym serwerze"
+group_enabled = "Włączone: {enabled}/{total}"
+group_open = "Kliknij, aby otworzyć"
 
 [rift.blink.setting]
 enabled = "Teleportacja"
@@ -7505,6 +7508,28 @@ tending = "Pielęgnacja"
 tilling = "Uprawa"
 work_area_outline = "Obrys obszaru pracy"
 
+[herbalism.preferences.growable]
+bamboo = "Bamboo"
+beetroots = "Beetroot"
+cactus = "Cactus"
+carrots = "Carrots"
+chorus = "Chorus flowers"
+cocoa = "Cocoa"
+glow-berries = "Glow berries"
+kelp = "Kelp"
+mangrove-propagules = "Mangrove propagules"
+melons = "Melons"
+nether-vines = "Weeping and twisting vines"
+nether-wart = "Nether wart"
+other = "Other growing blocks"
+pitcher-plants = "Pitcher plants"
+potatoes = "Potatoes"
+pumpkins = "Pumpkins"
+sugar-cane = "Sugar cane"
+sweet-berries = "Sweet berries"
+torchflowers = "Torchflowers"
+wheat = "Wheat"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "Growables"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

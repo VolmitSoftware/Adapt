@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -313,7 +314,8 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     }
 
     Block block = sample.location.getBlock();
-    if (!(block.getBlockData() instanceof Ageable ageable)
+    if (AdaptConfig.get().isGrowthBlacklisted(block.getType())
+        || !(block.getBlockData() instanceof Ageable ageable)
         || ageable.getAge() >= ageable.getMaximumAge()
         || !canInteract(player, block.getLocation())
         || !canBlockPlace(player, block.getLocation())

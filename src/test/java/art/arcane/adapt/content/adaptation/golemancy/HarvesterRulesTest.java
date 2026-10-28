@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -45,11 +46,11 @@ class HarvesterRulesTest {
 
   @Test
   void eachLevelUnlocksItsPartOfTheField() {
-    assertThat(flags(HarvesterRules.plan(config, crops, 1, OPEN, NodeItemTags.shared()))).containsExactly(false, false, false, false);
-    assertThat(flags(HarvesterRules.plan(config, crops, 2, OPEN, NodeItemTags.shared()))).containsExactly(true, false, false, false);
-    assertThat(flags(HarvesterRules.plan(config, crops, 3, OPEN, NodeItemTags.shared()))).containsExactly(true, true, false, false);
-    assertThat(flags(HarvesterRules.plan(config, crops, 4, OPEN, NodeItemTags.shared()))).containsExactly(true, true, true, false);
-    assertThat(flags(HarvesterRules.plan(config, crops, 5, OPEN, NodeItemTags.shared()))).containsExactly(true, true, true, true);
+    assertThat(flags(HarvesterRules.plan(config, crops, 1, OPEN, NodeItemTags.shared(), Set.of()))).containsExactly(false, false, false, false);
+    assertThat(flags(HarvesterRules.plan(config, crops, 2, OPEN, NodeItemTags.shared(), Set.of()))).containsExactly(true, false, false, false);
+    assertThat(flags(HarvesterRules.plan(config, crops, 3, OPEN, NodeItemTags.shared(), Set.of()))).containsExactly(true, true, false, false);
+    assertThat(flags(HarvesterRules.plan(config, crops, 4, OPEN, NodeItemTags.shared(), Set.of()))).containsExactly(true, true, true, false);
+    assertThat(flags(HarvesterRules.plan(config, crops, 5, OPEN, NodeItemTags.shared(), Set.of()))).containsExactly(true, true, true, true);
   }
 
   @Test
@@ -64,6 +65,23 @@ class HarvesterRulesTest {
     assertThat(survey(1, 64, 0, 1)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(survey(1, 64, 0, 3)).isEqualTo(HarvesterRules.Spot.TEND);
     assertThat(survey(2, 64, 0, 3)).isEqualTo(HarvesterRules.Spot.NONE);
+  }
+
+  @Test
+  void growthBlacklistedCropsAreNeverTendedButStillHarvested() {
+    field.set(0, 64, 0, Material.WHEAT, CropField.ageable(3, 7));
+    field.set(1, 64, 0, Material.WHEAT, CropField.ageable(7, 7));
+    field.set(2, 64, 0, Material.TORCHFLOWER_CROP, CropField.ageable(1, 1));
+    field.set(3, 64, 0, Material.CARROTS, CropField.ageable(3, 7));
+    HarvesterRules.Plan plan = HarvesterRules.plan(config, crops, 5, OPEN, NodeItemTags.shared(),
+        Set.of(Material.WHEAT, Material.TORCHFLOWER_CROP));
+
+    assertThat(HarvesterRules.survey(field.block(0, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.survey(field.block(1, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.RIPE);
+    assertThat(HarvesterRules.survey(field.block(2, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.survey(field.block(3, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.TEND);
+    assertThat(plan.criteria(5)).isNotEqualTo(plan(5).criteria(5));
+    assertThat(plan(5).criteria(5)).isEqualTo(plan(5).criteria(5));
   }
 
   @Test
@@ -145,7 +163,7 @@ class HarvesterRulesTest {
     field.set(0, 64, 0, Material.CARROTS, CropField.ageable(7, 7));
     field.set(1, 64, 0, Material.WHEAT, CropField.ageable(7, 7));
 
-    HarvesterRules.Plan plan = HarvesterRules.plan(config, wheatOnly, 5, OPEN, NodeItemTags.shared());
+    HarvesterRules.Plan plan = HarvesterRules.plan(config, wheatOnly, 5, OPEN, NodeItemTags.shared(), Set.of());
 
     assertThat(HarvesterRules.survey(field.block(0, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.NONE);
     assertThat(HarvesterRules.survey(field.block(1, 64, 0), plan, OWNED)).isEqualTo(HarvesterRules.Spot.RIPE);
@@ -219,7 +237,7 @@ class HarvesterRulesTest {
 
     assertThat(HarvesterRules.seedToPlant(plan(4), carried, field.block(0, 64, 0), OWNED)).isEqualTo(Material.CARROT);
     assertThat(HarvesterRules.seedToPlant(plan(4), carried, field.block(5, 64, 5), OWNED)).isEqualTo(Material.WHEAT_SEEDS);
-    assertThat(HarvesterRules.seedToPlant(HarvesterRules.plan(config, crops, 4, filtered(false, Material.WHEAT_SEEDS), NodeItemTags.shared()),
+    assertThat(HarvesterRules.seedToPlant(HarvesterRules.plan(config, crops, 4, filtered(false, Material.WHEAT_SEEDS), NodeItemTags.shared(), Set.of()),
         carried, field.block(5, 64, 5), OWNED)).isEqualTo(Material.CARROT);
     assertThat(HarvesterRules.seedToPlant(plan(4), List.of(GolemTestItems.stack(Material.MELON_SEEDS, 4)), field.block(5, 64, 5), OWNED)).isNull();
   }
@@ -307,11 +325,11 @@ class HarvesterRulesTest {
   }
 
   private HarvesterRules.Spot survey(NodeRecord node, int x, int y, int z) {
-    return HarvesterRules.survey(field.block(x, y, z), HarvesterRules.plan(config, crops, 5, node, NodeItemTags.shared()), OWNED);
+    return HarvesterRules.survey(field.block(x, y, z), HarvesterRules.plan(config, crops, 5, node, NodeItemTags.shared(), Set.of()), OWNED);
   }
 
   private HarvesterRules.Plan plan(int level) {
-    return HarvesterRules.plan(config, crops, level, OPEN, NodeItemTags.shared());
+    return HarvesterRules.plan(config, crops, level, OPEN, NodeItemTags.shared(), Set.of());
   }
 
   private static List<Boolean> flags(HarvesterRules.Plan plan) {

@@ -6964,6 +6964,9 @@ cycle = "Nhấp trái: tiếp theo / Nhấp phải: trước đó"
 learn_first = "Học thích nghi này để thay đổi cài đặt của nó."
 reset = "Đặt lại cài đặt cá nhân"
 reset_description = "Dùng giá trị mặc định của máy chủ cho thích nghi này."
+server_blocked = "Không khả dụng trên máy chủ này"
+group_enabled = "Đang bật: {enabled}/{total}"
+group_open = "Nhấp để mở"
 
 [rift.blink.setting]
 enabled = "Dịch chuyển"
@@ -7505,6 +7508,28 @@ tending = "Chăm sóc"
 tilling = "Cày xới"
 work_area_outline = "Viền khu vực làm việc"
 
+[herbalism.preferences.growable]
+bamboo = "Bamboo"
+beetroots = "Beetroot"
+cactus = "Cactus"
+carrots = "Carrots"
+chorus = "Chorus flowers"
+cocoa = "Cocoa"
+glow-berries = "Glow berries"
+kelp = "Kelp"
+mangrove-propagules = "Mangrove propagules"
+melons = "Melons"
+nether-vines = "Weeping and twisting vines"
+nether-wart = "Nether wart"
+other = "Other growing blocks"
+pitcher-plants = "Pitcher plants"
+potatoes = "Potatoes"
+pumpkins = "Pumpkins"
+sugar-cane = "Sugar cane"
+sweet-berries = "Sweet berries"
+torchflowers = "Torchflowers"
+wheat = "Wheat"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "Growables"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

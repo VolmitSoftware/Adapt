@@ -94,7 +94,8 @@ public final class PlayerPreferences {
       return false;
     }
     PreferencePolicy policy = policy(adaptation, preference);
-    if (!policy.playerEditable || !available(preference, policy, value, adaptation.getLevel(player))) {
+    if (!policy.playerEditable || adaptation.isPlayerPreferenceBlocked(preference)
+        || !available(preference, policy, value, adaptation.getLevel(player))) {
       return false;
     }
     player.getData().getPreferences().set(adaptation.getName(), preference.id(), value.name());

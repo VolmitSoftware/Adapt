@@ -448,7 +448,7 @@ final class AdaptationGuiSupport {
     }
 
     if (hasPreferences) {
-      PreferenceGuiSupport.populate(adaptation, w, plan.rows() - 1);
+      PreferenceGuiSupport.populate(adaptation, w, plan.rows() - 1, currentPage);
     }
 
     w.setTitle(adaptation.getDisplayName());
@@ -621,7 +621,7 @@ final class AdaptationGuiSupport {
     }, 1);
   }
 
-  private static void playCloseSound(Player player) {
+  static void playCloseSound(Player player) {
     SoundPlayer spw = SoundPlayer.of(player.getWorld());
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);

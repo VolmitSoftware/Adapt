@@ -6964,6 +6964,9 @@ cycle = "左击：下一项 / 右击：上一项"
 learn_first = "先学习此适应能力，才能修改其设置。"
 reset = "重置个人设置"
 reset_description = "将此适应能力恢复为服务器默认设置。"
+server_blocked = "本服务器不可用"
+group_enabled = "已启用：{enabled}/{total}"
+group_open = "点击打开"
 
 [rift.blink.setting]
 enabled = "闪现"
@@ -7505,6 +7508,28 @@ tending = "照料"
 tilling = "耕作"
 work_area_outline = "工作区域轮廓"
 
+[herbalism.preferences.growable]
+bamboo = "竹子"
+beetroots = "甜菜根"
+cactus = "仙人掌"
+carrots = "胡萝卜"
+chorus = "紫颂花"
+cocoa = "可可豆"
+glow-berries = "发光浆果"
+kelp = "海带"
+mangrove-propagules = "红树胎生苗"
+melons = "西瓜"
+nether-vines = "垂泪藤与缠怨藤"
+nether-wart = "下界疣"
+other = "其他生长方块"
+pitcher-plants = "瓶子草"
+potatoes = "马铃薯"
+pumpkins = "南瓜"
+sugar-cane = "甘蔗"
+sweet-berries = "甜浆果"
+torchflowers = "火把花"
+wheat = "小麦"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "吸引蜜蜂"
 food-reserve = "保留八点饥饿值"
@@ -7524,7 +7549,7 @@ seeds-only = "仅收集种植用物品"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "保留十六点饥饿值"
-materials = "允许的植物材料"
+growables = "可催生植物"
 radius = "生长半径"
 surface-only = "仅作用于地表作物"
 

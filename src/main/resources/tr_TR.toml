@@ -6964,6 +6964,9 @@ cycle = "Sol tık: sonraki / Sağ tık: önceki"
 learn_first = "Ayarlarını değiştirmek için bu uyarlamayı öğren."
 reset = "Kişisel ayarları sıfırla"
 reset_description = "Bu uyarlama için sunucunun varsayılanlarını kullan."
+server_blocked = "Bu sunucuda kullanılamaz"
+group_enabled = "Etkin: {enabled}/{total}"
+group_open = "Açmak için tıklayın"
 
 [rift.blink.setting]
 enabled = "Işınlanma"
@@ -7505,6 +7508,28 @@ tending = "Bakım"
 tilling = "Sürme"
 work_area_outline = "Çalışma alanı çerçevesi"
 
+[herbalism.preferences.growable]
+bamboo = "Bamboo"
+beetroots = "Beetroot"
+cactus = "Cactus"
+carrots = "Carrots"
+chorus = "Chorus flowers"
+cocoa = "Cocoa"
+glow-berries = "Glow berries"
+kelp = "Kelp"
+mangrove-propagules = "Mangrove propagules"
+melons = "Melons"
+nether-vines = "Weeping and twisting vines"
+nether-wart = "Nether wart"
+other = "Other growing blocks"
+pitcher-plants = "Pitcher plants"
+potatoes = "Potatoes"
+pumpkins = "Pumpkins"
+sugar-cane = "Sugar cane"
+sweet-berries = "Sweet berries"
+torchflowers = "Torchflowers"
+wheat = "Wheat"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "Growables"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

@@ -6964,6 +6964,9 @@ cycle = "左鍵：下一項 / 右鍵：上一項"
 learn_first = "學會此適應後才能修改其設定。"
 reset = "重設個人設定"
 reset_description = "對此適應使用伺服器預設值。"
+server_blocked = "此伺服器無法使用"
+group_enabled = "已啟用：{enabled}/{total}"
+group_open = "點擊開啟"
 
 [rift.blink.setting]
 enabled = "閃現"
@@ -7505,6 +7508,28 @@ tending = "照料"
 tilling = "耕作"
 work_area_outline = "工作區域輪廓"
 
+[herbalism.preferences.growable]
+bamboo = "竹子"
+beetroots = "甜菜根"
+cactus = "仙人掌"
+carrots = "胡蘿蔔"
+chorus = "歌萊花"
+cocoa = "可可豆"
+glow-berries = "螢光莓"
+kelp = "海帶"
+mangrove-propagules = "紅樹林胎生苗"
+melons = "西瓜"
+nether-vines = "垂泣藤與扭曲藤"
+nether-wart = "地獄疙瘩"
+other = "其他生長方塊"
+pitcher-plants = "瓶子草"
+potatoes = "馬鈴薯"
+pumpkins = "南瓜"
+sugar-cane = "甘蔗"
+sweet-berries = "甜漿果"
+torchflowers = "火把花"
+wheat = "小麥"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "可催生植物"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

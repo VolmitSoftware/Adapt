@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -591,6 +592,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       return Math.min(affordableTicks, getMaxCampfireTicksPerUse(level)) > 0;
     }
     if (getMaxGrowthStepsPerUse(level) <= 0
+        || AdaptConfig.get().isGrowthBlacklisted(clicked.getType())
         || storedSeconds + 1.0E-6 < getGrowthStepCostSeconds(clicked, level)) {
       return false;
     }
@@ -775,6 +777,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   }
 
   private boolean applyDirectGrowthStep(Player player, Block block, int level) {
+    if (AdaptConfig.get().isGrowthBlacklisted(block.getType())) {
+      return false;
+    }
     BlockData data = block.getBlockData();
     if (data instanceof Sapling sapling) {
       if (sapling.getStage() < sapling.getMaximumStage()) {

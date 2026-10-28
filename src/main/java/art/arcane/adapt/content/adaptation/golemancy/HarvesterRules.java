@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 final class HarvesterRules {
@@ -31,9 +32,9 @@ final class HarvesterRules {
   private HarvesterRules() {
   }
 
-  static Plan plan(GolemHarvesterCore.Config config, HarvestCrops crops, int level, NodeRecord node, NodeTagLookup tags) {
+  static Plan plan(GolemHarvesterCore.Config config, HarvestCrops crops, int level, NodeRecord node, NodeTagLookup tags, Set<Material> growthBlacklist) {
     return new Plan(crops, GolemancyRules.unlocked(level, config.extendedCropsLevel), GolemancyRules.unlocked(level, config.tendingLevel), GolemancyRules.unlocked(level, config.tillingLevel),
-        GolemancyRules.unlocked(level, config.bountifulLevel), node, tags);
+        GolemancyRules.unlocked(level, config.bountifulLevel), node, tags, growthBlacklist);
   }
 
   static int actionIntervalTicks(List<Integer> byLevel, int level) {
@@ -63,7 +64,7 @@ final class HarvesterRules {
       return Spot.NONE;
     }
     return switch (kind) {
-      case CROP, BERRY_BUSH -> growth(block.getBlockData(), plan.tending() && plan.crops().tendable(type));
+      case CROP, BERRY_BUSH -> growth(block.getBlockData(), plan.tends(type) && plan.crops().tendable(type));
       case TORCHFLOWER -> torchflower(block, type, plan);
       case CAVE_VINES -> block.getBlockData() instanceof CaveVinesPlant vines && PaperCompat.hasBerries(vines) ? Spot.RIPE : Spot.NONE;
       case GOURD -> plan.extended() ? attached(block, type, owned) : Spot.NONE;
@@ -133,7 +134,7 @@ final class HarvesterRules {
     if (type == Material.TORCHFLOWER) {
       return block.getRelative(BlockFace.DOWN).getType() == Material.FARMLAND ? Spot.RIPE : Spot.NONE;
     }
-    return plan.tending() ? Spot.TEND : Spot.NONE;
+    return plan.tends(type) ? Spot.TEND : Spot.NONE;
   }
 
   private static Spot attached(Block fruit, Material type, Predicate<Block> owned) {
@@ -211,13 +212,19 @@ final class HarvesterRules {
     TILL
   }
 
-  record Plan(HarvestCrops crops, boolean extended, boolean tending, boolean tilling, boolean bountiful, NodeRecord node, NodeTagLookup tags) {
+  record Plan(HarvestCrops crops, boolean extended, boolean tending, boolean tilling, boolean bountiful, NodeRecord node, NodeTagLookup tags,
+              Set<Material> growthBlacklist) {
     long criteria(int level) {
-      return (long) level << 4 | (extended ? 1L : 0L) | (tending ? 2L : 0L) | (tilling ? 4L : 0L) | (bountiful ? 8L : 0L);
+      return (long) growthBlacklist.hashCode() << 32
+          | (long) level << 4 | (extended ? 1L : 0L) | (tending ? 2L : 0L) | (tilling ? 4L : 0L) | (bountiful ? 8L : 0L);
+    }
+
+    boolean tends(Material type) {
+      return tending && !growthBlacklist.contains(type);
     }
 
     Plan withPractices(boolean tending, boolean tilling) {
-      return new Plan(crops, extended, tending, tilling, bountiful, node, tags);
+      return new Plan(crops, extended, tending, tilling, bountiful, node, tags, growthBlacklist);
     }
   }
 }

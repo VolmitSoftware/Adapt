@@ -6964,6 +6964,9 @@ cycle = "לחיצה שמאלית: הבא / לחיצה ימנית: הקודם"
 learn_first = "יש ללמוד את ההתאמה כדי לשנות את ההגדרות שלה."
 reset = "איפוס הגדרות אישיות"
 reset_description = "שימוש בברירות המחדל של השרת להתאמה זו."
+server_blocked = "לא זמין בשרת הזה"
+group_enabled = "מופעלים: {enabled}/{total}"
+group_open = "לחצו לפתיחה"
 
 [rift.blink.setting]
 enabled = "שיגור"
@@ -7505,6 +7508,28 @@ tending = "טיפוח"
 tilling = "עיבוד"
 work_area_outline = "קו מתאר של אזור העבודה"
 
+[herbalism.preferences.growable]
+bamboo = "Bamboo"
+beetroots = "Beetroot"
+cactus = "Cactus"
+carrots = "Carrots"
+chorus = "Chorus flowers"
+cocoa = "Cocoa"
+glow-berries = "Glow berries"
+kelp = "Kelp"
+mangrove-propagules = "Mangrove propagules"
+melons = "Melons"
+nether-vines = "Weeping and twisting vines"
+nether-wart = "Nether wart"
+other = "Other growing blocks"
+pitcher-plants = "Pitcher plants"
+potatoes = "Potatoes"
+pumpkins = "Pumpkins"
+sugar-cane = "Sugar cane"
+sweet-berries = "Sweet berries"
+torchflowers = "Torchflowers"
+wheat = "Wheat"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "Growables"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

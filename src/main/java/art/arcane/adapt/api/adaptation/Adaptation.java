@@ -23,6 +23,7 @@ import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityCostKind;
 import art.arcane.adapt.api.ability.AbilityDefaultCost;
@@ -86,6 +87,14 @@ public interface Adaptation<T> extends Ticked, Component {
 
   default boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
     return true;
+  }
+
+  default List<PreferenceToggleGroup> getPlayerPreferenceGroups() {
+    return List.of();
+  }
+
+  default boolean isPlayerPreferenceBlocked(PlayerPreference<?> preference) {
+    return false;
   }
 
   /**

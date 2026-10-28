@@ -40,10 +40,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @SuppressWarnings("ALL")
 @Getter
@@ -72,6 +78,9 @@ public class AdaptConfig {
   public String adaptActivatorBlockName = "a Bookshelf";
   public boolean adaptActivatorAllowVerticalFaces = false;
   public List<String> blacklistedWorlds = List.of("minecraft:some_world_adapt_should_not_run_in", "example:another_world");
+  @ConfigDoc(value = "Block names that no Adapt adaptation grows, such as CAVE_VINES and CAVE_VINES_PLANT for glow berries.", impact = "Growth Aura, Compost Cascade, Bee Shepherd, Accelerate, Time in a Bottle and Harvester Core tending skip listed blocks, and players cannot enable them in Growth Aura's growables menu. Natural growth and bone meal used by players are unaffected. Unknown names are ignored with a warning. Hot-reloadable.")
+  private List<String> blacklistedGrowables = List.of();
+  private transient Set<Material> blacklistedGrowableMaterials = Set.of();
   @ConfigDoc(value = "Hard level cap applied to every skill line.", impact = "A skill line that passes the xp for this level is dropped back to the xp of level cap-1 and the player is granted 1 wisdom; level lookups also clamp their search cursor here.")
   public int experienceMaxLevel = 1000;
   boolean preventHunterSkillsWhenHungerApplied = true;
@@ -263,6 +272,10 @@ public class AdaptConfig {
     return settingsChanged;
   }
 
+  public boolean isGrowthBlacklisted(Material material) {
+    return material != null && blacklistedGrowableMaterials.contains(material);
+  }
+
   public boolean isWorldBlacklisted(WorldInfo world) {
     return world != null && blacklistedWorlds.contains(WorldIdentity.serialize(world));
   }
@@ -305,6 +318,30 @@ public class AdaptConfig {
     return requireActivatorBlock(material, material != null && material.isBlock());
   }
 
+  static Set<Material> growthBlacklist(List<String> names, Predicate<Material> block, Consumer<String> warn) {
+    if (names == null || names.isEmpty()) {
+      return Set.of();
+    }
+    EnumSet<Material> materials = EnumSet.noneOf(Material.class);
+    List<String> unknown = new ArrayList<>();
+    for (String name : names) {
+      Material material = name == null ? null : Material.matchMaterial(name.trim());
+      if (material == null || !block.test(material)) {
+        unknown.add(String.valueOf(name));
+        continue;
+      }
+      materials.add(material);
+    }
+    if (!unknown.isEmpty()) {
+      warn.accept("Ignoring blacklistedGrowables entries in adapt.toml that are not blocks: " + String.join(", ", unknown));
+    }
+    return Collections.unmodifiableSet(materials);
+  }
+
+  static boolean isServerBlock(Material material) {
+    return Bukkit.getServer() == null || material.isBlock();
+  }
+
   static Material requireActivatorBlock(Material material, boolean block) {
     boolean air = material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
     return material != null && block && !air ? material : Material.BOOKSHELF;
@@ -324,6 +361,8 @@ public class AdaptConfig {
     actionbarLevelDurationMillis = normalizePopupDuration(actionbarLevelDurationMillis);
     xpEarningLimits = xpEarningLimits == null ? new XpEarningLimits() : xpEarningLimits;
     xpEarningLimits.normalize();
+    blacklistedGrowables = blacklistedGrowables == null ? List.of() : blacklistedGrowables;
+    blacklistedGrowableMaterials = growthBlacklist(blacklistedGrowables, AdaptConfig::isServerBlock, Adapt::warn);
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {

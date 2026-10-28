@@ -2,9 +2,11 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
+import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
@@ -29,6 +31,7 @@ final class PreferenceGuiSupport {
   private final Adaptation<?> adaptation;
   private final UIWindow window;
   private final int row;
+  private final int adaptationPage;
   private List<PlayerPreference<?>> visiblePreferences = List.of();
   private int page;
 
@@ -36,10 +39,30 @@ final class PreferenceGuiSupport {
     this.adaptation = adaptation;
     window = placement.window();
     row = placement.row();
+    adaptationPage = placement.adaptationPage();
   }
 
-  static void populate(Adaptation<?> adaptation, UIWindow window, int row) {
-    new PreferenceGuiSupport(adaptation, new Placement(window, row)).render(false);
+  static void populate(Adaptation<?> adaptation, UIWindow window, int row, int adaptationPage) {
+    new PreferenceGuiSupport(adaptation, new Placement(window, row, adaptationPage)).render(false);
+  }
+
+  static boolean acceptsClick(Adaptation<?> adaptation, UIWindow window) {
+    Player viewer = window.getViewer();
+    return viewer.isOnline() && window.isVisible()
+        && Adapt.instance.getGuiLeftovers().get(viewer.getUniqueId().toString()) == window
+        && Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(adaptation.getSkill().getName()) == adaptation.getSkill()
+        && adaptation.isEnabled() && adaptation.getSkill().isEnabled()
+        && adaptation.getSkill().getAdaptations().contains(adaptation)
+        && adaptation.getSkill().hasUsePermission(viewer, adaptation.getSkill())
+        && adaptation.hasUsePermission(viewer, adaptation);
+  }
+
+  static void feedback(Adaptation<?> adaptation, Player viewer, Sound sound, float pitch) {
+    AdaptPlayer player = adaptation.getPlayer(viewer);
+    if (player == null || !player.getData().isEffectsEnabled() || !adaptation.areSoundsEnabled()) {
+      return;
+    }
+    SoundPlayer.of(viewer).play(viewer.getLocation(), sound, 0.3F, pitch);
   }
 
   private void render(boolean update) {
@@ -55,21 +78,22 @@ final class PreferenceGuiSupport {
     if (player == null) {
       return;
     }
-    List<PlayerPreference<?>> preferences = adaptation.getPlayerPreferences();
+    List<Entry> entries = entries();
     visiblePreferences = visiblePreferences(player);
-    boolean paged = preferences.size() > 8;
+    boolean paged = entries.size() > 8;
     int capacity = paged ? 6 : 8;
-    page = GuiLayout.clampPage(page, (preferences.size() + capacity - 1) / capacity);
+    page = GuiLayout.clampPage(page, (entries.size() + capacity - 1) / capacity);
     int start = page * capacity;
-    int count = Math.min(capacity, preferences.size() - start);
+    int count = Math.min(capacity, entries.size() - start);
     Element[] controls = new Element[GuiLayout.WIDTH];
     for (int index = 0; index < count; index++) {
-      PlayerPreference<?> preference = preferences.get(start + index);
-      if (!visiblePreferences.contains(preference)) {
-        continue;
-      }
+      Entry entry = entries.get(start + index);
       int position = paged ? index - 3 : GuiLayout.centeredPosition(index, count + 1);
-      controls[position + 4] = control(preference, player, position);
+      controls[position + 4] = switch (entry) {
+        case PreferenceEntry preference -> visiblePreferences.contains(preference.preference())
+            ? control(preference.preference(), player, position) : null;
+        case GroupEntry group -> groupVisible(group.group()) ? groupControl(group.group(), player) : null;
+      };
     }
     int resetPosition = paged ? 4 : GuiLayout.centeredPosition(count, count + 1);
     controls[resetPosition + 4] = GuiTheme.element("preference-reset", Material.MILK_BUCKET, "gui", "preferences", "reset")
@@ -81,8 +105,8 @@ final class PreferenceGuiSupport {
           "gui", "navigation", page > 0 ? "previous" : "previous-disabled")
           .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREVIOUS))
           .onLeftClick(element -> onOwner(() -> changePage(-1)));
-      controls[7] = GuiTheme.element("preference-next", start + count < preferences.size() ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
-          "gui", "navigation", start + count < preferences.size() ? "next" : "next-disabled")
+      controls[7] = GuiTheme.element("preference-next", start + count < entries.size() ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
+          "gui", "navigation", start + count < entries.size() ? "next" : "next-disabled")
           .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.NEXT))
           .onLeftClick(element -> onOwner(() -> changePage(1)));
     }
@@ -93,6 +117,41 @@ final class PreferenceGuiSupport {
         window.setElement(slot - 4, row, controls[slot]);
       }
     }
+  }
+
+  private List<Entry> entries() {
+    List<PreferenceToggleGroup> groups = adaptation.getPlayerPreferenceGroups();
+    List<PlayerPreference<?>> preferences = adaptation.getPlayerPreferences();
+    List<Entry> entries = new ArrayList<>(preferences.size());
+    List<PreferenceToggleGroup> placed = new ArrayList<>(groups.size());
+    for (PlayerPreference<?> preference : preferences) {
+      PreferenceToggleGroup group = groupOf(groups, preference);
+      if (group == null) {
+        entries.add(new PreferenceEntry(preference));
+      } else if (!placed.contains(group)) {
+        placed.add(group);
+        entries.add(new GroupEntry(group));
+      }
+    }
+    return List.copyOf(entries);
+  }
+
+  private static PreferenceToggleGroup groupOf(List<PreferenceToggleGroup> groups, PlayerPreference<?> preference) {
+    for (PreferenceToggleGroup group : groups) {
+      if (group.contains(preference)) {
+        return group;
+      }
+    }
+    return null;
+  }
+
+  private boolean groupVisible(PreferenceToggleGroup group) {
+    for (PreferenceToggleGroup.Entry entry : group.entries()) {
+      if (visiblePreferences.contains(entry.preference())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private <E extends Enum<E>> Element control(PlayerPreference<E> preference, AdaptPlayer player, int position) {
@@ -129,6 +188,34 @@ final class PreferenceGuiSupport {
         .onRightClick(clicked -> onOwner(() -> cycle(preference, position, -1)));
   }
 
+  private Element groupControl(PreferenceToggleGroup group, AdaptPlayer player) {
+    int level = adaptation.getLevel(player);
+    int enabled = 0;
+    int total = 0;
+    for (PreferenceToggleGroup.Entry entry : group.entries()) {
+      if (!visiblePreferences.contains(entry.preference())) {
+        continue;
+      }
+      total++;
+      if (!adaptation.isPlayerPreferenceBlocked(entry.preference())
+          && PlayerPreferences.resolve(adaptation, player.getData(), level, entry.preference()) == CommonPreferences.Toggle.ON) {
+        enabled++;
+      }
+    }
+    return GuiTheme.element("preference-group-" + group.id(), group.icon(),
+            "gui", "preferences", "adaptation", adaptation.getName(), group.id(), "group")
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), group.label()))
+        .addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_GROUP_ENABLED,
+            trusted("enabled", enabled), trusted("total", total)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_GROUP_OPEN))
+        .onLeftClick(clicked -> onOwner(() -> openGroup(group)))
+        .onRightClick(clicked -> onOwner(() -> openGroup(group)));
+  }
+
+  private void openGroup(PreferenceToggleGroup group) {
+    PreferenceGroupGui.open(adaptation, group, window.getViewer(), adaptationPage);
+  }
+
   private <E extends Enum<E>> void cycle(PlayerPreference<E> preference, int position, int direction) {
     AdaptPlayer player = adaptation.getPlayer(window.getViewer());
     if (player == null) {
@@ -136,7 +223,7 @@ final class PreferenceGuiSupport {
     }
     if (!adaptation.isPlayerPreferenceVisible(player, preference)) {
       render(true);
-      feedback(Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F);
+      feedback(adaptation, window.getViewer(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7F);
       return;
     }
     int level = adaptation.getLevel(player);
@@ -153,7 +240,7 @@ final class PreferenceGuiSupport {
     } else {
       window.updateElement(position, row, control(preference, player, position));
     }
-    feedback(changed ? Sound.UI_BUTTON_CLICK : Sound.BLOCK_NOTE_BLOCK_BASS, changed ? 1.2F : 0.7F);
+    feedback(adaptation, window.getViewer(), changed ? Sound.UI_BUTTON_CLICK : Sound.BLOCK_NOTE_BLOCK_BASS, changed ? 1.2F : 0.7F);
   }
 
   private List<PlayerPreference<?>> visiblePreferences(AdaptPlayer player) {
@@ -171,7 +258,7 @@ final class PreferenceGuiSupport {
     if (player != null) {
       boolean accepted = PlayerPreferences.reset(adaptation, player);
       render(true);
-      feedback(accepted ? Sound.UI_BUTTON_CLICK : Sound.BLOCK_NOTE_BLOCK_BASS, accepted ? 0.9F : 0.7F);
+      feedback(adaptation, window.getViewer(), accepted ? Sound.UI_BUTTON_CLICK : Sound.BLOCK_NOTE_BLOCK_BASS, accepted ? 0.9F : 0.7F);
     }
   }
 
@@ -180,16 +267,7 @@ final class PreferenceGuiSupport {
     page += direction;
     render(true);
     boolean changed = previousPage != page;
-    feedback(changed ? Sound.ITEM_BOOK_PAGE_TURN : Sound.BLOCK_NOTE_BLOCK_BASS, changed ? 1.1F : 0.7F);
-  }
-
-  private void feedback(Sound sound, float pitch) {
-    Player viewer = window.getViewer();
-    AdaptPlayer player = adaptation.getPlayer(viewer);
-    if (player == null || !player.getData().isEffectsEnabled() || !adaptation.areSoundsEnabled()) {
-      return;
-    }
-    SoundPlayer.of(viewer).play(viewer.getLocation(), sound, 0.3F, pitch);
+    feedback(adaptation, window.getViewer(), changed ? Sound.ITEM_BOOK_PAGE_TURN : Sound.BLOCK_NOTE_BLOCK_BASS, changed ? 1.1F : 0.7F);
   }
 
   private void onOwner(Runnable action) {
@@ -202,18 +280,21 @@ final class PreferenceGuiSupport {
       render(true);
       return;
     }
-    if (!viewer.isOnline() || !window.isVisible()
-        || Adapt.instance.getGuiLeftovers().get(viewer.getUniqueId().toString()) != window
-        || Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(adaptation.getSkill().getName()) != adaptation.getSkill()
-        || !adaptation.isEnabled() || !adaptation.getSkill().isEnabled()
-        || !adaptation.getSkill().getAdaptations().contains(adaptation)
-        || !adaptation.getSkill().hasUsePermission(viewer, adaptation.getSkill())
-        || !adaptation.hasUsePermission(viewer, adaptation)) {
+    if (!acceptsClick(adaptation, window)) {
       return;
     }
     action.run();
   }
 
-  private record Placement(UIWindow window, int row) {
+  private sealed interface Entry permits PreferenceEntry, GroupEntry {
+  }
+
+  private record PreferenceEntry(PlayerPreference<?> preference) implements Entry {
+  }
+
+  private record GroupEntry(PreferenceToggleGroup group) implements Entry {
+  }
+
+  private record Placement(UIWindow window, int row, int adaptationPage) {
   }
 }

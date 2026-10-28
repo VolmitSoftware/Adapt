@@ -60,6 +60,9 @@ public final class GuiMessages {
   public static final TextKey PREFERENCE_LEARN_FIRST = TextKey.of("gui.preferences.learn_first", "Learn this adaptation to change its settings.");
   public static final TextKey PREFERENCE_RESET = TextKey.of("gui.preferences.reset", "Reset personal settings");
   public static final TextKey PREFERENCE_RESET_DESCRIPTION = TextKey.of("gui.preferences.reset_description", "Use the server defaults for this adaptation.");
+  public static final TextKey PREFERENCE_SERVER_BLOCKED = TextKey.of("gui.preferences.server_blocked", "Unavailable on this server");
+  public static final TextKey PREFERENCE_GROUP_ENABLED = TextKey.of("gui.preferences.group_enabled", "Enabled: {enabled}/{total}");
+  public static final TextKey PREFERENCE_GROUP_OPEN = TextKey.of("gui.preferences.group_open", "Click to open");
 
   private GuiMessages() {
   }
@@ -73,6 +76,9 @@ public final class GuiMessages {
     builder.add(PREFERENCE_LEARN_FIRST);
     builder.add(PREFERENCE_RESET);
     builder.add(PREFERENCE_RESET_DESCRIPTION);
+    builder.add(PREFERENCE_SERVER_BLOCKED);
+    builder.add(PREFERENCE_GROUP_ENABLED);
+    builder.add(PREFERENCE_GROUP_OPEN);
     builder.add(FIRST);
     builder.add(PREVIOUS);
     builder.add(NEXT);

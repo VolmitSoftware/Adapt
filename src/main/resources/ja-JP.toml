@@ -6964,6 +6964,9 @@ cycle = "左クリック: 次 / 右クリック: 前"
 learn_first = "この適応を習得すると設定を変更できます。"
 reset = "個人設定をリセット"
 reset_description = "この適応にサーバーの初期設定を使用します。"
+server_blocked = "このサーバーでは使用できません"
+group_enabled = "有効: {enabled}/{total}"
+group_open = "クリックで開く"
 
 [rift.blink.setting]
 enabled = "瞬間移動"
@@ -7505,6 +7508,28 @@ tending = "手入れ"
 tilling = "耕作"
 work_area_outline = "作業範囲の輪郭"
 
+[herbalism.preferences.growable]
+bamboo = "竹"
+beetroots = "ビートルート"
+cactus = "サボテン"
+carrots = "ニンジン"
+chorus = "コーラスフラワー"
+cocoa = "カカオ豆"
+glow-berries = "グロウベリー"
+kelp = "コンブ"
+mangrove-propagules = "マングローブの胎生芽"
+melons = "スイカ"
+nether-vines = "しだれツタとねじれツタ"
+nether-wart = "ネザーウォート"
+other = "その他の成長するブロック"
+pitcher-plants = "ウツボカズラ"
+potatoes = "ジャガイモ"
+pumpkins = "カボチャ"
+sugar-cane = "サトウキビ"
+sweet-berries = "スイートベリー"
+torchflowers = "トーチフラワー"
+wheat = "小麦"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "育てる植物"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

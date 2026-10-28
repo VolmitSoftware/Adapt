@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
@@ -38,7 +39,8 @@ final class HarvestActions {
   }
 
   HarvesterRules.Plan plan(int level, NodeRecord node) {
-    HarvesterRules.Plan plan = HarvesterRules.plan(core.config(), core.crops(), level, node, NodeItemTags.shared());
+    HarvesterRules.Plan plan = HarvesterRules.plan(core.config(), core.crops(), level, node, NodeItemTags.shared(),
+        AdaptConfig.get().getBlacklistedGrowableMaterials());
     UUID owner = node.owner();
     return plan.withPractices(plan.tending() && core.tends(owner), plan.tilling() && core.tills(owner));
   }

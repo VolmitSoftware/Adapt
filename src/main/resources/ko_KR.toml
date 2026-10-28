@@ -6964,6 +6964,9 @@ cycle = "왼쪽 클릭: 다음 / 오른쪽 클릭: 이전"
 learn_first = "이 적응을 배워야 설정을 변경할 수 있습니다."
 reset = "개인 설정 초기화"
 reset_description = "이 적응에 서버 기본값을 사용합니다."
+server_blocked = "이 서버에서 사용할 수 없음"
+group_enabled = "활성화: {enabled}/{total}"
+group_open = "클릭하여 열기"
 
 [rift.blink.setting]
 enabled = "순간이동"
@@ -7505,6 +7508,28 @@ tending = "돌보기"
 tilling = "일구기"
 work_area_outline = "작업 범위 윤곽선"
 
+[herbalism.preferences.growable]
+bamboo = "대나무"
+beetroots = "비트"
+cactus = "선인장"
+carrots = "당근"
+chorus = "후렴화"
+cocoa = "코코아 콩"
+glow-berries = "발광 열매"
+kelp = "다시마"
+mangrove-propagules = "맹그로브 번식체"
+melons = "수박"
+nether-vines = "늘어진 덩굴과 뒤틀린 덩굴"
+nether-wart = "네더 사마귀"
+other = "기타 자라는 블록"
+pitcher-plants = "낭상엽"
+potatoes = "감자"
+pumpkins = "호박"
+sugar-cane = "사탕수수"
+sweet-berries = "달콤한 열매"
+torchflowers = "횃불꽃"
+wheat = "밀"
+
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"
 food-reserve = "Keep eight food points"
@@ -7524,7 +7549,7 @@ seeds-only = "Only collect planting items"
 
 [herbalism.preferences.herbalismgrowthaura]
 food-reserve = "Keep sixteen food points"
-materials = "Allowed plant materials"
+growables = "키울 식물"
 radius = "Growth radius"
 surface-only = "Only surface crops"
 

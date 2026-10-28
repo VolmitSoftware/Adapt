@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -226,7 +227,8 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     BlockData data = block.getBlockData();
-    if (!preferenceEnabled(player, CROPS) || !(data instanceof Ageable ageable)
+    if (!preferenceEnabled(player, CROPS) || AdaptConfig.get().isGrowthBlacklisted(type)
+        || !(data instanceof Ageable ageable)
         || ageable.getAge() >= ageable.getMaximumAge()
         || ThreadLocalRandom.current().nextDouble() >= getGrowChance(level)) {
       return false;

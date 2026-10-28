@@ -18,10 +18,13 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import java.util.ArrayList;
 import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -61,10 +64,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
-  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_MATERIALS);
+  public static final PreferenceToggleGroup GROWABLES = HerbalismGrowables.group("growables", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_GROWABLES, Material.WHEAT_SEEDS);
   public static final PlayerPreference<CommonPreferences.Toggle> SURFACE = CommonPreferences.toggle("surface-only", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_SURFACE, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_RADIUS);
+  private static final List<PlayerPreference<?>> PREFERENCES = preferences();
 
   private static final int PLAYER_CHECKS_PER_TICK = 32;
   private static final int LOCATION_SAMPLES_PER_TICK = 32;
@@ -111,7 +115,22 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
-    return List.of(CommonPreferences.ENABLED, MATERIALS, SURFACE, FOOD_RESERVE, RADIUS);
+    return PREFERENCES;
+  }
+
+  @Override
+  public List<PreferenceToggleGroup> getPlayerPreferenceGroups() {
+    return List.of(GROWABLES);
+  }
+
+  @Override
+  public boolean isPlayerPreferenceBlocked(PlayerPreference<?> preference) {
+    return HerbalismGrowables.blocked(preference, AdaptConfig.get()::isGrowthBlacklisted);
+  }
+
+  boolean grows(Player p, Material block) {
+    return !AdaptConfig.get().isGrowthBlacklisted(block)
+        && preferenceEnabled(p, HerbalismGrowables.of(block).preference());
   }
 
   @Override
@@ -350,7 +369,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     }
 
     Block block = mutation.location.getBlock();
-    if (!preference(p, MATERIALS).allows(block.getType())) {
+    if (!grows(p, block.getType())) {
       completeGrowthSample(mutation.pulse, 0);
       return;
     }
@@ -434,6 +453,16 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     if (queuedPlayers.add(id)) {
       playerQueue.add(id);
     }
+  }
+
+  private static List<PlayerPreference<?>> preferences() {
+    List<PlayerPreference<?>> preferences = new ArrayList<>(GROWABLES.entries().size() + 4);
+    preferences.add(CommonPreferences.ENABLED);
+    preferences.addAll(GROWABLES.preferences());
+    preferences.add(SURFACE);
+    preferences.add(FOOD_RESERVE);
+    preferences.add(RADIUS);
+    return List.copyOf(preferences);
   }
 
   static int workFor(int queued, int limit) {
