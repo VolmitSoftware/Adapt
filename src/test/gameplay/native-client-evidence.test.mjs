@@ -146,7 +146,7 @@ for (const [label, mutate] of [
   })
 }
 
-test('deployed manifest digest accepts exactly one external slot in the 330-adaptation gate', async () => {
+test('deployed manifest digest accepts exactly one external slot in the 335-adaptation gate', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'adapt-native-integration-'))
   try {
     await mkdir(join(directory, 'plugins'))
@@ -162,16 +162,16 @@ test('deployed manifest digest accepts exactly one external slot in the 330-adap
     await writeFile(reportPath, JSON.stringify(report))
     const native = await loadNativeClientEvidence(reportPath, deployedSha)
     const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
-    assert.equal(matrix.length, 330)
+    assert.equal(matrix.length, 335)
     const protocol = matrix.filter(adaptation => adaptation.name !== native.name).map(adaptation => ({
       name: adaptation.name,
       behavior: { status: 'passed', assertions: ['Unit fixture behavior evidence'] },
       sound: { status: 'passed', assertions: ['Unit fixture sound evidence'] },
       particles: { status: 'passed', assertions: ['Unit fixture particle evidence'] },
     }))
-    assert.equal(protocol.length, 329)
+    assert.equal(protocol.length, 334)
     assert.throws(() => assertAdaptationEvidence(matrix, protocol), /kinetics-rubber-soul: missing behavior evidence/)
-    assert.equal(assertAdaptationEvidence(matrix, [...protocol, native]).behaviorPassed, 330)
+    assert.equal(assertAdaptationEvidence(matrix, [...protocol, native]).behaviorPassed, 335)
     assert.throws(() => assertAdaptationEvidence(matrix, [...protocol, native, native]), /kinetics-rubber-soul: duplicate evidence/)
     assert.throws(() => assertAdaptationEvidence(matrix, [...protocol.slice(1), native]), new RegExp(protocol[0].name + ': missing behavior evidence'))
     assert.equal(native.provenance.reportPath, reportPath)

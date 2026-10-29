@@ -477,15 +477,29 @@ tasks.register('xpIntegrityFixtureJar', com.github.jengelman.gradle.plugins.shad
     archiveFileName = 'AdaptXpIntegrityFixture.jar'
 }
 
+tasks.register('claimsFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Paper and Folia Claims gameplay fixture.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output) {
+        exclude('plugin.yml')
+    }
+    from('src/test/gameplay/fixture-claims')
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptClaimsFixture.jar'
+}
+
 tasks.register('prepareGameplay', Sync) {
     group = 'verification'
     description = 'Stages the current runtime and isolated gameplay fixture under build/gameplay/plugins.'
-    dependsOn(shadowJarTask, tasks.named('gameplayFixtureJar'))
+    dependsOn(shadowJarTask, tasks.named('gameplayFixtureJar'), tasks.named('claimsFixtureJar'))
     into(layout.buildDirectory.dir('gameplay/plugins'))
     from(shadowJarTask.flatMap { it.archiveFile }) {
         rename { 'Adapt.jar' }
     }
     from(tasks.named('gameplayFixtureJar').flatMap { it.archiveFile })
+    from(tasks.named('claimsFixtureJar').flatMap { it.archiveFile })
 }
 
 tasks.named('check').configure {

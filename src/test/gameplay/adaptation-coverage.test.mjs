@@ -34,6 +34,7 @@ import { integrationBehaviorCases } from './adaptation-integration-actions.mjs'
 import { craftingBehaviorCases } from './adaptation-crafting-actions.mjs'
 import { golemancyBehaviorCases } from './adaptation-golemancy-actions.mjs'
 import { decodeSoundPacket } from './feedback.mjs'
+import { claimsAdaptationIds, claimsAdaptationEvidence, runClaimsSuite } from './claims.mjs'
 
 const root = new URL('../../../', import.meta.url)
 const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8'))
@@ -76,7 +77,22 @@ test('activation cases name actual catalog adaptations and never override anothe
       owners.set(name, group)
     }
   }
-  assert.deepEqual([...owners.keys()].sort(), [...known].sort(), 'Every catalog adaptation must have a real activation case')
+  assert.equal(typeof runClaimsSuite, 'function', 'Claims requires its dedicated executable survival suite')
+  assert.deepEqual([...claimsAdaptationIds].sort(), matrix.adaptations.filter(entry => entry.skill === 'claims').map(entry => entry.name).sort())
+  for (const name of claimsAdaptationIds) {
+    assert.ok(!owners.has(name), `${name} must have only one gameplay suite owner`)
+    owners.set(name, 'claims survival suite')
+  }
+  assert.deepEqual([...owners.keys()].sort(), [...known].sort(), 'Every catalog adaptation must have a real activation case or dedicated gameplay suite')
+})
+
+test('Claims dedicated coverage rejects partial, duplicate and assertion-free evidence', () => {
+  const adaptations = claimsAdaptationIds.map(name => ({ name, behavior: { status: 'passed', assertions: ['Observed real survival behavior.'] } }))
+  assert.deepEqual(claimsAdaptationEvidence({ completed: true, adaptations }), adaptations)
+  assert.throws(() => claimsAdaptationEvidence({ adaptations }), /completed/)
+  assert.throws(() => claimsAdaptationEvidence({ completed: true, adaptations: adaptations.slice(1) }), /completed/)
+  assert.throws(() => claimsAdaptationEvidence({ completed: true, adaptations: [...adaptations.slice(1), adaptations[1]] }), /completed/)
+  assert.throws(() => claimsAdaptationEvidence({ completed: true, adaptations: adaptations.map(entry => ({ ...entry, behavior: { status: 'passed', assertions: [] } })) }), /assertions/)
 })
 
 test('activation cases learn every adaptation their source requires before the trigger', async () => {

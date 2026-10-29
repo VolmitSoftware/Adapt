@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.content.skill.SkillClaims;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
@@ -157,7 +158,11 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
     for (int index = 0; index < types.length; index++) {
       arguments[index] = mock(types[index]);
     }
-    return (SimpleAdaptation<?>) constructor.newInstance(arguments);
+    SimpleAdaptation<?> adaptation = (SimpleAdaptation<?>) constructor.newInstance(arguments);
+    if (adaptation.getName().startsWith("claims-")) {
+      adaptation.setSkill(new SkillClaims());
+    }
+    return adaptation;
   }
 
   static List<String> adaptationClasses() throws IOException {
@@ -167,7 +172,7 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
           .map(path -> SOURCE_ROOT.relativize(path).toString().replace('/', '.').replace(".java", ""))
           .sorted()
           .toList();
-      assertThat(classes).hasSize(330);
+      assertThat(classes).hasSize(335);
       return classes;
     }
   }

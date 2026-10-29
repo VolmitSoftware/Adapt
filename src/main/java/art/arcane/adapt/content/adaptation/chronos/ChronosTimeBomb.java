@@ -36,6 +36,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -601,20 +602,26 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     player.setGravity((flags & 4) != 0);
     if ((flags & 1) != 0) {
       player.setAllowFlight(true);
-      player.setFlying((flags & 2) != 0);
+      player.setFlying((flags & 2) != 0 && ClaimsService.permitsTeleport(player, player.getLocation()));
       return;
     }
     player.setFlying(false);
     player.setAllowFlight(false);
   }
 
-  private void maintainFrozenPlayer(Player player) {
+  void maintainFrozenPlayer(Player player) {
+    boolean flightAllowed = ClaimsService.permitsTeleport(player, player.getLocation());
+    if (!flightAllowed) {
+      player.setFlying(false);
+    }
     if (!getConfig().freezePlayersInAir || player.isOnGround()) {
       return;
     }
     player.setFallDistance(0);
-    player.setAllowFlight(true);
-    player.setFlying(true);
+    if (flightAllowed) {
+      player.setAllowFlight(true);
+      player.setFlying(true);
+    }
     player.setGravity(false);
     player.setVelocity(new Vector());
   }

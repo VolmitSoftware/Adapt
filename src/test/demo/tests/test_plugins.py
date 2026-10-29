@@ -57,7 +57,7 @@ class SheetPluginsTest(unittest.TestCase):
         session: mock.MagicMock = mock.MagicMock()
         session.stop.return_value = []
         args: argparse.Namespace = argparse.Namespace(skill='discovery', skip_build=True, lane=1,
-            only='insight', failed=False, export_only=False, record_only=True, ffmpeg='/tmp/ffmpeg')
+            only='insight', failed=False, export_only=False, record_only=True, accept=False, discard=False, ffmpeg='/tmp/ffmpeg')
         with tempfile.TemporaryDirectory() as folder, mock.patch('sys.stdout', new_callable=io.StringIO), \
                 mock.patch.object(demo.choreography, 'load_skill', return_value=choreography.Sheet(choreography.OVERWORLD, entries)), \
                 mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'insight'}), \

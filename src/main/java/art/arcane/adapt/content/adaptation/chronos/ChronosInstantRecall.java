@@ -36,6 +36,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
@@ -998,7 +999,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     int animationTicks = getRewindAnimationTicks();
     List<Snapshot> path = buildRewindPath(p, rewindMillis, anchor);
     List<Snapshot> animationPath = buildAnimationPath(path, animationTicks);
-    if (animationPath.isEmpty()) {
+    if (animationPath.isEmpty() || !recallPathAllowed(p, animationPath)) {
       if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(p);
       }
@@ -1099,6 +1100,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       int index = Math.min(animationPath.size() - 1, step[0]);
       Snapshot snapshot = animationPath.get(index);
       Location destination = toLocation(snapshot, p.getWorld());
+      if (!continueRecall(p, operationId, destination)) {
+        return;
+      }
 
       if (getConfig().showRewindTraceParticles && lastLoc[0].getWorld() != null && lastLoc[0].getWorld().equals(destination.getWorld())) {
         Location traceFrom = lastLoc[0].clone().add(0, 1, 0);
@@ -1132,6 +1136,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       }
 
       if (!temporarySpectator || step[0] >= animationPath.size() - 1) {
+        if (!continueRecall(p, operationId, destination)) {
+          return;
+        }
         applySnapshotState(p, snapshot);
       }
 
@@ -1170,7 +1177,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
 
   private void beginFinalRecallTeleport(Player p, FinalRecall recall) {
     Location destination = toLocation(recall.snapshot(), p.getWorld());
-    if (destination.getWorld() == null) {
+    if (destination.getWorld() == null || !continueRecall(p, recall.operationId(), destination)) {
       abortFinalRecall(recall);
       return;
     }
@@ -1219,6 +1226,10 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       )) {
         return;
       }
+      if (!ClaimsService.permitsTeleport(p, p.getLocation())
+          || !ClaimsService.permitsTeleport(p, toLocation(recall.snapshot(), p.getWorld()))) {
+        return;
+      }
       AdaptPlayer adaptPlayer = getPlayer(p);
       if (adaptPlayer == null) {
         return;
@@ -1235,6 +1246,31 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     if (rewinding.remove(recall.playerId(), recall.operationId())) {
       finishRewindVisualState(recall.playerId());
     }
+  }
+
+  boolean recallPathAllowed(Player player, List<Snapshot> path) {
+    if (!ClaimsService.permitsTeleport(player, player.getLocation())) {
+      return false;
+    }
+    World world = player.getWorld();
+    for (Snapshot snapshot : path) {
+      if (!ClaimsService.permitsTeleport(player, toLocation(snapshot, world))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  boolean continueRecall(Player player, UUID operationId, Location destination) {
+    if (ClaimsService.permitsTeleport(player, player.getLocation())
+        && ClaimsService.permitsTeleport(player, destination)) {
+      return true;
+    }
+    UUID playerId = player.getUniqueId();
+    if (rewinding.remove(playerId, operationId)) {
+      finishRewindVisualState(playerId);
+    }
+    return false;
   }
 
   private void completeSuccessfulRecall(Player p, FinalRecall recall, AdaptPlayer adaptPlayer) {
@@ -1383,7 +1419,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
     player.setGameMode(gameMode);
     player.setAllowFlight(allowFlight);
-    player.setFlying(allowFlight && flying);
+    player.setFlying(allowFlight && flying && ClaimsService.permitsTeleport(player, player.getLocation()));
     return true;
   }
 

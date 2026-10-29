@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.claims.ClaimsService;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+
 import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -144,11 +147,15 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
             continue;
           }
           BlockBreakEvent ee = new BlockBreakEvent(i, p);
-          Bukkit.getPluginManager().callEvent(ee);
+          ProtectionEventProbe.dispatch(ee);
 
           if (!ee.isCancelled()) {
             dmg += 1;
+            Material expected = i.getType();
             J.runAt(i.getLocation(), () -> {
+              if (i.getType() != expected || !ClaimsService.permitsEdit(p.getUniqueId(), i.getLocation())) {
+                return;
+              }
               i.breakNaturally();
               sfx(i.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.4F, (float) (ThreadLocalRandom.current().nextDouble() * 1.85D));
             }, RNG.r.i(0, Math.max(1, (getMaxLevel() - lvl * 2) + 1)));

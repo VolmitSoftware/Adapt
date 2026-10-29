@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.claims.ClaimsService;
+
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.format.Form;
@@ -165,6 +167,9 @@ public final class PaperCompat {
   }
 
   public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location destination) {
+    if (entity instanceof Player player && !ClaimsService.permitsTeleport(player, destination)) {
+      return CompletableFuture.completedFuture(false);
+    }
     if (teleportAsyncSupported) {
       try {
         return entity.teleportAsync(destination);
@@ -177,6 +182,9 @@ public final class PaperCompat {
   }
 
   public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location destination, PlayerTeleportEvent.TeleportCause cause) {
+    if (entity instanceof Player player && !ClaimsService.permitsTeleport(player, destination)) {
+      return CompletableFuture.completedFuture(false);
+    }
     if (teleportAsyncCauseSupported) {
       try {
         return entity.teleportAsync(destination, cause);

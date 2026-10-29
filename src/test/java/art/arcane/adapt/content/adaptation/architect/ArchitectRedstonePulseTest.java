@@ -109,6 +109,6 @@ class ArchitectRedstonePulseTest {
   }
 
   private static ArchitectRedstonePulse.Snapshot snapshot(int x, int y, int z) {
-    return new ArchitectRedstonePulse.Snapshot(x, y, z, null, null);
+    return new ArchitectRedstonePulse.Snapshot(x, y, z, null, null, UUID.randomUUID());
   }
 }

@@ -846,7 +846,18 @@ public class PlayerData {
       return;
     }
 
-    AdaptationRequirements.forfeitLevels(trimToPowerBudget(), this, ownerName());
+    List<AdaptationRequirements.Lowering> lowered = trimToPowerBudget();
+    AdaptationRequirements.forfeitLevels(lowered, this, ownerName());
+    AdaptPlayer owner = runtimeOwner;
+    Player player = owner == null ? null : owner.getPlayer();
+    if (player == null) {
+      return;
+    }
+    for (AdaptationRequirements.Lowering lowering : lowered) {
+      Adaptation<?> adaptation = lowering.adaptation();
+      PlayerSkillLine line = getSkillLineNullable(adaptation.getSkill().getName());
+      adaptation.onLevelChanged(player, line == null ? 0 : line.getAdaptationLevel(adaptation.getName()));
+    }
   }
 
   private List<AdaptationRequirements.Lowering> trimToPowerBudget() {

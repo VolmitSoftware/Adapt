@@ -6,6 +6,7 @@ import art.arcane.adapt.gameplay.demo.sets.AxesSets;
 import art.arcane.adapt.gameplay.demo.sets.BlockingSets;
 import art.arcane.adapt.gameplay.demo.sets.BrewingSets;
 import art.arcane.adapt.gameplay.demo.sets.ChronosSets;
+import art.arcane.adapt.gameplay.demo.sets.ClaimsSets;
 import art.arcane.adapt.gameplay.demo.sets.CraftingSets;
 import art.arcane.adapt.gameplay.demo.sets.DiscoverySets;
 import art.arcane.adapt.gameplay.demo.sets.EnchantingSets;
@@ -39,6 +40,7 @@ public final class DemoSets {
             new BlockingSets(),
             new BrewingSets(),
             new ChronosSets(),
+            new ClaimsSets(),
             new CraftingSets(),
             new DiscoverySets(),
             new EnchantingSets(),

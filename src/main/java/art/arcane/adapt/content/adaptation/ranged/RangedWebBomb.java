@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.ranged;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.Action;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
@@ -78,7 +79,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
-  private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "ranged-web-bomb");
+  private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "ranged-web-bomb-owned");
   private static final int MAX_JOURNALED_WEBS_PER_CHUNK = 4096;
   private static final int MAX_RECOVERY_CHUNKS_PER_TICK = 32;
   private final Map<UUID, UUID> activeSnowballs;
@@ -263,12 +264,12 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
           || !block.getType().isAir()) {
         return;
       }
-      if (!journalWeb(block, expiresAt)) {
+      if (!journalWeb(block, expiresAt, player.getUniqueId())) {
         return;
       }
       block.setType(Material.COBWEB, false);
       WebKey key = webKey(block);
-      activeBlocks.put(key, new ActiveWeb(block, expiresAt));
+      activeBlocks.put(key, new ActiveWeb(block, expiresAt, player.getUniqueId()));
       scheduleWebRemoval(block, expiresAt);
       if (hitEntity && trapCredited.compareAndSet(false, true)
           && !J.runEntity(player, () -> addStat(player, "ranged.web-bomb.mobs-trapped", 1))) {
@@ -301,6 +302,14 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       return;
     }
 
+    UUID owner = current == null ? journalOwner(block) : current.owner();
+    if (block.getType() == Material.COBWEB && !ClaimsService.permitsEdit(owner, block.getLocation())) {
+      if (isRuntimeRegistered()) {
+        J.runAt(block.getLocation(), () -> removeFoundation(block, expiresAt), 100);
+      }
+      return;
+    }
+
     if (current != null) {
       activeBlocks.remove(key, current);
     }
@@ -310,13 +319,13 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     unjournalWeb(block, expiresAt);
   }
 
-  private boolean journalWeb(Block block, long expiresAt) {
+  private boolean journalWeb(Block block, long expiresAt, UUID owner) {
     Chunk chunk = block.getChunk();
     PersistentDataContainer data = chunk.getPersistentDataContainer();
     long encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15,
         block.getWorld().getMinHeight());
     long[] journal = data.get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
-    long[] updated = upsertJournalEntry(journal, encoded, expiresAt, MAX_JOURNALED_WEBS_PER_CHUNK);
+    long[] updated = upsertJournalEntry(journal, new WebJournalEntry(encoded, expiresAt, owner), MAX_JOURNALED_WEBS_PER_CHUNK);
     if (updated == null) {
       return false;
     }
@@ -356,6 +365,13 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     long encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15,
         block.getWorld().getMinHeight());
     return journalExpiry(journal, encoded);
+  }
+
+  private UUID journalOwner(Block block) {
+    long[] journal = block.getChunk().getPersistentDataContainer().get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
+    long encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15,
+        block.getWorld().getMinHeight());
+    return journalOwner(journal, encoded);
   }
 
   private WebKey webKey(Block block) {
@@ -423,18 +439,20 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     Chunk chunk = world.getChunkAt(recovery.chunkX(), recovery.chunkZ());
     PersistentDataContainer data = chunk.getPersistentDataContainer();
     long[] journal = data.get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
-    if (journal == null || journal.length < 2) {
+    if (journal == null || journal.length == 0) {
       data.remove(JOURNAL_KEY);
       return;
     }
 
-    int pairCount = journal.length / 2;
+    validateJournal(journal);
+    int entryCount = journal.length / 4;
     long[] retained = new long[journal.length];
     int retainedLength = 0;
     long now = System.currentTimeMillis();
-    for (int index = 0; index < pairCount; index++) {
-      long encoded = journal[index * 2];
-      long expiresAt = journal[(index * 2) + 1];
+    for (int index = 0; index < entryCount; index++) {
+      long encoded = journal[index * 4];
+      long expiresAt = journal[(index * 4) + 1];
+      UUID owner = new UUID(journal[(index * 4) + 2], journal[(index * 4) + 3]);
       int y = decodeY(encoded, world.getMinHeight());
       if (y < world.getMinHeight() || y >= world.getMaxHeight()) {
         continue;
@@ -445,15 +463,21 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         activeBlocks.remove(webKey(block));
         continue;
       }
-      if (expiresAt <= now) {
+      if (expiresAt <= now && ClaimsService.permitsEdit(owner, block.getLocation())) {
         activeBlocks.remove(webKey(block));
         block.setType(Material.AIR, false);
         continue;
       }
       retained[retainedLength++] = encoded;
       retained[retainedLength++] = expiresAt;
-      activeBlocks.put(webKey(block), new ActiveWeb(block, expiresAt));
-      scheduleWebRemoval(block, expiresAt);
+      retained[retainedLength++] = owner.getMostSignificantBits();
+      retained[retainedLength++] = owner.getLeastSignificantBits();
+      activeBlocks.put(webKey(block), new ActiveWeb(block, expiresAt, owner));
+      if (expiresAt <= now) {
+        J.runAt(block.getLocation(), () -> removeFoundation(block, expiresAt), 100);
+      } else {
+        scheduleWebRemoval(block, expiresAt);
+      }
     }
     if (retainedLength == 0) {
       data.remove(JOURNAL_KEY);
@@ -491,9 +515,26 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   //prevent block from being destroyed // Dupe fix
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
-    if (isActiveWeb(e.getBlock())) {
+    if (isActiveWeb(e.getBlock()) && !ClaimsService.isClaimed(e.getBlock().getLocation())) {
       e.setCancelled(true);
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onConfirmedBreak(BlockBreakEvent event) {
+    Block block = event.getBlock();
+    if (ProtectionEventProbe.isActive(event) || !isActiveWeb(block)) {
+      return;
+    }
+    Long expiry = journalExpiry(block, block.getChunk().getPersistentDataContainer());
+    J.runAt(block.getLocation(), () -> {
+      if (!event.isCancelled()) {
+        activeBlocks.remove(webKey(block));
+        if (expiry != null) {
+          unjournalWeb(block, expiry);
+        }
+      }
+    }, 1);
   }
 
   //prevent Entities from destroying blocks // Dupe fix
@@ -538,50 +579,75 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     return minHeight + (int) (encoded >>> 8);
   }
 
-  static long[] upsertJournalEntry(long[] journal, long encoded, long expiresAt, int maxEntries) {
-    long[] normalized = journal == null ? new long[0] : Arrays.copyOf(journal, journal.length & ~1);
-    for (int index = 0; index < normalized.length; index += 2) {
-      if (normalized[index] == encoded) {
-        normalized[index + 1] = expiresAt;
+  static long[] upsertJournalEntry(long[] journal, WebJournalEntry entry, int maxEntries) {
+    validateJournal(journal);
+    long[] normalized = journal == null ? new long[0] : journal.clone();
+    for (int index = 0; index < normalized.length; index += 4) {
+      if (normalized[index] == entry.position()) {
+        normalized[index + 1] = entry.expiresAt();
+        normalized[index + 2] = entry.owner().getMostSignificantBits();
+        normalized[index + 3] = entry.owner().getLeastSignificantBits();
         return normalized;
       }
     }
-    if (normalized.length / 2 >= maxEntries) {
+    if (normalized.length / 4 >= maxEntries) {
       return null;
     }
-    long[] expanded = Arrays.copyOf(normalized, normalized.length + 2);
-    expanded[normalized.length] = encoded;
-    expanded[normalized.length + 1] = expiresAt;
+    long[] expanded = Arrays.copyOf(normalized, normalized.length + 4);
+    expanded[normalized.length] = entry.position();
+    expanded[normalized.length + 1] = entry.expiresAt();
+    expanded[normalized.length + 2] = entry.owner().getMostSignificantBits();
+    expanded[normalized.length + 3] = entry.owner().getLeastSignificantBits();
     return expanded;
   }
 
   static long[] removeJournalEntry(long[] journal, long encoded, long expiresAt) {
-    if (journal == null || journal.length < 2) {
+    if (journal == null || journal.length == 0) {
       return new long[0];
     }
-    int normalizedLength = journal.length & ~1;
-    for (int index = 0; index < normalizedLength; index += 2) {
+    validateJournal(journal);
+    for (int index = 0; index < journal.length; index += 4) {
       if (journal[index] != encoded || journal[index + 1] != expiresAt) {
         continue;
       }
-      long[] compacted = new long[normalizedLength - 2];
+      long[] compacted = new long[journal.length - 4];
       System.arraycopy(journal, 0, compacted, 0, index);
-      System.arraycopy(journal, index + 2, compacted, index, normalizedLength - index - 2);
+      System.arraycopy(journal, index + 4, compacted, index, journal.length - index - 4);
       return compacted;
     }
-    return Arrays.copyOf(journal, normalizedLength);
+    return journal.clone();
   }
 
   static Long journalExpiry(long[] journal, long encoded) {
     if (journal == null) {
       return null;
     }
-    for (int index = 0; index + 1 < journal.length; index += 2) {
+    validateJournal(journal);
+    for (int index = 0; index < journal.length; index += 4) {
       if (journal[index] == encoded) {
         return journal[index + 1];
       }
     }
     return null;
+  }
+
+  static UUID journalOwner(long[] journal, long encoded) {
+    if (journal == null) {
+      return null;
+    }
+    validateJournal(journal);
+    for (int index = 0; index < journal.length; index += 4) {
+      if (journal[index] == encoded) {
+        return new UUID(journal[index + 2], journal[index + 3]);
+      }
+    }
+    return null;
+  }
+
+  private static void validateJournal(long[] journal) {
+    if (journal != null && (journal.length % 4 != 0 || journal.length / 4 > MAX_JOURNALED_WEBS_PER_CHUNK)) {
+      throw new IllegalStateException("Invalid web ownership journal");
+    }
   }
 
   static void protectActiveWebs(List<Block> blocks, Predicate<Block> activeWeb) {
@@ -603,7 +669,10 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   private record WebKey(UUID worldId, int x, int y, int z) {
   }
 
-  private record ActiveWeb(Block block, long expiresAt) {
+  private record ActiveWeb(Block block, long expiresAt, UUID owner) {
+  }
+
+  record WebJournalEntry(long position, long expiresAt, UUID owner) {
   }
 
   private record ChunkRecovery(World world, int chunkX, int chunkZ) {

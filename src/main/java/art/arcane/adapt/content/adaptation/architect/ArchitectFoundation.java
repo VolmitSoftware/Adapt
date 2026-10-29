@@ -26,6 +26,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -86,7 +87,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   public static final PlayerPreference<CommonPreferences.Toggle> EMPTY_HAND = CommonPreferences.toggle("empty-hand", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_EMPTY_HAND, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Scale> DURATION = CommonPreferences.scale("duration", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_DURATION);
 
-  private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "architect-foundation");
+  private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "architect-foundation-owned");
   private static final int MAX_JOURNALED_BLOCKS_PER_CHUNK = 4096;
   private static final int MAX_RECOVERY_CHUNKS_PER_TICK = 32;
   private final Map<UUID, Integer> blockPower;
@@ -262,9 +263,23 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   // prevent block from being destroyed // Dupe fix
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
-    if (activeBlocks.contains(e.getBlock())) {
+    if (activeBlocks.contains(e.getBlock()) && !ClaimsService.isClaimed(e.getBlock().getLocation())) {
       e.setCancelled(true);
     }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void onConfirmedBreak(BlockBreakEvent event) {
+    Block block = event.getBlock();
+    if (ProtectionEventProbe.isActive(event) || !activeBlocks.contains(block)) {
+      return;
+    }
+    J.runAt(block.getLocation(), () -> {
+      if (!event.isCancelled()) {
+        activeBlocks.remove(block);
+        unjournalFoundation(block);
+      }
+    }, 1);
   }
 
   // prevent Entities from destroying blocks // Dupe fix
@@ -326,7 +341,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     if (!FoliaScheduler.isOwnedByCurrentRegion(location)
         || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player))
         || !block.getType().isAir()
-        || !journalFoundation(block)) {
+        || !journalFoundation(block, player.getUniqueId())) {
       return false;
     }
     boolean cleanupScheduled = false;
@@ -353,14 +368,26 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   }
 
   private void removeFoundation(Block block, boolean renderEffects) {
-    activeBlocks.remove(block);
     World world = block.getWorld();
     int chunkX = block.getX() >> 4;
     int chunkZ = block.getZ() >> 4;
     if (!world.isChunkLoaded(chunkX, chunkZ)) {
+      activeBlocks.remove(block);
+      return;
+    }
+    UUID owner = foundationOwner(block);
+    if (owner == null) {
+      activeBlocks.remove(block);
       return;
     }
     boolean removed = block.getType() == Material.TINTED_GLASS;
+    if (removed && !ClaimsService.permitsEdit(owner, block.getLocation())) {
+      if (isRuntimeRegistered()) {
+        J.runAt(block.getLocation(), () -> removeFoundation(block, renderEffects), 100);
+      }
+      return;
+    }
+    activeBlocks.remove(block);
     if (removed) {
       block.setType(Material.AIR, false);
     }
@@ -421,40 +448,48 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
   }
 
-  private boolean journalFoundation(Block block) {
+  private boolean journalFoundation(Block block, UUID owner) {
     Chunk chunk = block.getChunk();
     PersistentDataContainer data = chunk.getPersistentDataContainer();
     int encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15, block.getWorld().getMinHeight());
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
+    long[] journal = data.get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
     if (journal == null) {
-      data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, new int[]{encoded});
+      data.set(JOURNAL_KEY, PersistentDataType.LONG_ARRAY,
+          new long[]{encoded, owner.getMostSignificantBits(), owner.getLeastSignificantBits()});
       return true;
     }
-    for (int existing : journal) {
-      if (existing == encoded) {
+    validateJournal(journal);
+    for (int index = 0; index < journal.length; index += 3) {
+      if (journal[index] == encoded) {
+        journal[index + 1] = owner.getMostSignificantBits();
+        journal[index + 2] = owner.getLeastSignificantBits();
+        data.set(JOURNAL_KEY, PersistentDataType.LONG_ARRAY, journal);
         return true;
       }
     }
-    if (journal.length >= MAX_JOURNALED_BLOCKS_PER_CHUNK) {
+    if (journal.length / 3 >= MAX_JOURNALED_BLOCKS_PER_CHUNK) {
       return false;
     }
-    int[] expanded = Arrays.copyOf(journal, journal.length + 1);
+    long[] expanded = Arrays.copyOf(journal, journal.length + 3);
     expanded[journal.length] = encoded;
-    data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, expanded);
+    expanded[journal.length + 1] = owner.getMostSignificantBits();
+    expanded[journal.length + 2] = owner.getLeastSignificantBits();
+    data.set(JOURNAL_KEY, PersistentDataType.LONG_ARRAY, expanded);
     return true;
   }
 
   private void unjournalFoundation(Block block) {
     Chunk chunk = block.getChunk();
     PersistentDataContainer data = chunk.getPersistentDataContainer();
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
+    long[] journal = data.get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
     if (journal == null || journal.length == 0) {
       return;
     }
 
     int encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15, block.getWorld().getMinHeight());
     int found = -1;
-    for (int index = 0; index < journal.length; index++) {
+    validateJournal(journal);
+    for (int index = 0; index < journal.length; index += 3) {
       if (journal[index] == encoded) {
         found = index;
         break;
@@ -463,15 +498,36 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     if (found < 0) {
       return;
     }
-    if (journal.length == 1) {
+    if (journal.length == 3) {
       data.remove(JOURNAL_KEY);
       return;
     }
 
-    int[] compacted = new int[journal.length - 1];
+    long[] compacted = new long[journal.length - 3];
     System.arraycopy(journal, 0, compacted, 0, found);
-    System.arraycopy(journal, found + 1, compacted, found, journal.length - found - 1);
-    data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, compacted);
+    System.arraycopy(journal, found + 3, compacted, found, journal.length - found - 3);
+    data.set(JOURNAL_KEY, PersistentDataType.LONG_ARRAY, compacted);
+  }
+
+  private UUID foundationOwner(Block block) {
+    long[] journal = block.getChunk().getPersistentDataContainer().get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
+    if (journal == null) {
+      return null;
+    }
+    validateJournal(journal);
+    int encoded = encodeBlock(block.getX() & 15, block.getY(), block.getZ() & 15, block.getWorld().getMinHeight());
+    for (int index = 0; index < journal.length; index += 3) {
+      if (journal[index] == encoded) {
+        return new UUID(journal[index + 1], journal[index + 2]);
+      }
+    }
+    return null;
+  }
+
+  private static void validateJournal(long[] journal) {
+    if (journal.length % 3 != 0 || journal.length / 3 > MAX_JOURNALED_BLOCKS_PER_CHUNK) {
+      throw new IllegalStateException("Invalid foundation ownership journal");
+    }
   }
 
   private void queueLoadedChunkRecovery() {
@@ -534,14 +590,16 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
     Chunk chunk = world.getChunkAt(recovery.chunkX(), recovery.chunkZ());
     PersistentDataContainer data = chunk.getPersistentDataContainer();
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
+    long[] journal = data.get(JOURNAL_KEY, PersistentDataType.LONG_ARRAY);
     if (journal == null || journal.length == 0) {
       return;
     }
 
-    int limit = Math.min(journal.length, MAX_JOURNALED_BLOCKS_PER_CHUNK);
-    for (int index = 0; index < limit; index++) {
-      int encoded = journal[index];
+    validateJournal(journal);
+    long[] retained = new long[journal.length];
+    int retainedLength = 0;
+    for (int index = 0; index < journal.length; index += 3) {
+      int encoded = Math.toIntExact(journal[index]);
       int y = decodeY(encoded, world.getMinHeight());
       if (y < world.getMinHeight() || y >= world.getMaxHeight()) {
         continue;
@@ -550,12 +608,20 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
           (recovery.chunkZ() << 4) + decodeZ(encoded));
       activeBlocks.remove(block);
       if (block.getType() == Material.TINTED_GLASS) {
+        UUID owner = new UUID(journal[index + 1], journal[index + 2]);
+        if (!ClaimsService.permitsEdit(owner, block.getLocation())) {
+          retained[retainedLength++] = encoded;
+          retained[retainedLength++] = owner.getMostSignificantBits();
+          retained[retainedLength++] = owner.getLeastSignificantBits();
+          activeBlocks.add(block);
+          J.runAt(block.getLocation(), () -> removeFoundation(block), 100);
+          continue;
+        }
         block.setType(Material.AIR, false);
       }
     }
-    if (journal.length > limit) {
-      data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, Arrays.copyOfRange(journal, limit, journal.length));
-      queueChunkRecovery(world, recovery.chunkX(), recovery.chunkZ());
+    if (retainedLength > 0) {
+      data.set(JOURNAL_KEY, PersistentDataType.LONG_ARRAY, Arrays.copyOf(retained, retainedLength));
     } else {
       data.remove(JOURNAL_KEY);
     }

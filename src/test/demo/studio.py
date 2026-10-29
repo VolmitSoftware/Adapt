@@ -56,6 +56,7 @@ ADAPT_JAR: str = 'Adapt.jar'
 FIXTURE_JAR: str = 'AdaptGameplayFixture.jar'
 NOTIFY_KEYS: tuple[str, ...] = ('actionbarNotifyXp', 'actionbarNotifyLevel', 'actionbarNotifyMasterLevel')
 DISCOVERY_SKILL: str = 'discovery'
+CLAIMS_SKILL: str = 'claims'
 SKILL_SWITCH: str = 'enabled'
 TOML_TABLE: re.Pattern[str] = re.compile(r'^\[', re.MULTILINE)
 RCON_TIMEOUT: float = 180.0
@@ -204,13 +205,13 @@ def warm_command(skill: str) -> str | None:
     return 'adaptqa demo warm' if skill in WARM_SKILLS else None
 
 
-def switch_off(config: Path, keys: tuple[str, ...]) -> None:
+def switch_boolean(config: Path, keys: tuple[str, ...], enabled: bool) -> None:
     text: str = config.read_text(encoding='utf-8')
     table: re.Match[str] | None = TOML_TABLE.search(text)
     split: int = len(text) if table is None else table.start()
     head: str = text[:split]
     for key in keys:
-        head, count = re.subn(r'^' + re.escape(key) + r'\s*=.*$', key + ' = false', head, count=1, flags=re.MULTILINE)
+        head, count = re.subn(r'^' + re.escape(key) + r'\s*=.*$', key + ' = ' + str(enabled).lower(), head, count=1, flags=re.MULTILINE)
         if count != 1:
             raise RuntimeError(key + ' missing from ' + str(config))
     config.write_text(head + text[split:], encoding='utf-8')
@@ -711,9 +712,11 @@ class Studio:
         adapt: Path = self.server / 'plugins' / 'Adapt'
         cache: Path | None = models_cache(self.jars / ADAPT_JAR)
         self.models_restored = cache is not None and restore_models(adapt, cache)
-        switch_off(adapt / 'adapt.toml', NOTIFY_KEYS)
+        switch_boolean(adapt / 'adapt.toml', NOTIFY_KEYS, False)
         if skill != DISCOVERY_SKILL and 'Gloss' not in self.required_plugins:
-            switch_off(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,))
+            switch_boolean(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,), False)
+        if skill == CLAIMS_SKILL:
+            switch_boolean(adapt / 'skills' / (CLAIMS_SKILL + '.toml'), (SKILL_SWITCH,), True)
         self.start_runtime()
         clientqa.wait_server(self.server)
 

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.claims.ClaimsService;
+
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -475,7 +477,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     Block targetBlock = binding.target().getBlock();
-    List<ArchitectRedstonePulse.Snapshot> snapshots = planPulse(targetBlock, binding.face());
+    List<ArchitectRedstonePulse.Snapshot> snapshots = planPulse(targetBlock, binding.face(), player.getUniqueId());
     if (snapshots.isEmpty()) {
       rejectPulse(player);
       return;
@@ -527,25 +529,25 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     return true;
   }
 
-  private List<ArchitectRedstonePulse.Snapshot> planPulse(Block block, BlockFace face) {
+  private List<ArchitectRedstonePulse.Snapshot> planPulse(Block block, BlockFace face, UUID owner) {
     List<ArchitectRedstonePulse.Snapshot> snapshots = new ArrayList<>();
-    addSnapshots(block, snapshots);
+    addSnapshots(block, snapshots, owner);
     if (!snapshots.isEmpty()) {
       return snapshots;
     }
 
     if (ArchitectRedstonePulse.isBindableFace(face)) {
-      addSnapshots(block.getRelative(face), snapshots);
+      addSnapshots(block.getRelative(face), snapshots, owner);
     }
     for (BlockFace neighbourFace : PULSE_NEIGHBOURS) {
-      addSnapshots(block.getRelative(neighbourFace), snapshots);
+      addSnapshots(block.getRelative(neighbourFace), snapshots, owner);
     }
 
     return snapshots;
   }
 
-  private void addSnapshots(Block block, List<ArchitectRedstonePulse.Snapshot> out) {
-    ArchitectRedstonePulse.Snapshot snapshot = snapshot(block, out);
+  private void addSnapshots(Block block, List<ArchitectRedstonePulse.Snapshot> out, UUID owner) {
+    ArchitectRedstonePulse.Snapshot snapshot = snapshot(block, out, owner);
     if (snapshot == null) {
       return;
     }
@@ -557,14 +559,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     Block otherHalf = block.getRelative(door.getHalf() == Bisected.Half.BOTTOM
         ? BlockFace.UP : BlockFace.DOWN);
-    ArchitectRedstonePulse.Snapshot half = snapshot(otherHalf, out);
+    ArchitectRedstonePulse.Snapshot half = snapshot(otherHalf, out, owner);
     if (half != null) {
       out.add(half);
     }
   }
 
   private ArchitectRedstonePulse.Snapshot snapshot(Block block,
-                                                   List<ArchitectRedstonePulse.Snapshot> taken) {
+                                                   List<ArchitectRedstonePulse.Snapshot> taken, UUID owner) {
     for (ArchitectRedstonePulse.Snapshot existing : taken) {
       if (existing.x() == block.getX() && existing.y() == block.getY()
           && existing.z() == block.getZ()) {
@@ -579,7 +581,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     return new ArchitectRedstonePulse.Snapshot(
-        block.getX(), block.getY(), block.getZ(), original, powered);
+        block.getX(), block.getY(), block.getZ(), original, powered, owner);
   }
 
   private void applySnapshots(World world, List<ArchitectRedstonePulse.Snapshot> snapshots,
@@ -588,7 +590,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       Block block = world.getBlockAt(snapshot.x(), snapshot.y(), snapshot.z());
       BlockData target = powered ? snapshot.powered() : snapshot.original();
       BlockData expected = powered ? snapshot.original() : snapshot.powered();
-      if (!block.getBlockData().matches(expected)) {
+      if (!block.getBlockData().matches(expected) || !ClaimsService.permitsEdit(snapshot.owner(), block.getLocation())) {
         continue;
       }
 

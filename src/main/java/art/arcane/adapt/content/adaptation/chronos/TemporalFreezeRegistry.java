@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.claims.ClaimsService;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -62,7 +63,7 @@ public final class TemporalFreezeRegistry {
       Flight flight = snapshot.flight();
       if (flight.allowFlight()) {
         player.setAllowFlight(true);
-        player.setFlying(flight.flying());
+        player.setFlying(flight.flying() && ClaimsService.permitsTeleport(player, player.getLocation()));
       } else {
         player.setFlying(false);
         player.setAllowFlight(false);

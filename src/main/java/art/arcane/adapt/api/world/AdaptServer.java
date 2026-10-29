@@ -275,6 +275,9 @@ public class AdaptServer extends TickedObject {
   }
 
   private void reportProfileReady(Player player) {
+    if (Adapt.instance != null && Adapt.instance.getClaimsService() != null) {
+      Adapt.instance.getClaimsService().refreshRanks(player);
+    }
     Adapt.verbose(() -> profileReadyMessage(
         player.getName(), player.getUniqueId(), sqlPersistenceEnabled));
   }
@@ -1698,6 +1701,9 @@ public class AdaptServer extends TickedObject {
     UUID playerId = player.getUniqueId();
     AdaptPlayer.forgetLoadFailure(playerId);
     adaptPlayer.replaceData(replacement);
+    if (Adapt.instance.getClaimsService() != null) {
+      Adapt.instance.getClaimsService().resetRanks(playerId);
+    }
     refreshLearnedAdaptations(adaptPlayer);
     tearDownPlayerRuntime(player);
     adaptPlayer.reconcileStatTrackers();
@@ -1716,6 +1722,9 @@ public class AdaptServer extends TickedObject {
 
   private void purgeStoredPlayerData(UUID playerId, AdaptPlayer stale,
                                      boolean fenced, long generation) {
+    if (Adapt.instance != null && Adapt.instance.getClaimsService() != null) {
+      Adapt.instance.getClaimsService().resetRanks(playerId);
+    }
     prefetchedPlayerData.invalidate(playerId);
     recipeBookSyncScheduled.remove(playerId);
     removeLearnedPlayer(playerId);

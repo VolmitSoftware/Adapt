@@ -142,7 +142,7 @@ final class ArchitectRedstonePulse {
    * A single block touched by a pulse: where it is, what it was, and what the
    * pulse turned it into.
    */
-  record Snapshot(int x, int y, int z, BlockData original, BlockData powered) {
+  record Snapshot(int x, int y, int z, BlockData original, BlockData powered, UUID owner) {
   }
 
   record Emitter(UUID worldId, int x, int y, int z) {

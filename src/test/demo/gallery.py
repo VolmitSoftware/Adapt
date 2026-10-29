@@ -11,7 +11,7 @@ import manifest
 STYLE: str = ('<style>body{font-family:system-ui;margin:24px;background:#111;color:#eee}section{margin-bottom:32px}'
               'section.failed h2{color:#f66}video{margin-right:8px;background:#000}small{font-weight:normal;color:#aaa}'
               'code.ids{user-select:all}a{color:#8cf}figure{display:inline-block;margin:8px 8px 0 0}figcaption{color:#aaa;font-size:12px}</style>')
-INDEX_STATUSES: tuple[str, ...] = ('exported', 'recorded', 'failed', 'skipped')
+INDEX_STATUSES: tuple[str, ...] = ('accepted', 'exported', 'recorded', 'failed', 'skipped')
 
 
 def videos(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path) -> str:
@@ -20,15 +20,17 @@ def videos(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path) 
     for angle in export_phase.ANGLES:
         clip: Path = demos / (identifier + '-' + angle + '.webm')
         poster: Path = thumbs.absolute() / (identifier + '-' + angle + '.png')
-        tags.append('<video src="' + html.escape(clip.as_uri()) + '" poster="' + html.escape(poster.as_uri())
-                    + '" controls muted loop playsinline width="480"></video>')
+        poster_attribute: str = ' poster="' + html.escape(poster.as_uri()) + '"' if take.status != 'accepted' else ''
+        tags.append('<video src="' + html.escape(clip.as_uri()) + '"' + poster_attribute
+                    + ' controls muted loop playsinline width="480"></video>')
     return ''.join(tags)
 
 
-def stills(take: manifest.Take, output: Path) -> str:
+def stills(take: manifest.Take, output: Path, docs_root: Path | None = None) -> str:
     tags: list[str] = []
     for still in take.stills:
-        image: Path = manifest.still_path(output.absolute(), take.id, still['name'])
+        image: Path = (docs_root.absolute() / 'adapt-assets' / 'demos' / take.skill / (take.id + '-' + still['name'] + '.png')
+                       if take.status == 'accepted' and docs_root is not None else manifest.still_path(output.absolute(), take.id, still['name']))
         if image.is_file():
             tags.append('<figure><img src="' + html.escape(image.as_uri()) + '" alt="' + html.escape(still['name']) + '" width="480">'
                         + '<figcaption>' + html.escape(still['name'] + ' · ' + still['angle'] + ' ' + format(float(still['at']), 'g') + ' s') + '</figcaption></figure>')
@@ -53,7 +55,7 @@ def section(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path,
         facts.append('crf ' + ', '.join(angle + ' ' + str(value) for angle, value in take.crf.items()))
     if take.export_error:
         facts.append('export error: ' + take.export_error)
-    body: str = videos(identifier, take, docs_root, thumbs) + stills(take, output) if take.status == 'exported' else ''
+    body: str = videos(identifier, take, docs_root, thumbs) + stills(take, output, docs_root) if take.status in ('exported', 'accepted') else ''
     return ('<section class="' + html.escape(take.status) + '"><h2>' + html.escape(identifier) + ' <small>'
             + html.escape(' · '.join(facts)) + '</small></h2>' + body + '</section>')
 
@@ -65,7 +67,7 @@ def skipped_section(skipped: list[manifest.Take]) -> str:
     return '<section class="skipped"><h2>Skipped</h2><ul>' + items + '</ul></section>'
 
 
-def write(path: Path, takes: dict[str, manifest.Take], docs_root: Path, thumbs: Path, plate: str = '') -> None:
+def write(path: Path, takes: dict[str, manifest.Take], docs_root: Path, thumbs: Path, plate: str = '', published_root: Path | None = None) -> None:
     ordered: list[str] = sorted(takes)
     failed: list[str] = [identifier for identifier in ordered if takes[identifier].status == 'failed']
     shown: list[str] = [identifier for identifier in ordered if takes[identifier].status != 'skipped']
@@ -73,7 +75,8 @@ def write(path: Path, takes: dict[str, manifest.Take], docs_root: Path, thumbs: 
     page: str = ('<!doctype html><meta charset="utf-8"><title>Adapt demo review</title>' + STYLE
                  + '<h1>Adapt demo review</h1>' + ('<p>Plate origin ' + html.escape(plate) + '</p>' if plate else '')
                  + '<p>Failed ids: <code class="ids">' + html.escape(','.join(failed) or 'none') + '</code></p>'
-                 + ''.join(section(identifier, takes[identifier], docs_root, thumbs, path.parent) for identifier in shown)
+                 + ''.join(section(identifier, takes[identifier], published_root if published_root is not None and takes[identifier].status == 'accepted' else docs_root,
+                                   thumbs, path.parent) for identifier in shown)
                  + skipped_section(skipped))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(page, encoding='utf-8')

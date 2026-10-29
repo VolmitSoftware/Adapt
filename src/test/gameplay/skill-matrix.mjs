@@ -23,15 +23,16 @@ export const skillMatrix = Object.freeze([
   { skill: 'kinetics', source: 'SkillKinetics', action: 'walk off a ledge and break the fall on hay' },
   { skill: 'seaborne', source: 'SkillSeaborne', action: 'break a block while submerged' },
   { skill: 'golemancy', source: 'SkillGolemancy', action: 'build a snow golem' },
+  { skill: 'claims', source: 'SkillClaims', action: 'verify no gameplay XP and grant exactly 125 XP administratively', progression: 'manual', optional: true },
 ].map(Object.freeze))
 
-export function assertSkillCoverage(registered, enabled = registered) {
+export function assertSkillCoverage(registered, enabled = registered, { requireOptional = false } = {}) {
   const expected = skillMatrix.map(entry => entry.skill).sort()
   const actual = [...registered].sort()
   if (new Set(actual).size !== actual.length || JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new Error(`Adapt skill matrix mismatch: registered=${actual.join(',')} covered=${expected.join(',')}`)
   }
-  const disabled = expected.filter(skill => !enabled.includes(skill))
+  const disabled = skillMatrix.filter(entry => !enabled.includes(entry.skill) && (!entry.optional || requireOptional)).map(entry => entry.skill)
   if (disabled.length) throw new Error(`Required Adapt skills are disabled: ${disabled.join(',')}`)
 }
 

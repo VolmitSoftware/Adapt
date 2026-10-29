@@ -29,6 +29,26 @@ def render(takes: dict[str, manifest.Take]) -> str:
         return path.read_text()
 
 
+class AcceptedGalleryTest(unittest.TestCase):
+    def test_accepted_videos_and_stills_use_docs_without_local_media(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root: Path = Path(temporary)
+            docs: Path = root / 'docs'
+            output: Path = root / 'run'
+            take: manifest.Take = dataclasses.replace(exported_take(), status='accepted', replay='',
+                                                      stills=[{'name': 'action', 'angle': 'pov', 'at': 1.0}])
+            still: Path = docs / 'adapt-assets' / 'demos' / take.skill / (take.id + '-action.png')
+            still.parent.mkdir(parents=True)
+            still.write_bytes(b'png')
+            page: Path = output / 'gallery.html'
+            gallery.write(page, {take.id: take}, output / 'review', output / 'thumbs', '', docs)
+            body: str = page.read_text()
+            self.assertIn(still.as_uri(), body)
+            self.assertIn((still.parent / (take.id + '-pov.webm')).as_uri(), body)
+            self.assertNotIn((output / 'review').as_uri(), body)
+            self.assertNotIn((output / 'thumbs').as_uri(), body)
+
+
 class GalleryIndexTest(unittest.TestCase):
     def skill(self, root: Path, name: str, takes: dict[str, manifest.Take] | None = None) -> Path:
         folder: Path = root / name

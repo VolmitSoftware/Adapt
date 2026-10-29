@@ -1,0 +1,469 @@
+{
+  "world": "iris:adapt_demo",
+  "claims-founding": {
+    "set": "claims-founding",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "adapt claim-adaptation claims:claims-fortification 1 force=true player={actor}",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_shovel"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-founded"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} boundaries"
+      },
+      {
+        "verb": "look",
+        "yaw": 135,
+        "pitch": 10,
+        "ticks": 22
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "visual": "The shovel activates the lodestone, the live view reports a nine-chunk city, and gold boundary particles outline its land."
+    },
+    "maxTicks": 300
+  },
+  "claims-fortification": {
+    "set": "claims-fortification",
+    "level": 1,
+    "opponent": true,
+    "povCapture": true,
+    "prerequisites": [
+      {
+        "name": "claims-founding",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:shears",
+      "adaptqa demo claims {actor} raid"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.5,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-resisting"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 180
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-raided"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -5.5
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "visual": "The outsider's completed survival breaks leave the wool barrier intact while action-bar resistance advances, then the sixteenth break opens the wall."
+    },
+    "maxTicks": 500
+  },
+  "claims-citizenship": {
+    "set": "claims-citizenship",
+    "level": 1,
+    "opponent": true,
+    "povCapture": true,
+    "prerequisites": [
+      {
+        "name": "claims-founding",
+        "level": 1
+      },
+      {
+        "name": "claims-fortification",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_shovel",
+      "adaptqa demo claims {actor} city"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          1,
+          -1.5
+        ],
+        "ticks": 18
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-invited"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {opponent} accept"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-joined"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} members"
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "expect": {
+      "visual": "The founder selects the lodestone and right-clicks the other player with a shovel. The live feedback shows the invitation and the accepted member in the city roster."
+    },
+    "maxTicks": 350
+  },
+  "claims-expansion": {
+    "set": "claims-expansion",
+    "level": 1,
+    "povCapture": true,
+    "prerequisites": [
+      {
+        "name": "claims-founding",
+        "level": 1
+      },
+      {
+        "name": "claims-fortification",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_shovel",
+      "adaptqa demo claims {actor} city"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -30.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 14
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 80
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} boundaries"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          -0.02,
+          -48.5
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-expanded"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} boundaries"
+      },
+      {
+        "verb": "look",
+        "yaw": 165,
+        "pitch": 18,
+        "ticks": 16
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      }
+    ],
+    "expect": {
+      "visual": "The founder selects the city lodestone, walks to the northern border, and claims the adjacent chunk with a shovel. The live feedback reports ten chunks and the gold border extends."
+    },
+    "maxTicks": 500
+  },
+  "claims-homestead": {
+    "set": "claims-homestead",
+    "level": 1,
+    "opponent": true,
+    "povCapture": true,
+    "prerequisites": [
+      {
+        "name": "claims-founding",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_shovel",
+      "item replace entity {actor} hotbar.1 with minecraft:shears",
+      "item replace entity {opponent} hotbar.0 with minecraft:shears",
+      "adaptqa demo claims {actor} homestead"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -33.5
+        ]
+      },
+      {
+        "verb": "lookAt",
+        "actor": "opponent",
+        "offset": [
+          2.5,
+          0.5,
+          -33.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-plot"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} boundaries"
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          0.5,
+          -33.5
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          0.5,
+          -33.5
+        ],
+        "ticks": 18
+      },
+      {
+        "verb": "keys",
+        "actor": "opponent",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-personal-resistance"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "actor": "opponent",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 180
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo claims {actor} assert-personal-breach"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "visual": "The member activates a personal lodestone and sees blue plot borders. Their wool block breaks immediately, while the city founder must complete repeated breaks to remove the other block."
+    },
+    "maxTicks": 600
+  }
+}

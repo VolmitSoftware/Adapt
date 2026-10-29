@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay.demo;
 
 import art.arcane.adapt.gameplay.GolemancyFixtures;
+import art.arcane.adapt.gameplay.demo.sets.ClaimsSets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -198,6 +199,7 @@ public final class DemoStudio {
 
     public String reset() {
         requirePlate();
+        ClaimsSets.clearDemoState(world, plateBox());
         removeSparring();
         removeStrays();
         if (current != null) {

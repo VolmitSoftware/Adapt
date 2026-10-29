@@ -44,3 +44,5 @@ src/test/demo/**/__pycache__/
 HANDOFF.md
 
 .superpowers/
+
+.worktrees/

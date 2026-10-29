@@ -1,0 +1,12 @@
+name: AdaptClaimsFixture
+version: 1.0.0
+main: art.arcane.adapt.gameplay.ClaimsFixture
+api-version: '26.1'
+folia-supported: true
+depend: [Adapt]
+commands:
+  claimsqa:
+    permission: claimsqa.admin
+permissions:
+  claimsqa.admin:
+    default: op

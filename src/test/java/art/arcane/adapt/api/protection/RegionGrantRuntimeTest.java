@@ -16,6 +16,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Set;
@@ -35,10 +37,12 @@ class RegionGrantRuntimeTest extends AdaptTestBase {
   private AdaptPlayer adaptPlayer;
   private PlayerData data;
   private Location location;
+  private SkillRegistry registry;
+  private Skill<?> skill;
 
   @BeforeEach
   void installRuntime() {
-    Skill<?> skill = mock(Skill.class);
+    skill = mock(Skill.class);
     Adaptation<?> granted = adaptation(GRANTED, skill);
     Adaptation<?> other = adaptation(OTHER, skill);
     KList<Adaptation<?>> adaptations = new KList<>();
@@ -48,7 +52,7 @@ class RegionGrantRuntimeTest extends AdaptTestBase {
     lenient().when(skill.isEnabled()).thenReturn(true);
     lenient().when(skill.getAdaptations()).thenReturn(adaptations);
 
-    SkillRegistry registry = mock(SkillRegistry.class);
+    registry = mock(SkillRegistry.class);
     lenient().when(registry.getCatalogRevision()).thenReturn(CATALOG_REVISION.incrementAndGet());
     lenient().when(registry.getSkills()).thenReturn(List.of(skill));
     lenient().when(registry.getSkill(SKILL)).thenAnswer(invocation -> skill);
@@ -123,6 +127,29 @@ class RegionGrantRuntimeTest extends AdaptTestBase {
     assertThat(adaptationOf(GRANTED).isRegionGranted()).isTrue();
     assertThat(adaptationOf(OTHER).isRegionGranted()).isTrue();
     assertThat(data.getRegionGrantedCount()).isEqualTo(2);
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void namedAndWildcardGrantsCannotCreateClaimsUnlocks(boolean wildcard) {
+    Skill<?> claims = mock(Skill.class);
+    KList<Adaptation<?>> adaptations = new KList<>();
+    Set<String> names = Set.of("claims-founding", "claims-fortification", "claims-citizenship",
+        "claims-expansion", "claims-homestead");
+    for (String name : names) {
+      adaptations.add(adaptation(name, claims));
+    }
+    lenient().when(claims.getName()).thenReturn("claims");
+    lenient().when(claims.isEnabled()).thenReturn(true);
+    lenient().when(claims.getAdaptations()).thenReturn(adaptations);
+    lenient().when(registry.getSkills()).thenReturn(List.of(skill, claims));
+    lenient().when(registry.getCatalogRevision()).thenReturn(CATALOG_REVISION.incrementAndGet());
+    source.setPolicy(new RegionPolicy(true, 1D, 0, wildcard ? Set.of(RegionPolicy.UNLOCK_ALL) : names));
+
+    RegionGrantRuntime.refresh(adaptPlayer, location);
+
+    assertThat(data.getSkillLineNullable("claims")).isNull();
+    assertThat(data.getRegionGrantedCount()).isEqualTo(wildcard ? 2 : 0);
   }
 
   @Test

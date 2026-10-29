@@ -46,6 +46,7 @@ import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.protection.RegionPolicyService;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
@@ -59,6 +60,7 @@ import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.papi.AdaptPlaceholderInstaller;
 import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.content.protector.ChestProtectProtector;
+import art.arcane.adapt.content.protector.ClaimsProtector;
 import art.arcane.adapt.content.protector.FactionsClaimProtector;
 import art.arcane.adapt.content.protector.GriefDefenderProtector;
 import art.arcane.adapt.content.protector.GriefPreventionProtector;
@@ -110,6 +112,7 @@ import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
@@ -155,6 +158,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private SQLManager sqlManager;
   @Getter
   private ProtectorRegistry protectorRegistry;
+  @Getter
+  private ClaimsService claimsService;
   @Getter
   private ConcurrentHashMap<String, UIWindow> guiLeftovers = new ConcurrentHashMap<>();
   @Getter
@@ -394,6 +399,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     startupPrint(); // Splash screen
     AbilityApiBridge.install(this);
     protectorRegistry = new ProtectorRegistry();
+    protectorRegistry.registerProtector(new ClaimsProtector());
     PluginManager pluginManager = getServer().getPluginManager();
     if (pluginManager.isPluginEnabled("WorldGuard")) {
       protectorRegistry.registerProtector(new WorldGuardProtector());
@@ -421,6 +427,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       HiddenOreLink.activate(this);
     } else if (pluginManager.getPlugin("HiddenOre") != null) {
       warn("HiddenOre is installed but disabled. Adapt will continue without HiddenOre integration; review HiddenOre's startup error and configuration.");
+    }
+    try {
+      claimsService = new ClaimsService(this);
+      claimsService.start();
+    } catch (IOException error) {
+      throw new IllegalStateException("Cannot load Claims ownership; protection startup aborted", error);
     }
     initializeAdaptationListings();
     services.values().forEach(AdaptService::onEnable);
@@ -544,6 +556,11 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public void stopSim() {
+    if (claimsService != null) {
+      ClaimsService activeClaims = claimsService;
+      claimsService = null;
+      runShutdownPhase("Claims persistence", activeClaims::close);
+    }
     runShutdownPhase("world block scan scheduler", WorldBlockScanScheduler::reset);
     if (ticker != null) {
       runShutdownPhase("ticker", ticker::shutdown);

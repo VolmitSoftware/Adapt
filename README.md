@@ -10,7 +10,7 @@ _Adapt is a drag and drop solution for balanced passive abilities and skills tha
 
 Adapt Abilities are all accessible in the in-game GUI by right-clicking a side face of a bookshelf. Top and bottom faces work only when `adaptActivatorAllowVerticalFaces` is enabled. Most servers aim to enhance the quality of the "vanilla" experience. However, most skill-based plugins offer powers, game-breaking systems, and are riddled with bugs. That's where Adapt comes in, being lightweight on the server and providing mere quality-of-life enhancements to a user's experience.
 
-Adapt declares 24 skills and 312 adaptation types. A plain server registers 311; Iris Feller registers only when the Iris integration is available. The authoritative, current feature reference is the [skills catalog](https://docs.volmit.com/adapt/10-skills-catalog).
+Adapt declares 25 skills and 335 adaptation types. Claims is optional and disabled by default; Iris Feller registers only when the Iris integration is available. The authoritative, current feature reference is the [skills catalog](https://docs.volmit.com/adapt/10-skills-catalog).
 
 The master branch is for the latest version of Minecraft.
 

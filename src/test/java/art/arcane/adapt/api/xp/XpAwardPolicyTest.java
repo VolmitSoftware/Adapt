@@ -87,6 +87,30 @@ class XpAwardPolicyTest extends AdaptTestBase {
     RegionPolicyService.clear();
   }
 
+  @Test
+  void claimsRejectsGameplayAndConsumableExperience() {
+    when(skill.getName()).thenReturn("claims");
+    when(runtime.getSkillLine("claims")).thenReturn(line);
+    try (MockedStatic<J> scheduler = ownedScheduler()) {
+      XP.award(runtime, skill, new XpAward("claims:gameplay", 100, null, false, XpAward.Kind.GAMEPLAY));
+      XP.award(runtime, skill, new XpAward("claims:orb", 100, null, false, XpAward.Kind.CONSUMABLE));
+    }
+    assertThat(line.getXp() + line.getPooledXp()).isZero();
+    assertThat(profile.getXpEarnings().snapshot()).isEmpty();
+    verifyNoInteractions(regionSource);
+  }
+
+  @Test
+  void claimsAcceptsExactAdministrativeExperience() {
+    when(skill.getName()).thenReturn("claims");
+    when(runtime.getSkillLine("claims")).thenReturn(line);
+    try (MockedStatic<J> scheduler = ownedScheduler()) {
+      XP.award(runtime, skill, new XpAward("claims:administrative", 125, null, false, XpAward.Kind.ADMINISTRATIVE));
+    }
+    assertThat(line.getXp() + line.getPooledXp()).isEqualTo(125);
+    verifyNoInteractions(regionSource);
+  }
+
   @ParameterizedTest
   @CsvSource({"true, true", "true, false", "false, true", "false, false"})
   void visibleAndSilentFacadesApplyBothNoveltyAndRegionPolicy(boolean visible, boolean bukkitFacade) {

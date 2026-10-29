@@ -269,7 +269,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         placedCount++;
       }
 
-      if (ignored != null && ignoredData != null && ownsBlock(p, e.getBlock())) {
+      if (ignored != null && ignoredData != null && ownsBlock(p, e.getBlock())
+          && canBlockPlace(p, e.getBlock().getLocation())) {
         if (placedCount > 0) {
           hand.setAmount(hand.getAmount() - 1);
         }

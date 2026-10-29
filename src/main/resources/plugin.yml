@@ -73,3 +73,19 @@ permissions:
   adapt.golemancy.admin:
     description: Allows listing, releasing, and waking other players' golems
     default: op
+
+  adapt.claims:
+    description: Allows city and personal plot commands and shovel controls.
+    default: true
+  adapt.claims.bypass:
+    description: Bypasses Claims editing, teleport, and flight restrictions.
+    default: false
+  adapt.claims.admin.inspect:
+    description: Allows inspecting any city and personal plot.
+    default: op
+  adapt.claims.admin.remove:
+    description: Allows confirmed removal of any city or personal plot.
+    default: op
+  adapt.claims.admin.xp:
+    description: Allows granting Claims experience directly.
+    default: op

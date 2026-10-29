@@ -56,6 +56,40 @@ class DemoMainTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(self.stderr.getvalue(), '')
 
+    def test_export_stages_clips_outside_published_docs(self) -> None:
+        take: manifest.Take = exported('agility-wind-up')
+        export: mock.MagicMock = mock.MagicMock(return_value={take.id: take})
+        with tempfile.TemporaryDirectory() as tmp:
+            code, _ = self.run_main(tmp, [], export=export)
+            self.assertEqual(export.call_args.args[3], Path(tmp).resolve() / 'review')
+        self.assertEqual(code, 0)
+
+    def test_acceptance_never_constructs_a_studio(self) -> None:
+        take: manifest.Take = exported('agility-wind-up')
+        accepted: manifest.Take = dataclasses.replace(take, status='accepted', replay='')
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.acceptance, 'accept', return_value={take.id: accepted}) as accept:
+                code, session = self.run_main(tmp, [], extra=['--accept'])
+            session.construct.assert_not_called()
+            self.assertEqual(accept.call_args.args[3], [take.id])
+        self.assertEqual(code, 0)
+
+    def test_discard_never_constructs_a_studio(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.acceptance, 'discard', return_value={}) as discard:
+                code, session = self.run_main(tmp, [], extra=['--discard'])
+            session.construct.assert_not_called()
+            self.assertEqual(discard.call_args.args[3], ['agility-wind-up'])
+        self.assertEqual(code, 0)
+
+    def test_accepted_take_requires_rerecording_before_export(self) -> None:
+        take: manifest.Take = dataclasses.replace(exported('agility-wind-up'), status='accepted', replay='')
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest.save(Path(tmp) / 'manifest.json', {take.id: take})
+            code, session = self.run_main(tmp, [], extra=['--export-only'])
+        self.assertEqual(code, 2)
+        session.construct.assert_not_called()
+
     def test_failure_stops_studio_as_failed_and_still_prints_cleanup(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(RuntimeError, 'bridge gone'):

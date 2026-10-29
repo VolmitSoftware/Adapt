@@ -23,6 +23,16 @@ test('runtime registry omissions, extra skills, duplicate names, and disabled sk
   assert.throws(() => assertSkillCoverage(all, all.slice(1)), /disabled/)
 })
 
+test('Claims is explicitly optional with manual progression and full adaptation runs require it enabled', () => {
+  const all = skillMatrix.map(entry => entry.skill)
+  const automatic = skillMatrix.filter(entry => entry.progression !== 'manual').map(entry => entry.skill)
+  assert.deepEqual(skillMatrix.filter(entry => entry.optional).map(entry => entry.skill), ['claims'])
+  assert.deepEqual(skillMatrix.filter(entry => entry.progression === 'manual').map(entry => entry.skill), ['claims'])
+  assert.doesNotThrow(() => assertSkillCoverage(all, automatic))
+  assert.throws(() => assertSkillCoverage(all, automatic, { requireOptional: true }), /claims/)
+  assert.throws(() => assertSkillCoverage(automatic), /mismatch/)
+})
+
 test('XP evidence rejects no gain, invalid values, operators, and mixed identities', () => {
   const before = { player: 'ordinary', operator: false, xp: { agility: 2 } }
   const after = { player: 'ordinary', operator: false, xp: { agility: 5 } }

@@ -17,9 +17,10 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
     const suffix = randomBytes(4).toString('hex')
     let actor = await context.connectActor(`AQAa${suffix}`)
     const opponent = await context.connectActor(`AQAb${suffix}`)
-    const evidence = context.report.adapt = { skills: [], requestedSkills, actors: [actor.bot.username, opponent.bot.username], fixture: 'AdaptGameplayFixture', coverage: 'gameplay XP, natural pooled payout, and reconnect retention; no process restart, abilities, or menus' }
+    const evidence = context.report.adapt = { skills: [], unavailable: [], requestedSkills, actors: [actor.bot.username, opponent.bot.username], fixture: 'AdaptGameplayFixture', coverage: 'gameplay XP for automatic skills; exact administrative XP and absence of gameplay XP for enabled manual skills; natural payout and reconnect retention' }
     let sequence = 0
     let setup = false
+    let initialState
     async function snapshot(player = actor) {
       const token = `s${++sequence}`
       return fixtureJson(context, `/adaptqa snapshot ${player.bot.username} ${token}`, `SNAPSHOT ${token}`)
@@ -44,7 +45,8 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
     }
     async function action(skill) {
       switch (skill) {
-        case 'agility': return actor.actions.walkCircle({ center: { x: 0, y: 100, z: 0 }, radius: 5, laps: 1, timeoutMs: 60_000 })
+        case 'agility':
+        case 'claims': return actor.actions.walkCircle({ center: { x: 0, y: 100, z: 0 }, radius: 5, laps: 1, timeoutMs: 60_000 })
         case 'axes': return melee('wooden_axe')
         case 'swords': return melee('wooden_sword')
         case 'unarmed':
@@ -183,11 +185,35 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
           try { assertSkillCoverage((await snapshot()).registered); return true } catch { return false }
         }, { label: 'all Adapt skills ready', timeoutMs: 30_000, intervalMs: 1000 })
         const initial = await snapshot()
+        initialState = initial
         evidence.processId = initial.processId
         assertSkillCoverage(initial.registered, initial.enabled)
         context.expect(!initial.operator, 'Skill actor has ordinary permissions')
       })
-      for (const { skill, action: description } of skillMatrix.filter(entry => requestedSkills.includes(entry.skill))) {
+      for (const { skill, action: description, progression, optional } of skillMatrix.filter(entry => requestedSkills.includes(entry.skill))) {
+        if (optional && !initialState.enabled.includes(skill)) {
+          evidence.unavailable.push({ skill, status: 'disabled', optional: true, progression })
+          continue
+        }
+        if (progression === 'manual') {
+          await context.step(`verify ${skill} administrative progression: ${description}`, async () => {
+            await context.command('/adaptqa stage agility', /^ADAPT_QA STAGE agility$/, 10_000)
+            const before = await snapshot()
+            context.expect(before.xp[skill] === initialState.xp[skill], `${skill} earned no XP from earlier gameplay actions`)
+            await action(skill)
+            const played = await snapshot()
+            context.expect(played.xp[skill] === before.xp[skill], `${skill} earns no XP from ordinary movement`)
+            context.bot.chat(`/adapt claims xp 125 ${actor.bot.username}`)
+            let after
+            await context.waitUntil(async () => {
+              after = await snapshot()
+              return after.xp[skill] === before.xp[skill] + 125
+            }, { label: 'exact administrative Claims XP grant', timeoutMs: 12000, intervalMs: 250 })
+            evidence.skills.push({ ...xpEvidence(skill, before, after), progression, action: description,
+              automaticXp: played.xp[skill] - before.xp[skill], administrativeGrant: 125 })
+          })
+          continue
+        }
         await context.step(`earn ${skill} XP: ${description}`, async () => {
           await context.command(`/adaptqa stage ${skill}`, new RegExp(`^ADAPT_QA STAGE ${skill}$`), 10_000)
           await actor.bot.waitForTicks(4)
@@ -201,8 +227,10 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
           evidence.skills.push({ ...xpEvidence(skill, before, after), action: description })
         })
       }
-      context.expect(evidence.skills.length === requestedSkills.length, 'Every requested skill earned XP')
-      if (requestedSkills.length === skillMatrix.length) assertSkillCoverage(evidence.skills.map(entry => entry.skill))
+      context.expect(evidence.skills.length + evidence.unavailable.length === requestedSkills.length,
+        'Every requested skill has progression evidence or is explicitly disabled and optional')
+      if (requestedSkills.length === skillMatrix.length) assertSkillCoverage([...evidence.skills, ...evidence.unavailable].map(entry => entry.skill))
+      if (evidence.skills.length > 0) {
       await context.step('commit earned XP through the natural payout window', async () => {
         actor.bot.clearControlStates()
         actor.bot.deactivateItem()
@@ -225,7 +253,7 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
       })
       await context.step('retain committed XP after a planned disconnect and reconnect', async () => {
         const before = await snapshot()
-        const retained = requestedSkills.map(skill => ({ skill, player: before.player, after: before.committedXp[skill] }))
+        const retained = evidence.skills.map(({ skill }) => ({ skill, player: before.player, after: before.committedXp[skill] }))
         actor = await actor.reconnectAfter(() => actor.bot.quit('Adapt gameplay reconnect check'), { timeoutMs: 30_000 })
         let after
         await context.waitUntil(async () => {
@@ -243,6 +271,7 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
         }
         context.expect(hasCommittedXp(after, retained), 'Reconnected player retained every tested skill payout')
       })
+      }
     } finally {
       for (const player of [actor, opponent]) {
         player.bot.deactivateItem()
@@ -255,6 +284,6 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
 
 export default {
   name: 'adapt-all-skills',
-  description: 'Two ordinary players fight and earn actual gameplay XP in every registered Adapt skill.',
+  description: 'Verify gameplay XP for automatic skills, administrative-only Claims XP when enabled, and explicit optional-skill availability.',
   run: runSkillSuite,
 }

@@ -36,6 +36,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.content.skill.SkillAgility;
@@ -44,6 +45,7 @@ import art.arcane.adapt.content.skill.SkillAxes;
 import art.arcane.adapt.content.skill.SkillBlocking;
 import art.arcane.adapt.content.skill.SkillBrewing;
 import art.arcane.adapt.content.skill.SkillChronos;
+import art.arcane.adapt.content.skill.SkillClaims;
 import art.arcane.adapt.content.skill.SkillCrafting;
 import art.arcane.adapt.content.skill.SkillDiscovery;
 import art.arcane.adapt.content.skill.SkillEnchanting;
@@ -130,6 +132,7 @@ public class SkillRegistry extends TickedObject {
     registerSkill(SkillAxes.class);
     registerSkill(SkillBlocking.class);
     registerSkill(SkillChronos.class);
+    registerSkill(SkillClaims.class);
     registerSkill(SkillCrafting.class);
     registerSkill(SkillDiscovery.class);
     registerSkill(SkillEnchanting.class);
@@ -926,6 +929,10 @@ public class SkillRegistry extends TickedObject {
   private void catalogChanged(boolean reconcilePlayers) {
     long revision = catalogRevision.incrementAndGet();
     if (!bootstrapLoading) {
+      ClaimsService claims = ClaimsService.current();
+      if (claims != null) {
+        claims.refreshRankLimits();
+      }
       rebuildStatTrackerIndex();
       publishPlaceholderCatalog(revision);
       AdaptationRequirements.warnUnresolved(getSkills());

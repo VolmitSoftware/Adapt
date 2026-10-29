@@ -495,16 +495,19 @@ class StudioRestartTest(unittest.TestCase):
             (demo.server / 'logs' / 'latest.log').write_text('Deferred recipe registration completed\n')
             config = demo.server / 'plugins' / 'Adapt' / 'adapt.toml'
             discovery = demo.server / 'plugins' / 'Adapt' / 'skills' / 'discovery.toml'
+            claims = demo.server / 'plugins' / 'Adapt' / 'skills' / 'claims.toml'
             discovery.parent.mkdir(parents=True)
             config.write_text(ADAPT_TOML)
             discovery.write_text(DISCOVERY_TOML)
+            claims.write_text('enabled = false\n\n[claims]\nexcludedMinimum = -1000\n')
             events: list[str] = []
 
             def mux(*arguments: str, timeout: int = 180) -> str:
                 muted: bool = 'actionbarNotifyXp = false' in config.read_text()
                 quiet: bool = discovery.read_text().startswith('# Adapt configuration - skill:discovery\n\n# Enables or disables this feature.\nenabled = false\n')
                 events.append(' '.join(arguments[:2]) + (' log-present' if (demo.server / 'logs' / 'latest.log').exists() else '')
-                              + (' muted' if muted else '') + (' discovery-off' if quiet else ''))
+                              + (' muted' if muted else '') + (' discovery-off' if quiet else '')
+                              + (' claims-on' if claims.read_text().startswith('enabled = true\n') else ''))
                 return ''
 
             with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), \
@@ -521,6 +524,10 @@ class StudioRestartTest(unittest.TestCase):
     def test_restart_turns_the_discovery_skill_off_for_another_batch_skill(self) -> None:
         _, _, discovery = self.restart('pickaxe')
         self.assertEqual(discovery, DISCOVERY_TOML.replace('this feature.\nenabled = true', 'this feature.\nenabled = false'))
+
+    def test_claims_batch_enables_claims_before_the_server_restart(self) -> None:
+        events, _, _ = self.restart('claims')
+        self.assertIn('runtime start muted discovery-off claims-on', events)
 
     def test_restart_keeps_the_discovery_skill_on_for_the_discovery_batch(self) -> None:
         events, _, discovery = self.restart('discovery')
@@ -872,12 +879,12 @@ class StudioRestartWaitTest(unittest.TestCase):
             self.restart([STOPPED_STATUS], start_failures=2)
 
 
-class SwitchOffTest(unittest.TestCase):
+class SwitchBooleanTest(unittest.TestCase):
     def test_popup_keys_are_disabled_and_the_rest_is_preserved(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / 'adapt.toml'
             config.write_text(ADAPT_TOML)
-            studio.switch_off(config, studio.NOTIFY_KEYS)
+            studio.switch_boolean(config, studio.NOTIFY_KEYS, False)
             text = config.read_text()
         self.assertEqual(text, ADAPT_TOML.replace('actionbarNotifyXp = true', 'actionbarNotifyXp = false')
                          .replace('actionbarNotifyLevel = true', 'actionbarNotifyLevel = false')
@@ -888,7 +895,7 @@ class SwitchOffTest(unittest.TestCase):
             config = Path(tmp) / 'adapt.toml'
             config.write_text('actionbarNotifyXp = true\n')
             with self.assertRaisesRegex(RuntimeError, 'actionbarNotifyLevel missing from'):
-                studio.switch_off(config, studio.NOTIFY_KEYS)
+                studio.switch_boolean(config, studio.NOTIFY_KEYS, False)
             text = config.read_text()
         self.assertEqual(text, 'actionbarNotifyXp = true\n')
 
@@ -896,7 +903,7 @@ class SwitchOffTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             config = Path(tmp) / 'discovery.toml'
             config.write_text(DISCOVERY_TOML)
-            studio.switch_off(config, (studio.SKILL_SWITCH,))
+            studio.switch_boolean(config, (studio.SKILL_SWITCH,), False)
             text = config.read_text()
         self.assertEqual(text, DISCOVERY_TOML.replace('this feature.\nenabled = true', 'this feature.\nenabled = false'))
         self.assertTrue(text.endswith('[playerPreferences.enabled]\nenabled = true\ndefaultValue = "ON"\n'))
@@ -907,7 +914,7 @@ class SwitchOffTest(unittest.TestCase):
             config = Path(tmp) / 'discovery.toml'
             config.write_text(nested)
             with self.assertRaisesRegex(RuntimeError, 'enabled missing from'):
-                studio.switch_off(config, (studio.SKILL_SWITCH,))
+                studio.switch_boolean(config, (studio.SKILL_SWITCH,), False)
             text = config.read_text()
         self.assertEqual(text, nested)
 

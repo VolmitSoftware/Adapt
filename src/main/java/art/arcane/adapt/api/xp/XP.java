@@ -77,6 +77,9 @@ public class XP {
     if (!runtimeReady(player) || skill == null || award == null || player.getPlayer() == null) {
       return;
     }
+    if ("claims".equals(skill.getName()) && award.kind() != XpAward.Kind.ADMINISTRATIVE) {
+      return;
+    }
     Player bukkitPlayer = player.getPlayer();
     if (!J.isOwnedByCurrentRegion(bukkitPlayer)) {
       J.runEntity(bukkitPlayer, () -> award(player, skill, award));

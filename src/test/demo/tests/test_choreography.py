@@ -35,6 +35,15 @@ def write_skill(root: Path, body: dict) -> None:
 
 
 class ChoreographyTest(unittest.TestCase):
+    def test_claims_covers_every_matrix_id_with_real_input_and_scene_assertions(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'claims').entries
+        self.assertEqual(choreography.validate(entries, matrix_ids('claims')), [])
+        self.assertEqual(set(entries), matrix_ids('claims'))
+        for entry in entries.values():
+            self.assertTrue(entry.pov_capture)
+            self.assertTrue(any(beat['verb'] in {'click', 'keys'} for beat in entry.beats))
+            self.assertTrue(any(beat['verb'] == 'command' and ' assert-' in beat['text'] for beat in entry.beats))
+
     def test_agility_covers_every_matrix_id_exactly_once(self) -> None:
         entries = choreography.load_skill(ROOT, 'agility').entries
         problems = choreography.validate(entries, matrix_ids('agility'))

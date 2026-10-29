@@ -1996,6 +1996,81 @@
       "feedbackPresets": []
     },
     {
+      "skill": "claims",
+      "name": "claims-citizenship",
+      "class": "ClaimsCitizenship",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsCitizenship.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [],
+      "expectation": "Citizenship unlocks for raidable chunk claims.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsCitizenship.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "claims",
+      "name": "claims-expansion",
+      "class": "ClaimsExpansion",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsExpansion.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [],
+      "expectation": "Expansion unlocks for raidable chunk claims.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsExpansion.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "claims",
+      "name": "claims-fortification",
+      "class": "ClaimsFortification",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsFortification.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [],
+      "expectation": "Fortification unlocks for raidable chunk claims.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsFortification.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "claims",
+      "name": "claims-founding",
+      "class": "ClaimsFounding",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsFounding.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [],
+      "expectation": "Founding unlocks for raidable chunk claims.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsFounding.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "claims",
+      "name": "claims-homestead",
+      "class": "ClaimsHomestead",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsHomestead.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [],
+      "expectation": "Homestead unlocks for raidable chunk claims.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/claims/ClaimsHomestead.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
       "skill": "crafting",
       "name": "crafting-backpacks",
       "class": "CraftingBackpacks",

@@ -14,6 +14,7 @@ import art.arcane.adapt.gameplay.demo.DemoScope;
 import art.arcane.adapt.gameplay.demo.DemoSkin;
 import art.arcane.adapt.gameplay.demo.DemoStudio;
 import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
+import art.arcane.adapt.gameplay.demo.sets.ClaimsSets;
 import art.arcane.adapt.gameplay.demo.PassiveComparisonFixtures;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -217,6 +218,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             case "sparring" -> demoStudio.sparring();
             case "hit" -> demoStudio.hit(demoArgument(args, 2), demoArgument(args, 3));
             case "sync" -> demoStudio.sync(demoArgument(args, 2));
+            case "claims" -> ClaimsSets.control(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3));
             case "preference" -> StructureDiscoverySets.preference(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3),
                     demoArgument(args, 4), demoArgument(args, 5));
             case "passive" -> PassiveComparisonFixtures.control(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3),

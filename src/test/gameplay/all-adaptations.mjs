@@ -40,6 +40,7 @@ import { fixtureJson } from './fixture-json.mjs'
 import { decodeSoundPacket, observeParticlePackets, isFeedbackReady } from './feedback.mjs'
 import { errorsSince, logPosition } from './runtime-log.mjs'
 import { captureEvidenceManifest, writeEvidenceManifest } from './evidence-manifest.mjs'
+import { claimsAdaptationIds, claimsAdaptationEvidence, runClaimsSuite } from './claims.mjs'
 
 const entries = [...basicBehaviorCases, ...passiveBehaviorCases, ...combatBehaviorCases, ...blockBehaviorCases, ...itemBehaviorCases, ...brewingBehaviorCases, ...movementBehaviorCases, ...rangedBehaviorCases, ...architectBehaviorCases, ...tamingBehaviorCases, ...chronosBehaviorCases, ...netherBehaviorCases, ...defenseBehaviorCases, ...harvestBehaviorCases, ...tragoulBehaviorCases, ...knowledgeBehaviorCases, ...riftBehaviorCases, ...craftingBehaviorCases, ...earthBehaviorCases, ...projectileBehaviorCases, ...guardBehaviorCases, ...discoveryBehaviorCases, ...kineticsBehaviorCases, ...utilityBehaviorCases, ...natureBehaviorCases, ...integrationBehaviorCases, ...traversalBehaviorCases, ...golemancyBehaviorCases]
 const behaviorCases = new Map(entries)
@@ -54,7 +55,7 @@ export function matchesParticle(particle, testCase) {
 }
 
 export async function runAdaptationSuite(context, { requireComplete = true, caseNames, nativeClientReport } = {}) {
-  if (caseNames && (requireComplete || caseNames.some(name => !behaviorCases.has(name)))) throw new Error('Targeted smoke cases must have registered behavior handlers')
+  if (caseNames && (requireComplete || caseNames.some(name => !behaviorCases.has(name) && !claimsAdaptationIds.includes(name)))) throw new Error('Targeted smoke cases must have registered behavior handlers')
   const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
   const suffix = randomBytes(4).toString('hex')
   const reportDirectory = new URL(`../../../build/gameplay/reports/cases-${Date.now()}-${suffix}/`, import.meta.url)
@@ -124,7 +125,9 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
       for (const player of [actor, opponent]) stopInputs.push(synchronizePlayerAttributes(player.bot))
       const initial = await snapshot()
       context.expect(!initial.operator, 'Adaptation actor is not an operator')
-      assertSkillCoverage(initial.registered, initial.enabled)
+      assertSkillCoverage(initial.registered, initial.enabled, {
+        requireOptional: requireComplete || Boolean(caseNames?.some(name => claimsAdaptationIds.includes(name))),
+      })
       const catalog = await fixtureJson(context, '/adaptqa catalog c1', 'CATALOG c1')
       evidence.catalog = catalog.skills.flatMap(skill => skill.adaptations.map(adaptation => ({ ...adaptation, skill: skill.name })))
       const names = new Set(evidence.catalog.map(entry => entry.name))
@@ -252,6 +255,31 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
         actor.bot.clearControlStates()
         actor.bot.deactivateItem()
         await learn(entry.name, 0)
+      }
+    }
+    const selectedClaims = claimsAdaptationIds.filter(name => !caseNames || caseNames.includes(name))
+    if (selectedClaims.length) {
+      let claimsLogStart
+      try {
+        claimsLogStart = await logPosition(join(context.report.server.directory, 'logs/latest.log'))
+        const claims = await runClaimsSuite(context, { mode: 'all' })
+        const runtime = await errorsSince(claimsLogStart)
+        context.expect(runtime.errors.length === 0, 'Claims dedicated suite emitted server errors', runtime.errors)
+        for (const result of claimsAdaptationEvidence(claims).filter(entry => selectedClaims.includes(entry.name))) {
+          const record = { ...result, runtime }
+          evidence.adaptations.push(record)
+          evidence.missingBehavior = evidence.missingBehavior.filter(name => name !== record.name)
+          await checkpoint(record.name, { status: 'passed', ...record })
+          process.stderr.write(`[PASS] ${record.name} (dedicated Claims survival suite)\n`)
+        }
+      } catch (error) {
+        const runtime = claimsLogStart ? await errorsSince(claimsLogStart) : undefined
+        for (const name of selectedClaims) {
+          const failure = { name, suite: 'adapt-claims', error: error.message, runtime }
+          evidence.caseFailures.push(failure)
+          await checkpoint(name, { status: 'failed', ...failure })
+        }
+        context.signal.throwIfAborted()
       }
     }
     let completenessError

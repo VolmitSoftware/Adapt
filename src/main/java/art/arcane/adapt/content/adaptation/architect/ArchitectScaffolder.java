@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.claims.ClaimsService;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
@@ -33,6 +34,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -126,6 +128,9 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Player p = e.getPlayer();
     if (!buildingArmed(p)) {
       return;
@@ -192,7 +197,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
-    if (scaffolds.isEmpty()) {
+    if (ProtectionEventProbe.isActive(e) || scaffolds.isEmpty()) {
       return;
     }
 
@@ -208,10 +213,17 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
   }
 
   private void removeScaffold(Block block) {
-    ScaffoldMark mark = scaffolds.remove(block);
+    ScaffoldMark mark = scaffolds.get(block);
     if (mark == null) {
       return;
     }
+    if (block.getType() == mark.material() && !ClaimsService.permitsEdit(mark.owner(), block.getLocation())) {
+      if (isRuntimeRegistered()) {
+        J.runAt(block.getLocation(), () -> removeScaffold(block), 100);
+      }
+      return;
+    }
+    scaffolds.remove(block, mark);
 
     Set<Block> mine = byPlayer.get(mark.owner());
     if (mine != null) {

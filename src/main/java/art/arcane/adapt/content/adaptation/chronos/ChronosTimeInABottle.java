@@ -606,6 +606,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   }
 
   private TimeSpendResult accelerateTarget(Player player, Block clicked, double storedSeconds, int level) {
+    if (!canBlockPlace(player, clicked.getLocation())) {
+      return TimeSpendResult.none();
+    }
     if (clicked.getState() instanceof Furnace furnace) {
       if (!preferenceEnabled(player, FURNACES)) {
         return TimeSpendResult.none();

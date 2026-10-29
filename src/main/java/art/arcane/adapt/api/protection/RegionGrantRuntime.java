@@ -112,7 +112,7 @@ public final class RegionGrantRuntime {
       }
 
       Skill<?> skill = adaptation.getSkill();
-      if (skill == null || !skill.isEnabled()) {
+      if (skill == null || !skill.isEnabled() || "claims".equals(skill.getName())) {
         continue;
       }
 

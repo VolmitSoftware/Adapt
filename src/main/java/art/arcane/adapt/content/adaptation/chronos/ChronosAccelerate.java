@@ -310,6 +310,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
         || !J.isOwnedByCurrentRegion(block.getLocation())
         || !player.isOnline()
         || !canInteract(player, block.getLocation())
+        || !canBlockPlace(player, block.getLocation())
         || (container && !canAccessChest(player, block.getLocation()))) {
       return false;
     }

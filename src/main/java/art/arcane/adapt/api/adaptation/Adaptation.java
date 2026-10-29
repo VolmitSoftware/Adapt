@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.claims.ClaimsService;
+
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -507,14 +509,16 @@ public interface Adaptation<T> extends Ticked, Component {
    * World-policy check for breaking a block.
    */
   default boolean canBlockBreak(Player player, Location blockLocation) {
-    return evaluateWorldPolicy(protector -> protector.canBlockBreak(player, blockLocation, this));
+    return ClaimsService.permitsEdit(player, blockLocation)
+        && evaluateWorldPolicy(protector -> protector.canBlockBreak(player, blockLocation, this));
   }
 
   /**
    * World-policy check for placing a block.
    */
   default boolean canBlockPlace(Player player, Location blockLocation) {
-    return evaluateWorldPolicy(protector -> protector.canBlockPlace(player, blockLocation, this));
+    return ClaimsService.permitsEdit(player, blockLocation)
+        && evaluateWorldPolicy(protector -> protector.canBlockPlace(player, blockLocation, this));
   }
 
   /**
@@ -539,7 +543,9 @@ public interface Adaptation<T> extends Ticked, Component {
    * World-policy check for generic interaction.
    */
   default boolean canInteract(Player player, Location targetLocation) {
-    return evaluateWorldPolicy(protector -> protector.canInteract(player, targetLocation, this));
+    ClaimsService claims = ClaimsService.current();
+    return (claims == null || claims.canReach(player, targetLocation))
+        && evaluateWorldPolicy(protector -> protector.canInteract(player, targetLocation, this));
   }
 
   /**
@@ -760,7 +766,9 @@ public interface Adaptation<T> extends Ticked, Component {
    * World-policy check for chest access.
    */
   default boolean canAccessChest(Player player, Location chestLocation) {
-    return evaluateWorldPolicy(protector -> protector.canAccessChest(player, chestLocation, this));
+    ClaimsService claims = ClaimsService.current();
+    return (claims == null || claims.canReach(player, chestLocation))
+        && evaluateWorldPolicy(protector -> protector.canAccessChest(player, chestLocation, this));
   }
 
   /**
