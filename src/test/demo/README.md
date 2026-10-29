@@ -1,6 +1,6 @@
 # Adapt demo studio
 
-Records each adaptation of a skill on a real Minecraft 26.2 client, exports two clips per adaptation (player view and an observer camera that is fixed or follows the actor), and embeds them in the skill's wiki page.
+Records each adaptation of a skill on a real Minecraft 26.2 client and exports two clips for review: the player view and an observer camera that is fixed or follows the actor. Acceptance publishes the reviewed clips into the central docs, embeds them in the skill page, and removes local recording media.
 
 ## Commands
 
@@ -12,7 +12,9 @@ Run everything from the Adapt project root.
 | `--only id1,id2` | Limit the run to the listed adaptation ids. |
 | `--lane N` | Record on lane `N` (default 1). Each lane has its own Prism instance, client bridge, and server, so runs on different lanes work at the same time. See Lanes. |
 | `--failed` | Limit the run to ids that are missing from the manifest or have status `failed`. |
-| `--record-only` / `--export-only` | Run a single phase. Cannot be combined. |
+| `--record-only` / `--export-only` | Run a single phase while sources remain pending review. Cannot be combined with each other, `--accept`, or `--discard`. |
+| `--accept` | After visually reviewing the selected IDs, validate both staged clips, publish clips and declared stills to docs, sync the page, and delete local take media. Runs without a Minecraft client. Use the same `--output` and `--only` as the reviewed run. |
+| `--discard` | Delete selected rejected or obsolete pending takes and their local media without changing docs. Accepted manifest records remain intact. |
 | `--skip-build` | Skip `./gradlew build prepareGameplay`. This also skips the fixture rebuild, so run `./gradlew gameplayFixtureJar prepareGameplay` after editing fixture Java. The client mod build, the mod download check, and the copy of the jars into `jars/` still run. |
 | `--no-audio` | Export without sound. |
 | `--output <dir>` | Output folder. Default `build/demo/<skill>`. |
@@ -20,7 +22,7 @@ Run everything from the Adapt project root.
 | `python3 src/test/demo/docs_sync.py --skill agility` | Embed clips under each adaptation's heading in the skill's page. The page is the `../docs/adapt/*-skill-*.md` file whose ``### <name> (`<id>`)`` headings name the most of the skill's ids in `src/test/gameplay/adaptation-matrix.json`, so the file name does not have to match the skill id (`pickaxe` resolves to `25-skill-pickaxes.md`). A skill without matrix ids, no page with one of its headings, or two pages with the same count exits 2. The embedded ids come from the clip files on disk, and only ids with both clips present are embedded. Each `<video>` carries `aria-label="First-person demonstration of <Name>"` (pov) or `"Third-person demonstration of <Name>"` (observer), with `<Name>` the heading text before the id and HTML-escaped, as the published pages write it. A label already on a video with the same `src` is kept as written. Showcase clips (see Showcase clips) are embedded under their target heading with the showcase title, and declared stills are copied (see Stills). A second run changes nothing. `--docs <dir>` points at another docs checkout. `--output <dir>` names the run folder that holds the stills to copy (default `build/demo/<skill>`). |
 | `python3 -m unittest discover -s src/test/demo/tests -p 'test_*.py' -v` | Unit tests. |
 
-`demo.py` exits 0 when every selected id is recorded or exported and cleanup succeeded, 1 when a take failed or cleanup reported errors, and 2 when the sheet is invalid, an id is unknown, or another run holds the lane or the output folder. A run that reaches the end prints `gallery:` (this skill's gallery), `index:` (the gallery index), `logs:` (this run's server and client logs), and `failed:` as its last lines.
+`demo.py` exits 0 when every selected id is recorded, exported, or accepted and cleanup succeeded, 1 when a take failed or cleanup reported errors, and 2 when the sheet is invalid, an id is unknown, or another run holds the lane or the output folder. A recording or export run that reaches the end prints `gallery:` (this skill's gallery), `index:` (the gallery index), `logs:` (this run's server and client logs), and `failed:` as its last lines.
 
 Recording needs a packed Iris jar in `../Iris/build/libs`, the Iris `overworld` pack at `../../IrisDimensions/overworld` (or the folder named by `ADAPT_DEMO_IRIS_PACK`), Prism Launcher, and the Multiplexor workspace at `../../[Minecraft Server]`.
 
@@ -36,28 +38,35 @@ Every path the studio resolves from its checkout's siblings can be pointed elsew
 | `ADAPT_DEMO_GRADLE_ARGS` | Extra arguments appended to every Gradle command the studio runs (`./gradlew build prepareGameplay`), split like a shell command line, for example `-PlocalIrisDirectory=/work/iris -PlocalVolmLibDirectory=/work/volmlib`. Empty by default. |
 | `ADAPT_DEMO_SKIN_PROFILE` | Signed Mojang session-profile JSON for the actor's skin. See Pipeline. |
 
-Insight's sheet requires Gloss. Build its packed jar in `../Gloss` before recording. The studio snapshots the newest nonempty `Gloss-*-packed.jar` into the run's `jars/Gloss.jar` and installs it before the isolated server boots. Only selected, non-skipped entries request additional plugins; replay-only export uses the accepted recording without a server.
+Insight's sheet requires Gloss. Build its packed jar in `../Gloss` before recording. The studio snapshots the newest nonempty `Gloss v*.jar` into the run's `jars/Gloss.jar` and installs it before the isolated server boots. Only selected, non-skipped entries request additional plugins; replay-only export uses the pending recording without a server.
 
 ## Output
 
 - `build/demo/<skill>/jars/`: the `adapt-client-qa.jar`, `Adapt.jar`, and `AdaptGameplayFixture.jar` this run installs, copied from `build/client-qa` and `build/gameplay/plugins` at the end of its build.
-- `build/demo/<skill>/manifest.json`: one take per id with status `recorded`, `failed`, `exported`, or `skipped`, the evidence detail, and the last export error.
-- `build/demo/<skill>/replays/<id>.zip`: the Flashback replay of the accepted take.
-- `build/demo/<skill>/intermediate/<id>-pov-live.mp4` and `<id>-pov-live.mp4.log`: the live pov capture of a `povCapture` take and the encoder log (see Live framebuffer capture). A retake overwrites both.
+- `build/demo/<skill>/manifest.json`: one take per id with status `recorded`, `failed`, `exported` (awaiting review), `accepted`, or `skipped`, the evidence detail, and the last export error.
+- `build/demo/<skill>/replays/<id>.zip`: the Flashback replay retained until acceptance.
+- `build/demo/<skill>/intermediate/<id>-pov-live.mp4` and `<id>-pov-live.mp4.log`: the live pov capture of a `povCapture` take and the encoder log (see Live framebuffer capture). A retake overwrites both; acceptance removes them.
 - `build/demo/<skill>/gallery.html`: review page with both clips, facts per take, a copyable list of failed ids, and a Skipped list. A visual-only take shows `visual-only: <text>` in place of the evidence facts.
 - `build/demo/index.html`: one link per `build/demo/<folder>/gallery.html`, in name order, with the take counts by status from that folder's `manifest.json` and the time the gallery was written. `demo.py` rewrites it at the end of every run, so it lists the galleries of every skill shot so far, including those of other lanes.
 - `build/demo/<skill>/logs/<stamp>-server-install.log`, `<stamp>-server.log`, `<stamp>-client.log`, and `<stamp>-opponent.log`: the first-boot server log, the server log of the run, the client log of the run, and the opponent client's log when the run launched one (see Opponent). `<stamp>` is the run's suffix, the part after `adapt-demo-` in the server name (for example `1790799315-bce7b6`), so every run keeps its own logs and none is overwritten.
 - `build/demo/<skill>/stills/<id>-<name>.png`: the stills an exported entry declares (see Stills). The gallery shows them under the entry's clips.
-- `../docs/adapt-assets/demos/<skill>/<id>-pov.webm` and `<id>-observer.webm`: the published clips. An export failure removes both clips of that id. An id later changed to `skip` keeps its old clips, and `docs_sync.py` keeps embedding them, until they are deleted by hand.
+- `build/demo/<skill>/review/adapt-assets/demos/<skill>/<id>-{pov,observer}.webm`: the staged clips shown in the gallery before acceptance. Failed exports remove staged clips and leave published docs unchanged.
+- `../docs/adapt-assets/demos/<skill>/<id>-pov.webm` and `<id>-observer.webm`: the accepted clips, copied only after visual review and `--accept`. An id later changed to `skip` keeps its old clips, and `docs_sync.py` keeps embedding them, until they are deleted by hand.
 - The console prints `[LOCATE] <x> <z> <biome>` with the search time, or with the cache file when the site comes from `build/demo/site-cache.json`, and the gallery header names the plate origin and biome.
 - Before the first take the console prints `[SKIN] loaded <seconds> s after the client connected`, or `[SKIN] default ...` when the clips of the run will show a default skin (see Pipeline).
 - Before the first take the console prints `[TPS] 1-minute TPS <value> after <seconds> s`, or a `[TPS] warning:` line when the server stayed below the minimum or the reply had no TPS line.
+
+## Review and acceptance
+
+Open the generated gallery and inspect the start, action, and end of both angles, including readable screens for inventory footage. Run `python3 src/test/demo/demo.py --skill <skill> --only <reviewed-ids> --accept` with the same output folder. Acceptance checks clip size, VP9 codec, 1920×1080 resolution, and complete decoding, copies the clips and declared stills into docs, verifies the copies, and syncs the matching page before removing any source media. A validation, copy, or page-sync failure preserves the local sources for retry. Accepted manifests retain docs-relative asset paths and SHA-256 hashes; a cleanup retry requires those exact published bytes and never depends on a deleted replay or capture.
+
+Acceptance removes selected local replays, live captures, intermediate MP4s, staged WebMs, stills, and thumbnails. Once every take in the output folder is accepted or skipped, it also removes remaining media in its recording and review folders, including superseded takes and contact sheets. Pending takes remain available for correction. Reject a take with `--discard --only <ids>` to remove its pending media and manifest entries without changing the published docs. Accepted gallery entries play the docs copies. Keep the authored sheets, fixture sets, Iris pack, `build/demo/site-cache.json`, and model cache for repeatable reshoots; do not retain duplicate media in another local archive.
 
 ## Pipeline
 
 Before launching an inactive studio instance, the studio reloads its settings in a running Prism launcher by briefly moving that instance outside the watched instance folder, waiting for its removal, restoring its configuration and folder, and waiting for Prism to load it again. Active clients are rejected before this operation. All instance files and mods are preserved.
 
-`--export-only` builds and installs only the client bridge and client mods, then launches the lane’s client at the main menu and waits for its bridge to respond. It opens the accepted Flashback replays directly; it does not create a server, load an Iris world, prepare a plate, launch an opponent, or warm up an actor. Existing accepted replay and live POV files are required. Client shutdown and lane cleanup still run after export.
+`--export-only` builds and installs only the client bridge and client mods, then launches the lane’s client at the main menu and waits for its bridge to respond. It opens the pending Flashback replays directly; it does not create a server, load an Iris world, prepare a plate, launch an opponent, or warm up an actor. Existing replay and live POV files are required. Accepted takes must be recorded again for subsequent edits because their local sources are removed. Client shutdown and lane cleanup still run after export.
 
 Studio start: build and copy the jars into `jars/` under the build lock (see Lanes), isolated Paper 26.2 server seeded with `78264193`, first boot, action-bar popups muted, restart, the sheet's world (the Iris world, created on this server, or the Nether; see World and plate), plate location (from the site cache when it has the site), plate, client refresh and launch, the actor's hidden render target fitted to 1920x1080 (see Prism instances), the opponent client when a selected entry needs one (see Opponent), a warm-up that places the actor (and the opponent) on the `arena` set and waits `WARM_UP_TICKS` (400) client ticks so the chunks around the plate are loaded before the first take, and the skin wait.
 
@@ -93,7 +102,7 @@ Per take:
 
 A take with missing evidence or a timed-out beat is shot up to three times. An error inside a take fails that take and the batch moves to the next id. This covers fixture errors (`ADAPT_QA ERROR`), vanilla command errors (raised as `AssertionError` by the RCON client), bridge rejections, and a missing replay. The batch stops when the client bridge fails to answer two state requests in a row, or on Ctrl-C.
 
-Per exported angle: open the replay, wait for it to load, warm up for `WARM_UP_SECONDS` (6 s), spectate the actor for the pov angle, export from replay tick `START_TICK` (10) at 1920x1080 30 fps as H264 at 40 Mbps, encode to VP9 WebM at CRF 27 (higher when the clip would pass 25,000,000 bytes, see Take and clip checks), scan the clip for corrupt frames, and grab a thumbnail from the middle of the clip. Each export may take up to `EXPORT_TIMEOUT` (1800 s). The pov angle of a `povCapture` take skips the replay: its live capture is encoded the same way with the first `LIVE_TRIM_SECONDS` (0.5 s, the length of `START_TICK`) cut, and only the observer comes from Flashback.
+Per exported angle: open the replay, wait for it to load, warm up for `WARM_UP_SECONDS` (6 s), spectate the actor for the pov angle, export from replay tick `START_TICK` (10) at 1920x1080 30 fps as H264 at 40 Mbps, encode to VP9 WebM at CRF 27 (higher when the clip would pass 25,000,000 bytes, see Take and clip checks), scan the clip for corrupt frames, and grab a thumbnail from the middle of the clip. Each export may take up to `EXPORT_TIMEOUT` (1800 s). The pov angle of a `povCapture` take skips the replay: its live capture is encoded into the review folder the same way with the first `LIVE_TRIM_SECONDS` (0.5 s, the length of `START_TICK`) cut, and only the observer comes from Flashback.
 
 The bridge answers a command with HTTP 504 when the client does not take it within five seconds, which happens to the first `replay-open` after a batch of recordings while the client is still saving the last replay. The export then waits up to `OPEN_RETRY_SECONDS` (30 s) for `/export-status` to report the replay open and sends `replay-open` once more when it is not, then waits for the replay to load as usual. When it still does not load, the take's export fails with both timeouts in its error. A rejection (HTTP 400) is never resent. `disconnect` after an export is handled the same way, with a 10 s wait.
 
@@ -326,7 +335,7 @@ Flashback replays do not record open screens, so a pov clip exported from the re
 - Frames are paced by the wall clock: each 1/30 s slot gets at most one frame, taken from the first frame the game renders in it. While a capture runs the client renders at up to twice the capture rate (60 fps) and is never throttled as idle; the configured frame limit returns when the capture stops.
 - Toasts are cleared at the start and on every frame while a capture runs, so neither Flashback's `Started recording` toast nor advancement or recipe toasts reach the clip; a replay export never shows them either.
 - Every bridge reply carries `capturing`, `captureFrames`, `captureSeconds`, and `captureSource`: the running capture's frames written so far, seconds since it started, and render target size, or the last finished capture's values.
-- The export encodes the live file to the pov WebM as usual, after cutting the first 0.5 s so it starts where the replay export starts. `--export-only` reuses the live file of the last recording and fails the take when it is missing.
+- The export encodes the live file to the pov WebM as usual, after cutting the first 0.5 s so it starts where the replay export starts. `--export-only` reuses the pending live file of the last recording and fails the take when it is missing. Record the take again after acceptance removes that file.
 
 The capture is real time. A slot in which the client renders no frame (a stall, a loaded machine, other lanes exporting) is missing from the clip, so the clip plays slightly short and fast instead of freezing, and the frame count and rate on the `[CAPTURE]` line show how close it came to 30 fps. The clip has no game sound. Keep the client hidden rather than minimizing it; actual iconification limits rendering to 10 fps. Recording requires no visible desktop window.
 

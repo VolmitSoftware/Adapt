@@ -138,9 +138,10 @@ def bridge_failure(failure: urllib.error.HTTPError, label: str) -> RuntimeError:
 
 def iris_jar(libs: Path | None = None) -> Path:
     folder: Path = libs if libs is not None else Path(os.environ.get(IRIS_LIBS_ENV) or IRIS_LIBS)
-    candidates: list[Path] = list(folder.glob('Iris*-packed.jar'))
+    candidates: list[Path] = [path for path in folder.glob('Iris*.jar')
+                              if not path.name.endswith(('-sources.jar', '-javadoc.jar', '-api.jar'))]
     if not candidates:
-        raise RuntimeError('No packed Iris jar under ' + str(folder) + '; set ' + IRIS_LIBS_ENV + ' to its folder')
+        raise RuntimeError('No Iris jar under ' + str(folder) + '; set ' + IRIS_LIBS_ENV + ' to its folder')
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 
@@ -665,7 +666,7 @@ class Studio:
             for jar in jars:
                 shutil.copy2(jar, self.jars / jar.name)
             if not client_only and 'Gloss' in self.required_plugins:
-                candidates: list[Path] = [path for path in (ROOT.parent / 'Gloss' / 'build' / 'libs').glob('Gloss-*-packed.jar')
+                candidates: list[Path] = [path for path in (ROOT.parent / 'Gloss' / 'build' / 'libs').glob('Gloss v*.jar')
                                           if path.is_file() and path.stat().st_size > 0]
                 if not candidates:
                     raise RuntimeError('Gloss is required for this sheet; run ./gradlew shadowJar in ../Gloss before recording')

@@ -380,38 +380,38 @@ class IrisJarTest(unittest.TestCase):
             jar.write_bytes(b'jar')
             os.utime(jar, (1000 + age, 1000 + age))
 
-    def test_newest_packed_jar_is_chosen_over_newer_intermediate(self) -> None:
+    def test_newest_runtime_jar_is_chosen_over_newer_sources(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             libs = Path(tmp) / 'libs'
-            self.write_jars(libs, ['Iris v4.1.2-26.2 [CraftBukkit] 26.1.2-26.3-packed.jar', 'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3-packed.jar',
-                                   'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3.jar', 'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3-sources.jar'])
-            self.assertEqual(studio.iris_jar(libs).name, 'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3-packed.jar')
+            self.write_jars(libs, ['Iris v4.1.2-26.2 [CraftBukkit] 26.1.2-26.3.jar', 'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3.jar',
+                                   'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3-sources.jar'])
+            self.assertEqual(studio.iris_jar(libs).name, 'Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3.jar')
 
-    def test_missing_packed_jar_fails(self) -> None:
+    def test_missing_runtime_jar_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             libs = Path(tmp) / 'libs'
-            self.write_jars(libs, ['Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3.jar'])
-            with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar'):
+            self.write_jars(libs, ['Iris v4.2.0-26.2 [CraftBukkit] 26.1.2-26.3-sources.jar'])
+            with self.assertRaisesRegex(RuntimeError, 'No Iris jar'):
                 studio.iris_jar(libs)
 
     def test_environment_folder_replaces_the_sibling_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             libs = Path(tmp) / 'libs'
-            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3.jar'])
             with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(libs)}):
                 self.assertEqual(studio.iris_jar().parent, libs)
 
     def test_explicit_folder_wins_over_the_environment(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             libs = Path(tmp) / 'libs'
-            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3.jar'])
             with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(Path(tmp) / 'elsewhere')}):
                 self.assertEqual(studio.iris_jar(libs).parent, libs)
 
     def test_unset_environment_keeps_the_sibling_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': ''}):
             with mock.patch.object(studio, 'IRIS_LIBS', Path(tmp) / 'sibling'):
-                with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar under ' + str(Path(tmp) / 'sibling') + '; set ADAPT_DEMO_IRIS_LIBS'):
+                with self.assertRaisesRegex(RuntimeError, 'No Iris jar under ' + str(Path(tmp) / 'sibling') + '; set ADAPT_DEMO_IRIS_LIBS'):
                     studio.iris_jar()
 
 

@@ -47,7 +47,7 @@ plugins {
 
 apply plugin: 'art.arcane.volmit-packaging'
 
-version = '2.2.5'
+version = '2.2.6'
 ext.bukkitMinecraftRange = providers.gradleProperty('bukkitMinecraftRange').getOrElse('26.1.2-26.3')
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
@@ -370,7 +370,13 @@ slimJar {
 /**
  * Configure Adapt for shading
  */
+tasks.named('jar', Jar).configure {
+    archiveClassifier.set('thin')
+}
+
 shadowJarTask.configure {
+    archiveClassifier.set('')
+    archiveFileName.set("Adapt v${project.version} [CraftBukkit] ${bukkitMinecraftRange}.jar")
     manifest.attributes('paperweight-mappings-namespace': 'mojang')
     minimize {
         exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))

@@ -29,6 +29,7 @@ class Take:
     min_golem_distance: float | None = None
     min_golem_time: float | None = None
     crf: dict = field(default_factory=dict)
+    published_files: dict[str, str] = field(default_factory=dict)
 
 
 def clip_seconds(take: Take) -> float:

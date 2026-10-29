@@ -79,7 +79,7 @@ project, instance = map(Path, sys.argv[1:])
 for plugin in ('Iris', 'Gloss'):
     configured = os.environ.get(f'ADAPT_QA_{plugin.upper()}_JAR')
     candidates = [Path(configured)] if configured else list((project.parent / plugin / 'build/libs').glob(f'{plugin}*.jar'))
-    candidates = [path for path in candidates if path.is_file() and not any(suffix in path.name for suffix in ('-sources', '-javadoc', '-api', '-packed', '-xz', 'unpacked'))]
+    candidates = [path for path in candidates if path.is_file() and not any(suffix in path.name for suffix in ('-sources', '-javadoc', '-api', '-xz', 'unpacked'))]
     if not candidates:
         raise SystemExit(f'Build {plugin} or set ADAPT_QA_{plugin.upper()}_JAR before running full acceptance.')
     source = max(candidates, key=lambda path: path.stat().st_mtime)

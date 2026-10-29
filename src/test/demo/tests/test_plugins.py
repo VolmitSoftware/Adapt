@@ -57,7 +57,7 @@ class SheetPluginsTest(unittest.TestCase):
         session: mock.MagicMock = mock.MagicMock()
         session.stop.return_value = []
         args: argparse.Namespace = argparse.Namespace(skill='discovery', skip_build=True, lane=1,
-            only='insight', failed=False, export_only=False, record_only=True, ffmpeg='/tmp/ffmpeg')
+            only='insight', failed=False, export_only=False, record_only=True, accept=False, discard=False, ffmpeg='/tmp/ffmpeg')
         with tempfile.TemporaryDirectory() as folder, mock.patch('sys.stdout', new_callable=io.StringIO), \
                 mock.patch.object(demo.choreography, 'load_skill', return_value=choreography.Sheet(choreography.OVERWORLD, entries)), \
                 mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'insight'}), \
@@ -104,16 +104,18 @@ class StudioPluginsTest(unittest.TestCase):
             root.mkdir()
             libs: Path = root.parent / 'Gloss/build/libs'
             libs.mkdir(parents=True)
-            old: Path = libs / 'Gloss-old-packed.jar'
-            current: Path = libs / 'Gloss-current-packed.jar'
-            empty: Path = libs / 'Gloss-empty-packed.jar'
+            old: Path = libs / 'Gloss v3.2.4 [CraftBukkit] 26.1.2-26.3.jar'
+            current: Path = libs / 'Gloss v3.2.5 [CraftBukkit] 26.1.2-26.3.jar'
+            empty: Path = libs / 'Gloss v3.2.6 [CraftBukkit] 26.1.2-26.3.jar'
+            api: Path = libs / 'Gloss-3.2.6-api.jar'
             old.write_bytes(b'old')
             current.write_bytes(b'current')
             empty.write_bytes(b'')
-            (libs / 'Gloss-other.jar').write_bytes(b'unpacked')
+            api.write_bytes(b'api')
             os.utime(old, (10, 10))
             os.utime(current, (20, 20))
             os.utime(empty, (30, 30))
+            os.utime(api, (40, 40))
             session: studio.Studio = studio.Studio(root / 'output', True)
             session.required_plugins = ('Gloss',)
             self.prepare(session, root)

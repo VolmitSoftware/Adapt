@@ -2,10 +2,12 @@ import argparse
 import contextlib
 import dataclasses
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import acceptance
 import choreography
 import export_phase
 import gallery
@@ -32,14 +34,16 @@ def arguments() -> argparse.Namespace:
     parser.add_argument('--failed', action='store_true')
     parser.add_argument('--record-only', action='store_true')
     parser.add_argument('--export-only', action='store_true')
+    parser.add_argument('--accept', action='store_true', help='Publish visually reviewed clips to docs and remove local take media.')
+    parser.add_argument('--discard', action='store_true', help='Remove selected rejected takes and their local media without changing docs.')
     parser.add_argument('--output', default='')
     parser.add_argument('--skip-build', action='store_true')
     parser.add_argument('--no-audio', action='store_true')
     parser.add_argument('--ffmpeg', default=default_tool('ffmpeg'))
     parser.add_argument('--ffprobe', default=default_tool('ffprobe'))
     args: argparse.Namespace = parser.parse_args()
-    if args.record_only and args.export_only:
-        parser.error('--record-only and --export-only cannot be combined')
+    if sum((args.record_only, args.export_only, args.accept, args.discard)) > 1:
+        parser.error('--record-only, --export-only, --accept, and --discard cannot be combined')
     if args.lane < 1:
         parser.error('--lane must be 1 or higher')
     return args
@@ -88,6 +92,19 @@ def batch(args: argparse.Namespace, output: Path) -> int:
         return 2
     if args.failed:
         ids = [identifier for identifier in ids if identifier not in takes or takes[identifier].status == 'failed']
+    if args.export_only and any(identifier in takes and takes[identifier].status == 'accepted' for identifier in ids):
+        print('Accepted takes have no retained recording sources; record the selected IDs again.', file=sys.stderr)
+        return 2
+    if args.accept or args.discard:
+        try:
+            takes = acceptance.discard(output, DOCS, takes, ids) if args.discard else acceptance.accept(output, DOCS, takes, ids, Path(args.ffmpeg), Path(args.ffprobe))
+        except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as failure:
+            print(('discard' if args.discard else 'acceptance') + ' failed: ' + str(failure), file=sys.stderr)
+            return 1
+        gallery.write(output / 'gallery.html', takes, acceptance.review_root(output), output / 'thumbs', '', DOCS)
+        gallery.write_index(INDEX)
+        print(('discarded: ' if args.discard else 'accepted: ') + ', '.join(ids))
+        return 0
     studio: Studio = Studio(output, args.skip_build, args.lane)
     try:
         if args.export_only:
@@ -102,12 +119,12 @@ def batch(args: argparse.Namespace, output: Path) -> int:
             takes = record_phase.record(studio, entries, ids, manifest_path, args.skill, ffmpeg=Path(args.ffmpeg).resolve())
         if not args.record_only:
             takes = current_stills(takes, entries)
-            takes = export_phase.export(studio, takes, ids, DOCS, Path(args.ffmpeg), Path(args.ffprobe), manifest_path, audio=not args.no_audio)
+            takes = export_phase.export(studio, takes, ids, acceptance.review_root(output), Path(args.ffmpeg), Path(args.ffprobe), manifest_path, audio=not args.no_audio)
     finally:
         cleanup: list[str] = studio.stop()
         for error in cleanup:
             print('[CLEANUP] ' + error, file=sys.stderr, flush=True)
-    gallery.write(output / 'gallery.html', takes, DOCS, output / 'thumbs', studio.plate_label())
+    gallery.write(output / 'gallery.html', takes, acceptance.review_root(output), output / 'thumbs', studio.plate_label(), DOCS)
     gallery.write_index(INDEX)
     failed: list[str] = [identifier for identifier in ids if identifier not in takes or takes[identifier].status == 'failed']
     print('gallery: ' + str(output / 'gallery.html'))

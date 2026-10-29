@@ -523,7 +523,7 @@ class RunJarsTest(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root: Path = Path(self.tmp.name)
         write_tree(self.root, BUILT_JARS)
-        write_tree(self.root, {'iris/Iris-4.0-packed.jar': 'iris', 'server/server.properties': 'server-port=52000\n',
+        write_tree(self.root, {'iris/Iris-4.0.jar': 'iris', 'server/server.properties': 'server-port=52000\n',
                                'server/plugins/Adapt/adapt.toml': 'actionbarNotifyXp = true\nactionbarNotifyLevel = true\nactionbarNotifyMasterLevel = true\n',
                                'server/plugins/Adapt/skills/discovery.toml': 'enabled = true\n'})
         self.bridge: mock.MagicMock = mock.MagicMock()
@@ -536,7 +536,7 @@ class RunJarsTest(unittest.TestCase):
                         mock.patch.object(studio.clientqa, 'mux', side_effect=self.mux),
                         mock.patch.object(studio.clientqa, 'free_port', side_effect=[52100, 52101]),
                         mock.patch.object(studio.clientqa, 'wait_server'), mock.patch.object(studio.clientqa, 'client_processes', return_value=[]),
-                        mock.patch.object(studio, 'iris_jar', return_value=self.root / 'iris' / 'Iris-4.0-packed.jar'),
+                        mock.patch.object(studio, 'iris_jar', return_value=self.root / 'iris' / 'Iris-4.0.jar'),
                         mock.patch.object(studio, 'iris_pack'), mock.patch.object(studio, 'install_pack'), mock.patch.object(studio, 'DemoRcon'),
                         mock.patch.object(studio, 'DemoBridge', return_value=self.bridge), mock.patch.object(studio, 'launch_prism'),
                         mock.patch.object(studio, 'reload_prism_instance')):
