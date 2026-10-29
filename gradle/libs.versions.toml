@@ -46,6 +46,7 @@ platformUtils = { module = "com.github.CrazyDev05:PlatformUtils", version.ref = 
 adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure-api" }
 adventure-gson = { module = "net.kyori:adventure-text-serializer-gson", version.ref = "adventure-api" }
 adventure-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure-api" }
+adventure-plain = { module = "net.kyori:adventure-text-serializer-plain", version.ref = "adventure-api" }
 adventure-platform = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
 
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }

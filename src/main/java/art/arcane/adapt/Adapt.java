@@ -68,6 +68,7 @@ import art.arcane.adapt.content.protector.WorldGuardFlags;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
 import art.arcane.adapt.content.protector.WorldGuardRegionPolicySource;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -385,7 +386,9 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     CustomBlockData.registerListener(this);
     registerListener(new BrewingManager());
     registerListener(new BonusBlockBreaks());
-    registerListener(new SimpleAdaptation.PlayerDamageListener());
+    if (PaperCompat.hasClass("io.papermc.paper.event.entity.EntityKnockbackEvent")) {
+      registerListener(new SimpleAdaptation.PlayerDamageListener());
+    }
     registerListener(new XpProvenanceListener());
     registerListener(new GolemItemGuard(GolemItems.recipeBook()));
     registerListener(GolemItems.craftCounter());

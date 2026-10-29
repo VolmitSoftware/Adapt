@@ -248,6 +248,7 @@ dependencies {
     slimApi(libs.adventure.platform)
     slimApi(libs.adventure.gson)
     slimApi(libs.adventure.legacy)
+    slimApi(libs.adventure.plain)
     slimApi(libs.lettuce)
     slimApi(libs.particle)
     add('advancementLibrary', libs.ultimateAdvancementApi) {
