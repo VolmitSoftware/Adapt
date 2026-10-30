@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { createReadStream } from 'node:fs'
 import { readdir, stat, writeFile } from 'node:fs/promises'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 async function files(directory, accept, recursive = true) {
@@ -25,7 +25,7 @@ async function digest(path, root) {
     if (before.size !== after.size || before.mtimeMs !== after.mtimeMs || before.ino !== after.ino) {
         throw new Error(`Evidence input changed while hashing: ${path}`)
     }
-    return { path: relative(root, path), bytes: after.size, sha256: hash.digest('hex') }
+    return { path: relative(root, path).split(sep).join('/'), bytes: after.size, sha256: hash.digest('hex') }
 }
 
 export async function captureEvidenceManifest(serverDirectory, { scope = {}, harnessDirectory = dirname(fileURLToPath(import.meta.url)) } = {}) {

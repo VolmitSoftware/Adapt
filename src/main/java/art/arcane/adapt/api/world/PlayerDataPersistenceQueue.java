@@ -42,6 +42,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
   private static final long SQL_BATCH_GATHER_MILLIS = 25L;
   private static final long[] RETRY_BACKOFF_MILLIS = {50L, 250L, 1_000L};
   private static final Object[] DELETE_OPERATION_LOCKS = createDeleteOperationLocks();
+  private static final boolean WINDOWS = File.separatorChar == '\\';
 
   private final ExecutorService ioExecutor;
   private final RetryScheduler retryScheduler;
@@ -1278,7 +1279,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
         }
         Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
       }
-      if (requireAtomicMove) {
+      if (requireAtomicMove && !WINDOWS) {
         try (FileChannel directory = FileChannel.open(parent, StandardOpenOption.READ)) {
           directory.force(true);
         }

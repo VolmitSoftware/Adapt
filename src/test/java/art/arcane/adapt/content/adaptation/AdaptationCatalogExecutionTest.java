@@ -164,7 +164,7 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
     try (Stream<Path> files = Files.walk(ADAPTATION_ROOT)) {
       List<String> classes = files.filter(path -> path.toString().endsWith(".java"))
           .filter(AdaptationCatalogExecutionTest::isAdaptation)
-          .map(path -> SOURCE_ROOT.relativize(path).toString().replace('/', '.').replace(".java", ""))
+          .map(path -> SOURCE_ROOT.relativize(path).toString().replace(path.getFileSystem().getSeparator(), ".").replace(".java", ""))
           .sorted()
           .toList();
       assertThat(classes).hasSize(330);
