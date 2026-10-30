@@ -8210,7 +8210,7 @@ name = "Fundação"
 description = "Funda uma cidade clicando com o botão direito numa magnetite com uma pá. Também é necessário o primeiro grau de Fortificação."
 lore1 = "Território inicial da cidade: 3 por 3 chunks"
 guide-controls = "Aprende Fundação e Fortificação I. Coloca uma magnetite e clica nela com o botão direito enquanto seguras uma pá. A âncora reivindica o seu chunk e os oito vizinhos para uma cidade. Os nove chunks têm de estar livres. Os territórios abrangem toda a altura do mundo. Usa /adapt claims boundaries para veres as fronteiras."
-guide-rules = "Mundos permitidos: {worlds}. Nenhum chunk reivindicado pode sobrepor-se ao quadrado de {minimum} a {maximum} em X e Z, incluindo os limites. Membros e forasteiros não podem teletransportar-se para territórios, nem dentro deles. É permitido teletransportar-se para fora. O voo, o voo planado e as travessias aéreas de fronteiras estão bloqueados."
+guide-rules = "Mundos permitidos: {worlds}. Nenhum chunk reivindicado pode sobrepor-se ao quadrado de {minimum} a {maximum} em X e Z, incluindo os limites. Os fundadores e membros podem teletransportar-se para a sua própria cidade. Os forasteiros não o podem fazer. É permitido teletransportar-se para fora. O voo, o voo planado e as travessias aéreas de fronteiras estão bloqueados para todos."
 guide-consequences = "Destruir a âncora principal liberta toda a cidade e todos os terrenos pessoais. As construções permanecem. Para libertares a tua âncora, olha para ela e executa /adapt claims dismantle, seguido de /adapt claims dismantle confirm=true no prazo de 30 segundos. A experiência de Territórios provém apenas de concessões de administradores. Construir e atacar não dá experiência."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "As reposições do progresso, a perda de poder e os graus 
 
 [claims.homestead]
 name = "Terreno pessoal"
-description = "Ativa uma magnetite pessoal dentro da tua cidade. A sua área de 3 por 3 chunks tem de caber inteiramente na cidade e excluir outros terrenos e a âncora principal."
+description = "Ativa uma magnetite pessoal dentro da tua cidade. A sua área de 3 por 3 chunks tem de caber inteiramente na cidade sem se sobrepor a outros terrenos nem à área de 3 por 3 chunks da âncora principal."
 lore1 = "Um terreno pessoal de 3 por 3 chunks"
-guide-controls = "Aprende Terreno pessoal com a tua própria personagem. Coloca uma magnetite separada dentro da tua cidade e clica nela com o botão direito enquanto seguras uma pá. Os nove chunks da sua área de 3 por 3 têm de pertencer à cidade. A área não pode incluir o chunk da âncora principal nem sobrepor-se a outro terreno pessoal."
-guide-rules = "Podes possuir um terreno pessoal e alterá-lo livremente. Todos os outros, incluindo o fundador, enfrentam resistência. Os outros membros da cidade usam sempre a resistência com ligação. Conservas o terreno se saíres da cidade ou fores expulso. As restrições de teletransporte e voo também se aplicam nos terrenos pessoais."
+guide-controls = "Aprende Terreno pessoal com a tua própria personagem. Coloca uma magnetite separada dentro da tua cidade e clica nela com o botão direito enquanto seguras uma pá. Os nove chunks da sua área de 3 por 3 têm de pertencer à cidade. A área não pode sobrepor-se à área de 3 por 3 chunks da âncora principal nem a outro terreno pessoal."
+guide-rules = "Podes possuir um terreno pessoal e alterá-lo livremente. Todos os outros, incluindo o fundador, enfrentam resistência. Os outros membros da cidade usam sempre a resistência com ligação. Conservas o terreno se saíres da cidade ou fores expulso. Os membros da cidade podem teletransportar-se para terrenos pessoais. A chegada não concede permissões de alteração. As restrições de voo continuam em vigor."
 guide-consequences = "Destruir ou desmantelar a âncora pessoal devolve os seus chunks às terras comuns. As construções permanecem. A destruição da âncora principal também liberta o terreno. Para desmantelares a tua âncora, olha para ela e executa /adapt claims dismantle, seguido de /adapt claims dismantle confirm=true no prazo de 30 segundos."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Quebra"
 place-action = "Colocação"
 anchor-confirm = "Olha para a tua âncora e usa /adapt claims dismantle para confirmar a remoção."
-entry-denied = "Os teletransportes e as entradas pelo ar estão bloqueados nos territórios reivindicados."
+entry-denied = "Este território bloqueia essa deslocação."
 relocation-failed = "Não foi encontrado um local seguro fora do território. Contacta um administrador."
 disabled = "A habilidade Territórios está desativada."
 city-founded = "Fundaste {city} com {count} chunks. Clica com o botão direito na magnetite com uma pá para a selecionares."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "A tua cidade atingiu a capacidade de membros. Aprende
 already-has-plot = "Já tens um terreno pessoal."
 plot-outside-city = "Os nove chunks do terreno pessoal têm de pertencer à tua cidade."
 plot-overlap = "A área sobrepõe-se a outro terreno pessoal."
-main-anchor-overlap = "Um terreno pessoal não pode incluir a âncora principal da cidade."
+main-anchor-overlap = "Um terreno pessoal não pode sobrepor-se à área de 3 por 3 chunks da âncora principal da cidade."
 invitation-missing = "Não tens nenhum convite correspondente para uma cidade."
 invitation-expired = "O teu convite para a cidade expirou."
 not-member = "Esse jogador não pertence a esta cidade."

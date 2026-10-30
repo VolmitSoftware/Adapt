@@ -8210,7 +8210,7 @@ name = "Perustaminen"
 description = "Perusta yksi kaupunki napsauttamalla magneettikiveä oikealla hiirenpainikkeella lapio kädessä. Tarvitset myös Linnoittamisen ensimmäisen tason."
 lore1 = "Kaupungin alkualue: 3 × 3 chunkia"
 guide-controls = "Opi Perustaminen ja Linnoittaminen I. Aseta magneettikivi ja napsauta sitä oikealla hiirenpainikkeella lapio kädessä. Ankkuri varaa oman chunkinsa ja kahdeksan naapurichunkia yhdelle kaupungille. Kaikkien yhdeksän chunkin on oltava vapaita. Alue ulottuu maailman koko korkeudelle. Näytä rajat komennolla /adapt claims boundaries."
-guide-rules = "Sallitut maailmat: {worlds}. Yksikään varattu chunk ei saa osua neliöön, jonka X- ja Z-koordinaatit ovat välillä {minimum}–{maximum}, rajat mukaan lukien. Jäsenet ja ulkopuoliset eivät voi teleportata alueille edes niiden sisällä. Ulos teleporttaaminen on sallittua. Lentäminen, liitäminen ja rajojen ylittäminen ilmassa on estetty."
+guide-rules = "Sallitut maailmat: {worlds}. Yksikään varattu chunk ei saa osua neliöön, jonka X- ja Z-koordinaatit ovat välillä {minimum}–{maximum}, rajat mukaan lukien. Perustajat ja jäsenet voivat teleportata omaan kaupunkiinsa. Ulkopuoliset eivät voi. Ulos teleporttaaminen on sallittua. Lentäminen, liitäminen ja rajojen ylittäminen ilmassa on estetty kaikilta."
 guide-consequences = "Pääankkurin rikkominen vapauttaa koko kaupungin ja kaikki henkilökohtaiset tontit. Rakennukset säilyvät. Vapauta oma ankkurisi katsomalla sitä ja suorittamalla /adapt claims dismantle sekä sen jälkeen /adapt claims dismantle confirm=true 30 sekunnin kuluessa. Alueiden kokemuspisteitä saa vain ylläpitäjien myöntäminä. Rakentaminen ja hyökkääminen eivät anna niitä."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Edistymisen nollaukset, voiman menetys ja asetuksissa alen
 
 [claims.homestead]
 name = "Kotitila"
-description = "Aktivoi henkilökohtainen magneettikivi kaupungissasi. Sen 3 × 3 chunkin alueen on oltava kokonaan kaupungin sisällä ilman muita tontteja tai pääankkuria."
+description = "Aktivoi henkilökohtainen magneettikivi kaupungissasi. Sen 3 × 3 chunkin alueen on oltava kokonaan kaupungin sisällä eikä se saa mennä päällekkäin muiden tonttien tai pääankkurin 3 × 3 chunkin alueen kanssa."
 lore1 = "Yksi henkilökohtainen 3 × 3 chunkin tontti"
-guide-controls = "Opi Kotitila omalla hahmollasi. Aseta erillinen magneettikivi kaupunkisi sisälle ja napsauta sitä oikealla hiirenpainikkeella lapio kädessä. Sen 3 × 3 chunkin alueen kaikkien yhdeksän chunkin on kuuluttava kaupunkiin. Alue ei saa sisältää pääankkurin chunkia eikä mennä päällekkäin toisen henkilökohtaisen tontin kanssa."
-guide-rules = "Voit omistaa yhden henkilökohtaisen tontin ja muokata sitä vapaasti. Kaikki muut, myös perustaja, kohtaavat vastustusta. Saman kaupungin jäsenille käytetään aina läsnäolon vastustusta. Säilytät tonttisi, vaikka lähdet kaupungista tai sinut erotetaan. Teleporttaus- ja lentorajoitukset koskevat myös henkilökohtaisia tontteja."
+guide-controls = "Opi Kotitila omalla hahmollasi. Aseta erillinen magneettikivi kaupunkisi sisälle ja napsauta sitä oikealla hiirenpainikkeella lapio kädessä. Sen 3 × 3 chunkin alueen kaikkien yhdeksän chunkin on kuuluttava kaupunkiin. Alue ei saa mennä päällekkäin pääankkurin 3 × 3 chunkin alueen tai toisen henkilökohtaisen tontin kanssa."
+guide-rules = "Voit omistaa yhden henkilökohtaisen tontin ja muokata sitä vapaasti. Kaikki muut, myös perustaja, kohtaavat vastustusta. Saman kaupungin jäsenille käytetään aina läsnäolon vastustusta. Säilytät tonttisi, vaikka lähdet kaupungista tai sinut erotetaan. Kaupungin jäsenet voivat teleportata henkilökohtaisille tonteille. Saapuminen ei anna muokkausoikeutta. Lentorajoitukset ovat edelleen voimassa."
 guide-consequences = "Henkilökohtaisen ankkurin tuhoaminen tai purkaminen palauttaa sen chunkit yhteismaaksi. Rakennukset säilyvät. Myös pääankkurin tuhoaminen vapauttaa tontin. Pura oma ankkurisi katsomalla sitä ja suorittamalla /adapt claims dismantle sekä sen jälkeen /adapt claims dismantle confirm=true 30 sekunnin kuluessa."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Rikkominen"
 place-action = "Sijoittaminen"
 anchor-confirm = "Katso ankkuriasi ja aloita poistamisen vahvistus komennolla /adapt claims dismantle."
-entry-denied = "Teleporttaus ja saapuminen ilmassa on estetty varatuilla alueilla."
+entry-denied = "Tämä alue estää tämän siirtymisen."
 relocation-failed = "Varatun alueen ulkopuolelta ei löytynyt turvallista paikkaa. Ota yhteyttä ylläpitäjään."
 disabled = "Alueet-taito on poistettu käytöstä."
 city-founded = "Perustit kaupungin {city}, jossa on {count} chunkia. Valitse se napsauttamalla magneettikiveä oikealla hiirenpainikkeella lapio kädessä."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Kaupunkisi jäsenten enimmäismäärä on täynnä. O
 already-has-plot = "Omistat jo henkilökohtaisen tontin."
 plot-outside-city = "Henkilökohtaisen tontin kaikkien yhdeksän chunkin on kuuluttava kaupunkiisi."
 plot-overlap = "Alue osuu toiseen henkilökohtaiseen tonttiin."
-main-anchor-overlap = "Henkilökohtainen tontti ei saa sisältää kaupungin pääankkuria."
+main-anchor-overlap = "Henkilökohtainen tontti ei saa mennä päällekkäin kaupungin pääankkurin 3 × 3 chunkin alueen kanssa."
 invitation-missing = "Sinulla ei ole vastaavaa kaupunkikutsua."
 invitation-expired = "Kaupunkikutsusi on vanhentunut."
 not-member = "Tuo pelaaja ei kuulu tähän kaupunkiin."

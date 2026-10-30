@@ -47,6 +47,7 @@ import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.claims.ClaimsService;
+import art.arcane.adapt.claims.BrackenTravelBridge;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
@@ -398,6 +399,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     setupMetrics();
     startupPrint(); // Splash screen
     AbilityApiBridge.install(this);
+    BrackenTravelBridge.register(this);
     protectorRegistry = new ProtectorRegistry();
     protectorRegistry.registerProtector(new ClaimsProtector());
     PluginManager pluginManager = getServer().getPluginManager();

@@ -207,7 +207,7 @@ class ClaimInteractionListenerTest extends AdaptTestBase {
     listener.onInteract(event);
 
     assertThat(manager.snapshot().plots()).isEmpty();
-    assertThat(manager.snapshot().cityOf(founder.getUniqueId()).orElseThrow().chunks()).hasSize(15);
+    assertThat(manager.snapshot().cityOf(founder.getUniqueId()).orElseThrow().chunks()).hasSize(18);
   }
 
   @Test
@@ -260,7 +260,7 @@ class ClaimInteractionListenerTest extends AdaptTestBase {
 
     assertThat(manager.snapshot().plots()).isEmpty();
     assertThat(manager.snapshot().cities()).containsKey(plot.cityId());
-    assertThat(manager.snapshot().cityAt(plot.anchor().chunk()).orElseThrow().chunks()).hasSize(15);
+    assertThat(manager.snapshot().cityAt(plot.anchor().chunk()).orElseThrow().chunks()).hasSize(18);
     assertThat(manager.canEdit(member.getUniqueId(), plot.anchor())).isFalse();
   }
 
@@ -414,12 +414,12 @@ class ClaimInteractionListenerTest extends AdaptTestBase {
     listener.onInteract(shovelClick());
     manager.invite(founder.getUniqueId(), member.getUniqueId(), 1000);
     manager.accept(member.getUniqueId(), founder.getUniqueId(), 1001);
-    for (int x = 130; x <= 131; x++) {
+    for (int x = 130; x <= 132; x++) {
       for (int z = 127; z <= 129; z++) {
         manager.expand(founder.getUniqueId(), new ClaimChunk(WORLD, x, z), new ClaimWorldAccess("world", true));
       }
     }
-    ClaimBlock position = new ClaimBlock(WORLD, 2080, 70, 2048);
+    ClaimBlock position = new ClaimBlock(WORLD, 2096, 70, 2048);
     Location location = new Location(anchor.getWorld(), position.x(), position.y(), position.z());
     Block personalAnchor = mock(Block.class);
     when(personalAnchor.getLocation()).thenReturn(location);

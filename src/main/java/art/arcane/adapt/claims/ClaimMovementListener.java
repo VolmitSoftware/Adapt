@@ -7,7 +7,11 @@ import art.arcane.adapt.api.claims.ClaimSnapshot;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ClaimsMessages;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.nativelib.NativeAdapters;
+import art.arcane.volmlib.nativelib.player.PlayerRespawnAccess;
 import art.arcane.volmlib.util.localization.MessageArgs;
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
+import io.papermc.paper.event.server.ServerResourcesReloadedEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -20,6 +24,7 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -44,30 +49,71 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ClaimMovementListener implements Listener {
     private final ClaimsService claims;
     private final ClaimSafeLocation safeLocations;
+    private final ClaimRespawnLocation respawnLocations;
     private final Set<UUID> relocating = ConcurrentHashMap.newKeySet();
+    private final ConcurrentHashMap<UUID, Location> respawns = new ConcurrentHashMap<>();
 
     public ClaimMovementListener(ClaimsService claims) {
         this.claims = Objects.requireNonNull(claims);
         safeLocations = new ClaimSafeLocation(claims);
+        respawnLocations = new ClaimRespawnLocation(claims, safeLocations);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
+        if (event instanceof PlayerPortalEvent) {
+            return;
+        }
+        ClaimTravelService travel = claims.travel();
+        if (travel.pending(event.getPlayer())) {
+            if (travel.accepts(event)) {
+                return;
+            }
+            boolean committing = travel.committing(event.getPlayer());
+            travel.cancel(event.getPlayer());
+            if (committing) {
+                event.setCancelled(true);
+                denied(event.getPlayer());
+                return;
+            }
+        }
         Location destination = event.getTo();
         if (destination != null && !claims.canTeleport(event.getPlayer(), destination)) {
             event.setCancelled(true);
             denied(event.getPlayer());
+            travel.redirect(event);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPortal(PlayerPortalEvent event) {
-        onTeleport(event);
+        if (!claims.enabled() || claims.bypass(event.getPlayer()) || event.getTo() == null) {
+            return;
+        }
+        if (!J.isFoliaThreading() && event.getCause() == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL) {
+            event.setCancelled(true);
+            claims.travel().redirectPortal(event);
+        } else if (!claims.canTeleport(event.getPlayer(), event.getTo())) {
+            event.setCancelled(true);
+            denied(event.getPlayer());
+            claims.travel().redirect(event);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityPortal(EntityPortalEvent event) {
-        onEntityTeleport(event);
+        if (!claims.enabled()) {
+            return;
+        }
+        Deque<Entity> passengers = new ArrayDeque<>(event.getEntity().getPassengers());
+        while (!passengers.isEmpty()) {
+            Entity passenger = passengers.removeFirst();
+            if (passenger instanceof Player player && !claims.bypass(player)) {
+                event.setCancelled(true);
+                return;
+            }
+            passengers.addAll(passenger.getPassengers());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -97,7 +143,7 @@ public final class ClaimMovementListener implements Listener {
         if (destination == null) {
             return;
         }
-        if (relocating.contains(player.getUniqueId())) {
+        if (relocating(player)) {
             event.setCancelled(true);
             return;
         }
@@ -168,23 +214,76 @@ public final class ClaimMovementListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent event) {
         claims.manager().setOnline(event.getPlayer().getUniqueId(), false, System.currentTimeMillis());
+        respawns.remove(event.getPlayer().getUniqueId());
         relocating.remove(event.getPlayer().getUniqueId());
+        claims.travel().cancel(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onDeath(PlayerDeathEvent event) {
+        respawns.remove(event.getEntity().getUniqueId());
+        relocating.remove(event.getEntity().getUniqueId());
+        claims.travel().cancel(event.getEntity());
+    }
+
+    @EventHandler
+    public void onResourcesReloaded(ServerResourcesReloadedEvent event) {
+        claims.resetTravel();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        if (claims.enabled() && !claims.bypass(player) && outsider(player, event.getRespawnLocation())) {
+        Location intended = event.getRespawnLocation().clone();
+        respawns.remove(player.getUniqueId());
+        relocating.remove(player.getUniqueId());
+        if (!claims.enabled() || claims.canTeleport(player, intended)) {
+            return;
+        }
+        if (J.isFoliaThreading()) {
             relocating.add(player.getUniqueId());
-            J.runEntity(player, () -> {
+            if (!J.runEntity(player, () -> {
                 relocating.remove(player.getUniqueId());
-                relocate(player, event.getRespawnLocation());
-            }, 1);
+                relocate(player, intended);
+            }, 1)) {
+                relocating.remove(player.getUniqueId());
+            }
+            return;
+        }
+        Optional<Location> fallback = respawnLocations.find(player, intended);
+        if (fallback.isEmpty()) {
+            NativeAdapters.require(PlayerRespawnAccess.class).abortRespawn(player,
+                    AdaptLanguage.text(player.getUniqueId(), ClaimsMessages.RELOCATION_FAILED, MessageArgs.empty()));
+            return;
+        }
+        event.setRespawnLocation(fallback.get());
+        respawns.put(player.getUniqueId(), intended);
+        relocating.add(player.getUniqueId());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPostRespawn(PlayerPostRespawnEvent event) {
+        Player player = event.getPlayer();
+        Location intended = respawns.get(player.getUniqueId());
+        if (intended == null) {
+            return;
+        }
+        try {
+            claims.travel().transfer(new ClaimTravelService.Request(player, intended,
+                    PlayerTeleportEvent.TeleportCause.PLUGIN, ClaimArrivalProfile.NONE)).whenComplete((moved, failure) -> {
+                if (failure != null) {
+                    Adapt.error(failure);
+                }
+                finishRespawn(player.getUniqueId(), intended);
+            });
+        } catch (RuntimeException | LinkageError failure) {
+            Adapt.error(failure);
+            finishRespawn(player.getUniqueId(), intended);
         }
     }
 
     public boolean relocating(Player player) {
-        return relocating.contains(player.getUniqueId());
+        return relocating.contains(player.getUniqueId()) || claims.travel().pending(player);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -280,6 +379,16 @@ public final class ClaimMovementListener implements Listener {
         return city != null && !city.founder().equals(player.getUniqueId()) && !city.members().contains(player.getUniqueId());
     }
 
+    private void finishRespawn(UUID playerId, Location intended) {
+        respawns.computeIfPresent(playerId, (id, current) -> {
+            if (current != intended) {
+                return current;
+            }
+            relocating.remove(playerId);
+            return null;
+        });
+    }
+
     private boolean claimed(Location location) {
         return claims.manager().snapshot().cityAt(ClaimsService.chunk(location)).isPresent();
     }
@@ -289,7 +398,7 @@ public final class ClaimMovementListener implements Listener {
             return;
         }
         player.setVelocity(new Vector());
-        safeLocations.findOutside(origin.clone()).whenComplete((destination, failure) -> {
+        safeLocations.findOutside(player, origin.clone()).whenComplete((destination, failure) -> {
             if (failure != null) {
                 Adapt.error(failure);
             }

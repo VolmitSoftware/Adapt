@@ -19,6 +19,8 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.claims.ClaimsService;
+import art.arcane.adapt.claims.ClaimArrivalProfile;
+import art.arcane.adapt.claims.ClaimTravelService;
 
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -167,8 +169,12 @@ public final class PaperCompat {
   }
 
   public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location destination) {
-    if (entity instanceof Player player && !ClaimsService.permitsTeleport(player, destination)) {
-      return CompletableFuture.completedFuture(false);
+    if (entity instanceof Player player) {
+      ClaimsService claims = ClaimsService.current();
+      if (claims != null && claims.enabled() && !claims.canTeleport(player, destination)) {
+        return claims.travel().transfer(new ClaimTravelService.Request(player, destination,
+            PlayerTeleportEvent.TeleportCause.PLUGIN, ClaimArrivalProfile.NONE));
+      }
     }
     if (teleportAsyncSupported) {
       try {
@@ -182,8 +188,11 @@ public final class PaperCompat {
   }
 
   public static CompletableFuture<Boolean> teleportAsync(Entity entity, Location destination, PlayerTeleportEvent.TeleportCause cause) {
-    if (entity instanceof Player player && !ClaimsService.permitsTeleport(player, destination)) {
-      return CompletableFuture.completedFuture(false);
+    if (entity instanceof Player player) {
+      ClaimsService claims = ClaimsService.current();
+      if (claims != null && claims.enabled() && !claims.canTeleport(player, destination)) {
+        return claims.travel().transfer(new ClaimTravelService.Request(player, destination, cause, ClaimArrivalProfile.NONE));
+      }
     }
     if (teleportAsyncCauseSupported) {
       try {

@@ -159,6 +159,34 @@ def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
     }
 }
 
+def verifyTravelPackagingTask = tasks.register('verifyTravelPackaging') {
+    group = 'verification'
+    description = 'Verifies that the runtime jar contains native portal and respawn capabilities.'
+    dependsOn(shadowJarTask)
+
+    doLast {
+        String prefix = 'art/arcane/adapt/util/arcane/volmlib/nativelib/'
+        List<String> requiredClasses = [
+                'portal/NetherPortalAccess.class',
+                'portal/NetherPortalAccess$Rectangle.class',
+                'portal/NetherPortalAccess$Creation.class',
+                'v26_2_R1/portal/NetherPortalAccessImpl.class',
+                'v26_3_R1/portal/NetherPortalAccessImpl.class',
+                'player/PlayerRespawnAccess.class',
+                'common/player/PlayerRespawnAccessImpl.class',
+                'v26_2_R1/player/PlayerRespawnAccessImpl.class',
+                'v26_3_R1/player/PlayerRespawnAccessImpl.class'
+        ]
+        new ZipFile(shadowJarTask.get().archiveFile.get().asFile).withCloseable { ZipFile jar ->
+            for (String requiredClass : requiredClasses) {
+                if (jar.getEntry(prefix + requiredClass) == null) {
+                    throw new GradleException("Runtime jar is missing ${prefix}${requiredClass}.")
+                }
+            }
+        }
+    }
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: LombokPlugin
@@ -387,7 +415,7 @@ shadowJarTask.configure {
             return false
         }
         String relative = path.substring(nativePrefix.length())
-        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:(?:player|entity|advancement)/.*|chunk/(?:GeneratedChunkStructures|ChunkPosition).*)')
+        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:(?:player|entity|advancement|portal)/.*|chunk/(?:GeneratedChunkStructures|ChunkPosition).*)')
     }
 }
 
@@ -509,6 +537,7 @@ tasks.named('check').configure {
 
 tasks.named('check').configure {
     dependsOn(verifyLanguagePackagingTask)
+    dependsOn(verifyTravelPackagingTask)
 }
 
 pluginPackaging {

@@ -38,6 +38,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
@@ -74,6 +75,27 @@ class ClaimProtectionListenerTest extends AdaptTestBase {
     private World world;
     private Block target;
     private PluginManager plugins;
+
+    @Test
+    void aMemberCanCreateAPortalOnlyWhenEveryStagedBlockIsEditable() {
+        BlockState first = mock(BlockState.class);
+        BlockState second = mock(BlockState.class);
+        Location firstLocation = new Location(world, 1609, 64, 1608);
+        Location secondLocation = new Location(world, 1610, 64, 1608);
+        when(first.getLocation()).thenReturn(firstLocation);
+        when(second.getLocation()).thenReturn(secondLocation);
+        when(claims.canPrepareArrival(player, firstLocation)).thenReturn(true);
+        when(claims.canPrepareArrival(player, secondLocation)).thenReturn(true);
+        PortalCreateEvent allowed = new PortalCreateEvent(List.of(first, second), world, player,
+                PortalCreateEvent.CreateReason.NETHER_PAIR);
+        listener.onPortalCreate(allowed);
+        assertThat(allowed.isCancelled()).isFalse();
+        when(claims.canPrepareArrival(player, secondLocation)).thenReturn(false);
+        PortalCreateEvent denied = new PortalCreateEvent(List.of(first, second), world, player,
+                PortalCreateEvent.CreateReason.NETHER_PAIR);
+        listener.onPortalCreate(denied);
+        assertThat(denied.isCancelled()).isTrue();
+    }
 
     @BeforeEach
     void prepare() {

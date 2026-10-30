@@ -8206,7 +8206,7 @@ name = "Fondation"
 description = "Fondez une ville en faisant un clic droit sur une magnétite avec une pelle. Le premier rang de Fortification est également requis."
 lore1 = "Territoire initial de la ville : 3 chunks sur 3"
 guide-controls = "Apprenez Fondation et Fortification I. Placez une magnétite, puis faites un clic droit dessus avec une pelle. L'ancre revendique son chunk et les huit voisins pour une ville. Les neuf chunks doivent être libres. Les territoires couvrent toute la hauteur du monde. Utilisez /adapt claims boundaries pour voir les frontières."
-guide-rules = "Mondes autorisés : {worlds}. Aucun chunk revendiqué ne peut chevaucher le carré allant de {minimum} à {maximum} sur X et Z, bords compris. Membres et étrangers ne peuvent pas se téléporter dans les territoires, même à l'intérieur de ceux-ci. La téléportation vers l'extérieur est autorisée. Le vol, le vol plané et le franchissement aérien des frontières sont bloqués."
+guide-rules = "Mondes autorisés : {worlds}. Aucun chunk revendiqué ne peut chevaucher le carré allant de {minimum} à {maximum} sur X et Z, bords compris. Le fondateur et les membres peuvent se téléporter dans leur propre ville. Les étrangers ne le peuvent pas. La téléportation vers l'extérieur est autorisée. Le vol, le vol plané et le franchissement aérien des frontières sont bloqués pour tout le monde."
 guide-consequences = "Détruire l'ancre principale libère toute la ville et toutes les parcelles personnelles. Les constructions restent. Pour libérer votre propre ancre, regardez-la et exécutez /adapt claims dismantle, puis /adapt claims dismantle confirm=true dans les 30 secondes. L'XP de Territoires provient uniquement des attributions des administrateurs. Construire et attaquer n'en rapporte pas."
 
 [claims.fortification]
@@ -8236,10 +8236,10 @@ guide-consequences = "Les remises à zéro de progression, la perte de puissance
 
 [claims.homestead]
 name = "Parcelle personnelle"
-description = "Activez une magnétite personnelle dans votre ville. Sa surface de 3 chunks sur 3 doit se trouver entièrement dans la ville, sans inclure d'autres parcelles ni l'ancre principale."
+description = "Activez une magnétite personnelle dans votre ville. Sa surface de 3 chunks sur 3 doit se trouver entièrement dans la ville, sans chevaucher d'autres parcelles ni la surface de 3 chunks sur 3 de l'ancre principale."
 lore1 = "Une parcelle personnelle de 3 chunks sur 3"
-guide-controls = "Apprenez Parcelle personnelle sur votre propre personnage. Placez une magnétite distincte dans votre ville et faites un clic droit dessus avec une pelle. Les neuf chunks de sa surface de 3 chunks sur 3 doivent appartenir à la ville. Cette surface ne peut contenir le chunk de l'ancre principale ni chevaucher une autre parcelle personnelle."
-guide-rules = "Vous pouvez posséder une parcelle personnelle et la modifier librement. Tous les autres, y compris le fondateur, affrontent la résistance. Les autres membres de la ville affrontent toujours la résistance en ligne. Quitter la ville ou en être exclu préserve votre parcelle. Les restrictions de téléportation et de vol y restent applicables."
+guide-controls = "Apprenez Parcelle personnelle sur votre propre personnage. Placez une magnétite distincte dans votre ville et faites un clic droit dessus avec une pelle. Les neuf chunks de sa surface de 3 chunks sur 3 doivent appartenir à la ville. Cette surface ne peut chevaucher la surface de 3 chunks sur 3 de l'ancre principale ni une autre parcelle personnelle."
+guide-rules = "Vous pouvez posséder une parcelle personnelle et la modifier librement. Tous les autres, y compris le fondateur, affrontent la résistance. Les autres membres de la ville affrontent toujours la résistance en ligne. Quitter la ville ou en être exclu préserve votre parcelle. Les membres de la ville peuvent se téléporter dans les parcelles personnelles. L'arrivée ne confère aucun droit de modification. Les restrictions de vol restent applicables."
 guide-consequences = "Détruire ou démanteler l'ancre personnelle rend ses chunks aux terres communes. Les constructions restent. La destruction de l'ancre principale libère aussi la parcelle. Pour démanteler votre ancre, regardez-la et exécutez /adapt claims dismantle, puis /adapt claims dismantle confirm=true dans les 30 secondes."
 
 [claims]
@@ -8247,7 +8247,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Destruction"
 place-action = "Placement"
 anchor-confirm = "Regardez votre ancre et utilisez /adapt claims dismantle pour confirmer son retrait."
-entry-denied = "Les téléportations et les entrées par les airs sont bloquées dans les territoires revendiqués."
+entry-denied = "Ce territoire bloque ce déplacement."
 relocation-failed = "Aucun endroit sûr n'a été trouvé hors du territoire. Contactez un administrateur."
 disabled = "La compétence Territoires est désactivée."
 city-founded = "Vous avez fondé {city} avec {count} chunks. Faites un clic droit sur sa magnétite avec une pelle pour la sélectionner."
@@ -8310,7 +8310,7 @@ member-capacity-reached = "Votre ville a atteint sa capacité de membres. Appren
 already-has-plot = "Vous possédez déjà une parcelle personnelle."
 plot-outside-city = "Les neuf chunks de la parcelle personnelle doivent appartenir à votre ville."
 plot-overlap = "La surface chevauche une autre parcelle personnelle."
-main-anchor-overlap = "Une parcelle personnelle ne peut pas inclure l'ancre principale de la ville."
+main-anchor-overlap = "Une parcelle personnelle ne peut pas chevaucher la surface de 3 chunks sur 3 de l'ancre principale de la ville."
 invitation-missing = "Vous n'avez aucune invitation correspondante à rejoindre une ville."
 invitation-expired = "Votre invitation à rejoindre la ville a expiré."
 not-member = "Ce joueur n'appartient pas à cette ville."

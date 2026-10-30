@@ -3,6 +3,7 @@ package art.arcane.adapt.claims;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.claims.ClaimBlock;
+import art.arcane.adapt.api.claims.ClaimChunk;
 import art.arcane.adapt.api.claims.ClaimCity;
 import art.arcane.adapt.api.claims.ClaimRanks;
 import art.arcane.adapt.api.claims.ClaimWorldAccess;
@@ -11,11 +12,11 @@ import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.content.skill.SkillClaims;
-import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,12 +25,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ClaimsServiceTest extends AdaptTestBase {
@@ -92,11 +90,83 @@ class ClaimsServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void memberTeleportsAreBlockedBeforeTheAbilityStarts() {
+  void outsiderTownDestinationsRequireRedirection() {
+    Player outsider = player(UUID.randomUUID());
+    assertThat(service.canTeleport(outsider, location(2009))).isFalse();
+    assertThat(service.canTeleport(outsider, new Location(world, 3000, 64, 3000))).isTrue();
+  }
+
+  @Test
+  void foundersCanTeleportIntoTheirTownWithoutGainingAnchorEditPermission() {
     Player owner = player(founder);
-    assertThat(PaperCompat.teleportAsync(owner, location(2009)).join()).isFalse();
-    verify(owner, never()).teleportAsync(any(Location.class));
-    assertThat(service.canTeleport(owner, new Location(world, 3000, 64, 3000))).isTrue();
+    assertThat(service.canTeleport(owner, location(2008))).isTrue();
+    assertThat(service.canEdit(owner, location(2008))).isFalse();
+  }
+
+  @Test
+  void membersCanTeleportIntoTheirOwnTownButNotAnotherTown() {
+    UUID member = UUID.randomUUID();
+    service.manager().invite(founder, member, 1000);
+    service.manager().accept(member, founder, 1001);
+    service.manager().found(UUID.randomUUID(), "Birch", new ClaimBlock(worldId, 3000, 64, 3000),
+        new ClaimRanks(true, 4, 4, 4, true), new ClaimWorldAccess("world", true));
+    assertThat(service.canTeleport(player(member), location(2009))).isTrue();
+    assertThat(service.canTeleport(player(member), new Location(world, 3000, 64, 3000))).isFalse();
+  }
+
+  @Test
+  void leavingTheTownRevokesArrivalPermissionImmediately() {
+    UUID member = UUID.randomUUID();
+    service.manager().invite(founder, member, 1000);
+    service.manager().accept(member, founder, 1001);
+    Player resident = player(member);
+    assertThat(service.canTeleport(resident, location(2009))).isTrue();
+    service.manager().leave(member);
+    assertThat(service.canTeleport(resident, location(2009))).isFalse();
+  }
+
+  @Test
+  void arrivalRequiresAPlayerAndAValidDestination() {
+    assertThat(service.canTeleport(null, new Location(world, 3000, 64, 3000))).isFalse();
+    assertThat(service.canTeleport(player(founder), null)).isFalse();
+    assertThat(service.canTeleport(player(founder), new Location(null, 0, 64, 0))).isFalse();
+  }
+
+  @Test
+  void arrivalPreparationRejectsAWholeVolumeWhenOnlyItsFarEdgeEntersATown() {
+    Player outsider = player(UUID.randomUUID());
+    BoundingBox outside = new BoundingBox(1970, 10, 2000, 1984, 90, 2010);
+    BoundingBox crossing = new BoundingBox(1970, 10, 2000, 1985, 90, 2010);
+    assertThat(service.canPrepareArrival(outsider, world, outside)).isTrue();
+    assertThat(service.canPrepareArrival(outsider, world, crossing)).isFalse();
+  }
+
+  @Test
+  void arrivalPreparationChecksAnchorsInsideTheVolumeRatherThanOnlyItsCorners() {
+    Player owner = player(founder);
+    assertThat(service.canPrepareArrival(owner, world,
+        new BoundingBox(2000, 10, 2000, 2016, 64, 2016))).isTrue();
+    assertThat(service.canPrepareArrival(owner, world,
+        new BoundingBox(2000, 10, 2000, 2016, 65, 2016))).isFalse();
+    assertThat(service.canPrepareArrival(owner, world,
+        new BoundingBox(2000, 65, 2000, 2016, 90, 2016))).isTrue();
+  }
+
+  @Test
+  void arrivalPreparationIncludesEveryPersonalPlotTouchedByTheVolume() {
+    UUID citizen = UUID.randomUUID();
+    service.manager().invite(founder, citizen, 1000);
+    service.manager().accept(citizen, founder, 1001);
+    for (int x = 127; x <= 129; x++) {
+      for (int z = 124; z <= 126; z++) {
+        service.manager().expand(founder, new ClaimChunk(worldId, x, z), new ClaimWorldAccess("world", true));
+      }
+    }
+    service.manager().createPlot(citizen, new ClaimBlock(worldId, 2056, 64, 2008),
+        new ClaimRanks(false, 0, 0, 0, true));
+    BoundingBox footprint = new BoundingBox(2028, 10, 2000, 2033, 60, 2010);
+    assertThat(service.canPrepareArrival(player(founder), world, footprint)).isFalse();
+    assertThat(service.canPrepareArrival(player(citizen), world, footprint)).isTrue();
   }
 
   @Test

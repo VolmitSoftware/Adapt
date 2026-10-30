@@ -3,6 +3,7 @@ package art.arcane.adapt.api.claims;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,7 +150,7 @@ public final class ClaimManager implements AutoCloseable {
     if (!city.chunks().containsAll(chunks)) {
       throw failure(ClaimException.Reason.PLOT_OUTSIDE_CITY);
     }
-    if (chunks.contains(city.anchor().chunk())) {
+    if (!Collections.disjoint(chunks, ClaimSnapshot.footprint(city.anchor().chunk()))) {
       throw failure(ClaimException.Reason.MAIN_ANCHOR_OVERLAP);
     }
     for (ClaimChunk chunk : chunks) {

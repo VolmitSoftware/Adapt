@@ -8210,7 +8210,7 @@ name = "Lập thành"
 description = "Nhấp chuột phải vào đá nam châm bằng xẻng để lập một thành phố. Bạn cũng cần Gia cố bậc một."
 lore1 = "Diện tích thành phố ban đầu: 3×3 chunk"
 guide-controls = "Học Lập thành và Gia cố bậc một. Đặt đá nam châm rồi nhấp chuột phải vào đá bằng xẻng. Mốc sẽ nhận chunk chứa nó và tám chunk xung quanh cho một thành phố. Cả chín chunk phải chưa có chủ. Lãnh thổ bao phủ toàn bộ chiều cao thế giới. Dùng /adapt claims boundaries để xem ranh giới."
-guide-rules = "Thế giới được phép: {worlds}. Chunk được nhận không được chồng lên hình vuông từ {minimum} đến {maximum} trên cả hai trục X và Z, tính cả đường biên. Thành viên và người ngoài đều không thể dịch chuyển vào lãnh thổ, kể cả giữa các vị trí bên trong. Được phép dịch chuyển ra ngoài. Bay, lượn và vượt ranh giới trên không đều bị chặn."
+guide-rules = "Thế giới được phép: {worlds}. Chunk được nhận không được chồng lên hình vuông từ {minimum} đến {maximum} trên cả hai trục X và Z, tính cả đường biên. Người sáng lập và thành viên có thể dịch chuyển vào thành phố của mình. Người ngoài không thể làm vậy. Được phép dịch chuyển ra ngoài. Bay, lượn và vượt ranh giới trên không đều bị chặn đối với mọi người."
 guide-consequences = "Phá mốc chính sẽ giải phóng toàn bộ thành phố và mọi khu đất riêng. Công trình vẫn còn. Để giải phóng mốc của mình, nhìn vào mốc và chạy /adapt claims dismantle, rồi chạy /adapt claims dismantle confirm=true trong vòng 30 giây. Chỉ quản trị viên mới cấp kinh nghiệm Lãnh thổ. Xây dựng và tấn công không cho kinh nghiệm."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Đặt lại tiến trình, mất sức mạnh và hạ b�
 
 [claims.homestead]
 name = "Đất riêng"
-description = "Kích hoạt đá nam châm cá nhân trong thành phố. Toàn bộ vùng 3×3 chunk phải nằm trong thành phố, không chứa đất riêng khác hoặc mốc chính."
+description = "Kích hoạt đá nam châm cá nhân trong thành phố. Toàn bộ vùng 3×3 chunk phải nằm trong thành phố, không chồng lên đất riêng khác hoặc vùng 3×3 chunk của mốc chính."
 lore1 = "Một khu đất riêng rộng 3×3 chunk"
-guide-controls = "Học Đất riêng trên chính nhân vật của bạn. Trong thành phố của mình, đặt một đá nam châm riêng rồi nhấp chuột phải vào đá bằng xẻng. Cả chín chunk trong phạm vi 3×3 phải thuộc thành phố. Phạm vi này không được chứa chunk của mốc chính hoặc chồng lên đất riêng khác."
-guide-rules = "Bạn có thể sở hữu một khu đất riêng và tự do sửa nó. Mọi người khác, kể cả người sáng lập, đều gặp sức kháng. Thành viên cùng thành phố luôn chịu sức kháng trực tuyến. Rời thành phố hoặc bị đuổi vẫn giữ khu đất của bạn. Giới hạn dịch chuyển và bay cũng áp dụng trong đất riêng."
+guide-controls = "Học Đất riêng trên chính nhân vật của bạn. Trong thành phố của mình, đặt một đá nam châm riêng rồi nhấp chuột phải vào đá bằng xẻng. Cả chín chunk trong phạm vi 3×3 phải thuộc thành phố. Phạm vi này không được chồng lên vùng 3×3 chunk của mốc chính hoặc đất riêng khác."
+guide-rules = "Bạn có thể sở hữu một khu đất riêng và tự do sửa nó. Mọi người khác, kể cả người sáng lập, đều gặp sức kháng. Thành viên cùng thành phố luôn chịu sức kháng trực tuyến. Rời thành phố hoặc bị đuổi vẫn giữ khu đất của bạn. Thành viên thành phố có thể dịch chuyển vào đất riêng. Việc đến nơi không cấp quyền chỉnh sửa. Các giới hạn bay vẫn áp dụng."
 guide-consequences = "Phá hoặc tháo mốc cá nhân sẽ trả các chunk của nó về quyền sở hữu chung của thành phố. Công trình vẫn còn. Phá mốc chính cũng giải phóng khu đất riêng. Để tháo mốc của mình, nhìn vào mốc và chạy /adapt claims dismantle, rồi chạy /adapt claims dismantle confirm=true trong vòng 30 giây."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Phá"
 place-action = "Đặt"
 anchor-confirm = "Nhìn vào mốc của bạn và dùng /adapt claims dismantle để xác nhận tháo dỡ."
-entry-denied = "Không thể dịch chuyển tức thời vào lãnh thổ hoặc bay vào từ trên không."
+entry-denied = "Lãnh thổ này chặn cách di chuyển đó."
 relocation-failed = "Không tìm thấy vị trí an toàn ngoài lãnh thổ. Hãy liên hệ quản trị viên."
 disabled = "Kỹ năng Lãnh thổ đang bị tắt."
 city-founded = "Đã lập {city} với {count} chunk. Nhấp chuột phải vào đá nam châm bằng xẻng để chọn thành phố."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Thành phố đã đạt giới hạn thành viên. H
 already-has-plot = "Bạn đã sở hữu một khu đất riêng."
 plot-outside-city = "Cả chín chunk của đất riêng phải thuộc thành phố của bạn."
 plot-overlap = "Vùng đất chồng lên đất riêng khác."
-main-anchor-overlap = "Đất riêng không được chứa mốc chính của thành phố."
+main-anchor-overlap = "Đất riêng không được chồng lên vùng 3×3 chunk của mốc chính của thành phố."
 invitation-missing = "Bạn không có lời mời phù hợp để tham gia thành phố."
 invitation-expired = "Lời mời tham gia thành phố đã hết hạn."
 not-member = "Người chơi đó không thuộc thành phố này."

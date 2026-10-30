@@ -8210,7 +8210,7 @@ name = "Įkūrimas"
 description = "Įkurkite vieną miestą dešiniuoju pelės mygtuku spustelėję magnetitą su kastuvu. Taip pat reikia pirmo Įtvirtinimo lygio."
 lore1 = "Pradinis miesto plotas: 3 × 3 chunkai"
 guide-controls = "Išmokite Įkūrimą ir Įtvirtinimą I. Padėkite magnetitą ir spustelėkite jį dešiniuoju pelės mygtuku laikydami kastuvą. Inkaras užima savo chunką ir aštuonis kaimyninius chunkus vienam miestui. Visi devyni chunkai turi būti laisvi. Teritorijos apima visą pasaulio aukštį. Ribas parodys /adapt claims boundaries."
-guide-rules = "Leidžiami pasauliai: {worlds}. Joks užimtas chunkas negali persidengti su kvadratu nuo {minimum} iki {maximum} X ir Z ašyse, įskaitant jo ribas. Nei nariai, nei pašaliniai negali teleportuotis į teritorijas, net jų viduje. Teleportuotis į išorę leidžiama. Skrydis, sklendimas ir ribų kirtimas ore blokuojami."
+guide-rules = "Leidžiami pasauliai: {worlds}. Joks užimtas chunkas negali persidengti su kvadratu nuo {minimum} iki {maximum} X ir Z ašyse, įskaitant jo ribas. Įkūrėjai ir nariai gali teleportuotis į savo miestą. Pašaliniai to daryti negali. Teleportuotis į išorę leidžiama. Skrydis, sklendimas ir ribų kirtimas ore blokuojami visiems."
 guide-consequences = "Sunaikinus pagrindinį inkarą atlaisvinamas visas miestas ir visi asmeniniai sklypai. Statiniai lieka. Norėdami atsisakyti savo inkaro, žiūrėkite į jį ir vykdykite /adapt claims dismantle, tada per 30 sekundžių /adapt claims dismantle confirm=true. Teritorijų patirtį skiria tik administratoriai. Statymas ir puolimas jos nesuteikia."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Pažangos nustatymas iš naujo, galios praradimas ir maže
 
 [claims.homestead]
 name = "Sodyba"
-description = "Aktyvuokite asmeninį magnetitą savo mieste. Visas jo 3 × 3 chunkų plotas turi priklausyti miestui ir neapimti kitų sklypų ar pagrindinio inkaro."
+description = "Aktyvuokite asmeninį magnetitą savo mieste. Visas jo 3 × 3 chunkų plotas turi priklausyti miestui ir nepersidengti su kitais sklypais ar pagrindinio inkaro 3 × 3 chunkų plotu."
 lore1 = "Vienas asmeninis 3 × 3 chunkų sklypas"
-guide-controls = "Išmokite Sodybą savo veikėju. Savo mieste padėkite atskirą magnetitą ir spustelėkite jį dešiniuoju pelės mygtuku laikydami kastuvą. Visi devyni jo 3 × 3 chunkų ploto chunkai turi priklausyti miestui. Plotas negali apimti pagrindinio inkaro chunko ar persidengti su kitu asmeniniu sklypu."
-guide-rules = "Galite turėti vieną asmeninį sklypą ir laisvai jį keisti. Visi kiti, įskaitant įkūrėją, susiduria su atsparumu. Kitiems miesto nariams visada taikomas atsparumas, skirtas esant prisijungusių narių. Išėję ar pašalinti iš miesto išlaikote sklypą. Teleportacijos ir skrydžio apribojimai galioja ir asmeniniuose sklypuose."
+guide-controls = "Išmokite Sodybą savo veikėju. Savo mieste padėkite atskirą magnetitą ir spustelėkite jį dešiniuoju pelės mygtuku laikydami kastuvą. Visi devyni jo 3 × 3 chunkų ploto chunkai turi priklausyti miestui. Plotas negali persidengti su pagrindinio inkaro 3 × 3 chunkų plotu ar kitu asmeniniu sklypu."
+guide-rules = "Galite turėti vieną asmeninį sklypą ir laisvai jį keisti. Visi kiti, įskaitant įkūrėją, susiduria su atsparumu. Kitiems miesto nariams visada taikomas atsparumas, skirtas esant prisijungusių narių. Išėję ar pašalinti iš miesto išlaikote sklypą. Miesto nariai gali teleportuotis į asmeninius sklypus. Atvykimas nesuteikia teisės keisti sklypo. Skrydžio apribojimai lieka galioti."
 guide-consequences = "Sunaikinus ar išardžius asmeninį inkarą jo chunkai vėl tampa bendra žeme. Statiniai lieka. Pagrindinio inkaro sunaikinimas taip pat atlaisvina sklypą. Norėdami išardyti savo inkarą, žiūrėkite į jį ir vykdykite /adapt claims dismantle, tada per 30 sekundžių /adapt claims dismantle confirm=true."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Laužymas"
 place-action = "Padėjimas"
 anchor-confirm = "Žiūrėdami į savo inkarą naudokite /adapt claims dismantle, kad pradėtumėte šalinimo patvirtinimą."
-entry-denied = "Užimtose teritorijose teleportacija ir patekimas oru draudžiami."
+entry-denied = "Šioje teritorijoje toks judėjimas blokuojamas."
 relocation-failed = "Už teritorijos ribų nerasta saugios vietos. Kreipkitės į administratorių."
 disabled = "Teritorijų įgūdis išjungtas."
 city-founded = "Įkūrėte {city} su {count} chunkų. Pasirinkite miestą dešiniuoju pelės mygtuku spustelėję jo magnetitą su kastuvu."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Miestas pasiekė narių ribą. Išmokite Pilietybę, 
 already-has-plot = "Jūs jau turite asmeninį sklypą."
 plot-outside-city = "Visi devyni asmeninio sklypo chunkai turi priklausyti jūsų miestui."
 plot-overlap = "Plotas persidengia su kitu asmeniniu sklypu."
-main-anchor-overlap = "Asmeninis sklypas negali apimti pagrindinio miesto inkaro."
+main-anchor-overlap = "Asmeninis sklypas negali persidengti su pagrindinio miesto inkaro 3 × 3 chunkų plotu."
 invitation-missing = "Neturite tinkamo kvietimo į miestą."
 invitation-expired = "Jūsų kvietimas į miestą nebegalioja."
 not-member = "Šis žaidėjas nepriklauso šiam miestui."

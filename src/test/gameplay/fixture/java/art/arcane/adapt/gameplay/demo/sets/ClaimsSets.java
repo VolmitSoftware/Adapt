@@ -53,8 +53,8 @@ public final class ClaimsSets implements DemoSetProvider {
             new ClaimsSet("claims-fortification", NEAR_ACTOR, new DemoSet.Pose(3.5, 0, -3.5, 35F, 0F), NEAR_CAMERA),
             new ClaimsSet("claims-expansion", new DemoSet.Pose(2.5, 0, -28.5, 180F, 0F),
                     NEAR_OPPONENT, new DemoSet.Pose(12.5, 12.0, -36.0, 90F, 35F)),
-            new ClaimsSet("claims-homestead", new DemoSet.Pose(0.5, 0, -31.5, 180F, 0F),
-                    new DemoSet.Pose(3.5, 0, -31.5, 180F, 20F), new DemoSet.Pose(8.5, 5.5, -27.0, 133F, 27F)));
+            new ClaimsSet("claims-homestead", new DemoSet.Pose(0.5, 0, -47.5, 180F, 0F),
+                    new DemoSet.Pose(3.5, 0, -47.5, 180F, 20F), new DemoSet.Pose(8.5, 5.5, -43.0, 133F, 27F)));
     private static volatile Scene current;
     private static volatile FlightPreparation flightPreparation;
     private static FlightObserver flightObserver;
@@ -128,15 +128,15 @@ public final class ClaimsSets implements DemoSetProvider {
             case "assert-raided" -> requireAir(scene.block(0, 1, -2));
             case "assert-plot" -> {
                 ClaimPlot plot = service.manager().snapshot().plots().get(actor.getUniqueId());
-                if (plot == null || !plot.anchor().equals(scene.block(0, 0, -34))) {
+                if (plot == null || !plot.anchor().equals(scene.block(0, 0, -50))) {
                     throw new IllegalStateException("The personal lodestone was not activated");
                 }
             }
             case "assert-personal-resistance" -> {
-                requireAir(scene.block(-2, 0, -34));
-                requireResistance(service, scene.block(2, 0, -34));
+                requireAir(scene.block(-2, 0, -50));
+                requireResistance(service, scene.block(2, 0, -50));
             }
-            case "assert-personal-breach" -> requireAir(scene.block(2, 0, -34));
+            case "assert-personal-breach" -> requireAir(scene.block(2, 0, -50));
             default -> throw new IllegalArgumentException("Unknown Claims scene phase " + phase);
         }
         return "ADAPT_QA DEMO CLAIMS " + phase + " OK";
@@ -153,10 +153,10 @@ public final class ClaimsSets implements DemoSetProvider {
             DemoGeometry.fill(world, Material.STONE_BRICKS, x - 1, y, z - 2, x + 1, y + 2, z - 2);
             world.getBlockAt(x, y + 1, z - 2).setType(Material.WHITE_WOOL, false);
         } else if (set.name().equals("claims-homestead")) {
-            world.getBlockAt(x, y, z - 34).setType(Material.LODESTONE, false);
-            world.getBlockAt(x - 2, y, z - 34).setType(Material.WHITE_WOOL, false);
-            world.getBlockAt(x + 2, y, z - 34).setType(Material.WHITE_WOOL, false);
-            DemoGeometry.fill(world, Material.STONE_BRICKS, x - 3, y - 1, z - 35, x + 3, y - 1, z - 33);
+            world.getBlockAt(x, y, z - 50).setType(Material.LODESTONE, false);
+            world.getBlockAt(x - 2, y, z - 50).setType(Material.WHITE_WOOL, false);
+            world.getBlockAt(x + 2, y, z - 50).setType(Material.WHITE_WOOL, false);
+            DemoGeometry.fill(world, Material.STONE_BRICKS, x - 3, y - 1, z - 51, x + 3, y - 1, z - 49);
         }
     }
 
@@ -182,7 +182,7 @@ public final class ClaimsSets implements DemoSetProvider {
         learnFounder(service, founder);
         createCity(service, scene, founder);
         ClaimChunk anchor = scene.block(0, 0, -2).chunk();
-        for (int north = 2; north <= 3; north++) {
+        for (int north = 2; north <= 4; north++) {
             for (int east = -1; east <= 1; east++) {
                 service.manager().expand(founder.getUniqueId(), new ClaimChunk(scene.world(), anchor.x() + east, anchor.z() - north),
                         ClaimsService.world(founder.getWorld()));

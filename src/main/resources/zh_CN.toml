@@ -8210,7 +8210,7 @@ name = "建城"
 description = "用锹右键点击磁石可建立一座城市。同时需要学习一级防御工事。"
 lore1 = "初始城市范围：3×3个区块"
 guide-controls = "学习建城和一级防御工事。放置磁石，再用锹右键点击。锚点会将所在区块及周围八个区块划为一座城市的领地。这九个区块都必须无人占领。领地覆盖世界的整个高度。使用 /adapt claims boundaries 查看边界。"
-guide-rules = "允许的世界：{worlds}。领地区块不能与 X 和 Z 轴上均从 {minimum} 到 {maximum} 的正方形重叠，边界也包含在内。成员和外来者都不能传送到领地内，领地内部之间的传送也不允许。可以传送到领地外。飞行、滑翔和从空中越过边界都会被阻止。"
+guide-rules = "允许的世界：{worlds}。领地区块不能与 X 和 Z 轴上均从 {minimum} 到 {maximum} 的正方形重叠，边界也包含在内。创始人和成员可以传送到自己的城市内，外来者不能。可以传送到领地外。所有人都禁止飞行、滑翔和从空中越过边界。"
 guide-consequences = "破坏主锚点会解除整座城市和所有私人地块的所有权。建筑保留。要解除自己的锚点，请看着它执行 /adapt claims dismantle，然后在 30 秒内执行 /adapt claims dismantle confirm=true。领地经验值只能由管理员发放。建筑和袭击都不会提供经验值。"
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "重置成长进度、失去力量或降低配置中的等�
 
 [claims.homestead]
 name = "宅基地"
-description = "在城市内激活个人磁石。3×3个区块必须全部位于城市内，且不能包含其他私人地块或城市主锚点。"
+description = "在城市内激活个人磁石。3×3个区块必须全部位于城市内，且不能与其他私人地块或城市主锚点的3×3区块范围重叠。"
 lore1 = "可拥有一块3×3区块的私人地块"
-guide-controls = "用自己的角色学习宅基地。在自己的城市内另放一块磁石，并用锹右键点击。其 3×3 范围内的九个区块必须全部属于城市。范围不能包含主锚点所在区块，也不能与其他私人地块重叠。"
-guide-rules = "你可以拥有一个私人地块，并自由修改它。包括创始人在内的其他所有人都须面对抗破坏强度。同城成员始终适用在线强度。离开或被踢出城市后仍保留地块。传送和飞行限制同样适用于私人地块内部。"
+guide-controls = "用自己的角色学习宅基地。在自己的城市内另放一块磁石，并用锹右键点击。其 3×3 范围内的九个区块必须全部属于城市。范围不能与主锚点的3×3区块范围或其他私人地块重叠。"
+guide-rules = "你可以拥有一个私人地块，并自由修改它。包括创始人在内的其他所有人都须面对抗破坏强度。同城成员始终适用在线强度。离开或被踢出城市后仍保留地块。城市成员可以传送到私人地块内。到达地块不会赋予修改权限。飞行限制仍然适用。"
 guide-consequences = "摧毁或拆除个人锚点会将其区块归还为城市公共土地。建筑保留。主锚点被摧毁时，私人地块也会解除。要拆除自己的锚点，请看着它执行 /adapt claims dismantle，然后在 30 秒内执行 /adapt claims dismantle confirm=true。"
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "破坏"
 place-action = "放置"
 anchor-confirm = "看着自己的锚点执行 /adapt claims dismantle，确认拆除。"
-entry-denied = "无法传送到领地内，也无法从空中越界进入。"
+entry-denied = "此领地禁止这种移动。"
 relocation-failed = "未找到领地外的安全位置。请联系管理员。"
 disabled = "领地技能已禁用。"
 city-founded = "已建立{city}，包含{count}个区块。用锹右键点击磁石以选中城市。"
@@ -8314,7 +8314,7 @@ member-capacity-reached = "城市已达到成员数量上限。学习公民身�
 already-has-plot = "你已拥有一块私人地块。"
 plot-outside-city = "私人地块的九个区块必须全部属于你的城市。"
 plot-overlap = "范围与其他私人地块重叠。"
-main-anchor-overlap = "私人地块不能包含城市主锚点。"
+main-anchor-overlap = "私人地块不能与城市主锚点的3×3区块范围重叠。"
 invitation-missing = "没有匹配的城市邀请。"
 invitation-expired = "你的城市邀请已过期。"
 not-member = "该玩家不属于此城市。"

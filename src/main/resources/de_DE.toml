@@ -8210,7 +8210,7 @@ name = "Gründung"
 description = "Gründe eine Stadt, indem du mit einer Schaufel auf einen Leitstein rechtsklickst. Befestigung auf Rang eins ist ebenfalls erforderlich."
 lore1 = "Anfangsgebiet der Stadt: 3 mal 3 Chunks"
 guide-controls = "Erlerne Gründung und Befestigung I. Platziere einen Leitstein und rechtsklicke mit einer Schaufel darauf. Der Anker beansprucht seinen Chunk und die acht Nachbarchunks für eine Stadt. Alle neun Chunks müssen frei sein. Gebiete reichen über die gesamte Welthöhe. Mit /adapt claims boundaries siehst du die Grenzen."
-guide-rules = "Erlaubte Welten: {worlds}. Kein beanspruchter Chunk darf das Quadrat von {minimum} bis {maximum} auf X und Z einschließlich seiner Ränder überschneiden. Mitglieder und Außenstehende können sich nicht in Gebiete teleportieren, auch nicht innerhalb eines Gebiets. Hinausteleportieren ist erlaubt. Fliegen, Gleiten und das Überqueren von Grenzen in der Luft sind gesperrt."
+guide-rules = "Erlaubte Welten: {worlds}. Kein beanspruchter Chunk darf das Quadrat von {minimum} bis {maximum} auf X und Z einschließlich seiner Ränder überschneiden. Gründer und Mitglieder dürfen sich in ihre eigene Stadt teleportieren. Außenstehende dürfen das nicht. Hinausteleportieren ist erlaubt. Fliegen, Gleiten und das Überqueren von Grenzen in der Luft sind für alle gesperrt."
 guide-consequences = "Die Zerstörung des Hauptankers gibt die gesamte Stadt und alle persönlichen Grundstücke frei. Gebäude bleiben erhalten. Um deinen eigenen Anker aufzugeben, schaue ihn an und führe /adapt claims dismantle aus, danach innerhalb von 30 Sekunden /adapt claims dismantle confirm=true. Gebiets-XP werden ausschließlich von Administratoren vergeben. Bauen und Angreifen geben keine XP."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Zurückgesetzter Fortschritt, verlorene Macht und niedrige
 
 [claims.homestead]
 name = "Heimstätte"
-description = "Aktiviere einen persönlichen Leitstein in deiner Stadt. Sein Gebiet von 3 mal 3 Chunks muss vollständig in der Stadt liegen und andere Grundstücke sowie den Hauptanker ausschließen."
+description = "Aktiviere einen persönlichen Leitstein in deiner Stadt. Sein Gebiet von 3 mal 3 Chunks muss vollständig in der Stadt liegen und darf sich weder mit anderen Grundstücken noch mit dem Gebiet von 3 mal 3 Chunks um den Hauptanker überschneiden."
 lore1 = "Ein persönliches Grundstück von 3 mal 3 Chunks"
-guide-controls = "Erlerne Heimstätte mit deinem eigenen Charakter. Platziere in deiner Stadt einen eigenen Leitstein und rechtsklicke mit einer Schaufel darauf. Alle neun Chunks seines Gebiets von 3 mal 3 Chunks müssen zur Stadt gehören. Das Gebiet darf weder den Chunk des Hauptankers enthalten noch ein anderes persönliches Grundstück überschneiden."
-guide-rules = "Du kannst ein persönliches Grundstück besitzen und es frei bearbeiten. Alle anderen, auch der Gründer, treffen auf Widerstand. Für andere Stadtmitglieder gilt stets der Online-Widerstand. Beim Austritt oder Ausschluss behältst du dein Grundstück. Teleport- und Flugbeschränkungen gelten auch auf persönlichen Grundstücken."
+guide-controls = "Erlerne Heimstätte mit deinem eigenen Charakter. Platziere in deiner Stadt einen eigenen Leitstein und rechtsklicke mit einer Schaufel darauf. Alle neun Chunks seines Gebiets von 3 mal 3 Chunks müssen zur Stadt gehören. Das Gebiet darf sich weder mit dem Gebiet von 3 mal 3 Chunks um den Hauptanker noch mit einem anderen persönlichen Grundstück überschneiden."
+guide-rules = "Du kannst ein persönliches Grundstück besitzen und es frei bearbeiten. Alle anderen, auch der Gründer, treffen auf Widerstand. Für andere Stadtmitglieder gilt stets der Online-Widerstand. Beim Austritt oder Ausschluss behältst du dein Grundstück. Stadtmitglieder dürfen sich auf persönliche Grundstücke teleportieren. Die Ankunft verleiht keine Bearbeitungsrechte. Flugbeschränkungen gelten weiterhin."
 guide-consequences = "Die Zerstörung oder Demontage des persönlichen Ankers gibt seine Chunks an das Gemeinschaftsland zurück. Gebäude bleiben erhalten. Auch die Zerstörung des Hauptankers gibt das Grundstück frei. Um deinen Anker zu demontieren, schaue ihn an und führe /adapt claims dismantle aus, danach innerhalb von 30 Sekunden /adapt claims dismantle confirm=true."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Abbau"
 place-action = "Platzierung"
 anchor-confirm = "Schau deinen Anker an und verwende /adapt claims dismantle, um die Entfernung zu bestätigen."
-entry-denied = "Teleportieren und der Eintritt aus der Luft sind innerhalb beanspruchter Gebiete gesperrt."
+entry-denied = "Dieses Gebiet blockiert diese Fortbewegung."
 relocation-failed = "Es wurde kein sicherer Ort außerhalb des Gebiets gefunden. Wende dich an einen Administrator."
 disabled = "Die Fertigkeit Gebiete ist deaktiviert."
 city-founded = "{city} wurde mit {count} Chunks gegründet. Rechtsklicke mit einer Schaufel auf den Leitstein, um ihn auszuwählen."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Deine Stadt hat ihre Mitgliedergrenze erreicht. Erler
 already-has-plot = "Du besitzt bereits ein persönliches Grundstück."
 plot-outside-city = "Alle neun Chunks des persönlichen Grundstücks müssen zu deiner Stadt gehören."
 plot-overlap = "Das Gebiet überlappt ein anderes persönliches Grundstück."
-main-anchor-overlap = "Ein persönliches Grundstück darf den Hauptanker der Stadt nicht enthalten."
+main-anchor-overlap = "Ein persönliches Grundstück darf sich nicht mit dem Gebiet von 3 mal 3 Chunks um den Hauptanker der Stadt überschneiden."
 invitation-missing = "Du hast keine passende Stadteinladung."
 invitation-expired = "Deine Stadteinladung ist abgelaufen."
 not-member = "Dieser Spieler gehört nicht zu dieser Stadt."

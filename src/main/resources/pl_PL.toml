@@ -8210,7 +8210,7 @@ name = "Założenie"
 description = "Załóż jedno miasto, klikając magnetyt prawym przyciskiem z łopatą w ręce. Wymagany jest też pierwszy poziom Fortyfikacji."
 lore1 = "Początkowy obszar miasta: 3 na 3 chunki"
 guide-controls = "Naucz się Założenia i pierwszego poziomu Fortyfikacji. Postaw magnetyt i kliknij go prawym przyciskiem z łopatą w ręce. Kotwica zajmuje swój chunk i osiem sąsiednich dla jednego miasta. Wszystkie dziewięć chunków musi być wolnych. Teren obejmuje całą wysokość świata. Użyj /adapt claims boundaries, aby zobaczyć granice."
-guide-rules = "Dozwolone światy: {worlds}. Żaden zajmowany chunk nie może nachodzić na kwadrat od {minimum} do {maximum} na obu osiach X i Z, włącznie z granicami. Członkowie i obcy nie mogą teleportować się na zajęty teren, nawet z jego wnętrza. Teleportacja na zewnątrz jest dozwolona. Lot, szybowanie i przekraczanie granic w powietrzu są zablokowane."
+guide-rules = "Dozwolone światy: {worlds}. Żaden zajmowany chunk nie może nachodzić na kwadrat od {minimum} do {maximum} na obu osiach X i Z, włącznie z granicami. Założyciele i członkowie mogą teleportować się do własnego miasta. Obcy nie mogą tego robić. Teleportacja na zewnątrz jest dozwolona. Lot, szybowanie i przekraczanie granic w powietrzu są zablokowane dla wszystkich."
 guide-consequences = "Zniszczenie głównej kotwicy zwalnia całe miasto i wszystkie prywatne działki. Budynki pozostają. Aby zwolnić własną kotwicę, spójrz na nią i użyj /adapt claims dismantle, a następnie /adapt claims dismantle confirm=true w ciągu 30 sekund. Doświadczenie Terenów przyznają wyłącznie administratorzy. Budowanie i najazdy go nie dają."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Reset postępu, utrata mocy i obniżenie poziomów w konfi
 
 [claims.homestead]
 name = "Siedlisko"
-description = "Aktywuj osobisty magnetyt w swoim mieście. Jego obszar 3 na 3 chunki musi w całości należeć do miasta i nie obejmować innych działek ani głównej kotwicy."
+description = "Aktywuj osobisty magnetyt w swoim mieście. Jego obszar 3 na 3 chunki musi w całości należeć do miasta i nie nachodzić na inne działki ani na obszar 3 na 3 chunki głównej kotwicy."
 lore1 = "Jedna osobista działka o wymiarach 3 na 3 chunki"
-guide-controls = "Naucz swoją postać Siedliska. Postaw osobny magnetyt wewnątrz swojego miasta i kliknij go prawym przyciskiem z łopatą w ręce. Wszystkie dziewięć chunków obszaru 3 na 3 musi należeć do miasta. Obszar nie może obejmować chunka głównej kotwicy ani nachodzić na inną prywatną działkę."
-guide-rules = "Możesz mieć jedną prywatną działkę i swobodnie ją zmieniać. Wszystkich innych, w tym założyciela, obowiązuje odporność. Członków tego samego miasta zawsze obowiązuje odporność dla aktywnego miasta. Odejście lub wyrzucenie nie odbiera działki. Ograniczenia teleportacji i lotu obowiązują także na prywatnych działkach."
+guide-controls = "Naucz swoją postać Siedliska. Postaw osobny magnetyt wewnątrz swojego miasta i kliknij go prawym przyciskiem z łopatą w ręce. Wszystkie dziewięć chunków obszaru 3 na 3 musi należeć do miasta. Obszar nie może nachodzić na obszar 3 na 3 chunki głównej kotwicy ani na inną prywatną działkę."
+guide-rules = "Możesz mieć jedną prywatną działkę i swobodnie ją zmieniać. Wszystkich innych, w tym założyciela, obowiązuje odporność. Członków tego samego miasta zawsze obowiązuje odporność dla aktywnego miasta. Odejście lub wyrzucenie nie odbiera działki. Członkowie miasta mogą teleportować się na prywatne działki. Przybycie nie daje uprawnień do ich modyfikowania. Ograniczenia lotu nadal obowiązują."
 guide-consequences = "Zniszczenie lub rozebranie prywatnej kotwicy przywraca jej chunki do wspólnego terenu miasta. Budynki pozostają. Zniszczenie głównej kotwicy również zwalnia działkę. Aby rozebrać własną kotwicę, spójrz na nią i użyj /adapt claims dismantle, a następnie /adapt claims dismantle confirm=true w ciągu 30 sekund."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Niszczenie"
 place-action = "Stawianie"
 anchor-confirm = "Patrząc na swoją kotwicę, użyj /adapt claims dismantle, aby rozpocząć potwierdzanie usunięcia."
-entry-denied = "Teleportacja i wlatywanie na zajęte tereny są zablokowane."
+entry-denied = "Ten teren blokuje ten sposób przemieszczania się."
 relocation-failed = "Nie znaleziono bezpiecznego miejsca poza zajętym terenem. Skontaktuj się z administratorem."
 disabled = "Umiejętność Tereny jest wyłączona."
 city-founded = "Założono {city} z obszarem {count} chunków. Wybierz miasto, klikając jego magnetyt prawym przyciskiem z łopatą w ręce."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Miasto osiągnęło limit członków. Naucz się Obyw
 already-has-plot = "Masz już osobistą działkę."
 plot-outside-city = "Wszystkie dziewięć chunków osobistej działki musi należeć do twojego miasta."
 plot-overlap = "Obszar nachodzi na inną osobistą działkę."
-main-anchor-overlap = "Osobista działka nie może obejmować głównej kotwicy miasta."
+main-anchor-overlap = "Osobista działka nie może nachodzić na obszar 3 na 3 chunki głównej kotwicy miasta."
 invitation-missing = "Nie masz pasującego zaproszenia do miasta."
 invitation-expired = "Twoje zaproszenie do miasta wygasło."
 not-member = "Ten gracz nie należy do tego miasta."

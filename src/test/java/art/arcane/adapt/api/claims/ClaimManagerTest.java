@@ -219,7 +219,7 @@ class ClaimManagerTest {
   }
 
   @Test
-  void homesteadRequiresCompleteCityFootprintAndExcludesMainAnchorChunk() {
+  void homesteadRequiresCompleteCityFootprintAndExcludesMainAnchorFootprint() {
     found();
     joinMember();
     assertReason(() -> manager.createPlot(MEMBER, ANCHOR, ClaimRanks.none()), ClaimException.Reason.HOMESTEAD_REQUIRED);
@@ -231,6 +231,27 @@ class ClaimManagerTest {
     assertThat(plot.chunks()).hasSize(9);
     assertReason(() -> manager.createPlot(FOUNDER, plotAnchor, RANKS), ClaimException.Reason.PLOT_OVERLAP);
     assertReason(() -> manager.createPlot(MEMBER, plotAnchor, RANKS), ClaimException.Reason.ALREADY_HAS_PLOT);
+  }
+
+  @ParameterizedTest
+  @CsvSource({"130,128", "128,130", "130,130"})
+  void homesteadRejectsMainFootprintEdgeAndCornerOverlap(int chunkX, int chunkZ) {
+    ClaimCity city = found();
+    joinMember();
+    for (int x = 127; x <= 131; x++) {
+      for (int z = 127; z <= 131; z++) {
+        ClaimChunk chunk = new ClaimChunk(WORLD, x, z);
+        if (manager.snapshot().cityAt(chunk).isEmpty()) {
+          manager.expand(FOUNDER, chunk, OVERWORLD);
+        }
+      }
+    }
+    ClaimBlock plotAnchor = new ClaimBlock(WORLD, chunkX * 16, 200, chunkZ * 16);
+
+    assertReason(() -> manager.createPlot(MEMBER, plotAnchor, RANKS), ClaimException.Reason.MAIN_ANCHOR_OVERLAP);
+
+    assertThat(manager.snapshot().plots()).isEmpty();
+    assertThat(manager.snapshot().cityAt(plotAnchor.chunk())).get().extracting(ClaimCity::id).isEqualTo(city.id());
   }
 
   @Test

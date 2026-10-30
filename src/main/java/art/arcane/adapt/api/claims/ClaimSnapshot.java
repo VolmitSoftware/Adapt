@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.claims;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -37,7 +38,7 @@ public final class ClaimSnapshot {
       ClaimPlot plot = entry.getValue();
       ClaimCity city = this.cities.get(plot.cityId());
       if (!entry.getKey().equals(plot.owner()) || city == null || !city.chunks().containsAll(plot.chunks())
-          || plot.chunks().contains(city.anchor().chunk())) {
+          || !Collections.disjoint(plot.chunks(), footprint(city.anchor().chunk()))) {
         throw new IllegalArgumentException("Invalid personal plot ownership");
       }
       for (ClaimChunk chunk : plot.chunks()) {

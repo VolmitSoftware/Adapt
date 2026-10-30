@@ -317,6 +317,18 @@ public final class ClaimProtectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPortalCreate(PortalCreateEvent event) {
+        if (!claims.enabled()) {
+            return;
+        }
+        if (event.getEntity() instanceof Player player) {
+            for (BlockState block : event.getBlocks()) {
+                if (!claims.canPrepareArrival(player, block.getLocation())) {
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+            return;
+        }
         if (containsProtected(event.getBlocks())) {
             event.setCancelled(true);
         }

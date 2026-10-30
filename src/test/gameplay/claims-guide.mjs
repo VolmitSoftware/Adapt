@@ -3,7 +3,7 @@ const ADAPTATIONS = [
   ['fortification', ['survival block breaks', 'no drops or XP', 'Up to 4', '300 seconds', 'share progress', 'restarts', 'Creative mode']],
   ['citizenship', ['/adapt claims accept', '120 seconds', 'only one city', 'PvP', 'Walls block', 'preserves personal', 'safe ground']],
   ['expansion', ['Only the founder', 'Touching a corner', '25 total', 'initial nine', 'rank-one resistance', '/adapt claims info']],
-  ['homestead', ['Learn Homestead', 'main anchor chunk', 'Everyone else', 'preserves your plot', 'Buildings remain', 'confirm=true']],
+  ['homestead', ['Learn Homestead', "main anchor's 3 by 3 chunk footprint", 'Everyone else', 'preserves your plot', 'Buildings remain', 'confirm=true']],
 ]
 
 function plain(value) {

@@ -8210,7 +8210,7 @@ name = "Fundación"
 description = "Funda una ciudad haciendo clic derecho en una magnetita con una pala. También necesitas Fortificación de rango uno."
 lore1 = "Territorio inicial de la ciudad: 3 por 3 chunks"
 guide-controls = "Aprende Fundación y Fortificación I. Coloca una magnetita y haz clic derecho en ella con una pala. El ancla reclama su chunk y los ocho vecinos para una ciudad. Los nueve deben estar libres. Los territorios abarcan toda la altura del mundo. Usa /adapt claims boundaries para ver los límites."
-guide-rules = "Mundos permitidos: {worlds}. Ningún chunk reclamado puede solaparse con el cuadrado de {minimum} a {maximum} en X y Z, incluidos sus bordes. Ni miembros ni forasteros pueden teletransportarse al interior de los territorios, tampoco dentro de ellos. Se permite teletransportarse hacia fuera. Se bloquean el vuelo, el planeo y los cruces aéreos de fronteras."
+guide-rules = "Mundos permitidos: {worlds}. Ningún chunk reclamado puede solaparse con el cuadrado de {minimum} a {maximum} en X y Z, incluidos sus bordes. Los fundadores y miembros pueden teletransportarse al interior de su propia ciudad. Los forasteros no pueden hacerlo. Se permite teletransportarse hacia fuera. El vuelo, el planeo y los cruces aéreos de fronteras están bloqueados para todos."
 guide-consequences = "Destruir el ancla principal libera toda la ciudad y todas las parcelas personales. Las construcciones permanecen. Para liberar tu propia ancla, mírala y ejecuta /adapt claims dismantle; después ejecuta /adapt claims dismantle confirm=true en un plazo de 30 segundos. La XP de Territorios solo se obtiene mediante concesiones de administradores. Construir y asaltar no dan XP."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Los reinicios de progreso, la pérdida de poder y la reduc
 
 [claims.homestead]
 name = "Parcela personal"
-description = "Activa una magnetita personal dentro de tu ciudad. Su superficie de 3 por 3 chunks debe caber por completo en la ciudad y excluir otras parcelas y el ancla principal."
+description = "Activa una magnetita personal dentro de tu ciudad. Su superficie de 3 por 3 chunks debe caber por completo en la ciudad sin solaparse con otras parcelas ni con la superficie de 3 por 3 chunks del ancla principal."
 lore1 = "Una parcela personal de 3 por 3 chunks"
-guide-controls = "Aprende Parcela personal con tu propio personaje. Coloca una magnetita aparte dentro de tu ciudad y haz clic derecho en ella con una pala. Los nueve chunks de su superficie de 3 por 3 deben pertenecer a la ciudad. La superficie no puede incluir el chunk del ancla principal ni solaparse con otra parcela personal."
-guide-rules = "Puedes poseer una parcela personal y modificarla libremente. Todos los demás, incluido el fundador, afrontan resistencia. Los compañeros de ciudad siempre afrontan la resistencia con conexión. Conservas la parcela si abandonas la ciudad o te expulsan. Las restricciones de teletransporte y vuelo también se aplican dentro de las parcelas personales."
+guide-controls = "Aprende Parcela personal con tu propio personaje. Coloca una magnetita aparte dentro de tu ciudad y haz clic derecho en ella con una pala. Los nueve chunks de su superficie de 3 por 3 deben pertenecer a la ciudad. La superficie no puede solaparse con la superficie de 3 por 3 chunks del ancla principal ni con otra parcela personal."
+guide-rules = "Puedes poseer una parcela personal y modificarla libremente. Todos los demás, incluido el fundador, afrontan resistencia. Los compañeros de ciudad siempre afrontan la resistencia con conexión. Conservas la parcela si abandonas la ciudad o te expulsan. Los miembros de la ciudad pueden teletransportarse a las parcelas personales. Llegar no concede permisos de modificación. Las restricciones de vuelo siguen vigentes."
 guide-consequences = "Destruir o desmantelar el ancla personal devuelve sus chunks a las tierras comunales. Las construcciones permanecen. Destruir el ancla principal también libera la parcela. Para desmantelar tu ancla, mírala y ejecuta /adapt claims dismantle; después ejecuta /adapt claims dismantle confirm=true en un plazo de 30 segundos."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Rotura"
 place-action = "Colocación"
 anchor-confirm = "Mira tu ancla y usa /adapt claims dismantle para confirmar su retirada."
-entry-denied = "Los teletransportes y las entradas por el aire están bloqueados dentro de los territorios reclamados."
+entry-denied = "Este territorio bloquea ese desplazamiento."
 relocation-failed = "No se encontró un lugar seguro fuera del territorio. Contacta con un administrador."
 disabled = "La habilidad Territorios está desactivada."
 city-founded = "Has fundado {city} con {count} chunks. Haz clic derecho en su magnetita con una pala para seleccionarla."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Tu ciudad ha alcanzado su capacidad de miembros. Apre
 already-has-plot = "Ya tienes una parcela personal."
 plot-outside-city = "Los nueve chunks de la parcela personal deben pertenecer a tu ciudad."
 plot-overlap = "La superficie se solapa con otra parcela personal."
-main-anchor-overlap = "Una parcela personal no puede incluir el ancla principal de la ciudad."
+main-anchor-overlap = "Una parcela personal no puede solaparse con la superficie de 3 por 3 chunks del ancla principal de la ciudad."
 invitation-missing = "No tienes ninguna invitación coincidente a una ciudad."
 invitation-expired = "Tu invitación a la ciudad ha caducado."
 not-member = "Ese jugador no pertenece a esta ciudad."

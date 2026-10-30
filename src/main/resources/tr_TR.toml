@@ -8210,7 +8210,7 @@ name = "Kuruluş"
 description = "Elinizde kürek varken mıknatıs taşına sağ tıklayarak bir şehir kurun. Ayrıca Tahkimat becerisinin birinci seviyesi gerekir."
 lore1 = "Şehrin başlangıç alanı: 3'e 3 chunk"
 guide-controls = "Kuruluş ve Tahkimat I öğrenin. Bir mıknatıs taşı yerleştirin, ardından kürekle sağ tıklayın. Çapa, bulunduğu chunk ile sekiz komşusunu tek bir şehre katar. Dokuz chunk da sahipsiz olmalıdır. Arazi, dünyanın tüm yüksekliğini kapsar. Sınırları görmek için /adapt claims boundaries kullanın."
-guide-rules = "İzin verilen dünyalar: {worlds}. Hiçbir arazi chunk'ı, hem X hem Z ekseninde {minimum} ile {maximum} arasındaki, sınırları dâhil kareyle örtüşemez. Üyeler ve yabancılar arazilerin içine ışınlanamaz; arazi içindeki ışınlanmalar da yasaktır. Dışarı ışınlanmak serbesttir. Uçuş, süzülme ve havadan sınır geçişleri engellenir."
+guide-rules = "İzin verilen dünyalar: {worlds}. Hiçbir arazi chunk'ı, hem X hem Z ekseninde {minimum} ile {maximum} arasındaki, sınırları dâhil kareyle örtüşemez. Kurucular ve üyeler kendi şehirlerine ışınlanabilir. Yabancılar bunu yapamaz. Dışarı ışınlanmak serbesttir. Uçuş, süzülme ve havadan sınır geçişleri herkes için engellenir."
 guide-consequences = "Ana çapayı kırmak, tüm şehri ve bütün kişisel arazileri serbest bırakır. Yapılar kalır. Kendi çapanızı serbest bırakmak için ona bakarak /adapt claims dismantle çalıştırın, ardından 30 saniye içinde /adapt claims dismantle confirm=true çalıştırın. Araziler deneyimini yalnızca yöneticiler verir. İnşa ve baskınlar deneyim kazandırmaz."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "İlerleme sıfırlamaları, güç kaybı ve yapılandırma
 
 [claims.homestead]
 name = "Çiftlik"
-description = "Şehrinizde kişisel bir mıknatıs taşı etkinleştirin. Taşın 3'e 3 chunk alanı tamamen şehir içinde olmalı, diğer arsaları ve ana çapayı kapsamamalıdır."
+description = "Şehrinizde kişisel bir mıknatıs taşı etkinleştirin. Taşın 3'e 3 chunk alanı tamamen şehir içinde olmalı, diğer arsalarla veya ana çapanın 3'e 3 chunk alanıyla örtüşmemelidir."
 lore1 = "3'e 3 chunk boyutunda bir kişisel arsa"
-guide-controls = "Kendi karakterinizle Çiftlik öğrenin. Şehrinizin içine ayrı bir mıknatıs taşı yerleştirin ve kürekle sağ tıklayın. 3'e 3 alanın dokuz chunk'ı da şehre ait olmalıdır. Alan, ana çapanın chunk'ını içeremez ve başka bir kişisel araziyle örtüşemez."
-guide-rules = "Bir kişisel araziye sahip olabilir ve onu serbestçe değiştirebilirsiniz. Kurucu dâhil diğer herkes dirençle karşılaşır. Aynı şehrin üyeleri için her zaman çevrimiçi direnç kullanılır. Ayrılmak veya atılmak arazinizi elinizden almaz. Işınlanma ve uçuş kısıtlamaları kişisel arazilerde de geçerlidir."
+guide-controls = "Kendi karakterinizle Çiftlik öğrenin. Şehrinizin içine ayrı bir mıknatıs taşı yerleştirin ve kürekle sağ tıklayın. 3'e 3 alanın dokuz chunk'ı da şehre ait olmalıdır. Alan, ana çapanın 3'e 3 chunk alanıyla veya başka bir kişisel araziyle örtüşemez."
+guide-rules = "Bir kişisel araziye sahip olabilir ve onu serbestçe değiştirebilirsiniz. Kurucu dâhil diğer herkes dirençle karşılaşır. Aynı şehrin üyeleri için her zaman çevrimiçi direnç kullanılır. Ayrılmak veya atılmak arazinizi elinizden almaz. Şehir üyeleri kişisel arazilere ışınlanabilir. Varış, araziyi değiştirme izni vermez. Uçuş kısıtlamaları geçerliliğini korur."
 guide-consequences = "Kişisel çapayı yok etmek veya sökmek, chunk'larını ortak şehir mülkiyetine döndürür. Yapılar kalır. Ana çapanın yok edilmesi de kişisel araziyi serbest bırakır. Çapanızı sökmek için ona bakarak /adapt claims dismantle çalıştırın, ardından 30 saniye içinde /adapt claims dismantle confirm=true çalıştırın."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Kırma"
 place-action = "Yerleştirme"
 anchor-confirm = "Çapanıza bakarken /adapt claims dismantle komutunu kullanarak kaldırma onayını başlatın."
-entry-denied = "Sahiplenilmiş arazilere ışınlanmak ve havadan girmek engellenir."
+entry-denied = "Bu arazi bu geçişi engelliyor."
 relocation-failed = "Arazinin dışında güvenli bir yer bulunamadı. Bir yöneticiye başvurun."
 disabled = "Araziler becerisi devre dışı."
 city-founded = "{count} chunk ile {city} kuruldu. Seçmek için mıknatıs taşına kürekle sağ tıklayın."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Şehriniz üye sınırına ulaştı. Daha fazla üye 
 already-has-plot = "Zaten kişisel bir arsanız var."
 plot-outside-city = "Kişisel arsanın dokuz chunkının tamamı şehrinize ait olmalıdır."
 plot-overlap = "Alan başka bir kişisel arsayla çakışıyor."
-main-anchor-overlap = "Kişisel arsa şehrin ana çapasını kapsayamaz."
+main-anchor-overlap = "Kişisel arsa şehrin ana çapasının 3'e 3 chunk alanıyla örtüşemez."
 invitation-missing = "Eşleşen bir şehir davetiniz yok."
 invitation-expired = "Şehir davetinizin süresi doldu."
 not-member = "Bu oyuncu bu şehre üye değil."

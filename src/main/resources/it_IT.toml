@@ -8210,7 +8210,7 @@ name = "Fondazione"
 description = "Fonda una città facendo clic destro su una magnetite con una pala. È richiesto anche il primo rango di Fortificazione."
 lore1 = "Territorio iniziale della città: 3 per 3 chunk"
 guide-controls = "Impara Fondazione e Fortificazione I. Piazza una magnetite, poi fai clic destro su di essa con una pala. L'ancora rivendica il proprio chunk e gli otto vicini per una città. Tutti e nove devono essere liberi. I territori coprono l'intera altezza del mondo. Usa /adapt claims boundaries per vedere i confini."
-guide-rules = "Mondi consentiti: {worlds}. Nessun chunk rivendicato può sovrapporsi al quadrato da {minimum} a {maximum} su X e Z, bordi inclusi. Membri ed estranei non possono teletrasportarsi nei territori, nemmeno al loro interno. È consentito teletrasportarsi fuori. Volo, planata e attraversamenti aerei dei confini sono bloccati."
+guide-rules = "Mondi consentiti: {worlds}. Nessun chunk rivendicato può sovrapporsi al quadrato da {minimum} a {maximum} su X e Z, bordi inclusi. I fondatori e i membri possono teletrasportarsi nella propria città. Gli estranei non possono farlo. È consentito teletrasportarsi fuori. Volo, planata e attraversamenti aerei dei confini sono bloccati per tutti."
 guide-consequences = "Distruggere l'ancora principale libera l'intera città e tutti i terreni personali. Le costruzioni restano. Per liberare la tua ancora, guardala ed esegui /adapt claims dismantle, poi /adapt claims dismantle confirm=true entro 30 secondi. I punti esperienza di Territori provengono solo dalle assegnazioni degli amministratori. Costruire e assaltare non ne assegna."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Gli azzeramenti dei progressi, la perdita di potere e la r
 
 [claims.homestead]
 name = "Terreno personale"
-description = "Attiva una magnetite personale nella tua città. La sua area di 3 per 3 chunk deve essere interamente nella città ed escludere altri terreni e l'ancora principale."
+description = "Attiva una magnetite personale nella tua città. La sua area di 3 per 3 chunk deve essere interamente nella città senza sovrapporsi ad altri terreni o all'area di 3 per 3 chunk dell'ancora principale."
 lore1 = "Un terreno personale di 3 per 3 chunk"
-guide-controls = "Impara Terreno personale sul tuo personaggio. Piazza una magnetite separata nella tua città e fai clic destro su di essa con una pala. Tutti i nove chunk della sua area di 3 per 3 devono appartenere alla città. L'area non può includere il chunk dell'ancora principale né sovrapporsi a un altro terreno personale."
-guide-rules = "Puoi possedere un terreno personale e modificarlo liberamente. Tutti gli altri, compreso il fondatore, affrontano la resistenza. Gli altri membri della città affrontano sempre la resistenza online. Conservi il terreno se lasci la città o vieni espulso. Le restrizioni su teletrasporto e volo valgono anche nei terreni personali."
+guide-controls = "Impara Terreno personale sul tuo personaggio. Piazza una magnetite separata nella tua città e fai clic destro su di essa con una pala. Tutti i nove chunk della sua area di 3 per 3 devono appartenere alla città. L'area non può sovrapporsi all'area di 3 per 3 chunk dell'ancora principale né a un altro terreno personale."
+guide-rules = "Puoi possedere un terreno personale e modificarlo liberamente. Tutti gli altri, compreso il fondatore, affrontano la resistenza. Gli altri membri della città affrontano sempre la resistenza online. Conservi il terreno se lasci la città o vieni espulso. I membri della città possono teletrasportarsi nei terreni personali. L'arrivo non concede permessi di modifica. Le restrizioni sul volo restano in vigore."
 guide-consequences = "Distruggere o smantellare l'ancora personale restituisce i suoi chunk alle terre comuni. Le costruzioni restano. Anche la distruzione dell'ancora principale libera il terreno. Per smantellare la tua ancora, guardala ed esegui /adapt claims dismantle, poi /adapt claims dismantle confirm=true entro 30 secondi."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Rottura"
 place-action = "Piazzamento"
 anchor-confirm = "Guarda la tua ancora e usa /adapt claims dismantle per confermarne la rimozione."
-entry-denied = "Il teletrasporto e l'ingresso dall'aria sono bloccati nei territori rivendicati."
+entry-denied = "Questo territorio blocca questo spostamento."
 relocation-failed = "Non è stato trovato un luogo sicuro fuori dal territorio. Contatta un amministratore."
 disabled = "L'abilità Territori è disattivata."
 city-founded = "Hai fondato {city} con {count} chunk. Fai clic destro sulla sua magnetite con una pala per selezionarla."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "La tua città ha raggiunto la capacità di membri. Im
 already-has-plot = "Possiedi già un terreno personale."
 plot-outside-city = "Tutti e nove i chunk del terreno personale devono appartenere alla tua città."
 plot-overlap = "L'area si sovrappone a un altro terreno personale."
-main-anchor-overlap = "Un terreno personale non può includere l'ancora principale della città."
+main-anchor-overlap = "Un terreno personale non può sovrapporsi all'area di 3 per 3 chunk dell'ancora principale della città."
 invitation-missing = "Non hai un invito corrispondente a una città."
 invitation-expired = "Il tuo invito alla città è scaduto."
 not-member = "Quel giocatore non appartiene a questa città."

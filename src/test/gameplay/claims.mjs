@@ -46,7 +46,7 @@ export function claimsAdaptationEvidence(report) {
 }
 
 export async function runClaimsSuite(context, { mode = context.options.command || 'all' } = {}) {
-    context.expect(['all', 'retain', 'verify-restart'].includes(mode), 'Claims mode is all, retain or verify-restart')
+    context.expect(['all', 'retain', 'verify-restart', 'homestead'].includes(mode), 'Claims mode is all, retain, verify-restart or homestead')
     const retained = mode === 'verify-restart'
       ? JSON.parse(await readFile(join(context.server.directory, RETAINED_FILE), 'utf8')) : null
     const suffix = randomBytes(3).toString('hex')
@@ -112,6 +112,54 @@ export async function runClaimsSuite(context, { mode = context.options.command |
         }
       }
       evidence.thresholds.push({ actor: actor.bot.username, block: key, attempts: count, initial, required })
+    }
+
+    const claimHomestead = async () => {
+      const { founder, member } = actors
+      await context.step('Shovel expansion supplies disjoint and overlapping homestead footprints', async () => {
+        const targets = []
+        for (let x = 258; x <= 260; x++) {
+          for (let z = 255; z <= 257; z++) targets.push({ x, z })
+        }
+        for (let z = 258; z <= 259; z++) {
+          for (let x = 257; x <= 259; x++) targets.push({ x, z })
+        }
+        for (const chunk of targets) {
+          const target = { x: chunk.x * 16 + 8, z: chunk.z * 16 + 8 }
+          await walk(founder, target.x + 0.5, target.z + 2.5)
+          await shovel(founder, target, HEIGHT - 1)
+        }
+        const expanded = await snapshot(founder)
+        context.expect(expanded.city.chunks.length === 24, 'Fifteen edge-adjacent shovel selections expand the city')
+        evidence.adaptations.push(proof('claims-expansion', [
+          'The founder walks to and selects fifteen edge-adjacent chunks with the selected shovel.',
+          'City ownership grows from nine to twenty-four full-height chunks.',
+        ], { chunks: expanded.city.chunks }))
+      })
+      await context.step('Homestead activation rejects shared edge and corner chunks around the main lodestone', async () => {
+        const before = await snapshot(member)
+        for (const key of ['overlapEdge', 'overlapCorner']) {
+          const site = sites[key]
+          await walk(member, site.x + 0.5, site.z + 3.5)
+          await place(member, site, 'lodestone')
+          const rejection = member.waitForMessage('cannot overlap the main city anchor', 5000)
+          await shovel(member, site)
+          await rejection
+          const state = await snapshot(member)
+          context.expect(!state.plots[state.player], `${key} activation creates no personal plot`)
+          context.expect(state.city.chunks.length === before.city.chunks.length,
+            `${key} rejection preserves city ownership`)
+          context.expect(state.blocks[key] === 'lodestone', `${key} rejection preserves the physical lodestone`)
+        }
+      })
+      await context.step('A homestead three chunks from the main lodestone activates', async () => {
+        await walk(member, sites.personalAnchor.x + 0.5, sites.personalAnchor.z + 3.5)
+        await place(member, sites.personalAnchor, 'lodestone')
+        await shovel(member, sites.personalAnchor)
+        const state = await snapshot(member)
+        context.expect(state.plots[state.player]?.chunks.length === 9, 'Member owns a complete personal nine-chunk footprint')
+        evidence.homestead = { rejected: [[2, 0], [2, 2]], accepted: [3, 0], plot: state.plots[state.player] }
+      })
     }
 
     try {
@@ -201,6 +249,17 @@ export async function runClaimsSuite(context, { mode = context.options.command |
             'The invited ordinary player accepts and appears in city membership.',
           ], { members: state.city.members }))
         })
+
+        if (mode === 'homestead') {
+          await claimHomestead()
+          await context.step('Configuration reload preserves the nonoverlapping homestead', async () => {
+            const state = await fixture(member, 'reload')
+            context.expect(state.city.chunks.length === 24 && state.plots[state.player]?.chunks.length === 9,
+              'Reload preserves the city and personal nine-chunk footprint')
+          })
+          evidence.completed = true
+          return evidence
+        }
 
         await context.step('Another protection plugin denies completed breaks without Claims raid credit', async () => {
           await fixture(attacker, 'deny true')
@@ -295,26 +354,7 @@ export async function runClaimsSuite(context, { mode = context.options.command |
           }
         })
 
-        await context.step('Shovel expansion adds edge-adjacent land and a member activates a personal plot', async () => {
-          for (let x = 258; x <= 259; x++) {
-            for (let z = 255; z <= 257; z++) {
-              const target = { x: x * 16 + 8, z: z * 16 + 8 }
-              await walk(founder, target.x + 0.5, target.z + 2.5)
-              await shovel(founder, target, HEIGHT - 1)
-            }
-          }
-          const expanded = await snapshot(founder)
-          context.expect(expanded.city.chunks.length === 15, 'Six edge-adjacent shovel selections expand the city')
-          evidence.adaptations.push(proof('claims-expansion', [
-            'The founder walks to and selects six edge-adjacent chunks with the selected shovel.',
-            'City ownership grows from nine to fifteen full-height chunks.',
-          ], { chunks: expanded.city.chunks }))
-          await walk(member, sites.personalAnchor.x + 0.5, sites.personalAnchor.z + 3.5)
-          await place(member, sites.personalAnchor, 'lodestone')
-          await shovel(member, sites.personalAnchor)
-          const state = await snapshot(member)
-          context.expect(state.plots[state.player]?.chunks.length === 9, 'Member owns a complete personal nine-chunk footprint')
-        })
+        await claimHomestead()
 
         await context.step('The founder faces personal resistance while the plot owner edits normally', async () => {
           await walk(founder, sites.personalStone.x + 0.5, sites.personalStone.z + 3.5)
@@ -328,6 +368,7 @@ export async function runClaimsSuite(context, { mode = context.options.command |
           context.expect((await snapshot(member)).blocks.personalStone === 'air', 'The personal owner breaks their own block once')
           evidence.adaptations.push(proof('claims-homestead', [
             'The member activates a complete personal nine-chunk footprint inside expanded city land.',
+            'Shared edge and corner chunks with the main lodestone footprint are rejected.',
             'The founder earns one sixteenth personal raid progress instead of directly breaking the block.',
             'The personal owner breaks their own block with one completed survival break.',
           ], { founderProgress: protectedState.progress.personalStone.breaking }))

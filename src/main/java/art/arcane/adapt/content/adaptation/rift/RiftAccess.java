@@ -42,6 +42,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.bukkit.PluginChunkTicket;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -84,7 +85,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
@@ -95,13 +95,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
   private static final int PENDING_OPEN_TIMEOUT_TICKS = 40;
   private static final Object ADVANCED_CHEST_LOOKUP_FAILED = new Object();
-  private static final AtomicLong TICKET_OWNER_SEQUENCE = new AtomicLong();
-  private static final ConcurrentMap<RiftAccessViewRegistry.ChunkKey, Long> TICKET_OWNERS = new ConcurrentHashMap<>();
 
   private final RiftAccessViewRegistry activeViews = new RiftAccessViewRegistry();
   private final ConcurrentMap<RiftAccessViewRegistry.ChunkKey, Location> ticketAnchors = new ConcurrentHashMap<>();
+  private final ConcurrentMap<RiftAccessViewRegistry.ChunkKey, PluginChunkTicket> ticketLeases = new ConcurrentHashMap<>();
   private final AtomicBoolean acceptingViews = new AtomicBoolean(true);
-  private final long ticketOwner = TICKET_OWNER_SEQUENCE.incrementAndGet();
 
   public RiftAccess() {
     super("rift-access");
@@ -704,15 +702,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       return true;
     }
 
-    Long previousOwner = TICKET_OWNERS.put(chunkKey, ticketOwner);
     try {
-      target.getWorld().addPluginChunkTicket(chunkKey.x(), chunkKey.z(), Adapt.instance);
+      ticketLeases.put(chunkKey, PluginChunkTicket.acquire(Adapt.instance, anchor));
       return true;
     } catch (Throwable error) {
       ticketAnchors.remove(chunkKey, anchor);
-      if (TICKET_OWNERS.remove(chunkKey, ticketOwner) && previousOwner != null) {
-        TICKET_OWNERS.putIfAbsent(chunkKey, previousOwner);
-      }
       Adapt.error("Failed to retain the Rift Access chunk ticket at " + target + ".");
       Adapt.error(error);
       return false;
@@ -747,20 +741,17 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     if (anchor == null) {
       return;
     }
-    Long owner = TICKET_OWNERS.get(chunkKey);
-    if (owner == null || owner.longValue() != ticketOwner) {
-      ticketAnchors.remove(chunkKey, anchor);
-      return;
-    }
-
     try {
       World world = anchor.getWorld();
-      world.removePluginChunkTicket(chunkKey.x(), chunkKey.z(), Adapt.instance);
+      PluginChunkTicket lease = ticketLeases.get(chunkKey);
+      if (lease != null) {
+        lease.close();
+        ticketLeases.remove(chunkKey, lease);
+      }
       if (requestUnload) {
         world.unloadChunkRequest(chunkKey.x(), chunkKey.z());
       }
       ticketAnchors.remove(chunkKey, anchor);
-      TICKET_OWNERS.remove(chunkKey, ticketOwner);
     } catch (Throwable error) {
       Adapt.error("Failed to release the Rift Access chunk ticket at " + anchor + ".");
       Adapt.error(error);

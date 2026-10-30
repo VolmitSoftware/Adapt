@@ -8210,7 +8210,7 @@ name = "Stichting"
 description = "Sticht één stad door met een schep op een magneetsteen te rechtsklikken. Versterking op rang één is ook vereist."
 lore1 = "Begingebied van de stad: 3 bij 3 chunks"
 guide-controls = "Leer Stichting en Versterking I. Plaats een magneetsteen en rechtsklik erop met een schep. Het anker claimt zijn eigen chunk en de acht aangrenzende chunks voor één stad. Alle negen chunks moeten vrij zijn. Gebieden beslaan de volledige wereldhoogte. Gebruik /adapt claims boundaries om de grenzen te zien."
-guide-rules = "Toegestane werelden: {worlds}. Geen geclaimde chunk mag het vierkant van {minimum} tot {maximum} op zowel X als Z overlappen, inclusief de randen. Leden en buitenstaanders kunnen niet naar claims teleporteren, ook niet binnen hetzelfde gebied. Naar buiten teleporteren mag wel. Vliegen, zweefvliegen en grenzen in de lucht oversteken worden geblokkeerd."
+guide-rules = "Toegestane werelden: {worlds}. Geen geclaimde chunk mag het vierkant van {minimum} tot {maximum} op zowel X als Z overlappen, inclusief de randen. Stichters en leden mogen naar hun eigen stad teleporteren. Buitenstaanders mogen dat niet. Naar buiten teleporteren mag wel. Vliegen, zweefvliegen en grenzen in de lucht oversteken worden voor iedereen geblokkeerd."
 guide-consequences = "Het hoofdanker breken geeft de hele stad en alle persoonlijke erven vrij. Bouwwerken blijven staan. Kijk naar je eigen anker en voer /adapt claims dismantle uit om het vrij te geven, gevolgd door /adapt claims dismantle confirm=true binnen 30 seconden. Gebieds-XP komt uitsluitend van beheerders. Bouwen en aanvallen leveren geen XP op."
 
 [claims.fortification]
@@ -8240,10 +8240,10 @@ guide-consequences = "Het wissen van voortgang, verloren kracht en lagere ingest
 
 [claims.homestead]
 name = "Eigen erf"
-description = "Activeer een persoonlijke magneetsteen in je stad. Het gebied van 3 bij 3 chunks moet volledig binnen de stad passen en mag geen andere erven of het hoofdanker bevatten."
+description = "Activeer een persoonlijke magneetsteen in je stad. Het gebied van 3 bij 3 chunks moet volledig binnen de stad passen en mag geen andere erven of het gebied van 3 bij 3 chunks rond het hoofdanker overlappen."
 lore1 = "Eén persoonlijk erf van 3 bij 3 chunks"
-guide-controls = "Leer Eigen erf met je eigen personage. Plaats een aparte magneetsteen binnen je stad en rechtsklik erop met een schep. Alle negen chunks van het gebied van 3 bij 3 moeten bij de stad horen. Het gebied mag de chunk van het hoofdanker niet bevatten en geen ander persoonlijk erf overlappen."
-guide-rules = "Je kunt één persoonlijk erf bezitten en het vrij bewerken. Alle anderen, ook de stichter, krijgen weerstand. Andere stadsleden krijgen altijd de onlineweerstand. Je behoudt je erf als je vertrekt of wordt verwijderd. Teleport- en vliegverboden gelden ook binnen persoonlijke erven."
+guide-controls = "Leer Eigen erf met je eigen personage. Plaats een aparte magneetsteen binnen je stad en rechtsklik erop met een schep. Alle negen chunks van het gebied van 3 bij 3 moeten bij de stad horen. Het gebied mag het gebied van 3 bij 3 chunks rond het hoofdanker of een ander persoonlijk erf niet overlappen."
+guide-rules = "Je kunt één persoonlijk erf bezitten en het vrij bewerken. Alle anderen, ook de stichter, krijgen weerstand. Andere stadsleden krijgen altijd de onlineweerstand. Je behoudt je erf als je vertrekt of wordt verwijderd. Stadsleden mogen naar persoonlijke erven teleporteren. Aankomen geeft geen bewerkingsrechten. Vliegbeperkingen blijven gelden."
 guide-consequences = "Het persoonlijke anker vernietigen of ontmantelen geeft de chunks terug aan het gemeenschappelijke land. Bouwwerken blijven staan. Het hoofdanker vernietigen geeft het erf ook vrij. Kijk naar je anker en voer /adapt claims dismantle uit om het te ontmantelen, gevolgd door /adapt claims dismantle confirm=true binnen 30 seconden."
 
 [claims]
@@ -8251,7 +8251,7 @@ raid-progress = "{action} {current}/{required}"
 break-action = "Breken"
 place-action = "Plaatsen"
 anchor-confirm = "Kijk naar je anker en gebruik /adapt claims dismantle om de verwijdering te bevestigen."
-entry-denied = "Teleporteren en binnenkomen door de lucht zijn geblokkeerd in geclaimde gebieden."
+entry-denied = "Dit gebied blokkeert deze verplaatsing."
 relocation-failed = "Er is geen veilige plek buiten het gebied gevonden. Neem contact op met een beheerder."
 disabled = "De vaardigheid Gebieden is uitgeschakeld."
 city-founded = "Je hebt {city} gesticht met {count} chunks. Rechtsklik met een schep op de magneetsteen om deze te selecteren."
@@ -8314,7 +8314,7 @@ member-capacity-reached = "Je stad heeft haar ledenlimiet bereikt. Leer Burgersc
 already-has-plot = "Je bezit al een persoonlijk erf."
 plot-outside-city = "Alle negen chunks van het persoonlijke erf moeten bij je stad horen."
 plot-overlap = "Het gebied overlapt een ander persoonlijk erf."
-main-anchor-overlap = "Een persoonlijk erf mag het hoofdanker van de stad niet bevatten."
+main-anchor-overlap = "Een persoonlijk erf mag het gebied van 3 bij 3 chunks rond het hoofdanker van de stad niet overlappen."
 invitation-missing = "Je hebt geen bijpassende stadsuitnodiging."
 invitation-expired = "Je stadsuitnodiging is verlopen."
 not-member = "Die speler is geen lid van deze stad."

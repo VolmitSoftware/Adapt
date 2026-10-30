@@ -28,6 +28,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -44,6 +45,8 @@ public final class ClaimsService implements AutoCloseable {
   private final ClaimInteractionListener interactions;
   private final ClaimProtectionListener protection;
   private final ClaimMovementListener movement;
+  private final ClaimTravelService travel;
+  private final BrackenTravelBridge brackenTravel;
   private final ClaimsAnchorReconciler anchors;
   private volatile boolean closed;
 
@@ -53,6 +56,8 @@ public final class ClaimsService implements AutoCloseable {
     refreshRankLimits();
     interactions = new ClaimInteractionListener(this);
     protection = new ClaimProtectionListener(this);
+    travel = new ClaimTravelService(this, new ClaimSafeLocation(this));
+    brackenTravel = new BrackenTravelBridge(plugin, travel);
     movement = new ClaimMovementListener(this);
     anchors = new ClaimsAnchorReconciler(this);
   }
@@ -104,6 +109,7 @@ public final class ClaimsService implements AutoCloseable {
     plugin.registerListener(interactions);
     plugin.registerListener(protection);
     plugin.registerListener(movement);
+    plugin.registerListener(brackenTravel);
     plugin.registerListener(anchors);
     for (World world : Bukkit.getWorlds()) {
       anchors.validateWorld(world);
@@ -120,10 +126,13 @@ public final class ClaimsService implements AutoCloseable {
   @Override
   public void close() throws IOException {
     closed = true;
+    brackenTravel.close();
+    travel.close();
     anchors.close();
     HandlerList.unregisterAll(interactions);
     HandlerList.unregisterAll(protection);
     HandlerList.unregisterAll(movement);
+    HandlerList.unregisterAll(brackenTravel);
     HandlerList.unregisterAll(anchors);
     interactions.close();
     manager.close();
@@ -150,6 +159,14 @@ public final class ClaimsService implements AutoCloseable {
     return movement.relocating(player);
   }
 
+  public ClaimTravelService travel() {
+    return travel;
+  }
+
+  public BrackenTravelBridge brackenTravel() {
+    return brackenTravel;
+  }
+
   public boolean enabled() {
     SkillClaims skill = skill();
     return !closed && skill != null && skill.isEnabled();
@@ -167,6 +184,42 @@ public final class ClaimsService implements AutoCloseable {
       return false;
     }
     return canEdit(player.getUniqueId(), location);
+  }
+
+  public boolean canPrepareArrival(Player player, Location location) {
+    if (!enabled() || bypass(player)) {
+      return true;
+    }
+    return player != null && canEdit(player.getUniqueId(), location);
+  }
+
+  boolean canPrepareArrival(Player player, World world, BoundingBox volume) {
+    if (!enabled() || bypass(player)) {
+      return true;
+    }
+    if (player == null || world == null || volume == null || volume.getVolume() <= 0) {
+      return false;
+    }
+    UUID owner = player.getUniqueId();
+    UUID worldId = world.getUID();
+    ClaimSnapshot snapshot = manager.snapshot();
+    int maxX = Location.locToBlock(Math.nextDown(volume.getMaxX())) >> 4;
+    int maxZ = Location.locToBlock(Math.nextDown(volume.getMaxZ())) >> 4;
+    for (int x = Location.locToBlock(volume.getMinX()) >> 4; x <= maxX; x++) {
+      for (int z = Location.locToBlock(volume.getMinZ()) >> 4; z <= maxZ; z++) {
+        ClaimChunk chunk = new ClaimChunk(worldId, x, z);
+        ClaimCity city = snapshot.cityAt(chunk).orElse(null);
+        if (city == null) {
+          continue;
+        }
+        ClaimPlot plot = snapshot.plotAt(chunk).orElse(null);
+        if (!city.includes(owner) || contains(volume, city.anchor())
+            || plot != null && (!plot.owner().equals(owner) || contains(volume, plot.anchor()))) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private boolean canEdit(UUID owner, Location location) {
@@ -225,8 +278,14 @@ public final class ClaimsService implements AutoCloseable {
   }
 
   public boolean canTeleport(Player player, Location location) {
-    return !enabled() || bypass(player) || location != null && location.getWorld() != null
-        && manager.snapshot().cityAt(chunk(location)).isEmpty();
+    if (!enabled() || bypass(player)) {
+      return true;
+    }
+    if (player == null || location == null || location.getWorld() == null) {
+      return false;
+    }
+    ClaimCity city = manager.snapshot().cityAt(chunk(location)).orElse(null);
+    return city == null || city.includes(player.getUniqueId());
   }
 
   public ClaimRanks ranks(Player player) {
@@ -274,6 +333,7 @@ public final class ClaimsService implements AutoCloseable {
 
   public void reconfigure() {
     if (!closed) {
+      resetTravel();
       manager.reconfigure(config());
       for (World world : Bukkit.getWorlds()) {
         anchors.validateWorld(world);
@@ -286,6 +346,11 @@ public final class ClaimsService implements AutoCloseable {
         });
       }
     }
+  }
+
+  public void resetTravel() {
+    brackenTravel.reset();
+    travel.reset();
   }
 
   public void refreshRankLimits() {
@@ -317,6 +382,12 @@ public final class ClaimsService implements AutoCloseable {
   private static int purchasedLevel(PlayerSkillLine line, String id) {
     PlayerAdaptation adaptation = line.getAdaptation(id);
     return adaptation == null || adaptation.isRegionGranted() ? 0 : Math.clamp(adaptation.getLevel(), 0, 4);
+  }
+
+  private static boolean contains(BoundingBox volume, ClaimBlock block) {
+    return block.x() < volume.getMaxX() && block.x() + 1.0 > volume.getMinX()
+        && block.y() < volume.getMaxY() && block.y() + 1.0 > volume.getMinY()
+        && block.z() < volume.getMaxZ() && block.z() + 1.0 > volume.getMinZ();
   }
 
   private boolean sameChest(Block target, Block hit) {
