@@ -351,6 +351,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
     runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
     AdaptLanguage.start();
+    AdaptLanguage.sourceFailure().ifPresent(failure -> Adapt.error(
+        "Language source is unavailable; code-owned English and installed language files remain active.", failure));
+    AdaptLanguage.startUpstreamCheck();
+    AdaptLanguage.requestConfiguredLocale();
     updates = BukkitUpdateService.register(this, new BukkitUpdateService.Options(
         "VolmitSoftware", "Adapt", "adapt.update", () -> AdaptConfig.get().isAutoUpdateCheck()));
     debugDump = BukkitDebugDump.create(this, new BukkitDebugDump.Options(() -> true, this::captureDebugState,
@@ -511,7 +515,9 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   private DebugDumpContributor.Report captureDebugState() {
-    String state = "Language: " + AdaptLanguage.activeLocale() + "\nServices: " + (services == null ? 0 : services.size());
+    String state = "Language: " + AdaptLanguage.activeLocale()
+        + "\nLanguage source: " + AdaptLanguage.sourceState()
+        + "\nServices: " + (services == null ? 0 : services.size());
     return () -> state;
   }
 

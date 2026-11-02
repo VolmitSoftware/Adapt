@@ -2,6 +2,7 @@ package art.arcane.adapt.localization;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.util.localization.LanguageFileHeader;
+import art.arcane.volmlib.util.localization.LanguageMeta;
 import art.arcane.volmlib.util.localization.LanguageReferenceRenderer;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 
@@ -33,13 +34,22 @@ public final class AdaptLanguageReference {
   }
 
   static String render(MessageCatalog catalog) {
-    return LanguageReferenceRenderer.render(catalog, LanguageFileHeader.render(new LanguageFileHeader.Options(
-        "Adapt", catalog.englishLocale(),
+    return LanguageReferenceRenderer.render(catalog, header(catalog.englishLocale()));
+  }
+
+  static String renderCustom(MessageCatalog catalog, String locale) {
+    return LanguageReferenceRenderer.render(catalog, header(locale), LanguageMeta.of(locale, catalog.englishLocale()));
+  }
+
+  private static List<String> header(String locale) {
+    return LanguageFileHeader.render(new LanguageFileHeader.Options(
+        "Adapt", locale,
         List.of("Command prefixes are applied by the command renderer. {prefix} is the prefix of a statistic value."),
         List.of("Colors: &0-&f, &k-&r, &#RRGGBB and MiniMessage. Bracket gradients follow automatic-gradients.",
             "Lists retain their line order; plural tables use the forms supplied in the English catalog."),
         Map.ofEntries(
             Map.entry("adaptation", "Adaptation name"),
+            Map.entry("added", "Messages added by a language update"),
             Map.entry("after", "Value after an edit"),
             Map.entry("amount", "Currency, knowledge or experience amount"),
             Map.entry("argument", "Unexpected command argument"),
@@ -70,6 +80,7 @@ public final class AdaptLanguageReference {
             Map.entry("group", "Language editor category"),
             Map.entry("hits", "Successful cache lookups"),
             Map.entry("instruction", "Advancement unlock instruction"),
+            Map.entry("kept", "Local edits kept by a language update"),
             Map.entry("key", "Message or configuration key"),
             Map.entry("knowledge", "Knowledge amount"),
             Map.entry("label", "Setting or statistic label"),
@@ -108,7 +119,7 @@ public final class AdaptLanguageReference {
             Map.entry("ratio", "Cache hit ratio"),
             Map.entry("reason", "Editor error explanation"),
             Map.entry("refund", "Knowledge refunded when unlearning"),
-            Map.entry("remaining", "Number of omitted configuration changes"),
+            Map.entry("remaining", "Number of omitted configuration changes / Time until the next language check is allowed"),
             Map.entry("second", "Second skill group or trigger component"),
             Map.entry("seconds", "Duration in seconds"),
             Map.entry("section", "Language editor section"),
@@ -129,6 +140,7 @@ public final class AdaptLanguageReference {
             Map.entry("trigger", "Ability activation condition"),
             Map.entry("trophy", "Linked trophy status"),
             Map.entry("type", "Expected parameter or value type"),
+            Map.entry("updated", "Messages changed by a language update"),
             Map.entry("used", "Used power or occupied slots"),
             Map.entry("value", "Current setting or statistic value"),
             Map.entry("values", "Allowed setting values"),
@@ -139,6 +151,6 @@ public final class AdaptLanguageReference {
             Map.entry("xp", "Experience amount"),
             Map.entry("z", "Target Z coordinate")
         )
-    )));
+    ));
   }
 }

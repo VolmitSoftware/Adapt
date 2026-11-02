@@ -99,7 +99,7 @@ class AdaptLanguageReferenceTest extends AdaptTestBase {
 
     try (Stream<Path> entries = Files.list(referencePath().getParent())) {
       assertThat(entries.map(path -> path.getFileName().toString()).toList())
-          .containsExactlyInAnyOrder("en_US.toml");
+          .containsExactlyInAnyOrder("en_US.toml", ".upstream");
     }
   }
 

@@ -18,10 +18,8 @@ import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.PluginLanguageService;
 import art.arcane.volmlib.util.localization.PluginLanguageEditor;
 import art.arcane.volmlib.util.localization.PluralSelector;
-import art.arcane.volmlib.util.localization.RemoteLanguageCatalog;
 import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.TomlLanguageWriter;
-import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +28,6 @@ import org.mockito.MockedStatic;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -58,12 +51,10 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   private LocalizationSnapshot previousSnapshot;
   private String previousLocale;
   private ConfigHotloadEngine engine;
-  private HttpServer server;
-  private URLClassLoader resources;
+  private LanguageLoopback repository;
   private PluginLanguageService languages;
   private HotloadSVC hotload;
   private final AtomicReference<LocalizationSnapshot> selected = new AtomicReference<>();
-  private final AtomicInteger downloadRequests = new AtomicInteger();
   private int hotloadBatches;
 
   @BeforeEach
@@ -106,11 +97,8 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
       languages.close();
     }
     AdaptLanguage.shutdown();
-    if (server != null) {
-      server.stop(0);
-    }
-    if (resources != null) {
-      resources.close();
+    if (repository != null) {
+      repository.close();
     }
     if (engine != null) {
       engine.clear();
@@ -236,7 +224,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
       Files.writeString(personal, partial);
       pollUntil(() -> personalValue(player).equals(new TextValue("PARTIAL")));
       assertThat(Files.readString(preferences)).isEqualTo(savedPreferences);
-      assertThat(downloadRequests).hasValue(0);
+      assertThat(repository.requests()).isZero();
     }
   }
 
@@ -269,23 +257,10 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   }
 
   private void installSource(int status, String content) throws Exception {
-    byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-    server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-    server.createContext("/", exchange -> {
-      downloadRequests.incrementAndGet();
-      exchange.sendResponseHeaders(status, bytes.length);
-      exchange.getResponseBody().write(bytes);
-      exchange.close();
-    });
-    server.start();
-    Path source = Files.createDirectories(dataFolder.toPath().resolve("source"));
-    Files.writeString(source.resolve("source.properties"), "revision=master\nlocales=fi_FI\n");
-    resources = new URLClassLoader(new URL[]{source.toUri().toURL()}, null);
-    RemoteLanguageCatalog remote = RemoteLanguageCatalog.load(new RemoteLanguageCatalog.Options(
-        "Adapt", URI.create("http://127.0.0.1:" + server.getAddress().getPort() + "/"),
-        "languages", ".toml", "source.properties", resources));
-    field(AdaptLanguage.class, "remote").set(null, remote);
-    field(AdaptLanguage.class, "remoteRoot").set(null, dataFolder.toPath().toAbsolutePath().normalize());
+    repository = new LanguageLoopback();
+    repository.publish(LanguageLoopback.REVISION_ONE, "fi_FI", content);
+    repository.fileStatus(status);
+    repository.connect();
   }
 
   private Field field(Class<?> type, String name) throws Exception {

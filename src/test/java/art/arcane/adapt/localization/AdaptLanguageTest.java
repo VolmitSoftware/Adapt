@@ -26,11 +26,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -53,15 +56,16 @@ class AdaptLanguageTest extends AdaptTestBase {
           + "|\\badapt\\.[a-z0-9_.]*[a-z0-9_]\\b"
           + "|\\b[A-Za-z][A-Za-z0-9_-]*=\\{[^{}\\n]+}"
           + "|\\bconfig-archive\\b"
-          + "|\\b(?:enabled=(?:on|off|clear|true|false)|force=true|seed=123)\\b"
+          + "|\\b(?:enabled=(?:on|off|clear|true|false)|force=true|seed=123|name=members)\\b"
           + "|%"
   );
   private static final Pattern ESCAPE_TOKEN = Pattern.compile("\\\\.");
   private static final Pattern PROTECTED_TERM = Pattern.compile(
-      "(?<![A-Za-z0-9])(?:PlaceholderAPI|GriefDefender|CraftBukkit|WorldGuard|NeoForge|Minecraft"
+      "(?<![\\p{IsLatin}\\p{N}])(?:PlaceholderAPI|GriefDefender|CraftBukkit|WorldGuard|NeoForge|Minecraft"
           + "|Adapt|Bukkit|Paper|Folia|Purpur|Fabric|Iris|PAPI|NMS|NBT|JSON"
-          + "|TOML|YAML)(?![A-Za-z0-9])"
+          + "|TOML|YAML)(?![\\p{IsLatin}\\p{N}])"
   );
+  private static final Pattern ADAPTATION_ID_TOKEN = adaptationIdToken();
   private static final Pattern WORD_TOKEN = Pattern.compile("[\\p{L}\\p{N}_]+");
   private static final Pattern FRENCH_FALSE_OCCURRENCE_TERM = Pattern.compile("(?iu)\\bheures?\\b");
   private static final Pattern SPANISH_FALSE_PROJECTILE_TERM = Pattern.compile("(?iu)\\bproyectores?\\b");
@@ -144,7 +148,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   private static final Map<String, Pattern> LOCALE_TRANSLATION_ARTIFACTS = Map.ofEntries(
       Map.entry("fi_FI", Pattern.compile("(?i)City name optional")),
       Map.entry("ja-JP", Pattern.compile(
-          "(?:ログイン|サイトマップ|新着情報|最近の投稿|ニュース|プロフィール|電話番号|ご利用案内"
+          "(?:ログイン(?!ボーナス)|サイトマップ|新着情報|最近の投稿|ニュース|プロフィール|電話番号|ご利用案内"
               + "|お問い合わせ|会社情報|製品情報|商品情報|プライバシー|ホームページ|ブログ|カテゴリ|アーカイブ)"
       )),
       Map.entry("ko_KR", Pattern.compile(
@@ -235,6 +239,22 @@ class AdaptLanguageTest extends AdaptTestBase {
   );
 
   private static Map<String, LocaleOverlay> downloadSourceOverlays;
+
+  private static Pattern adaptationIdToken() {
+    String prefix = "config.fields.adaptations.";
+    Comparator<String> byLength = Comparator.comparingInt(String::length);
+    Set<String> ids = new TreeSet<>(byLength.reversed().thenComparing(Comparator.naturalOrder()));
+    for (MessageKey definition : AdaptMessages.catalog().keys()) {
+      String id = definition.id();
+      if (id.startsWith(prefix)) {
+        String adaptation = id.substring(prefix.length(), id.indexOf('.', prefix.length()));
+        if (adaptation.contains("-")) {
+          ids.add(adaptation);
+        }
+      }
+    }
+    return Pattern.compile("(?<![a-z0-9-])(?:" + String.join("|", ids) + ")(?![a-z0-9])");
+  }
 
   @BeforeAll
   static void parseEveryDownloadSourceOnce() throws IOException {
@@ -493,7 +513,10 @@ class AdaptLanguageTest extends AdaptTestBase {
     assertThat(FORBIDDEN_TRANSLATION_ARTIFACT.matcher(translated).find())
         .describedAs("known translation artifact for %s:%s", locale, key)
         .isFalse();
-    String inspectable = PROTOCOL_TOKEN.matcher(translated).replaceAll("");
+    assertThat(patternTokens(ADAPTATION_ID_TOKEN, translated))
+        .describedAs("adaptation ids for %s:%s", locale, key)
+        .containsExactlyInAnyOrderElementsOf(patternTokens(ADAPTATION_ID_TOKEN, english));
+    String inspectable = ADAPTATION_ID_TOKEN.matcher(PROTOCOL_TOKEN.matcher(translated).replaceAll("")).replaceAll("");
     Pattern localeArtifact = LOCALE_TRANSLATION_ARTIFACTS.get(locale);
     if (localeArtifact != null) {
       assertThat(localeArtifact.matcher(inspectable).find())

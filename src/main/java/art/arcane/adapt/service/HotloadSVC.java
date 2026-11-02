@@ -51,7 +51,7 @@ public class HotloadSVC implements AdaptService {
   private static final long WATCHER_POLL_MS = 500L;
   private static final long HOTLOAD_COOLDOWN_MS = 3_000L;
   private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
-  private static final int MAX_HOTLOAD_CONFIG_BYTES = 2 * 1024 * 1024;
+  private static final int MAX_HOTLOAD_CONFIG_BYTES = 3 * 1024 * 1024;
   private static final long HOTLOAD_IO_SHUTDOWN_MILLIS = 2_000L;
 
   private final AtomicBoolean hotloadPollInFlight = new AtomicBoolean();
@@ -132,6 +132,10 @@ public class HotloadSVC implements AdaptService {
     return hotloadEngine.write(file, writer);
   }
 
+  public void noteSelfWrite(File file, String content) {
+    hotloadEngine.noteSelfWrite(file, content);
+  }
+
   private void queueConfigPoll() {
     ExecutorService current = hotloadIo;
     if (current == null || !hotloadPollInFlight.compareAndSet(false, true)) {
@@ -197,7 +201,7 @@ public class HotloadSVC implements AdaptService {
 
   private void retainSnapshotsForRetry(List<ConfigHotloadEngine.StableContentSnapshot> snapshots) {
     for (ConfigHotloadEngine.StableContentSnapshot snapshot : snapshots) {
-      hotloadEngine.processSnapshotChange(snapshot, ignored -> false, null);
+      hotloadEngine.retrySnapshot(snapshot);
     }
   }
 

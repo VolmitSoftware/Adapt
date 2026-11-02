@@ -16,9 +16,9 @@ The master branch is for the latest version of Minecraft.
 
 ### Language and Localization
 
-English is defined in typed Java message catalogs beside the code that uses it. When adding player-facing text, add its English key there first; the localization tests identify every non-English overlay that still needs the new key. Adapt does not ship a separate `en_US.toml` file.
+English is defined in typed Java message catalogs beside the code that uses it. When adding player-facing text, add its English key there first; the localization tests identify every non-English overlay that still needs the new key. Adapt writes that catalog to `plugins/Adapt/languages/en_US.toml` on start and merges new keys into it after an update without overwriting edits.
 
-Set `language` in `plugins/Adapt/adapt.toml` to a supported locale such as `de_DE`. Adapt downloads only that revision-pinned locale, verifies it, caches it under `languages/downloaded/`, and activates it automatically. A server override TOML can contain only the keys it wants to change; missing values resolve through the downloaded locale and finally the code-owned English catalog.
+Set `language` in `plugins/Adapt/adapt.toml` to a supported locale such as `de_DE`. Adapt downloads that locale from this repository's default branch into `languages/<locale>.toml` and activates it. On start and on `/adapt language update`, at most once every five minutes, Adapt merges newer translations into installed files and keeps keys an operator edited. A custom `languages/<id>.toml` can name another locale as its `[meta]` base; missing values resolve through that base and finally the code-owned English catalog.
 
 Do you know one of these languages and want to improve its wording? Join the [Discord](https://discord.gg/volmit) or open a contribution. Please submit translations only when you are confident in the language so they can be reviewed accurately.
 
@@ -121,7 +121,7 @@ Install Java JDK 25, clone the repository, and run the Gradle wrapper from the A
 ./gradlew build
 ```
 
-`./gradlew build` runs checks and creates the packed runtime jar in `build/libs`. `./gradlew shadowJar` creates the intermediate shaded jar. Multiplexor reads `gradle/multiplexor.gradle` to build the runtime jar in an isolated workspace and deliver it to a selected destination. Locale sources remain outside the jar; the build embeds their pinned revision and checksums for verified on-demand downloads.
+`./gradlew build` runs checks and creates the packed runtime jar in `build/libs`. `./gradlew shadowJar` creates the intermediate shaded jar. Multiplexor reads `gradle/multiplexor.gradle` to build the runtime jar in an isolated workspace and deliver it to a selected destination. Locale sources remain outside the jar; the build embeds a manifest naming the repository, branch, source folder, and locale list that the runtime downloads from.
 
 ## Credits
 

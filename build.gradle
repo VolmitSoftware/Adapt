@@ -68,8 +68,29 @@ def advancementConfiguration = configurations.create('advancementLibrary')
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
-String languageSourceRevision = 'master'
-List<File> languageSourceFiles = fileTree('src/main/resources') {
+String languageSourceRepository = providers.gradleProperty('languageSourceRepository').orElse('VolmitSoftware/Adapt').get()
+String languageSourceBranch = providers.gradleProperty('languageSourceBranch').orElse(providers.provider {
+    try {
+        Process process = new ProcessBuilder('git', 'symbolic-ref', '--short', 'refs/remotes/origin/HEAD')
+                .directory(projectDir)
+                .redirectErrorStream(true)
+                .start()
+        String output = process.inputStream.text.trim()
+        if (process.waitFor() == 0 && output.startsWith('origin/')) {
+            return output.substring('origin/'.length())
+        }
+    } catch (IOException | InterruptedException ignored) {
+    }
+    return 'master'
+}).get()
+if (!(languageSourceRepository ==~ /[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/)) {
+    throw new GradleException('languageSourceRepository must be a GitHub owner/repository')
+}
+if (!(languageSourceBranch ==~ /[A-Za-z0-9][A-Za-z0-9._\/-]{0,127}/) || languageSourceBranch.contains('..')) {
+    throw new GradleException('languageSourceBranch must be a Git branch name')
+}
+String languageSourcePath = 'src/main/resources'
+List<File> languageSourceFiles = fileTree(languageSourcePath) {
     include('*.toml')
 }.files.toList().sort { File left, File right -> left.name <=> right.name }
 List<String> languageSourceLocales = languageSourceFiles.collect { File source ->
@@ -77,7 +98,10 @@ List<String> languageSourceLocales = languageSourceFiles.collect { File source -
 }
 def languageSourceManifestTask = tasks.register('generateLanguageSourceManifest', WriteProperties) {
     destinationFile.set(layout.buildDirectory.file('generated/language-source/adapt-language-source.properties'))
-    property('revision', languageSourceRevision)
+    property('repository', languageSourceRepository)
+    property('branch', languageSourceBranch)
+    property('path', languageSourcePath)
+    property('extension', '.toml')
     property('locales', languageSourceLocales.join(','))
 }
 def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
@@ -86,6 +110,7 @@ def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
     from({ platformUtilsConfiguration.collect { File dependency -> zipTree(dependency) } })
     exclude('net/kyori/**')
     exclude('META-INF/services/net.kyori.**')
+    exclude('com/google/gson/**')
 }
 
 def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Jar) {
@@ -121,7 +146,7 @@ tasks.named('processResources').configure {
 
 def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
     group = 'verification'
-    description = 'Verifies that locales are absent from the jar and its download reference matches the build.'
+    description = 'Verifies that locales are absent from the jar and its language source manifest tracks the build branch.'
     dependsOn(shadowJarTask)
 
     doLast {
@@ -148,13 +173,18 @@ def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
             }
             Properties manifest = new Properties()
             jar.getInputStream(manifestEntry).withCloseable { InputStream input -> manifest.load(input) }
-            if (manifest.getProperty('revision') != languageSourceRevision) {
-                throw new GradleException('Runtime jar language revision does not match the build revision.')
+            if (manifest.getProperty('repository') != languageSourceRepository
+                    || manifest.getProperty('branch') != languageSourceBranch
+                    || manifest.getProperty('path') != languageSourcePath
+                    || manifest.getProperty('extension') != '.toml'
+                    || manifest.getProperty('locales') != languageSourceLocales.join(',')) {
+                throw new GradleException('Runtime jar language source manifest does not match the build source set.')
             }
-            if (manifest.getProperty('locales') != languageSourceLocales.join(',')) {
-                throw new GradleException('Runtime jar language locale set does not match the source set.')
+            if (manifest.stringPropertyNames().any { String key ->
+                key == 'revision' || key == 'mode' || key.startsWith('sha256.')
+            }) {
+                throw new GradleException('Runtime jar language source manifest must track the repository branch, not a pinned revision.')
             }
-
         }
     }
 }
@@ -313,6 +343,7 @@ tasks.named('test', Test) {
     }
     jvmArgs('-Dnet.bytebuddy.experimental=true')
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    timeout = java.time.Duration.ofMinutes(10)
     testLogging {
         events('failed')
         showStandardStreams = false
