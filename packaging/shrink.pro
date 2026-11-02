@@ -15,3 +15,5 @@
 -keep class art.arcane.adapt.util.advancements.nms.util.ReflectionUtil { *; }
 
 -keep class art.arcane.volmlib.nativelib.**.scoreboard.NativeScoreboardPackets { public <init>(); }
+-keepclassmembers class art.arcane.adapt.content.item.**$Data { <fields>; }
+-keepclassmembers class art.arcane.adapt.content.item.multiItems.MultiItem$MultiItemData { <fields>; }
