@@ -566,9 +566,9 @@ pluginPackaging {
 tasks.register('buildSwiftSwamp', Copy) {
     group = 'development'
     description = 'Builds, verifies, and stages Adapt in the workspace BUILDS directory.'
-    dependsOn('check', shadowJarTask)
+    dependsOn('check', 'packedJar')
     outputs.upToDateWhen { false }
-    from(shadowJarTask.flatMap { com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar archive -> archive.archiveFile })
+    from({ tasks.named('packedJar').get().outputJar })
     into(providers.gradleProperty('buildsDirectory').orElse('../BUILDS'))
     rename { String ignored -> 'Adapt.jar' }
 }
