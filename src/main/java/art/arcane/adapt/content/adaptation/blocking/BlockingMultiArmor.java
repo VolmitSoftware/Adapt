@@ -41,7 +41,6 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -51,11 +50,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.Map;
 
 public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Config> {
   private static final MultiArmor multiarmor = new MultiArmor();
@@ -160,29 +156,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     if (p.isSneaking()) {
       if (validateArmor(e.getItemDrop().getItemStack())) {
         ItemStack source = e.getItemDrop().getItemStack();
-        List<ItemStack> drops = multiarmor.explode(e.getItemDrop().getItemStack());
-        for (ItemStack i : drops) {
-          Damageable iDmgable = (Damageable) i.getItemMeta();
-          if (i.hasItemMeta()) {
-            ItemMeta im = i.getItemMeta().clone();
-            ItemMeta im2 = im;
-            if (im.hasDisplayName()) {
-              im2.setDisplayName(im.getDisplayName());
-            }
-            if (im.hasEnchants()) {
-              Map<Enchantment, Integer> enchants = im.getEnchants();
-              for (Enchantment enchant : enchants.keySet()) {
-                im2.addEnchant(enchant, enchants.get(enchant), true);
-              }
-            }
-            if (iDmgable != null && iDmgable.hasDamage()) {
-              ((Damageable) im2).setDamage(iDmgable.getDamage());
-            }
-            im2.setLore(null);
-            i.setItemMeta(im2);
-          }
-          drops.set(drops.indexOf(i), i);
-        }
+        List<ItemStack> drops = multiarmor.explode(source);
 
         J.runEntity(p, () -> {
           fx(p, FxPriority.TRANSITION)
@@ -244,14 +218,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
 
 
   private boolean validateArmor(ItemStack item) {
-    if (item.getItemMeta() != null && item.getItemMeta().getLore() != null) {
-      for (String lore : item.getItemMeta().getLore()) {
-        if (lore != null && lore.contains("MultiArmor")) {
-          return true;
-        }
-      }
-    }
-    return false;
+    return multiarmor.isMultiItem(item);
   }
 
 

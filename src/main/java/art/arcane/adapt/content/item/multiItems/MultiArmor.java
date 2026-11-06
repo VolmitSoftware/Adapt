@@ -23,7 +23,6 @@ import art.arcane.adapt.localization.catalog.ItemsMessages;
 import art.arcane.volmlib.util.format.Form;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,7 @@ public class MultiArmor implements MultiItem {
   }
 
   @Override
-  public void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems) {
+  public List<String> tagLore(ItemStack item, List<ItemStack> otherItems) {
     List<String> lore = new ArrayList<>();
     lore.add(AdaptLanguage.text(
         ItemsMessages.MULTI_ARMOR_COUNT,
@@ -54,7 +53,7 @@ public class MultiArmor implements MultiItem {
       lore.add("-  " + Form.capitalizeWords(i.getType().name().toLowerCase().replaceAll("\\Q_\\E", " ")));
     }
 
-    meta.setLore(lore);
+    return lore;
   }
 
   public ItemStack nextElytra(ItemStack item) {

@@ -40,7 +40,6 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -56,10 +55,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
-import java.util.Map;
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat-selection", ExcavationMessages.PREFERENCE_EXCAVATIONOMNITOOL_COMBAT, CommonPreferences.Toggle.ON);
@@ -219,28 +216,6 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     if (p.isSneaking()) {
       if (validateTool(e.getItemDrop().getItemStack())) {
         List<ItemStack> drops = omniTool.explode(e.getItemDrop().getItemStack());
-        for (ItemStack i : drops) {
-          Damageable iDmgable = (Damageable) i.getItemMeta();
-          if (i.hasItemMeta()) {
-            ItemMeta im = i.getItemMeta().clone();
-            ItemMeta im2 = im;
-            if (im.hasDisplayName()) {
-              im2.setDisplayName(im.getDisplayName());
-            }
-            if (im.hasEnchants()) {
-              Map<Enchantment, Integer> enchants = im.getEnchants();
-              for (Enchantment enchant : enchants.keySet()) {
-                im2.addEnchant(enchant, enchants.get(enchant), true);
-              }
-            }
-            if (iDmgable != null && iDmgable.hasDamage()) {
-              ((Damageable) im2).setDamage(iDmgable.getDamage());
-            }
-            im2.setLore(null);
-            i.setItemMeta(im2);
-          }
-          drops.set(drops.indexOf(i), i);
-        }
 
         e.getItemDrop().remove();
         splitFx(p);
@@ -365,9 +340,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
   }
 
   private boolean validateTool(ItemStack item) {
-    return (item.getItemMeta() != null
-        && item.getItemMeta().getLore() != null
-        && item.getItemMeta().getLore().toString().contains("Leatherman"));
+    return omniTool.isMultiItem(item);
   }
 
   static boolean fitsCapacity(int firstComponents, int secondComponents, int capacity) {

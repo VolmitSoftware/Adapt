@@ -28,11 +28,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -104,11 +109,10 @@ public interface MultiItem {
   }
 
   default void setItems(ItemStack multi, List<ItemStack> itemStacks) {
+    List<ItemStack> stored = itemStacks.stream().filter(this::supportsItem).collect(Collectors.toList());
     setMultiItemData(multi, MultiItemData.builder()
-        .rawItems(itemStacks.stream().filter(this::supportsItem)
-            .map(NMS::serializeStack)
-            .collect(Collectors.toList()))
-        .build());
+        .rawItems(stored.stream().map(NMS::serializeStack).collect(Collectors.toList()))
+        .build(), stored);
   }
 
   default KList<ItemStack> getItems(ItemStack multi) {
@@ -128,17 +132,25 @@ public interface MultiItem {
     return it;
   }
 
-  void onApplyMeta(ItemStack item, ItemMeta meta, List<ItemStack> otherItems);
+  List<String> tagLore(ItemStack item, List<ItemStack> otherItems);
 
   default boolean isMultiItem(ItemStack item) {
-    return supportsItem(item) && getMultiItemData(item) != null;
+    return item != null
+        && item.hasItemMeta()
+        && supportsItem(item)
+        && item.getItemMeta().getPersistentDataContainer().has(dataKey(), PersistentDataType.STRING);
   }
 
   default ItemStack getRealItem(ItemStack multi) {
     ItemStack c = multi.clone();
     if (c.hasItemMeta()) {
       ItemMeta meta = c.getItemMeta();
-      meta.getPersistentDataContainer().remove(new NamespacedKey(Adapt.instance, getKey()));
+      PersistentDataContainer data = meta.getPersistentDataContainer();
+      if (data.has(dataKey(), PersistentDataType.STRING)) {
+        meta.lore(ownLore(data));
+        data.remove(dataKey());
+        data.remove(loreKey());
+      }
       c.setItemMeta(meta);
     }
 
@@ -148,23 +160,65 @@ public interface MultiItem {
   default MultiItemData getMultiItemData(ItemStack multi) {
     try {
       ItemMeta meta = multi.getItemMeta();
-      String st = meta.getPersistentDataContainer()
-          .get(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING);
+      String st = meta.getPersistentDataContainer().get(dataKey(), PersistentDataType.STRING);
       return BukkitGson.gson.fromJson(st, MultiItemData.class);
     } catch (Throwable e) {
       return null;
     }
   }
 
-  default void setMultiItemData(ItemStack multi, MultiItemData data) {
-    String s = BukkitGson.gson.toJson(data);
+  default void setMultiItemData(ItemStack multi, MultiItemData data, List<ItemStack> storedItems) {
     ItemMeta meta = multi.getItemMeta();
-    meta.getPersistentDataContainer()
-        .set(new NamespacedKey(Adapt.instance, getKey()), PersistentDataType.STRING, s);
+    PersistentDataContainer container = meta.getPersistentDataContainer();
+    if (!container.has(dataKey(), PersistentDataType.STRING)) {
+      saveOwnLore(container, meta.lore());
+    }
+    container.set(dataKey(), PersistentDataType.STRING, BukkitGson.gson.toJson(data));
+
+    List<Component> lore = new ArrayList<>();
+    List<Component> own = ownLore(container);
+    if (own != null) {
+      lore.addAll(own);
+    }
+    for (String line : tagLore(multi, storedItems)) {
+      lore.add(LegacyComponentSerializer.legacySection().deserialize(line));
+    }
+    meta.lore(lore);
     multi.setItemMeta(meta);
-    meta = multi.getItemMeta();
-    onApplyMeta(multi, meta, getItems(multi));
-    multi.setItemMeta(meta);
+  }
+
+  private NamespacedKey dataKey() {
+    return new NamespacedKey(Adapt.instance, getKey());
+  }
+
+  private NamespacedKey loreKey() {
+    return new NamespacedKey(Adapt.instance, getKey() + "-lore");
+  }
+
+  private void saveOwnLore(PersistentDataContainer container, List<Component> lore) {
+    if (lore == null || lore.isEmpty()) {
+      container.remove(loreKey());
+      return;
+    }
+
+    List<String> serialized = new ArrayList<>(lore.size());
+    for (Component line : lore) {
+      serialized.add(GsonComponentSerializer.gson().serialize(line));
+    }
+    container.set(loreKey(), PersistentDataType.LIST.strings(), serialized);
+  }
+
+  private List<Component> ownLore(PersistentDataContainer container) {
+    List<String> serialized = container.get(loreKey(), PersistentDataType.LIST.strings());
+    if (serialized == null || serialized.isEmpty()) {
+      return null;
+    }
+
+    List<Component> lore = new ArrayList<>(serialized.size());
+    for (String line : serialized) {
+      lore.add(GsonComponentSerializer.gson().deserialize(line));
+    }
+    return lore;
   }
 
   @Data
