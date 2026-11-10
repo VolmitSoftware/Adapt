@@ -24,10 +24,6 @@ import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.util.common.parallel.MultiBurst;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.spatial.matter.ClassReader;
-import art.arcane.spatial.matter.Matter;
-import art.arcane.spatial.matter.MatterSlice;
-import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
@@ -40,6 +36,9 @@ import art.arcane.volmlib.util.mantle.runtime.MantleChunk;
 import art.arcane.volmlib.util.mantle.runtime.MantleDataAdapter;
 import art.arcane.volmlib.util.mantle.runtime.MantleHooks;
 import art.arcane.volmlib.util.mantle.runtime.TectonicPlate;
+import art.arcane.volmlib.util.matter.IrisMatter;
+import art.arcane.volmlib.util.matter.Matter;
+import art.arcane.volmlib.util.matter.MatterSlice;
 import art.arcane.volmlib.util.parallel.HyperLockSupport;
 import art.arcane.volmlib.util.parallel.MultiBurstSupport;
 import org.bukkit.Bukkit;
@@ -60,9 +59,7 @@ public class WorldData extends TickedObject {
   private static final KMap<World, WorldData> mantles = new KMap<>();
 
   static {
-    SpatialMatter.registerSliceType(new Earnings.EarningsMatter());
-    SpatialMatter.registerSliceType(new PlacementStamp.PlacementStampMatter());
-    ClassReader.add(WorldData.class.getClassLoader());
+    AdaptSlices.register();
   }
 
   private final World world;
@@ -81,23 +78,24 @@ public class WorldData extends TickedObject {
   }
 
   private static AdaptMantle createMantle(File dataFolder, int worldHeight) {
-    MantleDataAdapter<Matter> adapter = createAdapter();
+    MantleDataAdapter<Matter> adapter = createAdapter(WorldData::readSection);
+    SpatialMantleMigration.migrate(dataFolder, worldHeight, adapter, createAdapter(WorldData::readSpatialSection));
     MantleHooks hooks = createHooks();
     art.arcane.volmlib.util.mantle.Mantle.RegionIO<TectonicPlate<Matter>> regionIO =
         createRegionIO(dataFolder, worldHeight, adapter, hooks);
     return new AdaptMantle(dataFolder, worldHeight, MultiBurst.burst, regionIO, adapter, hooks);
   }
 
-  private static MantleDataAdapter<Matter> createAdapter() {
+  private static MantleDataAdapter<Matter> createAdapter(SectionReader reader) {
     return new MantleDataAdapter<>() {
       @Override
       public Matter createSection() {
-        return new SpatialMatter(16, 16, 16);
+        return new IrisMatter(16, 16, 16);
       }
 
       @Override
       public Matter readSection(CountingDataInputStream din) throws IOException {
-        return WorldData.readSection(din);
+        return reader.read(din);
       }
 
       @Override
@@ -160,31 +158,51 @@ public class WorldData extends TickedObject {
   }
 
   static Matter readSection(CountingDataInputStream in) throws IOException {
+    try {
+      return Matter.readDin(in, size -> {
+        if (size.getX() != 16 || size.getY() != 16 || size.getZ() != 16) {
+          throw new IllegalArgumentException("Mantle section dimensions must be 16 by 16 by 16");
+        }
+        return new IrisMatter(16, 16, 16);
+      });
+    } catch (IllegalArgumentException | IllegalStateException failure) {
+      throw new IOException("Could not read mantle section", failure);
+    }
+  }
+
+  /**
+   * Reads a section saved by the Spatial matter codec: each slice is named by its value class and carries no length prefix.
+   * The palette and bit-packed cell data inside a slice use the same encoding as VolmLib.
+   */
+  static Matter readSpatialSection(CountingDataInputStream in) throws IOException {
     int width = in.readInt();
     int height = in.readInt();
     int depth = in.readInt();
     if (width != 16 || height != 16 || depth != 16) {
       throw new IOException("Mantle section dimensions must be 16 by 16 by 16");
     }
-    Matter section = new SpatialMatter(width, height, depth);
+    Matter section = new IrisMatter(width, height, depth);
     int count = in.readUnsignedByte();
     section.getHeader().read(in);
     for (int index = 0; index < count; index++) {
       String name = in.readUTF();
+      Class<?> type = AdaptSlices.spatialType(name);
+      if (type == null) {
+        throw new IOException("Unknown Spatial mantle slice " + name);
+      }
+      if (section.hasSlice(type)) {
+        throw new IOException("Duplicate mantle slice " + name);
+      }
+      MatterSlice<?> slice = section.createSlice(type, section);
+      if (slice == null) {
+        throw new IOException("Unavailable mantle slice codec " + name);
+      }
       try {
-        Class<?> type = section.getClass(ClassReader.find(name));
-        if (section.hasSlice(type)) {
-          throw new IOException("Duplicate mantle slice " + name);
-        }
-        MatterSlice<?> slice = section.createSlice(type, section);
-        if (slice == null) {
-          throw new IOException("Unavailable mantle slice codec " + name);
-        }
         slice.read(in);
-        section.putSlice(type, slice);
-      } catch (ClassNotFoundException | RuntimeException failure) {
+      } catch (RuntimeException failure) {
         throw new IOException("Could not read mantle slice " + name, failure);
       }
+      section.putSlice(type, slice);
     }
     return section;
   }
@@ -337,6 +355,11 @@ public class WorldData extends TickedObject {
   @Override
   public void onTick() {
     mantle.trim(60_000);
+  }
+
+  @FunctionalInterface
+  private interface SectionReader {
+    Matter read(CountingDataInputStream in) throws IOException;
   }
 
   private static final class AdaptMantle extends Mantle<Matter> {

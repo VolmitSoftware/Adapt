@@ -1,8 +1,8 @@
 package art.arcane.adapt.api.golem.plinth;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.data.AdaptMatter;
 import art.arcane.adapt.nms.NMS;
-import art.arcane.spatial.matter.slices.RawMatter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-public class PlinthSlotMatter extends RawMatter<PlinthSlotItem> {
+public class PlinthSlotMatter extends AdaptMatter<PlinthSlotItem> {
   public static final int MAX_ITEM_BYTES = 8 * 1024 * 1024;
   private static final int UNREADABLE = 0;
 

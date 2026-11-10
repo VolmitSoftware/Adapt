@@ -3,12 +3,11 @@ package art.arcane.adapt.api.data;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeFaces;
-import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.spatial.matter.Matter;
-import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.io.CountingDataInputStream;
 import art.arcane.volmlib.util.mantle.Mantle;
+import art.arcane.volmlib.util.matter.IrisMatter;
+import art.arcane.volmlib.util.matter.Matter;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -41,8 +40,8 @@ class WorldDataNodeStorageTest extends AdaptTestBase {
   private World world;
 
   @BeforeAll
-  static void registerNodeMatter() {
-    SpatialMatter.registerSliceType(new NodeMatter());
+  static void registerSlices() {
+    AdaptSlices.register();
   }
 
   @BeforeEach
@@ -139,8 +138,12 @@ class WorldDataNodeStorageTest extends AdaptTestBase {
 
   @Test
   void duplicateCurrentSlicesRejectTheWholeSection() throws Exception {
-    Matter section = new SpatialMatter(16, 16, 16);
+    Matter section = new IrisMatter(16, 16, 16);
     section.slice(NodeFaces.class).set(3, 0, 3, faces(BlockFace.UP));
+    ByteArrayOutputStream slice = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(slice)) {
+      section.getSlice(NodeFaces.class).write(out);
+    }
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try (DataOutputStream out = new DataOutputStream(bytes)) {
       out.writeInt(16);
@@ -148,8 +151,10 @@ class WorldDataNodeStorageTest extends AdaptTestBase {
       out.writeInt(16);
       out.writeByte(2);
       section.getHeader().write(out);
-      section.getSlice(NodeFaces.class).write(out);
-      section.getSlice(NodeFaces.class).write(out);
+      for (int copy = 0; copy < 2; copy++) {
+        out.writeInt(slice.size());
+        slice.writeTo(out);
+      }
     }
     try (CountingDataInputStream in = CountingDataInputStream.wrap(new ByteArrayInputStream(bytes.toByteArray()))) {
       assertThatThrownBy(() -> WorldData.readSection(in)).isInstanceOf(IOException.class).hasMessageContaining("Duplicate");

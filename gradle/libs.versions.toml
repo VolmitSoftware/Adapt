@@ -9,10 +9,6 @@ kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
 
 # Cancer
-fukkit = "23.6.1"
-amulet = "23.5.1"
-chrono = "22.9.10"
-spatial = "22.11.2"
 
 spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
@@ -35,10 +31,6 @@ fastutil = "8.5.13"
 caffeine = "3.0.6"
 
 [libraries]
-fukkit = { module = "com.github.VolmitDev:Fukkit", version.ref = "fukkit" }
-amulet = { module = "com.github.VolmitDev:Amulet", version.ref = "amulet" }
-chrono = { module = "com.github.VolmitDev:Chrono", version.ref = "chrono" }
-spatial = { module = "com.github.VolmitDev:Spatial", version.ref = "spatial" }
 
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 platformUtils = { module = "com.github.CrazyDev05:PlatformUtils", version.ref = "platformUtils" }

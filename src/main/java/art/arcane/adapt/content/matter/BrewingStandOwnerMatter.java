@@ -18,14 +18,14 @@
 
 package art.arcane.adapt.content.matter;
 
-import art.arcane.spatial.matter.slices.RawMatter;
+import art.arcane.adapt.api.data.AdaptMatter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-public class BrewingStandOwnerMatter extends RawMatter<BrewingStandOwner> {
+public class BrewingStandOwnerMatter extends AdaptMatter<BrewingStandOwner> {
   public BrewingStandOwnerMatter(int w, int h, int d) {
     super(w, h, d, BrewingStandOwner.class);
   }

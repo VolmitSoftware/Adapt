@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.content.block;
 
-import art.arcane.spatial.matter.slices.RawMatter;
+import art.arcane.adapt.api.data.AdaptMatter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +29,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-public class ScaffoldMatter extends RawMatter<ScaffoldMatter.ScaffoldData> {
+public class ScaffoldMatter extends AdaptMatter<ScaffoldMatter.ScaffoldData> {
   public ScaffoldMatter(int width, int height, int depth) {
     super(width, height, depth, ScaffoldData.class);
   }

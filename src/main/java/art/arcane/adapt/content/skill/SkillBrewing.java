@@ -44,10 +44,8 @@ import art.arcane.adapt.content.adaptation.brewing.BrewingResistance;
 import art.arcane.adapt.content.adaptation.brewing.BrewingSaturation;
 import art.arcane.adapt.content.adaptation.brewing.BrewingSuperHeated;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
-import art.arcane.adapt.content.matter.BrewingStandOwnerMatter;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.spatial.matter.SpatialMatter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -166,8 +164,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .build());
     registerMilestone("challenge_brew_splash_hits_50", "brewing.splash.hits", 50, () -> getConfig().challengeBrewSplash1k);
     registerMilestone("challenge_brew_splash_hits_500", "brewing.splash.hits", 500, () -> getConfig().challengeBrewSplash1k * 2);
-
-    SpatialMatter.registerSliceType(new BrewingStandOwnerMatter());
   }
 
   private void handleCooldown(Player p, Runnable runnable) {

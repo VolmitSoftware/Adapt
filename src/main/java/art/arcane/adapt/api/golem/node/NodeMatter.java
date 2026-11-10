@@ -1,9 +1,9 @@
 package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.data.AdaptMatter;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.nms.NMS;
-import art.arcane.spatial.matter.slices.RawMatter;
 import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class NodeMatter extends RawMatter<NodeFaces> {
+public class NodeMatter extends AdaptMatter<NodeFaces> {
   public static final int MAX_FACES = 6;
   public static final int MAX_RECORD_BYTES = 8 * 1024 * 1024;
   private static final String NO_CHANNEL = "";

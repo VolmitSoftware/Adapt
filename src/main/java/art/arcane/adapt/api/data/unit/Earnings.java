@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.api.data.unit;
 
-import art.arcane.spatial.matter.slices.RawMatter;
+import art.arcane.adapt.api.data.AdaptMatter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -39,7 +39,7 @@ public class Earnings {
     return new Earnings(getEarnings() + 1);
   }
 
-  public static class EarningsMatter extends RawMatter<Earnings> {
+  public static class EarningsMatter extends AdaptMatter<Earnings> {
     public EarningsMatter() {
       this(1, 1, 1);
     }

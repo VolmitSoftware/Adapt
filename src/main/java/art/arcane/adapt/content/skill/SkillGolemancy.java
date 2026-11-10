@@ -50,7 +50,6 @@ import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
-import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.plinth.Infusion;
@@ -60,7 +59,6 @@ import art.arcane.adapt.api.golem.plinth.LevelCharge;
 import art.arcane.adapt.api.golem.plinth.PlinthCharge;
 import art.arcane.adapt.api.golem.plinth.PlinthHost;
 import art.arcane.adapt.api.golem.plinth.PlinthSettings;
-import art.arcane.adapt.api.golem.plinth.PlinthSlotMatter;
 import art.arcane.adapt.api.golem.plinth.PlinthStructure;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -102,7 +100,6 @@ import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.math.M;
 import io.papermc.paper.world.WeatheringCopperState;
 import lombok.NoArgsConstructor;
@@ -325,8 +322,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemRepairXp.setSink(this::payRepair);
     GolemWorkStats.setSink(new WorkStats());
     GolemItems.craftCounter().observe(this::rewardCraft);
-    SpatialMatter.registerSliceType(new NodeMatter());
-    SpatialMatter.registerSliceType(new PlinthSlotMatter());
   }
 
   @Override

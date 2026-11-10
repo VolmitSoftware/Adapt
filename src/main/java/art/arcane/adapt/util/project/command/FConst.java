@@ -50,19 +50,19 @@ public class FConst {
   }
 
   public static TextComponent errorText(String message, Object... args) {
-    return Component.text(message.formatted(args)).color(TextColor.color(FConst.COLOR_ERROR.getRGB()));
+    return Component.text(FeedbackText.format(message, args)).color(TextColor.color(FConst.COLOR_ERROR.getRGB()));
   }
 
   public static TextComponent successText(String message, Object... args) {
-    return Component.text(message.formatted(args)).color(TextColor.color(FConst.COLOR_SUCCESS.getRGB()));
+    return Component.text(FeedbackText.format(message, args)).color(TextColor.color(FConst.COLOR_SUCCESS.getRGB()));
   }
 
   public static TextComponent warningText(String message, Object... args) {
-    return Component.text(message.formatted(args)).color(TextColor.color(FConst.COLOR_WARNING.getRGB()));
+    return Component.text(FeedbackText.format(message, args)).color(TextColor.color(FConst.COLOR_WARNING.getRGB()));
   }
 
   public static TextComponent infoText(String message, Object... args) {
-    return Component.text(message.formatted(args)).color(TextColor.color(FConst.COLOR_INFO.getRGB()));
+    return Component.text(FeedbackText.format(message, args)).color(TextColor.color(FConst.COLOR_INFO.getRGB()));
   }
 
 }

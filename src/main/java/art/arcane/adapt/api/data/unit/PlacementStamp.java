@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.api.data.unit;
 
-import art.arcane.spatial.matter.slices.RawMatter;
+import art.arcane.adapt.api.data.AdaptMatter;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -33,7 +33,7 @@ public class PlacementStamp {
   private final int brokenAt;
   private final int bonemealedAt;
 
-  public static class PlacementStampMatter extends RawMatter<PlacementStamp> {
+  public static class PlacementStampMatter extends AdaptMatter<PlacementStamp> {
     public PlacementStampMatter() {
       this(1, 1, 1);
     }

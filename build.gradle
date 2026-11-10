@@ -264,12 +264,6 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
 
     // Cancer
-    slimApi(libs.fukkit) {
-        exclude(group: 'org.spigotmc', module: 'spigot-api')
-    }
-    slimApi(libs.amulet)
-    slimApi(libs.chrono)
-    slimApi(libs.spatial)
     slimApi(libs.kotlin.coroutines)
 
     // Dynamically Loaded
@@ -389,10 +383,7 @@ slimJar {
         )
     ]
 
-    relocate('manifold', "${lib}.manifold")
     relocate('art.arcane.volmlib', "${lib}.arcane.volmlib")
-    relocate('Fukkit.extensions', "${lib}.extensions")
-    relocate('Amulet.extensions', "${lib}.extensions")
     relocate('com.fren_gor.ultimateAdvancementAPI', "${lib}.advancements")
     relocate('net.byteflux.libby', "${lib}.libby")
     relocate('com.jeff_media.customblockdata', "${lib}.customblocks")
@@ -552,9 +543,6 @@ pluginPackaging {
             shrinkRules = [file('packaging/shrink.pro')]
             shrinkDontwarn = ['org.sqlite.**', 'net.minecraft.**', 'org.bukkit.craftbukkit.**']
             shrinkRelocations = [
-                'manifold': "${lib}.manifold",
-                'Fukkit.extensions': "${lib}.extensions",
-                'Amulet.extensions': "${lib}.extensions",
                 'net.byteflux.libby': "${lib}.libby",
                 'com.jeff_media.customblockdata': "${lib}.customblocks",
                 'org.bstats': "${lib}.bstats"

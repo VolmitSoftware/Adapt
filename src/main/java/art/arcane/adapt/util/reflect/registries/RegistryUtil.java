@@ -1,8 +1,8 @@
 package art.arcane.adapt.util.reflect.registries;
 
 import art.arcane.adapt.util.cache.AtomicCache;
+import art.arcane.volmlib.util.collection.Pair;
 import lombok.NonNull;
-import manifold.rt.api.util.Pair;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -147,13 +147,13 @@ public class RegistryUtil {
         .map(keyed -> {
           if (keyed == null) return null;
           try {
-            return Pair.make(keyed.getKey(), keyed);
+            return new Pair<NamespacedKey, Keyed>(keyed.getKey(), keyed);
           } catch (Throwable e) {
             return null;
           }
         })
         .filter(Objects::nonNull)
-        .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+        .collect(Collectors.toMap(Pair::getA, Pair::getB));
   }
 
   private static Map<NamespacedKey, Object> getEnumValues(@NonNull Class<?> typeClass) {

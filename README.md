@@ -115,7 +115,7 @@ the best it can be for everyone.
 
 ### Build your own .jar
 
-Install Java JDK 25, clone the repository, and run the Gradle wrapper from the Adapt project root. IntelliJ and the Manifold IDE plugin are optional; the wrapper supplies the build dependencies.
+Install Java JDK 25, clone the repository, and run the Gradle wrapper from the Adapt project root. The wrapper supplies the build dependencies.
 
 ```shell
 ./gradlew build
