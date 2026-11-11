@@ -187,6 +187,17 @@ class InfusionRecipesTest {
   }
 
   @Test
+  void overlappingRecipesResolveByIdWhateverOrderTheTableHolds() {
+    Map<String, InfusionRecipe> specs = new LinkedHashMap<>();
+    specs.put("zeta", recipe("golemancy:rune/tide/1").pedestals("STONE", "STONE", "STONE", "STONE"));
+    specs.put("alpha", recipe("golemancy:rune/order/1").pedestals("STONE", "STONE", "STONE", "STONE"));
+
+    InfusionRecipes recipes = InfusionRecipes.parse(specs, resolver, warnings::add);
+
+    assertThat(recipes.match(resolver.exactItem("golemancy:blank_rune"), stones())).map(Infusion::id).contains("alpha");
+  }
+
+  @Test
   void invalidRecipesAreSkippedWithOneWarningEach() {
     Map<String, InfusionRecipe> specs = new LinkedHashMap<>();
     specs.put("no_result", recipe(""));
@@ -203,7 +214,7 @@ class InfusionRecipesTest {
 
     assertThat(recipes.match(resolver.exactItem("golemancy:blank_rune"), stones())).map(Infusion::id).contains("valid");
     assertThat(warnings).hasSize(8);
-    List<String> skipped = List.of("no_result", "not_infusable", "plain_result", "bad_center", "unknown_center", "three_pedestals", "bad_pedestal", "no_unlock");
+    List<String> skipped = List.of("bad_center", "bad_pedestal", "no_result", "no_unlock", "not_infusable", "plain_result", "three_pedestals", "unknown_center");
     for (int index = 0; index < skipped.size(); index++) {
       assertThat(warnings.get(index)).contains(skipped.get(index));
     }

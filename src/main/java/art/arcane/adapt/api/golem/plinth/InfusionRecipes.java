@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -47,7 +48,8 @@ public final class InfusionRecipes {
       return EMPTY;
     }
     List<Infusion> parsed = new ArrayList<>(specs.size());
-    for (Map.Entry<String, InfusionRecipe> entry : specs.entrySet()) {
+    // Recipes are tried in id order, so an overlap resolves the same way on every start.
+    for (Map.Entry<String, InfusionRecipe> entry : new TreeMap<>(specs).entrySet()) {
       InfusionRecipe spec = entry.getValue();
       if (spec == null || !spec.isEnabled()) {
         continue;

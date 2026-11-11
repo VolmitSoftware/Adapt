@@ -11,9 +11,11 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public final class TomlCodec {
   private TomlCodec() {
@@ -59,9 +61,10 @@ public final class TomlCodec {
 
   // The toml parser hands back quoted keys with their quotes still attached; strip them so map
   // keys match what the author wrote and do not gain another quote layer on every rewrite.
+  // Its tables are hash maps, so keys are sorted here to give map fields one stable order.
   private static Object normalizeKeys(Object value) {
     if (value instanceof Map<?, ?> map) {
-      Map<String, Object> out = new LinkedHashMap<>();
+      Map<String, Object> out = new TreeMap<>();
       for (Map.Entry<?, ?> entry : map.entrySet()) {
         if (entry.getKey() == null) {
           continue;
@@ -360,6 +363,14 @@ public final class TomlCodec {
       }
     }
 
+    // Map entries go out sorted by key, the order they are read back in, so a written file is final.
+    private static List<Map.Entry<?, ?>> sortedEntries(Map<?, ?> map) {
+      List<Map.Entry<?, ?>> entries = new ArrayList<>(map.entrySet());
+      entries.removeIf((Map.Entry<?, ?> entry) -> entry == null || entry.getKey() == null);
+      entries.sort(Comparator.comparing((Map.Entry<?, ?> entry) -> String.valueOf(entry.getKey())));
+      return entries;
+    }
+
     private void writeMapSection(String sectionPath, Map<?, ?> map, Field sourceField) {
       writeSectionHeader(sectionPath, ConfigDocumentation.buildFieldComments(sourceTag, sectionPath, sourceField, map));
       if (map.isEmpty()) {
@@ -367,11 +378,7 @@ public final class TomlCodec {
       }
 
       List<Map.Entry<?, ?>> deferred = new ArrayList<>();
-      for (Map.Entry<?, ?> entry : map.entrySet()) {
-        if (entry == null || entry.getKey() == null) {
-          continue;
-        }
-
+      for (Map.Entry<?, ?> entry : sortedEntries(map)) {
         Object value = entry.getValue();
         if (value == null) {
           continue;
@@ -406,8 +413,8 @@ public final class TomlCodec {
 
     private void writeMapBody(String sectionPath, Map<?, ?> map) {
       List<Map.Entry<?, ?>> deferred = new ArrayList<>();
-      for (Map.Entry<?, ?> entry : map.entrySet()) {
-        if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+      for (Map.Entry<?, ?> entry : sortedEntries(map)) {
+        if (entry.getValue() == null) {
           continue;
         }
         if (isInlineValue(entry.getValue())) {
