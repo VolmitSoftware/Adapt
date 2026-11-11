@@ -4962,6 +4962,7 @@ lore = ["Węzły, które możesz posiadać", "Promień obszaru pracy w blokach",
 [golemancy.plinth]
 loading = "Ten postument wciąż się wczytuje"
 occupied = "Na tej podstawie leży już przedmiot"
+unreadable = "Ten serwer nie może odczytać przedmiotu na tej podstawie, więc pozostaje on przechowany"
 protected = "Nie możesz tu używać tego postumentu"
 busy = "Nasycanie już trwa"
 no_recipe = "Te przedmioty nie tworzą nasycenia"
@@ -6806,7 +6807,6 @@ reset_includes = "Obejmuje to XP, umiejętności, adaptacje, odkrycia, statystyk
 reset_confirm = "Uruchom to polecenie ponownie w ciągu 30 sekund, aby potwierdzić."
 skill_reset_unsupported = "Umiejętność {skill} nie obsługuje resetowania konfiguracji."
 adaptation_reset_unsupported = "Adaptacja {adaptation} nie obsługuje resetowania konfiguracji."
-config_delete_failed = "Nie udało się usunąć pliku konfiguracyjnego dla {target}."
 default_config_reload_failed = "Nie udało się ponownie załadować domyślnej konfiguracji dla {target}."
 skill_reset = "Przywrócono domyślną konfigurację umiejętności {skill}."
 adaptation_reset = "Przywrócono domyślną konfigurację adaptacji {adaptation}."

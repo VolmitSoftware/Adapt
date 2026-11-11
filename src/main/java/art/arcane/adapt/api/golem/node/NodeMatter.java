@@ -2,24 +2,26 @@ package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.AdaptMatter;
+import art.arcane.adapt.api.data.StoredItem;
 import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.nms.NMS;
 import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Stores the node records of one block. A filter item is a length and that many bytes; reading keeps those bytes in
+ * the record without decoding them, and every save writes them back unchanged.
+ */
 public class NodeMatter extends AdaptMatter<NodeFaces> {
   public static final int MAX_FACES = 6;
   public static final int MAX_RECORD_BYTES = 8 * 1024 * 1024;
@@ -101,11 +103,10 @@ public class NodeMatter extends AdaptMatter<NodeFaces> {
       out.writeByte(area.maxY());
       out.writeByte(area.maxZ());
       out.writeBoolean(record.whitelist());
-      out.writeByte(record.filterItems().size());
-      for (ItemStack item : record.filterItems()) {
-        byte[] encoded = NMS.serializeStack(item).getBytes(StandardCharsets.US_ASCII);
-        out.writeInt(encoded.length);
-        out.write(encoded);
+      out.writeByte(record.filterEntries().size());
+      for (StoredItem entry : record.filterEntries()) {
+        out.writeInt(entry.length());
+        entry.writeTo(out);
       }
       out.writeByte(record.filterTags().size());
       for (String tag : record.filterTags()) {
@@ -140,7 +141,7 @@ public class NodeMatter extends AdaptMatter<NodeFaces> {
       }
       boolean whitelist = in.readBoolean();
       int itemCount = in.readUnsignedByte();
-      List<ItemStack> items = new ArrayList<>(itemCount);
+      List<StoredItem> items = new ArrayList<>(itemCount);
       for (int index = 0; index < itemCount; index++) {
         int length = in.readInt();
         if (length < 0 || length > in.available()) {
@@ -148,7 +149,7 @@ public class NodeMatter extends AdaptMatter<NodeFaces> {
         }
         byte[] encoded = new byte[length];
         in.readFully(encoded);
-        items.add(NMS.deserializeStack(new String(encoded, StandardCharsets.US_ASCII)));
+        items.add(StoredItem.stored(encoded));
       }
       int tagCount = in.readUnsignedByte();
       List<String> tags = new ArrayList<>(tagCount);
@@ -169,7 +170,7 @@ public class NodeMatter extends AdaptMatter<NodeFaces> {
           .redstone(redstone)
           .area(area)
           .whitelist(whitelist)
-          .filterItems(items)
+          .filterEntries(items)
           .filterTags(tags)
           .data(data)
           .build();

@@ -563,6 +563,7 @@ public final class GolemancyMessages {
   public static final TextKey NODE_AREA_STOP = TextKey.of("golemancy.node_area.stop", "Finish Shifting the Area");
   public static final TextKey PLINTH_LOADING = TextKey.of("golemancy.plinth.loading", "This plinth is still loading");
   public static final TextKey PLINTH_OCCUPIED = TextKey.of("golemancy.plinth.occupied", "This pedestal already holds an item");
+  public static final TextKey PLINTH_UNREADABLE = TextKey.of("golemancy.plinth.unreadable", "This server cannot read the item on this pedestal, so it stays stored");
   public static final TextKey PLINTH_PROTECTED = TextKey.of("golemancy.plinth.protected", "You cannot use this plinth here");
   public static final TextKey PLINTH_BUSY = TextKey.of("golemancy.plinth.busy", "An infusion is already running");
   public static final TextKey PLINTH_NO_RECIPE = TextKey.of("golemancy.plinth.no_recipe", "These items do not form an infusion");
@@ -1138,6 +1139,7 @@ public final class GolemancyMessages {
     builder.add(NODE_AREA_STOP);
     builder.add(PLINTH_LOADING);
     builder.add(PLINTH_OCCUPIED);
+    builder.add(PLINTH_UNREADABLE);
     builder.add(PLINTH_PROTECTED);
     builder.add(PLINTH_BUSY);
     builder.add(PLINTH_NO_RECIPE);

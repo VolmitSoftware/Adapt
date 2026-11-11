@@ -22,6 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
@@ -48,20 +50,13 @@ public class CommandDefault {
       return;
     }
 
-    if (!(skill instanceof SimpleSkill<?>)) {
+    if (!(skill instanceof SimpleSkill<?> simpleSkill)) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET_UNSUPPORTED, untrusted("skill", skill.getName())))
           .send(BukkitDirectorContext.sender());
       return;
     }
 
-    File configFile = Adapt.instance.getDataFile("skills", skill.getName() + ".toml");
-    if (configFile.exists() && !configFile.delete()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.CONFIG_DELETE_FAILED, untrusted("target", skill.getName())))
-          .send(BukkitDirectorContext.sender());
-      return;
-    }
-
-    if (!registry.hotReloadSkillConfig(skill.getName())) {
+    if (!simpleSkill.writeDefaultConfig() || !registry.hotReloadSkillConfig(skill.getName())) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED, untrusted("target", skill.getName())))
           .send(BukkitDirectorContext.sender());
       return;
@@ -111,7 +106,7 @@ public class CommandDefault {
       return;
     }
 
-    if (!(adaptation instanceof SimpleAdaptation<?>)) {
+    if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.ADAPTATION_RESET_UNSUPPORTED,
           untrusted("adaptation", adaptation.getName())
@@ -119,15 +114,8 @@ public class CommandDefault {
       return;
     }
 
-    File configFile = Adapt.instance.getDataFile("adaptations", adaptation.getName() + ".toml");
-    if (configFile.exists() && !configFile.delete()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.CONFIG_DELETE_FAILED, untrusted("target", adaptation.getName())))
-          .send(BukkitDirectorContext.sender());
-      return;
-    }
-
     SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
-    if (!registry.hotReloadAdaptationConfig(adaptation.getName())) {
+    if (!simpleAdaptation.writeDefaultConfig() || !registry.hotReloadAdaptationConfig(adaptation.getName())) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED,
           untrusted("target", adaptation.getName())
@@ -152,63 +140,46 @@ public class CommandDefault {
     File archiveDir = Adapt.instance.getDataFolder("config-archive", timestamp);
 
     int archived = 0;
-    int reset = 0;
-
-    // Archive and reset main config
     File mainConfig = Adapt.instance.getDataFile("adapt.toml");
-    if (mainConfig.exists()) {
-      if (archiveFile(mainConfig, new File(archiveDir, "adapt.toml"))) {
-        archived++;
-      }
-      mainConfig.delete();
+    if (mainConfig.exists() && archiveFile(mainConfig, new File(archiveDir, "adapt.toml"))) {
+      archived++;
+    }
+    archived += archiveFolder(Adapt.instance.getDataFolder("skills"), new File(archiveDir, "skills"));
+    archived += archiveFolder(Adapt.instance.getDataFolder("adaptations"), new File(archiveDir, "adaptations"));
+
+    // Defaults overwrite each file in place: the reload path keeps the live config when its file is missing.
+    int reset = 0;
+    Set<String> failed = new LinkedHashSet<>();
+    if (AdaptConfig.resetToDefaults()) {
+      reset++;
+    } else {
+      failed.add("adapt.toml");
     }
 
-    // Archive and reset skill configs
-    File skillsDir = Adapt.instance.getDataFolder("skills");
-    if (skillsDir.exists()) {
-      File archiveSkillsDir = new File(archiveDir, "skills");
-      archiveSkillsDir.mkdirs();
-      File[] skillFiles = skillsDir.listFiles((dir, name) -> name.endsWith(".toml"));
-      if (skillFiles != null) {
-        for (File f : skillFiles) {
-          if (archiveFile(f, new File(archiveSkillsDir, f.getName()))) {
-            archived++;
-          }
-          f.delete();
-        }
-      }
-    }
-
-    // Archive and reset adaptation configs
-    File adaptationsDir = Adapt.instance.getDataFolder("adaptations");
-    if (adaptationsDir.exists()) {
-      File archiveAdaptationsDir = new File(archiveDir, "adaptations");
-      archiveAdaptationsDir.mkdirs();
-      File[] adaptationFiles = adaptationsDir.listFiles((dir, name) -> name.endsWith(".toml"));
-      if (adaptationFiles != null) {
-        for (File f : adaptationFiles) {
-          if (archiveFile(f, new File(archiveAdaptationsDir, f.getName()))) {
-            archived++;
-          }
-          f.delete();
-        }
-      }
-    }
-
-    // Reload main config from defaults
-    AdaptConfig.reload();
-
-    // Reload all skill and adaptation configs from defaults
     SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
     for (Skill<?> skill : registry.getAllSkills()) {
-      int configCount = skill instanceof SimpleSkill<?> ? 1 : 0;
+      int written = 0;
+      if (skill instanceof SimpleSkill<?> simpleSkill) {
+        if (simpleSkill.writeDefaultConfig()) {
+          written++;
+        } else {
+          failed.add(skill.getName());
+        }
+      }
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?>) {
-          configCount++;
+        if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+          continue;
+        }
+        if (simpleAdaptation.writeDefaultConfig()) {
+          written++;
+        } else {
+          failed.add(adaptation.getName());
         }
       }
       if (registry.hotReloadSkillConfig(skill.getName())) {
-        reset += configCount;
+        reset += written;
+      } else {
+        failed.add(skill.getName());
       }
     }
 
@@ -219,6 +190,25 @@ public class CommandDefault {
     )).send(BukkitDirectorContext.sender());
     FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CONFIGS_RESET, trusted("count", reset)))
         .send(BukkitDirectorContext.sender());
+    for (String target : failed) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED, untrusted("target", target)))
+          .send(BukkitDirectorContext.sender());
+    }
+  }
+
+  private int archiveFolder(File source, File destination) {
+    File[] files = source.listFiles((dir, name) -> name.endsWith(".toml"));
+    if (files == null) {
+      return 0;
+    }
+
+    int archived = 0;
+    for (File file : files) {
+      if (archiveFile(file, new File(destination, file.getName()))) {
+        archived++;
+      }
+    }
+    return archived;
   }
 
   private boolean archiveFile(File source, File destination) {

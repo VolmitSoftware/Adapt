@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem.node;
 
+import art.arcane.adapt.api.data.StoredItem;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -10,12 +11,15 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
+import java.util.function.IntFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +48,8 @@ class NodeFiltersTest {
       return tags.getOrDefault(tag, Set.of()).contains(material);
     }
   };
+
+  private static final IntFunction<byte[]> UNREADABLE_BYTES = index -> ("not an item " + index).getBytes(StandardCharsets.US_ASCII);
 
   private final Map<ItemStack, String> identities = new IdentityHashMap<>();
 
@@ -261,6 +267,66 @@ class NodeFiltersTest {
   }
 
   @Test
+  void aWhitelistWithAnUnreadableEntryNeverWidensToEverything() {
+    NodeRecord only = record().filterEntries(unreadable(1)).build();
+    NodeRecord beside = record().filterEntries(unreadable(1)).filterItems(List.of(item(Material.WHEAT))).build();
+    ItemStack stone = item(Material.STONE);
+
+    assertThat(only.filterItems()).isEmpty();
+    assertThat(only.filterCount()).isEqualTo(1);
+    assertThat(NodeFilters.accepts(only, Material.STONE, TAGS)).isFalse();
+    assertThat(NodeFilters.accepts(only, stone, TAGS, ItemStack::isSimilar)).isFalse();
+    assertThat(NodeFilters.accepts(beside, Material.WHEAT, TAGS)).isTrue();
+    assertThat(NodeFilters.accepts(beside, Material.STONE, TAGS)).isFalse();
+  }
+
+  @Test
+  void aBlacklistWithAnUnreadableEntryAcceptsNothing() {
+    NodeRecord record = record().whitelist(false).filterEntries(unreadable(1)).filterItems(List.of(item(Material.WHEAT))).build();
+    ItemStack stone = item(Material.STONE);
+
+    assertThat(NodeFilters.accepts(record, Material.WHEAT, TAGS)).isFalse();
+    assertThat(NodeFilters.accepts(record, Material.STONE, TAGS)).isFalse();
+    assertThat(NodeFilters.accepts(record, stone, TAGS, ItemStack::isSimilar)).isFalse();
+  }
+
+  @Test
+  void aZeroLengthMarkerHoldsItsSlotLikeAnyUnreadableEntry() {
+    NodeRecord whitelist = record().filterEntries(List.of(StoredItem.stored(new byte[0]))).build();
+    NodeRecord blacklist = whitelist.toBuilder().whitelist(false).build();
+
+    assertThat(whitelist.unreadableFilters()).isEqualTo(1);
+    assertThat(NodeFilters.accepts(whitelist, Material.STONE, TAGS)).isFalse();
+    assertThat(NodeFilters.accepts(blacklist, Material.STONE, TAGS)).isFalse();
+  }
+
+  @Test
+  void unreadableEntriesHoldTheirSlotsAndTheirBytesThroughEdits() {
+    List<StoredItem> entries = unreadable(2);
+    NodeRecord record = record().filterEntries(entries).build();
+    ItemStack cobble = item(Material.COBBLESTONE);
+
+    NodeFilters.FilterEdit full = NodeFilters.toggleItem(record, cobble, 2);
+    NodeFilters.FilterEdit added = NodeFilters.toggleItem(record, cobble, 3);
+    NodeFilters.FilterEdit tagged = NodeFilters.toggleTag(added.record(), LOGS, 4);
+    NodeRecord removed = NodeFilters.removeItem(tagged.record(), cobble);
+
+    assertThat(full.outcome()).isEqualTo(NodeFilters.Outcome.FULL);
+    assertThat(added.outcome()).isEqualTo(NodeFilters.Outcome.ADDED);
+    assertThat(added.record().unreadableFilters()).isEqualTo(2);
+    assertThat(added.record().filterCount()).isEqualTo(3);
+    assertThat(added.record().filterItems()).containsExactly(cobble);
+    assertThat(tagged.record().filterCount()).isEqualTo(4);
+    assertThat(removed.filterItems()).isEmpty();
+    assertThat(removed.filterCount()).isEqualTo(3);
+    for (NodeRecord edited : List.of(added.record(), tagged.record(), removed)) {
+      assertThat(edited.filterEntries()).filteredOn(entry -> !entry.readable()).containsExactlyElementsOf(entries);
+      assertThat(edited.filterEntries()).filteredOn(entry -> !entry.readable()).extracting(StoredItem::bytes)
+          .containsExactly(UNREADABLE_BYTES.apply(0), UNREADABLE_BYTES.apply(1));
+    }
+  }
+
+  @Test
   void typedTagsNormalizeToNamespacedForm() {
     assertThat(NodeFilters.normalizeTag("#logs")).contains(LOGS);
     assertThat(NodeFilters.normalizeTag("logs")).contains(LOGS);
@@ -274,6 +340,15 @@ class NodeFiltersTest {
     assertThat(NodeFilters.normalizeTag("#:logs")).isEmpty();
     assertThat(NodeFilters.normalizeTag("#minecraft:")).isEmpty();
     assertThat(NodeFilters.normalizeTag("#mine/craft:logs")).isEmpty();
+  }
+
+  // Bytes no item codec reads: the real decoder rejects them before it touches the server.
+  private static List<StoredItem> unreadable(int count) {
+    List<StoredItem> entries = new ArrayList<>(count);
+    for (int index = 0; index < count; index++) {
+      entries.add(StoredItem.stored(UNREADABLE_BYTES.apply(index)));
+    }
+    return entries;
   }
 
   private static NodeRecord.Builder record() {

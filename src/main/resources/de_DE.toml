@@ -4962,6 +4962,7 @@ lore = ["Knoten, die du besitzen kannst", "Radius des Arbeitsbereichs in Blöcke
 [golemancy.plinth]
 loading = "Dieser Sockel lädt noch"
 occupied = "Auf diesem Podest liegt bereits ein Gegenstand"
+unreadable = "Dieser Server kann den Gegenstand auf diesem Podest nicht lesen, daher bleibt er eingelagert"
 protected = "Du kannst diesen Sockel hier nicht benutzen"
 busy = "Eine Infusion läuft bereits"
 no_recipe = "Diese Gegenstände ergeben keine Infusion"
@@ -6806,7 +6807,6 @@ reset_includes = "Dazu gehören XP, Fähigkeiten, Anpassungen, Entdeckungen, Sta
 reset_confirm = "Führe diesen Befehl innerhalb von 30 Sekunden erneut aus, um zu bestätigen."
 skill_reset_unsupported = "Die Fähigkeit {skill} unterstützt kein Zurücksetzen der Konfiguration."
 adaptation_reset_unsupported = "Die Anpassung {adaptation} unterstützt kein Zurücksetzen der Konfiguration."
-config_delete_failed = "Die Konfigurationsdatei für {target} konnte nicht gelöscht werden."
 default_config_reload_failed = "Die Standardkonfiguration für {target} konnte nicht neu geladen werden."
 skill_reset = "Konfiguration der Fähigkeit {skill} auf Standard zurückgesetzt."
 adaptation_reset = "Konfiguration der Anpassung {adaptation} auf Standard zurückgesetzt."

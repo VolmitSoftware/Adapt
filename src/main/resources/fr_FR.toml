@@ -4958,6 +4958,7 @@ lore = ["Nœuds que vous pouvez posséder", "Rayon de la zone de travail en bloc
 [golemancy.plinth]
 loading = "Ce socle est encore en cours de chargement"
 occupied = "Ce piédestal porte déjà un objet"
+unreadable = "Ce serveur ne peut pas lire l'objet de ce piédestal, il reste donc stocké"
 protected = "Vous ne pouvez pas utiliser ce socle ici"
 busy = "Une infusion est déjà en cours"
 no_recipe = "Ces objets ne forment pas une infusion"
@@ -6802,7 +6803,6 @@ reset_includes = "Cela inclut l'EXP, les Compétences, les Adaptations, les déc
 reset_confirm = "Exécutez à nouveau cette commande dans les 30 secondes pour confirmer."
 skill_reset_unsupported = "La Compétence {skill} ne prend pas en charge la réinitialisation de configuration."
 adaptation_reset_unsupported = "L'Adaptation {adaptation} ne prend pas en charge la réinitialisation de configuration."
-config_delete_failed = "Impossible de supprimer le fichier de configuration pour {target}."
 default_config_reload_failed = "Impossible de recharger la configuration par défaut pour {target}."
 skill_reset = "Configuration de la Compétence {skill} réinitialisée aux valeurs par défaut."
 adaptation_reset = "Configuration de l'Adaptation {adaptation} réinitialisée aux valeurs par défaut."

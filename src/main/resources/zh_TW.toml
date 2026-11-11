@@ -4962,6 +4962,7 @@ lore = ["可擁有的節點數量", "工作區域半徑（方塊）", "過濾槽
 [golemancy.plinth]
 loading = "這個基座仍在載入"
 occupied = "這個底座上已經有物品了"
+unreadable = "此伺服器無法讀取這個底座上的物品，因此它會繼續保存"
 protected = "你不能在這裡使用這個基座"
 busy = "灌注已在進行中"
 no_recipe = "這些物品無法組成灌注"
@@ -6806,7 +6807,6 @@ reset_includes = "這包括 XP、技能、適應項、探索、統計資料與�
 reset_confirm = "請在 30 秒內再次執行此指令以確認。"
 skill_reset_unsupported = "技能 {skill} 不支援重設設定。"
 adaptation_reset_unsupported = "適應項 {adaptation} 不支援重設設定。"
-config_delete_failed = "無法刪除 {target} 的設定檔。"
 default_config_reload_failed = "無法重新載入 {target} 的預設設定。"
 skill_reset = "已將技能 {skill} 的設定重設為預設值。"
 adaptation_reset = "已將適應項 {adaptation} 的設定重設為預設值。"

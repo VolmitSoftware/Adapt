@@ -261,6 +261,21 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
   }
 
+  public synchronized boolean writeDefaultConfig() {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    File file = getConfigFile();
+    try {
+      ConfigFileSupport.writeDefaults(file, createDefaultConfig(), "adaptation:" + getName(), this::normalizeConfiguration);
+      return true;
+    } catch (Throwable e) {
+      Adapt.warn("Failed to write default config " + file.getPath() + ": " + e.getMessage());
+      return false;
+    }
+  }
+
   private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
     return ConfigFileSupport.load(
         file,

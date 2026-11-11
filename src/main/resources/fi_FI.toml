@@ -4962,6 +4962,7 @@ lore = ["Omistettavat solmut", "Työalueen säde lohkoina", "Suodatinpaikat", "S
 [golemancy.plinth]
 loading = "Tämä jalusta latautuu vielä"
 occupied = "Tällä telineellä on jo esine"
+unreadable = "Tämä palvelin ei pysty lukemaan tämän telineen esinettä, joten se pysyy tallessa"
 protected = "Et voi käyttää tätä jalustaa täällä"
 busy = "Infuusio on jo käynnissä"
 no_recipe = "Nämä esineet eivät muodosta infuusiota"
@@ -6806,7 +6807,6 @@ reset_includes = "Tähän sisältyvät XP, taidot, mukautukset, löydöt, tilast
 reset_confirm = "Vahvista suorittamalla tämä komento uudelleen 30 sekunnin kuluessa."
 skill_reset_unsupported = "Taito {skill} ei tue asetusten palautusta."
 adaptation_reset_unsupported = "Mukautus {adaptation} ei tue asetusten palautusta."
-config_delete_failed = "Asetustiedoston poistaminen epäonnistui kohteelle {target}."
 default_config_reload_failed = "Oletusasetusten uudelleenlataus epäonnistui kohteelle {target}."
 skill_reset = "Taidon {skill} asetukset palautettiin oletuksiin."
 adaptation_reset = "Mukautuksen {adaptation} asetukset palautettiin oletuksiin."

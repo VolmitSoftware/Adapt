@@ -39,6 +39,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.data.WorldData;
+import art.arcane.adapt.api.data.WorldDataLoader;
 import art.arcane.adapt.api.fx.FxDirector;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
@@ -487,6 +488,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     ViewerDisplayDirector.purgeOrphans();
     verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
 
+    registerListener(new WorldDataLoader());
+    WorldDataLoader.load(Bukkit.getWorlds());
     long startServer = System.currentTimeMillis();
     adaptServer = new AdaptServer();
     adaptServer.startRuntime();

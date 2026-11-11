@@ -198,6 +198,23 @@ public class AdaptConfig {
     return reloaded;
   }
 
+  public static boolean resetToDefaults() {
+    synchronized (CONFIG_LOCK) {
+      try {
+        ConfigFileSupport.writeDefaults(
+            Adapt.instance.getDataFile("adapt.toml"),
+            new AdaptConfig(),
+            "core-config",
+            AdaptConfig::normalize
+        );
+      } catch (Throwable e) {
+        Adapt.warn("Failed to write default config adapt.toml: " + e.getMessage());
+        return false;
+      }
+    }
+    return reload();
+  }
+
   public static boolean reloadSnapshot(String raw, File sourceFile) {
     boolean reloaded;
     boolean reconcilePreferences = false;

@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class InfusionRitualTest {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
@@ -46,7 +47,7 @@ class InfusionRitualTest {
   void anySwappedOrMissingSlotInterrupts() {
     for (PlinthSlot changed : PlinthSlot.values()) {
       Map<PlinthSlot, PlinthSlotItem> swapped = new EnumMap<>(slots);
-      swapped.put(changed, PlinthSlotItem.of(UUID.randomUUID(), mock(ItemStack.class)));
+      swapped.put(changed, PlinthSlotItem.of(UUID.randomUUID(), stack()));
       Map<PlinthSlot, PlinthSlotItem> missing = new EnumMap<>(slots);
       missing.remove(changed);
 
@@ -113,8 +114,14 @@ class InfusionRitualTest {
   private static Map<PlinthSlot, PlinthSlotItem> slots() {
     Map<PlinthSlot, PlinthSlotItem> slots = new EnumMap<>(PlinthSlot.class);
     for (PlinthSlot slot : PlinthSlot.values()) {
-      slots.put(slot, PlinthSlotItem.of(UUID.randomUUID(), mock(ItemStack.class)));
+      slots.put(slot, PlinthSlotItem.of(UUID.randomUUID(), stack()));
     }
     return slots;
+  }
+
+  private static ItemStack stack() {
+    ItemStack item = mock(ItemStack.class);
+    when(item.clone()).thenReturn(item);
+    return item;
   }
 }

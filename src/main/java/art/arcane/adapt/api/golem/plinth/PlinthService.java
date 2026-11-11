@@ -258,16 +258,21 @@ public final class PlinthService extends TickedObject {
 
   private void retrieve(Player player, World world, PlinthStructure.PlinthTarget target, PlinthSlotItem stored, PlinthHost activeHost) {
     PlinthSpot spot = target.spot();
+    ItemStack item = stored.item();
+    if (item == null && !stored.lost()) {
+      platform.tell(player, true, GolemancyMessages.PLINTH_UNREADABLE);
+      return;
+    }
     if (!release(world, spot, stored)) {
       return;
     }
     Location at = spot.center(world);
     platform.effect(PlinthEffect.RETRIEVED, at);
     previewCost(player, world, target.center(), activeHost);
-    if (!stored.readable()) {
+    if (item == null) {
       return;
     }
-    saveThen(world, List.of(spot), at, () -> handBack(player, at, stored.item()), NOTHING, "the item taken from the Animus Plinth at " + describe(spot));
+    saveThen(world, List.of(spot), at, () -> handBack(player, at, item), NOTHING, "the item taken from the Animus Plinth at " + describe(spot));
   }
 
   private void handBack(Player player, Location at, ItemStack item) {
@@ -438,13 +443,19 @@ public final class PlinthService extends TickedObject {
 
   private void resync(World world, PlinthSpot spot) {
     PlinthSlotItem stored = platform.read(world, spot);
-    if (stored == null || !stored.readable()) {
+    ItemStack item = stored == null ? null : stored.item();
+    if (stored == null || stored.lost()) {
       index.remove(spot);
       renderer.despawn(spot);
       return;
     }
-    if (index.put(spot, stored)) {
-      renderer.spawn(world, spot, stored.item());
+    if (!index.put(spot, stored)) {
+      return;
+    }
+    if (item == null) {
+      renderer.despawn(spot);
+    } else {
+      renderer.spawn(world, spot, item);
     }
   }
 
@@ -521,6 +532,12 @@ public final class PlinthService extends TickedObject {
   }
 
   private Assessment assess(Player player, World world, PlinthSpot center, Map<PlinthSlot, PlinthSlotItem> slots, PlinthHost activeHost, PlinthSettings current) {
+    // An item that cannot be read could be anything, so no recipe is matched around it and no infusion consumes it.
+    for (PlinthSlotItem slot : slots.values()) {
+      if (!slot.readable()) {
+        return new Assessment(Verdict.NO_RECIPE, null, 0, 0);
+      }
+    }
     Optional<Infusion> match = current.recipes().match(readable(slots.get(PlinthSlot.CENTER)), pedestalItems(slots));
     if (match.isEmpty()) {
       return new Assessment(Verdict.NO_RECIPE, null, 0, 0);
@@ -632,11 +649,15 @@ public final class PlinthService extends TickedObject {
   }
 
   private void drop(World world, PlinthSpot spot, PlinthSlotItem stored) {
-    if (!release(world, spot, stored) || !stored.readable()) {
+    ItemStack item = stored.item();
+    if (item == null && !stored.lost()) {
+      return;
+    }
+    if (!release(world, spot, stored) || item == null) {
       return;
     }
     Location at = spot.center(world);
-    saveThen(world, List.of(spot), at, () -> platform.drop(at, stored.item()), NOTHING, "the item dropped from the Animus Plinth at " + describe(spot));
+    saveThen(world, List.of(spot), at, () -> platform.drop(at, item), NOTHING, "the item dropped from the Animus Plinth at " + describe(spot));
   }
 
   private boolean release(World world, PlinthSpot spot, PlinthSlotItem expected) {
@@ -738,24 +759,31 @@ public final class PlinthService extends TickedObject {
     }
     Set<Material> pedestals = settings.get().pedestals();
     Map<PlinthSpot, PlinthSlotItem> kept = new HashMap<>(stored.size() * 2);
+    Map<PlinthSpot, ItemStack> shown = new HashMap<>(stored.size() * 2);
     Map<PlinthSpot, PlinthSlotItem> detached = new HashMap<>();
     for (Map.Entry<PlinthSpot, PlinthSlotItem> entry : stored.entrySet()) {
       PlinthSpot spot = entry.getKey();
-      PlinthSlotItem item = entry.getValue();
+      PlinthSlotItem slot = entry.getValue();
+      ItemStack item = slot.item();
       Material type = platform.blockType(world, spot.x(), spot.y(), spot.z());
-      if (!item.readable()) {
-        purge(world, spot, item);
+      if (slot.lost()) {
+        purge(world, spot, slot);
+      } else if (item == null) {
+        slot.stored().warnUnreadable(() -> "The Animus Plinth item at " + describe(spot) + " in " + world.getName()
+            + " could not be read. It stays stored on its pedestal, which stays occupied, and is read again the next time it loads.");
+        kept.put(spot, slot);
       } else if (type != null && !PlinthStructure.isPart(type, pedestals)) {
-        detached.put(spot, item);
+        detached.put(spot, slot);
       } else {
-        kept.put(spot, item);
+        kept.put(spot, slot);
+        shown.put(spot, item);
       }
     }
     if (!index.completeLoad(worldId, chunkKey, generation, kept)) {
       return;
     }
-    for (Map.Entry<PlinthSpot, PlinthSlotItem> entry : kept.entrySet()) {
-      renderer.spawn(world, entry.getKey(), entry.getValue().item());
+    for (Map.Entry<PlinthSpot, ItemStack> entry : shown.entrySet()) {
+      renderer.spawn(world, entry.getKey(), entry.getValue());
     }
     for (Map.Entry<PlinthSpot, PlinthSlotItem> entry : detached.entrySet()) {
       drop(world, entry.getKey(), entry.getValue());
@@ -765,7 +793,7 @@ public final class PlinthService extends TickedObject {
   private void purge(World world, PlinthSpot spot, PlinthSlotItem item) {
     if (item.equals(platform.read(world, spot))) {
       platform.write(world, spot, null);
-      Adapt.warn("Removed the unreadable Animus Plinth item at " + describe(spot) + ".");
+      Adapt.warn("Removed the Animus Plinth slot at " + describe(spot) + ": an earlier save lost its item and stored nothing for it.");
     }
   }
 

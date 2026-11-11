@@ -2,17 +2,20 @@ package art.arcane.adapt.api.golem.plinth;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.AdaptMatter;
-import art.arcane.adapt.nms.NMS;
+import art.arcane.adapt.api.data.StoredItem;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+/**
+ * Stores a slot as its id, a length and that many item bytes. Reading never decodes the item: the bytes go into the
+ * slot as they are and are written back the same on every save.
+ */
 public class PlinthSlotMatter extends AdaptMatter<PlinthSlotItem> {
   public static final int MAX_ITEM_BYTES = 8 * 1024 * 1024;
-  private static final int UNREADABLE = 0;
+  private static final int LOST = 0;
 
   public PlinthSlotMatter(int width, int height, int depth) {
     super(width, height, depth, PlinthSlotItem.class);
@@ -26,18 +29,15 @@ public class PlinthSlotMatter extends AdaptMatter<PlinthSlotItem> {
   public void writeNode(PlinthSlotItem slot, DataOutputStream out) throws IOException {
     out.writeLong(slot.id().getMostSignificantBits());
     out.writeLong(slot.id().getLeastSignificantBits());
-    if (!slot.readable()) {
-      out.writeInt(UNREADABLE);
+    StoredItem stored = slot.stored();
+    int length = stored.length();
+    if (length > MAX_ITEM_BYTES) {
+      Adapt.error("Not saving the Animus Plinth item " + slot.id() + ": it encodes to " + length + " bytes, more than the " + MAX_ITEM_BYTES + " byte limit.");
+      out.writeInt(LOST);
       return;
     }
-    byte[] bytes = NMS.serializeStack(slot.item()).getBytes(StandardCharsets.US_ASCII);
-    if (bytes.length > MAX_ITEM_BYTES) {
-      Adapt.error("Not saving the Animus Plinth item " + slot.id() + ": it encodes to " + bytes.length + " bytes, more than the " + MAX_ITEM_BYTES + " byte limit.");
-      out.writeInt(UNREADABLE);
-      return;
-    }
-    out.writeInt(bytes.length);
-    out.write(bytes);
+    out.writeInt(length);
+    stored.writeTo(out);
   }
 
   @Override
@@ -49,16 +49,8 @@ public class PlinthSlotMatter extends AdaptMatter<PlinthSlotItem> {
       Adapt.error(message);
       throw new IOException(message);
     }
-    if (length == UNREADABLE) {
-      return PlinthSlotItem.unreadable(id);
-    }
     byte[] bytes = new byte[length];
     in.readFully(bytes);
-    try {
-      return PlinthSlotItem.of(id, NMS.deserializeStack(new String(bytes, StandardCharsets.US_ASCII)));
-    } catch (RuntimeException corrupt) {
-      Adapt.warn("Animus Plinth item " + id + " could not be read; it is removed when its chunk loads.", corrupt);
-      return PlinthSlotItem.unreadable(id);
-    }
+    return PlinthSlotItem.stored(id, bytes);
   }
 }

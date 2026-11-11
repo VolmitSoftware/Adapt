@@ -8,7 +8,6 @@ import art.arcane.adapt.api.golem.node.NodeFaces;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
-import art.arcane.adapt.content.block.ScaffoldMatter;
 import art.arcane.adapt.content.matter.BrewingStandOwner;
 import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
@@ -30,7 +29,7 @@ final class SpatialFixtures {
   static final int MIN_HEIGHT = -64;
   static final int MAX_HEIGHT = 320;
   static final List<String> NAMES = List.of(
-      "earnings", "placement_stamp", "brewing_stand_owner", "scaffold", "plinth_slot", "node", "mixed");
+      "earnings", "placement_stamp", "brewing_stand_owner", "plinth_slot", "node", "mixed");
 
   private static final UUID[] OWNERS = {
       UUID.fromString("6f1c2a4e-0b7d-4d8e-9a51-2f3e4d5c6b7a"),
@@ -54,7 +53,6 @@ final class SpatialFixtures {
       case "earnings" -> earnings(entries);
       case "placement_stamp" -> placementStamps(entries);
       case "brewing_stand_owner" -> brewingStandOwners(entries);
-      case "scaffold" -> scaffolds(entries);
       case "plinth_slot" -> plinthSlots(entries, items);
       case "node" -> nodes(entries, items);
       case "mixed" -> mixed(entries, items);
@@ -88,16 +86,10 @@ final class SpatialFixtures {
     }
   }
 
-  private static void scaffolds(List<Entry> entries) {
-    for (int index = 0; index < 5; index++) {
-      entries.add(new Entry(-64 + index, 70, 1090, new ScaffoldMatter.ScaffoldData(OWNERS[index % OWNERS.length], 1_000L * index + 7L)));
-    }
-  }
-
   private static void plinthSlots(List<Entry> entries, Function<String, ItemStack> items) {
     entries.add(new Entry(-10, 65, 1030, PlinthSlotItem.of(OWNERS[0], items.apply("sugar"))));
     entries.add(new Entry(-10, 66, 1030, PlinthSlotItem.of(OWNERS[1], items.apply("feather"))));
-    entries.add(new Entry(-12, 65, 1031, PlinthSlotItem.unreadable(OWNERS[2])));
+    entries.add(new Entry(-12, 65, 1031, PlinthSlotItem.stored(OWNERS[2], new byte[0])));
   }
 
   private static void nodes(List<Entry> entries, Function<String, ItemStack> items) {
@@ -125,6 +117,5 @@ final class SpatialFixtures {
     entries.add(new Entry(-39, 71, 1071, new BrewingStandOwner(OWNERS[1])));
     entries.add(new Entry(-38, 72, 1072, PlinthSlotItem.of(OWNERS[2], items.apply("feather"))));
     entries.add(new Entry(-37, 73, 1073, NodeFaces.EMPTY.with(NodeRecord.builder(OWNERS[0], NodeType.HARVEST, BlockFace.SOUTH).build())));
-    entries.add(new Entry(-36, 74, 1074, new ScaffoldMatter.ScaffoldData(OWNERS[0], 99L)));
   }
 }

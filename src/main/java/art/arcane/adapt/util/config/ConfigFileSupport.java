@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
@@ -159,6 +161,25 @@ public final class ConfigFileSupport {
     IO.writeAll(canonicalFile, serialize(normalizedFallback, canonicalFile, sourceTag));
     recordMissingConfigCreated();
     return normalizedFallback;
+  }
+
+  public static <T> void writeDefaults(
+      File canonicalFile,
+      T defaults,
+      String sourceTag,
+      Consumer<T> normalizeBeforeWrite
+  ) throws IOException {
+    T normalized = normalizeConfig(defaults, normalizeBeforeWrite);
+    String canonical = serialize(normalized, canonicalFile, sourceTag);
+    Path target = canonicalFile.toPath().toAbsolutePath();
+    Files.createDirectories(target.getParent());
+    Path temporary = target.resolveSibling(target.getFileName() + ".tmp");
+    try {
+      Files.writeString(temporary, canonical + System.lineSeparator());
+      Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+    } finally {
+      Files.deleteIfExists(temporary);
+    }
   }
 
   public static void recordMissingConfigCreated() {

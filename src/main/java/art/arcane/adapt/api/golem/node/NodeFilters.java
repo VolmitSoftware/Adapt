@@ -107,12 +107,18 @@ public final class NodeFilters {
     if (record.filterCount() == 0) {
       return true;
     }
+    if (hidesBlacklistedItems(record)) {
+      return false;
+    }
     return matches(record, type, tags) == record.whitelist();
   }
 
   public static boolean accepts(NodeRecord record, ItemStack item, NodeTagLookup tags, BiPredicate<ItemStack, ItemStack> same) {
     if (record.filterCount() == 0) {
       return true;
+    }
+    if (hidesBlacklistedItems(record)) {
+      return false;
     }
     return matches(record, item, tags, same) == record.whitelist();
   }
@@ -158,6 +164,11 @@ public final class NodeFilters {
       }
     }
     return false;
+  }
+
+  // A blacklist that lost an entry no longer knows what it refused, so it refuses everything.
+  private static boolean hidesBlacklistedItems(NodeRecord record) {
+    return !record.whitelist() && record.unreadableFilters() > 0;
   }
 
   private static boolean isFull(NodeRecord record, int slots) {

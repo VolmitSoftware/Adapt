@@ -4962,6 +4962,7 @@ lore = ["Sahip olabileceğin düğümler", "Blok cinsinden çalışma alanı yar
 [golemancy.plinth]
 loading = "Bu kaide hâlâ yükleniyor"
 occupied = "Bu sehpada zaten bir eşya var"
+unreadable = "Bu sunucu bu sehpadaki eşyayı okuyamıyor, bu yüzden saklı kalıyor"
 protected = "Bu kaideyi burada kullanamazsın"
 busy = "Zaten bir aşılama sürüyor"
 no_recipe = "Bu eşyalar bir aşılama oluşturmuyor"
@@ -6806,7 +6807,6 @@ reset_includes = "Buna XP, yetenekler, adaptasyonlar, keşifler, istatistikler v
 reset_confirm = "Onaylamak için bu komutu 30 saniye içinde tekrar çalıştırın."
 skill_reset_unsupported = "{skill} yeteneği yapılandırma sıfırlamayı desteklemiyor."
 adaptation_reset_unsupported = "{adaptation} adaptasyonu yapılandırma sıfırlamayı desteklemiyor."
-config_delete_failed = "{target} için yapılandırma dosyası silinemedi."
 default_config_reload_failed = "{target} için varsayılan yapılandırma yeniden yüklenemedi."
 skill_reset = "{skill} yeteneğinin yapılandırması varsayılanlara sıfırlandı."
 adaptation_reset = "{adaptation} adaptasyonunun yapılandırması varsayılanlara sıfırlandı."

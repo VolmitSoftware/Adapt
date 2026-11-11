@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem.node;
 
+import art.arcane.adapt.api.data.StoredItem;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
@@ -28,10 +29,11 @@ public final class NodeRecord {
   private final int priority;
   private final RedstoneMode redstone;
   private final NodeCuboid area;
-  private final List<ItemStack> filterItems;
+  private final List<StoredItem> filterEntries;
   private final List<String> filterTags;
   private final boolean whitelist;
   private final Map<String, String> data;
+  private volatile DecodedFilter decodedFilter;
 
   private NodeRecord(Builder builder) {
     this.owner = builder.owner;
@@ -41,12 +43,12 @@ public final class NodeRecord {
     this.priority = Math.max(MIN_PRIORITY, Math.min(MAX_PRIORITY, builder.priority));
     this.redstone = builder.redstone;
     this.area = builder.area.bounded(MAX_RADIUS);
-    this.filterItems = List.copyOf(builder.filterItems);
+    this.filterEntries = List.copyOf(builder.filterEntries);
     this.filterTags = List.copyOf(builder.filterTags);
     this.whitelist = builder.whitelist;
     this.data = Map.copyOf(builder.data);
-    if (filterItems.size() + filterTags.size() > MAX_FILTER_ENTRIES) {
-      throw new IllegalArgumentException("A node filter holds at most " + MAX_FILTER_ENTRIES + " entries, got " + (filterItems.size() + filterTags.size()));
+    if (filterCount() > MAX_FILTER_ENTRIES) {
+      throw new IllegalArgumentException("A node filter holds at most " + MAX_FILTER_ENTRIES + " entries, got " + filterCount());
     }
     for (String tag : filterTags) {
       if (tag.length() < 2 || tag.charAt(0) != '#') {
@@ -94,16 +96,34 @@ public final class NodeRecord {
     return area;
   }
 
+  /**
+   * Every stored filter item in file order, readable or not. Reading this decodes nothing.
+   */
+  public List<StoredItem> filterEntries() {
+    return filterEntries;
+  }
+
+  /**
+   * The filter items that decode, as this record's own copies. The first call decodes them on the caller's thread.
+   */
   public List<ItemStack> filterItems() {
-    return filterItems;
+    return decodedFilter().items;
   }
 
   public List<String> filterTags() {
     return filterTags;
   }
 
+  /**
+   * Filter items that are stored but do not decode. Each one keeps its filter slot and matches nothing,
+   * so a filter with such entries never reads as the empty filter that accepts everything.
+   */
+  public int unreadableFilters() {
+    return decodedFilter().unreadable;
+  }
+
   public int filterCount() {
-    return filterItems.size() + filterTags.size();
+    return filterEntries.size() + filterTags.size();
   }
 
   public boolean whitelist() {
@@ -120,10 +140,45 @@ public final class NodeRecord {
         .priority(priority)
         .redstone(redstone)
         .area(area)
-        .filterItems(filterItems)
+        .filterEntries(filterEntries)
         .filterTags(filterTags)
         .whitelist(whitelist)
         .data(data);
+  }
+
+  private DecodedFilter decodedFilter() {
+    DecodedFilter known = decodedFilter;
+    if (known != null) {
+      return known;
+    }
+    List<ItemStack> items = new ArrayList<>(filterEntries.size());
+    int unreadable = 0;
+    for (StoredItem entry : filterEntries) {
+      ItemStack item = entry.item();
+      if (item != null) {
+        items.add(item);
+        continue;
+      }
+      unreadable++;
+      entry.warnUnreadable(() -> "A filter item of the Golemancy " + type.id() + " node on face " + face + " owned by " + owner
+          + " could not be read. It keeps its filter slot and matches nothing, and a blacklist accepts nothing."
+          + " Its stored data is kept and read again the next time the node loads.");
+    }
+    DecodedFilter decoded = new DecodedFilter(List.copyOf(items), unreadable);
+    decodedFilter = decoded;
+    return decoded;
+  }
+
+  private boolean sameFilterEntries(NodeRecord record) {
+    if (filterEntries.size() != record.filterEntries.size()) {
+      return false;
+    }
+    for (int index = 0; index < filterEntries.size(); index++) {
+      if (!filterEntries.get(index).sameItem(record.filterEntries.get(index))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -142,22 +197,21 @@ public final class NodeRecord {
         && face == record.face
         && channel == record.channel
         && redstone == record.redstone
-        && filterItems.equals(record.filterItems)
+        && sameFilterEntries(record)
         && filterTags.equals(record.filterTags)
         && data.equals(record.data);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(owner, type, face, channel, priority, redstone, area, filterItems, filterTags, whitelist, data);
+    return Objects.hash(owner, type, face, channel, priority, redstone, area, filterEntries.size(), filterTags, whitelist, data);
   }
 
   @Override
   public String toString() {
     return "NodeRecord{" + type.id() + " " + face + " owner=" + owner + " channel=" + channel + " priority=" + priority
         + " redstone=" + redstone.id() + " area=" + area.minX() + ".." + area.maxX() + "/" + area.minY() + ".." + area.maxY() + "/"
-        + area.minZ() + ".." + area.maxZ() + " filter=" + filterCount()
-        + " whitelist=" + whitelist + " data=" + data + "}";
+        + area.minZ() + ".." + area.maxZ() + " filter=" + filterCount() + " whitelist=" + whitelist + " data=" + data + "}";
   }
 
   public static final class Builder {
@@ -168,7 +222,7 @@ public final class NodeRecord {
     private int priority = DEFAULT_PRIORITY;
     private RedstoneMode redstone = RedstoneMode.IGNORE;
     private NodeCuboid area = DEFAULT_AREA;
-    private List<ItemStack> filterItems = List.of();
+    private List<StoredItem> filterEntries = List.of();
     private List<String> filterTags = List.of();
     private boolean whitelist = true;
     private Map<String, String> data = Map.of();
@@ -202,12 +256,25 @@ public final class NodeRecord {
       return this;
     }
 
+    /**
+     * Replaces the filter items that decode. Entries that do not decode stay, after the given items.
+     */
     public Builder filterItems(List<ItemStack> filterItems) {
-      List<ItemStack> copies = new ArrayList<>(filterItems.size());
+      List<StoredItem> entries = new ArrayList<>(filterItems.size());
       for (ItemStack item : filterItems) {
-        copies.add(Objects.requireNonNull(item).clone());
+        entries.add(StoredItem.of(item));
       }
-      this.filterItems = copies;
+      for (StoredItem entry : filterEntries) {
+        if (!entry.readable()) {
+          entries.add(entry);
+        }
+      }
+      this.filterEntries = entries;
+      return this;
+    }
+
+    public Builder filterEntries(List<StoredItem> filterEntries) {
+      this.filterEntries = List.copyOf(filterEntries);
       return this;
     }
 
@@ -229,5 +296,8 @@ public final class NodeRecord {
     public NodeRecord build() {
       return new NodeRecord(this);
     }
+  }
+
+  private record DecodedFilter(List<ItemStack> items, int unreadable) {
   }
 }

@@ -4962,6 +4962,7 @@ lore = ["Nós que podes possuir", "Raio da área de trabalho em blocos", "Espaç
 [golemancy.plinth]
 loading = "Este pedestal ainda está a carregar"
 occupied = "Este suporte já tem um item"
+unreadable = "Este servidor não consegue ler o item deste suporte, por isso fica guardado"
 protected = "Não podes usar este pedestal aqui"
 busy = "Já está a decorrer uma infusão"
 no_recipe = "Estes itens não formam uma infusão"
@@ -6806,7 +6807,6 @@ reset_includes = "Isto inclui XP, habilidades, adaptações, descobertas, estat�
 reset_confirm = "Executa este comando novamente dentro de 30 segundos para confirmar."
 skill_reset_unsupported = "A habilidade {skill} não suporta a reposição da configuração."
 adaptation_reset_unsupported = "A adaptação {adaptation} não suporta a reposição da configuração."
-config_delete_failed = "Não foi possível eliminar o ficheiro de configuração de {target}."
 default_config_reload_failed = "Não foi possível recarregar a configuração predefinida de {target}."
 skill_reset = "Configuração da habilidade {skill} reposta para os valores predefinidos."
 adaptation_reset = "Configuração da adaptação {adaptation} reposta para os valores predefinidos."

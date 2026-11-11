@@ -4962,6 +4962,7 @@ lore = ["Số nút bạn có thể sở hữu", "Bán kính vùng làm việc (k
 [golemancy.plinth]
 loading = "Bệ này vẫn đang tải"
 occupied = "Trụ này đã có một vật phẩm"
+unreadable = "Máy chủ này không đọc được vật phẩm trên trụ này nên nó vẫn được lưu giữ"
 protected = "Bạn không thể dùng bệ này ở đây"
 busy = "Một nghi thức truyền đang diễn ra"
 no_recipe = "Những vật phẩm này không tạo thành nghi thức truyền"
@@ -6806,7 +6807,6 @@ reset_includes = "Bao gồm XP, kỹ năng, thích nghi, khám phá, thống kê
 reset_confirm = "Chạy lại lệnh này trong vòng 30 giây để xác nhận."
 skill_reset_unsupported = "Kỹ năng {skill} không hỗ trợ đặt lại cấu hình."
 adaptation_reset_unsupported = "Thích nghi {adaptation} không hỗ trợ đặt lại cấu hình."
-config_delete_failed = "Không thể xóa tệp cấu hình của {target}."
 default_config_reload_failed = "Không thể tải lại cấu hình mặc định cho {target}."
 skill_reset = "Đã đặt lại cấu hình của kỹ năng {skill} về mặc định."
 adaptation_reset = "Đã đặt lại cấu hình của thích nghi {adaptation} về mặc định."

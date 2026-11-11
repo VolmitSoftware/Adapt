@@ -4962,6 +4962,7 @@ lore = ["可拥有的节点数量", "工作区域半径（方块）", "过滤槽
 [golemancy.plinth]
 loading = "这个基座仍在加载"
 occupied = "这个底座上已经有物品了"
+unreadable = "此服务器无法读取这个底座上的物品，因此它会继续保存"
 protected = "你不能在这里使用这个基座"
 busy = "灌注已在进行中"
 no_recipe = "这些物品无法组成灌注"
@@ -6806,7 +6807,6 @@ reset_includes = "包括经验、技能、适应能力、探索记录、统计�
 reset_confirm = "请在 30 秒内再次执行此命令以确认。"
 skill_reset_unsupported = "技能 {skill} 不支持配置重置。"
 adaptation_reset_unsupported = "适应能力 {adaptation} 不支持配置重置。"
-config_delete_failed = "无法删除 {target} 的配置文件。"
 default_config_reload_failed = "无法重新加载 {target} 的默认配置。"
 skill_reset = "已将技能 {skill} 的配置恢复为默认值。"
 adaptation_reset = "已将适应能力 {adaptation} 的配置恢复为默认值。"

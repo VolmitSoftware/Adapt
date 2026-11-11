@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem.gui;
 
+import art.arcane.adapt.api.data.StoredItem;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeRecord;
@@ -9,6 +10,8 @@ import org.bukkit.block.BlockFace;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,5 +69,34 @@ class NodeSettingsClipboardTest {
     }
     NodeSettingsClipboard.copy(OWNER, destination.toBuilder().filterTags(List.of("#stone", "#logs")).build());
     assertThat(NodeSettingsClipboard.pasted(OWNER, destination, 5, 15, 1)).isEmpty();
+  }
+
+  @Test
+  void pastingKeepsTheEntriesTheDestinationCannotReadAndRefusesWhenTheyLeaveNoRoom() {
+    StoredItem unreadable = StoredItem.stored("not an item".getBytes(StandardCharsets.US_ASCII));
+    NodeRecord destination = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.UP).filterEntries(List.of(unreadable)).build();
+    NodeRecord source = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.DOWN).filterTags(List.of("#stone", "#logs")).build();
+    NodeSettingsClipboard.copy(OWNER, source);
+
+    NodeRecord pasted = NodeSettingsClipboard.pasted(OWNER, destination, 5, 15, 3).orElseThrow();
+
+    assertThat(pasted.filterTags()).containsExactly("#stone", "#logs");
+    assertThat(pasted.filterEntries()).containsExactly(unreadable);
+    assertThat(pasted.unreadableFilters()).isEqualTo(1);
+    assertThat(pasted.filterCount()).isEqualTo(3);
+    assertThat(NodeSettingsClipboard.pasted(OWNER, destination, 5, 15, 2)).isEmpty();
+  }
+
+  @Test
+  void aPasteThatWouldPassTheEntryLimitBesideUnreadableEntriesIsRefused() {
+    StoredItem unreadable = StoredItem.stored("not an item".getBytes(StandardCharsets.US_ASCII));
+    NodeRecord destination = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.UP).filterEntries(List.of(unreadable)).build();
+    List<String> tags = new ArrayList<>();
+    for (int index = 0; index < NodeRecord.MAX_FILTER_ENTRIES; index++) {
+      tags.add("#tag_" + index);
+    }
+    NodeSettingsClipboard.copy(OWNER, NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.DOWN).filterTags(tags).build());
+
+    assertThat(NodeSettingsClipboard.pasted(OWNER, destination, 5, 15, 64)).isEmpty();
   }
 }

@@ -4962,6 +4962,7 @@ lore = ["צמתים שאפשר להחזיק", "רדיוס אזור העבודה 
 [golemancy.plinth]
 loading = "הכן הזה עדיין נטען"
 occupied = "על הבסיס הזה כבר מונח פריט"
+unreadable = "השרת הזה אינו יכול לקרוא את הפריט שעל הבסיס הזה, ולכן הוא נשאר שמור"
 protected = "אי אפשר להשתמש בכן הזה כאן"
 busy = "החדרה כבר מתבצעת"
 no_recipe = "הפריטים האלה אינם יוצרים החדרה"
@@ -6806,7 +6807,6 @@ reset_includes = "זה כולל XP, מיומנויות, הסתגלויות, גי
 reset_confirm = "הרץ את הפקודה שוב בתוך 30 שניות כדי לאשר."
 skill_reset_unsupported = "המיומנות {skill} אינה תומכת באיפוס תצורה."
 adaptation_reset_unsupported = "ההסתגלות {adaptation} אינה תומכת באיפוס תצורה."
-config_delete_failed = "מחיקת קובץ התצורה עבור {target} נכשלה."
 default_config_reload_failed = "טעינה מחדש של תצורת ברירת המחדל עבור {target} נכשלה."
 skill_reset = "התצורה של המיומנות {skill} אופסה לברירות המחדל."
 adaptation_reset = "התצורה של ההסתגלות {adaptation} אופסה לברירות המחדל."

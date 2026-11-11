@@ -60,7 +60,6 @@ public final class CommandRuntimeMessages {
   public static final TextKey RESET_CONFIRM = TextKey.of("command.runtime.reset_confirm", "Run this command again within 30 seconds to confirm.");
   public static final TextKey SKILL_RESET_UNSUPPORTED = TextKey.of("command.runtime.skill_reset_unsupported", "Skill {skill} does not support config reset.");
   public static final TextKey ADAPTATION_RESET_UNSUPPORTED = TextKey.of("command.runtime.adaptation_reset_unsupported", "Adaptation {adaptation} does not support config reset.");
-  public static final TextKey CONFIG_DELETE_FAILED = TextKey.of("command.runtime.config_delete_failed", "Failed to delete config file for {target}.");
   public static final TextKey DEFAULT_CONFIG_RELOAD_FAILED = TextKey.of("command.runtime.default_config_reload_failed", "Failed to reload the default config for {target}.");
   public static final TextKey SKILL_RESET = TextKey.of("command.runtime.skill_reset", "Reset config for skill {skill} to defaults.");
   public static final TextKey ADAPTATION_RESET = TextKey.of("command.runtime.adaptation_reset", "Reset config for adaptation {adaptation} to defaults.");
@@ -165,7 +164,6 @@ public final class CommandRuntimeMessages {
     builder.add(RESET_CONFIRM);
     builder.add(SKILL_RESET_UNSUPPORTED);
     builder.add(ADAPTATION_RESET_UNSUPPORTED);
-    builder.add(CONFIG_DELETE_FAILED);
     builder.add(DEFAULT_CONFIG_RELOAD_FAILED);
     builder.add(SKILL_RESET);
     builder.add(ADAPTATION_RESET);

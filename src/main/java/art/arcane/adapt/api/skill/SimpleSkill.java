@@ -208,6 +208,21 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
   }
 
+  public synchronized boolean writeDefaultConfig() {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    File file = getConfigFile();
+    try {
+      ConfigFileSupport.writeDefaults(file, createDefaultConfig(), "skill:" + getName(), this::normalizeConfiguration);
+      return true;
+    } catch (Throwable e) {
+      Adapt.warn("Failed to write default config " + file.getPath() + ": " + e.getMessage());
+      return false;
+    }
+  }
+
   private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
     return ConfigFileSupport.load(
         file,

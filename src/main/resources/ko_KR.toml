@@ -4962,6 +4962,7 @@ lore = ["소유할 수 있는 노드 수", "작업 영역 반경(블록)", "필�
 [golemancy.plinth]
 loading = "이 받침대는 아직 불러오는 중입니다"
 occupied = "이 거치대에는 이미 아이템이 있습니다"
+unreadable = "이 서버는 이 거치대의 아이템을 읽을 수 없어 그대로 보관됩니다"
 protected = "여기서는 이 받침대를 사용할 수 없습니다"
 busy = "이미 주입이 진행 중입니다"
 no_recipe = "이 아이템들로는 주입할 수 없습니다"
@@ -6806,7 +6807,6 @@ reset_includes = "XP, 기술, 적응, 발견, 통계, 발전 과제가 모두 �
 reset_confirm = "확인하려면 30초 안에 이 명령을 다시 실행하세요."
 skill_reset_unsupported = "{skill} 기술은 설정 초기화를 지원하지 않습니다."
 adaptation_reset_unsupported = "적응 {adaptation}는 설정 리셋을 지원하지 않습니다."
-config_delete_failed = "{target}의 설정 파일을 삭제하지 못했습니다."
 default_config_reload_failed = "{target}의 기본 설정을 다시 불러오지 못했습니다."
 skill_reset = "{skill} 기술 설정을 기본값으로 초기화했습니다."
 adaptation_reset = "{adaptation} 적응 설정을 기본값으로 초기화했습니다."

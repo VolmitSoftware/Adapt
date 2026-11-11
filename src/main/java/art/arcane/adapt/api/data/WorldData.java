@@ -49,10 +49,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class WorldData extends TickedObject {
@@ -72,14 +74,15 @@ public class WorldData extends TickedObject {
     this.minHeight = world.getMinHeight();
     NamespacedKey worldKey = WorldIdentity.key(world);
     mantle = createMantle(
+        world.getName(),
         Adapt.instance.getDataFolder("data", "mantle", worldKey.getNamespace(), worldKey.getKey()),
         world.getMaxHeight() - minHeight
     );
   }
 
-  private static AdaptMantle createMantle(File dataFolder, int worldHeight) {
+  private static AdaptMantle createMantle(String worldName, File dataFolder, int worldHeight) {
     MantleDataAdapter<Matter> adapter = createAdapter(WorldData::readSection);
-    SpatialMantleMigration.migrate(dataFolder, worldHeight, adapter, createAdapter(WorldData::readSpatialSection));
+    SpatialMantleMigration.migrate(worldName, dataFolder, worldHeight, adapter, createAdapter(WorldData::readSpatialSection));
     MantleHooks hooks = createHooks();
     art.arcane.volmlib.util.mantle.Mantle.RegionIO<TectonicPlate<Matter>> regionIO =
         createRegionIO(dataFolder, worldHeight, adapter, hooks);
@@ -186,6 +189,14 @@ public class WorldData extends TickedObject {
     section.getHeader().read(in);
     for (int index = 0; index < count; index++) {
       String name = in.readUTF();
+      if (AdaptSlices.SPATIAL_SCAFFOLD.equals(name)) {
+        try {
+          new DroppedSlice(AdaptSlices.SPATIAL_SCAFFOLD_VALUE_BYTES).read(in);
+        } catch (RuntimeException failure) {
+          throw new IOException("Could not read mantle slice " + name, failure);
+        }
+        continue;
+      }
       Class<?> type = AdaptSlices.spatialType(name);
       if (type == null) {
         throw new IOException("Unknown Spatial mantle slice " + name);
@@ -262,7 +273,13 @@ public class WorldData extends TickedObject {
   }
 
   public static void stop() {
-    mantles.v().forEach(WorldData::unregister);
+    for (Map.Entry<World, WorldData> entry : List.copyOf(mantles.entrySet())) {
+      try {
+        entry.getValue().unregister();
+      } catch (RuntimeException failure) {
+        Adapt.error("Could not close the mantle data of world " + entry.getKey().getName(), failure);
+      }
+    }
     mantles.clear();
   }
 
@@ -335,9 +352,12 @@ public class WorldData extends TickedObject {
   }
 
   public void unregister() {
-    super.unregister();
-    mantle.close();
-    mantles.remove(world);
+    try {
+      super.unregister();
+      mantle.close();
+    } finally {
+      mantles.remove(world);
+    }
   }
 
   @EventHandler
@@ -360,6 +380,27 @@ public class WorldData extends TickedObject {
   @FunctionalInterface
   private interface SectionReader {
     Matter read(CountingDataInputStream in) throws IOException;
+  }
+
+  // Consumes a Spatial slice whose values are a fixed number of bytes each and keeps none of them.
+  private static final class DroppedSlice extends AdaptMatter<Object> {
+    private final int valueBytes;
+
+    private DroppedSlice(int valueBytes) {
+      super(16, 16, 16, Object.class);
+      this.valueBytes = valueBytes;
+    }
+
+    @Override
+    public void writeNode(Object value, DataOutputStream dos) {
+      throw new UnsupportedOperationException("A dropped slice is never written");
+    }
+
+    @Override
+    public Object readNode(DataInputStream din) throws IOException {
+      din.skipNBytes(valueBytes);
+      return new Object();
+    }
   }
 
   private static final class AdaptMantle extends Mantle<Matter> {

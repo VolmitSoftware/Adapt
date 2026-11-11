@@ -6,6 +6,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.volmlib.util.event.ProtectionProbe;
 import net.kyori.adventure.text.Component;
@@ -27,6 +28,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -36,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,12 +55,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,6 +73,7 @@ class PlinthServiceTest extends AdaptTestBase {
   private static final String INTERRUPTED = "warn golemancy.plinth.interrupted";
   private static final String ANY = "ANY";
   private static final int DURATION = InfusionRecipes.MIN_DURATION_TICKS;
+  private static final byte[] UNREADABLE_ITEM = "not an item".getBytes(StandardCharsets.US_ASCII);
 
   private final List<String> events = new ArrayList<>();
   private final FakePlinthPlatform platform = new FakePlinthPlatform(events);
@@ -856,14 +862,128 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void unreadableSlotsArePurgedWithoutADrop() {
-    platform.store.put(CENTER, PlinthSlotItem.unreadable(UUID.randomUUID()));
+  void aSlotWhoseItemAnEarlierSaveLostIsPurgedWithoutADrop() {
+    platform.store.put(CENTER, PlinthSlotItem.stored(UUID.randomUUID(), new byte[0]));
 
     service.on(new ChunkLoadEvent(chunk(0, 0), false));
 
     assertThat(platform.store).isEmpty();
     assertThat(events.stream().filter(event -> event.startsWith("drop"))).isEmpty();
     assertThat(platform.displays).isEmpty();
+  }
+
+  @Test
+  void anUnreadableItemKeepsItsSlotAndItsBytesWhenItsChunkLoads() {
+    PlinthSlotItem unreadable = unreadable();
+    platform.store.put(CENTER.slot(PlinthSlot.NORTH), unreadable);
+
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+
+    assertThat(platform.store).containsOnlyKeys(CENTER.slot(PlinthSlot.NORTH));
+    assertThat(platform.store.get(CENTER.slot(PlinthSlot.NORTH))).isSameAs(unreadable);
+    assertThat(unreadable.stored().bytes()).isEqualTo(UNREADABLE_ITEM);
+    assertThat(events).isEmpty();
+    assertThat(platform.displays).isEmpty();
+  }
+
+  @Test
+  void anUnreadableItemIsWarnedAboutOnceWithItsPosition() {
+    platform.store.put(CENTER.slot(PlinthSlot.NORTH), unreadable());
+
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    service.on(new ChunkUnloadEvent(chunk(0, 0)));
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    holding(null);
+    click(CENTER.slot(PlinthSlot.NORTH), EquipmentSlot.HAND);
+
+    assertThat(logged).filteredOn(record -> record.getMessage().contains("could not be read")).singleElement().satisfies(record -> {
+      assertThat(record.getMessage()).contains("8, 64, 6").contains("stays stored");
+      assertThat(record.getThrown()).isNotNull();
+    });
+    assertThat(platform.store).hasSize(1);
+  }
+
+  @Test
+  void anUnreadableItemIsNeverHandedOutAndKeepsItsPedestalOccupied() {
+    PlinthSpot north = CENTER.slot(PlinthSlot.NORTH);
+    PlinthSlotItem unreadable = unreadable();
+    platform.store.put(north, unreadable);
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    events.clear();
+
+    holding(null);
+    PlayerInteractEvent emptyHand = click(north, EquipmentSlot.HAND);
+    assertThat(emptyHand.isCancelled()).isTrue();
+    assertThat(events).containsExactly("warn golemancy.plinth.unreadable");
+
+    events.clear();
+    holding(item(Material.SUGAR));
+    click(north, EquipmentSlot.HAND);
+    assertThat(events).containsExactly("warn golemancy.plinth.occupied");
+
+    assertThat(platform.store).containsOnlyKeys(north);
+    assertThat(platform.store.get(north)).isSameAs(unreadable);
+    assertThat(platform.displays).isEmpty();
+  }
+
+  @Test
+  void anUnreadableItemStaysStoredWhenItsPedestalBreaks() {
+    PlinthSpot west = CENTER.slot(PlinthSlot.WEST);
+    PlinthSlotItem unreadable = unreadable();
+    platform.store.put(west, unreadable);
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    events.clear();
+
+    service.on(new BlockBreakEvent(block(west), mock(Player.class)));
+    platform.blocks.put("6,64,8", Material.AIR);
+    tick(1);
+    service.on(new ChunkUnloadEvent(chunk(0, 0)));
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+
+    assertThat(platform.store.get(west)).isSameAs(unreadable);
+    assertThat(events.stream().filter(event -> event.startsWith("drop") || event.startsWith("write") || event.equals("give"))).isEmpty();
+  }
+
+  @Test
+  void anUnreadableItemBlocksTheInfusionAndIsNeverConsumed() {
+    PlinthSpot north = CENTER.slot(PlinthSlot.NORTH);
+    PlinthSlotItem unreadable = unreadable();
+    stockPlinthExcept(PlinthSlot.NORTH);
+    platform.store.put(north, unreadable);
+    service.on(new ChunkUnloadEvent(chunk(0, 0)));
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    settings = new PlinthSettings(settings.pedestals(), recipes(Map.of("anything", new InfusionRecipe().result("golemancy:rune/order/3")
+        .center(ANY).pedestals(ANY, ANY, ANY, ANY).essence(1).duration(DURATION).unlock(InfusionRecipe.RUNIC_AUGMENTS, 1))));
+    events.clear();
+
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION + 5);
+
+    assertThat(events).contains("warn golemancy.plinth.no_recipe");
+    assertThat(events.stream().filter(event -> event.startsWith("pay") || event.startsWith("pop") || event.startsWith("write"))).isEmpty();
+    assertThat(platform.store).hasSize(5);
+    assertThat(platform.store.get(north)).isSameAs(unreadable);
+  }
+
+  @Test
+  void aReadableItemIsDecodedWhenItsChunkLoadsNotBefore() {
+    PlinthSpot north = CENTER.slot(PlinthSlot.NORTH);
+    ItemStack sugar = item(Material.SUGAR);
+    try (MockedStatic<NMS> nms = mockStatic(NMS.class)) {
+      nms.when(() -> NMS.deserializeStack("sugar")).thenReturn(sugar);
+      platform.store.put(north, PlinthSlotItem.stored(UUID.randomUUID(), "sugar".getBytes(StandardCharsets.US_ASCII)));
+      nms.verify(() -> NMS.deserializeStack(anyString()), never());
+
+      service.on(new ChunkLoadEvent(chunk(0, 0), false));
+      holding(null);
+      click(north, EquipmentSlot.HAND);
+
+      nms.verify(() -> NMS.deserializeStack("sugar"), times(1));
+    }
+    assertThat(platform.displays).hasSize(1);
+    assertThat(events).containsSubsequence("write 8,64,6 empty", "save 0,0", "give");
+    assertThat(platform.store).isEmpty();
   }
 
   @Test
@@ -1126,9 +1246,15 @@ class PlinthServiceTest extends AdaptTestBase {
     return mocked;
   }
 
+  // Bytes the real item decoder rejects, as an item saved by another platform or a missing plugin would be.
+  private static PlinthSlotItem unreadable() {
+    return PlinthSlotItem.stored(UUID.randomUUID(), UNREADABLE_ITEM);
+  }
+
   private static ItemStack item(Material material) {
     ItemStack item = mock(ItemStack.class);
     lenient().when(item.getType()).thenReturn(material);
+    lenient().when(item.clone()).thenReturn(item);
     return item;
   }
 

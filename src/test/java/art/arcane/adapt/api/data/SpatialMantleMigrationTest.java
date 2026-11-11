@@ -199,14 +199,7 @@ class SpatialMantleMigrationTest extends AdaptTestBase {
     for (SpatialFixtures.Entry entry : expected) {
       Object value = entry.value();
       Object stored = data.get(entry.x(), entry.y(), entry.z(), value.getClass());
-      if (value instanceof PlinthSlotItem slot) {
-        PlinthSlotItem read = (PlinthSlotItem) stored;
-        assertThat(read.id()).isEqualTo(slot.id());
-        assertThat(read.readable()).isEqualTo(slot.readable());
-        assertThat(read.item()).isSameAs(slot.item());
-      } else {
-        assertThat(stored).as(entry.toString()).isEqualTo(value);
-      }
+      assertThat(SpatialWorldFixture.same(value, stored)).as("%s holds %s", entry, stored).isTrue();
       counts.merge(value.getClass(), 1, Integer::sum);
     }
     for (Map.Entry<Class<?>, Integer> count : counts.entrySet()) {

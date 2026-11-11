@@ -8,13 +8,14 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class PlinthIndexTest {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
   private static final UUID OTHER_WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000c2");
 
-  private final PlinthSlotItem sugar = PlinthSlotItem.of(UUID.randomUUID(), mock(ItemStack.class));
-  private final PlinthSlotItem feather = PlinthSlotItem.of(UUID.randomUUID(), mock(ItemStack.class));
+  private final PlinthSlotItem sugar = PlinthSlotItem.of(UUID.randomUUID(), stack());
+  private final PlinthSlotItem feather = PlinthSlotItem.of(UUID.randomUUID(), stack());
 
   @Test
   void aChunkIsNotReadyUntilItsMantleReadCompletes() {
@@ -89,5 +90,11 @@ class PlinthIndexTest {
 
   private static void ready(PlinthIndex index, UUID world, PlinthSpot spot, Map<PlinthSpot, PlinthSlotItem> slots) {
     index.completeLoad(world, spot.chunkKey(), index.beginLoad(world, spot.chunkKey()), slots);
+  }
+
+  private static ItemStack stack() {
+    ItemStack item = mock(ItemStack.class);
+    when(item.clone()).thenReturn(item);
+    return item;
   }
 }

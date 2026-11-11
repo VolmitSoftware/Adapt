@@ -4962,6 +4962,7 @@ lore = ["Knooppunten die je kunt bezitten", "Straal van het werkgebied in blokke
 [golemancy.plinth]
 loading = "Deze sokkel wordt nog geladen"
 occupied = "Op dit voetstuk ligt al een voorwerp"
+unreadable = "Deze server kan het voorwerp op dit voetstuk niet lezen, dus het blijft bewaard"
 protected = "Je kunt deze sokkel hier niet gebruiken"
 busy = "Er loopt al een infusie"
 no_recipe = "Deze voorwerpen vormen geen infusie"
@@ -6806,7 +6807,6 @@ reset_includes = "Dit omvat XP, vaardigheden, aanpassingen, ontdekkingen, statis
 reset_confirm = "Voer dit commando binnen 30 seconden opnieuw uit om te bevestigen."
 skill_reset_unsupported = "Vaardigheid {skill} ondersteunt configuratiereset niet."
 adaptation_reset_unsupported = "Aanpassing {adaptation} ondersteunt configuratiereset niet."
-config_delete_failed = "Kon het configuratiebestand voor {target} niet verwijderen."
 default_config_reload_failed = "Herladen van de standaardconfiguratie voor {target} is mislukt."
 skill_reset = "Configuratie voor vaardigheid {skill} teruggezet naar standaardinstellingen."
 adaptation_reset = "Configuratie voor aanpassing {adaptation} teruggezet naar standaardinstellingen."

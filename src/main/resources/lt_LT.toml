@@ -4962,6 +4962,7 @@ lore = ["Mazgai, kuriuos galite turėti", "Darbo zonos spindulys blokais", "Filt
 [golemancy.plinth]
 loading = "Ši pakyla dar įkeliama"
 occupied = "Ant šio stovo jau yra daiktas"
+unreadable = "Šis serveris negali nuskaityti ant šio stovo esančio daikto, todėl jis lieka saugomas"
 protected = "Čia negalite naudoti šios pakylos"
 busy = "Įliejimas jau vyksta"
 no_recipe = "Šie daiktai nesudaro įliejimo"
@@ -6806,7 +6807,6 @@ reset_includes = "Tai apima XP, įgūdžius, adaptacijas, atradimus, statistiką
 reset_confirm = "Norėdami patvirtinti, per 30 sekundžių paleiskite šią komandą dar kartą."
 skill_reset_unsupported = "Įgūdis {skill} nepalaiko konfigūracijos atstatymo."
 adaptation_reset_unsupported = "Adaptacija {adaptation} nepalaiko konfigūracijos atstatymo."
-config_delete_failed = "Nepavyko ištrinti {target} konfigūracijos failo."
 default_config_reload_failed = "Nepavyko iš naujo įkelti {target} numatytosios konfigūracijos."
 skill_reset = "Įgūdžio {skill} konfigūracija atstatyta į numatytąją."
 adaptation_reset = "Adaptacijos {adaptation} konfigūracija atstatyta į numatytąją."

@@ -5,6 +5,6 @@ public final class FeedbackText {
   private FeedbackText() {}
 
   public static String format(String message, Object... args) {
-    return args.length == 0 ? message : message.formatted(args);
+    return args == null || args.length == 0 ? message : message.formatted(args);
   }
 }

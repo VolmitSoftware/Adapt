@@ -68,6 +68,9 @@ def advancementConfiguration = configurations.create('advancementLibrary')
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
+tasks.named('slimJar') {
+    doFirst { new File(outputDirectory, 'slimjar-resolutions.dat').delete() }
+}
 String languageSourceRepository = providers.gradleProperty('languageSourceRepository').orElse('VolmitSoftware/Adapt').get()
 String languageSourceBranch = providers.gradleProperty('languageSourceBranch').orElse(providers.provider {
     try {
@@ -263,7 +266,6 @@ dependencies {
 
     compileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
 
-    // Cancer
     slimApi(libs.kotlin.coroutines)
 
     // Dynamically Loaded
@@ -281,7 +283,6 @@ dependencies {
     compileOnly(libs.ultimateAdvancementApi)
     api(files(strippedAdvancementLibrary.flatMap { Jar task -> task.archiveFile }))
     slimApi(libs.customBlockData)
-    slimApi(libs.lur)
     slimApi(libs.lang3)
     slimApi(libs.effectLib)
     slimApi(libs.gson)

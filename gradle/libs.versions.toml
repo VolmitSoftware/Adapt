@@ -8,8 +8,6 @@ slimjar = "2.1.9"
 kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
 
-# Cancer
-
 spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
@@ -22,7 +20,6 @@ lettuce = "6.5.1.RELEASE"
 particle = "1.8.4"
 ultimateAdvancementApi = "2.7.2"
 customBlockData = "2.2.3"
-lur = "1.4.2"
 lang3 = "3.12.0"
 effectLib = "10.4"
 gson = "2.10.1"
@@ -46,7 +43,6 @@ lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 particle = { module = "xyz.xenondevs:particle", version.ref = "particle" }
 ultimateAdvancementApi = { module = "com.frengor:ultimateadvancementapi-shadeable", version.ref = "ultimateAdvancementApi" }
 customBlockData = { module = "com.jeff-media:custom-block-data", version.ref = "customBlockData" }
-lur = { module = "com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru", version.ref = "lur" }
 lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "lang3" }
 effectLib = { module = "com.elmakers.mine.bukkit:EffectLib", version.ref = "effectLib" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }

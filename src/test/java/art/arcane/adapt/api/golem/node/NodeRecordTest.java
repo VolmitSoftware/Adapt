@@ -104,12 +104,18 @@ class NodeRecordTest {
   @Test
   void filterItemsAreClonedSoCallersCannotChangeAStoredNode() {
     ItemStack original = mock(ItemStack.class);
-    ItemStack copy = mock(ItemStack.class);
-    when(original.clone()).thenReturn(copy);
+    ItemStack kept = mock(ItemStack.class);
+    ItemStack handedOut = mock(ItemStack.class);
+    when(original.clone()).thenReturn(kept);
+    when(kept.clone()).thenReturn(handedOut);
 
     NodeRecord node = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.EAST).filterItems(List.of(original)).build();
 
-    assertThat(node.filterItems()).containsExactly(copy);
+    assertThat(node.filterItems()).containsExactly(handedOut);
+    assertThat(node.filterItems()).as("one stable copy per record").isSameAs(node.filterItems());
+    assertThat(node.filterEntries()).hasSize(1);
+    assertThat(node.filterCount()).isEqualTo(1);
+    assertThat(node.unreadableFilters()).isZero();
   }
 
   private static ItemStack stack() {
