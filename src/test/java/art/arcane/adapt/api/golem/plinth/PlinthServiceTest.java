@@ -1108,6 +1108,23 @@ class PlinthServiceTest extends AdaptTestBase {
     }
   }
 
+  @Test
+  void shutdownWithHaltedRegionsForgetsDisplaysWithoutTouchingThem() {
+    stockPlinth();
+    platform.regionsHalted = true;
+    int scheduledBefore = platform.entityDelays.size();
+
+    service.shutdown();
+    tick(40);
+
+    assertThat(platform.displays).hasSize(5);
+    assertThat(platform.entityDelays).hasSize(scheduledBefore);
+    for (ItemDisplay display : platform.displays) {
+      verify(display, never()).remove();
+    }
+    assertThat(platform.store).hasSize(5);
+  }
+
   private void assertAbortedWithoutCharge(boolean announced) {
     if (announced) {
       assertThat(events).contains(INTERRUPTED);

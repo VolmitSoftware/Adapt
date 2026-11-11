@@ -34,6 +34,20 @@ class AdaptConfigTest {
     }
 
     @Test
+    void defaultConfigSurvivesLoadWithoutChange() throws IOException {
+        AdaptConfig defaults = new AdaptConfig();
+        defaults.normalize();
+        String written = TomlCodec.toToml(defaults, "core-config");
+
+        AdaptConfig loaded = TomlCodec.fromToml(written, AdaptConfig.class);
+        loaded.normalize();
+
+        assertThat(written).contains("activityXpPressure = 0.0003\n");
+        assertThat(loaded.getFarmPrevention().getActivityXpPressure()).isEqualTo(0.0003D);
+        assertThat(TomlCodec.toToml(loaded, "core-config")).isEqualTo(written);
+    }
+
+    @Test
     void activatorMaterialNormalizationCachesOnlyUsableBlocks() {
         AdaptConfig config = new AdaptConfig();
         config.adaptActivatorBlock = "stone";

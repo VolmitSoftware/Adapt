@@ -127,6 +127,11 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
   }
 
   @Override
+  public boolean regionsHalted() {
+    return J.isFoliaThreading() && Bukkit.isStopping();
+  }
+
+  @Override
   public World world(UUID id) {
     return Bukkit.getWorld(id);
   }

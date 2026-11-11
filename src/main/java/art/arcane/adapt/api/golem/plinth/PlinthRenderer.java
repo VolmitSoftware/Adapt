@@ -73,6 +73,12 @@ final class PlinthRenderer {
   }
 
   void shutdown() {
+    // Folia disables plugins on its shutdown thread after the regions stop, where removing an entity
+    // throws. The displays are non-persistent, so the chunk save that follows drops them anyway.
+    if (platform.regionsHalted()) {
+      rendered.clear();
+      return;
+    }
     for (PlinthSpot spot : List.copyOf(rendered.keySet())) {
       despawn(spot);
     }

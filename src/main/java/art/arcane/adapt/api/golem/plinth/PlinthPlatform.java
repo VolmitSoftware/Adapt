@@ -34,6 +34,8 @@ interface PlinthPlatform {
 
   boolean owns(Entity entity);
 
+  boolean regionsHalted();
+
   World world(UUID id);
 
   ItemDisplay spawnDisplay(Location at, ItemStack item);

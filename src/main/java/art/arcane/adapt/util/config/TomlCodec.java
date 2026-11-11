@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -199,6 +200,9 @@ public final class TomlCodec {
     if (value instanceof Enum<?> enumValue) {
       return '"' + escape(enumValue.name()) + '"';
     }
+    if (value instanceof Double || value instanceof Float) {
+      return formatDecimal(((Number) value).doubleValue(), String.valueOf(value));
+    }
     if (value instanceof Number || value instanceof Boolean) {
       return String.valueOf(value);
     }
@@ -219,6 +223,16 @@ public final class TomlCodec {
     }
 
     return '"' + escape(String.valueOf(value)) + '"';
+  }
+
+  // toml4j reads exponent notation such as 3.0E-4 as 3.0000000000000003E-4, so a value would drift on
+  // every load. Plain notation parses back to the same double.
+  static String formatDecimal(double value, String text) {
+    if (!Double.isFinite(value) || text.indexOf('E') < 0) {
+      return text;
+    }
+    String plain = new BigDecimal(text).stripTrailingZeros().toPlainString();
+    return plain.indexOf('.') < 0 ? plain + ".0" : plain;
   }
 
   private static String renderPath(String path) {

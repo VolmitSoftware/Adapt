@@ -35,6 +35,7 @@ final class FakePlinthPlatform implements PlinthPlatform {
   final Map<Player, ItemStack> held = new HashMap<>();
   final Set<ItemStack> crooks = new HashSet<>();
   boolean ownsEverything = true;
+  boolean regionsHalted;
   boolean deferAsync;
   boolean refuseRunAt;
   int busySaves;
@@ -140,6 +141,11 @@ final class FakePlinthPlatform implements PlinthPlatform {
   @Override
   public boolean owns(Entity entity) {
     return ownsEverything;
+  }
+
+  @Override
+  public boolean regionsHalted() {
+    return regionsHalted;
   }
 
   @Override
