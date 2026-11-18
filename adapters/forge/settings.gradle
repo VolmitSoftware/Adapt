@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        maven { url = uri('https://maven.minecraftforge.net/') }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+rootProject.name = 'adapt-forge'
+apply from: '../../gradle/mod.settings.gradle'

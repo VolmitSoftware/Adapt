@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        maven { url = uri('https://maven.neoforged.net/releases/') }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+rootProject.name = 'adapt-neoforge'
+apply from: '../../gradle/mod.settings.gradle'

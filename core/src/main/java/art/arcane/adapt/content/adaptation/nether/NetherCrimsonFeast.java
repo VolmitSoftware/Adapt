@@ -1,0 +1,256 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.nether;
+
+import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.platform.entity.EffectInstance;
+import art.arcane.adapt.platform.entity.GameMode;
+import art.arcane.adapt.platform.entity.Hand;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.player.InteractAction;
+import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
+import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
+import art.arcane.adapt.platform.event.player.UseResult;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.world.Environment;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+
+import java.util.List;
+import java.util.Set;
+
+public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", NetherMessages.NETHERCRIMSONFEAST_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> MEAL_BUFF = CommonPreferences.toggle("meal-buff", NetherMessages.NETHERCRIMSONFEAST_PREFERENCE_MEAL_BUFF, CommonPreferences.Toggle.ON);
+
+  private static final Id FIRE_RESISTANCE = Id.minecraft("fire_resistance");
+  private static final Set<Id> EDIBLE_FLORA = Set.of(Id.minecraft("crimson_fungus"), Id.minecraft("warped_fungus"),
+      Id.minecraft("crimson_roots"), Id.minecraft("warped_roots"), Id.minecraft("nether_sprouts"),
+      Id.minecraft("weeping_vines"), Id.minecraft("twisting_vines"));
+
+  private final Cooldowns eatCooldowns = cooldowns();
+
+  public NetherCrimsonFeast() {
+    super("nether-crimson-feast");
+    registerConfiguration(Config.class);
+    setIcon(Id.minecraft("crimson_fungus"));
+    setInterval(3000);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("crimson_fungus"))
+        .key("challenge_nether_feast_100")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Id.minecraft("warped_fungus"))
+            .key("challenge_nether_feast_2500")
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerMilestone("challenge_nether_feast_100", "nether.crimson-feast.fungi-eaten", 100, 300);
+    registerMilestone("challenge_nether_feast_2500", "nether.crimson-feast.fungi-eaten", 2500, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, MEAL_BUFF);
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    statLore(v, getFloraFood(level), 1);
+    statLore(v, C.YELLOW, "+ ", Form.f(getFloraSaturation(level), 1), 2);
+    statLore(v, Form.duration(getResistTicks(level) * 50D, 1), 3);
+  }
+
+  @ReceiveCancelledEvents
+  @Handle(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  public void on(PlayerInteractEvent e) {
+    if (e.hand() != Hand.MAIN_HAND) {
+      return;
+    }
+    if (e.action() != InteractAction.RIGHT_CLICK_AIR && e.action() != InteractAction.RIGHT_CLICK_BLOCK) {
+      return;
+    }
+    ItemRef item = e.item();
+    if (item == null || item.isEmpty() || !isEdibleFlora(item.type())) {
+      return;
+    }
+
+    PlayerRef p = e.player();
+    if (preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
+      return;
+    }
+    withAdaptedPlayer(p, () -> {
+      int level = getActiveLevel(p);
+      if (level <= 0) {
+        return;
+      }
+
+      if (blocksFloraEating(e.clickedBlock() != null, e.useBlock())) {
+        if (!eatCooldowns.isReady(p.uuid(), getConfig().eatCooldownMillis)) {
+          e.setCancelled(true);
+        }
+        return;
+      }
+
+      if (p.foodLevel() >= 20 && !p.isSneaking()) {
+        return;
+      }
+      if (!eatCooldowns.isReady(p.uuid(), getConfig().eatCooldownMillis)) {
+        return;
+      }
+
+      e.setCancelled(true);
+
+      if (p.gameMode() != GameMode.CREATIVE
+          && !payItemCost(p, "flora", AdaptCore.platform().host().items().create(item.type()), 1, () -> {
+            item.setAmount(item.amount() - 1);
+            p.inventory().setMainHand(item);
+            return true;
+          })) {
+        return;
+      }
+
+      eatCooldowns.mark(p.uuid());
+
+      int newFood = Math.min(20, p.foodLevel() + getFloraFood(level));
+      p.setFoodLevel(newFood);
+      float newSat = Math.min((float) newFood, p.saturation() + (float) getFloraSaturation(level));
+      p.setSaturation(newSat);
+      grantNetherFireResist(p, level);
+
+      addStat(p, "nether.crimson-feast.fungi-eaten", 1);
+      xp(p, getConfig().xpPerFungus);
+      fx(p.eyeLocation(), FxPriority.GAMEPLAY)
+          .particle(Particles.HAPPY_VILLAGER, 5, 0.2D, 0.1D, 0.2D, 0.1D, 0.0D)
+          .particle(Particles.CRIMSON_SPORE, 6, 0.3D, 0.2D, 0.3D, 0.1D, 0.0D)
+          .sound(Sounds.ENTITY_GENERIC_EAT, 0.6F, 1.1F);
+    });
+  }
+
+  @Handle(priority = EventPriority.HIGH)
+  public void on(PlayerItemConsumeEvent e) {
+    PlayerRef p = e.player();
+    withAdaptedPlayer(p, e, () -> {
+      if (!isNether(p)) {
+        return;
+      }
+
+      int level = getActiveLevel(p);
+      if (level <= 0) {
+        return;
+      }
+
+      grantNetherFireResist(p, level);
+      xp(p, getConfig().xpPerNetherMeal);
+    });
+  }
+
+  private void grantNetherFireResist(PlayerRef p, int level) {
+    if (!isNether(p) || !preferenceEnabled(p, MEAL_BUFF)) {
+      return;
+    }
+
+    p.addEffect(new EffectInstance(FIRE_RESISTANCE, getResistTicks(level), 0, false, false, true));
+    fx(p.location(), FxPriority.TRANSITION)
+        .particle(Particles.FLAME, 3, 0.2D, 0.1D, 0.2D, 0.05D, 0.0D)
+        .sound(Sounds.BLOCK_FIRE_AMBIENT, 0.25F, 1.2F);
+  }
+
+  private boolean isNether(PlayerRef p) {
+    return p.world().environment() == Environment.NETHER;
+  }
+
+  private boolean isEdibleFlora(Id type) {
+    return EDIBLE_FLORA.contains(type);
+  }
+
+  static boolean blocksFloraEating(boolean clickedBlock, UseResult blockUse) {
+    return clickedBlock && blockUse == UseResult.DENY;
+  }
+
+  private int getFloraFood(int level) {
+    return floraFood(getLevelPercent(level), getConfig().floraFoodBase, getConfig().floraFoodFactor);
+  }
+
+  private double getFloraSaturation(int level) {
+    return getConfig().floraSaturationBase + (getLevelPercent(level) * getConfig().floraSaturationFactor);
+  }
+
+  private int getResistTicks(int level) {
+    return resistTicks(getLevelPercent(level), getConfig().resistTicksBase, getConfig().resistTicksFactor);
+  }
+
+  static int floraFood(double levelPercent, double base, double factor) {
+    return Math.max(1, (int) Math.round(base + (levelPercent * factor)));
+  }
+
+  static int resistTicks(double levelPercent, double base, double factor) {
+    return Math.max(1, (int) Math.round(base + (levelPercent * factor)));
+  }
+
+
+  @ConfigDescription("Eat nether fungi and warped flora for food, and gain fire resistance from any meal in the Nether.")
+  protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Flora Food Base for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double floraFoodBase = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Flora Food Factor for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double floraFoodFactor = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Flora Saturation Base for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double floraSaturationBase = 1.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Flora Saturation Factor for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double floraSaturationFactor = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Resist Ticks Base for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double resistTicksBase = 60;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Resist Ticks Factor for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double resistTicksFactor = 140;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Eat Cooldown Millis for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    long eatCooldownMillis = 350;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Fungus for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpPerFungus = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Nether Meal for the Nether Crimson Feast adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpPerNetherMeal = 3;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.55;
+      maxLevel = 4;
+      initialCost = 3;
+    }
+  }
+}

@@ -1,0 +1,721 @@
+package art.arcane.adapt.content.adaptation.golemancy;
+
+import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCapacity;
+import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneEffects;
+import art.arcane.adapt.api.golem.GolemRuneLayout;
+import art.arcane.adapt.api.golem.GolemRuneType;
+import art.arcane.adapt.api.golem.GolemRunes;
+import art.arcane.adapt.api.golem.GolemStat;
+import art.arcane.adapt.api.golem.GolemStatDelta;
+import art.arcane.adapt.api.golem.GolemStatSource;
+import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemWorkSpeed;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
+import art.arcane.adapt.api.golem.plinth.PlinthService;
+import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
+import art.arcane.adapt.api.recipe.ExactIngredient;
+import art.arcane.adapt.api.recipe.ExactIngredientBook;
+import art.arcane.adapt.api.recipe.ExactItemResolver;
+import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
+
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.recipe.RecipeSpec;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.ProjectileRef;
+import art.arcane.adapt.platform.entity.MobRef;
+import art.arcane.adapt.platform.entity.LivingRef;
+import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
+import art.arcane.adapt.platform.event.entity.DamageCause;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class GolemRunicAugmentsTest extends AdaptTestBase {
+  private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000401");
+  private static final Id BLANK_RUNE_KEY = Id.adapt("golemancy-blank-rune");
+
+  private final Map<String, Id> materials = new HashMap<>();
+  private final ExactIngredientBook book = new ExactIngredientBook();
+  private MockedStatic<ConfiguredRecipeParser> parsers;
+  private MockedStatic<GolemancyRuntime> runtime;
+  private GolemRegistrations<GolemStatSource> statSources;
+  private GolemRegistrations<GolemCapacity.Source> carrySources;
+  private GolemRegistrations<GolemWorkSpeed.Source> workSpeedSources;
+  private GolemRegistrations<GolemRunes.Augments> augmentSources;
+  private GolemRunicAugments adaptation;
+
+  @BeforeEach
+  void construct() {
+    for (String name : List.of("AMETHYST_SHARD", "SMOOTH_STONE")) {
+      materials.put(name, Id.minecraft(name.toLowerCase(Locale.ROOT)));
+    }
+    ConfiguredRecipeParser parser = new ConfiguredRecipeParser(new FakeCatalog(), new FakeResolver(), book);
+    parsers = mockStatic(ConfiguredRecipeParser.class, CALLS_REAL_METHODS);
+    parsers.when(() -> ConfiguredRecipeParser.platform(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
+    runtime = mockStatic(GolemancyRuntime.class);
+    runtime.when(() -> GolemancyRuntime.handle(any())).thenReturn(Optional.empty());
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.none());
+    statSources = GolemRegistrations.stats();
+    carrySources = GolemRegistrations.carry();
+    workSpeedSources = GolemRegistrations.workSpeed();
+    augmentSources = GolemRegistrations.augments();
+    adaptation = new GolemRunicAugments();
+  }
+
+  @AfterEach
+  void close() {
+    augmentSources.close();
+    workSpeedSources.close();
+    carrySources.close();
+    statSources.close();
+    runtime.close();
+    parsers.close();
+  }
+
+  @Test
+  void anOnlineOwnersLevelIsReadFromTheOwnerAndRecordedOnTheGolem() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    UUID owner = UUID.randomUUID();
+    when(core.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.owner()).thenReturn(owner);
+    GolemRunicAugments learned = spy(adaptation);
+    doReturn(4).when(learned).getLevel(online);
+
+    assertThat(learned.ownerLevel(handle)).isEqualTo(4);
+    verify(handle).recordOwnerLevel(adaptation.getName(), 4);
+  }
+
+  @Test
+  void defaultsMatchTheBrief() {
+    GolemRunicAugments.Config config = new GolemRunicAugments.Config();
+
+    assertThat(config.extraSlotsByLevel).containsExactly(0, 1, 1, 2, 2);
+    assertThat(config.maxTierByLevel).containsExactly(1, 1, 2, 2, 3);
+    assertThat(config.frostSlots).isEqualTo(1);
+    assertThat(config.boneSlots).isEqualTo(2);
+    assertThat(config.copperSlots).isEqualTo(2);
+    assertThat(config.ironSlots).isEqualTo(3);
+    assertThat(config.runeBodyBlocks).containsExactly("ember:frost");
+    assertThat(config.swiftnessSpeedByTier).containsExactly(0.10D, 0.20D, 0.30D);
+    assertThat(config.swiftnessWorkIntervalByTier).containsExactly(0.10D, 0.20D, 0.30D);
+    assertThat(config.mightCarryByTier).containsExactly(0.5D, 1.0D, 1.5D);
+    assertThat(config.mightAttackByTier).containsExactly(2D, 4D, 6D);
+    assertThat(config.emberIgniteSecondsByTier).containsExactly(2, 4, 6);
+    assertThat(config.emberFireImmuneByTier).containsExactly(false, true, true);
+    assertThat(config.emberLavaImmuneByTier).containsExactly(false, false, true);
+    assertThat(config.tideRadiusByTier).containsExactly(4D, 8D, 12D);
+    assertThat(config.tideWaterBreathingByTier).containsExactly(false, true, true);
+    assertThat(config.tideSwimSpeedByTier).containsExactly(0D, 0D, 1D);
+    assertThat(config.orderChannelsByTier).containsExactly(1, 2, 3);
+    assertThat(config.orderReclaimDelayByTier).containsExactly(0D, 0.5D, 0.75D);
+    assertThat(config.entropyBonusYieldByTier).containsExactly(0.05D, 0.10D, 0.15D);
+    assertThat(config.entropyWeaknessLevelByTier).containsExactly(0, 1, 2);
+    assertThat(config.entropyWeaknessSecondsByTier).containsExactly(0, 3, 3);
+    assertThat(config.bulwarkArmorByTier).containsExactly(4D, 8D, 12D);
+    assertThat(config.bulwarkToughnessByTier).containsExactly(0D, 2D, 4D);
+    assertThat(config.bulwarkKnockbackResistanceByTier).containsExactly(0D, 0D, 0.5D);
+    assertThat(config.requires).containsExactly("golem-animus-binding:2");
+    assertThat(config.maxLevel).isEqualTo(5);
+  }
+
+  @Test
+  void configurationLoadsWithFiveLevelsAndRegistersNothingBeforeTheRuntimeStarts() {
+    assertThat(adaptation.reloadConfigFromDisk(false)).isTrue();
+    assertThat(adaptation.getName()).isEqualTo("golem-runic-augments");
+    assertThat(adaptation.getMaxLevel()).isEqualTo(5);
+    for (int level = 1; level <= adaptation.getMaxLevel(); level++) {
+      assertThat(adaptation.getCostFor(level)).as("cost at level %s", level).isPositive();
+    }
+    assertThat(adaptation.isRuntimeRegistered()).isFalse();
+    assertThat(statSources.registered()).isEmpty();
+    assertThat(augmentSources.registered()).isEmpty();
+  }
+
+  @Test
+  void perTierFlagsReloadFromTheConfigFile() {
+    assertThat(adaptation.reloadConfigSnapshot("emberFireImmuneByTier = [true, true, true]\ntideWaterBreathingByTier = [false, false, true]\n",
+        dataFolder.toPath().resolve("flags.toml").toFile(), false)).isTrue();
+
+    assertThat(adaptation.getConfig().emberFireImmuneByTier).containsExactly(true, true, true);
+    assertThat(adaptation.getConfig().tideWaterBreathingByTier).containsExactly(false, false, true);
+  }
+
+  @Test
+  void everyLevelShowsItsExtraSlotsTierAndThePlinth() {
+    assertThat(lore(1)).containsExactly("+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(2)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 1 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(4)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+    assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", "+ Animus Plinth and Blank Rune Recipe");
+  }
+
+  @Test
+  void everyLevelListsTheLevelsToInfuseEachTierItUnlocks() {
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.defaults());
+    String slots = "+ Animus Plinth and Blank Rune Recipe";
+    String one = "- 2 Levels to Infuse a Tier 1 Rune";
+    String two = "- 5 Levels to Infuse a Tier 2 Rune";
+    String three = "- 10 Levels to Infuse a Tier 3 Rune";
+
+    assertThat(lore(1)).containsExactly("+ 1 Highest Usable Rune Tier", slots, one);
+    assertThat(lore(2)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 1 Highest Usable Rune Tier", slots, one);
+    assertThat(lore(3)).containsExactly("+ 1 Extra Rune Slots per Golem", "+ 2 Highest Usable Rune Tier", slots, one, two);
+    assertThat(lore(5)).containsExactly("+ 2 Extra Rune Slots per Golem", "+ 3 Highest Usable Rune Tier", slots, one, two, three);
+  }
+
+  @Test
+  void aTierWhoseAspectsCostDifferentLevelsShowsTheRangeAndFollowsTheConfiguredCosts() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    specs.get("might_1").essence(4);
+    specs.get("tide_3").essence(0);
+    specs.get("ember_2").unlock(InfusionRecipe.RUNIC_AUGMENTS, 4);
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(1)).contains("- 2-4 Levels to Infuse a Tier 1 Rune");
+    assertThat(lore(3)).contains("- 5 Levels to Infuse a Tier 2 Rune");
+    assertThat(lore(4)).contains("- 5 Levels to Infuse a Tier 2 Rune");
+    assertThat(lore(5)).contains("- 0-10 Levels to Infuse a Tier 3 Rune");
+  }
+
+  @Test
+  void aTierWithNoEnabledInfusionListsNoCost() {
+    Map<String, InfusionRecipe> specs = InfusionRecipe.defaults();
+    specs.entrySet().removeIf(entry -> entry.getKey().endsWith("_3"));
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.settings(specs));
+
+    assertThat(lore(5)).noneMatch(line -> line.contains("Tier 3 Rune"));
+    assertThat(lore(5)).contains("- 5 Levels to Infuse a Tier 2 Rune");
+  }
+
+  @Test
+  void theBlankRuneRecipeRegistersAtLevelOne() {
+    List<RecipeSpec> recipes = adaptation.getRecipes();
+
+    assertThat(recipes).extracting(RecipeSpec::key).containsExactly(BLANK_RUNE_KEY);
+    assertThat(recipes).allMatch(recipe -> recipe.requiredLevel() == 1);
+    assertThat(GolemItems.craftCounter().tracks(BLANK_RUNE_KEY)).isTrue();
+  }
+
+  @Test
+  void plinthLoadingAndEveryRuneInfusionUnlockThroughThisAdaptation() {
+    GolemRunicAugments.Config config = new GolemRunicAugments.Config();
+    GolemRuneLayout table = RunicAugmentsRules.layout(1, config.extraSlotsByLevel, config.maxTierByLevel, config.maxLevel, Set.of(), config.maxLevel, 0);
+    int runeRecipes = 0;
+    for (InfusionRecipe recipe : InfusionRecipe.defaults().values()) {
+      if (!recipe.getResult().startsWith("golemancy:rune/")) {
+        continue;
+      }
+      runeRecipes++;
+      int tier = Integer.parseInt(recipe.getResult().substring(recipe.getResult().lastIndexOf('/') + 1));
+      assertThat(recipe.getUnlockAdaptation()).isEqualTo(adaptation.getName());
+      assertThat(recipe.getUnlockLevel()).as("unlock level of %s", recipe.getResult()).isEqualTo(table.tierUnlockLevel(tier));
+    }
+
+    assertThat(runeRecipes).isEqualTo(21);
+    assertThat(PlinthService.LOADING_ADAPTATION).isEqualTo(adaptation.getName());
+  }
+
+  @Test
+  void runeSourcesAndAugmentsRegisterOnlyWhileTheAdaptationRuns() {
+    adaptation.onRuntimeActivated();
+    try {
+      assertThat(statSources.registered()).extracting(GolemStatSource::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(carrySources.registered()).extracting(GolemCapacity.Source::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(workSpeedSources.registered()).extracting(GolemWorkSpeed.Source::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(augmentSources.registered()).hasSize(1);
+    } finally {
+      adaptation.unregister();
+    }
+
+    assertThat(statSources.unregistered()).isEqualTo(statSources.registered());
+    assertThat(carrySources.unregistered()).isEqualTo(carrySources.registered());
+    assertThat(workSpeedSources.unregistered()).isEqualTo(workSpeedSources.registered());
+    assertThat(augmentSources.unregistered()).isEqualTo(augmentSources.registered());
+  }
+
+  @Test
+  void golemsWithoutRunesNeverLookUpTheirOwner() {
+    GolemHandle bare = bound(golem(MobRef.class), GolemBody.IRON, false);
+    when(core.getAdaptServer()).thenThrow(new AssertionError("owner level looked up for a golem without runes"));
+    adaptation.onRuntimeActivated();
+    try {
+      assertThat(statSource().deltas(bare)).isEmpty();
+      assertThat(GolemCapacity.carry(64, List.of(capacitySource().carry(bare)))).isEqualTo(64);
+      assertThat(GolemWorkSpeed.intervalMultiplier(bare)).isEqualTo(1D);
+      assertThat(GolemRunes.effects(bare)).isEqualTo(GolemRuneEffects.NONE);
+    } finally {
+      adaptation.unregister();
+    }
+  }
+
+  @Test
+  void theOwnersLevelDecidesOpenSlotsAndTheHighestUsableTierForEachBody() {
+    GolemRunicAugments learned = learned(3);
+
+    GolemRuneLayout frost = learned.layout(GolemBody.FROST, OWNER, false);
+    GolemRuneLayout iron = learned.layout(GolemBody.IRON, OWNER, false);
+
+    assertThat(frost.unlockedSlots()).isEqualTo(2);
+    assertThat(frost.slotUnlockLevels()).containsExactly(1, 2, 4);
+    assertThat(frost.blocks(GolemRuneType.EMBER)).isTrue();
+    assertThat(iron.unlockedSlots()).isEqualTo(4);
+    assertThat(iron.slotUnlockLevels()).containsExactly(1, 1, 1, 2, 4);
+    assertThat(iron.maxTier()).isEqualTo(2);
+    assertThat(iron.blocks(GolemRuneType.EMBER)).isFalse();
+    assertThat(learned(0).layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isZero();
+  }
+
+  @Test
+  void aBoundBoneGolemHasTwoBaseSlotsBetweenFrostAndIronAndBlocksNoAspect() {
+    GolemRunicAugments learned = learned(3);
+
+    GolemRuneLayout bone = learned.layout(GolemBody.BONE, OWNER, false);
+
+    assertThat(bone.unlockedSlots()).isEqualTo(3);
+    assertThat(bone.slotUnlockLevels()).containsExactly(1, 1, 2, 4);
+    assertThat(bone.maxTier()).isEqualTo(2);
+    assertThat(bone.blocked()).isEmpty();
+    assertThat(learned(1).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isEqualTo(2);
+    assertThat(learned(5).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isEqualTo(4);
+    assertThat(learned(0).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isZero();
+    assertThat(learned.layout(GolemBody.FROST, OWNER, false).unlockedSlots()).isLessThan(bone.unlockedSlots());
+    assertThat(learned.layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isGreaterThan(bone.unlockedSlots());
+  }
+
+  @Test
+  void everyAspectSlotsOnABoneGolem() {
+    GolemRuneLayout bone = learned(1).layout(GolemBody.BONE, OWNER, false);
+
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      assertThat(bone.refuse(List.of(), aspect)).as("slotting %s on bone", aspect).isEmpty();
+    }
+  }
+
+  @Test
+  void aBoneGolemsSlotCountIsBasePlusRunicAugmentsPlusMasterwork() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRunicAugments learned = learned(3);
+
+      GolemRuneLayout plain = learned.layout(GolemBody.BONE, OWNER, false);
+      GolemRuneLayout masterwork = learned.layout(GolemBody.BONE, OWNER, true);
+
+      assertThat(plain.unlockedSlots()).isEqualTo(3);
+      assertThat(masterwork.unlockedSlots()).isEqualTo(4);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 2, 4);
+      assertThat(learned.layout(GolemBody.BONE, OWNER, true)).isSameAs(masterwork);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void aBoneGolemsRunesDriveItsStatsWardsAndHitEffects() {
+    MobRef skeleton = golem(MobRef.class);
+    GolemHandle bone = bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.MIGHT, 1),
+        rune(GolemRuneType.EMBER, 2), rune(GolemRuneType.BULWARK, 1));
+    GolemRunicAugments learned = learned(5);
+
+    assertThat(learned.runes(bone).slotted()).containsOnlyKeys(GolemRuneType.SWIFTNESS, GolemRuneType.MIGHT, GolemRuneType.EMBER, GolemRuneType.BULWARK);
+    assertThat(GolemRunicAugments.runeStats(new GolemRunicAugments.Config(), learned.runes(bone))).containsExactlyInAnyOrder(
+        GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.10D),
+        GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 2D),
+        GolemStatDelta.add(GolemStat.ARMOR, 4D));
+    assertThat(cancels(learned, skeleton, DamageCause.FIRE_TICK)).isTrue();
+    MobRef victim = mock(MobRef.class);
+    learned.on(hit(skeleton, victim));
+    verify(victim).setFireTicks(80);
+  }
+
+  @Test
+  void anArrowFromABoneGolemCarriesItsEmberAndEntropyRunes() {
+    MobRef skeleton = golem(MobRef.class);
+    bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.EMBER, 1), rune(GolemRuneType.ENTROPY, 2));
+    ProjectileRef arrow = mock(ProjectileRef.class);
+    when(arrow.shooter()).thenReturn(skeleton);
+    MobRef victim = mock(MobRef.class);
+    GolemRunicAugments learned = learned(5);
+
+    learned.on(hit(arrow, victim));
+
+    verify(victim).setFireTicks(40);
+    verify(learned).weaken(victim, 0, 60);
+  }
+
+  @Test
+  void aBoneGolemsOrderAndTideRunesShapeItsChannelsAndRadius() {
+    MobRef skeleton = golem(MobRef.class);
+    GolemHandle bone = bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.ORDER, 2), rune(GolemRuneType.TIDE, 1));
+
+    GolemRuneEffects effects = learned(5).effects(bone);
+
+    assertThat(effects.channelSlots()).isEqualTo(3);
+    assertThat(effects.radiusBonus()).isEqualTo(4D);
+  }
+
+  @Test
+  void overTierRunesRunesInLockedSlotsAndEmberInAFrostGolemAreInert() {
+    GolemHandle copper = bound(golem(MobRef.class), GolemBody.COPPER, false,
+        rune(GolemRuneType.MIGHT, 3), rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.TIDE, 1));
+    GolemHandle frost = bound(golem(MobRef.class), GolemBody.FROST, false, rune(GolemRuneType.EMBER, 1));
+
+    assertThat(learned(1).runes(copper).slotted()).containsExactlyEntriesOf(Map.of(GolemRuneType.SWIFTNESS, 1));
+    assertThat(learned(5).runes(frost).isEmpty()).isTrue();
+    assertThat(learned(0).effects(copper)).isEqualTo(GolemRuneEffects.NONE);
+  }
+
+  @Test
+  void tideOrderAndEntropyRunesShapeTheEffectsCoresRead() {
+    GolemHandle iron = bound(golem(MobRef.class), GolemBody.IRON, false,
+        rune(GolemRuneType.TIDE, 2), rune(GolemRuneType.ORDER, 3), rune(GolemRuneType.ENTROPY, 1));
+
+    GolemRuneEffects effects = learned(5).effects(iron);
+
+    assertThat(effects.radiusBonus()).isEqualTo(8D);
+    assertThat(effects.channelSlots()).isEqualTo(4);
+    assertThat(effects.reclaimDelayMultiplier()).isCloseTo(0.25D, offset(1e-9));
+    assertThat(effects.bonusYield()).isEqualTo(0.05D);
+    assertThat(GolemRunicAugments.runeEffects(new GolemRunicAugments.Config(), new ActiveRunes(Map.of(GolemRuneType.ORDER, 1), false, 0D)))
+        .isEqualTo(new GolemRuneEffects(0D, 1, 1D, 0D));
+  }
+
+  @Test
+  void eachAspectsStatsCarryAndWorkSpeedFollowItsTierTable() {
+    GolemRunicAugments.Config config = new GolemRunicAugments.Config();
+
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 2), false, 0D)))
+        .containsExactly(GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.20D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 3), false, 0D)))
+        .containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 12D), GolemStatDelta.add(GolemStat.WATER_MOVEMENT_EFFICIENCY, 1D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 12D),
+        GolemStatDelta.add(GolemStat.ARMOR_TOUGHNESS, 4D), GolemStatDelta.add(GolemStat.KNOCKBACK_RESISTANCE, 0.5D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.EMBER, 3, GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3), false, 0D))).isEmpty();
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 2), false, 0D))).isEqualTo(GolemCapacity.Contribution.bonus(1D));
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(GolemCapacity.Contribution.NONE);
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 3), false, 0D))).isCloseTo(0.7D, offset(1e-9));
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(1D);
+  }
+
+  @Test
+  void emberRunesSetWhatTheGolemHitsOnFireForTheirTiersSeconds() {
+    MobRef golem = golem(MobRef.class);
+    bound(golem, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 2));
+    MobRef victim = mock(MobRef.class);
+
+    learned(3).on(hit(golem, victim));
+
+    verify(victim).setFireTicks(80);
+  }
+
+  @Test
+  void sleepingUnboundAndUnlearnedGolemsIgniteNothing() {
+    MobRef sleeping = golem(MobRef.class);
+    bound(sleeping, GolemBody.IRON, true, rune(GolemRuneType.EMBER, 1));
+    MobRef wild = golem(MobRef.class);
+    MobRef unlearned = golem(MobRef.class);
+    bound(unlearned, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 1));
+    MobRef victim = mock(MobRef.class);
+
+    learned(5).on(hit(sleeping, victim));
+    learned(5).on(hit(wild, victim));
+    learned(0).on(hit(unlearned, victim));
+
+    verify(victim, never()).setFireTicks(anyInt());
+  }
+
+  @Test
+  void entropyRunesWeakenWhatTheGolemHitsFromTierTwo() {
+    MobRef first = golem(MobRef.class);
+    bound(first, GolemBody.IRON, false, rune(GolemRuneType.ENTROPY, 1));
+    MobRef second = golem(MobRef.class);
+    bound(second, GolemBody.IRON, false, rune(GolemRuneType.ENTROPY, 2));
+    MobRef third = golem(MobRef.class);
+    bound(third, GolemBody.IRON, false, rune(GolemRuneType.ENTROPY, 3));
+    MobRef firstVictim = mock(MobRef.class);
+    MobRef secondVictim = mock(MobRef.class);
+    MobRef thirdVictim = mock(MobRef.class);
+    GolemRunicAugments learned = learned(5);
+
+    learned.on(hit(first, firstVictim));
+    learned.on(hit(second, secondVictim));
+    learned.on(hit(third, thirdVictim));
+
+    verify(learned, never()).weaken(eq(firstVictim), anyInt(), anyInt());
+    verify(learned).weaken(secondVictim, 0, 60);
+    verify(learned).weaken(thirdVictim, 1, 60);
+  }
+
+  @Test
+  void emberAndTideRunesShieldTheGolemFromFireLavaAndDrowning() {
+    MobRef warded = golem(MobRef.class);
+    bound(warded, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 2), rune(GolemRuneType.TIDE, 2));
+    MobRef molten = golem(MobRef.class);
+    bound(molten, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 3));
+    MobRef damp = golem(MobRef.class);
+    bound(damp, GolemBody.IRON, false, rune(GolemRuneType.TIDE, 1));
+
+    assertThat(cancels(learned(3), warded, DamageCause.FIRE_TICK)).isTrue();
+    assertThat(cancels(learned(3), warded, DamageCause.FIRE)).isTrue();
+    assertThat(cancels(learned(3), warded, DamageCause.LAVA)).isFalse();
+    assertThat(cancels(learned(3), warded, DamageCause.DROWNING)).isTrue();
+    assertThat(cancels(learned(3), warded, DamageCause.FALL)).isFalse();
+    assertThat(cancels(learned(5), molten, DamageCause.LAVA)).isTrue();
+    assertThat(cancels(learned(5), damp, DamageCause.DROWNING)).isFalse();
+  }
+
+  @Test
+  void aMasterworkGainsItsExtraSlotsOnlyWhileItsOwnerHasLearnedMasterwork() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRunicAugments learned = learned(3);
+      GolemRuneLayout plain = learned.layout(GolemBody.IRON, OWNER, false);
+      GolemRuneLayout masterwork = learned.layout(GolemBody.IRON, OWNER, true);
+
+      assertThat(plain.unlockedSlots()).isEqualTo(4);
+      assertThat(masterwork.unlockedSlots()).isEqualTo(5);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 2, 4);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, true)).isSameAs(masterwork);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, false)).isSameAs(plain);
+
+      when(source.perks(OWNER)).thenReturn(GolemMastery.Perks.NONE);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, true).unlockedSlots()).isEqualTo(4);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void theFifthRuneOfAMasterworkIronGolemIsActive() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRune[] five = {rune(GolemRuneType.MIGHT, 1), rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.TIDE, 1),
+          rune(GolemRuneType.ORDER, 1), rune(GolemRuneType.BULWARK, 1)};
+      GolemHandle masterwork = masterwork(golem(MobRef.class), GolemBody.IRON, five);
+      GolemHandle plain = bound(golem(MobRef.class), GolemBody.IRON, false, five);
+
+      assertThat(learned(3).runes(masterwork).slotted()).containsKey(GolemRuneType.BULWARK).hasSize(5);
+      assertThat(learned(3).runes(plain).slotted()).doesNotContainKey(GolemRuneType.BULWARK).hasSize(4);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void tieredUpRunesUseTheNextTiersNumbersAndTierThreeGainsTheBoost() {
+    GolemRunicAugments.Config config = new GolemRunicAugments.Config();
+    ActiveRunes tieredUp = new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 1, GolemRuneType.BULWARK, 3, GolemRuneType.MIGHT, 2), true, 0.25D);
+
+    assertThat(GolemRunicAugments.runeStats(config, tieredUp)).containsExactly(
+        GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.20D),
+        GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D),
+        GolemStatDelta.add(GolemStat.ARMOR, 15D),
+        GolemStatDelta.add(GolemStat.ARMOR_TOUGHNESS, 5D),
+        GolemStatDelta.add(GolemStat.KNOCKBACK_RESISTANCE, 0.625D));
+    assertThat(GolemRunicAugments.runeCarry(config, tieredUp)).isEqualTo(GolemCapacity.Contribution.bonus(1.5D));
+    assertThat(GolemRunicAugments.runeWorkInterval(config, tieredUp)).isCloseTo(0.8D, offset(1e-9));
+    GolemRuneEffects effects = GolemRunicAugments.runeEffects(config, new ActiveRunes(Map.of(GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3), true, 0.25D));
+    assertThat(effects.extraChannels()).isEqualTo(4);
+    assertThat(effects.reclaimDelayMultiplier()).isCloseTo(0.0625D, offset(1e-9));
+    assertThat(effects.bonusYield()).isCloseTo(0.1875D, offset(1e-9));
+  }
+
+  @Test
+  void tierUpLeavesBooleanWardsAndOverTierInertnessOnTheSlottedTier() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, true, true, 0.25D));
+    try {
+      MobRef ember = golem(MobRef.class);
+      masterwork(ember, GolemBody.IRON, rune(GolemRuneType.EMBER, 1));
+      MobRef overTier = golem(MobRef.class);
+      GolemHandle unpowered = masterwork(overTier, GolemBody.IRON, rune(GolemRuneType.SWIFTNESS, 2));
+
+      assertThat(cancels(learned(3), ember, DamageCause.FIRE)).isFalse();
+      assertThat(learned(1).runes(unpowered).isEmpty()).isTrue();
+      assertThat(learned(1).effects(unpowered)).isEqualTo(GolemRuneEffects.NONE);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void aTieredUpEmberRuneBurnsForTheNextTiersSeconds() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, true, true, 0.25D));
+    try {
+      MobRef masterwork = golem(MobRef.class);
+      masterwork(masterwork, GolemBody.IRON, rune(GolemRuneType.EMBER, 1));
+      MobRef plain = golem(MobRef.class);
+      bound(plain, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 1));
+      MobRef burned = mock(MobRef.class);
+      MobRef singed = mock(MobRef.class);
+
+      learned(3).on(hit(masterwork, burned));
+      learned(3).on(hit(plain, singed));
+
+      verify(burned).setFireTicks(80);
+      verify(singed).setFireTicks(40);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  private boolean cancels(GolemRunicAugments learned, MobRef golem, DamageCause cause) {
+    EntityDamageEvent event = mock(EntityDamageEvent.class);
+    lenient().when(event.cause()).thenReturn(cause);
+    lenient().when(event.entity()).thenReturn(golem);
+    boolean[] cancelled = {false};
+    lenient().doAnswer(invocation -> {
+      cancelled[0] = invocation.getArgument(0);
+      return null;
+    }).when(event).setCancelled(any(Boolean.class));
+    learned.on(event);
+    return cancelled[0];
+  }
+
+  private GolemRunicAugments learned(int level) {
+    GolemRunicAugments learned = spy(adaptation);
+    lenient().doReturn(level).when(learned).ownerLevel(any(UUID.class));
+    lenient().doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
+    lenient().doNothing().when(learned).weaken(any(LivingRef.class), anyInt(), anyInt());
+    return learned;
+  }
+
+  private GolemHandle bound(MobRef golem, GolemBody body, boolean dormant, GolemRune... runes) {
+    GolemState state = mock(GolemState.class);
+    lenient().when(state.runes()).thenReturn(List.of(runes));
+    GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.id()).thenReturn(UUID.randomUUID());
+    lenient().when(handle.owner()).thenReturn(OWNER);
+    lenient().when(handle.body()).thenReturn(body);
+    lenient().when(handle.entity()).thenReturn(golem);
+    lenient().when(handle.state()).thenReturn(state);
+    lenient().when(handle.isDormant()).thenReturn(dormant);
+    runtime.when(() -> GolemancyRuntime.handle(golem)).thenReturn(Optional.of(handle));
+    return handle;
+  }
+
+  private GolemHandle masterwork(MobRef golem, GolemBody body, GolemRune... runes) {
+    GolemHandle handle = bound(golem, body, false, runes);
+    when(handle.state().masterwork()).thenReturn(true);
+    return handle;
+  }
+
+  private static GolemMastery.Source mastery(GolemMastery.Perks perks) {
+    GolemMastery.Source source = mock(GolemMastery.Source.class);
+    lenient().when(source.perks(OWNER)).thenReturn(perks);
+    GolemMastery.register(source);
+    return source;
+  }
+
+  private static <T extends MobRef> T golem(Class<T> type) {
+    T golem = mock(type);
+    lenient().when(golem.uuid()).thenReturn(UUID.randomUUID());
+    return golem;
+  }
+
+  private static GolemRune rune(GolemRuneType aspect, int tier) {
+    return new GolemRune(aspect, tier);
+  }
+
+  private static EntityDamageByEntityEvent hit(EntityRef golem, LivingRef victim) {
+    EntityDamageByEntityEvent event = mock(EntityDamageByEntityEvent.class);
+    lenient().when(event.damager()).thenReturn(golem);
+    lenient().when(event.entity()).thenReturn(victim);
+    return event;
+  }
+
+  private GolemStatSource statSource() {
+    return statSources.registered().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
+  }
+
+  private GolemCapacity.Source capacitySource() {
+    return carrySources.registered().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
+  }
+
+  private List<String> lore(int level) {
+    List<String> lines = new ArrayList<>();
+    StatLines stats = new StatLines();
+    adaptation.addStats(level, stats);
+    for (String line : stats.lines()) {
+      lines.add(line.replaceAll("§[0-9a-fk-orx]", ""));
+    }
+    return lines;
+  }
+
+  private final class FakeCatalog implements RecipeItemCatalog {
+    @Override
+    public Id itemMaterial(String name) {
+      return materials.get(name);
+    }
+
+    @Override
+    public Set<Id> itemTag(Id key) {
+      return null;
+    }
+
+    @Override
+    public ItemRef item(Id type, int amount) {
+      return null;
+    }
+
+    @Override
+    public int maxStackSize(Id type) {
+      return 64;
+    }
+  }
+
+  private static final class FakeResolver implements ExactItemResolver {
+    @Override
+    public ExactIngredient ingredient(Id id) {
+      return null;
+    }
+
+    @Override
+    public ItemRef result(Id id) {
+      ItemRef template = mock(ItemRef.class);
+      when(template.copyWithAmount(anyInt())).thenReturn(mock(ItemRef.class));
+      return template;
+    }
+  }
+}

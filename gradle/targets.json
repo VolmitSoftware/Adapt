@@ -1,0 +1,49 @@
+{
+  "26.1.2": {
+    "dataPackFormat": 101,
+    "fabricLoader": "0.19.5",
+    "fabricModules": {
+      "fabric-api-base": "2.0.3+ece063234c",
+      "fabric-command-api-v2": "3.0.5+e2bdee784c",
+      "fabric-lifecycle-events-v1": "4.1.1+df84eb3d4c"
+    },
+    "sourceFamily": "position-rotation",
+    "forge": "26.1.2-64.1.4",
+    "forgeRuntimeMappings": "official",
+    "forgeLoaderRange": "[64,65)",
+    "neoforge": "26.1.2.116",
+    "javaVersion": 25,
+    "obfuscated": false
+  },
+  "26.2": {
+    "dataPackFormat": 107,
+    "fabricLoader": "0.19.5",
+    "fabricModules": {
+      "fabric-api-base": "2.0.4+ece063239e",
+      "fabric-command-api-v2": "3.1.0+00cb03469e",
+      "fabric-lifecycle-events-v1": "4.1.4+29b6eb019e"
+    },
+    "sourceFamily": "position-rotation",
+    "forge": "26.2-65.1.3",
+    "forgeRuntimeMappings": "official",
+    "forgeLoaderRange": "[65,66)",
+    "neoforge": "26.2.0.89",
+    "javaVersion": 25,
+    "obfuscated": false
+  },
+  "26.3": {
+    "dataPackFormat": 121,
+    "fabricLoader": "0.19.5",
+    "fabricModules": {
+      "fabric-api-base": "2.0.6+fcdff87f5d",
+      "fabric-command-api-v2": "3.1.2+fcdff87f5d",
+      "fabric-lifecycle-events-v1": "4.1.9+ffef5f675d"
+    },
+    "forge": "26.3-66.0.8",
+    "forgeRuntimeMappings": "official",
+    "forgeLoaderRange": "[66,67)",
+    "neoforge": "26.3.0.33-beta",
+    "javaVersion": 25,
+    "obfuscated": false
+  }
+}

@@ -1,0 +1,47 @@
+File adaptRoot = (File) project.ext.adaptRoot
+
+String repository = providers.gradleProperty('languageSourceRepository').orElse('VolmitSoftware/Adapt').get()
+String branch = providers.gradleProperty('languageSourceBranch').orElse(providers.provider {
+    try {
+        Process process = new ProcessBuilder('git', 'symbolic-ref', '--short', 'refs/remotes/origin/HEAD')
+                .directory(adaptRoot)
+                .redirectErrorStream(true)
+                .start()
+        String output = process.inputStream.text.trim()
+        if (process.waitFor() == 0 && output.startsWith('origin/')) {
+            return output.substring('origin/'.length())
+        }
+    } catch (IOException | InterruptedException ignored) {
+    }
+    return 'master'
+}).get()
+if (!(repository ==~ /[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+/)) {
+    throw new GradleException('languageSourceRepository must be a GitHub owner/repository')
+}
+if (!(branch ==~ /[A-Za-z0-9][A-Za-z0-9._\/-]{0,127}/) || branch.contains('..')) {
+    throw new GradleException('languageSourceBranch must be a Git branch name')
+}
+String path = 'src/main/resources'
+File directory = new File(adaptRoot, path)
+List<String> locales = fileTree(directory) {
+    include('*.toml')
+}.files.toList().sort { File left, File right -> left.name <=> right.name }.collect { File source ->
+    source.name.substring(0, source.name.length() - '.toml'.length())
+}
+
+ext.languageSource = [
+    repository: repository,
+    branch: branch,
+    path: path,
+    directory: directory,
+    locales: locales
+]
+
+ext.languageSourceManifestTask = tasks.register('generateLanguageSourceManifest', WriteProperties) {
+    destinationFile.set(layout.buildDirectory.file('generated/language-source/adapt-language-source.properties'))
+    property('repository', repository)
+    property('branch', branch)
+    property('path', path)
+    property('extension', '.toml')
+    property('locales', locales.join(','))
+}

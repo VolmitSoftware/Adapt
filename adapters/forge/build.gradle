@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '7.0.40'
+    alias(libs.plugins.shadow)
+}
+apply from: '../../gradle/mod.gradle'
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+}
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${targetProperties.forge}")
+}
+tasks.named('shadowJar').configure {
+    manifest.attributes('MixinConfigs': 'adapt.mixins.json,adapt-platform.mixins.json,adapt.feature.mixins.json,adapt.gap-block.mixins.json,adapt.gap-entity.mixins.json')
+}

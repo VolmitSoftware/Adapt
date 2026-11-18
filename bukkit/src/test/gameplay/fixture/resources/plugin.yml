@@ -1,0 +1,15 @@
+name: AdaptGameplayFixture
+version: 1.0.0
+main: art.arcane.adapt.gameplay.AdaptGameplayFixture
+api-version: '26.1'
+folia-supported: true
+depend: [Adapt]
+softdepend: [Iris]
+commands:
+  adaptqa:
+    permission: adaptqa.admin
+  xpqa:
+    permission: adaptqa.admin
+permissions:
+  adaptqa.admin:
+    default: op

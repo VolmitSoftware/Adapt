@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:the_nether",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:nether_wastes",
+      "layers": [{"block": "minecraft:air", "height": 1}],
+      "lakes": false,
+      "features": false,
+      "structure_overrides": []
+    }
+  }
+}

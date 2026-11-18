@@ -17,7 +17,7 @@ afterEvaluate {
             workers: 4,
             dependsOn: [],
             artifacts: [[
-                path: relativePath(packedArchive),
+                path: rootProject.relativePath(packedArchive),
                 role: 'runtime',
                 platforms: ['plugin'],
                 minecraftVersions: [bukkitMinecraftRange.toString()]

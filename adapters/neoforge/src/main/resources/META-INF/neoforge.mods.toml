@@ -1,0 +1,43 @@
+modLoader = "javafml"
+loaderVersion = "[3,)"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "${projectId}"
+version = "${projectVersion}"
+displayName = "${projectName}"
+description = "Skills and adaptations for survival servers."
+authors = "Volmit Software"
+displayTest = "IGNORE_SERVER_VERSION"
+
+[features.${projectId}]
+javaVersion = "[${javaVersion},)"
+
+[[dependencies.${projectId}]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoForgeVersion},)"
+ordering = "NONE"
+side = "SERVER"
+
+[[dependencies.${projectId}]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${minecraftVersion}]"
+ordering = "NONE"
+side = "SERVER"
+
+[[mixins]]
+config = "adapt.mixins.json"
+
+[[mixins]]
+config = "adapt-platform.mixins.json"
+
+[[mixins]]
+config = "adapt.feature.mixins.json"
+
+[[mixins]]
+config = "adapt.gap-block.mixins.json"
+
+[[mixins]]
+config = "adapt.gap-entity.mixins.json"

@@ -1,0 +1,734 @@
+package art.arcane.adapt.content.adaptation.golemancy;
+
+import art.arcane.adapt.api.data.WorldDataPort;
+import art.arcane.adapt.api.golem.ChannelMask;
+import art.arcane.adapt.api.golem.GolemActResult;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemContext;
+import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemTarget;
+import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemTaskBoard;
+import art.arcane.adapt.api.golem.GolemTaskBoards;
+import art.arcane.adapt.api.golem.GolemTestItems;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeArea;
+import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.api.xp.PlacementStore;
+import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.api.xp.XpProvenanceListener;
+import art.arcane.adapt.platform.entity.MobRef;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.block.BlockGrowEvent;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.BlockFace;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.platform.world.BlockStateRef;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.function.Predicate;
+import java.util.random.RandomGenerator;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+class HarvestNodeBehaviorTest {
+  private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000022c1");
+  private static final UUID OTHER_GOLEM = UUID.fromString("00000000-0000-0000-0000-0000000022c2");
+  private static final NodeKey KEY = new NodeKey(CropField.WORLD, 0, 63, 0, BlockFace.UP);
+  private static final long NOW = 50_000L;
+
+  private final GolemHarvesterCore.Config config = new GolemHarvesterCore.Config();
+  private final CropField field = new CropField();
+  private final HarvestSpots spots = new HarvestSpots();
+  private final List<GolemTask> posted = new ArrayList<>();
+  private final List<ItemRef> carried = new ArrayList<>();
+  private final List<Double> xp = new ArrayList<>();
+  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 2)).build();
+  private final GolemTaskBoards boards = new GolemTaskBoards(key -> Optional.of(record));
+  private GolemHarvesterCore core;
+  private HarvestActions actions;
+  private HarvestNodeBehavior behavior;
+  private double roll = 0.99D;
+  private MockedStatic<GolemancyRuntime> runtime;
+  private MockedStatic<HarvestFeedback> feedback;
+  private MockedStatic<XpProvenance> provenance;
+
+  @BeforeEach
+  void setUp() {
+    core = mock(GolemHarvesterCore.class);
+    lenient().when(core.config()).thenReturn(config);
+    lenient().when(core.crops()).thenReturn(HarvestCrops.parse(config.crops));
+    lenient().when(core.tends(OWNER)).thenReturn(true);
+    lenient().when(core.tills(OWNER)).thenReturn(true);
+    level(5);
+    actions = new HarvestActions(core, () -> fixed(roll));
+    behavior = new HarvestNodeBehavior(core, spots, actions);
+    runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
+    feedback = mockStatic(HarvestFeedback.class);
+    provenance = mockStatic(XpProvenance.class);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(BlockRef.class))).thenReturn(false);
+    runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
+  }
+
+  @AfterEach
+  void close() {
+    provenance.close();
+    feedback.close();
+    runtime.close();
+  }
+
+  @Test
+  void itActsForTheHarvesterCoreAdaptation() {
+    assertThat(behavior.policy()).isSameAs(core);
+  }
+
+  @Test
+  void aScanPostsHarvestAndTillJobsAndRemembersYoungCropsAndEmptyFarmland() {
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1", "till -1,63,1");
+    assertThat(spotsOf()).containsExactly("PLANT 1,63,1", "TEND 0,64,-1");
+  }
+
+  @Test
+  void anOwnerWhoSwitchesTillingOffGetsNoTillJobsOrEmptyFarmlandAndTillingFails() {
+    when(core.tills(OWNER)).thenReturn(false);
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1");
+    assertThat(spotsOf()).containsExactly("TEND 0,64,-1");
+    assertThat(behavior.act(golem(1), task("till", -1, 63, 1))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(-1, 63, 1)).isEqualTo(Id.minecraft("dirt"));
+  }
+
+  @Test
+  void anOwnerWhoSwitchesTendingOffLeavesYoungCropsUnmarked() {
+    when(core.tends(OWNER)).thenReturn(false);
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1", "till -1,63,1");
+    assertThat(spotsOf()).containsExactly("PLANT 1,63,1");
+  }
+
+  @Test
+  void levelOneScansPostOnlyHarvestJobs() {
+    level(1);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1");
+    assertThat(spotsOf()).isEmpty();
+  }
+
+  @Test
+  void anOwnerWithoutTheCorePostsNothing() {
+    level(0);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(posted).isEmpty();
+    assertThat(spotsOf()).isEmpty();
+  }
+
+  @Test
+  void aJobWhoseTargetChangedIsWithdrawnAndAnOpenJobIsNeverPostedTwice() {
+    plot();
+    field.set(0, 64, 0, Id.minecraft("carrots"), CropField.ageable(0, 7));
+    GolemTask stale = task("harvest", 0, 64, 0);
+    GolemTask open = task("harvest", -1, 64, -1);
+    posted.add(stale);
+    posted.add(open);
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(posted).contains(open).doesNotContain(stale);
+    assertThat(jobs()).containsOnlyOnce("harvest -1,64,-1");
+  }
+
+  @Test
+  void aFullNodePostsNothingButStillRemembersSpots() {
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, false));
+
+    assertThat(posted).isEmpty();
+    assertThat(spotsOf()).containsExactly("PLANT 1,63,1", "TEND 0,64,-1");
+  }
+
+  @Test
+  void theFirstActWindsUpAndTheNextHarvestsAndReplantsFromTheDrops() {
+    wheat(0, 64, 0);
+    GolemContext golem = golem(0);
+    GolemTask task = task("harvest", 0, 64, 0);
+
+    assertThat(behavior.act(golem, task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(field.age(0, 64, 0)).isEqualTo(7);
+
+    golem = golem(1);
+    assertThat(behavior.act(golem, task)).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("wheat"));
+    assertThat(field.age(0, 64, 0)).isZero();
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("WHEAT", 1, "WHEAT_SEEDS", 1));
+    assertThat(xp).containsExactly(0.4D);
+    feedback.verify(() -> HarvestFeedback.play(eq(core), any(Loc.class), eq(HarvestFeedback.Kind.HARVEST)));
+  }
+
+  @Test
+  void cropsWithoutASeedInTheirDropsAreLeftEmpty() {
+    field.set(0, 64, 0, Id.minecraft("pitcher_crop"), CropField.pitcher(4, "lower"));
+    field.set(0, 65, 0, Id.minecraft("pitcher_crop"), CropField.pitcher(4, "upper"));
+    field.drops(Id.minecraft("pitcher_crop"), () -> CropField.stacks(Id.minecraft("pitcher_plant"), 1));
+    field.set(1, 63, 0, Id.minecraft("farmland")).set(1, 64, 0, Id.minecraft("torchflower"));
+    field.drops(Id.minecraft("torchflower"), () -> CropField.stacks(Id.minecraft("torchflower"), 1));
+
+    assertThat(behavior.act(golem(1), task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task("harvest", 1, 64, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(field.type(0, 65, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(field.physicsFree).contains("0,65,0");
+    assertThat(field.type(1, 64, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("PITCHER_PLANT", 1, "TORCHFLOWER", 1));
+  }
+
+  @Test
+  void aTorchflowerWithSeedsInItsDropsGoesBackToACrop() {
+    field.set(1, 63, 0, Id.minecraft("farmland")).set(1, 64, 0, Id.minecraft("torchflower"));
+    field.drops(Id.minecraft("torchflower"), () -> CropField.stacks(Id.minecraft("torchflower"), 1, Id.minecraft("torchflower_seeds"), 1));
+
+    assertThat(behavior.act(golem(1), task("harvest", 1, 64, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(1, 64, 0)).isEqualTo(Id.minecraft("torchflower_crop"));
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("TORCHFLOWER", 1));
+  }
+
+  @Test
+  void berriesArePickedWithoutBreakingThePlant() {
+    field.set(0, 64, 0, Id.minecraft("sweet_berry_bush"), CropField.ageable(3, 3));
+    field.drops(Id.minecraft("sweet_berry_bush"), () -> CropField.stacks(Id.minecraft("sweet_berries"), 3));
+    field.set(1, 64, 0, Id.minecraft("cave_vines_plant"), CropField.vines(true));
+    field.drops(Id.minecraft("cave_vines_plant"), () -> CropField.stacks(Id.minecraft("glow_berries"), 1));
+
+    assertThat(behavior.act(golem(1), task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task("harvest", 1, 64, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("sweet_berry_bush"));
+    assertThat(field.age(0, 64, 0)).isEqualTo(1);
+    assertThat(field.type(1, 64, 0)).isEqualTo(Id.minecraft("cave_vines_plant"));
+    assertThat(field.data(1, 64, 0).property("berries")).isEqualTo("false");
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("SWEET_BERRIES", 3, "GLOW_BERRIES", 1));
+    feedback.verify(() -> HarvestFeedback.play(eq(core), any(Loc.class), eq(HarvestFeedback.Kind.HARVEST)), never());
+  }
+
+  @Test
+  void melonsLeaveTheirStemAndColumnsLeaveTheirBase() {
+    field.set(0, 64, 0, Id.minecraft("melon")).set(1, 64, 0, Id.minecraft("attached_melon_stem"), CropField.facing(BlockFace.WEST));
+    field.drops(Id.minecraft("melon"), () -> CropField.stacks(Id.minecraft("melon_slice"), 5));
+    for (int y = 64; y <= 66; y++) {
+      field.set(-1, y, 0, Id.minecraft("sugar_cane"));
+    }
+    field.drops(Id.minecraft("sugar_cane"), () -> CropField.stacks(Id.minecraft("sugar_cane"), 1));
+
+    assertThat(behavior.act(golem(1), task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task("harvest", -1, 65, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(field.type(1, 64, 0)).isEqualTo(Id.minecraft("attached_melon_stem"));
+    assertThat(field.type(-1, 64, 0)).isEqualTo(Id.minecraft("sugar_cane"));
+    assertThat(field.type(-1, 65, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(field.type(-1, 66, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(field.physicsFree).containsSubsequence("-1,66,0", "-1,65,0");
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("MELON_SLICE", 5, "SUGAR_CANE", 2));
+    assertThat(xp).containsExactly(0.4D, 0.4D);
+  }
+
+  @Test
+  void aTargetThatIsNoLongerRipeFailsAndProtectionBlocksTheJob() {
+    field.set(0, 64, 0, Id.minecraft("wheat"), CropField.ageable(3, 7));
+    wheat(1, 64, 0);
+    GolemContext denied = golem(1);
+    when(denied.canBreak(any(Loc.class))).thenReturn(false);
+
+    assertThat(behavior.act(golem(1), task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(behavior.act(denied, task("harvest", 1, 64, 0))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(field.age(1, 64, 0)).isEqualTo(7);
+  }
+
+  @Test
+  void aGolemWhoseOwnerLostTheCoreDoesNothing() {
+    level(0);
+    wheat(0, 64, 0);
+
+    assertThat(behavior.act(golem(1), task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.age(0, 64, 0)).isEqualTo(7);
+  }
+
+  @Test
+  void bountifulRollsTheDropsAgainAtLevelFiveAndEntropyAppliesAfterIt() {
+    wheat(0, 64, 0);
+    wheat(1, 64, 0);
+    roll = 0.05D;
+    GolemContext golem = golem(1);
+    when(golem.withBonusYield(anyList())).thenAnswer(invocation -> {
+      List<ItemRef> drops = new ArrayList<>(invocation.getArgument(0));
+      drops.add(GolemTestItems.stack(Id.minecraft("wheat"), 1));
+      return drops;
+    });
+
+    behavior.act(golem, task("harvest", 0, 64, 0));
+    level(4);
+    behavior.act(golem, task("harvest", 1, 64, 0));
+
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("WHEAT", 5, "WHEAT_SEEDS", 4));
+  }
+
+  @Test
+  void handPlantedCropsKeepTheirBountifulRollAndBonusYield() {
+    wheat(0, 64, 0);
+    roll = 0.05D;
+    provenance.when(() -> XpProvenance.isPlayerPlaced(any(BlockRef.class))).thenReturn(true);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(BlockRef.class))).thenReturn(true);
+    GolemContext golem = golem(1);
+
+    behavior.act(golem, task("harvest", 0, 64, 0));
+
+    verify(golem).withBonusYield(anyList());
+    assertThat(carriedCounts()).containsEntry("WHEAT", 2);
+  }
+
+  @Test
+  void placedGourdsAndColumnPartsGetNoBountifulRollOrBonusYieldEvenAfterThePlacementTtl() {
+    field.set(0, 64, 0, Id.minecraft("melon")).set(1, 64, 0, Id.minecraft("attached_melon_stem"), CropField.facing(BlockFace.WEST));
+    field.drops(Id.minecraft("melon"), () -> CropField.stacks(Id.minecraft("melon_slice"), 5));
+    for (int y = 64; y <= 66; y++) {
+      field.set(-1, y, 0, Id.minecraft("sugar_cane"));
+    }
+    field.drops(Id.minecraft("sugar_cane"), () -> CropField.stacks(Id.minecraft("sugar_cane"), 1));
+    roll = 0.05D;
+    provenance.when(() -> XpProvenance.isPlayerPlaced(any(BlockRef.class))).thenReturn(false);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(BlockRef.class))).thenReturn(true);
+    GolemContext golem = golem(1);
+
+    behavior.act(golem, task("harvest", 0, 64, 0));
+    behavior.act(golem, task("harvest", -1, 65, 0));
+
+    verify(golem, never()).withBonusYield(anyList());
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("MELON_SLICE", 5, "SUGAR_CANE", 2));
+  }
+
+  @Test
+  void aPlacedTorchflowerGetsNoBountifulRollOrBonusYieldAndTheHarvestForgetsThePlacement() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 63, 0, Id.minecraft("farmland")).set(1, 64, 0, Id.minecraft("torchflower"));
+      field.drops(Id.minecraft("torchflower"), () -> CropField.stacks(Id.minecraft("torchflower"), 1));
+      XpProvenance.recordPlacement(field.block(1, 64, 0));
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 1, 64, 0));
+
+      verify(golem, never()).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("TORCHFLOWER", 1));
+      assertThat(XpProvenance.wasPlaced(field.block(1, 64, 0))).isFalse();
+    }
+  }
+
+  @Test
+  void aTorchflowerGrownFromPlantedSeedsGetsItsBountifulRollAndBonusYield() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 63, 0, Id.minecraft("farmland")).set(1, 64, 0, Id.minecraft("torchflower_crop"), CropField.ageable(1, 2));
+      field.drops(Id.minecraft("torchflower"), () -> CropField.stacks(Id.minecraft("torchflower"), 1));
+      XpProvenance.recordPlacement(field.block(1, 64, 0));
+      grow(field.block(1, 64, 0), Id.minecraft("torchflower"));
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 1, 64, 0));
+
+      verify(golem).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("TORCHFLOWER", 2));
+    }
+  }
+
+  @Test
+  void aPumpkinRegrownOnAStalePlacementSpotGetsItsBountifulRollAndBonusYield() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 64, 0, Id.minecraft("attached_pumpkin_stem"), CropField.facing(BlockFace.WEST));
+      field.drops(Id.minecraft("pumpkin"), () -> CropField.stacks(Id.minecraft("pumpkin"), 1));
+      placements.put(field.block(0, 64, 0), new WorldDataPort.Placement(1, 0, 0));
+      grow(field.block(0, 64, 0), Id.minecraft("pumpkin"));
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 0, 64, 0));
+
+      verify(golem).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("PUMPKIN", 2));
+    }
+  }
+
+  @Test
+  void higherLevelsHarvestNearbyOpenJobsInTheSameAction() {
+    level(3);
+    GolemTaskBoard board = boards.board(CropField.WORLD);
+    for (int x = 0; x <= 2; x++) {
+      wheat(x, 64, 0);
+    }
+    wheat(9, 64, 0);
+    GolemTask target = offer(board, 0, 64, 0);
+    GolemTask held = offer(board, 1, 64, 0);
+    GolemTask near = offer(board, 2, 64, 0);
+    GolemTask far = offer(board, 9, 64, 0);
+    claimFor(board, OTHER_GOLEM, held);
+
+    assertThat(behavior.act(golem(1), target)).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.age(0, 64, 0)).isZero();
+    assertThat(field.age(2, 64, 0)).isZero();
+    assertThat(field.age(1, 64, 0)).isEqualTo(7);
+    assertThat(field.age(9, 64, 0)).isEqualTo(7);
+    assertThat(board.tasks(KEY)).contains(target, held, far).doesNotContain(near);
+    assertThat(xp).containsExactly(0.8D);
+  }
+
+  @Test
+  void tillingTurnsBareDirtIntoFarmlandAndPlantsACarriedSeed() {
+    level(4);
+    field.set(0, 63, 0, Id.minecraft("dirt"));
+    field.set(1, 63, 0, Id.minecraft("dirt"));
+    GolemContext seeded = golem(1);
+    List<ItemRef> seeds = List.of(GolemTestItems.stack(Id.minecraft("wheat_seeds"), 2));
+    when(seeded.carriedItems()).thenReturn(seeds);
+    when(seeded.take(any(), eq(1))).thenReturn(1);
+
+    assertThat(behavior.act(seeded, task("till", 0, 63, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task("till", 1, 63, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 63, 0)).isEqualTo(Id.minecraft("farmland"));
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("wheat"));
+    assertThat(field.type(1, 63, 0)).isEqualTo(Id.minecraft("farmland"));
+    assertThat(field.type(1, 64, 0)).isEqualTo(Id.minecraft("air"));
+    assertThat(xp).isEmpty();
+  }
+
+  @Test
+  void tillingNeedsLevelFourAndPermissionToBuild() {
+    field.set(0, 63, 0, Id.minecraft("dirt"));
+    GolemContext denied = golem(1);
+    when(denied.canPlace(any(Loc.class))).thenReturn(false);
+    level(3);
+
+    assertThat(behavior.act(golem(1), task("till", 0, 63, 0))).isEqualTo(GolemActResult.FAILED);
+    level(4);
+    assertThat(behavior.act(denied, task("till", 0, 63, 0))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(field.type(0, 63, 0)).isEqualTo(Id.minecraft("dirt"));
+  }
+
+  @Test
+  void tillingLeavesDirtBesideAStemAlone() {
+    field.set(0, 63, 0, Id.minecraft("dirt")).set(1, 64, 0, Id.minecraft("melon_stem"), CropField.ageable(7, 7));
+
+    assertThat(behavior.act(golem(1), task("till", 0, 63, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(0, 63, 0)).isEqualTo(Id.minecraft("dirt"));
+  }
+
+  @Test
+  void plantingNeverFillsAFruitSpotBesideAStem() {
+    field.set(0, 63, 0, Id.minecraft("farmland")).set(1, 64, 0, Id.minecraft("pumpkin_stem"), CropField.ageable(7, 7));
+    GolemContext seeded = golem(1);
+    List<ItemRef> seeds = List.of(GolemTestItems.stack(Id.minecraft("wheat_seeds"), 2));
+    when(seeded.carriedItems()).thenReturn(seeds);
+    when(seeded.take(any(), eq(1))).thenReturn(1);
+
+    assertThat(actions.plant(seeded, field.block(0, 63, 0), actions.plan(5, record))).isFalse();
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Id.minecraft("air"));
+    verify(seeded, never()).take(any(), anyInt());
+  }
+
+  @Test
+  void aDeniedStalkBlockOrPitcherTopBlocksTheWholeHarvest() {
+    for (int y = 64; y <= 66; y++) {
+      field.set(-1, y, 0, Id.minecraft("sugar_cane"));
+    }
+    field.drops(Id.minecraft("sugar_cane"), () -> CropField.stacks(Id.minecraft("sugar_cane"), 1));
+    field.set(0, 64, 0, Id.minecraft("pitcher_crop"), CropField.pitcher(4, "lower"));
+    field.set(0, 65, 0, Id.minecraft("pitcher_crop"), CropField.pitcher(4, "upper"));
+    field.drops(Id.minecraft("pitcher_crop"), () -> CropField.stacks(Id.minecraft("pitcher_plant"), 1));
+    GolemContext golem = golem(1);
+    when(golem.canBreak(any(Loc.class))).thenAnswer(invocation -> {
+      Loc at = invocation.getArgument(0);
+      return !(at.blockX() == -1 && at.blockY() == 66) && !(at.blockX() == 0 && at.blockY() == 65);
+    });
+
+    assertThat(behavior.act(golem, task("harvest", -1, 65, 0))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(behavior.act(golem, task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.BLOCKED);
+
+    assertThat(List.of(field.type(-1, 65, 0), field.type(-1, 66, 0), field.type(0, 64, 0), field.type(0, 65, 0)))
+        .containsExactly(Id.minecraft("sugar_cane"), Id.minecraft("sugar_cane"), Id.minecraft("pitcher_crop"), Id.minecraft("pitcher_crop"));
+    assertThat(carried).isEmpty();
+  }
+
+  @Test
+  void jobsOutsideTheNodesCurrentAreaAreWithdrawnAndNeverWorked() {
+    plot();
+    wheat(3, 64, 3);
+    GolemTask outside = task("harvest", 3, 64, 3);
+    posted.add(outside);
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(posted).doesNotContain(outside);
+    assertThat(behavior.act(golem(1), outside)).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.age(3, 64, 3)).isEqualTo(7);
+  }
+
+  @Test
+  void theActionIntervalFollowsTheOwnersLevel() {
+    level(1);
+    assertThat(behavior.actIntervalTicks(golem(0), task("harvest", 0, 64, 0))).isEqualTo(40);
+    level(5);
+    assertThat(behavior.actIntervalTicks(golem(0), task("harvest", 0, 64, 0))).isEqualTo(12);
+  }
+
+  private void realProvenance() {
+    provenance.close();
+    provenance = mockStatic(XpProvenance.class, CALLS_REAL_METHODS);
+  }
+
+  private void grow(BlockRef block, Id grown) {
+    BlockStateRef state = mock(BlockStateRef.class);
+    when(state.type()).thenReturn(grown);
+    new XpProvenanceListener().on(new BlockGrowEvent(block, state));
+    field.set(block.x(), block.y(), block.z(), grown);
+  }
+
+  @Test
+  void unavailableNeighboursPreservePlantMarksAndKeepTheirPositionsEligible() {
+    field.set(1, 63, 1, Id.minecraft("farmland"));
+    spots.scanned(KEY, record, NOW);
+    HarvestSpots.Mark mark = new HarvestSpots.Mark(HarvesterRules.Spot.PLANT, 1, 63, 1);
+    spots.record(KEY, mark.x(), mark.y(), mark.z(), mark.kind());
+    NodeContext node = node();
+    when(node.owns(any(BlockRef.class))).thenAnswer(invocation -> invocation.<BlockRef>getArgument(0).x() <= 1);
+    int index = IntStream.range(0, NodeArea.volume(record)).filter(candidate -> {
+      int[] at = NodeArea.position(KEY, record, candidate);
+      return at[0] == mark.x() && at[1] == mark.y() && at[2] == mark.z();
+    }).findFirst().orElseThrow();
+
+    behavior.scan(node, budget(index, index + 1, true));
+
+    assertThat(spots.of(KEY)).contains(mark);
+    verify(node).candidate(index, true);
+    verify(node, never()).candidate(index, false);
+    when(node.owns(any(BlockRef.class))).thenReturn(true);
+    behavior.scan(node, budget(index, index + 1, true));
+    assertThat(spots.of(KEY)).contains(mark);
+  }
+
+  @Test
+  void unlockingOrTogglingTillingChangesTheNegativeSurveyCriteria() {
+    NodeContext node = node();
+    ScanBudget empty = budget(0, 0, true);
+    ArgumentCaptor<Long> criteria = ArgumentCaptor.forClass(Long.class);
+    level(3);
+    behavior.scan(node, empty);
+    level(4);
+    behavior.scan(node, empty);
+    when(core.tills(OWNER)).thenReturn(false);
+    behavior.scan(node, empty);
+    when(core.tills(OWNER)).thenReturn(true);
+    behavior.scan(node, empty);
+
+    verify(node, times(4)).surveyCriteria(criteria.capture());
+    List<Long> values = criteria.getAllValues();
+    assertThat(values.get(0)).isNotEqualTo(values.get(1));
+    assertThat(values.get(1)).isNotEqualTo(values.get(2));
+    assertThat(values.get(3)).isEqualTo(values.get(1));
+  }
+
+  private void plot() {
+    field.set(-1, 63, -1, Id.minecraft("farmland"));
+    wheat(-1, 64, -1);
+    field.set(0, 63, -1, Id.minecraft("farmland")).set(0, 64, -1, Id.minecraft("carrots"), CropField.ageable(2, 7));
+    field.set(1, 63, 1, Id.minecraft("farmland"));
+    field.set(-1, 63, 1, Id.minecraft("dirt"));
+    field.set(0, 63, 0, Id.minecraft("stone"));
+  }
+
+  private void wheat(int x, int y, int z) {
+    field.set(x, y, z, Id.minecraft("wheat"), CropField.ageable(7, 7));
+    field.drops(Id.minecraft("wheat"), () -> CropField.stacks(Id.minecraft("wheat"), 1, Id.minecraft("wheat_seeds"), 2));
+  }
+
+  private void level(int level) {
+    lenient().when(core.ownerLevel(OWNER)).thenReturn(level);
+  }
+
+  private NodeContext node() {
+    NodeContext node = mock(NodeContext.class);
+    lenient().when(node.owner()).thenReturn(OWNER);
+    lenient().when(node.key()).thenReturn(KEY);
+    lenient().when(node.record()).thenReturn(record);
+    lenient().when(node.world()).thenReturn(field.world);
+    lenient().when(node.nowMillis()).thenReturn(NOW);
+    lenient().when(node.owns(any(BlockRef.class))).thenReturn(true);
+    lenient().when(node.block(anyInt())).thenAnswer(invocation -> {
+      int[] at = NodeArea.position(KEY, record, invocation.getArgument(0));
+      return Optional.of(field.block(at[0], at[1], at[2]));
+    });
+    lenient().when(node.tasks()).thenAnswer(invocation -> List.copyOf(posted));
+    lenient().when(node.task(anyString(), any(GolemTarget.class)))
+        .thenAnswer(invocation -> GolemTask.builder(KEY, NodeType.HARVEST, invocation.getArgument(0), invocation.getArgument(1)));
+    lenient().when(node.post(any(GolemTask.class))).thenAnswer(invocation -> posted.add(invocation.getArgument(0)));
+    lenient().when(node.withdraw(any(GolemTask.class))).thenAnswer(invocation -> posted.remove(invocation.<GolemTask>getArgument(0)));
+    return node;
+  }
+
+  private static ScanBudget budget(int start, int end, boolean room) {
+    ScanBudget budget = mock(ScanBudget.class);
+    lenient().when(budget.start()).thenReturn(start);
+    lenient().when(budget.end()).thenReturn(end);
+    lenient().when(budget.indices()).thenReturn(IntStream.range(start, end).toArray());
+    lenient().when(budget.hasTaskRoom()).thenReturn(room);
+    return budget;
+  }
+
+  private GolemContext golem(int actIndex) {
+    GolemContext golem = mock(GolemContext.class);
+    GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.state()).thenReturn(mock(GolemState.class));
+    lenient().when(golem.handle()).thenReturn(handle);
+    PlayerRef owner = mock(PlayerRef.class);
+    lenient().when(owner.uuid()).thenReturn(OWNER);
+    MobRef body = mock(MobRef.class);
+    lenient().when(body.location()).thenReturn(new Loc(field.world, 0.5D, 64D, 0.5D));
+    lenient().when(golem.owner()).thenReturn(owner);
+    lenient().when(golem.golem()).thenReturn(body);
+    lenient().when(golem.node()).thenReturn(Optional.of(record));
+    lenient().when(golem.world()).thenReturn(field.world);
+    lenient().when(golem.nowMillis()).thenReturn(NOW);
+    lenient().when(golem.actIndex()).thenReturn(actIndex);
+    lenient().when(golem.owns(any(Loc.class))).thenReturn(true);
+    lenient().when(golem.canBreak(any(Loc.class))).thenReturn(true);
+    lenient().when(golem.canPlace(any(Loc.class))).thenReturn(true);
+    lenient().when(golem.room()).thenReturn(64);
+    lenient().when(golem.carriedItems()).thenReturn(List.of());
+    lenient().when(golem.withBonusYield(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+    lenient().when(golem.carry(any(ItemRef.class))).thenAnswer(invocation -> {
+      carried.add(invocation.getArgument(0));
+      return Optional.empty();
+    });
+    lenient().doAnswer(invocation -> xp.add(invocation.getArgument(0))).when(golem).workXp(anyDouble());
+    return golem;
+  }
+
+  private static GolemTask task(String type, int x, int y, int z) {
+    return GolemTask.builder(KEY, NodeType.HARVEST, type, GolemTarget.block(CropField.WORLD, x, y, z)).build();
+  }
+
+  private static GolemTask offer(GolemTaskBoard board, int x, int y, int z) {
+    GolemTask task = task("harvest", x, y, z);
+    board.offer(task, 16);
+    return task;
+  }
+
+  private static void claimFor(GolemTaskBoard board, UUID golem, GolemTask wanted) {
+    GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(golem, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.COPPER, ChannelMask.NONE,
+        1D, 64D, 0D, 24D, 1D, 64D, 0D);
+    Predicate<GolemTask> others = task -> task != wanted;
+    assertThat(board.claim(seeker, others, NOW, 20_000L)).contains(wanted);
+  }
+
+  private List<String> jobs() {
+    List<String> lines = new ArrayList<>();
+    for (GolemTask task : posted) {
+      GolemTarget target = task.target();
+      lines.add(task.type() + " " + target.blockX() + "," + target.blockY() + "," + target.blockZ());
+    }
+    lines.sort(null);
+    return lines;
+  }
+
+  private List<String> spotsOf() {
+    List<String> lines = new ArrayList<>();
+    for (HarvestSpots.Mark mark : spots.of(KEY)) {
+      lines.add(mark.kind() + " " + mark.x() + "," + mark.y() + "," + mark.z());
+    }
+    lines.sort(null);
+    return lines;
+  }
+
+  private Map<String, Integer> carriedCounts() {
+    Map<String, Integer> counts = new TreeMap<>();
+    for (ItemRef item : carried) {
+      counts.merge(item.type().legacyName(), item.amount(), Integer::sum);
+    }
+    counts.values().removeIf(amount -> amount == 0);
+    return counts;
+  }
+
+  private static RandomGenerator fixed(double value) {
+    return new RandomGenerator() {
+      @Override
+      public long nextLong() {
+        return 0L;
+      }
+
+      @Override
+      public double nextDouble() {
+        return value;
+      }
+    };
+  }
+}

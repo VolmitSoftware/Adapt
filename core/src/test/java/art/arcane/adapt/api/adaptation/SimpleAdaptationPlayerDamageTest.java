@@ -1,0 +1,120 @@
+package art.arcane.adapt.api.adaptation;
+
+import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.entity.EntityKnockbackEvent;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Vec3;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+class SimpleAdaptationPlayerDamageTest {
+  private static final Id PLAYER_ATTACK = Id.minecraft("player_attack");
+
+  @Test
+  void selfDamageSuppressesOnlyItsOwnDamageKnockbackAndClearsContext() {
+    PlayerRef player = player();
+    PlayerRef other = player();
+    SimpleAdaptation.PlayerDamageListener listener = new SimpleAdaptation.PlayerDamageListener();
+    doAnswer(call -> {
+      EntityKnockbackEvent own = knockback(player, EntityKnockbackEvent.Cause.DAMAGE);
+      EntityKnockbackEvent unrelated = knockback(other, EntityKnockbackEvent.Cause.DAMAGE);
+      EntityKnockbackEvent attack = knockback(player, EntityKnockbackEvent.Cause.ENTITY_ATTACK);
+      listener.on(own);
+      listener.on(unrelated);
+      listener.on(attack);
+      assertThat(own.isCancelled()).isTrue();
+      assertThat(unrelated.isCancelled()).isFalse();
+      assertThat(attack.isCancelled()).isFalse();
+      return null;
+    }).when(player).damage(5D, PLAYER_ATTACK);
+
+    SimpleAdaptation.dispatchPlayerDamage(player, 5D);
+
+    EntityKnockbackEvent later = knockback(player, EntityKnockbackEvent.Cause.DAMAGE);
+    listener.on(later);
+    assertThat(later.isCancelled()).isFalse();
+  }
+
+  @Test
+  void nestedDamageRestoresOuterContextEvenWhenInnerDamageThrows() {
+    PlayerRef outer = player();
+    PlayerRef inner = player();
+    SimpleAdaptation.PlayerDamageListener listener = new SimpleAdaptation.PlayerDamageListener();
+    doAnswer(call -> {
+      throw new IllegalStateException("damage failed");
+    }).when(inner).damage(1D, PLAYER_ATTACK);
+    doAnswer(call -> {
+      assertThatThrownBy(() -> SimpleAdaptation.dispatchPlayerDamage(inner, 1D))
+          .isInstanceOf(IllegalStateException.class);
+      EntityKnockbackEvent event = knockback(outer, EntityKnockbackEvent.Cause.DAMAGE);
+      listener.on(event);
+      assertThat(event.isCancelled()).isTrue();
+      return null;
+    }).when(outer).damage(5D, PLAYER_ATTACK);
+
+    SimpleAdaptation.dispatchPlayerDamage(outer, 5D);
+
+    EntityKnockbackEvent event = knockback(inner, EntityKnockbackEvent.Cause.DAMAGE);
+    listener.on(event);
+    assertThat(event.isCancelled()).isFalse();
+  }
+
+  private static EntityKnockbackEvent knockback(PlayerRef player, EntityKnockbackEvent.Cause cause) {
+    return new EntityKnockbackEvent(player, cause, new Vec3(0.4D, 0.2D, 0D));
+  }
+
+  private static PlayerRef player() {
+    PlayerRef player = mock(PlayerRef.class);
+    when(player.uuid()).thenReturn(UUID.randomUUID());
+    return player;
+  }
+
+  @Test
+  void skillDamageUsesAnExplicitBukkitDamageSource() {
+    PlayerRef player = player();
+
+    SimpleAdaptation.dispatchPlayerDamage(player, 5D);
+
+    verify(player).damage(5D, PLAYER_ATTACK);
+    verify(player, never()).setHealth(anyDouble());
+  }
+
+  @Test
+  void invalidSkillDamageDoesNotReachTheServer() {
+    PlayerRef player = player();
+    when(player.isDead()).thenReturn(false);
+
+    new TestAdaptation().applyDamage(player, Double.NaN);
+    new TestAdaptation().applyDamage(player, 0D);
+    new TestAdaptation().applyDamage(player, -1D);
+
+    verify(player, never()).damage(anyDouble(), any(EntityRef.class));
+    verify(player, never()).damage(anyDouble(), any(Id.class));
+  }
+
+  private static final class TestAdaptation extends SimpleAdaptation<AdaptationConfig> {
+    private TestAdaptation() {
+      super("test-player-damage");
+    }
+
+    private void applyDamage(PlayerRef player, double amount) {
+      applyPlayerDamage(player, amount);
+    }
+
+    @Override
+    public void addStats(int level, StatLines lines) {
+    }
+  }
+}

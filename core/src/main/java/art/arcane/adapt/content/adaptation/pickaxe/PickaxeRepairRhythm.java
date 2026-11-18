@@ -1,0 +1,206 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.pickaxe;
+
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.PickaxeMessages;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.block.BlockBreakEvent;
+import art.arcane.adapt.platform.event.player.PlayerItemDamageEvent;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.Tasks;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
+
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Config> {
+  private final Map<UUID, PendingRepair> pendingRepairs = playerState();
+
+  public PickaxeRepairRhythm() {
+    super("pickaxe-repair-rhythm");
+    registerConfiguration(PickaxeRepairRhythm.Config.class);
+    setIcon(Id.minecraft("experience_bottle"));
+    setInterval(7561);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("experience_bottle"))
+        .key("challenge_pickaxe_rhythm_5k")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerMilestone("challenge_pickaxe_rhythm_5k", "pickaxe.repair-rhythm.durability-restored", 5000, 500);
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.REPAIR_RHYTHM_LORE1));
+    statLore(v, Form.pc(getRepairChance(level), 0), 2);
+  }
+
+  private double getRepairChance(int level) {
+    return Math.min(getConfig().maxChance, getConfig().chanceBase + (level * getConfig().chancePerLevel));
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(BlockBreakEvent e) {
+    PlayerRef p = e.player();
+    ItemRef hand = p.inventory().mainHand();
+    if (!isPickaxe(hand)) {
+      return;
+    }
+
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.block().location());
+    if (context == null) {
+      return;
+    }
+
+    int damage = hand.damage();
+    if (damage <= 0) {
+      return;
+    }
+
+    if (!M.r(getRepairChance(context.level()))) {
+      return;
+    }
+
+    int min = Math.max(1, getConfig().restoreMin);
+    int max = Math.max(min, getConfig().restoreMax);
+    int restore = min == max ? min : min + ThreadLocalRandom.current().nextInt((max - min) + 1);
+    UUID playerId = p.uuid();
+    PendingRepair pending = new PendingRepair(p.inventory().heldSlot(), hand.copy(), restore);
+    pendingRepairs.put(playerId, pending);
+    Tasks.runEntity(p, () -> applyDeferredRepair(p, playerId, pending), 1);
+  }
+
+  @Handle(priority = EventPriority.HIGHEST, ignoreCancelled = false)
+  public void on(PlayerItemDamageEvent e) {
+    PlayerRef p = e.player();
+    UUID playerId = p.uuid();
+    PendingRepair pending = pendingRepairs.get(playerId);
+    if (pending == null || !sameRepairTarget(pending.item(), e.item())) {
+      return;
+    }
+
+    pendingRepairs.remove(playerId, pending);
+    int restored = repair(e.item(), pending.restore());
+    if (restored <= 0) {
+      return;
+    }
+
+    e.setCancelled(true);
+    completeRepair(p, restored);
+  }
+
+  static int repairedDamage(int damage, int restore) {
+    return Math.max(0, damage - Math.max(0, restore));
+  }
+
+  static boolean sameRepairTarget(ItemRef expected, ItemRef actual) {
+    if (expected == null || actual == null || !expected.type().equals(actual.type())) {
+      return false;
+    }
+
+    ItemRef expectedCopy = expected.copy();
+    ItemRef actualCopy = actual.copy();
+    expectedCopy.setDamage(0);
+    actualCopy.setDamage(0);
+    return expectedCopy.isSimilar(actualCopy);
+  }
+
+  private void applyDeferredRepair(PlayerRef p, UUID playerId, PendingRepair pending) {
+    if (!pendingRepairs.remove(playerId, pending)) {
+      return;
+    }
+
+    ItemRef item = p.inventory().item(pending.slot());
+    if (!sameRepairTarget(pending.item(), item)) {
+      return;
+    }
+
+    int restored = repair(item, pending.restore());
+    if (restored > 0) {
+      p.inventory().setItem(pending.slot(), item);
+      completeRepair(p, restored);
+    }
+  }
+
+  private int repair(ItemRef item, int requested) {
+    if (item == null || item.isEmpty()) {
+      return 0;
+    }
+
+    int damage = item.damage();
+    int remainingDamage = repairedDamage(damage, requested);
+    int restored = damage - remainingDamage;
+    if (restored <= 0) {
+      return 0;
+    }
+
+    item.setDamage(remainingDamage);
+    return restored;
+  }
+
+  private void completeRepair(PlayerRef p, int restore) {
+    addStat(p, "pickaxe.repair-rhythm.durability-restored", restore);
+    fx(p.location().add(0, 1.2, 0), FxPriority.AMBIENT)
+        .particle(Particles.WAX_ON, 2, 0, 0.2, 0, 0.15, 0.02)
+        .particle(Particles.ENCHANTMENT_TABLE, 1, 0, 0.3, 0, 0.1, 0.05)
+        .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.25f, restore >= 2 ? 1.95f : 1.8f);
+  }
+
+  @ConfigDescription("Sustained mining has a chance to restore pickaxe durability per broken block.")
+  protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance per broken block to restore durability.", impact = "Higher values trigger repairs more often at every level.")
+    double chanceBase = 0.05;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional repair chance gained per adaptation level.", impact = "Higher values trigger repairs more often at higher levels.")
+    double chancePerLevel = 0.06;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum total repair chance per broken block.", impact = "Higher values allow more frequent repairs at max level.")
+    double maxChance = 0.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum durability restored per repair proc.", impact = "Higher values restore more durability per proc.")
+    int restoreMin = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum durability restored per repair proc.", impact = "Higher values restore more durability per proc.")
+    int restoreMax = 2;
+
+    public Config() {
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 4;
+    }
+  }
+
+  private record PendingRepair(int slot, ItemRef item, int restore) {
+  }
+}

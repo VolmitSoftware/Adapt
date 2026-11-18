@@ -1,0 +1,17 @@
+modLoader = "javafml"
+loaderVersion = "${forgeLoaderRange}"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "adaptqa"
+version = "${projectVersion}"
+displayName = "Adapt Gameplay Fixture"
+description = "Isolated test fixture for Adapt gameplay contracts. Never install on a real server."
+displayTest = "IGNORE_SERVER_VERSION"
+
+[[dependencies.adaptqa]]
+modId = "adapt"
+mandatory = true
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "SERVER"

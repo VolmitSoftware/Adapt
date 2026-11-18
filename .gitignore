@@ -38,9 +38,13 @@ build-lt.sh
 BUILDS/
 .run/
 
-src/test/client/__pycache__/
-src/test/demo/**/__pycache__/
+**/__pycache__/
 .local-notes/
 HANDOFF.md
+MIGRATION_RECIPE.txt
+bukkit/src/test/gameplay/platform-results.tsv
+adapters/*/run/
 
 .superpowers/
+
+.jqwik-database

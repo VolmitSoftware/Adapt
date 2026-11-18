@@ -1,0 +1,60 @@
+package art.arcane.adapt.api.preference;
+
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.localization.catalog.PreferenceMessages;
+import art.arcane.volmlib.util.localization.TextKey;
+
+import java.util.List;
+
+public final class CommonPreferences {
+  public static final PlayerPreference<Toggle> ENABLED = toggle("enabled", PreferenceMessages.ENABLED);
+  public static final PlayerPreference<Toggle> SKILL_ENABLED = toggle("enabled", PreferenceMessages.SKILL_ENABLED);
+  public static final PlayerPreference<DeathSavePriority> DEATH_SAVE_PRIORITY = new PlayerPreference<>(
+      DeathSavePriority.class, new PlayerPreference.Definition<>("death-save-priority", PreferenceMessages.DEATH_SAVE_PRIORITY,
+      DeathSavePriority.NORMAL, List.of(
+      new PlayerPreference.Choice<>(DeathSavePriority.FIRST, PreferenceMessages.FIRST, Id.minecraft("lime_stained_glass_pane"), 1),
+      new PlayerPreference.Choice<>(DeathSavePriority.NORMAL, PreferenceMessages.NORMAL, Id.minecraft("yellow_stained_glass_pane"), 1),
+      new PlayerPreference.Choice<>(DeathSavePriority.LAST, PreferenceMessages.LAST, Id.minecraft("orange_stained_glass_pane"), 1))));
+
+  private CommonPreferences() {
+  }
+
+  public static PlayerPreference<Toggle> toggle(String id, TextKey label) {
+    return toggle(id, label, Toggle.ON);
+  }
+
+  public static PlayerPreference<Toggle> toggle(String id, TextKey label, Toggle defaultValue) {
+    return new PlayerPreference<>(Toggle.class, new PlayerPreference.Definition<>(id, label, defaultValue, List.of(
+        new PlayerPreference.Choice<>(Toggle.ON, PreferenceMessages.ON, Id.minecraft("lime_stained_glass_pane"), 1),
+        new PlayerPreference.Choice<>(Toggle.OFF, PreferenceMessages.OFF, Id.minecraft("red_stained_glass_pane"), 1))));
+  }
+
+  public static PlayerPreference<Scale> scale(String id, TextKey label) {
+    return new PlayerPreference<>(Scale.class, new PlayerPreference.Definition<>(id, label, Scale.FULL, List.of(
+        new PlayerPreference.Choice<>(Scale.FULL, PreferenceMessages.FULL, Id.minecraft("lime_stained_glass_pane"), 1),
+        new PlayerPreference.Choice<>(Scale.HALF, PreferenceMessages.HALF, Id.minecraft("yellow_stained_glass_pane"), 1),
+        new PlayerPreference.Choice<>(Scale.QUARTER, PreferenceMessages.QUARTER, Id.minecraft("orange_stained_glass_pane"), 1))));
+  }
+
+  public enum Toggle {
+    ON, OFF
+  }
+
+  public enum DeathSavePriority {
+    FIRST, NORMAL, LAST
+  }
+
+  public enum Scale {
+    FULL(1D), HALF(0.5D), QUARTER(0.25D);
+
+    private final double multiplier;
+
+    Scale(double multiplier) {
+      this.multiplier = multiplier;
+    }
+
+    public double multiplier() {
+      return multiplier;
+    }
+  }
+}

@@ -1,0 +1,546 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.herbalism;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.PreferenceToggleGroup;
+import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Rgb;
+import art.arcane.adapt.platform.value.Vec3;
+import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.platform.world.BlockStateRef;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.Tasks;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.math.M;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
+  public static final PreferenceToggleGroup GROWABLES = HerbalismGrowables.group("growables", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_GROWABLES, Id.minecraft("wheat_seeds"));
+  public static final PlayerPreference<CommonPreferences.Toggle> SURFACE = CommonPreferences.toggle("surface-only", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_SURFACE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_RADIUS);
+  private static final List<PlayerPreference<?>> PREFERENCES = preferences();
+
+  private static final Rgb LIME = new Rgb(0, 255, 0);
+  private static final int PLAYER_CHECKS_PER_TICK = 32;
+  private static final int LOCATION_SAMPLES_PER_TICK = 32;
+  private static final int MUTATIONS_PER_TICK = 16;
+  private static final int COMPLETIONS_PER_TICK = 16;
+  private static final int MAX_QUEUED_SAMPLES = 4096;
+  private static final int MAX_QUEUED_MUTATIONS = 4096;
+  private static final int MAX_QUEUED_COMPLETIONS = 2048;
+  private static final long ROSTER_REFRESH_MILLIS = 5000L;
+  private static final long PULSE_INTERVAL_MILLIS = 850L;
+  private static final long IDLE_CHECK_MILLIS = 250L;
+  private final Map<UUID, Long> nextCheckAt = playerState();
+  private final Queue<UUID> playerQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> pendingPulses = ConcurrentHashMap.newKeySet();
+  private final Queue<GrowthSample> locationSamples = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger queuedSamples = new AtomicInteger();
+  private final PriorityBlockingQueue<GrowthMutation> mutations = new PriorityBlockingQueue<>();
+  private final AtomicInteger queuedMutations = new AtomicInteger();
+  private final Queue<GrowthPulse> completedPulses = new ConcurrentLinkedQueue<>();
+  private final AtomicInteger queuedCompletions = new AtomicInteger();
+  private volatile long nextRosterRefreshAt;
+
+  public HerbalismGrowthAura() {
+    super("herbalism-growth-aura");
+    registerConfiguration(Config.class);
+    setIcon(Id.minecraft("bone_meal"));
+    setInterval(10);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("wheat"))
+        .key("challenge_herbalism_growth_1k")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Id.minecraft("hay_block"))
+            .key("challenge_herbalism_growth_25k")
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);
+    registerMilestone("challenge_herbalism_growth_25k", "herbalism.growth-aura.blocks-grown", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public List<PreferenceToggleGroup> getPlayerPreferenceGroups() {
+    return List.of(GROWABLES);
+  }
+
+  @Override
+  public boolean isPlayerPreferenceBlocked(PlayerPreference<?> preference) {
+    return HerbalismGrowables.blocked(preference, AdaptConfig.get()::isGrowthBlacklisted);
+  }
+
+  boolean grows(PlayerRef p, Id block) {
+    return !AdaptConfig.get().isGrowthBlacklisted(block)
+        && preferenceEnabled(p, HerbalismGrowables.of(block).preference());
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    statLore(v, Form.f(getRadius(getLevelPercent(level)), 0), 1);
+    statLore(v, Form.pc(getStrength(level), 0), 2);
+    statLore(v, C.YELLOW, "+ ", Form.f(getFoodCost(getLevelPercent(level)), 2), 3);
+  }
+
+  private double getRadius(double factor) {
+    return factor * getConfig().radiusFactor;
+  }
+
+  private double getStrength(int level) {
+    return level * getConfig().strengthFactor;
+  }
+
+  private double getFoodCost(double factor) {
+    return M.lerp(1D - factor, getConfig().maxFoodCost, getConfig().minFoodCost);
+  }
+
+  @Override
+  public boolean hasTickDemand() {
+    return super.hasTickDemand()
+        || !playerQueue.isEmpty()
+        || !queuedPlayers.isEmpty()
+        || !pendingPulses.isEmpty()
+        || queuedSamples.get() > 0
+        || !locationSamples.isEmpty()
+        || queuedMutations.get() > 0
+        || !mutations.isEmpty()
+        || queuedCompletions.get() > 0
+        || !completedPulses.isEmpty();
+  }
+
+  @Override
+  protected boolean usesLearnerBoundTicking() {
+    return true;
+  }
+
+
+  @Override
+  public void onTick() {
+    long now = System.currentTimeMillis();
+    refreshRoster(now);
+    processLocationSamples();
+    processMutations(now);
+    processCompletions();
+    processPlayers(now);
+  }
+
+  @Handle
+  public void on(PlayerQuitEvent e) {
+    UUID id = e.player().uuid();
+    nextCheckAt.remove(id);
+    pendingPulses.remove(id);
+    if (queuedPlayers.remove(id)) {
+      playerQueue.remove(id);
+    }
+  }
+
+  private void refreshRoster(long now) {
+    if (now < nextRosterRefreshAt) {
+      return;
+    }
+    nextRosterRefreshAt = now + ROSTER_REFRESH_MILLIS;
+    for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
+      PlayerRef p = adaptPlayer.getPlayer();
+      if (p != null) {
+        queuePlayer(p.uuid());
+      }
+    }
+  }
+
+  private void processPlayers(long now) {
+    int attempts = workFor(queuedPlayers.size(), PLAYER_CHECKS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      UUID id = playerQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedPlayers.remove(id);
+      Long due = nextCheckAt.get(id);
+      if (due != null && due > now) {
+        queuePlayer(id);
+        continue;
+      }
+      PlayerRef p = AdaptCore.platform().host().player(id);
+      if (p == null) {
+        nextCheckAt.remove(id);
+        pendingPulses.remove(id);
+        continue;
+      }
+      withPlayerThread(p, () -> evaluatePlayer(p));
+    }
+  }
+
+  private void evaluatePlayer(PlayerRef p) {
+    UUID id = p.uuid();
+    if (!p.isOnline() || getLevel(p) <= 0) {
+      nextCheckAt.remove(id);
+      pendingPulses.remove(id);
+      return;
+    }
+
+    long now = System.currentTimeMillis();
+    int level = getActiveLevel(p);
+    if (level <= 0 || pendingPulses.contains(id)) {
+      nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
+      queuePlayer(id);
+      return;
+    }
+
+    double factor = getLevelPercent(level);
+    double foodCost = getFoodCost(factor);
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
+      queuePlayer(id);
+      return;
+    }
+
+    pendingPulses.add(id);
+    nextCheckAt.put(id, now + PULSE_INTERVAL_MILLIS);
+    startGrowthPulse(p, factor, getStrength(level), foodCost);
+    queuePlayer(id);
+  }
+
+  private void startGrowthPulse(PlayerRef p, double factor, double strength, double foodCost) {
+    double radius = getRadius(factor) * preference(p, RADIUS).multiplier();
+    int sampleCount = sampleCountForRadius(radius);
+    if (sampleCount <= 0) {
+      pendingPulses.remove(p.uuid());
+      return;
+    }
+
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    Loc center = p.location();
+    GrowthPulse pulse = new GrowthPulse(p, sampleCount);
+    for (int i = 0; i < sampleCount; i++) {
+      double angle = Math.toRadians(random.nextDouble(360D));
+      Vec3 offset = new Vec3(Math.sin(angle), 0D, Math.cos(angle));
+      offset = offset.withY(random.nextInt(-1, 2));
+      offset = offset.multiply(radius <= 0D ? 0D : random.nextDouble(radius));
+      Loc target = center.add(offset);
+      GrowthSample sample = new GrowthSample(target, strength, foodCost, getConfig().surfaceOnly || preferenceEnabled(p, SURFACE), pulse);
+      if (!offerLocationSample(sample)) {
+        completeGrowthSample(pulse, 0);
+      }
+    }
+  }
+
+  private boolean offerLocationSample(GrowthSample sample) {
+    int queued = queuedSamples.incrementAndGet();
+    if (queued > MAX_QUEUED_SAMPLES) {
+      queuedSamples.decrementAndGet();
+      return false;
+    }
+    locationSamples.add(sample);
+    return true;
+  }
+
+  private void processLocationSamples() {
+    int attempts = workFor(queuedSamples.get(), LOCATION_SAMPLES_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthSample sample = locationSamples.poll();
+      if (sample == null) {
+        break;
+      }
+      queuedSamples.decrementAndGet();
+      if (!Tasks.runAt(sample.location, () -> inspectLocationSample(sample))) {
+        completeGrowthSample(sample.pulse, 0);
+      }
+    }
+  }
+
+  private void inspectLocationSample(GrowthSample sample) {
+    BlockRef block = sample.location.world().blockAt(sample.location);
+    if (sample.surfaceOnly && block.world().highestBlockY(sample.location.blockX(), sample.location.blockZ()) + 1 != block.y()) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+    BlockStateRef ageable = block.state();
+    if (ageable.age() < 0) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+
+    int remainingAge = ageable.maxAge() - ageable.age();
+    if (remainingAge <= 0) {
+      completeGrowthSample(sample.pulse, 0);
+      return;
+    }
+    int increments = (int) Math.max(1D, Math.min(sample.strength, remainingAge));
+    long dueAt = System.currentTimeMillis() + ThreadLocalRandom.current().nextLong(1500L, 3001L);
+    if (!offerMutation(new GrowthMutation(sample.location, increments, sample.foodCost, dueAt, sample.pulse))) {
+      completeGrowthSample(sample.pulse, 0);
+    }
+  }
+
+  private boolean offerMutation(GrowthMutation mutation) {
+    int queued = queuedMutations.incrementAndGet();
+    if (queued > MAX_QUEUED_MUTATIONS) {
+      queuedMutations.decrementAndGet();
+      return false;
+    }
+    mutations.add(mutation);
+    return true;
+  }
+
+  private void processMutations(long now) {
+    int attempts = workFor(queuedMutations.get(), MUTATIONS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthMutation mutation = mutations.peek();
+      if (mutation == null || mutation.dueAt > now) {
+        break;
+      }
+      mutations.poll();
+      queuedMutations.decrementAndGet();
+      if (!Tasks.runAt(mutation.location, () -> applyMutation(mutation))) {
+        completeGrowthSample(mutation.pulse, 0);
+      }
+    }
+  }
+
+  private void applyMutation(GrowthMutation mutation) {
+    PlayerRef p = mutation.pulse.player;
+    if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p)) || !p.isOnline()) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+
+    BlockRef block = mutation.location.world().blockAt(mutation.location);
+    if (!grows(p, block.type())) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+    BlockStateRef ageable = block.state();
+    if (ageable.age() < 0
+        || ageable.age() >= ageable.maxAge()
+        || !canInteract(p, block.location())
+        || !canBlockPlace(p, block.location())
+        || !ProtectionProbes.attemptBlockUse(p, block)
+        || !ProtectionProbes.attemptBlockPlaceProbe(p, block)) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+
+    int grown = 0;
+    while (grown < mutation.increments) {
+      BlockStateRef current = block.state();
+      if (current.age() < 0
+          || current.age() >= current.maxAge()
+          || !payHungerCost(p, "hunger", (int) Math.ceil(mutation.foodCost),
+          () -> adaptPlayer.consumeFood(mutation.foodCost, preferenceEnabled(p, FOOD_RESERVE) ? 16 : 10))) {
+        break;
+      }
+      block.setState(current.with("age", Integer.toString(current.age() + 1)), true);
+      grown++;
+    }
+
+    if (grown <= 0) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
+    BlockStateRef finalData = block.state();
+    if (finalData.age() >= 0 && finalData.age() >= finalData.maxAge()) {
+      fx(block.location().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
+          .dustRing(LIME, 0.6D, 10, 0.9F)
+          .particle(Particles.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
+          .chord(Sounds.ITEM_CROP_PLANT, 0.35F, 1.2F, Sounds.BLOCK_NOTE_BLOCK_CHIME, 0.3F, 1.6F);
+    } else {
+      fx(block.location().add(0.5, 0.6, 0.5), FxPriority.AMBIENT)
+          .particle(Particles.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
+          .particle(Particles.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D)
+          .sound(Sounds.ITEM_CROP_PLANT, 0.25F, 1.5F);
+    }
+    completeGrowthSample(mutation.pulse, grown);
+  }
+
+  private void completeGrowthSample(GrowthPulse pulse, int grown) {
+    if (grown > 0) {
+      addStat(pulse.player, "herbalism.growth-aura.blocks-grown", grown);
+    }
+    if (pulse.remaining.decrementAndGet() != 0) {
+      return;
+    }
+    int queued = queuedCompletions.incrementAndGet();
+    if (queued > MAX_QUEUED_COMPLETIONS) {
+      queuedCompletions.decrementAndGet();
+      pendingPulses.remove(pulse.player.uuid());
+      return;
+    }
+    completedPulses.add(pulse);
+  }
+
+  private void processCompletions() {
+    int attempts = workFor(queuedCompletions.get(), COMPLETIONS_PER_TICK);
+    for (int i = 0; i < attempts; i++) {
+      GrowthPulse pulse = completedPulses.poll();
+      if (pulse == null) {
+        break;
+      }
+      queuedCompletions.decrementAndGet();
+      if (!Tasks.runEntity(pulse.player, () -> finishGrowthPulse(pulse))) {
+        pendingPulses.remove(pulse.player.uuid());
+      }
+    }
+  }
+
+  private void finishGrowthPulse(GrowthPulse pulse) {
+    pendingPulses.remove(pulse.player.uuid());
+  }
+
+  private void queuePlayer(UUID id) {
+    if (queuedPlayers.add(id)) {
+      playerQueue.add(id);
+    }
+  }
+
+  private static List<PlayerPreference<?>> preferences() {
+    List<PlayerPreference<?>> preferences = new ArrayList<>(GROWABLES.entries().size() + 4);
+    preferences.add(CommonPreferences.ENABLED);
+    preferences.addAll(GROWABLES.preferences());
+    preferences.add(SURFACE);
+    preferences.add(FOOD_RESERVE);
+    preferences.add(RADIUS);
+    return List.copyOf(preferences);
+  }
+
+  static int workFor(int queued, int limit) {
+    return Math.min(Math.max(0, queued), Math.max(0, limit));
+  }
+
+  static int sampleCountForRadius(double radius) {
+    double limit = Math.max(3D, Math.min(Math.max(0D, radius * radius), 256D));
+    return (int) Math.ceil(limit);
+  }
+
+  private static final class GrowthPulse {
+    private final PlayerRef player;
+    private final AtomicInteger remaining;
+
+    private GrowthPulse(PlayerRef player, int samples) {
+      this.player = player;
+      this.remaining = new AtomicInteger(samples);
+    }
+  }
+
+  private static final class GrowthSample {
+    private final Loc location;
+    private final double strength;
+    private final double foodCost;
+    private final boolean surfaceOnly;
+    private final GrowthPulse pulse;
+
+    private GrowthSample(Loc location, double strength, double foodCost, boolean surfaceOnly, GrowthPulse pulse) {
+      this.location = location;
+      this.strength = strength;
+      this.foodCost = foodCost;
+      this.surfaceOnly = surfaceOnly;
+      this.pulse = pulse;
+    }
+  }
+
+  private static final class GrowthMutation implements Comparable<GrowthMutation> {
+    private final Loc location;
+    private final int increments;
+    private final double foodCost;
+    private final long dueAt;
+    private final GrowthPulse pulse;
+
+    private GrowthMutation(Loc location, int increments, double foodCost, long dueAt, GrowthPulse pulse) {
+      this.location = location;
+      this.increments = increments;
+      this.foodCost = foodCost;
+      this.dueAt = dueAt;
+      this.pulse = pulse;
+    }
+
+    @Override
+    public int compareTo(GrowthMutation other) {
+      return Long.compare(dueAt, other.dueAt);
+    }
+  }
+
+  @ConfigDescription("Grow nature around you in an aura at the cost of hunger.")
+  protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Surface Only for the Herbalism Growth Aura adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean surfaceOnly = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Min Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double minFoodCost = 0.05;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Food Cost for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxFoodCost = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double radiusFactor = 18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Strength Factor for the Herbalism Growth Aura adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double strengthFactor = 0.75;
+
+    public Config() {
+      baseCost = 8;
+      costFactor = 0.325;
+      maxLevel = 7;
+      initialCost = 12;
+    }
+  }
+}

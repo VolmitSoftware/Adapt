@@ -1,0 +1,48 @@
+import groovy.json.JsonSlurper
+
+Map<String, Map<String, Object>> modTargets = (Map<String, Map<String, Object>>) new JsonSlurper().parse(file('gradle/targets.json'))
+Map<String, String> modPlatforms = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge']
+List<TaskProvider<Exec>> modBuilds = []
+modPlatforms.each { String loader, String platform ->
+    List<TaskProvider<Exec>> loaderBuilds = []
+    modTargets.keySet().each { String target ->
+        TaskProvider<Exec> targetBuild = tasks.register("${loader}Jar${target.replace('.', '_')}", Exec) {
+            group = 'build'
+            description = "Builds and checks the ${platform} mod for Minecraft ${target}."
+            workingDir(projectDir)
+            List<String> arguments = [new File(projectDir, System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows') ? 'gradlew.bat' : 'gradlew').absolutePath,
+                '-p', "adapters/${loader}", '--project-cache-dir', file("adapters/${loader}/build/gradle-cache/${target}").absolutePath,
+                '--no-daemon', '--console=plain', '--max-workers=2', 'build', "-PminecraftVersion=${target}".toString()]
+            for (String key : ['adaptVersion', 'includeCoreSources']) {
+                String value = providers.gradleProperty(key).orNull
+                if (value != null) {
+                    arguments.add("-P${key}=${value}".toString())
+                }
+            }
+            commandLine(arguments)
+        }
+        loaderBuilds.add(targetBuild)
+        modBuilds.add(targetBuild)
+    }
+    tasks.register("build${platform}") {
+        group = 'build'
+        description = "Builds every supported ${platform} target."
+        dependsOn(loaderBuilds)
+    }
+}
+modBuilds.eachWithIndex { TaskProvider<Exec> targetBuild, int index ->
+    List<TaskProvider<Exec>> earlierBuilds = new ArrayList<>(modBuilds.subList(0, index))
+    targetBuild.configure { mustRunAfter(earlierBuilds) }
+}
+
+tasks.register('modDistributions', Sync) {
+    group = 'build'
+    description = 'Builds every mod target into build/distributions/mods.'
+    dependsOn(modBuilds)
+    modPlatforms.keySet().each { String loader ->
+        modTargets.keySet().each { String target ->
+            from("adapters/${loader}/build/${target}/libs") { include('*.jar') }
+        }
+    }
+    into(layout.buildDirectory.dir('distributions/mods'))
+}

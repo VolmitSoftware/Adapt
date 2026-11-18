@@ -1,0 +1,9 @@
+pluginManagement {
+    repositories {
+        maven { url = uri('https://maven.fabricmc.net/') }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+rootProject.name = 'adapt-fabric'
+apply from: '../../gradle/mod.settings.gradle'

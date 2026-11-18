@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.147'
+    alias(libs.plugins.shadow)
+}
+apply from: '../../gradle/mod.gradle'
+
+neoForge {
+    version = targetProperties.neoforge
+    mods {
+        register(adapt.projectId) {
+            sourceSet(sourceSets.main)
+        }
+    }
+}

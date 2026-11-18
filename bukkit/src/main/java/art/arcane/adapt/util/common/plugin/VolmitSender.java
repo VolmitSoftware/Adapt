@@ -1,0 +1,322 @@
+/*
+ *  Copyright (c) 2016-2025 Arcane Arts (Volmit Software)
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
+ */
+
+package art.arcane.adapt.util.common.plugin;
+
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.project.command.CommandDummy;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
+import art.arcane.volmlib.util.plugin.ComponentText;
+import lombok.Getter;
+import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Server;
+import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
+
+import java.time.Duration;
+import java.util.Set;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Represents a volume sender. A command sender with extra crap in its
+ *
+ * @author cyberpwn
+ */
+public class VolmitSender implements CommandSender {
+  private static final Pattern EXPLICIT_STYLE = Pattern.compile("(?i)§r|§x(?:§[0-9a-f]){6}");
+  private final CommandSender s;
+  public boolean useConsoleCustomColors = true;
+  public boolean useCustomColorsIngame = true;
+  public int spinh = -20;
+  public int spins = 7;
+  public int spinb = 8;
+  private String tag;
+  @Getter
+  @Setter
+  private String command;
+
+  /**
+   * Wrap a command sender
+   *
+   * @param s the command sender
+   */
+  public VolmitSender(CommandSender s) {
+    tag = "";
+    this.s = s;
+  }
+
+  public VolmitSender(CommandSender s, String tag) {
+    this.tag = tag;
+    this.s = s;
+  }
+
+  public static long getTick() {
+    return art.arcane.volmlib.util.math.M.ms() / 16;
+  }
+
+  public static String pulse(String colorA, String colorB, double speed) {
+    return "<gradient:" + colorA + ":" + colorB + ":" + pulse(speed) + ">";
+  }
+
+  public static String pulse(double speed) {
+    return Form.f(invertSpread((((getTick() * 15D * speed) % 1000D) / 1000D)), 3).replaceAll("\\Q,\\E", ".").replaceAll("\\Q?\\E", "-");
+  }
+
+  public static double invertSpread(double v) {
+    return ((1D - v) * 2D) - 1D;
+  }
+
+  /**
+   * Get the command tag
+   *
+   * @return the command tag
+   */
+  public String getTag() {
+    return tag;
+  }
+
+  /**
+   * Set a command tag (prefix for sendMessage)
+   *
+   * @param tag the tag
+   */
+  public void setTag(String tag) {
+    this.tag = tag;
+  }
+
+  /**
+   * Is this sender a player?
+   *
+   * @return true if it is
+   */
+  public boolean isPlayer() {
+    return getS() instanceof Player;
+  }
+
+  /**
+   * Force cast to player (be sure to check first)
+   *
+   * @return a casted player
+   */
+  public Player player() {
+    return (Player) getS();
+  }
+
+  /**
+   * Get the origin sender this object is wrapping
+   *
+   * @return the command sender
+   */
+  public CommandSender getS() {
+    return s;
+  }
+
+  @Override
+  public boolean isPermissionSet(String name) {
+    return s.isPermissionSet(name);
+  }
+
+  @Override
+  public boolean isPermissionSet(Permission perm) {
+    return s.isPermissionSet(perm);
+  }
+
+  @Override
+  public boolean hasPermission(String name) {
+    return s.hasPermission(name);
+  }
+
+  @Override
+  public boolean hasPermission(Permission perm) {
+    return s.hasPermission(perm);
+  }
+
+  @Override
+  public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value) {
+    return s.addAttachment(plugin, name, value);
+  }
+
+  @Override
+  public PermissionAttachment addAttachment(Plugin plugin) {
+    return s.addAttachment(plugin);
+  }
+
+  @Override
+  public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value, int ticks) {
+    return s.addAttachment(plugin, name, value, ticks);
+  }
+
+  @Override
+  public PermissionAttachment addAttachment(Plugin plugin, int ticks) {
+    return s.addAttachment(plugin, ticks);
+  }
+
+  @Override
+  public void removeAttachment(PermissionAttachment attachment) {
+    s.removeAttachment(attachment);
+  }
+
+  @Override
+  public void recalculatePermissions() {
+    s.recalculatePermissions();
+  }
+
+  @Override
+  public Set<PermissionAttachmentInfo> getEffectivePermissions() {
+    return s.getEffectivePermissions();
+  }
+
+  @Override
+  public boolean isOp() {
+    return s.isOp();
+  }
+
+  @Override
+  public void setOp(boolean value) {
+    s.setOp(value);
+  }
+
+  public void sendTitle(String title, String subtitle, int i, int s, int o) {
+    ComponentMessenger.showTitle(
+        player(),
+        createComponent(title),
+        createComponent(subtitle),
+        Duration.ofMillis(i),
+        Duration.ofMillis(s),
+        Duration.ofMillis(o));
+  }
+
+  public void sendAction(String action) {
+    ComponentMessenger.sendActionBar(player(), createNoPrefixComponent(action));
+  }
+
+  public void sendTitle(String subtitle, int i, int s, int o) {
+    ComponentMessenger.showTitle(
+        player(),
+        ComponentText.literal(" "),
+        createNoPrefixComponent(subtitle),
+        Duration.ofMillis(i),
+        Duration.ofMillis(s),
+        Duration.ofMillis(o));
+  }
+
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+  public boolean canUseCustomColors(VolmitSender volmitSender) {
+    return volmitSender.isPlayer() ? useCustomColorsIngame : useConsoleCustomColors;
+  }
+
+  private ComponentText createNoPrefixComponent(String message) {
+    if (!canUseCustomColors(this)) {
+      return ComponentText.legacyOnly(message);
+    }
+
+    return ComponentText.markup(automaticGradient(message, 0.36));
+  }
+
+  private ComponentText createComponent(String message) {
+    return canUseCustomColors(this)
+        ? ComponentText.markup(createMiniMessage(message))
+        : ComponentText.legacyOnly(getTag() + message);
+  }
+
+  private String createMiniMessage(String message) {
+    return automaticGradient(getTag(), 0.3) + automaticGradient(message, 0.3);
+  }
+
+  private String automaticGradient(String message, double pulse) {
+    String translated = C.translateAlternateColorCodes('&', message);
+    Matcher explicit = EXPLICIT_STYLE.matcher(translated);
+    if (!explicit.find()) {
+      return C.aura(translated, spinh, spins, spinb, pulse);
+    }
+    return C.aura(translated.substring(0, explicit.start()), spinh, spins, spinb, pulse)
+        + translated.substring(explicit.start());
+  }
+
+  @Override
+  public void sendMessage(String message) {
+    if (s instanceof CommandDummy) {
+      return;
+    }
+
+    if ((!useCustomColorsIngame && s instanceof Player) || !useConsoleCustomColors) {
+      ComponentMessenger.send(s, ComponentText.legacyOnly(getTag() + message));
+      return;
+    }
+
+    if (message.contains("<NOMINI>")) {
+      ComponentMessenger.sendLegacy(s, getTag() + message.replace("<NOMINI>", ""));
+      return;
+    }
+
+    ComponentMessenger.send(s, createComponent(message));
+  }
+
+  @Override
+  public void sendMessage(String[] messages) {
+    for (String str : messages)
+      sendMessage(str);
+  }
+
+  @Override
+  public void sendMessage(UUID uuid, String message) {
+    sendMessage(message);
+  }
+
+  @Override
+  public void sendMessage(UUID uuid, String[] messages) {
+    sendMessage(messages);
+  }
+
+  @Override
+  public Server getServer() {
+    return s.getServer();
+  }
+
+  @Override
+  public String getName() {
+    return s.getName();
+  }
+
+  @Override
+  public Component name() {
+    return Component.text(getName());
+  }
+
+  @Override
+  public Spigot spigot() {
+    return s.spigot();
+  }
+
+
+  public void playSound(Sound sound, float volume, float pitch) {
+    if (isPlayer()) {
+      player().playSound(player().getLocation(), sound, volume, pitch);
+    }
+  }
+}

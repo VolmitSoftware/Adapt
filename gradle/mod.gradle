@@ -1,0 +1,194 @@
+import art.arcane.volmit.packaging.JarCompactor
+import groovy.json.JsonOutput
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = uri('https://jitpack.io') }
+    }
+    dependencies {
+        classpath('com.github.VolmitSoftware.VolmLib:packaging:master-SNAPSHOT')
+    }
+}
+
+ext.adaptRoot = file('../..')
+apply from: '../../gradle/mod-identity.gradle'
+
+String target = adapt.minecraftVersion
+String loader = projectDir.name
+Map<String, Object> targetProperties = minecraftTargets[target]
+ext.targetProperties = targetProperties
+layout.buildDirectory.set(layout.projectDirectory.dir("build/${target}"))
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of((int) targetProperties.javaVersion)
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release.set((int) targetProperties.javaVersion)
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-parameters')
+}
+repositories {
+    mavenCentral()
+    maven { url = uri('https://jitpack.io') }
+}
+
+configurations {
+    bundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+configurations.implementation.extendsFrom(configurations.bundle)
+String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
+    .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
+    .get()
+dependencies {
+    bundle(libs.adventure.minimessage) {
+        exclude(group: 'org.jetbrains')
+        exclude(group: 'org.jspecify')
+    }
+    bundle(libs.adventure.legacy) {
+        exclude(group: 'org.jetbrains')
+        exclude(group: 'org.jspecify')
+    }
+    bundle(volmLibCoordinate) {
+        transitive = false
+    }
+    bundle(libs.gson) {
+        transitive = false
+    }
+    bundle(libs.toml4j) {
+        transitive = false
+    }
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+sourceSets.test.java.srcDir('../mod-common/src/test/java')
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+ext.distributionJar = tasks.named('shadowJar').flatMap { task -> task.archiveFile }
+
+if (providers.gradleProperty('includeCoreSources').getOrElse('true').toBoolean()) {
+    sourceSets.main.java.srcDir('../../core/src/main/java')
+    sourceSets.main.resources.srcDir('../../core/src/main/resources')
+}
+sourceSets.main.java.srcDir('../mod-common/src/main/java')
+sourceSets.main.resources.srcDir('../mod-common/src/main/resources')
+for (String kind : ['java', 'resources']) {
+    SourceDirectorySet directories = kind == 'java' ? sourceSets.main.java : sourceSets.main.resources
+    List<File> overlays = []
+    if (targetProperties.sourceFamily != null) {
+        overlays.add(file("../mod-common/src/families/${targetProperties.sourceFamily}/${kind}"))
+    }
+    overlays.add(file("../mod-common/src/versions/${target}/${kind}"))
+    overlays.add(file("src/overlay/${kind}"))
+    if (targetProperties.sourceFamily != null) {
+        overlays.add(file("src/families/${targetProperties.sourceFamily}/${kind}"))
+    }
+    overlays.add(file("src/versions/${target}/${kind}"))
+    for (File overlay : overlays) {
+        directories.srcDir(overlay)
+    }
+    directories.exclude { FileTreeElement entry ->
+        for (int index = overlays.size() - 1; index >= 0; index--) {
+            File replacement = new File(overlays[index], entry.relativePath.pathString)
+            if (replacement.isFile()) {
+                return entry.file.canonicalFile != replacement.canonicalFile
+            }
+        }
+        false
+    }
+}
+
+Provider<Directory> identityDirectory = layout.buildDirectory.dir('generated/sources/identity')
+TaskProvider<Task> identity = tasks.register('generateModIdentity') {
+    inputs.properties(adapt)
+    inputs.property('loader', loader)
+    outputs.dir(identityDirectory)
+    doLast {
+        File output = identityDirectory.get().file('art/arcane/adapt/mod/AdaptModIdentity.java').asFile
+        output.parentFile.mkdirs()
+        output.setText("""package art.arcane.adapt.mod;
+
+public final class AdaptModIdentity {
+    public static final String ID = ${JsonOutput.toJson(adapt.projectId)};
+    public static final String NAME = ${JsonOutput.toJson(adapt.projectName)};
+    public static final String VERSION = ${JsonOutput.toJson(adapt.projectVersion)};
+    public static final String MINECRAFT_TARGET = ${JsonOutput.toJson(target)};
+
+    private AdaptModIdentity() {
+    }
+}
+""", 'UTF-8')
+    }
+}
+sourceSets.main.java.srcDir(identityDirectory)
+
+apply from: '../../gradle/language-source.gradle'
+TaskProvider<WriteProperties> languageSourceManifest = (TaskProvider<WriteProperties>) ext.languageSourceManifestTask
+tasks.named('compileJava').configure { dependsOn(identity) }
+
+Map<String, String> metadata = adapt + [
+    fabricLoaderVersion: (String) targetProperties.fabricLoader,
+    forgeLoaderRange: (String) targetProperties.forgeLoaderRange,
+    neoForgeVersion: (String) targetProperties.neoforge,
+    javaVersion: targetProperties.javaVersion.toString(),
+    dataPackFormat: targetProperties.dataPackFormat.toString()
+]
+tasks.named('processResources').configure {
+    dependsOn(languageSourceManifest)
+    from(languageSourceManifest)
+    inputs.properties(metadata)
+    filesMatching(['fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) { expand(metadata) }
+}
+
+String platform = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge'][loader]
+String loaderVersion = loader == 'fabric' ? (String) targetProperties.fabricLoader : (String) targetProperties[loader]
+String displayVersion = loaderVersion.startsWith(target + '-') ? loaderVersion.substring(target.length() + 1) : loaderVersion
+displayVersion = displayVersion.replaceFirst(/-beta$/, '')
+ext.distributionName = "${adapt.projectName} v${version} [${platform}] ${target}+${displayVersion}.jar".toString()
+
+tasks.named('shadowJar').configure {
+    addMultiReleaseAttribute.set(true)
+    configurations = [project.configurations.bundle]
+    filesMatching('META-INF/services/**') { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
+    mergeServiceFiles()
+    relocate('net.kyori', 'art.arcane.adapt.shadow.kyori')
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    relocate('com.google.gson', 'art.arcane.adapt.shadow.gson')
+    relocate('com.moandjiezana.toml', 'art.arcane.adapt.shadow.toml')
+    minimize {
+        exclude(dependency('net.kyori:.*:.*'))
+        exclude(dependency('com.google.code.gson:.*:.*'))
+        exclude(dependency('com.moandjiezana.toml:.*:.*'))
+    }
+    exclude('META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/maven/**', 'module-info.class')
+    // Only DirectorMiniMenu's Bukkit-sender delivery reaches it; the mod renders help pages and sends them itself.
+    exclude('art/arcane/volmlib/util/plugin/ComponentMessenger*.class', 'art/arcane/adapt/util/arcane/volmlib/util/plugin/ComponentMessenger*.class')
+    // No class in the mod jar loads VolmLib's native noise libraries.
+    exclude('art/arcane/volmlib/native/**', 'art/arcane/adapt/util/arcane/volmlib/native/**')
+    from(new File(adaptRoot, 'LICENSE.md'))
+    archiveClassifier.set('')
+    archiveFileName.set(distributionName)
+    File compressionCache = new File(gradle.gradleUserHomeDir, 'caches/volmit-packaging/compression')
+    doLast {
+        File archive = archiveFile.get().asFile
+        long before = archive.length()
+        JarCompactor.compact(archive, new JarCompactor.CompactionOptions(Collections.<String>emptySet(), false, true, true, compressionCache.toPath()))
+        logger.lifecycle("${archive.name}: ${before} -> ${archive.length()} bytes")
+    }
+}
+tasks.named('jar').configure { enabled = false }
+tasks.named('assemble').configure { dependsOn('shadowJar') }
+
+apply from: '../../gradle/mod-verify-artifact.gradle'
+apply from: '../../gradle/mod-gameplay-fixture.gradle'

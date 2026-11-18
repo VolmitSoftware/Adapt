@@ -1,0 +1,38 @@
+package art.arcane.adapt.platform.event.entity;
+
+/** Coarse damage cause with Bukkit's names. Exact vanilla damage types are on the event as an id. */
+public enum DamageCause {
+  KILL,
+  WORLD_BORDER,
+  CONTACT,
+  ENTITY_ATTACK,
+  ENTITY_SWEEP_ATTACK,
+  PROJECTILE,
+  SUFFOCATION,
+  FALL,
+  FIRE,
+  FIRE_TICK,
+  MELTING,
+  LAVA,
+  DROWNING,
+  BLOCK_EXPLOSION,
+  ENTITY_EXPLOSION,
+  VOID,
+  LIGHTNING,
+  SUICIDE,
+  STARVATION,
+  POISON,
+  MAGIC,
+  WITHER,
+  FALLING_BLOCK,
+  THORNS,
+  DRAGON_BREATH,
+  FLY_INTO_WALL,
+  HOT_FLOOR,
+  CAMPFIRE,
+  CRAMMING,
+  DRYOUT,
+  FREEZE,
+  SONIC_BOOM,
+  CUSTOM
+}

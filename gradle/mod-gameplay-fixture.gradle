@@ -1,0 +1,43 @@
+// Gameplay test fixture mod (adaptqa). Its own source set and jar task; never part of build, assemble or the Adapt jar.
+String fixtureTarget = (String) adapt.minecraftVersion
+Map<String, String> fixtureMetadata = [
+    projectVersion: (String) adapt.projectVersion,
+    minecraftVersion: fixtureTarget,
+    forgeLoaderRange: (String) targetProperties.forgeLoaderRange,
+    dataPackFormat: targetProperties.dataPackFormat.toString()
+]
+
+sourceSets {
+    gameplayFixture {
+        java.srcDir('../../core/src/gameplayFixture/java')
+        java.srcDir('../mod-common/src/gameplayFixture/java')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+dependencies {
+    gameplayFixtureCompileOnly('org.jetbrains:annotations:26.0.2-1')
+    gameplayFixtureCompileOnly(libs.lombok)
+    gameplayFixtureAnnotationProcessor(libs.lombok)
+}
+
+tasks.named('processGameplayFixtureResources').configure {
+    inputs.properties(fixtureMetadata)
+    filesMatching(['fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) { expand(fixtureMetadata) }
+}
+
+Class<? extends Task> shadowJarType = (Class<? extends Task>) tasks.named('shadowJar').get().getClass().getSuperclass()
+tasks.register('gameplayFixtureJar', shadowJarType) {
+    group = 'verification'
+    description = 'Builds the server-side gameplay fixture mod for isolated test servers.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output)
+    configurations = []
+    relocate('net.kyori', 'art.arcane.adapt.shadow.kyori')
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    relocate('com.google.gson', 'art.arcane.adapt.shadow.gson')
+    relocate('com.moandjiezana.toml', 'art.arcane.adapt.shadow.toml')
+    archiveClassifier.set('')
+    archiveFileName.set('AdaptGameplayFixture.jar')
+    destinationDirectory.set(layout.buildDirectory.dir('gameplay'))
+}

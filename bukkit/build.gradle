@@ -1,0 +1,576 @@
+/*
+ * Adapt is Copyright (c) 2021 Arcane Arts (Volmit Software)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import art.arcane.volmit.packaging.PackagingMode
+import io.github.slimjar.resolver.data.Mirror
+import org.gradle.api.artifacts.component.ComponentIdentifier
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.tasks.WriteProperties
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.tasks.Jar
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+
+plugins {
+    id 'java-library'
+    id 'io.freefair.lombok'
+    id 'com.gradleup.shadow'
+    id 'de.crazydev22.slimjar'
+}
+
+apply plugin: 'art.arcane.volmit-packaging'
+
+tasks.withType(JavaCompile).configureEach {
+    options.debugOptions.debugLevel = 'none'
+}
+
+version = '2.2.7'
+base.archivesName.set('Adapt')
+ext.bukkitMinecraftRange = providers.gradleProperty('bukkitMinecraftRange').getOrElse('26.1.2-26.3')
+def apiVersion = '26.1'
+def main = 'art.arcane.adapt.Adapt'
+String paperDevBundleVersion = providers.gradleProperty('paperDevBundleVersion')
+    .orElse('26.1.2.build.74-stable')
+    .get()
+String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
+    .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
+    .get()
+String hiddenOreCoordinate = providers.gradleProperty('hiddenOreCoordinate')
+    .orElse('com.github.VolmitSoftware:HiddenOre:master-SNAPSHOT')
+    .get()
+String irisCoordinate = providers.gradleProperty('irisCoordinate')
+    .orElse('com.github.VolmitSoftware:Iris:unification-SNAPSHOT')
+    .get()
+def platformUtilsConfiguration = configurations.create('platformUtilsLibrary')
+def advancementConfiguration = configurations.create('advancementLibrary')
+
+def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
+tasks.named('slimJar').get()
+tasks.named('slimJar') {
+    doFirst { new File(outputDirectory, 'slimjar-resolutions.dat').delete() }
+}
+ext.adaptRoot = rootDir
+apply from: rootProject.file('gradle/language-source.gradle')
+Map<String, Object> languageSource = (Map<String, Object>) ext.languageSource
+TaskProvider<WriteProperties> languageSourceManifestTask = (TaskProvider<WriteProperties>) ext.languageSourceManifestTask
+def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
+    archiveClassifier = 'platform-utils'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from({ platformUtilsConfiguration.collect { File dependency -> zipTree(dependency) } })
+    exclude('net/kyori/**')
+    exclude('META-INF/services/net.kyori.**')
+    exclude('com/google/gson/**')
+}
+
+def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Jar) {
+    archiveClassifier = 'advancement-library'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from({ advancementConfiguration.collect { File dependency -> zipTree(dependency) } })
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/v*/**')
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/util/ReflectionUtil.class')
+    exclude('com/fren_gor/ultimateAdvancementAPI/util/Versions.class')
+    exclude('com/fren_gor/ultimateAdvancementAPI/database/impl/MySQL.class')
+}
+
+/**
+ * Expand properties into plugin yml
+ */
+tasks.named('processResources').configure {
+    dependsOn(languageSourceManifestTask)
+    exclude('*.toml')
+    from(languageSourceManifestTask)
+
+    def pluginProperties = [
+        name      : rootProject.name,
+        version   : project.version,
+        main      : main,
+        apiVersion: apiVersion,
+    ]
+
+    inputs.properties(pluginProperties)
+    filesMatching('**/plugin.yml') {
+        expand(pluginProperties)
+    }
+}
+
+def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
+    group = 'verification'
+    description = 'Verifies that locales are absent from the jar and its language source manifest tracks the build branch.'
+    dependsOn(shadowJarTask)
+
+    doLast {
+        File runtimeJar = shadowJarTask.get().archiveFile.get().asFile
+
+        Set<String> embeddedLocales = new LinkedHashSet<>()
+        new ZipFile(runtimeJar).withCloseable { ZipFile jar ->
+            Enumeration<? extends ZipEntry> entries = jar.entries()
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement()
+                if (!entry.isDirectory() && entry.name.toLowerCase(Locale.ROOT).endsWith('.toml')) {
+                    embeddedLocales.add(entry.name)
+                }
+            }
+        }
+        if (!embeddedLocales.isEmpty()) {
+            throw new GradleException("Runtime jar contains locale TOMLs: ${embeddedLocales}")
+        }
+
+        new ZipFile(runtimeJar).withCloseable { ZipFile jar ->
+            ZipEntry manifestEntry = jar.getEntry('adapt-language-source.properties')
+            if (manifestEntry == null) {
+                throw new GradleException('Runtime jar is missing adapt-language-source.properties.')
+            }
+            Properties manifest = new Properties()
+            jar.getInputStream(manifestEntry).withCloseable { InputStream input -> manifest.load(input) }
+            if (manifest.getProperty('repository') != languageSource.repository
+                    || manifest.getProperty('branch') != languageSource.branch
+                    || manifest.getProperty('path') != languageSource.path
+                    || manifest.getProperty('extension') != '.toml'
+                    || manifest.getProperty('locales') != ((List<String>) languageSource.locales).join(',')) {
+                throw new GradleException('Runtime jar language source manifest does not match the build source set.')
+            }
+            if (manifest.stringPropertyNames().any { String key ->
+                key == 'revision' || key == 'mode' || key.startsWith('sha256.')
+            }) {
+                throw new GradleException('Runtime jar language source manifest must track the repository branch, not a pinned revision.')
+            }
+        }
+    }
+}
+
+dependencies {
+    api(project(':core'))
+    implementation('com.github.VolmitSoftware.VolmLib:native-api:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-common:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-v26_2_R1:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-v26_3_R1:master-SNAPSHOT') {
+        transitive = false
+    }
+
+    implementation(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    compileOnly(hiddenOreCoordinate) {
+        changing = true
+        transitive = false
+    }
+    compileOnly(irisCoordinate) {
+        changing = true
+        transitive = false
+    }
+    implementation('de.crazydev22.slimjar.helper:spigot:2.1.9')
+    add('platformUtilsLibrary', libs.platformUtils) {
+        transitive = false
+    }
+    implementation(files(strippedPlatformUtils.flatMap { Jar task -> task.archiveFile }))
+
+    compileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
+
+    slimApi(libs.kotlin.coroutines)
+
+    // Dynamically Loaded
+    slim(libs.bstats)
+    slimApi(libs.adventure.minimessage)
+    slimApi(libs.adventure.platform)
+    slimApi(libs.adventure.gson)
+    slimApi(libs.adventure.legacy)
+    slimApi(libs.adventure.plain)
+    slimApi(libs.lettuce)
+    slimApi(libs.particle)
+    add('advancementLibrary', libs.ultimateAdvancementApi) {
+        transitive = false
+    }
+    compileOnly(libs.ultimateAdvancementApi)
+    api(files(strippedAdvancementLibrary.flatMap { Jar task -> task.archiveFile }))
+    slimApi(libs.lang3)
+    slimApi(libs.effectLib)
+    slimApi(libs.gson)
+    slimApi(libs.toml4j)
+    slimApi(libs.fastutil)
+    slimApi(libs.caffeine)
+
+    //Random Api's
+    compileOnlyApi('me.clip:placeholderapi:2.11.6')
+    compileOnly('com.github.MilkBowl:VaultAPI:1.7') {
+        transitive = false
+    }
+    compileOnlyApi('com.github.DeadSilenceIV:AdvancedChestsAPI:2.9-BETA')
+    compileOnlyApi('com.sk89q.worldguard:worldguard-bukkit:7.0.8')
+    compileOnlyApi('com.github.FrancoBM12:API-MagicCosmetics:2.2.8')
+    compileOnlyApi('com.massivecraft:Factions:1.6.9.5-U0.6.21')
+    compileOnlyApi('com.github.angeschossen:ChestProtectAPI:3.9.1')
+    compileOnlyApi('com.github.TechFortress:GriefPrevention:16.18.1')
+    compileOnlyApi('com.griefdefender:api:2.1.1-SNAPSHOT')
+    compileOnlyApi(fileTree('libs') { include('*.jar') })
+
+    testImplementation("io.papermc.paper:paper-api:${paperDevBundleVersion}")
+    testImplementation('me.clip:placeholderapi:2.11.6') {
+        transitive = false
+    }
+    testImplementation('com.github.MilkBowl:VaultAPI:1.7') {
+        transitive = false
+    }
+    testImplementation('com.massivecraft:Factions:1.6.9.5-U0.6.21') {
+        transitive = false
+    }
+    testImplementation('com.github.TechFortress:GriefPrevention:16.18.1') {
+        transitive = false
+    }
+    testImplementation(testFixtures(project(':core')))
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testImplementation('org.mockito:mockito-core:5.14.2')
+    testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
+    testImplementation('org.assertj:assertj-core:3.26.3')
+    testImplementation('com.h2database:h2:2.3.232')
+    testImplementation(irisCoordinate) {
+        changing = true
+        transitive = false
+    }
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+tasks.named('test', Test) {
+    inputs.dir(rootProject.file('../docs/adapt'))
+            .withPropertyName('skillDocumentation')
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+    useJUnitPlatform {
+        excludeTags('media-export')
+    }
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    timeout = java.time.Duration.ofMinutes(10)
+    testLogging {
+        events('failed')
+        showStandardStreams = false
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('exportGolemancyMedia', Test) {
+    group = 'documentation'
+    description = 'Writes build/demo/golemancy-media/recipes.json from the default Golemancy recipe, infusion and adaptation configuration.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags('media-export')
+    }
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    systemProperty('adapt.media.output', layout.buildDirectory.dir('demo/golemancy-media').get().asFile.path)
+    outputs.upToDateWhen { false }
+    testLogging {
+        events('failed')
+        showStandardStreams = false
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('verifyPaper263Compatibility') {
+    group = 'verification'
+    description = 'Compiles main and test sources with -PpaperDevBundleVersion=26.3.build.25-alpha.'
+    dependsOn(tasks.named('compileJava'), tasks.named('compileTestJava'))
+    doLast {
+        if (paperDevBundleVersion != '26.3.build.25-alpha') {
+            throw new GradleException('Run verifyPaper263Compatibility with -PpaperDevBundleVersion=26.3.build.25-alpha.')
+        }
+    }
+}
+
+def lib = 'art.arcane.adapt.util'
+slimJar {
+    mirrors = [
+        new Mirror(
+            uri('https://maven-central.storage-download.googleapis.com/maven2').toURL(),
+            uri('https://repo.maven.apache.org/maven2/').toURL()
+        )
+    ]
+
+    relocate('art.arcane.volmlib', "${lib}.arcane.volmlib")
+    relocate('com.fren_gor.ultimateAdvancementAPI', "${lib}.advancements")
+    relocate('net.byteflux.libby', "${lib}.libby")
+    relocate('org.bstats', "${lib}.bstats")
+}
+
+/**
+ * Configure Adapt for shading
+ */
+tasks.named('jar', Jar).configure {
+    archiveClassifier.set('thin')
+}
+
+shadowJarTask.configure {
+    archiveClassifier.set('')
+    archiveFileName.set("Adapt v${project.version} [CraftBukkit] ${bukkitMinecraftRange}.jar")
+    manifest.attributes('paperweight-mappings-namespace': 'mojang')
+    minimize {
+        exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))
+        exclude(dependency('com.github.VolmitSoftware.VolmLib:.*:.*'))
+        exclude(project(':core'))
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    exclude('net/kyori/**')
+    exclude('com/google/gson/**')
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/v*/**')
+    exclude { FileTreeElement entry ->
+        String nativePrefix = 'art/arcane/volmlib/nativelib/'
+        String path = entry.path
+        if (!path.startsWith(nativePrefix) || !path.endsWith('.class')) {
+            return false
+        }
+        String relative = path.substring(nativePrefix.length())
+        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:(?:player|entity|advancement)/.*|chunk/(?:GeneratedChunkStructures|ChunkPosition).*)')
+    }
+}
+
+tasks.named('build').configure {
+    dependsOn(shadowJarTask)
+}
+
+sourceSets {
+    gameplayFixture {
+        java.srcDir('src/test/gameplay/fixture/java')
+        java.srcDir('../core/src/gameplayFixture/java')
+        resources.srcDir('src/test/gameplay/fixture/resources')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+dependencies {
+    testImplementation(sourceSets.gameplayFixture.output)
+}
+
+tasks.register('gameplayFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Paper gameplay observer and arena fixture.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output)
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptGameplayFixture.jar'
+}
+
+tasks.register('golemFoliaFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Folia golem fixture for an existing world.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output) {
+        exclude('plugin.yml')
+    }
+    from('src/test/gameplay/fixture-folia')
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptGolemFoliaFixture.jar'
+}
+
+tasks.register('gameplayContractTest', Exec) {
+    group = 'verification'
+    commandLine(['node', '--test'] + fileTree('src/test/gameplay').matching { include '*.test.mjs' }.files.collect { File file -> file.path }.sort())
+}
+
+tasks.register('xpIntegrityFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+    group = 'verification'
+    description = 'Builds the isolated Paper and Folia XP gameplay fixture.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output) {
+        exclude('plugin.yml')
+    }
+    from('src/test/gameplay/fixture-xp')
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
+    archiveFileName = 'AdaptXpIntegrityFixture.jar'
+}
+
+tasks.register('prepareGameplay', Sync) {
+    group = 'verification'
+    description = 'Stages the current runtime and isolated gameplay fixture under build/gameplay/plugins.'
+    dependsOn(shadowJarTask, tasks.named('gameplayFixtureJar'))
+    into(layout.buildDirectory.dir('gameplay/plugins'))
+    from(shadowJarTask.flatMap { it.archiveFile }) {
+        rename { 'Adapt.jar' }
+    }
+    from(tasks.named('gameplayFixtureJar').flatMap { it.archiveFile })
+}
+
+tasks.named('check').configure {
+    dependsOn(tasks.named('gameplayContractTest'))
+    dependsOn(tasks.named('gameplayFixtureJar'))
+    dependsOn(tasks.named('golemFoliaFixtureJar'))
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyLanguagePackagingTask)
+}
+
+// Plugins built against the pre-port API link against Bukkit-typed members that core cannot declare: weaveApiBridges
+// copies the @ApiBridge methods of art.arcane.adapt.bukkit.compat into the core classes of this jar only (mods never).
+sourceSets {
+    apiCompat
+    apiCompatSample
+    apiCompatTest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+configurations {
+    apiCompatCore {
+        canBeConsumed = false
+        transitive = false
+    }
+}
+
+File apiBaselineFile = file('api-baseline.txt')
+File wovenCoreJar = layout.buildDirectory.file('tmp/apiCompat/core-bukkit.jar').get().asFile
+File apiStubJarFile = layout.buildDirectory.file('tmp/apiCompat/pre-port-api.jar').get().asFile
+File apiCompatibilityReport = layout.buildDirectory.file('reports/api-compatibility.tsv').get().asFile
+
+def weaveApiBridges = tasks.register('weaveApiBridges', JavaExec) {
+    group = 'build'
+    description = 'Adds the pre-port Bukkit-typed API bridges to the core classes packed into the plugin jar.'
+    dependsOn(tasks.named('compileJava'))
+    inputs.files(configurations.apiCompatCore).withPathSensitivity(PathSensitivity.NONE)
+    inputs.files(sourceSets.main.java.classesDirectory).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.file(wovenCoreJar)
+    classpath = sourceSets.apiCompat.runtimeClasspath
+    mainClass = 'art.arcane.adapt.apicompat.ApiBridgeWeaver'
+    argumentProviders.add({
+        [configurations.apiCompatCore.singleFile.path, sourceSets.main.java.classesDirectory.get().asFile.path,
+         wovenCoreJar.path]
+    } as CommandLineArgumentProvider)
+}
+
+def apiCompatStubJar = tasks.register('apiCompatStubJar', JavaExec) {
+    group = 'verification'
+    description = 'Writes a compile-only jar with exactly the pre-port API surface from api-baseline.txt.'
+    inputs.file(apiBaselineFile).withPathSensitivity(PathSensitivity.NONE)
+    outputs.file(apiStubJarFile)
+    classpath = sourceSets.apiCompat.runtimeClasspath
+    mainClass = 'art.arcane.adapt.apicompat.ApiStubJar'
+    args(apiBaselineFile.path, apiStubJarFile.path)
+}
+
+dependencies {
+    apiCompatCore(project(':core'))
+    apiCompatImplementation('org.ow2.asm:asm-tree:9.10.1')
+    apiCompatSampleCompileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
+    apiCompatSampleCompileOnly(files(apiStubJarFile) { builtBy(apiCompatStubJar) })
+    apiCompatTestImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    apiCompatTestImplementation('org.mockito:mockito-core:5.14.2')
+    apiCompatTestImplementation('org.ow2.asm:asm-tree:9.10.1')
+    apiCompatTestImplementation("io.papermc.paper:paper-api:${paperDevBundleVersion}")
+    apiCompatTestRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+shadowJarTask.configure {
+    dependsOn(weaveApiBridges)
+    dependencies {
+        exclude(project(':core'))
+    }
+    from({ zipTree(wovenCoreJar) }) {
+        exclude('META-INF/MANIFEST.MF')
+    }
+}
+
+def verifyPublicApiCompatibility = tasks.register('verifyPublicApiCompatibility', JavaExec) {
+    group = 'verification'
+    description = 'Fails when a pre-port public API member in api-baseline.txt does not link against the built plugin jar.'
+    dependsOn(shadowJarTask)
+    inputs.file(apiBaselineFile).withPathSensitivity(PathSensitivity.NONE)
+    inputs.files(shadowJarTask.flatMap { it.archiveFile }).withPathSensitivity(PathSensitivity.NONE)
+    outputs.file(apiCompatibilityReport)
+    classpath = sourceSets.apiCompat.runtimeClasspath
+    mainClass = 'art.arcane.adapt.apicompat.ApiCompatibilityCheck'
+    argumentProviders.add({
+        [apiBaselineFile.path, shadowJarTask.get().archiveFile.get().asFile.path, apiCompatibilityReport.path]
+    } as CommandLineArgumentProvider)
+}
+
+FileCollection pluginRuntimeLibraries = configurations.runtimeClasspath.incoming.artifactView {
+    componentFilter { ComponentIdentifier component -> !(component instanceof ProjectComponentIdentifier) }
+}.files + configurations.slim + configurations.slimApi
+
+def apiCompatTestTask = tasks.register('apiCompatTest', Test) {
+    group = 'verification'
+    description = 'Loads a sample plugin compiled against the pre-port API against the built plugin jar.'
+    dependsOn(shadowJarTask, tasks.named('apiCompatSampleClasses'))
+    testClassesDirs = sourceSets.apiCompatTest.output.classesDirs
+    classpath = sourceSets.apiCompatTest.runtimeClasspath + files(shadowJarTask.flatMap { it.archiveFile }) + pluginRuntimeLibraries
+    systemProperty('adapt.apicompat.sample', sourceSets.apiCompatSample.output.classesDirs.asPath)
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    useJUnitPlatform()
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('generateApiBaseline', JavaExec) {
+    group = 'verification'
+    description = 'Rewrites api-baseline.txt from the pre-port runtime jar: -PprePortRuntimeJar=<extracted runtime.jar>.'
+    classpath = sourceSets.apiCompat.runtimeClasspath
+    mainClass = 'art.arcane.adapt.apicompat.ApiBaselineWriter'
+    argumentProviders.add({
+        [providers.gradleProperty('prePortRuntimeJar').get(), file('api-scope.txt').path, apiBaselineFile.path]
+    } as CommandLineArgumentProvider)
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyPublicApiCompatibility, apiCompatTestTask)
+}
+
+pluginPackaging {
+    nativeImplementationPackages.add('art.arcane.adapt.bukkit.packet')
+    artifacts {
+        create('distribution') {
+            stripDirectories = true
+            stripLocalVariables = true
+            releaseCompression = providers.gradleProperty('compactRelease').map { it.toBoolean() }
+                    .getOrElse(!PackagingMode.resolve(providers).development())
+            packed = true
+            packedJarAccessors = ['art/arcane/adapt/Adapt#getJarFile']
+            taskName = 'shadowJar'
+            policyName = 'Adapt'
+            prunePrefixes = ['art/arcane/adapt/util/arcane/volmlib/']
+            keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/',
+                            'art/arcane/adapt/util/arcane/volmlib/nativelib/']
+            shrinkRules = [file('packaging/shrink.pro')]
+            shrinkDontwarn = ['org.sqlite.**', 'net.minecraft.**', 'org.bukkit.craftbukkit.**']
+            shrinkRelocations = [
+                'net.byteflux.libby': "${lib}.libby",
+                'org.bstats': "${lib}.bstats"
+            ]
+        }
+    }
+}
+
+tasks.register('buildSwiftSwamp', Copy) {
+    group = 'development'
+    description = 'Builds, verifies, and stages Adapt in the workspace BUILDS directory.'
+    dependsOn('check', 'packedJar')
+    outputs.upToDateWhen { false }
+    from({ tasks.named('packedJar').get().outputJar })
+    into(providers.gradleProperty('buildsDirectory').orElse('../BUILDS').map { String directory -> rootProject.file(directory) })
+    rename { String ignored -> 'Adapt.jar' }
+}
+
+apply from: rootProject.file('gradle/multiplexor.gradle')

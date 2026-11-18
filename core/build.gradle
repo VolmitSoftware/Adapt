@@ -1,0 +1,85 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+plugins {
+    id 'java-library'
+    id 'java-test-fixtures'
+    id 'io.freefair.lombok'
+}
+
+String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
+    .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
+    .get()
+
+dependencies {
+    compileOnly(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    compileOnly(libs.gson)
+    compileOnly(libs.toml4j) {
+        transitive = false
+    }
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+
+    testImplementation(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    testImplementation(libs.gson)
+    testImplementation(libs.toml4j) {
+        transitive = false
+    }
+    testFixturesCompileOnly(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    testFixturesImplementation('org.mockito:mockito-core:5.14.2')
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testImplementation('org.assertj:assertj-core:3.26.3')
+    testImplementation('org.mockito:mockito-core:5.14.2')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+
+FileTree coreSources = fileTree('src/main/java') { include('**/*.java') }
+def verifyCorePurity = tasks.register('verifyCorePurity') {
+    group = 'verification'
+    description = 'Fails when core sources reference Bukkit, Paper, Adventure, Minecraft or Bukkit-bound VolmLib types.'
+    inputs.files(coreSources).withPathSensitivity(PathSensitivity.RELATIVE)
+    File report = layout.buildDirectory.file('reports/core-purity.txt').get().asFile
+    outputs.file(report)
+
+    doLast {
+        Pattern forbidden = Pattern.compile('\\b(?:org\\.bukkit|io\\.papermc|com\\.destroystokyo|net\\.minecraft|net\\.kyori|net\\.md_5'
+            + '|art\\.arcane\\.volmlib\\.(?:integration|projection|nativelib'
+            + '|util\\.(?:bukkit|inventorygui|scheduling|hud|board|event|entity|metrics|uniques|director\\.(?:compat\\.BukkitDirectorContext|help|visual))))\\b')
+        List<String> violations = []
+        coreSources.files.sort { File source -> source.path }.each { File source ->
+            source.readLines('UTF-8').eachWithIndex { String line, int index ->
+                Matcher matcher = forbidden.matcher(line)
+                if (matcher.find()) {
+                    violations.add("${projectDir.toPath().relativize(source.toPath())}:${index + 1}: ${matcher.group()}".toString())
+                }
+            }
+        }
+        report.parentFile.mkdirs()
+        report.setText(violations.join('\n'), 'UTF-8')
+        if (!violations.isEmpty()) {
+            throw new GradleException("Core sources reference platform types:\n${violations.join('\n')}")
+        }
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyCorePurity)
+}

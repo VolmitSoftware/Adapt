@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "${forgeLoaderRange}"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "${projectId}"
+version = "${projectVersion}"
+displayName = "${projectName}"
+description = "Skills and adaptations for survival servers."
+authors = "Volmit Software"
+displayTest = "IGNORE_SERVER_VERSION"
+
+[[dependencies.${projectId}]]
+modId = "forge"
+mandatory = true
+versionRange = "${forgeLoaderRange}"
+ordering = "NONE"
+side = "SERVER"
+
+[[dependencies.${projectId}]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${minecraftVersion}]"
+ordering = "NONE"
+side = "SERVER"

@@ -1,0 +1,146 @@
+import groovy.json.JsonSlurper
+import java.nio.charset.StandardCharsets
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarInputStream
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+String platform = projectDir.name
+Map<String, String> metadataPaths = [fabric: 'fabric.mod.json', forge: 'META-INF/mods.toml', neoforge: 'META-INF/neoforge.mods.toml']
+Map<String, String> entrypoints = [fabric: 'art.arcane.adapt.fabric.AdaptFabric', forge: 'art.arcane.adapt.forge.AdaptForge', neoforge: 'art.arcane.adapt.neoforge.AdaptNeoForge']
+String mixinConfig = 'adapt.mixins.json'
+String platformMixinConfig = 'adapt-platform.mixins.json'
+List<String> mixinConfigs = [mixinConfig, platformMixinConfig, 'adapt.feature.mixins.json', 'adapt.gap-block.mixins.json', 'adapt.gap-entity.mixins.json']
+TaskProvider<Task> verification = tasks.register('verifyArtifact') {
+    group = 'verification'
+    description = 'Checks mod metadata, entry points and platform boundaries of the mod jar.'
+    Provider<RegularFile> artifactFile = providers.provider { project.ext.distributionJar }.flatMap { Provider<RegularFile> selected -> selected }
+    dependsOn(artifactFile)
+    inputs.file(artifactFile)
+    inputs.properties(adapt)
+    inputs.property('minecraftTargets', minecraftTargets)
+    doLast {
+        File artifact = artifactFile.get().asFile
+        Closure<Void> require = { boolean condition, String message ->
+            if (!condition) {
+                throw new GradleException("${artifact.name}: ${message}")
+            }
+            null
+        }
+        String metadataPath = metadataPaths[platform]
+        String entrypoint = entrypoints[platform]
+        Map<String, Object> target = minecraftTargets[adapt.minecraftVersion]
+        new JarFile(artifact).withCloseable { JarFile archive ->
+            List<String> required = [metadataPath] + mixinConfigs + [entrypoint.replace('.', '/') + '.class',
+                'art/arcane/adapt/mod/AdaptModBootstrap.class', 'art/arcane/adapt/mod/AdaptModIdentity.class']
+            if (platform == 'forge') {
+                required.add('pack.mcmeta')
+            }
+            required.each { String path -> require(archive.getEntry(path) != null, "missing ${path}") }
+            (metadataPaths.values() + ['plugin.yml', 'paper-plugin.yml']).findAll { String path -> path != metadataPath }.each { String path ->
+                require(archive.getEntry(path) == null, "contains foreign platform metadata ${path}")
+            }
+            // DirectorRuntimeEngine loads Player only to suggest String parameters named player; DirectorMiniMenu names CommandSender only in deliver*, which the mod never calls.
+            Set<String> dormantBukkitReferences = ['director/runtime/DirectorRuntimeEngine', 'director/help/DirectorMiniMenu']
+                .collect { String name -> "art/arcane/adapt/util/arcane/volmlib/util/${name}.class".toString() }.toSet()
+            List<String> forbidden = ['org/bukkit/', 'org/spigotmc/', 'io/papermc/', 'com/destroystokyo/', 'net/md_5/',
+                'net/minecraft/', 'com/mojang/', 'net/minecraftforge/', 'net/neoforged/', 'net/fabricmc/']
+            Set<String> classes = new HashSet<>()
+            archive.entries().each { JarEntry entry ->
+                if (!entry.name.endsWith('.class')) {
+                    return
+                }
+                require(classes.add(entry.name), "duplicate class ${entry.name}")
+                String classPath = entry.name.replaceFirst('^META-INF/versions/[0-9]+/', '')
+                require(!forbidden.any { String prefix -> classPath.startsWith(prefix) }, "bundled platform class ${entry.name}")
+                if (classPath.startsWith('art/arcane/adapt/') && !classPath.startsWith('art/arcane/adapt/shadow/')) {
+                    archive.getInputStream(entry).withCloseable { InputStream stream ->
+                        byte[] bytecode = stream.readAllBytes()
+                        DataInputStream bytes = new DataInputStream(new ByteArrayInputStream(bytecode))
+                        require(bytes.readInt() == -889275714, "invalid class file ${entry.name}")
+                        bytes.readUnsignedShort()
+                        int major = bytes.readUnsignedShort()
+                        require(classPath.startsWith('art/arcane/adapt/util/arcane/volmlib/') || major == (int) target.javaVersion + 44, "${entry.name} must target Java ${target.javaVersion}")
+                        String constants = new String(bytecode, StandardCharsets.ISO_8859_1)
+                        require(dormantBukkitReferences.contains(classPath) || !constants.contains('org/bukkit/'), "Bukkit reference in ${entry.name}")
+                    }
+                }
+            }
+            String metadata = archive.getInputStream(archive.getJarEntry(metadataPath)).withCloseable { InputStream stream -> stream.getText('UTF-8') }
+            require(!metadata.contains('${'), "unexpanded properties in ${metadataPath}")
+            Map<String, Object> mixins = (Map<String, Object>) new JsonSlurper().parseText(archive.getInputStream(archive.getJarEntry(mixinConfig)).withCloseable { InputStream stream -> stream.getText('UTF-8') })
+            require(mixins['package'] =='art.arcane.adapt.mod.mixin' && mixins.mixins instanceof List, "incorrect ${mixinConfig}")
+            Map<String, Object> platformMixins = (Map<String, Object>) new JsonSlurper().parseText(archive.getInputStream(archive.getJarEntry(platformMixinConfig)).withCloseable { InputStream stream -> stream.getText('UTF-8') })
+            require(platformMixins['package'] == 'art.arcane.adapt.mod.platform.mixin' && platformMixins.mixins instanceof List, "incorrect ${platformMixinConfig}")
+            if (platform == 'fabric') {
+                Map<String, Object> parsed = (Map<String, Object>) new JsonSlurper().parseText(metadata)
+                require(parsed.id == adapt.projectId && parsed.name == adapt.projectName && parsed.version == adapt.projectVersion, 'Fabric identity does not match build properties')
+                require(parsed.environment == '*' && parsed.entrypoints == [main: [entrypoint]] && parsed.mixins instanceof List && ((List<String>) parsed.mixins).containsAll(mixinConfigs), 'incorrect Fabric entrypoints, environment or mixins')
+                require(parsed.depends instanceof Map && parsed.jars instanceof List, 'missing Fabric runtime requirements or nested jar declarations')
+                require(parsed.depends.minecraft == adapt.minecraftVersion && parsed.depends.fabricloader == ">=${target.fabricLoader}" && parsed.depends.java == ">=${target.javaVersion}", 'incorrect Fabric runtime requirements')
+                Set<String> modules = ((Map<String, String>) target.fabricModules).keySet()
+                Set<String> expected = modules.collect { String module -> "META-INF/jars/${module}.jar".toString() }.toSet()
+                Set<String> declared = ((List<Map<String, String>>) parsed.jars).collect { Map<String, String> nested -> nested.file }.toSet()
+                Set<String> bundled = archive.entries().findAll { JarEntry entry -> entry.name.startsWith('META-INF/jars/') && entry.name.endsWith('.jar') }.collect { JarEntry entry -> entry.name }.toSet()
+                require(declared == expected && bundled == expected, 'Fabric nested jars must match the target Fabric API modules')
+                modules.each { String module ->
+                    Map<String, Object> nestedMetadata = null
+                    new JarInputStream(archive.getInputStream(archive.getJarEntry("META-INF/jars/${module}.jar"))).withCloseable { JarInputStream nested ->
+                        JarEntry nestedEntry
+                        while ((nestedEntry = nested.nextJarEntry) != null) {
+                            if (nestedEntry.name == 'fabric.mod.json') {
+                                nestedMetadata = (Map<String, Object>) new JsonSlurper().parseText(new String(nested.readAllBytes(), StandardCharsets.UTF_8))
+                                break
+                            }
+                        }
+                    }
+                    require(nestedMetadata != null && nestedMetadata.id == module && nestedMetadata.version == target.fabricModules[module], "incorrect nested Fabric module ${module}")
+                }
+            } else {
+                Closure<List<Map<String, String>>> sections = { String section ->
+                    List<Map<String, String>> matches = []
+                    Matcher blocks = Pattern.compile('(?ms)^\\[\\[' + Pattern.quote(section) + '\\]\\]\\s*\\n(.*?)(?=^\\[|\\z)').matcher(metadata)
+                    while (blocks.find()) {
+                        Map<String, String> fields = [:]
+                        Matcher values = Pattern.compile('(?m)^\\s*([A-Za-z][A-Za-z0-9]*)\\s*=\\s*"([^"\\r\\n]*)"\\s*$').matcher(blocks.group(1))
+                        while (values.find()) {
+                            fields[values.group(1)] = values.group(2)
+                        }
+                        matches.add(fields)
+                    }
+                    matches
+                }
+                List<Map<String, String>> mods = sections('mods')
+                require(mods.size() == 1 && mods[0].modId == adapt.projectId && mods[0].version == adapt.projectVersion && mods[0].displayName == adapt.projectName, 'mod identity does not match build properties')
+                require(mods[0].displayTest == 'IGNORE_SERVER_VERSION', 'the mod must not be required on clients')
+                List<Map<String, String>> dependencies = sections('dependencies.' + adapt.projectId)
+                Map<String, String> minecraft = dependencies.find { Map<String, String> dependency -> dependency.modId == 'minecraft' }
+                Map<String, String> loaderDependency = dependencies.find { Map<String, String> dependency -> dependency.modId == platform }
+                require(minecraft != null && minecraft.versionRange == "[${adapt.minecraftVersion}]", 'incorrect Minecraft dependency range')
+                String loaderRange = platform == 'forge' ? target.forgeLoaderRange : "[${target.neoforge},)"
+                require(loaderDependency != null && loaderDependency.versionRange == loaderRange, 'incorrect mod loader dependency range')
+                String fmlRange = platform == 'forge' ? target.forgeLoaderRange : '[3,)'
+                require(Pattern.compile('(?m)^modLoader\\s*=\\s*"javafml"\\s*$').matcher(metadata).find(), 'missing Java FML loader declaration')
+                require(Pattern.compile('(?m)^loaderVersion\\s*=\\s*"' + Pattern.quote(fmlRange) + '"\\s*$').matcher(metadata).find(), 'incorrect FML loader range')
+                if (platform == 'forge') {
+                    List<String> declaredMixins = (archive.manifest?.mainAttributes?.getValue('MixinConfigs') ?: '').split(',').collect { String entry -> entry.trim() }
+                    require(declaredMixins.containsAll(mixinConfigs), "Forge manifest must list ${mixinConfigs.join(',')}")
+                    Map<String, Object> pack = (Map<String, Object>) new JsonSlurper().parseText(archive.getInputStream(archive.getJarEntry('pack.mcmeta')).withCloseable { InputStream stream -> stream.getText('UTF-8') }).pack
+                    require(pack instanceof Map && pack.min_format == target.dataPackFormat && pack.max_format == target.dataPackFormat, "pack.mcmeta must declare data pack format ${target.dataPackFormat}")
+                } else {
+                    mixinConfigs.each { String config -> require(sections('mixins').any { Map<String, String> entry -> entry.config == config }, "neoforge.mods.toml must list ${config}") }
+                    require(Pattern.compile('(?ms)^\\[features\\.' + Pattern.quote(adapt.projectId) + '\\]\\s*\\n(?:(?!^\\[).)*?^javaVersion\\s*=\\s*"' + Pattern.quote("[${target.javaVersion},)") + '"\\s*$').matcher(metadata).find(), 'incorrect NeoForge Java requirement')
+                }
+            }
+        }
+        URL[] locations = [artifact.toURI().toURL()] as URL[]
+        new URLClassLoader(locations, ClassLoader.getPlatformClassLoader()).withCloseable { URLClassLoader isolated ->
+            Class<?> identity = Class.forName('art.arcane.adapt.mod.AdaptModIdentity', true, isolated)
+            [ID: adapt.projectId, NAME: adapt.projectName, VERSION: adapt.projectVersion, MINECRAFT_TARGET: adapt.minecraftVersion].each { String field, String expected ->
+                require(identity.getField(field).get(null) == expected, "AdaptModIdentity.${field} does not match build properties")
+            }
+        }
+    }
+}
+tasks.named('check').configure { dependsOn(verification) }

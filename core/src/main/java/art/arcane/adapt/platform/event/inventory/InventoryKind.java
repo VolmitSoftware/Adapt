@@ -1,0 +1,27 @@
+package art.arcane.adapt.platform.event.inventory;
+
+public enum InventoryKind {
+  PLAYER,
+  CRAFTING,
+  WORKBENCH,
+  CHEST,
+  ENDER_CHEST,
+  BARREL,
+  SHULKER_BOX,
+  HOPPER,
+  DISPENSER,
+  FURNACE,
+  SMOKER,
+  BLAST_FURNACE,
+  BREWING,
+  ENCHANTING,
+  ANVIL,
+  GRINDSTONE,
+  SMITHING,
+  STONECUTTER,
+  LOOM,
+  CARTOGRAPHY,
+  MERCHANT,
+  BEACON,
+  OTHER
+}

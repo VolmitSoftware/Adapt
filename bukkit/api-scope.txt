@@ -1,0 +1,45 @@
+# Pre-port public API that third-party Bukkit plugins may link against.
+# Used by :bukkit:generateApiBaseline to write api-baseline.txt from the pre-port runtime jar.
+# include <class glob>: every public and protected member of the matching public classes.
+# exclude <class glob> <member regex> [descriptor regex]: Adapt internals (event handlers, lifecycle, helpers that
+# only Adapt's own skills and adaptations call).
+
+include art/arcane/adapt/Adapt
+exclude art/arcane/adapt/Adapt getGuiLeftovers|onPlayerQuit|onPluginDisable
+
+include art/arcane/adapt/content/event/**
+
+include art/arcane/adapt/api/ability/**
+
+include art/arcane/adapt/api/potion/**
+exclude art/arcane/adapt/api/potion/BrewingManager onInventoryClick|afterInventoryClick|onBrew
+
+include art/arcane/adapt/api/recipe/AdaptRecipe
+include art/arcane/adapt/api/recipe/AdaptRecipe$*
+include art/arcane/adapt/api/recipe/MaterialChar
+
+include art/arcane/adapt/api/protection/Protector
+include art/arcane/adapt/api/protection/ProtectorRegistry
+
+include art/arcane/adapt/api/xp/XP
+include art/arcane/adapt/api/xp/XpAward
+include art/arcane/adapt/api/xp/XpAward$*
+
+include art/arcane/adapt/api/adaptation/AbilityApiBridge
+include art/arcane/adapt/api/adaptation/AdaptationLearningTransaction$Result
+include art/arcane/adapt/api/adaptation/Adaptation
+exclude art/arcane/adapt/api/adaptation/Adaptation (?!(getIcon|xp|xpSilent|getLevel|getLevelPercent|hasAdaptation|hasActiveAdaptation|getActiveLevel|isPlayerEnabled|canUse|hasUsePermission|openGui|learn|unlearn)$).* .*org/bukkit/.*
+exclude art/arcane/adapt/api/adaptation/Adaptation getActiveLevel .*Ljava/util/function/Predicate;.*
+exclude art/arcane/adapt/api/adaptation/Adaptation addStats|getProtectors
+
+include art/arcane/adapt/api/skill/Skill
+include art/arcane/adapt/api/skill/SkillRegistry
+exclude art/arcane/adapt/api/skill/SkillRegistry on
+
+include art/arcane/adapt/api/world/AdaptServer
+exclude art/arcane/adapt/api/world/AdaptServer on|join|retirePlayerForTransfer
+include art/arcane/adapt/api/world/AdaptPlayer
+exclude art/arcane/adapt/api/world/AdaptPlayer <init>|getTickOwner
+include art/arcane/adapt/api/world/PlayerData
+include art/arcane/adapt/api/world/PlayerSkillLine
+include art/arcane/adapt/api/world/PlayerAdaptation

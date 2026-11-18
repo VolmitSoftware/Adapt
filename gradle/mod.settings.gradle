@@ -1,0 +1,37 @@
+File adaptRoot = new File(settingsDir, '../..').canonicalFile
+dependencyResolutionManagement {
+    versionCatalogs {
+        create('libs') {
+            from(files(new File(adaptRoot, 'gradle/libs.versions.toml')))
+        }
+    }
+}
+boolean useLocalVolmLib = providers.gradleProperty('useLocalVolmLib').getOrElse('true').toBoolean()
+String configuredPath = providers.gradleProperty('localVolmLibDirectory').orElse(providers.environmentVariable('VOLMLIB_DIR')).orNull
+File localVolmLibDirectory = null
+if (useLocalVolmLib) {
+    if (configuredPath != null && !configuredPath.isBlank()) {
+        File configured = new File(configuredPath)
+        localVolmLibDirectory = configured.isAbsolute() ? configured : new File(adaptRoot, configuredPath)
+        if (!new File(localVolmLibDirectory, 'settings.gradle').isFile()) {
+            throw new GradleException("Invalid VolmLib directory: ${localVolmLibDirectory}")
+        }
+    } else {
+        File ancestor = adaptRoot
+        while (ancestor != null && localVolmLibDirectory == null) {
+            File candidate = new File(ancestor, 'VolmLib')
+            if (new File(candidate, 'settings.gradle').isFile()) {
+                localVolmLibDirectory = candidate
+            }
+            ancestor = ancestor.parentFile
+        }
+    }
+}
+if (localVolmLibDirectory != null) {
+    includeBuild(localVolmLibDirectory) {
+        name = 'VolmLib'
+        dependencySubstitution {
+            substitute(module('com.github.VolmitSoftware:VolmLib')).using(project(':shared'))
+        }
+    }
+}
