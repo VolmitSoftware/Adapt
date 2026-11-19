@@ -1,0 +1,330 @@
+skill	adaptation	status	reason
+agility	agility-air-dash	works	
+agility	agility-armor-up	works	
+agility	agility-cat-reflexes	works	
+agility	agility-featherfoot	partial	engine feature player input (a held sprint key counts only while the player sprints)
+agility	agility-kip-up	works	
+agility	agility-ladder-slide	works	
+agility	agility-marathoner	works	
+agility	agility-roll-landing	works	
+agility	agility-slipstream-slide	works	
+agility	agility-super-jump	emulated	attribute minecraft:jump_strength
+agility	agility-vault	emulated	attribute minecraft:jump_strength
+agility	agility-wall-jump	emulated	attribute minecraft:gravity
+agility	agility-wind-up	works	
+architect	architect-chalk-line	partial	engine feature item stack limits (chalk wands stack like sticks)
+architect	architect-demolition	works	
+architect	architect-elevator	works	
+architect	architect-foundation	works	
+architect	architect-glass	works	
+architect	architect-placement	works	
+architect	architect-scaffolder	works	
+architect	architect-smart-shape	works	
+architect	architect-steady-hands	partial	attribute minecraft:explosion_knockback_resistance (no explosion knockback resistance), attribute minecraft:block_break_speed, attribute minecraft:safe_fall_distance
+architect	architect-stonecutter-savant	works	
+architect	architect-supply-line	works	
+architect	architect-wireless-redstone	partial	engine feature item cooldown groups (no cooldown sweep on the item)
+axes	axe-bark-hide	emulated	attribute minecraft:max_absorption
+axes	axe-chop	works	
+axes	axe-cleave	works	
+axes	axe-drop-to-inventory	works	
+axes	axe-ground-smash	works	
+axes	axe-leaf-veinminer	works	
+axes	axe-logswap	works	
+axes	axe-shield-splitter	works	
+axes	axe-sunder	works	
+axes	axe-throwing-axe	works	
+axes	axe-wood-veinminer	works	
+blocking	blocking-bastion-stance	partial	attribute minecraft:explosion_knockback_resistance (no explosion knockback resistance)
+blocking	blocking-bulwark-bash	works	
+blocking	blocking-chainarmorer	works	
+blocking	blocking-counter-guard	works	
+blocking	blocking-horsearmorer	works	
+blocking	blocking-interpose	works	
+blocking	blocking-mirror-block	works	
+blocking	blocking-multiarmor	works	
+blocking	blocking-perfect-guard	works	
+blocking	blocking-phalanx-crafter	emulated	engine feature item stack limits
+blocking	blocking-saddlecrafter	works	
+blocking	blocking-shield-wall	works	
+blocking	blocking-shieldbearers-resolve	works	
+blocking	blocking-tempered-guard	works	
+brewing	brewing-absorption	works	
+brewing	brewing-blindness	works	
+brewing	brewing-darkness	works	
+brewing	brewing-decay	works	
+brewing	brewing-fatigue	works	
+brewing	brewing-haste	works	
+brewing	brewing-healthboost	works	
+brewing	brewing-hunger	works	
+brewing	brewing-lingering	works	
+brewing	brewing-nausea	works	
+brewing	brewing-resistance	works	
+brewing	brewing-saturation	works	
+brewing	brewing-super-heated	works	
+chronos	chronos-aberrant-touch	works	
+chronos	chronos-accelerate	works	
+chronos	chronos-borrowed-time	works	
+chronos	chronos-deja-vu	works	
+chronos	chronos-hourglass-guard	works	
+chronos	chronos-instant-recall	emulated	engine feature player input
+chronos	chronos-overtime	works	
+chronos	chronos-pocket-watch	works	
+chronos	chronos-rewind	works	
+chronos	chronos-stasis-field	partial	attribute minecraft:jump_strength (creatures in the field can still jump)
+chronos	chronos-temporal-echo	works	
+chronos	chronos-time-bomb	partial	engine feature item cooldown groups (no cooldown sweep on the item), attribute minecraft:block_break_speed
+chronos	chronos-time-bottle	works	
+crafting	crafting-backpacks	disabled	engine feature bundles
+crafting	crafting-bulk-artisan	works	
+crafting	crafting-compactor	works	
+crafting	crafting-deconstruction	works	
+crafting	crafting-leather	works	
+crafting	crafting-masterwork	emulated	engine feature item stack limits
+crafting	crafting-provisioner	works	
+crafting	crafting-reconstruction	works	
+crafting	crafting-skulls	works	
+crafting	crafting-stations	works	
+crafting	crafting-thrifty-hands	works	
+crafting	crafting-tinkerer	works	
+crafting	crafting-xp	works	
+discovery	discovery-archaeologist	works	
+discovery	discovery-better-mending	works	
+discovery	discovery-cartographer-pulse	works	
+discovery	discovery-field-notes	works	
+discovery	discovery-insight	works	
+discovery	discovery-keen-eye	works	
+discovery	discovery-polymath	works	
+discovery	discovery-relic-appraiser	works	
+discovery	discovery-sixth-sense	works	
+discovery	discovery-trailblazer	works	
+discovery	discovery-unity	works	
+discovery	discovery-villager-att	works	
+discovery	discovery-world-armor	works	
+discovery	discovery-xp-resist	works	
+enchanting	enchanting-anvil-savant	works	
+enchanting	enchanting-arcane-siphon	works	
+enchanting	enchanting-bookshelf-attunement	works	
+enchanting	enchanting-curse-cleansing	works	
+enchanting	enchanting-echo-of-knowledge	works	
+enchanting	enchanting-grindstone-recovery	works	
+enchanting	enchanting-infusion-transfer	works	
+enchanting	enchanting-lapis-return	works	
+enchanting	enchanting-offer-reroll	works	
+enchanting	enchanting-quick-enchant	works	
+enchanting	enchanting-rune-sight	works	
+enchanting	enchanting-soul-link	works	
+enchanting	enchanting-tome-rebinding	works	
+enchanting	enchanting-xp-return	works	
+excavation	excavation-burrow	works	
+excavation	excavation-drop-to-inventory	works	
+excavation	excavation-earth-mover	works	
+excavation	excavation-grave-digger	works	
+excavation	excavation-haste	emulated	attribute minecraft:block_break_speed
+excavation	excavation-mudlark	emulated	attribute minecraft:block_break_speed
+excavation	excavation-omnitool	works	
+excavation	excavation-seismic-ping	works	
+excavation	excavation-soft-fall	works	
+excavation	excavation-spelunker	works	
+excavation	excavation-treasure-hunter	works	
+excavation	excavation-tunneler	works	
+golemancy	golem-angler-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-animus-binding	partial	attribute minecraft:scale (golems keep their vanilla size), engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-bone-frame	works	
+golemancy	golem-breaker-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-copper-frame	disabled	entity type minecraft:copper_golem
+golemancy	golem-frost-frame	works	
+golemancy	golem-gatherer-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-guardian-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-harvester-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-iron-frame	partial	attribute minecraft:scale (golems keep their vanilla size)
+golemancy	golem-lumber-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-masterwork	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-mending	works	
+golemancy	golem-node-weaving	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-overseer	works	
+golemancy	golem-rancher-core	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-runic-augments	partial	engine feature item stack limits (golem items stack up to their base item's limit)
+golemancy	golem-sorter-core	disabled	entity type minecraft:copper_golem
+golemancy	golem-stasis	partial	attribute minecraft:scale (golems keep their vanilla size)
+herbalism	herbalism-bee-shepherd	works	
+herbalism	herbalism-cobweb	works	
+herbalism	herbalism-compost-cascade	works	
+herbalism	herbalism-drop-to-inventory	works	
+herbalism	herbalism-growth-aura	works	
+herbalism	herbalism-hippo	works	
+herbalism	herbalism-hungry-shield	works	
+herbalism	herbalism-luck	works	
+herbalism	herbalism-mushroom-blocks	works	
+herbalism	herbalism-myconid	works	
+herbalism	herbalism-replant	works	
+herbalism	herbalism-rooted-footing	works	
+herbalism	herbalism-seed-sower	works	
+herbalism	herbalism-spore-bloom	works	
+herbalism	herbalism-terralid	works	
+hunter	hunter-adrenaline	works	
+hunter	hunter-big-game	works	
+hunter	hunter-blood-trail	works	
+hunter	hunter-drop-to-inventory	works	
+hunter	hunter-invis	works	
+hunter	hunter-jumpboost	emulated	attribute minecraft:jump_strength, attribute minecraft:safe_fall_distance
+hunter	hunter-luck	works	
+hunter	hunter-predator-focus	works	
+hunter	hunter-regen	works	
+hunter	hunter-resistance	works	
+hunter	hunter-snare-line	works	
+hunter	hunter-speed	works	
+hunter	hunter-strength	works	
+hunter	hunter-trophy-skinner	works	
+kinetics	kinetics-breachwright	disabled	item minecraft:mace
+kinetics	kinetics-charge-lance	disabled	item minecraft:iron_spear
+kinetics	kinetics-dead-zone	disabled	item minecraft:iron_spear
+kinetics	kinetics-heavy-frame	disabled	item minecraft:mace
+kinetics	kinetics-impale-pin	disabled	item minecraft:iron_spear
+kinetics	kinetics-lunge-conductor	disabled	item minecraft:iron_spear
+kinetics	kinetics-mass-shift	disabled	attribute minecraft:scale
+kinetics	kinetics-meteor-cadence	disabled	item minecraft:mace, attribute minecraft:gravity
+kinetics	kinetics-moon-jump	emulated	attribute minecraft:jump_strength, attribute minecraft:gravity
+kinetics	kinetics-mounted-shock	disabled	item minecraft:iron_spear
+kinetics	kinetics-phalanx-reach	disabled	item minecraft:iron_spear
+kinetics	kinetics-quake-guard	disabled	item minecraft:mace
+kinetics	kinetics-rebound-anvil	disabled	item minecraft:mace
+kinetics	kinetics-rubber-soul	works	
+kinetics	kinetics-soft-catch	works	
+kinetics	kinetics-surface-skate	works	
+kinetics	kinetics-terminal-toggle	disabled	attribute minecraft:gravity
+kinetics	kinetics-windburst	disabled	item minecraft:mace
+nether	nether-ashwalker	works	
+nether	nether-blaze-leech	works	
+nether	nether-crimson-feast	works	
+nether	nether-fire-resist	works	
+nether	nether-ghast-ward	works	
+nether	nether-lava-walker	works	
+nether	nether-magma-skin	works	
+nether	nether-netherrack-mason	emulated	attribute minecraft:block_break_speed
+nether	nether-piglin-broker	works	
+nether	nether-skull-toss	works	
+nether	nether-soul-strider	emulated	attribute minecraft:movement_efficiency
+nether	nether-strider-bond	works	
+nether	nether-wither-harvest	works	
+nether	nether-wither-resist	works	
+pickaxe	pickaxe-autosmelt	works	
+pickaxe	pickaxe-chisel	works	
+pickaxe	pickaxe-deep-core	emulated	attribute minecraft:block_break_speed
+pickaxe	pickaxe-drop-to-inventory	works	
+pickaxe	pickaxe-gem-polish	works	
+pickaxe	pickaxe-obsidian-rush	emulated	attribute minecraft:block_break_speed
+pickaxe	pickaxe-quarry-sense	works	
+pickaxe	pickaxe-repair-rhythm	works	
+pickaxe	pickaxe-silk-spawner	works	
+pickaxe	pickaxe-stone-skin	works	
+pickaxe	pickaxe-tunnel-bore	works	
+pickaxe	pickaxe-unbreakable-pact	works	
+pickaxe	pickaxe-veinminer	works	
+ranged	ranged-fetch-shot	works	
+ranged	ranged-floaters	works	
+ranged	ranged-force	works	
+ranged	ranged-heartseeker	works	
+ranged	ranged-heavy-draw	works	
+ranged	ranged-lunge-shot	works	
+ranged	ranged-piercing	works	
+ranged	ranged-pinning-shot	works	
+ranged	ranged-recovery	works	
+ranged	ranged-ricochet-bolt	works	
+ranged	ranged-trajectory-sight	works	
+ranged	ranged-webshot	works	
+rift	rift-access	works	
+rift	rift-blink	emulated	engine feature player input
+rift	rift-conduit	works	
+rift	rift-descent	emulated	attribute minecraft:fall_damage_multiplier
+rift	rift-ender-taglock	partial	engine feature item cooldown groups (no cooldown sweep on the item)
+rift	rift-enderchest	works	
+rift	rift-gate	partial	engine feature item cooldown groups (no cooldown sweep on the item)
+rift	rift-inflated-pocket-dimension	works	
+rift	rift-pearl-rebound	works	
+rift	rift-resist	works	
+rift	rift-visage	works	
+rift	rift-void-magnet	works	
+rift	rift-void-skin	works	
+seaborne	seaborne-brine-skin	works	
+seaborne	seaborne-coral-gardener	works	
+seaborne	seaborne-deep-salvager	works	
+seaborne	seaborne-fish-whisperer	works	
+seaborne	seaborne-fishers-fantasy	works	
+seaborne	seaborne-hydro-jet	works	
+seaborne	seaborne-ink-veil	works	
+seaborne	seaborne-oxygen	emulated	attribute minecraft:oxygen_bonus
+seaborne	seaborne-pressure-diver	emulated	attribute minecraft:max_absorption, attribute minecraft:submerged_mining_speed
+seaborne	seaborne-speed	emulated	attribute minecraft:water_movement_efficiency
+seaborne	seaborne-tidecaller	works	
+seaborne	seaborne-trident-mastery	works	
+seaborne	seaborne-turtles-mining-speed	emulated	attribute minecraft:submerged_mining_speed, attribute minecraft:block_break_speed
+seaborne	seaborne-turtles-vision	works	
+stealth	stealth-assassinate	works	
+stealth	stealth-cutpurse	works	
+stealth	stealth-decoy-swap	works	
+stealth	stealth-enderveil	works	
+stealth	stealth-ghost-armor	works	
+stealth	stealth-shadow-decoy	works	
+stealth	stealth-shadowmeld	works	
+stealth	stealth-silent-step	emulated	attribute minecraft:safe_fall_distance
+stealth	stealth-smoke-pellet	works	
+stealth	stealth-snatch	works	
+stealth	stealth-speed	partial	attribute minecraft:step_height (no step assist), attribute minecraft:sneaking_speed
+stealth	stealth-trap-sense	works	
+stealth	stealth-umbral-recovery	works	
+stealth	stealth-vision	works	
+swords	sword-blade-flow	works	
+swords	sword-bloody-blade	works	
+swords	sword-crescent-guard	works	
+swords	sword-crimson-cyclone	works	
+swords	sword-dual-wield	works	
+swords	sword-duelists-focus	works	
+swords	sword-executioners-edge	works	
+swords	sword-hamstring	works	
+swords	sword-heirloom-edge	works	
+swords	sword-lunge-strike	partial	attribute minecraft:entity_interaction_range (the lunge gives no extra reach)
+swords	sword-machete	works	
+swords	sword-poison-blade	works	
+swords	sword-riposte-window	works	
+swords	sword-whetstone-ritual	works	
+taming	tame-alphas-command	works	
+taming	tame-battle-bond	works	
+taming	tame-beast-recall	works	
+taming	tame-damage	works	
+taming	tame-fetch	works	
+taming	tame-guardian-instinct	works	
+taming	tame-health	works	
+taming	tame-health-regeneration	works	
+taming	tame-last-breath	works	
+taming	tame-mounted-tactics	works	
+taming	tame-pack-leader-aura	works	
+taming	tame-shared-pain	works	
+taming	tame-stable-hand	partial	attribute minecraft:safe_fall_distance (mounts get no extra safe fall distance)
+taming	tame-wild-empathy	works	
+tragoul	tragoul-blood-pact	emulated	attribute minecraft:jump_strength, attribute minecraft:safe_fall_distance
+tragoul	tragoul-bone-harvest	emulated	attribute minecraft:jump_strength, attribute minecraft:safe_fall_distance
+tragoul	tragoul-corpse-explosion	works	
+tragoul	tragoul-curse-of-frailty	works	
+tragoul	tragoul-death-sense	works	
+tragoul	tragoul-globe	works	
+tragoul	tragoul-healing	works	
+tragoul	tragoul-lance	works	
+tragoul	tragoul-last-rites	works	
+tragoul	tragoul-marrow-armor	works	
+tragoul	tragoul-plague-bearer	works	
+tragoul	tragoul-skeletal-servant	works	
+tragoul	tragoul-soul-siphon	works	
+tragoul	tragoul-thorns	works	
+unarmed	unarmed-battering-charge	works	
+unarmed	unarmed-combo-chain	works	
+unarmed	unarmed-disarm	works	
+unarmed	unarmed-glass-cannon	works	
+unarmed	unarmed-grapple	works	
+unarmed	unarmed-iron-fists	emulated	attribute minecraft:block_break_speed
+unarmed	unarmed-meditation	emulated	attribute minecraft:max_absorption
+unarmed	unarmed-power	works	
+unarmed	unarmed-pressure-point	works	
+unarmed	unarmed-second-wind	works	
+unarmed	unarmed-shockwave-clap	works	
+unarmed	unarmed-sucker-punch	works	

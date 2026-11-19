@@ -17,11 +17,13 @@ import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotCodec;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
+import art.arcane.adapt.api.golem.plinth.PlinthStructure;
 import art.arcane.adapt.api.preference.PlayerPreferenceData;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.MobRef;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -113,7 +116,7 @@ public final class GolemancyFixtures {
             return true;
         }
         if (LUMBER_BINDING_STAGE.equals(name)) {
-            bindingStage(world, actor, opponent, 5, GolemItems.core(GolemCoreType.LUMBER), "copper_golem", COPPER_GOLEM_TAG);
+            workerBindingStage(world, actor, opponent, GolemItems.core(GolemCoreType.LUMBER));
             return true;
         }
         if (SORTER_BINDING_STAGE.equals(name)) {
@@ -125,11 +128,11 @@ public final class GolemancyFixtures {
             return true;
         }
         if (RANCHER_BINDING_STAGE.equals(name)) {
-            bindingStage(world, actor, opponent, 5, GolemItems.core(GolemCoreType.RANCHER), "copper_golem", COPPER_GOLEM_TAG);
+            workerBindingStage(world, actor, opponent, GolemItems.core(GolemCoreType.RANCHER));
             return true;
         }
         if (ANGLER_BINDING_STAGE.equals(name)) {
-            bindingStage(world, actor, opponent, 5, GolemItems.core(GolemCoreType.ANGLER), "copper_golem", COPPER_GOLEM_TAG);
+            workerBindingStage(world, actor, opponent, GolemItems.core(GolemCoreType.ANGLER));
             return true;
         }
         if (OVERSEER_STAGE.equals(name)) {
@@ -219,6 +222,18 @@ public final class GolemancyFixtures {
         actor.setLevel(level);
         Fixtures.give(actor, core);
         spawnGolem(world, type, tag);
+    }
+
+    /**
+     * Lumber, Rancher and Angler cores fit copper and iron golems; before copper golems exist (1.21.9) the stage binds an
+     * iron golem instead.
+     */
+    private static void workerBindingStage(WorldRef world, PlayerRef actor, PlayerRef opponent, ItemRef core) {
+        if (Fixtures.host().registries().exists(RegistryKind.ENTITY_TYPE, COPPER_GOLEM)) {
+            bindingStage(world, actor, opponent, 5, core, "copper_golem", COPPER_GOLEM_TAG);
+        } else {
+            bindingStage(world, actor, opponent, 5, core, "iron_golem", IRON_GOLEM_TAG);
+        }
     }
 
     private static MobRef spawnGolem(WorldRef world, String type, String tag) {
@@ -337,11 +352,12 @@ public final class GolemancyFixtures {
     }
 
     private static void buildPlinth(WorldRef world) {
+        String pedestal = PlinthStructure.defaultPedestals().get(0).toLowerCase(Locale.ROOT);
         Fixtures.set(world, PLINTH_X, PLINTH_Y, PLINTH_Z, "lodestone");
-        Fixtures.set(world, PLINTH_X + PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z, "chiseled_copper");
-        Fixtures.set(world, PLINTH_X - PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z, "chiseled_copper");
-        Fixtures.set(world, PLINTH_X, PLINTH_Y, PLINTH_Z + PEDESTAL_DISTANCE, "chiseled_copper");
-        Fixtures.set(world, PLINTH_X, PLINTH_Y, PLINTH_Z - PEDESTAL_DISTANCE, "chiseled_copper");
+        Fixtures.set(world, PLINTH_X + PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z, pedestal);
+        Fixtures.set(world, PLINTH_X - PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z, pedestal);
+        Fixtures.set(world, PLINTH_X, PLINTH_Y, PLINTH_Z + PEDESTAL_DISTANCE, pedestal);
+        Fixtures.set(world, PLINTH_X, PLINTH_Y, PLINTH_Z - PEDESTAL_DISTANCE, pedestal);
     }
 
     private static void clearNodes(WorldRef world, PlayerRef actor) {

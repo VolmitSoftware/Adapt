@@ -1,10 +1,12 @@
 package art.arcane.adapt.api.golem.plinth;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.value.MaterialNames;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.value.Id;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -20,8 +22,22 @@ public final class PlinthStructure {
       "WAXED_CHISELED_COPPER", "WAXED_EXPOSED_CHISELED_COPPER", "WAXED_WEATHERED_CHISELED_COPPER", "WAXED_OXIDIZED_CHISELED_COPPER");
 
   private static final Id LODESTONE = Id.minecraft("lodestone");
+  private static final String CHISELED_COPPER = "CHISELED_COPPER";
+  private static final String CUT_COPPER = "CUT_COPPER";
 
   private PlinthStructure() {
+  }
+
+  /**
+   * {@link #DEFAULT_PEDESTALS} on servers with chiseled copper (1.20.3+); the matching cut copper blocks before that,
+   * so a plinth can still be built.
+   */
+  public static List<String> defaultPedestals() {
+    List<String> pedestals = new ArrayList<>(DEFAULT_PEDESTALS.size());
+    for (String name : DEFAULT_PEDESTALS) {
+      pedestals.add(PlatformSupport.materialOr(name, name.replace(CHISELED_COPPER, CUT_COPPER)));
+    }
+    return List.copyOf(pedestals);
   }
 
   private static boolean known(Id material) {

@@ -11,6 +11,7 @@ import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeCraftCounter;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemHelpMessages;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -334,7 +335,7 @@ public final class GolemItems {
       case BLANK_CORE, CORE, SHATTERED_CORE -> FIREWORK_STAR;
       case BLANK_NODE -> Id.minecraft("clay_ball");
       case NODE -> Id.minecraft("brick");
-      case BLANK_RUNE -> Id.minecraft("scrape_pottery_sherd");
+      case BLANK_RUNE -> PlatformSupport.itemOr(Id.minecraft("scrape_pottery_sherd"), Id.minecraft("plenty_pottery_sherd"));
       case MASTERWORK_HEART -> Id.minecraft("heart_of_the_sea");
       case RUNE -> throw new IllegalArgumentException("Runes use the pottery sherd of their aspect");
       case DORMANT_GOLEM -> throw new IllegalArgumentException("Dormant golems use the block of the packed golem");
@@ -343,7 +344,7 @@ public final class GolemItems {
 
   private static Id runeBase(GolemRuneType aspect) {
     return switch (Objects.requireNonNull(aspect)) {
-      case SWIFTNESS -> Id.minecraft("guster_pottery_sherd");
+      case SWIFTNESS -> PlatformSupport.itemOr(Id.minecraft("guster_pottery_sherd"), Id.minecraft("explorer_pottery_sherd"));
       case MIGHT -> Id.minecraft("arms_up_pottery_sherd");
       case EMBER -> Id.minecraft("burn_pottery_sherd");
       case TIDE -> Id.minecraft("angler_pottery_sherd");

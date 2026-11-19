@@ -3,6 +3,7 @@ package art.arcane.adapt.util.common.math;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.port.BukkitTextPorts;
+import art.arcane.adapt.platform.value.Vec3;
 import org.bukkit.Input;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -38,7 +39,7 @@ class VelocitySpeedTest {
     when(player.getVelocity()).thenReturn(new Vector(0.8, 0.3, 0));
     when(player.getLocation()).thenReturn(new Location(null, 0, 0, 0));
 
-    assertThat(VelocitySpeed.readInput(BukkitRefs.player(player), 0.000001).hasHorizontal()).isFalse();
+    assertThat(VelocitySpeed.readInput(BukkitRefs.player(player), 0.000001, Vec3.ZERO).hasHorizontal()).isFalse();
     verify(player, never()).getVelocity();
   }
 
@@ -50,6 +51,6 @@ class VelocitySpeedTest {
     when(player.getCurrentInput()).thenReturn(input);
     when(input.isForward()).thenReturn(true);
 
-    assertThat(VelocitySpeed.readInput(BukkitRefs.player(player), 0.000001).isForwardOnly()).isTrue();
+    assertThat(VelocitySpeed.readInput(BukkitRefs.player(player), 0.000001, Vec3.ZERO).isForwardOnly()).isTrue();
   }
 }

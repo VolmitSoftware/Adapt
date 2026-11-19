@@ -31,6 +31,7 @@ import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -78,6 +79,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
 
   public GolemCopperFrame() {
     super("golem-copper-frame");
+    needs(PlatformNeed.entity("copper_golem"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.copper_frame");
     setIcon(Id.minecraft("oxidized_copper"));

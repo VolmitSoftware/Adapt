@@ -183,7 +183,7 @@ public final class ModItemRef implements ItemRef {
             return;
         }
         if (markupLines == null || markupLines.isEmpty()) {
-            stack.remove(DataComponents.LORE);
+            restoreDefault(DataComponents.LORE);
             return;
         }
         List<Component> lines = new ArrayList<>(markupLines.size());
@@ -215,7 +215,7 @@ public final class ModItemRef implements ItemRef {
             return;
         }
         if (jsonLines == null || jsonLines.isEmpty()) {
-            stack.remove(DataComponents.LORE);
+            restoreDefault(DataComponents.LORE);
             return;
         }
         DynamicOps<JsonElement> ops = jsonOps();
@@ -228,7 +228,7 @@ public final class ModItemRef implements ItemRef {
             }
         }
         if (lines.isEmpty()) {
-            stack.remove(DataComponents.LORE);
+            restoreDefault(DataComponents.LORE);
             return;
         }
         stack.set(DataComponents.LORE, new ItemLore(lines));

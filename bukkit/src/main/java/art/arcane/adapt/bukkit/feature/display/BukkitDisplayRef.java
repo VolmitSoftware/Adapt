@@ -120,12 +120,12 @@ class BukkitDisplayRef extends BukkitEntityRef implements DisplayRef {
 
   @Override
   public int teleportDuration() {
-    return display().getTeleportDuration();
+    return BukkitDisplayVersion.teleportDuration(display());
   }
 
   @Override
   public void setTeleportDuration(int ticks) {
-    display().setTeleportDuration(ticks);
+    BukkitDisplayVersion.setTeleportDuration(display(), ticks);
   }
 
   @Override

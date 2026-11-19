@@ -1,7 +1,6 @@
 package art.arcane.adapt.mod.event;
 
 import art.arcane.adapt.mod.feature.menu.AdaptChestMenu;
-import art.arcane.adapt.mod.platform.ModConversions;
 import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.platform.event.AdaptEventBus;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -16,24 +15,17 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.value.Id;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.AbstractCraftingMenu;
 import net.minecraft.world.inventory.MerchantContainer;
-import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.SmithingMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.Level;
 
@@ -73,7 +65,7 @@ public final class InventoryHooks {
             return false;
         }
         Slot slot = slotIndex >= 0 && slotIndex < menu.slots.size() ? menu.getSlot(slotIndex) : null;
-        boolean craft = slot instanceof ResultSlot && menu instanceof AbstractCraftingMenu && slot.hasItem();
+        boolean craft = slot instanceof ResultSlot && HookCompat.craftingMenu(menu) && slot.hasItem();
         resultTaken = craft || menu instanceof SmithingMenu smithing && slotIndex == smithing.getResultSlot() && slot != null && slot.hasItem();
         if (!ModEvents.listening(craft ? CraftItemEvent.class : InventoryClickEvent.class)) {
             return false;
@@ -87,15 +79,10 @@ public final class InventoryHooks {
         int localSlot = slot == null ? slotIndex : slot.getContainerSlot();
         InventoryClickEvent event;
         if (craft) {
-            AbstractCraftingMenu crafting = (AbstractCraftingMenu) menu;
-            RecipeHolder<?> recipe = slot.container instanceof ResultContainer result ? result.getRecipeUsed() : null;
-            Id key = recipe == null ? null : ModRefs.id(recipe.id().identifier());
-            CraftItemEvent.RecipeKind kind = recipe == null ? CraftItemEvent.RecipeKind.OTHER
-                : recipe.value() instanceof ShapedRecipe ? CraftItemEvent.RecipeKind.SHAPED
-                : recipe.value() instanceof ShapelessRecipe ? CraftItemEvent.RecipeKind.SHAPELESS
-                : CraftItemEvent.RecipeKind.OTHER;
+            Id key = HookCompat.recipeId(slot.container);
+            CraftItemEvent.RecipeKind kind = HookCompat.recipeKind(slot.container);
             List<ItemRef> matrix = new ArrayList<>();
-            for (Slot grid : crafting.getInputGridSlots()) {
+            for (Slot grid : HookCompat.craftingGrid(menu)) {
                 matrix.add(ModRefs.item(grid.getItem().copy()));
             }
             event = new CraftItemEvent(ModRefs.player(player), view, localSlot, slotIndex, click, action, hotbar, current, cursor, key, kind,
@@ -198,9 +185,8 @@ public final class InventoryHooks {
         if (count <= 0 || !(player instanceof ServerPlayer serverPlayer) || !ModEvents.listening(ItemCraftedEvent.class)) {
             return;
         }
-        RecipeHolder<?> recipe = result instanceof ResultContainer resultContainer ? resultContainer.getRecipeUsed() : null;
-        Id key = recipe == null ? null : ModRefs.id(recipe.id().identifier());
-        ModEvents.post(new ItemCraftedEvent(ModRefs.player(serverPlayer), ModRefs.item(carried.copyWithCount(count)), key));
+        ModEvents.post(new ItemCraftedEvent(ModRefs.player(serverPlayer), ModRefs.item(carried.copyWithCount(count)),
+            HookCompat.recipeId(result)));
     }
 
     /**
@@ -217,14 +203,14 @@ public final class InventoryHooks {
         }
         Map<Id, Integer> offer = new LinkedHashMap<>();
         for (EnchantmentInstance instance : offered) {
-            offer.put(ModConversions.enchantmentId(instance.enchantment()), instance.level());
+            offer.put(HookCompat.enchantmentId(instance), HookCompat.enchantmentLevel(instance));
         }
         EnchantItemEvent event = ModEvents.post(new EnchantItemEvent(ModRefs.player(serverPlayer), ModRefs.block(serverLevel, table),
             ModRefs.item(item), button, offer, cost));
         if (event.isCancelled()) {
             return null;
         }
-        if (event.expLevelCost() > player.experienceLevel && !player.hasInfiniteMaterials()) {
+        if (event.expLevelCost() > player.experienceLevel && !HookCompat.infiniteMaterials(player)) {
             return null;
         }
         if (event.enchantsToAdd().equals(offer)) {
@@ -232,9 +218,11 @@ public final class InventoryHooks {
         }
         List<EnchantmentInstance> chosen = new ArrayList<>(event.enchantsToAdd().size());
         for (Map.Entry<Id, Integer> entry : event.enchantsToAdd().entrySet()) {
-            Holder<Enchantment> enchantment = ModConversions.enchantment(entry.getKey());
-            if (enchantment != null && entry.getValue() != null && entry.getValue() > 0) {
-                chosen.add(new EnchantmentInstance(enchantment, entry.getValue()));
+            if (entry.getValue() != null && entry.getValue() > 0) {
+                EnchantmentInstance instance = HookCompat.enchantment(entry.getKey(), entry.getValue());
+                if (instance != null) {
+                    chosen.add(instance);
+                }
             }
         }
         if (chosen.isEmpty()) {

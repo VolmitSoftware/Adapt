@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
@@ -67,6 +68,8 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
 
   public ArchitectSteadyHands() {
     super("architect-steady-hands");
+    needs(PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED), PlatformNeed.attribute(Attributes.SAFE_FALL_DISTANCE),
+        PlatformNeed.partialAttribute(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, "no explosion knockback resistance"));
     registerConfiguration(ArchitectSteadyHands.Config.class);
     setIcon(Id.minecraft("lightning_rod"));
     setInterval(10440);

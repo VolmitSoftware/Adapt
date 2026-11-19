@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
@@ -73,6 +74,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
   public SeaborneSpeed() {
     super("seaborne-speed");
+    needs(PlatformNeed.attribute(Attributes.WATER_MOVEMENT_EFFICIENCY));
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.dolphin_grace");
     setIcon(Id.minecraft("prismarine_crystals"));

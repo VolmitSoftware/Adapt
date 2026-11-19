@@ -19,7 +19,13 @@ public final class DoubleJumpGesture {
 
   public boolean update(PlayerRef p) {
     State state = states.computeIfAbsent(p.uuid(), unused -> new State());
-    boolean jump = readJump(p);
+    PlayerInput input = AdaptPorts.get(PlayerInputPort.class, PlayerInputPort.NONE).currentInput(p);
+    MidairJumps midair = input == null ? MidairJumps.active() : null;
+    if (midair != null) {
+      return updateMidair(p, state, midair);
+    }
+
+    boolean jump = input != null && input.jump();
     boolean onGround = p.isOnGround();
     boolean completed = false;
 
@@ -40,12 +46,28 @@ public final class DoubleJumpGesture {
     return completed;
   }
 
+  /**
+   * Without jump input the client's flight request stands for the gesture: an old client asks to fly after a double
+   * tap of jump while it may fly, which {@link MidairJumps} grants only in mid-air.
+   */
+  private boolean updateMidair(PlayerRef p, State state, MidairJumps midair) {
+    long presses = midair.listen(p, this);
+    boolean completed = state.midairPresses >= 0 && presses != state.midairPresses && !p.isOnGround()
+        && isJumpContext(p);
+    state.midairPresses = presses;
+    return completed;
+  }
+
   public void reset(PlayerRef p) {
     reset(p.uuid());
   }
 
   public void reset(UUID id) {
     states.remove(id);
+    MidairJumps midair = MidairJumps.active();
+    if (midair != null) {
+      midair.stopListening(id, this);
+    }
   }
 
   private boolean isJumpContext(PlayerRef p) {
@@ -58,14 +80,10 @@ public final class DoubleJumpGesture {
         && !AdaptCore.platform().host().registries().isTagged(RegistryKind.BLOCK, CLIMBABLE, feet.type());
   }
 
-  private boolean readJump(PlayerRef p) {
-    PlayerInput input = AdaptPorts.get(PlayerInputPort.class, PlayerInputPort.NONE).currentInput(p);
-    return input != null && input.jump();
-  }
-
   private static final class State {
     private boolean lastJump;
     private boolean wasOnGround = true;
     private int airbornePresses;
+    private long midairPresses = -1L;
   }
 }

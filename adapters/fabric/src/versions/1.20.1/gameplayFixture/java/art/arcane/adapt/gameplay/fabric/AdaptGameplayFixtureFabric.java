@@ -1,0 +1,20 @@
+package art.arcane.adapt.gameplay.fabric;
+
+import art.arcane.adapt.gameplay.mod.ModFixtureCommand;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.resources.ResourceLocation;
+
+public final class AdaptGameplayFixtureFabric implements ModInitializer {
+    private final ModFixtureCommand command = new ModFixtureCommand("fabric");
+
+    @Override
+    public void onInitialize() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> command.register(dispatcher));
+        ResourceLocation beforeAdapt = new ResourceLocation("adaptqa", "before_adapt");
+        ServerLifecycleEvents.SERVER_STOPPING.addPhaseOrdering(beforeAdapt, Event.DEFAULT_PHASE);
+        ServerLifecycleEvents.SERVER_STOPPING.register(beforeAdapt, command::serverStopping);
+    }
+}

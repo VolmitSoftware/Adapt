@@ -9,8 +9,10 @@ import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
@@ -26,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -42,6 +46,9 @@ public final class AdaptAttributeService extends TickedObject {
   private final AdaptAttributeScheduler scheduler;
   private final List<Id> registryAttributes;
   private final AdaptAttributeTracker tracker;
+  private final AttributeEmulator emulator;
+  private final Map<Id, Boolean> nativeAttributes = new ConcurrentHashMap<>();
+  private volatile Boolean emulationActive;
   private final Lock changeReadLock;
   private final Lock changeWriteLock;
   private final AtomicLong taskGeneration;
@@ -57,6 +64,7 @@ public final class AdaptAttributeService extends TickedObject {
     this.scheduler = scheduler;
     this.registryAttributes = registryAttributes;
     this.tracker = new AdaptAttributeTracker();
+    this.emulator = new AttributeEmulator(this::isNativeAttribute, () -> ThreadLocalRandom.current().nextDouble());
     ReentrantReadWriteLock changeLock = new ReentrantReadWriteLock();
     this.changeReadLock = changeLock.readLock();
     this.changeWriteLock = changeLock.writeLock();
@@ -238,6 +246,22 @@ public final class AdaptAttributeService extends TickedObject {
     }
   }
 
+  /**
+   * Attribute value with Adapt's modifiers: the real attribute when the entity has it, else the emulated value
+   * ({@link AttributeEmulator}), else NaN.
+   */
+  public double value(LivingRef target, Id attribute) {
+    if (target == null || attribute == null) {
+      return Double.NaN;
+    }
+    return target.hasAttribute(attribute) ? target.attributeValue(attribute) : emulator.value(target, attribute);
+  }
+
+  /** True when the server lacks the attribute and {@link AttributeEmulator} stands in for it. */
+  public boolean isEmulated(Id attribute) {
+    return AttributeEmulator.emulates(attribute) && !isNativeAttribute(attribute);
+  }
+
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(PlayerJoinEvent e) {
     clearAllAdapt(e.player());
@@ -245,7 +269,18 @@ public final class AdaptAttributeService extends TickedObject {
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(PlayerQuitEvent e) {
-    tracker.prune(e.player().uuid());
+    PlayerRef player = e.player();
+    if (emulator.trackedEntities() > 0) {
+      scheduler.runOnEntity(player, () -> emulator.clear(player));
+    }
+    tracker.prune(player.uuid());
+  }
+
+  @Handle(priority = EventPriority.LOWEST)
+  public void on(EntityDamageEvent e) {
+    if (emulator.trackedEntities() > 0) {
+      emulator.onDamage(e);
+    }
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -261,6 +296,7 @@ public final class AdaptAttributeService extends TickedObject {
     }
 
     tracker.prune(entity.uuid());
+    emulator.forget(entity.uuid());
   }
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
@@ -270,6 +306,7 @@ public final class AdaptAttributeService extends TickedObject {
     }
     for (EntityRef entity : e.entities()) {
       tracker.prune(entity.uuid());
+      emulator.forget(entity.uuid());
     }
   }
 
@@ -280,7 +317,8 @@ public final class AdaptAttributeService extends TickedObject {
         return false;
       }
       tracker.cancelTimed(target.uuid(), attribute, key.key());
-      if (!resolver.setTransientModifier(target, attribute, new AttributeMod(key.key(), amount, operation))) {
+      AttributeMod modifier = new AttributeMod(key.key(), amount, operation);
+      if (!resolver.setTransientModifier(target, attribute, modifier) && !emulator.apply(target, attribute, modifier)) {
         return false;
       }
 
@@ -295,6 +333,7 @@ public final class AdaptAttributeService extends TickedObject {
     UUID entityId = target.uuid();
     tracker.cancelTimed(entityId, attribute, key.key());
     resolver.removeModifier(target, attribute, key.key());
+    emulator.remove(target, attribute, key.key());
     tracker.untrack(entityId, attribute, key);
   }
 
@@ -312,6 +351,10 @@ public final class AdaptAttributeService extends TickedObject {
       }
 
       removed += resolver.removeAllInNamespace(target, attribute, AdaptAttributeKey.NAMESPACE);
+    }
+    removed += emulator.clear(target);
+    if (emulationActive()) {
+      removed += emulator.dropLeftoverEffects(target);
     }
     tracker.prune(target.uuid());
     return removed;
@@ -437,6 +480,27 @@ public final class AdaptAttributeService extends TickedObject {
       }
     }
     return true;
+  }
+
+  private boolean emulationActive() {
+    Boolean active = emulationActive;
+    if (active == null) {
+      if (AdaptCore.current() == null) {
+        return false;
+      }
+      active = emulator.active();
+      emulationActive = active;
+    }
+    return active;
+  }
+
+  private boolean isNativeAttribute(Id attribute) {
+    AdaptCore core = AdaptCore.current();
+    if (core == null) {
+      return true;
+    }
+    return nativeAttributes.computeIfAbsent(attribute,
+        (Id missing) -> core.getPlatform().host().registries().exists(RegistryKind.ATTRIBUTE, missing));
   }
 
   private boolean isInvalid(LivingRef target, String adaptationName, Id attribute) {

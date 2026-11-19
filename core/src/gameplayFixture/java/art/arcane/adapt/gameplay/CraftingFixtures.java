@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.Hand;
@@ -216,7 +217,8 @@ public final class CraftingFixtures {
         result.addProperty("amount", stack.amount());
         int baseMaxDamage = Fixtures.items().create(stack.type(), 1).maxDamage();
         result.addProperty("damage", stack.damage());
-        result.addProperty("maxDamage", stack.maxDamage() > 0 ? stack.maxDamage() : baseMaxDamage);
+        int maxDamage = ItemDurability.maxDamage(stack);
+        result.addProperty("maxDamage", maxDamage > 0 ? maxDamage : baseMaxDamage);
         result.addProperty("baseMaxDamage", baseMaxDamage);
         JsonObject enchants = new JsonObject();
         for (Map.Entry<Id, Integer> entry : stack.enchantments().entrySet()) {

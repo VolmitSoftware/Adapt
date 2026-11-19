@@ -6,8 +6,6 @@ import art.arcane.adapt.platform.event.player.EntityExhaustionEvent;
 import art.arcane.adapt.platform.event.player.PlayerAnimationEvent;
 import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
 import art.arcane.adapt.platform.event.player.PlayerChatEvent;
-import art.arcane.adapt.platform.event.player.PlayerInput;
-import art.arcane.adapt.platform.event.player.PlayerInputEvent;
 import art.arcane.adapt.platform.event.player.PlayerInventorySlotChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemBreakEvent;
 import art.arcane.adapt.platform.event.player.PlayerPreLoginEvent;
@@ -18,7 +16,6 @@ import art.arcane.adapt.platform.event.player.PlayerTradeEvent;
 import art.arcane.adapt.platform.event.player.PlayerVelocityEvent;
 import art.arcane.adapt.platform.event.player.PrePlayerAttackEntityEvent;
 import art.arcane.adapt.platform.value.Vec3;
-import org.bukkit.Input;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.util.Vector;
@@ -36,7 +33,7 @@ final class PlayerGapTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(CHAT, PRE_LOGIN, PRE_ATTACK, ANIMATION, BED_ENTER, SHEAR, INPUT, VELOCITY, ITEM_BREAK, STOP_USING,
+    return List.of(CHAT, PRE_LOGIN, PRE_ATTACK, ANIMATION, BED_ENTER, SHEAR, VELOCITY, ITEM_BREAK, STOP_USING,
         SLOT_CHANGE, RECIPE_BOOK, TRADE, EXHAUSTION);
   }
 
@@ -94,13 +91,6 @@ final class PlayerGapTranslations {
         core.setCancelled(cancelled);
         poster.post(core);
         cancel(event, cancelled, core);
-      });
-
-  static final Translation<org.bukkit.event.player.PlayerInputEvent> INPUT = BukkitTranslations.simple(
-      org.bukkit.event.player.PlayerInputEvent.class, PlayerInputEvent.class, (event, poster) -> {
-        Input input = event.getInput();
-        poster.post(new PlayerInputEvent(player(event.getPlayer()), new PlayerInput(input.isForward(), input.isBackward(),
-            input.isLeft(), input.isRight(), input.isJump(), input.isSneak(), input.isSprint())));
       });
 
   static final Translation<org.bukkit.event.player.PlayerVelocityEvent> VELOCITY = BukkitTranslations.simple(

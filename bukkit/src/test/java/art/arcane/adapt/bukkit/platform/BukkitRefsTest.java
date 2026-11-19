@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.platform;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -72,7 +73,7 @@ class BukkitRefsTest {
     Zombie zombie = entity(Zombie.class, EntityType.ZOMBIE);
     ArmorStand stand = entity(ArmorStand.class, EntityType.ARMOR_STAND);
     Arrow arrow = entity(Arrow.class, EntityType.ARROW);
-    Item item = entity(Item.class, EntityType.ITEM);
+    Item item = entity(Item.class, TestVersion.ITEM_ENTITY);
     Entity plain = entity(Entity.class, EntityType.MARKER);
 
     EntityRef mob = BukkitRefs.entity(zombie);

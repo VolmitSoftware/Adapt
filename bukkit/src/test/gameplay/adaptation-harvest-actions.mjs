@@ -1,4 +1,5 @@
 import { decodeSoundPacket } from './feedback.mjs'
+import { damagedItem } from './version-ids.mjs'
 
 function position(actor, x, y, z) {
     return actor.bot.entity.position.clone().set(x, y, z)
@@ -72,7 +73,7 @@ async function fragilePickaxe(input) {
         if (attempt > 0) {
             await input.context.command(`/execute at ${input.actor.bot.username} run setblock 3 100 0 minecraft:stone replace`, /Changed the block|block.*changed/i, 5000)
             if (!(await input.snapshot()).knowledge.inventory.some(item => item.type === 'minecraft:diamond_pickaxe')) {
-                await input.context.command(`/give ${input.actor.bot.username} minecraft:diamond_pickaxe[minecraft:damage=1560] 1`, /Gave /, 5000)
+                await input.context.command(`/give ${input.actor.bot.username} ${damagedItem('diamond_pickaxe', 1560)} 1`, /Gave /, 5000)
                 await input.equip('diamond_pickaxe')
             }
             await input.context.waitUntil(async () => (await targetBlock(input)).name === 'stone', {

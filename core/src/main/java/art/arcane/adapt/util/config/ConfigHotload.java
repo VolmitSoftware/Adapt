@@ -361,7 +361,7 @@ public final class ConfigHotload {
 
   private void refreshGlobalRuntimeSettings() {
     String previousLocale = AdaptLanguage.activeLocale();
-    if (AdaptLanguage.reloadPassive() && !previousLocale.equals(AdaptLanguage.activeLocale())) {
+    if (AdaptLanguage.reloadConfiguredLocale() && !previousLocale.equals(AdaptLanguage.activeLocale())) {
       AdaptLanguage.requestConfiguredLocale();
     }
 
@@ -545,7 +545,15 @@ public final class ConfigHotload {
     return ConfigFileSupport.parseToJsonElement(raw, file);
   }
 
+  /**
+   * The operator diff parses both versions of the file (a language file is thousands of keys), so it is built off the
+   * server thread; the messages go out from the server thread as before.
+   */
   private void notifyOps(File file, String before, String after) {
+    Tasks.a(() -> notifyOpsOfDiff(file, before, after));
+  }
+
+  private void notifyOpsOfDiff(File file, String before, String after) {
     List<ConfigHotloadEngine.DiffEntry> diffs = ConfigHotloadEngine.computeStructuredDiff(
         before,
         after,

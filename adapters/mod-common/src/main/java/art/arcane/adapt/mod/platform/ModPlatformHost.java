@@ -4,6 +4,7 @@ import art.arcane.adapt.mod.AdaptModIdentity;
 import art.arcane.adapt.mod.platform.entity.ModAnimalOps;
 import art.arcane.adapt.mod.platform.item.ModItemOps;
 import art.arcane.adapt.platform.Capability;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.PlatformLog;
@@ -15,12 +16,14 @@ import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.WorldRef;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -63,6 +66,16 @@ public final class ModPlatformHost implements PlatformHost {
     @Override
     public String minecraftVersion() {
         return SharedConstants.getCurrentVersion().name();
+    }
+
+    @Override
+    public boolean supports(EngineFeature feature) {
+        return switch (feature) {
+            case ITEM_DATA_COMPONENTS -> BuiltInRegistries.DATA_COMPONENT_TYPE.size() > 0;
+            case DATA_DRIVEN_ENCHANTMENTS -> server.registryAccess().lookup(Registries.ENCHANTMENT).isPresent();
+            case BUNDLES -> Items.BUNDLE.isEnabled(server.getWorldData().enabledFeatures());
+            case DISPLAY_TELEPORT_INTERPOLATION, TICK_RATE_MANAGER, ITEM_STACK_LIMITS, ITEM_MODEL, ITEM_COOLDOWN_GROUPS, PLAYER_INPUT -> true;
+        };
     }
 
     @Override

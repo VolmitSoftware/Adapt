@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.protector;
 
+import art.arcane.adapt.TestVersion;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.DataStore;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -45,7 +46,7 @@ class GriefPreventionProtectorTest {
     claim = mock(Claim.class);
     plugin.dataStore = store;
     plugin.config_claims_protectCreatures = true;
-    lenient().when(plugin.namespace()).thenReturn("griefprevention");
+    TestVersion.pluginNamespace(plugin, "griefprevention");
     lenient().when(store.getClaimAt(eq(claimed), eq(true), any())).thenReturn(claim);
     lenient().when(store.getClaimAt(eq(claimed), eq(false), any())).thenReturn(claim);
     lenient().when(store.getClaimAt(eq(wild), eq(true), any())).thenReturn(null);

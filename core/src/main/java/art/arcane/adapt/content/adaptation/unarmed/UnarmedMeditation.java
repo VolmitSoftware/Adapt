@@ -27,6 +27,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.attribute.LegacyModifierKey;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -34,9 +35,11 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.AttributeOperation;
+import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -60,6 +63,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config> {
   static final Id ABSORPTION_MODIFIER_KEY = Id.adapt("unarmed-meditation");
   private static final LegacyModifierKey ABSORPTION_MODIFIER = LegacyModifierKey.of(ABSORPTION_MODIFIER_KEY);
+  private static final Id ABSORPTION_EFFECT = Id.minecraft("absorption");
+  private static final double ABSORPTION_PER_EFFECT_LEVEL = 4D;
 
   private final Cooldowns combatCooldown = cooldowns();
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
@@ -70,6 +75,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
 
   public UnarmedMeditation() {
     super("unarmed-meditation");
+    needs(PlatformNeed.attribute(Attributes.MAX_ABSORPTION));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("amethyst_cluster"));
     setInterval(1000);
@@ -295,8 +301,11 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   }
 
   static boolean ensureAbsorptionCapacity(LivingRef target, double cap) {
-    if (target == null || !Double.isFinite(cap) || cap <= 0D || !target.hasAttribute(Attributes.MAX_ABSORPTION)) {
+    if (target == null || !Double.isFinite(cap) || cap <= 0D) {
       return false;
+    }
+    if (!target.hasAttribute(Attributes.MAX_ABSORPTION)) {
+      return AdaptAttributeService.get().isEmulated(Attributes.MAX_ABSORPTION);
     }
 
     for (AttributeMod modifier : ABSORPTION_MODIFIER.find(target, Attributes.MAX_ABSORPTION)) {
@@ -323,6 +332,21 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   static void removeAbsorptionCapacity(LivingRef target) {
     if (target != null) {
       ABSORPTION_MODIFIER.remove(target, Attributes.MAX_ABSORPTION);
+      if (!target.hasAttribute(Attributes.MAX_ABSORPTION)) {
+        dropUncappedAbsorption(target);
+      }
+    }
+  }
+
+  /**
+   * Without a max_absorption attribute nothing caps absorption, so dropping the capacity would leave meditation's
+   * hearts behind. Do what the cap drop does where the attribute exists: keep only what an Absorption effect allows.
+   */
+  static void dropUncappedAbsorption(LivingRef target) {
+    EffectInstance effect = target.effect(ABSORPTION_EFFECT);
+    double allowed = effect == null ? 0D : ABSORPTION_PER_EFFECT_LEVEL * (effect.amplifier() + 1);
+    if (target.absorption() > allowed) {
+      target.setAbsorption(allowed);
     }
   }
 

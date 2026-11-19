@@ -1,6 +1,9 @@
 import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { adaptMenus } from './adapt-menus.mjs'
 import { fixtureJson } from './fixture-json.mjs'
+import { loadVersionCatalog } from './version-catalog.mjs'
+import { serverVersion } from './version-ids.mjs'
 
 export default {
   name: 'adapt-player-preferences',
@@ -12,6 +15,7 @@ export default {
     const action = (player, command) => fixtureJson(context,
       `/adaptqa preferences ${player.bot.username} ${command}`, `PREFERENCES ${command.split(' ')[0]}`, 10000)
     const report = context.report.preferences = { adaptations: [], menus: [] }
+    const menus = adaptMenus(context, actor.bot)
     let setup = false
     try {
       await context.command(`/adaptqa setup ${actor.bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 30000)
@@ -20,9 +24,14 @@ export default {
       const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
       const registered = new Set(catalog.adaptations.map(adaptation => adaptation.id))
       const known = new Set(matrix.map(entry => entry.name))
-      const missing = matrix.filter(entry => entry.availability?.kind !== 'plugin' && !registered.has(entry.name)).map(entry => entry.name)
-      context.expect(missing.length === 0 && catalog.adaptations.every(adaptation => known.has(adaptation.id)),
-        'Every matrix adaptation without a plugin requirement is registered, and nothing else', { missing, registered: registered.size })
+      const versionCatalog = loadVersionCatalog(serverVersion())
+      const versionDisabled = name => versionCatalog.get(name)?.status === 'disabled'
+      const missing = matrix.filter(entry => entry.availability?.kind !== 'plugin' && !versionDisabled(entry.name) && !registered.has(entry.name))
+        .map(entry => entry.name)
+      const unexpected = catalog.adaptations.map(adaptation => adaptation.id).filter(id => !known.has(id) || versionDisabled(id))
+      context.expect(missing.length === 0 && unexpected.length === 0,
+        'Every matrix adaptation without a plugin requirement or a version catalog disable is registered, and nothing else',
+        { missing, unexpected, registered: registered.size })
       for (const adaptation of catalog.adaptations) {
         context.expect(adaptation.controls > 0, `${adaptation.id} has personal controls`)
         const audit = await action(actor, `audit ${adaptation.id}`)
@@ -34,11 +43,13 @@ export default {
         await action(actor, `learn ${id}`)
         await action(other, `learn ${id}`)
         let state = await action(actor, `open ${id}`)
-        await context.waitUntil(() => Boolean(actor.bot.currentWindow), { label: `${id} menu opens`, timeoutMs: 5000 })
-        const window = actor.bot.currentWindow
+        const window = await menus.opened(`${id} menu opens`)
         const enabled = state.settings.find(setting => setting.id === 'enabled')
         const slot = state.slots.find(item => item.name.replace(/§./g, '') === enabled.label)?.slot
         context.expect(Number.isInteger(slot), `${id} Enabled control is visible`)
+        const control = state.slots.find(item => item.slot === slot).material.toLowerCase()
+        await context.waitUntil(() => actor.bot.currentWindow === window && window.slots[slot]?.name === control,
+          { label: `${id} Enabled control reaches the client`, timeoutMs: 5000 })
         await actor.bot.clickWindow(slot, 0, 0)
         await context.waitUntil(async () => {
           state = await action(actor, `snapshot ${id}`)
@@ -56,15 +67,15 @@ export default {
         context.expect(state.settings.find(setting => setting.id === 'enabled')?.value === 'ON', `${id} switches back on`)
         context.expect(actor.bot.currentWindow === window, `${id} reverse switch keeps the inventory`)
         report.menus.push({ id, slot, sameWindow: true, isolated: true })
-        actor.bot.closeWindow(window)
+        await menus.close(`${id} Escape returns to the skill menu`)
       }
       let skill = await action(actor, 'skill agility open')
       const switchSlot = skill.slots.find(item => item.name.replace(/§./g, '') === 'Skill adaptations enabled')?.slot
       context.expect(Number.isInteger(switchSlot), 'Skill master control is visible')
       const switchMaterial = skill.slots.find(item => item.slot === switchSlot).material.toLowerCase()
-      await context.waitUntil(() => actor.bot.currentWindow?.slots[switchSlot]?.name === switchMaterial,
+      const skillWindow = await menus.opened('Skill menu opens')
+      await context.waitUntil(() => actor.bot.currentWindow === skillWindow && skillWindow.slots[switchSlot]?.name === switchMaterial,
         { label: 'Skill menu with its master control reaches the client', timeoutMs: 5000 })
-      const skillWindow = actor.bot.currentWindow
       await actor.bot.clickWindow(switchSlot, 0, 0)
       await context.waitUntil(async () => {
         skill = await action(actor, 'skill agility')

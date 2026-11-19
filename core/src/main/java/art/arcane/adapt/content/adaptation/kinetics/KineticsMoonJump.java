@@ -12,6 +12,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -46,6 +47,7 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
 
   public KineticsMoonJump() {
     super("kinetics-moon-jump");
+    needs(PlatformNeed.attribute(Attributes.JUMP_STRENGTH), PlatformNeed.attribute(Attributes.GRAVITY));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("rabbit_foot"));
     setInterval(RECONCILE_INTERVAL_MS);

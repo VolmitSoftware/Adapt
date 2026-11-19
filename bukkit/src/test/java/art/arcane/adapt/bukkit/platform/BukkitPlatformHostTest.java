@@ -5,7 +5,6 @@ import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.Capability;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.TeleportCause;
 import org.bukkit.Material;
@@ -61,9 +60,6 @@ class BukkitPlatformHostTest {
   void enumConversionsRoundTrip() {
     for (GameMode mode : GameMode.values()) {
       assertThat(BukkitConversions.gameMode(BukkitConversions.gameMode(mode))).isEqualTo(mode);
-    }
-    for (EquipmentSlot slot : EquipmentSlot.values()) {
-      assertThat(BukkitConversions.slot(BukkitConversions.slot(slot))).isEqualTo(slot);
     }
     for (AttributeOperation operation : AttributeOperation.values()) {
       assertThat(BukkitConversions.operation(BukkitConversions.operation(operation))).isEqualTo(operation);

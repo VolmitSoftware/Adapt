@@ -1,12 +1,21 @@
 plugins {
     id 'java'
     id 'net.neoforged.moddev' version '2.0.147'
+    id 'xyz.wagyourtail.jvmdowngrader' version '2.0.1' apply false
     alias(libs.plugins.shadow)
 }
 apply from: '../../gradle/mod.gradle'
 
+// Forge and NeoForge patch Bootstrap, the block registry and the feature flags to start their event buses or load
+// modded flags, which only works under FML; the tests that touch them run on Fabric against the same mod-common sources.
+tasks.named('test', Test).configure {
+    exclude('art/arcane/adapt/mod/platform/item/ModItemRef*Test*')
+    exclude('art/arcane/adapt/mod/platform/ModEngineFeaturesTest*')
+}
+
 neoForge {
     version = targetProperties.neoforge
+    addModdingDependenciesTo(sourceSets.test)
     mods {
         register(adapt.projectId) {
             sourceSet(sourceSets.main)

@@ -25,7 +25,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.inventory.view.AnvilView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,12 +103,11 @@ final class InventoryGapTranslations {
       List<ItemRef> inputs = inputs(inventory, kind);
       Player viewer = (Player) event.getView().getPlayer();
       if (event instanceof org.bukkit.event.inventory.PrepareAnvilEvent anvil) {
-        AnvilView view = anvil.getView();
-        int cost = view.getRepairCost();
-        PrepareAnvilEvent core = new PrepareAnvilEvent(player(viewer), kind, inputs, result, view.getRenameText(), cost);
+        int cost = Paper121Access.repairCost(anvil);
+        PrepareAnvilEvent core = new PrepareAnvilEvent(player(viewer), kind, inputs, result, Paper121Access.renameText(anvil), cost);
         poster.post(core);
         if (core.repairCost() != cost) {
-          view.setRepairCost(core.repairCost());
+          Paper121Access.setRepairCost(anvil, core.repairCost());
         }
         writeResult(event, result, core);
         return;

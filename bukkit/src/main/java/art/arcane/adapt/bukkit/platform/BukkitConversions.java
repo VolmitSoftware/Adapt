@@ -2,7 +2,6 @@ package art.arcane.adapt.bukkit.platform;
 
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
-import art.arcane.adapt.platform.entity.EquipmentSlotGroup;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.TeleportCause;
@@ -71,45 +70,11 @@ public final class BukkitConversions {
   }
 
   public static org.bukkit.inventory.EquipmentSlot slot(EquipmentSlot slot) {
-    return switch (slot) {
-      case MAIN_HAND -> org.bukkit.inventory.EquipmentSlot.HAND;
-      case OFF_HAND -> org.bukkit.inventory.EquipmentSlot.OFF_HAND;
-      case HEAD -> org.bukkit.inventory.EquipmentSlot.HEAD;
-      case CHEST -> org.bukkit.inventory.EquipmentSlot.CHEST;
-      case LEGS -> org.bukkit.inventory.EquipmentSlot.LEGS;
-      case FEET -> org.bukkit.inventory.EquipmentSlot.FEET;
-      case BODY -> org.bukkit.inventory.EquipmentSlot.BODY;
-      case SADDLE -> org.bukkit.inventory.EquipmentSlot.SADDLE;
-    };
-  }
-
-  public static org.bukkit.inventory.EquipmentSlotGroup slotGroup(EquipmentSlotGroup group) {
-    return switch (group) {
-      case ANY -> org.bukkit.inventory.EquipmentSlotGroup.ANY;
-      case MAINHAND -> org.bukkit.inventory.EquipmentSlotGroup.MAINHAND;
-      case OFFHAND -> org.bukkit.inventory.EquipmentSlotGroup.OFFHAND;
-      case HAND -> org.bukkit.inventory.EquipmentSlotGroup.HAND;
-      case FEET -> org.bukkit.inventory.EquipmentSlotGroup.FEET;
-      case LEGS -> org.bukkit.inventory.EquipmentSlotGroup.LEGS;
-      case CHEST -> org.bukkit.inventory.EquipmentSlotGroup.CHEST;
-      case HEAD -> org.bukkit.inventory.EquipmentSlotGroup.HEAD;
-      case ARMOR -> org.bukkit.inventory.EquipmentSlotGroup.ARMOR;
-      case BODY -> org.bukkit.inventory.EquipmentSlotGroup.BODY;
-      case SADDLE -> org.bukkit.inventory.EquipmentSlotGroup.SADDLE;
-    };
+    return BukkitConversionsVersion.slot(slot);
   }
 
   public static EquipmentSlot slot(org.bukkit.inventory.EquipmentSlot slot) {
-    return switch (slot) {
-      case HAND -> EquipmentSlot.MAIN_HAND;
-      case OFF_HAND -> EquipmentSlot.OFF_HAND;
-      case HEAD -> EquipmentSlot.HEAD;
-      case CHEST -> EquipmentSlot.CHEST;
-      case LEGS -> EquipmentSlot.LEGS;
-      case FEET -> EquipmentSlot.FEET;
-      case BODY -> EquipmentSlot.BODY;
-      case SADDLE -> EquipmentSlot.SADDLE;
-    };
+    return BukkitConversionsVersion.slot(slot);
   }
 
   public static org.bukkit.inventory.EquipmentSlot hand(Hand hand) {
@@ -137,22 +102,7 @@ public final class BukkitConversions {
   }
 
   public static TeleportCause cause(PlayerTeleportEvent.TeleportCause cause) {
-    if (cause == null) {
-      return TeleportCause.UNKNOWN;
-    }
-    return switch (cause) {
-      case PLUGIN -> TeleportCause.PLUGIN;
-      case COMMAND -> TeleportCause.COMMAND;
-      case ENDER_PEARL -> TeleportCause.ENDER_PEARL;
-      case CONSUMABLE_EFFECT -> TeleportCause.CHORUS_FRUIT;
-      case NETHER_PORTAL -> TeleportCause.NETHER_PORTAL;
-      case END_PORTAL -> TeleportCause.END_PORTAL;
-      case END_GATEWAY -> TeleportCause.END_GATEWAY;
-      case SPECTATE -> TeleportCause.SPECTATE;
-      case DISMOUNT -> TeleportCause.DISMOUNT;
-      case EXIT_BED -> TeleportCause.EXIT_BED;
-      default -> TeleportCause.UNKNOWN;
-    };
+    return BukkitConversionsVersion.cause(cause);
   }
 
   public static AttributeModifier.Operation operation(AttributeOperation operation) {

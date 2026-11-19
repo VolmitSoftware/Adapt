@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -61,6 +62,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
 
   public ExcavationMudlark() {
     super("excavation-mudlark");
+    needs(PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("mud"));
     setInterval(4530);

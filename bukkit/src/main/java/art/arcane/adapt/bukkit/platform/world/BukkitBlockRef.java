@@ -7,6 +7,7 @@ import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.bukkit.platform.data.BlockDataStore;
 import art.arcane.adapt.bukkit.platform.data.PdcDataHolder;
+import art.arcane.adapt.bukkit.platform.data.PdcStore;
 import art.arcane.adapt.bukkit.platform.entity.BukkitInventoryRef;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -321,7 +322,7 @@ public final class BukkitBlockRef implements BlockRef {
     return "BukkitBlockRef[" + block.getWorld().getName() + " " + pos.x() + "," + pos.y() + "," + pos.z() + "]";
   }
 
-  private record TileStore(Block block) implements PdcDataHolder.Store {
+  private record TileStore(Block block) implements PdcStore {
     @Override
     public PersistentDataContainer read() {
       return block.getState() instanceof TileState tile ? tile.getPersistentDataContainer() : null;
@@ -336,7 +337,7 @@ public final class BukkitBlockRef implements BlockRef {
     }
   }
 
-  private record BlockStore(Block block) implements PdcDataHolder.Store {
+  private record BlockStore(Block block) implements PdcStore {
     @Override
     public PersistentDataContainer read() {
       Plugin plugin = BukkitPlatform.plugin();

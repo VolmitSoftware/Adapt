@@ -33,7 +33,10 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.support.PlatformNeed;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -67,6 +70,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
 
   public GolemGathererCore() {
     super("golem-gatherer-core");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.gatherer_core");
     setIcon(Id.minecraft("hopper"));
@@ -213,7 +217,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     @ConfigDoc(value = "Crafting recipe for the Gatherer Core, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe gathererCoreRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", "YBY", " Z ")
-        .key('X', "BUNDLE")
+        .key('X', PlatformSupport.materialOr("BUNDLE", "CHEST"))
         .key('Y', "STRING")
         .key('Z', "HOPPER")
         .key('B', "golemancy:blank_core")
@@ -221,7 +225,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     @ConfigDoc(value = "Crafting recipe for the Collection Node, unlocked at Gatherer Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe collectionNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
-        .key('X', "BUNDLE")
+        .key('X', PlatformSupport.materialOr("BUNDLE", "HOPPER"))
         .key('B', "golemancy:blank_node")
         .result("golemancy:node/collection", 1);
 

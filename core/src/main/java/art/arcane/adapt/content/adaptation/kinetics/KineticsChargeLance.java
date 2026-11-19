@@ -4,6 +4,7 @@ import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -25,6 +26,7 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
 
   public KineticsChargeLance() {
     super("kinetics-charge-lance");
+    needs(PlatformNeed.item("iron_spear"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("iron_spear"));
     setInterval(9999);

@@ -1,3 +1,9 @@
+import { aimBeforeUse } from './aim-while-using.mjs'
+import { doubleJump } from './client-input.mjs'
+import { versionEntry } from './version-catalog.mjs'
+import { serverVersion } from './version-ids.mjs'
+import { compareVersions } from './version-profile.mjs'
+
 function point(actor, x, y, z) {
     return actor.bot.entity.position.clone().set(x, y, z)
 }
@@ -56,24 +62,40 @@ async function descent(input) {
     }
 }
 
+const FALL_HEIGHT = 8
+
+// Fall damage actually taken from a short drop right after the trigger (levitation cleared first), with the arena's fall
+// damage rule switched on for the drop and restored afterwards.
+export async function fallDamageTaken(input) {
+    const { actor, context, snapshot } = input
+    const rule = compareVersions(serverVersion(), '1.21.11') < 0 ? 'fallDamage' : 'fall_damage'
+    const name = actor.bot.username
+    await context.command(`/effect clear ${name} minecraft:levitation`, /effect/i, 5000)
+    const current = await context.command(`/execute at ${name} run gamerule ${rule}`, /Gamerule|game rule/i, 5000)
+    const previous = /\btrue\b/i.test(current) ? 'true' : 'false'
+    await context.command(`/execute at ${name} run gamerule ${rule} true`, /Gamerule|game rule/i, 5000)
+    try {
+        const before = await snapshot()
+        await context.command(`/execute as ${name} at @s run tp @s ~ ~${FALL_HEIGHT} ~`, /Teleported/i, 5000)
+        await context.waitUntil(() => actor.bot.entity.position.y > before.location.y + FALL_HEIGHT - 1, { label: 'player lifted for the fall check', timeoutMs: 3000 })
+        await context.waitUntil(() => actor.bot.entity.onGround && actor.bot.entity.position.y < before.location.y + 0.5,
+            { label: 'player lands from the fall check', timeoutMs: 5000 })
+        await actor.bot.waitForTicks(5)
+        const after = await snapshot()
+        return before.health + before.absorption - after.health - after.absorption
+    } finally {
+        await context.command(`/execute at ${name} run gamerule ${rule} ${previous}`, /Gamerule|game rule/i, 5000)
+    }
+}
+
 async function blink(input) {
     const { actor, context, snapshot } = input
     await actor.bot.lookAt(actor.bot.entity.position.offset(15, 1.62, 0), true)
     const before = await snapshot()
-    actor.bot.setControlState('jump', true)
-    try {
-        await actor.bot.waitForTicks(4)
-        context.expect(!actor.bot.entity.onGround, 'First jump leaves the ground')
-        actor.bot.setControlState('jump', false)
-        await actor.bot.waitForTicks(2)
-        actor.bot.setControlState('jump', true)
-        await actor.bot.waitForTicks(3)
-        actor.bot.setControlState('jump', false)
-        await actor.bot.waitForTicks(15)
-        return { before, after: await snapshot() }
-    } finally {
-        actor.bot.setControlState('jump', false)
-    }
+    const jump = await doubleJump(actor.bot)
+    context.expect(jump.airborne, 'First jump leaves the ground')
+    await actor.bot.waitForTicks(15)
+    return { before, after: await snapshot(), jump }
 }
 
 async function magnet(input) {
@@ -186,7 +208,13 @@ async function taglock(input) {
         actor.bot.setControlState('sneak', false)
     }
     const afterTag = await snapshot()
-    await actor.bot.lookAt(point(actor, 9.5, 103.5, 0.5), true)
+    await context.waitUntil(async () => {
+        const state = await snapshot()
+        return !state.sneaking && state.traversal.pose === 'STANDING'
+    }, { label: 'Server sees the thrower standing again', timeoutMs: 5000, intervalMs: 100 })
+    // Before 1.21.2 a projectile hits entities through a 0.3 block margin from its first tick (26.x grows it from 0 over
+    // the first ticks), so the throw clears the tagged cow 2 blocks ahead with that margin and still lands on the wall.
+    await aimBeforeUse(context, actor.bot, point(actor, 9.5, 104.2, 0.5), async () => (await snapshot()).location)
     actor.bot.activateItem()
     actor.bot.deactivateItem()
     await actor.bot.waitForTicks(65)
@@ -305,13 +333,17 @@ function report(assertions, unlearned, active) {
 
 export const riftBehaviorCases = new Map([
     ['rift-descent', {
-        stage: 'rift-descent', prepare: prepare('potion'), trigger: descent, negativeWindowTicks: 10,
+        stage: 'rift-descent', prepare: prepare('potion'), negativeWindowTicks: 10,
+        trigger: versionEntry('rift-descent')?.status === 'emulated'
+            ? async input => ({ ...await descent(input), fallDamage: await fallDamageTaken(input) })
+            : descent,
         description: 'sneaking cancels naturally consumed levitation and grants fall protection',
         sound: 'minecraft:block.amethyst_block.break', soundVolume: 0.5, soundPitch: 1.7, particle: 'dragon_breath',
         async verify({ context, unlearned, active }) {
             context.expect(effect(unlearned.after, 'levitation'), 'Unlearned sneak preserves the consumed levitation')
             context.expect(!effect(active.after, 'levitation'), 'Learned sneak removes actual levitation')
-            context.expect(active.after.attributes['minecraft:fall_damage_multiplier'] === 0, 'Descent grants actual zero fall-damage multiplier')
+            if (active.fallDamage === undefined) context.expect(active.after.attributes['minecraft:fall_damage_multiplier'] === 0, 'Descent grants actual zero fall-damage multiplier')
+            else context.expect(unlearned.fallDamage > 0 && active.fallDamage === 0, 'Descent leaves an actual fall harmless (fall damage multiplier emulated)')
             context.expect(unlearned.bottles === 1 && active.bottles === 1, 'Both levitation effects came from consumed bottled potions')
             return report(['unlearned sneak retains consumed levitation', 'learned sneak clears levitation and sets zero fall damage'], unlearned, active)
         },

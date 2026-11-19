@@ -1,3 +1,5 @@
+import { versionEntry } from './version-catalog.mjs'
+
 function effect(state, type) {
     return state.effects.find(value => value.type === `minecraft:${type}`)
 }
@@ -300,6 +302,10 @@ export const defenseBehaviorCases = new Map([
         prepare: input => prepare(input, 'wooden_sword'), trigger: lunge,
         verify: ({ context, unlearned, active }) => {
             const key = 'minecraft:entity_interaction_range'
+            if (versionEntry('sword-lunge-strike')?.status === 'partial') {
+                context.expect(!(key in active.after.attributes), 'The server has no entity interaction range attribute (catalog: partial)')
+                return result(['natural sprinting sword strike lunges; no reach bonus without the entity interaction range attribute'], unlearned, active)
+            }
             context.expect(unlearned.after.attributes[key] === unlearned.before.attributes[key], 'Control sprint hit does not extend reach')
             context.expect(active.after.attributes[key] > active.before.attributes[key], 'Learned sprint hit extends entity interaction reach')
             return result(['natural sprinting sword strike increases entity interaction range'], unlearned, active)

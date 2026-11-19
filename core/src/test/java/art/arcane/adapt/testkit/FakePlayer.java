@@ -13,6 +13,7 @@ import art.arcane.adapt.platform.fx.SoundCategory;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
 
 import java.util.ArrayList;
@@ -48,6 +49,7 @@ public final class FakePlayer extends FakeLiving implements PlayerRef {
   private boolean sprinting;
   private boolean flying;
   private boolean allowFlight;
+  private boolean flightRequests;
   private float walkSpeed = 0.2F;
   private int foodLevel = 20;
   private float saturation = 5F;
@@ -65,12 +67,23 @@ public final class FakePlayer extends FakeLiving implements PlayerRef {
   private Loc openMenuLocation;
   private int enchantmentSeed;
   private Loc compassTarget;
+  private Vec3 movement;
   private final List<String> experienceChanges = new ArrayList<>();
   private final List<FakeProjectile> launched = new ArrayList<>();
 
   public FakePlayer(String name, Loc location) {
     super(Id.minecraft("player"), location);
     this.name = name;
+  }
+
+  /** Movement the client reported, kept apart from the server velocity as on servers before 1.21.2. */
+  public void setMovement(Vec3 movement) {
+    this.movement = movement;
+  }
+
+  @Override
+  public Vec3 movement() {
+    return movement == null ? velocity() : movement;
   }
 
   public FakePlayer holding(ItemRef item) {
@@ -203,12 +216,46 @@ public final class FakePlayer extends FakeLiving implements PlayerRef {
 
   @Override
   public boolean allowFlight() {
-    return allowFlight;
+    return allowFlight && !flightRequests;
   }
 
   @Override
   public void setAllowFlight(boolean allow) {
+    flightRequests = false;
     allowFlight = allow;
+    if (!allow) {
+      flying = false;
+    }
+  }
+
+  @Override
+  public boolean grantFlightRequests() {
+    if (flightRequests || allowFlight || (gameMode != GameMode.SURVIVAL && gameMode != GameMode.ADVENTURE)) {
+      return false;
+    }
+    flightRequests = true;
+    allowFlight = true;
+    return true;
+  }
+
+  @Override
+  public void revokeFlightRequests() {
+    if (!flightRequests) {
+      return;
+    }
+    flightRequests = false;
+    allowFlight = false;
+    flying = false;
+  }
+
+  @Override
+  public boolean flightRequestsGranted() {
+    return flightRequests;
+  }
+
+  /** The raw may-fly ability as the client sees it, grants included. */
+  public boolean mayFly() {
+    return allowFlight;
   }
 
   @Override

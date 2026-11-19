@@ -31,7 +31,10 @@ import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.support.PlatformNeed;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -84,6 +87,8 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
 
   public GolemSorterCore() {
     super("golem-sorter-core");
+    needs(PlatformNeed.entity("copper_golem"));
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.sorter_core");
     setIcon(Id.minecraft("comparator"));
@@ -270,13 +275,13 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
         .rows(" X ", "YBY", " Z ")
         .key('X', "COMPARATOR")
         .key('Y', "QUARTZ")
-        .key('Z', "COPPER_CHEST")
+        .key('Z', PlatformSupport.materialOr("COPPER_CHEST", "BARREL"))
         .key('B', "golemancy:blank_core")
         .result("golemancy:core/sorter", 1);
     @ConfigDoc(value = "Crafting recipe for the Input Node, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe inputNodeRecipe = new ConfiguredShapedRecipe()
         .rows(" X ", " B ", "   ")
-        .key('X', "COPPER_CHEST")
+        .key('X', PlatformSupport.materialOr("COPPER_CHEST", "BARREL"))
         .key('B', "golemancy:blank_node")
         .result("golemancy:node/input", 1);
     @ConfigDoc(value = "Crafting recipe for the Filter Node, unlocked at the filterLevel Sorter Core level.", impact = "Edit the rows, keys, result or amount to change the recipe; changes apply after a restart.")

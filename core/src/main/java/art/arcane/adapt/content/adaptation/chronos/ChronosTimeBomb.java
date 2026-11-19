@@ -22,6 +22,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ItemCooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -35,10 +36,12 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataHolder;
@@ -58,6 +61,7 @@ import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.event.world.ChunkEntitiesEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.Ingredient;
@@ -133,6 +137,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
   public ChronosTimeBomb() {
     super("chronos-time-bomb");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_COOLDOWN_GROUPS, "no cooldown sweep on the item"),
+        PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("tnt"));
     setInterval(IDLE_TICK_INTERVAL_MILLIS);
@@ -255,10 +261,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     restoreStrandedFrozenPlayer(e.player());
   }
 
+  @ReceiveCancelledEvents
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    InteractAction action = e.action();
-    if (!SUPPORTED_ACTIONS.contains(action)) {
+    if (!governsThrow(e)) {
       return;
     }
 
@@ -299,6 +305,14 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         ChronosSoundFX.playClockReject(p);
       }
     }
+  }
+
+  /**
+   * The bomb leaves through the item use, so a denied block use (a sneaking click on a block, a protected block) does not
+   * stop the throw; only a denied item use does.
+   */
+  static boolean governsThrow(PlayerInteractEvent e) {
+    return SUPPORTED_ACTIONS.contains(e.action()) && e.useItem() != UseResult.DENY;
   }
 
   private ItemRef getItemInHand(PlayerRef p, Hand handSlot) {

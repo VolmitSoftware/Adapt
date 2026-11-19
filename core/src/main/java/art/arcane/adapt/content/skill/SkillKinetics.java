@@ -10,6 +10,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsBreachwright;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsChargeLance;
@@ -113,7 +114,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     registerConfiguration(Config.class);
     setColor(C.GOLD);
     setInterval(1000);
-    setIcon(Id.minecraft("mace"));
+    setIcon(PlatformSupport.itemOr(Id.minecraft("mace"), Id.minecraft("anvil")));
     registerAdaptation(new KineticsMoonJump());
     registerAdaptation(new KineticsRubberSoul());
     registerAdaptation(new KineticsSoftCatch());

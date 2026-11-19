@@ -112,6 +112,18 @@ public final class AdaptLanguage {
     return reloadInternal(null, null, false);
   }
 
+  /**
+   * Loads the configured locale when it differs from the active one. Language files hotload on their own, so a core
+   * config change only matters through its language setting; re-parsing an unchanged locale (thousands of keys) on
+   * the server thread stalled Folia's global region for over 5 s under load.
+   */
+  public static boolean reloadConfiguredLocale() {
+    if (normalizeLocale(AdaptConfig.get().getLanguage()).equals(activeLocale)) {
+      return false;
+    }
+    return reloadPassive();
+  }
+
   public static boolean reloadLanguageSnapshot(File file, String raw) {
     if (!isLanguageFile(file)) {
       return false;

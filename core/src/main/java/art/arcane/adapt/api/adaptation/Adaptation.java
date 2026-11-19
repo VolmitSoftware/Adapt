@@ -32,6 +32,7 @@ import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.protection.ProtectionCheck;
 import art.arcane.adapt.api.protection.WorldPolicyLatencyTelemetry;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -100,6 +101,11 @@ public interface Adaptation<T> extends Ticked, Component {
   int getMaxLevel();
 
   default List<AdaptationRequirement> getRequirements() {
+    return List.of();
+  }
+
+  /** What this adaptation needs from the Minecraft version; without it the adaptation is left out of its skill. */
+  default List<PlatformNeed> getPlatformNeeds() {
     return List.of();
   }
 

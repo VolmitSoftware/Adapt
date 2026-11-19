@@ -37,6 +37,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
@@ -63,6 +64,7 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
 
   public HunterJumpBoost() {
     super("hunter-jumpboost");
+    needs(PlatformNeed.attribute(Attributes.JUMP_STRENGTH), PlatformNeed.attribute(Attributes.SAFE_FALL_DISTANCE));
     registerConfiguration(Config.class);
     setLocalizationKey("hunter.jump_boost");
     setIcon(Id.minecraft("pufferfish_bucket"));

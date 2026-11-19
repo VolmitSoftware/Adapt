@@ -58,7 +58,7 @@ final class SkillPreferenceGuiSupport {
     PreferencePolicy policy = PlayerPreferences.policy(skill, CommonPreferences.SKILL_ENABLED);
     boolean locked = !policy.playerEditable || policy.allowedValues.size() < 2;
     GuiElement toggle = GuiTheme.element("skill-preference-enabled", locked ? GRAY_PANE
-            : CommonPreferences.SKILL_ENABLED.choice(value).icon(),
+            : CommonPreferences.SKILL_ENABLED.choice(value).shownIcon(),
             "gui", "preferences", "skill", skill.getName(), "enabled",
             locked ? "locked" : value.name().toLowerCase(Locale.ROOT))
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), CommonPreferences.SKILL_ENABLED.label()))

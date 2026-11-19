@@ -167,7 +167,8 @@ async function deconstruct(input) {
     input.context.expect(checked.crafting.rayItemId === dropped.entityId, `Actual server eye ray reaches dropped chestplate (hit ${checked.crafting.rayItemId ?? 'none'}, expected ${dropped.entityId})`)
     const eligible = checked.crafting.drops.find(value => value.entityId === dropped.entityId)
     input.context.expect(eligible.pickupEligible, 'Actual dropped salvage input passes item ownership and pickup guards')
-    input.context.expect(eligible.salvage?.some(item => item.type === 'minecraft:iron_ingot' && item.amount === 4), 'Actual registered recipe offers four salvage ingots for the undamaged chestplate')
+    input.context.expect(eligible.salvage?.some(item => item.type === 'minecraft:iron_ingot' && item.amount === 4),
+        `Actual registered recipe offers four salvage ingots for the undamaged chestplate (dropped ${JSON.stringify(eligible)})`)
     const eyeHeight = checked.crafting.eyeHeight
     const floorDistance = eyeHeight / (eyeHeight - 0.125)
     const floorPoint = input.actor.bot.entity.position.clone().set(

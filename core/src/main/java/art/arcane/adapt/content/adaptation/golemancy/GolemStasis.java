@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
@@ -43,6 +44,7 @@ import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -93,6 +95,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   public GolemStasis() {
     super("golem-stasis");
+    needs(PlatformNeed.partialAttribute(Attributes.SCALE, "golems keep their vanilla size"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.stasis");
     setIcon(Id.minecraft("carved_pumpkin"));

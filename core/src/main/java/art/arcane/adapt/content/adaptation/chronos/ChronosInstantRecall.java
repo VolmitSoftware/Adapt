@@ -32,11 +32,13 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.data.DataKey;
@@ -128,6 +130,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   public ChronosInstantRecall() {
     super("chronos-instant-recall");
     registerConfiguration(ChronosInstantRecallConfig.class);
+    needs(PlatformNeed.emulatedFeature(EngineFeature.PLAYER_INPUT));
     setIcon(Id.minecraft("recovery_compass"));
     setInterval(50);
     registerAdvancement(AdaptAdvancement.builder()

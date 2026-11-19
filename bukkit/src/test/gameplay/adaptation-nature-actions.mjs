@@ -46,10 +46,17 @@ async function pact(input) {
         const target = input.opponent.bot.entities[input.actor.bot.entity.id]
         input.context.expect(Boolean(target), 'Blood Pact defender is visible to the ordinary sword attacker')
         await input.opponent.bot.lookAt(target.position.offset(0, 1, 0), true)
+        const prior = after
         input.opponent.bot.attack(target)
         await input.actor.bot.waitForTicks(16)
-        after = await input.snapshot()
-        input.context.expect(after.health < before.health, 'Blood Pact receives actual health damage')
+        // The hit comes from the opponent's connection and the snapshot from the operator's, so a busy server can answer
+        // the snapshot before it has handled the hit: wait for the hit itself instead of a fixed delay.
+        await input.context.waitUntil(async () => {
+            after = await input.snapshot()
+            return after.health < prior.health || buffed(before, after)
+        }, { label: 'the attacker\'s hit reaches the server', timeoutMs: 3000, intervalMs: 100 }).catch(() => {})
+        input.context.expect(after.health < before.health, 'Blood Pact receives actual health damage',
+            { hits: hits + 1, before: before.health, prior: prior.health, after: after.health, effects: after.effects })
         if (buffed(before, after)) break
     }
     return { hits: Math.min(20, hits + 1), healthLost: before.health - after.health, buffed: buffed(before, after),
@@ -238,33 +245,44 @@ async function strider(input) {
 }
 
 async function fishing(input) {
-    for (let attempt = 0; attempt < 20; attempt++) {
-        const before = await input.snapshot()
-        await input.actor.bot.lookAt(input.actor.bot.entity.position.clone().set(0.5, 98.8, -8.5), true)
-        input.actor.bot.activateItem()
-        try {
-            await input.context.waitUntil(async () => (await input.snapshot()).nature.bites > before.nature.bites, {
-                label: `real fishing bobber receives natural bite ${attempt + 1}`, timeoutMs: 45000, intervalMs: 100,
-            })
-        } catch (error) {
-            const failed = await input.snapshot()
-            throw new Error(`${error.message}; fishing state ${JSON.stringify(failed.nature)}`, { cause: error })
-        }
-        input.actor.bot.activateItem()
-        await input.context.waitUntil(async () => (await input.snapshot()).nature.catches.length > attempt, {
-            label: 'natural bite is reeled into an actual caught item', timeoutMs: 4000, intervalMs: 100,
-        })
-        const after = await input.snapshot()
-        const caught = after.nature.catches[attempt]
-        input.context.expect(caught.ordinary.amount > 0, 'Natural fishing produces an ordinary caught item')
-        if (caught.extra.length > 0) return { attempts: attempt + 1, caught }
-        const held = state => state.knowledge.inventory.filter(item => item.type === caught.ordinary.type).reduce((sum, item) => sum + item.amount, 0)
-        await input.context.waitUntil(async () => held(await input.snapshot()) >= held(before) + caught.ordinary.amount, {
-            label: 'reeled catch reaches the player before the next cast', timeoutMs: 5000, intervalMs: 100,
-        })
-        await input.actor.bot.waitForTicks(5)
+    let bitesHeard = 0
+    const onSound = packet => {
+        if (decodeSoundPacket(input.actor.bot.registry, packet).name === 'entity.fishing_bobber.splash') bitesHeard++
     }
-    return { attempts: 20, caught: { extra: [] } }
+    input.actor.bot._client.on('sound_effect', onSound)
+    try {
+        for (let attempt = 0; attempt < 20; attempt++) {
+            const before = await input.snapshot()
+            const heard = bitesHeard
+            await input.actor.bot.lookAt(input.actor.bot.entity.position.clone().set(0.5, 98.8, -8.5), true)
+            input.actor.bot.activateItem()
+            try {
+                await input.context.waitUntil(() => bitesHeard > heard, {
+                    label: `real fishing bobber receives natural bite ${attempt + 1}`, timeoutMs: 45000, intervalMs: 10,
+                })
+            } catch (error) {
+                const failed = await input.snapshot()
+                throw new Error(`${error.message}; fishing state ${JSON.stringify(failed.nature)}`, { cause: error })
+            }
+            input.actor.bot.activateItem()
+            await input.context.waitUntil(async () => (await input.snapshot()).nature.catches.length > attempt, {
+                label: 'natural bite is reeled into an actual caught item', timeoutMs: 4000, intervalMs: 100,
+            })
+            const after = await input.snapshot()
+            input.context.expect(after.nature.bites > before.nature.bites, 'The bite the client heard is a natural server-side bite')
+            const caught = after.nature.catches[attempt]
+            input.context.expect(caught.ordinary.amount > 0, 'Natural fishing produces an ordinary caught item')
+            if (caught.extra.length > 0) return { attempts: attempt + 1, caught }
+            const held = state => state.knowledge.inventory.filter(item => item.type === caught.ordinary.type).reduce((sum, item) => sum + item.amount, 0)
+            await input.context.waitUntil(async () => held(await input.snapshot()) >= held(before) + caught.ordinary.amount, {
+                label: 'reeled catch reaches the player before the next cast', timeoutMs: 5000, intervalMs: 100,
+            })
+            await input.actor.bot.waitForTicks(5)
+        }
+        return { attempts: 20, caught: { extra: [] } }
+    } finally {
+        input.actor.bot._client.off('sound_effect', onSound)
+    }
 }
 
 export const natureBehaviorCases = new Map([

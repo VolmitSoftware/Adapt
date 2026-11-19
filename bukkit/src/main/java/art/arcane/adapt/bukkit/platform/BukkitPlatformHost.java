@@ -4,9 +4,11 @@ import art.arcane.adapt.bukkit.platform.entity.BukkitAnimalOps;
 import art.arcane.adapt.bukkit.platform.item.BukkitItemOps;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.Capability;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.PlatformLog;
+import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.entity.AnimalOps;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -39,6 +41,7 @@ public final class BukkitPlatformHost implements PlatformHost {
   private final Plugin plugin;
   private final PlatformLog log;
   private final AdaptScheduler scheduler;
+  private static final Id BUNDLE = Id.minecraft("bundle");
   private final RegistryLookup registries = new BukkitRegistryLookup();
   private final ItemOps items = new BukkitItemOps();
   private final AnimalOps animals = new BukkitAnimalOps();
@@ -63,6 +66,11 @@ public final class BukkitPlatformHost implements PlatformHost {
   @Override
   public String minecraftVersion() {
     return server.getMinecraftVersion();
+  }
+
+  @Override
+  public boolean supports(EngineFeature feature) {
+    return (feature != EngineFeature.BUNDLES || registries.exists(RegistryKind.ITEM, BUNDLE)) && BukkitEngineFeatures.supports(feature);
   }
 
   @Override

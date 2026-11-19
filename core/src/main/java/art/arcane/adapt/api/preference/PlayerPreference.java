@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.preference;
 
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.localization.TextKey;
 
@@ -81,14 +82,25 @@ public final class PlayerPreference<E extends Enum<E>> {
     }
   }
 
-  public record Choice<E extends Enum<E>>(E value, TextKey label, Id icon, int minimumLevel) {
+  /** {@code fallbackIcon} is shown where the running Minecraft version lacks the {@code icon} item. */
+  public record Choice<E extends Enum<E>>(E value, TextKey label, Id icon, Id fallbackIcon, int minimumLevel) {
     public Choice {
       Objects.requireNonNull(value);
       Objects.requireNonNull(label);
       Objects.requireNonNull(icon);
+      Objects.requireNonNull(fallbackIcon);
       if (minimumLevel < 1) {
         throw new IllegalArgumentException("Preference choices require a positive unlock level");
       }
+    }
+
+    public Choice(E value, TextKey label, Id icon, int minimumLevel) {
+      this(value, label, icon, icon, minimumLevel);
+    }
+
+    /** The icon item to show on the running server. */
+    public Id shownIcon() {
+      return icon.equals(fallbackIcon) ? icon : PlatformSupport.itemOr(icon, fallbackIcon);
     }
   }
 }

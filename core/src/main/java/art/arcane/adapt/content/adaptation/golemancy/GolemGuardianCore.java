@@ -36,8 +36,10 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -83,6 +85,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
 
   public GolemGuardianCore() {
     super("golem-guardian-core");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.guardian_core");
     setIcon(Id.minecraft("shield"));

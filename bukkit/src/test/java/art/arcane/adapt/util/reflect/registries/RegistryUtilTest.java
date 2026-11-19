@@ -1,14 +1,12 @@
 package art.arcane.adapt.util.reflect.registries;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.volmlib.util.collection.Pair;
-import io.papermc.paper.registry.RegistryAccess;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,18 +16,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 
 class RegistryUtilTest {
   @BeforeAll
   static void initializeRegistryConstants() {
-    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
-    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
-      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
-      assertThat(Registry.SOUNDS).isNotNull();
-    }
+    TestVersion.initializeRegistries();
   }
 
   @Test

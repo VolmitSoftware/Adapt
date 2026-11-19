@@ -2,6 +2,7 @@ package art.arcane.adapt.bukkit.feature.menu;
 
 import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.bukkit.platform.item.BukkitItemRef;
 import art.arcane.adapt.platform.menu.MenuIcon;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -41,13 +42,14 @@ final class MenuIcons {
       }
       meta.lore(lines);
     }
+    stack.setItemMeta(meta);
+    BukkitItemRef item = new BukkitItemRef(stack);
     if (icon.glint()) {
-      meta.setEnchantmentGlintOverride(Boolean.TRUE);
+      item.setGlintOverride(Boolean.TRUE);
     }
     if (icon.itemModel() != null) {
-      meta.setItemModel(BukkitRefs.key(icon.itemModel()));
+      item.setItemModel(icon.itemModel());
     }
-    stack.setItemMeta(meta);
     return stack;
   }
 }

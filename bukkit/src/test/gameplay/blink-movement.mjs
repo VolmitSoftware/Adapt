@@ -1,5 +1,7 @@
 import { randomBytes } from 'node:crypto'
+import { doubleJump, serverSeesJumpKey } from './client-input.mjs'
 import { fixtureJson } from './fixture-json.mjs'
+import { contentSince } from './version-ids.mjs'
 import { synchronizePlayerInput } from './player-input.mjs'
 import { synchronizePlayerVelocity } from './player-velocity.mjs'
 
@@ -33,12 +35,16 @@ export default {
             actor.bot.setControlState(motion, true)
             try {
                 await actor.bot.waitForTicks(5)
-                actor.bot.setControlState('jump', true)
-                await actor.bot.waitForTicks(4)
-                actor.bot.setControlState('jump', false)
-                await actor.bot.waitForTicks(1)
-                actor.bot.setControlState('jump', true)
-                await actor.bot.waitForTicks(3)
+                if (serverSeesJumpKey()) {
+                    actor.bot.setControlState('jump', true)
+                    await actor.bot.waitForTicks(4)
+                    actor.bot.setControlState('jump', false)
+                    await actor.bot.waitForTicks(1)
+                    actor.bot.setControlState('jump', true)
+                    await actor.bot.waitForTicks(3)
+                } else {
+                    await doubleJump(actor.bot)
+                }
             } finally {
                 actor.bot.clearControlStates()
             }
@@ -105,7 +111,7 @@ export default {
                     await context.waitUntil(async () => (await snapshot()).direction === 'MOMENTUM',
                         { label: 'Manual direction cycles to Momentum', timeoutMs: 5000 })
                     const movement = await snapshot()
-                    context.expect(control(movement, 'Blink direction').material === 'WIND_CHARGE', 'Movement selection changes the icon')
+                    context.expect(control(movement, 'Blink direction').material === (contentSince('item', 'wind_charge') ? 'FEATHER' : 'WIND_CHARGE'), 'Movement selection changes the icon')
                     context.expect((await action(opponent, 'snapshot')).direction === 'LOOK', 'Direction remains local to its player')
                     await action(actor, 'level', 2)
                     await actor.bot.clickWindow(control(movement, 'Activation').slot, 0, 0)

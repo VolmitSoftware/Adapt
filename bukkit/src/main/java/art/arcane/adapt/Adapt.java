@@ -31,8 +31,10 @@ import art.arcane.adapt.content.CoreContent;
 import art.arcane.adapt.bukkit.feature.BukkitFeatures;
 import art.arcane.adapt.bukkit.feature.menu.MenuCursor;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
+import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitPlatform;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.bukkit.platform.BukkitSupportedVersions;
 import art.arcane.adapt.bukkit.platform.data.BlockDataListener;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.data.WorldData;
@@ -87,7 +89,6 @@ import de.crazydev22.platformutils.PlatformUtils;
 import de.slikey.effectlib.EffectManager;
 import art.arcane.volmlib.nativelib.entity.EntityGlow;
 import art.arcane.volmlib.nativelib.entity.EntityGlowAccess;
-import art.arcane.volmlib.nativelib.NativeAdapters;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -443,7 +444,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private void initializeGlowingEntities() {
     GLOWING_ENTITIES_LOGGER.setFilter(record -> record.getLevel().intValue() >= Level.WARNING.intValue());
     try {
-      glowingEntities = NativeAdapters.require(EntityGlowAccess.class).create(this);
+      glowingEntities = BukkitNatives.find(EntityGlowAccess.class).map(access -> access.create(this)).orElse(null);
     } catch (Throwable t) {
       glowingEntities = null;
       warn("GlowingEntities is unavailable: " + summarizeThrowable(t) + ". Glow-based effects will be disabled.");
@@ -656,7 +657,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!AdaptConfig.get().isSplashScreen()) {
       return;
     }
-    String supportedMcVersion = "26.1.2-26.3";
+    String supportedMcVersion = BukkitSupportedVersions.RANGE;
     Random r = new Random();
     int game = r.nextInt(100);
     if (game < 90) {

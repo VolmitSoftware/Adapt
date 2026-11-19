@@ -1,3 +1,5 @@
+import { versionEntry } from './version-catalog.mjs'
+
 async function sneak({ actor }) {
     actor.bot.setControlState('sneak', false)
     await actor.bot.waitForTicks(3)
@@ -17,6 +19,16 @@ async function underwater({ context, actor }) {
         label: 'actor entered the underwater fixture', timeoutMs: 5000,
     })
     await actor.bot.waitForTicks(5)
+}
+
+const AIR_WINDOW_TICKS = 100
+
+async function airLoss(input) {
+    await underwater(input)
+    const before = await input.snapshot()
+    await input.actor.bot.waitForTicks(AIR_WINDOW_TICKS)
+    const after = await input.snapshot()
+    return { before: before.remainingAir, after: after.remainingAir, lost: before.remainingAir - after.remainingAir }
 }
 
 async function receivePunch({ context, actor, opponent }) {
@@ -53,7 +65,18 @@ export const behaviorCases = new Map([
         soundVolume: 0.4, soundPitch: 1.3,
         trigger: sneak,
     }],
-    ['seaborne-oxygen', {
+    ['seaborne-oxygen', versionEntry('seaborne-oxygen')?.status === 'emulated' ? {
+        stage: 'seaborne',
+        description: 'holding breath underwater loses less air (oxygen bonus emulated: air loss undone per tick)',
+        sound: 'minecraft:block.conduit.activate', particle: 'dust',
+        soundVolume: 0.35, soundPitch: 1.15,
+        trigger: airLoss,
+        verify({ context, unlearned, active }) {
+            context.expect(unlearned.lost >= AIR_WINDOW_TICKS * 0.8, 'Unlearned breath loses about one air per underwater tick')
+            context.expect(active.lost < unlearned.lost * 0.75, 'Learned breath loses clearly less air over the same underwater time')
+            return { assertions: ['unlearned underwater air loss is ordinary', 'learned underwater air loss is reduced'], measurements: { unlearned, active } }
+        },
+    } : {
         stage: 'seaborne',
         attribute: 'minecraft:oxygen_bonus',
         sound: 'minecraft:block.conduit.activate', particle: 'dust',

@@ -42,9 +42,12 @@ import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.support.PlatformNeed;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -85,9 +88,10 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
 
   public GolemRunicAugments() {
     super("golem-runic-augments");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.runic_augments");
-    setIcon(Id.minecraft("guster_pottery_sherd"));
+    setIcon(PlatformSupport.itemOr(Id.minecraft("guster_pottery_sherd"), Id.minecraft("explorer_pottery_sherd")));
     GolemancySupport.registerRecipe(this, ConfiguredRecipeParser.platform(GolemItems.resolver(), GolemItems.recipeBook()), BLANK_RUNE_RECIPE,
         getConfig().blankRuneRecipe, RECIPE_LEVEL);
   }

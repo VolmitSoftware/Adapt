@@ -39,10 +39,12 @@ import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -105,6 +107,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
   public RiftGate() {
     super("rift-gate");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_COOLDOWN_GROUPS, "no cooldown sweep on the item"));
     registerConfiguration(Config.class);
     reservationKey = DataKey.adapt("rift_gate_eye_reservation", DataCodecs.BYTE_ARRAY);
     setIcon(Id.minecraft("respawn_anchor"));

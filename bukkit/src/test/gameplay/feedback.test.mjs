@@ -68,6 +68,12 @@ test('dust observation reads packed RGB and scale from the complete server packe
   assert.equal(result.payloadDecoded, true)
 })
 
+test('dust colour drops the alpha byte ViaProxy adds when translating older servers', () => {
+  const payload = dustPayload()
+  payload.writeUInt32BE(0xff4080ff, 0)
+  assert.deepEqual(createParticlePacketDecoder(registry())(packet(14, payload)).dust, { rgb: 0x4080ff, red: 64, green: 128, blue: 255, scale: 1.25 })
+})
+
 test('particle names and packet IDs come from the negotiated registry', () => {
   const data = registry()
   data.protocol.play.toClient.types.packet[1][0].type[1].mappings = { '0x30': 'world_particles' }

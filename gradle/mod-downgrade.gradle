@@ -1,0 +1,29 @@
+// Targets older than the compile release ship the packaged jar downgraded by JvmDowngrader, core and bundled libraries included.
+apply plugin: 'xyz.wagyourtail.jvmdowngrader'
+
+int javaVersion = (int) targetProperties.javaVersion
+String baseName = ((String) distributionName).substring(0, ((String) distributionName).length() - '.jar'.length())
+Provider<Directory> devLibs = layout.buildDirectory.dir('devlibs')
+
+jvmdg.downgradeTo = JavaVersion.toVersion(javaVersion)
+
+TaskProvider<Jar> shadowJarTask = tasks.named('shadowJar', Jar)
+shadowJarTask.configure {
+    destinationDirectory.set(devLibs)
+    // The downgraded jar has no META-INF/versions, and Forge 47's jar handler fails on a Multi-Release jar without it.
+    addMultiReleaseAttribute.set(false)
+}
+tasks.named('downgradeJar', Jar).configure {
+    inputFile.set(shadowJarTask.flatMap { Jar task -> task.archiveFile })
+    destinationDirectory.set(devLibs)
+    archiveFileName.set("${baseName}-downgraded.jar".toString())
+}
+TaskProvider<Jar> downgradedJar = tasks.named('shadeDowngradedApi', Jar)
+downgradedJar.configure {
+    inputFile.set(tasks.named('downgradeJar', Jar).flatMap { Jar task -> task.archiveFile })
+    shadePath.set('art/arcane/adapt/shadow/jvmdg/')
+    archiveFileName.set((String) distributionName)
+}
+tasks.named('assemble').configure { dependsOn(downgradedJar) }
+ext.packagedJar = downgradedJar
+ext.distributionJar = downgradedJar.flatMap { Jar task -> task.archiveFile }

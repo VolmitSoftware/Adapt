@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
@@ -128,6 +129,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   public ChronosStasisField() {
     super("chronos-stasis-field");
+    needs(PlatformNeed.partialAttribute(Attributes.JUMP_STRENGTH, "creatures in the field can still jump"));
     registerConfiguration(Config.class);
     setIcon(AMETHYST_SHARD);
     setInterval(50);

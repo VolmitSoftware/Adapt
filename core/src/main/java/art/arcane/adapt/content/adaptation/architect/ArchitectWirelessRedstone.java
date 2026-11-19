@@ -36,9 +36,11 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.api.runtime.AdaptationGate;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -109,6 +111,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
   public ArchitectWirelessRedstone() {
     super("architect-wireless-redstone");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_COOLDOWN_GROUPS, "no cooldown sweep on the item"));
     registerConfiguration(ArchitectWirelessRedstone.Config.class);
     setIcon(REDSTONE_TORCH);
     registerRecipe(new RecipeSpec.Shapeless(Id.adapt("remote-redstone-torch"),
@@ -162,7 +165,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       return;
     }
 
-    boolean vetoed = event.isUseDenied();
+    boolean vetoed = vetoes(event);
 
     PlayerRef player = event.player();
     withPlayerThread(player, () -> {
@@ -211,6 +214,18 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         restoreEmitter(world, restoration);
       }
     }
+  }
+
+  /**
+   * Binding (a left click) acts on the clicked block, so a denied block use stops it. A pulse (a right click) acts on the
+   * bound block, which the pulse checks itself, so only a denied item use stops it: a right click that lands on a block
+   * whose use is denied (Bukkit reports the item use on a looked-at block that way) still pulses.
+   */
+  static boolean vetoes(PlayerInteractEvent event) {
+    return switch (event.action()) {
+      case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> event.useItem() == UseResult.DENY;
+      default -> event.isUseDenied();
+    };
   }
 
   private boolean isRedstoneTorch(ItemRef item) {

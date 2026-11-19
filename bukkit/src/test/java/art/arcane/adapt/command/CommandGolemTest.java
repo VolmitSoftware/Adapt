@@ -1,5 +1,6 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.bukkit.command.BukkitCommandSource;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
@@ -34,13 +35,9 @@ import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeParameter;
 import art.arcane.volmlib.util.director.runtime.DirectorSender;
-import io.papermc.paper.registry.RegistryAccess;
-import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Registry;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -71,7 +68,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -109,13 +105,7 @@ class CommandGolemTest extends AdaptTestBase {
 
   @BeforeAll
   static void initializeSounds() {
-    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
-    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
-      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
-      Registry<Sound> sounds = Registry.SOUNDS;
-      doAnswer(call -> mock(Sound.class)).when(sounds).getOrThrow(any(Key.class));
-      assertThat(Sound.BLOCK_DEEPSLATE_BREAK).isNotNull();
-    }
+    TestVersion.mockSoundRegistry();
   }
 
   @BeforeEach

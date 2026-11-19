@@ -14,9 +14,9 @@ import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeHost;
 import art.arcane.adapt.bukkit.feature.viewer.BukkitViewerHost;
 import art.arcane.adapt.bukkit.platform.BukkitHosts;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
+import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.entity.EntityGlow;
 import art.arcane.volmlib.nativelib.entity.VirtualPlayerAccess;
 import art.arcane.volmlib.nativelib.entity.VirtualPlayers;
@@ -69,7 +69,7 @@ public final class BukkitFeatures {
         }
         synchronized (this) {
           if (players == null) {
-            players = NativeAdapters.require(VirtualPlayerAccess.class).create(plugin, J::runEntity);
+            players = BukkitNatives.find(VirtualPlayerAccess.class).map(access -> access.create(plugin, J::runEntity)).orElse(null);
           }
           return players;
         }

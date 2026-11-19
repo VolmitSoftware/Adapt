@@ -16,6 +16,7 @@ import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.bukkit.platform.data.PdcDataHolder;
+import art.arcane.adapt.bukkit.platform.data.PdcStore;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -26,11 +27,10 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
-import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import org.bukkit.Location;
-import org.bukkit.Tag;
+import org.bukkit.Material;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.AbstractHorse;
@@ -50,6 +50,7 @@ import org.bukkit.entity.Golem;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.ThrownPotion;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.entity.WaterMob;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -68,6 +69,9 @@ import java.util.function.Consumer;
  */
 public class BukkitEntityRef implements EntityRef {
   private static final String TELEPORT_FLAG_CLASS = "io.papermc.paper.entity.TeleportFlag";
+  private static final Id LEGACY_POTION = Id.minecraft("potion");
+  private static final Id SPLASH_POTION = Id.minecraft("splash_potion");
+  private static final Id LINGERING_POTION = Id.minecraft("lingering_potion");
   private static volatile boolean teleportFlagsSupported = true;
   private final UUID uuid;
   private final int entityId;
@@ -79,7 +83,19 @@ public class BukkitEntityRef implements EntityRef {
     this.entity = Objects.requireNonNull(entity, "entity");
     this.uuid = entity.getUniqueId();
     this.entityId = entity.getEntityId();
-    this.type = BukkitResolve.id(entity.getType());
+    this.type = typeId(entity);
+  }
+
+  /**
+   * Core works with 26.x entity ids. Before 1.21.5 splash and lingering potions were one entity type, minecraft:potion,
+   * told apart by the thrown item.
+   */
+  private static Id typeId(Entity entity) {
+    Id type = BukkitResolve.id(entity.getType());
+    if (entity instanceof ThrownPotion potion && LEGACY_POTION.equals(type)) {
+      return potion.getItem().getType() == Material.LINGERING_POTION ? LINGERING_POTION : SPLASH_POTION;
+    }
+    return type;
   }
 
   /** Current native entity. Players rebind on respawn; other entities never change. */
@@ -122,7 +138,7 @@ public class BukkitEntityRef implements EntityRef {
       case GOLEM -> entity instanceof Golem;
       case VILLAGER -> entity instanceof AbstractVillager;
       case BOSS -> entity instanceof Boss;
-      case UNDEAD -> Tag.ENTITY_TYPES_UNDEAD.isTagged(entity.getType());
+      case UNDEAD -> BukkitEntityVersion.undead(entity);
       case ARMOR_STAND -> entity instanceof ArmorStand;
       case DISPLAY -> entity instanceof Display;
       case VEHICLE -> entity instanceof Vehicle;
@@ -376,7 +392,7 @@ public class BukkitEntityRef implements EntityRef {
     PlayerTeleportEvent.TeleportCause bukkitCause = BukkitConversions.cause(cause);
     if (teleportFlagsSupported && PaperCompat.hasClass(TELEPORT_FLAG_CLASS)) {
       try {
-        return TeleportFlagBridge.teleportRetainingPassengers(entity, target, bukkitCause);
+        return BukkitTeleportVersion.teleportRetainingPassengers(entity, target, bukkitCause);
       } catch (NoSuchMethodError | NoClassDefFoundError absent) {
         teleportFlagsSupported = false;
       }
@@ -479,7 +495,7 @@ public class BukkitEntityRef implements EntityRef {
     return wrapped;
   }
 
-  private record EntityStore(BukkitEntityRef ref) implements PdcDataHolder.Store {
+  private record EntityStore(BukkitEntityRef ref) implements PdcStore {
     @Override
     public PersistentDataContainer read() {
       return ref.handle().getPersistentDataContainer();
@@ -488,16 +504,6 @@ public class BukkitEntityRef implements EntityRef {
     @Override
     public void write(Consumer<PersistentDataContainer> edit) {
       edit.accept(ref.handle().getPersistentDataContainer());
-    }
-  }
-
-  private static final class TeleportFlagBridge {
-    private TeleportFlagBridge() {
-    }
-
-    private static CompletableFuture<Boolean> teleportRetainingPassengers(Entity entity, Location destination,
-                                                                       PlayerTeleportEvent.TeleportCause cause) {
-      return entity.teleportAsync(destination, cause, TeleportFlag.EntityState.RETAIN_PASSENGERS);
     }
   }
 }

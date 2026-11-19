@@ -10,9 +10,11 @@ import java.util.Set;
 
 /**
  * Read-only view of the game registries. Safe on any thread after server start. Content checks
- * {@link #exists} before using ids that are new in later Minecraft versions.
+ * {@link #exists} before using ids that are new in later Minecraft versions. Ids are always the 26.x names: an
+ * adapter for an older version translates renamed ids through {@link ContentAliases} in both directions.
  */
 public interface RegistryLookup {
+  /** True when the id is registered and usable: an entry disabled by a feature flag does not exist. */
   boolean exists(RegistryKind kind, Id id);
 
   Set<Id> ids(RegistryKind kind);

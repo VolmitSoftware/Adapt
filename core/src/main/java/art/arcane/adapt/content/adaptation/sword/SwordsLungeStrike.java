@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -54,6 +55,7 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
 
   public SwordsLungeStrike() {
     super("sword-lunge-strike");
+    needs(PlatformNeed.partialAttribute(Attributes.ENTITY_INTERACTION_RANGE, "the lunge gives no extra reach"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("iron_sword"));
     registerAdvancement(AdaptAdvancement.builder()

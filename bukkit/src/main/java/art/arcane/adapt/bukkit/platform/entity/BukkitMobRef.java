@@ -1,6 +1,5 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.bukkit.platform.BukkitGoalsFactory;
 import art.arcane.adapt.bukkit.platform.BukkitHosts;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
@@ -12,15 +11,12 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
 import org.bukkit.entity.AbstractSkeleton;
-import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Zombie;
 
 public final class BukkitMobRef extends BukkitLivingRef implements MobRef {
-  private static volatile boolean copperStateSupported = true;
-
   public BukkitMobRef(Mob mob) {
     super(mob);
   }
@@ -109,31 +105,12 @@ public final class BukkitMobRef extends BukkitLivingRef implements MobRef {
 
   @Override
   public CopperGolemState copperGolemState() {
-    if (!copperStateSupported || !(mob() instanceof CopperGolem golem)) {
-      return CopperGolemState.IDLE;
-    }
-    try {
-      return CopperGolemState.valueOf(golem.getGolemState().name());
-    } catch (NoSuchMethodError | NoClassDefFoundError absent) {
-      copperStateSupported = false;
-      return CopperGolemState.IDLE;
-    } catch (IllegalArgumentException unknown) {
-      return CopperGolemState.IDLE;
-    }
+    return BukkitMobVersion.copperGolemState(mob());
   }
 
   @Override
   public void setCopperGolemState(CopperGolemState state) {
-    if (!copperStateSupported || !(mob() instanceof CopperGolem golem)) {
-      return;
-    }
-    try {
-      golem.setGolemState(CopperGolem.State.valueOf(state.name()));
-    } catch (NoSuchMethodError | NoClassDefFoundError absent) {
-      copperStateSupported = false;
-    } catch (IllegalArgumentException unknown) {
-      Adapt.verbose("Copper golem state " + state + " is unknown on this server");
-    }
+    BukkitMobVersion.setCopperGolemState(mob(), state);
   }
 
   @Override

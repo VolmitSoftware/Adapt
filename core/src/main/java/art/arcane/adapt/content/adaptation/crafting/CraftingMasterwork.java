@@ -29,10 +29,13 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
@@ -101,6 +104,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
 
   public CraftingMasterwork() {
     super("crafting-masterwork");
+    needs(PlatformNeed.emulatedFeature(EngineFeature.ITEM_STACK_LIMITS));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("netherite_ingot"));
     registerAdvancement(AdaptAdvancement.builder()
@@ -289,7 +293,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         ThreadLocalRandom.current().nextDouble()
     );
     int bonus = preferenceEnabled(player, DURABILITY) ? bonusDurability(baseMax, rolledPercent) : 0;
-    forged.setMaxDamage(baseMax + bonus);
+    ItemDurability.setMaxDamage(forged, baseMax + bonus);
 
     boolean gotAttribute = level >= getMaxLevel()
         && ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().attributeChance)

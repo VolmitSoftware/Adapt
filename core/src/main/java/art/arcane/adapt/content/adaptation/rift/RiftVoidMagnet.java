@@ -74,7 +74,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
           new PlayerPreference.Choice<>(Destination.CHEST_FIRST, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_CHEST_FIRST, Id.minecraft("ender_chest"), 1),
           new PlayerPreference.Choice<>(Destination.INVENTORY_FIRST, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_INVENTORY_FIRST, Id.minecraft("chest"), 1),
           new PlayerPreference.Choice<>(Destination.CHEST_ONLY, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_CHEST_ONLY, Id.minecraft("ender_pearl"), 1),
-          new PlayerPreference.Choice<>(Destination.INVENTORY_ONLY, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_INVENTORY_ONLY, Id.minecraft("bundle"), 1))));
+          new PlayerPreference.Choice<>(Destination.INVENTORY_ONLY, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_INVENTORY_ONLY, Id.minecraft("bundle"), Id.minecraft("barrel"), 1))));
   public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
       new PlayerPreference.Definition<>("items", RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS, Items.ALL, List.of(
           new PlayerPreference.Choice<>(Items.ALL, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS_ALL, Id.minecraft("hopper"), 1),

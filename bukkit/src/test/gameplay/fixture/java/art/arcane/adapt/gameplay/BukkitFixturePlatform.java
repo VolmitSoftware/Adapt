@@ -164,7 +164,7 @@ public final class BukkitFixturePlatform implements FixturePlatform {
         result.addProperty("state", fishHook.getState().name());
         result.addProperty("openWater", fishHook.isInOpenWater());
         result.addProperty("waitTime", fishHook.getWaitTime());
-        result.addProperty("timeUntilBite", fishHook.getTimeUntilBite());
+        result.addProperty("timeUntilBite", FixtureVersion.timeUntilBite(fishHook));
         return result;
     }
 
@@ -185,24 +185,17 @@ public final class BukkitFixturePlatform implements FixturePlatform {
         Player bukkit = BukkitRefs.player(player);
         try {
             Object handle = bukkit.getClass().getMethod("getHandle").invoke(bukkit);
-            invokeWithNull(handle, "setLastHurtMob");
-            invokeWithNull(handle, "setLastHurtByMob");
+            Class<?> living = Class.forName(FixtureVersion.LIVING_ENTITY_CLASS, false, handle.getClass().getClassLoader());
+            invokeWithNull(handle, living.getDeclaredMethod(FixtureVersion.SET_LAST_HURT_MOB, living.getSuperclass()));
+            invokeWithNull(handle, living.getDeclaredMethod(FixtureVersion.SET_LAST_HURT_BY_MOB, living));
         } catch (ReflectiveOperationException failure) {
             throw new IllegalStateException("Cannot clear the combat memory of " + bukkit.getName(), failure);
         }
     }
 
-    private static void invokeWithNull(Object handle, String name) throws ReflectiveOperationException {
-        for (Class<?> type = handle.getClass(); type != null; type = type.getSuperclass()) {
-            for (java.lang.reflect.Method method : type.getDeclaredMethods()) {
-                if (method.getName().equals(name) && method.getParameterCount() == 1 && !method.getParameterTypes()[0].isPrimitive()) {
-                    method.setAccessible(true);
-                    method.invoke(handle, (Object) null);
-                    return;
-                }
-            }
-        }
-        throw new NoSuchMethodException(handle.getClass().getName() + "." + name);
+    private static void invokeWithNull(Object handle, java.lang.reflect.Method setter) throws ReflectiveOperationException {
+        setter.setAccessible(true);
+        setter.invoke(handle, (Object) null);
     }
 
     @Override
@@ -213,7 +206,7 @@ public final class BukkitFixturePlatform implements FixturePlatform {
         Location at = new Location((World) world.unwrap(), x, y, z);
         String fields = nbt.substring(1, nbt.length() - 1).trim();
         String snapshot = "{id:\"" + Fixtures.id(type) + "\"" + (fields.isEmpty() ? "" : "," + fields) + "}";
-        return BukkitRefs.entity(Bukkit.getEntityFactory().createEntitySnapshot(snapshot).createEntity(at));
+        return BukkitRefs.entity(FixtureVersion.summonSnapshot(snapshot, at));
     }
 
     @Override

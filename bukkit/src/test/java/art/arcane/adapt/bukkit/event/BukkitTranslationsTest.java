@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.event;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.TestCores;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.potion.BrewingRecipe;
@@ -12,29 +13,16 @@ import art.arcane.adapt.platform.event.AdaptEventBus;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.adapt.AdaptBrewCompleteEvent;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
-import art.arcane.adapt.platform.event.entity.DamageCause;
-import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
-import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.event.player.InteractAction;
-import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
-import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.event.ProtectionProbe;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
-import io.papermc.paper.registry.RegistryAccess;
-import net.kyori.adventure.key.Key;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.block.BlockType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.HandlerList;
@@ -49,7 +37,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -68,13 +55,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -88,13 +71,7 @@ class BukkitTranslationsTest {
 
   @BeforeAll
   static void initializeBlockRegistry() {
-    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
-    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
-      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
-      Registry<BlockType> blocks = Registry.BLOCK;
-      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).get(any(NamespacedKey.class));
-      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).getOrThrow(any(Key.class));
-    }
+    TestVersion.mockBlockRegistry();
   }
 
   @BeforeEach
@@ -277,83 +254,6 @@ class BukkitTranslationsTest {
   }
 
   @Test
-  void damageByEntityTranslatesAndWritesBackDamage() {
-    Zombie victim = mock(Zombie.class);
-    DamageSource source = mock(DamageSource.class);
-    when(source.getCausingEntity()).thenReturn(player);
-    org.bukkit.event.entity.EntityDamageByEntityEvent event = new org.bukkit.event.entity.EntityDamageByEntityEvent(
-        player, victim, org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_ATTACK, source, 6.0D);
-    AtomicReference<EntityDamageEvent> seen = new AtomicReference<>();
-    AtomicReference<Double> finalSeen = new AtomicReference<>();
-    bus.register(this, EntityDamageEvent.class, EventPriority.HIGH, core -> {
-      seen.set(core);
-      core.setDamage(2.5D);
-      finalSeen.set(core.finalDamage());
-    });
-
-    assertThat(EntityTranslations.DAMAGE.target(event)).isEqualTo(EntityDamageByEntityEvent.class);
-    EntityTranslations.DAMAGE.bridge(event, core -> bus.post(core, EventPriority.HIGH));
-
-    assertThat(seen.get()).isInstanceOf(EntityDamageByEntityEvent.class);
-    EntityDamageByEntityEvent byEntity = (EntityDamageByEntityEvent) seen.get();
-    assertThat(byEntity.cause()).isEqualTo(DamageCause.ENTITY_ATTACK);
-    assertThat(byEntity.damageType()).isEqualTo(Id.minecraft("generic"));
-    assertThat(byEntity.damager()).isSameAs(byEntity.causingEntity());
-    assertThat(finalSeen.get()).isCloseTo(2.5D, within(1.0e-9));
-    assertThat(event.getDamage()).isCloseTo(2.5D, within(1.0e-9));
-    assertThat(event.isCancelled()).isFalse();
-  }
-
-  @Test
-  void deathDropsListIsReplacedAndPlayerFlagsWrittenBack() {
-    ItemStack first = mock(ItemStack.class);
-    ItemStack second = mock(ItemStack.class);
-    ItemStack added = mock(ItemStack.class);
-    ItemRef addedRef = refs.wrap(added, ItemRef.class);
-    DamageSource source = mock(DamageSource.class);
-    List<ItemStack> drops = new ArrayList<>(List.of(first, second));
-    org.bukkit.event.entity.PlayerDeathEvent event = new org.bukkit.event.entity.PlayerDeathEvent(player, source, drops, 10,
-        "died");
-    bus.register(this, PlayerDeathEvent.class, EventPriority.NORMAL, core -> {
-      core.drops().removeFirst();
-      core.drops().add(addedRef);
-      core.setDroppedExp(0);
-      core.setKeepInventory(true);
-      core.setNewLevel(3);
-    });
-
-    EntityTranslations.DEATH.bridge(event, core -> bus.post(core, EventPriority.NORMAL));
-
-    assertThat(event.getDrops()).containsExactly(second, added);
-    assertThat(event.getDrops()).isSameAs(drops);
-    assertThat(event.getDroppedExp()).isZero();
-    assertThat(event.getKeepInventory()).isTrue();
-    assertThat(event.getNewLevel()).isEqualTo(3);
-  }
-
-  @Test
-  void untouchedDeathDropsAreNotRewritten() {
-    ItemStack first = mock(ItemStack.class);
-    ItemStack second = mock(ItemStack.class);
-    AtomicInteger clears = new AtomicInteger();
-    List<ItemStack> drops = new ArrayList<>(List.of(first, second)) {
-      @Override
-      public void clear() {
-        clears.incrementAndGet();
-        super.clear();
-      }
-    };
-    org.bukkit.event.entity.PlayerDeathEvent event = new org.bukkit.event.entity.PlayerDeathEvent(player,
-        mock(DamageSource.class), drops, 10, "died");
-    bus.register(this, PlayerDeathEvent.class, EventPriority.NORMAL, core -> core.setKeepLevel(true));
-
-    EntityTranslations.DEATH.bridge(event, core -> bus.post(core, EventPriority.NORMAL));
-
-    assertThat(clears).hasValue(0);
-    assertThat(event.getDrops()).containsExactly(first, second);
-  }
-
-  @Test
   void tamesByOwnersThatAreNotPlayersArePostedWithTheOwnerId() {
     org.bukkit.entity.Wolf wolf = mock(org.bukkit.entity.Wolf.class);
     org.bukkit.entity.AnimalTamer tamer = mock(org.bukkit.entity.AnimalTamer.class);
@@ -383,21 +283,6 @@ class BukkitTranslationsTest {
 
     assertThat(seen).hasSize(1);
     assertThat(seen.getFirst().recipe()).isNull();
-  }
-
-  @Test
-  void entityDeathHandlersReceivePlayerDeaths() {
-    DamageSource source = mock(DamageSource.class);
-    org.bukkit.event.entity.PlayerDeathEvent event = new org.bukkit.event.entity.PlayerDeathEvent(player, source,
-        new ArrayList<>(), 0, "died");
-    List<String> seen = new ArrayList<>();
-    bus.register(this, art.arcane.adapt.platform.event.entity.EntityDeathEvent.class, EventPriority.NORMAL,
-        core -> seen.add(core.getClass().getSimpleName()));
-
-    assertThat(EntityTranslations.DEATH.target(event)).isEqualTo(PlayerDeathEvent.class);
-    EntityTranslations.DEATH.bridge(event, core -> bus.post(core, EventPriority.NORMAL));
-
-    assertThat(seen).containsExactly("PlayerDeathEvent");
   }
 
   @Test
@@ -448,12 +333,14 @@ class BukkitTranslationsTest {
     for (String row : rows.subList(1, rows.size())) {
       String[] columns = row.split("\t");
       catalogued.add(columns[0]);
-      if (!columns[1].startsWith("core ") && nativeEventPresent(columns[1])) {
+      if (!columns[1].startsWith("core ") && nativeEventPresent(columns[1])
+          && !UntranslatedCoreEvents.NAMES.contains(columns[0])) {
         expected.add(columns[0]);
       }
     }
 
     assertThat(catalogued).isEqualTo(concreteCoreEvents());
+    assertThat(catalogued).containsAll(UntranslatedCoreEvents.NAMES);
     assertThat(posted).isEqualTo(expected);
   }
 

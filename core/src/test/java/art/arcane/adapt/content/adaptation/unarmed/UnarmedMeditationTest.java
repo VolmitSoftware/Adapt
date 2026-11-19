@@ -6,6 +6,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.AttributeOperation;
+import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
@@ -117,6 +118,26 @@ class UnarmedMeditationTest extends AdaptTestBase {
     assertThat(UnarmedMeditation.ensureAbsorptionCapacity(target, Double.NaN)).isFalse();
 
     verifyNoInteractions(target);
+  }
+
+  @Test
+  void withoutTheCapAttributeCleanupKeepsOnlyWhatAnAbsorptionEffectAllows() {
+    LivingRef bare = mock(LivingRef.class);
+    when(bare.absorption()).thenReturn(6D);
+    LivingRef potion = mock(LivingRef.class);
+    when(potion.absorption()).thenReturn(10D);
+    when(potion.effect(Id.minecraft("absorption"))).thenReturn(EffectInstance.of(Id.minecraft("absorption"), 400, 0));
+    LivingRef capped = mock(LivingRef.class);
+    when(capped.hasAttribute(Attributes.MAX_ABSORPTION)).thenReturn(true);
+    when(capped.absorption()).thenReturn(6D);
+
+    UnarmedMeditation.removeAbsorptionCapacity(bare);
+    UnarmedMeditation.removeAbsorptionCapacity(potion);
+    UnarmedMeditation.removeAbsorptionCapacity(capped);
+
+    verify(bare).setAbsorption(0D);
+    verify(potion).setAbsorption(4D);
+    verify(capped, never()).setAbsorption(anyDouble());
   }
 
   @Test

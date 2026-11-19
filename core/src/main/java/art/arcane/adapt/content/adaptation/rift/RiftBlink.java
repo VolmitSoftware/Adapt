@@ -37,10 +37,12 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -92,12 +94,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   public static final PlayerPreference<Direction> DIRECTION = new PlayerPreference<>(Direction.class,
       new PlayerPreference.Definition<>("direction", RiftMessages.BLINK_SETTING_DIRECTION, Direction.LOOK, List.of(
           new PlayerPreference.Choice<>(Direction.LOOK, RiftMessages.BLINK_OPTION_LOOK, Id.minecraft("compass"), 1),
-          new PlayerPreference.Choice<>(Direction.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Id.minecraft("wind_charge"), 1))));
+          new PlayerPreference.Choice<>(Direction.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Id.minecraft("wind_charge"), Id.minecraft("feather"), 1))));
   public static final PlayerPreference<ReactiveDirection> REACTIVE_DIRECTION = new PlayerPreference<>(ReactiveDirection.class,
       new PlayerPreference.Definition<>("reactive-direction", RiftMessages.BLINK_SETTING_REACTIVE_DIRECTION, ReactiveDirection.LOOK, List.of(
           new PlayerPreference.Choice<>(ReactiveDirection.LOOK, RiftMessages.BLINK_OPTION_LOOK, Id.minecraft("spyglass"), 2),
           new PlayerPreference.Choice<>(ReactiveDirection.AWAY_FROM_ATTACKER, RiftMessages.BLINK_OPTION_AWAY, Id.minecraft("ender_pearl"), 2),
-          new PlayerPreference.Choice<>(ReactiveDirection.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Id.minecraft("wind_charge"), 2))));
+          new PlayerPreference.Choice<>(ReactiveDirection.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Id.minecraft("wind_charge"), Id.minecraft("feather"), 2))));
   public static final PlayerPreference<Landing> LANDING = new PlayerPreference<>(Landing.class,
       new PlayerPreference.Definition<>("landing", RiftMessages.RIFTBLINK_PREFERENCE_LANDING, Landing.SERVER, List.of(
           new PlayerPreference.Choice<>(Landing.SERVER, RiftMessages.RIFTBLINK_PREFERENCE_LANDING_SERVER, Id.minecraft("grass_block"), 1),
@@ -125,6 +127,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   public RiftBlink() {
     super("rift-blink");
     registerConfiguration(Config.class);
+    needs(PlatformNeed.emulatedFeature(EngineFeature.PLAYER_INPUT));
     setIcon(Id.minecraft("feather"));
     setInterval(9288);
     registerAdvancement(AdaptAdvancement.builder()

@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.fx.ViewerGlowPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.EntityMarkerPort;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -95,7 +96,7 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
-            .icon(Id.minecraft("wolf_armor"))
+            .icon(PlatformSupport.itemOr(Id.minecraft("wolf_armor"), Id.minecraft("iron_horse_armor")))
             .key("challenge_taming_command_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
             .visibility(AdvancementVisibility.VANILLA)

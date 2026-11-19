@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import { serverSeesJumpKey, vanillaFlightToggle } from './client-input.mjs'
 
 const ADD = new Set(['on', 'addListener', 'once', 'prependListener', 'prependOnceListener'])
 const REMOVE = new Set(['removeListener', 'off'])
@@ -107,11 +108,19 @@ export function resilientCreateBot(createBot, { stallMs = 12000, attempts = 3, s
     }
 }
 
-/** Replaces the harness's mineflayer createBot (resolved from the harness entry script) with the resilient one. */
+/**
+ * Replaces the harness's mineflayer createBot (resolved from the harness entry script) with the resilient one. Against
+ * servers that never see the jump key, every bot also asks to fly on a double tap of jump, as the vanilla client does.
+ */
 export function installResilientConnect(entry = process.argv[1], settings = {}) {
     const mineflayer = createRequire(entry)('mineflayer')
     if (mineflayer.createBot.resilientConnect) return
-    const wrapped = resilientCreateBot(mineflayer.createBot.bind(mineflayer), settings)
+    const resilient = resilientCreateBot(mineflayer.createBot.bind(mineflayer), settings)
+    const wrapped = serverSeesJumpKey() ? resilient : options => {
+        const bot = resilient(options)
+        bot.loadPlugin(vanillaFlightToggle)
+        return bot
+    }
     wrapped.resilientConnect = true
     mineflayer.createBot = wrapped
 }

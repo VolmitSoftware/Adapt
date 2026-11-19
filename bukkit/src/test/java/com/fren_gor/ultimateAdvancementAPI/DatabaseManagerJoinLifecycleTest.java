@@ -1,5 +1,6 @@
 package com.fren_gor.ultimateAdvancementAPI;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import com.fren_gor.ultimateAdvancementAPI.database.DatabaseManager;
 import com.fren_gor.ultimateAdvancementAPI.database.IDatabase;
@@ -42,7 +43,7 @@ class DatabaseManagerJoinLifecycleTest {
     @BeforeEach
     void setUp() throws Exception {
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            bukkit.when(Bukkit::getBukkitVersion).thenReturn("26.3-R0.1-SNAPSHOT");
+            TestVersion.advancementServer(bukkit);
             manager = mock(DatabaseManager.class, CALLS_REAL_METHODS);
         }
         main = mock(AdvancementMain.class);

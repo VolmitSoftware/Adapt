@@ -71,7 +71,7 @@ export default {
                 context.expect(ignoredAfter.events === ignoredBefore.events && ignoredAfter.vanillaXp === ignoredBefore.vanillaXp,
                     'Nonpositive direct inputs produce no reward event', { ignoredBefore, ignoredAfter })
             })
-            if (!process.env.ADAPT_QA_REACT) evidence.reactMining = { skipped: 'React is a Bukkit plugin; the runner installs it on paper and folia only' }
+            if (!process.env.ADAPT_QA_REACT) evidence.reactMining = { skipped: process.env.ADAPT_QA_REACT_ABSENT ?? 'React is a Bukkit plugin; the runner installs it on paper and folia only' }
             else await context.step('React diamond mining awards XP once without an orb', async () => {
                 bot.setQuickBarSlot(1)
                 await fixture('ore')

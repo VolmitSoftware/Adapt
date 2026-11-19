@@ -17,15 +17,18 @@ import art.arcane.adapt.platform.world.BlockRef;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /** Living entity with health, effects, attribute modifiers and equipment. */
 public class FakeLiving extends FakeEntity implements LivingRef {
   private final Map<Id, EffectInstance> effects = new LinkedHashMap<>();
   private final Map<Id, Double> attributeBases = new HashMap<>();
   private final Map<Id, Map<Id, AttributeMod>> modifiers = new HashMap<>();
+  private final Set<Id> absentAttributes = new HashSet<>();
   private final Map<EquipmentSlot, Float> dropChances = new HashMap<>();
   private boolean canPickupItems;
   private boolean removeWhenFarAway = true;
@@ -156,6 +159,7 @@ public class FakeLiving extends FakeEntity implements LivingRef {
     return remainingAir;
   }
 
+  @Override
   public void setRemainingAir(int remainingAir) {
     this.remainingAir = remainingAir;
   }
@@ -218,8 +222,17 @@ public class FakeLiving extends FakeEntity implements LivingRef {
     return null;
   }
 
+  /** Makes the entity lack these attributes, like a server version that does not have them. */
+  public FakeLiving withoutAttributes(Id... attributes) {
+    absentAttributes.addAll(List.of(attributes));
+    return this;
+  }
+
   @Override
   public double attributeValue(Id attribute) {
+    if (absentAttributes.contains(attribute)) {
+      return Double.NaN;
+    }
     double base = attributeBase(attribute);
     double added = base;
     double multiplier = 1D;
@@ -235,6 +248,9 @@ public class FakeLiving extends FakeEntity implements LivingRef {
 
   @Override
   public double attributeBase(Id attribute) {
+    if (absentAttributes.contains(attribute)) {
+      return Double.NaN;
+    }
     return attributeBases.getOrDefault(attribute, 1D);
   }
 
@@ -245,11 +261,14 @@ public class FakeLiving extends FakeEntity implements LivingRef {
 
   @Override
   public boolean hasAttribute(Id attribute) {
-    return true;
+    return !absentAttributes.contains(attribute);
   }
 
   @Override
   public boolean setModifier(Id attribute, AttributeMod modifier) {
+    if (absentAttributes.contains(attribute)) {
+      return false;
+    }
     modifiers.computeIfAbsent(attribute, (Id ignored) -> new LinkedHashMap<>()).put(modifier.key(), modifier);
     return true;
   }

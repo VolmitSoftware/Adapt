@@ -1,10 +1,21 @@
 import { randomBytes } from 'node:crypto'
 import { fixtureJson } from './fixture-json.mjs'
+import { notApplicable, stepBlocker } from './version-catalog.mjs'
+
+const STEPS = [
+  ['lumber-fell', 'Lumber completes felling with no saplings available'],
+  ['lumber-replant', 'A later ground drop replants without waiting for the full area scan'],
+]
 
 export default {
   name: 'adapt-lumber-replant',
   description: 'Fell an oak through the Lumber worker, then replant from a delayed dropped sapling.',
   async run(context) {
+    const blocker = stepBlocker({ adaptations: ['golem-copper-frame'], content: [['entity', 'copper_golem']] })
+    if (blocker) {
+      for (const [id, title] of STEPS) notApplicable(context, id, title, `the Lumber worker is a copper golem: ${blocker}`)
+      return
+    }
     context.bot.physicsEnabled = false
     const suffix = randomBytes(3).toString('hex')
     const actor = await context.connectActor(`AQAlumb${suffix}`)
@@ -26,7 +37,7 @@ export default {
       prepared = true
       await context.waitUntil(async () => (await lumber('ready')).ready,
         { label: 'Fresh arena chunks and node index are ready', timeoutMs: 10000, intervalMs: 100 })
-      await context.step('Lumber completes felling with no saplings available', async () => {
+      await context.step(STEPS[0][1], async () => {
         initial = await lumber('stage')
         staged = true
         context.expect(initial.logs === 5 && initial.golemAlive, 'A bound Lumber golem and a five-log oak are present', initial)
@@ -40,7 +51,7 @@ export default {
         context.expect(felled.cargoSaplings + felled.chestSaplings + felled.playerSaplings + felled.seedRemaining === 0,
           'No saplings appeared during felling', felled)
       })
-      await context.step('A later ground drop replants without waiting for the full area scan', async () => {
+      await context.step(STEPS[1][1], async () => {
         const dropped = await lumber('seed')
         context.expect(dropped.seedRemaining === 2 && dropped.stump === 'AIR', 'Two saplings drop only after the original job completes', dropped)
         context.expect(dropped.areaVolume === 4096, 'The node spans the maximum sixteen-block cube for the retry', dropped)

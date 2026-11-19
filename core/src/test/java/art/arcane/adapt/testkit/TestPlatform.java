@@ -250,6 +250,11 @@ public final class TestPlatform {
     private final List<String> warnings = new ArrayList<>();
     private final List<Throwable> errors = new ArrayList<>();
     private final List<String> verbose = new ArrayList<>();
+    private final List<String> infos = new ArrayList<>();
+
+    public synchronized List<String> infos() {
+      return List.copyOf(infos);
+    }
 
     public synchronized List<String> warnings() {
       return List.copyOf(warnings);
@@ -264,7 +269,8 @@ public final class TestPlatform {
     }
 
     @Override
-    public void info(String message) {
+    public synchronized void info(String message) {
+      infos.add(message);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -112,10 +113,15 @@ public final class MiningAuditFixtures {
     }
     ItemRef tool = Fixtures.item(shovel ? "diamond_shovel" : "diamond_pickaxe");
     tool.setDisplayName("Audit Tool");
+    int damage = mode.equals("pact") || mode.equals("masterwork") ? 1560 : 0;
     if (mode.equals("masterwork")) {
-      tool.setMaxDamage(2000);
+      ItemDurability.setMaxDamage(tool, 2000);
+      if (!ItemDurability.perStack()) {
+        int typeMax = tool.maxDamage();
+        damage = typeMax - (int) Math.ceil((2000D - damage) * typeMax / 2000D);
+      }
     }
-    tool.setDamage(mode.equals("pact") || mode.equals("masterwork") ? 1560 : 0);
+    tool.setDamage(damage);
     player.inventory().setMainHand(tool);
     for (int y = 99; y <= 101; y++) {
       for (int z = -1; z <= 1; z++) {
@@ -232,7 +238,7 @@ public final class MiningAuditFixtures {
     entry.addProperty("amount", item.amount());
     entry.addProperty("source", source);
     entry.addProperty("damage", item.damage());
-    entry.addProperty("maximum", item.maxDamage());
+    entry.addProperty("maximum", ItemDurability.maxDamage(item));
     items.add(entry);
   }
 }

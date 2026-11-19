@@ -27,6 +27,8 @@ public final class BukkitTranslations {
       built.addAll(EntityGapTranslations.all());
       built.addAll(PlayerGapTranslations.all());
       built.addAll(InventoryGapTranslations.all());
+      built.addAll(Paper121Translations.all());
+      built.addAll(Paper26Translations.all());
       built.addAll(WorldTranslations.all());
       built.addAll(MountTranslations.all());
       built.addAll(EndermanTranslations.all());

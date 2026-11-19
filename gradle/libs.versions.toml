@@ -5,6 +5,8 @@ shadow = "9.5.1"
 runTask = "2.3.1"
 idea = "1.2"
 slimjar = "2.1.9"
+jvmdowngrader = "2.0.1"
+paperweight = "2.0.0-beta.21"
 kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
 
@@ -26,6 +28,9 @@ toml4j = "0.7.2"
 lombok-library = "1.18.42"
 fastutil = "8.5.13"
 caffeine = "3.0.6"
+mixin = "0.8.5"
+mixinextras = "0.5.4"
+legacyFastutil = "8.5.9"
 
 [libraries]
 
@@ -49,6 +54,9 @@ toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok-library" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+mixin = { module = "org.spongepowered:mixin", version.ref = "mixin" }
+mixinextras-common = { module = "io.github.llamalad7:mixinextras-common", version.ref = "mixinextras" }
+mixinextras-forge = { module = "io.github.llamalad7:mixinextras-forge", version.ref = "mixinextras" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 [plugins]
@@ -57,4 +65,6 @@ shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTask" }
 idea = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
+jvmdowngrader = { id = "xyz.wagyourtail.jvmdowngrader", version.ref = "jvmdowngrader" }
+paperweight = { id = "io.papermc.paperweight.userdev", version.ref = "paperweight" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

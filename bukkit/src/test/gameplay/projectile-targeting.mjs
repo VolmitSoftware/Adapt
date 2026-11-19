@@ -11,8 +11,9 @@ export default {
         const [configured, selectedFamilies] = (context.options.command ?? '').split(':')
         if (!['true', 'false'].includes(configured)) throw new Error('Pass --command true or false, optionally followed by :axe,skull')
         const protectedMobs = configured === 'true'
-        const families = selectedFamilies ? selectedFamilies.split(',') : ['heart', 'heart-chain', 'axe', 'skull']
-        if (families.some(family => !['heart', 'heart-chain', 'axe', 'skull'].includes(family))) throw new Error('Unknown projectile family')
+        const known = ['heart', 'heart-chain', 'heart-loop', 'axe', 'skull']
+        const families = selectedFamilies ? selectedFamilies.split(',') : known
+        if (families.some(family => !known.includes(family))) throw new Error('Unknown projectile family')
         const suffix = randomBytes(4).toString('hex')
         const actor = await context.connectActor(`AQAa${suffix}`)
         const opponent = await context.connectActor(`AQAb${suffix}`)
@@ -46,12 +47,13 @@ export default {
             await context.command(`/adaptqa setup ${actor.bot.username} ${opponent.bot.username}`, /^ADAPT_QA SETUP /, 60000)
             setup = true
             for (const family of families) {
-                for (const mob of family === 'axe' ? ['cow', 'husk', 'servant'] : ['cow', 'wolf', 'husk', 'servant']) {
+                const mobs = family === 'axe' ? ['cow', 'husk', 'servant'] : family === 'heart-loop' ? ['husk'] : ['cow', 'wolf', 'husk', 'servant']
+                for (const mob of mobs) {
                     await context.step(`${family} targeting ${mob}`, async () => {
                         await learn(family.startsWith('heart') ? 'ranged-heartseeker' : family === 'axe' ? 'axe-throwing-axe' : 'nether-skull-toss', family === 'skull' ? 3 : family === 'axe' ? 4 : 5)
-                        if (family === 'heart-chain') await learn('ranged-piercing', 1, true)
+                        if (family === 'heart-chain' || family === 'heart-loop') await learn('ranged-piercing', 1, true)
                         if (family === 'axe') await learn('ranged-ricochet-bolt', 1, true)
-                        await stage(`${family}-${mob}`, family.startsWith('heart') ? 'bow' : family === 'axe' ? 'iron_axe' : 'wither_skeleton_skull')
+                        await stage(`${family === 'heart-loop' ? 'heart' : family}-${mob}`, family.startsWith('heart') ? 'bow' : family === 'axe' ? 'iron_axe' : 'wither_skeleton_skull')
                         const before = await snapshot()
                         if (family.startsWith('heart')) {
                             const state = before.projectileTargeting.targets[family === 'heart-chain' ? 'primary' : 'target']
@@ -67,13 +69,18 @@ export default {
                             await actor.bot.waitForTicks(2)
                             actor.bot.deactivateItem()
                         }
-                        await actor.bot.waitForTicks(family === 'heart-chain' ? 140 : 80)
+                        await actor.bot.waitForTicks(family === 'heart-chain' || family === 'heart-loop' ? 140 : 80)
                         const after = await snapshot()
                         const expected = mob !== 'servant' && (mob === 'husk' || !protectedMobs)
                         const damaged = after.projectileTargeting.targets.target.health < before.projectileTargeting.targets.target.health
                         evidence.trials.push({ family, mob, before: before.projectileTargeting, after: after.projectileTargeting })
                         context.expect(damaged === expected, `${family} ${mob} damage obeys configured protection`)
                         if (family === 'heart-chain') context.expect(after.projectileTargeting.targets.primary.health < before.projectileTargeting.targets.primary.health, 'Initial hostile lock takes seeking arrow damage')
+                        if (family === 'heart-loop') {
+                            const target = after.projectileTargeting.targets.target.entityId
+                            const hits = after.projectileTargeting.damage.filter(hit => hit.targetId === target && hit.source === 'ARROW' && hit.seeking && !hit.cancelled)
+                            context.expect(hits.length >= 2, 'With no other mob locked the chained arrow hits the same mob again', { hits: after.projectileTargeting.damage, impacts: after.projectileTargeting.impacts })
+                        }
                         if (family === 'axe') context.expect(after.projectileTargeting.impacts.some(hit => hit.ricochets > 0 && hit.targetId === after.projectileTargeting.targets.target.entityId), 'Bounced axe physically reaches the tested mob')
                         if (family === 'skull') context.expect(after.projectileTargeting.damage.some(hit => hit.cause === 'ENTITY_EXPLOSION'), 'Actual vanilla skull explosion reaches the target')
                     })

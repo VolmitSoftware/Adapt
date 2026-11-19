@@ -1,18 +1,80 @@
+import groovy.json.JsonOutput
+
 plugins {
     id 'java'
-    id 'net.minecraftforge.gradle' version '7.0.40'
+    id 'net.minecraftforge.gradle' version '7.0.40' apply false
+    id 'net.neoforged.moddev.legacyforge' version '2.0.148' apply false
+    id 'xyz.wagyourtail.jvmdowngrader' version '2.0.1' apply false
     alias(libs.plugins.shadow)
 }
 apply from: '../../gradle/mod.gradle'
 
-repositories {
-    minecraft.mavenizer(it)
-    maven fg.forgeMaven
-    maven fg.minecraftLibsMaven
+// Forge and NeoForge patch Bootstrap, the block registry and the feature flags to start their event buses or load
+// modded flags, which only works under FML; the tests that touch them run on Fabric against the same mod-common sources.
+tasks.named('test', Test).configure {
+    exclude('art/arcane/adapt/mod/platform/item/ModItemRef*Test*')
+    exclude('art/arcane/adapt/mod/platform/ModEngineFeaturesTest*')
 }
-dependencies {
-    implementation minecraft.dependency("net.minecraftforge:forge:${targetProperties.forge}")
-}
+
+List<String> mixinConfigs = ['adapt.mixins.json', 'adapt-platform.mixins.json', 'adapt.feature.mixins.json', 'adapt.gap-block.mixins.json', 'adapt.gap-entity.mixins.json']
 tasks.named('shadowJar').configure {
-    manifest.attributes('MixinConfigs': 'adapt.mixins.json,adapt-platform.mixins.json,adapt.feature.mixins.json,adapt.gap-block.mixins.json,adapt.gap-entity.mixins.json')
+    manifest.attributes('MixinConfigs': mixinConfigs.join(','))
+}
+if (targetProperties.obfuscated) {
+    tasks.named('gameplayFixtureJar', Jar).configure {
+        manifest.attributes('MixinConfigs': 'adaptqa.mixins.json')
+    }
+}
+
+if (targetProperties.forgeRuntimeMappings == 'srg') {
+    apply from: '../../gradle/mod-legacyforge.gradle'
+} else {
+    apply plugin: 'net.minecraftforge.gradle'
+    if (targetProperties.obfuscated) {
+        minecraft.mappings(channel: 'official', version: adapt.minecraftVersion)
+    }
+    repositories {
+        minecraft.mavenizer(it)
+        maven fg.forgeMaven
+        maven fg.minecraftLibsMaven
+    }
+    dependencies {
+        implementation minecraft.dependency("net.minecraftforge:forge:${targetProperties.forge}")
+    }
+    if (targetProperties.obfuscated) {
+        // Forge before 64 does not bundle MixinExtras, so the jar carries it as a JarJar library.
+        configurations {
+            mixinExtrasJar { transitive = false }
+            // Forge 52 lists a macOS LWJGL native classifier that was never published; unit tests need no LWJGL.
+            testRuntimeClasspath { exclude(group: 'org.lwjgl') }
+        }
+        dependencies {
+            compileOnly(libs.mixinextras.common)
+            mixinExtrasJar(libs.mixinextras.forge)
+        }
+        String mixinExtrasVersion = libs.versions.mixinextras.get()
+        String nestedPath = "META-INF/jarjar/mixinextras-forge-${mixinExtrasVersion}.jar"
+        Provider<RegularFile> jarJarMetadata = layout.buildDirectory.file('generated/jarJar/metadata.json')
+        TaskProvider<Task> jarJarMetadataTask = tasks.register('generateJarJarMetadata') {
+            inputs.property('mixinExtrasVersion', mixinExtrasVersion)
+            outputs.file(jarJarMetadata)
+            doLast {
+                Map<String, Object> entry = [
+                    identifier: [group: 'io.github.llamalad7', artifact: 'mixinextras-forge'],
+                    version: [range: "[${mixinExtrasVersion},)".toString(), artifactVersion: mixinExtrasVersion],
+                    path: nestedPath,
+                    isObfuscated: false
+                ]
+                jarJarMetadata.get().asFile.text = JsonOutput.prettyPrint(JsonOutput.toJson([jars: [entry]]))
+            }
+        }
+        tasks.named('shadowJar').configure {
+            from(project.configurations.mixinExtrasJar) {
+                into('META-INF/jarjar')
+            }
+            from(jarJarMetadataTask) {
+                into('META-INF/jarjar')
+            }
+        }
+    }
 }

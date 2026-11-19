@@ -35,14 +35,18 @@ targets.each { String target, Map<String, Object> properties ->
     if (!(properties.forge instanceof String) || properties.forge.isBlank() || !properties.forgeLoaderRange) {
         throw new GradleException("Minecraft ${target} must declare Forge support")
     }
-    if (!(properties.neoforge instanceof String) || !(properties.fabricLoader instanceof String) || !(properties.fabricModules instanceof Map)) {
-        throw new GradleException("Minecraft ${target} must declare NeoForge and Fabric support")
+    boolean neoForgeDeclared = properties.neoforge instanceof String ^ properties.neoforgeUsesForge == true
+    if (!neoForgeDeclared || !(properties.fabricLoader instanceof String) || !(properties.fabricModules instanceof Map)) {
+        throw new GradleException("Minecraft ${target} must declare NeoForge (a version or neoforgeUsesForge) and Fabric support")
     }
-    if (!(properties.javaVersion instanceof Integer) || !(properties.dataPackFormat instanceof Integer)) {
+    if (!(properties.javaVersion in [17, 21, 25]) || !(properties.dataPackFormat instanceof Integer)) {
         throw new GradleException("Minecraft ${target} must declare its Java runtime and data pack format")
     }
-    if (properties.obfuscated != false || properties.forgeRuntimeMappings != 'official') {
-        throw new GradleException("Minecraft ${target} must be an unobfuscated target with official Forge runtime mappings")
+    if (!(properties.obfuscated instanceof Boolean) || !(properties.forgeRuntimeMappings in ['srg', 'official'])) {
+        throw new GradleException("Minecraft ${target} must declare whether it is obfuscated and its Forge runtime mappings")
+    }
+    if (!properties.obfuscated && properties.forgeRuntimeMappings != 'official') {
+        throw new GradleException("Minecraft ${target} is unobfuscated and must use official Forge runtime mappings")
     }
 }
 String minecraftVersion = providers.gradleProperty('minecraftVersion').getOrElse(targets.keySet().last())

@@ -115,7 +115,8 @@ public final class ChronosFixtures {
     private void recordInteraction(PlayerInteractEvent event, String phase) {
         PlayerRef player = event.player();
         ItemRef item = event.item();
-        if (!player.uuid().equals(actorId) || item == null || item.isEmpty() || !item.type().equals(AMETHYST_SHARD)) return;
+        if (!player.uuid().equals(actorId) || item == null || item.isEmpty()
+                || !item.type().equals(AMETHYST_SHARD) && !ChronoTimeBombItem.isBindableItem(item)) return;
         JsonObject entry = new JsonObject();
         entry.addProperty("phase", phase);
         entry.addProperty("action", event.action().name());
@@ -125,7 +126,7 @@ public final class ChronosFixtures {
         entry.addProperty("sneaking", player.isSneaking());
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (!adaptation.getName().equals("chronos-stasis-field")) continue;
+                if (!adaptation.getName().equals(item.type().equals(AMETHYST_SHARD) ? "chronos-stasis-field" : "chronos-time-bomb")) continue;
                 entry.addProperty("activeLevel", adaptation.getActiveLevel(player));
                 entry.addProperty("canInteract", adaptation.canInteract(player, player.location()));
             }
@@ -165,7 +166,10 @@ public final class ChronosFixtures {
         if (target instanceof LivingRef cow && cow.type().equals(COW)) {
             result.addProperty("ai", cow.hasAi());
             result.addProperty("movementSpeed", cow.attributeValue(Id.minecraft("movement_speed")));
-            result.addProperty("jumpStrength", cow.attributeValue(Id.minecraft("jump_strength")));
+            Id jumpStrength = Id.minecraft("jump_strength");
+            if (cow.hasAttribute(jumpStrength)) {
+                result.addProperty("jumpStrength", cow.attributeValue(jumpStrength));
+            }
             result.addProperty("targetId", cow.entityId());
         }
         return result;

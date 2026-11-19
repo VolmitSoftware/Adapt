@@ -30,8 +30,10 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -66,6 +68,7 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
 
   public GolemHarvesterCore() {
     super("golem-harvester-core");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.harvester_core");
     setIcon(Id.minecraft("iron_hoe"));

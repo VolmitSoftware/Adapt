@@ -29,6 +29,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -49,6 +50,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
 
   public SeaborneOxygen() {
     super("seaborne-oxygen");
+    needs(PlatformNeed.attribute(Attributes.OXYGEN_BONUS));
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.oxygen");
     setIcon(Id.minecraft("glass_pane"));

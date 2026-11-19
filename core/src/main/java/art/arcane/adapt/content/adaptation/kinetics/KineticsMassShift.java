@@ -11,6 +11,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
@@ -62,6 +63,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
 
   public KineticsMassShift() {
     super("kinetics-mass-shift");
+    needs(PlatformNeed.nativeAttribute(Attributes.SCALE));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("totem_of_undying"));
     setInterval(RECONCILE_INTERVAL_MS);

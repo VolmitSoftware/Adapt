@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -64,6 +65,7 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
 
   public NetherNetherrackMason() {
     super("nether-netherrack-mason");
+    needs(PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("blackstone"));
     setInterval(1500);

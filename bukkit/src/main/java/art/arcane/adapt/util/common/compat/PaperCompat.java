@@ -18,20 +18,15 @@
 
 package art.arcane.adapt.util.common.compat;
 
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.util.format.Form;
 import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.RangedEntity;
-import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
-import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -44,7 +39,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.HumanEntity;
@@ -58,9 +52,9 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MenuType;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
@@ -75,7 +69,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -90,36 +83,6 @@ import java.util.function.Predicate;
  * the first NoSuchMethodError and stay on the fallback path afterward.
  */
 public final class PaperCompat {
-  // Mirrors the vanilla #minecraft:replaceable block tag; Spigot exposes no probe for it.
-  private static final Set<Material> REPLACEABLE_FALLBACK = Set.of(
-      Material.AIR,
-      Material.CAVE_AIR,
-      Material.VOID_AIR,
-      Material.STRUCTURE_VOID,
-      Material.LIGHT,
-      Material.WATER,
-      Material.LAVA,
-      Material.BUBBLE_COLUMN,
-      Material.FIRE,
-      Material.SOUL_FIRE,
-      Material.SNOW,
-      Material.VINE,
-      Material.GLOW_LICHEN,
-      Material.HANGING_ROOTS,
-      Material.SHORT_GRASS,
-      Material.TALL_GRASS,
-      Material.FERN,
-      Material.LARGE_FERN,
-      Material.DEAD_BUSH,
-      Material.BUSH,
-      Material.SHORT_DRY_GRASS,
-      Material.TALL_DRY_GRASS,
-      Material.SEAGRASS,
-      Material.TALL_SEAGRASS,
-      Material.WARPED_ROOTS,
-      Material.CRIMSON_ROOTS,
-      Material.NETHER_SPROUTS
-  );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
   private static final String PATHFINDER_CLASS = "com.destroystokyo.paper.entity.Pathfinder";
   private static final String GAME_RULES_CLASS = "org.bukkit.GameRules";
@@ -131,17 +94,13 @@ public final class PaperCompat {
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
   private static volatile boolean rangedAttackSupported = true;
-  private static volatile boolean weatheringSupported = true;
   private static volatile boolean mobDropsResolved;
   private static volatile GameRule<?> mobDropsRule;
   private static volatile boolean freezeLockSupported = true;
-  private static volatile boolean berriesSupported = true;
   private static volatile boolean customNameSupported = true;
   private static volatile boolean collisionQuerySupported = true;
   private static volatile boolean liveStateSupported = true;
-  private static volatile boolean enchantWithLevelsSupported = true;
   private static volatile boolean trackedPlayersSupported = true;
-  private static volatile boolean itemNameSupported = true;
 
   private PaperCompat() {
   }
@@ -240,60 +199,15 @@ public final class PaperCompat {
   }
 
   public static int weatheringStage(Entity entity) {
-    if (!(entity instanceof CopperGolem golem)) {
-      return 0;
-    }
-    if (!weatheringSupported) {
-      return SpigotWeathering.stage(golem);
-    }
-    try {
-      return switch (golem.getWeatheringState()) {
-        case UNAFFECTED -> 0;
-        case EXPOSED -> 1;
-        case WEATHERED -> 2;
-        case OXIDIZED -> 3;
-      };
-    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
-      weatheringSupported = false;
-      return SpigotWeathering.stage(golem);
-    }
+    return PaperCompatVersion.weatheringStage(entity);
   }
 
   public static boolean copperWaxed(Entity entity) {
-    if (!weatheringSupported) {
-      return false;
-    }
-    try {
-      return entity instanceof CopperGolem golem && golem.getOxidizing() instanceof CopperGolem.Oxidizing.Waxed;
-    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
-      weatheringSupported = false;
-      return false;
-    }
+    return PaperCompatVersion.copperWaxed(entity);
   }
 
   public static void restoreCopper(Entity entity, int stage, boolean waxed) {
-    if (!(entity instanceof CopperGolem golem)) {
-      return;
-    }
-    int bounded = Math.max(0, Math.min(3, stage));
-    if (!weatheringSupported) {
-      SpigotWeathering.restore(golem, bounded);
-      return;
-    }
-    try {
-      golem.setWeatheringState(switch (bounded) {
-        case 0 -> WeatheringCopperState.UNAFFECTED;
-        case 1 -> WeatheringCopperState.EXPOSED;
-        case 2 -> WeatheringCopperState.WEATHERED;
-        default -> WeatheringCopperState.OXIDIZED;
-      });
-      if (waxed) {
-        golem.setOxidizing(CopperGolem.Oxidizing.waxed());
-      }
-    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
-      weatheringSupported = false;
-      SpigotWeathering.restore(golem, bounded);
-    }
+    PaperCompatVersion.restoreCopper(entity, stage, waxed);
   }
 
   public static BlockState liveState(Block block) {
@@ -308,27 +222,12 @@ public final class PaperCompat {
     }
   }
 
-  @SuppressWarnings("deprecation")
   public static ItemStack enchantWithLevels(ItemStack item, int levels, Random random) {
-    if (enchantWithLevelsSupported) {
-      try {
-        return Bukkit.getItemFactory().enchantWithLevels(item, levels, true, random);
-      } catch (NoSuchMethodError absent) {
-        enchantWithLevelsSupported = false;
-      }
-    }
-    return Bukkit.getItemFactory().enchantItem(item, levels, true);
+    return PaperCompat120Version.enchantWithLevels(item, levels, random);
   }
 
   public static boolean hasBerries(CaveVinesPlant vines) {
-    if (berriesSupported) {
-      try {
-        return vines.hasBerries();
-      } catch (NoSuchMethodError absent) {
-        berriesSupported = false;
-      }
-    }
-    return SpigotNames.berries(vines);
+    return PaperCompatVersion.hasBerries(vines);
   }
 
   public static boolean hasCustomName(Nameable nameable) {
@@ -436,7 +335,7 @@ public final class PaperCompat {
       }
     }
 
-    return REPLACEABLE_FALLBACK.contains(block.getType());
+    return PaperCompatVersion.replaceableFallback(block.getType());
   }
 
   public static boolean isCritical(EntityDamageByEntityEvent event) {
@@ -504,7 +403,7 @@ public final class PaperCompat {
     try {
       player.openGrindstone(null, true);
     } catch (NoSuchMethodError absent) {
-      openMenu(player, MenuType.GRINDSTONE, "Grindstone");
+      PaperCompatVersion.openMenu(player, InventoryType.GRINDSTONE, "Grindstone");
     }
   }
 
@@ -512,7 +411,7 @@ public final class PaperCompat {
     try {
       player.openAnvil(null, true);
     } catch (NoSuchMethodError absent) {
-      openMenu(player, MenuType.ANVIL, "Anvil");
+      PaperCompatVersion.openMenu(player, InventoryType.ANVIL, "Anvil");
     }
   }
 
@@ -520,7 +419,7 @@ public final class PaperCompat {
     try {
       player.openStonecutter(null, true);
     } catch (NoSuchMethodError absent) {
-      openMenu(player, MenuType.STONECUTTER, "Stonecutter");
+      PaperCompatVersion.openMenu(player, InventoryType.STONECUTTER, "Stonecutter");
     }
   }
 
@@ -528,7 +427,7 @@ public final class PaperCompat {
     try {
       player.openCartographyTable(null, true);
     } catch (NoSuchMethodError absent) {
-      openMenu(player, MenuType.CARTOGRAPHY_TABLE, "Cartography Table");
+      PaperCompatVersion.openMenu(player, InventoryType.CARTOGRAPHY, "Cartography Table");
     }
   }
 
@@ -536,12 +435,8 @@ public final class PaperCompat {
     try {
       player.openLoom(null, true);
     } catch (NoSuchMethodError absent) {
-      openMenu(player, MenuType.LOOM, "Loom");
+      PaperCompatVersion.openMenu(player, InventoryType.LOOM, "Loom");
     }
-  }
-
-  private static void openMenu(Player player, MenuType.Typed<?, ?> menu, String title) {
-    player.openInventory(menu.create(player, title));
   }
 
   public static ItemStack activeItem(LivingEntity entity) {
@@ -569,11 +464,7 @@ public final class PaperCompat {
   }
 
   public static int experienceOrbCount(ExperienceOrb orb) {
-    try {
-      return orb.getCount();
-    } catch (NoSuchMethodError absent) {
-      return 1;
-    }
+    return PaperCompat120Version.experienceOrbCount(orb);
   }
 
   public static boolean canMobPickup(Item item) {
@@ -592,10 +483,7 @@ public final class PaperCompat {
   }
 
   public static void setAggressive(Mob mob, boolean aggressive) {
-    try {
-      mob.setAggressive(aggressive);
-    } catch (NoSuchMethodError ignored) {
-    }
+    PaperCompat120Version.setAggressive(mob, aggressive);
   }
 
   public static boolean supportsPathfinding() {
@@ -693,49 +581,27 @@ public final class PaperCompat {
   }
 
   public static TriState visualFire(Entity entity) {
-    try {
-      return entity.getVisualFire();
-    } catch (NoSuchMethodError absent) {
-      return entity.isVisualFire() ? TriState.TRUE : TriState.NOT_SET;
-    }
+    return PaperCompatVersion.visualFire(entity);
   }
 
   public static void setVisualFire(Entity entity, TriState state) {
-    try {
-      entity.setVisualFire(state);
-    } catch (NoSuchMethodError absent) {
-      entity.setVisualFire(state == TriState.TRUE);
-    }
+    PaperCompatVersion.setVisualFire(entity, state);
   }
 
   public static boolean isInvisible(Entity entity) {
-    try {
-      return entity.isInvisible();
-    } catch (NoSuchMethodError absent) {
-      return false;
-    }
+    return PaperCompat120Version.isInvisible(entity);
   }
 
   public static void setInvisible(Entity entity, boolean invisible) {
-    try {
-      entity.setInvisible(invisible);
-    } catch (NoSuchMethodError ignored) {
-    }
+    PaperCompat120Version.setInvisible(entity, invisible);
   }
 
   public static boolean hasNoPhysics(Entity entity) {
-    try {
-      return entity.hasNoPhysics();
-    } catch (NoSuchMethodError absent) {
-      return false;
-    }
+    return PaperCompat120Version.hasNoPhysics(entity);
   }
 
   public static void setNoPhysics(Entity entity, boolean noPhysics) {
-    try {
-      entity.setNoPhysics(noPhysics);
-    } catch (NoSuchMethodError ignored) {
-    }
+    PaperCompat120Version.setNoPhysics(entity, noPhysics);
   }
 
   public static Component customName(Entity entity) {
@@ -768,14 +634,7 @@ public final class PaperCompat {
   }
 
   public static String itemName(ItemStack item) {
-    if (itemNameSupported) {
-      try {
-        return C.stripColor(LegacyComponentSerializer.legacySection().serialize(item.effectiveName()));
-      } catch (NoSuchMethodError absent) {
-        itemNameSupported = false;
-      }
-    }
-    return Form.capitalizeWords(item.getType().name().toLowerCase(Locale.ROOT).replace('_', ' '));
+    return PaperCompatVersion.itemName(item);
   }
 
   public static void text(TextDisplay display, Component text) {
@@ -787,11 +646,7 @@ public final class PaperCompat {
   }
 
   public static void setArrowShooter(AbstractArrow arrow, Player shooter) {
-    try {
-      arrow.setShooter(shooter, false);
-    } catch (NoSuchMethodError absent) {
-      arrow.setShooter(shooter);
-    }
+    PaperCompat120Version.setArrowShooter(arrow, shooter);
   }
 
   public static ItemStack arrowItem(AbstractArrow arrow) {
@@ -803,14 +658,7 @@ public final class PaperCompat {
   }
 
   public static void setArrowItem(AbstractArrow arrow, ItemStack item) {
-    if (item == null) {
-      return;
-    }
-
-    try {
-      arrow.setItemStack(item);
-    } catch (NoSuchMethodError ignored) {
-    }
+    PaperCompat120Version.setArrowItem(arrow, item);
   }
 
   public static int arrowLifetimeTicks(AbstractArrow arrow) {
@@ -889,7 +737,7 @@ public final class PaperCompat {
   /** Bukkit object stream payload, the Spigot fallback. */
   public static final byte ITEMS_FORMAT_STREAM = 1;
 
-  private static volatile boolean itemArrayBytesSupported = true;
+  private static volatile boolean itemArrayBytesSupported = PaperCompat120Version.itemArrayBytes();
 
   /**
    * Serializes a stack array into a format-tagged blob. Paper's NBT payload is
@@ -901,7 +749,7 @@ public final class PaperCompat {
     ItemStack[] source = items == null ? new ItemStack[0] : items;
     if (itemArrayBytesSupported) {
       try {
-        return frameItems(ITEMS_FORMAT_NBT, ItemStack.serializeItemsAsBytes(source));
+        return frameItems(ITEMS_FORMAT_NBT, PaperCompat120Version.serializeItemArray(source));
       } catch (NoSuchMethodError | NoClassDefFoundError absent) {
         itemArrayBytesSupported = false;
       }
@@ -933,7 +781,7 @@ public final class PaperCompat {
     }
 
     try {
-      return ItemStack.deserializeItemsFromBytes(payload);
+      return PaperCompat120Version.deserializeItemArray(payload);
     } catch (NoSuchMethodError | NoClassDefFoundError absent) {
       itemArrayBytesSupported = false;
       throw new IllegalStateException("Paper item payload cannot be read on this platform", absent);
@@ -997,47 +845,16 @@ public final class PaperCompat {
     }
   }
 
-  private static volatile boolean createEntitySupported = true;
-
   /** Hydrates before the entity enters the world on both platforms. */
   public static <T extends Entity> T spawnHydrated(World world, Location location, Class<T> type, Consumer<T> hydrator) {
-    if (createEntitySupported) {
-      boolean created = false;
-      try {
-        T entity = world.createEntity(location, type);
-        created = true;
-        hydrator.accept(entity);
-        return world.addEntity(entity);
-      } catch (NoSuchMethodError absent) {
-        if (created) {
-          throw absent;
-        }
-        createEntitySupported = false;
-      }
-    }
-
-    return world.spawn(location, type, hydrator::accept);
+    return PaperCompat120Version.spawnHydrated(world, location, type, hydrator);
   }
 
   private static final class SpigotNames {
-    private static volatile boolean berriesResolved;
-    private static volatile Method berries;
     private static volatile boolean customNameResolved;
     private static volatile Method customName;
 
     private SpigotNames() {
-    }
-
-    private static boolean berries(CaveVinesPlant vines) {
-      Method read = berriesReader();
-      if (read == null) {
-        return false;
-      }
-      try {
-        return Boolean.TRUE.equals(read.invoke(vines));
-      } catch (ReflectiveOperationException | RuntimeException failure) {
-        return false;
-      }
     }
 
     private static boolean customName(Nameable nameable) {
@@ -1050,14 +867,6 @@ public final class PaperCompat {
       } catch (ReflectiveOperationException | RuntimeException failure) {
         return false;
       }
-    }
-
-    private static Method berriesReader() {
-      if (!berriesResolved) {
-        berries = method(CaveVinesPlant.class, "isBerries");
-        berriesResolved = true;
-      }
-      return berries;
     }
 
     private static Method customNameReader() {
@@ -1074,71 +883,6 @@ public final class PaperCompat {
       } catch (NoSuchMethodException missing) {
         return null;
       }
-    }
-  }
-
-  private static final class SpigotWeathering {
-    private static final String[] STAGE_NAMES = {"UNAFFECTED", "EXPOSED", "WEATHERED", "OXIDIZED"};
-    private static volatile boolean resolved;
-    private static volatile Method getter;
-    private static volatile Method setter;
-
-    private SpigotWeathering() {
-    }
-
-    private static int stage(CopperGolem golem) {
-      Method read = getter(golem);
-      if (read == null) {
-        return 0;
-      }
-      try {
-        Object state = read.invoke(golem);
-        return state instanceof Enum<?> value ? Math.max(0, indexOf(value.name())) : 0;
-      } catch (ReflectiveOperationException | RuntimeException failure) {
-        return 0;
-      }
-    }
-
-    private static void restore(CopperGolem golem, int stage) {
-      Method read = getter(golem);
-      Method write = setter;
-      if (read == null || write == null) {
-        return;
-      }
-      try {
-        Class<?> states = read.getReturnType();
-        for (Object constant : states.getEnumConstants()) {
-          if (constant instanceof Enum<?> value && value.name().equals(STAGE_NAMES[stage])) {
-            write.invoke(golem, constant);
-            return;
-          }
-        }
-      } catch (ReflectiveOperationException | RuntimeException ignored) {
-      }
-    }
-
-    private static Method getter(CopperGolem golem) {
-      if (!resolved) {
-        try {
-          Method read = golem.getClass().getMethod("getWeatherState");
-          getter = read;
-          setter = golem.getClass().getMethod("setWeatherState", read.getReturnType());
-        } catch (ReflectiveOperationException | RuntimeException absent) {
-          getter = null;
-          setter = null;
-        }
-        resolved = true;
-      }
-      return getter;
-    }
-
-    private static int indexOf(String name) {
-      for (int index = 0; index < STAGE_NAMES.length; index++) {
-        if (STAGE_NAMES[index].equals(name)) {
-          return index;
-        }
-      }
-      return 0;
     }
   }
 

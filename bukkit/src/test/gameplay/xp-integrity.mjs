@@ -243,6 +243,9 @@ export default {
                     context.bot.chat(`/tp @s ${anchor + 8.5} 105 264.5`)
                     await context.waitUntil(() => Math.abs(context.bot.entity.position.x - anchor - 8.5) < 0.1,
                         { label: 'Viewer observer reaches the active trial arena', timeoutMs: 5000 })
+                    // The client runs no physics ticks until the chunk under the moved actor has arrived.
+                    await context.waitUntil(() => actor.bot.blockAt(actor.bot.entity.position) != null,
+                        { label: 'The trial arena chunk reaches the actor', timeoutMs: 20000 })
                     await actor.bot.waitForTicks(4)
                 })
                 const before = await sample()
@@ -426,10 +429,9 @@ export default {
                     await context.step(`${mode}: retain XP and anti-farm accounting through reconnect`, async () => {
                         const persisted = await snapshot()
                         actor = await actor.reconnectAfter(() => actor.bot.quit('XP integrity persistence'), { timeoutMs: 30000 })
-                        let restored
-                        await context.waitUntil(async () => {
-                            try { restored = await snapshot(); return true } catch { return false }
-                        }, { label: 'Reconnected XP profile is ready', timeoutMs: 20000, intervalMs: 500 })
+                        await context.waitUntil(async () => (await fixture(actor, 'ready')).ready === true,
+                            { label: 'Reconnected XP profile is ready', timeoutMs: 20000, intervalMs: 500 })
+                        const restored = await snapshot()
                         assertRetained(context, persisted, restored, 'reconnect')
                         evidence.reconnect = { before: persisted, after: restored }
                         const reloaded = await fixture(actor, 'reload')

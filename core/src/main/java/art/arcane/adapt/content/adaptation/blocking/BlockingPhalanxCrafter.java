@@ -28,8 +28,11 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.item.ItemDurability;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.BlockingMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.CraftItemEvent;
@@ -54,6 +57,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
 
   public BlockingPhalanxCrafter() {
     super("blocking-phalanx-crafter");
+    needs(PlatformNeed.emulatedFeature(EngineFeature.ITEM_STACK_LIMITS));
     registerConfiguration(Config.class);
     setLocalizationKey("blocking.phalanx_crafter");
     setIcon(SHIELD);
@@ -104,7 +108,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
     if (design != null) {
       applyDefaultShieldDesign(shield, design);
     }
-    shield.setMaxDamage(NETHERITE_SHIELD_MAX_DURABILITY);
+    ItemDurability.setMaxDamage(shield, NETHERITE_SHIELD_MAX_DURABILITY);
     shield.setDamage(0);
     shield.setDisplayName(C.GOLD + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_ITEM_NAME));
     return shield;

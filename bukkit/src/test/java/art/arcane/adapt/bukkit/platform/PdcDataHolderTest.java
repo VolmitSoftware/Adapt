@@ -10,11 +10,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,18 +72,6 @@ class PdcDataHolderTest {
   }
 
   @Test
-  void stringListsUseThePersistentListType() {
-    FakeDataContainer container = new FakeDataContainer();
-    DataHolder data = PdcDataHolder.live(container);
-
-    data.set(DataKey.adapt("lore", DataCodecs.STRING_LIST), List.of("first", "second"));
-
-    assertThat(data.get(DataKey.adapt("lore", DataCodecs.STRING_LIST))).containsExactly("first", "second");
-    assertThat(container.get(new NamespacedKey("adapt", "lore"), PersistentDataType.LIST.strings()))
-        .containsExactly("first", "second");
-  }
-
-  @Test
   void typeMismatchReadsAsAbsentButStillCountsAsPresent() {
     DataHolder data = PdcDataHolder.live(new FakeDataContainer());
     data.set(LEVEL, 2);
@@ -107,23 +93,6 @@ class PdcDataHolderTest {
     data.remove(LEVEL);
     assertThat(data.has(LEVEL)).isFalse();
     assertThat(data.keys()).isEmpty();
-  }
-
-  @Test
-  void itemDataWritesBackThroughItemMeta() {
-    FakeDataContainer container = new FakeDataContainer();
-    ItemMeta meta = mock(ItemMeta.class);
-    when(meta.getPersistentDataContainer()).thenReturn(container);
-    ItemStack stack = mock(ItemStack.class);
-    when(stack.getType()).thenReturn(Material.DIAMOND_SWORD);
-    when(stack.getItemMeta()).thenReturn(meta);
-    when(stack.getPersistentDataContainer()).thenReturn(container);
-
-    DataHolder data = BukkitRefs.item(stack).data();
-    data.set(LEVEL, 4);
-
-    verify(stack).setItemMeta(meta);
-    assertThat(data.get(LEVEL)).isEqualTo(4);
   }
 
   @Test

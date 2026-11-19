@@ -23,6 +23,7 @@ import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,7 @@ class BukkitRecipeHostTest {
     for (char symbol : "acdefghi".toCharArray()) {
       choices.put(symbol, iron);
     }
-    choices.put('b', RecipeChoice.empty());
+    choices.put('b', BukkitRecipeVersion.emptyChoice());
     when(recipe.getChoiceMap()).thenReturn(choices);
 
     RecipeView view = BukkitRecipeHost.view(recipe);
@@ -214,7 +215,7 @@ class BukkitRecipeHostTest {
     when(custom.getItemStack()).thenReturn(example);
     when(custom.test(accepted)).thenReturn(true);
     when(custom.test(refused)).thenReturn(false);
-    when(recipe.getChoiceList()).thenReturn(List.of(custom, RecipeChoice.empty()));
+    when(recipe.getChoiceList()).thenReturn(Arrays.asList(custom, BukkitRecipeVersion.emptyChoice()));
 
     RecipeView view = BukkitRecipeHost.view(recipe);
 

@@ -5,11 +5,11 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.RuntimeAttribute;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.bukkit.platform.entity.BukkitLivingRef;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.value.Id;
 import org.bukkit.NamespacedKey;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
 
@@ -46,11 +46,10 @@ final class BukkitAttributeResolver implements AdaptAttributeResolver {
 
   private static IAttribute resolve(LivingRef entity, Id attribute) {
     LivingEntity living = BukkitRefs.living(entity);
-    Attribute bukkitAttribute = attribute == null ? null : BukkitRefs.attribute(attribute);
-    if (living == null || bukkitAttribute == null) {
+    if (living == null || attribute == null) {
       return null;
     }
-    AttributeInstance instance = living.getAttribute(bukkitAttribute);
+    AttributeInstance instance = BukkitLivingRef.instance(living, attribute);
     return instance == null ? null : new RuntimeAttribute(instance);
   }
 

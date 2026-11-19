@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "description": "Adapt gameplay fixture resources",
+    "pack_format": ${dataPackFormat}
+  }
+}

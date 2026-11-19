@@ -15,7 +15,6 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockRef;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /** Clicks, entity interaction and the block break, damage, drop and place cycle. */
 public final class InteractHooks {
@@ -60,7 +58,7 @@ public final class InteractHooks {
         if (!ModEvents.listening(PlayerInteractEvent.class)) {
             return false;
         }
-        ServerLevel level = player.level();
+        ServerLevel level = HookCompat.level(player);
         PlayerInteractEvent event = ModEvents.post(new PlayerInteractEvent(ModRefs.player(player), InteractAction.LEFT_CLICK_BLOCK,
             ModConversions.hand(InteractionHand.MAIN_HAND), ModRefs.item(player.getMainHandItem()), ModRefs.block(level, pos),
             ModConversions.face(face), null, UseResult.DEFAULT, UseResult.DEFAULT));
@@ -81,12 +79,12 @@ public final class InteractHooks {
         }
         Vec3 eye = player.getEyePosition();
         Vec3 look = player.getViewVector(1.0F);
-        Vec3 end = eye.add(look.scale(player.blockInteractionRange()));
+        Vec3 end = eye.add(look.scale(HookCompat.blockReach(player)));
         HitResult hit = player.level().clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
         if (hit.getType() == HitResult.Type.BLOCK) {
             return;
         }
-        double reach = player.entityInteractionRange();
+        double reach = HookCompat.entityReach(player);
         Vec3 entityEnd = eye.add(look.scale(reach));
         AABB area = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
         EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(player, eye, entityEnd, area,
@@ -114,7 +112,7 @@ public final class InteractHooks {
         BlockPos pos = hit.getBlockPos();
         Vec3 offset = hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
         PlayerInteractEvent event = ModEvents.post(new PlayerInteractEvent(ModRefs.player(player), InteractAction.RIGHT_CLICK_BLOCK,
-            ModConversions.hand(hand), ModRefs.item(stack), ModRefs.block(player.level(), pos), ModConversions.face(hit.getDirection()),
+            ModConversions.hand(hand), ModRefs.item(stack), ModRefs.block(HookCompat.level(player), pos), ModConversions.face(hit.getDirection()),
             ModRefs.vec(offset), UseResult.DEFAULT, UseResult.DEFAULT));
         state.useBlock = event.useBlock();
         state.useItem = event.useItem();
@@ -144,17 +142,17 @@ public final class InteractHooks {
         }
         ItemStack stack = player.getItemInHand(hand);
         Vec3 eye = player.getEyePosition();
-        Vec3 end = eye.add(player.getViewVector(1.0F).scale(player.blockInteractionRange()));
+        Vec3 end = eye.add(player.getViewVector(1.0F).scale(HookCompat.blockReach(player)));
         HitResult hit = player.level().clip(new ClipContext(eye, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
         boolean denied;
         if (hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK) {
             BlockPos pos = blockHit.getBlockPos();
-            if (fired && pos.equals(state.pos) && state.hand == hand && ItemStack.isSameItemSameComponents(state.stack, stack)) {
+            if (fired && pos.equals(state.pos) && state.hand == hand && HookCompat.sameItem(state.stack, stack)) {
                 denied = state.useItem == UseResult.DENY;
             } else {
                 Vec3 offset = blockHit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ());
                 PlayerInteractEvent event = ModEvents.post(new PlayerInteractEvent(ModRefs.player(player), InteractAction.RIGHT_CLICK_BLOCK,
-                    ModConversions.hand(hand), ModRefs.item(stack), ModRefs.block(player.level(), pos), ModConversions.face(blockHit.getDirection()),
+                    ModConversions.hand(hand), ModRefs.item(stack), ModRefs.block(HookCompat.level(player), pos), ModConversions.face(blockHit.getDirection()),
                     ModRefs.vec(offset), UseResult.DEFAULT, UseResult.DEFAULT));
                 denied = event.useItem() == UseResult.DENY;
             }
@@ -203,7 +201,7 @@ public final class InteractHooks {
         if (ModEvents.breaksSilenced() || !ModEvents.listening(BlockDamageEvent.class)) {
             return 0;
         }
-        ServerLevel level = player.level();
+        ServerLevel level = HookCompat.level(player);
         boolean insta = state.getDestroyProgress(player, level, pos) >= 1.0F;
         BlockDamageEvent event = ModEvents.post(new BlockDamageEvent(ModRefs.player(player), ModRefs.block(level, pos),
             ModRefs.item(player.getMainHandItem()), insta));
@@ -235,14 +233,14 @@ public final class InteractHooks {
         if (!breakListeners && !dropListeners) {
             return false;
         }
-        ServerLevel level = player.level();
+        ServerLevel level = HookCompat.level(player);
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) {
             return false;
         }
         ModBlockBreakEvent event = null;
         if (breakListeners) {
-            boolean refused = !player.getMainHandItem().canDestroyBlock(state, level, pos, player);
+            boolean refused = !HookCompat.canDestroy(player, state, level, pos);
             event = new ModBlockBreakEvent(ModRefs.player(player), ModRefs.block(level, pos));
             event.setCancelled(refused);
             ModEvents.post(event);
@@ -266,9 +264,8 @@ public final class InteractHooks {
         if (!(level.getBlockEntity(pos) instanceof SpawnerBlockEntity spawner)) {
             return null;
         }
-        CompoundTag saved = spawner.saveWithoutMetadata(level.registryAccess());
-        Optional<String> id = saved.getCompoundOrEmpty("SpawnData").getCompoundOrEmpty("entity").getString("id");
-        return id.map(Id::tryParse).orElse(null);
+        String id = HookCompat.spawnerEntity(spawner, level);
+        return id == null ? null : Id.tryParse(id);
     }
 
     /** Block experience inside a player break: replaced by the experience a handler set. True when vanilla's is skipped. */
@@ -303,7 +300,7 @@ public final class InteractHooks {
         if (event != null && !event.dropItems()) {
             return;
         }
-        if (!destroyed || player.preventsBlockDrops() || !ModEvents.listening(BlockDropItemEvent.class)) {
+        if (!destroyed || HookCompat.preventsBlockDrops(player) || !ModEvents.listening(BlockDropItemEvent.class)) {
             spawn(context.level, items);
             return;
         }

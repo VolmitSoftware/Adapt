@@ -9,16 +9,13 @@ import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.EquipmentSlotGroup;
 import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.item.BannerLayer;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.item.ShieldDesign;
 import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
-import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
-import io.papermc.paper.persistence.PersistentDataContainerView;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -29,8 +26,6 @@ import org.bukkit.Material;
 import org.bukkit.FireworkEffect;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.banner.Pattern;
-import org.bukkit.block.banner.PatternType;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -43,11 +38,8 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.inventory.meta.ShieldMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,7 +115,7 @@ public final class BukkitItemRef implements ItemRef {
     if (meta != null && meta.hasDisplayName()) {
       return meta.getDisplayName();
     }
-    return BukkitText.legacy(stack.effectiveName());
+    return BukkitItemVersion.effectiveName(stack);
   }
 
   @Override
@@ -261,15 +253,16 @@ public final class BukkitItemRef implements ItemRef {
     if (meta == null) {
       return false;
     }
-    if (meta.hasEnchantmentGlintOverride()) {
-      return Boolean.TRUE.equals(meta.getEnchantmentGlintOverride());
+    Boolean glint = BukkitItem120Version.glintOverride(meta);
+    if (glint != null) {
+      return glint;
     }
     return meta.hasEnchants() || (meta instanceof EnchantmentStorageMeta storage && storage.hasStoredEnchants());
   }
 
   @Override
   public void setGlintOverride(Boolean glint) {
-    edit((ItemMeta meta) -> meta.setEnchantmentGlintOverride(glint));
+    edit((ItemMeta meta) -> BukkitItem120Version.setGlintOverride(meta, glint));
   }
 
   @Override
@@ -279,7 +272,7 @@ public final class BukkitItemRef implements ItemRef {
 
   @Override
   public void setHideTooltip(boolean hidden) {
-    edit((ItemMeta meta) -> meta.setHideTooltip(hidden));
+    edit((ItemMeta meta) -> BukkitItem120Version.setHideTooltip(meta, hidden));
   }
 
   @Override
@@ -299,7 +292,7 @@ public final class BukkitItemRef implements ItemRef {
 
   @Override
   public void setMaxStackSize(int maxStackSize) {
-    edit((ItemMeta meta) -> meta.setMaxStackSize(maxStackSize));
+    edit((ItemMeta meta) -> BukkitItem120Version.setMaxStackSize(meta, maxStackSize));
   }
 
   @Override
@@ -314,36 +307,12 @@ public final class BukkitItemRef implements ItemRef {
 
   @Override
   public ShieldDesign shieldDesign() {
-    if (!(stack.getItemMeta() instanceof ShieldMeta shield)) {
-      return null;
-    }
-    List<BannerLayer> layers = new ArrayList<>();
-    for (Pattern pattern : shield.getPatterns()) {
-      Id type = BukkitResolve.id(pattern.getPattern());
-      if (type != null) {
-        layers.add(new BannerLayer(DyeColor.valueOf(pattern.getColor().name()), type));
-      }
-    }
-    org.bukkit.DyeColor base = shield.getBaseColor();
-    return new ShieldDesign(base == null ? null : DyeColor.valueOf(base.name()), layers);
+    return BukkitItem120Version.shieldDesign(stack.getItemMeta());
   }
 
   @Override
   public void setShieldDesign(ShieldDesign design) {
-    edit((ItemMeta meta) -> {
-      if (!(meta instanceof ShieldMeta shield)) {
-        return;
-      }
-      List<Pattern> patterns = new ArrayList<>();
-      for (BannerLayer layer : design.patterns()) {
-        PatternType type = BukkitResolve.bannerPattern(layer.pattern());
-        if (type != null) {
-          patterns.add(new Pattern(org.bukkit.DyeColor.valueOf(layer.color().name()), type));
-        }
-      }
-      shield.setBaseColor(design.baseColor() == null ? null : org.bukkit.DyeColor.valueOf(design.baseColor().name()));
-      shield.setPatterns(patterns);
-    });
+    edit((ItemMeta meta) -> BukkitItem120Version.setShieldDesign(meta, design));
   }
 
   @Override
@@ -362,19 +331,12 @@ public final class BukkitItemRef implements ItemRef {
 
   @Override
   public int maxDamage() {
-    if (stack.getItemMeta() instanceof Damageable damageable && damageable.hasMaxDamage()) {
-      return damageable.getMaxDamage();
-    }
-    return stack.getType().getMaxDurability();
+    return BukkitItem120Version.maxDamage(stack.getItemMeta(), stack.getType());
   }
 
   @Override
   public void setMaxDamage(int maxDamage) {
-    edit((ItemMeta meta) -> {
-      if (meta instanceof Damageable damageable) {
-        damageable.setMaxDamage(Math.max(1, maxDamage));
-      }
-    });
+    edit((ItemMeta meta) -> BukkitItem120Version.setMaxDamage(meta, Math.max(1, maxDamage)));
   }
 
   @Override
@@ -391,16 +353,13 @@ public final class BukkitItemRef implements ItemRef {
   @Override
   public Id itemModel() {
     ItemMeta meta = stack.getItemMeta();
-    if (meta == null || !meta.hasItemModel()) {
-      return null;
-    }
-    return BukkitConversions.id(meta.getItemModel());
+    return meta == null ? null : BukkitItemVersion.itemModel(meta);
   }
 
   @Override
   public void setItemModel(Id model) {
     NamespacedKey key = BukkitConversions.key(model);
-    edit((ItemMeta meta) -> meta.setItemModel(key));
+    edit((ItemMeta meta) -> BukkitItemVersion.setItemModel(meta, key));
   }
 
   @Override
@@ -413,12 +372,12 @@ public final class BukkitItemRef implements ItemRef {
     edit((ItemMeta meta) -> {
       removeModifiers(meta, type, key);
       if (!meta.hasAttributeModifiers()) {
-        for (Map.Entry<Attribute, AttributeModifier> entry : stack.getType().getDefaultAttributeModifiers().entries()) {
+        for (Map.Entry<Attribute, AttributeModifier> entry : BukkitItem120Version.defaultModifiers(stack.getType()).entries()) {
           meta.addAttributeModifier(entry.getKey(), entry.getValue());
         }
       }
-      meta.addAttributeModifier(type, new AttributeModifier(key, modifier.amount(),
-          BukkitConversions.operation(modifier.operation()), BukkitConversions.slot(slot).getGroup()));
+      meta.addAttributeModifier(type, BukkitItem120Version.modifier(key, modifier.amount(),
+          BukkitConversions.operation(modifier.operation()), BukkitConversions.slot(slot)));
     });
   }
 
@@ -432,12 +391,12 @@ public final class BukkitItemRef implements ItemRef {
     edit((ItemMeta meta) -> {
       removeModifiers(meta, type, key);
       if (!meta.hasAttributeModifiers()) {
-        for (Map.Entry<Attribute, AttributeModifier> entry : stack.getType().getDefaultAttributeModifiers().entries()) {
+        for (Map.Entry<Attribute, AttributeModifier> entry : BukkitItem120Version.defaultModifiers(stack.getType()).entries()) {
           meta.addAttributeModifier(entry.getKey(), entry.getValue());
         }
       }
-      meta.addAttributeModifier(type, new AttributeModifier(key, modifier.amount(),
-          BukkitConversions.operation(modifier.operation()), BukkitConversions.slotGroup(group)));
+      meta.addAttributeModifier(type, BukkitItem120Version.modifier(key, modifier.amount(),
+          BukkitConversions.operation(modifier.operation()), group));
     });
   }
 
@@ -457,7 +416,7 @@ public final class BukkitItemRef implements ItemRef {
       return;
     }
     for (AttributeModifier current : new ArrayList<>(existing)) {
-      if (key.equals(current.getKey())) {
+      if (BukkitItem120Version.hasKey(current, key)) {
         meta.removeAttributeModifier(type, current);
       }
     }
@@ -474,11 +433,10 @@ public final class BukkitItemRef implements ItemRef {
           effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(), effect.isAmbient(),
           effect.hasParticles(), effect.hasIcon()));
     }
-    PotionType base = meta.getBasePotionType();
     Color color = meta.hasColor() ? meta.getColor() : null;
-    Component customName = meta.customName();
+    Component customName = BukkitItemVersion.customName(meta);
     String name = customName == null ? null : BukkitText.markup(customName);
-    return Optional.of(new PotionContents(base == null ? null : BukkitResolve.id(base),
+    return Optional.of(new PotionContents(BukkitItem120Version.basePotion(meta),
         color == null ? null : Rgb.of(color.asRGB()), effects, name));
   }
 
@@ -498,10 +456,10 @@ public final class BukkitItemRef implements ItemRef {
         }
       }
       potion.setColor(contents.color() == null ? null : Color.fromRGB(contents.color().packed()));
-      potion.setBasePotionType(BukkitResolve.potion(contents.potion()));
-      Component current = potion.customName();
+      BukkitItem120Version.setBasePotion(potion, contents.potion());
+      Component current = BukkitItemVersion.customName(potion);
       if (!Objects.equals(current == null ? null : BukkitText.markup(current), contents.name())) {
-        potion.customName(contents.name() == null ? null : potionName(contents.name()));
+        BukkitItemVersion.setCustomName(potion, contents.name() == null ? null : potionName(contents.name()));
       }
     });
   }
@@ -527,7 +485,7 @@ public final class BukkitItemRef implements ItemRef {
   public DataHolder data() {
     DataHolder current = data;
     if (current == null) {
-      current = new PdcDataHolder(new ItemStore(stack));
+      current = new PdcDataHolder(new BukkitItemStore(stack));
       data = current;
     }
     return current;
@@ -657,25 +615,5 @@ public final class BukkitItemRef implements ItemRef {
       levels.put(BukkitResolve.id(entry.getKey()), entry.getValue());
     }
     return levels;
-  }
-
-  private record ItemStore(ItemStack stack) implements PdcDataHolder.Store {
-    @Override
-    public PersistentDataContainerView read() {
-      return BukkitResolve.isAir(stack.getType()) ? null : stack.getPersistentDataContainer();
-    }
-
-    @Override
-    public void write(Consumer<PersistentDataContainer> edit) {
-      if (BukkitResolve.isAir(stack.getType())) {
-        return;
-      }
-      ItemMeta meta = stack.getItemMeta();
-      if (meta == null) {
-        return;
-      }
-      edit.accept(meta.getPersistentDataContainer());
-      stack.setItemMeta(meta);
-    }
   }
 }

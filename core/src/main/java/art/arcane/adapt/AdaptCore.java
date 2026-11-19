@@ -2,6 +2,7 @@ package art.arcane.adapt;
 
 import art.arcane.adapt.api.ComponentRegistrar;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
+import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -25,6 +26,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.LanguageEditorGui;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
+import art.arcane.adapt.platform.EngineFeature;
+import art.arcane.adapt.util.common.input.MidairJumps;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.event.AdaptEventBus;
@@ -139,6 +142,12 @@ public final class AdaptCore {
     registerCoreListener(new XpProvenanceListener());
     registerCoreListener(new SimpleAdaptation.PlayerDamageListener());
     registerCoreListener(new BonusBlockBreaks());
+    if (!ItemDurability.perStack()) {
+      registerCoreListener(new ItemDurability());
+    }
+    if (!platform.host().supports(EngineFeature.PLAYER_INPUT)) {
+      registerCoreListener(MidairJumps.start());
+    }
     registerCoreListener(new BrewingManager());
     configInput.start();
     registerCoreListener(configInput);
@@ -170,6 +179,7 @@ public final class AdaptCore {
       phase("ticker", activeTicker::shutdown);
     }
     phase("attribute change gate", AdaptAttributeService::beginShutdown);
+    phase("mid-air jumps", MidairJumps::stop);
     for (Object listener : List.copyOf(coreListeners)) {
       phase("core listener", () -> registrar.unregister(listener));
     }

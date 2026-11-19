@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 /** Item facts for tests: vanilla tool durabilities built in, block hardness and interactable blocks settable. */
 public final class FakeItems implements ItemOps {
@@ -35,6 +36,13 @@ public final class FakeItems implements ItemOps {
   private final Set<Id> interactable = new HashSet<>(Set.of(Id.minecraft("chest"), Id.minecraft("oak_door"),
       Id.minecraft("lever"), Id.minecraft("crafting_table")));
 
+  private volatile Predicate<Id> knownItems = (Id type) -> true;
+
+  /** Limits {@link #create} and {@link #isItem} to items a pinned Minecraft version has; others create empty stacks. */
+  public void knownItems(Predicate<Id> known) {
+    knownItems = known;
+  }
+
   public FakeItems hardness(String vanillaPath, float value, float blast) {
     hardness.put(Id.minecraft(vanillaPath), value);
     blastResistance.put(Id.minecraft(vanillaPath), blast);
@@ -43,6 +51,9 @@ public final class FakeItems implements ItemOps {
 
   @Override
   public ItemRef create(Id type, int amount) {
+    if (!knownItems.test(type)) {
+      return empty();
+    }
     Integer max = durability.get(type);
     if (max != null) {
       FakeItem tool = FakeItem.tool(type.path(), max);
@@ -59,7 +70,7 @@ public final class FakeItems implements ItemOps {
 
   @Override
   public boolean isItem(Id type) {
-    return !type.isAir();
+    return !type.isAir() && knownItems.test(type);
   }
 
   @Override

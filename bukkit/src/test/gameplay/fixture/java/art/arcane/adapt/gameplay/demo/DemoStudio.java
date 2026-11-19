@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.gameplay.FixtureVersion;
 import art.arcane.adapt.gameplay.GolemancyDemoFixtures;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,13 +12,11 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
-import org.bukkit.GameRules;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -67,13 +66,7 @@ public final class DemoStudio {
         if (target == null) {
             return "ADAPT_QA DEMO WORLD PENDING " + name;
         }
-        target.setGameRule(GameRules.ADVANCE_TIME, false);
-        target.setGameRule(GameRules.ADVANCE_WEATHER, false);
-        target.setGameRule(GameRules.SPAWN_MOBS, false);
-        target.setGameRule(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER, 0);
-        target.setGameRule(GameRules.KEEP_INVENTORY, true);
-        target.setGameRule(GameRules.FALL_DAMAGE, false);
-        target.setGameRule(GameRules.SEND_COMMAND_FEEDBACK, false);
+        FixtureVersion.freezeDemoWorld(target);
         target.setDifficulty(Difficulty.NORMAL);
         if (target.getEnvironment() == World.Environment.NORMAL) {
             target.setTime(6000);
@@ -144,7 +137,7 @@ public final class DemoStudio {
         }
         player.setFoodLevel(20);
         player.setSaturation(20f);
-        player.setHealth(Objects.requireNonNull(player.getAttribute(Attribute.MAX_HEALTH)).getValue());
+        player.setHealth(Objects.requireNonNull(player.getAttribute(FixtureVersion.MAX_HEALTH)).getValue());
         player.setFallDistance(0f);
         hideNameTag(player);
         player.teleport(absolute(opponent ? current.opponentStart() : current.actorStart()));
@@ -275,9 +268,7 @@ public final class DemoStudio {
     }
 
     private void resetGameRules() {
-        world.setGameRule(GameRules.FALL_DAMAGE, false);
-        world.setGameRule(GameRules.RANDOM_TICK_SPEED, RANDOM_TICK_SPEED);
-        world.setGameRule(GameRules.MOB_GRIEFING, true);
+        FixtureVersion.resetPlateRules(world, RANDOM_TICK_SPEED);
     }
 
     private BoundingBox plateBox() {

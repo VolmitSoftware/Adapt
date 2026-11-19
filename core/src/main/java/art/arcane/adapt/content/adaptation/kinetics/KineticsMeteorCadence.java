@@ -8,6 +8,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.RegistryKind;
@@ -43,6 +44,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
 
   public KineticsMeteorCadence() {
     super("kinetics-meteor-cadence");
+    needs(PlatformNeed.item("mace"), PlatformNeed.nativeAttribute(Attributes.GRAVITY));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("anvil"));
     setInterval(9999);

@@ -171,6 +171,11 @@ public class ModLivingRef extends ModEntityRef implements LivingRef {
     }
 
     @Override
+    public void setRemainingAir(int ticks) {
+        living().setAirSupply(ticks);
+    }
+
+    @Override
     public int maximumAir() {
         return living().getMaxAirSupply();
     }

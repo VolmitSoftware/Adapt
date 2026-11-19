@@ -7,6 +7,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -22,6 +23,7 @@ public class KineticsMountedShock extends SimpleAdaptation<KineticsMountedShock.
 
   public KineticsMountedShock() {
     super("kinetics-mounted-shock");
+    needs(PlatformNeed.item("iron_spear"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("saddle"));
     setInterval(9999);

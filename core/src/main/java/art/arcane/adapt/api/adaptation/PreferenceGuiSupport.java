@@ -168,7 +168,7 @@ final class PreferenceGuiSupport {
     List<PlayerPreference.Choice<E>> allowed = PlayerPreferences.allowedChoices(adaptation, preference, level);
     boolean serverControlled = !policy.playerEditable || policy.allowedValues.size() == 1;
     GuiElement element = GuiTheme.element("preference-" + preference.id(), serverControlled || allowed.isEmpty()
-            ? GRAY_PANE : selected.icon(),
+            ? GRAY_PANE : selected.shownIcon(),
             "gui", "preferences", "adaptation", adaptation.getName(), preference.id(),
             serverControlled || allowed.isEmpty() ? "locked" : value.name().toLowerCase(Locale.ROOT))
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), preference.label()))

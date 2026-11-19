@@ -25,14 +25,13 @@ import art.arcane.adapt.platform.event.player.PlayerToggleSprintEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Loc;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -41,16 +40,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.EndGatewayBlock;
-import net.minecraft.world.level.block.EndPortalBlock;
-import net.minecraft.world.level.block.NetherPortalBlock;
-import net.minecraft.world.level.block.Portal;
 import net.minecraft.world.level.block.RespawnAnchorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.TeleportTransition;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.Set;
 import java.util.function.Supplier;
 
 /** Player lifecycle, movement, input toggles and the player's own item, food and experience changes. */
@@ -80,14 +72,14 @@ public final class PlayerHooks {
 
     /** After vanilla built the respawned player. A changed respawn location teleports it before the client sees a tick. */
     public static void respawned(ServerPlayer old, ServerPlayer player) {
-        ServerLevel oldLevel = old.level();
+        ServerLevel oldLevel = HookCompat.level(old);
         if (ModEvents.listening(PlayerRespawnEvent.class)) {
             boolean bed = false;
             boolean anchor = false;
-            ServerPlayer.RespawnConfig config = player.getRespawnConfig();
-            if (config != null) {
-                ServerLevel respawnLevel = player.level().getServer().getLevel(config.respawnData().dimension());
-                BlockPos respawnPos = config.respawnData().pos();
+            ResourceKey<Level> respawnDimension = HookCompat.respawnDimension(player);
+            if (respawnDimension != null) {
+                ServerLevel respawnLevel = HookCompat.level(player).getServer().getLevel(respawnDimension);
+                BlockPos respawnPos = HookCompat.respawnPosition(player);
                 if (respawnLevel == player.level() && respawnPos.closerToCenterThan(player.position(), 3.0D)) {
                     BlockState state = respawnLevel.getBlockState(respawnPos);
                     bed = state.getBlock() instanceof BedBlock;
@@ -100,8 +92,7 @@ public final class PlayerHooks {
             if (!chosen.equals(spawn)) {
                 ServerLevel level = ModRefs.world(chosen.world());
                 if (level != null) {
-                    silently(() -> player.teleport(new TeleportTransition(level, new Vec3(chosen.x(), chosen.y(), chosen.z()), Vec3.ZERO,
-                        chosen.yaw(), chosen.pitch(), TeleportTransition.DO_NOTHING)));
+                    silently(() -> HookCompat.teleport(player, level, chosen));
                 }
             }
         }
@@ -130,21 +121,7 @@ public final class PlayerHooks {
         TELEPORT_CAUSES.pop();
     }
 
-    /** The cause for a portal the entity is about to pass through. */
-    public static TeleportCause portalCause(Portal portal) {
-        if (portal instanceof NetherPortalBlock) {
-            return TeleportCause.NETHER_PORTAL;
-        }
-        if (portal instanceof EndGatewayBlock) {
-            return TeleportCause.END_GATEWAY;
-        }
-        if (portal instanceof EndPortalBlock) {
-            return TeleportCause.END_PORTAL;
-        }
-        return null;
-    }
-
-    private static <T> T silently(Supplier<T> action) {
+    static <T> T silently(Supplier<T> action) {
         silentTeleports++;
         try {
             return action.get();
@@ -153,35 +130,23 @@ public final class PlayerHooks {
         }
     }
 
-    /** Returns the transition to use, or null when a handler cancelled the teleport. */
-    public static TeleportTransition teleporting(ServerPlayer player, TeleportTransition transition) {
-        if (silentTeleports > 0 || player.isRemoved() || !ModEvents.listening(PlayerTeleportEvent.class)) {
-            return transition;
-        }
-        ServerLevel to = transition.newLevel();
-        Set<Relative> relatives = transition.relatives();
-        Vec3 position = transition.position();
-        double x = relatives.contains(Relative.X) ? player.getX() + position.x : position.x;
-        double y = relatives.contains(Relative.Y) ? player.getY() + position.y : position.y;
-        double z = relatives.contains(Relative.Z) ? player.getZ() + position.z : position.z;
-        float yaw = relatives.contains(Relative.Y_ROT) ? player.getYRot() + transition.yRot() : transition.yRot();
-        float pitch = relatives.contains(Relative.X_ROT) ? player.getXRot() + transition.xRot() : transition.xRot();
-        Loc target = ModRefs.loc(to, new Vec3(x, y, z), yaw, pitch);
+    /** True when a teleport of this player posts an event: no silent teleport runs, the player is in a world and a handler listens. */
+    public static boolean teleportWatched(ServerPlayer player) {
+        return silentTeleports == 0 && !player.isRemoved() && ModEvents.listening(PlayerTeleportEvent.class);
+    }
+
+    /**
+     * Posts a teleport of a watched player to a target in a level. Returns the target itself when handlers left it,
+     * the location they chose otherwise, or null when they cancelled.
+     */
+    public static Loc teleporting(ServerPlayer player, ServerLevel to, Loc target) {
         PlayerTeleportEvent event = ModEvents.post(new PlayerTeleportEvent(ModRefs.player(player), ModEvents.loc(player), target,
-            cause(player.level(), to)));
+            cause(HookCompat.level(player), to)));
         if (event.isCancelled()) {
             return null;
         }
         Loc chosen = event.to();
-        if (chosen.equals(target)) {
-            return transition;
-        }
-        ServerLevel level = ModRefs.world(chosen.world());
-        if (level == null) {
-            return transition;
-        }
-        return new TeleportTransition(level, new Vec3(chosen.x(), chosen.y(), chosen.z()), transition.deltaMovement(), chosen.yaw(),
-            chosen.pitch(), transition.missingRespawnBlock(), transition.asPassenger(), Set.of(), transition.postTeleportTransition());
+        return chosen.equals(target) ? target : chosen;
     }
 
     /** Same-level position teleports (chorus fruit). True when vanilla must not move the player. */
@@ -204,8 +169,7 @@ public final class PlayerHooks {
         if (level == null) {
             return true;
         }
-        silently(() -> player.teleport(new TeleportTransition(level, new Vec3(chosen.x(), chosen.y(), chosen.z()), Vec3.ZERO, chosen.yaw(),
-            chosen.pitch(), TeleportTransition.DO_NOTHING)));
+        silently(() -> HookCompat.teleport(player, level, chosen));
         return true;
     }
 
@@ -305,8 +269,7 @@ public final class PlayerHooks {
         if (level == null || level == player.level()) {
             connection.teleport(chosen.x(), chosen.y(), chosen.z(), chosen.yaw(), chosen.pitch());
         } else {
-            silently(() -> player.teleport(new TeleportTransition(level, new Vec3(chosen.x(), chosen.y(), chosen.z()), Vec3.ZERO,
-                chosen.yaw(), chosen.pitch(), TeleportTransition.DO_NOTHING)));
+            silently(() -> HookCompat.teleport(player, level, chosen));
         }
         return true;
     }
@@ -388,11 +351,11 @@ public final class PlayerHooks {
         if (!ModEvents.listening(PlayerItemHeldEvent.class)) {
             return false;
         }
-        int current = player.getInventory().getSelectedSlot();
+        int current = HookCompat.selectedSlot(player);
         if (!ModEvents.post(new PlayerItemHeldEvent(ModRefs.player(player), current, slot)).isCancelled()) {
             return false;
         }
-        player.connection.send(new ClientboundSetHeldSlotPacket(current));
+        player.connection.send(HookCompat.selectedSlotPacket(current));
         return true;
     }
 
@@ -549,7 +512,7 @@ public final class PlayerHooks {
         if (!(owner instanceof ServerPlayer player) || !ModEvents.listening(PlayerFishEvent.class)) {
             return false;
         }
-        int experience = hook.getRandom().nextInt(6) + 1;
+        int experience = HookCompat.random(hook).nextInt(6) + 1;
         PlayerFishEvent event = ModEvents.post(new PlayerFishEvent(ModRefs.player(player), ModRefs.entity(caught), ModRefs.entity(hook),
             PlayerFishEvent.State.CAUGHT_FISH, experience));
         if (event.isCancelled()) {

@@ -1,6 +1,7 @@
 package art.arcane.adapt.mod.mixin;
 
 import art.arcane.adapt.mod.event.EntityHooks;
+import art.arcane.adapt.mod.event.HookCompat;
 import art.arcane.adapt.mod.event.InventoryHooks;
 import art.arcane.adapt.mod.event.OwnedBy;
 import art.arcane.adapt.mod.event.PlayerHooks;
@@ -32,7 +33,7 @@ public abstract class ServerPlayerEvents {
     private void adapt$teleporting(TeleportTransition transition, CallbackInfoReturnable<ServerPlayer> callback,
                                    @Local(argsOnly = true) LocalRef<TeleportTransition> target) {
         ServerPlayer self = (ServerPlayer) (Object) this;
-        TeleportTransition result = PlayerHooks.teleporting(self, transition);
+        TeleportTransition result = HookCompat.teleporting(self, transition);
         if (result == null) {
             callback.setReturnValue(null);
             return;

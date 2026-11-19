@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.ViewerDisplayPort;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChalkWandItem;
 import art.arcane.adapt.content.item.ChalkWandItem.Plan;
@@ -41,6 +42,7 @@ import art.arcane.adapt.content.item.ChalkWandItem.Tool;
 import art.arcane.adapt.content.item.ChalkWandItem.WandData;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -110,6 +112,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   public ArchitectChalkLine() {
     super("architect-chalk-line");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "chalk wands stack like sticks"));
     registerConfiguration(ArchitectChalkLine.Config.class);
     setMaxLevel(CHALK_LEVELS);
     setIcon(Id.minecraft("string"));

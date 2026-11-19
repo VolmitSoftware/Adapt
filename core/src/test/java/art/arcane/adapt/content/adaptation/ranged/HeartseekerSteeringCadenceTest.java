@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -34,6 +35,7 @@ class HeartseekerSteeringCadenceTest {
   @TempDir
   Path dataDirectory;
 
+  private final AtomicLong clock = new AtomicLong(1_000_000_000L);
   private AdaptCore previousCore;
   private PlatformLog previousLog;
   private TestPlatform platform;
@@ -56,7 +58,7 @@ class HeartseekerSteeringCadenceTest {
   @Test
   void dispatchedArrowKeepsSteeringOnItsOwnSchedulerEveryTickOnRegionizedServers() throws ReflectiveOperationException {
     platform.scheduler().regionized(true);
-    RangedHeartseeker adaptation = new RangedHeartseeker();
+    RangedHeartseeker adaptation = new RangedHeartseeker(clock::get);
     FakeWorld world = platform.world();
     FakePlayer owner = platform.player("Archer", 0.5D, 64D, 0.5D);
     FakeProjectile arrow = new FakeProjectile(Id.minecraft("arrow"), new Loc(world, 1D, 65.5D, 0.5D));
@@ -66,7 +68,7 @@ class HeartseekerSteeringCadenceTest {
     FakeLiving cow = new FakeLiving(Id.minecraft("cow"), new Loc(world, 40D, 64D, 0.5D));
     adaptation.getConfig().ignorePassiveMobs = false;
 
-    admit(adaptation, owner, arrow, cow, world);
+    admit(adaptation, owner, arrow, cow, world, clock.get());
     invoke(adaptation, "dispatchActiveArrows");
     ManualScheduler scheduler = platform.scheduler();
     scheduler.advance(3);
@@ -78,7 +80,7 @@ class HeartseekerSteeringCadenceTest {
 
   @Test
   void singleThreadedServersFreeTheSlotAfterEachInlineStepAsBeforeThePort() throws ReflectiveOperationException {
-    RangedHeartseeker adaptation = new RangedHeartseeker();
+    RangedHeartseeker adaptation = new RangedHeartseeker(clock::get);
     FakeWorld world = platform.world();
     FakePlayer owner = platform.player("Archer", 0.5D, 64D, 0.5D);
     FakeProjectile arrow = new FakeProjectile(Id.minecraft("arrow"), new Loc(world, 1D, 65.5D, 0.5D));
@@ -88,7 +90,7 @@ class HeartseekerSteeringCadenceTest {
     FakeLiving cow = new FakeLiving(Id.minecraft("cow"), new Loc(world, 40D, 64D, 0.5D));
     adaptation.getConfig().ignorePassiveMobs = false;
 
-    admit(adaptation, owner, arrow, cow, world);
+    admit(adaptation, owner, arrow, cow, world, clock.get());
     invoke(adaptation, "dispatchActiveArrows");
 
     assertThat(platform.scheduler().entityTaskDelays(arrow)).doesNotContain(1L);
@@ -107,7 +109,7 @@ class HeartseekerSteeringCadenceTest {
 
   private Vec3 steeredVelocity(boolean regionized) throws ReflectiveOperationException {
     platform.scheduler().regionized(regionized);
-    RangedHeartseeker adaptation = new RangedHeartseeker();
+    RangedHeartseeker adaptation = new RangedHeartseeker(clock::get);
     FakeWorld world = platform.world();
     FakePlayer owner = platform.player(regionized ? "RegionArcher" : "Archer", 0.5D, 64D, 0.5D);
     FakeProjectile arrow = new FakeProjectile(Id.minecraft("arrow"), new Loc(world, 1D, 65.5D, 0.5D));
@@ -117,7 +119,7 @@ class HeartseekerSteeringCadenceTest {
     FakeLiving cow = new FakeLiving(Id.minecraft("cow"), new Loc(world, 1D, 64D, 30D));
     adaptation.getConfig().ignorePassiveMobs = false;
 
-    admit(adaptation, owner, arrow, cow, world);
+    admit(adaptation, owner, arrow, cow, world, clock.get());
     invoke(adaptation, "dispatchActiveArrows");
     return arrow.velocity();
   }
@@ -143,13 +145,13 @@ class HeartseekerSteeringCadenceTest {
   }
 
   private static void admit(RangedHeartseeker adaptation, PlayerRef owner, FakeProjectile arrow, LivingRef target,
-                            FakeWorld world) throws ReflectiveOperationException {
+                            FakeWorld world, long capturedNanos) throws ReflectiveOperationException {
     Class<?> snapshotType = nested("TargetSnapshot");
     Constructor<?> snapshotConstructor = snapshotType.getDeclaredConstructors()[0];
     snapshotConstructor.setAccessible(true);
     Loc aim = target.location().add(0D, 0.7D, 0D);
     Object snapshot = snapshotConstructor.newInstance(target, target.uuid(), world.uid(), target.location(), aim,
-        false, false, false, false, System.nanoTime());
+        false, false, false, false, capturedNanos);
 
     Field lifecycleField = RangedHeartseeker.class.getDeclaredField("lifecycle");
     lifecycleField.setAccessible(true);

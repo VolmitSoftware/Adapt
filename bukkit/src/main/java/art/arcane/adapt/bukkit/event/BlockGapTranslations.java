@@ -11,7 +11,6 @@ import art.arcane.adapt.platform.event.block.BlockFromToEvent;
 import art.arcane.adapt.platform.event.block.BlockGrowEvent;
 import art.arcane.adapt.platform.event.block.BlockPistonEvent;
 import art.arcane.adapt.platform.event.block.BlockReceiveGameEvent;
-import art.arcane.adapt.platform.event.block.CrafterCraftEvent;
 import art.arcane.adapt.platform.event.block.FurnaceSmeltEvent;
 import art.arcane.adapt.platform.event.block.StructureGrowEvent;
 import art.arcane.adapt.platform.event.entity.EntityChangeBlockEvent;
@@ -45,7 +44,7 @@ final class BlockGapTranslations {
 
   static List<Translation<?>> all() {
     return List.of(PISTON_EXTEND, PISTON_RETRACT, CHANGE_BLOCK, FADE, GROW, FORM, BURN, FROM_TO, FERTILIZE, STRUCTURE_GROW,
-        RECEIVE_GAME_EVENT, DISPENSE, COOK, CRAFTER_CRAFT, BREW, HARVEST);
+        RECEIVE_GAME_EVENT, DISPENSE, COOK, BREW, HARVEST);
   }
 
   static final Translation<org.bukkit.event.block.BlockPistonExtendEvent> PISTON_EXTEND = BukkitTranslations.simple(
@@ -190,16 +189,6 @@ final class BlockGapTranslations {
       }
     }
   };
-
-  static final Translation<org.bukkit.event.block.CrafterCraftEvent> CRAFTER_CRAFT = BukkitTranslations.simple(
-      org.bukkit.event.block.CrafterCraftEvent.class, CrafterCraftEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        CrafterCraftEvent core = new CrafterCraftEvent(block(event.getBlock()), BukkitRefs.id(event.getRecipe().getKey()),
-            GapEventMaps.itemOrEmpty(event.getResult()));
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
-      });
 
   static final Translation<org.bukkit.event.inventory.BrewEvent> BREW = BukkitTranslations.simple(
       org.bukkit.event.inventory.BrewEvent.class, BrewEvent.class, (event, poster) -> {

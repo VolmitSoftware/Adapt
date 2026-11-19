@@ -168,7 +168,7 @@ public final class BukkitViewerHost implements ViewerHost {
     if (handle == null) {
       return List.of();
     }
-    Collection<Player> seeing = handle.getPlayersSeeingChunk(chunkX, chunkZ);
+    Collection<Player> seeing = BukkitChunkViewers.seeing(handle, chunkX, chunkZ);
     List<PlayerRef> players = new ArrayList<>(seeing.size());
     for (Player player : seeing) {
       players.add(BukkitRefs.player(player));

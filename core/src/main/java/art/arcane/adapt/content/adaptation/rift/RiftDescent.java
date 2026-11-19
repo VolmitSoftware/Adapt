@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -64,6 +65,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
   public RiftDescent() {
     super("rift-descent");
+    needs(PlatformNeed.attribute(Attributes.FALL_DAMAGE_MULTIPLIER));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("shulker_box"));
     setInterval(9544);

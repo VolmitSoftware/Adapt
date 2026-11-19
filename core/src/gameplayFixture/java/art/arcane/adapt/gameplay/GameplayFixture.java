@@ -150,7 +150,13 @@ public final class GameplayFixture {
                     relocate(admin, site).whenComplete((Void ignored, Throwable failure) -> Tasks.runEntity(admin, () -> stageOnSite(sender, args[1], failure)));
                 }
             } else if (args.length == 3 && args[0].equals("snapshot")) {
-                sendJson(sender, "SNAPSHOT " + args[2], snapshot(args[1]));
+                PlayerRef subject = ordinaryPlayer(args[1]);
+                if (Tasks.isOwnedByCurrentRegion(subject)) {
+                    sendJson(sender, "SNAPSHOT " + args[2], snapshot(args[1]));
+                } else {
+                    // On Folia the operator can stand in another region (Iris moves it into its new world).
+                    Tasks.runEntity(subject, () -> snapshotOwned(sender, admin, args[1], args[2]));
+                }
             } else if (args.length == 2 && args[0].equals("catalog")) {
                 sendJson(sender, "CATALOG " + args[1], catalog());
             } else if (args.length == 3 && (args[0].equals("learn") || args[0].equals("learn-add"))) {
@@ -236,6 +242,16 @@ public final class GameplayFixture {
             sender.send("ADAPT_QA ERROR " + failure.getMessage());
         }
         return true;
+    }
+
+    private void snapshotOwned(FixtureSender sender, PlayerRef admin, String name, String label) {
+        try {
+            JsonObject value = snapshot(name);
+            Tasks.runEntity(admin, () -> sendJson(sender, "SNAPSHOT " + label, value));
+        } catch (RuntimeException failure) {
+            Fixtures.host().log().error("Adapt gameplay fixture command failed", failure);
+            Tasks.runEntity(admin, () -> sender.send("ADAPT_QA ERROR " + failure.getMessage()));
+        }
     }
 
     public static void sendJson(FixtureSender sender, String response, JsonObject value) {
@@ -686,6 +702,7 @@ public final class GameplayFixture {
         result.addProperty("sneaking", player.isSneaking());
         result.addProperty("effectsEnabled", adaptPlayer.getData().isEffectsEnabled());
         result.addProperty("health", player.health());
+        result.addProperty("absorption", player.absorption());
         result.addProperty("processId", ProcessHandle.current().pid());
         result.addProperty("food", player.foodLevel());
         result.add("ranged", RangedFixtures.snapshot(player));
@@ -746,6 +763,12 @@ public final class GameplayFixture {
         velocity.addProperty("y", currentVelocity.y());
         velocity.addProperty("z", currentVelocity.z());
         result.add("velocity", velocity);
+        Vec3 currentMovement = player.movement();
+        JsonObject movement = new JsonObject();
+        movement.addProperty("x", currentMovement.x());
+        movement.addProperty("y", currentMovement.y());
+        movement.addProperty("z", currentMovement.z());
+        result.add("movement", movement);
         PlayerInput currentInput = AdaptPorts.get(PlayerInputPort.class, PlayerInputPort.NONE).currentInput(player);
         JsonObject input = new JsonObject();
         input.addProperty("forward", currentInput != null && currentInput.forward());

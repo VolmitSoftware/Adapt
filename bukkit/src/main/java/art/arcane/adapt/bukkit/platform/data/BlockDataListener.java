@@ -112,7 +112,7 @@ public final class BlockDataListener implements Listener {
     }
     for (int index = moves.size() - 1; index >= 0; index--) {
       Move move = moves.get(index);
-      BlockDataStore.edit(plugin, move.to(), target -> move.data().copyTo(target, true));
+      BlockDataStore.edit(plugin, move.to(), (PersistentDataContainer target) -> PdcDataHolder.copy(move.data(), target));
       BlockDataStore.clear(plugin, move.from());
     }
   }

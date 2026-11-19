@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.fx.ViewerDisplayPort;
+import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -377,7 +378,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return false;
     }
     int typeMax = items().maxDurability(hand.type());
-    if (!getConfig().costsReduceMaxDurability) {
+    if (!reducesMaxDurability()) {
       return (long) hand.damage() + durabilityCost < typeMax;
     }
 
@@ -394,11 +395,16 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   }
 
   private boolean applyPickaxeCost(PlayerRef p, ItemRef hand, int durabilityCost) {
-    if (getConfig().costsReduceMaxDurability) {
+    if (reducesMaxDurability()) {
       return tryReduceMaxDurability(p, hand, durabilityCost);
     }
 
     return tryDamagePickaxe(p, hand, durabilityCost);
+  }
+
+  /** Without per-stack max durability (before 1.20.5) the cost is taken as damage instead. */
+  private boolean reducesMaxDurability() {
+    return getConfig().costsReduceMaxDurability && ItemDurability.perStack();
   }
 
   private boolean tryDamagePickaxe(PlayerRef p, ItemRef hand, int durabilityCost) {

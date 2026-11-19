@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -61,6 +62,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
 
   public NetherSoulStrider() {
     super("nether-soul-strider");
+    needs(PlatformNeed.attribute(Attributes.MOVEMENT_EFFICIENCY));
     registerConfiguration(Config.class);
     setIcon(SOUL_SAND);
     setInterval(1000);

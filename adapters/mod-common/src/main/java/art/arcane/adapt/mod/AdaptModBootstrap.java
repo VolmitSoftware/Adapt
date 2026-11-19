@@ -26,6 +26,7 @@ import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.mod.command.ModCommandHelpPort;
 import art.arcane.adapt.mod.command.ModCommandSource;
+import art.arcane.adapt.mod.event.HookCompat;
 import art.arcane.adapt.mod.event.world.WorldHooks;
 import art.arcane.adapt.mod.feature.ModFeatures;
 import art.arcane.adapt.mod.feature.protection.ModProtectionProbePort;
@@ -52,7 +53,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -241,7 +241,7 @@ public final class AdaptModBootstrap {
     }
 
     public String versionLine() {
-        return AdaptModIdentity.NAME + " " + AdaptModIdentity.VERSION + " [" + loader.displayName() + " " + loaderVersion + "] Minecraft " + minecraftVersion();
+        return AdaptModIdentity.NAME + " " + AdaptModIdentity.VERSION + " [" + loader.displayName() + " " + loaderVersion + "] Minecraft " + HookCompat.minecraftVersion();
     }
 
     private PlatformFamily family() {
@@ -250,9 +250,5 @@ public final class AdaptModBootstrap {
             case FORGE -> PlatformFamily.FORGE;
             case NEOFORGE -> PlatformFamily.NEOFORGE;
         };
-    }
-
-    private static String minecraftVersion() {
-        return SharedConstants.getCurrentVersion().name();
     }
 }

@@ -36,8 +36,10 @@ import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -69,6 +71,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
 
   public GolemMasterwork() {
     super("golem-masterwork");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_STACK_LIMITS, "golem items stack up to their base item's limit"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.masterwork");
     setIcon(Id.minecraft("heart_of_the_sea"));

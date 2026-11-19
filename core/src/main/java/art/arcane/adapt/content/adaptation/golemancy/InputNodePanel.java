@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.gui.NodePanelContext;
 import art.arcane.adapt.api.golem.gui.NodePanelControl;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -61,7 +62,7 @@ final class InputNodePanel implements NodePanel {
 
   private NodePanelControl fetch(NodePanelContext context, GolemSorterCore.Config config, int level) {
     String name = C.GREEN + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH);
-    ItemRef icon = icons.apply(Id.minecraft("bundle"));
+    ItemRef icon = icons.apply(PlatformSupport.itemOr(Id.minecraft("bundle"), Id.minecraft("hopper")));
     if (!GolemancyRules.unlocked(level, config.fetchLevel)) {
       return new NodePanelControl("sorter-fetch", icon, name, List.of(locked(config.fetchLevel)), null, null, null);
     }

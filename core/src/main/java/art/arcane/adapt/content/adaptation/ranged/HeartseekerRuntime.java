@@ -426,11 +426,12 @@ final class HeartseekerChainRules {
   }
 
   /**
-   * True when a continuation arrow that is seeking another mob strikes the mob it just passed through: the arrow flies
-   * on through it instead of hitting it a second time.
+   * True when a continuation arrow locked onto another mob strikes the mob it just passed through: the arrow flies on
+   * through it. With no other mob locked the arrow loops back and hits the same mob again.
    */
   static boolean passesThroughPreviousVictim(UUID previousVictimId, UUID currentTargetId, UUID hitId) {
-    return previousVictimId != null && previousVictimId.equals(hitId) && !previousVictimId.equals(currentTargetId);
+    return previousVictimId != null && currentTargetId != null && previousVictimId.equals(hitId)
+        && !previousVictimId.equals(currentTargetId);
   }
 }
 

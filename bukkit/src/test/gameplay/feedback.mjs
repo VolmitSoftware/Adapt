@@ -100,7 +100,8 @@ export function createParticlePacketDecoder(registry, version = registry.version
     }
     if (name === 'dust') {
       if (payloadLength !== 8) throw new Error('Invalid 26.1 dust payload length')
-      const rgb = buffer.readUInt32BE(particleId.end)
+      // ViaProxy converts the float colour of pre-1.21.2 servers with an opaque alpha byte; 26.x servers send plain RGB.
+      const rgb = buffer.readUInt32BE(particleId.end) & 0xffffff
       const scale = buffer.readFloatBE(particleId.end + 4)
       if (!Number.isFinite(scale) || scale <= 0) throw new Error('Invalid dust scale')
       result.dust = { rgb, red: (rgb >>> 16) & 255, green: (rgb >>> 8) & 255, blue: rgb & 255, scale }

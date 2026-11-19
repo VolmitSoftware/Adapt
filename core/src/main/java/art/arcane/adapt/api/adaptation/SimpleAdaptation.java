@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
@@ -98,6 +99,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private volatile List<AdaptationRequirement> requirements = List.of();
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  private final List<PlatformNeed> platformNeeds = new ArrayList<>();
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private long cachedDemandRevision = Long.MIN_VALUE;
@@ -483,6 +487,16 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
     getConfig();
     return requirements;
+  }
+
+  @Override
+  public List<PlatformNeed> getPlatformNeeds() {
+    return Collections.unmodifiableList(platformNeeds);
+  }
+
+  /** Declares what the adaptation needs from the Minecraft version; call from the constructor. */
+  protected void needs(PlatformNeed... needs) {
+    platformNeeds.addAll(List.of(needs));
   }
 
   @Override

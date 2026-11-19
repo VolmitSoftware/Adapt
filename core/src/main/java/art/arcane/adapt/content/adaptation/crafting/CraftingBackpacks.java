@@ -31,12 +31,14 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.BackpackItem;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -116,6 +118,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
   public CraftingBackpacks() {
     super("crafting-backpacks");
+    needs(PlatformNeed.feature(EngineFeature.BUNDLES));
     registerConfiguration(Config.class);
     setIcon(BUNDLE);
     setInterval(17779);

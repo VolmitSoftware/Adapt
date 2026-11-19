@@ -1,6 +1,7 @@
 package art.arcane.adapt.mod.mixin;
 
 import art.arcane.adapt.mod.event.CombatHooks;
+import art.arcane.adapt.mod.event.HookCompat;
 import art.arcane.adapt.mod.event.PlayerHooks;
 import art.arcane.adapt.platform.entity.TeleportCause;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +36,7 @@ public abstract class EntityEvents {
         target = "Lnet/minecraft/world/entity/PortalProcessor;getPortalDestination(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/level/portal/TeleportTransition;"))
     private void adapt$portalStarting(CallbackInfo callback) {
         PortalProcessor process = portalProcess;
-        PlayerHooks.teleportCause(process == null ? null : PlayerHooks.portalCause(((PortalProcessorAccess) process).adapt$portal()));
+        PlayerHooks.teleportCause(process == null ? null : HookCompat.portalCause(((PortalProcessorAccess) process).adapt$portal()));
     }
 
     @Inject(method = "handlePortal", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V"))

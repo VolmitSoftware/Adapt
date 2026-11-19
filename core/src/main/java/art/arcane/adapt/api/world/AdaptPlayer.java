@@ -65,6 +65,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -92,6 +94,8 @@ public class AdaptPlayer extends TickedObject {
   private final AtomicBoolean saveScheduled = new AtomicBoolean();
   private final AtomicLong requestedSaveRevision = new AtomicLong();
   private final AtomicLong persistenceSequence = new AtomicLong();
+  private final AtomicReference<CompletableFuture<Void>> pendingCheckpoint = new AtomicReference<>();
+  private final AtomicLong checkpointWrites = new AtomicLong();
   private volatile FxPosition fxPosition;
   private Notifier not;
   private Notifier actionBarNotifier;
@@ -651,33 +655,50 @@ public class AdaptPlayer extends TickedObject {
     }
 
     PlayerDataPersistenceQueue queue = AdaptCore.get().getPlayerDataPersistenceQueue();
-    if (AdaptConfig.get().getSql().isEnabled()) {
-      FencedPlayerSnapshot snapshot = capturePersistenceSnapshot(false);
-      if (snapshot == null) {
-        AdaptLog.warn("Skipping unfenced SQL player data save for " + uuid);
+    synchronized (this) {
+      CompletableFuture<Void> checkpoint = pendingCheckpoint.get();
+      boolean carriesCheckpoint = queue != null && checkpoint != null && !checkpoint.isDone();
+      if (AdaptConfig.get().getSql().isEnabled()) {
+        FencedPlayerSnapshot snapshot = capturePersistenceSnapshot(false);
+        if (snapshot == null) {
+          AdaptLog.warn("Skipping unfenced SQL player data save for " + uuid);
+          return;
+        }
+        if (queue == null) {
+          AdaptLog.warn("Skipping SQL player data save for " + uuid
+              + " because the persistence queue is unavailable");
+          return;
+        }
+        if (carriesCheckpoint) {
+          writeCheckpoint(checkpoint, () -> queue.checkpoint(snapshot, playerDataFile, purgeGeneration));
+          return;
+        }
+        queue.queueSave(snapshot, playerDataFile, purgeGeneration);
         return;
       }
-      if (queue == null) {
-        AdaptLog.warn("Skipping SQL player data save for " + uuid
-            + " because the persistence queue is unavailable");
-        return;
-      }
-      queue.queueSave(snapshot, playerDataFile, purgeGeneration);
-      return;
-    }
 
-    String json = data.toJson(false);
-    if (queue != null) {
-      queue.queueSave(uuid, json, playerDataFile, purgeGeneration);
-      return;
+      String json = data.toJson(false);
+      if (carriesCheckpoint) {
+        writeCheckpoint(checkpoint, () -> queue.checkpoint(uuid, json, playerDataFile, purgeGeneration));
+        return;
+      }
+      if (queue != null) {
+        queue.queueSave(uuid, json, playerDataFile, purgeGeneration);
+        return;
+      }
+      Tasks.attempt(() -> IO.writeAll(playerDataFile, json));
     }
-    Tasks.attempt(() -> IO.writeAll(playerDataFile, json));
   }
 
   public void saveNow() {
     save();
   }
 
+  /**
+   * Persists the current data and completes once a snapshot holding it is stored. A later save of this player
+   * replaces the queued snapshot with a newer one of the same data, so it acknowledges the checkpoint instead of
+   * failing it; only a write this player did not make (or a refused one) fails it.
+   */
   public synchronized CompletableFuture<Void> checkpoint() {
     UUID owner = player.uuid();
     PlayerDataPersistenceQueue queue = AdaptCore.get().getPlayerDataPersistenceQueue();
@@ -685,14 +706,36 @@ public class AdaptPlayer extends TickedObject {
         || pendingDataDeletion || !PlayerDataPurgeGuard.allowsSave(owner, purgeGeneration)) {
       return CompletableFuture.failedFuture(new IllegalStateException("Player data checkpoint is unavailable for " + owner));
     }
+    CompletableFuture<Void> pending = pendingCheckpoint.get();
+    CompletableFuture<Void> acknowledged = pending != null && !pending.isDone() ? pending : new CompletableFuture<>();
+    File file = getPlayerDataFile(owner);
     if (!AdaptConfig.get().getSql().isEnabled()) {
-      return queue.checkpoint(owner, data.toJson(false), getPlayerDataFile(owner), purgeGeneration);
+      String json = data.toJson(false);
+      pendingCheckpoint.set(acknowledged);
+      writeCheckpoint(acknowledged, () -> queue.checkpoint(owner, json, file, purgeGeneration));
+      return acknowledged;
     }
     FencedPlayerSnapshot snapshot = captureFencedSnapshot();
     if (snapshot == null) {
       return CompletableFuture.failedFuture(new IllegalStateException("Player data ownership is unavailable for " + owner));
     }
-    return queue.checkpoint(snapshot, getPlayerDataFile(owner), purgeGeneration);
+    pendingCheckpoint.set(acknowledged);
+    writeCheckpoint(acknowledged, () -> queue.checkpoint(snapshot, file, purgeGeneration));
+    return acknowledged;
+  }
+
+  private synchronized void writeCheckpoint(CompletableFuture<Void> acknowledged, Supplier<CompletableFuture<Void>> write) {
+    long generation = checkpointWrites.incrementAndGet();
+    write.get().whenComplete((ignored, failure) -> {
+      if (failure == null) {
+        acknowledged.complete(null);
+      } else if (checkpointWrites.get() == generation) {
+        acknowledged.completeExceptionally(failure);
+      }
+      if (acknowledged.isDone()) {
+        pendingCheckpoint.compareAndSet(acknowledged, null);
+      }
+    });
   }
 
   public synchronized FencedPlayerSnapshot captureFencedSnapshot() {

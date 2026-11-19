@@ -20,16 +20,20 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
+import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Steerable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -88,34 +92,22 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
 
   @Override
   public void damage(double amount, Id damageType) {
-    org.bukkit.damage.DamageType type = damageType == null ? null
-        : org.bukkit.Registry.DAMAGE_TYPE.get(BukkitRefs.key(damageType));
-    if (type == null) {
+    if (!BukkitLivingVersion.damage(living(), amount, damageType, null)) {
       living().damage(amount);
-    } else {
-      living().damage(amount, org.bukkit.damage.DamageSource.builder(type).build());
     }
   }
 
   @Override
   public void damage(double amount, Id damageType, EntityRef source) {
-    org.bukkit.damage.DamageType type = damageType == null ? null
-        : org.bukkit.Registry.DAMAGE_TYPE.get(BukkitRefs.key(damageType));
-    if (type == null) {
-      damage(amount, source);
-      return;
-    }
-    org.bukkit.damage.DamageSource.Builder builder = org.bukkit.damage.DamageSource.builder(type);
     Entity attacker = source == null ? null : BukkitRefs.entity(source);
-    if (attacker != null) {
-      builder.withCausingEntity(attacker).withDirectEntity(attacker);
+    if (!BukkitLivingVersion.damage(living(), amount, damageType, attacker)) {
+      damage(amount, source);
     }
-    living().damage(amount, builder.build());
   }
 
   @Override
   public void heal(double amount) {
-    living().heal(amount);
+    BukkitLivingVersion.heal(living(), amount);
   }
 
   @Override
@@ -151,6 +143,11 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
   @Override
   public int remainingAir() {
     return living().getRemainingAir();
+  }
+
+  @Override
+  public void setRemainingAir(int ticks) {
+    living().setRemainingAir(ticks);
   }
 
   @Override
@@ -236,8 +233,8 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
       return false;
     }
     NamespacedKey key = BukkitConversions.key(modifier.key());
-    instance.removeModifier(key);
-    instance.addModifier(new AttributeModifier(key, modifier.amount(), BukkitConversions.operation(modifier.operation())));
+    BukkitLivingVersion.removeModifier(instance, key);
+    instance.addModifier(BukkitLivingVersion.modifier(key, modifier.amount(), BukkitConversions.operation(modifier.operation())));
     return true;
   }
 
@@ -248,9 +245,9 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
       return false;
     }
     NamespacedKey key = BukkitConversions.key(modifier.key());
-    instance.removeModifier(key);
+    BukkitLivingVersion.removeModifier(instance, key);
     PaperCompat.addTransientModifier(instance,
-        new AttributeModifier(key, modifier.amount(), BukkitConversions.operation(modifier.operation())));
+        BukkitLivingVersion.modifier(key, modifier.amount(), BukkitConversions.operation(modifier.operation())));
     return true;
   }
 
@@ -258,7 +255,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
   public void removeModifier(Id attribute, Id modifierKey) {
     AttributeInstance instance = instance(attribute);
     if (instance != null) {
-      instance.removeModifier(BukkitConversions.key(modifierKey));
+      BukkitLivingVersion.removeModifier(instance, BukkitConversions.key(modifierKey));
     }
   }
 
@@ -268,7 +265,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     if (instance == null) {
       return null;
     }
-    AttributeModifier modifier = instance.getModifier(BukkitConversions.key(modifierKey));
+    AttributeModifier modifier = BukkitLivingVersion.modifier(instance, BukkitConversions.key(modifierKey));
     if (modifier == null) {
       return null;
     }
@@ -331,7 +328,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     try {
       return BukkitRefs.item(equipment.getItem(BukkitConversions.slot(slot)));
     } catch (IllegalArgumentException unsupported) {
-      return BukkitRefs.emptyItem();
+      return slot == EquipmentSlot.SADDLE ? BukkitRefs.item(saddleWithoutSlot()) : BukkitRefs.emptyItem();
     }
   }
 
@@ -344,8 +341,30 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     try {
       equipment.setItem(BukkitConversions.slot(slot), BukkitInventoryRef.stackOrNull(item));
     } catch (IllegalArgumentException unsupported) {
-      Adapt.verbose("Equipment slot " + slot + " unsupported on " + type());
+      if (slot != EquipmentSlot.SADDLE || !setSaddleWithoutSlot(BukkitInventoryRef.stackOrNull(item))) {
+        Adapt.verbose("Equipment slot " + slot + " unsupported on " + type());
+      }
     }
+  }
+
+  /** Servers before the saddle equipment slot (1.21.5) keep the saddle as Steerable state or in the horse inventory. */
+  private ItemStack saddleWithoutSlot() {
+    if (living() instanceof Steerable steerable) {
+      return steerable.hasSaddle() ? new ItemStack(Material.SADDLE) : null;
+    }
+    return living() instanceof AbstractHorse horse ? horse.getInventory().getSaddle() : null;
+  }
+
+  private boolean setSaddleWithoutSlot(ItemStack saddle) {
+    if (living() instanceof Steerable steerable) {
+      steerable.setSaddle(saddle != null && saddle.getType() == Material.SADDLE);
+      return true;
+    }
+    if (living() instanceof AbstractHorse horse) {
+      horse.getInventory().setSaddle(saddle);
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -356,7 +375,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     }
     List<AttributeMod> modifiers = new ArrayList<>();
     for (AttributeModifier modifier : instance.getModifiers()) {
-      modifiers.add(new AttributeMod(BukkitConversions.id(modifier.getKey()), modifier.getAmount(),
+      modifiers.add(new AttributeMod(BukkitLivingVersion.id(modifier), modifier.getAmount(),
           BukkitConversions.operation(modifier.getOperation())));
     }
     return modifiers;
@@ -477,8 +496,13 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
   }
 
   private AttributeInstance instance(Id attribute) {
-    Attribute resolved = BukkitResolve.attribute(attribute);
-    return resolved == null ? null : living().getAttribute(resolved);
+    return instance(living(), attribute);
+  }
+
+  /** The entity's instance of a 26.x attribute id, or null when the entity lacks it. */
+  public static AttributeInstance instance(LivingEntity living, Id attribute) {
+    Attribute resolved = BukkitLivingVersion.attribute(living, attribute);
+    return resolved == null ? null : living.getAttribute(resolved);
   }
 
   private static EffectInstance effect(PotionEffect effect) {

@@ -11,6 +11,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -47,6 +48,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
 
   public KineticsHeavyFrame() {
     super("kinetics-heavy-frame");
+    needs(PlatformNeed.item("mace"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("netherite_chestplate"));
     setInterval(RECONCILE_INTERVAL_MS);

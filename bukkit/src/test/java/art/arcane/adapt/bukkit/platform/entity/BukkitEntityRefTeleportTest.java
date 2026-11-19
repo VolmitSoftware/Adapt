@@ -1,10 +1,10 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitRefsReset;
 import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.value.Loc;
-import io.papermc.paper.entity.TeleportFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -91,8 +91,7 @@ class BukkitEntityRefTeleportTest {
     IronGolem golem = mock(IronGolem.class);
     when(golem.getUniqueId()).thenReturn(UUID.randomUUID());
     when(golem.getType()).thenReturn(EntityType.IRON_GOLEM);
-    lenient().when(golem.teleportAsync(any(Location.class), any(PlayerTeleportEvent.TeleportCause.class), any(TeleportFlag.class)))
-        .thenThrow(new NoSuchMethodError("teleport flags absent"));
+    TestVersion.withoutTeleportFlags(golem);
     return golem;
   }
 }

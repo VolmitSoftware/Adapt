@@ -4,6 +4,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.platform.GameVersion;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
@@ -36,6 +37,14 @@ public final class Fixtures {
     private static final Set<UUID> GENERATED = new HashSet<>();
     private static final Map<UUID, Loc> PENDING_TELEPORTS = new ConcurrentHashMap<>();
     private static final List<Object> LISTENERS = new ArrayList<>();
+    private static final GameVersion SNAKE_CASE_GAME_RULES = new GameVersion(1, 21, 11);
+    private static final GameVersion ITEM_COMPONENTS = new GameVersion(1, 20, 5);
+    private static final Map<String, String> LEGACY_GAME_RULES = Map.of(
+            "advance_weather", "doWeatherCycle",
+            "spawn_mobs", "doMobSpawning",
+            "natural_health_regeneration", "naturalRegeneration",
+            "random_tick_speed", "randomTickSpeed");
+    private static final Set<String> ZOMBIE_FAMILY = Set.of("zombie", "husk", "drowned", "zombie_villager", "zombified_piglin");
     private static FixturePlatform platform;
 
     private Fixtures() {
@@ -184,8 +193,25 @@ public final class Fixtures {
         return world.spawn(id(type), loc(world, x, y, z), entity -> { });
     }
 
+    /**
+     * Spawns an adult, unmounted mob. Natural spawn rolls make zombie-family mobs babies (some riding a chicken jockey)
+     * on every platform, which changed a staged target's size and position between runs.
+     */
     public static LivingRef spawnLiving(WorldRef world, String type, double x, double y, double z) {
-        return (LivingRef) spawn(world, type, x, y, z);
+        LivingRef living = (LivingRef) spawn(world, type, x, y, z);
+        EntityRef vehicle = living.vehicle();
+        if (vehicle != null) {
+            vehicle.eject();
+            vehicle.remove();
+        }
+        if (rollsBaby(type)) {
+            mergeNbt(living, "{IsBaby:0b}");
+        }
+        return living;
+    }
+
+    static boolean rollsBaby(String type) {
+        return ZOMBIE_FAMILY.contains(type.startsWith("minecraft:") ? type.substring("minecraft:".length()) : type);
     }
 
     public static LivingRef spawnStill(WorldRef world, String type, double x, double y, double z) {
@@ -203,7 +229,31 @@ public final class Fixtures {
     }
 
     public static void gameRule(WorldRef world, String rule, String value) {
-        commandIn(world, "gamerule " + rule + " " + value);
+        String command = gameRuleCommand(host().gameVersion(), rule, value);
+        if (command != null) {
+            commandIn(world, command);
+        }
+    }
+
+    /**
+     * The gamerule command for a 26.x rule name on {@code version}; game rules were camelCase before 1.21.11. Null when
+     * the version has no such rule and the server already behaves as asked (PvP is a server.properties setting there).
+     */
+    static String gameRuleCommand(GameVersion version, String rule, String value) {
+        if (version.isAtLeast(SNAKE_CASE_GAME_RULES)) {
+            return "gamerule " + rule + " " + value;
+        }
+        if (rule.equals("pvp")) {
+            if (!value.equals("true")) {
+                throw new IllegalStateException("Minecraft " + version + " sets PvP in server.properties, not per world");
+            }
+            return null;
+        }
+        String legacy = LEGACY_GAME_RULES.get(rule);
+        if (legacy == null) {
+            throw new IllegalArgumentException("No game rule name before 1.21.11 for " + rule);
+        }
+        return "gamerule " + legacy + " " + value;
     }
 
     /**
@@ -217,6 +267,16 @@ public final class Fixtures {
             return;
         }
         Tasks.s(() -> Tasks.runAt(site, task));
+    }
+
+    /** An item stack as block entity or entity NBT: an int count from 1.20.5, a Count byte before. */
+    public static String itemStackNbt(String item, int count) {
+        return itemStackNbt(host().gameVersion(), item, count);
+    }
+
+    static String itemStackNbt(GameVersion version, String item, int count) {
+        String id = "id:\"minecraft:" + item + "\"";
+        return version.isAtLeast(ITEM_COMPONENTS) ? "{" + id + ",count:" + count + "}" : "{" + id + ",Count:" + count + "b}";
     }
 
     public static void setBlockNbt(WorldRef world, int x, int y, int z, String stateWithNbt) {
@@ -265,8 +325,12 @@ public final class Fixtures {
         platform().addTag(entity, tag);
     }
 
+    /**
+     * Fixture tags of {@code entity}; none for an entity another Folia region owns. Staged entities always share the
+     * caller's region, and Folia forbids reading a foreign mob (a natural spawn elsewhere in the world).
+     */
     public static Set<String> tags(EntityRef entity) {
-        return platform().tags(entity);
+        return Tasks.isOwnedByCurrentRegion(entity) ? platform().tags(entity) : Set.of();
     }
 
     public static EntityRef entity(UUID id) {

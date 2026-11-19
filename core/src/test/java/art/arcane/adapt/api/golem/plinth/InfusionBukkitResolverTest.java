@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 class InfusionBukkitResolverTest extends AdaptTestBase {
+  private static final Set<String> KNOWN_ITEMS = knownItems();
   private final ItemRef heart = mock(ItemRef.class);
   private final ItemRef rune = mock(ItemRef.class);
   private final ItemRef golemHeart = mock(ItemRef.class);
@@ -38,7 +39,7 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
   void setUp() {
     RegistryLookup registries = mock(RegistryLookup.class);
     lenient().when(core.getPlatform().host().registries()).thenReturn(registries);
-    lenient().when(registries.exists(eq(RegistryKind.ITEM), any(Id.class))).thenAnswer(call -> knownItems().contains(call.<Id>getArgument(1).path()));
+    lenient().when(registries.exists(eq(RegistryKind.ITEM), any(Id.class))).thenAnswer(call -> KNOWN_ITEMS.contains(call.<Id>getArgument(1).path()));
     lenient().when(golemHeart.type()).thenReturn(Id.minecraft("heart_of_the_sea"));
     lenient().when(plainHeart.type()).thenReturn(Id.minecraft("heart_of_the_sea"));
     items = mockStatic(GolemItems.class);

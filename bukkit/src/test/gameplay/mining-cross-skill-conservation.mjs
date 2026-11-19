@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { fixtureJson } from './fixture-json.mjs'
 import { errorsSince, logPosition } from './runtime-log.mjs'
 import { disposableInstance } from './disposable-instance.mjs'
+import { versionEntry } from './version-catalog.mjs'
 
 export default {
   name: 'adapt-mining-cross-skill-conservation',
@@ -48,7 +49,15 @@ export default {
           const broken = after.blocks.filter(block => block === 'AIR').length
           let valid = broken === expectedBlocks && Boolean(tool)
           if (mode === 'pact') valid &&= tool.damage <= 1560
-          if (mode === 'masterwork') valid &&= tool.damage === 1569 && tool.maximum === 2000
+          if (mode === 'masterwork') {
+            // Without per-stack max durability (crafting-masterwork emulated) every wear point is scaled by type max / 2000
+            // with a random round, so the exact total is the sum of the 9 charged wear events as Adapt applied them.
+            const charged = after.wear.filter(entry => !entry.cancelled)
+            const start = before.items.find(item => item.type === 'DIAMOND_PICKAXE').damage
+            valid &&= tool.maximum === 2000 && (versionEntry('crafting-masterwork')?.status === 'emulated'
+              ? charged.length === 9 && tool.damage === start + charged.reduce((sum, entry) => sum + entry.damage, 0)
+              : tool.damage === 1569)
+          }
           if (mode === 'inventory' || mode === 'deny') valid &&= count(after, 'COBBLESTONE', 'inventory') === expectedBlocks && count(after, 'COBBLESTONE', 'drop') === 0
           if (mode === 'tunneler') valid &&= count(after, 'DIRT', 'inventory') === 9 && count(after, 'DIRT', 'drop') === 0
           if (mode === 'grave') valid &&= after.graveLoot - before.graveLoot === 9

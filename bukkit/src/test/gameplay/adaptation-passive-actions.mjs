@@ -1,3 +1,6 @@
+import { fallDamageTaken } from './adaptation-rift-actions.mjs'
+import { versionEntry } from './version-catalog.mjs'
+
 async function sneak({ actor }) {
     actor.bot.setControlState('sneak', false)
     await actor.bot.waitForTicks(3)
@@ -143,7 +146,20 @@ export const passiveBehaviorCases = new Map([
             return { assertions: ['natural movement charges ghost armor only when learned', 'real incoming damage consumes exactly one stored charge'], measurements: { unlearned, active } }
         },
     }],
-    ['stealth-silent-step', {
+    ['stealth-silent-step', versionEntry('stealth-silent-step')?.status === 'emulated' ? {
+        stage: 'traverse-qa-assassinate', negativeWindowTicks: 10,
+        description: 'sneaking makes a real fall harmless (safe fall distance emulated) and an undetected backstab increases actual damage',
+        sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.7, soundPitch: 0.9,
+        particle: 'damage_indicator', particleCount: 4, particleOffset: 0.25,
+        trigger: async input => ({ ...await silentBackstab(input), fallDamage: await fallDamageTaken(input) }),
+        verify({ context, unlearned, active }) {
+            const damage = value => value.before.traversal.target.health - value.after.traversal.target.health
+            context.expect(unlearned.fallDamage > 0 && active.fallDamage === 0, 'Learned sneaking leaves an actual fall harmless')
+            context.expect(damage(unlearned) > 0 && damage(active) > damage(unlearned), 'Learned undetected fist strike deals more real mob damage')
+            context.expect((active.after.stats['stealth.silent-step.backstabs'] ?? 0) > (active.before.stats['stealth.silent-step.backstabs'] ?? 0), 'Actual backstab is recorded')
+            return { assertions: ['learned sneaking makes a real fall harmless', 'natural undetected hit increases actual damage and records a backstab'], measurements: { unlearned, active } }
+        },
+    } : {
         stage: 'traverse-qa-assassinate', attribute: 'minecraft:safe_fall_distance', negativeWindowTicks: 10,
         description: 'sneaking grants silent fall protection and an undetected backstab increases actual damage',
         sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.7, soundPitch: 0.9,

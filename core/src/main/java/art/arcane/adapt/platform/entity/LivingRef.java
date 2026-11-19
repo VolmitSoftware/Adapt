@@ -55,6 +55,8 @@ public interface LivingRef extends EntityRef {
   /** Remaining air supply in ticks. */
   int remainingAir();
 
+  void setRemainingAir(int ticks);
+
   /** Maximum air supply in ticks. */
   int maximumAir();
 

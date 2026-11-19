@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.world.PlayerData;
@@ -48,8 +49,8 @@ public final class ExperienceFixtures {
             case "award" -> experience().awardExperience(player, Integer.parseInt(args[3]));
             case "override" -> observation.override = Integer.parseInt(args[3]);
             case "natural" -> observation.override = null;
-            case "refill" -> observation.golem.setEssence(60);
-            case "release" -> GolemancyRuntime.registry().orElseThrow().release(observation.golem);
+            case "refill" -> golem(observation).setEssence(60);
+            case "release" -> GolemancyRuntime.registry().orElseThrow().release(golem(observation));
             case "ore" -> Fixtures.set(player.world(), 3, 100, 2, "diamond_ore");
             default -> throw new IllegalArgumentException("Unknown experience action: " + args[2]);
         }
@@ -104,6 +105,17 @@ public final class ExperienceFixtures {
         observations.put(player.uuid(), observation);
     }
 
+    /**
+     * The registry's live handle of the bound golem. A chunk that unloads and reloads its entities (a fresh arena chunk
+     * before the players' chunk tickets land) retires the handle bound in prepare and adopts a new one from the entity's
+     * stored state; the menu works on that new handle.
+     */
+    private static GolemHandle golem(Observation observation) {
+        GolemancyRuntime.registry().flatMap((GolemRegistry registry) -> registry.handle(observation.golem.entity()))
+            .ifPresent((GolemHandle live) -> observation.golem = live);
+        return observation.golem;
+    }
+
     private static JsonObject snapshot(PlayerRef player, Observation observation) {
         PlayerData data = Fixtures.adaptPlayer(player).getData();
         JsonObject result = new JsonObject();
@@ -112,8 +124,9 @@ public final class ExperienceFixtures {
         result.addProperty("vanillaXp", experience().totalExperiencePoints(player));
         result.addProperty("unity", data.getStat("discovery.unity.orbs-distributed"));
         result.addProperty("discoveryXp", data.getSkillLine("discovery").getXp());
-        result.addProperty("golem", observation.golem.entity().entityId());
-        result.addProperty("essence", observation.golem.state().essencePoints());
+        GolemHandle golem = golem(observation);
+        result.addProperty("golem", golem.entity().entityId());
+        result.addProperty("essence", golem.state().essencePoints());
         int orbs = 0;
         for (EntityRef entity : player.world().entities()) {
             if (entity.type().equals(Id.minecraft("experience_orb"))) {

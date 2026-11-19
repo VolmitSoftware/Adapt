@@ -30,6 +30,7 @@ import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 
+import java.util.ArrayDeque;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -47,6 +48,8 @@ public final class VelocityBurstRuntime extends TickedObject {
   public static final int MAX_SESSIONS_PER_PLAYER = 8;
   public static final int MAX_ELAPSED_TICKS = 4;
   private static final long UPDATE_INTERVAL_MILLIS = 50L;
+  /** Updates a velocity sent to the client may take to show in its movement; covers local and lagging connections. */
+  private static final int APPLIED_HISTORY = 4;
   private static final Object INSTANCE_LOCK = new Object();
   private static VelocityBurstRuntime instance;
 
@@ -278,7 +281,17 @@ public final class VelocityBurstRuntime extends TickedObject {
         }
 
         double fallbackThresholdSquared = minimumFallbackThresholdSquared(bucket);
-        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(player, fallbackThresholdSquared);
+        Vec3 movement = VelocitySpeed.horizontalOnly(player.movement());
+        boolean onGround = player.isOnGround();
+        Vec3 expected;
+        if (bucket.controllingVelocity) {
+          expected = VelocitySpeed.closestApplied(movement, bucket.recentlyApplied);
+        } else {
+          expected = onGround ? VelocitySpeed.coasting(bucket.lastMovement, bucket.lastOnGround) : null;
+        }
+        bucket.lastMovement = movement;
+        bucket.lastOnGround = onGround;
+        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(player, fallbackThresholdSquared, expected);
         if (!input.hasHorizontal()) {
           brakeSessions(bucket, player, tickScale);
           return;
@@ -432,6 +445,13 @@ public final class VelocityBurstRuntime extends TickedObject {
   }
 
   private void applyHorizontal(PlayerBucket bucket, PlayerRef player, Vec3 horizontal) {
+    if (!bucket.controllingVelocity) {
+      bucket.recentlyApplied.clear();
+    }
+    if (bucket.recentlyApplied.size() == APPLIED_HISTORY) {
+      bucket.recentlyApplied.removeFirst();
+    }
+    bucket.recentlyApplied.addLast(horizontal);
     bucket.horizontalX = horizontal.x();
     bucket.horizontalZ = horizontal.z();
     bucket.controllingVelocity = true;
@@ -743,6 +763,9 @@ public final class VelocityBurstRuntime extends TickedObject {
     private double horizontalX;
     private double horizontalZ;
     private boolean controllingVelocity;
+    private Vec3 lastMovement = Vec3.ZERO;
+    private boolean lastOnGround = true;
+    private final ArrayDeque<Vec3> recentlyApplied = new ArrayDeque<>(APPLIED_HISTORY);
     private volatile long lastDispatchCycle;
 
     private PlayerBucket(UUID playerId, PlayerRef player, long now) {

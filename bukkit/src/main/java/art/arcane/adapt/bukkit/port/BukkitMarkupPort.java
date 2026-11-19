@@ -7,13 +7,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 
 final class BukkitMarkupPort implements MarkupPort {
   private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-  private static final TagResolver COLOR_TAGS = TagResolver.resolver(StandardTags.color(), StandardTags.reset(),
-      StandardTags.gradient(), StandardTags.rainbow(), StandardTags.transition(), StandardTags.pride());
+  private static final TagResolver COLOR_TAGS = BukkitColorTags.resolver();
 
   @Override
   public String normalize(String mixedMarkup) {

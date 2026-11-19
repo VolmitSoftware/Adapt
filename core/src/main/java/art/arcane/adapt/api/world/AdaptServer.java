@@ -65,6 +65,7 @@ import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.BlockingTaskExecutor;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.project.redis.codec.ResetNotice;
 import art.arcane.volmlib.util.io.IO;
@@ -89,7 +90,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -110,7 +110,7 @@ public class AdaptServer extends TickedObject {
 
   private final ReentrantLock clearLock = new ReentrantLock();
   private final Object[] playerOperationLocks = createPlayerOperationLocks();
-  private final ExecutorService playerClaimExecutor = Executors.newVirtualThreadPerTaskExecutor();
+  private final ExecutorService playerClaimExecutor = BlockingTaskExecutor.create("Adapt player claims");
   private final Map<UUID, Integer> orbUseTicks = new ConcurrentHashMap<>();
   private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
   private final ConcurrentMap<UUID, CompletableFuture<PlayerDataClaimFence.Claim>> playerDataClaims =

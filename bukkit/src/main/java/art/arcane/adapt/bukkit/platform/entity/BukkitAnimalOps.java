@@ -128,7 +128,7 @@ public final class BukkitAnimalOps implements AnimalOps {
 
   @Override
   public boolean hasStewEffect(EntityRef entity) {
-    return handle(entity) instanceof MushroomCow mooshroom && mooshroom.hasEffectsForNextStew();
+    return handle(entity) instanceof MushroomCow mooshroom && BukkitAnimalVersion.hasStewEffect(mooshroom);
   }
 
   @Override

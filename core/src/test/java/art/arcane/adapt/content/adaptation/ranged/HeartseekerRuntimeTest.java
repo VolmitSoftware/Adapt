@@ -28,7 +28,7 @@ class HeartseekerRuntimeTest {
     UUID next = UUID.randomUUID();
     UUID bystander = UUID.randomUUID();
     assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, next, victim)).isTrue();
-    assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, null, victim)).isTrue();
+    assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, null, victim)).isFalse();
     assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, victim, victim)).isFalse();
     assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, next, next)).isFalse();
     assertThat(HeartseekerChainRules.passesThroughPreviousVictim(victim, next, bystander)).isFalse();

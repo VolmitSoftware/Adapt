@@ -1,3 +1,9 @@
+import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
+import { adaptConfigDirectory } from './adapt-config.mjs'
+import { doubleJump } from './client-input.mjs'
+import { versionEntry } from './version-catalog.mjs'
+
 async function equipSwords({ actor, opponent, equip }) {
     await equip('iron_sword')
     await equip('iron_sword', opponent)
@@ -29,6 +35,36 @@ async function receiveDamage(input) {
     const after = await input.snapshot()
     input.context.expect(after.health < before.health, 'Natural melee attack damages the player')
     return before.health - after.health
+}
+
+async function walkAway(actor) {
+    await actor.bot.look(0, 0, true)
+    actor.bot.setControlState('forward', true)
+    await actor.bot.waitForTicks(24)
+    actor.bot.setControlState('forward', false)
+    await actor.bot.waitForTicks(5)
+}
+
+/** Runs {@code action} with one boolean of the Instant Recall config switched on through the watched config file. */
+async function withRecallConfig(context, key, action) {
+    const directory = context.report.server.directory
+    const file = join(adaptConfigDirectory(directory), 'adaptations', 'chronos-instant-recall.toml')
+    const log = join(directory, 'logs', 'latest.log')
+    const original = await readFile(file, 'utf8')
+    const enabled = original.replace(new RegExp(`^${key} = false$`, 'm'), `${key} = true`)
+    context.expect(enabled !== original, `Instant Recall config has ${key} = false`)
+    const hotloaded = async content => {
+        const start = (await readFile(log, 'utf8')).length
+        await writeFile(file, content)
+        await context.waitUntil(async () => (await readFile(log, 'utf8')).slice(start).includes('chronos-instant-recall.toml'),
+            { label: `Instant Recall config reloads after ${key} changes`, timeoutMs: 15000, intervalMs: 100 })
+    }
+    await hotloaded(enabled)
+    try {
+        return await action()
+    } finally {
+        await hotloaded(original)
+    }
 }
 
 export const chronosBehaviorCases = new Map([
@@ -228,24 +264,36 @@ chronosBehaviorCases.set('chronos-instant-recall', {
         await actor.bot.waitForTicks(110)
         const before = await snapshot()
         const clocks = count()
-        await actor.bot.look(0, 0, true)
-        actor.bot.setControlState('forward', true)
-        await actor.bot.waitForTicks(24)
-        actor.bot.setControlState('forward', false)
-        await actor.bot.waitForTicks(5)
+        await walkAway(actor)
         const distance = actor.bot.entity.position.distanceTo(origin)
         context.expect(distance > 3, 'Recall trial walks away from a naturally recorded position')
         actor.bot.activateItem()
         await actor.bot.waitForTicks(70)
         actor.bot.deactivateItem()
         const after = await snapshot()
-        return { distance, returnedDistance: actor.bot.entity.position.distanceTo(origin), consumed: clocks - count(), healthBefore: before.health, healthAfter: after.health, gameMode: actor.bot.game.gameMode }
+        const result = { distance, returnedDistance: actor.bot.entity.position.distanceTo(origin), consumed: clocks - count(), healthBefore: before.health, healthAfter: after.health, gameMode: actor.bot.game.gameMode }
+        result.doubleJump = await withRecallConfig(context, 'enableDoubleJumpTrigger', async () => {
+            await actor.bot.waitForTicks(40)
+            const jumpOrigin = actor.bot.entity.position.clone()
+            const jumpClocks = count()
+            await actor.bot.waitForTicks(110)
+            await walkAway(actor)
+            const jumpDistance = actor.bot.entity.position.distanceTo(jumpOrigin)
+            context.expect(jumpDistance > 3, 'Double jump trial walks away from a naturally recorded position')
+            const jump = await doubleJump(actor.bot)
+            context.expect(jump.airborne, 'Double jump leaves the ground')
+            await actor.bot.waitForTicks(70)
+            return { jump, distance: jumpDistance, returnedDistance: actor.bot.entity.position.distanceTo(jumpOrigin), consumed: jumpClocks - count(), gameMode: actor.bot.game.gameMode }
+        })
+        return result
     },
     async verify({ context, unlearned, active }) {
         context.expect(unlearned.returnedDistance > 3 && unlearned.consumed === 0, 'Unlearned clock use does not recall or consume a clock')
         context.expect(active.returnedDistance < 0.6 && active.consumed === 1 && active.gameMode === 'survival', 'Learned recall returns to its recorded position, consumes one clock and restores survival mode')
         context.expect(Math.abs(active.healthAfter - active.healthBefore * 0.5) < 0.01, 'Recall charges the configured health fraction')
-        return { assertions: ['unlearned clock has no recall behavior', 'natural history returns the learned player to the earlier location', 'exactly one clock and half the initial health are charged', 'temporary spectator mode ends in survival'], measurements: { unlearned, active } }
+        context.expect(unlearned.doubleJump.returnedDistance > 3 && unlearned.doubleJump.consumed === 0, 'Unlearned double jump does not recall or consume a clock')
+        context.expect(active.doubleJump.returnedDistance < 0.6 && active.doubleJump.consumed === 1 && active.doubleJump.gameMode === 'survival', 'Learned double jump with a clock in hand recalls, consumes one clock and restores survival mode')
+        return { assertions: ['unlearned clock has no recall behavior', 'natural history returns the learned player to the earlier location', 'exactly one clock and half the initial health are charged', 'temporary spectator mode ends in survival', 'with the double jump trigger enabled, a natural double jump holding a clock recalls the learned player only'], measurements: { unlearned, active } }
     },
 })
 
@@ -276,7 +324,9 @@ for (const [name, stage, item, amplifier] of [
         context.expect(unlearned.consumed === 0 && unlearned.during.movementSpeed === unlearned.before.movementSpeed, 'Unlearned interaction creates no temporal field or item cost')
         context.expect(active.consumed === 1 && (amplifier === 5 ? active.during.movementSpeed < active.before.movementSpeed : active.before.ai && !active.during.ai), 'Learned cast consumes one item and applies its actual mob lock')
         context.expect(active.after.movementSpeed === active.before.movementSpeed && active.after.jumpStrength === active.before.jumpStrength && active.after.ai === active.before.ai, 'Natural field expiration restores mob attributes')
-        if (amplifier === 5) context.expect(active.during.jumpStrength === 0, 'Stasis fully suppresses mob jumping')
+        if (amplifier === 5 && active.before.jumpStrength === undefined) {
+            context.expect(versionEntry(name)?.status === 'partial', 'A server without mob jump strength lists the stasis jump lock as partial')
+        } else if (amplifier === 5) context.expect(active.during.jumpStrength === 0, 'Stasis fully suppresses mob jumping')
         return { assertions: ['unlearned use leaves the nearby mob unchanged', 'learned cast consumes exactly one item', 'live mob movement attributes are suppressed during the field', 'attributes return to their original values after natural expiry'], measurements: { unlearned, active } }
     },
 })

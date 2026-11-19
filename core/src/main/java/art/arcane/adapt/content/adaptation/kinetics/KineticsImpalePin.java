@@ -7,6 +7,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -29,6 +30,7 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
 
   public KineticsImpalePin() {
     super("kinetics-impale-pin");
+    needs(PlatformNeed.item("iron_spear"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("cobweb"));
     setInterval(9999);

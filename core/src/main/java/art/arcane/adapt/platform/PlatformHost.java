@@ -25,6 +25,14 @@ public interface PlatformHost {
   /** Minecraft version string, for example {@code 26.3}. */
   String minecraftVersion();
 
+  /** {@link #minecraftVersion()} as a comparable version. */
+  default GameVersion gameVersion() {
+    return GameVersion.parse(minecraftVersion());
+  }
+
+  /** True when the running Minecraft version has the engine feature. */
+  boolean supports(EngineFeature feature);
+
   String adaptVersion();
 
   boolean has(Capability capability);

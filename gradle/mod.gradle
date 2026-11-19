@@ -18,15 +18,25 @@ String target = adapt.minecraftVersion
 String loader = projectDir.name
 Map<String, Object> targetProperties = minecraftTargets[target]
 ext.targetProperties = targetProperties
+if (loader == 'neoforge' && targetProperties.neoforgeUsesForge) {
+    throw new GradleException("NeoForge ${target} loads the Forge jar; build adapters/forge for Minecraft ${target}")
+}
 layout.buildDirectory.set(layout.projectDirectory.dir("build/${target}"))
 
+// Every target compiles at Java 25; older targets ship the build downgraded to their Java version (mod-downgrade.gradle).
+int compileRelease = 25
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of((int) targetProperties.javaVersion)
+    toolchain.languageVersion = JavaLanguageVersion.of(compileRelease)
 }
 tasks.withType(JavaCompile).configureEach {
-    options.release.set((int) targetProperties.javaVersion)
+    options.release.set(compileRelease)
     options.encoding = 'UTF-8'
     options.compilerArgs.add('-parameters')
+    if (targetProperties.obfuscated) {
+        options.compilerArgs.addAll(['-Xmaxerrs', '100000', '-XDshould-stop.ifError=FLOW'])
+        options.fork = true
+        options.forkOptions.memoryMaximumSize = '6g'
+    }
 }
 repositories {
     mavenCentral()
@@ -68,6 +78,30 @@ dependencies {
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 sourceSets.test.java.srcDir('../mod-common/src/test/java')
+// Same overlay order and `.removed` markers as the main source set, under <overlay>/test/java.
+List<File> testOverlays = []
+if (targetProperties.sourceFamily != null) {
+    testOverlays.add(file("../mod-common/src/families/${targetProperties.sourceFamily}/test/java"))
+}
+testOverlays.add(file("../mod-common/src/versions/${target}/test/java"))
+for (File overlay : testOverlays) {
+    sourceSets.test.java.srcDir(overlay)
+}
+sourceSets.test.java.exclude { FileTreeElement entry ->
+    if (entry.name.endsWith('.removed')) {
+        return true
+    }
+    for (int index = testOverlays.size() - 1; index >= 0; index--) {
+        if (new File(testOverlays[index], entry.relativePath.pathString + '.removed').isFile()) {
+            return true
+        }
+        File replacement = new File(testOverlays[index], entry.relativePath.pathString)
+        if (replacement.isFile()) {
+            return entry.file.canonicalFile != replacement.canonicalFile
+        }
+    }
+    false
+}
 tasks.named('test', Test).configure {
     useJUnitPlatform()
     testLogging {
@@ -76,6 +110,7 @@ tasks.named('test', Test).configure {
     }
 }
 ext.distributionJar = tasks.named('shadowJar').flatMap { task -> task.archiveFile }
+ext.packagedJar = tasks.named('shadowJar', Jar)
 
 if (providers.gradleProperty('includeCoreSources').getOrElse('true').toBoolean()) {
     sourceSets.main.java.srcDir('../../core/src/main/java')
@@ -98,8 +133,15 @@ for (String kind : ['java', 'resources']) {
     for (File overlay : overlays) {
         directories.srcDir(overlay)
     }
+    // A `<file>.removed` marker in an overlay drops that file from the target; a later overlay may supply it again.
     directories.exclude { FileTreeElement entry ->
+        if (entry.name.endsWith('.removed')) {
+            return true
+        }
         for (int index = overlays.size() - 1; index >= 0; index--) {
+            if (new File(overlays[index], entry.relativePath.pathString + '.removed').isFile()) {
+                return true
+            }
             File replacement = new File(overlays[index], entry.relativePath.pathString)
             if (replacement.isFile()) {
                 return entry.file.canonicalFile != replacement.canonicalFile
@@ -140,7 +182,7 @@ tasks.named('compileJava').configure { dependsOn(identity) }
 Map<String, String> metadata = adapt + [
     fabricLoaderVersion: (String) targetProperties.fabricLoader,
     forgeLoaderRange: (String) targetProperties.forgeLoaderRange,
-    neoForgeVersion: (String) targetProperties.neoforge,
+    neoForgeVersion: (String) (targetProperties.neoforge ?: ''),
     javaVersion: targetProperties.javaVersion.toString(),
     dataPackFormat: targetProperties.dataPackFormat.toString()
 ]
@@ -149,6 +191,11 @@ tasks.named('processResources').configure {
     from(languageSourceManifest)
     inputs.properties(metadata)
     filesMatching(['fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'pack.mcmeta']) { expand(metadata) }
+    if ((int) targetProperties.javaVersion < 21) {
+        filesMatching('*.mixins.json') {
+            filter { String line -> line.replace('"compatibilityLevel": "JAVA_21"', "\"compatibilityLevel\": \"JAVA_${targetProperties.javaVersion}\"") }
+        }
+    }
 }
 
 String platform = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge'][loader]
@@ -189,6 +236,9 @@ tasks.named('shadowJar').configure {
 }
 tasks.named('jar').configure { enabled = false }
 tasks.named('assemble').configure { dependsOn('shadowJar') }
+if ((int) targetProperties.javaVersion < compileRelease) {
+    apply from: '../../gradle/mod-downgrade.gradle'
+}
 
 apply from: '../../gradle/mod-verify-artifact.gradle'
 apply from: '../../gradle/mod-gameplay-fixture.gradle'

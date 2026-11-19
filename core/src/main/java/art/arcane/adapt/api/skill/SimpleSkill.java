@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
@@ -603,6 +604,12 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   @Override
   public void registerAdaptation(Adaptation<?> a) {
     a.setSkill(this);
+    PlatformSupport.Verdict verdict = PlatformSupport.check(a.getPlatformNeeds());
+    if (!verdict.usable()) {
+      PlatformSupport.leaveOut("adaptation", getName(), a.getName(), verdict);
+      a.unregister();
+      return;
+    }
     adaptations.add(a);
   }
 

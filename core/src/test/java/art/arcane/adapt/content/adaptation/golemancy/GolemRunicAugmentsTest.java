@@ -19,6 +19,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
+import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
@@ -191,7 +192,8 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
 
   @Test
   void everyLevelListsTheLevelsToInfuseEachTierItUnlocks() {
-    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.defaults());
+    PlinthSettings defaults = InfusionCostFixtures.defaults();
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(defaults);
     String slots = "+ Animus Plinth and Blank Rune Recipe";
     String one = "- 2 Levels to Infuse a Tier 1 Rune";
     String two = "- 5 Levels to Infuse a Tier 2 Rune";

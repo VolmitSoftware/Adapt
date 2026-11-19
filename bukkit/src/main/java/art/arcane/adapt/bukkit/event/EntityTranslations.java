@@ -14,7 +14,6 @@ import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.event.entity.EntityPickupItemEvent;
 import art.arcane.adapt.platform.event.entity.EntityPotionEffectEvent;
 import art.arcane.adapt.platform.event.entity.EntityRegainHealthEvent;
-import art.arcane.adapt.platform.event.entity.EntityRemoveEvent;
 import art.arcane.adapt.platform.event.entity.EntityShootBowEvent;
 import art.arcane.adapt.platform.event.entity.EntityTameEvent;
 import art.arcane.adapt.platform.event.entity.EntityTargetEvent;
@@ -23,8 +22,8 @@ import art.arcane.adapt.platform.event.entity.ProjectileHitEvent;
 import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
 import org.bukkit.Location;
-import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -35,7 +34,6 @@ import java.util.List;
 
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.block;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.cause;
-import static art.arcane.adapt.bukkit.event.BukkitEventMaps.damageType;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.entity;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.item;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.living;
@@ -47,7 +45,7 @@ final class EntityTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(DAMAGE, DEATH, BREED, PICKUP_ITEM, POTION_EFFECT, REGAIN_HEALTH, REMOVE, SHOOT_BOW, TAME, TARGET,
+    return List.of(DAMAGE, DEATH, BREED, PICKUP_ITEM, POTION_EFFECT, REGAIN_HEALTH, SHOOT_BOW, TAME, TARGET,
         PROJECTILE_HIT, PROJECTILE_LAUNCH);
   }
 
@@ -95,7 +93,7 @@ final class EntityTranslations {
   static EntityDamageEvent damageEvent(org.bukkit.event.entity.EntityDamageEvent event, double damage) {
     EntityRef victim = entity(event.getEntity());
     DamageCause cause = cause(event.getCause());
-    DamageSource source = event.getDamageSource();
+    Id damageType = Paper121Access.damageType(event);
     FinalDamage finalDamage = base -> {
       double current = event.getDamage();
       if (current == base) {
@@ -111,17 +109,17 @@ final class EntityTranslations {
     BlockedDamage blockedDamage = blockedDamage(event);
     EntityDamageEvent core;
     if (event instanceof org.bukkit.event.entity.EntityDamageByEntityEvent byEntity) {
-      core = new EntityDamageByEntityEvent(victim, entity(byEntity.getDamager()), entity(source.getCausingEntity()), cause,
-          damageType(source), damage, byEntity.isCritical(), finalDamage, blockedDamage);
+      core = new EntityDamageByEntityEvent(victim, entity(byEntity.getDamager()), entity(Paper121Access.causingEntity(event)),
+          cause, damageType, damage, byEntity.isCritical(), finalDamage, blockedDamage);
     } else if (event instanceof org.bukkit.event.entity.EntityDamageByBlockEvent byBlock) {
-      core = new EntityDamageByBlockEvent(victim, block(byBlock.getDamager()), cause, damageType(source), damage,
+      core = new EntityDamageByBlockEvent(victim, block(byBlock.getDamager()), cause, damageType, damage,
           finalDamage, blockedDamage);
     } else {
-      core = new EntityDamageEvent(victim, cause, damageType(source), damage, finalDamage, blockedDamage);
+      core = new EntityDamageEvent(victim, cause, damageType, damage, finalDamage, blockedDamage);
     }
-    Location damageLocation = source.getDamageLocation();
+    Location damageLocation = Paper121Access.damageLocation(event);
     core.setSource(damageLocation == null ? null : BukkitRefs.loc(damageLocation), originalBaseDamage(event),
-        (LivingRef target, double amount) -> BukkitRefs.living(target).damage(amount, source));
+        Paper121Access.replay(event));
     return core;
   }
 
@@ -167,10 +165,9 @@ final class EntityTranslations {
         @Override
         public void bridge(org.bukkit.event.entity.EntityDeathEvent event, Poster poster) {
           LivingEntity dead = event.getEntity();
-          DamageSource source = event.getDamageSource();
           PlayerRef killer = player(dead.getKiller());
-          EntityRef direct = entity(source.getDirectEntity());
-          EntityRef causing = entity(source.getCausingEntity());
+          EntityRef direct = entity(Paper121Access.directEntity(event));
+          EntityRef causing = entity(Paper121Access.causingEntity(event));
           org.bukkit.event.entity.EntityDamageEvent last = dead.getLastDamageCause();
           DamageCause cause = last == null ? DamageCause.CUSTOM : cause(last.getCause());
           List<ItemStack> drops = event.getDrops();
@@ -301,10 +298,6 @@ final class EntityTranslations {
         }
       });
 
-  static final Translation<org.bukkit.event.entity.EntityRemoveEvent> REMOVE = BukkitTranslations.simple(
-      org.bukkit.event.entity.EntityRemoveEvent.class, EntityRemoveEvent.class, (event, poster) ->
-          poster.post(new EntityRemoveEvent(entity(event.getEntity()), BukkitEventMaps.removeCause(event.getCause()))));
-
   static final Translation<org.bukkit.event.entity.EntityShootBowEvent> SHOOT_BOW = new Translation<>(
       org.bukkit.event.entity.EntityShootBowEvent.class, List.of(EntityShootBowEvent.class)) {
     @Override
@@ -367,7 +360,7 @@ final class EntityTranslations {
         ProjectileHitEvent core = new ProjectileHitEvent(BukkitRefs.projectile(event.getEntity()), entity(event.getHitEntity()),
             block(event.getHitBlock()), BukkitEventMaps.face(event.getHitBlockFace()));
         core.setCancelled(cancelled);
-        poster.post(core);
+        ProjectileContact.post(event, () -> poster.post(core));
         cancel(event, cancelled, core);
       });
 

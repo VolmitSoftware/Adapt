@@ -39,6 +39,7 @@ import art.arcane.adapt.api.fx.ViewerGlowPort;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.StealthMessages;
@@ -135,6 +136,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
 
   public StealthCore(StealthShadowDecoy shadowDecoy, StealthSmokePellet smokePellet) {
     super("stealth-silent-step");
+    needs(PlatformNeed.attribute(Attributes.SAFE_FALL_DISTANCE));
     this.shadowDecoy = Objects.requireNonNull(shadowDecoy);
     this.smokePellet = Objects.requireNonNull(smokePellet);
     registerConfiguration(Config.class);

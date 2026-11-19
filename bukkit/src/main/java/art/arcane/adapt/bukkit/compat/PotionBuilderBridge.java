@@ -54,7 +54,7 @@ public final class PotionBuilderBridge {
     ItemEditor editor = Adapt.platform.editItem(stack);
     PotionBuilder builder = setBaseItem(PotionBuilder.of(type), stack);
     PotionMeta meta = (PotionMeta) stack.getItemMeta();
-    setBaseType(builder, meta.getBasePotionType());
+    builder.setBaseType(PotionBuilderVersion.basePotion(meta));
     setLore(builder, editor.lore());
     setColor(builder, meta.getColor());
     setName(builder, editor.customName());
@@ -118,7 +118,7 @@ public final class PotionBuilderBridge {
 
   @ApiBridge(PotionBuilder.class)
   public static PotionBuilder setBaseType(PotionBuilder builder, PotionType type) {
-    return builder.setBaseType(type == null ? null : BukkitRefs.id(type));
+    return builder.setBaseType(type == null ? null : BukkitResolve.id(type));
   }
 
   @ApiBridge(PotionBuilder.class)
@@ -148,11 +148,11 @@ public final class PotionBuilderBridge {
         .customName(getName(builder))
         .build();
 
-    PotionType baseType = getBaseType(builder);
-    if (baseType != null) {
+    Id baseType = builder.getBaseType();
+    if (baseType != null && getBaseType(builder) != null) {
       PotionMeta based = (PotionMeta) stack.getItemMeta();
       if (based != null) {
-        based.setBasePotionType(baseType);
+        PotionBuilderVersion.setBasePotion(based, baseType);
         stack.setItemMeta(based);
       }
     }

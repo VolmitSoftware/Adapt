@@ -481,21 +481,29 @@ def first_glob(patterns):
 
 
 def locate_jar(loader, version, props):
+    obfuscated = props.get('obfuscated', False)
     if loader == 'fabric':
+        # Obfuscated targets: Loom's Mojang-named merged jar (minecraft-merged-<mc>-loom.mappings...).
+        artifact = f'minecraft-merged/{version}-loom.mappings.*/minecraft-merged-{version}-loom.mappings.*.jar' if obfuscated \
+            else f'minecraft-merged-deobf/{version}/minecraft-merged-deobf-{version}.jar'
         return first_glob([
-            HOME / f'.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged-deobf/{version}/minecraft-merged-deobf-{version}.jar',
-            ADAPTERS / f'fabric/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-deobf/{version}/minecraft-merged-deobf-{version}.jar',
+            HOME / '.gradle/caches/fabric-loom/minecraftMaven/net/minecraft' / artifact,
+            ADAPTERS / 'fabric/.gradle/loom-cache/minecraftMaven/net/minecraft' / artifact,
         ])
     if loader == 'neoforge':
         neo = props.get('neoforge')
         if not neo:
             return None
-        return first_glob([ADAPTERS / f'neoforge/build/{version}/moddev/artifacts/minecraft-patched-{neo}.jar',
-                           ADAPTERS / f'neoforge/build/*/moddev/artifacts/minecraft-patched-{neo}.jar'])
+        artifact = f'neoforge-{neo}.jar' if obfuscated else f'minecraft-patched-{neo}.jar'
+        return first_glob([ADAPTERS / f'neoforge/build/{version}/moddev/artifacts/{artifact}',
+                           ADAPTERS / f'neoforge/build/*/moddev/artifacts/{artifact}'])
     forge = props.get('forge')
     if not forge:
         return None
     mappings = props.get('forgeRuntimeMappings', 'official')
+    if mappings == 'srg':
+        # ModDevGradle's legacy Forge build keeps the Mojang-named patched jar in its own build directory.
+        return first_glob([ADAPTERS / f'forge/build/{version}/moddev/artifacts/forge-{forge}.jar'])
     return first_glob([HOME / f'.gradle/caches/minecraftforge/forgegradle/mavenizer/caches/forge/net/minecraftforge/forge/{forge}/{mappings}/{version}/recompiled.jar',
                        HOME / f'.gradle/caches/minecraftforge/forgegradle/mavenizer/caches/forge/net/minecraftforge/forge/{forge}/*/{version}/recompiled.jar'])
 
@@ -515,6 +523,8 @@ def source_roots(loader, version, props, kind):
 
 def resolve_overlay(rel, base, overlays):
     for root in reversed(overlays):
+        if (root / (rel + '.removed')).is_file():
+            return None
         if (root / rel).is_file():
             return root / rel
     for root in base:
@@ -726,6 +736,31 @@ class Report:
         self.unchecked.setdefault(key, []).append(where)
 
 
+def inject_args_match(src, member, method):
+    """An @Inject handler takes either no target arguments or all of them, in order, before its CallbackInfo."""
+    before = []
+    for param in member.params:
+        if strip_generics(param.type).rsplit('.', 1)[-1] in ('CallbackInfo', 'CallbackInfoReturnable'):
+            break
+        if any(a.simple == 'Coerce' for a in param.annotations):
+            return True
+        before.append(param)
+    return not before or args_match(src, before, method.desc)
+
+
+def args_match(src, params, desc):
+    expected = re.findall(r'\[*(?:[ZBCSIJFD]|L[^;]+;)', desc[1:desc.index(')')])
+    if len(params) != len(expected):
+        return False
+    for param, want in zip(params, expected):
+        have = src.descriptor(param.type)
+        if have is None or re.fullmatch(r'L[A-Z]\w{0,2};', have):
+            continue
+        if have.replace('$', '/') != want.replace('$', '/'):
+            return False
+    return True
+
+
 def handler_ref_ok(src, member, ann, info, report, cls):
     selectors = ann.strings('method')
     if not selectors:
@@ -753,6 +788,10 @@ def handler_ref_ok(src, member, ann, info, report, cls):
                     cir = any(strip_generics(p.type).endswith('CallbackInfoReturnable') for p in member.params)
                     if void == cir and method not in mismatched:
                         mismatched.append(method)
+                    if not inject_args_match(src, member, method) and method not in mismatched:
+                        mismatched.append(method)
+                    if method.is_static != member.is_static:
+                        report.error(f'{member.name}: handler static={member.is_static} but {method.name}{method.desc} static={method.is_static}')
                 if not method.has_code:
                     continue
                 hits, reason = point_indexes(method, at, cls)
@@ -866,6 +905,8 @@ def check_source(src, jar, report):
                     target = ann.string('value') or accessor_name(member, ('call', 'invoke', 'new', 'create'))
                     if target not in info.methods:
                         report.error(f'{member.name}: invoker method missing {target}')
+                    elif target != '<init>' and not any(args_match(src, member.params, m.desc) for m in info.methods[target]):
+                        report.error(f'{member.name}: invoker method {target} has no overload taking these arguments')
                     elif target == '<init>':
                         desc = '(' + ''.join(src.descriptor(p.type) for p in member.params) + ')V'
                         if not any(m.desc == desc for m in info.methods['<init>']):
@@ -873,6 +914,8 @@ def check_source(src, jar, report):
                 elif ann.simple == 'Shadow':
                     if member.is_method and member.name not in info.methods:
                         report.error(f'{member.name}: shadow method missing {member.name}')
+                    elif member.is_method and not any(args_match(src, member.params, m.desc) for m in info.methods[member.name]):
+                        report.error(f'{member.name}: shadow method has no overload taking these arguments')
                     elif not member.is_method and member.name not in info.fields:
                         report.error(f'{member.name}: shadow field missing {member.name}')
                 elif ann.simple not in PASSIVE and fq.startswith(MIXIN_PACKAGES):
@@ -904,6 +947,12 @@ def run_target(loader, version, props, verbose, jar_override=None):
     jar.preload([t for s in sources for t in s.targets])
     for src in sources:
         check_source(src, jar, report)
+        if props.get('obfuscated'):
+            # Remappers translate an @At target only when it names the full member descriptor.
+            for target in re.findall(r'target\s*=\s*"(L[^";]+;[^"]*)"', src.text):
+                member = target.split(';', 1)[1]
+                if member and '(' not in member and ':' not in member:
+                    report.error(f'  {src.label}: @At target without descriptor is not remapped: {target}')
     report.prefix = '  '
     return header, report
 
@@ -933,7 +982,8 @@ def main(argv):
     targets = load_targets()
     versions = sorted(targets, key=lambda v: [int(x) for x in re.findall(r'\d+', v)], reverse=True)
     jobs = [(loader, v, None) for loader in LOADERS for v in versions
-            if (not filters and not extra) or any(f in (loader, f'{loader}:{v}', v) for f in filters)]
+            if not (loader == 'neoforge' and targets[v].get('neoforgeUsesForge'))
+            and ((not filters and not extra) or any(f in (loader, f'{loader}:{v}', v) for f in filters))]
     for loader, version, path in extra:
         if version not in targets:
             raise SystemExit(f'--jar {loader}:{version}: version not in gradle/targets.json')

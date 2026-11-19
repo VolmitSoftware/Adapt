@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.content.item.ChalkWandItem;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -15,10 +16,12 @@ import art.arcane.adapt.platform.event.block.BlockReceiveGameEvent;
 import art.arcane.adapt.platform.event.entity.EndermanAttackPlayerEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.entity.EntityTargetEvent;
+import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.WorldRef;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -34,6 +37,7 @@ public final class UtilityFixtures {
     private static final Map<UUID, JsonArray> EVENTS = new HashMap<>();
     private static final Id ENDERMAN = Id.minecraft("enderman");
     private static final Id SCULK_SENSOR = Id.minecraft("sculk_sensor");
+    private static final Id REDSTONE_TORCH = Id.minecraft("redstone_torch");
 
     private UtilityFixtures() {
     }
@@ -116,6 +120,8 @@ public final class UtilityFixtures {
         }
         result.add("anchors", anchors);
         result.addProperty("lamp", "true".equals(player.world().blockAt(3, 100, 0).state().property("lit")));
+        BoundRedstoneTorch.Data remote = BoundRedstoneTorch.getBinding(player.inventory().mainHand());
+        result.addProperty("remote", remote == null ? "" : new Gson().toJson(remote));
         result.addProperty("lowerElevator", player.world().blockAt(2, 99, 0).type().legacyName());
         result.addProperty("upperElevator", player.world().blockAt(2, 102, 0).type().legacyName());
         ChalkWandItem.WandData wand = ChalkWandItem.read(player.inventory().mainHand());
@@ -141,6 +147,20 @@ public final class UtilityFixtures {
             entry.addProperty("projectileId", event.damager().entityId());
             entry.addProperty("sprinting", player.isSprinting());
             record(player, entry);
+        }
+    }
+
+    @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onRemoteUse(PlayerInteractEvent event) {
+        ItemRef item = event.item();
+        if (item != null && !item.isEmpty() && item.type().equals(REDSTONE_TORCH) && eligible(event.player())) {
+            JsonObject entry = event("remote", event.isCancelled());
+            entry.addProperty("action", event.action().name());
+            entry.addProperty("blockUse", event.useBlock().name());
+            entry.addProperty("itemUse", event.useItem().name());
+            entry.addProperty("bound", BoundRedstoneTorch.hasItemData(item));
+            entry.addProperty("sneaking", event.player().isSneaking());
+            record(event.player(), entry);
         }
     }
 

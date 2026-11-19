@@ -38,7 +38,7 @@ final class BukkitMaterialValuePort implements MaterialValuePort {
     } catch (Throwable e) {
       AdaptLog.verbose("Failed to set durability of " + mat.name());
     }
-    for (Recipe recipe : Bukkit.getRecipesFor(stack)) {
+    for (Recipe recipe : BukkitRecipeOrder.canonical(Bukkit.getRecipesFor(stack))) {
       if (isAdaptRecipe(recipe)) {
         AdaptLog.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((Keyed) recipe).getKey());
         continue;

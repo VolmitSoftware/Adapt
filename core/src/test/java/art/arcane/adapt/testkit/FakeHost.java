@@ -1,6 +1,7 @@
 package art.arcane.adapt.testkit;
 
 import art.arcane.adapt.platform.Capability;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.PlatformLog;
@@ -24,7 +25,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Platform host over fake worlds and players. Every registry id exists; no capabilities. */
+/**
+ * Platform host over fake worlds and players. Every registry id exists and every engine feature is supported until
+ * {@link #runGame} pins a Minecraft version; no capabilities.
+ */
 public final class FakeHost implements PlatformHost {
   private final List<FakeWorld> worlds = new ArrayList<>();
   private final List<PlayerRef> players = new ArrayList<>();
@@ -90,9 +94,22 @@ public final class FakeHost implements PlatformHost {
     return "test";
   }
 
+  /** Answers registries, version and features like a server of that version; null restores "everything exists". */
+  public void runGame(FakeGameContent game) {
+    this.game = game;
+    items.knownItems(game == null ? (Id type) -> true : (Id type) -> game.exists(RegistryKind.ITEM, type));
+  }
+
   @Override
   public String minecraftVersion() {
-    return "26.3";
+    FakeGameContent current = game;
+    return current == null ? "26.3" : current.version().toString();
+  }
+
+  @Override
+  public boolean supports(EngineFeature feature) {
+    FakeGameContent current = game;
+    return current == null || current.supports(feature);
   }
 
   @Override
@@ -267,16 +284,19 @@ public final class FakeHost implements PlatformHost {
   }
 
   private final Set<String> missingIds = ConcurrentHashMap.newKeySet();
+  private volatile FakeGameContent game;
 
   private final RegistryLookup registries = new RegistryLookup() {
     @Override
     public boolean exists(RegistryKind kind, Id id) {
-      return !missingIds.contains(kind.name() + "|" + id);
+      FakeGameContent current = game;
+      return !missingIds.contains(kind.name() + "|" + id) && (current == null || current.exists(kind, id));
     }
 
     @Override
     public Set<Id> ids(RegistryKind kind) {
-      return Set.of();
+      FakeGameContent current = game;
+      return current == null ? Set.of() : current.ids(kind);
     }
 
     @Override

@@ -33,9 +33,11 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.value.MaterialNames;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -84,6 +86,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
   public AgilityFeatherfoot() {
     super("agility-featherfoot");
     registerConfiguration(Config.class);
+    needs(PlatformNeed.partialFeature(EngineFeature.PLAYER_INPUT, "a held sprint key counts only while the player sprints"));
     setIcon(Id.minecraft("rabbit_foot"));
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("rabbit_foot"))

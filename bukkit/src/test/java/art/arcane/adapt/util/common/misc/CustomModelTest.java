@@ -1,20 +1,16 @@
 package art.arcane.adapt.util.common.misc;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.bukkit.platform.item.BukkitItemOps;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Registry;
-import org.bukkit.inventory.ItemType;
-import org.bukkit.block.BlockType;
-import io.papermc.paper.registry.RegistryAccess;
-import net.kyori.adventure.key.Key;
 import org.junit.jupiter.api.BeforeAll;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -38,8 +34,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,16 +43,7 @@ class CustomModelTest extends AdaptTestBase {
 
   @BeforeAll
   static void initializeItemRegistry() {
-    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
-    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
-      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
-      Registry<ItemType> items = Registry.ITEM;
-      Registry<BlockType> blocks = Registry.BLOCK;
-      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).get(any(NamespacedKey.class));
-      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).getOrThrow(any(Key.class));
-      doAnswer(call -> mock(ItemType.Typed.class)).when(items).get(any(NamespacedKey.class));
-      doAnswer(call -> mock(ItemType.Typed.class)).when(items).getOrThrow(any(Key.class));
-    }
+    TestVersion.mockBlockAndItemRegistries();
   }
 
   @BeforeEach
@@ -122,8 +107,23 @@ class CustomModelTest extends AdaptTestBase {
     when(stack.getItemMeta()).thenReturn(meta);
     ItemRef item = mock(ItemRef.class);
     when(item.unwrap()).thenReturn(stack);
+    when(core.getPlatform().host().supports(EngineFeature.ITEM_MODEL)).thenReturn(true);
     model.toItemStack(item);
     verify(item).setItemModel(Id.parse("adapt:orb"));
+    verify(meta, never()).setCustomModelData(anyInt());
+  }
+
+  @Test
+  void itemModelKeyIsIgnoredWhereTheServerHasNoItemModels() {
+    CustomModel model = new CustomModel(Id.minecraft("snowball"), 0, Id.parse("adapt:orb"), null);
+    ItemStack stack = mock(ItemStack.class);
+    ItemMeta meta = mock(ItemMeta.class);
+    when(stack.getItemMeta()).thenReturn(meta);
+    ItemRef item = mock(ItemRef.class);
+    when(item.unwrap()).thenReturn(stack);
+    when(core.getPlatform().host().supports(EngineFeature.ITEM_MODEL)).thenReturn(false);
+    model.toItemStack(item);
+    verify(item, never()).setItemModel(any());
     verify(meta, never()).setCustomModelData(anyInt());
   }
 

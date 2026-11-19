@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { fixtureJson } from './fixture-json.mjs'
 import { synchronizePlayerInput } from './player-input.mjs'
 import { synchronizePlayerVelocity } from './player-velocity.mjs'
+import { versionStep } from './version-catalog.mjs'
 
 export default {
     name: 'adapt-golem-lifecycle',
@@ -18,8 +19,9 @@ export default {
         const fixture = action => fixtureJson(context, `/adaptqa golem-lifecycle ${actor.bot.username} ${action}`, `GOLEM_LIFECYCLE ${action}`)
         const body = (state, kind) => state.golems.find(golem => golem.body === kind)
         const equip = async name => {
+            await context.waitUntil(() => actor.bot.inventory.items().some(stack => stack.name === name),
+                { label: `Inventory contains ${name}`, timeoutMs: 5000 })
             const item = actor.bot.inventory.items().find(stack => stack.name === name)
-            context.expect(Boolean(item), `Inventory contains ${name}`)
             await actor.bot.equip(item, 'hand')
             await context.sleep(150)
         }
@@ -30,7 +32,8 @@ export default {
             await context.command(`/gamemode spectator ${opponent.bot.username}`, /game mode/i, 5000)
             await context.waitUntil(() => opponent.bot.game.gameMode === 'spectator', { label: 'Bystander leaves the golem fight and item pickup', timeoutMs: 5000 })
             evidence.initial = await fixture('prepare')
-            await context.step('Copper retains its rod through both empty-hand interactions', async () => {
+            await versionStep(context, 'copper-rod-retention', { adaptations: ['golem-copper-frame'], content: [['entity', 'copper_golem']] },
+                'Copper retains its rod through both empty-hand interactions', async () => {
                 const before = await fixture('copper')
                 await context.sleep(400)
                 const golem = actor.bot.entities[body(before, 'COPPER').entityId]

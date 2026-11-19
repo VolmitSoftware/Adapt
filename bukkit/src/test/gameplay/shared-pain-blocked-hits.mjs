@@ -15,6 +15,9 @@ export default {
     const fixture = command => fixtureJson(context,
       `/adaptqa mining-audit ${actor.bot.username} ${command}`, `MINING_AUDIT ${command.split(' ')[0]}`, 10000)
     const evidence = context.report.petConservation = {}
+    const serverTick = async () => (await fixtureJson(context, `/adaptqa snapshot ${actor.bot.username} tick`, 'SNAPSHOT tick')).chronos.serverTick
+    // Before 26.x a player who joined less than 60 ticks ago ignores every hit (ServerPlayer.spawnInvulnerableTime).
+    const joinedTick = await serverTick()
     const log = await logPosition(join(context.report.server.directory, 'logs', 'latest.log'))
     let setup = false
     try {
@@ -33,6 +36,8 @@ export default {
         context.expect((await fixture('snapshot')).blocking, 'Victim is actually shield blocking')
         const victim = other.bot.players[actor.bot.username]?.entity
         context.expect(Boolean(victim), 'Attacker can see the ordinary victim')
+        await context.waitUntil(async () => await serverTick() > joinedTick + 60,
+          { label: 'Victim is past the join invulnerability window', timeoutMs: 20000, intervalMs: 250 })
         other.bot.attack(victim)
         await actor.bot.waitForTicks(15)
         actor.bot.deactivateItem()

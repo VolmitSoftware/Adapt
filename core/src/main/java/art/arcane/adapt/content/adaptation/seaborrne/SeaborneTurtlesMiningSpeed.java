@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
@@ -69,6 +70,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
   public SeaborneTurtlesMiningSpeed() {
     super("seaborne-turtles-mining-speed");
+    needs(PlatformNeed.attribute(Attributes.SUBMERGED_MINING_SPEED), PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.haste");
     setIcon(Id.minecraft("prismarine_shard"));

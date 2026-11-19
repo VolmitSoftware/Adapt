@@ -1,0 +1,31 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "art.arcane.adapt.mod.feature.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BlockDisplayDataAccess",
+    "DisplayDataAccess",
+    "InteractionDataAccess",
+    "ItemDisplayDataAccess",
+    "MobSelectorsAccess",
+    "PlayerAdvancementsResetHook",
+    "RecipeManagerAccess",
+    "RecipeManagerInjectMixin",
+    "ServerPlaceRecipeHooks",
+    "ShapedRecipeAccess",
+    "ShapelessRecipeAccess",
+    "SingleItemRecipeAccess",
+    "TextDisplayDataAccess",
+    "ViewerAvatarDataAccess",
+    "ViewerChunkMapAccess",
+    "ViewerEntityCounterAccess",
+    "ViewerEntityDataAccess",
+    "ViewerPacketHooks",
+    "ViewerPlayerInfoAccess",
+    "ViewerTrackedEntityHooks"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

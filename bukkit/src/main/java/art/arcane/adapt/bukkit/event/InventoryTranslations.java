@@ -7,7 +7,6 @@ import art.arcane.adapt.platform.event.inventory.EnchantItemEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryClickEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryCloseEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryKind;
-import art.arcane.adapt.platform.event.inventory.ItemCraftedEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import org.bukkit.Keyed;
@@ -38,7 +37,7 @@ final class InventoryTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(CLICK, CLOSE, ENCHANT, CRAFTED);
+    return List.of(CLICK, CLOSE, ENCHANT);
   }
 
   static final Translation<org.bukkit.event.inventory.InventoryClickEvent> CLICK = new Translation<>(
@@ -153,8 +152,4 @@ final class InventoryTranslations {
           }
         }
       });
-
-  static final Translation<io.papermc.paper.event.inventory.ItemCraftedEvent> CRAFTED = BukkitTranslations.simple(
-      io.papermc.paper.event.inventory.ItemCraftedEvent.class, ItemCraftedEvent.class,
-      (event, poster) -> poster.post(new ItemCraftedEvent(player(event.getPlayer()), item(event.getCraftedItem()), null)));
 }

@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "art.arcane.adapt.gameplay.mod.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "FishingHookAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

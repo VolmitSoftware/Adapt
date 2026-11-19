@@ -31,6 +31,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -55,6 +56,7 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
 
   public AxeBarkHide() {
     super("axe-bark-hide");
+    needs(PlatformNeed.attribute(Attributes.MAX_ABSORPTION));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("oak_wood"));
     registerAdvancement(AdaptAdvancement.builder()

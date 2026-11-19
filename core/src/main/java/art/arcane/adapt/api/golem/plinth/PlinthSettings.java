@@ -15,7 +15,7 @@ public record PlinthSettings(Set<Id> pedestals, InfusionRecipes recipes) {
 
   public static PlinthSettings defaults() {
     Set<Id> pedestals = new LinkedHashSet<>();
-    for (String name : PlinthStructure.DEFAULT_PEDESTALS) {
+    for (String name : PlinthStructure.defaultPedestals()) {
       pedestals.add(Id.minecraft(name.toLowerCase(Locale.ROOT)));
     }
     return new PlinthSettings(pedestals, InfusionRecipes.EMPTY);

@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -84,6 +85,7 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
 
   public AgilityVault() {
     super("agility-vault");
+    needs(PlatformNeed.attribute(Attributes.JUMP_STRENGTH));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("oak_fence"));
     setCostFactor(0D);

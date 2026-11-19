@@ -1,31 +1,21 @@
 package art.arcane.adapt.bukkit.event;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.entity.AreaEffectCloudApplyEvent;
 import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
-import art.arcane.adapt.platform.event.entity.EntityAttemptSmashAttackEvent;
-import art.arcane.adapt.platform.event.entity.EntityEquipmentChangedEvent;
 import art.arcane.adapt.platform.event.entity.EntityInsideBlockEvent;
-import art.arcane.adapt.platform.event.entity.EntityKnockbackEvent;
-import art.arcane.adapt.platform.event.entity.EntityLungeEvent;
 import art.arcane.adapt.platform.event.entity.EntityPathfindEvent;
-import art.arcane.adapt.platform.event.entity.EntityPushedByEntityAttackEvent;
 import art.arcane.adapt.platform.event.entity.EntityToggleGlideEvent;
 import art.arcane.adapt.platform.event.entity.EntityWorldEvent;
 import art.arcane.adapt.platform.event.entity.ItemDespawnEvent;
 import art.arcane.adapt.platform.event.entity.ItemMergeEvent;
 import art.arcane.adapt.platform.event.entity.ItemSpawnEvent;
-import art.arcane.adapt.platform.event.entity.ItemTransportingEntityValidateTargetEvent;
 import art.arcane.adapt.platform.event.entity.LingeringPotionSplashEvent;
 import art.arcane.adapt.platform.event.entity.PiglinBarterEvent;
 import art.arcane.adapt.platform.event.entity.PotionSplashEvent;
-import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Vec3;
-import io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.ThrownPotion;
@@ -33,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +31,6 @@ import static art.arcane.adapt.bukkit.event.BukkitEventMaps.block;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.entity;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.living;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.stack;
-import static art.arcane.adapt.bukkit.event.BukkitEventMaps.vec;
 import static art.arcane.adapt.bukkit.event.BukkitTranslations.cancel;
 
 final class EntityGapTranslations {
@@ -50,9 +38,8 @@ final class EntityGapTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(ADD_TO_WORLD, REMOVE_FROM_WORLD, SMASH_ATTEMPT, SPAWN, ITEM_MERGE, ITEM_DESPAWN, LUNGE, POTION_SPLASH,
-        LINGERING_SPLASH, CLOUD_APPLY, KNOCKBACK, INSIDE_BLOCK, TOGGLE_GLIDE, PIGLIN_BARTER, EQUIPMENT_CHANGED,
-        TRANSPORT_TARGET, PATHFIND);
+    return List.of(ADD_TO_WORLD, REMOVE_FROM_WORLD, SPAWN, ITEM_MERGE, ITEM_DESPAWN, POTION_SPLASH, LINGERING_SPLASH,
+        CLOUD_APPLY, INSIDE_BLOCK, TOGGLE_GLIDE, PIGLIN_BARTER, PATHFIND);
   }
 
   static final Translation<com.destroystokyo.paper.event.entity.EntityAddToWorldEvent> ADD_TO_WORLD = BukkitTranslations.simple(
@@ -62,17 +49,6 @@ final class EntityGapTranslations {
   static final Translation<com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent> REMOVE_FROM_WORLD =
       BukkitTranslations.simple(com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent.class, EntityWorldEvent.class,
           (event, poster) -> poster.post(new EntityWorldEvent(entity(event.getEntity()), EntityWorldEvent.Phase.REMOVE)));
-
-  static final Translation<io.papermc.paper.event.entity.EntityAttemptSmashAttackEvent> SMASH_ATTEMPT = BukkitTranslations.simple(
-      io.papermc.paper.event.entity.EntityAttemptSmashAttackEvent.class, EntityAttemptSmashAttackEvent.class, (event, poster) -> {
-        UseResult result = BukkitEventMaps.result(event.getResult());
-        EntityAttemptSmashAttackEvent core = new EntityAttemptSmashAttackEvent(living((LivingEntity) event.getEntity()),
-            living(event.getTarget()), GapEventMaps.itemOrEmpty(event.getWeapon()), event.getOriginalResult(), result);
-        poster.post(core);
-        if (core.result() != result) {
-          event.setResult(BukkitEventMaps.result(core.result()));
-        }
-      });
 
   static final Translation<org.bukkit.event.entity.EntitySpawnEvent> SPAWN = new Translation<>(
       org.bukkit.event.entity.EntitySpawnEvent.class, List.of(CreatureSpawnEvent.class, ItemSpawnEvent.class)) {
@@ -120,19 +96,6 @@ final class EntityGapTranslations {
         cancel(event, cancelled, core);
       });
 
-  static final Translation<io.papermc.paper.event.entity.EntityLungeEvent> LUNGE = BukkitTranslations.simple(
-      io.papermc.paper.event.entity.EntityLungeEvent.class, EntityLungeEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        int power = event.getLungePower();
-        EntityLungeEvent core = new EntityLungeEvent(living((LivingEntity) event.getEntity()), power);
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
-        if (core.power() != power) {
-          event.setLungePower(core.power());
-        }
-      });
-
   static final Translation<org.bukkit.event.entity.PotionSplashEvent> POTION_SPLASH = BukkitTranslations.simple(
       org.bukkit.event.entity.PotionSplashEvent.class, PotionSplashEvent.class, (event, poster) -> {
         boolean cancelled = event.isCancelled();
@@ -170,39 +133,11 @@ final class EntityGapTranslations {
         }
         AreaEffectCloudApplyEvent core = new AreaEffectCloudApplyEvent(entity(cloud),
             source instanceof org.bukkit.entity.Entity shooter ? entity(shooter) : null,
-            GapEventMaps.key(cloud.getBasePotionType()), GapEventMaps.effects(cloud.getCustomEffects()), affected);
+            Paper121Access.basePotion(cloud), GapEventMaps.effects(cloud.getCustomEffects()), affected);
         core.setCancelled(cancelled);
         poster.post(core);
         cancel(event, cancelled, core);
       });
-
-  static final Translation<io.papermc.paper.event.entity.EntityKnockbackEvent> KNOCKBACK = new Translation<>(
-      io.papermc.paper.event.entity.EntityKnockbackEvent.class,
-      List.of(EntityKnockbackEvent.class, EntityPushedByEntityAttackEvent.class)) {
-    @Override
-    public Class<? extends EntityKnockbackEvent> target(io.papermc.paper.event.entity.EntityKnockbackEvent event) {
-      return event instanceof io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent
-          ? EntityPushedByEntityAttackEvent.class
-          : EntityKnockbackEvent.class;
-    }
-
-    @Override
-    public void bridge(io.papermc.paper.event.entity.EntityKnockbackEvent event, Poster poster) {
-      boolean cancelled = event.isCancelled();
-      Vec3 knockback = vec(event.getKnockback());
-      EntityKnockbackEvent.Cause cause = GapEventMaps.knockbackCause(event.getCause());
-      EntityKnockbackEvent core = event instanceof io.papermc.paper.event.entity.EntityPushedByEntityAttackEvent pushed
-          ? new EntityPushedByEntityAttackEvent(entity(event.getEntity()), cause, knockback, entity(pushed.getPushedBy()))
-          : new EntityKnockbackEvent(entity(event.getEntity()), cause, knockback);
-      core.setCancelled(cancelled);
-      poster.post(core);
-      cancel(event, cancelled, core);
-      if (!core.knockback().equals(knockback)) {
-        Vec3 changed = core.knockback();
-        event.setKnockback(new org.bukkit.util.Vector(changed.x(), changed.y(), changed.z()));
-      }
-    }
-  };
 
   static final Translation<io.papermc.paper.event.entity.EntityInsideBlockEvent> INSIDE_BLOCK = BukkitTranslations.simple(
       io.papermc.paper.event.entity.EntityInsideBlockEvent.class, EntityInsideBlockEvent.class, (event, poster) -> {
@@ -249,31 +184,6 @@ final class EntityGapTranslations {
         }
       });
 
-  static final Translation<io.papermc.paper.event.entity.EntityEquipmentChangedEvent> EQUIPMENT_CHANGED = BukkitTranslations.simple(
-      io.papermc.paper.event.entity.EntityEquipmentChangedEvent.class, EntityEquipmentChangedEvent.class, (event, poster) -> {
-        Map<EquipmentSlot, EntityEquipmentChangedEvent.Change> changes = new EnumMap<>(EquipmentSlot.class);
-        for (Map.Entry<org.bukkit.inventory.EquipmentSlot, EquipmentChange> entry : event.getEquipmentChanges().entrySet()) {
-          EquipmentSlot slot = slot(entry.getKey());
-          if (slot != null) {
-            changes.put(slot, new EntityEquipmentChangedEvent.Change(GapEventMaps.itemOrEmpty(entry.getValue().oldItem()),
-                GapEventMaps.itemOrEmpty(entry.getValue().newItem())));
-          }
-        }
-        poster.post(new EntityEquipmentChangedEvent(living(event.getEntity()), changes));
-      });
-
-  static final Translation<io.papermc.paper.event.entity.ItemTransportingEntityValidateTargetEvent> TRANSPORT_TARGET =
-      BukkitTranslations.simple(io.papermc.paper.event.entity.ItemTransportingEntityValidateTargetEvent.class,
-          ItemTransportingEntityValidateTargetEvent.class, (event, poster) -> {
-            boolean allowed = event.isAllowed();
-            ItemTransportingEntityValidateTargetEvent core = new ItemTransportingEntityValidateTargetEvent(
-                entity(event.getEntity()), block(event.getBlock()), allowed);
-            poster.post(core);
-            if (core.allowed() != allowed) {
-              event.setAllowed(core.allowed());
-            }
-          });
-
   static final Translation<com.destroystokyo.paper.event.entity.EntityPathfindEvent> PATHFIND = BukkitTranslations.simple(
       com.destroystokyo.paper.event.entity.EntityPathfindEvent.class, EntityPathfindEvent.class, (event, poster) -> {
         boolean cancelled = event.isCancelled();
@@ -283,23 +193,6 @@ final class EntityGapTranslations {
         poster.post(core);
         cancel(event, cancelled, core);
       });
-
-  private static EquipmentSlot slot(org.bukkit.inventory.EquipmentSlot slot) {
-    if (slot == null) {
-      return null;
-    }
-    return switch (slot) {
-      case HAND -> EquipmentSlot.MAIN_HAND;
-      case OFF_HAND -> EquipmentSlot.OFF_HAND;
-      case HEAD -> EquipmentSlot.HEAD;
-      case CHEST -> EquipmentSlot.CHEST;
-      case LEGS -> EquipmentSlot.LEGS;
-      case FEET -> EquipmentSlot.FEET;
-      case BODY -> EquipmentSlot.BODY;
-      case SADDLE -> EquipmentSlot.SADDLE;
-      default -> null;
-    };
-  }
 
   private static boolean sameRefs(List<ItemRef> after, List<ItemRef> before) {
     if (after.size() != before.size()) {

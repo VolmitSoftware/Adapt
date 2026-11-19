@@ -78,6 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.LongSupplier;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config> {
@@ -121,19 +122,27 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private final HeartseekerPendingBudget pendingLaunchBudget = new HeartseekerPendingBudget(MAX_PENDING_LAUNCHES);
   private final HeartseekerPendingBudget pendingReseekBudget = new HeartseekerPendingBudget(MAX_PENDING_RESEEKS);
   private final HeartseekerCoordinator coordinator = new HeartseekerCoordinator(MAX_ACTIVE_ARROWS, MAX_ACTIVE_PER_OWNER);
-  private final HeartseekerFrameBudget workBudget = new HeartseekerFrameBudget(
-      MAX_ARROW_DISPATCHES_PER_WINDOW,
-      MAX_RAY_TRACES_PER_WINDOW,
-      MAX_TARGET_SNAPSHOTS_PER_WINDOW,
-      MAX_CANDIDATE_SCANS_PER_WINDOW,
-      MAX_CANDIDATE_HANDOFFS_PER_WINDOW,
-      MAX_TRAIL_POINTS_PER_WINDOW,
-      WORK_WINDOW_NANOS
-  );
   private final HeartseekerLifecycle lifecycle = new HeartseekerLifecycle();
+  private final LongSupplier nanoClock;
+  private final HeartseekerFrameBudget workBudget;
 
   public RangedHeartseeker() {
+    this(System::nanoTime);
+  }
+
+  RangedHeartseeker(LongSupplier nanoClock) {
     super("ranged-heartseeker");
+    this.nanoClock = nanoClock;
+    this.workBudget = new HeartseekerFrameBudget(
+        MAX_ARROW_DISPATCHES_PER_WINDOW,
+        MAX_RAY_TRACES_PER_WINDOW,
+        MAX_TARGET_SNAPSHOTS_PER_WINDOW,
+        MAX_CANDIDATE_SCANS_PER_WINDOW,
+        MAX_CANDIDATE_HANDOFFS_PER_WINDOW,
+        MAX_TRAIL_POINTS_PER_WINDOW,
+        WORK_WINDOW_NANOS,
+        nanoClock
+    );
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("target"));
     setInterval(50);
@@ -250,7 +259,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         ricochetPasses,
         speed,
         lifecycleToken,
-        System.nanoTime() + PENDING_LAUNCH_TIMEOUT_NANOS
+        nanoClock.getAsLong() + PENDING_LAUNCH_TIMEOUT_NANOS
     );
     if (pendingLaunches.putIfAbsent(arrowId, launch) != null) {
       pendingLaunchBudget.release();
@@ -603,7 +612,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private HomingState installHomingStateOwned(HomingAdmission admission, long generation) {
     ProjectileRef arrow = admission.arrow();
     UUID arrowId = arrow.uuid();
-    HomingState state = new HomingState(admission, generation);
+    HomingState state = new HomingState(admission, generation, nanoClock.getAsLong());
     HomingState existing = homing.putIfAbsent(arrowId, state);
     if (existing != null) {
       return null;
@@ -862,7 +871,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    long now = System.nanoTime();
+    long now = nanoClock.getAsLong();
     long maxFlightNanos = getMaxFlightTicks() * 50_000_000L;
     if (now - state.passStartedNanos >= maxFlightNanos) {
       endHomingOwned(arrow, state, false, true);
@@ -1093,7 +1102,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    CandidateBatch batch = new CandidateBatch(request, System.nanoTime() + RESEEK_TIMEOUT_NANOS);
+    CandidateBatch batch = new CandidateBatch(request, nanoClock.getAsLong() + RESEEK_TIMEOUT_NANOS);
     pendingReseeks.put(request.id, batch);
     List<LivingRef> candidates = collectCandidateHandlesOwned(context, request.fallback);
     int handoffLimit = Math.min(getCandidateHandoffLimit(), candidates.size());
@@ -1240,8 +1249,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     state.reseekPending = false;
     clearAvoidance(state);
     state.bestDistance = Double.MAX_VALUE;
-    state.lastProgressNanos = System.nanoTime();
-    state.passStartedNanos = System.nanoTime();
+    state.lastProgressNanos = nanoClock.getAsLong();
+    state.passStartedNanos = nanoClock.getAsLong();
     if (!coordinator.resume(arrowId, state.generation)) {
       endHomingOwned(state.arrow, state, false, false);
       return;
@@ -1434,7 +1443,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private void expirePendingLaunches() {
-    long now = System.nanoTime();
+    long now = nanoClock.getAsLong();
     int inspected = 0;
     for (PendingLaunch launch : pendingLaunches.values()) {
       if (++inspected > MAX_LAUNCH_EXPIRATIONS_PER_TICK) {
@@ -1486,7 +1495,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private void expireCandidateBatches() {
-    long now = System.nanoTime();
+    long now = nanoClock.getAsLong();
     int inspected = 0;
     for (CandidateBatch batch : pendingReseeks.values()) {
       if (++inspected > MAX_RESEEK_EXPIRATIONS_PER_TICK) {
@@ -1641,7 +1650,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         !(target instanceof PlayerRef) && AdaptationDamageTargets.allows(target, true),
         protectedFriendly,
         target.isInvisible(),
-        System.nanoTime()
+        nanoClock.getAsLong()
     );
   }
 
@@ -2121,10 +2130,10 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     private volatile boolean targetLost;
     private volatile long targetRequestStartedNanos;
     private volatile UUID previousVictimId;
-    private long passStartedNanos = System.nanoTime();
-    private long lastProgressNanos = passStartedNanos;
-    private long lastSoundNanos = passStartedNanos;
-    private long lastSteerNanos = passStartedNanos;
+    private long passStartedNanos;
+    private long lastProgressNanos;
+    private long lastSoundNanos;
+    private long lastSteerNanos;
     private double bestDistance = Double.MAX_VALUE;
     private Loc lastTrail;
     private Vec3 exitDirection;
@@ -2138,7 +2147,11 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     private boolean reseekPending;
     private boolean initialArcActive;
 
-    private HomingState(HomingAdmission admission, long generation) {
+    private HomingState(HomingAdmission admission, long generation, long startedNanos) {
+      this.passStartedNanos = startedNanos;
+      this.lastProgressNanos = startedNanos;
+      this.lastSoundNanos = startedNanos;
+      this.lastSteerNanos = startedNanos;
       this.arrow = admission.arrow();
       this.owner = admission.owner();
       this.ownerId = admission.ownerId();

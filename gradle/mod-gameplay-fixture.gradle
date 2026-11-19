@@ -14,6 +14,38 @@ sourceSets {
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
     }
 }
+// Same overlay order and `.removed` markers as the main source set (mod.gradle), under <overlay>/gameplayFixture/<kind>.
+for (String kind : ['java', 'resources']) {
+    SourceDirectorySet directories = kind == 'java' ? sourceSets.gameplayFixture.java : sourceSets.gameplayFixture.resources
+    String family = (String) targetProperties.sourceFamily
+    List<File> overlays = []
+    if (family != null) {
+        overlays.add(file("../mod-common/src/families/${family}/gameplayFixture/${kind}"))
+    }
+    overlays.add(file("../mod-common/src/versions/${fixtureTarget}/gameplayFixture/${kind}"))
+    if (family != null) {
+        overlays.add(file("src/families/${family}/gameplayFixture/${kind}"))
+    }
+    overlays.add(file("src/versions/${fixtureTarget}/gameplayFixture/${kind}"))
+    for (File overlay : overlays) {
+        directories.srcDir(overlay)
+    }
+    directories.exclude { FileTreeElement entry ->
+        if (entry.name.endsWith('.removed')) {
+            return true
+        }
+        for (int index = overlays.size() - 1; index >= 0; index--) {
+            if (new File(overlays[index], entry.relativePath.pathString + '.removed').isFile()) {
+                return true
+            }
+            File replacement = new File(overlays[index], entry.relativePath.pathString)
+            if (replacement.isFile()) {
+                return entry.file.canonicalFile != replacement.canonicalFile
+            }
+        }
+        false
+    }
+}
 
 dependencies {
     gameplayFixtureCompileOnly('org.jetbrains:annotations:26.0.2-1')
@@ -40,4 +72,34 @@ tasks.register('gameplayFixtureJar', shadowJarType) {
     archiveClassifier.set('')
     archiveFileName.set('AdaptGameplayFixture.jar')
     destinationDirectory.set(layout.buildDirectory.dir('gameplay'))
+}
+
+// Targets older than the compile release ship the fixture downgraded like the mod jar, with its own copy of the
+// JvmDowngrader API under a fixture package (Forge rejects one package in two mods). Obfuscated loaders then remap
+// the packaged fixture (fabric/build.gradle, mod-legacyforge.gradle); the others use it as is.
+ext.gameplayFixturePackagedJar = tasks.named('gameplayFixtureJar', Jar)
+if ((int) targetProperties.javaVersion < 25) {
+    Provider<Directory> fixtureDevLibs = layout.buildDirectory.dir('devlibs')
+    Class<? extends Task> downgradeType = (Class<? extends Task>) tasks.named('downgradeJar').get().getClass().getSuperclass()
+    Class<? extends Task> shadeType = (Class<? extends Task>) tasks.named('shadeDowngradedApi').get().getClass().getSuperclass()
+    tasks.named('gameplayFixtureJar', Jar).configure {
+        destinationDirectory.set(fixtureDevLibs)
+        archiveFileName.set('AdaptGameplayFixture-compiled.jar')
+    }
+    TaskProvider<Jar> downgradedFixture = tasks.register('downgradeGameplayFixtureJar', downgradeType) { Jar task ->
+        group = 'verification'
+        task.inputFile.set(tasks.named('gameplayFixtureJar', Jar).flatMap { Jar jar -> jar.archiveFile })
+        task.classpath = sourceSets.gameplayFixture.compileClasspath
+        task.destinationDirectory.set(fixtureDevLibs)
+        task.archiveFileName.set('AdaptGameplayFixture-downgraded.jar')
+    } as TaskProvider<Jar>
+    TaskProvider<Jar> shadedFixture = tasks.register('shadeGameplayFixtureJar', shadeType) { Jar task ->
+        group = 'verification'
+        task.inputFile.set(downgradedFixture.flatMap { Jar jar -> jar.archiveFile })
+        task.shadePath.set('art/arcane/adapt/gameplay/jvmdg/')
+        boolean remapped = targetProperties.obfuscated && (projectDir.name == 'fabric' || targetProperties.forgeRuntimeMappings == 'srg')
+        task.destinationDirectory.set(remapped ? fixtureDevLibs : layout.buildDirectory.dir('gameplay'))
+        task.archiveFileName.set(remapped ? 'AdaptGameplayFixture-dev.jar' : 'AdaptGameplayFixture.jar')
+    } as TaskProvider<Jar>
+    ext.gameplayFixturePackagedJar = shadedFixture
 }

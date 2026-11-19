@@ -18,7 +18,6 @@ import org.bukkit.entity.SpectralArrow;
 import org.bukkit.entity.ThrowableProjectile;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.ArrayList;
@@ -171,8 +170,7 @@ public final class BukkitProjectileRef extends BukkitEntityRef implements Projec
           effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(), effect.isAmbient(),
           effect.hasParticles(), effect.hasIcon()));
     }
-    PotionType base = arrow.getBasePotionType();
-    return new PotionContents(base == null ? null : BukkitResolve.id(base), null, effects, null);
+    return new PotionContents(BukkitProjectileVersion.basePotion(arrow), null, effects, null);
   }
 
   @Override
@@ -180,7 +178,7 @@ public final class BukkitProjectileRef extends BukkitEntityRef implements Projec
     if (!(projectile() instanceof Arrow arrow)) {
       return;
     }
-    arrow.setBasePotionType(contents.potion() == null ? null : BukkitResolve.potion(contents.potion()));
+    BukkitProjectileVersion.setBasePotion(arrow, contents.potion());
     for (EffectInstance effect : contents.customEffects()) {
       PotionEffectType type = BukkitResolve.effect(effect.type());
       if (type != null) {

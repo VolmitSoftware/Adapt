@@ -1,6 +1,5 @@
 package art.arcane.adapt.mod.event;
 
-import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.platform.event.entity.EntityRemoveEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryAction;
 import art.arcane.adapt.platform.event.inventory.InventoryKind;
@@ -51,7 +50,7 @@ public final class ModEventMaps {
 
     static Id damageType(DamageSource source) {
         Optional<ResourceKey<DamageType>> key = source.typeHolder().unwrapKey();
-        return key.map((ResourceKey<DamageType> value) -> ModRefs.id(value.identifier())).orElse(UNKNOWN_DAMAGE);
+        return key.map((ResourceKey<DamageType> value) -> HookCompat.id(value)).orElse(UNKNOWN_DAMAGE);
     }
 
     static EntityRemoveEvent.Cause removal(Entity.RemovalReason reason) {
@@ -206,7 +205,7 @@ public final class ModEventMaps {
                     return button == 0 ? InventoryAction.PICKUP_ALL : InventoryAction.PICKUP_HALF;
                 }
                 if (slot.mayPlace(cursor)) {
-                    if (ItemStack.isSameItemSameComponents(current, cursor)) {
+                    if (HookCompat.sameItem(current, cursor)) {
                         int toPlace = button == 0 ? cursor.getCount() : 1;
                         int room = Math.min(current.getMaxStackSize(), slot.getMaxStackSize(current)) - current.getCount();
                         if (room <= 0) {
@@ -219,7 +218,7 @@ public final class ModEventMaps {
                     }
                     return cursor.getCount() <= slot.getMaxStackSize(cursor) ? InventoryAction.SWAP_WITH_CURSOR : InventoryAction.NOTHING;
                 }
-                if (ItemStack.isSameItemSameComponents(current, cursor) && current.getCount() + cursor.getCount() <= cursor.getMaxStackSize()) {
+                if (HookCompat.sameItem(current, cursor) && current.getCount() + cursor.getCount() <= cursor.getMaxStackSize()) {
                     return InventoryAction.PICKUP_ALL;
                 }
                 return InventoryAction.NOTHING;
@@ -235,7 +234,7 @@ public final class ModEventMaps {
                 }
                 return InventoryAction.HOTBAR_SWAP;
             case "CLONE":
-                if (slot == null || !slot.hasItem() || !player.hasInfiniteMaterials() || !cursor.isEmpty()) {
+                if (slot == null || !slot.hasItem() || !HookCompat.infiniteMaterials(player) || !cursor.isEmpty()) {
                     return InventoryAction.NOTHING;
                 }
                 return InventoryAction.CLONE_STACK;

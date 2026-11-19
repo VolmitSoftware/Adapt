@@ -79,6 +79,6 @@ public final class ModEvents {
     }
 
     static Loc loc(ServerPlayer player, double x, double y, double z, float yaw, float pitch) {
-        return ModRefs.loc(player.level(), new net.minecraft.world.phys.Vec3(x, y, z), yaw, pitch);
+        return ModRefs.loc(HookCompat.level(player), new net.minecraft.world.phys.Vec3(x, y, z), yaw, pitch);
     }
 }

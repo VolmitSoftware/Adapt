@@ -70,6 +70,7 @@ public final class XpIntegrityFixture {
                 case "prepare" -> prepare(player, args.length > 2 ? args[2] : "crafting");
                 case "resume" -> resume(player, Integer.parseInt(args[2]), args[3]);
                 case "snapshot" -> entity(player, () -> snapshot(player, current(player)));
+                case "ready" -> entity(player, () -> readiness(player));
                 case "ore" -> at(current(player).anchor(), () -> fillOre(current(player), args[2]))
                         .thenCompose(ignored -> entity(player, () -> snapshot(player, current(player))));
                 case "cow" -> at(current(player).anchor(), () -> spawnCow(current(player)))
@@ -395,6 +396,15 @@ public final class XpIntegrityFixture {
 
     private static Trial current(PlayerRef player) {
         return Objects.requireNonNull(trials.get(player.uuid()), "Prepare the XP trial first");
+    }
+
+    /** Whether the actor's Adapt runtime has loaded, answered without failing so a reconnect can be awaited. */
+    private static JsonObject readiness(PlayerRef player) {
+        AdaptPlayer runtime = Fixtures.core().getAdaptServer().getOnlineAdaptPlayer(player.uuid());
+        JsonObject result = new JsonObject();
+        result.addProperty("ready", runtime != null && runtime.isRuntimeReady() && runtime.getPlayer() != null
+                && runtime.getPlayer().isOnline());
+        return result;
     }
 
     private static AdaptPlayer runtime(PlayerRef player) {

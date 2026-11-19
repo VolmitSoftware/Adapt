@@ -45,6 +45,9 @@ dependencies {
 tasks.named('test', Test) {
     useJUnitPlatform()
     jvmArgs('-Dnet.bytebuddy.experimental=true')
+    if (providers.gradleProperty('updatePlatformCatalog').isPresent()) {
+        systemProperty('adapt.updatePlatformCatalog', 'true')
+    }
     testLogging {
         events('failed')
         exceptionFormat = 'full'

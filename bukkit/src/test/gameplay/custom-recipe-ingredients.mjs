@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { fixtureJson } from './fixture-json.mjs'
+import { versionStep } from './version-catalog.mjs'
 
 const TIMEOUT = 6000
 const TARGETS = ['core', 'node']
@@ -176,7 +177,8 @@ export default {
                 })
             }
             for (const target of TARGETS) {
-                await context.step(`A redstone Crafter enforces the ${target} custom ingredient identity`, async () => {
+                await versionStep(context, `crafter-${target}`, { content: [['block', 'crafter']] },
+                    `A redstone Crafter enforces the ${target} custom ingredient identity`, async () => {
                     for (const variant of ACCEPTED) await crafterCase(target, variant, true)
                     for (const variant of REJECTED.filter(value => value !== 'missing')) await crafterCase(target, variant, false)
                 })

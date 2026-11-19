@@ -59,7 +59,7 @@ public final class BukkitRecipeHost implements RecipeHost {
     }
     boolean added;
     try {
-      added = server.addRecipe(translated);
+      added = BukkitRecipeVersion.add(server, translated);
     } catch (IllegalStateException | IllegalArgumentException rejected) {
       added = false;
     }
@@ -74,7 +74,7 @@ public final class BukkitRecipeHost implements RecipeHost {
   @Override
   public void unregister(Id key) {
     registered.remove(key);
-    server.removeRecipe(RecipeTranslator.key(key));
+    BukkitRecipeVersion.remove(server, RecipeTranslator.key(key));
   }
 
   @Override
@@ -148,14 +148,14 @@ public final class BukkitRecipeHost implements RecipeHost {
       }
       return RecipeChoice.ofTypes(types);
     }
-    if (choice instanceof org.bukkit.inventory.RecipeChoice.ExactChoice exact) {
+    if (choice instanceof org.bukkit.inventory.RecipeChoice.ExactChoice exact && BukkitRecipeVersion.comparesExactly(exact)) {
       List<ItemRef> stacks = new ArrayList<>();
       for (ItemStack stack : exact.getChoices()) {
         stacks.add(BukkitRefs.item(stack.clone()));
       }
       return RecipeChoice.ofExact(stacks);
     }
-    if (choice == null || choice == org.bukkit.inventory.RecipeChoice.empty()) {
+    if (choice == null || choice == BukkitRecipeVersion.emptyChoice()) {
       return null;
     }
     ItemStack example = choice.getItemStack();

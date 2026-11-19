@@ -30,6 +30,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LastDamage;
@@ -41,6 +42,7 @@ import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -77,6 +79,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
 
   public TragoulBloodPact() {
     super("tragoul-blood-pact");
+    needs(PlatformNeed.attribute(Attributes.JUMP_STRENGTH), PlatformNeed.attribute(Attributes.SAFE_FALL_DISTANCE));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("nether_wart"));
     registerAdvancement(AdaptAdvancement.builder()
@@ -134,7 +137,8 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
       if (p.health() - settledDamage <= 6.0) {
         lowHealthProcs.put(p.uuid(), true);
       }
-      applyRandomBuffs(p, level, settledDamage);
+      // Mod loaders apply Resistance and absorption after the damage event, so buffs granted here would shield the paying hit.
+      Tasks.runEntity(p, () -> applyRandomBuffs(p, level, settledDamage), 1);
       playPactProc(p);
       xp(p, getConfig().xpPerProc);
     });

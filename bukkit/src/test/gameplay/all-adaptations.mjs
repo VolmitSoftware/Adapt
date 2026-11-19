@@ -31,12 +31,15 @@ import { kineticsBehaviorCases } from './adaptation-kinetics-actions.mjs'
 import { synchronizePlayerVelocity } from './player-velocity.mjs'
 import { synchronizePlayerInput } from './player-input.mjs'
 import { synchronizePlayerAttributes } from './player-attributes.mjs'
+import { readClientAttributes } from './emulated-attributes.mjs'
 import { synchronizePlayerPassengers } from './player-passengers.mjs'
 import { utilityBehaviorCases } from './adaptation-utility-actions.mjs'
 import { natureBehaviorCases } from './adaptation-nature-actions.mjs'
 import { integrationBehaviorCases } from './adaptation-integration-actions.mjs'
 import { golemancyBehaviorCases } from './adaptation-golemancy-actions.mjs'
 import { commandAcrossWorlds, fixtureJson } from './fixture-json.mjs'
+import { contractPlan, loadVersionCatalog } from './version-catalog.mjs'
+import { serverVersion } from './version-ids.mjs'
 import { decodeSoundPacket, observeParticlePackets, isFeedbackReady } from './feedback.mjs'
 import { errorsSince, logPosition } from './runtime-log.mjs'
 import { captureEvidenceManifest, writeEvidenceManifest } from './evidence-manifest.mjs'
@@ -60,6 +63,11 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
     .map(entry => [entry.slice(0, entry.indexOf('=')), entry.slice(entry.indexOf('=') + 1)]))
   if (caseNames && (requireComplete || caseNames.some(name => !behaviorCases.has(name)))) throw new Error('Targeted smoke cases must have registered behavior handlers')
   const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
+  const minecraft = serverVersion()
+  const versionCatalog = loadVersionCatalog(minecraft)
+  const unknownVersionEntries = [...versionCatalog.keys()].filter(name => !matrix.some(entry => entry.name === name))
+  if (unknownVersionEntries.length) throw new Error(`Version catalog names unknown adaptations: ${unknownVersionEntries.join(',')}`)
+  const notApplicable = new Set()
   const suffix = randomBytes(4).toString('hex')
   const reportDirectory = new URL(`../../../../build/gameplay/reports/cases-${Date.now()}-${suffix}/`, import.meta.url)
   await mkdir(reportDirectory, { recursive: true })
@@ -101,14 +109,18 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
   const windowTrace = traceWindowPackets(actor.bot)
   async function snapshot(player = actor) {
     const token = `a${++sequence}`
-    return fixtureJson(context, `/adaptqa snapshot ${player.bot.username} ${token}`, `SNAPSHOT ${token}`)
+    return readClientAttributes(await fixtureJson(context, `/adaptqa snapshot ${player.bot.username} ${token}`, `SNAPSHOT ${token}`), player.bot)
   }
+  const joinedTick = (await snapshot()).chronos.serverTick
   async function learn(name, level, preserve = false) {
     const command = preserve ? 'learn-add' : 'learn'
     await context.command(`/adaptqa ${command} ${name} ${level}`, new RegExp(`^ADAPT_QA ${command.toUpperCase()} ${name} ${level}$`), 5000)
   }
   async function learnPrerequisites(testCase) {
-    for (const prerequisite of testCase.prerequisites ?? []) await learn(prerequisite.name, prerequisite.level, true)
+    for (const prerequisite of testCase.prerequisites ?? []) {
+      if (versionCatalog.get(prerequisite.name)?.status === 'disabled') continue
+      await learn(prerequisite.name, prerequisite.level, true)
+    }
   }
   async function stage(name) {
     for (const player of [actor, opponent]) releaseClient(player.bot)
@@ -133,6 +145,16 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
       const names = new Set(evidence.catalog.map(entry => entry.name))
       context.expect(names.size === evidence.catalog.length, 'No duplicate live adaptations')
       for (const entry of matrix) {
+        const plan = contractPlan(entry.name, evidence.catalog.find(live => live.name === entry.name), versionCatalog.get(entry.name), minecraft)
+        const listed = !caseNames || caseNames.includes(entry.name)
+        if (!plan.run && plan.note) {
+          notApplicable.add(entry.name)
+          evidence.unavailable.push(entry.name)
+          evidence.missingBehavior = evidence.missingBehavior.filter(name => name !== entry.name)
+          if (listed) process.stderr.write(`[N/A] ${entry.name}: ${plan.note}\n`)
+          continue
+        }
+        if (plan.note && listed) process.stderr.write(`[INFO] ${entry.name}: ${plan.note}\n`)
         if (!names.has(entry.name)) {
           context.expect(entry.availability.kind === 'plugin', `Required adaptation missing: ${entry.name}`)
           evidence.unavailable.push(entry.name)
@@ -141,10 +163,12 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
       }
       for (const entry of evidence.catalog) {
         context.expect(matrix.some(expected => expected.name === entry.name && expected.skill === entry.skill), `Unexpected adaptation: ${entry.name}`)
+        if (notApplicable.has(entry.name)) continue
         context.expect(entry.enabled && entry.maxLevel > 0, `Adaptation disabled or invalid: ${entry.name}`)
       }
     })
-    for (const entry of caseNames ? evidence.catalog.filter(entry => caseNames.includes(entry.name)) : evidence.catalog) {
+    const contracted = evidence.catalog.filter(entry => !notApplicable.has(entry.name))
+    for (const entry of caseNames ? contracted.filter(entry => caseNames.includes(entry.name)) : contracted) {
       await context.step(`level assignment contract: ${entry.name}`, async () => {
         for (const level of new Set([1, entry.maxLevel, 0])) {
           await learn(entry.name, level)
@@ -154,7 +178,11 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
         }
       })
     }
-    for (const entry of evidence.catalog) {
+    // Before 26.x a player who joined less than 60 ticks ago ignores every hit (ServerPlayer.spawnInvulnerableTime), so the
+    // first combat case would see no damage; 26.x has no such window and passes straight through.
+    await context.waitUntil(async () => (await snapshot()).chronos.serverTick > joinedTick + 60,
+      { label: 'actors are past the join invulnerability window', timeoutMs: 20000, intervalMs: 250 })
+    for (const entry of contracted) {
       if (nativeEvidence?.name === entry.name && (!caseNames || caseNames.includes(entry.name))) {
         await context.step(`native client activation: ${entry.name}`, async () => {
           evidence.adaptations.push(nativeEvidence)

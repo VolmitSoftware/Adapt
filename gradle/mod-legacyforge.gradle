@@ -1,0 +1,85 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+// Forge targets with SRG runtime names: ModDevGradle's legacy Forge plugin, a mixin refmap, MixinExtras shipped through
+// jarJar, and the packaged jar reobfuscated to SRG.
+apply plugin: 'net.neoforged.moddev.legacyforge'
+
+String refmap = 'adapt.refmap.json'
+List<String> mixinConfigs = ['adapt.mixins.json', 'adapt-platform.mixins.json', 'adapt.feature.mixins.json', 'adapt.gap-block.mixins.json', 'adapt.gap-entity.mixins.json']
+
+legacyForge {
+    version = (String) targetProperties.forge
+    addModdingDependenciesTo(sourceSets.test)
+    mods {
+        register(adapt.projectId) {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+String fixtureRefmap = 'adaptqa.refmap.json'
+mixin {
+    add(sourceSets.main, refmap)
+    add(sourceSets.gameplayFixture, fixtureRefmap)
+    mixinConfigs.each { String name -> config(name) }
+}
+
+// Minecraft 1.20.1 ships an older fastutil and the mod runs against that copy.
+configurations.configureEach {
+    resolutionStrategy.force("it.unimi.dsi:fastutil:${libs.versions.legacyFastutil.get()}")
+}
+dependencies {
+    annotationProcessor(variantOf(libs.mixin) { classifier('processor') })
+    compileOnly(libs.mixinextras.common)
+    annotationProcessor(libs.mixinextras.common)
+    jarJar(libs.mixinextras.forge)
+    implementation(libs.mixinextras.forge)
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    doLast {
+        mixinConfigs.each { String name ->
+            File config = new File(destinationDir, name)
+            Map<String, Object> parsed = (Map<String, Object>) new JsonSlurper().parse(config)
+            parsed.put('refmap', refmap)
+            config.text = JsonOutput.prettyPrint(JsonOutput.toJson(parsed))
+        }
+    }
+}
+tasks.named('shadowJar').configure {
+    from(tasks.named('jarJar'))
+    from(tasks.named('compileJava').map { Task task -> layout.buildDirectory.file("mixin/${refmap}") })
+}
+
+TaskProvider<Jar> packagedJar = (TaskProvider<Jar>) project.ext.packagedJar
+String baseName = ((String) distributionName).substring(0, ((String) distributionName).length() - '.jar'.length())
+packagedJar.configure {
+    destinationDirectory.set(layout.buildDirectory.dir('devlibs'))
+    archiveFileName.set("${baseName}-dev.jar".toString())
+}
+TaskProvider<Jar> reobfuscated = obfuscation.reobfuscate(packagedJar, sourceSets.main) {
+    archiveFileName.set((String) distributionName)
+}
+tasks.named('reobfJar').configure { enabled = false }
+tasks.named('assemble').configure { dependsOn(reobfuscated) }
+ext.distributionJar = reobfuscated.flatMap { Jar task -> task.archiveFile }
+
+dependencies {
+    gameplayFixtureAnnotationProcessor(variantOf(libs.mixin) { classifier('processor') })
+}
+tasks.named('processGameplayFixtureResources', ProcessResources).configure {
+    doLast {
+        File config = new File(destinationDir, 'adaptqa.mixins.json')
+        Map<String, Object> parsed = (Map<String, Object>) new JsonSlurper().parse(config)
+        parsed.put('refmap', fixtureRefmap)
+        config.text = JsonOutput.prettyPrint(JsonOutput.toJson(parsed))
+    }
+}
+tasks.named('gameplayFixtureJar', Jar).configure {
+    from(tasks.named('compileGameplayFixtureJava').map { Task task -> layout.buildDirectory.file("mixin/${fixtureRefmap}") })
+}
+TaskProvider<Jar> fixturePackaged = (TaskProvider<Jar>) project.ext.gameplayFixturePackagedJar
+obfuscation.reobfuscate(fixturePackaged, sourceSets.main) {
+    destinationDirectory.set(layout.buildDirectory.dir('gameplay'))
+    archiveFileName.set('AdaptGameplayFixture.jar')
+}

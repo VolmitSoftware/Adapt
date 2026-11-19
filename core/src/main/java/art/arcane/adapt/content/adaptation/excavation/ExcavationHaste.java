@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
@@ -55,6 +56,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
 
   public ExcavationHaste() {
     super("excavation-haste");
+    needs(PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(ExcavationHaste.Config.class);
     setIcon(Id.minecraft("golden_pickaxe"));
     setInterval(4388);

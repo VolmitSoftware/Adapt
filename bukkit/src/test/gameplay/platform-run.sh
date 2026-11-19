@@ -14,7 +14,7 @@ if [[ $# -lt 2 || "$1" == "--help" ]]; then
     echo 'is a slice of the full contract run: Gloss stays absent as in the full run instead of being installed for discovery-insight).'
     echo 'Instance names are <prefix><platform>-<mc>[-<tag>]-<epoch>-<pid>. Locks in TMPDIR serialize Multiplexor create/start calls'
     echo '(no two runs pick the same server port) and server boots up to "Done" (boots are CPU heavy; concurrent runs boot one at a time).'
-    echo 'Forge/NeoForge installer creates take their own create-<loader>-<mc> lock. ADAPT_QA_TEMPLATE_INSTANCE=<installed instance of the'
+    echo 'Forge/NeoForge installer creates take the create-<loader> lock (one installer per loader at a time: a create prunes the other cached installers of its loader). ADAPT_QA_TEMPLATE_INSTANCE=<installed instance of the'
     echo 'same prefix and loader> clones it (Multiplexor instance clone) instead of running the installer (platform-suite.sh does this).'
     echo 'Every bot connect goes through bot-connect.mjs: a connect stuck in the configuration phase (ViaProxy stall) is reconnected'
     echo 'before the scenario sees it, at most 3 attempts, each printed as "RETRY connect [<step>] <name>: ...".'
@@ -23,7 +23,15 @@ if [[ $# -lt 2 || "$1" == "--help" ]]; then
     echo 'status labels. Override with ADAPT_QA_IRIS_JAR, ADAPT_QA_GLOSS_JAR. ADAPT_QA_EXTRA_PLUGINS'
     echo 'adds comma-separated plugin jars. React (../React/React/build/libs, ADAPT_QA_REACT_JAR) is installed for experience-awards.'
     echo 'Plugin library caches persist under build/gameplay/dependencies.'
-    echo 'The bots are plain 26.1 mineflayer clients without the Adapt mod; versions above 26.1.2 go through a local ViaProxy.'
+    echo 'The bots are plain 26.1 mineflayer clients without the Adapt mod; every version but 26.1.2 goes through a local ViaProxy.'
+    echo 'Below 26 the server runs on its own Java (1.21.1: 21, 1.20.1: 17), set per instance with Multiplexor runtime settings set-java:'
+    echo 'ADAPT_QA_JAVA, else JAVA_HOME_<major>, /opt/homebrew/opt/openjdk@<major>, java_home -v <major>, ~/.gradle/jdks.'
+    echo 'Jars: Bukkit = newest "Adapt v* [CraftBukkit] <low>-<high>.jar" covering the version in ADAPT_QA_BUKKIT_LIBS (colon-separated'
+    echo 'directories, default build/libs and build/bukkit-<mc>/libs), fixture beside it; mods = "Adapt v* [<Loader>] <mc>+*.jar" in adapters/<loader>/build/<mc>/libs'
+    echo '(NeoForge 1.20.1 also takes the Forge 1.20.1 jar), fixture in ../gameplay. ADAPT_QA_BARE=1 installs neither (server reach checks).'
+    echo 'ADAPT_QA_VERSION_CATALOG=<json|tsv>: adaptations a version disables report N/A with the catalog reason (see version-catalog.mjs).'
+    echo 'Unset: core/src/test/resources/platform-support/<mc>.tsv when core has one (1.21.1, 1.20.1); set it empty to use no catalog.'
+    echo 'Scenario steps that need a disabled adaptation or content the version lacks print "[N/A] <step>: <reason>" under CASES.'
     echo 'The scenario argument may also be a plan of comma-separated steps on the same instance: <scenario>, <scenario>=<command>'
     echo 'or restart (full server stop and start). @<scenario> in a command is replaced by that earlier step'"'"'s report JSON,'
     echo 'e.g. all-skills,restart,retained-skills=@all-skills. Each step prints "STEP <scenario> <pass|fail>"; a repeated scenario'
@@ -51,16 +59,44 @@ for step in "${steps[@]}"; do
     [[ "$step" == restart || -f "$gameplay/${step%%=*}.mjs" ]] || { echo "Unknown scenario: ${step%%=*}" >&2; exit 2; }
 done
 
-newest() { ls -t "$@" 2>/dev/null | head -1; }
-if [[ "$consumer" == plugin ]]; then
-    adapt_jar="${ADAPT_QA_ADAPT_JAR:-$(newest "$project_root"/build/libs/Adapt\ v*\[CraftBukkit\]*.jar)}"
-    fixture_jar="${ADAPT_QA_FIXTURE_JAR:-$project_root/build/libs/AdaptGameplayFixture.jar}"
+version_profile="$(node "$gameplay/version-profile.mjs" shell "$minecraft_version")" || exit 2
+eval "$version_profile"
+export ADAPT_QA_MINECRAFT_VERSION="$minecraft_version"
+bare="${ADAPT_QA_BARE:-0}"
+if [[ "$bare" == 1 ]]; then
+    adapt_jar=''
+    fixture_jar=''
+elif [[ -n "${ADAPT_QA_ADAPT_JAR:-}" ]]; then
+    adapt_jar="$ADAPT_QA_ADAPT_JAR"
+    if [[ "$consumer" == plugin ]]; then
+        fixture_jar="${ADAPT_QA_FIXTURE_JAR:-$project_root/build/libs/AdaptGameplayFixture.jar}"
+    else
+        fixture_jar="${ADAPT_QA_FIXTURE_JAR:-$project_root/adapters/$platform/build/$minecraft_version/gameplay/AdaptGameplayFixture.jar}"
+    fi
 else
-    adapt_jar="${ADAPT_QA_ADAPT_JAR:-$(newest "$project_root/adapters/$platform/build/$minecraft_version/libs/"Adapt\ v*.jar)}"
-    fixture_jar="${ADAPT_QA_FIXTURE_JAR:-$project_root/adapters/$platform/build/$minecraft_version/gameplay/AdaptGameplayFixture.jar}"
+    artifacts="$(node "$gameplay/version-profile.mjs" artifacts "$minecraft_version" "$platform" "$project_root")" || exit 2
+    adapt_jar="$(sed -n 1p <<< "$artifacts")"
+    fixture_jar="${ADAPT_QA_FIXTURE_JAR:-$(sed -n 2p <<< "$artifacts")}"
 fi
-[[ -f "$adapt_jar" ]] || { echo "Adapt artifact missing for $platform $minecraft_version" >&2; exit 2; }
-[[ -f "$fixture_jar" ]] || { echo "Fixture artifact missing: $fixture_jar" >&2; exit 2; }
+if [[ "$bare" != 1 ]]; then
+    [[ -f "$adapt_jar" ]] || { echo "Adapt artifact missing for $platform $minecraft_version: $adapt_jar" >&2; exit 2; }
+    [[ -f "$fixture_jar" ]] || { echo "Fixture artifact missing: $fixture_jar" >&2; exit 2; }
+fi
+# Server Java for versions below 26 (26.x keeps the Multiplexor default, Java 25 on PATH).
+java_executable() {
+    local major="$1" home_variable="JAVA_HOME_$1" candidate system_home gradle_home
+    system_home="$(/usr/libexec/java_home -v "$major" 2>/dev/null || true)"
+    gradle_home="$(ls -d "$HOME"/.gradle/jdks/*-"$major"-*/*/Contents/Home 2>/dev/null | head -1 || true)"
+    for candidate in "${ADAPT_QA_JAVA:-}" "${!home_variable:+${!home_variable}/bin/java}" "/opt/homebrew/opt/openjdk@$major/bin/java" \
+        "${system_home:+$system_home/bin/java}" "${gradle_home:+$gradle_home/bin/java}"; do
+        [[ -n "$candidate" && -x "$candidate" ]] || continue
+        "$candidate" -version 2>&1 | grep -qE "version \"$major[.\"]" && { echo "$candidate"; return 0; }
+    done
+    echo "No Java $major found: set ADAPT_QA_JAVA or JAVA_HOME_$major" >&2
+    return 1
+}
+server_java=''
+if [[ "$profile_java_major" != 25 ]]; then server_java="$(java_executable "$profile_java_major")" || exit 2; fi
 
 prefix="${ADAPT_QA_PREFIX:-g1-adapt-}"
 case "$prefix" in *-adapt-) ;; *) echo "ADAPT_QA_PREFIX must end in -adapt-: $prefix" >&2; exit 2 ;; esac
@@ -93,6 +129,13 @@ plugin_jar() {
     found="$(ls -t "$(dirname "$project_root")/$name/build/libs/$name v"*.jar "$(dirname "$project_root")/$name/$name/build/libs/$name v"*.jar 2>/dev/null | head -1 || true)"
     [[ -n "$found" ]] || { echo "Build $name or set ADAPT_QA_$(echo "$name" | tr '[:lower:]' '[:upper:]')_JAR" >&2; return 1; }
     echo "$found"
+}
+# A plugin built for a newer Bukkit API than this server's refuses to load; its integration is not applicable here.
+plugin_api_newer() {
+    local api
+    api="$(unzip -p "$1" plugin.yml paper-plugin.yml 2>/dev/null | sed -n "s/^api-version:[[:space:]]*[\"']\{0,1\}\([0-9][0-9.]*\).*/\1/p" | head -1)"
+    [[ -n "$api" ]] && node --input-type=module -e "import { compareVersions } from '$gameplay/version-profile.mjs'; process.exit(compareVersions(process.argv[1], process.argv[2]) > 0 ? 0 : 1)" "$api" "$minecraft_version" \
+        && echo "$api"
 }
 created=false
 instance_path=''
@@ -150,10 +193,12 @@ if [[ -n "$template" ]]; then
     echo "Instance created in $((SECONDS - create_started)) s (clone of $template: copy $clone_seconds s, lock wait $((SECONDS - create_started - clone_seconds)) s)"
 else
     create_lock=multiplexor
-    installer_loader "$platform" && create_lock="create-$platform-${minecraft_version//./}"
-    if ! with_lock "$create_lock" mux server create "$instance" --type "$platform" --mc "$minecraft_version" --isolated > "$output/create.log" 2>&1; then
+    installer_loader "$platform" && create_lock="create-$platform"
+    source_args=()
+    while IFS= read -r argument; do source_args+=("$argument"); done < <(server_source_args "$platform" "$minecraft_version" "$project_root")
+    if ! with_lock "$create_lock" mux server create "$instance" "${source_args[@]}" --isolated > "$output/create.log" 2>&1; then
         created=true
-        with_lock "$create_lock" mux server create "$instance" --type "$platform" --mc "$minecraft_version" --isolated --auto-build >> "$output/create.log" 2>&1
+        with_lock "$create_lock" mux server create "$instance" "${source_args[@]}" --isolated --auto-build >> "$output/create.log" 2>&1
     fi
     echo "Instance created in $((SECONDS - create_started)) s"
 fi
@@ -161,27 +206,48 @@ created=true
 owned_instance_exists || { echo "Instance was not created: $instance" >&2; tail -5 "$output/create.log" >&2; exit 1; }
 instance_path="$(with_lock multiplexor mux instance path "$instance" | tail -1)"
 [[ -d "$instance_path" ]] || { echo "Instance path unknown: $instance_path" >&2; exit 1; }
+if [[ -n "$server_java" ]]; then
+    with_lock multiplexor mux runtime settings set-java "$server_java" --instance "$instance" > "$output/java.log" 2>&1 \
+        || { echo "Could not select Java $profile_java_major ($server_java); see $output/java.log" >&2; exit 1; }
+fi
 mkdir -p "$instance_path/$content"
-cp "$adapt_jar" "$instance_path/$content/Adapt.jar"
-cp "$fixture_jar" "$instance_path/$content/AdaptGameplayFixture.jar"
-unset ADAPT_QA_IRIS_WORLD ADAPT_QA_ABSENT_INTEGRATIONS ADAPT_QA_REACT
+if [[ "$bare" != 1 ]]; then
+    cp "$adapt_jar" "$instance_path/$content/Adapt.jar"
+    cp "$fixture_jar" "$instance_path/$content/AdaptGameplayFixture.jar"
+fi
+unset ADAPT_QA_IRIS_WORLD ADAPT_QA_ABSENT_INTEGRATIONS ADAPT_QA_REACT ADAPT_QA_REACT_ABSENT
 if [[ "$content" == plugins ]]; then
     if selected axe-iris-feller; then
-        cp "$(plugin_jar Iris "${ADAPT_QA_IRIS_JAR:-}")" "$instance_path/plugins/Iris.jar"
-        mkdir -p "$instance_path/plugins/Iris/packs"
-        cp -R "$(dirname "$project_root")/Iris/adapters/bukkit/plugin/src/test/gameplay/native-terrain-pack" "$instance_path/plugins/Iris/packs/native-terrain"
-        export ADAPT_QA_IRIS_WORLD='name=adapt_gameplay_iris type=native-terrain seed=78264193'
+        iris_jar="$(plugin_jar Iris "${ADAPT_QA_IRIS_JAR:-}")" || exit 2
+        if iris_api="$(plugin_api_newer "$iris_jar")"; then
+            echo "Iris needs Bukkit API $iris_api; not installed on Minecraft $minecraft_version" >&2
+        else
+            cp "$iris_jar" "$instance_path/plugins/Iris.jar"
+            mkdir -p "$instance_path/plugins/Iris/packs"
+            cp -R "$(dirname "$project_root")/Iris/adapters/bukkit/plugin/src/test/gameplay/native-terrain-pack" "$instance_path/plugins/Iris/packs/native-terrain"
+            export ADAPT_QA_IRIS_WORLD='name=adapt_gameplay_iris type=native-terrain seed=78264193'
+        fi
     fi
     if selected discovery-insight && [[ "$platform" == folia ]]; then
         export ADAPT_QA_ABSENT_INTEGRATIONS='gloss=Gloss 3.3.0 touches hologram entities off their owning region on Folia (ViewerDisplayBudget hideEntity, RoleSnapshotPendingException)'
     elif selected discovery-insight && [[ -z "$cases" || "${ADAPT_QA_CONTRACT_SLICE:-0}" == 1 ]]; then
         export ADAPT_QA_ABSENT_INTEGRATIONS='gloss=Gloss reroutes golem and servant status labels, so it is installed only when the case list names discovery-insight'
     elif selected discovery-insight; then
-        cp "$(plugin_jar Gloss "${ADAPT_QA_GLOSS_JAR:-}")" "$instance_path/plugins/Gloss.jar"
+        gloss_jar="$(plugin_jar Gloss "${ADAPT_QA_GLOSS_JAR:-}")" || exit 2
+        if gloss_api="$(plugin_api_newer "$gloss_jar")"; then
+            export ADAPT_QA_ABSENT_INTEGRATIONS="gloss=the Gloss plugin needs Bukkit API $gloss_api; not applicable on Minecraft $minecraft_version"
+        else
+            cp "$gloss_jar" "$instance_path/plugins/Gloss.jar"
+        fi
     fi
     if planned experience-awards; then
-        cp "$(plugin_jar React "${ADAPT_QA_REACT_JAR:-}")" "$instance_path/plugins/React.jar"
-        export ADAPT_QA_REACT=1
+        react_jar="$(plugin_jar React "${ADAPT_QA_REACT_JAR:-}")" || exit 2
+        if react_api="$(plugin_api_newer "$react_jar")"; then
+            export ADAPT_QA_REACT_ABSENT="the React plugin needs Bukkit API $react_api; not applicable on Minecraft $minecraft_version"
+        else
+            cp "$react_jar" "$instance_path/plugins/React.jar"
+            export ADAPT_QA_REACT=1
+        fi
     fi
     if [[ "$platform" == folia && ",$scenario," =~ ,golem-folia[,=] ]]; then
         golem_fixture="${ADAPT_QA_GOLEM_FOLIA_FIXTURE_JAR:-$project_root/build/libs/AdaptGolemFoliaFixture.jar}"
@@ -207,8 +273,7 @@ if [[ "$content" == mods || "$platform" == folia ]]; then
     pack="$instance_path/${level:-world}/datapacks/adaptqa"
     mkdir -p "$pack"
     cp -R "$project_root/adapters/mod-common/src/gameplayFixture/datapack/data" "$pack/"
-    format="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[sys.argv[2]]["dataPackFormat"])' "$project_root/gradle/targets.json" "$minecraft_version")"
-    printf '{"pack":{"description":"Adapt gameplay fixture dimensions","min_format":%s,"max_format":%s}}\n' "$format" "$format" > "$pack/pack.mcmeta"
+    node "$gameplay/version-profile.mjs" pack-meta "$minecraft_version" "$project_root/gradle/targets.json" > "$pack/pack.mcmeta"
     property level-seed 424242
     property level-type minecraft:flat
     property generator-settings '{"biome":"minecraft:plains","layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:stone","height":3}],"lakes":false,"features":false,"structure_overrides":[]}'
@@ -264,6 +329,7 @@ start_server() {
     await_server "$boot_hold"
 }
 wait_for_adapt() {
+    [[ "$bare" == 1 ]] && return 0
     for _ in $(seq 1 600); do grep -q 'Adapt core started\|Enabling Adapt\|Adapt.*enabled' "$log" && break; sleep 0.2; done
 }
 # Proxy-side compression stays off. With it on, ViaProxy 3.4.14 sends its own login compression to the bot and
@@ -312,7 +378,7 @@ restart_server() {
     fi
 }
 proxy_jar="${ADAPT_QA_VIAPROXY_JAR:-$project_root/build/gameplay/tools/ViaProxy-3.4.14.jar}"
-if [[ "$minecraft_version" != 26.1.2 && ! -f "$proxy_jar" ]]; then
+if [[ "$profile_proxy" == true && ! -f "$proxy_jar" ]]; then
     mkdir -p "$(dirname "$proxy_jar")"
     curl -fsSL -o "$proxy_jar" https://github.com/ViaVersion/ViaProxy/releases/download/v3.4.14/ViaProxy-3.4.14.jar
 fi
@@ -320,7 +386,7 @@ first_boot() {
     launch_server
     port="$(grep '^server-port=' "$instance_path/server.properties" | cut -d= -f2)"
     bot_port="$port"
-    if [[ "$minecraft_version" != 26.1.2 ]]; then
+    if [[ "$profile_proxy" == true ]]; then
         bot_port="$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')"
         launch_proxy
     fi
@@ -348,7 +414,7 @@ run_step() {
     printf "import scenario from '%s'\nimport { guardedScenario } from '%s'\n\nexport default guardedScenario(scenario)\n" \
         "file://$gameplay/$name.mjs" "file://$gameplay/operator-guard.mjs" > "$scenario_module"
     local -a options=(--scenario "$scenario_module" --host 127.0.0.1 --port "$bot_port" --instance "$instance"
-        --instance-directory "$instance_path" --username "$admin" --auth offline --version 26.1
+        --instance-directory "$instance_path" --username "$admin" --auth offline --version "$profile_client_version"
         --timeout 43200 --connect-timeout 90 --assertion-timeout 15 --artifacts "$output" --log-path "$log" --no-viewer --json)
     [[ -n "$command" ]] && options+=(--command "$command")
     local marker="$output/.started" attempt stalled

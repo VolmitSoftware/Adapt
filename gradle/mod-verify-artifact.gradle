@@ -127,7 +127,8 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                     List<String> declaredMixins = (archive.manifest?.mainAttributes?.getValue('MixinConfigs') ?: '').split(',').collect { String entry -> entry.trim() }
                     require(declaredMixins.containsAll(mixinConfigs), "Forge manifest must list ${mixinConfigs.join(',')}")
                     Map<String, Object> pack = (Map<String, Object>) new JsonSlurper().parseText(archive.getInputStream(archive.getJarEntry('pack.mcmeta')).withCloseable { InputStream stream -> stream.getText('UTF-8') }).pack
-                    require(pack instanceof Map && pack.min_format == target.dataPackFormat && pack.max_format == target.dataPackFormat, "pack.mcmeta must declare data pack format ${target.dataPackFormat}")
+                    boolean packFormat = target.obfuscated ? pack?.pack_format == target.dataPackFormat : pack?.min_format == target.dataPackFormat && pack?.max_format == target.dataPackFormat
+                    require(pack instanceof Map && packFormat, "pack.mcmeta must declare data pack format ${target.dataPackFormat}")
                 } else {
                     mixinConfigs.each { String config -> require(sections('mixins').any { Map<String, String> entry -> entry.config == config }, "neoforge.mods.toml must list ${config}") }
                     require(Pattern.compile('(?ms)^\\[features\\.' + Pattern.quote(adapt.projectId) + '\\]\\s*\\n(?:(?!^\\[).)*?^javaVersion\\s*=\\s*"' + Pattern.quote("[${target.javaVersion},)") + '"\\s*$').matcher(metadata).find(), 'incorrect NeoForge Java requirement')

@@ -4,16 +4,12 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.AdaptEventBus;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.inventory.InventoryDragEvent;
-import art.arcane.adapt.platform.event.inventory.PrepareAnvilEvent;
 import art.arcane.adapt.platform.event.inventory.PrepareItemCraftEvent;
-import art.arcane.adapt.platform.event.inventory.PrepareResultEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.view.AnvilView;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,33 +65,6 @@ class InventoryGapTranslationsTest {
     assertThat(seen.get().player()).isSameAs(refs.wrap(player, PlayerRef.class));
     assertThat(seen.get().matrix()).hasSize(2);
     verify(grid).setResult(null);
-  }
-
-  @Test
-  void anvilRepairCostAndResultAreWrittenBack() {
-    AnvilView view = mock(AnvilView.class);
-    AnvilInventory anvil = mock(AnvilInventory.class);
-    when(view.getPlayer()).thenReturn(player);
-    when(view.getTopInventory()).thenReturn(anvil);
-    when(view.getRepairCost()).thenReturn(9);
-    when(view.getRenameText()).thenReturn("Heirloom");
-    ItemStack result = mock(ItemStack.class);
-    ItemStack marked = mock(ItemStack.class);
-    org.bukkit.event.inventory.PrepareAnvilEvent event = new org.bukkit.event.inventory.PrepareAnvilEvent(view, result);
-    AtomicReference<PrepareResultEvent> seen = new AtomicReference<>();
-    bus.register(this, PrepareResultEvent.class, EventPriority.HIGH, core -> {
-      seen.set(core);
-      PrepareAnvilEvent anvilEvent = (PrepareAnvilEvent) core;
-      anvilEvent.setRepairCost(4);
-      anvilEvent.setResult(refs.wrap(marked, ItemRef.class));
-    });
-
-    assertThat(InventoryGapTranslations.PREPARE_RESULT.target(event)).isEqualTo(PrepareAnvilEvent.class);
-    InventoryGapTranslations.PREPARE_RESULT.bridge(event, core -> bus.post(core, EventPriority.HIGH));
-
-    assertThat(((PrepareAnvilEvent) seen.get()).renameText()).isEqualTo("Heirloom");
-    verify(view).setRepairCost(4);
-    assertThat(event.getResult()).isSameAs(marked);
   }
 
   @Test

@@ -9,7 +9,6 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.TileState;
@@ -28,7 +27,6 @@ import java.util.Random;
 /** Item factory. {@link #encode} uses the plugin's framed item byte format, Base64 encoded. */
 public final class BukkitItemOps implements ItemOps {
   private static final String OBJECT_STREAM_PREFIX = "rO0";
-  private static volatile boolean enchantWithLevelsSupported = true;
 
   @Override
   public ItemRef create(Id type, int amount) {
@@ -187,17 +185,8 @@ public final class BukkitItemOps implements ItemOps {
   }
 
   @Override
-  @SuppressWarnings("deprecation")
   public ItemRef enchantWithLevels(ItemRef item, int levels, boolean treasure, Random random) {
-    ItemStack stack = BukkitRefs.item(item).clone();
-    if (enchantWithLevelsSupported) {
-      try {
-        return new BukkitItemRef(Bukkit.getItemFactory().enchantWithLevels(stack, levels, treasure, random));
-      } catch (NoSuchMethodError absent) {
-        enchantWithLevelsSupported = false;
-      }
-    }
-    return new BukkitItemRef(Bukkit.getItemFactory().enchantItem(stack, levels, treasure));
+    return new BukkitItemRef(BukkitItem120Version.enchantWithLevels(BukkitRefs.item(item).clone(), levels, treasure, random));
   }
 
   @Override

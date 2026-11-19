@@ -91,12 +91,7 @@ public final class EquipmentPackets {
     String name = switch (slot) {
       case HAND -> "MAINHAND";
       case OFF_HAND -> "OFFHAND";
-      case HEAD -> "HEAD";
-      case CHEST -> "CHEST";
-      case LEGS -> "LEGS";
-      case FEET -> "FEET";
-      case BODY -> "BODY";
-      case SADDLE -> "SADDLE";
+      default -> slot.name();
     };
     try {
       return Enum.valueOf((Class<Enum>) slotClass, name);

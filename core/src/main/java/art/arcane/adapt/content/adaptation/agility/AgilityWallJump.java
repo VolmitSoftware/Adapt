@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -78,6 +79,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
   public AgilityWallJump() {
     super("agility-wall-jump");
+    needs(PlatformNeed.attribute(Attributes.GRAVITY));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("vine"));
     setInterval(50);

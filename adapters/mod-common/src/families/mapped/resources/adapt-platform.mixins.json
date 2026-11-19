@@ -1,0 +1,39 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "art.arcane.adapt.mod.platform.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractArrowAccess",
+    "ArmorStandAccess",
+    "ArrowAccess",
+    "AttributeMapAccess",
+    "BaseContainerReachMixin",
+    "BrewingStandDataAccess",
+    "CampfireAccess",
+    "BiomeAccess",
+    "BlockEntityDataMixin",
+    "EntityDataMixin",
+    "EntityPoseMixin",
+    "ExperienceOrbAccess",
+    "FurnaceDataAccess",
+    "FoodDataAccess",
+    "ItemCooldownsMixin",
+    "ItemEntityAccess",
+    "LivingEntityAccess",
+    "MinecraftServerStorageAccess",
+    "MinecraftServerTickMixin",
+    "MobAwarenessMixin",
+    "MobSunBurnMixin",
+    "MushroomCowAccess",
+    "PlayerAccess",
+    "PlayerFlightRequestMixin",
+    "ProjectileAccess",
+    "ServerPlayerDataMixin",
+    "SpectralArrowAccess",
+    "VillagerAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

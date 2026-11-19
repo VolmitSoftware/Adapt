@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "adaptqa",
+  "version": "${projectVersion}",
+  "name": "Adapt Gameplay Fixture",
+  "description": "Isolated test fixture for Adapt gameplay contracts. Never install on a real server.",
+  "license": "GPL-3.0",
+  "environment": "*",
+  "mixins": ["adaptqa.mixins.json"],
+  "entrypoints": {
+    "main": ["art.arcane.adapt.gameplay.fabric.AdaptGameplayFixtureFabric"]
+  },
+  "depends": {
+    "adapt": "*",
+    "minecraft": "${minecraftVersion}"
+  }
+}

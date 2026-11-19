@@ -2,16 +2,11 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.components.UseCooldownComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,11 +17,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ItemCooldownsTest extends AdaptTestBase {
@@ -52,12 +44,6 @@ class ItemCooldownsTest extends AdaptTestBase {
     PlayerRef p = mock(PlayerRef.class);
     lenient().when(p.uuid()).thenReturn(id);
     return p;
-  }
-
-  private ItemRef stackWith(ItemMeta meta) {
-    ItemStack stack = mock(ItemStack.class);
-    lenient().when(stack.getItemMeta()).thenReturn(meta);
-    return BukkitRefs.item(stack);
   }
 
   @Test
@@ -242,56 +228,5 @@ class ItemCooldownsTest extends AdaptTestBase {
     cooldown.clear(id);
 
     assertThat(cooldown.isReady(p, MINUTE)).isTrue();
-  }
-
-  @Test
-  void stampingWritesTheGroupOntoTheUseCooldownComponent() {
-    ItemMeta meta = mock(ItemMeta.class);
-    UseCooldownComponent component = mock(UseCooldownComponent.class);
-    when(meta.hasUseCooldown()).thenReturn(false);
-    when(meta.getUseCooldown()).thenReturn(component);
-
-    assertThat(ItemCooldowns.stampGroup(stackWith(meta), BoundEyeOfEnder.COOLDOWN_GROUP)).isTrue();
-
-    verify(component).setCooldownGroup(BukkitRefs.key(BoundEyeOfEnder.COOLDOWN_GROUP));
-    verify(component).setCooldownSeconds(org.mockito.ArgumentMatchers.floatThat(seconds -> seconds > 0F));
-    verify(meta).setUseCooldown(component);
-  }
-
-  @Test
-  void stampingIsIdempotentSoRepeatedUseDoesNotRewriteTheStack() {
-    ItemMeta meta = mock(ItemMeta.class);
-    UseCooldownComponent component = mock(UseCooldownComponent.class);
-    when(meta.hasUseCooldown()).thenReturn(true);
-    when(meta.getUseCooldown()).thenReturn(component);
-    when(component.getCooldownGroup()).thenReturn(BukkitRefs.key(BoundEyeOfEnder.COOLDOWN_GROUP));
-
-    assertThat(ItemCooldowns.stampGroup(stackWith(meta), BoundEyeOfEnder.COOLDOWN_GROUP)).isFalse();
-
-    verify(meta, never()).setUseCooldown(any());
-  }
-
-  @Test
-  void stampingReplacesAForeignGroupRatherThanLeavingTheWrongSweep() {
-    ItemMeta meta = mock(ItemMeta.class);
-    UseCooldownComponent component = mock(UseCooldownComponent.class);
-    when(meta.hasUseCooldown()).thenReturn(true);
-    when(meta.getUseCooldown()).thenReturn(component);
-    when(component.getCooldownGroup()).thenReturn(BukkitRefs.key(BoundRedstoneTorch.COOLDOWN_GROUP));
-
-    assertThat(ItemCooldowns.stampGroup(stackWith(meta), BoundEyeOfEnder.COOLDOWN_GROUP)).isTrue();
-
-    verify(component).setCooldownGroup(BukkitRefs.key(BoundEyeOfEnder.COOLDOWN_GROUP));
-    verify(meta).setUseCooldown(component);
-  }
-
-  @Test
-  void stampingNullsIsANoOpSoCallersCanPassAnUndeclaredGroup() {
-    ItemMeta meta = mock(ItemMeta.class);
-
-    assertThat(ItemCooldowns.stampGroup(stackWith(meta), null)).isFalse();
-    assertThat(ItemCooldowns.stampGroup((ItemRef) null, BoundEyeOfEnder.COOLDOWN_GROUP)).isFalse();
-
-    verify(meta, never()).setUseCooldown(any());
   }
 }

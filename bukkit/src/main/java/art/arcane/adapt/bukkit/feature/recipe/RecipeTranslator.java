@@ -33,8 +33,8 @@ import java.util.function.Predicate;
 /**
  * Recipe specs to the same Bukkit recipe classes {@code AdaptRecipe} registers. Smithing ingredients given as
  * item types become exact choices, as the plugin's smithing recipes always were. Matching ingredients become
- * Paper predicate choices, or exact choices of their example where the server has none. Returns null when an
- * ingredient or the result does not resolve.
+ * Paper predicate choices, or {@link BukkitRecipeVersion#matchingFallback} of their example where the server has
+ * none. Returns null when an ingredient or the result does not resolve.
  */
 final class RecipeTranslator {
   private static final Method PREDICATE_CHOICE = predicateChoiceFactory();
@@ -111,7 +111,7 @@ final class RecipeTranslator {
 
   private Recipe smithing(NamespacedKey key, RecipeSpec.Smithing spec, ItemStack result) {
     RecipeChoice base = smithingChoice(spec.base());
-    RecipeChoice addition = spec.addition() == null ? RecipeChoice.empty() : smithingChoice(spec.addition());
+    RecipeChoice addition = spec.addition() == null ? BukkitRecipeVersion.emptyChoice() : smithingChoice(spec.addition());
     if (base == null || addition == null) {
       return null;
     }
@@ -159,12 +159,12 @@ final class RecipeTranslator {
     }
     ItemStack representative = example.clone();
     representative.setAmount(1);
-    if (PREDICATE_CHOICE == null) {
-      return new RecipeChoice.ExactChoice(representative);
-    }
     Predicate<ItemRef> test = matching.matches();
     Predicate<ItemStack> matches = (ItemStack item) -> item != null && item.getAmount() > 0
         && item.getType() == base && test.test(BukkitRefs.item(item));
+    if (PREDICATE_CHOICE == null) {
+      return BukkitRecipeVersion.matchingFallback(representative, matches);
+    }
     try {
       return (RecipeChoice) PREDICATE_CHOICE.invoke(null, matches, representative);
     } catch (IllegalAccessException | InvocationTargetException failure) {

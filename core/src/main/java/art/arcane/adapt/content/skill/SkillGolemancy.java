@@ -1135,7 +1135,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Skill XP paid by the golem item hauling challenges.", impact = "Higher values pay more; the 250,000 items challenge pays five times this value.")
     double challengeItemsMovedReward = 500;
     @ConfigDoc(value = "Blocks that work as Animus Plinth pedestals, two blocks north, east, south and west of a lodestone at the same height.", impact = "Add or remove block names to change which blocks form a plinth; unknown names and the lodestone are ignored with a warning.")
-    List<String> pedestalBlocks = new ArrayList<>(PlinthStructure.DEFAULT_PEDESTALS);
+    List<String> pedestalBlocks = new ArrayList<>(PlinthStructure.defaultPedestals());
     @ConfigDoc(value = "Infusions an Animus Plinth can perform, one table per infusion with result, center, pedestals, essenceLevels, durationTicks, unlockAdaptation, unlockLevel and enabled.", impact = "Edit a table to change an infusion, set enabled to false to turn it off, or add a table to create a new one; invalid tables are skipped with a warning.")
     Map<String, InfusionRecipe> infusionRecipes = InfusionRecipe.defaults();
     @ConfigDoc(value = "Skill XP paid for each tier 1 rune infused at an Animus Plinth.", impact = "Higher values reward tier 1 infusions more; 0 pays nothing.")

@@ -1,9 +1,12 @@
 plugins {
     id 'java'
-    id 'net.fabricmc.fabric-loom' version '1.17.21'
+    id 'net.fabricmc.fabric-loom' version '1.17.21' apply false
+    id 'net.fabricmc.fabric-loom-remap' version '1.17.21' apply false
+    id 'xyz.wagyourtail.jvmdowngrader' version '2.0.1' apply false
     alias(libs.plugins.shadow)
 }
 apply from: '../../gradle/mod.gradle'
+apply plugin: targetProperties.obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
 
 repositories {
     maven { url = uri('https://maven.fabricmc.net/') }
@@ -13,9 +16,13 @@ configurations {
 }
 dependencies {
     minecraft("com.mojang:minecraft:${adapt.minecraftVersion}")
-    implementation("net.fabricmc:fabric-loader:${targetProperties.fabricLoader}")
+    if (targetProperties.obfuscated) {
+        mappings(loom.officialMojangMappings())
+    }
+    String modConfiguration = targetProperties.obfuscated ? 'modImplementation' : 'implementation'
+    add(modConfiguration, "net.fabricmc:fabric-loader:${targetProperties.fabricLoader}")
     targetProperties.fabricModules.each { String module, String moduleVersion ->
-        implementation("net.fabricmc.fabric-api:${module}:${moduleVersion}")
+        add(modConfiguration, "net.fabricmc.fabric-api:${module}:${moduleVersion}")
         nestedApi("net.fabricmc.fabric-api:${module}:${moduleVersion}")
     }
 }
@@ -29,6 +36,32 @@ tasks.named('shadowJar').configure {
             }
             module + '.jar'
         }
+    }
+}
+if (targetProperties.obfuscated) {
+    TaskProvider<Jar> packagedJar = (TaskProvider<Jar>) project.ext.packagedJar
+    String baseName = ((String) distributionName).substring(0, ((String) distributionName).length() - '.jar'.length())
+    packagedJar.configure {
+        destinationDirectory.set(layout.buildDirectory.dir('devlibs'))
+        archiveFileName.set("${baseName}-dev.jar".toString())
+    }
+    TaskProvider<AbstractArchiveTask> remapped = tasks.named('remapJar', AbstractArchiveTask)
+    remapped.configure {
+        inputFile.set(packagedJar.flatMap { Jar task -> task.archiveFile })
+        archiveFileName.set((String) distributionName)
+        addNestedDependencies.set(false)
+    }
+    tasks.named('assemble').configure { dependsOn(remapped) }
+    ext.distributionJar = remapped.flatMap { AbstractArchiveTask task -> task.archiveFile }
+    TaskProvider<Jar> fixturePackaged = (TaskProvider<Jar>) project.ext.gameplayFixturePackagedJar
+    tasks.register('remapGameplayFixtureJar', net.fabricmc.loom.task.RemapJarTask) { AbstractArchiveTask task ->
+        group = 'verification'
+        description = 'Remaps the packaged gameplay fixture to the runtime names.'
+        task.inputFile.set(fixturePackaged.flatMap { Jar jar -> jar.archiveFile })
+        task.classpath.from(sourceSets.gameplayFixture.compileClasspath)
+        task.addNestedDependencies.set(false)
+        task.destinationDirectory.set(layout.buildDirectory.dir('gameplay'))
+        task.archiveFileName.set('AdaptGameplayFixture.jar')
     }
 }
 loom {

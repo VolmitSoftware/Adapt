@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -78,6 +79,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
 
   public StealthSpeed() {
     super("stealth-speed");
+    needs(PlatformNeed.attribute(Attributes.SNEAKING_SPEED), PlatformNeed.partialAttribute(Attributes.STEP_HEIGHT, "no step assist"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("mushroom_stew"));
     setInterval(getConfig().setInterval);
@@ -357,7 +359,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       }
     }
 
-    Vec3 movement = new Vec3(p.velocity().x(), 0, p.velocity().z());
+    Vec3 movement = new Vec3(p.movement().x(), 0, p.movement().z());
     double velocityThreshold = Math.max(0, getConfig().autoStepVelocityThreshold);
     if (movement.lengthSquared() <= velocityThreshold * velocityThreshold) {
       return Vec3.ZERO;

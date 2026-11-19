@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -158,7 +159,8 @@ class GolemMasterworkTest extends AdaptTestBase {
 
   @Test
   void everyLevelListsTheLevelsToInfuseAMasterworkHeart() {
-    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(InfusionCostFixtures.defaults());
+    PlinthSettings defaults = InfusionCostFixtures.defaults();
+    runtime.when(GolemancyRuntime::plinthSettings).thenReturn(defaults);
     String heart = "- 15 Levels to Infuse a Masterwork Heart";
 
     assertThat(lore(1)).endsWith(heart);

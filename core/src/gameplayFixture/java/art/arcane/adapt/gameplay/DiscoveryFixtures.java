@@ -57,7 +57,7 @@ public final class DiscoveryFixtures {
             }
             case "discovery-qa-brush" -> {
                 Fixtures.give(actor, "brush", 1);
-                Fixtures.setBlockNbt(world, 2, 100, 0, "minecraft:suspicious_sand{item:{id:\"minecraft:paper\",count:1}}");
+                Fixtures.setBlockNbt(world, 2, 100, 0, "minecraft:suspicious_sand{item:" + Fixtures.itemStackNbt("paper", 1) + "}");
                 hideFromWatchers(actor);
             }
             case "discovery-qa-keen" -> Fixtures.set(world, 2, 100, 0, "chest");
@@ -71,7 +71,7 @@ public final class DiscoveryFixtures {
                 Fixtures.give(actor, "emerald", 64);
                 EntityRef villager = Fixtures.summon(world, "villager", 2.5, 100, 0.5,
                         "{NoAI:1b,Age:0,VillagerData:{profession:\"minecraft:farmer\",level:1,type:\"minecraft:plains\"},"
-                                + "Offers:{Recipes:[{buy:{id:\"minecraft:emerald\",count:20},sell:{id:\"minecraft:bread\",count:1},"
+                                + "Offers:{Recipes:[{buy:" + Fixtures.itemStackNbt("emerald", 20) + ",sell:" + Fixtures.itemStackNbt("bread", 1) + ","
                                 + "uses:0,maxUses:100,xp:0,priceMultiplier:0.0f,rewardExp:0b}]}}");
                 targets.add(new Target(villager.uuid(), villager.entityId(), (LivingRef) villager));
             }
@@ -97,13 +97,14 @@ public final class DiscoveryFixtures {
                 if (!grind) Fixtures.give(actor, "lapis_lazuli", 64);
             }
             case "discovery-qa-soul" -> {
-                // The modded arena is the overworld: vanilla respawns within 10 blocks of its spawn (the arena centre),
-                // so the actor dies outside that square and cannot pick its own death drops back up.
-                Fixtures.teleport(actor, world, 0.5, 100, 16.5);
-                Fixtures.set(world, 2, 100, 18, "anvil");
+                // The modded arena is the overworld: vanilla respawns up to 10 blocks from its spawn (the arena centre),
+                // and scattered death drops travel up to ~7 blocks, so the actor dies at the arena edge where a
+                // respawned player can never reach its own drops.
+                Fixtures.teleport(actor, world, 0.5, 100, 19.5);
+                Fixtures.set(world, 2, 100, 20, "anvil");
                 actor.setHealth(2);
                 Fixtures.give(actor, Fixtures.enchanted("diamond_pickaxe", "efficiency", 3));
-                Fixtures.teleport(opponent, world, 2.5, 100, 16.5);
+                Fixtures.teleport(opponent, world, 2.5, 100, 19.5);
                 Fixtures.give(opponent, "wooden_sword", 1);
                 opponent.setFoodLevel(17);
                 opponent.setSaturation(0);

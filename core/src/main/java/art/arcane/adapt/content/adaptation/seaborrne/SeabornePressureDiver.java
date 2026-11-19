@@ -32,6 +32,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -80,6 +81,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
   public SeabornePressureDiver() {
     super("seaborne-pressure-diver");
+    needs(PlatformNeed.attribute(Attributes.MAX_ABSORPTION), PlatformNeed.attribute(Attributes.SUBMERGED_MINING_SPEED));
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.pressure_diver");
     setIcon(Id.minecraft("nautilus_shell"));
@@ -310,25 +312,27 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     }
 
     Double previous = absorptionCapacity.put(id, capacity);
-    AdaptAttributeService.get().apply(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION,
-        capacity, AttributeOperation.ADD_VALUE);
-    if (!p.hasAttribute(Attributes.MAX_ABSORPTION)) {
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.apply(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION, capacity, AttributeOperation.ADD_VALUE);
+    double maximum = attributes.value(p, Attributes.MAX_ABSORPTION);
+    if (Double.isNaN(maximum)) {
       absorptionCapacity.remove(id);
       return;
     }
 
     double previousCapacity = previous == null ? 0D : previous;
     double current = p.absorption();
-    double target = absorptionFillTarget(current, previousCapacity, capacity, p.attributeValue(Attributes.MAX_ABSORPTION));
+    double target = absorptionFillTarget(current, previousCapacity, capacity, maximum);
     if (Double.compare(target, current) != 0) {
       p.setAbsorption(target);
     }
   }
 
   private void removeAbsorptionCapacity(PlayerRef p) {
-    AdaptAttributeService.get().remove(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION);
-    if (maxAbsorptionAvailable() && p.hasAttribute(Attributes.MAX_ABSORPTION)) {
-      double maximum = p.attributeValue(Attributes.MAX_ABSORPTION);
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.remove(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION);
+    double maximum = attributes.value(p, Attributes.MAX_ABSORPTION);
+    if (maxAbsorptionAvailable() && !Double.isNaN(maximum)) {
       if (p.absorption() > maximum) {
         p.setAbsorption(Math.max(0D, maximum));
       }
@@ -336,7 +340,8 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   }
 
   private static boolean maxAbsorptionAvailable() {
-    return AdaptCore.platform().host().registries().exists(RegistryKind.ATTRIBUTE, Attributes.MAX_ABSORPTION);
+    return AdaptCore.platform().host().registries().exists(RegistryKind.ATTRIBUTE, Attributes.MAX_ABSORPTION)
+        || AdaptAttributeService.get().isEmulated(Attributes.MAX_ABSORPTION);
   }
 
   private void updateFatigueCounter(PlayerRef p, int level) {

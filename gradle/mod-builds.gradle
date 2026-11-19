@@ -5,7 +5,7 @@ Map<String, String> modPlatforms = [fabric: 'Fabric', forge: 'Forge', neoforge: 
 List<TaskProvider<Exec>> modBuilds = []
 modPlatforms.each { String loader, String platform ->
     List<TaskProvider<Exec>> loaderBuilds = []
-    modTargets.keySet().each { String target ->
+    modTargets.findAll { String target, Map<String, Object> properties -> loader != 'neoforge' || !properties.neoforgeUsesForge }.keySet().each { String target ->
         TaskProvider<Exec> targetBuild = tasks.register("${loader}Jar${target.replace('.', '_')}", Exec) {
             group = 'build'
             description = "Builds and checks the ${platform} mod for Minecraft ${target}."

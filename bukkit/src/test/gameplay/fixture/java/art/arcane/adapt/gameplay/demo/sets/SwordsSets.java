@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay.demo.sets;
 
+import art.arcane.adapt.gameplay.FixtureVersion;
 import art.arcane.adapt.gameplay.demo.DemoSet;
 import art.arcane.adapt.gameplay.demo.DemoSetProvider;
 import art.arcane.adapt.gameplay.demo.SimpleSet;
@@ -14,8 +15,8 @@ import org.bukkit.block.data.type.Leaves;
 
 public final class SwordsSets implements DemoSetProvider {
     private static final DemoSet.Pose ACTOR_NORTH = new DemoSet.Pose(0.5, 0, 0.5, 180f, 0f);
-    private static final List<Material> MEADOW = List.of(Material.SHORT_GRASS, Material.FERN, Material.DANDELION, Material.SHORT_GRASS,
-            Material.CORNFLOWER, Material.SHORT_GRASS, Material.ALLIUM, Material.FERN, Material.AZURE_BLUET, Material.SHORT_GRASS,
+    private static final List<Material> MEADOW = List.of(FixtureVersion.SHORT_GRASS, Material.FERN, Material.DANDELION, FixtureVersion.SHORT_GRASS,
+            Material.CORNFLOWER, FixtureVersion.SHORT_GRASS, Material.ALLIUM, Material.FERN, Material.AZURE_BLUET, FixtureVersion.SHORT_GRASS,
             Material.ORANGE_TULIP);
     private static final int MEADOW_HALF_WIDTH = 3;
     private static final int MEADOW_SOUTH_Z = -1;

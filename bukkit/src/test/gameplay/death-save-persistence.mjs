@@ -9,6 +9,9 @@ import { adaptConfigDirectory } from './adapt-config.mjs'
 // (each waits up to 10 minutes), so the saves spent before the restart must outlast that window.
 const SAVE_COOLDOWN_MS = 7200000
 const RESTART_WINDOW_MS = 3600000
+// Entity event sent when a totem of undying saves the entity. A vanilla client removes the totem from its hand on this
+// event; the bot does not, and on Paper 1.20.1 it receives no slot update for the spent totem.
+const TOTEM_USED = 35
 
 async function lengthenSaveCooldowns(context, cases) {
   const directory = context.report.server.directory
@@ -84,10 +87,17 @@ export default {
           await context.waitUntil(() => actor.bot.inventory.slots.some(item => item?.name === 'totem_of_undying'),
             { label: 'totem reaches player', timeoutMs: 5000 })
           const before = await snapshot()
-          await context.waitUntil(async () => (await fixture('void-hit')).delivered,
-            { label: 'lethal hit reaches the player after the arena world change', timeoutMs: 6000, intervalMs: 100 })
-          await context.waitUntil(() => !actor.bot.inventory.slots.some(item => item?.name === 'totem_of_undying'),
-            { label: 'vanilla totem handles lethal hit while Adapt save is spent', timeoutMs: 7000 })
+          let totemPopped = false
+          const onStatus = packet => { if (packet.entityId === actor.bot.entity.id && packet.entityStatus === TOTEM_USED) totemPopped = true }
+          actor.bot._client.on('entity_status', onStatus)
+          try {
+            await context.waitUntil(async () => (await fixture('void-hit')).delivered,
+              { label: 'lethal hit reaches the player after the arena world change', timeoutMs: 6000, intervalMs: 100 })
+            await context.waitUntil(async () => totemPopped && !(await fixture('snapshot')).offHandTotem,
+              { label: 'vanilla totem handles lethal hit while Adapt save is spent', timeoutMs: 7000 })
+          } finally {
+            actor.bot._client.off('entity_status', onStatus)
+          }
           const after = await snapshot()
           const settled = await fixture('snapshot')
           context.expect((after.stats[stat] ?? 0) === (before.stats[stat] ?? 0), 'Reconnect or restart grants no second Adapt save', after)

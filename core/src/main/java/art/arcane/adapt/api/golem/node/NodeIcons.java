@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Vec3;
 
@@ -19,13 +20,13 @@ public final class NodeIcons {
   public static Id icon(NodeType type) {
     return switch (type) {
       case GUARD -> Id.minecraft("iron_sword");
-      case COLLECTION -> Id.minecraft("bundle");
+      case COLLECTION -> PlatformSupport.itemOr(Id.minecraft("bundle"), Id.minecraft("hopper"));
       case DEPOSIT -> CHEST;
       case HARVEST -> Id.minecraft("iron_hoe");
       case LUMBER -> Id.minecraft("iron_axe");
       case BREAKER -> Id.minecraft("iron_pickaxe");
       case PASTURE -> Id.minecraft("lead");
-      case INPUT -> Id.minecraft("copper_chest");
+      case INPUT -> PlatformSupport.itemOr(Id.minecraft("copper_chest"), Id.minecraft("barrel"));
       case FILTER -> Id.minecraft("item_frame");
       case FISHING -> Id.minecraft("fishing_rod");
     };

@@ -1,6 +1,7 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
+import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.platform.entity.CraftingStation;
@@ -14,9 +15,9 @@ import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.fx.SoundCategory;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
-import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.Bukkit;
@@ -46,7 +47,7 @@ import java.util.function.Consumer;
  * native player object if the server replaces it.
  */
 public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef {
-  private static volatile PlayerClientAccess clientAccess;
+  private static volatile Optional<PlayerClientAccess> clientAccess;
   private final String name;
 
   public BukkitPlayerRef(Player player) {
@@ -80,7 +81,12 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public boolean isFakePlayer() {
-    return !PlayerClientAccess.matchesServerPlayer(player());
+    return !BukkitNatives.isServerPlayer(player());
+  }
+
+  @Override
+  public Vec3 movement() {
+    return BukkitPlayerVersion.movement(player());
   }
 
   @Override
@@ -125,12 +131,30 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public boolean allowFlight() {
-    return player().getAllowFlight();
+    Player player = player();
+    return player.getAllowFlight() && !BukkitFlightRequests.granted(player);
   }
 
   @Override
   public void setAllowFlight(boolean allow) {
-    player().setAllowFlight(allow);
+    Player player = player();
+    BukkitFlightRequests.release(player);
+    player.setAllowFlight(allow);
+  }
+
+  @Override
+  public boolean grantFlightRequests() {
+    return BukkitFlightRequests.grant(player());
+  }
+
+  @Override
+  public void revokeFlightRequests() {
+    BukkitFlightRequests.revoke(player());
+  }
+
+  @Override
+  public boolean flightRequestsGranted() {
+    return BukkitFlightRequests.granted(player());
   }
 
   @Override
@@ -162,7 +186,7 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public boolean sendVerticalMotion(double verticalVelocity) {
-    return clientAccess().sendVerticalMotion(player(), verticalVelocity);
+    return clientAccess().map((PlayerClientAccess access) -> access.sendVerticalMotion(player(), verticalVelocity)).orElse(false);
   }
 
   @Override
@@ -171,7 +195,8 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
     if (block != null && suppressed == null) {
       return false;
     }
-    return clientAccess().createBlockTags().sendClimbingState(player(), suppressed);
+    return clientAccess().map((PlayerClientAccess access) -> access.createBlockTags().sendClimbingState(player(), suppressed))
+        .orElse(false);
   }
 
   private static Pose corePose(org.bukkit.entity.Pose pose) {
@@ -192,10 +217,10 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
     return org.bukkit.entity.Pose.STANDING;
   }
 
-  private static PlayerClientAccess clientAccess() {
-    PlayerClientAccess access = clientAccess;
+  private static Optional<PlayerClientAccess> clientAccess() {
+    Optional<PlayerClientAccess> access = clientAccess;
     if (access == null) {
-      access = NativeAdapters.require(PlayerClientAccess.class);
+      access = BukkitNatives.find(PlayerClientAccess.class);
       clientAccess = access;
     }
     return access;
@@ -256,8 +281,13 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public EntityRef openMerchant() {
-    return player().getOpenInventory().getTopInventory() instanceof MerchantInventory merchant
-        && merchant.getMerchant() instanceof Entity trader ? BukkitRefs.entity(trader) : null;
+    if (!(player().getOpenInventory().getTopInventory() instanceof MerchantInventory merchant)) {
+      return null;
+    }
+    if (merchant.getMerchant() instanceof Entity trader) {
+      return BukkitRefs.entity(trader);
+    }
+    return merchant.getHolder(false) instanceof Entity holder ? BukkitRefs.entity(holder) : null;
   }
 
   @Override
@@ -385,13 +415,13 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public int cooldownTicks(Id item) {
-    return item == null ? 0 : player().getCooldown(BukkitConversions.key(item));
+    return item == null ? 0 : BukkitPlayerVersion.cooldownTicks(player(), item);
   }
 
   @Override
   public void setCooldown(Id item, int ticks) {
     if (item != null) {
-      player().setCooldown(BukkitConversions.key(item), Math.max(0, ticks));
+      BukkitPlayerVersion.setCooldown(player(), item, Math.max(0, ticks));
     }
   }
 
@@ -437,7 +467,7 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public Loc respawnLocation() {
-    Location respawn = player().getRespawnLocation();
+    Location respawn = BukkitPlayerVersion.respawnLocation(player());
     if (respawn != null) {
       return BukkitRefs.loc(respawn);
     }
@@ -447,7 +477,7 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public Loc bedSpawnLocation() {
-    Location respawn = player().getRespawnLocation();
+    Location respawn = BukkitPlayerVersion.respawnLocation(player());
     return respawn == null ? null : BukkitRefs.loc(respawn);
   }
 

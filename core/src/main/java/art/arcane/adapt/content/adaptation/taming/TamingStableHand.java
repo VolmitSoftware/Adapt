@@ -30,6 +30,7 @@ import art.arcane.adapt.api.attribute.LegacyModifierKey;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -95,6 +96,7 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
 
   public TamingStableHand() {
     super("tame-stable-hand");
+    needs(PlatformNeed.partialAttribute(Attributes.SAFE_FALL_DISTANCE, "mounts get no extra safe fall distance"));
     registerConfiguration(Config.class);
     setLocalizationKey("taming.stable_hand");
     setIcon(Id.minecraft("saddle"));

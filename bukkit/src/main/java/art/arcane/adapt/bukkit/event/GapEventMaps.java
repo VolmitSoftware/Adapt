@@ -7,7 +7,6 @@ import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.event.block.BlockChange;
 import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
-import art.arcane.adapt.platform.event.entity.EntityKnockbackEvent;
 import art.arcane.adapt.platform.event.player.EntityExhaustionEvent;
 import art.arcane.adapt.platform.event.player.PlayerAnimationEvent;
 import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
@@ -41,9 +40,6 @@ import java.util.Map;
 final class GapEventMaps {
   private static final Map<SpawnReason, CreatureSpawnEvent.Reason> SPAWN_REASONS =
       BukkitEventMaps.byName(SpawnReason.class, CreatureSpawnEvent.Reason.class, CreatureSpawnEvent.Reason.DEFAULT);
-  private static final Map<io.papermc.paper.event.entity.EntityKnockbackEvent.Cause, EntityKnockbackEvent.Cause> KNOCKBACK_CAUSES =
-      BukkitEventMaps.byName(io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.class, EntityKnockbackEvent.Cause.class,
-          EntityKnockbackEvent.Cause.UNKNOWN);
   private static final Map<ExhaustionReason, EntityExhaustionEvent.Reason> EXHAUSTION_REASONS =
       BukkitEventMaps.byName(ExhaustionReason.class, EntityExhaustionEvent.Reason.class, EntityExhaustionEvent.Reason.UNKNOWN);
   private static final Map<org.bukkit.event.player.PlayerBedEnterEvent.BedEnterResult, PlayerBedEnterEvent.Result> BED_RESULTS =
@@ -63,10 +59,6 @@ final class GapEventMaps {
 
   static CreatureSpawnEvent.Reason spawnReason(SpawnReason reason) {
     return reason == null ? CreatureSpawnEvent.Reason.DEFAULT : SPAWN_REASONS.get(reason);
-  }
-
-  static EntityKnockbackEvent.Cause knockbackCause(io.papermc.paper.event.entity.EntityKnockbackEvent.Cause cause) {
-    return cause == null ? EntityKnockbackEvent.Cause.UNKNOWN : KNOCKBACK_CAUSES.get(cause);
   }
 
   static EntityExhaustionEvent.Reason exhaustionReason(ExhaustionReason reason) {

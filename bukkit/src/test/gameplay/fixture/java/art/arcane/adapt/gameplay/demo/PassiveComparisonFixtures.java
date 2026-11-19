@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.gameplay.FixtureVersion;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -15,7 +16,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
@@ -178,9 +178,9 @@ public final class PassiveComparisonFixtures {
             throw new IllegalStateException("Polymath comparison requires the sparring-set zombie");
         }
         target.setAI(false);
-        Objects.requireNonNull(target.getAttribute(Attribute.MAX_HEALTH)).setBaseValue(200.0D);
+        Objects.requireNonNull(target.getAttribute(FixtureVersion.MAX_HEALTH)).setBaseValue(200.0D);
         target.setHealth(200.0D);
-        Objects.requireNonNull(target.getAttribute(Attribute.KNOCKBACK_RESISTANCE)).setBaseValue(1.0D);
+        Objects.requireNonNull(target.getAttribute(FixtureVersion.KNOCKBACK_RESISTANCE)).setBaseValue(1.0D);
     }
 
     private static JsonObject state(Player player, Comparison comparison) {

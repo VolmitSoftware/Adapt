@@ -1,5 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { doubleJump as clientDoubleJump, serverSeesJumpKey } from './client-input.mjs'
+import { adaptMenus } from './adapt-menus.mjs'
 import { fixtureJson } from './fixture-json.mjs'
 import { decodeSoundPacket } from './feedback.mjs'
 import { synchronizePlayerInput } from './player-input.mjs'
@@ -27,6 +29,7 @@ export default {
         const opponent = await context.connectActor(`AQAc${suffix}`)
         const stops = [actor, opponent].flatMap(player => [synchronizePlayerInput(player.bot), synchronizePlayerVelocity(player.bot)])
         const evidence = context.report.blink = { player: actor.bot.username, trials: [], sounds: [], realClientSound: 'not verified' }
+        const menus = adaptMenus(context, actor.bot)
         let setup = false
         const action = (player, verb, value = '') => fixtureJson(context,
             `/adaptqa blink ${player.bot.username} ${verb}${value === '' ? '' : ` ${value}`}`, `BLINK ${verb}`)
@@ -85,13 +88,17 @@ export default {
             const moved = () => landings.push(actor.bot.entity.position.clone())
             actor.bot.on('forcedMove', moved)
             try {
-                actor.bot.setControlState('jump', true)
-                await actor.bot.waitForTicks(4)
-                actor.bot.setControlState('jump', false)
-                await actor.bot.waitForTicks(2)
-                actor.bot.setControlState('jump', true)
-                await actor.bot.waitForTicks(3)
-                actor.bot.setControlState('jump', false)
+                if (serverSeesJumpKey()) {
+                    actor.bot.setControlState('jump', true)
+                    await actor.bot.waitForTicks(4)
+                    actor.bot.setControlState('jump', false)
+                    await actor.bot.waitForTicks(2)
+                    actor.bot.setControlState('jump', true)
+                    await actor.bot.waitForTicks(3)
+                    actor.bot.setControlState('jump', false)
+                } else {
+                    await clientDoubleJump(actor.bot)
+                }
                 await actor.bot.waitForTicks(8)
                 return landings
             } finally {
@@ -111,15 +118,13 @@ export default {
                 const denied = await action(actor, 'activation', 'REACTIVE')
                 context.expect(!denied.changed && denied.activation === 'MANUAL', 'Level one cannot enable Reactive')
                 await action(actor, 'open')
-                await context.waitUntil(() => actor.bot.currentWindow, { label: 'Level-one Blink menu opens', timeoutMs: 5000 })
-                await actor.bot.waitForTicks(20)
+                const levelOneWindow = await menus.opened('Level-one Blink menu opens')
                 const levelOne = await snapshot()
                 context.expect(!control(levelOne, 'Reactive direction'), 'Level-one menu hides Reactive direction')
-                const levelOneWindow = actor.bot.currentWindow
                 await clickFeedback(control(levelOne, 'Activation').slot, 'Level-locked mode', 'block.note_block.bass', 0.7)
                 context.expect((await snapshot()).activation === 'MANUAL', 'Level-locked click leaves Manual selected')
                 context.expect(actor.bot.currentWindow === levelOneWindow, 'Level-locked click keeps the menu open')
-                if (actor.bot.currentWindow) actor.bot.closeWindow(actor.bot.currentWindow)
+                await menus.close('Level-one Blink menu Escape returns to the Rift menu')
                 await action(actor, 'level', 2)
                 const accepted = await action(actor, 'activation', 'REACTIVE')
                 context.expect(accepted.changed && accepted.activation === 'REACTIVE', 'Level two can enable Reactive')
@@ -134,21 +139,18 @@ export default {
                 context.expect(locked.activation === 'MANUAL' && locked.savedActivation === 'REACTIVE', 'Server default overrides the saved choice')
                 context.expect(!(await action(actor, 'activation', 'REACTIVE')).changed, 'Locked preference rejects writes')
                 await action(actor, 'open')
-                await context.waitUntil(() => actor.bot.currentWindow, { label: 'Server-locked Blink menu opens', timeoutMs: 5000 })
-                await actor.bot.waitForTicks(20)
-                const lockedWindow = actor.bot.currentWindow
+                const lockedWindow = await menus.opened('Server-locked Blink menu opens')
                 await clickFeedback(control(await snapshot(), 'Activation').slot, 'Server-locked mode', 'block.note_block.bass', 0.7)
                 context.expect((await snapshot()).activation === 'MANUAL', 'Server-locked click leaves the server default selected')
                 context.expect(actor.bot.currentWindow === lockedWindow, 'Server-locked click keeps the menu open')
-                actor.bot.closeWindow(actor.bot.currentWindow)
+                await menus.close('Server-locked Blink menu Escape returns to the Rift menu')
                 context.expect((await action(actor, 'lock', 'false')).activation === 'REACTIVE', 'Unlock restores the saved choice')
                 evidence.trials.push({ name: 'server-lock', locked })
             })
             await context.step('menu toggles update the existing inventory without reopening', async () => {
                 await action(actor, 'activation', 'MANUAL')
                 await action(actor, 'open')
-                await context.waitUntil(() => actor.bot.currentWindow, { label: 'Blink level menu opens', timeoutMs: 5000 })
-                await actor.bot.waitForTicks(20)
+                const window = await menus.opened('Blink level menu opens')
                 const before = await snapshot()
                 context.expect(!control(before, 'Reactive direction'), 'Level-two Manual menu hides Reactive direction')
                 const stableControls = ['Adaptation enabled', 'Wall phasing', 'Landing preference', 'Activation']
@@ -162,7 +164,6 @@ export default {
                 }
                 const enabled = before.slots.find(item => item.name.replace(/§./g, '') === 'Adaptation enabled')
                 context.expect(Boolean(enabled), 'Blink menu exposes Enabled control')
-                const window = actor.bot.currentWindow
                 let openings = 0
                 let closings = 0
                 const onOpen = () => openings++

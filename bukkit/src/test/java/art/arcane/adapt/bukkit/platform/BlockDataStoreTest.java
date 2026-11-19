@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.platform;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.bukkit.platform.data.BlockDataStore;
 import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
@@ -26,7 +27,7 @@ class BlockDataStoreTest {
   void placeBlock() {
     plugin = mock(Plugin.class);
     when(plugin.getName()).thenReturn("Adapt");
-    when(plugin.namespace()).thenReturn("adapt");
+    TestVersion.pluginNamespace(plugin, "adapt");
     Chunk chunk = mock(Chunk.class);
     when(chunk.getPersistentDataContainer()).thenReturn(chunkData);
     block = mock(Block.class);

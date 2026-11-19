@@ -53,9 +53,9 @@ class BlockingRuntimeTest {
   @BeforeEach
   void start() {
     platform = TestPlatform.builder(data).build();
+    adapt = TestAdapt.start(platform, List.of(SkillBlocking.class));
     player = platform.player("Guard", 0.5D, 61D, 0.5D);
     player.inventory().setOffHand(FakeItem.tool("shield", 336));
-    adapt = TestAdapt.start(platform, List.of(SkillBlocking.class));
     profile = adapt.join(player);
   }
 
@@ -126,6 +126,18 @@ class BlockingRuntimeTest {
     assertThat(event.blockedDamage()).isEqualTo(5D);
   }
 
+  /**
+   * Stance refreshes requested on the player since {@code requested} entity tasks. The skill's owner pulse also
+   * visits the player with immediate (zero-delay) tasks whenever its wall-clock cadence comes due, which can fall
+   * on any tick these tests advance, so only the stance's delayed refreshes are counted.
+   */
+  private List<Long> stanceRefreshDelays(int requested) {
+    List<Long> delays = platform.scheduler().entityTaskDelays(player);
+    return delays.subList(requested, delays.size()).stream()
+        .filter((Long delay) -> delay > 0L)
+        .toList();
+  }
+
   @Test
   void firstOwnerRefreshWaitsForTheCommittedSneakState() throws Exception {
     BlockingBastionStance stance = learn(BlockingBastionStance.class, 5);
@@ -133,17 +145,16 @@ class BlockingRuntimeTest {
 
     adapt.post(new PlayerToggleSneakEvent(player, true));
 
-    List<Long> delays = platform.scheduler().entityTaskDelays(player);
-    assertThat(delays.subList(requested, delays.size())).containsExactly(1L);
+    assertThat(stanceRefreshDelays(requested)).containsExactly(1L);
     assertThat(stanceStates(stance).containsKey(player.uuid())).isTrue();
 
     player.setSneaking(true);
     platform.scheduler().advance(1);
 
-    delays = platform.scheduler().entityTaskDelays(player);
+    List<Long> refreshes = stanceRefreshDelays(requested);
     assertThat(stanceStates(stance).containsKey(player.uuid())).isTrue();
-    assertThat(delays).hasSize(requested + 2);
-    assertThat(delays.get(requested + 1)).isPositive();
+    assertThat(refreshes).hasSize(2);
+    assertThat(refreshes.getFirst()).isEqualTo(1L);
   }
 
   @Test
@@ -154,8 +165,7 @@ class BlockingRuntimeTest {
 
     adapt.post(new PlayerToggleSneakEvent(player, true));
 
-    List<Long> delays = platform.scheduler().entityTaskDelays(player);
-    assertThat(delays.subList(requested, delays.size())).containsExactly(1L);
+    assertThat(stanceRefreshDelays(requested)).containsExactly(1L);
     assertThat(stanceStates(stance)).isEmpty();
   }
 
@@ -165,11 +175,11 @@ class BlockingRuntimeTest {
     int requested = platform.scheduler().entityTaskDelays(player).size();
 
     adapt.post(new PlayerToggleSneakEvent(player, true));
-    assertThat(platform.scheduler().entityTaskDelays(player)).hasSize(requested + 1);
+    assertThat(stanceRefreshDelays(requested)).containsExactly(1L);
     platform.scheduler().advance(1);
 
     assertThat(stanceStates(stance)).isEmpty();
-    assertThat(platform.scheduler().entityTaskDelays(player)).hasSize(requested + 1);
+    assertThat(stanceRefreshDelays(requested)).containsExactly(1L);
   }
 
   @Test
@@ -184,7 +194,7 @@ class BlockingRuntimeTest {
     platform.scheduler().advance(1);
 
     assertThat(stanceStates(stance)).isEmpty();
-    assertThat(platform.scheduler().entityTaskDelays(player)).hasSize(requested + 1);
+    assertThat(stanceRefreshDelays(requested)).containsExactly(1L);
   }
 
   @Test

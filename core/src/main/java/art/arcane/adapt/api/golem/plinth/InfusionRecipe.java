@@ -1,9 +1,11 @@
 package art.arcane.adapt.api.golem.plinth;
 
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.util.config.ConfigDoc;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +39,7 @@ public class InfusionRecipe {
   public static Map<String, InfusionRecipe> defaults() {
     Map<String, InfusionRecipe> recipes = new LinkedHashMap<>();
     rune(recipes, "swiftness", List.of("SUGAR", "SUGAR", "FEATHER", "FEATHER"), List.of("RABBIT_FOOT", "RABBIT_FOOT", "PHANTOM_MEMBRANE", "PHANTOM_MEMBRANE"),
-        List.of("BREEZE_ROD", "BREEZE_ROD", "BREEZE_ROD", "BREEZE_ROD"));
+        Collections.nCopies(4, PlatformSupport.materialOr("BREEZE_ROD", "PHANTOM_MEMBRANE")));
     rune(recipes, "might", List.of("IRON_INGOT", "IRON_INGOT", "PISTON", "PISTON"), List.of("IRON_BLOCK", "IRON_BLOCK", "STICKY_PISTON", "STICKY_PISTON"),
         List.of("NETHERITE_SCRAP", "NETHERITE_SCRAP", "IRON_BLOCK", "IRON_BLOCK"));
     rune(recipes, "ember", List.of("BLAZE_POWDER", "BLAZE_POWDER", "COAL", "COAL"), List.of("BLAZE_ROD", "BLAZE_ROD", "MAGMA_CREAM", "MAGMA_CREAM"),

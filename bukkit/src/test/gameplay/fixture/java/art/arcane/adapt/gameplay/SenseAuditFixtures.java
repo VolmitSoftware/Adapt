@@ -1,8 +1,8 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.Adapt;
-import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.chunk.GeneratedChunkStructures;
 import art.arcane.volmlib.nativelib.chunk.ChunkPosition;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -42,6 +42,10 @@ public final class SenseAuditFixtures implements Listener {
     private static final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
 
     public static void install(JavaPlugin plugin) {
+        if (BukkitNatives.find(GeneratedChunkStructures.class).isEmpty()) {
+            plugin.getLogger().info("Generated structure metadata is unavailable on this server; sense audits are off");
+            return;
+        }
         Bukkit.getPluginManager().registerEvents(new SenseAuditFixtures(), plugin);
     }
 
@@ -305,7 +309,7 @@ public final class SenseAuditFixtures implements Listener {
     }
 
     private static List<GeneratedChunkStructures.Entry> starts(Chunk chunk) {
-        return NativeAdapters.require(GeneratedChunkStructures.class).read(chunk).starts();
+        return BukkitNatives.find(GeneratedChunkStructures.class).orElseThrow().read(chunk).starts();
     }
 
     private static Object invoke(Object object, String name) throws ReflectiveOperationException {

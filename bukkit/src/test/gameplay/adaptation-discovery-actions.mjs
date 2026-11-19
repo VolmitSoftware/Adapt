@@ -1,3 +1,5 @@
+import { itemStackNbt } from './version-ids.mjs'
+
 function result(assertions, unlearned, active) {
     return { assertions, measurements: { unlearned, active } }
 }
@@ -30,7 +32,7 @@ async function brush(input) {
     const completed = []
     for (let attempt = 0; attempt < 12; attempt++) {
         if (attempt > 0) {
-            await input.context.command(`/execute at ${input.actor.bot.username} run setblock 2 100 0 minecraft:suspicious_sand{item:{id:"minecraft:paper",count:1}} replace`, /Changed the block|block.*changed/i, 5000)
+            await input.context.command(`/execute at ${input.actor.bot.username} run setblock 2 100 0 minecraft:suspicious_sand{item:${itemStackNbt('paper', 1)}} replace`, /Changed the block|block.*changed/i, 5000)
             await input.context.waitUntil(() => block(input)?.name === 'suspicious_sand', {
                 label: 'fresh archaeological input block is client visible', timeoutMs: 3000,
             })
@@ -152,7 +154,9 @@ async function soul(input) {
     try {
         input.actor.bot.setControlState('sneak', true)
         await input.actor.bot.waitForTicks(3)
-        await input.actor.bot.activateBlock(block(input, 2, 18))
+        const anvil = input.actor.bot.findBlock({ matching: candidate => candidate.name === 'anvil', maxDistance: 4 })
+        input.context.expect(Boolean(anvil), 'Soul Link anvil is within reach of its owner')
+        await input.actor.bot.activateBlock(anvil)
         await input.actor.bot.waitForTicks(8)
         if (input.actor.bot.currentWindow) input.actor.bot.closeWindow(input.actor.bot.currentWindow)
         input.actor.bot.setControlState('sneak', false)

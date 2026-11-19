@@ -15,6 +15,7 @@ import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.entity.ProjectileHitEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.WorldRef;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -110,6 +111,14 @@ public final class ProjectileTargetingFixtures {
         impact.addProperty("seeking", RangedHeartseeker.isSeekingProjectile(projectile));
         impact.addProperty("ricochets", RangedRicochetBolt.impactOf(projectile).count());
         impact.addProperty("cancelled", event.isCancelled());
+        Loc at = projectile.location();
+        Vec3 velocity = projectile.velocity();
+        impact.addProperty("x", at.x());
+        impact.addProperty("y", at.y());
+        impact.addProperty("z", at.z());
+        impact.addProperty("vx", velocity.x());
+        impact.addProperty("vy", velocity.y());
+        impact.addProperty("vz", velocity.z());
         if (event.hitEntity() != null) impact.addProperty("targetId", event.hitEntity().entityId());
         impacts.add(impact);
     }

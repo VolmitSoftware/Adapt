@@ -32,6 +32,8 @@ plugins {
     alias(libs.plugins.lombok) apply false
     alias(libs.plugins.shadow) apply false
     alias(libs.plugins.slimjar) apply false
+    alias(libs.plugins.jvmdowngrader) apply false
+    alias(libs.plugins.paperweight) apply false
     alias(libs.plugins.idea)
 }
 
@@ -105,4 +107,5 @@ project(':bukkit') {
     layout.buildDirectory.set(rootProject.layout.buildDirectory)
 }
 
+apply from: 'gradle/bukkit-legacy.gradle'
 apply from: 'gradle/mod-builds.gradle'

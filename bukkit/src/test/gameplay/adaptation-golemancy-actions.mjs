@@ -1,3 +1,12 @@
+import { versionEntry } from './version-catalog.mjs'
+import { contentSince } from './version-ids.mjs'
+
+/** Configured bound scale, or 1 where the version catalog lists the adaptation without the scale attribute. */
+function boundScale(name, configured) {
+    const entry = versionEntry(name)
+    return entry?.status === 'partial' && entry.reason.includes('attribute minecraft:scale') ? 1 : configured
+}
+
 async function visibleGolem(input, key, label) {
     const state = (await input.snapshot()).golemancy[key]
     input.context.expect(Boolean(state), `Golemancy ${label} exists`)
@@ -31,6 +40,11 @@ function bindGolem(key, label, aimHeight) {
 const bind = bindGolem('golem', 'snow golem', 0.9)
 const bindCopper = bindGolem('copperGolem', 'copper golem', 0.5)
 const bindIron = bindGolem('ironGolem', 'iron golem', 1.2)
+
+/** Lumber, Rancher and Angler cores also fit iron golems; before copper golems exist (1.21.9) the stage spawns an iron golem. */
+async function bindWorker(input) {
+    return (await input.snapshot()).golemancy.copperGolem ? bindCopper(input) : bindIron(input)
+}
 
 async function signalHold(input) {
     const { actor, snapshot } = input
@@ -175,7 +189,7 @@ export const golemancyBehaviorCases = new Map([
             context.expect(!unlearned.bound, 'Unlearned sneak-right-click leaves the snow golem unbound')
             context.expect(Math.abs(unlearned.scale - 1) < 0.0001, 'Unlearned snow golem keeps its normal size')
             context.expect(active.bound && active.boundToPlayer, 'Learned ritual binds the snow golem to the player')
-            context.expect(Math.abs(active.scale - 0.5) < 0.0001, 'Bound snow golem shrinks to the configured frost scale')
+            context.expect(Math.abs(active.scale - boundScale('golem-animus-binding', 0.5)) < 0.0001, 'Bound snow golem takes the configured frost scale where the server has golem scale, else keeps its size')
             context.expect(active.aware, 'Bound snow golem is awake after the ritual')
             return {
                 assertions: ['unlearned snow golem stays unbound at normal size', 'learned ritual binds the golem to the player, shrinks it to 0.5 scale, and wakes it'],
@@ -222,7 +236,7 @@ export const golemancyBehaviorCases = new Map([
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.bound, 'Without Iron Frame the iron golem stays unbound')
             context.expect(active.bound && active.boundToPlayer, 'With Iron Frame the iron golem binds to the player')
-            context.expect(Math.abs(active.scale - 0.36) < 0.0001, 'The bound iron golem shrinks to the configured iron scale')
+            context.expect(Math.abs(active.scale - boundScale('golem-iron-frame', 0.36)) < 0.0001, 'The bound iron golem takes the configured iron scale where the server has golem scale, else keeps its size')
             context.expect(Math.abs(active.maxHealth - (active.maxHealthBase + 50)) < 0.0001, 'Iron Frame level 5 adds 50 maximum health to the bound iron golem')
             context.expect(Math.abs(active.health - active.maxHealth) < 0.0001, 'The health bonus also heals the golem to its new maximum')
             context.expect(Math.abs(active.armor - (active.armorBase + 10)) < 0.0001, 'Iron Frame level 5 adds 10 armor')
@@ -281,10 +295,10 @@ export const golemancyBehaviorCases = new Map([
         },
     }],
     ['golem-lumber-core', {
-        stage: 'golemancy-lumber-binding', trigger: bindCopper,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        stage: 'golemancy-lumber-binding', trigger: bindWorker,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
-        description: 'binding a copper golem with a Lumber Core needs Lumber Core learned and turns the golem into a working Lumber golem',
+        description: 'binding a copper golem (iron before 1.21.9) with a Lumber Core needs Lumber Core learned and turns the golem into a working Lumber golem',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.bound, 'Without Lumber Core the copper golem refuses the Lumber Core and stays unbound')
             context.expect(active.bound && active.boundToPlayer, 'With Lumber Core the copper golem binds to the player')
@@ -313,10 +327,10 @@ export const golemancyBehaviorCases = new Map([
         },
     }],
     ['golem-rancher-core', {
-        stage: 'golemancy-rancher-binding', trigger: bindCopper,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        stage: 'golemancy-rancher-binding', trigger: bindWorker,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
-        description: 'binding a copper golem with a Rancher Core needs Rancher Core learned and turns the golem into a working Rancher',
+        description: 'binding a copper golem (iron before 1.21.9) with a Rancher Core needs Rancher Core learned and turns the golem into a working Rancher',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.bound, 'Without Rancher Core the copper golem refuses the Rancher Core and stays unbound')
             context.expect(active.bound && active.boundToPlayer, 'With Rancher Core the copper golem binds to the player')
@@ -345,10 +359,10 @@ export const golemancyBehaviorCases = new Map([
         },
     }],
     ['golem-angler-core', {
-        stage: 'golemancy-angler-binding', trigger: bindCopper,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        stage: 'golemancy-angler-binding', trigger: bindWorker,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
-        description: 'binding a copper golem with an Angler Core needs Angler Core learned and turns the golem into a working Angler',
+        description: 'binding a copper golem (iron before 1.21.9) with an Angler Core needs Angler Core learned and turns the golem into a working Angler',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.bound, 'Without Angler Core the copper golem refuses the Angler Core and stays unbound')
             context.expect(active.bound && active.boundToPlayer, 'With Angler Core the copper golem binds to the player')
@@ -377,7 +391,7 @@ export const golemancyBehaviorCases = new Map([
     }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
-        prepare: ({ equip }) => equip('scrape_pottery_sherd'),
+        prepare: ({ equip }) => equip(contentSince('item', 'scrape_pottery_sherd') ? 'plenty_pottery_sherd' : 'scrape_pottery_sherd'),
         description: 'sneak-right-clicking an Animus Plinth lodestone with a Blank Rune places it on the plinth, and an empty-hand sneak-right-click takes it back',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.loaded.center && unlearned.loaded.blankRunes === 1, 'Without Runic Augments the plinth takes nothing and the Blank Rune stays with the player')

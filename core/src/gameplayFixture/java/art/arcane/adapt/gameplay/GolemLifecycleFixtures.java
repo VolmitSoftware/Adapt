@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
@@ -52,7 +53,9 @@ public final class GolemLifecycleFixtures {
 
     private static void prepare(PlayerRef player) {
         GolemControlsFixtures.learn(player, "golem-animus-binding", 5);
-        GolemControlsFixtures.learn(player, "golem-copper-frame", 1);
+        if (PlatformSupport.leftOut().stream().noneMatch((PlatformSupport.LeftOut out) -> out.name().equals("golem-copper-frame"))) {
+            GolemControlsFixtures.learn(player, "golem-copper-frame", 1);
+        }
         GolemControlsFixtures.learn(player, "golem-bone-frame", 1);
         GolemControlsFixtures.learn(player, "golem-stasis", 2);
         GolemControlsFixtures.learn(player, "tragoul-skeletal-servant", 1);

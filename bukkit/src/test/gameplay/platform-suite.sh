@@ -47,9 +47,11 @@ if installer_loader "$platform" && [[ "$(wc -l < "$run_dir/plan.tsv")" -gt 1 ]];
     template="$prefix$platform-${minecraft_version//./}-tpl-$(date +%s)-$$"
     trap 'delete_template' EXIT
     started=$SECONDS
-    lock="create-$platform-${minecraft_version//./}"
-    if ! with_lock "$lock" mux server create "$template" --type "$platform" --mc "$minecraft_version" --isolated > "$run_dir/template.log" 2>&1; then
-        with_lock "$lock" mux server create "$template" --type "$platform" --mc "$minecraft_version" --isolated --auto-build >> "$run_dir/template.log" 2>&1
+    lock="create-$platform"
+    source_args=()
+    while IFS= read -r argument; do source_args+=("$argument"); done < <(server_source_args "$platform" "$minecraft_version" "$project_root")
+    if ! with_lock "$lock" mux server create "$template" "${source_args[@]}" --isolated > "$run_dir/template.log" 2>&1; then
+        with_lock "$lock" mux server create "$template" "${source_args[@]}" --isolated --auto-build >> "$run_dir/template.log" 2>&1
     fi
     if template_exists && [[ -f "$(with_lock multiplexor mux instance path "$template" | tail -1)/.server-source" ]]; then
         echo "Template $template installed in $((SECONDS - started)) s; units clone it"
@@ -70,7 +72,7 @@ worker() {
             local tag=''
             [[ "$shards" -gt 1 ]] && tag="s$shard"
             ADAPT_QA_INSTANCE_TAG="$tag" ADAPT_QA_CONTRACT_SLICE="$slice" \
-                bash "$gameplay/platform-run.sh" "$platform" "$minecraft_version" "$plan" $cases > "$run_dir/$index.log" 2>&1 &
+                bash "$gameplay/platform-run.sh" "$platform" "$minecraft_version" "$plan" $cases < /dev/null > "$run_dir/$index.log" 2>&1 &
             child=$!
             wait "$child"
             local unit_status=$?

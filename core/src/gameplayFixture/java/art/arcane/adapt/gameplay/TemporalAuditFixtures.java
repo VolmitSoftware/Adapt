@@ -29,6 +29,7 @@ import java.util.UUID;
 
 public final class TemporalAuditFixtures {
     private static final Id ENDER_PEARL = Id.minecraft("ender_pearl");
+    private static final Id TOTEM = Id.minecraft("totem_of_undying");
 
     private TemporalAuditFixtures() {
     }
@@ -164,6 +165,8 @@ public final class TemporalAuditFixtures {
             if (item != null && !item.isEmpty() && item.type().equals(ENDER_PEARL)) pearls += item.amount();
         }
         result.addProperty("pearls", pearls);
+        ItemRef offHand = player.inventory().offHand();
+        result.addProperty("offHandTotem", offHand != null && !offHand.isEmpty() && offHand.type().equals(TOTEM));
         result.addProperty("escapes", Fixtures.adaptPlayer(player).getData().getStat("rift.void-skin.escapes"));
         result.addProperty("now", System.currentTimeMillis());
         JsonObject deadlines = new JsonObject();

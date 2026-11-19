@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import org.bukkit.Material;
@@ -17,7 +18,6 @@ import java.util.function.Predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -37,7 +37,7 @@ class BoundItemIdentityTest extends AdaptTestBase {
 
   @BeforeEach
   void configurePluginIdentity() {
-    lenient().when(plugin.namespace()).thenReturn("adapt");
+    TestVersion.pluginNamespace(plugin, "adapt");
   }
 
   @Test
@@ -87,7 +87,7 @@ class BoundItemIdentityTest extends AdaptTestBase {
     when(stack.getAmount()).thenReturn(1);
     when(stack.getItemMeta()).thenReturn(meta);
     when(meta.getPersistentDataContainer()).thenReturn(data);
-    when(stack.getPersistentDataContainer()).thenReturn(data);
+    TestVersion.stackData(stack, data);
     when(meta.getDisplayName()).thenReturn(displayName);
     when(meta.getLore()).thenReturn(lore);
     when(data.has(any(NamespacedKey.class), eq(PersistentDataType.STRING))).thenReturn(hasData);

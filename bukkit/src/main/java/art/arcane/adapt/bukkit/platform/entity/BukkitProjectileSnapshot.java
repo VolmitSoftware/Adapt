@@ -2,6 +2,7 @@ package art.arcane.adapt.bukkit.platform.entity;
 
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.bukkit.platform.data.PdcDataHolder;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.entity.ProjectileSnapshot;
@@ -33,7 +34,6 @@ import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionType;
 
 import java.util.List;
 import java.util.Set;
@@ -110,11 +110,11 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
     Projectile target = null;
     try {
       target = spawnHydrated(world, spawnLocation, kind.projectileClass, owner, BukkitConversions.vector(velocity), beforeAdd);
-      if (!target.isInWorld()) {
+      if (!BukkitProjectileVersion.isInWorld(target)) {
         return null;
       }
     } catch (RuntimeException exception) {
-      if (target != null && target.isInWorld()) {
+      if (target != null && BukkitProjectileVersion.isInWorld(target)) {
         target.remove();
       }
       throw exception;
@@ -167,7 +167,7 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
   private void applyPayload(Projectile target) {
     if (payload instanceof ArrowPayload arrowPayload && target instanceof Arrow arrow) {
       applyArrowState(arrow, arrowPayload.arrow());
-      arrow.setBasePotionType(arrowPayload.basePotionType());
+      BukkitProjectileVersion.setBasePotion(arrow, arrowPayload.basePotion());
       arrow.setColor(arrowPayload.color());
       for (PotionEffect effect : arrowPayload.customEffects()) {
         arrow.addCustomEffect(effect, true);
@@ -201,7 +201,7 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
     PaperCompat.setArrowItem(target, state.item());
     ItemStack weapon = state.weapon();
     if (weapon != null) {
-      target.setWeapon(weapon);
+      BukkitProjectileVersion.setWeapon(target, weapon);
     }
     PaperCompat.setArrowLifetimeTicks(target, state.lifetimeTicks());
     PaperCompat.setArrowHitSound(target, state.hitSound());
@@ -222,7 +222,7 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
     if (source instanceof Arrow arrow) {
       return new ArrowPayload(
           captureArrowState(arrow),
-          arrow.getBasePotionType(),
+          BukkitProjectileVersion.basePotion(arrow),
           arrow.getColor(),
           arrow.getCustomEffects()
       );
@@ -241,7 +241,7 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
         arrow.getKnockbackStrength(),
         arrow.getPickupStatus(),
         PaperCompat.arrowItem(arrow),
-        arrow.getWeapon(),
+        BukkitProjectileVersion.weapon(arrow),
         PaperCompat.arrowLifetimeTicks(arrow),
         PaperCompat.arrowHitSound(arrow)
     );
@@ -317,13 +317,13 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
       }
 
       PersistentDataContainer copy = container.getAdapterContext().newPersistentDataContainer();
-      container.copyTo(copy, true);
+      PdcDataHolder.copy(container, copy);
       return copy;
     }
 
     static void restore(PersistentDataContainer container, PersistentDataContainer data) {
       if (data != null) {
-        data.copyTo(container, true);
+        PdcDataHolder.copy(data, container);
       }
     }
   }
@@ -386,7 +386,7 @@ final class BukkitProjectileSnapshot implements ProjectileSnapshot {
   sealed interface Payload permits ArrowPayload, SpectralPayload, TridentPayload, ThrowablePayload {
   }
 
-  record ArrowPayload(ArrowState arrow, PotionType basePotionType, Color color, List<PotionEffect> customEffects)
+  record ArrowPayload(ArrowState arrow, Id basePotion, Color color, List<PotionEffect> customEffects)
       implements Payload {
     ArrowPayload {
       customEffects = List.copyOf(customEffects);

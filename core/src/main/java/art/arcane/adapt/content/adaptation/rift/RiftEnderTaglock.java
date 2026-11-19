@@ -35,9 +35,11 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -110,6 +112,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
   public RiftEnderTaglock() {
     super("rift-ender-taglock");
+    needs(PlatformNeed.partialFeature(EngineFeature.ITEM_COOLDOWN_GROUPS, "no cooldown sweep on the item"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("ender_pearl"));
     setInterval(1200);

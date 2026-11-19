@@ -11,6 +11,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -50,6 +51,7 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
 
   public KineticsWindburst() {
     super("kinetics-windburst");
+    needs(PlatformNeed.item("mace"));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("wind_charge"));
     setInterval(9999);

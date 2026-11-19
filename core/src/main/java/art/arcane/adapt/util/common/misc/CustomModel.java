@@ -6,6 +6,7 @@ import art.arcane.adapt.AdaptEnvironment;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.value.MaterialNames;
+import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
@@ -34,6 +35,7 @@ public record CustomModel(Id material, int model, Id modelKey, String headTextur
   public static final Id EMPTY_KEY = Id.minecraft("empty");
   private static final Map<String, URL> SKIN_URLS = new ConcurrentHashMap<>();
   private static final AtomicLong GENERATION = new AtomicLong();
+  private static final AtomicBoolean ITEM_MODEL_WARNED = new AtomicBoolean();
   private static volatile UpdateChecker updateChecker = null;
 
   public CustomModel {
@@ -147,7 +149,7 @@ public record CustomModel(Id material, int model, Id modelKey, String headTextur
     }
 
     CustomModelPort port = AdaptPorts.get(CustomModelPort.class, CustomModelPort.NONE);
-    if (modelKey != null && !EMPTY_KEY.equals(modelKey)) {
+    if (modelKey != null && !EMPTY_KEY.equals(modelKey) && itemModels()) {
       itemStack.setItemModel(modelKey);
     } else if (model != 0) {
       port.setCustomModelData(itemStack, model);
@@ -163,6 +165,20 @@ public record CustomModel(Id material, int model, Id modelKey, String headTextur
     // shulker contents) must never bleed into the adaptation lore.
     port.hideAdditionalTooltip(itemStack);
     return itemStack;
+  }
+
+  /**
+   * True when the server can set an item model per stack. Before 1.21.2 a {@code modelKey} is ignored, the entry's
+   * {@code model} number (custom model data) is used instead, and this is logged once.
+   */
+  private static boolean itemModels() {
+    if (AdaptCore.platform().host().supports(EngineFeature.ITEM_MODEL)) {
+      return true;
+    }
+    if (ITEM_MODEL_WARNED.compareAndSet(false, true)) {
+      AdaptLog.warn("Item model keys in models.toml need Minecraft 1.21.2+; using the custom model data number instead.");
+    }
+    return false;
   }
 
   /**

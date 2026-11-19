@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitDisplayFactory;
 import art.arcane.adapt.bukkit.platform.BukkitHosts;
+import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.bukkit.platform.data.PdcDataHolder;
@@ -32,11 +33,8 @@ import art.arcane.adapt.platform.world.GeneratedStructure;
 import art.arcane.adapt.platform.world.RayHit;
 import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
-import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.chunk.ChunkPosition;
 import art.arcane.volmlib.nativelib.chunk.GeneratedChunkStructures;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.FluidCollisionMode;
@@ -55,7 +53,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.StructureSearchResult;
 
@@ -63,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -72,7 +70,7 @@ import java.util.function.Predicate;
 /** World handle. Equality is by Bukkit world UID; the handle goes stale when Bukkit unloads the world. */
 public final class BukkitWorldRef implements WorldRef {
   private static volatile boolean unsnapshotTileScan = true;
-  private static volatile GeneratedChunkStructures structureMetadata;
+  private static volatile Optional<GeneratedChunkStructures> structureMetadata;
   private final World world;
   private final UUID uid;
   private final String name;
@@ -332,8 +330,7 @@ public final class BukkitWorldRef implements WorldRef {
 
   @Override
   public ItemEntityRef createItemEntity(Vec3 position, ItemRef item) {
-    Item created = world.createEntity(new Location(world, position.x(), position.y(), position.z()), Item.class);
-    created.setItemStack(BukkitRefs.item(item));
+    Item created = BukkitWorldVersion.createItem(new Location(world, position.x(), position.y(), position.z()), BukkitRefs.item(item));
     return BukkitRefs.itemEntity(created);
   }
 
@@ -460,35 +457,30 @@ public final class BukkitWorldRef implements WorldRef {
 
   @Override
   public List<GeneratedStructure> structuresAt(int chunkX, int chunkZ) {
-    Collection<org.bukkit.generator.structure.GeneratedStructure> found = world.getChunkAt(chunkX, chunkZ).getStructures();
-    List<GeneratedStructure> structures = new ArrayList<>(found.size());
-    for (org.bukkit.generator.structure.GeneratedStructure structure : found) {
-      BoundingBox box = structure.getBoundingBox();
-      structures.add(new GeneratedStructure(
-          BukkitConversions.id(RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE).getKeyOrThrow(structure.getStructure())),
-          BukkitConversions.id(structure.getStructure().getStructureType().getKey()),
-          new Box(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ())));
-    }
-    return structures;
+    return BukkitWorldVersion.structuresAt(world.getChunkAt(chunkX, chunkZ));
   }
 
   @Override
   public CompletableFuture<ChunkStructures> generatedStructures(int chunkX, int chunkZ) {
-    GeneratedChunkStructures metadata;
+    Optional<GeneratedChunkStructures> available;
     try {
-      metadata = structureMetadata();
+      available = structureMetadata();
     } catch (RuntimeException | LinkageError failure) {
       return CompletableFuture.failedFuture(new UnsupportedOperationException(
           "generated structure metadata is unsupported on this server", failure));
     }
+    if (available.isEmpty()) {
+      return CompletableFuture.failedFuture(new UnsupportedOperationException(
+          "generated structure metadata is unsupported on this server"));
+    }
+    GeneratedChunkStructures metadata = available.get();
     return world.getChunkAtAsync(chunkX, chunkZ, false, false)
         .thenApply(chunk -> chunk == null ? null : structures(metadata.read(chunk)));
   }
 
   @Override
   public Loc locateNearestStructure(Loc origin, Id structureType, int radiusChunks, boolean findUnexplored) {
-    StructureType type = RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE_TYPE)
-        .get(BukkitConversions.key(structureType));
+    StructureType type = BukkitWorldVersion.structureType(structureType);
     if (type == null) {
       return null;
     }
@@ -499,10 +491,10 @@ public final class BukkitWorldRef implements WorldRef {
     return BukkitRefs.loc(result.getLocation());
   }
 
-  private static GeneratedChunkStructures structureMetadata() {
-    GeneratedChunkStructures metadata = structureMetadata;
+  private static Optional<GeneratedChunkStructures> structureMetadata() {
+    Optional<GeneratedChunkStructures> metadata = structureMetadata;
     if (metadata == null) {
-      metadata = NativeAdapters.require(GeneratedChunkStructures.class);
+      metadata = BukkitNatives.find(GeneratedChunkStructures.class);
       structureMetadata = metadata;
     }
     return metadata;

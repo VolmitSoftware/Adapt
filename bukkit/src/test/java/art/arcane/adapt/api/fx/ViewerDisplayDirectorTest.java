@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.fx;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
@@ -12,7 +13,6 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayDeque;
@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -196,10 +195,8 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
     when(secondViewer.getUniqueId()).thenReturn(secondViewerId);
     when(firstViewer.isOnline()).thenReturn(true);
     when(secondViewer.isOnline()).thenReturn(true);
-    when(world.spawn(same(ownedLocation), same(BlockDisplay.class),
-        ArgumentMatchers.<Consumer<? super BlockDisplay>>any())).thenAnswer(invocation -> {
+    TestVersion.answerSpawn(world, ownedLocation, BlockDisplay.class, configurator -> {
       BlockDisplay display = displays.remove();
-      Consumer<? super BlockDisplay> configurator = invocation.getArgument(2);
       configurator.accept(display);
       return display;
     });
@@ -274,11 +271,9 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
     CountDownLatch releaseRequest = new CountDownLatch(1);
     CountDownLatch cleanupEntered = new CountDownLatch(1);
     BlockDisplay display = mock(BlockDisplay.class);
-    when(world.spawn(same(ownedLocation), same(BlockDisplay.class),
-        ArgumentMatchers.<Consumer<? super BlockDisplay>>any())).thenAnswer(invocation -> {
+    TestVersion.answerSpawn(world, ownedLocation, BlockDisplay.class, configurator -> {
       requestEntered.countDown();
       assertThat(releaseRequest.await(5L, TimeUnit.SECONDS)).isTrue();
-      Consumer<? super BlockDisplay> configurator = invocation.getArgument(2);
       configurator.accept(display);
       return display;
     });
@@ -345,9 +340,7 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
     when(viewer.isOnline()).thenReturn(true);
     when(display.getUniqueId()).thenReturn(displayId);
     when(display.isValid()).thenReturn(true);
-    when(world.spawn(same(ownedLocation), same(BlockDisplay.class),
-        ArgumentMatchers.<Consumer<? super BlockDisplay>>any())).thenAnswer(invocation -> {
-      Consumer<? super BlockDisplay> configurator = invocation.getArgument(2);
+    TestVersion.answerSpawn(world, ownedLocation, BlockDisplay.class, configurator -> {
       configurator.accept(display);
       return display;
     });
@@ -417,9 +410,7 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
     when(viewer.isOnline()).thenReturn(true);
     when(display.getUniqueId()).thenReturn(displayId);
     when(display.isValid()).thenReturn(false);
-    when(world.spawn(same(ownedLocation), same(BlockDisplay.class),
-        ArgumentMatchers.<Consumer<? super BlockDisplay>>any())).thenAnswer(invocation -> {
-      Consumer<? super BlockDisplay> configurator = invocation.getArgument(2);
+    TestVersion.answerSpawn(world, ownedLocation, BlockDisplay.class, configurator -> {
       configurator.accept(display);
       return display;
     });

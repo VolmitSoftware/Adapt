@@ -2,6 +2,7 @@ package art.arcane.adapt.platform.entity;
 
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.fx.SoundCategory;
 import art.arcane.adapt.platform.world.BlockRef;
 
@@ -49,6 +50,25 @@ public interface PlayerRef extends LivingRef {
 
   void setAllowFlight(boolean allow);
 
+  /**
+   * Lets the client ask to start flying (its double tap of jump) without letting the player fly or changing fall
+   * damage, for servers that do not receive the player input packet. While granted, {@link #allowFlight()} reports
+   * false and {@link #setAllowFlight} replaces the grant. False when the player may already fly, is not in survival or
+   * adventure mode, or the platform cannot.
+   */
+  default boolean grantFlightRequests() {
+    return false;
+  }
+
+  /** Ends a grant from {@link #grantFlightRequests()}, leaving flight exactly as it was before; no-op without one. */
+  default void revokeFlightRequests() {
+  }
+
+  /** True while a grant from {@link #grantFlightRequests()} holds. */
+  default boolean flightRequestsGranted() {
+    return false;
+  }
+
   boolean isBlocking();
 
   /** True when {@code other} is an entry of the team this player belongs to on this player's scoreboard. */
@@ -61,6 +81,15 @@ public interface PlayerRef extends LivingRef {
 
   /** Sets the pose; when {@code fixed}, the game keeps it until a later call releases it. */
   void setPose(Pose pose, boolean fixed);
+
+  /**
+   * Movement this player's client reported over the last tick. Servers before 1.21.2 receive no movement keys, so
+   * input is inferred from this; the server-side {@link #velocity()} of a player never includes walking. Defaults to
+   * {@link #velocity()} where the platform reports input directly.
+   */
+  default Vec3 movement() {
+    return velocity();
+  }
 
   /**
    * Replaces the vertical motion, keeps the horizontal movement the client last reported, and sends the result to

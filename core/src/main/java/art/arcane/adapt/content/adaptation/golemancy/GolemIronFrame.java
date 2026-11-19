@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemHandle;
@@ -32,6 +33,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -84,6 +86,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
 
   public GolemIronFrame() {
     super("golem-iron-frame");
+    needs(PlatformNeed.partialAttribute(Attributes.SCALE, "golems keep their vanilla size"));
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.iron_frame");
     setIcon(Id.minecraft("iron_block"));

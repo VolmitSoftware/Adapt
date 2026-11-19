@@ -30,6 +30,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
@@ -60,6 +61,7 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
 
   public PickaxeObsidianRush() {
     super("pickaxe-obsidian-rush");
+    needs(PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
     registerConfiguration(PickaxeObsidianRush.Config.class);
     setIcon(CRYING_OBSIDIAN);
     setInterval(6233);

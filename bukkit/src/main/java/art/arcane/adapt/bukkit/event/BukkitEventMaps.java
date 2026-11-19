@@ -11,7 +11,6 @@ import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityPotionEffectEvent;
 import art.arcane.adapt.platform.event.entity.EntityRegainHealthEvent;
-import art.arcane.adapt.platform.event.entity.EntityRemoveEvent;
 import art.arcane.adapt.platform.event.entity.EntityTargetEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryAction;
 import art.arcane.adapt.platform.event.inventory.InventoryKind;
@@ -22,14 +21,11 @@ import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.value.BlockFace;
-import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.damage.DamageSource;
-import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -48,7 +44,6 @@ import java.util.Map;
 
 /** Bukkit to core value conversions shared by the translations. Enum tables are built once by name. */
 public final class BukkitEventMaps {
-  private static final Id GENERIC_DAMAGE = Id.minecraft("generic");
   private static final Map<org.bukkit.event.entity.EntityDamageEvent.DamageCause, DamageCause> DAMAGE_CAUSES =
       byName(org.bukkit.event.entity.EntityDamageEvent.DamageCause.class, DamageCause.class, DamageCause.CUSTOM);
   private static final Map<Action, InteractAction> ACTIONS = byName(Action.class, InteractAction.class, InteractAction.PHYSICAL);
@@ -112,15 +107,6 @@ public final class BukkitEventMaps {
     return cause == null ? DamageCause.CUSTOM : DAMAGE_CAUSES.getOrDefault(cause, DamageCause.CUSTOM);
   }
 
-  @SuppressWarnings("deprecation")
-  static Id damageType(DamageSource source) {
-    if (source == null) {
-      return GENERIC_DAMAGE;
-    }
-    DamageType type = source.getDamageType();
-    return type == null ? GENERIC_DAMAGE : BukkitRefs.id(type.getKey());
-  }
-
   static InteractAction action(Action action) {
     return ACTIONS.getOrDefault(action, InteractAction.PHYSICAL);
   }
@@ -170,19 +156,6 @@ public final class BukkitEventMaps {
 
   static PlayerFishEvent.State fishState(org.bukkit.event.player.PlayerFishEvent.State state) {
     return FISH_STATES.getOrDefault(state, PlayerFishEvent.State.FISHING);
-  }
-
-  static EntityRemoveEvent.Cause removeCause(org.bukkit.event.entity.EntityRemoveEvent.Cause cause) {
-    if (cause == null) {
-      return EntityRemoveEvent.Cause.UNKNOWN;
-    }
-    return switch (cause) {
-      case DEATH -> EntityRemoveEvent.Cause.DEATH;
-      case DESPAWN -> EntityRemoveEvent.Cause.DESPAWN;
-      case UNLOAD, PLAYER_QUIT -> EntityRemoveEvent.Cause.UNLOAD;
-      case PICKUP -> EntityRemoveEvent.Cause.PICKUP;
-      default -> EntityRemoveEvent.Cause.DISCARD;
-    };
   }
 
   static InventoryKind inventoryKind(InventoryType type) {
