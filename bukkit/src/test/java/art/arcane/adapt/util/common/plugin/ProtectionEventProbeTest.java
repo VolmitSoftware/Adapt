@@ -1,6 +1,7 @@
 package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -46,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 class ProtectionEventProbeTest {
   @Test
-  void blockMutationProbesDispatchStandardEventsAndHonorDenial() {
+  void blockMutationProbesDispatchMarkedStandardEventsAndHonorDenial() {
     Player player = mock(Player.class);
     PlayerInventory inventory = mock(PlayerInventory.class);
     ItemStack held = stubStack(Material.STONE, 1);
@@ -55,7 +56,7 @@ class ProtectionEventProbeTest {
     BlockState state = mock(BlockState.class);
     Location location = mock(Location.class);
     PluginManager pluginManager = mock(PluginManager.class);
-    List<Class<? extends Event>> eventTypes = new ArrayList<>();
+    List<Event> events = new ArrayList<>();
     when(player.isOnline()).thenReturn(true);
     when(player.getWorld()).thenReturn(world);
     when(player.getInventory()).thenReturn(inventory);
@@ -66,7 +67,8 @@ class ProtectionEventProbeTest {
     doAnswer(invocation -> {
       Event event = invocation.getArgument(0);
       assertThat(ProtectionEventProbe.isActive(event)).isTrue();
-      eventTypes.add(event.getClass());
+      assertThat(ProtectionProbe.isProbe(event)).as("other plugins can tell the probe from a real action").isTrue();
+      events.add(event);
       if (event instanceof BlockBreakEvent blockBreakEvent) {
         blockBreakEvent.setCancelled(true);
       } else if (event instanceof BlockPlaceEvent blockPlaceEvent) {
@@ -85,7 +87,17 @@ class ProtectionEventProbeTest {
 
     assertThat(breakAllowed).isFalse();
     assertThat(placeAllowed).isFalse();
-    assertThat(eventTypes).containsExactly(BlockBreakEvent.class, BlockPlaceEvent.class);
+    assertThat(events).hasSize(2);
+    BlockBreakEvent breakProbe = (BlockBreakEvent) events.get(0);
+    assertThat(breakProbe.getBlock()).isSameAs(block);
+    assertThat(breakProbe.getPlayer()).isSameAs(player);
+    BlockPlaceEvent placeProbe = (BlockPlaceEvent) events.get(1);
+    assertThat(placeProbe.getBlockPlaced()).isSameAs(block);
+    assertThat(placeProbe.getBlockAgainst()).isSameAs(block);
+    assertThat(placeProbe.getBlockReplacedState()).isSameAs(state);
+    assertThat(placeProbe.getItemInHand()).isSameAs(held);
+    assertThat(placeProbe.getPlayer()).isSameAs(player);
+    assertThat(placeProbe.getHand()).isEqualTo(EquipmentSlot.HAND);
   }
 
   @Test

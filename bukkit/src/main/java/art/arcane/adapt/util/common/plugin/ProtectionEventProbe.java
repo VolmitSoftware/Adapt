@@ -93,7 +93,7 @@ public final class ProtectionEventProbe {
       return false;
     }
 
-    BlockBreakEvent event = new BlockBreakEvent(block, player);
+    BlockBreakEvent event = ProtectionProbe.blockBreak(player, block);
     dispatch(event);
     return !event.isCancelled();
   }
@@ -103,16 +103,7 @@ public final class ProtectionEventProbe {
       return false;
     }
 
-    ItemStack item = player.getInventory().getItemInMainHand();
-    BlockPlaceEvent event = new BlockPlaceEvent(
-        block,
-        block.getState(),
-        block,
-        item,
-        player,
-        true,
-        EquipmentSlot.HAND
-    );
+    BlockPlaceEvent event = ProtectionProbe.blockPlace(player, block, EquipmentSlot.HAND);
     dispatch(event);
     return !event.isCancelled() && event.canBuild();
   }
