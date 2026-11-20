@@ -11,11 +11,7 @@
     "main": ["${projectGroup}.fabric.AdaptFabric"]
   },
   "mixins": ["adapt.mixins.json", "adapt-platform.mixins.json", "adapt.feature.mixins.json", "adapt.gap-block.mixins.json", "adapt.gap-entity.mixins.json"],
-  "jars": [
-    {"file": "META-INF/jars/fabric-api-base.jar"},
-    {"file": "META-INF/jars/fabric-lifecycle-events-v1.jar"},
-    {"file": "META-INF/jars/fabric-command-api-v2.jar"}
-  ],
+  "jars": ${fabricNestedJars},
   "depends": {
     "fabricloader": ">=${fabricLoaderVersion}",
     "minecraft": "${minecraftVersion}",

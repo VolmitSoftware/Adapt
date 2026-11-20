@@ -9,10 +9,13 @@ import net.minecraft.resources.Identifier;
 
 public final class AdaptGameplayFixtureFabric implements ModInitializer {
     private final ModFixtureCommand command = new ModFixtureCommand("fabric");
+    private final RecipeSyncProbe recipeSync = new RecipeSyncProbe();
 
     @Override
     public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> command.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> recipeSync.register(dispatcher));
+        recipeSync.install();
         Identifier beforeAdapt = Identifier.fromNamespaceAndPath("adaptqa", "before_adapt");
         ServerLifecycleEvents.SERVER_STOPPING.addPhaseOrdering(beforeAdapt, Event.DEFAULT_PHASE);
         ServerLifecycleEvents.SERVER_STOPPING.register(beforeAdapt, command::serverStopping);

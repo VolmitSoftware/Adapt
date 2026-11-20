@@ -184,7 +184,9 @@ Map<String, String> metadata = adapt + [
     forgeLoaderRange: (String) targetProperties.forgeLoaderRange,
     neoForgeVersion: (String) (targetProperties.neoforge ?: ''),
     javaVersion: targetProperties.javaVersion.toString(),
-    dataPackFormat: targetProperties.dataPackFormat.toString()
+    dataPackFormat: targetProperties.dataPackFormat.toString(),
+    fabricNestedJars: groovy.json.JsonOutput.toJson(((Map<String, String>) targetProperties.fabricModules).keySet()
+            .collect { String module -> [file: "META-INF/jars/${module}.jar".toString()] })
 ]
 tasks.named('processResources').configure {
     dependsOn(languageSourceManifest)

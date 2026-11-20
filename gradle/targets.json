@@ -37,7 +37,9 @@
     "fabricModules": {
       "fabric-api-base": "2.0.3+ece063234c",
       "fabric-command-api-v2": "3.0.5+e2bdee784c",
-      "fabric-lifecycle-events-v1": "4.1.1+df84eb3d4c"
+      "fabric-lifecycle-events-v1": "4.1.1+df84eb3d4c",
+      "fabric-networking-api-v1": "6.3.2+a217cccf4c",
+      "fabric-recipe-api-v1": "9.0.17+be4b75ae4c"
     },
     "sourceFamily": "position-rotation",
     "forge": "26.1.2-64.1.4",
@@ -53,7 +55,9 @@
     "fabricModules": {
       "fabric-api-base": "2.0.4+ece063239e",
       "fabric-command-api-v2": "3.1.0+00cb03469e",
-      "fabric-lifecycle-events-v1": "4.1.4+29b6eb019e"
+      "fabric-lifecycle-events-v1": "4.1.4+29b6eb019e",
+      "fabric-networking-api-v1": "6.3.4+2989c6a09e",
+      "fabric-recipe-api-v1": "9.0.22+11e1c9a39e"
     },
     "sourceFamily": "position-rotation",
     "forge": "26.2-65.1.3",
@@ -69,7 +73,9 @@
     "fabricModules": {
       "fabric-api-base": "2.0.6+fcdff87f5d",
       "fabric-command-api-v2": "3.1.2+fcdff87f5d",
-      "fabric-lifecycle-events-v1": "4.1.9+ffef5f675d"
+      "fabric-lifecycle-events-v1": "4.1.9+ffef5f675d",
+      "fabric-networking-api-v1": "6.4.1+c58129785d",
+      "fabric-recipe-api-v1": "10.0.12+b9b88df45d"
     },
     "forge": "26.3-66.0.8",
     "forgeRuntimeMappings": "official",

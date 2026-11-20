@@ -3,6 +3,7 @@ package art.arcane.adapt.neoforge;
 import art.arcane.adapt.mod.AdaptModBootstrap;
 import art.arcane.adapt.mod.AdaptModIdentity;
 import art.arcane.adapt.mod.ModLoader;
+import art.arcane.adapt.mod.feature.loader.LoaderRecipeSync;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
@@ -23,6 +24,7 @@ public final class AdaptNeoForge {
     private final NeoForgePermissions permissions = new NeoForgePermissions(FMLPaths.CONFIGDIR.get());
 
     public AdaptNeoForge() {
+        LoaderRecipeSync.install();
         NeoForge.EVENT_BUS.addListener((PermissionGatherEvent.Nodes event) -> permissions.gather(event));
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> bootstrap.registerCommands(event.getDispatcher()));
         NeoForge.EVENT_BUS.addListener((ServerStartingEvent event) -> bootstrap.serverStarting(event.getServer()));

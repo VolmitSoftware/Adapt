@@ -11,6 +11,7 @@ apply from: '../../gradle/mod.gradle'
 tasks.named('test', Test).configure {
     exclude('art/arcane/adapt/mod/platform/item/ModItemRef*Test*')
     exclude('art/arcane/adapt/mod/platform/ModEngineFeaturesTest*')
+    exclude('art/arcane/adapt/mod/feature/recipe/RecipeMapsTest*')
 }
 
 neoForge {

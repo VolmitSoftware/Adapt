@@ -1,5 +1,6 @@
 package art.arcane.adapt.mod.feature.recipe;
 
+import art.arcane.adapt.mod.feature.loader.LoaderRecipeSync;
 import art.arcane.adapt.mod.feature.mixin.RecipeManagerAccess;
 import art.arcane.adapt.mod.feature.mixin.RecipeMapAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapedRecipeAccess;
@@ -14,8 +15,6 @@ import art.arcane.adapt.platform.recipe.RecipeHost;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.core.Holder;
 import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.resources.ResourceKey;
@@ -28,7 +27,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeMap;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import org.slf4j.Logger;
@@ -265,6 +263,7 @@ public final class ModRecipeHost implements RecipeHost {
             player.connection.send(packet);
             player.getRecipeBook().sendInitialRecipeBook(player);
         }
+        LoaderRecipeSync.resend(server);
     }
 
     private RecipeMap merge(RecipeMap loaded) {
@@ -298,12 +297,6 @@ public final class ModRecipeHost implements RecipeHost {
             return loaded;
         }
         merged.addAll(ours);
-        ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> byType = ImmutableMultimap.builder();
-        ImmutableMap.Builder<ResourceKey<Recipe<?>>, RecipeHolder<?>> byKey = ImmutableMap.builderWithExpectedSize(merged.size());
-        for (RecipeHolder<?> holder : merged) {
-            byType.put(holder.value().getType(), holder);
-            byKey.put(holder.id(), holder);
-        }
-        return RecipeMapAccess.adapt$create(byType.build(), byKey.build());
+        return RecipeMaps.create(merged);
     }
 }

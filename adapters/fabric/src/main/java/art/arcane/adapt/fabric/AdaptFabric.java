@@ -2,6 +2,7 @@ package art.arcane.adapt.fabric;
 
 import art.arcane.adapt.mod.AdaptModBootstrap;
 import art.arcane.adapt.mod.ModLoader;
+import art.arcane.adapt.mod.feature.loader.LoaderRecipeSync;
 import art.arcane.adapt.mod.platform.ModPermissionHost;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -22,6 +23,7 @@ public final class AdaptFabric implements ModInitializer {
                 ModPermissionHost.bridge(permissions);
             }
         }
+        LoaderRecipeSync.install();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> bootstrap.registerCommands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(bootstrap::serverStarting);
         ServerLifecycleEvents.SERVER_STARTED.register(bootstrap::serverStarted);
