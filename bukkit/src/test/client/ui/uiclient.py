@@ -31,6 +31,8 @@ from the installer of the exact loader build the client runs.
 Scenario API, for other scripts:
 
     from uiclient import Target, launch
+    with launch(Target('forge', '1.20.1'), singleplayer='qa') as session:   # integrated server, no Multiplexor server
+        session.create_world()                                             # survival, cheats on; leave_world() quits to title
     with launch(Target('neoforge', '26.3')) as session:
         session.wait_connected()
         session.command('adapt gui')
@@ -421,6 +423,45 @@ class Session:
     def resize(self, width: int, height: int) -> dict:
         return self.op('resize', width=width, height=height)
 
+    def press(self, widget: dict) -> None:
+        self.click(widget['x'] + widget['width'] / 2, widget['y'] + widget['height'] / 2)
+        time.sleep(1.0)
+
+    def create_world(self, cheats: bool = True, timeout: float = 240) -> dict:
+        """From the failed quick play, the title or the world list, creates a default survival world on the integrated
+        server and waits until the player is in it."""
+        deadline: float = time.monotonic() + timeout
+        settled: bool = False
+        while time.monotonic() < deadline:
+            state: dict = self.state()
+            if state['player']['connected']:
+                return state
+            widgets: dict[str, dict] = {widget.get('message', ''): widget for widget in (state['screen'] or {}).get('widgets', [])
+                                        if widget.get('active', True)}
+            toggle: dict | None = next((widget for message, widget in widgets.items() if message.startswith('Allow Cheats')), None)
+            if toggle is not None and not settled:
+                if toggle['message'].endswith('ON') != cheats:
+                    self.press(toggle)
+                    continue
+                settled = True
+            if toggle is not None and settled and 'Create New World' in widgets:
+                self.press(widgets['Create New World'])
+                time.sleep(5)
+                continue
+            if toggle is None:
+                for name in ('Back to World List', 'Singleplayer', 'Create New World'):
+                    if name in widgets:
+                        self.press(widgets[name])
+                        break
+            time.sleep(1)
+        raise AssertionError('Timed out creating a singleplayer world')
+
+    def leave_world(self) -> dict:
+        self.key('escape')
+        screen: dict = self.wait_screen(cls='PauseScreen', timeout=20)['screen']
+        self.press(next(widget for widget in screen['widgets'] if widget.get('message', '').startswith('Save and Quit')))
+        return self.wait(lambda state: not state['player']['connected'] and screen_is(state['screen'], 'TitleScreen'), 'title', 120)
+
     def screenshot(self, name: str) -> Path:
         path: Path = self.output / 'screenshots' / (name + '.png')
         self.op('screenshot', timeout=60, path=str(path))
@@ -557,12 +598,12 @@ def prepare_game(target: Target, game: Path, mod: Path | None, bridge: Path, ext
         shutil.copy2(extra, game / 'mods' / extra.name)
 
 
-def launch_client(target: Target, game: Path, output: Path, port: int, token: str, server_port: int,
+def launch_client(target: Target, game: Path, output: Path, port: int, token: str, quick_play: list[str],
                   properties: list[str]) -> subprocess.Popen:
     hidden: list[str] = ['-Dadapt.ui.hidden=true', f'-Dadapt.ui.port={port}', f'-Dadapt.ui.token={token}',
                          '-Djava.awt.headless=true', '-Dapple.awt.UIElement=true', '-Dfml.earlyWindowControl=false',
                          *('-D' + entry for entry in properties)]
-    game_args: list[str] = ['--width', str(WIDTH), '--height', str(HEIGHT), '--quickPlayMultiplayer', f'127.0.0.1:{server_port}']
+    game_args: list[str] = ['--width', str(WIDTH), '--height', str(HEIGHT), *quick_play]
     java: Path = build_bridge.jdk(target.java) / 'bin' / 'java'
     launch_plan: launcher.LaunchPlan = launcher.plan(components(target), java, game, PLAYER, offline_uuid(PLAYER),
                                                      build_bridge.OUTPUT / 'meta', hidden, game_args)
@@ -619,8 +660,11 @@ def wait_server(server: Path, timeout: float = 600) -> None:
 @contextlib.contextmanager
 def launch(target: Target, output: Path | None = None, client_adapt: Path | None = None,
            server_adapt: Path | None = None, properties: list[str] | None = None,
-           client_mods: list[Path] | None = None, server_mods: list[Path] | None = None) -> Iterator[Session]:
-    """Creates the server and the hidden client, yields a connected-ready Session, then tears everything down."""
+           client_mods: list[Path] | None = None, server_mods: list[Path] | None = None,
+           singleplayer: str = '') -> Iterator[Session]:
+    """Creates the server and the hidden client, yields a connected-ready Session, then tears everything down. With
+    singleplayer set no server is created and the client quick-plays that local world on its integrated server; a world
+    that does not exist yet fails quick play, and Session.create_world then makes a new one from the world list."""
     run_name: str = f'{target.label}-{int(time.time())}-{secrets.token_hex(2)}'
     output = (output or RUNS / run_name).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -647,41 +691,19 @@ def launch(target: Target, output: Path | None = None, client_adapt: Path | None
                                             else adapt_mod_jar(Target(target.server_platform, target.minecraft)))
         report['clientAdapt'] = str(client_jar)
         report['serverAdapt'] = str(server_jar)
-        log(f'Server {server_name} ({target.server_platform} {target.minecraft})')
-        create_lock: str = f'create-{target.server_platform}' if target.server_platform in ('forge', 'neoforge') else 'multiplexor'
-        with machine_lock(create_lock):
+        server_port: int = 0
+        quick_play: list[str] = ['--quickPlaySingleplayer', singleplayer]
+        if not singleplayer:
             created_server = True
-            create: list[str] = ['server', 'create', server_name, '--type', target.server_platform, '--mc', target.minecraft, '--isolated']
-            if target.server_platform in ('forge', 'neoforge'):
-                installer: Path = server_installer(Target(target.server_platform, target.minecraft))
-                report['serverInstaller'] = installer.name
-                mux.run(*create, '--jar', str(installer))
-            else:
-                try:
-                    mux.run(*create)
-                except RuntimeError:
-                    mux.run(*create, '--auto-build')
-        with machine_lock('multiplexor', 600):
-            server: Path = Path(mux.run('instance', 'path', server_name).splitlines()[-1])
-            if target.java != 25:
-                mux.run('runtime', 'settings', 'set-java', str(build_bridge.jdk(target.java) / 'bin' / 'java'), '--instance', server_name)
-            mux.run('gameplay', 'prepare', server_name)
-        server_port: int = free_port()
-        configure_server(server, target, server_jar, server_port, server_mods or [])
-        environment: dict[str, str] = {**os.environ, 'JVM_ARGS': '-XX:+UseG1GC', 'HEAP_SIZE': '3G'}
-        with machine_lock('multiplexor', 600):
-            subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', consumer, 'runtime', 'start', server_name, '--no-console'],
-                           cwd=MULTIPLEXOR, env=environment, check=True, capture_output=True, timeout=300)
-        wait_server(server)
-        server_port = int(server_properties(server / 'server.properties')['server-port'])
-        log(f'Server ready on {server_port}')
+            server_port = start_server(target, mux, server_name, server_jar, server_mods or [], report)
+            quick_play = ['--quickPlayMultiplayer', f'127.0.0.1:{server_port}']
         bridge_jar: Path = Path(checks['bridge'])
         port: int = free_port()
         created_client = True
         prepare_game(target, instance, client_jar, bridge_jar, client_mods or [])
         report['clientInstance'] = str(instance)
         log(f'Launching hidden client {instance.name}')
-        client: subprocess.Popen = launch_client(target, instance, output, port, token, server_port, properties or [])
+        client: subprocess.Popen = launch_client(target, instance, output, port, token, quick_play, properties or [])
         watchdog.start(client.pid)
         bridge = Bridge(port, token)
         session = Session(target, bridge, output, watchdog.check)
@@ -726,6 +748,38 @@ def launch(target: Target, output: Path | None = None, client_adapt: Path | None
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
         log(f'Report {output / "report.json"} status={report["status"]}')
         slot.__exit__(None, None, None)
+
+
+def start_server(target: Target, mux: Multiplexor, server_name: str, server_jar: Path | None, server_mods: list[Path],
+                 report: dict) -> int:
+    log(f'Server {server_name} ({target.server_platform} {target.minecraft})')
+    create_lock: str = f'create-{target.server_platform}' if target.server_platform in ('forge', 'neoforge') else 'multiplexor'
+    with machine_lock(create_lock):
+        create: list[str] = ['server', 'create', server_name, '--type', target.server_platform, '--mc', target.minecraft, '--isolated']
+        if target.server_platform in ('forge', 'neoforge'):
+            installer: Path = server_installer(Target(target.server_platform, target.minecraft))
+            report['serverInstaller'] = installer.name
+            mux.run(*create, '--jar', str(installer))
+        else:
+            try:
+                mux.run(*create)
+            except RuntimeError:
+                mux.run(*create, '--auto-build')
+    with machine_lock('multiplexor', 600):
+        server: Path = Path(mux.run('instance', 'path', server_name).splitlines()[-1])
+        if target.java != 25:
+            mux.run('runtime', 'settings', 'set-java', str(build_bridge.jdk(target.java) / 'bin' / 'java'), '--instance', server_name)
+        mux.run('gameplay', 'prepare', server_name)
+    server_port: int = free_port()
+    configure_server(server, target, server_jar, server_port, server_mods)
+    environment: dict[str, str] = {**os.environ, 'JVM_ARGS': '-XX:+UseG1GC', 'HEAP_SIZE': '3G'}
+    with machine_lock('multiplexor', 600):
+        subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', mux.consumer, 'runtime', 'start', server_name, '--no-console'],
+                       cwd=MULTIPLEXOR, env=environment, check=True, capture_output=True, timeout=300)
+    wait_server(server)
+    server_port = int(server_properties(server / 'server.properties')['server-port'])
+    log(f'Server ready on {server_port}')
+    return server_port
 
 
 def teardown(target: Target, mux: Multiplexor, server_name: str | None, instance: Path | None, session: Session | None,
