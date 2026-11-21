@@ -26,10 +26,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The skills list: skill tiles in the chest menu's order over two facing pages when there is room, at most
- * {@link #MAX_COLUMNS} columns in all, with total knowledge and power used as chips in the top bar, filtered by the
- * search field there. The grid is fitted to the whole skill list and keeps its height, so typing a search never
- * resizes the book; its rows spread out to fill the page the book's proportions give it.
+ * The skills list: skill tiles in the chest menu's order over both facing pages, as many columns as the page width
+ * holds up to {@link #MAX_COLUMNS} in all, with total knowledge and power used as chips in the top bar, filtered by the
+ * search field there. The grid is fitted to the whole skill list and keeps its height, so typing a search never moves
+ * the tiles that stay; its rows spread out to fill the pages.
  */
 public final class SkillsScreen extends AdaptScreen {
     static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), "adapt:textures/gui/mark/power.png");
@@ -45,7 +45,6 @@ public final class SkillsScreen extends AdaptScreen {
     private final Map<String, SkillTile> tiles = new HashMap<>();
     private int shown;
     private int total;
-    private int need;
     private TileGrid.Fit fit = TileGrid.Fit.NONE;
 
     SkillsScreen(ScreenRouter router) {
@@ -110,25 +109,19 @@ public final class SkillsScreen extends AdaptScreen {
         return super.keyPressed(event);
     }
 
-    @Override
-    protected Span pageSpan(UiDraw metrics) {
-        need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
-        return new Span(TileGrid.narrowest(need), SHAPE.span(SHAPE.columns(), need));
-    }
-
     private List<Integer> counts() {
         return List.of(Math.max(1, total));
     }
 
     @Override
-    protected int arrange(UiDraw metrics, int width, int room, boolean split) {
-        fit = TileGrid.fit(counts(), Math.max(width, floor()), room, need, split ? SHAPE : SHAPE.flat()).filling(floor());
-        return fit.span();
+    protected void arrange(UiDraw metrics, int width, int room, boolean open) {
+        int need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
+        fit = TileGrid.fit(counts(), width, room, need, open ? SHAPE : SHAPE.flat()).filling(width);
     }
 
     @Override
-    protected boolean split() {
-        return fit.pages() > 1;
+    protected boolean spans() {
+        return true;
     }
 
     @Override
@@ -139,11 +132,6 @@ public final class SkillsScreen extends AdaptScreen {
     @Override
     protected void stretch(int extra, int maxPitch) {
         fit = fit.stretched(counts(), fit.height(counts()) + extra, maxPitch);
-    }
-
-    @Override
-    protected int gutter() {
-        return TileGrid.spine(fit, grid.bounds());
     }
 
     @Override

@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * At the scaled sizes a typical modpack client runs (1080p at GUI 4 = 480x270, 1080p at GUI 3 or 720p at GUI 2 =
  * 640x360, 1080p at GUI 2 = 960x540, 1080p at GUI 1) nothing overlaps, leaves the frame or is cut short, and row tiles
- * are as wide as their text. The skills list, a typical skill and a typical adaptation never scroll; the catalog's
- * extremes ({@link MaxCatalog}: the largest skill with 25 character names, adaptations with 114 character stat lines and
- * paragraph descriptions) wrap instead of being cut and fit from the sizes in {@link #FITS} up.
+ * are as wide as their text. The catalog's extremes ({@link MaxCatalog}: 24 skills with long names, the largest skill
+ * with 25 character names, adaptations with 114 character stat lines and paragraph descriptions) wrap instead of being
+ * cut and scroll inside the same book every page gets, with everything in reach; a typical adaptation never scrolls.
  */
 class CompactFitTest {
     private static final KitDraw DRAW = new KitDraw();
@@ -28,8 +28,8 @@ class CompactFitTest {
             new Route.Adaptation(TYPICAL_ADAPTATION), new Route.Skill(MaxCatalog.LARGEST_SKILL),
             new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION), new Route.Adaptation(MaxCatalog.SWITCHES_ADAPTATION),
             new Route.Adaptation(MaxCatalog.CHOICES_ADAPTATION));
-    /** The smallest scaled width each route fits without scrolling, in {@link #ROUTES} order. */
-    private static final int[] FITS = {480, 480, 480, 640, 960, 960, 960};
+    /** Whether each route fits the book without scrolling, in {@link #ROUTES} order. */
+    private static final boolean[] FITS = {false, false, true, false, false, false, false};
 
     @Test
     void pagesFitWithoutScrollingOrCuttingText() {
@@ -47,7 +47,7 @@ class CompactFitTest {
                 UiRect frame = fixture.find("frame").bounds();
                 report.append(where).append(": frame ").append(frame.width()).append('x').append(frame.height()).append(", content ")
                         .append(screen.scroll().contentHeight()).append(" of ").append(screen.scroll().bounds().height()).append('\n');
-                if (size[0] >= FITS[index] && scrolls(screen.root())) {
+                if (FITS[index] && scrolls(screen.root())) {
                     failures.append(where).append(" scrolls\n");
                 }
             }
@@ -57,42 +57,40 @@ class CompactFitTest {
     }
 
     @Test
-    void everySkillAndAdaptationIsOnScreen() {
+    void everySkillAndAdaptationIsInReach() {
         ScreenFixture fixture = new ScreenFixture(480, 270, 4, MaxCatalog.catalog(), MaxCatalog.player());
         AdaptScreen skills = fixture.open(new Route.Skills());
-        UiRect view = skills.scroll().bounds();
         for (int index = 0; index < MaxCatalog.SKILLS; index++) {
-            UiRect tile = fixture.find(String.format("skill:skill%02d", index)).bounds();
-            assertTrue(contains(view, tile), tile + " outside " + view);
+            assertInReach(fixture, skills, String.format("skill:skill%02d", index));
         }
         AdaptScreen skill = fixture.open(new Route.Skill(TYPICAL_SKILL));
-        view = skill.scroll().bounds();
         for (int index = 0; index < 15; index++) {
-            UiRect tile = fixture.find(String.format("adaptation:%s-a%02d", TYPICAL_SKILL, index)).bounds();
-            assertTrue(contains(view, tile), tile + " outside " + view);
+            assertInReach(fixture, skill, String.format("adaptation:%s-a%02d", TYPICAL_SKILL, index));
         }
         fixture = new ScreenFixture(960, 540, 2, MaxCatalog.catalog(), MaxCatalog.player());
         AdaptScreen largest = fixture.open(new Route.Skill(MaxCatalog.LARGEST_SKILL));
-        view = largest.scroll().bounds();
         for (int index = 0; index < MaxCatalog.ADAPTATIONS; index++) {
-            UiRect tile = fixture.find(String.format("adaptation:%s-a%02d", MaxCatalog.LARGEST_SKILL, index)).bounds();
-            assertTrue(contains(view, tile), tile + " outside " + view);
+            assertInReach(fixture, largest, String.format("adaptation:%s-a%02d", MaxCatalog.LARGEST_SKILL, index));
         }
         AdaptScreen adaptation = fixture.open(new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION));
-        view = adaptation.scroll().bounds();
         for (String id : List.of("levels", "learn", "stat:cost", "pref:grouped-19", "pref:toggle-2", "pref:style:C12", "pref-reset")) {
-            assertTrue(contains(view, fixture.find(id).bounds()), id + " " + fixture.find(id).bounds() + " outside " + view);
+            assertInReach(fixture, adaptation, id);
         }
         AdaptScreen switches = fixture.open(new Route.Adaptation(MaxCatalog.SWITCHES_ADAPTATION));
-        view = switches.scroll().bounds();
         for (String id : List.of("levels", "learn", "pref:toggle-0", "pref:toggle-18", "pref-reset")) {
-            assertTrue(contains(view, fixture.find(id).bounds()), id + " " + fixture.find(id).bounds() + " outside " + view);
+            assertInReach(fixture, switches, id);
         }
         AdaptScreen choices = fixture.open(new Route.Adaptation(MaxCatalog.CHOICES_ADAPTATION));
-        view = choices.scroll().bounds();
         for (String id : List.of("levels", "learn", "pref:toggle-3", "pref:style:C12", "pref:style-3:C12", "pref-reset")) {
-            assertTrue(contains(view, fixture.find(id).bounds()), id + " " + fixture.find(id).bounds() + " outside " + view);
+            assertInReach(fixture, choices, id);
         }
+    }
+
+    private static void assertInReach(ScreenFixture fixture, AdaptScreen screen, String id) {
+        UiNode node = fixture.find(id);
+        screen.scroll().reveal(node.bounds());
+        fixture.render();
+        assertTrue(contains(screen.scroll().bounds(), node.bounds()), id + " " + node.bounds() + " outside " + screen.scroll().bounds());
     }
 
     @Test
@@ -108,7 +106,7 @@ class CompactFitTest {
                 if (size[0] >= 640) {
                     assertTrue(frame.width() * 9 <= frame.height() * 16, where + " " + frame);
                 }
-                if (size[0] >= FITS[index]) {
+                if (FITS[index]) {
                     assertEquals(0, screen.scroll().maxScroll(), where);
                 }
             }
@@ -116,28 +114,22 @@ class CompactFitTest {
     }
 
     @Test
-    void wideScreensUseMoreColumnsOfFullWidthTiles() {
-        int[] columns = new int[SIZES.length];
-        for (int index = 0; index < SIZES.length; index++) {
-            int[] size = SIZES[index];
-            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player());
-            fixture.open(new Route.Skills());
-            UiRect first = fixture.find("skill:skill00").bounds();
-            int row = 0;
-            for (int skill = 0; skill < MaxCatalog.SKILLS; skill++) {
-                if (fixture.find(String.format("skill:skill%02d", skill)).bounds().y() == first.y()) {
-                    row++;
+    void everyBookSizedScreenGivesTheSkillsTheSameColumnsOfFullWidthTiles() {
+        for (boolean extreme : new boolean[] {false, true}) {
+            int expected = extreme ? 2 : SkillsScreen.MAX_COLUMNS;
+            for (int[] size : SIZES) {
+                ScreenFixture fixture = extreme ? new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player())
+                        : new ScreenFixture(size[0], size[1], size[2], TypicalCatalog.catalog(), TypicalCatalog.player());
+                fixture.open(new Route.Skills());
+                List<UiNode> tiles = fixture.find("skills").children();
+                int row = 0;
+                for (UiNode tile : tiles) {
+                    row += tile.bounds().y() == tiles.get(0).bounds().y() ? 1 : 0;
+                    assertTrue(tile.bounds().width() >= ((RowTile) tile).naturalWidth(DRAW), size[0] + "x" + size[1] + " " + tile.id());
                 }
+                assertEquals(expected, row, size[0] + "x" + size[1] + (extreme ? " long names" : ""));
             }
-            columns[index] = row;
-            assertTrue(index == 0 || row >= columns[index - 1], size[0] + "x" + size[1] + ": " + row + " columns");
         }
-        assertTrue(columns[0] >= 3, columns[0] + " columns at 480x270");
-        assertEquals(SkillsScreen.MAX_COLUMNS, columns[SIZES.length - 1]);
-        ScreenFixture wide = new ScreenFixture(1920, 1080, 1, MaxCatalog.catalog(), MaxCatalog.player());
-        wide.open(new Route.Skills());
-        UiRect tile = wide.find("skill:skill00").bounds();
-        assertEquals(Math.max(SkillsScreen.SHAPE.width(), ((RowTile) wide.find("skill:skill00")).naturalWidth(DRAW)), tile.width());
     }
 
     @Test
@@ -167,7 +159,7 @@ class CompactFitTest {
         }
     }
 
-    private static void checkTiles(UiNode node, String where) {
+    static void checkTiles(UiNode node, String where) {
         if (node instanceof RowTile tile) {
             int natural = tile.naturalWidth(DRAW);
             assertTrue(tile.bounds().width() >= Math.max(TileGrid.MIN_WIDTH, natural), where + ": " + tile.id() + " " + tile.bounds()

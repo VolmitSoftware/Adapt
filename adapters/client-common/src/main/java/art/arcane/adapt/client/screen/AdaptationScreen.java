@@ -59,8 +59,6 @@ public final class AdaptationScreen extends AdaptScreen {
     static final String CONFIRM = "confirm";
     static final String CANCEL = "cancel";
     static final String PREFERENCE = "preference";
-    /** The narrowest a page of running text stays comfortable to read. */
-    private static final int TEXT_PAGE = 160;
     /** Drops the facing page's first row so its text sits on the line of the name across the spine. */
     private static final int FACING_DROP = (UiIcons.SIZE - PreferencePanel.CELL_HEIGHT) / 2;
 
@@ -179,25 +177,6 @@ public final class AdaptationScreen extends AdaptScreen {
         state.put("offer", offer == null ? "" : (offer.learn() ? "learn:" : "unlearn:") + offer.target());
         PlayerView player = router().state().player();
         state.put("level", Integer.toString(CatalogIndex.level(player, adaptationId)));
-    }
-
-    @Override
-    protected Span pageSpan(UiDraw metrics) {
-        int least = Math.max(TEXT_PAGE, Math.max(summary.leastWidth(metrics), actionRow.leastWidth(metrics)));
-        int most = Math.max(summary.naturalWidth(metrics), Math.min(Summary.DESCRIPTION, description.preferredWidth(metrics)));
-        most = Math.max(most, Math.min(StatColumns.NATURAL, stats.widest(metrics)));
-        most = Math.max(most, reason.visible() ? reason.widest(metrics) : 0);
-        most = Math.max(most, actionRow.visible() ? actionRow.leadWidth(metrics) : 0);
-        return new Span(least, Math.max(least, Math.min(MAX_PAGE, most)));
-    }
-
-    @Override
-    protected Span facingSpan(UiDraw metrics) {
-        if (!preferences.visible()) {
-            return Span.NONE;
-        }
-        int least = preferences.leastWidth(metrics);
-        return new Span(least, Math.max(least, preferences.naturalWidth(metrics)));
     }
 
     @Override
@@ -635,7 +614,6 @@ public final class AdaptationScreen extends AdaptScreen {
      * page's left edge when they do not share it.
      */
     private static final class Summary extends UiGroup {
-        static final int DESCRIPTION = 240;
         private static final int GAP = 4;
         private static final int PIPS_GAP = 8;
 
@@ -688,11 +666,6 @@ public final class AdaptationScreen extends AdaptScreen {
         int naturalWidth(UiDraw metrics) {
             int pips = pipsWidth(metrics);
             return nameWidth(metrics) + (pips > 0 ? PIPS_GAP + pips : 0);
-        }
-
-        /** The width with the pips on their own line under the name. */
-        int leastWidth(UiDraw metrics) {
-            return Math.max(nameWidth(metrics), pipsWidth(metrics));
         }
 
         private boolean shared(int width, UiDraw metrics) {
@@ -772,17 +745,6 @@ public final class AdaptationScreen extends AdaptScreen {
             setVisible(any);
         }
 
-        /** The widest line of any level, so the page wants one width whichever level shows. */
-        int widest(UiDraw metrics) {
-            int widest = 0;
-            for (List<UiNode> level : levels) {
-                for (UiNode line : level) {
-                    widest = Math.max(widest, line.preferredWidth(metrics));
-                }
-            }
-            return widest;
-        }
-
         @Override
         public int preferredHeight(int width, UiDraw metrics) {
             int tallest = 0;
@@ -850,7 +812,7 @@ public final class AdaptationScreen extends AdaptScreen {
     /**
      * The line above the actions: what blocks one, or what the level under the pointer would cost. A rule that locks an
      * action is gold behind a padlock, a shortage is wine, information is muted. It keeps the height of the longest
-     * line it can show.
+     * line it can show and never less than two lines, so a note that wraps at one level does not move the text above.
      */
     private static final class Reason extends UiNode {
         private static final int LOCK_ROOM = 10;
@@ -887,14 +849,6 @@ public final class AdaptationScreen extends AdaptScreen {
             state.put("tone", note.tone().name());
         }
 
-        int widest(UiDraw metrics) {
-            int widest = 0;
-            for (String text : all) {
-                widest = Math.max(widest, LOCK_ROOM + metrics.textWidth(text));
-            }
-            return widest;
-        }
-
         @Override
         public int preferredHeight(int width, UiDraw metrics) {
             int tallest = 0;
@@ -903,7 +857,7 @@ public final class AdaptationScreen extends AdaptScreen {
                     tallest = Math.max(tallest, metrics.wrappedHeight(text, Math.max(1, width - LOCK_ROOM)));
                 }
             }
-            return tallest;
+            return tallest == 0 ? 0 : Math.max(tallest, metrics.lineHeight() * 2);
         }
 
         @Override
@@ -995,7 +949,6 @@ public final class AdaptationScreen extends AdaptScreen {
     private static final class ActionRow extends UiGroup {
         private static final int GAP = 3;
         private static final int APART = 8;
-        private static final int LEAD_CAP = 184;
 
         private List<String> primary = List.of();
         private List<String> costs = List.of();
@@ -1057,21 +1010,6 @@ public final class AdaptationScreen extends AdaptScreen {
             return (slots[4] == 0 ? 0 : slots[4] + GAP) + slots[5];
         }
 
-        /** The width that keeps the primary button and its costs on one line. */
-        int leadWidth(UiDraw metrics) {
-            return lead(slots(metrics));
-        }
-
-        /**
-         * The narrowest the row gets: the primary button with its costs on one line, up to {@link #LEAD_CAP}. A row
-         * that needs more than that on a page that cannot give it moves the costs under the button together.
-         */
-        int leastWidth(UiDraw metrics) {
-            int[] slots = slots(metrics);
-            int chips = lead(slots) - slots[0] - GAP;
-            return Math.max(Math.max(Math.min(LEAD_CAP, lead(slots)), slots[0]), Math.max(chips, trail(slots)));
-        }
-
         /** Where each slot goes in {@code width}: x and line for the six slots, then the number of lines. */
         private int[][] arrange(int[] slots, int width) {
             int[][] placed = new int[7][2];
@@ -1130,7 +1068,6 @@ public final class AdaptationScreen extends AdaptScreen {
      * are many and every line fits its column on one line.
      */
     private static final class StatColumns implements UiLayoutPolicy {
-        static final int NATURAL = 320;
         private static final int MIN_COLUMN = 170;
         private static final int SPLIT_AT = 5;
         private static final int GAP = 8;

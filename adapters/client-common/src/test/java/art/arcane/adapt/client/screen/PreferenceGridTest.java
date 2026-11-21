@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Preference checklists are a real grid at every target size: equal columns and rows, no cell meets another, every cell
- * stays in the list and holds its name and checkbox on one line, and the main switch has its row to itself (reset aside).
+ * stays in the list and holds its name, wrapped when long, and its checkbox, and the main switch has its row to itself.
  */
 class PreferenceGridTest {
     private static final int[][] SIZES = {{480, 270, 4}, {640, 360, 3}, {960, 540, 2}};
@@ -57,7 +57,7 @@ class PreferenceGridTest {
             assertEquals(first.height(), box.height(), what + " height");
             assertTrue(box.x() >= area.x() && box.right() <= area.right() && box.y() >= area.y() && box.bottom() <= area.bottom(),
                     what + " leaves " + area);
-            assertTrue(cell.preferredWidth(fixture.draw) <= box.width(), what + " is too narrow for its name and control");
+            assertTrue(cell.preferredHeight(box.width(), fixture.draw) <= box.height(), what + " is too short for its name and control");
             for (int other = index + 1; other < cells.size(); other++) {
                 assertFalse(box.intersects(cells.get(other).bounds()), what + " meets " + cells.get(other).id());
             }
@@ -100,7 +100,7 @@ class PreferenceGridTest {
         UiRect row = main.bounds();
         UiNode reset = skill.find("pref-reset");
         assertNotNull(reset);
-        assertTrue(reset.bounds().x() >= row.right(), "reset sits right of the main switch " + reset.bounds() + " " + row);
+        assertTrue(reset.bounds().y() >= row.bottom(), "reset sits under the main switch " + reset.bounds() + " " + row);
         assertEquals(skill.find("preferences").bounds().right(), reset.bounds().right(), "reset sits at the right edge");
     }
 

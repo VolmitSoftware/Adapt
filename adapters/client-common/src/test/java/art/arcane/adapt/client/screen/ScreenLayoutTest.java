@@ -54,13 +54,13 @@ class ScreenLayoutTest {
     @Test
     void theSkillsBookKeepsToFourColumnsCentredAndNeverScrolls() {
         for (int[] size : BOOK_SIZES) {
-            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player());
+            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], TypicalCatalog.catalog(), TypicalCatalog.player());
             AdaptScreen screen = fixture.open(new Route.Skills());
             String where = size[0] + "x" + size[1];
             List<Integer> columns = new ArrayList<>();
-            int top = fixture.find("skill:skill00").bounds().y();
-            for (int index = 0; index < MaxCatalog.SKILLS; index++) {
-                UiRect tile = fixture.find(String.format("skill:skill%02d", index)).bounds();
+            int top = fixture.find("skills").children().get(0).bounds().y();
+            for (UiNode node : fixture.find("skills").children()) {
+                UiRect tile = node.bounds();
                 assertEquals(TileGrid.HEIGHT, tile.height(), where);
                 if (tile.y() == top && !columns.contains(tile.x())) {
                     columns.add(tile.x());

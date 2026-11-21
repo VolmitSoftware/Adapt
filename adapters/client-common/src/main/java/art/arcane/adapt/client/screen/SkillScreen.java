@@ -29,8 +29,6 @@ import java.util.Map;
  */
 public final class SkillScreen extends AdaptScreen {
     static final TileGrid.Shape SHAPE = new TileGrid.Shape(2, 4, TileGrid.WIDTH, false);
-    private static final int STRIP_WIDTH = 160;
-    private static final int NOTICE_WIDTH = 240;
 
     private final String skillId;
     private final Label notice;
@@ -40,7 +38,6 @@ public final class SkillScreen extends AdaptScreen {
     private final PreferencePanel preferences;
     private final Map<String, AdaptationTile> tiles = new HashMap<>();
     private final List<UiGroup> groups = new ArrayList<>();
-    private int need;
     private TileGrid.Fit fit = TileGrid.Fit.NONE;
 
     SkillScreen(ScreenRouter router, Route.Skill route) {
@@ -118,15 +115,6 @@ public final class SkillScreen extends AdaptScreen {
         state.put("groups", Integer.toString(groups.size()));
     }
 
-    @Override
-    protected Span pageSpan(UiDraw metrics) {
-        if (groups.isEmpty()) {
-            return new Span(MIN_PAGE, NOTICE_WIDTH);
-        }
-        need = RowTile.need(shownTiles(), metrics);
-        return new Span(TileGrid.narrowest(need), SHAPE.span(SHAPE.columns(), need));
-    }
-
     private List<Integer> counts() {
         List<Integer> counts = new ArrayList<>();
         for (UiGroup group : groups) {
@@ -136,9 +124,9 @@ public final class SkillScreen extends AdaptScreen {
     }
 
     @Override
-    protected int arrange(UiDraw metrics, int width, int room, boolean split) {
+    protected void arrange(UiDraw metrics, int width, int room, boolean open) {
         if (groups.isEmpty()) {
-            return width;
+            return;
         }
         int rest = 0;
         for (UiNode node : List.of(notice, hint)) {
@@ -146,8 +134,7 @@ public final class SkillScreen extends AdaptScreen {
                 rest += node.preferredHeight(width, metrics) + PAGE_GAP;
             }
         }
-        fit = TileGrid.fit(counts(), width, room - rest, need, SHAPE);
-        return fit.span();
+        fit = TileGrid.fit(counts(), width, room - rest, RowTile.need(shownTiles(), metrics), SHAPE).filling(width);
     }
 
     @Override
@@ -163,13 +150,6 @@ public final class SkillScreen extends AdaptScreen {
     @Override
     protected boolean footed() {
         return true;
-    }
-
-    @Override
-    protected Span facingSpan(UiDraw metrics) {
-        boolean settings = preferences.visible();
-        return new Span(Math.max(MIN_PAGE, settings ? preferences.leastWidth(metrics) : 0),
-                Math.max(STRIP_WIDTH, settings ? preferences.naturalWidth(metrics) : 0));
     }
 
     @Override

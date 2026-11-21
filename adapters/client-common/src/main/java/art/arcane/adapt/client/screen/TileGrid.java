@@ -12,14 +12,14 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
- * Columns of {@link RowTile}s, in groups that each start a new row. A page asks {@link #fit} for its grid at each width
- * the book tries: the {@link Shape}'s columns when the width holds them at the tiles' narrowest, evened out so no row is
- * left with a straggler, then more columns up to the shape's limit while the grid is taller than its room. A spread
+ * Columns of {@link RowTile}s, in groups that each start a new row. A page asks {@link #fit} for its grid in the width
+ * the book gives it: the {@link Shape}'s columns when the width holds them at the tiles' narrowest, evened out so no row
+ * is left with a straggler, then more columns up to the shape's limit while the grid is taller than its room. A spread
  * shape splits an even number of columns over two facing pages with the spine between them, whole rows to the left
  * page first, so the two pages differ by a row at most and only the book's last row can be short. Tiles never get
- * narrower than their widest text, so nothing in them is cut; only when the narrowest columns still do not fit does
- * the page scroll. Rows sit {@link #PITCH} apart, spread out to {@link #MAX_PITCH} when the book has height to spare
- * and close up until they touch when that alone saves the page from scrolling.
+ * narrower than their widest text while a column of them fits, so nothing in them is cut; when the columns still do
+ * not fit the room the page scrolls. Rows sit {@link #PITCH} apart, spread out to {@link #MAX_PITCH} when the book has
+ * height to spare and close up until they touch when that alone saves the page from scrolling.
  */
 final class TileGrid {
     static final int HEIGHT = 23;
@@ -44,10 +44,9 @@ final class TileGrid {
             return new Shape(columns, maxColumns, width, false);
         }
 
-        /** The width of {@code count} columns of tiles {@code need} wide at their preferred width. */
-        int span(int count, int need) {
-            int pages = spread && count >= 2 && count % 2 == 0 ? 2 : 1;
-            return count * Math.max(width, narrowest(need)) + (count - pages) * GAP + (pages - 1) * AdaptScreen.SPREAD_GAP;
+        /** How many columns the grid adds at a time: two on a spread, one for each page. */
+        int step() {
+            return spread ? 2 : 1;
         }
     }
 
@@ -122,8 +121,8 @@ final class TileGrid {
         }
 
         /**
-         * This grid with its tiles widened, up to {@link #MAX_WIDTH}, until it spans {@code width}: a page the top bar
-         * keeps wider than its tiles need has them reach its margins instead of floating between them.
+         * This grid with its tiles widened, up to {@link #MAX_WIDTH}, until it spans {@code width}: a page wider than
+         * its tiles need has them reach its margins instead of floating between them.
          */
         Fit filling(int width) {
             if (span() >= width) {
@@ -161,16 +160,17 @@ final class TileGrid {
         }
         int preferred = UiLayout.snap(Math.max(shape.width(), narrowest(need)));
         int least = narrowest(need);
-        int cap = Math.max(1, Math.min(shape.maxColumns(), largest));
-        int columns = 1;
-        while (columns < Math.min(cap, shape.columns()) && fits(columns + 1, available, least, shape)) {
-            columns++;
+        int step = shape.step();
+        int cap = Math.max(step, Math.min(shape.maxColumns(), largest));
+        int columns = step;
+        while (columns + step <= Math.min(cap, shape.columns()) && fits(columns + step, available, least, shape)) {
+            columns += step;
         }
         columns = balanced(columns, largest, shape);
-        while (columns < cap && grid(columns, available, preferred, least, shape).height(groups) > room
-                && fits(columns + 1, available, least, shape)) {
-            int next = balanced(columns + 1, largest, shape);
-            columns = next > columns ? next : columns + 1;
+        while (columns + step <= cap && grid(columns, available, preferred, least, shape).height(groups) > room
+                && fits(columns + step, available, least, shape)) {
+            int next = balanced(columns + step, largest, shape);
+            columns = next > columns ? next : columns + step;
         }
         Fit grid = grid(columns, available, preferred, least, shape);
         Fit tight = new Fit(grid.columns(), grid.width(), grid.pages(), HEIGHT);
@@ -178,18 +178,17 @@ final class TileGrid {
     }
 
     private static boolean fits(int columns, int available, int least, Shape shape) {
-        return width(columns, pages(columns, available, least, shape), available, Integer.MAX_VALUE) >= least;
+        return width(columns, pages(columns, shape), available, Integer.MAX_VALUE) >= least;
     }
 
     private static Fit grid(int columns, int available, int preferred, int least, Shape shape) {
-        int pages = pages(columns, available, least, shape);
+        int pages = pages(columns, shape);
         return new Fit(columns, Math.max(1, width(columns, pages, available, preferred)), pages, PITCH);
     }
 
-    /** Two pages for an even number of columns of a spread shape, unless the spine would leave tiles under {@code least}. */
-    private static int pages(int columns, int available, int least, Shape shape) {
-        boolean spread = shape.spread() && columns >= 2 && columns % 2 == 0;
-        return spread && width(columns, 2, available, Integer.MAX_VALUE) >= least ? 2 : 1;
+    /** Two pages for an even number of columns of a spread shape. */
+    private static int pages(int columns, Shape shape) {
+        return shape.spread() && columns >= 2 && columns % 2 == 0 ? 2 : 1;
     }
 
     private static int width(int columns, int pages, int available, int preferred) {
@@ -218,16 +217,16 @@ final class TileGrid {
         return perPage * 2;
     }
 
-    /** Where the spine between the pages of {@code grid} falls in {@code area}, or {@link Integer#MIN_VALUE} for one page. */
-    static int spine(Fit grid, UiRect area) {
+    /**
+     * Where page {@code page}'s columns start in {@code area}: the block centred in the area, or on a spread centred in
+     * its half, the halves {@link AdaptScreen#SPREAD_GAP} apart across the middle.
+     */
+    private static int left(Fit grid, UiRect area, int page) {
         if (grid.pages() < 2) {
-            return Integer.MIN_VALUE;
+            return area.x() + UiLayout.snap(Math.max(0, (area.width() - grid.span()) / 2));
         }
-        return left(grid, area) + grid.pageSpan() + AdaptScreen.SPREAD_GAP / 2;
-    }
-
-    private static int left(Fit grid, UiRect area) {
-        return area.x() + UiLayout.snap(Math.max(0, (area.width() - grid.span()) / 2));
+        int half = (area.width() - AdaptScreen.SPREAD_GAP) / 2;
+        return area.x() + page * (half + AdaptScreen.SPREAD_GAP) + UiLayout.snap(Math.max(0, (half - grid.pageSpan()) / 2));
     }
 
     /** {@link #rows(Supplier, IntSupplier)} as tall as the tiles it holds. */
@@ -236,8 +235,8 @@ final class TileGrid {
     }
 
     /**
-     * One group's tiles in the grid {@code fit} gives, the block centred in the area; a spread fills the left page
-     * first, and the last row is left aligned. The group keeps the height of {@code reserved} tiles when it holds
+     * One group's tiles in the grid {@code fit} gives, the block centred in the area or each page's columns in its
+     * half; a spread fills the left page first, and the last row is left aligned. The group keeps the height of {@code reserved} tiles when it holds
      * fewer, so a filter that hides tiles does not resize the book.
      */
     static UiLayoutPolicy rows(Supplier<Fit> fit, IntSupplier reserved) {
@@ -247,12 +246,11 @@ final class TileGrid {
             @Override
             public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
                 Fit grid = fit.get();
-                int left = left(grid, area);
                 int first = grid.firstPage(children.size());
                 for (int index = 0; index < children.size(); index++) {
                     int page = index < first ? 0 : 1;
                     int local = index - page * first;
-                    int x = left + page * (grid.pageSpan() + AdaptScreen.SPREAD_GAP) + local % grid.perPage() * (grid.width() + GAP);
+                    int x = left(grid, area, page) + local % grid.perPage() * (grid.width() + GAP);
                     int y = area.y() + local / grid.perPage() * grid.pitch();
                     children.get(index).place(new UiRect(x, y, grid.width(), HEIGHT), metrics);
                 }

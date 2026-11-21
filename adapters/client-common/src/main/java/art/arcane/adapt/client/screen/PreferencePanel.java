@@ -53,8 +53,6 @@ final class PreferencePanel extends UiGroup {
     private static final int LEAD_GAP = 6;
     private static final int TILE_GAP = 2;
     private static final int MAX_LEAD = 150;
-    private static final int MAX_NATURAL = 420;
-    private static final int NATURAL_ROWS = 10;
     private static final int MAX_EXTRA_GAP = 16;
     /** The most the checklist's rows spread apart to take up a page taller than the panel needs. */
     private static final int MAX_ROW_STRETCH = 5;
@@ -188,39 +186,6 @@ final class PreferencePanel extends UiGroup {
             seat.add(reset);
         }
         foot.setVisible(seat == foot);
-    }
-
-    /** The width the controls would like: the checklist in about {@value #NATURAL_ROWS} rows, capped. */
-    int naturalWidth(UiDraw metrics) {
-        return width(metrics, false);
-    }
-
-    /** The narrowest the controls stay uncramped: every row's tiles beside its name and the checklist in a single column. */
-    int leastWidth(UiDraw metrics) {
-        return width(metrics, true);
-    }
-
-    private int width(UiDraw metrics, boolean least) {
-        int widest = 0;
-        int lead = lead(metrics);
-        for (UiNode child : children()) {
-            if (child instanceof Row row) {
-                int tail = row.tailWidth(metrics);
-                widest = Math.max(widest, lead + LEAD_GAP + (least ? Math.min(tail, services().theme().tileSize() * 4) : tail));
-            } else if (child == checklist) {
-                List<UiNode> cells = checklist.children();
-                int columns = least ? 1 : (cells.size() + NATURAL_ROWS - 1) / NATURAL_ROWS;
-                widest = Math.max(widest, columns * Checklist.cellWidth(cells, metrics) + (columns - 1) * COLUMN_GAP);
-            } else if (child instanceof UiGroup line && !(child instanceof Row)) {
-                int width = 0;
-                for (UiNode item : line.children()) {
-                    int own = item.preferredWidth(metrics);
-                    width = least ? Math.max(width, own) : width + (width == 0 ? 0 : LEAD_GAP * 2) + own;
-                }
-                widest = Math.max(widest, width);
-            }
-        }
-        return Math.min(MAX_NATURAL, widest);
     }
 
     private int lead(UiDraw metrics) {
