@@ -11,14 +11,19 @@ import java.util.Objects;
 
 /**
  * A vertically scrolling viewport around one content node, which is laid out at its preferred height. Scrolls with the
- * wheel, a draggable scrollbar, Page Up/Down and Home/End, and follows keyboard focus. Content outside the viewport is
- * clipped for drawing and hit testing.
+ * wheel, a draggable scrollbar (a hairline rail with a soft thumb that inks under the pointer and shows a grip while
+ * dragged), Page Up/Down and Home/End, and follows keyboard focus. Content outside the viewport is clipped for drawing
+ * and hit testing.
  */
 public class ScrollArea extends UiNode {
     public static final int BAR_WIDTH = 4;
     public static final int WHEEL_STEP = 18;
     private static final int MIN_THUMB = 10;
+    /** How far content fades into the page at an edge it runs past. */
+    private static final int FADE = 6;
+    private static final float FADE_DEPTH = 200.0F;
 
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final UiNode content;
     private int scroll;
     private int contentHeight;
@@ -191,9 +196,26 @@ public class ScrollArea extends UiNode {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect view = bounds();
-        UiTome.soft(draw, view.right() - BAR_WIDTH, view.y(), view.right(), view.bottom(), theme.tile());
+        int page = theme.backdrop();
+        int clear = page & 0x00FFFFFF;
+        int edge = view.right() - BAR_WIDTH - 1;
+        draw.pushPose();
+        draw.depth(FADE_DEPTH);
+        if (scroll > 0) {
+            draw.gradient(view.x(), view.y(), edge, view.y() + FADE, page, clear);
+        }
+        if (scroll < maxScroll()) {
+            draw.gradient(view.x(), view.bottom() - FADE, edge, view.bottom(), clear, page);
+        }
+        draw.popPose();
+        int rail = view.right() - BAR_WIDTH / 2 - 1;
+        draw.fill(rail, view.y() + 1, rail + 1, view.bottom() - 1, theme.tileBorder());
         UiRect thumb = thumb();
-        boolean lit = dragging || frame.isHovered(this) && frame.mouseX() >= view.right() - BAR_WIDTH;
-        UiTome.soft(draw, thumb.x(), thumb.y(), thumb.right(), thumb.bottom(), lit ? theme.textMuted() : theme.tileBorder());
+        boolean over = frame.isHovered(this) && frame.mouseX() >= view.right() - BAR_WIDTH;
+        float lift = hover.update(frame.motion(), dragging || over);
+        UiTome.soft(draw, thumb.x(), thumb.y(), thumb.right(), thumb.bottom(), UiEase.mix(theme.surfaceBorder(), theme.text(), lift));
+        if (dragging) {
+            draw.fill(thumb.x() + 1, thumb.centerY() - 1, thumb.right() - 1, thumb.centerY() + 1, theme.surfaceHover());
+        }
     }
 }

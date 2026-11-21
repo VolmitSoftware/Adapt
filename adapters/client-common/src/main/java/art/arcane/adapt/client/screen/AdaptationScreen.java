@@ -29,18 +29,22 @@ import java.util.Map;
 
 /**
  * One adaptation. The left page reads top to bottom from one left edge: icon, name and level pips on one line, the
- * description, the selected level's stat lines, what blocks it, then its cost or refund with the learn or unlearn
- * button (every requirement is in the button's tooltip). Its preferences are a grid on the facing page. Text wraps
- * instead of being cut, and the page widens past {@link #MAX_PAGE} only while that would otherwise make it scroll. Learning a permanent adaptation asks for confirmation first,
- * except in debug mode where the server skips it. An adaptation the player's skill page does not show says so instead.
- * Every change waits for the server: the button and preferences are disabled and the target level blinks until the
- * answer arrives.
+ * description and the selected level's stat lines; what blocks the level and its cost or refund with the learn or
+ * unlearn button sit at the foot of the page (every requirement is in the button's tooltip). The stat lines and the
+ * blocking reason keep the room their tallest level needs, so choosing a level never moves the button. Its preferences
+ * are a grid on the facing page with reset at the foot. Text wraps instead of being cut. Learning a permanent
+ * adaptation asks for confirmation first, except in debug mode where the server skips it. An adaptation the player's
+ * skill page does not show says so instead. Every change waits for the server: the button and preferences are disabled
+ * and the target level blinks until the answer arrives.
  */
 public final class AdaptationScreen extends AdaptScreen {
     static final String LEARN = "learn";
     static final String UNLEARN = "unlearn";
     static final String PREFERENCE = "preference";
-    private static final int WIDEN_STEP = 32;
+    /** The narrowest a page of running text stays comfortable to read. */
+    private static final int TEXT_PAGE = 160;
+    /** Drops the facing page's first row so its text sits on the line of the name across the spine. */
+    private static final int FACING_DROP = (UiIcons.SIZE - PreferencePanel.CELL_HEIGHT) / 2;
 
     private final String adaptationId;
     private final Summary summary;
@@ -48,7 +52,6 @@ public final class AdaptationScreen extends AdaptScreen {
     private final StatChip permanentChip;
     private final StatChip debugChip;
     private final Label notice;
-    private final UiGroup detail;
     private final ActionRow actionRow;
     private final LevelTrack track;
     private final StatChip costChip;
@@ -56,8 +59,8 @@ public final class AdaptationScreen extends AdaptScreen {
     private final StatChip refundChip;
     private final Button learnButton;
     private final Button unlearnButton;
-    private final UiGroup stats;
-    private final Label reason;
+    private final Stats stats;
+    private final Reason reason;
     private final PreferencePanel preferences;
     private int selected;
     private boolean chosen;
@@ -71,10 +74,22 @@ public final class AdaptationScreen extends AdaptScreen {
         track = summary.add(new LevelTrack("levels", this::select));
         description = page().add(new Label("description", "").setWrap(true).setColor(Palette.MUTED));
         notice = page().add(new Label("notice", "").setWrap(true));
-        detail = page().add(new UiGroup("detail", UiLayoutPolicy.column(3)));
-        stats = detail.add(new UiGroup("detail.stats", new StatColumns()));
-        reason = detail.add(new Label("reason", "").setWrap(true));
-        actionRow = detail.add(new ActionRow());
+        stats = page().add(new Stats());
+        reason = page().add(new Reason());
+        actionRow = page().add(new ActionRow());
+        page().setLayout(UiLayoutPolicy.footed(PAGE_GAP, reason, actionRow));
+        facing().setLayout(new UiLayoutPolicy() {
+            @Override
+            public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
+                preferences.place(area.belowTop(FACING_DROP), metrics);
+            }
+
+            @Override
+            public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
+                int height = preferences.visible() ? preferences.preferredHeight(width, metrics) : 0;
+                return height == 0 ? 0 : height + FACING_DROP;
+            }
+        });
         costChip = actionRow.add(new StatChip("stat:cost", SkillsScreen.KNOWLEDGE_ICON, "", ""));
         powerChip = actionRow.add(new StatChip("stat:power-cost", SkillsScreen.POWER_ICON, "", ""));
         refundChip = actionRow.add(new StatChip("stat:refund", SkillsScreen.KNOWLEDGE_ICON, "", ""));
@@ -97,7 +112,7 @@ public final class AdaptationScreen extends AdaptScreen {
                 send(PREFERENCE, ScreenText.SAVING.text(),
                         () -> router.actions().resetPreference(PreferenceOwner.ADAPTATION, adaptationId));
             }
-        }));
+        }, this::spreadOpen));
         refresh();
     }
 
@@ -141,23 +156,26 @@ public final class AdaptationScreen extends AdaptScreen {
     }
 
     @Override
-    protected int pageWidth(UiDraw metrics, int available, int room) {
-        int width = Math.max(summary.naturalWidth(metrics), actionRow.naturalWidth(metrics));
-        width = Math.max(width, Math.min(Summary.DESCRIPTION, description.preferredWidth(metrics)));
-        for (UiNode line : stats.children()) {
-            width = Math.max(width, Math.min(StatColumns.NATURAL, line.preferredWidth(metrics)));
-        }
-        width = Math.max(width, reason.visible() ? reason.preferredWidth(metrics) : 0);
-        width = Math.min(Math.min(available, MAX_PAGE), width);
-        while (width < available && page().preferredHeight(width, metrics) > room) {
-            width = Math.min(available, width + WIDEN_STEP);
-        }
-        return width;
+    protected Span pageSpan(UiDraw metrics) {
+        int least = Math.max(TEXT_PAGE, Math.max(summary.leastWidth(metrics), actionRow.widest(metrics)));
+        int most = Math.max(summary.naturalWidth(metrics), Math.min(Summary.DESCRIPTION, description.preferredWidth(metrics)));
+        most = Math.max(most, Math.min(StatColumns.NATURAL, stats.widest(metrics)));
+        most = Math.max(most, reason.visible() ? reason.widest(metrics) : 0);
+        return new Span(least, Math.max(least, Math.min(MAX_PAGE, most)));
     }
 
     @Override
-    protected int facingWidth(UiDraw metrics) {
-        return preferences.visible() ? preferences.naturalWidth(metrics) : 0;
+    protected Span facingSpan(UiDraw metrics) {
+        if (!preferences.visible()) {
+            return Span.NONE;
+        }
+        int least = preferences.leastWidth(metrics);
+        return new Span(least, Math.max(least, preferences.naturalWidth(metrics)));
+    }
+
+    @Override
+    protected boolean footed() {
+        return true;
     }
 
     void select(int level) {
@@ -188,7 +206,10 @@ public final class AdaptationScreen extends AdaptScreen {
         description.setVisible(ready && !LegacyText.isBlank(adaptation.description()));
         track.setVisible(open && adaptation.maxLevel() > 0);
         notice.setVisible(!open);
-        detail.setVisible(open && adaptation.maxLevel() > 0);
+        boolean levels = open && adaptation.maxLevel() > 0;
+        actionRow.setVisible(levels);
+        stats.setVisible(levels);
+        reason.setVisible(levels);
         preferences.setVisible(settings);
         chip("stat:knowledge").setVisible(ready);
         chip("stat:power").setVisible(ready);
@@ -269,17 +290,51 @@ public final class AdaptationScreen extends AdaptScreen {
         return new LevelTrack.LevelState(learned, next, available, adaptation.name() + " §f" + ScreenText.roman(value), lines);
     }
 
+    /** What stops {@code value} from being learned, or unlearned once it is, and the colour that says which. */
+    private record Blocked(String text, int color) {
+    }
+
+    private static Blocked blocked(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
+        if (value <= level) {
+            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value - 1);
+            return new Blocked(check.allowed() && !check.refunded() ? LearnText.refund(check) : LearnText.unlearnBlock(check), Palette.LOCK);
+        }
+        LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, value);
+        return new Blocked(check.allowed() ? "" : LearnText.learnBlock(catalog, check),
+                check.block() == LearnRules.LearnBlock.REQUIREMENTS ? Palette.LOCK : Palette.BAD);
+    }
+
+    /** What the action row holds for {@code value}: its chips' values and its button's label, as {@link ActionRow#widest} measures them. */
+    private List<String> actionTexts(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
+        if (value <= level) {
+            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value - 1);
+            String refund = check.refunded() && check.allowed() ? ScreenText.number(check.refund()) : null;
+            return refund == null ? List.of(ScreenText.UNLEARN.text(ScreenText.roman(value)))
+                    : List.of(refund, ScreenText.UNLEARN.text(ScreenText.roman(value)));
+        }
+        LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, value);
+        return List.of(check.free() ? ScreenText.FREE_COST.text() : ScreenText.number(check.knowledgeCost()),
+                Integer.toString(check.powerCost()), ScreenText.LEARN.text(ScreenText.roman(value)));
+    }
+
     private void updateDetail(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level) {
         if (selected < 1) {
             return;
         }
-        boolean learned = selected <= level;
-        stats.clearChildren();
-        int line = 0;
-        for (String stat : adaptation.statLines().get(selected - 1)) {
-            String plain = LegacyText.strip(stat).strip();
-            stats.add(new Label("stat-line:" + line++, plain).setWrap(true).setColor(plain.startsWith("*") ? Palette.MUTED : 0));
+        List<List<String>> rows = new ArrayList<>();
+        for (int value = 1; value <= adaptation.maxLevel(); value++) {
+            rows.add(actionTexts(catalog, player, adaptation, level, value));
         }
+        actionRow.reserve(rows);
+        boolean learned = selected <= level;
+        stats.show(adaptation.statLines(), selected);
+        List<String> reasons = new ArrayList<>();
+        for (int value = 1; value <= adaptation.maxLevel(); value++) {
+            reasons.add(blocked(catalog, player, adaptation, level, value).text());
+        }
+        Blocked block = blocked(catalog, player, adaptation, level, selected);
+        reason.show(block.text(), reasons);
+        reason.setColor(block.color());
         if (learned) {
             LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, selected - 1);
             costChip.setVisible(false);
@@ -287,10 +342,6 @@ public final class AdaptationScreen extends AdaptScreen {
             refundChip.setVisible(check.refunded() && check.allowed());
             refundChip.set(SkillsScreen.KNOWLEDGE_ICON, ScreenText.number(check.refund()), "");
             refundChip.setTooltip(Tooltip.of(LearnText.refund(check)));
-            String block = check.allowed() && !check.refunded() ? LearnText.refund(check) : LearnText.unlearnBlock(check);
-            reason.setText(block);
-            reason.setColor(Palette.LOCK);
-            reason.setVisible(!block.isEmpty());
             learnButton.setVisible(false);
             unlearnButton.setVisible(true);
             unlearnButton.setText(ScreenText.UNLEARN.text(ScreenText.roman(selected)));
@@ -314,10 +365,6 @@ public final class AdaptationScreen extends AdaptScreen {
                     .setValueColor(check.freePower() < check.powerCost() ? Palette.BAD : 0);
             powerChip.setTooltip(new Tooltip(ScreenText.POWER_COST.text(check.powerCost()),
                     List.of("§7" + ScreenText.POWER_TIP.text(check.freePower(), player.header().powerMax()))));
-            boolean blocked = !check.allowed();
-            reason.setText(blocked ? LearnText.learnBlock(catalog, check) : "");
-            reason.setColor(check.block() == LearnRules.LearnBlock.REQUIREMENTS ? Palette.LOCK : Palette.BAD);
-            reason.setVisible(blocked);
             unlearnButton.setVisible(false);
             learnButton.setVisible(true);
             learnButton.setText(ScreenText.LEARN.text(ScreenText.roman(selected)));
@@ -330,7 +377,6 @@ public final class AdaptationScreen extends AdaptScreen {
             }
             learnButton.setTooltip(new Tooltip(ScreenText.LEVEL.text(ScreenText.roman(selected)), learnLines));
         }
-        stats.setVisible(!stats.children().isEmpty());
     }
 
     private void act() {
@@ -441,6 +487,11 @@ public final class AdaptationScreen extends AdaptScreen {
             return nameWidth(metrics) + (pips > 0 ? PIPS_GAP + pips : 0);
         }
 
+        /** The width with the pips on their own line under the name. */
+        int leastWidth(UiDraw metrics) {
+            return Math.max(nameWidth(metrics), pipsWidth(metrics));
+        }
+
         private boolean shared(int width, UiDraw metrics) {
             return naturalWidth(metrics) <= width;
         }
@@ -483,12 +534,190 @@ public final class AdaptationScreen extends AdaptScreen {
         }
     }
 
+    /** The selected level's stat lines, as tall as the level with the most to say. */
+    private static final class Stats extends UiGroup {
+        private final StatColumns columns;
+        private List<List<UiNode>> levels = List.of();
+
+        private Stats() {
+            this(new StatColumns());
+        }
+
+        private Stats(StatColumns columns) {
+            super("detail.stats", columns);
+            this.columns = columns;
+        }
+
+        void show(List<List<String>> lines, int selected) {
+            List<List<UiNode>> next = new ArrayList<>();
+            for (List<String> level : lines) {
+                List<UiNode> labels = new ArrayList<>();
+                for (String stat : level) {
+                    labels.add(new StatLine("stat-line:" + labels.size(), LegacyText.strip(stat).strip()));
+                }
+                next.add(labels);
+            }
+            levels = next;
+            clearChildren();
+            boolean any = false;
+            for (List<UiNode> level : next) {
+                any |= !level.isEmpty();
+            }
+            for (UiNode label : next.get(selected - 1)) {
+                add(label);
+            }
+            setVisible(any);
+        }
+
+        /** The widest line of any level, so the page wants one width whichever level shows. */
+        int widest(UiDraw metrics) {
+            int widest = 0;
+            for (List<UiNode> level : levels) {
+                for (UiNode line : level) {
+                    widest = Math.max(widest, line.preferredWidth(metrics));
+                }
+            }
+            return widest;
+        }
+
+        @Override
+        public int preferredHeight(int width, UiDraw metrics) {
+            int tallest = 0;
+            for (List<UiNode> level : levels) {
+                tallest = Math.max(tallest, columns.preferredHeight(level, width, metrics));
+            }
+            return tallest;
+        }
+    }
+
+    /**
+     * One stat line. A line led by a sign or a note mark ("+ 4 Max Jumps", "* Only while sprinting") keeps the mark in
+     * the margin and wraps its text beside it, so a wrapped line reads as one entry; notes are muted.
+     */
+    private static final class StatLine extends UiNode {
+        private static final String MARKS = "+-*\u2013";
+        private static final int INDENT = 9;
+
+        private final String mark;
+        private final String text;
+
+        private StatLine(String id, String line) {
+            super(id);
+            boolean marked = line.length() > 2 && line.charAt(1) == ' ' && MARKS.indexOf(line.charAt(0)) >= 0;
+            mark = marked ? line.substring(0, 1) : "";
+            text = marked ? line.substring(2).strip() : line;
+        }
+
+        @Override
+        public String kind() {
+            return "label";
+        }
+
+        @Override
+        public String label() {
+            return mark.isEmpty() ? text : mark + " " + text;
+        }
+
+        private int indent() {
+            return mark.isEmpty() ? 0 : INDENT;
+        }
+
+        @Override
+        public int preferredWidth(UiDraw metrics) {
+            return indent() + metrics.textWidth(text);
+        }
+
+        @Override
+        public int preferredHeight(int width, UiDraw metrics) {
+            return metrics.wrappedHeight(text, Math.max(1, width - indent()));
+        }
+
+        @Override
+        protected void paint(UiFrame frame) {
+            UiDraw draw = frame.draw();
+            UiRect box = bounds();
+            int color = mark.equals("*") ? Palette.MUTED : frame.theme().text();
+            if (!mark.isEmpty()) {
+                draw.text(mark, box.x(), box.y(), color, false);
+            }
+            draw.wrappedText(text, box.x() + indent(), box.y(), Math.max(1, box.width() - indent()), color, false);
+        }
+    }
+
+    /** Why the selected level is blocked, as tall as the longest reason any level has. */
+    private static final class Reason extends Label {
+        private List<String> all = List.of();
+
+        private Reason() {
+            super("reason", "");
+            setWrap(true);
+        }
+
+        void show(String text, List<String> everyLevel) {
+            all = List.copyOf(everyLevel);
+            setText(text);
+            boolean any = false;
+            for (String reason : all) {
+                any |= !reason.isEmpty();
+            }
+            setVisible(any);
+            services().requestLayout();
+        }
+
+        int widest(UiDraw metrics) {
+            int widest = 0;
+            for (String text : all) {
+                widest = Math.max(widest, metrics.textWidth(text));
+            }
+            return widest;
+        }
+
+        @Override
+        public int preferredHeight(int width, UiDraw metrics) {
+            int tallest = 0;
+            for (String text : all) {
+                if (!text.isEmpty()) {
+                    tallest = Math.max(tallest, metrics.wrappedHeight(text, Math.max(1, width)));
+                }
+            }
+            return tallest;
+        }
+    }
+
     /** The selected level's cost or refund chips and its button from the left edge, wrapping onto a second line when narrow. */
     private static final class ActionRow extends UiGroup {
         private static final int GAP = 3;
 
+        private List<List<String>> levels = List.of();
+
         private ActionRow() {
             super("detail.action");
+        }
+
+        /** The chip values and, last, the button label of every level's row, so the page keeps room for the widest. */
+        void reserve(List<List<String>> rows) {
+            levels = List.copyOf(rows);
+        }
+
+        /** The width of the widest level's row, with the chips that show on every level: one width whichever level is selected. */
+        int widest(UiDraw metrics) {
+            int fixed = 0;
+            for (UiNode node : visibleChildren()) {
+                if (node instanceof StatChip chip && chip.icon() == null) {
+                    fixed += GAP + chip.preferredWidth(metrics);
+                }
+            }
+            int widest = naturalWidth(metrics);
+            for (List<String> row : levels) {
+                int width = 0;
+                for (int index = 0; index < row.size(); index++) {
+                    boolean button = index == row.size() - 1;
+                    width += (width == 0 ? 0 : GAP) + (button ? Button.width(metrics, row.get(index), services().theme())
+                            : StatChip.width(metrics, row.get(index), true));
+                }
+                widest = Math.max(widest, width + fixed);
+            }
+            return widest;
         }
 
         int naturalWidth(UiDraw metrics) {

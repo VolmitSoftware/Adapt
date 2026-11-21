@@ -19,8 +19,9 @@ import java.util.function.Consumer;
  */
 public class TextField extends UiNode {
     private static final long BLINK_MILLIS = 530L;
-    private static final int INSET = 4;
+    private static final int INSET = UiControl.TEXT_INSET;
 
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private String text = "";
     private String placeholder = "";
     private int maxLength;
@@ -28,6 +29,7 @@ public class TextField extends UiNode {
     private int anchor;
     private int scroll;
     private boolean dirty;
+    private boolean endAligned;
     private Consumer<String> onChange = (String value) -> {
     };
     private Consumer<String> onCommit = (String value) -> {
@@ -70,6 +72,12 @@ public class TextField extends UiNode {
         anchor = caret;
         scroll = 0;
         dirty = false;
+        return this;
+    }
+
+    /** Sets the text against the right edge instead of the left, the way numbers line up in a column. */
+    public TextField setEndAligned(boolean alignEnd) {
+        endAligned = alignEnd;
         return this;
     }
 
@@ -308,7 +316,7 @@ public class TextField extends UiNode {
         if (metrics == null) {
             return text.length();
         }
-        double local = x - (bounds().x() + INSET);
+        double local = x - textLeft(metrics, text.substring(scroll));
         int start = scroll;
         int best = start;
         int index = start;
@@ -325,6 +333,16 @@ public class TextField extends UiNode {
         return best;
     }
 
+    /** Where {@code visible}, the text drawn this frame, starts. */
+    private int textLeft(UiDraw draw, String visible) {
+        UiRect box = bounds();
+        int left = box.x() + INSET;
+        if (!endAligned || scroll > 0) {
+            return left;
+        }
+        return Math.max(left, box.right() - INSET - 1 - draw.textWidth(visible));
+    }
+
     @Override
     protected void paint(UiFrame frame) {
         UiDraw draw = frame.draw();
@@ -333,19 +351,29 @@ public class TextField extends UiNode {
         UiRect box = bounds();
         boolean focused = frame.isFocused(this);
         boolean active = enabled();
-        UiTome.paper(draw, UiTome.FIELD, null, box, theme.tooltip(), theme.tileBorder());
-        if (focused || frame.isHovered(this) && active) {
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), focused ? theme.focus() : theme.surfaceBorder());
+        float lift = hover.update(frame.motion(), active && (focused || frame.isHovered(this)));
+        if (active) {
+            UiTome.paper(draw, UiTome.FIELD, null, box, theme.tooltip(), theme.tileBorder());
+            if (lift > 0.0F) {
+                UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(),
+                        UiEase.fade(focused ? theme.text() : theme.surfaceBorder(), lift));
+            }
+        } else {
+            UiControl.stitchedEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.textDisabled());
+        }
+        if (focused && active) {
+            UiControl.focusRing(draw, box, theme);
         }
         int innerWidth = Math.max(0, box.width() - INSET * 2);
         keepCaretVisible(draw, innerWidth);
-        int textX = box.x() + INSET;
-        int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
+        int textY = UiControl.textY(box);
         draw.pushScissor(box.x() + 1, box.y() + 1, box.right() - INSET, box.bottom() - 1);
         if (text.isEmpty() && !focused) {
-            draw.text(LegacyText.truncate(draw, placeholder, innerWidth), textX, textY, theme.textDisabled(), false);
+            String hint = LegacyText.truncate(draw, placeholder, innerWidth);
+            draw.text(hint, textLeft(draw, hint), textY, theme.textDisabled(), false);
         }
         String visible = focused ? text.substring(scroll) : LegacyText.truncate(draw, text, innerWidth);
+        int textX = textLeft(draw, visible);
         if (focused && selectionStart() != selectionEnd()) {
             int from = Math.max(selectionStart(), scroll);
             int to = Math.max(selectionEnd(), scroll);

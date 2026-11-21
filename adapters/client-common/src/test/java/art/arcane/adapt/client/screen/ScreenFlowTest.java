@@ -313,7 +313,8 @@ class ScreenFlowTest {
         assertFalse(fixture.find("preferences").visible());
         fixture.open(new Route.Adaptation("rift-gate"));
         assertEquals(ScreenText.DENIED.text(), fixture.find("notice").label());
-        assertFalse(fixture.find("detail").visible());
+        assertFalse(fixture.find("detail.action").visible());
+        assertFalse(fixture.find("detail.stats").visible());
     }
 
     @Test

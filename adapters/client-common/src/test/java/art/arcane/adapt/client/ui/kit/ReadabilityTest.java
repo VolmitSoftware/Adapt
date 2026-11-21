@@ -111,6 +111,28 @@ class ReadabilityTest {
         assertTrue(UiContrast.ratio(UiEase.mix(theme.textInverse(), theme.ribbon(), 0.25F), theme.ribbon()) >= UiContrast.TEXT);
     }
 
+    @Test
+    void edgesThatMarkAControlOrAStateReachGraphicContrastOnThePage() {
+        UiTheme theme = UiTheme.DEFAULT;
+        int page = theme.backdrop();
+        int[] edges = {theme.surfaceBorder(), theme.focus(), theme.destructive(), UiRamp.PAGE[6], UiRamp.GOLD[1], UiRamp.GOLD[0],
+                UiRamp.MOSS[1], UiRamp.WINE[2], UiRamp.LEATHER[1], UiRamp.LEATHER[4]};
+        for (int edge : edges) {
+            assertTrue(UiContrast.ratio(edge, page) >= UiContrast.GRAPHIC, Integer.toHexString(edge) + " on the page: "
+                    + UiContrast.ratio(edge, page));
+        }
+    }
+
+    @Test
+    void buttonLabelsReadOnEveryButtonFill() {
+        UiTheme theme = UiTheme.DEFAULT;
+        int[] fills = {UiRamp.PAGE[2], UiRamp.PAGE[3], UiRamp.PAGE[4], UiRamp.MOSS[3], UiRamp.MOSS[4], UiRamp.MOSS[5], UiRamp.WINE[4],
+                UiRamp.WINE[5], UiRamp.WINE[6]};
+        for (int fill : fills) {
+            assertTrue(UiContrast.ratio(theme.text(), fill) >= UiContrast.TEXT, "text on " + Integer.toHexString(fill));
+        }
+    }
+
     private static byte[] solid(int argb) throws IOException {
         BufferedImage image = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < 16; y++) {

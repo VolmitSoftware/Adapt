@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.function.IntConsumer;
 
 /**
- * A tab strip. Tabs share the width equally; the selected tab is underlined in the accent colour. Click to select, or
- * Left/Right while the strip is focused.
+ * A tab strip. Tabs share the width equally; the selected tab is a raised paper tab underlined in the accent colour,
+ * the others bare muted text on the rule. Click to select, or Left/Right while the strip is focused.
  */
 public class Tabs extends UiNode {
     private final List<String> labels = new ArrayList<>();
@@ -142,25 +142,31 @@ public class Tabs extends UiNode {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect box = bounds();
-        draw.fill(box.x(), box.bottom() - 1, box.right(), box.bottom(), theme.tileBorder());
+        boolean active = enabled();
+        draw.fill(box.x(), box.bottom() - 1, box.right(), box.bottom(), theme.surfaceBorder());
         List<UiRect> cells = cells();
-        int hoveredTab = frame.isHovered(this) ? tabAt(frame.mouseX()) : -1;
+        int hoveredTab = active && frame.isHovered(this) ? tabAt(frame.mouseX()) : -1;
+        int pressedTab = frame.isPressed(this) ? hoveredTab : -1;
         for (int index = 0; index < cells.size(); index++) {
             UiRect cell = cells.get(index);
             boolean chosen = index == selected;
-            if (chosen) {
-                UiTome.soft(draw, cell.x(), cell.y(), cell.right(), cell.bottom(), theme.header());
-                draw.fill(cell.x(), cell.bottom() - 2, cell.right(), cell.bottom(), theme.accent());
-            } else if (index == hoveredTab && enabled()) {
-                UiTome.soft(draw, cell.x(), cell.y(), cell.right(), cell.bottom(), UiTome.HOVER);
+            UiControl.State state = !active ? UiControl.State.DISABLED : index == pressedTab ? UiControl.State.PRESSED
+                    : index == hoveredTab ? UiControl.State.HOVER : UiControl.State.REST;
+            if (chosen && active) {
+                UiTome.soft(draw, cell.x(), cell.y(), cell.right(), cell.bottom(), theme.surface());
+                UiTome.softEdge(draw, cell.x(), cell.y(), cell.width(), cell.height(), theme.surfaceBorder());
+                draw.fill(cell.x() + 1, cell.bottom() - 2, cell.right() - 1, cell.bottom(), theme.accent());
+            } else if (chosen) {
+                UiControl.stitchedEdge(draw, cell.x(), cell.y(), cell.width(), cell.height(), theme.textDisabled());
+            } else if (state == UiControl.State.HOVER || state == UiControl.State.PRESSED) {
+                UiTome.soft(draw, cell.x(), cell.y(), cell.right(), cell.bottom() - 1, UiTome.HOVER);
             }
             String line = LegacyText.truncate(draw, labels.get(index), cell.width() - 4);
-            int color = !enabled() ? theme.textDisabled() : chosen ? theme.text() : theme.textMuted();
-            draw.centeredText(line, cell.centerX(), cell.y() + (cell.height() - draw.lineHeight()) / 2 + 1, color, true);
+            int color = !active ? theme.textDisabled() : chosen ? theme.text() : theme.textMuted();
+            draw.centeredText(line, cell.centerX(), UiControl.textY(cell, state), color, false);
         }
         if (frame.showsFocus(this) && selected >= 0) {
-            UiRect cell = cells.get(selected);
-            UiTome.softEdge(draw, cell.x(), cell.y(), cell.width(), cell.height(), theme.focus());
+            UiControl.focusRing(draw, cells.get(selected), theme);
         }
     }
 }

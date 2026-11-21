@@ -7,6 +7,10 @@ import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiControl;
+import art.arcane.adapt.client.ui.kit.UiEase;
+import art.arcane.adapt.client.ui.kit.UiFade;
+import art.arcane.adapt.client.ui.kit.UiIcons;
 import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
@@ -29,7 +33,7 @@ import java.util.TreeMap;
  * become headings in place, their lines in the tooltip.
  */
 final class PanelList extends UiNode {
-    private static final int SECTION_HEIGHT = 13;
+    private static final int SECTION_HEIGHT = 14;
 
     private final PanelRow.Host owner;
     private final Map<Integer, PanelRow> rows = new TreeMap<>();
@@ -181,8 +185,11 @@ final class PanelList extends UiNode {
             }
         }
         clearChildren();
-        for (UiNode node : order) {
-            add(node);
+        for (int index = 0; index < order.size(); index++) {
+            UiNode node = add(order.get(index));
+            if (node instanceof PanelRow row) {
+                row.setRuled(index + 1 < order.size() && order.get(index + 1) instanceof PanelRow);
+            }
         }
         boolean anyRow = anyHidden || order.stream().anyMatch((UiNode node) -> node instanceof PanelRow);
         emptyText = anyRow ? "" : needle.isEmpty() ? empty : noMatch;
@@ -200,6 +207,24 @@ final class PanelList extends UiNode {
             text.append('\n').append(LegacyText.strip(tile.hint().value()));
         }
         return text.toString().toLowerCase(Locale.ROOT).contains(needle);
+    }
+
+    /**
+     * The width at which every row shows its text on one line, or 0 when a row holds a control or the list is empty
+     * and the panel keeps its usual width.
+     */
+    int naturalWidth(UiDraw metrics) {
+        int widest = 0;
+        for (UiNode child : children()) {
+            if (child instanceof PanelRow row) {
+                int width = row.naturalWidth(metrics);
+                if (width == 0) {
+                    return 0;
+                }
+                widest = Math.max(widest, width);
+            }
+        }
+        return widest;
     }
 
     @Override
@@ -241,12 +266,15 @@ final class PanelList extends UiNode {
     }
 
     /**
-     * A section title that folds its section on click or Enter (a caret shows which way, with the hidden row count when
-     * folded), or a HEADER tile's name with its lines in the tooltip.
+     * A section title that folds its section on click or Enter (a caret in the icon column shows which way, with the
+     * hidden row count at the right edge when folded), or a HEADER tile's name with its lines in the tooltip. The title
+     * starts where row names start and a rule runs from it to the row's right edge.
      */
     final class Heading extends UiNode {
         private static final int CARET = 7;
+        private static final int RULE = 0x405A3E26;
 
+        private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
         private final String section;
         private String title = "";
         private int hidden;
@@ -320,31 +348,32 @@ final class PanelList extends UiNode {
             UiDraw draw = frame.draw();
             UiTheme theme = frame.theme();
             UiRect box = bounds();
-            if (section != null && (frame.isHovered(this) || frame.showsFocus(this))) {
-                UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), UiTome.HOVER);
+            float lift = hover.update(frame.motion(), section != null && (frame.isHovered(this) || frame.showsFocus(this)));
+            if (lift > 0.0F) {
+                UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), UiEase.fade(UiTome.HOVER, lift));
             }
             if (frame.showsFocus(this)) {
-                UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.focus());
+                UiControl.focusRing(draw, box.inset(1), theme);
             }
             int x = box.x() + PanelRow.PAD;
-            int y = box.y() + (SECTION_HEIGHT - draw.lineHeight()) / 2 + 1;
+            int y = UiControl.textY(box) + (frame.isPressed(this) ? UiControl.SINK : 0);
             if (section != null) {
-                paintCaret(draw, x, box.y() + SECTION_HEIGHT / 2, folded(section), theme.textMuted());
-                x += CARET + 3;
+                paintCaret(draw, x + (UiIcons.SIZE - CARET) / 2, y + UiControl.CAP_HEIGHT / 2, folded(section), theme.textMuted());
+                x += UiIcons.SIZE + PanelRow.ICON_GAP;
             }
             boolean plain = title.indexOf(LegacyText.SECTION) < 0;
-            String count = hidden > 0 ? " (" + hidden + ")" : "";
-            int countWidth = draw.textWidth(count);
+            String count = hidden > 0 ? Integer.toString(hidden) : "";
+            int countWidth = count.isEmpty() ? 0 : draw.textWidth(count) + PanelRow.NAME_GAP;
             String shown = LegacyText.truncate(draw, title, box.right() - PanelRow.PAD - x - countWidth);
-            draw.text(shown, x, y, plain ? theme.accent() : theme.text(), true);
-            int after = x + draw.textWidth(shown);
-            if (!count.isEmpty()) {
-                draw.text(count, after, y, theme.textMuted(), false);
-                after += countWidth;
+            draw.text(shown, x, y, plain ? theme.accent() : theme.text(), false);
+            int after = x + draw.textWidth(shown) + PanelRow.NAME_GAP;
+            int ruleY = y + UiControl.CAP_HEIGHT / 2;
+            int ruleRight = box.right() - PanelRow.PAD - countWidth;
+            if (after < ruleRight) {
+                draw.fill(after, ruleY, ruleRight, ruleY + 1, RULE);
             }
-            int lineLeft = after + 4;
-            if (lineLeft < box.right() - PanelRow.PAD) {
-                draw.fill(lineLeft, y + draw.lineHeight() / 2 - 1, box.right() - PanelRow.PAD, y + draw.lineHeight() / 2, 0x405A3E26);
+            if (!count.isEmpty()) {
+                draw.text(count, box.right() - PanelRow.PAD - draw.textWidth(count), y, theme.textMuted(), false);
             }
         }
 

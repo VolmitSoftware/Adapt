@@ -13,6 +13,7 @@ import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.NumberStepper;
 import art.arcane.adapt.client.ui.kit.TextField;
 import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiFade;
 import art.arcane.adapt.client.ui.kit.UiFrame;
@@ -29,10 +30,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * One body tile of a LIST or FORM panel as a single line: icon, coloured name and its description cut to what is left
- * of the line (the whole lore is in the tooltip), then on the right the row's control (switch, stepper, field, choice
- * or button), its value, an ink chevron when it opens another menu and a button for the clicks a plain click cannot reach.
- * Mouse buttons on the row itself send the chest's clicks.
+ * One body tile of a LIST or FORM panel as a two-column row: icon and coloured name on the left, wrapping onto more
+ * lines when long, and on the right the row's control (switch, stepper, field, choice or button), its value or an ink
+ * chevron when it opens another menu. Controls end on the row's right edge and typed ones share {@link #FIELD_WIDTH},
+ * so they form one column down the list; the button for clicks a plain click cannot reach sits left of the control.
+ * A row without a control shows its description after the name when the whole of it fits; the lore is always in the
+ * tooltip. Mouse buttons on the row itself send the chest's clicks.
  */
 final class PanelRow extends UiNode {
     static final int PAD = 3;
@@ -42,20 +45,23 @@ final class PanelRow extends UiNode {
     static final int CHEVRON = UiTome.Glyph.FORWARD.width();
     static final int MORE = 14;
     static final int MAX_INPUT = 256;
-    /** Typed values and steppers share one width, so their left edges line up down the list. */
+    /** Typed values, steppers and choices share one width, so their left edges line up down the list. */
     static final int FIELD_WIDTH = 110;
+    static final int MIN_BUTTON = 44;
+    private static final int LINE_PAD = 3;
     private static final int DIVIDER = 0x305A3E26;
     private static final int CHIP = 0x1E5A3E26;
 
     private final int slot;
     private final Host owner;
     private final Label label;
-    private final UiFade hover = new UiFade(90L);
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private PanelTile data;
     private UiNode control;
     private ControlKind controlKind = ControlKind.NONE;
     private Button more;
     private List<TileAction> alternates = List.of();
+    private boolean ruled = true;
 
     PanelRow(int slot, Host owner) {
         super("row:" + slot);
@@ -79,6 +85,27 @@ final class PanelRow extends UiNode {
 
     int slot() {
         return slot;
+    }
+
+    /** Whether the row draws the rule under it; the list leaves it out under its last row and above a heading. */
+    void setRuled(boolean rule) {
+        ruled = rule;
+    }
+
+    /**
+     * The width the row needs to show its name, description and value on one line, or 0 for a row with a control,
+     * whose width follows the panel's.
+     */
+    int naturalWidth(UiDraw metrics) {
+        if (control != null) {
+            return 0;
+        }
+        String description = description();
+        int text = metrics.textWidth(data.name()) + (description.isEmpty() ? 0 : NAME_GAP + metrics.textWidth(description));
+        int right = (more == null ? 0 : MORE + services().theme().gap())
+                + (data.value().isEmpty() ? 0 : metrics.textWidth(data.value()) + UiControl.TEXT_INSET * 2 + NAME_GAP)
+                + (navigates() ? CHEVRON + NAME_GAP : 0);
+        return PAD * 2 + UiIcons.SIZE + ICON_GAP + text + right;
     }
 
     PanelTile data() {
@@ -266,7 +293,7 @@ final class PanelRow extends UiNode {
             return;
         }
         if (more == null) {
-            more = add(new Button("more:" + slot, "...", () -> owner.openActions(this)));
+            more = add(new Button("more:" + slot, UiTome.Glyph.MORE, () -> owner.openActions(this)));
         }
         more.setTooltip(Tooltip.of(PanelText.MORE.text(owner.host())));
     }
@@ -298,10 +325,11 @@ final class PanelRow extends UiNode {
     @Override
     public int preferredHeight(int width, UiDraw metrics) {
         int controlHeight = control == null ? 0 : services().theme().controlHeight() + 4;
-        return Math.max(MIN_HEIGHT, controlHeight);
+        int nameHeight = metrics.wrappedHeight(data.name(), textWidth(width, metrics)) + LINE_PAD * 2;
+        return Math.max(MIN_HEIGHT, Math.max(controlHeight, nameHeight));
     }
 
-    /** The description on one line: its lines joined, colour codes kept. */
+    /** The description on one line: its lines joined, colour codes dropped. */
     private String description() {
         StringBuilder joined = new StringBuilder();
         for (String line : data.shownDescription()) {
@@ -309,7 +337,7 @@ final class PanelRow extends UiNode {
                 if (!joined.isEmpty()) {
                     joined.append(' ');
                 }
-                joined.append(line.strip());
+                joined.append(LegacyText.strip(line).strip());
             }
         }
         return joined.toString();
@@ -321,29 +349,38 @@ final class PanelRow extends UiNode {
         if (more != null) {
             used += MORE + theme.gap();
         }
-        if (navigates()) {
-            used += CHEVRON + theme.gap() * 2;
-        }
         if (control != null) {
-            used += controlWidth(width, metrics) + theme.gap() * 2;
+            used += controlWidth(width, metrics) + NAME_GAP;
         } else if (!data.value().isEmpty()) {
-            used += chipWidth(width, metrics) + theme.gap() * 2;
+            used += chipWidth(width, metrics) + NAME_GAP;
+        }
+        if (navigates()) {
+            used += CHEVRON + NAME_GAP;
         }
         return used;
     }
 
+    /** The width of the control column at a row {@code width} wide. */
+    static int columnWidth(int width) {
+        return Math.min(width * 45 / 100, FIELD_WIDTH);
+    }
+
     private int controlWidth(int width, UiDraw metrics) {
-        int cap = width * 45 / 100;
+        int column = columnWidth(width);
         return switch (controlKind) {
             case SWITCH -> control.preferredWidth(metrics);
-            case NUMBER, TEXT -> Math.min(cap, FIELD_WIDTH);
-            case CHOICE, BUTTON -> Math.min(cap, control.preferredWidth(metrics));
+            case NUMBER, TEXT, CHOICE -> column;
+            case BUTTON -> Math.min(Math.max(column, width / 2), Math.max(MIN_BUTTON, control.preferredWidth(metrics)));
             case NONE -> 0;
         };
     }
 
     private int chipWidth(int width, UiDraw metrics) {
-        return Math.min(width / 3, metrics.textWidth(data.value()) + 8);
+        return Math.min(width / 2, metrics.textWidth(data.value()) + UiControl.TEXT_INSET * 2);
+    }
+
+    private int textLeft() {
+        return bounds().x() + PAD + UiIcons.SIZE + ICON_GAP;
     }
 
     private int textWidth(int width, UiDraw metrics) {
@@ -355,21 +392,22 @@ final class PanelRow extends UiNode {
         UiRect box = bounds();
         UiTheme theme = services().theme();
         int right = box.right() - PAD;
-        if (more != null) {
-            more.place(new UiRect(right - MORE, box.centerY() - MORE / 2, MORE, MORE), metrics);
-            right -= MORE + theme.gap();
-        }
         if (navigates()) {
-            right -= CHEVRON + theme.gap() * 2;
+            right -= CHEVRON + NAME_GAP;
         }
         if (control != null) {
             int width = controlWidth(box.width(), metrics);
-            int height = controlKind == ControlKind.SWITCH ? 12 : theme.controlHeight();
+            int height = controlKind == ControlKind.SWITCH ? UiTome.CHECK + 2 : theme.controlHeight();
             control.place(new UiRect(right - width, box.centerY() - height / 2, width, height), metrics);
+            right -= width + theme.gap();
+        } else if (!data.value().isEmpty()) {
+            right -= chipWidth(box.width(), metrics) + theme.gap();
         }
-        int textLeft = box.x() + PAD + UiIcons.SIZE + ICON_GAP;
-        label.place(UiRect.of(box.x(), box.y(), Math.max(textLeft, box.x() + PAD + UiIcons.SIZE + ICON_GAP
-                + Math.min(textWidth(box.width(), metrics), metrics.textWidth(data.name()))), box.bottom()), metrics);
+        if (more != null) {
+            more.place(new UiRect(right - MORE, box.centerY() - MORE / 2, MORE, MORE), metrics);
+        }
+        int nameWidth = Math.min(textWidth(box.width(), metrics), metrics.textWidth(data.name()));
+        label.place(UiRect.of(box.x(), box.y(), textLeft() + nameWidth, box.bottom()), metrics);
     }
 
     @Override
@@ -428,65 +466,68 @@ final class PanelRow extends UiNode {
         boolean over = hovered == this || hovered == label;
         float lift = hover.update(frame.motion(), over || frame.showsFocus(this));
         if (lift > 0.0F) {
-            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), UiEase.fade(UiTome.HOVER, lift));
+            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom() - 1, UiEase.fade(UiTome.HOVER, lift));
         }
         if (frame.isPressed(this)) {
-            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), 0x1E5A3E26);
+            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom() - 1, CHIP);
         }
-        if (destructive()) {
-            draw.fill(box.x(), box.y() + 2, box.x() + 2, box.bottom() - 2, theme.destructive());
+        if (ruled) {
+            draw.fill(box.x() + PAD, box.bottom() - 1, box.right() - PAD, box.bottom(), DIVIDER);
         }
-        draw.fill(box.x() + PAD, box.bottom() - 1, box.right() - PAD, box.bottom(), DIVIDER);
         if (frame.showsFocus(this)) {
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.focus());
+            UiControl.focusRing(draw, box.x() + 1, box.y() + 1, box.width() - 2, box.height() - 3, theme);
         }
         int iconY = box.y() + (box.height() - UiIcons.SIZE) / 2;
         UiIcons.paintOn(draw, data.icon(), box.x() + PAD, iconY, UiIcons.SIZE, data.glint(), theme.backdrop());
-        int textLeft = box.x() + PAD + UiIcons.SIZE + ICON_GAP;
+        int textLeft = textLeft();
         int text = textWidth(box.width(), draw);
-        int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
         int nameColor = destructive() ? theme.destructive() : theme.text();
-        String name = LegacyText.truncate(draw, data.name(), text);
-        draw.text(name, textLeft, textY, nameColor, true);
-        int descriptionLeft = textLeft + draw.textWidth(name) + NAME_GAP;
-        int room = textLeft + text - descriptionLeft;
-        String description = description();
-        if (!description.isEmpty() && room > draw.textWidth(LegacyText.ELLIPSIS) * 4) {
-            draw.text(LegacyText.truncate(draw, LegacyText.strip(description), room), descriptionLeft, textY, theme.textMuted(), false);
+        int nameWidth = draw.textWidth(data.name());
+        if (nameWidth > text) {
+            int height = draw.wrappedHeight(data.name(), text);
+            draw.wrappedText(data.name(), textLeft, box.y() + (box.height() - height) / 2 + 1, text, nameColor, false);
+        } else {
+            int textY = UiControl.textY(box);
+            draw.text(data.name(), textLeft, textY, nameColor, false);
+            String description = control == null ? description() : "";
+            int descriptionLeft = textLeft + nameWidth + NAME_GAP;
+            if (!description.isEmpty() && descriptionLeft + draw.textWidth(description) <= textLeft + text) {
+                draw.text(description, descriptionLeft, textY, theme.textMuted(), false);
+            }
         }
-        paintRight(frame, draw, theme, box);
+        paintRight(draw, theme, box);
     }
 
     @Override
     protected void paintOver(UiFrame frame) {
         if (data.amount() > 1) {
             UiDraw draw = frame.draw();
+            UiTheme theme = frame.theme();
             UiRect box = bounds();
             String count = Integer.toString(data.amount());
-            int iconY = box.y() + (box.height() - UiIcons.SIZE) / 2;
+            int right = box.x() + PAD + UiIcons.SIZE + 1;
+            int top = box.y() + (box.height() - UiIcons.SIZE) / 2 + UiIcons.SIZE - UiControl.CAP_HEIGHT;
             draw.pushPose();
             draw.depth(200.0F);
-            draw.text(count, box.x() + PAD + UiIcons.SIZE + 1 - draw.textWidth(count), iconY + 9, 0xFFFFFFFF, true);
+            UiTome.soft(draw, right - draw.textWidth(count) - 1, top - 1, right, top + UiControl.CAP_HEIGHT + 1, theme.backdrop());
+            draw.text(count, right - draw.textWidth(count), top, theme.text(), false);
             draw.popPose();
         }
     }
 
-    private void paintRight(UiFrame frame, UiDraw draw, UiTheme theme, UiRect box) {
+    private void paintRight(UiDraw draw, UiTheme theme, UiRect box) {
         int right = box.right() - PAD;
-        if (more != null) {
-            right -= MORE + theme.gap();
-        }
-        int textY = box.centerY() - draw.lineHeight() / 2 + 1;
         if (navigates()) {
             UiTome.glyph(draw, UiTome.Glyph.FORWARD, right - CHEVRON, box.centerY() - UiTome.Glyph.FORWARD.height() / 2, theme.text());
-            right -= CHEVRON + theme.gap() * 2;
+            right -= CHEVRON + NAME_GAP;
         }
         if (control == null && !data.value().isEmpty()) {
             int width = chipWidth(box.width(), draw);
-            String value = LegacyText.truncate(draw, data.value(), width - 8);
-            int left = right - width;
-            UiTome.soft(draw, left, box.centerY() - 6, right, box.centerY() + 6, CHIP);
-            draw.text(value, left + 4, textY, theme.text(), false);
+            String value = LegacyText.truncate(draw, data.value(), width - UiControl.TEXT_INSET * 2);
+            int height = theme.controlHeight() - 2;
+            int top = box.centerY() - height / 2;
+            UiTome.soft(draw, right - width, top, right, top + height, CHIP);
+            draw.text(value, right - UiControl.TEXT_INSET - draw.textWidth(value), UiControl.textY(top, height), theme.text(), false);
         }
     }
 

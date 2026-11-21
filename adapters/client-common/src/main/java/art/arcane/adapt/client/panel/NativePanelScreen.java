@@ -52,7 +52,15 @@ public final class NativePanelScreen extends KitScreen {
     private static final int WIDE_WIDTH = 400;
     private static final int REGULAR_WIDTH = 360;
     private static final int MIN_BODY = 48;
+    private static final int MIN_LIST_WIDTH = 220;
+    private static final int LIST_STEP = 8;
+    private static final int MIN_SEARCH = 70;
     private static final int MARGIN = 2;
+    /**
+     * Screen a panel leaves free on every side beyond the margin, so it does not run edge to edge: unless the screen
+     * is small, or the last of that room is what saves its content from scrolling.
+     */
+    private static final int CLEAR = 10;
 
     private final PanelActions actions;
     private final PanelClicks clicks = new PanelClicks();
@@ -295,7 +303,8 @@ public final class NativePanelScreen extends KitScreen {
         UiTheme theme = theme();
         UiBreakpoint breakpoint = breakpoint();
         UiRect area = screen.inset(MARGIN);
-        int widest = Math.min(area.width(), UiLayout.widest(area.height()));
+        int tallest = area.height() - (breakpoint == UiBreakpoint.COMPACT ? 0 : CLEAR * 2);
+        int widest = Math.min(area.width() - (breakpoint == UiBreakpoint.COMPACT ? 0 : CLEAR * 2), UiLayout.widest(tallest));
         int control = theme.controlHeight();
         int barHeight = Math.max(control, UiIcons.SIZE);
         int pad = theme.padding();
@@ -306,13 +315,13 @@ public final class NativePanelScreen extends KitScreen {
         int width;
         int bodyHeight;
         if (listed()) {
-            width = switch (breakpoint) {
+            width = listWidth(switch (breakpoint) {
                 case WIDE -> Math.min(WIDE_WIDTH, widest);
                 case REGULAR -> Math.min(REGULAR_WIDTH, widest);
                 case COMPACT -> widest;
-            };
+            }, chromeHeight, rim + pad * 2, barHeight, metrics);
             int content = list.preferredHeight(width - rim - pad * 2, metrics);
-            bodyHeight = Math.min(area.height() - chromeHeight, Math.max(MIN_BODY, content));
+            bodyHeight = content > area.height() - chromeHeight ? tallest - chromeHeight : Math.max(MIN_BODY, content);
         } else {
             int gap = theme.gap();
             int maxTile = switch (breakpoint) {
@@ -321,23 +330,26 @@ public final class NativePanelScreen extends KitScreen {
                 case COMPACT -> 22;
             };
             int available = widest - rim - pad * 2 - ScrollArea.BAR_WIDTH - 1;
-            int tile = Math.min(UiLayout.fit(available, PanelView.COLUMNS, gap, MIN_TILE, maxTile),
-                    UiLayout.fit(area.height() - chromeHeight, view.rows(), gap, MIN_TILE, maxTile));
+            int room = area.height() - chromeHeight;
             int cell = (available - gap * (PanelView.COLUMNS - 1)) / PanelView.COLUMNS;
             int labelled = Math.min(PanelGrid.MAX_LABELLED_CELL, cell);
-            int labelHeight = metrics.lineHeight() + 3;
-            boolean labels = labelled >= PanelGrid.MIN_LABELLED_CELL
-                    && UiLayout.span(view.rows(), tile + labelHeight, gap) <= area.height() - chromeHeight;
-            grid.setMetrics(tile, labels ? labelled : tile, labels ? labelHeight : 0);
+            int labelHeight = labelled >= PanelGrid.MIN_LABELLED_CELL
+                    ? grid.labelLines(metrics, labelled) * metrics.lineHeight() + 3 : 0;
+            if (UiLayout.span(view.rows(), MIN_TILE + labelHeight, gap) > room) {
+                labelHeight = 0;
+            }
+            int tile = Math.min(UiLayout.fit(available, PanelView.COLUMNS, gap, MIN_TILE, maxTile),
+                    UiLayout.fit(room - view.rows() * labelHeight, view.rows(), gap, MIN_TILE, maxTile));
+            grid.setMetrics(tile, labelHeight > 0 ? labelled : tile, labelHeight);
             int gridWidth = grid.preferredWidth(gap);
             int gridHeight = grid.preferredHeight(gridWidth, metrics);
-            bodyHeight = Math.max(Math.min(gridHeight, area.height() - chromeHeight), Math.min(gridHeight, tile));
+            bodyHeight = Math.max(Math.min(gridHeight, gridHeight > room ? tallest - chromeHeight : room), Math.min(gridHeight, tile));
             int scrollbar = gridHeight > bodyHeight ? ScrollArea.BAR_WIDTH + 1 : 0;
             int titleWidth = metrics.textWidth(LegacyText.strip(view.title())) + barHeight * 2 + pad * 2
                     + (chipsInBar ? footer.chipsWidth(theme.gap()) + theme.gap() * 2 : 0);
             width = Math.min(widest, Math.max(gridWidth + scrollbar + rim + pad * 2, titleWidth));
         }
-        int height = Math.min(area.height(), Math.max(chromeHeight + bodyHeight, UiLayout.shortest(width)));
+        int height = Math.min(area.height(), Math.max(chromeHeight + bodyHeight, Math.min(tallest, UiLayout.shortest(width))));
         UiRect box = UiLayout.center(area, width, height);
         frame.place(box, metrics);
         UiRect inner = box.inset(theme.frame()).inset(pad);
@@ -354,7 +366,7 @@ public final class NativePanelScreen extends KitScreen {
             right -= chipsWidth + theme.gap() * 2;
         }
         if (search.visible()) {
-            int searchWidth = Math.min(breakpoint == UiBreakpoint.COMPACT ? 70 : 110, (right - left) / 2);
+            int searchWidth = Math.min(breakpoint == UiBreakpoint.COMPACT ? MIN_SEARCH : 110, (right - left) / 2);
             search.place(new UiRect(right - searchWidth, bar.y() + (barHeight - control) / 2, searchWidth, control), metrics);
             right -= searchWidth + theme.gap() * 2;
         }
@@ -375,6 +387,29 @@ public final class NativePanelScreen extends KitScreen {
             footer.layout(UiRect.of(inner.x(), footerTop, inner.right(), inner.bottom()), metrics, theme, view, chromeSlots, host());
         }
         editors.anchor();
+    }
+
+    /**
+     * The width of a list panel: the narrowest from the one that shows every row and the title on one line up to
+     * {@code most} whose 16:9 height holds the rows, so a short menu opens a small book instead of a page of blank
+     * paper; {@code most} when no narrower one does or a row holds a control.
+     */
+    private int listWidth(int most, int chromeHeight, int chromeWidth, int barHeight, UiDraw metrics) {
+        int rows = list.naturalWidth(metrics);
+        if (rows == 0) {
+            return most;
+        }
+        UiTheme theme = theme();
+        int bar = titleBar.naturalWidth(metrics) + (backButton.visible() ? barHeight + theme.gap() * 2 : 0)
+                + (search.visible() ? MIN_SEARCH + theme.gap() * 2 : 0)
+                + (footer.chipsOnly() ? footer.chipsWidth(theme.gap()) + theme.gap() * 2 : 0);
+        int least = UiLayout.snapUp(Math.max(MIN_LIST_WIDTH, Math.max(rows + ScrollArea.BAR_WIDTH + 1, bar) + chromeWidth));
+        for (int width = least; width < most; width += LIST_STEP) {
+            if (chromeHeight + list.preferredHeight(width - chromeWidth, metrics) <= UiLayout.shortest(width)) {
+                return width;
+            }
+        }
+        return most;
     }
 
     private void sendChrome(String target) {

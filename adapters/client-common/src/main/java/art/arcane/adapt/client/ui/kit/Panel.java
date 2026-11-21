@@ -6,13 +6,16 @@ import java.util.Map;
 
 /**
  * A framed surface: the tome's cover and page (the kit {@code panel} texture, its cover reaching {@link #OVERHANG}
- * past the bounds, else a soft page with a leather edge {@link UiTheme#frame} thick) and an optional title bar. Children go in
+ * past the bounds and {@link #OVERHANG_FAR} on the right and bottom, where the page block shows and the cover is a unit
+ * thicker, so the page keeps the same margin on every side; else a soft page with a leather edge {@link UiTheme#frame}
+ * thick) and an optional title bar. Children go in
  * {@link #contentBounds()} through the group's layout policy. The panel itself takes pointer hits so clicks on its
  * background never reach what is behind it.
  */
 public class Panel extends UiGroup {
     /** How far the textured cover reaches past the panel's bounds, so it reads thicker without taking page room. */
     public static final int OVERHANG = 2;
+    public static final int OVERHANG_FAR = 3;
     private String title;
     private int titleLeft;
     private int titleRight;
@@ -92,7 +95,8 @@ public class Panel extends UiGroup {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect box = bounds();
-        if (!UiChrome.paint(draw, UiChrome.PANEL, null, box.inset(-OVERHANG))) {
+        UiRect cover = UiRect.of(box.x() - OVERHANG, box.y() - OVERHANG, box.right() + OVERHANG_FAR, box.bottom() + OVERHANG_FAR);
+        if (!UiChrome.paint(draw, UiChrome.PANEL, null, cover)) {
             UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), theme.panelBorder());
             UiRect page = box.inset(theme.frame() - 1);
             draw.fill(page.x(), page.y(), page.right(), page.bottom(), theme.panel());

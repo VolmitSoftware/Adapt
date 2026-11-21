@@ -49,6 +49,37 @@ public interface UiLayoutPolicy {
         };
     }
 
+    /**
+     * {@link #column(int)} with the children in {@code foot} held against the bottom of the area when it is taller
+     * than the column needs, so a page's actions stay in one place whatever is above them.
+     */
+    static UiLayoutPolicy footed(int gap, UiNode... foot) {
+        List<UiNode> held = List.of(foot);
+        UiLayoutPolicy column = column(gap);
+        return new UiLayoutPolicy() {
+            @Override
+            public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
+                int needed = column.preferredHeight(children, area.width(), metrics);
+                int spare = area.height() - needed;
+                if (spare <= 0) {
+                    column.layout(children, area, metrics);
+                    return;
+                }
+                column.layout(children, area.top(needed), metrics);
+                for (UiNode child : children) {
+                    if (held.contains(child)) {
+                        child.place(child.bounds().offset(0, spare), metrics);
+                    }
+                }
+            }
+
+            @Override
+            public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
+                return column.preferredHeight(children, width, metrics);
+            }
+        };
+    }
+
     /** Children left to right at full height and their preferred width; children preferring 0 share the rest. */
     static UiLayoutPolicy row(int gap) {
         return new UiLayoutPolicy() {

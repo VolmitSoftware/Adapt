@@ -118,7 +118,7 @@ class ScreenLayoutTest {
     @Test
     void tilesShareRowsAtEverySize() {
         for (int[] size : new int[][] {{284, 160, 3}, {960, 540, 2}}) {
-            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2]);
+            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], TypicalCatalog.catalog(), TypicalCatalog.player());
             fixture.open(new Route.Skills());
             List<UiNode> tiles = fixture.find("skills").children();
             UiRect first = tiles.get(0).bounds();

@@ -5,6 +5,7 @@ import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.UiContrast;
+import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiFade;
 import art.arcane.adapt.client.ui.kit.UiFrame;
@@ -36,7 +37,7 @@ abstract class RowTile extends UiNode {
     private static final int DOT = 4;
     private static final int MARK_GAP = 3;
 
-    private final UiFade hover = new UiFade(90L);
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final Runnable open;
 
     RowTile(String id, Runnable open) {
@@ -87,7 +88,6 @@ abstract class RowTile extends UiNode {
     boolean glint() {
         return false;
     }
-
 
     /** Where the icon sits. */
     final UiRect iconBounds() {
@@ -165,7 +165,7 @@ abstract class RowTile extends UiNode {
             UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), well);
         }
         if (frame.showsFocus(this)) {
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.focus());
+            UiControl.focusRing(draw, box.inset(1), theme);
         }
         paintIcon(draw, theme, iconBounds(), UiContrast.over(well, theme.backdrop()));
         UiRect text = textBounds();

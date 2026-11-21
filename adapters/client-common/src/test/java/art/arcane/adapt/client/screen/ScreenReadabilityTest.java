@@ -1,6 +1,7 @@
 package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
+import art.arcane.adapt.client.ui.kit.ProgressBar;
 import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.UiContrast;
 import art.arcane.adapt.client.ui.kit.UiNode;
@@ -103,9 +104,9 @@ class ScreenReadabilityTest {
     void unfilledTracksAndPipsStandOutFromTheTileAndPanel() {
         UiTheme theme = UiTheme.DEFAULT;
         int tile = UiContrast.over(theme.tile(), theme.backdrop());
-        assertTrue(UiContrast.ratio(Palette.TRACK, tile) >= UiContrast.GRAPHIC, "track on a tile: " + UiContrast.ratio(Palette.TRACK, tile));
-        assertTrue(UiContrast.ratio(Palette.TRACK, theme.backdrop()) >= UiContrast.GRAPHIC,
-                "track on the panel: " + UiContrast.ratio(Palette.TRACK, theme.backdrop()));
+        int rail = ProgressBar.rail(theme);
+        assertTrue(UiContrast.ratio(UiContrast.over(rail, tile), tile) >= UiContrast.GRAPHIC, "rail on a tile");
+        assertTrue(UiContrast.ratio(UiContrast.over(rail, theme.backdrop()), theme.backdrop()) >= UiContrast.GRAPHIC, "rail on the panel");
     }
 
     @Test

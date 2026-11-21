@@ -8,6 +8,7 @@ import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiGroup;
 import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.PreferenceOwner;
@@ -20,14 +21,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * One skill: its adaptations as row tiles in the chest page's groups on the left page, and on the facing page a detail
- * strip naming the hovered adaptation (the skill's level, experience and description until one is hovered) with the
- * skill's own preferences under it when the server lets players change settings. Knowledge and free power sit in the top bar. Accented with the skill's
- * colour. A skill the player may not open says why instead of showing its adaptations.
+ * One skill: its adaptations as row tiles in the chest page's groups on the left page, and on the facing page the
+ * skill's level, experience and description with the hovered adaptation under them, and the skill's own preferences
+ * at the foot when the server lets players change settings. On a single page the detail strip follows the tiles and
+ * names the hovered adaptation in place of the skill. Knowledge and free power sit in the top bar. Accented with the
+ * skill's colour. A skill the player may not open says why instead of showing its adaptations.
  */
 public final class SkillScreen extends AdaptScreen {
     static final TileGrid.Shape SHAPE = new TileGrid.Shape(2, 4, TileGrid.WIDTH, false);
     private static final int STRIP_WIDTH = 160;
+    private static final int NOTICE_WIDTH = 240;
 
     private final String skillId;
     private final Label notice;
@@ -37,6 +40,7 @@ public final class SkillScreen extends AdaptScreen {
     private final PreferencePanel preferences;
     private final Map<String, AdaptationTile> tiles = new HashMap<>();
     private final List<UiGroup> groups = new ArrayList<>();
+    private int need;
     private TileGrid.Fit fit = TileGrid.Fit.NONE;
 
     SkillScreen(ScreenRouter router, Route.Skill route) {
@@ -44,8 +48,18 @@ public final class SkillScreen extends AdaptScreen {
         skillId = route.skillId();
         notice = page().add(new Label("notice", "").setWrap(true));
         hint = page().add(new Label("hint", "").setWrap(true).setColor(Palette.MUTED));
-        sections = page().add(new UiGroup("sections", UiLayoutPolicy.column(TileGrid.GROUP_GAP)));
-        strip = facing().add(new DetailStrip("strip", this::shownAdaptations));
+        sections = page().add(new UiGroup("sections", new UiLayoutPolicy() {
+            @Override
+            public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
+                UiLayoutPolicy.column(fit.groupGap()).layout(children, area, metrics);
+            }
+
+            @Override
+            public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
+                return UiLayoutPolicy.column(fit.groupGap()).preferredHeight(children, width, metrics);
+            }
+        }));
+        strip = facing().add(new DetailStrip("strip", this::shownAdaptations, this::spreadOpen));
         preferences = facing().add(new PreferencePanel("preferences", new PreferencePanel.Actions() {
             @Override
             public void set(String preferenceId, String value) {
@@ -57,7 +71,8 @@ public final class SkillScreen extends AdaptScreen {
             public void reset() {
                 send("preference", ScreenText.SAVING.text(), () -> router.actions().resetPreference(PreferenceOwner.SKILL, skillId));
             }
-        }));
+        }, this::spreadOpen));
+        facing().setLayout(UiLayoutPolicy.footed(PAGE_GAP, preferences));
         refresh();
     }
 
@@ -104,28 +119,62 @@ public final class SkillScreen extends AdaptScreen {
     }
 
     @Override
-    protected int pageWidth(UiDraw metrics, int available, int room) {
-        int rest = 0;
-        for (UiNode node : List.of(notice, hint)) {
-            if (node.visible()) {
-                rest += node.preferredHeight(available, metrics) + PAGE_GAP;
-            }
+    protected Span pageSpan(UiDraw metrics) {
+        if (groups.isEmpty()) {
+            return new Span(MIN_PAGE, NOTICE_WIDTH);
         }
+        need = RowTile.need(shownTiles(), metrics);
+        return new Span(TileGrid.narrowest(need), SHAPE.span(SHAPE.columns(), need));
+    }
+
+    private List<Integer> counts() {
         List<Integer> counts = new ArrayList<>();
         for (UiGroup group : groups) {
             counts.add(group.children().size());
         }
-        fit = TileGrid.fit(counts, available, room - rest, RowTile.need(shownTiles(), metrics), SHAPE);
-        return groups.isEmpty() ? 0 : fit.span();
+        return counts;
     }
 
     @Override
-    protected int facingWidth(UiDraw metrics) {
-        return Math.max(STRIP_WIDTH, preferences.visible() ? preferences.naturalWidth(metrics) : 0);
+    protected int arrange(UiDraw metrics, int width, int room, boolean split) {
+        if (groups.isEmpty()) {
+            return width;
+        }
+        int rest = 0;
+        for (UiNode node : List.of(notice, hint)) {
+            if (node.visible()) {
+                rest += node.preferredHeight(width, metrics) + PAGE_GAP;
+            }
+        }
+        fit = TileGrid.fit(counts(), width, room - rest, need, SHAPE);
+        return fit.span();
+    }
+
+    @Override
+    protected int slack(int maxPitch) {
+        return groups.isEmpty() ? 0 : fit.slack(counts(), maxPitch);
+    }
+
+    @Override
+    protected void stretch(int extra, int maxPitch) {
+        fit = fit.stretched(counts(), fit.height(counts()) + extra, maxPitch);
+    }
+
+    @Override
+    protected boolean footed() {
+        return true;
+    }
+
+    @Override
+    protected Span facingSpan(UiDraw metrics) {
+        boolean settings = preferences.visible();
+        return new Span(Math.max(MIN_PAGE, settings ? preferences.leastWidth(metrics) : 0),
+                Math.max(STRIP_WIDTH, settings ? preferences.naturalWidth(metrics) : 0));
     }
 
     @Override
     protected void refresh() {
+        strip.changed();
         updatePath();
         CatalogIndex catalog = router().index();
         PlayerView player = router().state().player();
@@ -164,7 +213,7 @@ public final class SkillScreen extends AdaptScreen {
         SkillLineView line = CatalogIndex.line(player, skillId);
         int level = line == null ? 0 : Math.max(0, line.level());
         float progress = line == null ? 0.0F : UiEase.clamp((float) line.progress());
-        strip.setFallback(new DetailStrip.Detail(skill.name(), accent, ScreenText.LEVEL_SHORT.text(level), skill.description(), progress));
+        strip.setFallback(new DetailStrip.Detail(skill.name(), accent, ScreenText.LEVEL_SHORT.text(level), skill.description(), "", progress));
         rebuildSections(catalog, player);
         if (settings) {
             preferences.update(PreferenceOwner.SKILL, skillId, skill.preferences(), List.of(), player, Integer.MAX_VALUE, null);
@@ -186,7 +235,7 @@ public final class SkillScreen extends AdaptScreen {
             List<UiNode> next = new ArrayList<>();
             for (AdaptationView adaptation : arranged.get(index)) {
                 AdaptationTile tile = tiles.computeIfAbsent(adaptation.id(),
-                        (String id) -> new AdaptationTile(adaptation, () -> router().open(new Route.Adaptation(id))));
+                        (String id) -> new AdaptationTile(adaptation, () -> router().open(new Route.Adaptation(id)), this::spreadOpen));
                 tile.update(catalog, player, adaptation);
                 next.add(tile);
             }

@@ -118,8 +118,8 @@ class KitAdditionsTest {
     @Test
     void statChipSizesToIconValueAndCaption() {
         StatChip chip = new StatChip("stat", IconRef.item("minecraft:redstone"), "12", "power");
-        assertEquals(4 + 16 + 3 + 12 + 4 + 30 + 4, chip.preferredWidth(draw));
-        TestScreen screen = show(chip, new UiRect(0, 0, 73, 16));
+        assertEquals(4 + 16 + 3 + 12 + 4 + 30 + 5, chip.preferredWidth(draw));
+        TestScreen screen = show(chip, new UiRect(0, 0, 74, 16));
         assertTrue(draw.calls("item").get(0).startsWith("item minecraft:redstone"));
         assertTrue(screen.hit(10, 10) == chip);
         assertFalse(chip.focusable());
@@ -144,9 +144,9 @@ class KitAdditionsTest {
             chips.add(group.add(new StatChip("chip" + index, null, "12345", "")));
         }
         show(group, new UiRect(0, 0, 100, 60));
-        assertEquals(38, chips.get(0).bounds().width());
+        assertEquals(40, chips.get(0).bounds().width());
         assertEquals(0, chips.get(1).bounds().y());
-        assertEquals(42, chips.get(1).bounds().x());
+        assertEquals(44, chips.get(1).bounds().x());
         assertEquals(18, chips.get(2).bounds().y());
         assertEquals(0, chips.get(2).bounds().x());
         assertEquals(32, group.preferredHeight(100, draw));

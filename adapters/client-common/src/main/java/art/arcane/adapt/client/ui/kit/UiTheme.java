@@ -3,7 +3,7 @@ package art.arcane.adapt.client.ui.kit;
 /**
  * Colour, spacing and type tokens for every kit widget. Colours are ARGB. The default look is an open tome: ink on
  * parchment inside a leather cover, the Minecraft font with no shadow under ink, and muted gold, moss, wine and dusty
- * blue for accents. Section-sign colour codes in text are redrawn in {@link #legacyColours} so server text stays
+ * blue for accents, every colour taken from {@link UiRamp}. Section-sign colour codes in text are redrawn in {@link #legacyColours} so server text stays
  * readable on the page. The density is compact (14 unit controls, 4 unit padding) because the font cannot shrink, so
  * space is won through layout. Screens pass a skill's colour through {@link #withAccent(int)}.
  *
@@ -51,30 +51,30 @@ public record UiTheme(
             0xFF57493B, 0xFF2A4B86, 0xFF2E5619, 0xFF195260, 0xFF8D261D, 0xFF763078, 0xFF604807, 0xFF2E2216};
 
     public static final UiTheme DEFAULT = new UiTheme(
-            0xFFEDE1C6,
-            0xFF3A2414,
-            0x30FFF8E8,
-            0x185A3E26,
-            0xFFE2D0A8,
-            0xFFF0E0B6,
-            0xFFD2BC92,
-            0xFF7E5C3A,
-            0x145A3E26,
-            0xFFBDA27A,
-            0xFF2E2216,
-            0xFF5A4430,
-            0xFF8A7860,
-            0xFF3E5F80,
-            0xFF8D261D,
-            0xFF2A4B86,
-            0xFFF6EDD8,
-            0xFF5A3E26,
-            0xFF3A2414,
-            0x80201408,
-            0xFFB9CBE2,
-            0xFF2E2216,
-            0xFF5E3418,
-            0xFFF8EED6,
+            UiRamp.PAGE[1],
+            UiRamp.LEATHER[1],
+            UiRamp.alpha(UiRamp.PAGE[0], 0x30),
+            UiRamp.alpha(UiRamp.INK[1], 0x18),
+            UiRamp.PAGE[3],
+            UiRamp.PAGE[2],
+            UiRamp.PAGE[4],
+            UiRamp.PAGE[7],
+            UiRamp.alpha(UiRamp.INK[1], 0x14),
+            UiRamp.PAGE[5],
+            UiRamp.INK[0],
+            UiRamp.INK[1],
+            UiRamp.INK[2],
+            UiRamp.BLUE[1],
+            UiRamp.WINE[2],
+            UiRamp.BLUE[0],
+            UiRamp.PAGE[0],
+            UiRamp.PAGE[7],
+            UiRamp.LEATHER[1],
+            UiRamp.alpha(UiRamp.LEATHER[0], 0x80),
+            UiRamp.BLUE[3],
+            UiRamp.INK[0],
+            UiRamp.LEATHER[2],
+            UiRamp.PAGE[0],
             2,
             4,
             4,

@@ -9,7 +9,7 @@ public final class UiContrast {
     /** WCAG AA for graphics such as icons and control edges. */
     public static final double GRAPHIC = 3.0;
     /** The paper shade a pale icon's plate starts from before it is darkened. */
-    private static final int SHADE = 0xFFC9B48C;
+    private static final int SHADE = UiRamp.PAGE[4];
 
     private UiContrast() {
     }

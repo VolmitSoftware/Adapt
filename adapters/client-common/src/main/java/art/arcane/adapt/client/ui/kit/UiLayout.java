@@ -5,7 +5,20 @@ import java.util.List;
 
 /** Layout arithmetic shared by widgets and screens. A size of 0 in {@link #row} and {@link #column} means "share the rest". */
 public final class UiLayout {
+    /** The grid sizes and positions snap to, so edges line up across columns and pages. */
+    public static final int UNIT = 2;
+
     private UiLayout() {
+    }
+
+    /** {@code value} rounded down to the {@link #UNIT} grid. */
+    public static int snap(int value) {
+        return Math.floorDiv(value, UNIT) * UNIT;
+    }
+
+    /** {@code value} rounded up to the {@link #UNIT} grid. */
+    public static int snapUp(int value) {
+        return snap(value + UNIT - 1);
     }
 
     /** Splits {@code area} left to right; fixed widths are kept, zero widths share what is left. */

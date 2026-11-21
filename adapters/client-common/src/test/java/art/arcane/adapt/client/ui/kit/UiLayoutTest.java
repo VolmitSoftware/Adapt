@@ -64,6 +64,41 @@ class UiLayoutTest {
     }
 
     @Test
+    void breakpointsWaitForAClearStepPastAThreshold() {
+        assertEquals(UiBreakpoint.WIDE, UiBreakpoint.settle(null, 640, 360));
+        int wide = UiBreakpoint.WIDE_WIDTH;
+        int band = UiBreakpoint.HYSTERESIS;
+        assertEquals(UiBreakpoint.REGULAR, UiBreakpoint.settle(UiBreakpoint.REGULAR, wide + band - 1, 400));
+        assertEquals(UiBreakpoint.WIDE, UiBreakpoint.settle(UiBreakpoint.REGULAR, wide + band, 400));
+        assertEquals(UiBreakpoint.WIDE, UiBreakpoint.settle(UiBreakpoint.WIDE, wide - band, 400));
+        assertEquals(UiBreakpoint.REGULAR, UiBreakpoint.settle(UiBreakpoint.WIDE, wide - band - 1, 400));
+        assertEquals(UiBreakpoint.COMPACT, UiBreakpoint.settle(UiBreakpoint.COMPACT, 480, UiBreakpoint.REGULAR_HEIGHT + band - 1));
+        assertEquals(UiBreakpoint.REGULAR, UiBreakpoint.settle(UiBreakpoint.COMPACT, 480, UiBreakpoint.REGULAR_HEIGHT + band));
+        assertEquals(UiBreakpoint.COMPACT, UiBreakpoint.settle(UiBreakpoint.WIDE, 300, 200));
+        assertEquals(UiBreakpoint.WIDE, UiBreakpoint.settle(UiBreakpoint.COMPACT, 960, 540));
+    }
+
+    @Test
+    void commonWindowsGetOneClassHoweverTheyWereReached() {
+        int[][] common = {{320, 240}, {427, 240}, {480, 270}, {640, 360}, {683, 384}, {815, 458}, {960, 540}, {1280, 720}, {1920, 1080}};
+        for (int[] size : common) {
+            UiBreakpoint fresh = UiBreakpoint.of(size[0], size[1]);
+            for (UiBreakpoint previous : UiBreakpoint.values()) {
+                assertEquals(fresh, UiBreakpoint.settle(previous, size[0], size[1]), size[0] + "x" + size[1] + " from " + previous);
+            }
+        }
+    }
+
+    @Test
+    void snapKeepsToTheUnitGrid() {
+        assertEquals(6, UiLayout.snap(7));
+        assertEquals(6, UiLayout.snap(6));
+        assertEquals(8, UiLayout.snapUp(7));
+        assertEquals(8, UiLayout.snapUp(8));
+        assertEquals(-2, UiLayout.snap(-1));
+    }
+
+    @Test
     void rectGeometry() {
         UiRect rect = new UiRect(10, 10, 20, 10);
         assertTrue(rect.contains(10, 10));
@@ -85,5 +120,25 @@ class UiLayoutTest {
         group.place(new UiRect(0, 0, 100, 40), draw);
         assertEquals(new UiRect(0, 0, 100, 9), first.bounds());
         assertEquals(new UiRect(0, 11, 100, 9), second.bounds());
+    }
+
+    @Test
+    void footedPolicyHoldsItsFootAgainstTheBottom() {
+        KitDraw draw = new KitDraw();
+        UiGroup group = new UiGroup("g");
+        Label first = group.add(new Label("a", "one"));
+        Label reason = group.add(new Label("b", "two"));
+        Label action = group.add(new Label("c", "three"));
+        group.setLayout(UiLayoutPolicy.footed(2, reason, action));
+        assertEquals(31, group.preferredHeight(100, draw));
+        group.place(new UiRect(0, 0, 100, 60), draw);
+        assertEquals(new UiRect(0, 0, 100, 9), first.bounds());
+        assertEquals(new UiRect(0, 40, 100, 9), reason.bounds());
+        assertEquals(new UiRect(0, 51, 100, 9), action.bounds());
+        group.place(new UiRect(0, 0, 100, 31), draw);
+        assertEquals(new UiRect(0, 22, 100, 9), action.bounds());
+        reason.setVisible(false);
+        group.place(new UiRect(0, 0, 100, 60), draw);
+        assertEquals(new UiRect(0, 51, 100, 9), action.bounds());
     }
 }

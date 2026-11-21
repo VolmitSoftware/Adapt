@@ -10,6 +10,9 @@ import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.TextField;
 import art.arcane.adapt.client.ui.kit.Tooltip;
 import art.arcane.adapt.client.ui.kit.UiGroup;
+import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
+import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.IconSprites;
 import art.arcane.adapt.client.view.PlayerView;
@@ -25,8 +28,8 @@ import java.util.Map;
 /**
  * The skills list: skill tiles in the chest menu's order over two facing pages when there is room, at most
  * {@link #MAX_COLUMNS} columns in all, with total knowledge and power used as chips in the top bar, filtered by the
- * search field there. The grid is fitted to the whole skill list, so typing a search never resizes it sideways, and its
- * rows spread out to fill a page shaped like a book.
+ * search field there. The grid is fitted to the whole skill list and keeps its height, so typing a search never
+ * resizes the book; its rows spread out to fill the page the book's proportions give it.
  */
 public final class SkillsScreen extends AdaptScreen {
     static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), "adapt:textures/gui/mark/power.png");
@@ -42,6 +45,7 @@ public final class SkillsScreen extends AdaptScreen {
     private final Map<String, SkillTile> tiles = new HashMap<>();
     private int shown;
     private int total;
+    private int need;
     private TileGrid.Fit fit = TileGrid.Fit.NONE;
 
     SkillsScreen(ScreenRouter router) {
@@ -52,12 +56,32 @@ public final class SkillsScreen extends AdaptScreen {
         setTool(search, SEARCH_WIDTH);
         empty = page().add(new Label("empty", "").setAlign(Label.Align.CENTER));
         emptyHint = page().add(new Label("empty.hint", "").setAlign(Label.Align.CENTER).setColor(Palette.MUTED));
-        grid = page().add(new UiGroup("skills", TileGrid.rows(() -> fit)));
+        grid = page().add(new UiGroup("skills", TileGrid.rows(() -> fit, () -> total)));
+        UiLayoutPolicy notes = UiLayoutPolicy.column(PAGE_GAP);
+        page().setLayout(new UiLayoutPolicy() {
+            @Override
+            public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
+                notes.layout(notes(children), area, metrics);
+                grid.place(area, metrics);
+            }
+
+            @Override
+            public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
+                return Math.max(grid.preferredHeight(width, metrics), notes.preferredHeight(notes(children), width, metrics));
+            }
+        });
         refresh();
     }
 
     public TextField search() {
         return search;
+    }
+
+    /** The messages that show over the grid's place while it has no tiles. */
+    private List<UiNode> notes(List<UiNode> shown) {
+        List<UiNode> notes = new ArrayList<>(shown);
+        notes.remove(grid);
+        return notes;
     }
 
     SkillTile tile(String skillId) {
@@ -87,12 +111,34 @@ public final class SkillsScreen extends AdaptScreen {
     }
 
     @Override
-    protected int pageWidth(UiDraw metrics, int available, int room) {
-        int need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
-        int count = Math.max(1, total);
-        TileGrid.Fit grid = TileGrid.fit(List.of(count), available, room, need, SHAPE);
-        fit = grid.stretched(count, bookBody(grid.span()));
+    protected Span pageSpan(UiDraw metrics) {
+        need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
+        return new Span(TileGrid.narrowest(need), SHAPE.span(SHAPE.columns(), need));
+    }
+
+    private List<Integer> counts() {
+        return List.of(Math.max(1, total));
+    }
+
+    @Override
+    protected int arrange(UiDraw metrics, int width, int room, boolean split) {
+        fit = TileGrid.fit(counts(), Math.max(width, floor()), room, need, split ? SHAPE : SHAPE.flat()).filling(floor());
         return fit.span();
+    }
+
+    @Override
+    protected boolean split() {
+        return fit.pages() > 1;
+    }
+
+    @Override
+    protected int slack(int maxPitch) {
+        return fit.slack(counts(), maxPitch);
+    }
+
+    @Override
+    protected void stretch(int extra, int maxPitch) {
+        fit = fit.stretched(counts(), fit.height(counts()) + extra, maxPitch);
     }
 
     @Override

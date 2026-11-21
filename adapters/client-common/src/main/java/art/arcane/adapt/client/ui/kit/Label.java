@@ -6,15 +6,19 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Text with legacy colour codes. A single-line label is cut with an ellipsis when too long; a wrapping label grows to
- * the lines it needs. Colour 0 means the theme's text colour.
+ * Text with legacy colour codes, drawn without a drop shadow unless one is asked for (ink on paper has none). A
+ * single-line label is cut with an ellipsis when too long; a wrapping label grows to the lines it needs. Colour 0 means
+ * the theme's text colour.
  */
 public class Label extends UiNode {
     private String text;
     private int color;
     private Align align = Align.LEFT;
     private boolean wrap;
-    private boolean shadow = true;
+    private boolean shadow;
+    private String balancedText;
+    private int balancedFor;
+    private int balanced;
 
     public Label(String id, String text) {
         super(id);
@@ -88,7 +92,7 @@ public class Label extends UiNode {
         UiRect box = bounds();
         int argb = color == 0 ? (enabled() ? frame.theme().text() : frame.theme().textDisabled()) : color;
         if (wrap) {
-            draw.wrappedText(text, box.x(), box.y(), Math.max(1, box.width()), argb, shadow);
+            draw.wrappedText(text, box.x(), box.y(), wrapWidth(draw, Math.max(1, box.width())), argb, shadow);
             return;
         }
         String line = LegacyText.truncate(draw, text, box.width());
@@ -98,8 +102,18 @@ public class Label extends UiNode {
             case CENTER -> box.x() + (box.width() - width) / 2;
             case RIGHT -> box.right() - width;
         };
-        int y = box.y() + Math.max(0, (box.height() - draw.lineHeight()) / 2) + 1;
+        int y = box.height() <= draw.lineHeight() ? box.y() + 1 : UiControl.textY(box);
         draw.text(line, x, y, argb, shadow);
+    }
+
+    /** The width wrapped lines break at: narrowed while the line count holds, so a paragraph does not end on a lone word. */
+    private int wrapWidth(UiDraw draw, int width) {
+        if (!text.equals(balancedText) || balancedFor != width) {
+            balancedText = text;
+            balancedFor = width;
+            balanced = UiControl.balancedWidth(draw, text, width);
+        }
+        return balanced;
     }
 
     public enum Align {

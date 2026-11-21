@@ -7,10 +7,13 @@ import art.arcane.adapt.client.ui.UiNineSlice;
  * Optional textured chrome. A resource pack that provides {@code adapt:textures/gui/kit/<name>.png} with its slice
  * file {@code <name>.json} (see {@link art.arcane.adapt.client.ui.UiAssetCheck}) replaces the flat drawing of that
  * widget. Names: {@code panel}; {@code button}, {@code button_primary}, {@code button_destructive}, each with optional
- * {@code _hover}, {@code _pressed} and {@code _disabled} variants; {@code tile} with {@code tile_hover} and
- * {@code tile_selected}; the tome's {@code spine}, {@code ribbon}, {@code bookmark}, {@code tooltip}, {@code field}, {@code chip} and the
+ * {@code _hover} and {@code _pressed} variants (a disabled button is a stitched outline, never a texture); {@code tile} with {@code tile_hover} and
+ * {@code tile_selected}; the tome's {@code spine}, {@code ribbon}, {@code bookmark}, {@code tooltip}, {@code field}, {@code chip}, the checkbox ({@code check}, {@code check_on}, drawn at their own size) and the
  * {@code token} medallion rims ({@code token_learned}, {@code token_maxed}, {@code token_locked}, drawn at their own
- * size). A missing variant uses its base name; a missing base keeps the flat look. The client ships all of them.
+ * size). Arrow tabs draw the {@code button} textures. A missing variant uses its base name; a missing base keeps the
+ * flat look. The client ships all of them, drawn from the {@link UiRamp} palette, and each slice file also records the
+ * smallest size its piece keeps its shape at ({@code minWidth}, {@code minHeight}) or the size it is fixed to
+ * ({@code fixedWidth}, {@code fixedHeight}); {@code panel.json} lists the cover thickness per side.
  */
 public final class UiChrome {
     public static final String PANEL = "panel";

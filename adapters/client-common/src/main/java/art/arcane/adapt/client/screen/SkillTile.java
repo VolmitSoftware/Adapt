@@ -2,6 +2,7 @@ package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.kit.LegacyText;
+import art.arcane.adapt.client.ui.kit.ProgressBar;
 import art.arcane.adapt.client.ui.kit.Tooltip;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiIcons;
@@ -154,11 +155,7 @@ final class SkillTile extends RowTile {
 
     @Override
     void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
-        draw.fill(left, top, right, top + BAR_HEIGHT, Palette.TRACK);
-        int filled = Math.round((right - left) * progress());
-        if (openable && filled > 0) {
-            draw.fill(left, top, left + filled, top + BAR_HEIGHT, accent);
-        }
+        ProgressBar.slim(draw, theme, left, top, right, BAR_HEIGHT, openable ? progress() : 0.0F, accent);
     }
 
     @Override

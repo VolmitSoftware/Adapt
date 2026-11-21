@@ -1,1 +1,1 @@
-{"border": 10, "fill": "tile"}
+{"border": 12, "cover": {"bottom": 7, "left": 6, "right": 7, "top": 6}, "minHeight": 25, "minWidth": 25, "toning": {"bottom": 1, "left": 1, "right": 1, "top": 1}}

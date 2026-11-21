@@ -7,6 +7,7 @@ import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.protocol.ServerInfo;
 import art.arcane.adapt.client.state.ClientActions;
 import art.arcane.adapt.client.state.ClientState;
+import art.arcane.adapt.client.ui.ScreenHarness;
 import art.arcane.adapt.client.ui.UiKey;
 import art.arcane.adapt.client.ui.UiKeyEvent;
 import art.arcane.adapt.client.ui.UiModifiers;
@@ -32,7 +33,7 @@ final class ScreenFixture {
     boolean connected = true;
     final ClientActions actions = new ClientActions(state, (ClientFrame frame) -> connected && sent.add(frame));
     final FakeHost host;
-    final KitDraw draw;
+    KitDraw draw;
     final List<String> hudFeedback = new ArrayList<>();
     final ScreenRouter router;
 
@@ -64,6 +65,12 @@ final class ScreenFixture {
 
     AdaptScreen current() {
         return router.current();
+    }
+
+    /** Resizes the window or changes the GUI scale under the open page, as Minecraft does: the page is told and laid out again. */
+    void resize(int width, int height, double scale) {
+        draw = new KitDraw(width, height, scale);
+        ScreenHarness.attach(router.current(), host, host, width, height);
     }
 
     void render() {

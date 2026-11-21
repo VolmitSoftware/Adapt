@@ -22,6 +22,7 @@ import art.arcane.adapt.client.ui.kit.KitScreen;
 import art.arcane.adapt.client.ui.kit.ManualClock;
 import art.arcane.adapt.client.ui.kit.NumberStepper;
 import art.arcane.adapt.client.ui.kit.TextField;
+import art.arcane.adapt.client.ui.kit.UiFocus;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.ui.kit.UiTheme;
@@ -106,6 +107,32 @@ class NativePanelListTest {
     }
 
     @Test
+    void aShortMenuOpensASmallBookAndALongListKeepsClearOfTheScreenEdges() {
+        NativePanelScreen menu = open(view(PanelLayout.LIST, null, 1, entry(10, "Adaptations", ""), entry(11, "Core", ""),
+                entry(12, "Skills", "")));
+        UiRect small = menu.root().find("panel").bounds();
+        UiRect last = menu.row(12).bounds();
+        assertTrue(small.width() < 400, "three rows open a full width book: " + small);
+        assertTrue(small.height() <= small.width() * 9 / 16 + 1, small.toString());
+        assertTrue(small.bottom() - last.bottom() < small.height() / 2, "more blank paper than rows: " + small + " " + last);
+        draw.calls().clear();
+        menu.render(draw, 0, 0, 0.0F);
+        for (String call : draw.calls("text ")) {
+            assertFalse(call.endsWith("..."), "cut text: " + call);
+        }
+        assertTrue(draw.calls("text ").stream().anyMatch((String call) -> call.endsWith("About Adaptations")), "the description is dropped");
+
+        PanelTile[] many = new PanelTile[40];
+        for (int index = 0; index < many.length; index++) {
+            many[index] = entry(index, "Entry " + index, "");
+        }
+        NativePanelScreen list = open(view(PanelLayout.LIST, null, 2, many));
+        UiRect tall = list.root().find("panel").bounds();
+        assertTrue(((ScrollArea) list.root().find("body.scroll")).maxScroll() > 0);
+        assertTrue(tall.y() >= 10 && tall.bottom() <= 350, "a scrolling list runs edge to edge: " + tall);
+    }
+
+    @Test
     void rowsFollowReadingOrderUnderTheirSectionsAndChromeLeavesTheBody() {
         NativePanelScreen screen = open(view(PanelLayout.LIST, null, 1, pane(0), entry(12, "B", "Second"), entry(10, "A", ""),
                 entry(11, "C", "First"), entry(13, "D", "First"), nav(45, "back"), nav(53, "next")));
@@ -122,6 +149,59 @@ class NativePanelListTest {
         click(screen, screen.navigationButton("back"), UiMouseButton.LEFT, NONE);
         click(screen, screen.navigationButton("next"), UiMouseButton.LEFT, NONE);
         assertEquals(List.of("click 9 1 45 LEFT", "click 9 1 53 LEFT"), actions.sent);
+    }
+
+    @Test
+    void controlsEndOnOneEdgeAndTypedOnesShareAColumn() {
+        TileHint number = new TileHint(HintKind.NUMBER, "8", true, List.of(), 0D, 64D, 1D);
+        String longName = "A setting whose name is far too long to sit beside its control on a single line of the list";
+        NativePanelScreen screen = open(view(PanelLayout.FORM, null, 1,
+                setting(10, "Toggle", TileHint.of(HintKind.TOGGLE, "ON"), new TileAction(ClickKind.LEFT, "")),
+                setting(11, "Number", number),
+                setting(12, "Text", new TileHint(HintKind.TEXT, "Steve", true, List.of(), null, null, null)),
+                setting(13, "Choice", new TileHint(HintKind.CHOICE, "A", true, List.of("A", "B"), null, null, null),
+                        new TileAction(ClickKind.LEFT, "Next"), new TileAction(ClickKind.RIGHT, "Previous")),
+                setting(14, longName, number)));
+        UiRect first = screen.row(10).bounds();
+        int edge = first.right() - PanelRow.PAD;
+        int column = PanelRow.columnWidth(first.width());
+        for (int slot = 10; slot <= 14; slot++) {
+            assertEquals(edge, screen.control(slot).bounds().right(), "right edge of slot " + slot);
+            assertEquals(first.x(), screen.row(slot).bounds().x());
+        }
+        for (int slot = 11; slot <= 14; slot++) {
+            assertEquals(edge - column, screen.control(slot).bounds().x(), "left edge of slot " + slot);
+        }
+        assertTrue(row(screen, 13).moreButton().bounds().right() < screen.control(13).bounds().x(), "the row menu sits left of the control");
+        assertTrue(screen.row(14).bounds().height() > screen.row(11).bounds().height(), "a long name wraps and the row grows");
+        assertTrue(draw.calls("wrapped ").stream().anyMatch((String call) -> call.endsWith(longName)), draw.calls("wrapped ").toString());
+        for (String call : draw.calls("text ")) {
+            String text = call.substring(call.indexOf(' ', 5) + 1);
+            assertFalse(text.length() > 3 && text.endsWith("..."), "cut text: " + call);
+        }
+        List<String> order = new ArrayList<>();
+        for (UiNode node : UiFocus.order(screen.root().find("list"))) {
+            order.add(node.id());
+        }
+        assertEquals(List.of("section:Settings", "row:10", "setting:10", "row:11", "setting:11.minus", "setting:11.field", "setting:11.plus",
+                "row:12", "setting:12", "row:13", "setting:13", "more:13", "row:14", "setting:14.minus", "setting:14.field",
+                "setting:14.plus"), order);
+    }
+
+    @Test
+    void gridNamesWrapUnderTheirTilesInsteadOfBeingCut() {
+        assertEquals(List.of("A long", "tile name"), PanelGrid.wrap(draw, "A long tile name", 54));
+        assertEquals(List.of("§b§lPanel", "§b§lpreview"), PanelGrid.wrap(draw, "§b§lPanel preview", 54));
+        assertEquals(List.of(), PanelGrid.wrap(draw, " ", 54));
+        assertEquals(List.of("A long", "descript-", "ion"), PanelGrid.wrap(draw, "A long description", 54));
+        assertEquals(List.of("A long de", "scription"), PanelGrid.label(draw, "A long description", 54));
+        assertEquals(List.of("A long", "tile name"), PanelGrid.label(draw, "A long tile name", 54));
+        NativePanelScreen screen = open(view(PanelLayout.GRID, null, 1, tile(10, "A long tile name", TileRole.INFO, "", null),
+                tile(11, "Short", TileRole.INFO, "", null)));
+        assertNotNull(screen.tile(10));
+        for (String call : draw.calls("text ")) {
+            assertFalse(call.endsWith("..."), "cut text: " + call);
+        }
     }
 
     @Test

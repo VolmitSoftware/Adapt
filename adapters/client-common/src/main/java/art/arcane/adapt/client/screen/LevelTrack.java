@@ -3,7 +3,9 @@ package art.arcane.adapt.client.screen;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
+import art.arcane.adapt.client.ui.kit.ProgressBar;
 import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiContrast;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiFade;
@@ -126,7 +128,7 @@ final class LevelTrack extends UiNode {
             }
             int y = from.centerY();
             boolean learned = nodes.get(index + 1).state.learned();
-            draw.fill(from.right(), y, to.x(), y + 1, learned ? frame.theme().accent() : Palette.TRACK);
+            draw.fill(from.right(), y, to.x(), y + 1, learned ? frame.theme().accent() : ProgressBar.rail(frame.theme()));
         }
     }
 
@@ -162,7 +164,7 @@ final class LevelTrack extends UiNode {
 
     final class Node extends UiNode {
         private final int level;
-        private final UiFade hover = new UiFade(90L);
+        private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
         private LevelState state = new LevelState(false, false, false, "", List.of());
 
         private Node(int level) {
@@ -239,9 +241,11 @@ final class LevelTrack extends UiNode {
             }
             fill = UiEase.mix(fill, UiTome.HOVER | 0xFF000000, 0.1F * lift);
             UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), fill);
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), frame.showsFocus(this) ? theme.focus() : edge);
-            if (chosen) {
-                UiTome.softEdge(draw, box.x() - 1, box.y() - 1, box.width() + 2, box.height() + 2, UiEase.fade(theme.focus(), 0.85F));
+            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), edge);
+            if (frame.showsFocus(this)) {
+                UiControl.focusRing(draw, box, theme);
+            } else if (chosen) {
+                UiTome.softEdge(draw, box.x() - 1, box.y() - 1, box.width() + 2, box.height() + 2, theme.text());
             }
             String numeral = ScreenText.roman(level);
             draw.centeredText(numeral, box.centerX(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1, text, true);

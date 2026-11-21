@@ -130,10 +130,11 @@ class WidgetsTest {
         bar.setProgress(1.0F);
         draw.calls().clear();
         bar.render(new UiFrame(draw, UiTheme.DEFAULT, clock.motion(), 0, 0, null, null, null, false));
-        assertFalse(draw.calls().contains("fill 1,2,101,4 ff3e5f80"));
+        String full = "fill 1,1,101,5 " + Integer.toHexString(ProgressBar.fillColor(UiTheme.DEFAULT.accent(), UiTheme.DEFAULT));
+        assertFalse(draw.calls().contains(full));
         clock.advance(1000);
         bar.render(new UiFrame(draw, UiTheme.DEFAULT, clock.motion(), 0, 0, null, null, null, false));
-        assertTrue(draw.calls().contains("fill 1,2,101,4 ff3e5f80"), draw.calls().toString());
+        assertTrue(draw.calls().contains(full), draw.calls().toString());
         assertEquals(1.0F, bar.progress());
     }
 

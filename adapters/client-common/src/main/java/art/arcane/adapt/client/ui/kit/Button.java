@@ -9,12 +9,11 @@ import java.util.Objects;
 
 /**
  * A push button. Like vanilla buttons it fires on press, plays the click sound and reacts to Enter and Space. A glyph
- * button shows an ink arrow or stepper mark on a paper tab instead of text; a quiet button is bare ink until hovered.
+ * button shows an ink arrow or stepper mark on a paper tab instead of text; a quiet button is ink over a dotted
+ * underline until hovered. States follow {@link UiControl}.
  */
 public class Button extends UiNode {
-    private static final long HOVER_MILLIS = 90L;
-
-    private final UiFade hover = new UiFade(HOVER_MILLIS);
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final UiTome.Glyph glyph;
     private String text;
     private Style style;
@@ -99,7 +98,12 @@ public class Button extends UiNode {
         if (glyph != null) {
             return Math.max(theme.controlHeight(), glyph.width() + 8);
         }
-        return Math.max(theme.controlHeight(), metrics.textWidth(text) + theme.padding() * 2);
+        return width(metrics, text, theme);
+    }
+
+    /** The width a button labelled {@code label} asks for. */
+    public static int width(UiDraw metrics, String label, UiTheme theme) {
+        return Math.max(theme.controlHeight(), metrics.textWidth(label) + UiControl.TEXT_INSET * 2);
     }
 
     @Override
@@ -138,68 +142,74 @@ public class Button extends UiNode {
         UiRect box = bounds();
         boolean active = enabled();
         float lift = hover.update(frame.motion(), active && (frame.isHovered(this) || frame.showsFocus(this)));
+        UiControl.State state = UiControl.State.of(active, frame.isPressed(this), lift);
         if (glyph != null || style == Style.QUIET) {
-            paintPlain(frame, draw, theme, box, active, lift);
+            paintPlain(frame, draw, theme, box, state);
             return;
         }
-        int base;
-        int raised;
-        int border;
-        switch (style) {
-            case PRIMARY -> {
-                base = UiEase.mix(theme.surface(), theme.accent(), 0.18F);
-                raised = UiEase.mix(theme.surface(), theme.accent(), 0.08F);
-                border = theme.accent();
-            }
-            case DESTRUCTIVE -> {
-                base = UiEase.mix(theme.surface(), theme.destructive(), 0.18F);
-                raised = UiEase.mix(theme.surface(), theme.destructive(), 0.08F);
-                border = theme.destructive();
-            }
-            default -> {
-                base = theme.surface();
-                raised = theme.surfaceHover();
-                border = theme.surfaceBorder();
-            }
-        }
-        int fill = !active ? UiEase.mix(theme.surface(), theme.panel(), 0.6F)
-                : frame.isPressed(this) ? UiEase.mix(base, theme.surfacePressed(), 0.6F) : UiEase.mix(base, raised, lift);
         String chrome = switch (style) {
             case PRIMARY -> UiChrome.BUTTON + "_primary";
             case DESTRUCTIVE -> UiChrome.BUTTON + "_destructive";
             case NORMAL, QUIET -> UiChrome.BUTTON;
         };
-        String state = !active ? "disabled" : frame.isPressed(this) ? "pressed" : lift >= 0.5F ? "hover" : null;
-        if (!UiChrome.paint(draw, chrome, state, box)) {
-            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), fill);
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), active ? border : theme.tileBorder());
+        String variant = switch (state) {
+            case REST, DISABLED -> null;
+            case HOVER -> "hover";
+            case PRESSED -> "pressed";
+        };
+        if (state == UiControl.State.DISABLED) {
+            UiControl.stitchedEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.textDisabled());
+        } else if (!UiChrome.paint(draw, chrome, variant, box)) {
+            paintFlat(draw, theme, box, state, lift);
         }
         if (frame.showsFocus(this)) {
-            UiTome.softEdge(draw, box.x() - 1, box.y() - 1, box.width() + 2, box.height() + 2, theme.focus());
+            UiControl.focusRing(draw, box, theme);
         }
         String line = LegacyText.truncate(draw, text, box.width() - 4);
-        int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + (frame.isPressed(this) ? 2 : 1);
-        draw.centeredText(line, box.centerX(), textY, active ? theme.text() : theme.textDisabled(), false);
+        draw.centeredText(line, box.centerX(), UiControl.textY(box, state), UiControl.ink(state, theme), false);
     }
 
-    private void paintPlain(UiFrame frame, UiDraw draw, UiTheme theme, UiRect box, boolean active, float lift) {
-        UiTome.Tab look = !active ? UiTome.Tab.DISABLED : frame.isPressed(this) ? UiTome.Tab.PRESSED
-                : lift >= 0.5F ? UiTome.Tab.HOVER : UiTome.Tab.REST;
-        boolean bare = glyph == null && look == UiTome.Tab.REST;
-        if (!bare && !(glyph == null && look == UiTome.Tab.DISABLED)) {
-            UiTome.tab(draw, box, look, theme);
+    private void paintFlat(UiDraw draw, UiTheme theme, UiRect box, UiControl.State state, float lift) {
+        int tint = switch (style) {
+            case PRIMARY -> theme.accent();
+            case DESTRUCTIVE -> theme.destructive();
+            case NORMAL, QUIET -> 0;
+        };
+        int base = tint == 0 ? theme.surface() : UiEase.mix(theme.surface(), tint, 0.18F);
+        int raised = tint == 0 ? theme.surfaceHover() : UiEase.mix(theme.surface(), tint, 0.08F);
+        int fill = state == UiControl.State.PRESSED ? UiEase.mix(base, theme.surfacePressed(), 0.6F) : UiEase.mix(base, raised, lift);
+        int edge = tint == 0 ? theme.surfaceBorder() : tint;
+        UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), fill);
+        UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), edge);
+        if (state == UiControl.State.HOVER) {
+            draw.fill(box.x() + 1, box.bottom() - 2, box.right() - 1, box.bottom() - 1, edge);
+        } else if (state == UiControl.State.PRESSED) {
+            draw.fill(box.x() + 1, box.y() + 1, box.right() - 1, box.y() + 2, edge);
+        }
+    }
+
+    private void paintPlain(UiFrame frame, UiDraw draw, UiTheme theme, UiRect box, UiControl.State state) {
+        boolean bare = glyph == null && (state == UiControl.State.REST || state == UiControl.State.DISABLED);
+        if (!bare) {
+            UiControl.face(draw, box, state, theme);
         }
         if (frame.showsFocus(this)) {
-            UiTome.softEdge(draw, box.x() - 1, box.y() - 1, box.width() + 2, box.height() + 2, theme.focus());
+            UiControl.focusRing(draw, box, theme);
         }
         if (glyph != null) {
-            UiTome.glyph(draw, glyph, box, UiTome.glyphColor(look, theme));
+            UiControl.glyph(draw, glyph, box, state, theme);
             return;
         }
         String line = LegacyText.truncate(draw, text, box.width() - 4);
-        int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
-        int color = !active ? theme.textDisabled() : look == UiTome.Tab.REST ? theme.textMuted() : theme.text();
-        draw.centeredText(line, box.centerX(), textY, color, false);
+        int color = state == UiControl.State.REST ? theme.textMuted() : UiControl.ink(state, theme);
+        draw.centeredText(line, box.centerX(), UiControl.textY(box, state), color, false);
+        if (state == UiControl.State.REST) {
+            int width = draw.textWidth(line);
+            int left = box.centerX() - width / 2;
+            for (int x = left; x < left + width; x += 2) {
+                draw.fill(x, UiControl.textY(box) + UiControl.CAP_HEIGHT + 1, x + 1, UiControl.textY(box) + UiControl.CAP_HEIGHT + 2, color);
+            }
+        }
     }
 
     public enum Style {

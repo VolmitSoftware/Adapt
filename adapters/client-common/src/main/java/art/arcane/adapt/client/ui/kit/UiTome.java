@@ -15,31 +15,45 @@ public final class UiTome {
     public static final String FIELD = "field";
     public static final String CHIP = "chip";
     public static final String BOOKMARK = "bookmark";
-    private static final int BOOKMARK_WIDTH = 7;
-    private static final int BOOKMARK_RISE = 9;
-    private static final int BOOKMARK_CLOTH = 0xFF7E2A22;
+    public static final String CHECK_OFF = "check";
+    public static final String CHECK_ON = "check_on";
+    /** The bookmark cloth's width; its texture adds one column of shadow on the right. */
+    public static final int BOOKMARK_WIDTH = 9;
+    /** Rows of the bookmark's fold standing above the book. */
+    public static final int BOOKMARK_RISE = 2;
+    /** Rows of the bookmark's forked tail resting on the page, inside the page padding. */
+    public static final int BOOKMARK_HANG = 4;
+    private static final int BOOKMARK_CLOTH = UiRamp.WINE[2];
+    private static final int BOOKMARK_EDGE = UiRamp.WINE[0];
     /** A medallion's size; the icon sits {@link #TOKEN_INSET} in from its edge. */
     public static final int TOKEN = 20;
     public static final int TOKEN_INSET = 2;
     /** Width the spine takes between two pages. */
     public static final int SPINE_WIDTH = 12;
-    /** A warm wash over paper under the pointer. */
-    public static final int HOVER = 0x28C8902A;
+    /** A warm gold wash over paper under the pointer. */
+    public static final int HOVER = UiRamp.alpha(UiRamp.GOLD[2], 0x28);
     /** Gold lettering on the ribbon. */
-    public static final int GILT = 0xFFF2D98A;
+    public static final int GILT = UiRamp.GOLD[4];
     /** Height a divider takes. */
     public static final int DIVIDER = 3;
     /** A checkbox's size. */
     public static final int CHECK = 10;
     /** A {@link Mark}'s size. */
     public static final int MARK = 8;
-    private static final int RULE = 0x705A3E26;
-    private static final int RULE_SOFT = 0x305A3E26;
-    private static final int ORNAMENT = 0xFF8A6A42;
-    private static final int ORNAMENT_GOLD = 0xFFD9AE48;
-    private static final int LOCK_BODY = 0xFFD9AE48;
-    private static final int LOCK_EDGE = 0xFF3A2414;
-    private static final int TOKEN_EDGE = 0xFF3A2414;
+    /** Paper a divider keeps clear at each end, and the length its rule fades over after that. */
+    private static final int RULE_INSET = 2;
+    private static final int RULE_FADE = 6;
+    private static final int RULE = UiRamp.alpha(UiRamp.INK[1], 0x70);
+    private static final int RULE_SOFT = UiRamp.alpha(UiRamp.INK[1], 0x30);
+    private static final int ORNAMENT = UiRamp.INK[1];
+    private static final int ORNAMENT_GOLD = UiRamp.GOLD[3];
+    private static final int LOCK_BODY = UiRamp.GOLD[3];
+    private static final int LOCK_EDGE = UiRamp.LEATHER[1];
+    private static final int TOKEN_EDGE = UiRamp.LEATHER[1];
+    private static final int GUTTER_SHADE = UiRamp.alpha(UiRamp.INK[1], 0x20);
+    private static final int GUTTER_CREASE = UiRamp.PAGE[6];
+    private static final int HINGE = UiRamp.LEATHER[0];
+    private static final int HINGE_LIGHT = UiRamp.alpha(UiRamp.LEATHER[5], 0x60);
     private static final int[] DISC = spans(7.4);
     private static final int[] RIM = spans(8.4);
     private static final int[] ROUND = spans(9.6);
@@ -49,10 +63,10 @@ public final class UiTome {
 
     /** Medallion looks: the bronze rim, gold once learned, gold with laurels when maxed, faded grey while locked. */
     public enum Token {
-        PLAIN(null, 0xFF9A6A3C),
-        LEARNED("learned", 0xFFE2B648),
-        MAXED("maxed", 0xFFE2B648),
-        LOCKED("locked", 0xFFA69A88);
+        PLAIN(null, UiRamp.LEATHER[4]),
+        LEARNED("learned", UiRamp.GOLD[3]),
+        MAXED("maxed", UiRamp.GOLD[3]),
+        LOCKED("locked", UiRamp.PEWTER[2]);
 
         private final String variant;
         private final int rim;
@@ -97,11 +111,23 @@ public final class UiTome {
         }
     }
 
-    /** One ruled line from {@code left} to {@code right} broken by a small diamond, {@link #DIVIDER} tall from {@code top}. */
+    /**
+     * One ruled line from {@code left} to {@code right} that fades out at both ends and breaks round a small diamond,
+     * {@link #DIVIDER} tall from {@code top}.
+     */
     public static void divider(UiDraw draw, int left, int right, int top) {
-        int middle = (left + right) / 2;
-        draw.fill(left + 2, top + 1, middle - 3, top + 2, RULE);
-        draw.fill(middle + 4, top + 1, right - 2, top + 2, RULE);
+        divider(draw, left, right, top, (left + right) / 2);
+    }
+
+    /** {@link #divider(UiDraw, int, int, int)} with its diamond at {@code middle}, such as on the fold between two pages. */
+    public static void divider(UiDraw draw, int left, int right, int top, int middle) {
+        int from = left + RULE_INSET;
+        int to = right - RULE_INSET;
+        int fade = Math.max(0, Math.min(RULE_FADE, (middle - 3 - from) / 2));
+        draw.fill(from, top + 1, from + fade, top + 2, RULE_SOFT);
+        draw.fill(from + fade, top + 1, middle - 3, top + 2, RULE);
+        draw.fill(middle + 4, top + 1, to - fade, top + 2, RULE);
+        draw.fill(to - fade, top + 1, to, top + 2, RULE_SOFT);
         draw.fill(middle, top, middle + 1, top + 3, ORNAMENT);
         draw.fill(middle - 1, top + 1, middle + 2, top + 2, ORNAMENT);
         draw.fill(middle, top + 1, middle + 1, top + 2, ORNAMENT_GOLD);
@@ -109,8 +135,8 @@ public final class UiTome {
 
     /** Small {@link #MARK} square icons that stand in for a word beside a number. */
     public enum Mark {
-        KNOWLEDGE("knowledge_small", 0xFF3E8A3A),
-        POWER("power_small", 0xFF3E4652);
+        KNOWLEDGE("knowledge_small", UiRamp.MOSS[1]),
+        POWER("power_small", UiRamp.PEWTER[0]);
 
         private final String texture;
         private final int fallback;
@@ -147,7 +173,8 @@ public final class UiTome {
         FIRST("<<", "...#...#", "..##..##", ".##..##.", "##..##..", ".##..##.", "..##..##", "...#...#"),
         LAST(">>", "#...#...", "##..##..", ".##..##.", "..##..##", ".##..##.", "##..##..", "#...#..."),
         MINUS("-", "......", "......", "######", "######", "......", "......"),
-        PLUS("+", "..##..", "..##..", "######", "######", "..##..", "..##..");
+        PLUS("+", "..##..", "..##..", "######", "######", "..##..", "..##.."),
+        MORE("...", "##.##.##", "##.##.##");
 
         private final String text;
         private final String[] rows;
@@ -197,23 +224,28 @@ public final class UiTome {
     public enum Tab {
         REST,
         HOVER,
-        PRESSED,
-        DISABLED
+        PRESSED
     }
 
-    /** The paper tab under an arrow or stepper glyph: an inked edge, darker and lighter under the pointer. */
+    /**
+     * The paper tab under an arrow or stepper glyph: the kit {@code button} texture in the state for {@code look}, else
+     * an inked edge, darker and lighter under the pointer.
+     */
     public static void tab(UiDraw draw, UiRect box, Tab look, UiTheme theme) {
+        String state = switch (look) {
+            case REST -> null;
+            case HOVER -> "hover";
+            case PRESSED -> "pressed";
+        };
+        if (UiChrome.paint(draw, UiChrome.BUTTON, state, box)) {
+            return;
+        }
         int fill = switch (look) {
             case REST -> theme.surface();
             case HOVER -> theme.surfaceHover();
             case PRESSED -> theme.surfacePressed();
-            case DISABLED -> UiEase.mix(theme.surface(), theme.panel(), 0.6F);
         };
-        int edge = switch (look) {
-            case REST -> theme.surfaceBorder();
-            case HOVER, PRESSED -> theme.text();
-            case DISABLED -> theme.tileBorder();
-        };
+        int edge = look == Tab.REST ? theme.surfaceBorder() : theme.text();
         soft(draw, box.x(), box.y(), box.right(), box.bottom(), fill);
         softEdge(draw, box.x(), box.y(), box.width(), box.height(), edge);
         if (look == Tab.HOVER) {
@@ -221,19 +253,19 @@ public final class UiTome {
         }
     }
 
-    /** The colour of a glyph on a {@link #tab} of {@code look}. */
-    public static int glyphColor(Tab look, UiTheme theme) {
-        return look == Tab.DISABLED ? theme.textDisabled() : theme.text();
-    }
-
     /**
-     * A {@link #CHECK} square checkbox at (x, y): an inked box, filled with ink and a paper tick when on. Off and on
-     * differ in shape, not only in colour.
+     * A {@link #CHECK} square checkbox at (x, y): the kit {@code check} well and its inked {@code check_on}, else an
+     * inked box filled with ink and a paper tick when on. Off and on differ in shape, not only in colour.
      */
     public static void check(UiDraw draw, int x, int y, boolean on, boolean enabled, boolean hovered, UiTheme theme) {
         int ink = enabled ? theme.text() : theme.textDisabled();
         if (hovered) {
             softEdge(draw, x - 1, y - 1, CHECK + 2, CHECK + 2, theme.surfaceBorder());
+        }
+        UiTexture texture = enabled ? draw.sprites().texture(UiChrome.textureId(on ? CHECK_ON : CHECK_OFF)) : null;
+        if (texture != null && texture.width() == CHECK && texture.height() == CHECK) {
+            draw.blit(texture, x, y, CHECK, CHECK);
+            return;
         }
         soft(draw, x, y, x + CHECK, y + CHECK, on ? ink : hovered ? theme.surfaceHover() : theme.tooltip());
         softEdge(draw, x, y, CHECK, CHECK, ink);
@@ -252,26 +284,41 @@ public final class UiTome {
         if (UiChrome.paint(draw, SPINE, null, box)) {
             return;
         }
-        draw.fill(box.x() + 3, top, box.right() - 3, bottom, 0x205A3E26);
-        draw.fill(centerX - 1, top, centerX + 1, bottom, 0xFF7A5E3E);
+        draw.fill(box.x() + 1, top, centerX, bottom, GUTTER_SHADE);
+        draw.fill(box.x() + 3, top, centerX + 2, bottom, GUTTER_SHADE);
+        draw.fill(centerX, top, centerX + 1, bottom, GUTTER_CREASE);
     }
 
     /**
-     * The ribbon bookmark centred on {@code centerX}: its forked tail stands {@link #BOOKMARK_RISE} above the book's top
-     * edge at {@code top} and the cloth runs down over the {@code cover} to the page.
+     * The fold of the cover where it shows above and below the gutter: a dark crease {@code height} tall from
+     * {@code top}, centred on {@code centerX}, with a lit edge after it.
+     */
+    public static void hinge(UiDraw draw, int centerX, int top, int height) {
+        draw.fill(centerX - 1, top, centerX + 1, top + height, HINGE);
+        draw.fill(centerX + 1, top, centerX + 2, top + height, HINGE_LIGHT);
+    }
+
+    /**
+     * The ribbon bookmark centred on {@code centerX}, folded over the book's top edge at {@code top}: its fold stands
+     * {@link #BOOKMARK_RISE} above the edge, the cloth lies over the {@code cover} and the forked tail rests
+     * {@link #BOOKMARK_HANG} down the page, which the page padding always leaves free.
      */
     public static void bookmark(UiDraw draw, int centerX, int top, int cover) {
         int left = centerX - BOOKMARK_WIDTH / 2;
         int y = top - BOOKMARK_RISE;
-        int height = BOOKMARK_RISE + cover + 1;
+        int height = BOOKMARK_RISE + cover + BOOKMARK_HANG;
         UiTexture texture = draw.sprites().texture(UiChrome.textureId(BOOKMARK));
-        if (texture != null) {
-            draw.blit(texture, left, y, BOOKMARK_WIDTH, height);
+        if (texture != null && texture.height() == height) {
+            draw.blit(texture, left, y, texture.width(), height);
             return;
         }
-        draw.fill(left, y + 3, left + BOOKMARK_WIDTH, y + height, BOOKMARK_CLOTH);
-        draw.fill(left, y, left + 2, y + 3, BOOKMARK_CLOTH);
-        draw.fill(left + BOOKMARK_WIDTH - 2, y, left + BOOKMARK_WIDTH, y + 3, BOOKMARK_CLOTH);
+        int right = left + BOOKMARK_WIDTH;
+        draw.fill(left, y, right, y + height - 2, BOOKMARK_EDGE);
+        draw.fill(left + 1, y + 1, right - 1, y + height - 2, BOOKMARK_CLOTH);
+        draw.fill(left, y + height - 2, left + 3, y + height, BOOKMARK_EDGE);
+        draw.fill(right - 3, y + height - 2, right, y + height, BOOKMARK_EDGE);
+        draw.fill(left + 1, y + height - 2, left + 2, y + height - 1, BOOKMARK_CLOTH);
+        draw.fill(right - 2, y + height - 2, right - 1, y + height - 1, BOOKMARK_CLOTH);
     }
 
     /** The title ribbon behind the breadcrumbs. */

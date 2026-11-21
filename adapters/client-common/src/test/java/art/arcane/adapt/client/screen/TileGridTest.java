@@ -66,11 +66,65 @@ class TileGridTest {
     }
 
     @Test
+    void aSpreadGivesWholeRowsToTheLeftPageFirst() {
+        TileGrid.Fit fit = new TileGrid.Fit(4, 112, 2, TileGrid.PITCH);
+        int[][] expected = {{24, 12, 6}, {23, 12, 6}, {22, 12, 6}, {21, 12, 6}, {20, 10, 5}, {19, 10, 5}, {13, 8, 4}, {5, 4, 2}, {1, 1, 1}};
+        for (int[] row : expected) {
+            assertEquals(row[1], fit.firstPage(row[0]), row[0] + " tiles");
+            assertEquals(row[2], fit.rows(row[0]), row[0] + " tiles");
+            int second = row[0] - row[1];
+            assertTrue((second + 1) / 2 >= row[2] - 1, row[0] + " tiles: the pages differ by more than a row");
+        }
+    }
+
+    @Test
+    void aSpreadNarrowsUntilItsSecondPageIsWorthOpening() {
+        assertEquals(new TileGrid.Fit(2, 112, 2, TileGrid.PITCH), TileGrid.fit(List.of(5), 2000, 1000, 0, BOOK));
+        assertEquals(new TileGrid.Fit(4, 112, 2, TileGrid.PITCH), TileGrid.fit(List.of(6), 2000, 1000, 0, BOOK));
+        assertEquals(new TileGrid.Fit(2, 112, 2, TileGrid.PITCH), TileGrid.fit(List.of(2), 2000, 1000, 0, BOOK));
+        assertEquals(1, TileGrid.fit(List.of(24), 2000, 1000, 0, BOOK.flat()).pages());
+    }
+
+    @Test
+    void columnsNarrowToTheirTextBeforeTheGridDropsOne() {
+        TileGrid.Fit fit = TileGrid.fit(List.of(24), 4 * 104 + 2 * TileGrid.GAP + AdaptScreen.SPREAD_GAP, 1000, 104, BOOK);
+        assertEquals(new TileGrid.Fit(4, 104, 2, TileGrid.PITCH), fit);
+        assertEquals(1, TileGrid.fit(List.of(24), 4 * 104 + 2 * TileGrid.GAP + AdaptScreen.SPREAD_GAP - 2, 1000, 104, BOOK).pages());
+        assertEquals(3, TileGrid.fit(List.of(24), 4 * 104 + 3 * TileGrid.GAP - 2, 1000, 104, BOOK).columns());
+        assertEquals(0, TileGrid.narrowest(103) % 2);
+        assertEquals(104, TileGrid.narrowest(103));
+    }
+
+    @Test
+    void rowsCloseUpWhenThatAloneSavesThePageFromScrolling() {
+        int rows = 8;
+        int room = rows * TileGrid.HEIGHT + 1;
+        TileGrid.Fit fit = TileGrid.fit(List.of(24), 3 * 104 + 2 * TileGrid.GAP, room, 104, BOOK);
+        assertEquals(new TileGrid.Fit(3, 104, 1, TileGrid.HEIGHT), fit);
+        assertTrue(fit.height(24) <= room);
+        assertEquals(TileGrid.PITCH, TileGrid.fit(List.of(24), 3 * 104 + 2 * TileGrid.GAP, room - 2, 104, BOOK).pitch());
+        assertEquals(TileGrid.PITCH, TileGrid.fit(List.of(24), 3 * 104 + 2 * TileGrid.GAP, 1000, 104, BOOK).pitch());
+    }
+
+    @Test
+    void groupsKeepTheirDistanceAsRowsSpreadOut() {
+        TileGrid.Fit tight = new TileGrid.Fit(2, 128);
+        assertEquals(TileGrid.GROUP_GAP, tight.groupGap());
+        TileGrid.Fit wide = tight.stretched(List.of(8, 7), 1000, TileGrid.MAX_PITCH);
+        assertEquals(TileGrid.MAX_PITCH, wide.pitch());
+        assertEquals(TileGrid.MAX_PITCH - TileGrid.HEIGHT - TileGrid.ROW_GAP + TileGrid.GROUP_GAP, wide.groupGap());
+        assertEquals(tight.height(List.of(8, 7)) + tight.slack(List.of(8, 7), TileGrid.MAX_PITCH), wide.height(List.of(8, 7)));
+        assertEquals(0, wide.slack(List.of(8, 7), TileGrid.MAX_PITCH));
+    }
+
+    @Test
     void stretchedRowsFillTheirRoomUpToTheMaximumPitch() {
         TileGrid.Fit fit = TileGrid.fit(List.of(24), 2000, 1000, 0, BOOK);
-        assertEquals(TileGrid.MAX_PITCH, fit.stretched(24, 1000).pitch());
-        TileGrid.Fit snug = fit.stretched(24, 160);
+        assertEquals(TileGrid.MAX_PITCH, fit.stretched(List.of(24), 1000, TileGrid.MAX_PITCH).pitch());
+        TileGrid.Fit snug = fit.stretched(List.of(24), 160, TileGrid.MAX_PITCH);
         assertTrue(snug.height(24) <= 160, snug.toString());
-        assertEquals(TileGrid.HEIGHT + TileGrid.ROW_GAP, fit.stretched(24, 50).pitch());
+        assertEquals(TileGrid.HEIGHT + TileGrid.ROW_GAP, fit.stretched(List.of(24), 50, TileGrid.MAX_PITCH).pitch());
+        assertEquals(0, snug.pitch() % 2, "rows stay on the unit grid");
+        assertEquals(TileGrid.PITCH, fit.stretched(List.of(24), 1000, TileGrid.PITCH).pitch());
     }
 }

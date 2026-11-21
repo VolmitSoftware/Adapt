@@ -244,14 +244,17 @@ public class IconTile extends UiNode {
         if (frame.isPressed(this)) {
             draw.fill(box.x() + 1, box.y() + 1, box.right() - 1, box.bottom() - 1, 0x205A3E26);
         }
-        paintIcon(draw, box, UiContrast.over(theme.tile(), theme.backdrop()));
-        int border = frame.showsFocus(this) ? theme.focus() : selected ? theme.text()
-                : tone == Tone.DESTRUCTIVE ? theme.destructive() : theme.tileBorder();
+        int plate = UiContrast.over(theme.tile(), theme.backdrop());
+        paintIcon(draw, frame.isPressed(this) ? box.offset(0, UiControl.SINK) : box, plate);
+        int border = selected ? theme.text() : tone == Tone.DESTRUCTIVE ? theme.destructive() : theme.tileBorder();
         if (!textured || border != theme.tileBorder()) {
             UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), border);
         }
-        if (selected && !frame.showsFocus(this)) {
+        if (selected) {
             UiTome.softEdge(draw, box.x() + 1, box.y() + 1, box.width() - 2, box.height() - 2, theme.text());
+        }
+        if (frame.showsFocus(this)) {
+            UiControl.focusRing(draw, box, theme);
         }
         draw.pushPose();
         draw.depth(DECORATION_DEPTH);
@@ -268,9 +271,11 @@ public class IconTile extends UiNode {
             paintSwitch(draw, theme, box, switchState);
         }
         String corner = cornerText != null ? cornerText : amount > 1 ? Integer.toString(amount) : null;
-        if (corner != null) {
-            String fitted = LegacyText.truncate(draw, corner, box.width() - 2);
-            draw.text(fitted, box.right() - 1 - draw.textWidth(fitted), box.bottom() - 8, 0xFFFFFFFF, true);
+        if (corner != null && draw.textWidth(corner) <= box.width() - 2) {
+            int left = box.right() - 1 - draw.textWidth(corner);
+            int top = box.bottom() - 1 - UiControl.CAP_HEIGHT;
+            UiTome.soft(draw, left - 1, top - 1, box.right() - 1, box.bottom() - 1, plate);
+            draw.text(corner, left, top, theme.text(), false);
         }
         if (badge != null) {
             int width = draw.textWidth(badge) + 4;

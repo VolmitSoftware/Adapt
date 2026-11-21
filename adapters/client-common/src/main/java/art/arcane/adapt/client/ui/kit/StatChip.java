@@ -9,11 +9,16 @@ import java.util.Objects;
 /**
  * A small read-only value on a paper tag: an optional icon, the value and a muted caption, such as "12 knowledge". It takes pointer
  * hits so its tooltip can explain the number, but never keyboard focus. Value colour 0 means the theme's text colour.
- * A chip with an icon is at least as tall as the icon.
+ * A chip with an icon is at least as tall as the icon, which stands a unit proud of the tag above and below; a lone
+ * value is set against the right edge so numbers in a column of chips line up.
  */
 public class StatChip extends UiNode {
+    private static final int PAD = UiControl.TEXT_INSET;
     private static final int ICON_GAP = 3;
+    private static final int ICON_LEAD = 1;
     private static final int CAPTION_GAP = 4;
+
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
 
     private IconRef icon;
     private String value;
@@ -64,17 +69,22 @@ public class StatChip extends UiNode {
         return true;
     }
 
+    public IconRef icon() {
+        return icon;
+    }
+
     @Override
     public int preferredWidth(UiDraw metrics) {
-        int pad = services().theme().padding();
-        int width = pad * 2 + metrics.textWidth(value);
-        if (icon != null) {
-            width += UiIcons.SIZE + ICON_GAP;
-        }
+        int width = width(metrics, value, icon != null);
         if (!caption.isEmpty()) {
             width += CAPTION_GAP + metrics.textWidth(caption);
         }
         return width;
+    }
+
+    /** The width a chip showing {@code value}, with or without an icon, asks for. */
+    public static int width(UiDraw metrics, String value, boolean icon) {
+        return PAD * 2 + metrics.textWidth(value) + (icon ? UiIcons.SIZE + ICON_GAP - ICON_LEAD : 0);
     }
 
     @Override
@@ -83,28 +93,43 @@ public class StatChip extends UiNode {
         return icon == null ? control : Math.max(control, UiIcons.SIZE);
     }
 
+    /** The paper tag: one control height tall whatever the icon needs, so chips line up with buttons beside them. */
+    public UiRect tag() {
+        UiRect box = bounds();
+        int height = Math.min(box.height(), services().theme().controlHeight());
+        return new UiRect(box.x(), box.y() + (box.height() - height) / 2, box.width(), height);
+    }
+
     @Override
     protected void paint(UiFrame frame) {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect box = bounds();
-        UiTome.paper(draw, UiTome.CHIP, null, box, theme.surface(), theme.tileBorder());
-        if (frame.isHovered(this)) {
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.surfaceBorder());
+        UiRect tag = tag();
+        UiTome.paper(draw, UiTome.CHIP, null, tag, theme.surface(), theme.tileBorder());
+        float lift = hover.update(frame.motion(), frame.isHovered(this));
+        if (lift > 0.0F) {
+            UiTome.softEdge(draw, tag.x(), tag.y(), tag.width(), tag.height(), UiEase.fade(theme.surfaceBorder(), lift));
         }
-        int x = box.x() + theme.padding();
+        int x = box.x() + PAD;
         if (icon != null) {
+            x -= ICON_LEAD;
             UiIcons.paint(draw, icon, x, box.y() + (box.height() - UiIcons.SIZE) / 2, UiIcons.SIZE, false);
             x += UiIcons.SIZE + ICON_GAP;
         }
-        int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
-        int room = box.right() - theme.padding() - x;
-        String shownValue = LegacyText.truncate(draw, value, Math.max(0, room));
-        draw.text(shownValue, x, textY, valueColor == 0 ? theme.text() : valueColor, false);
+        int textY = UiControl.textY(tag);
+        int right = box.right() - PAD;
+        int valueColor = this.valueColor == 0 ? theme.text() : this.valueColor;
+        if (caption.isEmpty()) {
+            String shownValue = LegacyText.truncate(draw, value, Math.max(0, right - x));
+            draw.text(shownValue, right - draw.textWidth(shownValue), textY, valueColor, false);
+            return;
+        }
+        String shownValue = LegacyText.truncate(draw, value, Math.max(0, right - x));
+        draw.text(shownValue, x, textY, valueColor, false);
         int captionX = x + draw.textWidth(shownValue) + CAPTION_GAP;
-        if (!caption.isEmpty() && captionX < box.right() - theme.padding()) {
-            draw.text(LegacyText.truncate(draw, caption, box.right() - theme.padding() - captionX), captionX, textY, theme.textMuted(),
-                    false);
+        if (captionX < right) {
+            draw.text(LegacyText.truncate(draw, caption, right - captionX), captionX, textY, theme.textMuted(), false);
         }
     }
 }

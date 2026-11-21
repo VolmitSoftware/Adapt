@@ -14,6 +14,9 @@ public record Tooltip(String title, List<String> lines) {
     private static final int TITLE_GAP = 2;
     private static final int MARGIN = 4;
     private static final int OFFSET = 12;
+    private static final int RISE = 2;
+    /** How long the entrance takes. */
+    public static final long SETTLE_MILLIS = 100L;
 
     public Tooltip {
         Objects.requireNonNull(title, "title");
@@ -68,12 +71,21 @@ public record Tooltip(String title, List<String> lines) {
     }
 
     public void render(UiDraw draw, UiTheme theme, int anchorX, int anchorY, int screenWidth, int screenHeight) {
+        render(draw, theme, anchorX, anchorY, screenWidth, screenHeight, 1.0F);
+    }
+
+    /**
+     * Draws the tooltip {@code settle} of the way (0..1) through its entrance: it rises the last {@link #RISE} units
+     * into place. The slip is textured, so it cannot fade.
+     */
+    public void render(UiDraw draw, UiTheme theme, int anchorX, int anchorY, int screenWidth, int screenHeight, float settle) {
         if (isEmpty()) {
             return;
         }
         int width = width(draw, screenWidth);
         int height = height(draw, width);
-        UiRect body = place(width, height, anchorX, anchorY, screenWidth, screenHeight);
+        UiRect placed = place(width, height, anchorX, anchorY, screenWidth, screenHeight);
+        UiRect body = placed.offset(0, Math.round((1.0F - UiEase.outCubic(settle)) * RISE));
         background(draw, theme, body);
         int y = body.y();
         y += draw.wrappedText(title, body.x(), y, width, theme.text(), false);

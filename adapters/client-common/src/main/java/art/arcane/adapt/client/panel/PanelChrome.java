@@ -8,6 +8,7 @@ import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.Panel;
+import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiIcons;
@@ -95,13 +96,20 @@ final class PanelChrome {
             state.put("breadcrumb", String.join(SEPARATOR, view.get().breadcrumb()));
         }
 
+        /** The width the ribbon needs for the whole breadcrumb and title. */
+        int naturalWidth(UiDraw metrics) {
+            PanelView current = view.get();
+            String trail = current.breadcrumb().isEmpty() ? "" : String.join(SEPARATOR, current.breadcrumb()) + SEPARATOR;
+            return metrics.textWidth(trail + LegacyText.strip(current.title())) + RIBBON_PAD * 4;
+        }
+
         @Override
         protected void paint(UiFrame frame) {
             UiDraw draw = frame.draw();
             UiTheme theme = frame.theme();
             UiRect box = bounds();
             PanelView current = view.get();
-            int y = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
+            int y = UiControl.textY(box);
             String title = LegacyText.strip(current.title());
             int titleWidth = draw.textWidth(title);
             List<String> crumbs = current.breadcrumb();
@@ -113,10 +121,10 @@ final class PanelChrome {
             int ribbonRight = Math.min(box.right(), x + draw.textWidth(trail) + draw.textWidth(shownTitle) + RIBBON_PAD * 2);
             UiTome.ribbon(draw, UiRect.of(box.x(), box.y(), ribbonRight, box.bottom()), theme);
             if (!trail.isEmpty()) {
-                draw.text(trail, x, y, UiEase.mix(theme.textInverse(), theme.ribbon(), 0.25F), false);
+                draw.text(trail, x, y, UiEase.mix(theme.textInverse(), theme.ribbon(), 0.25F), true);
                 x += draw.textWidth(trail);
             }
-            draw.text(shownTitle, x, y, UiTome.GILT, false);
+            draw.text(shownTitle, x, y, UiTome.GILT, true);
         }
     }
 
@@ -146,7 +154,7 @@ final class PanelChrome {
         protected void paint(UiFrame frame) {
             UiDraw draw = frame.draw();
             UiRect box = bounds();
-            draw.centeredText(text, box.centerX(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1, frame.theme().textMuted(), false);
+            draw.centeredText(text, box.centerX(), UiControl.textY(box), frame.theme().textMuted(), false);
         }
     }
 

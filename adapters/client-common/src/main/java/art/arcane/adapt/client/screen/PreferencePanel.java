@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -34,8 +35,9 @@ import java.util.function.Consumer;
  * above a rule; the other on/off preferences form a checklist of equal columns as wide as the longest name, one row
  * height, name on the left and checkbox on the right of each cell; other preferences are a row of icon choices after
  * their name (choices above the player's level locked); toggle groups are their heading and a row of icon checkboxes.
- * Reset sits quietly at the bottom right, on the main switch's line when nothing else follows it. Preferences the player cannot change show read-only with a lock, under a note
- * that says why when the whole panel is locked. Nothing changes on screen until the server's answer arrives; the owner
+ * Reset sits quietly at the right: on the main switch's line when nothing else follows it or the panel shares its
+ * page with other content, and the line has room, else on a line of its own held against the foot of the page. Preferences the player cannot change show
+ * read-only with a lock, under a note that says why when the whole panel is locked. Nothing changes on screen until the server's answer arrives; the owner
  * disables the panel while a request is out. Widget ids: {@code pref:<id>}, {@code pref:<id>:<value>},
  * {@code pref-group:<id>}, {@code pref-reset}.
  */
@@ -54,14 +56,24 @@ final class PreferencePanel extends UiGroup {
     private static final int MAX_NATURAL = 420;
     private static final int NATURAL_ROWS = 10;
     private static final int MAX_EXTRA_GAP = 16;
+    /** The most the checklist's rows spread apart to take up a page taller than the panel needs. */
+    private static final int MAX_ROW_STRETCH = 5;
 
     private final Actions actions;
+    private final BooleanSupplier ownPage;
     private UiGroup checklist = new UiGroup("list");
+    private UiNode primary;
+    private Button reset;
+    private UiGroup mainLine;
+    private UiGroup foot;
     private int leadWidth;
+    private int rowStretch;
 
-    PreferencePanel(String id, Actions actions) {
+    /** {@code ownPage} says whether the panel has a page to itself, where reset keeps to the foot. */
+    PreferencePanel(String id, Actions actions, BooleanSupplier ownPage) {
         super(id, UiLayoutPolicy.column(SECTION_GAP));
         this.actions = Objects.requireNonNull(actions, "actions");
+        this.ownPage = Objects.requireNonNull(ownPage, "ownPage");
     }
 
     /** Whether a preference's choices are exactly on and off, so it shows as a switch. */
@@ -96,7 +108,7 @@ final class PreferencePanel extends UiGroup {
                 grouped.add(entry.preferenceId());
             }
         }
-        UiNode primary = null;
+        primary = null;
         checklist = new UiGroup(id() + ".list", new Checklist());
         List<UiNode> rows = new ArrayList<>();
         for (PreferenceView preference : preferences) {
@@ -130,19 +142,18 @@ final class PreferencePanel extends UiGroup {
         for (PreferenceView preference : preferences) {
             anyEditable |= editable(preference);
         }
-        Button reset = null;
+        reset = null;
+        mainLine = null;
+        foot = null;
         if (!locked && anyEditable) {
             reset = new Button("pref-reset", ScreenText.RESET.text(), Button.Style.QUIET, actions::reset);
             reset.setTooltip(new Tooltip(ScreenText.RESET.text(), List.of("§7" + ScreenText.RESET_TIP.text())));
         }
-        UiGroup last = null;
         if (primary != null) {
-            UiGroup line = add(new UiGroup(id() + ".main", new Ends()));
-            line.add(primary);
+            mainLine = add(new UiGroup(id() + ".main", new Ends(0)));
+            mainLine.add(primary);
             if (rest) {
                 add(new Rule(id() + ".rule"));
-            } else {
-                last = line;
             }
         }
         if (!checklist.children().isEmpty()) {
@@ -152,28 +163,59 @@ final class PreferencePanel extends UiGroup {
             add(row);
         }
         if (reset != null) {
-            if (last == null) {
-                last = add(new UiGroup(id() + ".reset", new Ends()));
+            if (mainLine == null || rest) {
+                foot = add(new UiGroup(id() + ".reset", new Ends(AdaptScreen.BAR)));
+                foot.add(reset);
+            } else {
+                mainLine.add(reset);
             }
-            last.add(reset);
         }
+        setLayout(foot == null ? UiLayoutPolicy.column(SECTION_GAP) : UiLayoutPolicy.footed(SECTION_GAP, foot));
+        seatReset();
+    }
+
+    /**
+     * Puts reset where the page has room for it: at the foot of a page the panel has to itself, and at the end of
+     * the main switch's line when the panel follows other content down one page, which saves that page a row.
+     */
+    private void seatReset() {
+        if (reset == null || mainLine == null || foot == null) {
+            return;
+        }
+        UiGroup seat = ownPage.getAsBoolean() ? foot : mainLine;
+        if (reset.parent() != seat) {
+            (seat == foot ? mainLine : foot).remove(reset);
+            seat.add(reset);
+        }
+        foot.setVisible(seat == foot);
     }
 
     /** The width the controls would like: the checklist in about {@value #NATURAL_ROWS} rows, capped. */
     int naturalWidth(UiDraw metrics) {
+        return width(metrics, false);
+    }
+
+    /** The narrowest the controls stay uncramped: every row's tiles beside its name and the checklist in a single column. */
+    int leastWidth(UiDraw metrics) {
+        return width(metrics, true);
+    }
+
+    private int width(UiDraw metrics, boolean least) {
         int widest = 0;
         int lead = lead(metrics);
         for (UiNode child : children()) {
             if (child instanceof Row row) {
-                widest = Math.max(widest, lead + LEAD_GAP + row.tailWidth(metrics));
+                int tail = row.tailWidth(metrics);
+                widest = Math.max(widest, lead + LEAD_GAP + (least ? Math.min(tail, services().theme().tileSize() * 4) : tail));
             } else if (child == checklist) {
                 List<UiNode> cells = checklist.children();
-                int columns = (cells.size() + NATURAL_ROWS - 1) / NATURAL_ROWS;
+                int columns = least ? 1 : (cells.size() + NATURAL_ROWS - 1) / NATURAL_ROWS;
                 widest = Math.max(widest, columns * Checklist.cellWidth(cells, metrics) + (columns - 1) * COLUMN_GAP);
             } else if (child instanceof UiGroup line && !(child instanceof Row)) {
                 int width = 0;
                 for (UiNode item : line.children()) {
-                    width += (width == 0 ? 0 : LEAD_GAP * 2) + item.preferredWidth(metrics);
+                    int own = item.preferredWidth(metrics);
+                    width = least ? Math.max(width, own) : width + (width == 0 ? 0 : LEAD_GAP * 2) + own;
                 }
                 widest = Math.max(widest, width);
             }
@@ -194,13 +236,39 @@ final class PreferencePanel extends UiGroup {
     @Override
     public int preferredHeight(int width, UiDraw metrics) {
         leadWidth = lead(metrics);
-        return super.preferredHeight(width, metrics);
+        seatReset();
+        int held = rowStretch;
+        rowStretch = 0;
+        int height = super.preferredHeight(width, metrics);
+        rowStretch = held;
+        return height;
     }
 
+    /**
+     * Lays the panel out with the checklist's rows spread to take up spare height, and the main switch as wide as a
+     * checklist column so every checkbox stands in one line down the page.
+     */
     @Override
     protected void layout(UiDraw metrics) {
         leadWidth = lead(metrics);
+        seatReset();
+        rowStretch = 0;
+        List<UiNode> cells = checklist.children();
+        int width = bounds().width();
+        if (!cells.isEmpty()) {
+            int columns = Checklist.columns(cells, width, metrics);
+            int rows = (cells.size() + columns - 1) / columns;
+            int spare = bounds().height() - super.preferredHeight(width, metrics);
+            if (rows > 1 && spare > 0) {
+                rowStretch = Math.min(MAX_ROW_STRETCH, spare / (rows - 1));
+            }
+        }
         super.layout(metrics);
+        if (primary != null && !cells.isEmpty()) {
+            int column = Checklist.columnWidth(cells, width, Checklist.columns(cells, width, metrics), metrics);
+            UiRect box = primary.bounds();
+            primary.place(new UiRect(box.x(), box.y(), Math.max(box.width(), column), box.height()), metrics);
+        }
     }
 
     private UiNode readOnly(PreferenceView preference, String value, String lockedText) {
@@ -384,7 +452,7 @@ final class PreferencePanel extends UiGroup {
      * shared out between them up to a limit; every row is as tall as the tallest cell, so names line up and no cell meets
      * another.
      */
-    static final class Checklist implements UiLayoutPolicy {
+    final class Checklist implements UiLayoutPolicy {
         static int cellWidth(List<UiNode> cells, UiDraw metrics) {
             int widest = 0;
             for (UiNode cell : cells) {
@@ -430,8 +498,8 @@ final class PreferencePanel extends UiGroup {
             for (int index = 0; index < children.size(); index++) {
                 int column = index % columns;
                 int row = index / columns;
-                children.get(index).place(new UiRect(area.x() + column * (width + gap), area.y() + row * (height + ROW_SPACING),
-                        width, height), metrics);
+                children.get(index).place(new UiRect(area.x() + column * (width + gap),
+                        area.y() + row * (height + ROW_SPACING + rowStretch), width, height), metrics);
             }
         }
 
@@ -442,31 +510,66 @@ final class PreferencePanel extends UiGroup {
             }
             int columns = columns(children, width, metrics);
             int rows = (children.size() + columns - 1) / columns;
-            return rows * rowHeight(children, columnWidth(children, width, columns, metrics), metrics) + (rows - 1) * ROW_SPACING;
+            return rows * rowHeight(children, columnWidth(children, width, columns, metrics), metrics)
+                    + (rows - 1) * (ROW_SPACING + rowStretch);
         }
     }
 
-    /** The reset button against the right edge, anything before it at its own width from the left edge. */
-    private static final class Ends implements UiLayoutPolicy {
+    /**
+     * The reset button against the right edge, anything before it at its own width from the left edge; the button
+     * drops to a line of its own when the two do not fit side by side. A line at least {@code minHeight} tall centres
+     * what it holds, so a reset at the foot of a page sits on the line of the action row across the spine.
+     */
+    private record Ends(int minHeight) implements UiLayoutPolicy {
+        private static int lead(List<UiNode> children, int width, UiDraw metrics) {
+            int tallest = 0;
+            for (UiNode child : children) {
+                if (!(child instanceof Button)) {
+                    tallest = Math.max(tallest, child.preferredHeight(Math.min(width, child.preferredWidth(metrics)), metrics));
+                }
+            }
+            return tallest;
+        }
+
+        private static boolean shared(List<UiNode> children, int width, UiDraw metrics) {
+            int total = 0;
+            for (UiNode child : children) {
+                total += (total == 0 ? 0 : LEAD_GAP * 2) + child.preferredWidth(metrics);
+            }
+            return total <= width;
+        }
+
         @Override
         public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
+            boolean shared = shared(children, area.width(), metrics);
+            int lead = lead(children, area.width(), metrics);
+            int line = minHeight;
+            for (UiNode child : children) {
+                if (shared || !(child instanceof Button)) {
+                    line = Math.max(line, child.preferredHeight(Math.min(area.width(), child.preferredWidth(metrics)), metrics));
+                }
+            }
             int x = area.x();
             for (UiNode child : children) {
                 int width = Math.min(area.width(), child.preferredWidth(metrics));
                 int height = child.preferredHeight(width, metrics);
                 boolean end = child instanceof Button;
-                child.place(new UiRect(end ? area.right() - width : x, area.y(), width, height), metrics);
+                int y = end && !shared && lead > 0 ? area.y() + lead + ROW_SPACING : area.y() + Math.max(0, (line - height) / 2);
+                child.place(new UiRect(end ? area.right() - width : x, y, width, height), metrics);
                 x += width + LEAD_GAP;
             }
         }
 
         @Override
         public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
-            int tallest = 0;
+            int lead = lead(children, width, metrics);
+            int end = 0;
             for (UiNode child : children) {
-                tallest = Math.max(tallest, child.preferredHeight(width, metrics));
+                if (child instanceof Button) {
+                    end = Math.max(end, child.preferredHeight(width, metrics));
+                }
             }
-            return tallest;
+            return shared(children, width, metrics) || lead == 0 || end == 0 ? Math.max(minHeight, Math.max(lead, end)) : lead + ROW_SPACING + end;
         }
     }
 

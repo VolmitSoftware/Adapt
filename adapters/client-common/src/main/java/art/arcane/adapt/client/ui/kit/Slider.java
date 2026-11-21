@@ -12,12 +12,13 @@ import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 
 /**
- * A vanilla-style slider: a control-height bar with a knob and its formatted value centred on it. Drag or click to set,
- * the wheel and Left/Right step (Shift for ten steps), Home/End jump to the ends. Values snap to {@code step}.
+ * A slider on a paper field: an accent line runs along the bottom up to the knob and the formatted value is centred
+ * on it. Drag or click to set, the wheel and Left/Right step (Shift for ten steps), Home/End jump to the ends. Values snap to {@code step}.
  */
 public class Slider extends UiNode {
     private static final int KNOB_WIDTH = 6;
 
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final double min;
     private final double max;
     private final double step;
@@ -172,16 +173,22 @@ public class Slider extends UiNode {
         UiTheme theme = frame.theme();
         UiRect box = bounds();
         boolean active = enabled();
-        UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), active ? theme.tooltip() : theme.panel());
-        UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), frame.showsFocus(this) ? theme.focus() : theme.surfaceBorder());
+        float lift = hover.update(frame.motion(), active && (frame.isHovered(this) || frame.showsFocus(this)));
+        UiControl.State state = UiControl.State.of(active, frame.isPressed(this), lift);
         double fraction = (value - min) / (max - min);
         int knobLeft = box.x() + (int) Math.round(fraction * (box.width() - KNOB_WIDTH));
-        draw.fill(box.x() + 1, box.y() + 1, knobLeft, box.bottom() - 1, UiEase.fade(theme.accent(), active ? 0.3F : 0.15F));
-        int knob = frame.isHovered(this) || frame.isPressed(this) ? theme.surfaceHover() : theme.surface();
-        UiTome.soft(draw, knobLeft, box.y(), knobLeft + KNOB_WIDTH, box.bottom(), knob);
-        UiTome.softEdge(draw, knobLeft, box.y(), KNOB_WIDTH, box.height(), active ? theme.surfaceBorder() : theme.tileBorder());
+        if (active) {
+            UiTome.paper(draw, UiTome.FIELD, null, box, theme.tooltip(), theme.tileBorder());
+            draw.fill(box.x() + 2, box.bottom() - 3, knobLeft, box.bottom() - 2, theme.accent());
+        } else {
+            UiControl.stitchedEdge(draw, box.x(), box.y(), box.width(), box.height(), theme.textDisabled());
+        }
+        if (frame.showsFocus(this)) {
+            UiControl.focusRing(draw, box, theme);
+        }
+        UiRect knob = new UiRect(knobLeft, box.y(), KNOB_WIDTH, box.height());
+        UiControl.face(draw, knob, state, theme);
         String line = LegacyText.truncate(draw, format.apply(value), box.width() - 4);
-        draw.centeredText(line, box.centerX(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1,
-                active ? theme.text() : theme.textDisabled(), false);
+        draw.centeredText(line, box.centerX(), UiControl.textY(box), UiControl.ink(state, theme), false);
     }
 }

@@ -44,11 +44,15 @@ public abstract class KitScreen extends UiScreen {
     private boolean layoutDirty = true;
     private boolean opened;
     private long openedAt;
+    private UiNode tooltipSource;
+    private long tooltipSince;
     private int laidOffset = Integer.MIN_VALUE;
     private int laidWidth = -1;
     private int laidHeight = -1;
     private long probedAt = Long.MIN_VALUE;
     private double guiScale = 1.0;
+    private UiBreakpoint breakpoint;
+    private int layoutVersion;
 
     protected KitScreen(String title, UiTheme theme, UiMotion motion) {
         super(title);
@@ -96,8 +100,14 @@ public abstract class KitScreen extends UiScreen {
         return services;
     }
 
+    /** The size class, held steady while a resize hovers around a threshold. */
     public final UiBreakpoint breakpoint() {
-        return UiBreakpoint.of(width(), height());
+        return breakpoint == null ? UiBreakpoint.of(width(), height()) : breakpoint;
+    }
+
+    /** Counts the layouts caused by a resize or a content change; the open transition's shifts do not count. */
+    protected final int layoutVersion() {
+        return layoutVersion;
     }
 
     public final UiNode focused() {
@@ -170,6 +180,9 @@ public abstract class KitScreen extends UiScreen {
     /** Lays the tree out now with {@code metrics}; normally done by {@link #render} when something changed. */
     public final void layoutNow(UiDraw metrics) {
         int offset = openOffset();
+        if (layoutDirty || laidWidth != width() || laidHeight != height()) {
+            layoutVersion++;
+        }
         root.place(new UiRect(0, offset, width(), height()), metrics);
         UiRect screen = new UiRect(0, 0, width(), height());
         for (UiOverlay overlay : overlays) {
@@ -185,6 +198,7 @@ public abstract class KitScreen extends UiScreen {
     @Override
     protected void init() {
         layoutDirty = true;
+        breakpoint = UiBreakpoint.settle(breakpoint, width(), height());
         if (!opened) {
             opened = true;
             openedAt = motion.now();
@@ -439,6 +453,7 @@ public abstract class KitScreen extends UiScreen {
 
     private void renderTooltip(UiDraw draw, int mouseX, int mouseY) {
         if (pressed != null) {
+            tooltipSource = null;
             return;
         }
         UiNode source = focusVisible && focused != null ? focused : hovered;
@@ -450,14 +465,20 @@ public abstract class KitScreen extends UiScreen {
             }
         }
         if (tooltip == null || tooltip.isEmpty()) {
+            tooltipSource = null;
             return;
         }
+        if (source != tooltipSource) {
+            tooltipSource = source;
+            tooltipSince = motion.now();
+        }
+        float settle = motion.progress(tooltipSince, Tooltip.SETTLE_MILLIS);
         draw.nextLayer();
         if (source == focused && focusVisible) {
             UiRect bounds = focused.bounds();
-            tooltip.render(draw, theme, bounds.right() - 4, bounds.y() + 12, width(), height());
+            tooltip.render(draw, theme, bounds.right() - 4, bounds.y() + 12, width(), height(), settle);
         } else {
-            tooltip.render(draw, theme, mouseX, mouseY, width(), height());
+            tooltip.render(draw, theme, mouseX, mouseY, width(), height(), settle);
         }
     }
 

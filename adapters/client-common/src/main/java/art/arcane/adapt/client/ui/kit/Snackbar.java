@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A one-line message on a paper slip at the bottom of its bounds: the answer to something the player did (success, failure or
- * info) for a few seconds, or a waiting state with animated dots until the answer arrives. It never takes pointer
+ * A one-line message on a paper slip at the bottom of its bounds, one control tall and led by a tick, a cross or a dot:
+ * the answer to something the player did (success, failure or info) for a few seconds, or a waiting state with animated dots until the answer arrives. It never takes pointer
  * hits, so whatever lies under it stays clickable.
  */
 public class Snackbar extends UiNode {
@@ -17,7 +17,8 @@ public class Snackbar extends UiNode {
     private static final long FADE_MILLIS = 250L;
     private static final long DOT_MILLIS = 300L;
     private static final int RISE = 4;
-    private static final int PADDING = 2;
+    private static final int MARK = 7;
+    private static final int MARK_GAP = 4;
     private static final String[] DOTS = {".", "..", "..."};
 
     private Tone tone = Tone.INFO;
@@ -90,7 +91,7 @@ public class Snackbar extends UiNode {
 
     @Override
     public int preferredHeight(int width, UiDraw metrics) {
-        return metrics.lineHeight() + PADDING * 2;
+        return services().theme().controlHeight();
     }
 
     @Override
@@ -106,25 +107,41 @@ public class Snackbar extends UiNode {
         float rise = UiEase.outCubic(motion.progress(shownAt, FADE_MILLIS));
         UiRect box = bounds();
         String shown = pending ? text + DOTS[(int) (Math.max(0L, age) / DOT_MILLIS % DOTS.length)] : text;
-        int pad = theme.padding();
-        int stripe = 2;
-        int maxText = Math.max(0, box.width() - pad * 2 - stripe - 2);
+        int pad = UiControl.TEXT_INSET;
+        int lead = MARK + MARK_GAP;
+        int maxText = Math.max(0, box.width() - pad * 2 - lead);
         String line = LegacyText.truncate(draw, shown, maxText);
         int textWidth = pending ? Math.min(maxText, draw.textWidth(text + DOTS[DOTS.length - 1])) : draw.textWidth(line);
-        int width = Math.min(box.width(), textWidth + pad * 2 + stripe + 2);
-        int height = draw.lineHeight() + PADDING * 2;
+        int width = Math.min(box.width(), textWidth + pad * 2 + lead);
+        int height = theme.controlHeight();
         int left = box.x() + (box.width() - width) / 2;
         int top = box.bottom() - height + Math.round((1.0F - rise) * RISE);
         int color = switch (tone) {
             case SUCCESS -> SUCCESS_COLOR;
             case FAILURE -> FAILURE_COLOR;
-            case INFO -> pending ? theme.textMuted() : theme.accent();
+            case INFO -> theme.textMuted();
         };
         UiTome.soft(draw, left, top, left + width, top + height, UiEase.fade(theme.tooltip(), alpha));
         UiTome.softEdge(draw, left, top, width, height, UiEase.fade(theme.tooltipBorderBottom(), alpha));
-        draw.fill(left + 2, top + 2, left + 2 + stripe, top + height - 2, UiEase.fade(color, alpha));
+        mark(draw, tone, left + pad, top + (height - MARK) / 2, UiEase.fade(color, alpha));
         int textColor = tone == Tone.INFO ? theme.text() : color;
-        draw.text(line, left + 1 + stripe + pad, top + PADDING + 1, UiEase.fade(textColor, Math.max(alpha, 0.02F)), false);
+        draw.text(line, left + pad + lead, UiControl.textY(top, height), UiEase.fade(textColor, Math.max(alpha, 0.02F)), false);
+    }
+
+    /** The tone's mark, {@link #MARK} square at (x, y): a tick, a cross or a dot, so the tone does not rest on colour. */
+    private static void mark(UiDraw draw, Tone tone, int x, int y, int color) {
+        String[] rows = switch (tone) {
+            case SUCCESS -> new String[] {".......", "......#", ".....##", "#...##.", "##.##..", ".###...", "..#...."};
+            case FAILURE -> new String[] {"##...##", "###.###", ".#####.", "..###..", ".#####.", "###.###", "##...##"};
+            case INFO -> new String[] {".......", "..###..", ".#####.", ".#####.", ".#####.", "..###..", "......."};
+        };
+        for (int row = 0; row < rows.length; row++) {
+            for (int column = 0; column < rows[row].length(); column++) {
+                if (rows[row].charAt(column) == '#') {
+                    draw.fill(x + column, y + row, x + column + 1, y + row + 1, color);
+                }
+            }
+        }
     }
 
     public enum Tone {

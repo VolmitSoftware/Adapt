@@ -99,13 +99,15 @@ class NativePanelScreenTest {
     void tilesKeepTheirChestSlotPositionsOnTheNineColumnGrid() {
         NativePanelScreen screen = open(view(1, plain(0, "a"), plain(8, "b"), plain(9, "c"), plain(53, "d")));
         UiRect origin = screen.tile(0).bounds();
-        int pitch = screen.tile(9).bounds().y() - origin.y();
-        assertEquals(origin.width() + UiTheme.DEFAULT.gap(), pitch);
-        assertEquals(origin.x() + 8 * pitch, screen.tile(8).bounds().x());
+        int rowPitch = screen.tile(9).bounds().y() - origin.y();
+        int columnPitch = (screen.tile(8).bounds().x() - origin.x()) / 8;
+        assertTrue(rowPitch >= origin.height() + UiTheme.DEFAULT.gap());
+        assertTrue(columnPitch >= origin.width() + UiTheme.DEFAULT.gap());
+        assertEquals(origin.x() + 8 * columnPitch, screen.tile(8).bounds().x());
         assertEquals(origin.y(), screen.tile(8).bounds().y());
         assertEquals(origin.x(), screen.tile(9).bounds().x());
-        assertEquals(origin.x() + 8 * pitch, screen.tile(53).bounds().x());
-        assertEquals(origin.y() + 5 * pitch, screen.tile(53).bounds().y());
+        assertEquals(origin.x() + 8 * columnPitch, screen.tile(53).bounds().x());
+        assertEquals(origin.y() + 5 * rowPitch, screen.tile(53).bounds().y());
     }
 
     @Test

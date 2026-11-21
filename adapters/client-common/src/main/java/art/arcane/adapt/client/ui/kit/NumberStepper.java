@@ -9,7 +9,8 @@ import java.util.Objects;
 import java.util.function.IntConsumer;
 
 /**
- * A number with minus and plus tabs around an editable field. What a step or a typed value means is up to the
+ * A number with minus and plus tabs around an editable field, its digits set against the field's right edge so a
+ * column of steppers lines up. What a step or a typed value means is up to the
  * {@link Listener}; {@link #ranged} gives the usual clamped integer behaviour.
  */
 public class NumberStepper extends UiNode {
@@ -26,6 +27,7 @@ public class NumberStepper extends UiNode {
         minus = add(new Button(id + ".minus", UiTome.Glyph.MINUS, () -> this.listener.step(-1, services().modifiers())));
         field = add(new TextField(id + ".field", MAX_LENGTH));
         plus = add(new Button(id + ".plus", UiTome.Glyph.PLUS, () -> this.listener.step(1, services().modifiers())));
+        field.setEndAligned(true);
         field.setText(value);
         field.setOnCommit(this.listener::commit);
     }

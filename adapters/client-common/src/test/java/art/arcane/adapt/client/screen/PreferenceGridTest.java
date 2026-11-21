@@ -92,8 +92,8 @@ class PreferenceGridTest {
                 assertTrue(list.bounds().y() > row.bottom(), size[0] + "x" + size[1] + ": the checklist starts under the main switch");
             }
         }
-        ScreenFixture skill = new ScreenFixture(640, 360, 3);
-        skill.open(new Route.Skill("agility"));
+        ScreenFixture skill = new ScreenFixture(640, 360, 3, TypicalCatalog.catalog(), TypicalCatalog.player());
+        skill.open(new Route.Skill(TypicalCatalog.SKILL));
         skill.render();
         UiNode main = skill.find("pref:enabled");
         assertNotNull(main);
@@ -102,5 +102,17 @@ class PreferenceGridTest {
         assertNotNull(reset);
         assertTrue(reset.bounds().x() >= row.right(), "reset sits right of the main switch " + reset.bounds() + " " + row);
         assertEquals(skill.find("preferences").bounds().right(), reset.bounds().right(), "reset sits at the right edge");
+    }
+
+    @Test
+    void resetDropsUnderTheMainSwitchOnANarrowPage() {
+        ScreenFixture skill = new ScreenFixture(640, 360, 3);
+        skill.open(new Route.Skill("agility"));
+        skill.render();
+        UiRect row = skill.find("pref:enabled").bounds();
+        UiRect reset = skill.find("pref-reset").bounds();
+        assertTrue(reset.y() >= row.bottom(), "reset sits under the main switch " + reset + " " + row);
+        assertEquals(skill.find("preferences").bounds().right(), reset.right(), "reset sits at the right edge");
+        assertEquals(skill.find("facing").bounds().bottom(), reset.bottom(), "reset sits at the foot of the page");
     }
 }

@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public class Toggle extends UiNode {
     private static final int BOX = UiTome.CHECK;
 
+    private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private String text;
     private boolean on;
     private Consumer<Boolean> onChange;
@@ -84,7 +85,7 @@ public class Toggle extends UiNode {
     @Override
     public int preferredWidth(UiDraw metrics) {
         int label = text.isEmpty() ? 0 : metrics.textWidth(text) + services().theme().padding();
-        return label + BOX;
+        return label + BOX + 2;
     }
 
     @Override
@@ -102,7 +103,7 @@ public class Toggle extends UiNode {
     }
 
     private int labelRoom(int width) {
-        return Math.max(1, width - BOX - services().theme().padding());
+        return Math.max(1, width - BOX - 2 - services().theme().padding());
     }
 
     @Override
@@ -126,21 +127,23 @@ public class Toggle extends UiNode {
         UiTheme theme = frame.theme();
         UiRect box = bounds();
         boolean active = enabled();
-        int boxLeft = box.right() - BOX;
+        float lift = hover.update(frame.motion(), active && (frame.isHovered(this) || frame.showsFocus(this)));
+        UiControl.State state = UiControl.State.of(active, frame.isPressed(this), lift);
+        int boxLeft = box.right() - BOX - 1;
         int boxTop = box.y() + (box.height() - BOX) / 2;
         if (!text.isEmpty()) {
-            int color = active ? theme.text() : theme.textDisabled();
+            int color = UiControl.ink(state, theme);
             int room = labelRoom(box.width());
             if (draw.textWidth(text) <= room) {
-                draw.text(text, box.x(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1, color, false);
+                draw.text(text, box.x(), UiControl.textY(box), color, false);
             } else {
                 int height = draw.wrappedHeight(text, room);
                 draw.wrappedText(text, box.x(), box.y() + Math.max(0, (box.height() - height) / 2) + 1, room, color, false);
             }
         }
-        UiTome.check(draw, boxLeft, boxTop, on, active, active && frame.isHovered(this), theme);
+        UiControl.check(draw, boxLeft, boxTop, on, state, theme);
         if (frame.showsFocus(this)) {
-            UiTome.softEdge(draw, boxLeft - 2, boxTop - 2, BOX + 4, BOX + 4, theme.focus());
+            UiControl.focusRing(draw, boxLeft, boxTop, BOX, BOX, theme);
         }
     }
 }

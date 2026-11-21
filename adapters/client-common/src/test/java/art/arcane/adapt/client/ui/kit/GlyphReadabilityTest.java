@@ -19,7 +19,7 @@ class GlyphReadabilityTest {
     private static List<String> tab(UiTome.Tab look, UiTome.Glyph glyph) {
         KitDraw draw = new KitDraw();
         UiTome.tab(draw, BOX, look, THEME);
-        UiTome.glyph(draw, glyph, BOX, UiTome.glyphColor(look, THEME));
+        UiTome.glyph(draw, glyph, BOX, THEME.text());
         return draw.calls("fill ");
     }
 

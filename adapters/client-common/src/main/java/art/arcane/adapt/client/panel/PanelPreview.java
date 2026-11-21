@@ -31,6 +31,7 @@ public final class PanelPreview implements PanelActions {
     public static final int TEXT_SLOT = 13;
     public static final int RESET_SLOT = 14;
     public static final int CHOICE_SLOT = 17;
+    public static final int LAYOUT_SLOT = 18;
     public static final int LAST_ACTION_SLOT = 40;
     public static final int BACK_SLOT = 45;
     public static final int FIRST_SLOT = 47;
@@ -41,6 +42,7 @@ public final class PanelPreview implements PanelActions {
     private static final String PANE = "minecraft:gray_stained_glass_pane";
     private static final int MAX_RANGE = 64;
     private static final List<String> MODES = List.of("NEAREST", "RANDOM", "ALL");
+    private static final List<String> LAYOUTS = List.of("FORM", "LIST", "GRID");
     private static final String[] SAMPLE_ITEMS = {"minecraft:iron_pickaxe", "minecraft:golden_apple", "minecraft:oak_sapling",
             "minecraft:compass", "minecraft:bow", "minecraft:feather", "minecraft:redstone", "minecraft:emerald", "minecraft:bread",
             "minecraft:shield", "minecraft:fishing_rod", "minecraft:ender_pearl", "minecraft:cake"};
@@ -52,6 +54,7 @@ public final class PanelPreview implements PanelActions {
     private int range = 8;
     private String nickname = "Steve";
     private String mode = "NEAREST";
+    private String layout = "FORM";
     private String lastAction = "none";
 
     /** Binds the preview to the "Open skills" key when the {@value #PROPERTY} system property is {@value #PANEL}. */
@@ -92,6 +95,9 @@ public final class PanelPreview implements PanelActions {
         tiles.add(tile(CHOICE_SLOT, IconRef.item("minecraft:compass"), 1, "§eMode", List.of("§7How pickup picks."), false,
                 new TileHint(HintKind.CHOICE, mode, true, MODES, null, null, null), TileRole.SETTING, "Settings", "",
                 List.of(new TileAction(ClickKind.LEFT, "Left click: next value"), new TileAction(ClickKind.RIGHT, "Right click: previous value"))));
+        tiles.add(tile(LAYOUT_SLOT, IconRef.item("minecraft:item_frame"), 1, "§eLayout", List.of("§7How this panel is drawn."), false,
+                new TileHint(HintKind.CHOICE, layout, true, LAYOUTS, null, null, null), TileRole.SETTING, "Settings", "",
+                List.of(new TileAction(ClickKind.LEFT, "Left click: next value"), new TileAction(ClickKind.RIGHT, "Right click: previous value"))));
         tiles.add(tile(RESET_SLOT, IconRef.item("minecraft:barrier"), 1, "§cReset everything", List.of("§7Puts every sample value back."),
                 false, TileHint.of(HintKind.DESTRUCTIVE, "Reset"), TileRole.ACTION, "Settings", "", List.of(new TileAction(ClickKind.LEFT, ""))));
         tiles.add(tile(15, new IconRef("minecraft:paper", 1001, null, null), 1, "§fCustom model",
@@ -118,7 +124,7 @@ public final class PanelPreview implements PanelActions {
             tiles.add(navigation(NEXT_SLOT, "minecraft:arrow", "Next page", "next"));
             tiles.add(navigation(LAST_SLOT, "minecraft:spectral_arrow", "Last page", "last"));
         }
-        return new PanelView(SESSION, revision, "§fPanel preview", 6, PanelLayout.FORM, new PanelPaging(page, PAGES, PAGES * 7),
+        return new PanelView(SESSION, revision, "§fPanel preview", 6, PanelLayout.valueOf(layout), new PanelPaging(page, PAGES, PAGES * 7),
                 List.of("Adapt"), tiles);
     }
 
@@ -135,11 +141,13 @@ public final class PanelPreview implements PanelActions {
             case TOGGLE_SLOT -> toggle = !toggle;
             case NUMBER_SLOT -> range = Math.max(0, Math.min(MAX_RANGE, range + (kind.isRight() ? -step : kind.isLeft() ? step : 0)));
             case CHOICE_SLOT -> mode = MODES.get(Math.floorMod(MODES.indexOf(mode) + (kind.isRight() ? -1 : 1), MODES.size()));
+            case LAYOUT_SLOT -> layout = LAYOUTS.get(Math.floorMod(LAYOUTS.indexOf(layout) + (kind.isRight() ? -1 : 1), LAYOUTS.size()));
             case RESET_SLOT -> {
                 toggle = true;
                 range = 8;
                 nickname = "Steve";
                 mode = "NEAREST";
+                layout = "FORM";
             }
             case FIRST_SLOT -> page = 0;
             case PREVIOUS_SLOT -> page = Math.max(0, page - 1);
@@ -165,6 +173,8 @@ public final class PanelPreview implements PanelActions {
             nickname = text;
         } else if (slot == CHOICE_SLOT && MODES.contains(text)) {
             mode = text;
+        } else if (slot == LAYOUT_SLOT && LAYOUTS.contains(text)) {
+            layout = text;
         }
         publish();
     }

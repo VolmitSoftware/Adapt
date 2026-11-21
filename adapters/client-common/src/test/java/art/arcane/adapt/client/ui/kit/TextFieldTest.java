@@ -165,7 +165,7 @@ class TextFieldTest {
         type("abcdefghijklmnopqrstuvwxyz");
         KitDraw draw = new KitDraw();
         screen.render(draw, 0, 0, 0.0F);
-        assertTrue(draw.calls().stream().anyMatch((String call) -> call.startsWith("text 14,") && call.endsWith("klmnopqrstuvwxyz")),
+        assertTrue(draw.calls().stream().anyMatch((String call) -> call.startsWith("text 15,") && call.endsWith("klmnopqrstuvwxyz")),
                 draw.calls().toString());
     }
 }

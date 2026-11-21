@@ -9,6 +9,9 @@ import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.NumberStepper;
+import art.arcane.adapt.client.ui.kit.UiControl;
+import art.arcane.adapt.client.ui.kit.UiEase;
+import art.arcane.adapt.client.ui.kit.UiFade;
 import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
@@ -43,6 +46,7 @@ final class PanelControls {
 
     /** An inked checkbox drawn from the server's value; pressing it sends the chest's left click. */
     static final class Switch extends UiNode {
+        private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
         private final int slot;
         private final Sink sink;
         private boolean on;
@@ -114,9 +118,10 @@ final class PanelControls {
             UiRect box = bounds();
             int left = box.right() - UiTome.CHECK - 1;
             int top = box.y() + (box.height() - UiTome.CHECK) / 2;
-            UiTome.check(draw, left, top, on, true, frame.isHovered(this), theme);
+            float lift = hover.update(frame.motion(), frame.isHovered(this) || frame.showsFocus(this));
+            UiControl.check(draw, left, top, on, UiControl.State.of(true, frame.isPressed(this), lift), theme);
             if (frame.showsFocus(this)) {
-                UiTome.softEdge(draw, left - 2, top - 2, UiTome.CHECK + 4, UiTome.CHECK + 4, theme.focus());
+                UiControl.focusRing(draw, left, top, UiTome.CHECK, UiTome.CHECK, theme);
             }
         }
     }
@@ -126,8 +131,9 @@ final class PanelControls {
      * takes typed values. Without typed values the arrows send the chest's left (next) and right (previous) clicks.
      */
     static final class Choice extends UiNode {
-        private static final int ARROW = 12;
+        private static final int ARROW = 14;
 
+        private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
         private final int slot;
         private final Sink sink;
         private final Runnable openList;
@@ -254,20 +260,30 @@ final class PanelControls {
             UiTheme theme = frame.theme();
             UiRect box = bounds();
             boolean hovered = frame.isHovered(this);
+            boolean pressed = frame.isPressed(this);
             hoverPart = !hovered ? 0 : frame.mouseX() < box.x() + ARROW ? -1 : frame.mouseX() >= box.right() - ARROW ? 1 : 0;
-            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), hovered && hoverPart == 0 ? theme.surfaceHover() : theme.tooltip());
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), frame.showsFocus(this) ? theme.focus() : theme.surfaceBorder());
+            float lift = hover.update(frame.motion(), hovered && hoverPart == 0);
+            UiTome.paper(draw, UiTome.FIELD, null, box, theme.tooltip(), theme.tileBorder());
+            if (lift > 0.0F) {
+                UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), UiEase.fade(theme.surfaceBorder(), lift));
+            }
+            if (frame.showsFocus(this)) {
+                UiControl.focusRing(draw, box, theme);
+            }
             UiRect back = new UiRect(box.x(), box.y(), ARROW, box.height());
             UiRect forward = new UiRect(box.right() - ARROW, box.y(), ARROW, box.height());
-            UiTome.Tab backLook = hoverPart < 0 ? UiTome.Tab.HOVER : UiTome.Tab.REST;
-            UiTome.Tab forwardLook = hoverPart > 0 ? UiTome.Tab.HOVER : UiTome.Tab.REST;
-            UiTome.tab(draw, back, backLook, theme);
-            UiTome.tab(draw, forward, forwardLook, theme);
-            UiTome.glyph(draw, UiTome.Glyph.BACK, back, UiTome.glyphColor(backLook, theme));
-            UiTome.glyph(draw, UiTome.Glyph.FORWARD, forward, UiTome.glyphColor(forwardLook, theme));
-            int textY = box.y() + (box.height() - draw.lineHeight()) / 2 + 1;
+            UiControl.State backLook = part(hovered && hoverPart < 0, pressed);
+            UiControl.State forwardLook = part(hovered && hoverPart > 0, pressed);
+            UiControl.face(draw, back, backLook, theme);
+            UiControl.face(draw, forward, forwardLook, theme);
+            UiControl.glyph(draw, UiTome.Glyph.BACK, back, backLook, theme);
+            UiControl.glyph(draw, UiTome.Glyph.FORWARD, forward, forwardLook, theme);
             String value = hint == null ? "" : LegacyText.truncate(draw, hint.value(), box.width() - ARROW * 2 - 2);
-            draw.centeredText(value, box.centerX(), textY, theme.text(), false);
+            draw.centeredText(value, box.centerX(), UiControl.textY(box), theme.text(), false);
+        }
+
+        private static UiControl.State part(boolean over, boolean pressed) {
+            return !over ? UiControl.State.REST : pressed ? UiControl.State.PRESSED : UiControl.State.HOVER;
         }
     }
 
