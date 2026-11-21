@@ -42,6 +42,12 @@ final class LearnText {
         return check.refunded() ? ScreenText.REFUND.text(ScreenText.number(check.refund())) : ScreenText.NO_REFUND.text();
     }
 
+    /** What bringing the adaptation down to the check's level does, for a check that is allowed. */
+    static String unlearnOffer(LearnRules.UnlearnCheck check) {
+        String level = ScreenText.roman(check.to());
+        return check.refunded() ? ScreenText.UNLEARN_REFUND.text(level, ScreenText.number(check.refund())) : ScreenText.UNLEARN_NO_REFUND.text(level);
+    }
+
     static String requirement(CatalogIndex catalog, RequirementView requirement) {
         return ScreenText.REQUIRES.text(catalog.adaptationName(requirement.adaptationId()), ScreenText.roman(requirement.level()));
     }

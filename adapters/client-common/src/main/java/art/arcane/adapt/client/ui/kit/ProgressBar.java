@@ -13,6 +13,8 @@ import java.util.Objects;
 public class ProgressBar extends UiNode {
     private static final long EASE_MILLIS = 250L;
     private static final int HEIGHT = 6;
+    /** The space between two {@link #pips}. */
+    public static final int PIP_GAP = 2;
 
     private float progress;
     private float shownFrom;
@@ -107,17 +109,19 @@ public class ProgressBar extends UiNode {
     }
 
     /**
-     * {@code count} steps as segments {@code pip} wide and one unit apart from {@code left}, drawn like {@link #slim}:
-     * a hairline along the bottom for a step not reached and the full {@code height} for each of the first
-     * {@code filled}.
+     * {@code count} level pips {@code pip} wide and {@link #PIP_GAP} apart from {@code left}: each of the first
+     * {@code filled} solid in {@code color}, the pip at index {@code open} (or none when negative) an empty outline in
+     * the same colour, and the rest a hairline along the bottom, so the three differ in shape as well as colour.
      */
-    public static void pips(UiDraw draw, UiTheme theme, int left, int top, int pip, int height, int count, int filled, int color) {
+    public static void pips(UiDraw draw, UiTheme theme, int left, int top, int pip, int height, int count, int filled, int open, int color) {
         int bottom = top + height;
         int fill = UiContrast.darkenFor(color, theme.backdrop(), UiContrast.GRAPHIC);
         for (int index = 0; index < count; index++) {
-            int x = left + index * (pip + 1);
+            int x = left + index * (pip + PIP_GAP);
             if (index < filled) {
-                draw.fill(x, top, x + pip, bottom, fill);
+                UiTome.soft(draw, x, top, x + pip, bottom, fill);
+            } else if (index == open) {
+                UiTome.softEdge(draw, x, top, pip, height, fill);
             } else {
                 draw.fill(x, bottom - 1, x + pip, bottom, rail(theme));
             }

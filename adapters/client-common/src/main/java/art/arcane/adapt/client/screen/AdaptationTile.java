@@ -13,26 +13,30 @@ import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.PlayerView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 /**
- * One adaptation on a skill page: icon, name, one pip per level, and what the next level costs as a mark and number
- * (gold behind a missing requirement, wine when short, or what else blocks it). A green dot marks one that can be
- * learned now, a lock one a requirement or the server blocks, and the glint one that is mastered. The page's detail
- * strip says the rest; the description is a tooltip only while the strip has no room for it.
+ * One adaptation on a skill page: its icon on a medallion, its name and one pip per level, nothing else. Learned
+ * levels are solid pips, the next level is an open pip while it can be learned now and a hairline like the later ones
+ * while it cannot; a lock on the medallion marks one a requirement or the server blocks, laurels one that is mastered.
+ * What the next level costs or what blocks it is on the page's detail strip, and in the tooltip with the description
+ * while the strip has no room for it.
  */
 final class AdaptationTile extends RowTile implements DetailStrip.Source {
-    private static final int MAX_PIP = 10;
+    static final int PIP_HEIGHT = 4;
+    private static final int MAX_PIP = 8;
+    private static final int MIN_PIP = 3;
+    static final int NAME_TOP = 4;
+    private static final int PIPS_TOP = 15;
 
     private AdaptationView adaptation;
     private int level;
     private Status status = Status.NOT_LEARNED;
     private String statusText = "";
-    private String state = "";
-    private UiTome.Mark mark;
     private final BooleanSupplier described;
 
     /** {@code described} says whether the page already shows the description beside the tiles, so the tooltip is not needed. */
@@ -53,8 +57,6 @@ final class AdaptationTile extends RowTile implements DetailStrip.Source {
         if (level >= view.maxLevel()) {
             status = Status.MASTERED;
             statusText = ScreenText.MASTERED.text();
-            state = statusText;
-            mark = null;
         } else {
             LearnRules.LearnCheck next = LearnRules.learn(catalog, player, view, level + 1);
             status = switch (next.block()) {
@@ -64,18 +66,13 @@ final class AdaptationTile extends RowTile implements DetailStrip.Source {
                 default -> Status.SHORT;
             };
             statusText = LearnText.learnBlock(catalog, next);
-            state = switch (next.block()) {
-                case NONE, KNOWLEDGE, REQUIREMENTS -> next.free() ? ScreenText.FREE_COST.text() : ScreenText.number(next.knowledgeCost());
-                case POWER -> Integer.toString(next.powerCost());
-                default -> statusText;
-            };
-            mark = switch (next.block()) {
-                case NONE, KNOWLEDGE, REQUIREMENTS -> next.free() ? null : UiTome.Mark.KNOWLEDGE;
-                case POWER -> UiTome.Mark.POWER;
-                default -> null;
-            };
         }
-        setTooltip(LegacyText.isBlank(view.description()) ? null : new Tooltip(view.name(), List.of("§7" + view.description())));
+        List<String> lines = new ArrayList<>();
+        if (!LegacyText.isBlank(view.description())) {
+            lines.add("§7" + view.description());
+        }
+        lines.add(tone() + statusText);
+        setTooltip(new Tooltip(view.name(), lines));
     }
 
     private String levelText() {
@@ -119,6 +116,7 @@ final class AdaptationTile extends RowTile implements DetailStrip.Source {
         state.put("maxLevel", Integer.toString(adaptation.maxLevel()));
         state.put("status", status.name());
         state.put("statusText", LegacyText.strip(statusText));
+        state.put("openPip", Integer.toString(openPip()));
     }
 
     @Override
@@ -157,22 +155,27 @@ final class AdaptationTile extends RowTile implements DetailStrip.Source {
 
     @Override
     String second() {
-        return state;
-    }
-
-    @Override
-    UiTome.Mark secondMark() {
-        return mark;
+        return "";
     }
 
     @Override
     int secondColor(UiTheme theme) {
-        return switch (status) {
-            case MASTERED, AFFORDABLE -> theme.text();
-            case LOCKED -> Palette.LOCK;
-            case SHORT -> Palette.BAD;
-            case DISABLED, NOT_LEARNED -> theme.textDisabled();
-        };
+        return theme.textMuted();
+    }
+
+    @Override
+    int nameTop() {
+        return NAME_TOP;
+    }
+
+    @Override
+    int barTop() {
+        return PIPS_TOP;
+    }
+
+    /** The index of the pip drawn open, the next level while it can be learned now, or -1. */
+    int openPip() {
+        return status == Status.AFFORDABLE ? level : -1;
     }
 
     @Override
@@ -189,17 +192,12 @@ final class AdaptationTile extends RowTile implements DetailStrip.Source {
     void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
         int width = right - left;
         int max = Math.max(1, adaptation.maxLevel());
-        int pip = Math.min(MAX_PIP, (width - (max - 1)) / max);
-        if (pip < 1) {
-            ProgressBar.slim(draw, theme, left, top, right, BAR_HEIGHT, level / (float) max, theme.accent());
+        int pip = Math.min(MAX_PIP, (width - (max - 1) * ProgressBar.PIP_GAP) / max);
+        if (pip < MIN_PIP) {
+            ProgressBar.slim(draw, theme, left, top + PIP_HEIGHT - BAR_HEIGHT, right, BAR_HEIGHT, level / (float) max, theme.accent());
             return;
         }
-        ProgressBar.pips(draw, theme, left, top, pip, BAR_HEIGHT, max, level, theme.accent());
-    }
-
-    @Override
-    int dot() {
-        return status == Status.AFFORDABLE ? Palette.GOOD : 0;
+        ProgressBar.pips(draw, theme, left, top, pip, PIP_HEIGHT, max, level, openPip(), theme.accent());
     }
 
     @Override

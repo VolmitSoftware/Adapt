@@ -21,10 +21,10 @@ import java.util.Objects;
 
 /**
  * A row tile of the skill and adaptation grids, {@link TileGrid#HEIGHT} tall, bare on the page and washed warm under
- * the pointer: the icon at the left, then the name with a number at its right, a thin bar, and one short line under
- * it, led by a small mark when the line is a number. An optional dot at the end of that line marks something to do.
- * The grid gives the tile room for all of its text ({@link #naturalWidth}); only a screen too narrow for that cuts it.
- * Clicking or Enter opens its page.
+ * the pointer: the icon at the left, then the name with a number at its right and a thin bar or a row of pips under
+ * it. A tile may add one short line below, led by a small ink glyph; one without that line centres its name and bar
+ * on the icon. The grid gives the tile room for all of its text ({@link #naturalWidth}); only a screen too narrow for
+ * that cuts it. Clicking or Enter opens its page.
  */
 abstract class RowTile extends UiNode {
     static final int FIRST_LINE = 2;
@@ -34,8 +34,7 @@ abstract class RowTile extends UiNode {
     private static final int BAR_TOP = 11;
     private static final int TEXT_GAP = 4;
     private static final int RIGHT_PAD = 3;
-    private static final int DOT = 4;
-    private static final int MARK_GAP = 3;
+    private static final int GLYPH_GAP = 3;
 
     private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final Runnable open;
@@ -54,7 +53,17 @@ abstract class RowTile extends UiNode {
 
     abstract int numberColor(UiTheme theme);
 
-    /** Paints the bar inside {@code left..right} at {@code top}, {@link #BAR_HEIGHT} tall. */
+    /** Where the name's line starts below the tile's top. */
+    int nameTop() {
+        return FIRST_LINE;
+    }
+
+    /** Where the bar starts below the tile's top. */
+    int barTop() {
+        return BAR_TOP;
+    }
+
+    /** Paints the bar inside {@code left..right} from {@code top} down. */
     abstract void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right);
 
     /** The line under the bar, or empty for none. */
@@ -62,13 +71,14 @@ abstract class RowTile extends UiNode {
 
     abstract int secondColor(UiTheme theme);
 
-    /** The mark before the line under the bar, or null for none. */
-    UiTome.Mark secondMark() {
+    /** The ink glyph before the line under the bar, drawn in the line's colour, or null for none. */
+    UiTome.Glyph secondGlyph() {
         return null;
     }
 
-    private int markWidth() {
-        return secondMark() == null || second().isEmpty() ? 0 : UiTome.MARK + MARK_GAP;
+    private int glyphWidth() {
+        UiTome.Glyph glyph = secondGlyph();
+        return glyph == null || second().isEmpty() ? 0 : glyph.width() + GLYPH_GAP;
     }
 
     /** Draws the icon in {@code icon}; {@code backdrop} is the opaque colour under it. */
@@ -78,9 +88,6 @@ abstract class RowTile extends UiNode {
 
     /** The ink underline under the pointer, the tile's accent. */
     abstract int accent(UiTheme theme);
-
-    /** The colour of the dot ending the second line, or 0 for none. */
-    abstract int dot();
 
     /** Whether the icon shows dimmed behind a lock. */
     abstract boolean locked();
@@ -99,7 +106,7 @@ abstract class RowTile extends UiNode {
     final int naturalWidth(UiDraw metrics) {
         int number = metrics.textWidth(number());
         int first = metrics.textWidth(label()) + (number > 0 ? number + TEXT_GAP : 0);
-        int second = markWidth() + metrics.textWidth(second()) + (dot() != 0 ? DOT + TEXT_GAP : 0);
+        int second = glyphWidth() + metrics.textWidth(second());
         return ICON_LEFT + UiIcons.SIZE + TEXT_GAP + Math.max(first, second) + RIGHT_PAD;
     }
 
@@ -171,28 +178,25 @@ abstract class RowTile extends UiNode {
         UiRect text = textBounds();
         String number = number();
         int numberWidth = draw.textWidth(number);
+        int nameY = box.y() + nameTop();
         if (numberWidth > 0) {
-            draw.text(number, text.right() - numberWidth, box.y() + FIRST_LINE, numberColor(theme), false);
+            draw.text(number, text.right() - numberWidth, nameY, numberColor(theme), false);
         }
         int nameRoom = Math.max(0, text.width() - (numberWidth > 0 ? numberWidth + TEXT_GAP : 0));
-        draw.text(LegacyText.truncate(draw, label(), nameRoom), text.x(), box.y() + FIRST_LINE, nameColor(theme), false);
-        paintBar(draw, theme, text.x(), box.y() + BAR_TOP, text.right());
+        draw.text(LegacyText.truncate(draw, label(), nameRoom), text.x(), nameY, nameColor(theme), false);
+        paintBar(draw, theme, text.x(), box.y() + barTop(), text.right());
         if (lift > 0.0F) {
             draw.fill(text.x(), box.bottom() - 1, text.right(), box.bottom(), UiEase.fade(accent(theme), lift));
         }
-        int dot = dot();
-        if (dot != 0) {
-            int top = box.y() + SECOND_LINE + 2;
-            UiTome.soft(draw, text.right() - DOT, top, text.right(), top + DOT, dot);
-        }
         String second = second();
         if (!second.isEmpty()) {
-            int mark = markWidth();
-            if (mark > 0) {
-                UiTome.mark(draw, secondMark(), text.x(), box.y() + SECOND_LINE - 1);
+            int lead = glyphWidth();
+            int color = secondColor(theme);
+            if (lead > 0) {
+                UiTome.Glyph glyph = secondGlyph();
+                UiTome.glyph(draw, glyph, text.x(), box.y() + SECOND_LINE + UiControl.CAP_HEIGHT - glyph.height(), color);
             }
-            int secondRoom = Math.max(0, text.width() - mark - (dot != 0 ? DOT + TEXT_GAP : 0));
-            draw.text(LegacyText.truncate(draw, second, secondRoom), text.x() + mark, box.y() + SECOND_LINE, secondColor(theme), false);
+            draw.text(LegacyText.truncate(draw, second, Math.max(0, text.width() - lead)), text.x() + lead, box.y() + SECOND_LINE, color, false);
         }
     }
 

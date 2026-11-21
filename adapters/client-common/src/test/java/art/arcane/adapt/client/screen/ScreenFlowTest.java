@@ -107,7 +107,7 @@ class ScreenFlowTest {
     @Test
     void learnWaitsForTheServerWithoutChangingTheLevel() {
         AdaptationScreen screen = fixture.open(new Route.Adaptation("agility-wall-jump"));
-        assertEquals(3, screen.selectedLevel());
+        assertEquals(3, screen.shownLevel());
         Button learn = (Button) fixture.find("learn");
         assertTrue(learn.enabled());
         fixture.click(learn);
@@ -131,7 +131,7 @@ class ScreenFlowTest {
         assertFalse(screen.pending());
         assertEquals(Snackbar.Tone.SUCCESS, screen.snackbar().tone());
         assertEquals("Learned Wall Jump III", screen.snackbar().text());
-        assertEquals(4, screen.selectedLevel());
+        assertEquals(4, screen.shownLevel());
     }
 
     @Test
@@ -158,14 +158,14 @@ class ScreenFlowTest {
     }
 
     @Test
-    void selectingALearnedLevelOffersUnlearnWithItsRefund() {
-        AdaptationScreen screen = fixture.open(new Route.Adaptation("agility-wall-jump"));
-        fixture.click(screen.levelNode(2));
-        assertEquals(2, screen.selectedLevel());
+    void unlearnRemovesTheTopLevelAndShowsItsRefund() {
+        fixture.open(new Route.Adaptation("agility-wall-jump"));
         Button unlearn = (Button) fixture.find("unlearn");
         assertTrue(unlearn.visible());
-        assertFalse(fixture.find("learn").visible());
-        assertEquals("6", ((StatChip) fixture.find("stat:refund")).value());
+        assertEquals("Unlearn II", unlearn.label());
+        assertEquals("Level up III", fixture.find("learn").label());
+        assertTrue(fixture.find("learn").visible());
+        assertEquals("+6", describe(fixture.find("stat:refund")).get("value"));
         fixture.click(unlearn);
         assertEquals(List.of(new ClientFrame.Unlearn("agility-wall-jump", 1, PreviewSamples.REVISION)), fixture.sent);
     }
@@ -174,20 +174,21 @@ class ScreenFlowTest {
     void permanentLearnAsksFirst() {
         AdaptationScreen screen = fixture.open(new Route.Adaptation("rift-resistance"));
         fixture.click(fixture.find("learn"));
-        assertNotNull(screen.confirmation());
+        assertEquals(new AdaptationScreen.Offer(1, true), screen.offer());
+        assertEquals(ScreenText.PERMANENT_TIP.text(), fixture.find("reason").label());
         assertTrue(fixture.sent.isEmpty());
-        fixture.click(fixture.find("confirm.cancel"));
-        assertNull(screen.confirmation());
+        fixture.click(fixture.find("cancel"));
+        assertNull(screen.offer());
         assertTrue(fixture.sent.isEmpty());
 
         fixture.click(fixture.find("learn"));
         fixture.key(UiKey.ESCAPE);
-        assertNull(screen.confirmation());
+        assertNull(screen.offer());
         assertSame(screen, fixture.current());
         assertTrue(fixture.sent.isEmpty());
 
         fixture.click(fixture.find("learn"));
-        fixture.click(fixture.find("confirm.confirm"));
+        fixture.click(fixture.find("confirm"));
         assertEquals(List.of(new ClientFrame.Learn("rift-resistance", 1, PreviewSamples.REVISION)), fixture.sent);
         assertTrue(screen.pending());
     }
@@ -344,10 +345,15 @@ class ScreenFlowTest {
         fixture.state.acceptPlayer(new PlayerView(player.header(), player.skills(), player.adaptationLevels(), player.preferences(),
                 access(false, false, true)));
         AdaptationScreen screen = fixture.open(new Route.Adaptation("agility-wall-jump"));
-        fixture.click(screen.levelNode(2));
         assertFalse(fixture.find("stat:refund").visible());
-        assertEquals(ScreenText.NO_REFUND.text(), fixture.find("reason").label());
         assertTrue(fixture.find("unlearn").enabled());
+        fixture.click(fixture.find("unlearn"));
+        assertEquals(new AdaptationScreen.Offer(1, false), screen.offer());
+        assertEquals(ScreenText.NO_REFUND.text(), fixture.find("reason").label());
+        assertFalse(fixture.find("stat:cost").visible());
+        assertTrue(fixture.sent.isEmpty());
+        fixture.click(fixture.find("confirm"));
+        assertEquals(List.of(new ClientFrame.Unlearn("agility-wall-jump", 1, PreviewSamples.REVISION)), fixture.sent);
     }
 
     @Test
@@ -361,7 +367,7 @@ class ScreenFlowTest {
         assertTrue(fixture.find("learn").enabled());
         AdaptationScreen permanent = fixture.open(new Route.Adaptation("rift-resistance"));
         fixture.click(fixture.find("learn"));
-        assertNull(permanent.confirmation());
+        assertNull(permanent.offer());
         assertEquals(List.of(new ClientFrame.Learn("rift-resistance", 1, PreviewSamples.REVISION)), fixture.sent);
     }
 

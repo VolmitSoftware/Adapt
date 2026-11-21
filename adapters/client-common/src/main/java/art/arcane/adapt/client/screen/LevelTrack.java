@@ -22,24 +22,27 @@ import java.util.Objects;
 import java.util.function.IntConsumer;
 
 /**
- * An adaptation's levels as a row of small pips joined by a line: learned levels filled with the accent, the next level
- * pulsing when it can be learned and edged in red when it cannot, later levels dark. One pip is selected;
- * clicking or pressing Enter on a pip selects it. Wraps onto more rows when narrow. Node ids are {@code level:<n>}.
+ * An adaptation's levels as a row of small pips joined by a line. The pips show state: learned levels filled with the
+ * accent, the next level open and edged with the accent while it can be learned now, every other level quiet. A thin
+ * ink ring marks the level whose stats the page shows, and the levels an open offer would add or remove are tinted.
+ * A pip fills or empties over {@link #FILL_MILLIS} when its level is learned or unlearned. Clicking or pressing Enter
+ * on a pip asks the page to bring the adaptation to that level. Wraps onto more rows when narrow. Node ids are
+ * {@code level:<n>}.
  */
 final class LevelTrack extends UiNode {
     static final int NODE_HEIGHT = 14;
+    static final long FILL_MILLIS = 220L;
     private static final int MIN_NODE = 14;
     private static final int GAP = 3;
-    private static final long PULSE_MILLIS = 1200L;
 
     private final List<Node> nodes = new ArrayList<>();
-    private final IntConsumer onSelect;
-    private int selected = 1;
+    private final IntConsumer onPick;
+    private int shown = 1;
     private int pendingLevel;
 
-    LevelTrack(String id, IntConsumer onSelect) {
+    LevelTrack(String id, IntConsumer onPick) {
         super(id);
-        this.onSelect = Objects.requireNonNull(onSelect, "onSelect");
+        this.onPick = Objects.requireNonNull(onPick, "onPick");
     }
 
     @Override
@@ -49,12 +52,15 @@ final class LevelTrack extends UiNode {
 
     @Override
     public void describe(Map<String, String> state) {
-        state.put("selected", Integer.toString(selected));
+        state.put("shown", Integer.toString(shown));
         state.put("levels", Integer.toString(nodes.size()));
     }
 
-    /** Rebuilds the nodes for {@code states} (index 0 is level 1), keeping nodes that already exist. */
-    void update(List<LevelState> states, int selectedLevel, int pending) {
+    /**
+     * Rebuilds the nodes for {@code states} (index 0 is level 1), keeping nodes that already exist. {@code shownLevel}
+     * gets the ring and {@code pending} blinks while the server has not answered.
+     */
+    void update(List<LevelState> states, int shownLevel, int pending) {
         while (nodes.size() > states.size()) {
             remove(nodes.remove(nodes.size() - 1));
         }
@@ -62,14 +68,19 @@ final class LevelTrack extends UiNode {
             nodes.add(add(new Node(nodes.size() + 1)));
         }
         for (int index = 0; index < states.size(); index++) {
-            nodes.get(index).state = states.get(index);
+            nodes.get(index).set(states.get(index));
         }
-        selected = selectedLevel;
+        shown = shownLevel;
         pendingLevel = pending;
     }
 
     Node node(int level) {
         return level >= 1 && level <= nodes.size() ? nodes.get(level - 1) : null;
+    }
+
+    /** The level of the pip {@code node} is or belongs to, or 0. */
+    int levelOf(UiNode node) {
+        return node instanceof Node pip && pip.parent() == this ? pip.level : 0;
     }
 
     /** Each pip is as wide as its numeral needs, at least square. */
@@ -127,49 +138,69 @@ final class LevelTrack extends UiNode {
                 continue;
             }
             int y = from.centerY();
-            boolean learned = nodes.get(index + 1).state.learned();
+            boolean learned = nodes.get(index + 1).state.pip() == Pip.LEARNED;
             draw.fill(from.right(), y, to.x(), y + 1, learned ? frame.theme().accent() : ProgressBar.rail(frame.theme()));
         }
     }
 
     /**
-     * The colours of a pip: learned pips filled with the accent and lettered in cream, the next level washed with the
-     * accent when it can be learned ({@code pulse} 0 to 1) and edged in wine when it cannot, later levels quiet. Numerals keep WCAG AA contrast
-     * on every one of them, whatever the skill's colour.
+     * The colours of a pip. Learned pips are filled with the accent and lettered in cream; the open pip is paper washed
+     * and edged with the accent; the rest are quiet. A level an offer would add takes a stronger wash and the accent
+     * edge, one it would remove pales under a wine edge. Numerals keep WCAG AA contrast on every one of them, whatever
+     * the skill's colour.
      */
-    static Look look(LevelState state, UiTheme theme, float pulse) {
-        if (state.learned()) {
-            int fill = UiContrast.darkenFor(theme.accent(), theme.textInverse(), UiContrast.TEXT);
-            return new Look(fill, UiEase.mix(fill, 0xFF000000, 0.3F), theme.textInverse());
-        }
-        if (state.next() && state.available()) {
-            return new Look(UiEase.mix(theme.panel(), theme.accent(), 0.08F + 0.14F * pulse), theme.accent(), theme.text());
-        }
-        if (state.next()) {
-            return new Look(theme.tile(), UiEase.mix(theme.surfaceBorder(), Palette.BAD, 0.6F), theme.text());
-        }
-        return new Look(theme.tile(), theme.surfaceBorder(), theme.textMuted());
+    static Look look(LevelState state, UiTheme theme) {
+        int learned = UiContrast.darkenFor(theme.accent(), theme.textInverse(), UiContrast.TEXT);
+        return switch (state.pip()) {
+            case LEARNED -> state.offered()
+                    ? new Look(UiEase.mix(theme.tile(), Palette.BAD, 0.12F), Palette.BAD, theme.text())
+                    : new Look(learned, UiEase.mix(learned, 0xFF000000, 0.3F), theme.textInverse());
+            case OPEN -> new Look(UiEase.mix(theme.panel(), theme.accent(), state.offered() ? 0.3F : 0.12F), theme.accent(), theme.text());
+            case EMPTY -> state.offered() ? new Look(UiEase.mix(theme.panel(), theme.accent(), 0.3F), theme.accent(), theme.text())
+                    : new Look(theme.tile(), theme.surfaceBorder(), theme.textMuted());
+        };
     }
 
     record Look(int fill, int edge, int text) {
+        Look toward(Look other, float t) {
+            return new Look(UiEase.mix(fill, other.fill, t), UiEase.mix(edge, other.edge, t), t < 0.5F ? text : other.text);
+        }
     }
 
-    /** One level as the track shows it. */
-    record LevelState(boolean learned, boolean next, boolean available, String tooltipTitle, List<String> tooltip) {
+    /** What a pip shows: a learned level, the next level while it can be learned now, or any other level. */
+    enum Pip {
+        LEARNED,
+        OPEN,
+        EMPTY
+    }
+
+    /** One level as the track shows it; {@code offered} marks a level the open offer would add or remove. */
+    record LevelState(Pip pip, boolean offered) {
         LevelState {
-            Objects.requireNonNull(tooltipTitle, "tooltipTitle");
-            tooltip = List.copyOf(tooltip);
+            Objects.requireNonNull(pip, "pip");
         }
     }
 
     final class Node extends UiNode {
         private final int level;
         private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
-        private LevelState state = new LevelState(false, false, false, "", List.of());
+        private LevelState state = new LevelState(Pip.EMPTY, false);
+        private LevelState before = state;
+        private boolean primed;
+        private long changedAt = Long.MIN_VALUE;
 
         private Node(int level) {
             super("level:" + level);
             this.level = level;
+        }
+
+        private void set(LevelState next) {
+            if (primed && (state.pip() == Pip.LEARNED) != (next.pip() == Pip.LEARNED)) {
+                before = state;
+                changedAt = services().motion().now();
+            }
+            primed = true;
+            state = next;
         }
 
         @Override
@@ -183,18 +214,19 @@ final class LevelTrack extends UiNode {
         }
 
         @Override
-        public void describe(Map<String, String> state) {
-            state.put("level", Integer.toString(level));
-            state.put("learned", Boolean.toString(this.state.learned()));
-            state.put("next", Boolean.toString(this.state.next()));
-            state.put("available", Boolean.toString(this.state.available()));
-            state.put("selected", Boolean.toString(level == selected));
-            state.put("pending", Boolean.toString(level == pendingLevel));
+        public void describe(Map<String, String> values) {
+            values.put("level", Integer.toString(level));
+            values.put("pip", state.pip().name());
+            values.put("learned", Boolean.toString(state.pip() == Pip.LEARNED));
+            values.put("offered", Boolean.toString(state.offered()));
+            values.put("shown", Boolean.toString(level == shown));
+            values.put("pending", Boolean.toString(level == pendingLevel));
         }
 
+        /** Nothing: the page shows what a pip stands for, and the name's tooltip must not follow the pointer here. */
         @Override
         public Tooltip tooltip() {
-            return new Tooltip(state.tooltipTitle(), state.tooltip());
+            return Tooltip.of("");
         }
 
         @Override
@@ -218,7 +250,7 @@ final class LevelTrack extends UiNode {
         @Override
         public boolean activate() {
             services().playClick();
-            onSelect.accept(level);
+            onPick.accept(level);
             return true;
         }
 
@@ -228,27 +260,25 @@ final class LevelTrack extends UiNode {
             UiTheme theme = frame.theme();
             UiRect box = bounds();
             float lift = hover.update(frame.motion(), frame.isHovered(this) || frame.showsFocus(this));
-            boolean chosen = level == selected;
-            float pulse = frame.motion().reduced() ? 0.57F
-                    : (float) (0.5 + 0.5 * Math.sin((frame.motion().now() % PULSE_MILLIS) / (double) PULSE_MILLIS * Math.PI * 2.0));
-            Look look = look(state, theme, pulse);
+            Look look = look(state, theme);
+            float filled = changedAt == Long.MIN_VALUE ? 1.0F : UiEase.outCubic(frame.motion().progress(changedAt, FILL_MILLIS));
+            if (filled < 1.0F) {
+                look = look(before, theme).toward(look, filled);
+            }
             int fill = look.fill();
-            int edge = look.edge();
-            int text = look.text();
             if (level == pendingLevel) {
                 float blink = (float) (0.5 + 0.5 * Math.sin(frame.motion().now() / 120.0));
                 fill = UiEase.mix(fill, theme.tooltip(), 0.15F * blink);
             }
             fill = UiEase.mix(fill, UiTome.HOVER | 0xFF000000, 0.1F * lift);
             UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), fill);
-            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), edge);
+            UiTome.softEdge(draw, box.x(), box.y(), box.width(), box.height(), look.edge());
             if (frame.showsFocus(this)) {
                 UiControl.focusRing(draw, box, theme);
-            } else if (chosen) {
+            } else if (level == shown) {
                 UiTome.softEdge(draw, box.x() - 1, box.y() - 1, box.width() + 2, box.height() + 2, theme.text());
             }
-            String numeral = ScreenText.roman(level);
-            draw.centeredText(numeral, box.centerX(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1, text, true);
+            draw.centeredText(ScreenText.roman(level), box.centerX(), box.y() + (box.height() - draw.lineHeight()) / 2 + 1, look.text(), true);
         }
     }
 }

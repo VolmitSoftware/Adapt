@@ -3,21 +3,27 @@ package art.arcane.adapt.client.screen;
 import art.arcane.adapt.client.protocol.FeedbackKind;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.UiDraw;
+import art.arcane.adapt.client.ui.UiKey;
+import art.arcane.adapt.client.ui.UiKeyEvent;
+import art.arcane.adapt.client.ui.UiModifiers;
+import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.Button;
-import art.arcane.adapt.client.ui.kit.ConfirmOverlay;
 import art.arcane.adapt.client.ui.kit.Label;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.StatChip;
 import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiGroup;
 import art.arcane.adapt.client.ui.kit.UiIcons;
 import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
 import art.arcane.adapt.client.ui.kit.UiNode;
-import art.arcane.adapt.client.ui.kit.UiOverlay;
 import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.ui.kit.UiTome;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
+import art.arcane.adapt.client.view.PlayerAccess;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.client.view.RequirementView;
@@ -29,17 +35,29 @@ import java.util.Map;
 
 /**
  * One adaptation. The left page reads top to bottom from one left edge: icon, name and level pips on one line, the
- * description and the selected level's stat lines; what blocks the level and its cost or refund with the learn or
- * unlearn button sit at the foot of the page (every requirement is in the button's tooltip). The stat lines and the
- * blocking reason keep the room their tallest level needs, so choosing a level never moves the button. Its preferences
- * are a grid on the facing page with reset at the foot. Text wraps instead of being cut. Learning a permanent
- * adaptation asks for confirmation first, except in debug mode where the server skips it. An adaptation the player's
- * skill page does not show says so instead. Every change waits for the server: the button and preferences are disabled
- * and the target level blinks until the answer arrives.
+ * description and one level's stat lines, then at the foot a line that says what blocks an action and the action row.
+ *
+ * <p>The pips only show state. The row always holds the same two actions in the same places: a primary button that
+ * learns the next level, with what it costs beside it, and a quiet one that unlearns the top level, with what it
+ * gives back. Neither changes meaning. Pointing at a pip, or moving keyboard focus to it, shows that level's stats and
+ * what reaching it would cost or refund without touching the buttons. Clicking a pip offers to bring the adaptation
+ * straight to that level: the row turns into one confirm button with the summed cost or refund and Cancel, until the
+ * player confirms, presses Escape or clicks elsewhere. The same offer asks before a learn that cannot be undone and
+ * before an unlearn that returns nothing; debug mode, where the server skips both, asks nothing. With no control
+ * focused Enter learns the next level or confirms the open offer, and Delete unlearns the top level; Backspace goes
+ * back as on every page.
+ *
+ * <p>Every slot of the row keeps the width of the widest thing it can hold, and the stat lines and the blocking line
+ * keep the room their tallest level needs, so nothing moves when a level changes. Preferences are a grid on the facing
+ * page with reset at the foot. Text wraps instead of being cut. An adaptation the player's skill page does not show
+ * says so instead. Every change waits for the server: the buttons and preferences are disabled and the pip in question
+ * blinks until the answer arrives.
  */
 public final class AdaptationScreen extends AdaptScreen {
     static final String LEARN = "learn";
     static final String UNLEARN = "unlearn";
+    static final String CONFIRM = "confirm";
+    static final String CANCEL = "cancel";
     static final String PREFERENCE = "preference";
     /** The narrowest a page of running text stays comfortable to read. */
     private static final int TEXT_PAGE = 160;
@@ -56,22 +74,24 @@ public final class AdaptationScreen extends AdaptScreen {
     private final LevelTrack track;
     private final StatChip costChip;
     private final StatChip powerChip;
-    private final StatChip refundChip;
+    private final InkValue refund;
     private final Button learnButton;
     private final Button unlearnButton;
+    private final Button confirmButton;
+    private final Button cancelButton;
     private final Stats stats;
     private final Reason reason;
     private final PreferencePanel preferences;
-    private int selected;
-    private boolean chosen;
+    private Offer offer;
+    private int peek;
+    private int shown;
     private int pendingLevel;
-    private ConfirmOverlay confirm;
 
     AdaptationScreen(ScreenRouter router, Route.Adaptation route) {
         super(title(router, route.adaptationId()), route, router);
         adaptationId = route.adaptationId();
         summary = page().add(new Summary());
-        track = summary.add(new LevelTrack("levels", this::select));
+        track = summary.add(new LevelTrack("levels", this::pick));
         description = page().add(new Label("description", "").setWrap(true).setColor(Palette.MUTED));
         notice = page().add(new Label("notice", "").setWrap(true));
         stats = page().add(new Stats());
@@ -90,16 +110,18 @@ public final class AdaptationScreen extends AdaptScreen {
                 return height == 0 ? 0 : height + FACING_DROP;
             }
         });
+        learnButton = actionRow.add(new Button(LEARN, "", Button.Style.PRIMARY, this::levelUp));
+        confirmButton = actionRow.add(new Button(CONFIRM, "", Button.Style.PRIMARY, this::confirm));
         costChip = actionRow.add(new StatChip("stat:cost", SkillsScreen.KNOWLEDGE_ICON, "", ""));
         powerChip = actionRow.add(new StatChip("stat:power-cost", SkillsScreen.POWER_ICON, "", ""));
-        refundChip = actionRow.add(new StatChip("stat:refund", SkillsScreen.KNOWLEDGE_ICON, "", ""));
-        learnButton = actionRow.add(new Button(LEARN, "", Button.Style.PRIMARY, this::act));
-        unlearnButton = actionRow.add(new Button(UNLEARN, "", Button.Style.DESTRUCTIVE, this::act));
+        debugChip = actionRow.add(new StatChip("stat:debug", null, ScreenText.DEBUG.text(), ""));
+        debugChip.setValueColor(Palette.LOCK).setTooltip(new Tooltip(ScreenText.DEBUG.text(), List.of("§7" + ScreenText.DEBUG_TIP.text())));
+        refund = actionRow.add(new InkValue("stat:refund"));
+        unlearnButton = actionRow.add(new Button(UNLEARN, "", Button.Style.QUIET, this::unlearnTop));
+        cancelButton = actionRow.add(new Button(CANCEL, ScreenText.CANCEL.text(), Button.Style.QUIET, this::cancel));
         permanentChip = actionRow.add(new StatChip("stat:permanent", null, ScreenText.PERMANENT.text(), ""));
         permanentChip.setValueColor(Palette.LOCK).setTooltip(new Tooltip(ScreenText.PERMANENT.text(),
                 List.of("§7" + ScreenText.PERMANENT_TIP.text())));
-        debugChip = actionRow.add(new StatChip("stat:debug", null, ScreenText.DEBUG.text(), ""));
-        debugChip.setValueColor(Palette.LOCK).setTooltip(new Tooltip(ScreenText.DEBUG.text(), List.of("§7" + ScreenText.DEBUG_TIP.text())));
         preferences = facing().add(new PreferencePanel("preferences", new PreferencePanel.Actions() {
             @Override
             public void set(String preferenceId, String value) {
@@ -122,23 +144,26 @@ public final class AdaptationScreen extends AdaptScreen {
         return adaptation == null ? adaptationId : adaptation.name();
     }
 
-    /** The level whose details show; 0 when the adaptation has no levels. */
-    public int selectedLevel() {
-        return selected;
+    /** A level the row offers to bring the adaptation to, by learning up to it or unlearning down to it. */
+    public record Offer(int target, boolean learn) {
     }
 
-    /** The learn or unlearn button for the selected level, whichever shows. */
-    public Button actionButton() {
-        return unlearnButton.visible() ? unlearnButton : learnButton;
+    /** The level whose stats show; 0 when the adaptation has no levels. */
+    public int shownLevel() {
+        return shown;
+    }
+
+    /** The offer waiting for the player's confirmation, or null. */
+    public Offer offer() {
+        return offer;
+    }
+
+    public Button learnButton() {
+        return learnButton;
     }
 
     public LevelTrack.Node levelNode(int level) {
         return track.node(level);
-    }
-
-    /** The open permanent-learn confirmation, or null. */
-    public ConfirmOverlay confirmation() {
-        return confirm;
     }
 
     @Override
@@ -150,17 +175,19 @@ public final class AdaptationScreen extends AdaptScreen {
     protected void describe(Map<String, String> state) {
         super.describe(state);
         state.put("adaptation", adaptationId);
-        state.put("selected", Integer.toString(selected));
+        state.put("shown", Integer.toString(shown));
+        state.put("offer", offer == null ? "" : (offer.learn() ? "learn:" : "unlearn:") + offer.target());
         PlayerView player = router().state().player();
         state.put("level", Integer.toString(CatalogIndex.level(player, adaptationId)));
     }
 
     @Override
     protected Span pageSpan(UiDraw metrics) {
-        int least = Math.max(TEXT_PAGE, Math.max(summary.leastWidth(metrics), actionRow.widest(metrics)));
+        int least = Math.max(TEXT_PAGE, Math.max(summary.leastWidth(metrics), actionRow.leastWidth(metrics)));
         int most = Math.max(summary.naturalWidth(metrics), Math.min(Summary.DESCRIPTION, description.preferredWidth(metrics)));
         most = Math.max(most, Math.min(StatColumns.NATURAL, stats.widest(metrics)));
         most = Math.max(most, reason.visible() ? reason.widest(metrics) : 0);
+        most = Math.max(most, actionRow.visible() ? actionRow.leadWidth(metrics) : 0);
         return new Span(least, Math.max(least, Math.min(MAX_PAGE, most)));
     }
 
@@ -178,19 +205,65 @@ public final class AdaptationScreen extends AdaptScreen {
         return true;
     }
 
-    void select(int level) {
-        selected = level;
-        chosen = true;
-        refresh();
-        requestLayout();
+    @Override
+    public void render(UiDraw draw, int mouseX, int mouseY, float delta) {
+        int level = track.levelOf(hit(mouseX, mouseY));
+        if (level == 0 && track.shown() && track.bounds().contains(mouseX, mouseY)) {
+            level = peek;
+        }
+        if (level == 0) {
+            level = track.levelOf(focused());
+        }
+        if (level != peek) {
+            peek = level;
+            refresh();
+            requestLayout();
+        }
+        super.render(draw, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean mouseClicked(UiMouseEvent event) {
+        if (offer != null) {
+            UiNode target = hit(event.x(), event.y());
+            if (target == null || !actionRow.isAncestorOf(target) && !track.isAncestorOf(target)) {
+                cancel();
+            }
+        }
+        return super.mouseClicked(event);
+    }
+
+    @Override
+    public boolean keyPressed(UiKeyEvent event) {
+        boolean plain = event.modifiers().equals(UiModifiers.NONE) && overlays().isEmpty() && !editingText();
+        UiKey key = event.key();
+        if (plain && offer != null && key == UiKey.ESCAPE) {
+            cancel();
+            return true;
+        }
+        if (plain && key == UiKey.ENTER && offer != null && (focused() == null || track.levelOf(focused()) == offer.target())) {
+            confirm();
+            return true;
+        }
+        if (plain && key == UiKey.ENTER && offer == null && focused() == null) {
+            levelUp();
+            return true;
+        }
+        if (plain && key == UiKey.DELETE && offer == null) {
+            unlearnTop();
+            return true;
+        }
+        if (plain && (key == UiKey.LEFT || key == UiKey.RIGHT) && focused() == null && track.shown() && shown > 0) {
+            super.keyPressed(event);
+            focus(track.node(shown));
+            return true;
+        }
+        return super.keyPressed(event);
     }
 
     @Override
     protected void answered(String done, FeedbackKind kind) {
         pendingLevel = 0;
-        if (kind == FeedbackKind.SUCCESS && (LEARN.equals(done) || UNLEARN.equals(done))) {
-            chosen = false;
-        }
     }
 
     @Override
@@ -217,7 +290,8 @@ public final class AdaptationScreen extends AdaptScreen {
             notice.setText(!ready ? (catalog == null || player == null ? ScreenText.WAITING.text() : ScreenText.UNAVAILABLE.text())
                     : adaptation.enabled() ? ScreenText.DENIED.text() : ScreenText.DISABLED.text());
             notice.setColor(ready ? Palette.LOCK : 0);
-            closeConfirm();
+            offer = null;
+            shown = 0;
             if (ready) {
                 updateSummary(player, adaptation, CatalogIndex.level(player, adaptationId));
             }
@@ -229,16 +303,28 @@ public final class AdaptationScreen extends AdaptScreen {
         }
         int level = CatalogIndex.level(player, adaptationId);
         int max = adaptation.maxLevel();
-        if (!chosen || selected > max) {
-            selected = Math.min(max, level + 1);
+        if (offer != null && (offer.target() > max || (offer.learn() ? offer.target() <= level : offer.target() >= level))) {
+            offer = null;
         }
+        int hovered = Math.min(peek, max);
+        shown = hovered > 0 ? hovered : offer != null ? Math.max(1, offer.target()) : Math.min(max, level + 1);
         updateSummary(player, adaptation, level);
+        if (!levels) {
+            return;
+        }
+        boolean nextOpen = level < max && (offer == null || offer.learn()) && LearnRules.learn(catalog, player, adaptation, level + 1).allowed();
         List<LevelTrack.LevelState> states = new ArrayList<>();
         for (int value = 1; value <= max; value++) {
-            states.add(levelState(catalog, player, adaptation, level, value));
+            LevelTrack.Pip pip = value <= level ? LevelTrack.Pip.LEARNED
+                    : value == level + 1 && nextOpen ? LevelTrack.Pip.OPEN : LevelTrack.Pip.EMPTY;
+            boolean offered = offer != null && (offer.learn() ? value > level && value <= offer.target()
+                    : value <= level && value > offer.target());
+            states.add(new LevelTrack.LevelState(pip, offered));
         }
-        track.update(states, selected, pending() ? pendingLevel : 0);
-        updateDetail(catalog, player, adaptation, level);
+        track.update(states, shown, pending() ? pendingLevel : 0);
+        stats.show(adaptation.statLines(), shown);
+        updateReason(catalog, player, adaptation, level, hovered);
+        updateActions(catalog, player, adaptation, level);
         if (settings) {
             preferences.update(PreferenceOwner.ADAPTATION, adaptationId, adaptation.preferences(), adaptation.preferenceGroups(), player,
                     level, level < 1 ? ScreenText.LEARN_FIRST.text() : null);
@@ -252,166 +338,286 @@ public final class AdaptationScreen extends AdaptScreen {
         summary.set(UiIcons.adaptation(adaptation), adaptation.name(), state);
         description.setText(LegacyText.strip(adaptation.description()));
         summary.setTooltip(new Tooltip(adaptation.name(), List.of("§8" + state)));
-        permanentChip.setVisible(adaptation.permanent());
-        debugChip.setVisible(player.access().debug());
         long knowledge = LearnRules.knowledge(player, adaptation.skillId());
         chip("stat:knowledge").set(SkillsScreen.KNOWLEDGE_ICON, ScreenText.number(knowledge), "")
                 .setTooltip(new Tooltip(ScreenText.KNOWLEDGE_TITLE.text(), List.of("§7" + ScreenText.KNOWLEDGE_SKILL_TIP.text())));
         SkillsScreen.powerChip(chip("stat:power"), player);
     }
 
-    private LevelTrack.LevelState levelState(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
-        boolean learned = value <= level;
-        boolean next = value == level + 1;
-        List<String> lines = new ArrayList<>();
-        boolean available;
-        if (learned) {
-            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value - 1);
-            available = check.allowed();
-            lines.add("§a" + ScreenText.LEARNED.text());
-            if (check.allowed()) {
-                lines.add("§7" + LearnText.refund(check));
-            } else {
-                lines.add("§6" + LearnText.unlearnBlock(check));
-            }
-        } else {
+    /** How a line under the stats reads: plain information, a resource the player is short of, or a rule that locks the action. */
+    enum Tone {
+        INFO,
+        SHORT,
+        LOCK
+    }
+
+    /** One line for the foot of the page and how it reads; empty text shows nothing. */
+    record Note(String text, Tone tone) {
+        static final Note NONE = new Note("", Tone.INFO);
+    }
+
+    private static Note blocked(CatalogIndex catalog, LearnRules.LearnCheck check) {
+        return switch (check.block()) {
+            case NONE, LEARNED -> Note.NONE;
+            case POWER, KNOWLEDGE -> new Note(LearnText.learnBlock(catalog, check), Tone.SHORT);
+            case REQUIREMENTS, DISABLED, DENIED -> new Note(LearnText.learnBlock(catalog, check), Tone.LOCK);
+        };
+    }
+
+    private static Note blocked(LearnRules.UnlearnCheck check) {
+        String text = LearnText.unlearnBlock(check);
+        return text.isEmpty() ? Note.NONE : new Note(text, Tone.LOCK);
+    }
+
+    /** What reaching {@code value} from {@code level} would cost or give back, or what stops it; nothing for the level held. */
+    private static Note reach(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
+        if (value > level) {
             LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, value);
-            available = check.allowed();
-            lines.add((available ? "§a" : "§c") + LearnText.learnBlock(catalog, check));
-            lines.add("§7" + (check.free() ? ScreenText.FREE_COST.text()
-                    : ScreenText.KNOWLEDGE_COST.text(ScreenText.number(check.knowledgeCost()))));
-            lines.add("§7" + ScreenText.POWER_COST.text(check.powerCost()));
+            return check.allowed() ? new Note(LearnText.learnBlock(catalog, check), Tone.INFO) : blocked(catalog, check);
         }
-        List<String> statLines = adaptation.statLines().get(value - 1);
-        if (!statLines.isEmpty()) {
-            lines.add("");
-            lines.addAll(statLines);
+        if (value < level) {
+            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value);
+            return check.allowed() ? new Note(LearnText.unlearnOffer(check), Tone.INFO) : blocked(check);
         }
-        return new LevelTrack.LevelState(learned, next, available, adaptation.name() + " §f" + ScreenText.roman(value), lines);
+        return Note.NONE;
     }
 
-    /** What stops {@code value} from being learned, or unlearned once it is, and the colour that says which. */
-    private record Blocked(String text, int color) {
-    }
-
-    private static Blocked blocked(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
-        if (value <= level) {
-            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value - 1);
-            return new Blocked(check.allowed() && !check.refunded() ? LearnText.refund(check) : LearnText.unlearnBlock(check), Palette.LOCK);
-        }
-        LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, value);
-        return new Blocked(check.allowed() ? "" : LearnText.learnBlock(catalog, check),
-                check.block() == LearnRules.LearnBlock.REQUIREMENTS ? Palette.LOCK : Palette.BAD);
-    }
-
-    /** What the action row holds for {@code value}: its chips' values and its button's label, as {@link ActionRow#widest} measures them. */
-    private List<String> actionTexts(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int value) {
-        if (value <= level) {
-            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, value - 1);
-            String refund = check.refunded() && check.allowed() ? ScreenText.number(check.refund()) : null;
-            return refund == null ? List.of(ScreenText.UNLEARN.text(ScreenText.roman(value)))
-                    : List.of(refund, ScreenText.UNLEARN.text(ScreenText.roman(value)));
-        }
-        LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, value);
-        return List.of(check.free() ? ScreenText.FREE_COST.text() : ScreenText.number(check.knowledgeCost()),
-                Integer.toString(check.powerCost()), ScreenText.LEARN.text(ScreenText.roman(value)));
-    }
-
-    private void updateDetail(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level) {
-        if (selected < 1) {
-            return;
-        }
-        List<List<String>> rows = new ArrayList<>();
-        for (int value = 1; value <= adaptation.maxLevel(); value++) {
-            rows.add(actionTexts(catalog, player, adaptation, level, value));
-        }
-        actionRow.reserve(rows);
-        boolean learned = selected <= level;
-        stats.show(adaptation.statLines(), selected);
-        List<String> reasons = new ArrayList<>();
-        for (int value = 1; value <= adaptation.maxLevel(); value++) {
-            reasons.add(blocked(catalog, player, adaptation, level, value).text());
-        }
-        Blocked block = blocked(catalog, player, adaptation, level, selected);
-        reason.show(block.text(), reasons);
-        reason.setColor(block.color());
-        if (learned) {
-            LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, selected - 1);
-            costChip.setVisible(false);
-            powerChip.setVisible(false);
-            refundChip.setVisible(check.refunded() && check.allowed());
-            refundChip.set(SkillsScreen.KNOWLEDGE_ICON, ScreenText.number(check.refund()), "");
-            refundChip.setTooltip(Tooltip.of(LearnText.refund(check)));
-            learnButton.setVisible(false);
-            unlearnButton.setVisible(true);
-            unlearnButton.setText(ScreenText.UNLEARN.text(ScreenText.roman(selected)));
-            unlearnButton.setEnabled(check.allowed() && !pending());
-            unlearnButton.setTooltip(Tooltip.of(LearnText.refund(check)));
-        } else {
-            LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, selected);
-            costChip.setVisible(true);
-            powerChip.setVisible(true);
-            refundChip.setVisible(false);
-            if (check.free()) {
-                costChip.set(SkillsScreen.KNOWLEDGE_ICON, ScreenText.FREE_COST.text(), "").setValueColor(Palette.GOOD);
-            } else {
-                costChip.set(SkillsScreen.KNOWLEDGE_ICON, ScreenText.number(check.knowledgeCost()), "")
-                        .setValueColor(check.knowledge() < check.knowledgeCost() ? Palette.BAD : 0);
+    /** What the open offer still needs said: what blocks it, or the warning it asks the player to accept. */
+    private Note offerNote(CatalogIndex catalog, PlayerView player, AdaptationView adaptation) {
+        if (offer.learn()) {
+            LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, offer.target());
+            if (!check.allowed()) {
+                return blocked(catalog, check);
             }
+            return adaptation.permanent() && !check.free() ? new Note(ScreenText.PERMANENT_TIP.text(), Tone.LOCK) : Note.NONE;
+        }
+        LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, offer.target());
+        if (!check.allowed()) {
+            return blocked(check);
+        }
+        return check.refunded() || player.access().debug() ? Note.NONE : new Note(ScreenText.NO_REFUND.text(), Tone.LOCK);
+    }
+
+    private void updateReason(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level, int hovered) {
+        int max = adaptation.maxLevel();
+        Note rest = level < max ? blocked(catalog, LearnRules.learn(catalog, player, adaptation, level + 1)) : Note.NONE;
+        List<String> every = new ArrayList<>();
+        every.add(rest.text());
+        for (int value = 1; value <= max; value++) {
+            every.add(reach(catalog, player, adaptation, level, value).text());
+        }
+        PlayerAccess access = player.access();
+        if (!access.debug()) {
+            every.add(adaptation.permanent() ? ScreenText.PERMANENT_TIP.text() : "");
+            every.add(access.refunds() ? "" : ScreenText.NO_REFUND.text());
+        }
+        Note note = offer != null ? offerNote(catalog, player, adaptation)
+                : hovered > 0 && hovered != level ? reach(catalog, player, adaptation, level, hovered) : rest;
+        reason.show(note, every);
+    }
+
+    private static String learnLabel(int from, int to) {
+        if (to > from + 1) {
+            return ScreenText.LEARN_TO.text(ScreenText.roman(to));
+        }
+        return from == 0 ? ScreenText.LEARN.text(ScreenText.roman(to)) : ScreenText.LEVEL_UP.text(ScreenText.roman(to));
+    }
+
+    private static String unlearnLabel(int from, int to) {
+        return to < from - 1 ? ScreenText.UNLEARN_TO.text(ScreenText.roman(to)) : ScreenText.UNLEARN.text(ScreenText.roman(from));
+    }
+
+    private static String costText(LearnRules.LearnCheck check) {
+        return check.free() ? ScreenText.FREE_COST.text() : ScreenText.number(check.knowledgeCost());
+    }
+
+    private static String refundText(int refund) {
+        return "+" + ScreenText.number(refund);
+    }
+
+    /** Tells the row the widest thing each slot can hold at any level, in any offer. */
+    private void reserve(AdaptationView adaptation, PlayerAccess access) {
+        int max = adaptation.maxLevel();
+        boolean refunds = access.refunds() && !access.debug();
+        List<String> primary = new ArrayList<>(List.of(ScreenText.MASTERED.text()));
+        List<String> secondary = new ArrayList<>(List.of(ScreenText.CANCEL.text()));
+        List<String> costs = new ArrayList<>();
+        List<String> powers = new ArrayList<>();
+        List<String> refunded = new ArrayList<>();
+        for (int from = 0; from <= max; from++) {
+            for (int to = 0; to <= max; to++) {
+                if (to > from) {
+                    primary.add(learnLabel(from, to));
+                    costs.add(access.debug() ? ScreenText.FREE_COST.text() : ScreenText.number(LearnRules.knowledgeCost(adaptation, from, to)));
+                    powers.add(Integer.toString(LearnRules.powerCost(adaptation, from, to)));
+                } else if (to < from) {
+                    primary.add(unlearnLabel(from, to));
+                    if (refunds) {
+                        costs.add(refundText(LearnRules.refund(adaptation, to, from)));
+                    }
+                    if (to == from - 1) {
+                        secondary.add(unlearnLabel(from, to));
+                        if (refunds) {
+                            refunded.add(refundText(LearnRules.refund(adaptation, to, from)));
+                        }
+                    }
+                }
+            }
+        }
+        actionRow.reserve(primary, costs, powers, refunded, secondary);
+    }
+
+    private void updateActions(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int level) {
+        PlayerAccess access = player.access();
+        int max = adaptation.maxLevel();
+        reserve(adaptation, access);
+        boolean offering = offer != null;
+        boolean learning = offering ? offer.learn() : level < max;
+        boolean permanent = adaptation.permanent() && !access.debug();
+        debugChip.setVisible(access.debug());
+        learnButton.setVisible(!offering);
+        confirmButton.setVisible(offering);
+        cancelButton.setVisible(offering);
+        cancelButton.setEnabled(!pending());
+        permanentChip.setVisible(!offering && permanent);
+        LearnRules.UnlearnCheck top = LearnRules.unlearn(catalog, player, adaptation, level - 1);
+        unlearnButton.setVisible(!offering && !permanent && level > 0);
+        unlearnButton.setText(unlearnLabel(level, level - 1));
+        unlearnButton.setEnabled(top.allowed() && !pending());
+        String topNote = top.allowed() ? LearnText.refund(top) : LearnText.unlearnBlock(top);
+        unlearnButton.setTooltip(topNote.isEmpty() ? null : Tooltip.of(topNote));
+        refund.setVisible(unlearnButton.visible() && top.allowed() && top.refunded());
+        refund.set(refundText(top.refund()));
+        refund.setTooltip(Tooltip.of(LearnText.refund(top)));
+        costChip.setVisible(learning || offering && LearnRules.unlearn(catalog, player, adaptation, offer.target()).refunded());
+        powerChip.setVisible(learning);
+        if (learning) {
+            int target = offering ? offer.target() : level + 1;
+            LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, target);
+            costChip.set(SkillsScreen.KNOWLEDGE_ICON, costText(check), "")
+                    .setValueColor(check.free() ? Palette.GOOD : check.knowledge() < check.knowledgeCost() ? Palette.BAD : 0);
             costChip.setTooltip(new Tooltip(ScreenText.KNOWLEDGE_COST.text(ScreenText.number(check.knowledgeCost())),
                     List.of("§7" + ScreenText.KNOWLEDGE_SKILL_TIP.text(), "§b" + ScreenText.number(check.knowledge()) + " §7"
                             + ScreenText.KNOWLEDGE.text())));
             powerChip.set(SkillsScreen.POWER_ICON, Integer.toString(check.powerCost()), "")
-                    .setValueColor(check.freePower() < check.powerCost() ? Palette.BAD : 0);
+                    .setValueColor(!check.free() && check.freePower() < check.powerCost() ? Palette.BAD : 0);
             powerChip.setTooltip(new Tooltip(ScreenText.POWER_COST.text(check.powerCost()),
                     List.of("§7" + ScreenText.POWER_TIP.text(check.freePower(), player.header().powerMax()))));
-            unlearnButton.setVisible(false);
-            learnButton.setVisible(true);
-            learnButton.setText(ScreenText.LEARN.text(ScreenText.roman(selected)));
-            learnButton.setEnabled(check.allowed() && !pending());
-            List<String> learnLines = new ArrayList<>();
-            learnLines.add("§7" + (selected == level + 1 ? ScreenText.NEXT.text() : ScreenText.NOT_LEARNED.text()));
+            List<String> requirements = new ArrayList<>();
             for (RequirementView requirement : adaptation.requirements()) {
                 boolean met = CatalogIndex.level(player, requirement.adaptationId()) >= requirement.level();
-                learnLines.add((met ? "§a" : "§c") + LearnText.requirement(catalog, requirement));
+                requirements.add((met ? "§a" : "§c") + LearnText.requirement(catalog, requirement));
             }
-            learnButton.setTooltip(new Tooltip(ScreenText.LEVEL.text(ScreenText.roman(selected)), learnLines));
+            Button button = offering ? confirmButton : learnButton;
+            button.setText(learnLabel(level, target));
+            button.setStyle(Button.Style.PRIMARY);
+            button.setEnabled(check.allowed() && !pending());
+            button.setTooltip(requirements.isEmpty() ? null : new Tooltip(ScreenText.LEVEL.text(ScreenText.roman(target)), requirements));
+            return;
         }
+        if (!offering) {
+            learnButton.setText(ScreenText.MASTERED.text());
+            learnButton.setEnabled(false);
+            learnButton.setTooltip(null);
+            return;
+        }
+        LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, offer.target());
+        costChip.set(SkillsScreen.KNOWLEDGE_ICON, refundText(check.refund()), "").setValueColor(Palette.GOOD);
+        costChip.setTooltip(Tooltip.of(LearnText.refund(check)));
+        confirmButton.setText(unlearnLabel(level, offer.target()));
+        confirmButton.setStyle(Button.Style.DESTRUCTIVE);
+        confirmButton.setEnabled(check.allowed() && !pending());
+        confirmButton.setTooltip(null);
     }
 
-    private void act() {
+    private AdaptationView adaptation() {
+        CatalogIndex catalog = router().index();
+        return catalog == null ? null : catalog.adaptation(adaptationId);
+    }
+
+    /** Offers to bring the adaptation to {@code level}, as clicking that pip does; the level already held closes an open offer. */
+    void pick(int level) {
+        PlayerView player = router().state().player();
+        AdaptationView adaptation = adaptation();
+        if (adaptation == null || player == null || pending()) {
+            return;
+        }
+        int held = CatalogIndex.level(player, adaptationId);
+        offer = level == held || level < 1 || level > adaptation.maxLevel() ? null : new Offer(level, level > held);
+        refresh();
+        requestLayout();
+    }
+
+    /** Learns the next level, asking first when that cannot be undone. */
+    void levelUp() {
         CatalogIndex catalog = router().index();
         PlayerView player = router().state().player();
-        AdaptationView adaptation = catalog == null ? null : catalog.adaptation(adaptationId);
-        if (adaptation == null || player == null || pending() || selected < 1) {
+        AdaptationView adaptation = adaptation();
+        if (adaptation == null || player == null || pending()) {
             return;
         }
-        int level = CatalogIndex.level(player, adaptationId);
-        int target = selected;
-        if (target <= level) {
-            if (LearnRules.unlearn(catalog, player, adaptation, target - 1).allowed()) {
-                pendingLevel = target;
-                send(UNLEARN, ScreenText.UNLEARNING.text(), () -> router().actions().unlearn(adaptationId, target - 1));
-            }
-            return;
-        }
+        int target = CatalogIndex.level(player, adaptationId) + 1;
         LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation, target);
         if (!check.allowed()) {
             return;
         }
         if (adaptation.permanent() && !check.free()) {
-            confirm = new ConfirmOverlay("confirm", ScreenText.CONFIRM_TITLE.text(),
-                    ScreenText.CONFIRM_TEXT.text(adaptation.name(), ScreenText.number(check.knowledgeCost())),
-                    ScreenText.LEARN.text(ScreenText.roman(target)), ScreenText.CANCEL.text(), Button.Style.PRIMARY,
-                    () -> {
-                        confirm = null;
-                        learn(target);
-                    },
-                    () -> confirm = null);
-            openOverlay(confirm);
+            pick(target);
             return;
         }
         learn(target);
+    }
+
+    /** Unlearns the top level, asking first when the server returns nothing for it. */
+    void unlearnTop() {
+        CatalogIndex catalog = router().index();
+        PlayerView player = router().state().player();
+        AdaptationView adaptation = adaptation();
+        if (adaptation == null || player == null || pending()) {
+            return;
+        }
+        int level = CatalogIndex.level(player, adaptationId);
+        LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, level - 1);
+        if (!check.allowed()) {
+            return;
+        }
+        if (!check.refunded() && !player.access().debug()) {
+            offer = new Offer(level - 1, false);
+            refresh();
+            requestLayout();
+            return;
+        }
+        unlearn(level, level - 1);
+    }
+
+    /** Sends the open offer, if the server would accept it. */
+    void confirm() {
+        CatalogIndex catalog = router().index();
+        PlayerView player = router().state().player();
+        AdaptationView adaptation = adaptation();
+        Offer open = offer;
+        if (open == null || adaptation == null || player == null || pending()) {
+            return;
+        }
+        if (open.learn()) {
+            if (LearnRules.learn(catalog, player, adaptation, open.target()).allowed()) {
+                offer = null;
+                learn(open.target());
+            }
+            return;
+        }
+        if (LearnRules.unlearn(catalog, player, adaptation, open.target()).allowed()) {
+            offer = null;
+            unlearn(CatalogIndex.level(player, adaptationId), open.target());
+        }
+    }
+
+    void cancel() {
+        if (offer != null) {
+            offer = null;
+            refresh();
+            requestLayout();
+        }
     }
 
     private void learn(int target) {
@@ -419,12 +625,9 @@ public final class AdaptationScreen extends AdaptScreen {
         send(LEARN, ScreenText.LEARNING.text(), () -> router().actions().learn(adaptationId, target));
     }
 
-    private void closeConfirm() {
-        UiOverlay open = confirm;
-        if (open != null) {
-            confirm = null;
-            closeOverlay(open);
-        }
+    private void unlearn(int from, int target) {
+        pendingLevel = from;
+        send(UNLEARN, ScreenText.UNLEARNING.text(), () -> router().actions().unlearn(adaptationId, target));
     }
 
     /**
@@ -644,30 +847,50 @@ public final class AdaptationScreen extends AdaptScreen {
         }
     }
 
-    /** Why the selected level is blocked, as tall as the longest reason any level has. */
-    private static final class Reason extends Label {
+    /**
+     * The line above the actions: what blocks one, or what the level under the pointer would cost. A rule that locks an
+     * action is gold behind a padlock, a shortage is wine, information is muted. It keeps the height of the longest
+     * line it can show.
+     */
+    private static final class Reason extends UiNode {
+        private static final int LOCK_ROOM = 10;
+
         private List<String> all = List.of();
+        private Note note = Note.NONE;
 
         private Reason() {
-            super("reason", "");
-            setWrap(true);
+            super("reason");
         }
 
-        void show(String text, List<String> everyLevel) {
-            all = List.copyOf(everyLevel);
-            setText(text);
+        void show(Note shown, List<String> every) {
+            all = List.copyOf(every);
+            note = shown;
             boolean any = false;
-            for (String reason : all) {
-                any |= !reason.isEmpty();
+            for (String text : all) {
+                any |= !text.isEmpty();
             }
             setVisible(any);
-            services().requestLayout();
+        }
+
+        @Override
+        public String kind() {
+            return "label";
+        }
+
+        @Override
+        public String label() {
+            return note.text();
+        }
+
+        @Override
+        public void describe(Map<String, String> state) {
+            state.put("tone", note.tone().name());
         }
 
         int widest(UiDraw metrics) {
             int widest = 0;
             for (String text : all) {
-                widest = Math.max(widest, metrics.textWidth(text));
+                widest = Math.max(widest, LOCK_ROOM + metrics.textWidth(text));
             }
             return widest;
         }
@@ -677,91 +900,227 @@ public final class AdaptationScreen extends AdaptScreen {
             int tallest = 0;
             for (String text : all) {
                 if (!text.isEmpty()) {
-                    tallest = Math.max(tallest, metrics.wrappedHeight(text, Math.max(1, width)));
+                    tallest = Math.max(tallest, metrics.wrappedHeight(text, Math.max(1, width - LOCK_ROOM)));
                 }
             }
             return tallest;
         }
+
+        @Override
+        protected void paint(UiFrame frame) {
+            if (note.text().isEmpty()) {
+                return;
+            }
+            UiDraw draw = frame.draw();
+            UiRect box = bounds();
+            int color = switch (note.tone()) {
+                case INFO -> frame.theme().textMuted();
+                case SHORT -> Palette.BAD;
+                case LOCK -> Palette.LOCK;
+            };
+            int indent = note.tone() == Tone.LOCK ? LOCK_ROOM : 0;
+            if (indent > 0) {
+                UiTome.lock(draw, box.x() + 1, box.y());
+            }
+            draw.wrappedText(note.text(), box.x() + indent, box.y(), Math.max(1, box.width() - indent), color, false);
+        }
     }
 
-    /** The selected level's cost or refund chips and its button from the left edge, wrapping onto a second line when narrow. */
-    private static final class ActionRow extends UiGroup {
+    /** A number in muted ink behind the ink book, such as what unlearning gives back: quieter than a chip. */
+    private static final class InkValue extends UiNode {
         private static final int GAP = 3;
 
-        private List<List<String>> levels = List.of();
+        private String value = "";
+
+        private InkValue(String id) {
+            super(id);
+        }
+
+        void set(String text) {
+            value = text;
+        }
+
+        String value() {
+            return value;
+        }
+
+        @Override
+        public String kind() {
+            return "stat";
+        }
+
+        @Override
+        public void describe(Map<String, String> state) {
+            state.put("value", value);
+        }
+
+        @Override
+        public boolean hittable() {
+            return true;
+        }
+
+        static int width(UiDraw metrics, String text) {
+            return UiTome.Glyph.BOOK.width() + GAP + metrics.textWidth(text);
+        }
+
+        @Override
+        public int preferredHeight(int width, UiDraw metrics) {
+            return services().theme().controlHeight();
+        }
+
+        @Override
+        public int preferredWidth(UiDraw metrics) {
+            return width(metrics, value);
+        }
+
+        @Override
+        protected void paint(UiFrame frame) {
+            UiDraw draw = frame.draw();
+            UiRect box = bounds();
+            int ink = frame.theme().textMuted();
+            int textY = UiControl.textY(box);
+            int left = box.right() - width(draw, value);
+            UiTome.glyph(draw, UiTome.Glyph.BOOK, left, textY + UiControl.CAP_HEIGHT - UiTome.Glyph.BOOK.height(), ink);
+            draw.text(value, left + UiTome.Glyph.BOOK.width() + GAP, textY, ink, false);
+        }
+    }
+
+    /**
+     * The actions in fixed slots: the primary button with the knowledge and power it costs after it, then against the
+     * right edge what unlearning gives back and the quiet button. An offer puts its confirm button in the primary slot
+     * and Cancel in the quiet one. Each slot is as wide as the widest thing {@link #reserve} says it can hold, so
+     * nothing in the row moves when a level or an offer changes. The quiet slot drops to a line of its own, still
+     * against the right edge, when the page is too narrow for both.
+     */
+    private static final class ActionRow extends UiGroup {
+        private static final int GAP = 3;
+        private static final int APART = 8;
+        private static final int LEAD_CAP = 184;
+
+        private List<String> primary = List.of();
+        private List<String> costs = List.of();
+        private List<String> powers = List.of();
+        private List<String> refunds = List.of();
+        private List<String> secondary = List.of();
 
         private ActionRow() {
             super("detail.action");
         }
 
-        /** The chip values and, last, the button label of every level's row, so the page keeps room for the widest. */
-        void reserve(List<List<String>> rows) {
-            levels = List.copyOf(rows);
+        void reserve(List<String> primaryLabels, List<String> costValues, List<String> powerValues, List<String> refundValues,
+                     List<String> secondaryLabels) {
+            primary = List.copyOf(primaryLabels);
+            costs = List.copyOf(costValues);
+            powers = List.copyOf(powerValues);
+            refunds = List.copyOf(refundValues);
+            secondary = List.copyOf(secondaryLabels);
         }
 
-        /** The width of the widest level's row, with the chips that show on every level: one width whichever level is selected. */
-        int widest(UiDraw metrics) {
-            int fixed = 0;
-            for (UiNode node : visibleChildren()) {
-                if (node instanceof StatChip chip && chip.icon() == null) {
-                    fixed += GAP + chip.preferredWidth(metrics);
-                }
-            }
-            int widest = naturalWidth(metrics);
-            for (List<String> row : levels) {
-                int width = 0;
-                for (int index = 0; index < row.size(); index++) {
-                    boolean button = index == row.size() - 1;
-                    width += (width == 0 ? 0 : GAP) + (button ? Button.width(metrics, row.get(index), services().theme())
-                            : StatChip.width(metrics, row.get(index), true));
-                }
-                widest = Math.max(widest, width + fixed);
-            }
-            return widest;
+        private UiNode child(String id) {
+            return find(id);
         }
 
-        int naturalWidth(UiDraw metrics) {
+        /** The slot widths: primary button, knowledge chip, power chip, debug chip, refund, quiet button. */
+        private int[] slots(UiDraw metrics) {
+            UiTheme theme = services().theme();
+            int[] slots = new int[6];
+            for (String label : primary) {
+                slots[0] = Math.max(slots[0], Button.width(metrics, label, theme));
+            }
+            for (String value : costs) {
+                slots[1] = Math.max(slots[1], StatChip.width(metrics, value, true));
+            }
+            for (String value : powers) {
+                slots[2] = Math.max(slots[2], StatChip.width(metrics, value, true));
+            }
+            UiNode debug = child("stat:debug");
+            slots[3] = debug.visible() ? debug.preferredWidth(metrics) : 0;
+            for (String value : refunds) {
+                slots[4] = Math.max(slots[4], InkValue.width(metrics, value));
+            }
+            for (String label : secondary) {
+                slots[5] = Math.max(slots[5], Button.width(metrics, label, theme));
+            }
+            slots[5] = Math.max(slots[5], child("stat:permanent").preferredWidth(metrics));
+            return slots;
+        }
+
+        private static int lead(int[] slots) {
             int width = 0;
-            for (UiNode node : visibleChildren()) {
-                width += (width == 0 ? 0 : GAP) + node.preferredWidth(metrics);
+            for (int index = 0; index < 4; index++) {
+                width += slots[index] == 0 ? 0 : (width == 0 ? 0 : GAP) + slots[index];
             }
             return width;
         }
 
-        private int lines(int width, UiDraw metrics) {
-            int lines = 1;
+        private static int trail(int[] slots) {
+            return (slots[4] == 0 ? 0 : slots[4] + GAP) + slots[5];
+        }
+
+        /** The width that keeps the primary button and its costs on one line. */
+        int leadWidth(UiDraw metrics) {
+            return lead(slots(metrics));
+        }
+
+        /**
+         * The narrowest the row gets: the primary button with its costs on one line, up to {@link #LEAD_CAP}. A row
+         * that needs more than that on a page that cannot give it moves the costs under the button together.
+         */
+        int leastWidth(UiDraw metrics) {
+            int[] slots = slots(metrics);
+            int chips = lead(slots) - slots[0] - GAP;
+            return Math.max(Math.max(Math.min(LEAD_CAP, lead(slots)), slots[0]), Math.max(chips, trail(slots)));
+        }
+
+        /** Where each slot goes in {@code width}: x and line for the six slots, then the number of lines. */
+        private int[][] arrange(int[] slots, int width) {
+            int[][] placed = new int[7][2];
             int x = 0;
-            for (UiNode node : visibleChildren()) {
-                int nodeWidth = node.preferredWidth(metrics);
-                if (x > 0 && x + nodeWidth > width) {
-                    lines++;
-                    x = 0;
+            int line = 0;
+            for (int index = 0; index < 4; index++) {
+                if (slots[index] == 0) {
+                    continue;
                 }
-                x += nodeWidth + GAP;
+                if (index == 1 && lead(slots) > width) {
+                    x = 0;
+                    line++;
+                }
+                placed[index] = new int[]{x, line};
+                x += slots[index] + GAP;
             }
-            return lines;
+            int trail = trail(slots);
+            int from = width - trail;
+            if (x > 0 && x - GAP + APART > from) {
+                line++;
+                from = Math.max(0, from);
+            }
+            placed[4] = new int[]{from, line};
+            placed[5] = new int[]{from + trail - slots[5], line};
+            placed[6] = new int[]{line + 1, 0};
+            return placed;
         }
 
         @Override
         public int preferredHeight(int width, UiDraw metrics) {
-            int lines = lines(width, metrics);
+            int lines = arrange(slots(metrics), width)[6][0];
             return lines * AdaptScreen.BAR + (lines - 1) * GAP;
         }
 
         @Override
         protected void layout(UiDraw metrics) {
             UiRect box = bounds();
-            int x = 0;
-            int y = box.y();
-            for (UiNode node : visibleChildren()) {
-                int width = Math.min(box.width(), node.preferredWidth(metrics));
-                if (x > 0 && x + width > box.width()) {
-                    x = 0;
-                    y += AdaptScreen.BAR + GAP;
+            int[] slots = slots(metrics);
+            int[][] placed = arrange(slots, box.width());
+            String[][] holders = {{LEARN, CONFIRM}, {"stat:cost"}, {"stat:power-cost"}, {"stat:debug"}, {"stat:refund"},
+                    {UNLEARN, CANCEL, "stat:permanent"}};
+            for (int index = 0; index < holders.length; index++) {
+                int width = Math.min(box.width(), slots[index]);
+                int top = box.y() + placed[index][1] * (AdaptScreen.BAR + GAP);
+                for (String id : holders[index]) {
+                    UiNode node = child(id);
+                    int height = Math.min(AdaptScreen.BAR, node.preferredHeight(width, metrics));
+                    node.place(new UiRect(box.x() + placed[index][0], top + (AdaptScreen.BAR - height) / 2, width, height), metrics);
                 }
-                int height = Math.min(AdaptScreen.BAR, node.preferredHeight(width, metrics));
-                node.place(new UiRect(box.x() + x, y + (AdaptScreen.BAR - height) / 2, width, height), metrics);
-                x += width + GAP;
             }
         }
     }

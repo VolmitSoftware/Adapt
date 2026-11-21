@@ -164,7 +164,7 @@ class BookFitTest {
             UiRect frame = fixture.find("frame").bounds();
             String where = size[0] + "x" + size[1] + " " + frame;
             assertTrue(screen.spreadOpen(), where);
-            assertTrue(frame.width() <= 380 && frame.height() <= 215, where + ": a short adaptation opens a large book");
+            assertTrue(frame.width() <= 400 && frame.height() <= 225, where + ": a short adaptation opens a large book");
             assertEquals(fixture.find("page").bounds().width(), fixture.find("facing").bounds().width(), where);
         }
     }
@@ -343,8 +343,8 @@ class BookFitTest {
             assertTrue(adaptation.spreadOpen());
             top = adaptation.scroll().bounds().y();
             assertEquals(textY(fixture, "Wall Jump", top), textY(fixture, "Adaptation enabled", top), size[0] + "x" + size[1] + " adaptation");
-            assertEquals(adaptation.actionButton().bounds().centerY(), fixture.find("pref-reset").bounds().centerY(),
-                    size[0] + "x" + size[1] + ": learn and reset share the foot of the pages");
+            assertEquals(fixture.find("unlearn").bounds().centerY(), fixture.find("pref-reset").bounds().centerY(),
+                    size[0] + "x" + size[1] + ": unlearn and reset share the foot of the pages");
         }
     }
 
@@ -405,7 +405,7 @@ class BookFitTest {
             UiRect page = fixture.find("page").bounds();
             Integer row = null;
             for (int level = 1; level <= 5; level++) {
-                screen.select(level);
+                screen.pick(level);
                 fixture.render();
                 UiRect action = fixture.find("detail.action").bounds();
                 assertEquals(page.bottom(), action.bottom(), where + " level " + level + ": the action row leaves the foot of the page");
@@ -570,12 +570,12 @@ class BookFitTest {
         assertSame(tile, skills.focused());
 
         AdaptationScreen adaptation = fixture.open(new Route.Adaptation(TypicalCatalog.ADAPTATION));
-        adaptation.select(5);
+        adaptation.pick(5);
         fixture.render();
         for (int[] size : new int[][] {{480, 270, 4}, {320, 240, 2}, {1280, 720, 2}}) {
             fixture.resize(size[0], size[1], size[2]);
             fixture.render();
-            assertEquals(5, adaptation.selectedLevel(), size[0] + "x" + size[1]);
+            assertEquals(5, adaptation.shownLevel(), size[0] + "x" + size[1]);
         }
 
         SkillScreen skill = fixture.open(new Route.Skill(TypicalCatalog.SKILL));

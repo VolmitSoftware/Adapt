@@ -17,9 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * One skill in the skills grid: icon, name in the skill's colour, level, the experience bar in the skill's colour, its
- * knowledge as a book mark and number when it has any, and a green dot when an adaptation can be learned now. A skill
- * the player may not open shows locked. The tooltip carries the exact numbers.
+ * One skill in the skills grid: icon, name in the skill's colour, level, the experience bar in the skill's colour and
+ * its knowledge as an ink book and number when it has any: a closed book in muted ink, or an open one in the skill's
+ * colour while that knowledge can buy an adaptation level now. A skill the player may not open shows locked. The
+ * tooltip carries the exact numbers.
  */
 final class SkillTile extends RowTile {
 
@@ -139,13 +140,19 @@ final class SkillTile extends RowTile {
     }
 
     @Override
-    UiTome.Mark secondMark() {
-        return openable ? UiTome.Mark.KNOWLEDGE : null;
+    UiTome.Glyph secondGlyph() {
+        if (!openable) {
+            return null;
+        }
+        return learnable > 0 ? UiTome.Glyph.BOOK : UiTome.Glyph.BOOK_CLOSED;
     }
 
     @Override
     int secondColor(UiTheme theme) {
-        return openable ? theme.text() : Palette.LOCK;
+        if (!openable) {
+            return Palette.LOCK;
+        }
+        return learnable > 0 ? accent : theme.textMuted();
     }
 
     @Override
@@ -156,11 +163,6 @@ final class SkillTile extends RowTile {
     @Override
     void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
         ProgressBar.slim(draw, theme, left, top, right, BAR_HEIGHT, openable ? progress() : 0.0F, accent);
-    }
-
-    @Override
-    int dot() {
-        return openable && learnable > 0 ? Palette.GOOD : 0;
     }
 
     @Override

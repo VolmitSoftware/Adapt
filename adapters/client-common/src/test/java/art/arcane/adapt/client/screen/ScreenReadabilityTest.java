@@ -55,7 +55,7 @@ class ScreenReadabilityTest {
                         UiRect lines = tile.textBounds();
                         String what = where + " " + tile.id() + " \"" + text + "\" at " + x + "," + y;
                         assertTrue(x >= lines.x() && x + fixture.draw.textWidth(text) <= lines.right(), what + " leaves " + lines);
-                        assertTrue(y == box.y() + RowTile.FIRST_LINE || y == box.y() + RowTile.SECOND_LINE, what + " is off its line");
+                        assertTrue(y == box.y() + tile.nameTop() || y == box.y() + RowTile.SECOND_LINE, what + " is off its line");
                         assertTrue(y + fixture.draw.lineHeight() <= box.bottom(), what + " runs past the tile " + box);
                         assertFalse(tile.iconBounds().intersects(new UiRect(x, y, fixture.draw.textWidth(text), fixture.draw.lineHeight())),
                                 what + " covers the icon");
@@ -83,19 +83,19 @@ class ScreenReadabilityTest {
         UiTheme base = UiTheme.DEFAULT;
         int panel = base.backdrop();
         List<LevelTrack.LevelState> states = List.of(
-                new LevelTrack.LevelState(true, false, true, "", List.of()),
-                new LevelTrack.LevelState(false, true, true, "", List.of()),
-                new LevelTrack.LevelState(false, true, false, "", List.of()),
-                new LevelTrack.LevelState(false, false, false, "", List.of()));
+                new LevelTrack.LevelState(LevelTrack.Pip.LEARNED, false),
+                new LevelTrack.LevelState(LevelTrack.Pip.LEARNED, true),
+                new LevelTrack.LevelState(LevelTrack.Pip.OPEN, false),
+                new LevelTrack.LevelState(LevelTrack.Pip.OPEN, true),
+                new LevelTrack.LevelState(LevelTrack.Pip.EMPTY, false),
+                new LevelTrack.LevelState(LevelTrack.Pip.EMPTY, true));
         for (int colour : SKILL_COLOURS) {
             UiTheme theme = base.withAccent(Palette.accent(colour));
             for (LevelTrack.LevelState state : states) {
-                for (float pulse : new float[] {0.0F, 1.0F}) {
-                    LevelTrack.Look look = LevelTrack.look(state, theme, pulse);
-                    int fill = UiContrast.over(look.fill(), panel);
-                    double ratio = UiContrast.ratio(look.text(), fill);
-                    assertTrue(ratio >= UiContrast.TEXT, Integer.toHexString(colour) + " " + state + " pulse " + pulse + ": " + ratio);
-                }
+                LevelTrack.Look look = LevelTrack.look(state, theme);
+                int fill = UiContrast.over(look.fill(), panel);
+                double ratio = UiContrast.ratio(look.text(), fill);
+                assertTrue(ratio >= UiContrast.TEXT, Integer.toHexString(colour) + " " + state + ": " + ratio);
             }
         }
     }

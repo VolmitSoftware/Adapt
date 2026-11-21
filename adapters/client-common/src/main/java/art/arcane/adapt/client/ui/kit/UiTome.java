@@ -38,8 +38,6 @@ public final class UiTome {
     public static final int DIVIDER = 3;
     /** A checkbox's size. */
     public static final int CHECK = 10;
-    /** A {@link Mark}'s size. */
-    public static final int MARK = 8;
     /** Paper a divider keeps clear at each end, and the length its rule fades over after that. */
     private static final int RULE_INSET = 2;
     private static final int RULE_FADE = 6;
@@ -133,40 +131,12 @@ public final class UiTome {
         draw.fill(middle, top + 1, middle + 1, top + 2, ORNAMENT_GOLD);
     }
 
-    /** Small {@link #MARK} square icons that stand in for a word beside a number. */
-    public enum Mark {
-        KNOWLEDGE("knowledge_small", UiRamp.MOSS[1]),
-        POWER("power_small", UiRamp.PEWTER[0]);
-
-        private final String texture;
-        private final int fallback;
-
-        Mark(String texture, int fallback) {
-            this.texture = texture;
-            this.fallback = fallback;
-        }
-
-        public String textureId() {
-            return "adapt:textures/gui/mark/" + texture + ".png";
-        }
-    }
-
-    /** Draws {@code mark} with its top left at (x, y), its texture at native size or a small square without one. */
-    public static void mark(UiDraw draw, Mark mark, int x, int y) {
-        UiTexture texture = draw.sprites().texture(mark.textureId());
-        if (texture != null) {
-            draw.blit(texture, x, y, MARK, MARK);
-            return;
-        }
-        soft(draw, x + 1, y + 1, x + MARK - 1, y + MARK - 1, mark.fallback);
-    }
-
     /** A plain one unit rule from {@code left} to {@code right} at {@code y}. */
     public static void rule(UiDraw draw, int left, int right, int y) {
         draw.fill(left, y, right, y + 1, RULE_SOFT);
     }
 
-    /** Small ink marks for arrows and steppers, drawn pixel by pixel so they stay crisp and bold at every scale. */
+    /** Small ink marks for arrows, steppers and the knowledge book, drawn pixel by pixel so they stay crisp and bold at every scale. */
     public enum Glyph {
         BACK("<", "....##", "...##.", "..##..", ".##...", "..##..", "...##.", "....##"),
         FORWARD(">", "##....", ".##...", "..##..", "...##.", "..##..", ".##...", "##...."),
@@ -174,7 +144,9 @@ public final class UiTome {
         LAST(">>", "#...#...", "##..##..", ".##..##.", "..##..##", ".##..##.", "##..##..", "#...#..."),
         MINUS("-", "......", "......", "######", "######", "......", "......"),
         PLUS("+", "..##..", "..##..", "######", "######", "..##..", "..##.."),
-        MORE("...", "##.##.##", "##.##.##");
+        MORE("...", "##.##.##", "##.##.##"),
+        BOOK("book", "##...##", "#.#.#.#", "#..#..#", "#..#..#", "#..#..#", "#..#..#", "#######"),
+        BOOK_CLOSED("book", ".######", "##....#", "##....#", "##....#", "##....#", "#######", ".######");
 
         private final String text;
         private final String[] rows;

@@ -108,7 +108,7 @@ final class DetailStrip extends UiNode {
             for (Source source : sources.get()) {
                 tallest = Math.max(tallest, height(source.detail(), width, full, metrics));
             }
-            return full ? own + (tallest == 0 ? 0 : SPLIT + tallest) : Math.max(RowTile.FIRST_LINE + metrics.lineHeight() * 2 + 1, Math.max(own, tallest));
+            return full ? own + (tallest == 0 ? 0 : SPLIT + tallest) : Math.max(AdaptationTile.NAME_TOP + metrics.lineHeight() * 2 + 1, Math.max(own, tallest));
         });
     }
 
@@ -120,7 +120,7 @@ final class DetailStrip extends UiNode {
         int room = Math.max(1, width);
         int height = shared(detail, room, metrics) ? metrics.lineHeight()
                 : metrics.wrappedHeight(detail.title(), room) + (detail.first().isEmpty() ? 0 : metrics.wrappedHeight(detail.first(), room));
-        return RowTile.FIRST_LINE + height + (detail.progress() >= 0.0F ? BAR : 0)
+        return AdaptationTile.NAME_TOP + height + (detail.progress() >= 0.0F ? BAR : 0)
                 + (detail.second().isEmpty() ? 0 : 1 + metrics.wrappedHeight(detail.second(), room))
                 + (full && !detail.more().isEmpty() ? PARAGRAPH + metrics.wrappedHeight(detail.more(), room) : 0);
     }
@@ -168,7 +168,7 @@ final class DetailStrip extends UiNode {
         UiTheme theme = frame.theme();
         UiRect box = bounds();
         int width = Math.max(1, box.width());
-        int y = top + RowTile.FIRST_LINE;
+        int y = top + AdaptationTile.NAME_TOP;
         int titleColor = detail.titleColor() == 0 ? theme.text() : detail.titleColor();
         if (shared(detail, width, draw)) {
             int titleWidth = draw.textWidth(detail.title());

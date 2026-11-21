@@ -70,7 +70,8 @@ class ScreenPreviewTest {
         preview.router().open(new Route.Adaptation("agility-wall-jump"));
         AdaptationScreen screen = (AdaptationScreen) preview.router().current();
         screen.render(draw, 0, 0, 0.0F);
-        screen.select(1);
+        click("unlearn");
+        ticks(ScreenPreview.REPLY_TICKS);
         click("unlearn");
         ticks(ScreenPreview.REPLY_TICKS);
         assertEquals(0, CatalogIndex.level(preview.state().player(), "agility-wall-jump"));
