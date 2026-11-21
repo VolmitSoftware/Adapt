@@ -234,9 +234,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    long now = System.currentTimeMillis();
-    if (now - lock.stamp() > getLockTimeoutMillis()
-        || !canDamageSnapshotOwned(player, lock.target())) {
+    if (!canDamageSnapshotOwned(player, lock.target())) {
       applyGlow(player, null);
       return;
     }
@@ -523,7 +521,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
   public LivingRef getLockedTarget(PlayerRef player) {
     Lock lock = locks.get(player.uuid());
-    if (lock == null || System.currentTimeMillis() - lock.stamp() > getLockTimeoutMillis()) {
+    if (lock == null) {
       return null;
     }
     if (!player.world().uid().equals(lock.target().worldId())) {
@@ -1427,15 +1425,28 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         continue;
       }
       if (now - lock.stamp() > getLockTimeoutMillis()) {
-        if (locks.remove(playerId, lock)) {
-          PlayerRef player = AdaptCore.platform().host().player(playerId);
-          if (player != null) {
-            applyGlow(player, null);
-          }
+        PlayerRef player = AdaptCore.platform().host().player(playerId);
+        if (player == null) {
+          locks.remove(playerId, lock);
+        } else {
+          withPlayerThread(player, () -> holdOrReleaseLockOwned(player, lock));
         }
         continue;
       }
       enqueueLock(playerId);
+    }
+  }
+
+  private void holdOrReleaseLockOwned(PlayerRef player, Lock lock) {
+    UUID playerId = player.uuid();
+    if (player.isHandRaised() && player.activeItem().type().equals(BOW)) {
+      if (locks.replace(playerId, lock, new Lock(lock.target(), System.currentTimeMillis()))) {
+        enqueueLock(playerId);
+      }
+      return;
+    }
+    if (locks.remove(playerId, lock)) {
+      applyGlowOwned(player, null);
     }
   }
 
@@ -2269,7 +2280,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     boolean ignorePassiveMobs = false;
     @ConfigDoc(value = "Maximum distance at which drawing a bow can lock onto a creature.", impact = "Higher values allow locking targets from further away.")
     double lockRange = 32D;
-    @ConfigDoc(value = "Milliseconds a lock stays valid after acquiring it before the shot.", impact = "Higher values let players hold a draw longer without losing the lock.")
+    @ConfigDoc(value = "Milliseconds a lock stays valid after acquiring it; it never expires while the bow is still drawn.", impact = "Higher values keep a lock longer after the player lowers the bow.")
     long lockTimeoutMillis = 6_000L;
     @ConfigDoc(value = "Maximum degrees the arrow turns toward its target per tick.", impact = "Higher values make the curve tighter; lower values produce a broader natural arc.")
     double turnDegreesPerTick = 10D;
