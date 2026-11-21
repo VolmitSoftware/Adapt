@@ -32,7 +32,7 @@ test('fixture pack.mcmeta uses pack_format before format 82 and the ranged form 
 
 test('jar names select the right artifact for each platform and version', () => {
   assert.deepEqual(bukkitJarRange('Adapt v2.2.7 [CraftBukkit] 26.1.2-26.3.jar'), { low: '26.1.2', high: '26.3' })
-  assert.deepEqual(bukkitJarRange('Adapt v2.2.7 [CraftBukkit] 1.20.1.jar'), { low: '1.20.1', high: '1.20.1' })
+  assert.deepEqual(bukkitJarRange('Adapt v2.2.7 [CraftBukkit] 26.3.jar'), { low: '26.3', high: '26.3' })
   assert.equal(bukkitJarRange('Adapt-2.2.7-thin.jar'), undefined)
   assert.equal(isModJar('Adapt v2.2.7 [Forge] 1.20.1+47.4.10.jar', 'forge', '1.20.1'), true)
   assert.equal(isModJar('Adapt v2.2.7 [Forge] 1.20.1+47.4.10.jar', 'forge', '1.21.1'), false)
@@ -43,17 +43,11 @@ test('artifact discovery picks the covering Bukkit jar and falls back to the For
   const root = mkdtempSync(join(tmpdir(), 'adapt-artifacts-'))
   const touch = (path, seconds) => { writeFileSync(path, ''); utimesSync(path, seconds, seconds) }
   mkdirSync(join(root, 'build/libs'), { recursive: true })
-  mkdirSync(join(root, 'legacy/libs'), { recursive: true })
-  mkdirSync(join(root, 'build/bukkit-1.21.1/libs'), { recursive: true })
-  touch(join(root, 'build/bukkit-1.21.1/libs/Adapt v2.2.7 [CraftBukkit] 1.21.1.jar'), 100)
   touch(join(root, 'build/libs/Adapt v2.2.7 [CraftBukkit] 26.1.2-26.3.jar'), 100)
   touch(join(root, 'build/libs/Adapt v2.2.6 [CraftBukkit] 26.1.2-26.3.jar'), 50)
-  touch(join(root, 'legacy/libs/Adapt v2.2.7 [CraftBukkit] 1.20.1.jar'), 100)
   assert.deepEqual(findArtifacts('paper', '26.3', root), {
     adapt: join(root, 'build/libs/Adapt v2.2.7 [CraftBukkit] 26.1.2-26.3.jar'), fixture: join(root, 'build/libs/AdaptGameplayFixture.jar') })
-  assert.equal(findArtifacts('paper', '1.21.1', root).adapt, join(root, 'build/bukkit-1.21.1/libs/Adapt v2.2.7 [CraftBukkit] 1.21.1.jar'))
-  assert.throws(() => findArtifacts('paper', '1.20.1', root), /No Bukkit Adapt jar covering 1.20.1/)
-  assert.equal(findArtifacts('paper', '1.20.1', root, `${join(root, 'build/libs')}:${join(root, 'legacy/libs')}`).fixture, join(root, 'legacy/libs/AdaptGameplayFixture.jar'))
+  assert.throws(() => findArtifacts('paper', '1.21.1', root), /No Bukkit Adapt jar covering 1.21.1/)
   mkdirSync(join(root, 'adapters/forge/build/1.20.1/libs'), { recursive: true })
   touch(join(root, 'adapters/forge/build/1.20.1/libs/Adapt v2.2.7 [Forge] 1.20.1+47.4.10.jar'), 100)
   assert.deepEqual(findArtifacts('neoforge', '1.20.1', root), {

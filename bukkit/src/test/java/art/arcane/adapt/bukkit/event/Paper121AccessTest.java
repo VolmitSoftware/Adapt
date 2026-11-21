@@ -5,10 +5,7 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.inventory.PrepareAnvilEvent;
 import art.arcane.adapt.platform.event.inventory.PrepareResultEvent;
 import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Id;
-import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.view.AnvilView;
@@ -68,15 +65,5 @@ class Paper121AccessTest {
     assertThat(((PrepareAnvilEvent) seen.get()).renameText()).isEqualTo("Heirloom");
     verify(view).setRepairCost(4);
     assertThat(event.getResult()).isSameAs(marked);
-  }
-
-  @Test
-  void pearlLandingFallDamageReadsAsEnderPearlDamage() {
-    Id fall = Id.minecraft("fall");
-    assertThat(Paper121Access.damageType(fall, mock(EnderPearl.class))).isEqualTo(Id.minecraft("ender_pearl"));
-    assertThat(Paper121Access.damageType(fall, mock(Snowball.class))).isEqualTo(fall);
-    assertThat(Paper121Access.damageType(fall, null)).isEqualTo(fall);
-    assertThat(Paper121Access.damageType(Id.minecraft("ender_pearl"), mock(EnderPearl.class))).isEqualTo(Id.minecraft("ender_pearl"));
-    assertThat(Paper121Access.damageType(Id.minecraft("magic"), mock(EnderPearl.class))).isEqualTo(Id.minecraft("magic"));
   }
 }

@@ -96,14 +96,14 @@ function listJars(directory) {
 }
 
 /**
- * Adapt and fixture jars for a run. Bukkit: the newest covering jar in ADAPT_QA_BUKKIT_LIBS (colon-separated, default
- * build/libs and the legacy project's build/bukkit-<mc>/libs), fixture beside it. Mods: adapters/<loader>/build/<mc>/libs, fixture in the sibling gameplay directory.
+ * Adapt and fixture jars for a run. Bukkit: the newest covering jar in build/libs, fixture beside it. Mods:
+ * adapters/<loader>/build/<mc>/libs, fixture in the sibling gameplay directory.
  */
-export function findArtifacts(platform, version, projectRoot, bukkitLibs = '') {
+export function findArtifacts(platform, version, projectRoot) {
   if (platform === 'paper' || platform === 'folia') {
-    const directories = bukkitLibs ? bukkitLibs.split(':').filter(Boolean) : [join(projectRoot, 'build/libs'), join(projectRoot, 'build', `bukkit-${version}`, 'libs')]
-    const jar = selectBukkitJar(version, directories.flatMap(listJars))
-    if (!jar) throw new Error(`No Bukkit Adapt jar covering ${version} in ${directories.join(', ')}`)
+    const libs = join(projectRoot, 'build/libs')
+    const jar = selectBukkitJar(version, listJars(libs))
+    if (!jar) throw new Error(`No Bukkit Adapt jar covering ${version} in ${libs}`)
     return { adapt: jar.path, fixture: join(dirname(jar.path), 'AdaptGameplayFixture.jar') }
   }
   for (const loader of modJarLoaders(platform, version)) {
@@ -134,7 +134,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (command === 'shell') console.log(shellProfile(version))
     else if (command === 'pack-meta') console.log(packMeta(version, readTargets(rest[0])))
     else if (command === 'artifacts') {
-      const found = findArtifacts(rest[0], version, rest[1], process.env.ADAPT_QA_BUKKIT_LIBS ?? '')
+      const found = findArtifacts(rest[0], version, rest[1])
       console.log(`${found.adapt}\n${found.fixture}`)
     } else throw new Error('Usage: node version-profile.mjs shell <mc> | pack-meta <mc> <targets.json> | artifacts <mc> <platform> <project root>')
   } catch (error) {

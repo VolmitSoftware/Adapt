@@ -8,19 +8,14 @@ import org.bukkit.Location;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.AreaEffectCloud;
-import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 
-/** Reads the damage source, potion type and anvil view, which Paper 1.20.1 does not expose. */
+/** Reads the damage source, potion type and anvil view. */
 final class Paper121Access {
   private static final Id GENERIC_DAMAGE = Id.minecraft("generic");
-  private static final Id FALL_DAMAGE = Id.minecraft("fall");
-  /** Before 1.21.2 a pearl landing is fall damage dealt by the pearl; newer versions give it its own type. */
-  private static final Id ENDER_PEARL_DAMAGE = Id.minecraft("ender_pearl");
 
   private Paper121Access() {
   }
@@ -35,11 +30,7 @@ final class Paper121Access {
     if (type == null) {
       return GENERIC_DAMAGE;
     }
-    return damageType(BukkitRefs.id(type.getKey()), event instanceof EntityDamageByEntityEvent byEntity ? byEntity.getDamager() : null);
-  }
-
-  static Id damageType(Id type, Entity damager) {
-    return FALL_DAMAGE.equals(type) && damager instanceof EnderPearl ? ENDER_PEARL_DAMAGE : type;
+    return BukkitRefs.id(type.getKey());
   }
 
   static Entity causingEntity(EntityDamageEvent event) {

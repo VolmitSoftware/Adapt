@@ -4,7 +4,6 @@ import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.client.link.ClientLink;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.FrameCodec;
-import art.arcane.adapt.client.protocol.FrameLimits;
 import art.arcane.adapt.client.server.ClientUiService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * to the running {@link ClientUiService}.
  */
 public final class BukkitClientLink implements ClientLink, PluginMessageListener, Listener {
-  private static final int MAX_PAYLOAD_BYTES = messengerLimit();
   private static volatile BukkitClientLink installed;
 
   private final Plugin plugin;
@@ -83,19 +81,7 @@ public final class BukkitClientLink implements ClientLink, PluginMessageListener
 
   @Override
   public int maxPayloadBytes() {
-    return MAX_PAYLOAD_BYTES;
-  }
-
-  /**
-   * The running server's plugin message limit: 32766 bytes up to 1.20.x, 1 MiB later. Read at runtime because the
-   * compiled-in constant would be the build API's value.
-   */
-  static int messengerLimit() {
-    try {
-      return Messenger.class.getField("MAX_MESSAGE_SIZE").getInt(null);
-    } catch (ReflectiveOperationException exception) {
-      return FrameLimits.MAX_C2S_PAYLOAD_BYTES;
-    }
+    return Messenger.MAX_MESSAGE_SIZE;
   }
 
   @Override

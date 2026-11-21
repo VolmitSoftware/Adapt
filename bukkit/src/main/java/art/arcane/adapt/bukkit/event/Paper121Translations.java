@@ -15,7 +15,7 @@ import static art.arcane.adapt.bukkit.event.BukkitEventMaps.entity;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.vec;
 import static art.arcane.adapt.bukkit.event.BukkitTranslations.cancel;
 
-/** Translations of native events that Paper 1.20.1 does not fire. */
+/** Translations of Paper-only native events. */
 final class Paper121Translations {
   private static final Map<io.papermc.paper.event.entity.EntityKnockbackEvent.Cause, EntityKnockbackEvent.Cause> KNOCKBACK_CAUSES =
       BukkitEventMaps.byName(io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.class, EntityKnockbackEvent.Cause.class,

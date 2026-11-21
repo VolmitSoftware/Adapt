@@ -13,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Random;
 import java.util.function.Consumer;
 
-/** The parts of {@link PaperCompat} bound to Paper API that 1.20.1 lacks; only the 1.20.1 jar replaces it. */
+/** The parts of {@link PaperCompat} bound to Paper API added after 1.20.1. */
 final class PaperCompat120Version {
   private static volatile boolean enchantWithLevelsSupported = true;
   private static volatile boolean createEntitySupported = true;

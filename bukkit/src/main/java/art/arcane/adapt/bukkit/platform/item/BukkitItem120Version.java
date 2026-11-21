@@ -28,8 +28,8 @@ import java.util.Locale;
 import java.util.Random;
 
 /**
- * The parts of {@link BukkitItemRef} and {@link BukkitItemOps} bound to API that Paper 1.20.1 lacks, mostly the item
- * components Minecraft 1.20.5 introduced; only the 1.20.1 jar replaces this class.
+ * The parts of {@link BukkitItemRef} and {@link BukkitItemOps} bound to the item components Minecraft 1.20.5
+ * introduced.
  */
 final class BukkitItem120Version {
   private static volatile boolean enchantWithLevelsSupported = true;

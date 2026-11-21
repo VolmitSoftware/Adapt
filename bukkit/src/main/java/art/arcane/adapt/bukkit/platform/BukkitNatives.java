@@ -7,9 +7,8 @@ import org.bukkit.entity.Player;
 import java.util.Optional;
 
 /**
- * Native server capabilities shipped in this jar. The 26.x jar bundles VolmLib's native adapters for every server it
- * supports, so a missing capability there is a fault and throws; a jar for an older server carries its own
- * implementations for its one server version.
+ * Native server capabilities shipped in this jar. The jar bundles VolmLib's native adapters for every server it
+ * supports, so a missing capability is a fault and throws.
  */
 public final class BukkitNatives {
   private BukkitNatives() {

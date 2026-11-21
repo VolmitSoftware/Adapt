@@ -18,23 +18,6 @@ afterEvaluate {
             minecraftVersions: [bukkitMinecraftRange.toString()]
         ]]
     ]]
-    minecraftTargets.findAll { String minecraft, Map<String, Object> properties -> properties.obfuscated }.each { String minecraft, Map<String, Object> properties ->
-        targets.add([
-            id: "bukkit-${minecraft}".toString(),
-            tasks: [":bukkit-${minecraft}:build".toString()],
-            arguments: [],
-            java: (int) properties.javaVersion,
-            memoryMiB: 8192,
-            workers: 4,
-            dependsOn: [],
-            artifacts: [[
-                path: "build/bukkit-${minecraft}/libs/Adapt v${project.version} [CraftBukkit] ${minecraft}.jar".toString(),
-                role: 'runtime',
-                platforms: ['plugin'],
-                minecraftVersions: [minecraft]
-            ]]
-        ])
-    }
     Map<String, String> loaders = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge']
     loaders.each { String loader, String platform ->
         minecraftTargets.each { String minecraft, Map<String, Object> properties ->

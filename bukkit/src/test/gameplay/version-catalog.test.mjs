@@ -118,8 +118,9 @@ test('an unset ADAPT_QA_VERSION_CATALOG reads core golden files for old versions
   withEnv({ ADAPT_QA_VERSION_CATALOG: '' }, () => assert.equal(loadVersionCatalog('1.20.1').size, 0))
 })
 
-test('core golden catalogs name only adaptations the contract matrix knows', () => {
-  const names = new Set(JSON.parse(readFileSync(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations.map(entry => entry.name))
+test('core golden catalogs name only skills and adaptations the contract matrix knows', () => {
+  const adaptations = JSON.parse(readFileSync(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
+  const names = new Set(adaptations.flatMap(entry => [entry.skill, entry.name]))
   for (const version of ['1.21.1', '1.20.1']) {
     const unknown = [...loadVersionCatalog(version, coreCatalogPath(version)).keys()].filter(name => !names.has(name))
     assert.deepEqual(unknown, [], version)

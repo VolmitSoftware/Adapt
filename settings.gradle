@@ -2,12 +2,6 @@ import java.io.File
 
 rootProject.name = 'Adapt'
 include(':core', ':bukkit')
-for (String legacyMinecraftVersion : ['1.21.1', '1.20.1']) {
-    include(":bukkit-${legacyMinecraftVersion}")
-    project(":bukkit-${legacyMinecraftVersion}").projectDir = file("bukkit/src/versions/${legacyMinecraftVersion}")
-    include(":bukkit-${legacyMinecraftVersion}-native")
-    project(":bukkit-${legacyMinecraftVersion}-native").projectDir = file("bukkit/src/versions/${legacyMinecraftVersion}/native")
-}
 
 boolean hasVolmLibSettings(File directory) {
     new File(directory, 'settings.gradle.kts').exists() || new File(directory, 'settings.gradle').exists()

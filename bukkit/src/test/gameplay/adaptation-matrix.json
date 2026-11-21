@@ -2462,7 +2462,7 @@
       "triggers": [
         "tick"
       ],
-      "expectation": "Inspect creatures through Gloss entity overlays and reveal their live attributes.",
+      "expectation": "Inspect creatures and reveal their live attributes, through the Adapt client, Gloss entity overlays or the action bar.",
       "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/DiscoveryInsight.java",
       "sounds": [],
       "particles": [],

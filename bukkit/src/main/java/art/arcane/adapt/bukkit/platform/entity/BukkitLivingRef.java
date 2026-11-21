@@ -20,17 +20,14 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
-import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Steerable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -328,7 +325,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     try {
       return BukkitRefs.item(equipment.getItem(BukkitConversions.slot(slot)));
     } catch (IllegalArgumentException unsupported) {
-      return slot == EquipmentSlot.SADDLE ? BukkitRefs.item(saddleWithoutSlot()) : BukkitRefs.emptyItem();
+      return BukkitRefs.emptyItem();
     }
   }
 
@@ -341,30 +338,8 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
     try {
       equipment.setItem(BukkitConversions.slot(slot), BukkitInventoryRef.stackOrNull(item));
     } catch (IllegalArgumentException unsupported) {
-      if (slot != EquipmentSlot.SADDLE || !setSaddleWithoutSlot(BukkitInventoryRef.stackOrNull(item))) {
-        Adapt.verbose("Equipment slot " + slot + " unsupported on " + type());
-      }
+      Adapt.verbose("Equipment slot " + slot + " unsupported on " + type());
     }
-  }
-
-  /** Servers before the saddle equipment slot (1.21.5) keep the saddle as Steerable state or in the horse inventory. */
-  private ItemStack saddleWithoutSlot() {
-    if (living() instanceof Steerable steerable) {
-      return steerable.hasSaddle() ? new ItemStack(Material.SADDLE) : null;
-    }
-    return living() instanceof AbstractHorse horse ? horse.getInventory().getSaddle() : null;
-  }
-
-  private boolean setSaddleWithoutSlot(ItemStack saddle) {
-    if (living() instanceof Steerable steerable) {
-      steerable.setSaddle(saddle != null && saddle.getType() == Material.SADDLE);
-      return true;
-    }
-    if (living() instanceof AbstractHorse horse) {
-      horse.getInventory().setSaddle(saddle);
-      return true;
-    }
-    return false;
   }
 
   @Override
