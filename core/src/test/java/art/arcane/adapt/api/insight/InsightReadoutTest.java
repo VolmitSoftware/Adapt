@@ -92,6 +92,16 @@ class InsightReadoutTest {
   }
 
   @Test
+  void customNamesAreSentAsPlainText() {
+    LivingRef cow = mock(LivingRef.class);
+    when(cow.type()).thenReturn(Id.minecraft("cow"));
+    when(cow.customName()).thenReturn("<bold>3x </bold><gray>Cow");
+    when(cow.customNameJson()).thenReturn("{\"text\":\"\",\"extra\":[{\"text\":\"3x \",\"bold\":true},{\"text\":\"Cow\",\"color\":\"gray\"}]}");
+
+    assertThat(read(cow, InsightTier.BASE).name()).isEqualTo("3x Cow");
+  }
+
+  @Test
   void playersAreNamedAndMarksCarryAHealthFraction() {
     PlayerRef player = mock(PlayerRef.class);
     when(player.type()).thenReturn(Id.minecraft("player"));

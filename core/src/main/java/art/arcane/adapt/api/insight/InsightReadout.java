@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.insight;
 
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.golem.GolemSnapshot;
 import art.arcane.adapt.client.view.InsightBond;
 import art.arcane.adapt.client.view.InsightEffect;
 import art.arcane.adapt.client.view.InsightKind;
@@ -106,7 +107,7 @@ public final class InsightReadout {
     if (target instanceof PlayerRef player) {
       return player.name();
     }
-    return nonNull(target.customName());
+    return GolemSnapshot.plainName(target.customNameJson()).trim();
   }
 
   private static double finite(double value) {
