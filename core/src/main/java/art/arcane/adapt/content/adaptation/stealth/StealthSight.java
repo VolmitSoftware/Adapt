@@ -66,6 +66,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
 
   private static final long TICK_INTERVAL_MILLIS = 50L;
   private static final long TRACKING_INTERVAL_NANOS = 500_000_000L;
+  private static final int NIGHT_VISION_REFRESH_TICKS = 600;
   private static final long GLOW_LEASE_MILLIS = 1_500L;
   private static final int MAX_TRACKING_PLAYERS_PER_TICK = 16;
   private static final int MAX_INVISIBLE_PLAYER_INSPECTIONS = 128;
@@ -377,9 +378,13 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
       appliedNightVision.remove(id);
       return;
     }
-    if (current.durationTicks() <= 200) {
+    if (refreshesNightVision(current.durationTicks())) {
       applyManagedNightVision(player, id, true);
     }
+  }
+
+  static boolean refreshesNightVision(int remainingTicks) {
+    return remainingTicks <= NIGHT_VISION_REFRESH_TICKS;
   }
 
   private boolean clearNightVisionIfApplied(PlayerRef player, UUID id) {

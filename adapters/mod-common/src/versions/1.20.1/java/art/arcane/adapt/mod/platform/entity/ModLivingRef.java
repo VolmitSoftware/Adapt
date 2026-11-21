@@ -321,8 +321,9 @@ public class ModLivingRef extends ModEntityRef implements LivingRef {
         if (type == null) {
             return false;
         }
+        MobEffectInstance previous = living().getEffect(type.value());
         MobEffectInstance instance = new MobEffectInstance(type.value(), effect.durationTicks(), effect.amplifier(), effect.ambient(), effect.particles(),
-            effect.icon());
+            effect.icon(), null, previous == null ? type.value().createFactorData() : previous.getFactorData());
         CombatHooks.withEffectCause(EntityPotionEffectEvent.Cause.PLUGIN, () -> {
             living().forceAddEffect(instance, null);
             return null;

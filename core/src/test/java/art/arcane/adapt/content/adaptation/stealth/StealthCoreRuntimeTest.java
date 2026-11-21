@@ -9,18 +9,37 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 
 class StealthCoreRuntimeTest {
   @Test
-  void coreCostIsApproximatelyHalfThePreviousDefault() {
+  void coreSpreadsTheSameTotalCostOverThreeTiers() {
     StealthCore.Config config = new StealthCore.Config();
 
-    assertThat(config.baseCost).isEqualTo(2);
-    assertThat(config.costFactor).isEqualTo(0.325);
-    assertThat(config.initialCost).isEqualTo(1);
-    assertThat(config.maxLevel).isEqualTo(2);
-    assertThat(cost(config, 1)).isEqualTo(3);
-    assertThat(cost(config, 2)).isEqualTo(3);
+    assertThat(config.maxLevel).isEqualTo(3);
+    assertThat(cost(config, 1)).isEqualTo(2);
+    assertThat(cost(config, 2)).isEqualTo(2);
+    assertThat(cost(config, 3)).isEqualTo(2);
+  }
+
+  @Test
+  void firstTierUnlocksWithBaseRadiusAndStarterBackstabs() {
+    StealthCore.Config config = new StealthCore.Config();
+    double[] radiusBonus = new double[3];
+    double[] mobBonus = new double[3];
+    double[] playerBonus = new double[3];
+    for (int level = 1; level <= 3; level++) {
+      double tier = StealthCore.tierPercent(level, config.maxLevel);
+      radiusBonus[level - 1] = tier * config.radiusFactor;
+      mobBonus[level - 1] = config.mobBackstabBase + (tier * config.mobBackstabFactor) - 1D;
+      playerBonus[level - 1] = config.playerBackstabBase + (tier * config.playerBackstabFactor) - 1D;
+    }
+
+    assertThat(radiusBonus).containsExactly(new double[]{0D, 4D, 8D}, offset(1e-9));
+    assertThat(mobBonus).containsExactly(new double[]{0.25D, 0.625D, 1D}, offset(1e-9));
+    assertThat(playerBonus).containsExactly(new double[]{0.1D, 0.35D, 0.6D}, offset(1e-9));
+    assertThat(StealthCore.tierPercent(0, 3)).isZero();
+    assertThat(StealthCore.tierPercent(5, 3)).isEqualTo(1D);
   }
 
   @Test

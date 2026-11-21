@@ -29,6 +29,7 @@ public final class Gameplay {
     private static JumpSequence jumps;
     private static JsonArray jumpTrace = new JsonArray();
     private static JsonArray entityTrace = new JsonArray();
+    private static JsonArray effectTrace = new JsonArray();
     private static long entityTraceEnd;
     private static double entityTraceRadius;
 
@@ -95,6 +96,7 @@ public final class Gameplay {
      */
     static void traceEntities(long ticks, double radius) {
         entityTrace = new JsonArray();
+        effectTrace = new JsonArray();
         entityTraceEnd = tick + Math.max(1L, ticks);
         entityTraceRadius = radius;
     }
@@ -106,6 +108,9 @@ public final class Gameplay {
         }
         if (tick <= entityTraceEnd) {
             sampleEntities(client);
+            if (client.player != null) {
+                effectTrace.add(Effects.sample(client.player, tick));
+            }
         }
         if (HELD.isEmpty()) {
             return;
@@ -149,6 +154,7 @@ public final class Gameplay {
         player.add("held", held);
         player.add("jumpTrace", jumpTrace);
         player.add("entityTrace", entityTrace);
+        player.add("effectTrace", effectTrace);
         player.addProperty("entityTraceRunning", tick <= entityTraceEnd);
         player.addProperty("jumpSequenceRunning", jumps != null);
         HitResult hit = client.hitResult;

@@ -27,6 +27,13 @@ class StealthSightCadenceTest {
   }
 
   @Test
+  void nightVisionRefreshesLongBeforeTheVanillaBlinkWindow() {
+    assertThat(StealthSight.refreshesNightVision(600)).isTrue();
+    assertThat(StealthSight.refreshesNightVision(601)).isFalse();
+    assertThat(StealthSight.refreshesNightVision(400)).isTrue();
+  }
+
+  @Test
   void clockRollbackDoesNotRemoveProgress() {
     assertThat(StealthSight.elapsedTrackingTicks(
         6_000_000_000L,

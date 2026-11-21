@@ -175,7 +175,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
 
   @Override
   public void addStats(int level, StatLines v) {
-    statLore(v, Form.f(getStealthRadius(level)), 1);
+    statLore(v, Form.f(getStealthRadius(level) - getStealthRadius(1)), 1);
     statLore(v, Form.pc(getMobBackstabMultiplier(level) - 1D, 0), 2);
     statLore(v, Form.pc(getPlayerBackstabMultiplier(level) - 1D, 0), 3);
   }
@@ -1135,8 +1135,19 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private double getStealthRadius(int level) {
-    double configured = getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor);
+    double configured = getConfig().radiusBase + (getTierPercent(level) * getConfig().radiusFactor);
     return clampFinite(configured, 1D, HARD_MAX_STEALTH_RADIUS, 1D);
+  }
+
+  private double getTierPercent(int level) {
+    return tierPercent(level, getMaxLevel());
+  }
+
+  static double tierPercent(int level, int maxLevel) {
+    if (maxLevel <= 1) {
+      return level >= 1 ? 1D : 0D;
+    }
+    return Math.min(1D, Math.max(0D, (level - 1D) / (maxLevel - 1D)));
   }
 
   private double getPlayerDetectionRadius(int level) {
@@ -1155,11 +1166,11 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private double getMobBackstabMultiplier(int level) {
-    return getConfig().mobBackstabBase + (getLevelPercent(level) * getConfig().mobBackstabFactor);
+    return getConfig().mobBackstabBase + (getTierPercent(level) * getConfig().mobBackstabFactor);
   }
 
   private double getPlayerBackstabMultiplier(int level) {
-    return getConfig().playerBackstabBase + (getLevelPercent(level) * getConfig().playerBackstabFactor);
+    return getConfig().playerBackstabBase + (getTierPercent(level) * getConfig().playerBackstabFactor);
   }
 
   private enum ThreatLevel {
@@ -1185,13 +1196,13 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Dim Amplifier for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int dimAmplifier = 0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double mobBackstabBase = 1.5;
+    double mobBackstabBase = 1.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mob Backstab Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double mobBackstabFactor = 0.5;
+    double mobBackstabFactor = 0.75;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Base for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double playerBackstabBase = 1.25;
+    double playerBackstabBase = 1.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Player Backstab Factor for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double playerBackstabFactor = 0.35;
+    double playerBackstabFactor = 0.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Target Drop for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerTargetDrop = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Bonus Damage for the Stealth adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -1216,9 +1227,9 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     int threatScanCompletionDelayTicks = 2;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.325;
-      maxLevel = 2;
+      baseCost = 1;
+      costFactor = 0.5;
+      maxLevel = 3;
       initialCost = 1;
     }
   }

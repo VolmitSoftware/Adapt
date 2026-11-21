@@ -56,7 +56,8 @@ ticks at each offset (client ticks from the call) and records player.jumpTrace (
 mayfly, flying) until landing | look {yaw, pitch} turns the player (pitch 90 = straight down) |
 clear-events (empties the recorded vanilla action bar messages and toasts) |
 trace-entities {ticks, radius} records arrows and living entities within radius blocks every client tick for ticks
-ticks as the client simulates them (player.entityTrace: t, id, arrow, x/y/z, vx/vy/vz, glowing, hurt, health).
+ticks as the client simulates them (player.entityTrace: t, id, arrow, x/y/z, vx/vy/vz, glowing, hurt, health), plus the
+local player's active effects per tick (player.effectTrace: t, effects[id, duration, amplifier, factor on 1.20.1]).
 wait-screen and assert_screen match `class` against the runtime class name (full or simple) or any entry of the
 screen's `kinds`: the Mojang simple names of the vanilla screens it is an instance of (InventoryScreen,
 CreativeModeInventoryScreen, ContainerScreen, CraftingScreen, AbstractContainerScreen, ChatScreen, PauseScreen,

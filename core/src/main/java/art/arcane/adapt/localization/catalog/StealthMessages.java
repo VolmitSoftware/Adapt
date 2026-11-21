@@ -97,10 +97,10 @@ public final class StealthMessages {
   public static final LinesKey ENDER_VEIL_LORE = LinesKey.of("stealth.ender_veil.lore", "Prevent enderman attacks while sneaking", "Prevent all enderman attacks");
   public static final TextKey SILENT_STEP_NAME = TextKey.of("stealth.silent_step.name", "Stealth");
   public static final TextKey SILENT_STEP_DESCRIPTION = TextKey.of("stealth.silent_step.description", "Core concealment for backstabs, Cutpurse, and Assassinate. Sneaking uses observer awareness; invisibility or an active Shadow Decoy always counts as undetected.");
-  public static final TextKey SILENT_STEP_LORE1 = TextKey.of("stealth.silent_step.lore1", "Mob Detection Suppression Radius");
+  public static final TextKey SILENT_STEP_LORE1 = TextKey.of("stealth.silent_step.lore1", "Bonus Mob Detection Suppression Radius");
   public static final TextKey SILENT_STEP_LORE2 = TextKey.of("stealth.silent_step.lore2", "Mob Backstab Damage Bonus");
   public static final TextKey SILENT_STEP_LORE3 = TextKey.of("stealth.silent_step.lore3", "Player Backstab Damage Bonus");
-  public static final LinesKey SILENT_STEP_LORE = LinesKey.of("stealth.silent_step.lore", "Mob Detection Suppression Radius", "Mob Backstab Damage Bonus", "Player Backstab Damage Bonus");
+  public static final LinesKey SILENT_STEP_LORE = LinesKey.of("stealth.silent_step.lore", "Bonus Mob Detection Suppression Radius", "Mob Backstab Damage Bonus", "Player Backstab Damage Bonus");
   public static final TextKey SHADOW_DECOY_NAME = TextKey.of("stealth.shadow_decoy.name", "Shadow Decoy");
   public static final TextKey SHADOW_DECOY_DESCRIPTION = TextKey.of("stealth.shadow_decoy.description", "Stop sneaking to spawn a decoy wearing your skin and equipment that pulls nearby mob aggression.");
   public static final TextKey SHADOW_DECOY_LORE1 = TextKey.of("stealth.shadow_decoy.lore1", "Decoy Duration");
