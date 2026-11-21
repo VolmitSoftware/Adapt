@@ -132,7 +132,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
       return;
     }
 
-    cooldown.mark(playerId);
+    cooldown.mark(playerId, 20000L);
     Loc drop = player.location();
     List<ItemRef> overflow = player.inventory().addItem(AdaptCore.platform().host().items().create(LAPIS_LAZULI, amount));
     for (ItemRef leftover : overflow) {

@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
@@ -238,6 +239,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> implemen
       refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
       return;
     }
+    AbilityGlyphs.cooldown(id, this, now, cooldownMillis);
     VoidEscape operation = new VoidEscape(id, origin, level, reservation);
     pendingEscapes.put(id, operation);
     // Survive first. The promise is that lethal damage never kills while the

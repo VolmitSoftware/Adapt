@@ -127,7 +127,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         return;
       }
       Tasks.runEntity(p, () -> p.inventory().setArmor(EquipmentSlot.CHEST, multiarmor.nextChestplate(chest)));
-      swapCooldowns.mark(p.uuid());
+      swapCooldowns.mark(p.uuid(), SWAP_COOLDOWN_MILLIS);
       transformFx(p, false);
       addStat(p, "blocking.multi-armor.swaps", 1);
     } else if (preferenceEnabled(p, BlockingPreferences.FALL) && preference(p, BlockingPreferences.FALL_DISTANCE).exceeded(p.fallDistance())) {
@@ -135,7 +135,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         return;
       }
       Tasks.runEntity(p, () -> p.inventory().setArmor(EquipmentSlot.CHEST, multiarmor.nextElytra(chest)));
-      swapCooldowns.mark(p.uuid());
+      swapCooldowns.mark(p.uuid(), SWAP_COOLDOWN_MILLIS);
       transformFx(p, true);
       addStat(p, "blocking.multi-armor.swaps", 1);
     }

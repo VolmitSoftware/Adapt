@@ -37,6 +37,8 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.fx.ViewerGlowPort;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -633,7 +635,10 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
       session.threatStateKnown = completeSnapshot;
       session.detected = !completeSnapshot || scan.snapshot.canDetect();
       if (preferenceEnabled(player, STATUS)) {
-        AdaptHud.ambientStatus(player, getName(), AdaptLanguage.text(session.detected ? StealthMessages.STEALTHCORE_PREFERENCE_DETECTED : StealthMessages.STEALTHCORE_PREFERENCE_HIDDEN));
+        String state = AdaptLanguage.text(session.detected ? StealthMessages.STEALTHCORE_PREFERENCE_DETECTED : StealthMessages.STEALTHCORE_PREFERENCE_HIDDEN);
+        if (!AbilityGlyphs.toggle(player.uuid(), this, !session.detected)) {
+          AdaptHud.ambientStatus(player, getName(), state);
+        }
       }
       boolean forcedConcealment = isForcedConcealed(player);
       if (forcedConcealment) {
@@ -719,6 +724,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
 
   private void stopSession(PlayerRef player, boolean discardGlows) {
     AdaptHud.clearAmbientStatus(player, getName());
+    AbilityGlyphs.clear(player.uuid(), this, HudGlyph.TOGGLE);
     UUID playerId = player.uuid();
     SneakSession session = coordinator.get(playerId);
     if (session == null) {
@@ -732,6 +738,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
 
   private void stopSession(SneakSession session, boolean discardGlows) {
     AdaptHud.clearAmbientStatus(session.owner, getName());
+    AbilityGlyphs.clear(session.playerId, this, HudGlyph.TOGGLE);
     if (!coordinator.remove(session.playerId, session)) {
       session.active.set(false);
       session.discardGlowOperations.set(true);
@@ -1263,6 +1270,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
     private final PlayerRef owner;
     private final UUID playerId;
     private final AtomicBoolean active = new AtomicBoolean(true);
+    private final long startedAtMillis = System.currentTimeMillis();
     private final AtomicBoolean refreshPending = new AtomicBoolean();
     private final AtomicBoolean scanPending = new AtomicBoolean();
     private final AtomicBoolean activationCleanupPending = new AtomicBoolean(true);

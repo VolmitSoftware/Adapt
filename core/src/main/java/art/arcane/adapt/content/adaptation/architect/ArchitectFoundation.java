@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -221,6 +223,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     blockPower.put(id, power);
+    if (power != startPower) {
+      AbilityGlyphs.charges(id, this, power, getBlockPower(getLevelPercent(p)));
+    }
   }
 
   private void addOwnedFoundationTarget(Set<BlockRef> targets, WorldRef world, int x, int y, int z) {
@@ -281,7 +286,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       if (e.isSneaking() && ready && !activeNow
           && (!preferenceEnabled(p, EMPTY_HAND) || p.inventory().mainHand().type().isAir())) {
         active.put(id, Boolean.TRUE);
-        blockPower.put(id, getBlockPower(getLevelPercent(p)));
+        int power = getBlockPower(getLevelPercent(p));
+        blockPower.put(id, power);
+        AbilityGlyphs.charges(id, this, power, power);
         FxPresets.chargeRing(this, p.location(), 6);
         placeFoundation(p, p.location());
       }
@@ -376,10 +383,13 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       return;
     }
     blockPower.remove(playerId);
+    AbilityGlyphs.clear(playerId, this, HudGlyph.CHARGES);
     long cooldownMillis = Math.max(0L, getConfig().cooldown);
-    long deadline = M.ms() + cooldownMillis;
+    long now = M.ms();
+    long deadline = now + cooldownMillis;
     if (cooldownMillis > 0L) {
       cooldowns.put(playerId, deadline);
+      AbilityGlyphs.cooldown(playerId, this, now, cooldownMillis);
       scheduleCooldownReady(player, playerId, deadline);
     } else {
       cooldowns.remove(playerId);

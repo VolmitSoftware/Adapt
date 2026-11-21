@@ -30,6 +30,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
@@ -152,7 +153,9 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     }
 
     if (dmg > 0) {
-      p.setCooldown(is.type(), getCooldownTime(getLevelPercent(lvl)));
+      int cooldownTicks = getCooldownTime(getLevelPercent(lvl));
+      p.setCooldown(is.type(), cooldownTicks);
+      AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
       Loc tip = p.eyeLocation().add(p.location().direction().multiply(1.6D));
       float sweepPitch = (float) (ThreadLocalRandom.current().nextDouble() / 2D) + 0.65F;
       fx(tip, FxPriority.COMBAT)

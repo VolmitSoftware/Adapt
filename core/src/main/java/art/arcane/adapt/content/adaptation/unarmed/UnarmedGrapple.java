@@ -32,6 +32,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.UnarmedMessages;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -80,7 +82,9 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    grabs.remove(player.getPlayer().uuid());
+    if (grabs.remove(player.getPlayer().uuid()) != null) {
+      AbilityGlyphs.clear(player.getPlayer().uuid(), this, HudGlyph.DURATION);
+    }
   }
 
   @Override
@@ -110,6 +114,9 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
 
     long now = System.currentTimeMillis();
     GrabState state = grabs.remove(p.uuid());
+    if (state != null) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
+    }
     if (state != null && now - state.grabbedAtMillis <= getConfig().grabTimeoutMillis) {
       hurl(p, state.target, attack.level());
       return;
@@ -132,6 +139,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     }
 
     grabs.put(p.uuid(), new GrabState(victim, now));
+    AbilityGlyphs.duration(p.uuid(), this, now, getConfig().grabTimeoutMillis);
     playGrab(p, victim);
   }
 
@@ -146,6 +154,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     if (state == null) {
       return;
     }
+    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
 
     long now = System.currentTimeMillis();
     if (now - state.grabbedAtMillis > getConfig().grabTimeoutMillis) {
@@ -257,7 +266,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       return;
     }
 
-    grappleCooldown.mark(player.uuid());
+    grappleCooldown.mark(player.uuid(), getCooldownMillis(getActiveLevel(player)));
     player.setExhaustion(player.exhaustion() + (float) getConfig().exhaustionPerThrow);
     timeline(player)
         .duration(3)

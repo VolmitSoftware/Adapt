@@ -34,6 +34,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -126,6 +127,7 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
       AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED, breakSpeedBonus(getHasteTier(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL, hasteDurationTicks);
       setStorage(p, "masonHasteNext", now + getConfig().hasteRefreshMillis);
       setStorage(p, "masonHasteUntil", now + (hasteDurationTicks * 50L));
+      AbilityGlyphs.duration(p.uuid(), this, now, hasteDurationTicks * 50L);
     });
   }
 

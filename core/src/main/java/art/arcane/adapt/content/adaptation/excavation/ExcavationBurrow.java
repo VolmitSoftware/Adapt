@@ -139,14 +139,15 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     }
 
     int level = context.level();
+    long cooldownMillis = getCooldownMillis(level);
     if (vetoed) {
-      if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+      if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
         e.setCancelled(true);
       }
       return;
     }
 
-    if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       return;
     }
 
@@ -175,7 +176,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
     p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
     e.setCancelled(true);
 

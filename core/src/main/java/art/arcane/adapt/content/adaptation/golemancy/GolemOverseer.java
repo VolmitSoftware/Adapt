@@ -40,6 +40,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -243,8 +244,10 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
       return;
     }
     DyeColor channel = OverseerRules.crookChannel(level, config.channelFilterLevel, GolemItems.crookChannel(player.inventory().mainHand()));
+    long rallyCooldownMillis = config.rallyCooldownSeconds * MILLIS_PER_SECOND;
     OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && GolemancyRules.unlocked(level, config.rallyLevel) && player.isOnGround()
-        ? new OverseerRally(rallyCooldowns, owner, now, config.rallyCooldownSeconds * MILLIS_PER_SECOND)
+        ? new OverseerRally(rallyCooldowns, owner, now, rallyCooldownMillis,
+            () -> AbilityGlyphs.cooldown(owner, this, now, rallyCooldownMillis))
         : null;
     boolean chime = chimes(player);
     Overseer.dispatch(new OverseerSignal(owner, signal, player.location(), OverseerRules.radius(config.radiusByLevel, level), channel, target,

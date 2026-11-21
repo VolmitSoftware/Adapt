@@ -1,5 +1,9 @@
 package art.arcane.adapt.mod.feature;
 
+import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
+import art.arcane.adapt.client.server.panel.PanelLink;
+import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.mod.feature.advancement.ModAdvancementHost;
 import art.arcane.adapt.mod.feature.ai.ModGoals;
 import art.arcane.adapt.mod.feature.display.ModDisplays;
@@ -23,7 +27,7 @@ public final class ModFeatures {
             return;
         }
         installed = true;
-        ModMenuHost menus = new ModMenuHost();
+        MenuHost menus = new ClientAwareMenuHost(new ModMenuHost(), PanelLink.of(ClientUiService::activeSessions));
         ModHosts.fx(new ModFxHost());
         ModHosts.menus(menus);
         ModHosts.viewers(new ModViewerHost());

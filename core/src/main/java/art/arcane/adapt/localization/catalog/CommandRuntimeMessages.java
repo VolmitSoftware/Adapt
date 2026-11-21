@@ -4,6 +4,8 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class CommandRuntimeMessages {
+  public static final TextKey CLIENT_UI_ABSENT = TextKey.of("command.runtime.client_ui_absent", "{player} uses the chest and action bar UI (no Adapt client negotiated).");
+  public static final TextKey CLIENT_UI_NEGOTIATED = TextKey.of("command.runtime.client_ui_negotiated", "{player} uses the Adapt client UI: protocol {version}, capabilities {capabilities}.");
   public static final TextKey MISSING_PERMISSION = TextKey.of("command.runtime.missing_permission", "You lack the permission '{permission}'.");
   public static final TextKey PLAYER_REQUIRED_FROM_CONSOLE = TextKey.of("command.runtime.player_required_from_console", "You must specify a player when using this command from console.");
   public static final TextKey PLAYER_REQUIRED_FROM_CONSOLE_SHORT = TextKey.of("command.runtime.player_required_from_console_short", "You must specify a player from console.");
@@ -109,6 +111,8 @@ public final class CommandRuntimeMessages {
 
   public static void addTo(MessageCatalog.Builder builder) {
     builder.add(MISSING_PERMISSION);
+    builder.add(CLIENT_UI_ABSENT);
+    builder.add(CLIENT_UI_NEGOTIATED);
     builder.add(PLAYER_REQUIRED_FROM_CONSOLE);
     builder.add(PLAYER_REQUIRED_FROM_CONSOLE_SHORT);
     builder.add(PLAYER_ONLY_OR_REFERENCE);

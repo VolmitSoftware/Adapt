@@ -23,6 +23,12 @@ import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.client.protocol.ClientProtocol;
+import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.client.server.hud.ClientHud;
+import art.arcane.adapt.client.server.hud.XpEarnCoalescer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.collection.KList;
@@ -35,6 +41,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -46,6 +53,9 @@ public class Notifier extends TickedObject {
   private final Queue<Notification> queue;
   private final Object queueLock;
   private final AdaptPlayer target;
+  private final UUID playerId;
+  private final Object earnLock;
+  private XpEarnCoalescer earned;
   private final KMap<String, Long> lastSkills;
   private final KMap<String, Double> lastSkillValues;
   private final AtomicBoolean xpDirty;
@@ -64,10 +74,15 @@ public class Notifier extends TickedObject {
     busyTicks = 0;
     delayTicks = 0;
     this.target = target;
+    playerId = target.getPlayer().uuid();
+    earnLock = new Object();
     lastInstance = 0;
   }
 
   public void notifyXP(String line, double value) {
+    if (ClientHud.capable(playerId, ClientProtocol.HUD)) {
+      return;
+    }
     try {
       if (!lastSkills.containsKey(line)) {
         lastSkillValues.put(line, 0d);
@@ -88,6 +103,30 @@ public class Notifier extends TickedObject {
     } catch (Throwable e) {
       AdaptLog.verbose(() -> "Skipped XP notification: "
           + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+    }
+  }
+
+  /**
+   * Sends the award to a player with the client HUD as it is earned, at most every
+   * {@link XpEarnCoalescer#INTERVAL_MILLIS} per skill. Pooled payout is unaffected.
+   */
+  public void xpEarned(PlayerSkillLine line, double amount) {
+    if (!ClientHud.capable(playerId, ClientProtocol.HUD) || !AdaptConfig.get().isActionbarNotifyXp()) {
+      return;
+    }
+    boolean waiting;
+    synchronized (earnLock) {
+      if (earned == null) {
+        earned = new XpEarnCoalescer();
+      }
+      double ready = earned.earn(line.getLine(), amount, M.ms());
+      if (ready > 0D) {
+        sendXpEarned(line, ready);
+      }
+      waiting = earned.waiting();
+    }
+    if (waiting) {
+      activate();
     }
   }
 
@@ -134,7 +173,8 @@ public class Notifier extends TickedObject {
 
   @Override
   public void onTick() {
-    if (queue.isEmpty() && busyTicks <= 0 && delayTicks <= 0 && lastSkills.isEmpty()) {
+    boolean earnWaiting = drainXpEarned();
+    if (queue.isEmpty() && busyTicks <= 0 && delayTicks <= 0 && lastSkills.isEmpty() && !earnWaiting) {
       setInterval(IDLE_INTERVAL_MS);
       return;
     }
@@ -178,7 +218,7 @@ public class Notifier extends TickedObject {
   }
 
   private void parkIfIdle() {
-    if (!queue.isEmpty() || busyTicks > 0 || delayTicks > 0 || xpDirty.get()) {
+    if (!queue.isEmpty() || busyTicks > 0 || delayTicks > 0 || xpDirty.get() || xpEarnWaiting()) {
       return;
     }
     if (lastSkills.isEmpty()) {
@@ -200,6 +240,35 @@ public class Notifier extends TickedObject {
 
   int pendingNotifications() {
     return queue.size();
+  }
+
+  private boolean drainXpEarned() {
+    synchronized (earnLock) {
+      if (earned == null) {
+        return false;
+      }
+      earned.drain(M.ms(), (String skillId, double amount) -> {
+        PlayerSkillLine line = target.getData().getSkillLineNullable(skillId);
+        if (line != null) {
+          sendXpEarned(line, amount);
+        }
+      });
+      return earned.waiting();
+    }
+  }
+
+  private boolean xpEarnWaiting() {
+    synchronized (earnLock) {
+      return earned != null && earned.waiting();
+    }
+  }
+
+  private void sendXpEarned(PlayerSkillLine line, double amount) {
+    double total = line.getXp() + line.getPooledXp();
+    double absoluteLevel = XP.getLevelForXp(total);
+    int level = (int) Math.floor(absoluteLevel);
+    ClientHud.send(playerId, ClientProtocol.HUD,
+        new ServerFrame.XpEarned(line.getLine(), amount, total, level, absoluteLevel - level));
   }
 
   private void flushXpNotification() {

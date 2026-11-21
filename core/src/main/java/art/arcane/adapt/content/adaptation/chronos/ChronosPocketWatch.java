@@ -31,6 +31,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -195,7 +197,9 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
 
     UUID playerId = player.uuid();
     if (player.isOnGround()) {
-      airBudgetMillis.remove(playerId);
+      if (airBudgetMillis.remove(playerId) != null) {
+        AbilityGlyphs.clear(playerId, this, HudGlyph.DURATION);
+      }
       nextPulseAt.remove(playerId);
       return;
     }
@@ -208,12 +212,15 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         || player.isSwimming()
         || (!airBudgetMillis.containsKey(playerId) && player.fallDistance() < getConfig().minFallDistance)
         || (getConfig().requireClock && !player.inventory().contains(CLOCK, 1))) {
-      nextPulseAt.remove(playerId);
+      if (nextPulseAt.remove(playerId) != null) {
+        AbilityGlyphs.clear(playerId, this, HudGlyph.DURATION);
+      }
       return;
     }
 
+    Long previousPulseAt = nextPulseAt.get(playerId);
     ChronosWorkBudget.Pulse pulse = ChronosWorkBudget.pulse(
-        now, nextPulseAt.get(playerId), PULSE_MILLIS, MAX_CATCH_UP_PULSES);
+        now, previousPulseAt, PULSE_MILLIS, MAX_CATCH_UP_PULSES);
     nextPulseAt.put(playerId, pulse.nextAt());
     if (pulse.count() <= 0) {
       return;
@@ -225,6 +232,9 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     int appliedPulses = Math.min(pulse.count(), (int) (budget / PULSE_MILLIS));
     if (appliedPulses <= 0) {
       return;
+    }
+    if (previousPulseAt == null) {
+      AbilityGlyphs.duration(playerId, this, now, budget);
     }
 
     long remaining = budget - (appliedPulses * PULSE_MILLIS);

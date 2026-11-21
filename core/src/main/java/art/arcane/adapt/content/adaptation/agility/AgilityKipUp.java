@@ -149,7 +149,8 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
       return;
     }
 
-    if (!kipCooldown.isReady(id, Math.max(0L, getConfig().cooldownMillis))) {
+    long cooldownMillis = Math.max(0L, getConfig().cooldownMillis);
+    if (!kipCooldown.isReady(id, cooldownMillis)) {
       return;
     }
 
@@ -158,7 +159,7 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
       return;
     }
 
-    kipCooldown.mark(id);
+    kipCooldown.mark(id, cooldownMillis);
     knockbackAt.clear(id);
 
     Vec3 current = p.velocity();

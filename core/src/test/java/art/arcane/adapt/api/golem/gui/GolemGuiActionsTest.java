@@ -17,7 +17,10 @@ import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +29,33 @@ import java.util.UUID;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
 
 class GolemGuiActionsTest {
+  @Test
+  void everyChannelColourHasItsOwnThemePathSoItsIconIsNotSharedWithTheFirstColourResolved() {
+    Set<String> paths = new HashSet<>();
+    try (MockedStatic<GuiTheme> themes = mockStatic(GuiTheme.class, invocation -> {
+      if (!"element".equals(invocation.getMethod().getName())) {
+        return null;
+      }
+      Object[] arguments = invocation.getArguments();
+      StringBuilder path = new StringBuilder();
+      for (int index = 2; index < arguments.length; index++) {
+        path.append('/').append(arguments[index]);
+      }
+      paths.add(path.toString());
+      return new GuiElement(invocation.getArgument(0)).setMaterial(invocation.getArgument(1));
+    })) {
+      assertThat(GolemGuiActions.channelElement("none", ChannelMask.NONE).getMaterial()).isEqualTo(Id.minecraft("glass_bottle"));
+      for (DyeColor color : DyeColor.values()) {
+        assertThat(GolemGuiActions.channelElement("channel-" + color.id(), ChannelMask.of(color)).getMaterial())
+            .isEqualTo(GolemGuiActions.channelIcon(ChannelMask.of(color)));
+      }
+    }
+    assertThat(paths).hasSize(DyeColor.values().length + 1);
+  }
+
   @Test
   void roleGolemModesCycleForwardAndBackwardThroughEveryModeAndWrap() {
     assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);

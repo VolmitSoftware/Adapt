@@ -136,7 +136,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
       }
       e.setDamage(Math.max(0D, e.damage() * (1D - effectiveness)));
       xp(p, 5);
-      cooldowns.mark(id);
+      cooldowns.mark(id, COOLDOWN_MILLIS);
       addStat(p, "discovery.xp-resist.saves", 1);
       if (defaultCharge.wasTaken()) {
         AdaptHud.actionBar(p, C.YELLOW + "-" + xpCost + " XP " + AdaptLanguage.text(GuiMessages.LEVELS));

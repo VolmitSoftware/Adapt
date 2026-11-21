@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.entity.Hand;
@@ -176,7 +177,9 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     } else {
       damageHand(p, 1 + ((lvl - 1) * 7));
     }
-    p.setCooldown(cooldownMaterial, getCooldown(getLevelPercent(p), lvl));
+    int cooldownTicks = getCooldown(getLevelPercent(p), lvl);
+    p.setCooldown(cooldownMaterial, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
 
     if (lvl > 1) {
       int vertical = (int) Math.floor(getRadius(lvl));

@@ -36,8 +36,11 @@ targets.each { String target, Map<String, Object> properties ->
         throw new GradleException("Minecraft ${target} must declare Forge support")
     }
     boolean neoForgeDeclared = properties.neoforge instanceof String ^ properties.neoforgeUsesForge == true
-    if (!neoForgeDeclared || !(properties.fabricLoader instanceof String) || !(properties.fabricModules instanceof Map)) {
+    if (!neoForgeDeclared || !(properties.fabricLoader instanceof String) || !(properties.fabricApi instanceof String) || !(properties.fabricModules instanceof List)) {
         throw new GradleException("Minecraft ${target} must declare NeoForge (a version or neoforgeUsesForge) and Fabric support")
+    }
+    if (!((String) properties.fabricApi).endsWith("+${target}") || !((List<String>) properties.fabricModules).contains('fabric-transitive-access-wideners-v1')) {
+        throw new GradleException("Minecraft ${target} must name the Fabric API release built for it and nest fabric-transitive-access-wideners-v1, whose widened access the other Fabric API modules use at runtime")
     }
     if (!(properties.javaVersion in [17, 21, 25]) || !(properties.dataPackFormat instanceof Integer)) {
         throw new GradleException("Minecraft ${target} must declare its Java runtime and data pack format")

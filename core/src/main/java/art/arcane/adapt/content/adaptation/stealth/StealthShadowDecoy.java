@@ -35,6 +35,8 @@ import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
@@ -292,7 +294,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     UUID id = p.uuid();
-    if (!decoyCooldowns.isReady(id, getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!decoyCooldowns.isReady(id, cooldownMillis)) {
       return;
     }
 
@@ -300,7 +303,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       gestureSpawnEvents.put(id, e.dispatchId());
     }
     spawnDecoy(p, level);
-    decoyCooldowns.mark(id);
+    decoyCooldowns.mark(id, cooldownMillis);
     xp(p, getConfig().xpOnDecoy);
     addStat(p, "stealth.shadow-decoy.decoys-spawned", 1);
   }
@@ -349,10 +352,12 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       configureLegacyVisual(anchor, owner);
     }
 
-    long expiresAt = System.currentTimeMillis() + (getDecoyTicks(level) * 50L);
+    long now = System.currentTimeMillis();
+    long expiresAt = now + (getDecoyTicks(level) * 50L);
     UUID ownerId = owner.uuid();
     DecoySession state = new DecoySession(owner, anchor, packetDecoy, expiresAt, level);
     activeDecoys.put(ownerId, state);
+    AbilityGlyphs.duration(ownerId, this, now, expiresAt - now);
 
     refreshOwner(state);
     fx(owner.location().add(0, 1.0D, 0), FxPriority.TRANSITION)
@@ -579,6 +584,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     activeDecoys.remove(state.ownerId, state);
+    AbilityGlyphs.clear(state.ownerId, this, HudGlyph.DURATION);
     anchorOwners.remove(state.anchor.uuid(), state.ownerId);
     if (state.packetDecoy != null) {
       state.packetDecoy.destroy();

@@ -104,7 +104,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
    * bound torch's own group. A remote on cooldown must never gray out or block
    * placing ordinary redstone torches.
    */
-  private final ItemCooldowns pulseCd = ItemCooldowns.forGroup(BoundRedstoneTorch.COOLDOWN_GROUP);
+  private final ItemCooldowns pulseCd = ItemCooldowns.forGroup(BoundRedstoneTorch.COOLDOWN_GROUP).ownedBy(this);
   private final ArchitectRedstonePulse pulses = new ArchitectRedstonePulse();
   private final Set<UUID> pendingPulsePlayers = ConcurrentHashMap.newKeySet();
   private final long runtimeGeneration = NEXT_RUNTIME_GENERATION.incrementAndGet();

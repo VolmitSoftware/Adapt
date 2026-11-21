@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -132,7 +133,9 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     }
 
     int level = context.level();
-    nextClapAt.put(id, now + getCooldownMillis(level));
+    long cooldownMillis = getCooldownMillis(level);
+    nextClapAt.put(id, now + cooldownMillis);
+    AbilityGlyphs.cooldown(id, this, now, cooldownMillis);
     p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
 
     double range = getRange(level);

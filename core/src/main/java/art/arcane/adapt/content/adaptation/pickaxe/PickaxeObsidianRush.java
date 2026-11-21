@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -138,6 +139,7 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
 
     long now = M.ms();
     Long previousExpiry = rushActiveUntil.put(p.uuid(), now + (durationTicks * MILLIS_PER_TICK));
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * MILLIS_PER_TICK);
     boolean onset = previousExpiry == null || previousExpiry <= now;
     AdaptAttributeService.get().applyTimed(p, getName(), RUSH_SLOT, Attributes.BLOCK_BREAK_SPEED,
         rushSpeedBonus(getAmplifier(context.level())), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);

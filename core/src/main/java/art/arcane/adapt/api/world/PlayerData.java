@@ -45,6 +45,10 @@ import art.arcane.adapt.api.xp.XpEarnings;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.ItemTransferXpLedger;
 import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.server.hud.ToastNotification;
+import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.collection.KList;
@@ -72,6 +76,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 @Data
 @NoArgsConstructor
 public class PlayerData {
+  private static final IconRef MASTER_LEVEL_ICON = IconRef.item("minecraft:experience_bottle");
   private static final Set<String> REMOVED_AXES_ADAPTATIONS = Set.of(
       "axe-orchardist",
       "axe-sap-tap",
@@ -325,6 +330,7 @@ public class PlayerData {
       }
 
       KList<Notification> notifications = new KList<>();
+      boolean clientToast = showPopup && player.getPlayer() != null && ClientToasts.capable(player.getPlayer().uuid());
       if (playSounds) {
         notifications.add(SoundNotification.builder()
             .sound(Sounds.BLOCK_ENCHANTMENT_TABLE_USE)
@@ -351,35 +357,45 @@ public class PlayerData {
             .group("lvl")
             .build());
       }
-      if (showPopup) {
-        notifications.add(TitleNotification.builder()
-            .in(250)
-            .stay(1450)
-            .out(2250)
-            .displayDurationMillis(config.getActionbarLevelDurationMillis())
-            .group("lvl")
-            .title("")
-            .subtitle(C.GOLD + AdaptLanguage.text(
-                SnippetsMessages.GUI_LEVEL_VALUE,
-                trusted("level", level)
-            ))
-            .build());
+      Notification title = TitleNotification.builder()
+          .in(250)
+          .stay(1450)
+          .out(2250)
+          .displayDurationMillis(config.getActionbarLevelDurationMillis())
+          .group("lvl")
+          .title("")
+          .subtitle(masterLevelText(level))
+          .build();
+      Notification powerBar = ActionBarNotification.builder()
+          .duration(450)
+          .displayDurationMillis(config.getActionbarLevelDurationMillis())
+          .group("power")
+          .title(maxPowerText(level, config))
+          .build();
+      if (clientToast) {
+        notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP, MASTER_LEVEL_ICON,
+            masterLevelText(level), maxPowerText(level, config)), "lvl", List.of(title, powerBar)));
+      } else if (showPopup) {
+        notifications.add(title);
       }
       if (!notifications.isEmpty()) {
         player.getNot().queue(notifications.toArray(new Notification[0]));
       }
-      if (showPopup) {
-        player.getActionBarNotifier().queue(ActionBarNotification.builder()
-            .duration(450)
-            .displayDurationMillis(config.getActionbarLevelDurationMillis())
-            .group("power")
-            .title(C.GOLD + AdaptLanguage.text(
-                RuntimeMessages.MAX_ABILITY_POWER,
-                trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
-            ))
-            .build());
+      if (showPopup && !clientToast) {
+        player.getActionBarNotifier().queue(powerBar);
       }
     }
+  }
+
+  private static String masterLevelText(int level) {
+    return C.GOLD + AdaptLanguage.text(SnippetsMessages.GUI_LEVEL_VALUE, trusted("level", level));
+  }
+
+  private static String maxPowerText(int level, AdaptConfig config) {
+    return C.GOLD + AdaptLanguage.text(
+        RuntimeMessages.MAX_ABILITY_POWER,
+        trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
+    );
   }
 
   public double computeXpMultiplier(PlayerRef player) {

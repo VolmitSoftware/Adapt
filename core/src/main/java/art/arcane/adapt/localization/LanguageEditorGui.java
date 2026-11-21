@@ -13,6 +13,10 @@ import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.MenuAction;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -50,7 +54,8 @@ import java.util.function.Consumer;
 /**
  * The in-game language message editor ({@code /adapt language server edit}) on core chest menus: languages, then
  * message groups, then messages; a click asks for the new value in chat and saves it through
- * {@link PluginLanguageEditor}. Same layout, texts and rules as the VolmLib Bukkit editor.
+ * {@link PluginLanguageEditor}. Native panels type values and searches into the row instead, through the same
+ * checks as chat. Same layout, texts and rules as the VolmLib Bukkit editor.
  */
 public final class LanguageEditorGui {
   static final int PAGE_SIZE = 36;
@@ -278,6 +283,17 @@ public final class LanguageEditorGui {
     if (!prompts.remove(player.uuid(), prompt) || views.get(player.uuid()) != prompt.view() || !allowed(player)) {
       return;
     }
+    apply(player, prompt, input);
+  }
+
+  private void typed(PlayerRef player, Prompt prompt, String input) {
+    if (views.get(player.uuid()) != prompt.view() || !allowed(player)) {
+      return;
+    }
+    apply(player, prompt, input);
+  }
+
+  private void apply(PlayerRef player, Prompt prompt, String input) {
     if (input.equalsIgnoreCase("cancel")) {
       show(player, prompt.view());
       return;
@@ -326,8 +342,10 @@ public final class LanguageEditorGui {
         .setTag("adapt/language-editor")
         .setViewportHeight(ROWS)
         .setTitle(title(view))
+        .setLayout(MenuLayout.LIST)
+        .setPaging(new MenuPaging(page.page() - 1, page.pages(), count))
         .setDecorator((GuiWindow ignored, int position, int row) -> new GuiElement("filler")
-            .setMaterial(Id.minecraft("black_stained_glass_pane")).setName(" "));
+            .setMaterial(Id.minecraft("black_stained_glass_pane")).setName(" ").setRole(MenuRole.DECORATION));
     for (int index = page.start(); index < page.end(); index++) {
       GuiElement entry;
       if (view.locale() == null) {
@@ -337,29 +355,36 @@ public final class LanguageEditorGui {
         entry = categoryItem(view.document(), groups.get(index));
       } else if (view.key() == null) {
         MessageKey key = keys.get(index);
-        entry = messageItem(key, view.document().snapshot().value(key), null);
+        entry = messageItem(player, view, key, view.document().snapshot().value(key), null);
       } else {
-        entry = messageItem(view.key(), view.document().snapshot().value(view.key()), parts.get(index));
+        entry = messageItem(player, view, view.key(), view.document().snapshot().value(view.key()), parts.get(index));
       }
       int slot = index - page.start();
       place(window, player, view, slot % 9 - 4, slot / 9, entry);
     }
-    place(window, player, view, BACK, NAVIGATION_ROW, button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_BACK)));
-    place(window, player, view, CLOSE, NAVIGATION_ROW, button("barrier", C.RED + text(BukkitLanguageMessages.EDITOR_CLOSE)));
+    place(window, player, view, BACK, NAVIGATION_ROW, button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_BACK))
+        .setHint(MenuHint.navigation("back")));
+    place(window, player, view, CLOSE, NAVIGATION_ROW, button("barrier", C.RED + text(BukkitLanguageMessages.EDITOR_CLOSE))
+        .setRole(MenuRole.ACTION));
     if (page.hasPrevious()) {
       place(window, player, view, PREVIOUS, NAVIGATION_ROW,
-          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_PREVIOUS_PAGE)));
+          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_PREVIOUS_PAGE)).setHint(MenuHint.navigation("previous")));
     }
     if (page.hasNext()) {
       place(window, player, view, NEXT, NAVIGATION_ROW,
-          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_NEXT_PAGE)));
+          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_NEXT_PAGE)).setHint(MenuHint.navigation("next")));
     }
     if (view.searchable()) {
+      Prompt search = new Prompt(view, null, null, null);
       place(window, player, view, SEARCH, NAVIGATION_ROW,
           button("compass", C.RED + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES))
-              .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES_LORE)));
+              .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES_LORE))
+              .setHint(MenuHint.text(view.filter(), (MenuClick context, String input) -> typed(player, search, input)))
+              .setDescription(List.of()));
     } else if (view.searching()) {
-      place(window, player, view, SEARCH, NAVIGATION_ROW, button("paper", C.RED + text(BukkitLanguageMessages.EDITOR_CLEAR_SEARCH)));
+      place(window, player, view, SEARCH, NAVIGATION_ROW, button("paper", C.RED + text(BukkitLanguageMessages.EDITOR_CLEAR_SEARCH))
+          .setRole(MenuRole.ACTION)
+          .setValue(view.filter()));
     }
     window.onClosed((GuiWindow closedWindow) -> windowClosed(player.uuid(), closedWindow));
     views.put(player.uuid(), view);
@@ -399,19 +424,30 @@ public final class LanguageEditorGui {
         MessageArgument.untrusted("section", section));
   }
 
-  private GuiElement messageItem(MessageKey key, MessageValue value, String form) {
+  private GuiElement messageItem(PlayerRef player, View view, MessageKey key, MessageValue value, String form) {
+    List<String> description = new ArrayList<>(preview(rawValue(value, form)));
     GuiElement element = new GuiElement("message")
         .setName(C.WHITE + (form == null ? key.id() : partLabel(value, form)))
         .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_CURRENT_VALUE_LABEL));
-    element.addLore(preview(rawValue(value, form)));
+    element.addLore(description);
     if (!key.placeholders().isEmpty()) {
       element.addLore(" ");
       element.addLore(C.DARK_GRAY + variableNames(key));
+      description.add(C.DARK_GRAY + variableNames(key));
     }
+    boolean split = form == null && (value instanceof PluralValue || value instanceof LinesValue);
     TextKey instruction = form == null && value instanceof PluralValue ? BukkitLanguageMessages.EDITOR_EDIT_PLURAL
         : form == null && value instanceof LinesValue ? BukkitLanguageMessages.EDITOR_EDIT_LINES
         : BukkitLanguageMessages.EDITOR_EDIT_CHAT;
     element.addLore(C.GRAY + text(instruction));
+    element.setDescription(description);
+    if (split) {
+      element.setRole(MenuRole.NAVIGATION);
+    } else {
+      Prompt prompt = new Prompt(view, key, form, value);
+      element.setHint(MenuHint.text(encodeInput(rawValue(value, form)),
+          (MenuClick context, String input) -> typed(player, prompt, input)));
+    }
     return withIcon(element, key.id(), "paper");
   }
 
@@ -420,14 +456,21 @@ public final class LanguageEditorGui {
     return new GuiElement("locale")
         .setMaterial(Id.minecraft(active ? "writable_book" : "book"))
         .setName(marker + C.WHITE + locale + C.DARK_GRAY + " — " + C.GRAY + AdaptLanguageSwitcher.displayName(locale))
-        .addLore(C.DARK_GRAY + text(BukkitLanguageMessages.EDITOR_OPEN_LANGUAGE));
+        .addLore(C.DARK_GRAY + text(BukkitLanguageMessages.EDITOR_OPEN_LANGUAGE))
+        .setRole(MenuRole.NAVIGATION)
+        .setValue(active ? text(BukkitLanguageMessages.SERVER_DEFAULT) : "")
+        .setDescription(List.of());
   }
 
   private GuiElement categoryItem(PluginLanguageEditor.Document document, String group) {
+    int count = messageCount(document, group);
     GuiElement element = new GuiElement("category")
         .setName(C.LIGHT_PURPLE + groupName(group))
-        .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_MESSAGE_COUNT, MessageArgument.trusted("count", messageCount(document, group))))
-        .addLore(C.DARK_GRAY + text(BukkitLanguageMessages.EDITOR_OPEN_CATEGORY));
+        .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_MESSAGE_COUNT, MessageArgument.trusted("count", count)))
+        .addLore(C.DARK_GRAY + text(BukkitLanguageMessages.EDITOR_OPEN_CATEGORY))
+        .setRole(MenuRole.NAVIGATION)
+        .setValue(Integer.toString(count))
+        .setDescription(List.of());
     return withIcon(element, group, groupMaterial(group));
   }
 
@@ -670,6 +713,10 @@ public final class LanguageEditorGui {
         .map((Map.Entry<String, String> entry) -> entry.getKey() + ": " + entry.getValue()).toList());
   }
 
+  static String encodeInput(String value) {
+    return value.replace("\\", "\\\\").replace("\n", "\\n");
+  }
+
   static String decodeInput(String input) {
     StringBuilder result = new StringBuilder(input.length());
     for (int index = 0; index < input.length(); index++) {
@@ -707,12 +754,12 @@ public final class LanguageEditorGui {
     }
   }
 
-  record Page(int page, int start, int end, boolean hasPrevious, boolean hasNext) {
+  record Page(int page, int pages, int start, int end, boolean hasPrevious, boolean hasNext) {
     static Page of(int count, int requested, int size) {
       int pages = Math.max(1, (count + size - 1) / size);
       int page = Math.max(1, Math.min(requested, pages));
       int start = (page - 1) * size;
-      return new Page(page, start, Math.min(count, start + size), page > 1, page < pages);
+      return new Page(page, pages, start, Math.min(count, start + size), page > 1, page < pages);
     }
   }
 

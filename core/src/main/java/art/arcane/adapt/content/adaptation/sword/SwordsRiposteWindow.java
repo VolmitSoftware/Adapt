@@ -27,6 +27,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -101,6 +103,7 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
     attacker = combat.attacker();
     e.setDamage(e.damage() * (1D + getDamageBonus(combat.level())));
     riposteUntil.remove(attacker.uuid());
+    AbilityGlyphs.clear(attacker.uuid(), this, HudGlyph.DURATION);
     fx(attacker.location().add(0, 1, 0), FxPriority.COMBAT)
         .particle(Particles.SWEEP_ATTACK, 2, 0, 0, 0, 0.1D, 0.02D)
         .particle(Particles.CRIT, 10, 0, 0, 0, 0.3D, 0.1D)
@@ -135,7 +138,9 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
       return;
     }
 
-    riposteUntil.put(defender.uuid(), System.currentTimeMillis() + getWindowMillis(level));
+    long now = System.currentTimeMillis();
+    riposteUntil.put(defender.uuid(), now + getWindowMillis(level));
+    AbilityGlyphs.duration(defender.uuid(), this, now, getWindowMillis(level));
     int windowTicks = Math.max(4, (int) (getWindowMillis(level) / 50L));
     timeline(defender)
         .duration(windowTicks)

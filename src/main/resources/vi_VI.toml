@@ -4059,6 +4059,12 @@ jump = "Nhảy"
 attack = "Tấn công"
 stat = "{label} {value}"
 stable_hand = "Được Người Chăn Ngựa Lành Nghề tăng cường"
+armor = "Giáp"
+effects = "Hiệu ứng"
+wild = "Hoang dã"
+yours = "Của bạn"
+tamed = "Đã thuần hóa"
+tamed_by = "Được {owner} thuần hóa"
 lore = ["Phạm Vi Phát Hiện"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Hãy hủy học {dependents} trước; chúng cần {
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt đã thay đổi khi màn hình này đang mở. Hãy thử lại."
+unavailable = "Thích nghi này không khả dụng với bạn."
+no_change = "Không có gì thay đổi."
+preference_saved = "Đã lưu cài đặt."
+preference_denied = "Không thể thay đổi cài đặt này lúc này."
 
 [items.backpack]
 name = "Ba lô"
@@ -6681,6 +6694,7 @@ lore3 = "Khóa Khi Giao Chiến"
 lore = ["Hấp Thụ Tối Đa", "Hấp Thụ Mỗi Xung", "Khóa Khi Giao Chiến"]
 
 [command.help]
+show_client_ui_status = "Cho biết người chơi có dùng giao diện máy khách Adapt hay không"
 version = "Hiển thị phiên bản plugin đã cài đặt"
 debug_dump = "Tạo báo cáo chẩn đoán và tải lên nếu muốn"
 debug_upload = "Tải báo cáo lên mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Số lượng từ 1 đến 64, mặc định là 1"
 
 [command.runtime]
+client_ui_absent = "{player} dùng giao diện rương và thanh hành động (chưa thỏa thuận máy khách Adapt)."
+client_ui_negotiated = "{player} dùng giao diện máy khách Adapt: giao thức {version}, khả năng {capabilities}."
 missing_permission = "Bạn không có quyền '{permission}'."
 player_required_from_console = "Bạn phải chỉ định một người chơi khi dùng lệnh này từ bảng điều khiển."
 player_required_from_console_short = "Bạn phải chỉ định một người chơi từ bảng điều khiển."

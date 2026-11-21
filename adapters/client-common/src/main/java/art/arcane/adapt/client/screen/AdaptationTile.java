@@ -1,0 +1,212 @@
+package art.arcane.adapt.client.screen;
+
+import art.arcane.adapt.client.ui.UiDraw;
+import art.arcane.adapt.client.ui.kit.LegacyText;
+import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiEase;
+import art.arcane.adapt.client.ui.kit.UiIcons;
+import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.ui.kit.UiTome;
+import art.arcane.adapt.client.view.AdaptationView;
+import art.arcane.adapt.client.view.IconRef;
+import art.arcane.adapt.client.view.PlayerView;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * One adaptation on a skill page: icon, name, one pip per level, and what the next level costs as a mark and number
+ * (gold behind a missing requirement, wine when short, or what else blocks it). A green dot marks one that can be
+ * learned now, a lock one a requirement or the server blocks, and the glint one that is mastered. The page's detail
+ * strip says the rest.
+ */
+final class AdaptationTile extends RowTile implements DetailStrip.Source {
+    private static final int MAX_PIP = 10;
+
+    private AdaptationView adaptation;
+    private int level;
+    private Status status = Status.NOT_LEARNED;
+    private String statusText = "";
+    private String state = "";
+    private UiTome.Mark mark;
+
+    AdaptationTile(AdaptationView adaptation, Runnable open) {
+        super("adaptation:" + adaptation.id(), open);
+        this.adaptation = adaptation;
+    }
+
+    void update(CatalogIndex catalog, PlayerView player, AdaptationView view) {
+        adaptation = view;
+        level = CatalogIndex.level(player, view.id());
+        if (level >= view.maxLevel()) {
+            status = Status.MASTERED;
+            statusText = ScreenText.MASTERED.text();
+            state = statusText;
+            mark = null;
+        } else {
+            LearnRules.LearnCheck next = LearnRules.learn(catalog, player, view, level + 1);
+            status = switch (next.block()) {
+                case NONE -> Status.AFFORDABLE;
+                case REQUIREMENTS -> Status.LOCKED;
+                case DISABLED, DENIED -> Status.DISABLED;
+                default -> Status.SHORT;
+            };
+            statusText = LearnText.learnBlock(catalog, next);
+            state = switch (next.block()) {
+                case NONE, KNOWLEDGE, REQUIREMENTS -> next.free() ? ScreenText.FREE_COST.text() : ScreenText.number(next.knowledgeCost());
+                case POWER -> Integer.toString(next.powerCost());
+                default -> statusText;
+            };
+            mark = switch (next.block()) {
+                case NONE, KNOWLEDGE, REQUIREMENTS -> next.free() ? null : UiTome.Mark.KNOWLEDGE;
+                case POWER -> UiTome.Mark.POWER;
+                default -> null;
+            };
+        }
+        setTooltip(LegacyText.isBlank(view.description()) ? null : new Tooltip(view.name(), List.of("§7" + view.description())));
+    }
+
+    private String levelText() {
+        return level == 0 ? ScreenText.NOT_LEARNED.text()
+                : ScreenText.LEVEL_OF.text(ScreenText.roman(level), ScreenText.roman(adaptation.maxLevel()));
+    }
+
+    private String tone() {
+        return switch (status) {
+            case MASTERED, AFFORDABLE -> "§a";
+            case LOCKED -> "§6";
+            case DISABLED, NOT_LEARNED -> "§8";
+            case SHORT -> "§c";
+        };
+    }
+
+    Status status() {
+        return status;
+    }
+
+    @Override
+    public DetailStrip.Detail detail() {
+        String first = "§7" + levelText() + (adaptation.permanent() ? " §8· §6" + ScreenText.PERMANENT.text() : "");
+        return new DetailStrip.Detail(adaptation.name(), status == Status.DISABLED ? Palette.MUTED : 0, first, tone() + statusText, -1.0F);
+    }
+
+    @Override
+    public String kind() {
+        return "adaptation-card";
+    }
+
+    @Override
+    public String label() {
+        return adaptation.name();
+    }
+
+    @Override
+    public void describe(Map<String, String> state) {
+        state.put("level", Integer.toString(level));
+        state.put("maxLevel", Integer.toString(adaptation.maxLevel()));
+        state.put("status", status.name());
+        state.put("statusText", LegacyText.strip(statusText));
+    }
+
+    @Override
+    IconRef icon() {
+        return UiIcons.adaptation(adaptation);
+    }
+
+    /**
+     * The icon on a medallion tinted with the skill's colour: bronze, gold once learned, gold with laurels when mastered
+     * and grey while locked. The adaptation's own sprite, when there is one, sits on the medallion in place of the item.
+     */
+    @Override
+    void paintIcon(UiDraw draw, UiTheme theme, UiRect icon, int backdrop) {
+        IconRef art = icon();
+        UiTome.Token look = status == Status.MASTERED ? UiTome.Token.MAXED : locked() ? UiTome.Token.LOCKED
+                : level > 0 ? UiTome.Token.LEARNED : UiTome.Token.PLAIN;
+        int tint = UiEase.mix(theme.accent(), backdrop, 0.72F);
+        UiTome.token(draw, icon.x() - UiTome.TOKEN_INSET, icon.y() - UiTome.TOKEN_INSET, tint, look);
+        UiIcons.paint(draw, art, icon.x(), icon.y(), UiIcons.SIZE, glint());
+    }
+
+    @Override
+    int nameColor(UiTheme theme) {
+        return status == Status.DISABLED ? theme.textDisabled() : theme.text();
+    }
+
+    @Override
+    String number() {
+        return "";
+    }
+
+    @Override
+    int numberColor(UiTheme theme) {
+        return theme.text();
+    }
+
+    @Override
+    String second() {
+        return state;
+    }
+
+    @Override
+    UiTome.Mark secondMark() {
+        return mark;
+    }
+
+    @Override
+    int secondColor(UiTheme theme) {
+        return switch (status) {
+            case MASTERED, AFFORDABLE -> theme.text();
+            case LOCKED -> Palette.LOCK;
+            case SHORT -> Palette.BAD;
+            case DISABLED, NOT_LEARNED -> theme.textDisabled();
+        };
+    }
+
+    @Override
+    int accent(UiTheme theme) {
+        return theme.accent();
+    }
+
+
+    @Override
+    boolean glint() {
+        return status == Status.MASTERED;
+    }
+
+    @Override
+    void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
+        int width = right - left;
+        int max = Math.max(1, adaptation.maxLevel());
+        int pip = Math.min(MAX_PIP, (width - (max - 1)) / max);
+        if (pip < 1) {
+            int filled = Math.round(width * (level / (float) max));
+            UiTome.soft(draw, left, top, right, top + BAR_HEIGHT, Palette.TRACK);
+            UiTome.soft(draw, left, top, left + filled, top + BAR_HEIGHT, theme.accent());
+            return;
+        }
+        for (int index = 0; index < max; index++) {
+            int x = left + index * (pip + 1);
+            draw.fill(x, top, x + pip, top + BAR_HEIGHT, index < level ? theme.accent() : Palette.TRACK);
+        }
+    }
+
+    @Override
+    int dot() {
+        return status == Status.AFFORDABLE ? Palette.GOOD : 0;
+    }
+
+    @Override
+    boolean locked() {
+        return status == Status.LOCKED || status == Status.DISABLED;
+    }
+
+    enum Status {
+        NOT_LEARNED,
+        AFFORDABLE,
+        SHORT,
+        LOCKED,
+        DISABLED,
+        MASTERED
+    }
+}

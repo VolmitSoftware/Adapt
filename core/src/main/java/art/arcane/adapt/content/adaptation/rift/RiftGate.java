@@ -36,6 +36,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
@@ -101,7 +103,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
    * own group. A gate on cooldown must never gray out or block a plain ender
    * eye being used to locate a stronghold.
    */
-  private final ItemCooldowns gateCooldown = ItemCooldowns.forGroup(BoundEyeOfEnder.COOLDOWN_GROUP);
+  private final ItemCooldowns gateCooldown = ItemCooldowns.forGroup(BoundEyeOfEnder.COOLDOWN_GROUP).ownedBy(this);
   private final DataKey<byte[]> reservationKey;
   private final Map<UUID, GateChannel> pendingChannels = new ConcurrentHashMap<>();
 
@@ -393,10 +395,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   private void showCountdown(PlayerRef player, GateChannel channel, int ticksLeft) {
     if (ticksLeft <= 0 || pendingChannels.get(player.uuid()) != channel || !player.isOnline()) {
       AdaptHud.clearAmbientStatus(player, getName());
+      AbilityGlyphs.clear(player.uuid(), this, HudGlyph.DURATION);
       return;
     }
     if (preferenceEnabled(player, COUNTDOWN)) {
-      AdaptHud.ambientStatus(player, getName(), AdaptLanguage.text(RiftMessages.RIFTGATE_PREFERENCE_COUNTDOWN_TEXT, trusted("seconds", String.valueOf((ticksLeft + 19) / 20))));
+      long channelMillis = CHANNEL_TICKS * 50L;
+      long startedAtMillis = System.currentTimeMillis() - (channelMillis - (ticksLeft * 50L));
+      if (!AbilityGlyphs.duration(player.uuid(), this, startedAtMillis, channelMillis)) {
+        AdaptHud.ambientStatus(player, getName(),
+            AdaptLanguage.text(RiftMessages.RIFTGATE_PREFERENCE_COUNTDOWN_TEXT, trusted("seconds", String.valueOf((ticksLeft + 19) / 20))));
+      }
     }
     Tasks.runEntity(player, () -> showCountdown(player, channel, ticksLeft - 20), 20);
   }

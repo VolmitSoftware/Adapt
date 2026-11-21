@@ -33,6 +33,9 @@
     "SpectralArrowAccess",
     "VillagerAccess"
   ],
+  "client": [
+    "client.GameRendererFovAccess"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

@@ -9,6 +9,14 @@ import java.util.regex.Pattern
 String platform = projectDir.name
 Map<String, String> metadataPaths = [fabric: 'fabric.mod.json', forge: 'META-INF/mods.toml', neoforge: 'META-INF/neoforge.mods.toml']
 Map<String, String> entrypoints = [fabric: 'art.arcane.adapt.fabric.AdaptFabric', forge: 'art.arcane.adapt.forge.AdaptForge', neoforge: 'art.arcane.adapt.neoforge.AdaptNeoForge']
+Map<String, String> clientEntrypoints = [fabric: 'art.arcane.adapt.fabric.client.AdaptFabricClient', forge: 'art.arcane.adapt.forge.client.AdaptForgeClient', neoforge: 'art.arcane.adapt.neoforge.client.AdaptNeoForgeClient']
+List<String> clientClasses = ['art.arcane.adapt.client.AdaptClient', 'art.arcane.adapt.client.ClientPlatform', 'art.arcane.adapt.client.ui.UiDraw',
+    'art.arcane.adapt.client.ui.UiInput', 'art.arcane.adapt.client.ui.UiScreen', 'art.arcane.adapt.client.ui.UiHost', 'art.arcane.adapt.client.ui.MinecraftUiDraw',
+    'art.arcane.adapt.client.ui.MinecraftUiInput', 'art.arcane.adapt.client.ui.MinecraftUiScreen', 'art.arcane.adapt.client.ui.MinecraftUiHost']
+Map<String, String> viewerPlugins = [jei: 'art/arcane/adapt/client/items/jei/AdaptJeiPlugin.class',
+    emi: 'art/arcane/adapt/client/items/emi/AdaptEmiPlugin.class', rei: 'art/arcane/adapt/client/items/rei/AdaptReiPlugin.class']
+Set<String> targetViewers = ((Map<String, List<String>>) project.ext.recipeViewers).keySet()
+Map<String, List<String>> expectedFabricEntrypoints = (Map<String, List<String>>) project.ext.fabricEntrypoints
 String mixinConfig = 'adapt.mixins.json'
 String platformMixinConfig = 'adapt-platform.mixins.json'
 List<String> mixinConfigs = [mixinConfig, platformMixinConfig, 'adapt.feature.mixins.json', 'adapt.gap-block.mixins.json', 'adapt.gap-entity.mixins.json']
@@ -20,6 +28,10 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
     inputs.file(artifactFile)
     inputs.properties(adapt)
     inputs.property('minecraftTargets', minecraftTargets)
+    inputs.property('fabricEntrypoints', expectedFabricEntrypoints)
+    if (platform == 'fabric') {
+        inputs.property('fabricModuleVersions', providers.provider { project.ext.fabricModuleVersions })
+    }
     doLast {
         File artifact = artifactFile.get().asFile
         Closure<Void> require = { boolean condition, String message ->
@@ -33,11 +45,16 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
         Map<String, Object> target = minecraftTargets[adapt.minecraftVersion]
         new JarFile(artifact).withCloseable { JarFile archive ->
             List<String> required = [metadataPath] + mixinConfigs + [entrypoint.replace('.', '/') + '.class',
-                'art/arcane/adapt/mod/AdaptModBootstrap.class', 'art/arcane/adapt/mod/AdaptModIdentity.class']
+                'art/arcane/adapt/mod/AdaptModBootstrap.class', 'art/arcane/adapt/mod/AdaptModIdentity.class', 'assets/adapt/lang/en_us.json']
+            required.addAll((clientClasses + [clientEntrypoints[platform]]).collect { String name -> name.replace('.', '/') + '.class' })
             if (platform == 'forge') {
                 required.add('pack.mcmeta')
             }
+            required.addAll(targetViewers.collect { String viewer -> viewerPlugins[viewer] })
             required.each { String path -> require(archive.getEntry(path) != null, "missing ${path}") }
+            viewerPlugins.findAll { String viewer, String path -> !targetViewers.contains(viewer) }.each { String viewer, String path ->
+                require(archive.getEntry(path) == null, "contains the ${viewer} plugin although ${adapt.minecraftVersion} ${platform} has no ${viewer} build")
+            }
             (metadataPaths.values() + ['plugin.yml', 'paper-plugin.yml']).findAll { String path -> path != metadataPath }.each { String path ->
                 require(archive.getEntry(path) == null, "contains foreign platform metadata ${path}")
             }
@@ -47,6 +64,7 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
             List<String> forbidden = ['org/bukkit/', 'org/spigotmc/', 'io/papermc/', 'com/destroystokyo/', 'net/md_5/',
                 'net/minecraft/', 'com/mojang/', 'net/minecraftforge/', 'net/neoforged/', 'net/fabricmc/']
             Set<String> classes = new HashSet<>()
+            Pattern clientReference = Pattern.compile('art/arcane/adapt/client/(?!protocol/|view/|link/|server/)')
             archive.entries().each { JarEntry entry ->
                 if (!entry.name.endsWith('.class')) {
                     return
@@ -64,6 +82,8 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                         require(classPath.startsWith('art/arcane/adapt/util/arcane/volmlib/') || major == (int) target.javaVersion + 44, "${entry.name} must target Java ${target.javaVersion}")
                         String constants = new String(bytecode, StandardCharsets.ISO_8859_1)
                         require(dormantBukkitReferences.contains(classPath) || !constants.contains('org/bukkit/'), "Bukkit reference in ${entry.name}")
+                        // A dedicated server must never load client code: only client packages may name it. The protocol, view, link and server packages are shared with the server.
+                        require(classPath.contains('/client/') || !clientReference.matcher(constants).find(), "${entry.name} references client code")
                     }
                 }
             }
@@ -76,10 +96,14 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
             if (platform == 'fabric') {
                 Map<String, Object> parsed = (Map<String, Object>) new JsonSlurper().parseText(metadata)
                 require(parsed.id == adapt.projectId && parsed.name == adapt.projectName && parsed.version == adapt.projectVersion, 'Fabric identity does not match build properties')
-                require(parsed.environment == '*' && parsed.entrypoints == [main: [entrypoint]] && parsed.mixins instanceof List && ((List<String>) parsed.mixins).containsAll(mixinConfigs), 'incorrect Fabric entrypoints, environment or mixins')
+                require(parsed.environment == '*' && parsed.entrypoints == expectedFabricEntrypoints && parsed.entrypoints.main == [entrypoint] && parsed.entrypoints.client == [clientEntrypoints[platform]] && parsed.mixins instanceof List && ((List<String>) parsed.mixins).containsAll(mixinConfigs), 'incorrect Fabric entrypoints, environment or mixins')
+                expectedFabricEntrypoints.values().flatten().each { String type ->
+                    require(archive.getEntry(type.replace('.', '/') + '.class') != null, "missing Fabric entry point ${type}")
+                }
                 require(parsed.depends instanceof Map && parsed.jars instanceof List, 'missing Fabric runtime requirements or nested jar declarations')
                 require(parsed.depends.minecraft == adapt.minecraftVersion && parsed.depends.fabricloader == ">=${target.fabricLoader}" && parsed.depends.java == ">=${target.javaVersion}", 'incorrect Fabric runtime requirements')
-                Set<String> modules = ((Map<String, String>) target.fabricModules).keySet()
+                Map<String, String> moduleVersions = (Map<String, String>) project.ext.fabricModuleVersions
+                Set<String> modules = moduleVersions.keySet()
                 Set<String> expected = modules.collect { String module -> "META-INF/jars/${module}.jar".toString() }.toSet()
                 Set<String> declared = ((List<Map<String, String>>) parsed.jars).collect { Map<String, String> nested -> nested.file }.toSet()
                 Set<String> bundled = archive.entries().findAll { JarEntry entry -> entry.name.startsWith('META-INF/jars/') && entry.name.endsWith('.jar') }.collect { JarEntry entry -> entry.name }.toSet()
@@ -95,7 +119,9 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                             }
                         }
                     }
-                    require(nestedMetadata != null && nestedMetadata.id == module && nestedMetadata.version == target.fabricModules[module], "incorrect nested Fabric module ${module}")
+                    require(nestedMetadata != null && nestedMetadata.id == module && nestedMetadata.version == moduleVersions[module], "nested Fabric module ${module} is not the one Fabric API ${target.fabricApi} ships")
+                    Set<String> needed = ((Map<String, Object>) (nestedMetadata.depends ?: [:])).keySet().findAll { String dependency -> dependency.startsWith('fabric-') }
+                    require(modules.containsAll(needed), "nested Fabric module ${module} needs ${needed - modules} which is not nested")
                 }
             } else {
                 Closure<List<Map<String, String>>> sections = { String section ->
@@ -115,6 +141,7 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                 require(mods.size() == 1 && mods[0].modId == adapt.projectId && mods[0].version == adapt.projectVersion && mods[0].displayName == adapt.projectName, 'mod identity does not match build properties')
                 require(mods[0].displayTest == 'IGNORE_SERVER_VERSION', 'the mod must not be required on clients')
                 List<Map<String, String>> dependencies = sections('dependencies.' + adapt.projectId)
+                require(dependencies.every { Map<String, String> dependency -> dependency.side == 'BOTH' }, 'mod dependencies must apply on both sides')
                 Map<String, String> minecraft = dependencies.find { Map<String, String> dependency -> dependency.modId == 'minecraft' }
                 Map<String, String> loaderDependency = dependencies.find { Map<String, String> dependency -> dependency.modId == platform }
                 require(minecraft != null && minecraft.versionRange == "[${adapt.minecraftVersion}]", 'incorrect Minecraft dependency range')
@@ -141,6 +168,19 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
             [ID: adapt.projectId, NAME: adapt.projectName, VERSION: adapt.projectVersion, MINECRAFT_TARGET: adapt.minecraftVersion].each { String field, String expected ->
                 require(identity.getField(field).get(null) == expected, "AdaptModIdentity.${field} does not match build properties")
             }
+            // Icon art and kit chrome under assets/adapt/textures/gui/ follow the same rules the client applies before drawing them.
+            String guiRoot = 'assets/adapt/textures/gui/'
+            Map<String, byte[]> guiFiles = new TreeMap<>()
+            new JarFile(artifact).withCloseable { JarFile archive ->
+                archive.entries().each { JarEntry entry ->
+                    if (!entry.directory && entry.name.startsWith(guiRoot)) {
+                        guiFiles[entry.name.substring(guiRoot.length())] = archive.getInputStream(entry).withCloseable { InputStream stream -> stream.readAllBytes() }
+                    }
+                }
+            }
+            List<String> guiProblems = (List<String>) Class.forName('art.arcane.adapt.client.ui.UiAssetCheck', true, isolated)
+                .getMethod('problems', Map).invoke(null, guiFiles)
+            require(guiProblems.isEmpty(), "invalid gui assets: ${guiProblems.join('; ')}")
         }
     }
 }

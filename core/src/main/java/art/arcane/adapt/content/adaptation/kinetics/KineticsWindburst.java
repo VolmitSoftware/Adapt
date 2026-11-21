@@ -97,7 +97,7 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
       return;
     }
 
-    cooldowns.mark(id);
+    cooldowns.mark(id, getConfig().cooldownMs);
     double radius = getRadius(level);
     double force = getForce(level);
     Loc origin = p.location();

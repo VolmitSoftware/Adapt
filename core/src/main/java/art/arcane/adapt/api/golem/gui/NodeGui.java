@@ -4,6 +4,10 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.WorldRef;
@@ -26,6 +30,7 @@ import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.NodeEditorMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
@@ -186,8 +191,12 @@ public final class NodeGui {
         placeFilter(next, record, slots);
         placePanel(next, controls);
       }
-      next.setTitle(channelPicker ? AdaptLanguage.text(NodeEditorMessages.CHANNEL_TITLE)
-          : AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))));
+      String nodeTitle = AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName())));
+      next.setTitle(channelPicker ? AdaptLanguage.text(NodeEditorMessages.CHANNEL_TITLE) : nodeTitle);
+      next.setLayout(channelPicker ? MenuLayout.LIST : MenuLayout.GRID);
+      if (channelPicker) {
+        next.setBreadcrumb(List.of(nodeTitle));
+      }
       window = next;
       shownRecord = record;
       shownLevel = level;
@@ -206,15 +215,20 @@ public final class NodeGui {
   private void placeHeader(GuiWindow target, NodeRecord record, int level, int slots) {
     target.setElement(LEFT_EDGE, HEADER_ROW, itemElement("node-header", GolemItems.node(record.type()))
         .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_POSITION, trusted("x", key.x()), trusted("y", key.y()), trusted("z", key.z()))));
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_POSITION, trusted("x", key.x()), trusted("y", key.y()), trusted("z", key.z())))
+        .setRole(MenuRole.INFO));
     int mask = record.channel() == null ? ChannelMask.NONE : ChannelMask.of(record.channel());
-    target.setElement(-2, HEADER_ROW, GuiTheme.element("node-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
-        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL, trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(mask)))))
+    String channel = AdaptLanguage.text(GolemGuiActions.channelName(mask));
+    target.setElement(-2, HEADER_ROW, GolemGuiActions.channelElement("node-channel", mask)
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL, trusted("channel", channel)))
         .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.CHANNEL_PICK))
         .onLeftClick(clicked -> {
           channelPicker = true;
           render(record);
-        }));
+        })
+        .setRole(MenuRole.NAVIGATION)
+        .setValue(channel)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(NodeEditorMessages.CHANNEL_PICK)));
     target.setElement(-3, HEADER_ROW, GuiTheme.element("node-copy", Id.minecraft("writable_book"), "gui", "golemancy", "copy")
         .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.COPY))
         .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.COPY_LORE))
@@ -222,30 +236,45 @@ public final class NodeGui {
           if (NodeSettingsClipboard.copy(player.uuid(), current)) {
             GolemGuiSupport.notify(player, NodeEditorMessages.COPIED);
           }
-        }))));
+        })))
+        .setRole(MenuRole.ACTION)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(NodeEditorMessages.COPY)));
     target.setElement(4, HEADER_ROW, GuiTheme.element("node-paste", Id.minecraft("book"), "gui", "golemancy", "paste")
         .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.PASTE))
         .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.PASTE_LORE))
-        .onLeftClick(clicked -> paste()));
+        .onLeftClick(clicked -> paste())
+        .setRole(MenuRole.ACTION)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(NodeEditorMessages.PASTE)));
     GuiElement priority = GuiTheme.element("node-priority", Id.minecraft("gold_nugget"), "gui", "golemancy", "priority")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_PRIORITY, trusted("priority", record.priority())))
-        .setCount(record.priority());
+        .setCount(record.priority())
+        .setValue(Integer.toString(record.priority()));
     if (NodeRules.allowsPriority(level)) {
       priority.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
           .onLeftClick(clicked -> edit(current -> NodeEdits.cyclePriority(current, level, true).orElse(current)))
-          .onRightClick(clicked -> edit(current -> NodeEdits.cyclePriority(current, level, false).orElse(current)));
+          .onRightClick(clicked -> edit(current -> NodeEdits.cyclePriority(current, level, false).orElse(current)))
+          .setHint(MenuHint.number(Integer.toString(record.priority()), (double) NodeRecord.MIN_PRIORITY, (double) NodeRecord.MAX_PRIORITY, 1D, null));
+      cycleLabels(priority);
     } else {
-      lockedLore(priority, NodeRules.PRIORITY_LEVEL);
+      lockedLore(priority.setRole(MenuRole.INFO), NodeRules.PRIORITY_LEVEL);
     }
     target.setElement(-1, HEADER_ROW, priority);
+    String redstoneMode = AdaptLanguage.text(redstoneName(record.redstone()));
     GuiElement redstone = GuiTheme.element("node-redstone", redstoneIcon(record.redstone()), "gui", "golemancy", "redstone")
-        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_REDSTONE, trusted("mode", AdaptLanguage.text(redstoneName(record.redstone())))));
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_REDSTONE, trusted("mode", redstoneMode)))
+        .setValue(redstoneMode);
     if (NodeRules.allowsRedstone(level)) {
+      List<String> modes = new ArrayList<>();
+      for (RedstoneMode mode : RedstoneMode.values()) {
+        modes.add(AdaptLanguage.text(redstoneName(mode)));
+      }
       redstone.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE))
           .onLeftClick(clicked -> edit(current -> current.toBuilder().redstone(NodeEdits.nextRedstone(current.redstone(), true)).build()))
-          .onRightClick(clicked -> edit(current -> current.toBuilder().redstone(NodeEdits.nextRedstone(current.redstone(), false)).build()));
+          .onRightClick(clicked -> edit(current -> current.toBuilder().redstone(NodeEdits.nextRedstone(current.redstone(), false)).build()))
+          .setHint(MenuHint.choice(redstoneMode, modes, null));
+      cycleLabels(redstone);
     } else {
-      lockedLore(redstone, NodeRules.REDSTONE_LEVEL);
+      lockedLore(redstone.setRole(MenuRole.INFO), NodeRules.REDSTONE_LEVEL);
     }
     target.setElement(0, HEADER_ROW, redstone);
     placeFilterMode(target, record, level, slots);
@@ -253,26 +282,34 @@ public final class NodeGui {
 
   private void placeFilterMode(GuiWindow target, NodeRecord record, int level, int slots) {
     boolean unlocked = NodeRules.allowsBlacklistAndTags(level);
+    String modeName = AdaptLanguage.text(record.whitelist() ? GolemancyMessages.NODE_GUI_WHITELIST : GolemancyMessages.NODE_GUI_BLACKLIST);
     GuiElement mode = GuiTheme.element("node-filter-mode", record.whitelist() ? Id.minecraft("white_wool") : Id.minecraft("black_wool"), "gui", "golemancy",
             record.whitelist() ? "whitelist" : "blacklist")
-        .setName(C.YELLOW + AdaptLanguage.text(record.whitelist() ? GolemancyMessages.NODE_GUI_WHITELIST : GolemancyMessages.NODE_GUI_BLACKLIST))
+        .setName(C.YELLOW + modeName)
         .addLore(C.GRAY + AdaptLanguage.text(record.whitelist() ? GolemancyMessages.NODE_GUI_WHITELIST_LORE : GolemancyMessages.NODE_GUI_BLACKLIST_LORE))
         .addLore(C.DARK_GRAY + AdaptLanguage.text(record.type() == NodeType.FILTER ? GolemancyMessages.SORTER_CORE_EMPTY_FILTER
-            : GolemancyMessages.NODE_GUI_EMPTY_FILTER));
+            : GolemancyMessages.NODE_GUI_EMPTY_FILTER))
+        .setValue(modeName);
     if (unlocked) {
-      mode.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE))
-          .onLeftClick(clicked -> edit(current -> current.toBuilder().whitelist(!current.whitelist()).build()));
+      mode.setDescription(mode.getLore())
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE))
+          .onLeftClick(clicked -> edit(current -> current.toBuilder().whitelist(!current.whitelist()).build()))
+          .setHint(MenuHint.choice(modeName, List.of(AdaptLanguage.text(GolemancyMessages.NODE_GUI_WHITELIST),
+              AdaptLanguage.text(GolemancyMessages.NODE_GUI_BLACKLIST)), null))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE));
     } else {
-      lockedLore(mode, NodeRules.BLACKLIST_LEVEL);
+      lockedLore(mode.setRole(MenuRole.INFO), NodeRules.BLACKLIST_LEVEL);
     }
     target.setElement(2, HEADER_ROW, mode);
     GuiElement tag = GuiTheme.element("node-tag-add", Id.minecraft("name_tag"), "gui", "golemancy", "tag_add")
         .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG_ADD));
     if (unlocked) {
       tag.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG_ADD_LORE))
-          .onLeftClick(clicked -> beginTag(record, slots));
+          .onLeftClick(clicked -> beginTag(record, slots))
+          .setHint(MenuHint.text("", prompt.input(key)))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG_ADD));
     } else {
-      lockedLore(tag, NodeRules.BLACKLIST_LEVEL);
+      lockedLore(tag.setRole(MenuRole.INFO), NodeRules.BLACKLIST_LEVEL);
     }
     target.setElement(3, HEADER_ROW, tag);
   }
@@ -283,16 +320,27 @@ public final class NodeGui {
     NodeCuboid area = record.area();
     for (int index = 0; index < axes.length; index++) {
       NodeEdits.Axis axis = axes[index];
+      String size = C.GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE, trusted("x", area.spanX()), trusted("y", area.spanY()), trusted("z", area.spanZ()));
+      String preview = C.GRAY + AdaptLanguage.text(NodeEditorMessages.RESIZE_PREVIEW, trusted("axis", axis.name()),
+          trusted("grow", resizePreview(area, axis, NodeEdits.STEP, maxRadius)),
+          trusted("shrink", resizePreview(area, axis, -NodeEdits.STEP, maxRadius)));
+      String cap = C.DARK_GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_CAP, trusted("radius", maxRadius));
+      String extent = Integer.toString(span(area, axis));
       target.setElement(GuiLayout.centeredPosition(index, controls), AREA_ROW,
           GuiTheme.element("node-area-" + axis.name(), areaIcon(axis), "gui", "golemancy", "area_" + axis.name().toLowerCase(Locale.ROOT))
               .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA, trusted("axis", axis.name()),
                   trusted("min", Integer.toString(area.min(axis))), trusted("max", signed(area.max(axis)))))
-              .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE, trusted("x", area.spanX()), trusted("y", area.spanY()), trusted("z", area.spanZ())))
+              .addLore(size)
               .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_LORE))
-              .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.RESIZE_PREVIEW, trusted("axis", axis.name()),
-                  trusted("grow", resizePreview(area, axis, NodeEdits.STEP, maxRadius)),
-                  trusted("shrink", resizePreview(area, axis, -NodeEdits.STEP, maxRadius))))
-              .addLore(C.DARK_GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_CAP, trusted("radius", maxRadius)))
+              .addLore(preview)
+              .addLore(cap)
+              .setHint(MenuHint.number(extent, null))
+              .setValue(extent)
+              .setDescription(List.of(size, preview, cap))
+              .setActionLabel(ClickKind.LEFT, signed(NodeEdits.STEP))
+              .setActionLabel(ClickKind.RIGHT, signed(-NodeEdits.STEP))
+              .setActionLabel(ClickKind.SHIFT_LEFT, signed(NodeEdits.SHIFT_STEP))
+              .setActionLabel(ClickKind.SHIFT_RIGHT, signed(-NodeEdits.SHIFT_STEP))
               .onLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.STEP, maxRadius)))
               .onRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -NodeEdits.STEP, maxRadius)))
               .onShiftLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.SHIFT_STEP, maxRadius)))
@@ -304,7 +352,9 @@ public final class NodeGui {
             .setName(C.GREEN + AdaptLanguage.text(selecting ? GolemancyMessages.NODE_AREA_STOP : NodeEditorMessages.SHIFT_TITLE))
             .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.SHIFT_LORE))
             .addLore(C.DARK_GRAY + AdaptLanguage.text(NodeEditorMessages.SIZE_CAP, trusted("radius", maxRadius)))
-            .onLeftClick(clicked -> areas.toggle(player, key, record)));
+            .onLeftClick(clicked -> areas.toggle(player, key, record))
+            .setRole(MenuRole.ACTION)
+            .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(selecting ? GolemancyMessages.NODE_AREA_STOP : NodeEditorMessages.SHIFT_TITLE)));
   }
 
   private void placeFilter(GuiWindow target, NodeRecord record, int slots) {
@@ -325,7 +375,10 @@ public final class NodeGui {
           .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR))
           .onLeftClick(clicked -> replaceFromCursor(shown))
-          .onRightClick(clicked -> edit(current -> NodeFilters.removeItem(current, shown)));
+          .onRightClick(clicked -> edit(current -> NodeFilters.removeItem(current, shown)))
+          .setRole(MenuRole.ENTRY)
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE))
+          .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR));
     }
     if (index < items.size() + tags.size()) {
       String tag = tags.get(index - items.size());
@@ -333,17 +386,23 @@ public final class NodeGui {
           .setName(C.YELLOW + tag)
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR))
-          .onRightClick(clicked -> edit(current -> NodeFilters.removeTag(current, tag)));
+          .onRightClick(clicked -> edit(current -> NodeFilters.removeTag(current, tag)))
+          .setRole(MenuRole.ENTRY)
+          .setDescription(List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG)))
+          .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR));
     }
     if (index < slots) {
       return GuiTheme.element(id, Id.minecraft("lime_stained_glass_pane"), "gui", "golemancy", "slots", "filter_empty")
           .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_EMPTY))
           .addLore(C.GRAY + AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE))
-          .onLeftClick(clicked -> addFromCursor(slots));
+          .onLeftClick(clicked -> addFromCursor(slots))
+          .setRole(MenuRole.ACTION)
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(NodeEditorMessages.FILTER_SAMPLE));
     }
     return GuiTheme.element(id, Id.minecraft("black_stained_glass_pane"), "gui", "golemancy", "slots", "filter_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED_LORE));
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED_LORE))
+        .setRole(MenuRole.INFO);
   }
 
   private void placePanel(GuiWindow target, List<NodePanelControl> controls) {
@@ -383,7 +442,7 @@ public final class NodeGui {
       element.onLeftClick(clicked -> edit(control.leftClick()));
     }
     if (control.open() != null) {
-      element.onLeftClick(clicked -> control.open().accept(player));
+      element.onLeftClick(clicked -> control.open().accept(player)).setRole(MenuRole.NAVIGATION);
     }
     if (control.rightClick() != null) {
       element.onRightClick(clicked -> edit(control.rightClick()));
@@ -426,13 +485,19 @@ public final class NodeGui {
       DyeColor color = colors[index];
       int mask = ChannelMask.of(color);
       target.setElement(-3 + index % 8, 1 + index / 8,
-          GuiTheme.element("node-channel-" + color.name(), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+          GolemGuiActions.channelElement("node-channel-" + color.name(), mask)
               .setName((record.channel() == color ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(mask)))
-              .onLeftClick(clicked -> chooseChannel(color)));
+              .onLeftClick(clicked -> chooseChannel(color))
+              .setRole(MenuRole.ENTRY)
+              .setValue(record.channel() == color ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+              .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT)));
     }
     target.setElement(0, 3, GuiTheme.element("node-channel-clear", Id.minecraft("glass_bottle"), "gui", "golemancy", "channels_clear")
         .setName(C.YELLOW + AdaptLanguage.text(NodeEditorMessages.CHANNEL_CLEAR))
-        .onLeftClick(clicked -> chooseChannel(null)));
+        .onLeftClick(clicked -> chooseChannel(null))
+        .setRole(MenuRole.ENTRY)
+        .setValue(record.channel() == null ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT)));
     target.setElement(-4, 4, GuiTheme.element("node-channel-back", Id.minecraft("arrow"), "gui", "golemancy", "back")
         .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_BACK))
         .onLeftClick(clicked -> {
@@ -485,6 +550,11 @@ public final class NodeGui {
       return;
     }
     prompt.begin(player, key);
+  }
+
+  private static void cycleLabels(GuiElement element) {
+    element.setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GuiMessages.NEXT))
+        .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(GuiMessages.PREVIOUS));
   }
 
   private static void lockedLore(GuiElement element, int level) {

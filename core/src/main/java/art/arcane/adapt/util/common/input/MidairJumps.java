@@ -2,46 +2,50 @@ package art.arcane.adapt.util.common.input;
 
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
+import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.player.PlayerChangedWorldEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerGameModeChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerRespawnEvent;
-import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleFlightEvent;
-import art.arcane.volmlib.util.math.M;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.LongSupplier;
 
 /**
- * Mid-air jump presses on servers without the player input packet (before 1.21.2), where the server never sees the
- * jump key. While a {@link DoubleJumpGesture} listens to an airborne survival or adventure player who may not fly, the
- * player is granted flight requests ({@link PlayerRef#grantFlightRequests()}): a double tap of jump then makes the
- * client ask to start flying, which is cancelled and counted as one press. The grant never lets the player fly and
- * never changes fall damage. It ends on landing, when no gesture has listened for {@link #LISTEN_TIMEOUT_MILLIS}
- * (adaptation unlearned or disabled), and on teleport, world change, game mode change, death, respawn, quit and
- * shutdown. A marker in the player's data removes a grant that a crash saved with the player on the next join.
+ * Mid-air jump presses on servers without the player input packet (before 1.21.2), for clients that do not report the
+ * jump key themselves. While a {@link DoubleJumpGesture} listens to a survival or adventure player who may not fly, the
+ * player is granted flight requests ({@link PlayerRef#grantFlightRequests()}): a vanilla client asks to start flying
+ * when jump is pressed twice less than 7 ticks apart, which is cancelled and counted as one press. The grant is held on
+ * the ground too, so the press that leaves the ground is the first of the two; a client that learned of the grant only
+ * in the air would need two more presses. On the ground it needs a food level above
+ * {@link #SPRINT_FOOD_LEVEL} (a client that may fly sprints at any food level) and no elytra worn (the second press
+ * opens the elytra instead). The grant never lets the player fly and never changes fall damage. It ends when the
+ * player no longer qualifies, when no gesture listened during the player's last {@link #STALE_MOVES} moves
+ * (adaptation unlearned or disabled), and on game mode change, death, respawn, quit and shutdown; a teleport keeps
+ * it, so a player who stands still where they arrived can still double jump. A marker in the player's data removes a
+ * grant that a crash saved with the player on the next join.
  */
 public final class MidairJumps {
-  static final long LISTEN_TIMEOUT_MILLIS = 500L;
+  static final int STALE_MOVES = 40;
+  static final int SPRINT_FOOD_LEVEL = 6;
   static final DataKey<Byte> GRANT_MARKER = DataKey.adapt("midair_jump_grant", DataCodecs.BYTE);
+  private static final Id ELYTRA = Id.minecraft("elytra");
   private static volatile MidairJumps active;
 
-  private final LongSupplier clock;
   private final Map<UUID, Listened> players = new ConcurrentHashMap<>();
 
-  MidairJumps(LongSupplier clock) {
-    this.clock = clock;
+  MidairJumps() {
   }
 
   /** The running instance, or null when the server reports jump input itself. */
@@ -51,7 +55,7 @@ public final class MidairJumps {
 
   /** Starts listening for flight requests; the caller registers the returned listener. */
   public static MidairJumps start() {
-    MidairJumps jumps = new MidairJumps(M::ms);
+    MidairJumps jumps = new MidairJumps();
     active = jumps;
     return jumps;
   }
@@ -66,16 +70,16 @@ public final class MidairJumps {
   }
 
   /**
-   * Called by {@code owner} on each move of a player it listens to: grants flight requests while the player is
-   * airborne and ends the grant on landing. Returns the player's press count; a change means a mid-air press.
+   * Called by {@code owner} on each move of a player it listens to: grants flight requests while the player qualifies
+   * and ends the grant when they stop qualifying. Returns the player's press count; a change means a second press.
    */
   public long listen(PlayerRef player, Object owner) {
     Listened state = players.computeIfAbsent(player.uuid(), unused -> new Listened(player));
     state.player = player;
-    state.owners.put(owner, clock.getAsLong());
-    if (player.isOnGround()) {
+    state.owners.put(owner, state.moves);
+    if (!canGrant(player)) {
       revoke(state);
-    } else if (!state.granted && canGrant(player) && player.grantFlightRequests()) {
+    } else if (!state.granted && player.grantFlightRequests()) {
       state.granted = true;
       player.data().set(GRANT_MARKER, (byte) 1);
     }
@@ -117,24 +121,12 @@ public final class MidairJumps {
     if (state == null) {
       return;
     }
-    long now = clock.getAsLong();
-    state.owners.values().removeIf(last -> now - last > LISTEN_TIMEOUT_MILLIS);
+    long moves = ++state.moves;
+    state.owners.values().removeIf(seen -> moves - seen > STALE_MOVES);
     if (state.owners.isEmpty()) {
       players.remove(e.player().uuid(), state);
       revoke(state);
-    } else if (e.player().isOnGround()) {
-      revoke(state);
     }
-  }
-
-  @Handle(priority = EventPriority.MONITOR)
-  public void on(PlayerTeleportEvent e) {
-    revoke(e.player());
-  }
-
-  @Handle(priority = EventPriority.MONITOR)
-  public void on(PlayerChangedWorldEvent e) {
-    revoke(e.player());
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -206,8 +198,15 @@ public final class MidairJumps {
   }
 
   private static boolean canGrant(PlayerRef player) {
-    return survivalLike(player) && !player.isDead() && !player.isFlying() && !player.isGliding()
-        && player.vehicle() == null && !player.allowFlight();
+    if (!survivalLike(player) || player.isDead() || player.isFlying() || player.isGliding()
+        || player.vehicle() != null || player.allowFlight()) {
+      return false;
+    }
+    if (!player.isOnGround()) {
+      return true;
+    }
+    ItemRef chest = player.equipment(EquipmentSlot.CHEST);
+    return player.foodLevel() > SPRINT_FOOD_LEVEL && (chest == null || !ELYTRA.equals(chest.type()));
   }
 
   private static boolean survivalLike(PlayerRef player) {
@@ -220,6 +219,7 @@ public final class MidairJumps {
     private volatile PlayerRef player;
     private volatile boolean granted;
     private volatile long presses;
+    private volatile long moves;
 
     private Listened(PlayerRef player) {
       this.player = player;

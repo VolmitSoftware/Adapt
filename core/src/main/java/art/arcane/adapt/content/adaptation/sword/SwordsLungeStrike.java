@@ -101,7 +101,7 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
       return;
     }
 
-    lungeCooldown.mark(p.uuid());
+    lungeCooldown.mark(p.uuid(), (long) getConfig().cooldownMillis);
     LivingRef target = combat.target();
     double surge = getSurge(combat.level());
     Vec3 forward = p.location().direction().withY(0);

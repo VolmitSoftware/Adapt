@@ -132,7 +132,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     }
 
     int level = context.level();
-    if (!cooldowns.isReady(playerId, (long) (getCooldownMillis(level) / preference(p, FREQUENCY).multiplier()))) {
+    if (!cooldowns.isReady(playerId, pingCooldownMillis(p, level))) {
       return;
     }
 
@@ -224,7 +224,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     if (!scheduled) {
       synchronized (revealLifecycleLock) {
         if (acceptingReveals.get() && activeScans.remove(playerId, result.scanId())) {
-          cooldowns.mark(playerId);
+          cooldowns.mark(playerId, pingCooldownMillis(p, getLevel(p)));
         }
       }
     }
@@ -242,7 +242,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       if (matches.isEmpty()) {
         fx(blockLocation.add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
             .sound(Sounds.BLOCK_NOTE_BLOCK_HAT, 0.3f, 0.5f);
-        cooldowns.mark(playerId);
+        cooldowns.mark(playerId, pingCooldownMillis(p, getLevel(p)));
         return;
       }
 
@@ -289,18 +289,18 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     Loc location = new Loc(world, target.x(), target.y(), target.z(), 0F, 0F);
     String markerKey = markerKey(target);
     if (!Tasks.runAt(location, () -> showOreMarkerAtRegion(player, world, target, location, revealId, markerKey))) {
-      completeRevealWindow(player.uuid(), revealId, markerKey);
+      completeRevealWindow(player, revealId, markerKey);
     }
   }
 
   private void showOreMarkerAtRegion(PlayerRef player, WorldRef world, BlockScanScheduler.Match target,
                                      Loc location, UUID revealId, String markerKey) {
     if (!world.isChunkLoaded(target.x() >> 4, target.z() >> 4)) {
-      completeRevealWindow(player.uuid(), revealId, markerKey);
+      completeRevealWindow(player, revealId, markerKey);
       return;
     }
     if (!target.supplied() && !world.blockAt(target.x(), target.y(), target.z()).type().equals(target.material())) {
-      completeRevealWindow(player.uuid(), revealId, markerKey);
+      completeRevealWindow(player, revealId, markerKey);
       return;
     }
 
@@ -322,13 +322,13 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
           GLOW_DURATION_TICKS
       );
       if (!shown) {
-        completeRevealWindow(playerId, revealId, markerKey);
+        completeRevealWindow(player, revealId, markerKey);
         return;
       }
       if (!Tasks.runEntity(player,
-          () -> completeRevealWindow(playerId, revealId, markerKey), GLOW_DURATION_TICKS)) {
+          () -> completeRevealWindow(player, revealId, markerKey), GLOW_DURATION_TICKS)) {
         displays().clearViewerKey(getName(), markerKey, playerId);
-        completeRevealWindow(playerId, revealId, markerKey);
+        completeRevealWindow(player, revealId, markerKey);
       }
     }
   }
@@ -337,13 +337,14 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     return "ore-" + target.x() + ":" + target.y() + ":" + target.z();
   }
 
-  private void completeRevealWindow(UUID playerId, UUID revealId, String markerKey) {
+  private void completeRevealWindow(PlayerRef player, UUID revealId, String markerKey) {
     synchronized (revealLifecycleLock) {
+      UUID playerId = player.uuid();
       if (!retireRevealWindow(activeRevealWindows, playerId, revealId, acceptingReveals.get())) {
         return;
       }
       displays().clearViewerKey(getName(), markerKey, playerId);
-      cooldowns.mark(playerId);
+      cooldowns.mark(playerId, pingCooldownMillis(player, getLevel(player)));
     }
   }
 
@@ -415,6 +416,10 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
 
   private double getPingChance(int level) {
     return Math.min(getConfig().maxPingChance, getConfig().pingChanceBase + (getLevelPercent(level) * getConfig().pingChanceFactor));
+  }
+
+  private long pingCooldownMillis(PlayerRef p, int level) {
+    return (long) (getCooldownMillis(level) / preference(p, FREQUENCY).multiplier());
   }
 
   private long getCooldownMillis(int level) {

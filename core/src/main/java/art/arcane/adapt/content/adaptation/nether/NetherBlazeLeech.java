@@ -28,6 +28,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -135,7 +136,10 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
   }
 
   private void markCooldown(PlayerRef p, int level) {
-    setStorage(p, "blazeLeechNext", System.currentTimeMillis() + getCooldownMillis(level));
+    long now = System.currentTimeMillis();
+    long cooldownMillis = getCooldownMillis(level);
+    setStorage(p, "blazeLeechNext", now + cooldownMillis);
+    AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
   }
 
   private void applyLeech(PlayerRef p, int level, boolean defensive) {

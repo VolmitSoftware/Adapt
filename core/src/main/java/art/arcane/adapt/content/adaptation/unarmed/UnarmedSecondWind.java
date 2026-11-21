@@ -100,7 +100,7 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
       return;
     }
 
-    secondWindCooldown.mark(p.uuid());
+    secondWindCooldown.mark(p.uuid(), getConfig().cooldownMillis);
     int foodRestore = getFoodRestore(level);
     int regenTicks = getRegenDurationTicks(level);
     Tasks.runEntity(p, () -> {

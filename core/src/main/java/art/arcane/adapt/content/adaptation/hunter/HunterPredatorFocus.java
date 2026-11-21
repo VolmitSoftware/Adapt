@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -111,6 +112,7 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
     state.target = target.uuid();
     state.stacks = stacks;
     state.lastHitAt = now;
+    AbilityGlyphs.duration(p.uuid(), this, now, getConfig().decayMillis, stacks, cap);
 
     double multiplier = damageMultiplier(stacks, getConfig().perStackBonus);
     if (multiplier <= 1.0D) {

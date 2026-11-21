@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -168,6 +169,8 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     e.setCancelled(true);
     p.setHealth(Math.max(0.5D, getConfig().survivalHealth));
     invulnerableUntil.put(id, now + getConfig().invulnerabilityMillis);
+    AbilityGlyphs.cooldown(id, this, now, cooldownMillis);
+    AbilityGlyphs.duration(id, this, now, getConfig().invulnerabilityMillis);
     p.setNoDamageTicks(Math.max(p.noDamageTicks(), (int) (getConfig().invulnerabilityMillis / 50L)));
 
     slowNearbyEnemies(p);

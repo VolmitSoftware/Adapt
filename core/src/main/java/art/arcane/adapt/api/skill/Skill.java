@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.api.xp.XP;
@@ -73,6 +74,11 @@ public interface Skill<T> extends Ticked, Component {
    * @return internal skill key (e.g. "swords").
    */
   String getName();
+
+  /** What this skill needs from the Minecraft version; without it the whole skill is left out. */
+  default List<PlatformNeed> getPlatformNeeds() {
+    return List.of();
+  }
 
   default String getLocalizedName() {
     return Form.capitalize(getName());

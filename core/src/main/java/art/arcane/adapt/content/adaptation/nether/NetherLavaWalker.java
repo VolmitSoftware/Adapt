@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -130,7 +131,10 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
 
       int hungerCost = getHungerCost(level);
       p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
-      setStorage(p, "lavaWalkerCooldown", System.currentTimeMillis() + getCooldownMillis(level));
+      long now = System.currentTimeMillis();
+      long cooldownMillis = getCooldownMillis(level);
+      setStorage(p, "lavaWalkerCooldown", now + cooldownMillis);
+      AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
       xp(p, getConfig().xpPerStride);
       addStat(p, "nether.lava-walker.blocks-walked", 1);
       fx(p.location(), FxPriority.TRAIL)

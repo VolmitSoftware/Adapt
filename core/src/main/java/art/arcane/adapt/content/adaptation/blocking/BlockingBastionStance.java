@@ -34,6 +34,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -272,6 +274,9 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     AdaptAttributeService attributes = AdaptAttributeService.get();
     attributes.apply(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE, amount, AttributeOperation.ADD_VALUE);
     attributes.apply(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, amount, AttributeOperation.ADD_VALUE);
+    if (!state.braced) {
+      AbilityGlyphs.toggle(p.uuid(), this, true);
+    }
     state.braced = true;
   }
 
@@ -281,6 +286,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     }
 
     state.braced = false;
+    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
     AdaptAttributeService attributes = AdaptAttributeService.get();
     attributes.remove(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE);
     attributes.remove(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE);

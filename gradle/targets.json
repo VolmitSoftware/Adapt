@@ -2,86 +2,263 @@
   "1.20.1": {
     "dataPackFormat": 15,
     "fabricLoader": "0.16.14",
-    "fabricModules": {
-      "fabric-api-base": "0.4.32+1802ada577",
-      "fabric-command-api-v2": "2.2.14+1802ada577",
-      "fabric-lifecycle-events-v1": "2.2.23+1802ada577"
-    },
+    "fabricApi": "0.92.12+1.20.1",
+    "fabricModules": [
+      "fabric-api-base",
+      "fabric-command-api-v2",
+      "fabric-lifecycle-events-v1",
+      "fabric-networking-api-v1",
+      "fabric-rendering-v1",
+      "fabric-key-binding-api-v1",
+      "fabric-resource-loader-v0",
+      "fabric-transitive-access-wideners-v1"
+    ],
     "sourceFamily": "mapped",
     "forge": "1.20.1-47.4.5",
     "forgeRuntimeMappings": "srg",
     "forgeLoaderRange": "[47,48)",
     "neoforgeUsesForge": true,
     "javaVersion": 17,
-    "obfuscated": true
+    "obfuscated": true,
+    "recipeViewers": {
+      "fabric": {
+        "jei": [
+          "mezz.jei:jei-1.20.1-common-api:15.75.0.236"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-fabric:12.1.785",
+          "dev.architectury:architectury-fabric:9.0.7"
+        ],
+        "emi": [
+          "dev.emi:emi-fabric:1.1.24+1.20.1"
+        ]
+      },
+      "forge": {
+        "jei": [
+          "mezz.jei:jei-1.20.1-common-api:15.75.0.236"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-forge:12.1.785",
+          "dev.architectury:architectury-forge:9.0.7"
+        ],
+        "emi": [
+          "dev.emi:emi-forge:1.1.24+1.20.1"
+        ]
+      }
+    }
   },
   "1.21.1": {
     "dataPackFormat": 48,
     "fabricLoader": "0.19.5",
-    "fabricModules": {
-      "fabric-api-base": "0.4.42+6573ed8c19",
-      "fabric-command-api-v2": "2.2.28+6ced4dd919",
-      "fabric-lifecycle-events-v1": "2.6.0+0865547519"
-    },
+    "fabricApi": "0.116.18+1.21.1",
+    "fabricModules": [
+      "fabric-api-base",
+      "fabric-command-api-v2",
+      "fabric-lifecycle-events-v1",
+      "fabric-networking-api-v1",
+      "fabric-rendering-v1",
+      "fabric-key-binding-api-v1",
+      "fabric-resource-loader-v0",
+      "fabric-transitive-access-wideners-v1"
+    ],
     "sourceFamily": "mapped",
     "forge": "1.21.1-52.1.20",
     "forgeRuntimeMappings": "official",
     "forgeLoaderRange": "[52,53)",
     "neoforge": "21.1.262",
     "javaVersion": 21,
-    "obfuscated": true
+    "obfuscated": true,
+    "recipeViewers": {
+      "fabric": {
+        "jei": [
+          "mezz.jei:jei-1.21.1-common-api:19.71.0.470"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-fabric:16.0.799",
+          "dev.architectury:architectury-fabric:13.0.6"
+        ],
+        "emi": [
+          "dev.emi:emi-fabric:1.1.24+1.21.1"
+        ]
+      },
+      "forge": {
+        "jei": [
+          "mezz.jei:jei-1.21.1-common-api:19.71.0.470"
+        ]
+      },
+      "neoforge": {
+        "jei": [
+          "mezz.jei:jei-1.21.1-common-api:19.71.0.470"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-neoforge:16.0.799",
+          "dev.architectury:architectury-neoforge:13.0.6"
+        ],
+        "emi": [
+          "dev.emi:emi-neoforge:1.1.24+1.21.1"
+        ]
+      }
+    }
   },
   "26.1.2": {
     "dataPackFormat": 101,
     "fabricLoader": "0.19.5",
-    "fabricModules": {
-      "fabric-api-base": "2.0.3+ece063234c",
-      "fabric-command-api-v2": "3.0.5+e2bdee784c",
-      "fabric-lifecycle-events-v1": "4.1.1+df84eb3d4c",
-      "fabric-networking-api-v1": "6.3.2+a217cccf4c",
-      "fabric-recipe-api-v1": "9.0.17+be4b75ae4c"
-    },
+    "fabricApi": "0.155.3+26.1.2",
+    "fabricModules": [
+      "fabric-api-base",
+      "fabric-command-api-v2",
+      "fabric-lifecycle-events-v1",
+      "fabric-networking-api-v1",
+      "fabric-recipe-api-v1",
+      "fabric-rendering-v1",
+      "fabric-key-mapping-api-v1",
+      "fabric-resource-loader-v1",
+      "fabric-transitive-access-wideners-v1"
+    ],
     "sourceFamily": "position-rotation",
     "forge": "26.1.2-64.1.4",
     "forgeRuntimeMappings": "official",
     "forgeLoaderRange": "[64,65)",
     "neoforge": "26.1.2.116",
     "javaVersion": 25,
-    "obfuscated": false
+    "obfuscated": false,
+    "recipeViewers": {
+      "fabric": {
+        "jei": [
+          "mezz.jei:jei-26.1.2-common-api:29.54.0.116"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-fabric:26.1.819",
+          "dev.architectury:architectury-fabric:20.0.6"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.0+26.1.2+fabric"
+        ]
+      },
+      "forge": {
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.1+26.1.2+forge"
+        ]
+      },
+      "neoforge": {
+        "jei": [
+          "mezz.jei:jei-26.1.2-common-api:29.54.0.116"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-neoforge:26.1.819",
+          "dev.architectury:architectury-neoforge:20.0.6"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.0+26.1.2+neoforge"
+        ]
+      }
+    }
   },
   "26.2": {
     "dataPackFormat": 107,
     "fabricLoader": "0.19.5",
-    "fabricModules": {
-      "fabric-api-base": "2.0.4+ece063239e",
-      "fabric-command-api-v2": "3.1.0+00cb03469e",
-      "fabric-lifecycle-events-v1": "4.1.4+29b6eb019e",
-      "fabric-networking-api-v1": "6.3.4+2989c6a09e",
-      "fabric-recipe-api-v1": "9.0.22+11e1c9a39e"
-    },
+    "fabricApi": "0.161.0+26.2",
+    "fabricModules": [
+      "fabric-api-base",
+      "fabric-command-api-v2",
+      "fabric-lifecycle-events-v1",
+      "fabric-networking-api-v1",
+      "fabric-recipe-api-v1",
+      "fabric-rendering-v1",
+      "fabric-key-mapping-api-v1",
+      "fabric-resource-loader-v1",
+      "fabric-transitive-access-wideners-v1"
+    ],
     "sourceFamily": "position-rotation",
     "forge": "26.2-65.1.3",
     "forgeRuntimeMappings": "official",
     "forgeLoaderRange": "[65,66)",
     "neoforge": "26.2.0.89",
     "javaVersion": 25,
-    "obfuscated": false
+    "obfuscated": false,
+    "recipeViewers": {
+      "fabric": {
+        "jei": [
+          "mezz.jei:jei-26.2-common-api:30.48.0.244"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-fabric:26.2.821",
+          "dev.architectury:architectury-fabric:21.0.2"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.0+26.2+fabric"
+        ]
+      },
+      "forge": {
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.0+26.2+forge"
+        ]
+      },
+      "neoforge": {
+        "jei": [
+          "mezz.jei:jei-26.2-common-api:30.48.0.244"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-neoforge:26.2.821",
+          "dev.architectury:architectury-neoforge:21.0.2"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.0+26.2+neoforge"
+        ]
+      }
+    }
   },
   "26.3": {
     "dataPackFormat": 121,
     "fabricLoader": "0.19.5",
-    "fabricModules": {
-      "fabric-api-base": "2.0.6+fcdff87f5d",
-      "fabric-command-api-v2": "3.1.2+fcdff87f5d",
-      "fabric-lifecycle-events-v1": "4.1.9+ffef5f675d",
-      "fabric-networking-api-v1": "6.4.1+c58129785d",
-      "fabric-recipe-api-v1": "10.0.12+b9b88df45d"
-    },
+    "fabricApi": "0.166.2+26.3",
+    "fabricModules": [
+      "fabric-api-base",
+      "fabric-command-api-v2",
+      "fabric-lifecycle-events-v1",
+      "fabric-networking-api-v1",
+      "fabric-recipe-api-v1",
+      "fabric-rendering-v1",
+      "fabric-key-mapping-api-v1",
+      "fabric-resource-loader-v1",
+      "fabric-transitive-access-wideners-v1"
+    ],
     "forge": "26.3-66.0.8",
     "forgeRuntimeMappings": "official",
     "forgeLoaderRange": "[66,67)",
     "neoforge": "26.3.0.33-beta",
     "javaVersion": 25,
-    "obfuscated": false
+    "obfuscated": false,
+    "recipeViewers": {
+      "fabric": {
+        "jei": [
+          "mezz.jei:jei-26.3-common-api:31.18.0.118"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-fabric:26.3.824",
+          "dev.architectury:architectury-fabric:22.0.3"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.2+26.3+fabric"
+        ]
+      },
+      "forge": {
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.2+26.3+forge"
+        ]
+      },
+      "neoforge": {
+        "jei": [
+          "mezz.jei:jei-26.3-common-api:31.18.0.118"
+        ],
+        "rei": [
+          "me.shedaniel:RoughlyEnoughItems-api-neoforge:26.3.824",
+          "dev.architectury:architectury-neoforge:22.0.3"
+        ],
+        "emi": [
+          "maven.modrinth:pf-emi:2.0.2+26.3+neoforge"
+        ]
+      }
+    }
   }
 }

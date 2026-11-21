@@ -4,9 +4,12 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.MenuHost;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuSession;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -27,6 +30,9 @@ public final class GuiWindow {
   private String title = "";
   private int viewportHeight = GuiLayout.MAX_ROWS;
   private boolean freePlayerInventory;
+  private MenuLayout layout;
+  private MenuPaging paging;
+  private List<String> breadcrumb = List.of();
   private Consumer<GuiWindow> onClosed;
   private MenuSession session;
   private ChestMenu rendered;
@@ -77,6 +83,24 @@ public final class GuiWindow {
     return this;
   }
 
+  /** How native clients arrange the window (see {@link ChestMenu#layout()}); null lets them infer it. */
+  public GuiWindow setLayout(MenuLayout layout) {
+    this.layout = layout;
+    return this;
+  }
+
+  /** The page shown, for native page controls; null for a single page. */
+  public GuiWindow setPaging(MenuPaging paging) {
+    this.paging = paging;
+    return this;
+  }
+
+  /** Names of the windows above this one, outermost first, for native title bars. */
+  public GuiWindow setBreadcrumb(List<String> breadcrumb) {
+    this.breadcrumb = breadcrumb == null ? List.of() : List.copyOf(breadcrumb);
+    return this;
+  }
+
   public GuiWindow setElement(int position, int row, GuiElement element) {
     int key = key(position, row);
     if (key < 0) {
@@ -124,6 +148,7 @@ public final class GuiWindow {
       }
     }
     builder.freePlayerInventory(freePlayerInventory);
+    builder.layout(layout).paging(paging).breadcrumb(breadcrumb);
     builder.onClose((MenuSession closed) -> closed(closed));
     return builder.build();
   }

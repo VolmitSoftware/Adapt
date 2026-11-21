@@ -122,11 +122,12 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     }
 
     int level = getActiveLevel(p);
-    if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
     Vec3 originalVelocity = launched.velocity();
     int delay = getEchoDelayTicks(level);
     Tasks.runEntity(p, () -> spawnEcho(p, echoType, originalVelocity), delay);

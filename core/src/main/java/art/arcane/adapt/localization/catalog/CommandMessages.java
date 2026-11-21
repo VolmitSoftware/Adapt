@@ -36,6 +36,7 @@ public final class CommandMessages {
   public static final TextKey HELP_KNOWLEDGE_PER_ORB = TextKey.of("command.help.knowledge_per_orb", "Knowledge per orb");
   public static final TextKey HELP_LEVEL_BETWEEN_0_AND_100 = TextKey.of("command.help.level_between_0_and_100", "Level between 0 and 100");
   public static final TextKey HELP_LEVEL_BETWEEN_0_AND_100_CLAMPED_TO_THE_ADAPTATION_MAX = TextKey.of("command.help.level_between_0_and_100_clamped_to_the_adaptation_max", "Level between 0 and 100, clamped to the adaptation max");
+  public static final TextKey HELP_SHOW_CLIENT_UI_STATUS = TextKey.of("command.help.show_client_ui_status", "Show whether a player uses the Adapt client UI");
   public static final TextKey HELP_OPEN_THE_ADAPT_GUI = TextKey.of("command.help.open_the_adapt_gui", "Open the Adapt GUI");
   public static final TextKey HELP_OPEN_THE_IN_GAME_ADAPT_CONFIG_EDITOR = TextKey.of("command.help.open_the_in_game_adapt_config_editor", "Open the in-game Adapt config editor");
   public static final TextKey HELP_PARTICLE_TYPE_TO_SPAWN = TextKey.of("command.help.particle_type_to_spawn", "Particle type to spawn");
@@ -78,6 +79,7 @@ public final class CommandMessages {
 
   public static void addTo(MessageCatalog.Builder builder) {
     builder.add(HELP_VERSION);
+    builder.add(HELP_SHOW_CLIENT_UI_STATUS);
     builder.add(HELP_DEBUG_DUMP);
     builder.add(HELP_DEBUG_UPLOAD);
     builder.add(HELP_ADAPT_DEBUG_COMMAND);

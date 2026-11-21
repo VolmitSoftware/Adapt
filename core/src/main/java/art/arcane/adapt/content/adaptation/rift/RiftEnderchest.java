@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.platform.entity.Hand;
@@ -111,6 +112,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     }
 
     p.setCooldown(ENDER_CHEST, 100);
+    AbilityGlyphs.cooldown(p, this, 100 * 50L);
     if (getActiveSiblingLevel(p, "rift-resist") > 0) {
       RiftResist.riftResistStackAdd(this, p, 10, 2);
     }

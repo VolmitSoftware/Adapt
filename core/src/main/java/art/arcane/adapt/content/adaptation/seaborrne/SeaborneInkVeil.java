@@ -32,6 +32,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -102,6 +104,7 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     if (!isPlayerEnabled(player.getPlayer())) {
       concealedUntil.remove(player.getPlayer().uuid());
+      AbilityGlyphs.clear(player.getPlayer().uuid(), this, HudGlyph.DURATION);
     }
   }
 
@@ -127,12 +130,13 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
         return;
       }
 
-      if (!cloudCooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+      long cooldownMillis = getCooldownMillis(level);
+      if (!cloudCooldowns.isReady(p.uuid(), cooldownMillis)) {
         return;
       }
 
       burstInk(p, level);
-      cloudCooldowns.mark(p.uuid());
+      cloudCooldowns.mark(p.uuid(), cooldownMillis);
     });
   }
 
@@ -249,8 +253,10 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
 
   private void renewConcealment(PlayerRef player, int durationTicks) {
     UUID playerId = player.uuid();
-    long expiry = System.currentTimeMillis() + (durationTicks * 50L);
+    long now = System.currentTimeMillis();
+    long expiry = now + (durationTicks * 50L);
     concealedUntil.put(playerId, expiry);
+    AbilityGlyphs.duration(playerId, this, now, durationTicks * 50L);
     boolean scheduled = Tasks.runEntity(player, () -> concealedUntil.remove(playerId, expiry), durationTicks);
     if (!scheduled) {
       concealedUntil.remove(playerId, expiry);

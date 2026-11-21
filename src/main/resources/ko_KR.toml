@@ -4059,6 +4059,12 @@ jump = "점프"
 attack = "공격"
 stat = "{label} {value}"
 stable_hand = "마구간지기로 강화됨"
+armor = "방어력"
+effects = "효과"
+wild = "야생"
+yours = "내 것"
+tamed = "길들여짐"
+tamed_by = "{owner}이(가) 길들임"
 lore = ["감지 범위"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "먼저 {dependents} 습득을 취소하세요. 해당 
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "이 화면이 열려 있는 동안 Adapt가 변경되었습니다. 다시 시도하세요."
+unavailable = "해당 적응은 사용할 수 없습니다."
+no_change = "변경된 것이 없습니다."
+preference_saved = "설정이 저장되었습니다."
+preference_denied = "해당 설정은 지금 변경할 수 없습니다."
 
 [items.backpack]
 name = "배낭"
@@ -6681,6 +6694,7 @@ lore3 = "전투 후 잠금"
 lore = ["최대 흡수", "파동당 흡수", "전투 후 잠금"]
 
 [command.help]
+show_client_ui_status = "플레이어가 Adapt 클라이언트 UI를 사용하는지 표시합니다"
 version = "설치된 플러그인 버전 표시"
 debug_dump = "진단 보고서를 생성하고 선택적으로 업로드"
 debug_upload = "보고서를 mclo.gs에 업로드"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "1~64 사이의 수량, 기본값 1"
 
 [command.runtime]
+client_ui_absent = "{player}님은 상자와 액션 바 UI를 사용합니다(협상된 Adapt 클라이언트 없음)."
+client_ui_negotiated = "{player}님은 Adapt 클라이언트 UI를 사용합니다: 프로토콜 {version}, 기능 {capabilities}."
 missing_permission = "'{permission}' 권한이 없습니다."
 player_required_from_console = "콘솔에서 이 명령어를 사용할 때는 플레이어를 지정해야 합니다."
 player_required_from_console_short = "콘솔에서 플레이어를 지정해야 합니다."

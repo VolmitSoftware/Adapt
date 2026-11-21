@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -163,6 +165,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private final Map<UUID, Long> pendingLocalRetargets = new ConcurrentHashMap<>();
   private final Map<UUID, TragoulPreferences.Stance> stances = new ConcurrentHashMap<>();
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, Integer> packCaps = playerState();
   private final MinionBurden burden = MinionBurden.get();
   private final AtomicLong localRetargetSequence = new AtomicLong();
   private final AtomicLong retargetBudgetState = new AtomicLong();
@@ -391,7 +394,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         }
       }
 
-      cooldowns.mark(id);
+      cooldowns.mark(id, getCooldownMillis(level));
+      packCaps.put(id, cap);
       int durationTicks = getDurationTicks(level, golemancyLevel);
       ThreadLocalRandom random = ThreadLocalRandom.current();
       EntityRef spawned = p.world().spawn(SKELETON, p.location(), (EntityRef created) -> {
@@ -449,6 +453,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     configureBurden(getConfig());
     burden.register(owner, servant);
     scheduleServantPulse(servant, ownerId, expiresAt);
+    showPack(ownerId);
     Tasks.runEntity(servant, () -> removeServantOwned(ownerId, servant, true), durationTicks);
   }
 
@@ -635,6 +640,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     activeTargetRequests.remove(id);
     servantCurseCooldowns.remove(id);
     CopyOnWriteArrayList<MobRef> list = servants.remove(id);
+    showPack(id);
     if (list == null) {
       return;
     }
@@ -1323,6 +1329,21 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       }
     }
     burden.unregister(ownerId, servant);
+    showPack(ownerId);
+  }
+
+  /** One lit pip per living servant out of the owner's cap; gone with the last servant. */
+  private void showPack(UUID ownerId) {
+    if (!AbilityGlyphs.capable(ownerId)) {
+      return;
+    }
+    CopyOnWriteArrayList<MobRef> pack = servants.get(ownerId);
+    int count = pack == null ? 0 : pack.size();
+    if (count == 0) {
+      AbilityGlyphs.clear(ownerId, this, HudGlyph.CHARGES);
+      return;
+    }
+    AbilityGlyphs.charges(ownerId, this, count, Math.max(count, packCaps.getOrDefault(ownerId, count)));
   }
 
   private void playSummonRitual(Loc spawn) {

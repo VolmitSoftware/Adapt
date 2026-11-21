@@ -478,7 +478,7 @@ public final class TomlCodec {
 
     private String write(Object root) {
       if (root instanceof Map<?, ?> map) {
-        writeMapSection("", map, 0);
+        writeMapSection(List.of(), map);
         return normalize(out.toString());
       }
 
@@ -486,13 +486,14 @@ public final class TomlCodec {
       return normalize(out.toString());
     }
 
-    private void writeMapSection(String path, Map<?, ?> map, int depth) {
-      if (!path.isBlank()) {
-        writeSectionHeader(path, depth);
+    // Paths stay as key lists so a key holding a dot, such as a config path, is quoted as one key.
+    private void writeMapSection(List<String> path, Map<?, ?> map) {
+      if (!path.isEmpty()) {
+        writeSectionHeader(path);
       }
 
       List<Map.Entry<?, ?>> deferred = new ArrayList<>();
-      String valueIndent = "  ".repeat(Math.max(0, depth));
+      String valueIndent = "  ".repeat(path.size());
       for (Map.Entry<?, ?> entry : map.entrySet()) {
         if (entry == null || entry.getKey() == null || entry.getValue() == null) {
           continue;
@@ -511,21 +512,22 @@ public final class TomlCodec {
       }
 
       for (Map.Entry<?, ?> entry : deferred) {
-        String childPath = joinPath(path, String.valueOf(entry.getKey()));
+        List<String> childPath = new ArrayList<>(path);
+        childPath.add(String.valueOf(entry.getKey()));
         Object value = entry.getValue();
         if (value instanceof Map<?, ?> nested) {
-          writeMapSection(childPath, nested, depth + 1);
+          writeMapSection(childPath, nested);
         } else {
           Map<String, Object> wrapper = new LinkedHashMap<>();
           wrapper.put("value", value);
-          writeMapSection(childPath, wrapper, depth + 1);
+          writeMapSection(childPath, wrapper);
         }
       }
     }
 
-    private void writeSectionHeader(String path, int depth) {
-      String topLevel = topLevelSegment(path);
-      if (depth == 1 && (lastTopLevelSection == null || !lastTopLevelSection.equals(topLevel))) {
+    private void writeSectionHeader(List<String> path) {
+      String topLevel = path.get(0);
+      if (path.size() == 1 && !topLevel.equals(lastTopLevelSection)) {
         if (!out.isEmpty()) {
           out.append('\n');
         }
@@ -535,19 +537,11 @@ public final class TomlCodec {
         out.append('\n');
       }
 
-      out.append('[').append(renderPath(path)).append(']').append('\n');
-    }
-
-    private String topLevelSegment(String path) {
-      if (path == null || path.isBlank()) {
-        return "";
+      List<String> rendered = new ArrayList<>(path.size());
+      for (String key : path) {
+        rendered.add(formatKey(key));
       }
-
-      int dot = path.indexOf('.');
-      if (dot == -1) {
-        return path;
-      }
-      return path.substring(0, dot);
+      out.append('[').append(String.join(".", rendered)).append(']').append('\n');
     }
   }
 }

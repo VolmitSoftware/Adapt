@@ -77,13 +77,54 @@ dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
+// Recipe viewer APIs for the optional client plugins under art.arcane.adapt.client.items. Nothing is bundled; a plugin
+// loads only when its viewer is installed. JEI's common API uses Mojang names everywhere, while the EMI, REI and
+// Architectury Fabric jars use intermediary names that Loom remaps on obfuscated targets. Targets without a viewer drop its plugin
+// sources through `.removed` markers.
+repositories {
+    exclusiveContent {
+        forRepository { maven { url = uri('https://maven.blamejared.com/') } }
+        filter { includeGroup('mezz.jei') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://repo.sleeping.town/') } }
+        filter { includeGroup('dev.emi') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://maven.shedaniel.me/') } }
+        filter {
+            includeGroup('me.shedaniel')
+            includeGroup('dev.architectury')
+        }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://api.modrinth.com/maven') } }
+        filter { includeGroup('maven.modrinth') }
+    }
+}
+Map<String, List<String>> recipeViewers = (Map<String, List<String>>) (((Map<String, Object>) targetProperties.recipeViewers)?.get(loader) ?: [:])
+ext.recipeViewers = recipeViewers
+recipeViewers.each { String viewer, List<String> coordinates ->
+    coordinates.each { String coordinate ->
+        if (loader == 'fabric' && targetProperties.obfuscated && viewer != 'jei') {
+            pluginManager.withPlugin('net.fabricmc.fabric-loom-remap') {
+                dependencies.add('modCompileOnly', coordinate) { transitive = false }
+            }
+        } else {
+            dependencies.add('compileOnly', coordinate) { transitive = false }
+        }
+    }
+}
 sourceSets.test.java.srcDir('../mod-common/src/test/java')
+sourceSets.test.java.srcDir('../client-common/src/test/java')
 // Same overlay order and `.removed` markers as the main source set, under <overlay>/test/java.
 List<File> testOverlays = []
-if (targetProperties.sourceFamily != null) {
-    testOverlays.add(file("../mod-common/src/families/${targetProperties.sourceFamily}/test/java"))
+for (String module : ['mod-common', 'client-common']) {
+    if (targetProperties.sourceFamily != null) {
+        testOverlays.add(file("../${module}/src/families/${targetProperties.sourceFamily}/test/java"))
+    }
+    testOverlays.add(file("../${module}/src/versions/${target}/test/java"))
 }
-testOverlays.add(file("../mod-common/src/versions/${target}/test/java"))
 for (File overlay : testOverlays) {
     sourceSets.test.java.srcDir(overlay)
 }
@@ -116,15 +157,20 @@ if (providers.gradleProperty('includeCoreSources').getOrElse('true').toBoolean()
     sourceSets.main.java.srcDir('../../core/src/main/java')
     sourceSets.main.resources.srcDir('../../core/src/main/resources')
 }
-sourceSets.main.java.srcDir('../mod-common/src/main/java')
-sourceSets.main.resources.srcDir('../mod-common/src/main/resources')
+// client-common holds the optional client side; its classes load only behind the loaders' client entry points.
+for (String module : ['mod-common', 'client-common']) {
+    sourceSets.main.java.srcDir("../${module}/src/main/java")
+    sourceSets.main.resources.srcDir("../${module}/src/main/resources")
+}
 for (String kind : ['java', 'resources']) {
     SourceDirectorySet directories = kind == 'java' ? sourceSets.main.java : sourceSets.main.resources
     List<File> overlays = []
-    if (targetProperties.sourceFamily != null) {
-        overlays.add(file("../mod-common/src/families/${targetProperties.sourceFamily}/${kind}"))
+    for (String module : ['mod-common', 'client-common']) {
+        if (targetProperties.sourceFamily != null) {
+            overlays.add(file("../${module}/src/families/${targetProperties.sourceFamily}/${kind}"))
+        }
+        overlays.add(file("../${module}/src/versions/${target}/${kind}"))
     }
-    overlays.add(file("../mod-common/src/versions/${target}/${kind}"))
     overlays.add(file("src/overlay/${kind}"))
     if (targetProperties.sourceFamily != null) {
         overlays.add(file("src/families/${targetProperties.sourceFamily}/${kind}"))
@@ -179,13 +225,30 @@ apply from: '../../gradle/language-source.gradle'
 TaskProvider<WriteProperties> languageSourceManifest = (TaskProvider<WriteProperties>) ext.languageSourceManifestTask
 tasks.named('compileJava').configure { dependsOn(identity) }
 
+// Fabric finds the viewer plugins through entry points; Forge and NeoForge viewers scan their plugin annotations.
+Map<String, List<String>> fabricViewerEntrypoints = [:]
+if (recipeViewers.containsKey('jei')) {
+    fabricViewerEntrypoints.jei_mod_plugin = ['art.arcane.adapt.client.items.jei.AdaptJeiPlugin']
+}
+if (recipeViewers.containsKey('emi')) {
+    fabricViewerEntrypoints.emi = ['art.arcane.adapt.client.items.emi.AdaptEmiPlugin']
+}
+if (recipeViewers.containsKey('rei')) {
+    fabricViewerEntrypoints.rei_client = ['art.arcane.adapt.client.items.rei.AdaptReiPlugin']
+    if (targetProperties.sourceFamily != 'mapped') {
+        fabricViewerEntrypoints.rei_common = ['art.arcane.adapt.client.items.rei.AdaptReiComparators']
+    }
+}
+ext.fabricEntrypoints = [main: ["${adapt.projectGroup}.fabric.AdaptFabric".toString()],
+    client: ["${adapt.projectGroup}.fabric.client.AdaptFabricClient".toString()]] + fabricViewerEntrypoints
 Map<String, String> metadata = adapt + [
     fabricLoaderVersion: (String) targetProperties.fabricLoader,
     forgeLoaderRange: (String) targetProperties.forgeLoaderRange,
     neoForgeVersion: (String) (targetProperties.neoforge ?: ''),
     javaVersion: targetProperties.javaVersion.toString(),
     dataPackFormat: targetProperties.dataPackFormat.toString(),
-    fabricNestedJars: groovy.json.JsonOutput.toJson(((Map<String, String>) targetProperties.fabricModules).keySet()
+    fabricEntrypoints: JsonOutput.toJson(ext.fabricEntrypoints),
+    fabricNestedJars: groovy.json.JsonOutput.toJson(((List<String>) targetProperties.fabricModules)
             .collect { String module -> [file: "META-INF/jars/${module}.jar".toString()] })
 ]
 tasks.named('processResources').configure {

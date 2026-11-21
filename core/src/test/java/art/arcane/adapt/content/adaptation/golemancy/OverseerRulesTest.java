@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -129,26 +130,30 @@ class OverseerRulesTest {
   @Test
   void aRallyClaimsTheOwnersCooldownOnceAndCoversEveryGolemOfThatFollowSignal() {
     GolemXpCooldowns<UUID> cooldowns = new GolemXpCooldowns<>();
-    OverseerRally first = new OverseerRally(cooldowns, OWNER, 1_000L, 60_000L);
+    AtomicInteger grants = new AtomicInteger();
+    OverseerRally first = new OverseerRally(cooldowns, OWNER, 1_000L, 60_000L, grants::incrementAndGet);
 
     assertThat(first.claim()).isTrue();
     assertThat(first.claim()).isTrue();
+    assertThat(grants).hasValue(1);
 
-    OverseerRally early = new OverseerRally(cooldowns, OWNER, 60_999L, 60_000L);
+    OverseerRally early = new OverseerRally(cooldowns, OWNER, 60_999L, 60_000L, grants::incrementAndGet);
     assertThat(early.claim()).isFalse();
     assertThat(early.claim()).isFalse();
+    assertThat(grants).hasValue(1);
 
-    OverseerRally ready = new OverseerRally(cooldowns, OWNER, 61_000L, 60_000L);
+    OverseerRally ready = new OverseerRally(cooldowns, OWNER, 61_000L, 60_000L, grants::incrementAndGet);
     assertThat(ready.claim()).isTrue();
+    assertThat(grants).hasValue(2);
   }
 
   @Test
   void aDeniedRallyDoesNotRestartTheCooldown() {
     GolemXpCooldowns<UUID> cooldowns = new GolemXpCooldowns<>();
-    assertThat(new OverseerRally(cooldowns, OWNER, 0L, 60_000L).claim()).isTrue();
-    assertThat(new OverseerRally(cooldowns, OWNER, 30_000L, 60_000L).claim()).isFalse();
+    assertThat(new OverseerRally(cooldowns, OWNER, 0L, 60_000L, () -> { }).claim()).isTrue();
+    assertThat(new OverseerRally(cooldowns, OWNER, 30_000L, 60_000L, () -> { }).claim()).isFalse();
 
-    assertThat(new OverseerRally(cooldowns, OWNER, 60_000L, 60_000L).claim()).isTrue();
+    assertThat(new OverseerRally(cooldowns, OWNER, 60_000L, 60_000L, () -> { }).claim()).isTrue();
   }
 
   @Test

@@ -83,7 +83,7 @@ public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConduc
       return;
     }
 
-    lungeCooldown.mark(p.uuid());
+    lungeCooldown.mark(p.uuid(), getConfig().cooldownMs);
 
     Vec3 direction = p.location().direction();
     double boost = getDashBoost(level);

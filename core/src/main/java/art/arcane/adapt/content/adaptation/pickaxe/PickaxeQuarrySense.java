@@ -35,6 +35,7 @@ import art.arcane.adapt.api.item.ItemDurability;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOrePort;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -222,6 +223,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       if (ores.isEmpty()) {
         showEmptyScan(p);
         p.setCooldown(pickaxeType, cooldownTicks);
+        AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
         return;
       }
 
@@ -233,6 +235,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
           || !applyPickaxeCost(p, currentHand, durabilityCost)) {
         showPickaxeCostFailure(p);
         p.setCooldown(pickaxeType, cooldownTicks);
+        AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
         return;
       }
 
@@ -241,6 +244,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         showOreMarker(p, result.world(), ore, highlightTicks);
       }
       p.setCooldown(pickaxeType, cooldownTicks);
+      AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
       showSuccessfulScan(p, scanRadius, ores.size());
     });
     if (!scheduled) {

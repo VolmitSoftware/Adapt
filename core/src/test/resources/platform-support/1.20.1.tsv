@@ -176,6 +176,7 @@ hunter	hunter-snare-line	works
 hunter	hunter-speed	works	
 hunter	hunter-strength	works	
 hunter	hunter-trophy-skinner	works	
+kinetics	kinetics	disabled	item minecraft:mace
 kinetics	kinetics-breachwright	disabled	item minecraft:mace
 kinetics	kinetics-charge-lance	disabled	item minecraft:iron_spear
 kinetics	kinetics-dead-zone	disabled	item minecraft:iron_spear
@@ -184,14 +185,10 @@ kinetics	kinetics-impale-pin	disabled	item minecraft:iron_spear
 kinetics	kinetics-lunge-conductor	disabled	item minecraft:iron_spear
 kinetics	kinetics-mass-shift	disabled	attribute minecraft:scale
 kinetics	kinetics-meteor-cadence	disabled	item minecraft:mace, attribute minecraft:gravity
-kinetics	kinetics-moon-jump	emulated	attribute minecraft:jump_strength, attribute minecraft:gravity
 kinetics	kinetics-mounted-shock	disabled	item minecraft:iron_spear
 kinetics	kinetics-phalanx-reach	disabled	item minecraft:iron_spear
 kinetics	kinetics-quake-guard	disabled	item minecraft:mace
 kinetics	kinetics-rebound-anvil	disabled	item minecraft:mace
-kinetics	kinetics-rubber-soul	works	
-kinetics	kinetics-soft-catch	works	
-kinetics	kinetics-surface-skate	works	
 kinetics	kinetics-terminal-toggle	disabled	attribute minecraft:gravity
 kinetics	kinetics-windburst	disabled	item minecraft:mace
 nether	nether-ashwalker	works	

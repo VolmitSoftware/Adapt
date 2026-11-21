@@ -4059,6 +4059,12 @@ jump = "跳躍"
 attack = "攻擊"
 stat = "{label} {value}"
 stable_hand = "增強穩定手"
+armor = "護甲"
+effects = "效果"
+wild = "未馴服"
+yours = "你的"
+tamed = "已馴服"
+tamed_by = "由 {owner} 馴服"
 lore = ["偵測範圍"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "請先取消學習 {dependents}；它們需要 {adapta
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "此畫面開啟期間 Adapt 已變更。請再試一次。"
+unavailable = "你無法使用該適應。"
+no_change = "沒有任何變更。"
+preference_saved = "設定已儲存。"
+preference_denied = "該設定目前無法變更。"
 
 [items.backpack]
 name = "背包"
@@ -6681,6 +6694,7 @@ lore3 = "戰鬥鎖定"
 lore = ["最大吸收量", "每次脈衝的吸收量", "戰鬥鎖定"]
 
 [command.help]
+show_client_ui_status = "顯示玩家是否使用 Adapt 用戶端介面"
 version = "顯示已安裝的插件版本"
 debug_dump = "建立診斷報告並選擇是否上傳"
 debug_upload = "將報告上傳至 mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "數量，範圍 1 到 64，預設為 1"
 
 [command.runtime]
+client_ui_absent = "{player} 使用箱子與動作列介面（未協商 Adapt 用戶端）。"
+client_ui_negotiated = "{player} 使用 Adapt 用戶端介面：協定 {version}，功能 {capabilities}。"
 missing_permission = "你沒有權限 '{permission}'。"
 player_required_from_console = "從主控台使用此指令時必須指定一名玩家。"
 player_required_from_console_short = "從主控台使用時必須指定一名玩家。"

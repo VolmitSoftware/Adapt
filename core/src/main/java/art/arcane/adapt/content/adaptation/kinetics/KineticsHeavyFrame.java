@@ -13,6 +13,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -185,6 +187,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     attributes.apply(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, getExplosionResist(level), AttributeOperation.ADD_VALUE);
     attributes.apply(p, getName(), SLOT_SLOW, Attributes.MOVEMENT_SPEED, -getSpeedPenalty(level), AttributeOperation.ADD_MULTIPLIED_TOTAL);
     if (entering) {
+      AbilityGlyphs.toggle(p.uuid(), this, true);
       fx(p, FxPriority.TRANSITION)
           .ring(Particles.CLOUD, 0.55D, 8, 0.05D)
           .sound(Sounds.BLOCK_CHAIN_PLACE, 0.35F, 0.7F);
@@ -194,6 +197,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   private void clearStance(PlayerRef p) {
     AdaptAttributeService.get().removeAll(p, getName());
     if (planted.remove(p.uuid()) != null) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
       fx(p, FxPriority.TRANSITION)
           .ring(Particles.CLOUD, 0.55D, 6, 0.05D)
           .sound(Sounds.BLOCK_CHAIN_BREAK, 0.3F, 1.25F);

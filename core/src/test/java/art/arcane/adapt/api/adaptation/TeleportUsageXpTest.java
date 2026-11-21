@@ -43,7 +43,7 @@ class TeleportUsageXpTest {
     pendingField.set(blink, pending);
     Field cooldownField = RiftBlink.class.getDeclaredField("lastBlink");
     cooldownField.setAccessible(true);
-    cooldownField.set(blink, new Cooldowns(new HashMap<>()));
+    cooldownField.set(blink, new Cooldowns(new HashMap<>(), null));
     Class<?> operationType = Class.forName(RiftBlink.class.getName() + "$BlinkOperation");
     Class<?> attackType = Class.forName(RiftBlink.class.getName() + "$PendingAttack");
     Constructor<?> constructor = operationType.getDeclaredConstructor(UUID.class, UUID.class, Loc.class, Loc.class, Vec3.class, double.class, attackType);

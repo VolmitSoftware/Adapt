@@ -175,11 +175,12 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
       return;
     }
 
-    if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
     Loc surface = blockLocation.add(0.5, 0.65, 0.5);
     if (ThreadLocalRandom.current().nextDouble() > getBonusRollChance(level)) {
       fx(surface, FxPriority.TRAIL)

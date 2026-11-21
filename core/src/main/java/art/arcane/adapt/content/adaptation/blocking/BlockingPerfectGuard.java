@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -151,6 +152,7 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
     e.setCancelled(true);
     raiseAt.remove(defender.uuid());
     setStorage(defender, "perfectGuardNext", now + getConfig().cooldownMillis);
+    AbilityGlyphs.cooldown(defender.uuid(), this, now, getConfig().cooldownMillis);
     xp(defender, getConfig().xpOnNegate);
     addStat(defender, "blocking.perfect-guard.hits-negated", 1);
     parryFlash(defender);

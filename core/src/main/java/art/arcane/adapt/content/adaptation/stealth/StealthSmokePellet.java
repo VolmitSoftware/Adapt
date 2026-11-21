@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -195,7 +196,7 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     if (!consumeGunpowder(p, inventory, hand)) {
       return;
     }
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), getConfig().cooldownMillis);
     throwRay(p, level);
   }
 
@@ -272,6 +273,7 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
         .sound(Sounds.ENTITY_WITCH_THROW, 0.4F, 1.4F);
     CloudState cloud = new CloudState(impact, radius, pulses);
     Tasks.runAt(impact, () -> cloudPulse(cloud));
+    AbilityGlyphs.duration(p.uuid(), this, System.currentTimeMillis(), pulses * PULSE_INTERVAL_TICKS * 50L);
   }
 
   private void cloudPulse(CloudState cloud) {

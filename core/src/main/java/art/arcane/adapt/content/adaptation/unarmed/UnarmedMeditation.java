@@ -37,6 +37,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -354,6 +356,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     if (Boolean.TRUE.equals(medState.put(id, Boolean.TRUE))) {
       return;
     }
+    AbilityGlyphs.toggle(id, this, true);
 
     fx(p.location().add(0, 0.1D, 0), FxPriority.TRANSITION)
         .ring(Particles.END_ROD, 0.6D, 6, 0.1D)
@@ -364,6 +367,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     if (!Boolean.TRUE.equals(medState.remove(id))) {
       return;
     }
+    AbilityGlyphs.clear(id, this, HudGlyph.TOGGLE);
 
     fx(p.location().add(0, 0.2D, 0), FxPriority.TRANSITION)
         .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D)

@@ -103,7 +103,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         if (!activationThrottle.isReady(p.uuid(), Math.max(0L, getConfig().activationCooldownMillis))) {
           return;
         }
-        activationThrottle.mark(p.uuid());
+        activationThrottle.mark(p.uuid(), Math.max(0L, getConfig().activationCooldownMillis));
         xp(p, 3);
         riftResistStackAdd(this, p, getConfig().duration, getConfig().amplitude);
         addStat(p, "rift.resist.activations", 1);

@@ -120,7 +120,7 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
 
     if (random.nextDouble() < getGraveChance(level)
         && graveCooldowns.isReady(p.uuid(), (long) getConfig().graveCooldownMillis)) {
-      graveCooldowns.mark(p.uuid());
+      graveCooldowns.mark(p.uuid(), (long) getConfig().graveCooldownMillis);
       disturbGrave(p, e.block().location(), random);
     }
   }

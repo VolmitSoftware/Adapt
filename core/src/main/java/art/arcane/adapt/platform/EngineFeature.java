@@ -23,7 +23,8 @@ public enum EngineFeature {
   ITEM_COOLDOWN_GROUPS,
   /**
    * The client reports its movement keys, jump and sprint included, in the player input packet (1.21.2+). Without it
-   * horizontal input is inferred from velocity and a mid-air jump press is seen only as a flight request
+   * horizontal input is inferred from velocity, and a mid-air jump press is seen through the Adapt client's jump key
+   * reports ({@link art.arcane.adapt.util.common.input.ReportedJumps}) or else as a flight request
    * ({@link art.arcane.adapt.util.common.input.MidairJumps}).
    */
   PLAYER_INPUT

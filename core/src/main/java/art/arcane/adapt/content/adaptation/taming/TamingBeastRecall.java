@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.TamingMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -308,7 +309,9 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
       return;
     }
 
-    scan.player.setCooldown(LEAD, getCooldownTicks(scan.level));
+    int cooldownTicks = getCooldownTicks(scan.level);
+    scan.player.setCooldown(LEAD, cooldownTicks);
+    AbilityGlyphs.cooldown(scan.player, this, cooldownTicks * 50L);
     if (scan.hungerCost > 0) {
       scan.player.setFoodLevel(Math.max(0, scan.player.foodLevel() - scan.hungerCost));
     }

@@ -30,6 +30,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -281,6 +283,7 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     PlayerRef player = session.player;
     session.melded = true;
     MELDED.add(session.id);
+    AbilityGlyphs.toggle(session.id, this, true);
     applyInvisibility(session);
     addStat(player, "stealth.shadowmeld.melds", 1);
     xp(player, getConfig().xpOnMeld);
@@ -304,6 +307,7 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     }
     session.melded = false;
     MELDED.remove(session.id);
+    AbilityGlyphs.clear(session.id, this, HudGlyph.TOGGLE);
     removeInvisibility(session);
     PlayerRef player = session.player;
     if (feedback && player.isOnline()) {

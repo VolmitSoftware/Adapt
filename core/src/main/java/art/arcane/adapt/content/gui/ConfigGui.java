@@ -15,7 +15,13 @@ import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuInput;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
@@ -411,7 +417,97 @@ public final class ConfigGui {
       element.addLore(AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.UNSUPPORTED_TYPE));
     }
 
+    present(element, player, sectionPath, currentPage, entry);
     return element;
+  }
+
+  /** What native clients show for a field: the docs as description and a control matching the value's type. */
+  private static void present(GuiElement element, PlayerRef player, String sectionPath, int currentPage, FieldEntry entry) {
+    List<String> description = new ArrayList<>();
+    for (String line : entry.docs()) {
+      if (line != null && !line.isBlank()) {
+        description.add(C.GRAY + line);
+      }
+    }
+    element.setDescription(description).setLabel(C.WHITE + AdaptLanguage.text(ConfigFieldMessages.field(entry.path()).label()));
+    MenuInput typed = (MenuClick click, String text) -> applyTyped(player, sectionPath, currentPage, entry, text);
+    String raw = entry.value() == null ? "" : String.valueOf(entry.value());
+    switch (entry.descriptor().kind()) {
+      case BOOLEAN -> element.setHint(MenuHint.toggle(Boolean.TRUE.equals(entry.value())))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_TOGGLE));
+      case NUMBER -> element.setHint(MenuHint.number(raw, null, null, numberStep(entry.field().getType(), entry.value()), typed));
+      case STRING -> element.setHint(MenuHint.text(raw, typed));
+      case ENUM -> element.setHint(MenuHint.choice(raw, enumNames(entry.field().getType()), typed))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_NEXT_VALUE))
+          .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(ConfigMessages.RIGHT_CLICK_PREVIOUS_VALUE));
+      case SECTION -> element.setRole(MenuRole.NAVIGATION)
+          .setSection(sectionCategory(entry.field().getName()))
+          .setValue(entry.value() == null ? "" : Integer.toString(getSerializableFields(entry.value().getClass()).size()))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+      case MAP, LIST, UNSUPPORTED -> element.setRole(MenuRole.INFO).setValue(summarizeValue(entry.value()));
+    }
+  }
+
+  private static void applyTyped(PlayerRef player, String sectionPath, int currentPage, FieldEntry entry, String text) {
+    ParseResult parsed = parseInputValue(entry.field().getType(), text);
+    if (!parsed.success()) {
+      message(player, C.RED + parsed.error());
+      return;
+    }
+    confirmAndApply(player, sectionPath, currentPage, entry.path(), parsed.value());
+  }
+
+  static Double numberStep(Class<?> type, Object value) {
+    Class<?> normalized = normalizeType(type);
+    if (normalized != Double.class && normalized != Float.class) {
+      return 1D;
+    }
+    double magnitude = value instanceof Number number ? Math.abs(number.doubleValue()) : 0D;
+    if (magnitude >= 10D) {
+      return 1D;
+    }
+    return magnitude >= 1D || magnitude == 0D ? 0.1D : 0.01D;
+  }
+
+  private static List<String> enumNames(Class<?> type) {
+    Class<?> normalized = normalizeType(type);
+    List<String> names = new ArrayList<>();
+    if (normalized != null && normalized.isEnum()) {
+      for (Object constant : normalized.getEnumConstants()) {
+        names.add(String.valueOf(constant));
+      }
+    }
+    return names;
+  }
+
+  /** The names of the config pages above {@code path}, outermost first. */
+  static List<String> breadcrumb(String path) {
+    List<String> crumbs = new ArrayList<>();
+    String current = normalizePath(path);
+    while (!current.isBlank()) {
+      current = parentPath(current);
+      crumbs.add(0, crumbLabel(current));
+    }
+    return crumbs;
+  }
+
+  private static String crumbLabel(String path) {
+    if (path.isBlank()) {
+      return AdaptLanguage.text(ConfigMessages.CONFIGURE_ADAPT);
+    }
+    return switch (path) {
+      case ROOT_CORE -> AdaptLanguage.text(ConfigMessages.CORE);
+      case ROOT_SKILLS -> AdaptLanguage.text(ConfigMessages.SKILLS);
+      case ROOT_ADAPTATIONS, ROOT_ADAPTATIONS_SKILLS -> AdaptLanguage.text(ConfigMessages.ADAPTATIONS);
+      case ROOT_ADAPTATIONS_ALL -> AdaptLanguage.text(ConfigMessages.ALL_ADAPTATIONS);
+      case ROOT_CORE_GENERAL -> AdaptLanguage.text(ConfigMessages.GENERAL_SETTINGS);
+      default -> path.substring(path.lastIndexOf('.') + 1);
+    };
+  }
+
+  private static void presentWindow(GuiWindow window, MenuLayout layout, String safePath, int currentPage, int pageCount, int total) {
+    window.setLayout(layout).setBreadcrumb(breadcrumb(safePath))
+        .setPaging(pageCount > 1 ? new MenuPaging(currentPage, pageCount, total) : null);
   }
 
   private static Id materialFor(FieldEntry entry) {
@@ -545,7 +641,8 @@ public final class ConfigGui {
 
     if (entries.isEmpty()) {
       w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
-          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_SETTINGS)));
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_SETTINGS))
+          .setRole(MenuRole.HEADER));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < plan.contentRows(); row++) {
@@ -574,10 +671,13 @@ public final class ConfigGui {
           .onLeftClick((MenuClick e) -> navigateTo(player, parent, 0)));
     }
     addSectionOverview(w, navRow, safePath, entries, currentPage, plan.pageCount());
+    presentWindow(w, MenuLayout.FORM, safePath, currentPage, plan.pageCount(), entries.size());
 
     String titlePath = safePath.isBlank() ? "root" : safePath;
     if (safePath.equals(ROOT_CORE_GENERAL)) {
-      titlePath = "core.general";
+      titlePath = AdaptLanguage.text(ConfigMessages.GENERAL_SETTINGS);
+    } else if (ConfigFieldMessages.has(safePath)) {
+      titlePath = AdaptLanguage.text(ConfigFieldMessages.field(safePath).label());
     }
     if (titlePath.length() > 24) {
       titlePath = "..." + titlePath.substring(titlePath.length() - 21);
@@ -781,7 +881,8 @@ public final class ConfigGui {
 
     if (entries.isEmpty()) {
       w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
-          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_ENTRIES)));
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_ENTRIES))
+          .setRole(MenuRole.HEADER));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < plan.contentRows(); row++) {
@@ -798,7 +899,10 @@ public final class ConfigGui {
               .setName(C.WHITE + entry.displayName())
               .addLore(C.GRAY + entry.lore())
               .addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())))
-              .onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0));
+              .onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0))
+              .setRole(MenuRole.NAVIGATION)
+              .setDescription(List.of(C.GRAY + entry.lore()))
+              .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
           reveal.add(new GuiEffects.Placement(pos, row, element));
         }
       }
@@ -813,6 +917,7 @@ public final class ConfigGui {
           .onLeftClick((MenuClick e) -> navigateTo(player, parentPath(safePath), 0)));
     }
     addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
+    presentWindow(w, MenuLayout.LIST, safePath, currentPage, plan.pageCount(), entries.size());
 
     w.setTitle(C.GRAY + title);
     w.onClosed((GuiWindow closed) -> onGuiClosed(player, safePath));
@@ -1543,7 +1648,7 @@ public final class ConfigGui {
 
     String parent = parentPath(safePath);
     Tasks.runEntity(player, () -> {
-      if (player.isOnline() && AdaptCore.platform().menus().current(player) == null) {
+      if (GuiCloseSuppression.windowFree(player)) {
         open(player, parent, 0);
       }
     }, 1);

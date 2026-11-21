@@ -35,6 +35,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.GameMode;
@@ -186,7 +188,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     sneakState.put(id, sneaking);
     if (airjumps.containsKey(id)) {
       if (p.isOnGround() && !blockAt(p.location()).relative(BlockFace.DOWN).isAir()) {
-        airjumps.remove(id);
+        clearJumps(id);
       }
     }
 
@@ -235,7 +237,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
 
     if (p.isOnGround()) {
-      airjumps.remove(id);
+      clearJumps(id);
       releaseLatch(p);
       return;
     }
@@ -264,6 +266,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       fx(contact, FxPriority.COMBAT)
           .particle(Particles.blockCrack(stickBlock.state()), 8, 0, 0.2D, 0, 0.25D, 0.05D)
           .chord(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1F, 0.89F, Sounds.ITEM_ARMOR_EQUIP_CHAIN, 1F, 1.39F, Sounds.BLOCK_LADDER_STEP, 0.4F, 0.8F);
+      publishJumps(id, level, airjumps.getOrDefault(id, 0D));
     }
 
     applyWallStickForce(p, stickBlock);
@@ -312,6 +315,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
     p.setVelocity(launch);
     airjumps.put(id, nextJumps);
+    publishJumps(id, level, nextJumps);
 
     int jumpCount = (int) Math.floor(nextJumps);
     Loc location = p.location();
@@ -360,9 +364,20 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     p.setFallDistance(0F);
   }
 
+  private void publishJumps(UUID id, int level, double used) {
+    int max = getMaxJumps(level);
+    AbilityGlyphs.charges(id, this, Math.max(0, (int) Math.floor(max + 0.25D - used)), max);
+  }
+
+  private void clearJumps(UUID id) {
+    if (airjumps.remove(id) != null) {
+      AbilityGlyphs.clear(id, this, HudGlyph.CHARGES);
+    }
+  }
+
   private void clearPlayerState(PlayerRef p) {
     UUID id = p.uuid();
-    airjumps.remove(id);
+    clearJumps(id);
     horizontalIntent.remove(id);
     horizontalIntentTime.remove(id);
     sneakState.remove(id);

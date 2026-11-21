@@ -38,11 +38,12 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.xp.SpatialXP;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.AdaptScreens;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
-import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.platform.AdaptScheduler;
@@ -634,6 +635,7 @@ public class AdaptServer extends TickedObject {
         continue;
       }
       adaptPlayer.getNot().queue(AdvancementNotification.builder()
+          .kind(ToastKind.KNOWLEDGE)
           .icon(Id.minecraft("book"))
           .model(CustomModel.get(Id.minecraft("book"), "snippets", "gui", "knowledge"))
           .title(AdaptLanguage.textStyled(C.GRAY.toString(), RuntimeMessages.KNOWLEDGE_GAIN,
@@ -1860,15 +1862,15 @@ public class AdaptServer extends TickedObject {
   }
 
   public void openSkillGUI(Skill<?> skill, PlayerRef p) {
-    skill.openGui(p);
+    AdaptScreens.openSkill(p, skill);
   }
 
   public void openAdaptGui(PlayerRef p) {
-    SkillsGui.open(p);
+    AdaptScreens.openSkills(p);
   }
 
   public void openAdaptationGUI(Adaptation<?> adaptation, PlayerRef p) {
-    adaptation.openGui(p);
+    AdaptScreens.openAdaptation(p, adaptation);
   }
 
   public void boostXP(double boost, long ms) {

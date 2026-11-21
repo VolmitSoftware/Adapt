@@ -148,7 +148,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
       return;
     }
 
-    cooldowns.mark(id);
+    cooldowns.mark(id, cooldown);
     applyExecutionDamage(e, target.health());
     xp(attacker, getConfig().xpOnExecution);
     addStat(attacker, "stealth.assassinate.executions", 1);

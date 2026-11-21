@@ -1,5 +1,8 @@
 package art.arcane.adapt.bukkit.feature;
 
+import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
+import art.arcane.adapt.client.server.panel.PanelLink;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.protection.Protector;
@@ -39,7 +42,7 @@ public final class BukkitFeatures {
   public static void install(JavaPlugin plugin, Supplier<EntityGlow> glow, Object glowLock) {
     PlatformLog log = new BukkitLog();
     BukkitHosts.fx(new BukkitFxHost());
-    BukkitHosts.menus(new BukkitMenuHost(plugin));
+    BukkitHosts.menus(new ClientAwareMenuHost(new BukkitMenuHost(plugin), PanelLink.of(ClientUiService::activeSessions)));
     BukkitHosts.recipes(new BukkitRecipeHost(plugin.getServer()));
     BukkitAdvancementHost advancements = BukkitAdvancementHost.create(plugin,
         (Player player, Runnable task, int delayTicks) -> J.runEntity(player, task, delayTicks), log);

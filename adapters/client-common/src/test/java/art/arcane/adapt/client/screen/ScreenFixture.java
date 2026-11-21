@@ -1,0 +1,107 @@
+package art.arcane.adapt.client.screen;
+
+import art.arcane.adapt.client.protocol.ClientFrame;
+import art.arcane.adapt.client.protocol.ClientProtocol;
+import art.arcane.adapt.client.protocol.FeedbackKind;
+import art.arcane.adapt.client.protocol.Route;
+import art.arcane.adapt.client.protocol.ServerInfo;
+import art.arcane.adapt.client.state.ClientActions;
+import art.arcane.adapt.client.state.ClientState;
+import art.arcane.adapt.client.ui.UiKey;
+import art.arcane.adapt.client.ui.UiKeyEvent;
+import art.arcane.adapt.client.ui.UiModifiers;
+import art.arcane.adapt.client.ui.UiMouseButton;
+import art.arcane.adapt.client.ui.UiMouseEvent;
+import art.arcane.adapt.client.ui.kit.FakeHost;
+import art.arcane.adapt.client.ui.kit.KitDraw;
+import art.arcane.adapt.client.ui.kit.KitScreen;
+import art.arcane.adapt.client.ui.kit.ManualClock;
+import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.view.CatalogView;
+import art.arcane.adapt.client.view.PlayerView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/** The Adapt pages over the preview samples, a fake host and a recording sender, outside Minecraft. */
+final class ScreenFixture {
+    final ManualClock clock = new ManualClock();
+    final ClientState state = new ClientState();
+    final List<ClientFrame> sent = new ArrayList<>();
+    boolean connected = true;
+    final ClientActions actions = new ClientActions(state, (ClientFrame frame) -> connected && sent.add(frame));
+    final FakeHost host;
+    final KitDraw draw;
+    final List<String> hudFeedback = new ArrayList<>();
+    final ScreenRouter router;
+
+    ScreenFixture() {
+        this(427, 240, 2.0);
+    }
+
+    ScreenFixture(int width, int height, double scale) {
+        this(width, height, scale, PreviewSamples.catalog(), PreviewSamples.player());
+    }
+
+    ScreenFixture(int width, int height, double scale, CatalogView catalog, PlayerView player) {
+        host = new FakeHost(width, height);
+        draw = new KitDraw(width, height, scale);
+        state.negotiated(ClientProtocol.VERSION, new ServerInfo("test", "26.3", ClientProtocol.SCREENS | ClientProtocol.PANEL));
+        state.acceptCatalog(catalog);
+        state.acceptPlayer(player);
+        router = new ScreenRouter(host, state, actions, UiTheme.DEFAULT, clock.motion(),
+                (FeedbackKind kind, String text) -> hudFeedback.add(kind + " " + text));
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends AdaptScreen> T open(Route route) {
+        router.open(route);
+        clock.advance(KitScreen.OPEN_MILLIS);
+        render();
+        return (T) router.current();
+    }
+
+    AdaptScreen current() {
+        return router.current();
+    }
+
+    void render() {
+        AdaptScreen screen = router.current();
+        if (screen != null) {
+            screen.render(draw, 0, 0, 0.0F);
+        }
+    }
+
+    /** Scrolls {@code node} into view like a player would, then clicks its centre. */
+    void click(UiNode node) {
+        AdaptScreen screen = router.current();
+        render();
+        screen.scroll().reveal(node.bounds());
+        render();
+        UiMouseEvent event = new UiMouseEvent(node.bounds().centerX(), node.bounds().centerY(), UiMouseButton.LEFT, UiModifiers.NONE);
+        screen.mouseClicked(event);
+        screen.mouseReleased(event);
+        render();
+    }
+
+    boolean key(UiKey key) {
+        boolean used = router.current().keyPressed(new UiKeyEvent(key, UiModifiers.NONE));
+        render();
+        return used;
+    }
+
+    UiNode find(String id) {
+        AdaptScreen screen = router.current();
+        UiNode node = screen.root().find(id);
+        if (node == null) {
+            for (UiNode overlay : screen.overlays()) {
+                node = overlay.find(id);
+                if (node != null) {
+                    break;
+                }
+            }
+        }
+        return node;
+    }
+}

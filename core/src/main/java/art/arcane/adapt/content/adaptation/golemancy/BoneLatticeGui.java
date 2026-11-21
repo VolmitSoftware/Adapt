@@ -15,6 +15,9 @@ import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -65,6 +68,8 @@ final class BoneLatticeGui {
       GuiTheme.apply(window, "golemancy-roster");
       window.setViewportHeight(ROWS);
       window.setFreePlayerInventory(true);
+      window.setLayout(MenuLayout.GRID);
+      window.setBreadcrumb(List.of(AdaptLanguage.text(GolemancyMessages.ROSTER_TITLE)));
       place(window, view);
       window.setTitle(AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE));
       window.open();
@@ -87,8 +92,12 @@ final class BoneLatticeGui {
     DyeColor selected = view.roster().servantChannel().map(DyeColor::valueOf).orElse(null);
     window.setElement(RIGHT_EDGE, LATTICE_ROW, GuiTheme.element("bone-lattice-channel-none", Id.minecraft("glass_bottle"), "gui", "golemancy", "channels_clear")
         .setName((selected == null ? C.GREEN : C.YELLOW) + channelLabel(GolemancyMessages.CHANNEL_NONE))
+        .setLabel(AdaptLanguage.text(GolemancyMessages.CHANNEL_NONE))
         .setEnchanted(selected == null)
-        .onLeftClick(clicked -> setChannel(view, null)));
+        .onLeftClick(clicked -> setChannel(view, null))
+        .setRole(MenuRole.ENTRY)
+        .setValue(selected == null ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT)));
     DyeColor[] colors = DyeColor.values();
     for (int index = 0; index < colors.length; index++) {
       DyeColor color = colors[index];
@@ -105,11 +114,15 @@ final class BoneLatticeGui {
       return GuiTheme.element("bone-lattice-" + index, Id.minecraft("magenta_stained_glass_pane"), "gui", "golemancy", "slots", "rune_empty")
           .setName(C.LIGHT_PURPLE + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY_LORE, trusted("aspects", aspectNames(view.frame().aspects()))))
-            .onLeftClick(clicked -> insert(view));
+            .onLeftClick(clicked -> insert(view))
+            .setRole(MenuRole.ACTION)
+            .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_EMPTY_LORE,
+                trusted("aspects", aspectNames(view.frame().aspects()))));
     }
     return GuiTheme.element("bone-lattice-" + index, Id.minecraft("black_stained_glass_pane"), "gui", "golemancy", "slots", "rune_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_LOCKED))
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_UNLOCK_LEVEL, trusted("level", view.frame().slotUnlockLevel(index))));
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_SLOT_UNLOCK_LEVEL, trusted("level", view.frame().slotUnlockLevel(index))))
+        .setRole(MenuRole.INFO);
   }
 
   private static GuiElement runeElement(View view, GolemRune rune, int index) {
@@ -127,17 +140,25 @@ final class BoneLatticeGui {
     } else {
       element.addLore(C.GREEN + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_RUNE_TIER, trusted("tier", tier)));
     }
-    return element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE))
-        .onLeftClick(clicked -> take(view, index, rune));
+    return element.setDescription(element.getLore())
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE))
+        .onLeftClick(clicked -> take(view, index, rune))
+        .setRole(MenuRole.ACTION)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE));
   }
 
   private static GuiElement channelElement(View view, DyeColor color, boolean selected) {
     int mask = ChannelMask.of(color);
-    return GuiTheme.element("bone-lattice-channel-" + color.id(), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+    return GolemGuiActions.channelElement("bone-lattice-channel-" + color.id(), mask)
         .setName((selected ? C.GREEN : C.YELLOW) + channelLabel(GolemGuiActions.channelName(mask)))
+        .setLabel(AdaptLanguage.text(GolemGuiActions.channelName(mask)))
         .addLore(selected ? C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT))
         .setEnchanted(selected)
-        .onLeftClick(clicked -> setChannel(view, color));
+        .onLeftClick(clicked -> setChannel(view, color))
+        .setRole(MenuRole.ENTRY)
+        .setValue(selected ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+        .setDescription(List.of())
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT));
   }
 
   private static String channelLabel(TextKey channel) {

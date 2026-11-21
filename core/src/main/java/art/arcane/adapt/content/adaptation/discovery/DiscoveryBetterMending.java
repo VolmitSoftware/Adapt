@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -142,7 +143,9 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
 
     hand.setDamage(newDamage);
     p.inventory().setMainHand(hand);
-    p.setCooldown(hand.type(), getCooldownTicks(level));
+    int cooldownTicks = getCooldownTicks(level);
+    p.setCooldown(hand.type(), cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
     e.setCancelled(true);
 
     timeline(p)

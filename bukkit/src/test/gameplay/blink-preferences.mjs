@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { doubleJump as clientDoubleJump, serverSeesJumpKey } from './client-input.mjs'
+import { doubleJump as clientDoubleJump } from './client-input.mjs'
 import { adaptMenus } from './adapt-menus.mjs'
 import { fixtureJson } from './fixture-json.mjs'
 import { decodeSoundPacket } from './feedback.mjs'
@@ -88,17 +88,7 @@ export default {
             const moved = () => landings.push(actor.bot.entity.position.clone())
             actor.bot.on('forcedMove', moved)
             try {
-                if (serverSeesJumpKey()) {
-                    actor.bot.setControlState('jump', true)
-                    await actor.bot.waitForTicks(4)
-                    actor.bot.setControlState('jump', false)
-                    await actor.bot.waitForTicks(2)
-                    actor.bot.setControlState('jump', true)
-                    await actor.bot.waitForTicks(3)
-                    actor.bot.setControlState('jump', false)
-                } else {
-                    await clientDoubleJump(actor.bot)
-                }
+                await clientDoubleJump(actor.bot)
                 await actor.bot.waitForTicks(8)
                 return landings
             } finally {

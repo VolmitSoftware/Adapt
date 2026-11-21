@@ -15,11 +15,11 @@ modId = "forge"
 mandatory = true
 versionRange = "${forgeLoaderRange}"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[dependencies.${projectId}]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[${minecraftVersion}]"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"

@@ -4059,6 +4059,12 @@ jump = "ジャンプ"
 attack = "攻撃"
 stat = "{label} {value}"
 stable_hand = "熟練の飼育係で強化済み"
+armor = "防具"
+effects = "効果"
+wild = "野生"
+yours = "あなたのもの"
+tamed = "飼いならし済み"
+tamed_by = "{owner} が飼いならし済み"
 lore = ["検知範囲"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "先に {dependents} の習得を解除してくださ�
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "この画面を開いている間に Adapt が変更されました。もう一度お試しください。"
+unavailable = "その適応は利用できません。"
+no_change = "何も変更されませんでした。"
+preference_saved = "設定を保存しました。"
+preference_denied = "その設定は今は変更できません。"
 
 [items.backpack]
 name = "バックパック"
@@ -6681,6 +6694,7 @@ lore3 = "戦闘後の使用不可時間"
 lore = ["最大衝撃吸収", "波動ごとの衝撃吸収", "戦闘後の使用不可時間"]
 
 [command.help]
+show_client_ui_status = "プレイヤーが Adapt クライアント UI を使っているか表示します"
 version = "インストールされているプラグインのバージョンを表示"
 debug_dump = "診断レポートを作成し、必要に応じてアップロードする"
 debug_upload = "レポートを mclo.gs にアップロードする"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "1～64の数量、デフォルトは1"
 
 [command.runtime]
+client_ui_absent = "{player} はチェストとアクションバーの UI を使っています（Adapt クライアントは未接続）。"
+client_ui_negotiated = "{player} は Adapt クライアント UI を使っています: プロトコル {version}、機能 {capabilities}。"
 missing_permission = "権限 '{permission}' がありません。"
 player_required_from_console = "コンソールからこのコマンドを使用する場合は、プレイヤーを指定する必要があります。"
 player_required_from_console_short = "コンソールからはプレイヤーを指定する必要があります。"

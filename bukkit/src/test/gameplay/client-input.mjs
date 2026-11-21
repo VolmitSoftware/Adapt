@@ -2,7 +2,8 @@ import { compareVersions } from './version-profile.mjs'
 
 const FLAG_FLYING = 2
 const JUMP_TRIGGER_TICKS = 7
-const GRANT_WAIT_TICKS = 8
+const GRANT_WAIT_TICKS = 10
+const LOOK_AROUND_RADIANS = 0.4
 
 /** Servers before 1.21.2 never see the jump key: ViaProxy drops it from the 26.1 bots' player input packet. */
 export function serverSeesJumpKey(version = process.env.ADAPT_QA_MINECRAFT_VERSION) {
@@ -43,46 +44,35 @@ async function tap(bot, ticks) {
 }
 
 /**
- * A player's double jump: jump, then press jump again in mid-air. Where the server lets the client ask to fly only once
- * it is airborne (servers before 1.21.2), the ground press cannot count, so the player taps twice in mid-air, as on an
- * old client. Returns whether the player left the ground, whether the server let it ask to fly and how many times it asked.
+ * A player's double jump: jump, then press jump once more in mid-air, 4 ticks after the first press. Servers before
+ * 1.21.2 see the second press as the vanilla client's flight request, which they let the client make while it still
+ * stands, so the jump press opens the 7-tick double tap window. The server grants that on a move of a player whose
+ * double jump adaptation listens; a bot that has not moved since it learned the adaptation looks around first, as a
+ * player does. Returns whether the player left the ground, whether it could ask to fly before jumping and how many
+ * times it asked.
  */
 export async function doubleJump(bot) {
     const requestsBefore = bot.flightRequests ?? 0
     try {
-        if (!serverSeesJumpKey()) return await midairDoubleTap(bot, requestsBefore)
-        await tap(bot, 4)
+        if (!serverSeesJumpKey()) await awaitGroundGrant(bot)
+        const mayFly = Boolean(bot.abilities?.mayFly)
+        await tap(bot, 2)
         const airborne = !bot.entity.onGround
         await bot.waitForTicks(2)
-        await tap(bot, 3)
-        const mayFly = Boolean(bot.abilities?.mayFly)
-        if (mayFly && bot.game?.gameMode !== 'creative') {
-            await bot.waitForTicks(1)
-            await tap(bot, 2)
-        }
+        await tap(bot, 2)
         return { airborne, mayFly, flightRequests: (bot.flightRequests ?? 0) - requestsBefore }
     } finally {
         bot.setControlState('jump', false)
     }
 }
 
-/**
- * Before 1.21.2: jump, wait for the server's may-fly grant (it arrives a few ticks after the server sees the player
- * airborne, later under load), then double tap quickly so the request goes out near the top of the jump, where a
- * player tapping twice in a row would send it.
- */
-async function midairDoubleTap(bot, requestsBefore) {
-    await tap(bot, 2)
-    const airborne = !bot.entity.onGround
-    for (let tick = 0; tick < GRANT_WAIT_TICKS && !bot.abilities?.mayFly && !bot.entity.onGround; tick++) {
+async function awaitGroundGrant(bot) {
+    if (bot.abilities?.mayFly || bot.game?.gameMode === 'creative') return
+    const { yaw, pitch } = bot.entity
+    await bot.look(yaw + LOOK_AROUND_RADIANS, pitch, true)
+    await bot.waitForTicks(2)
+    await bot.look(yaw, pitch, true)
+    for (let tick = 0; tick < GRANT_WAIT_TICKS && !bot.abilities?.mayFly; tick++) {
         await bot.waitForTicks(1)
     }
-    const mayFly = Boolean(bot.abilities?.mayFly)
-    if (mayFly && bot.game?.gameMode !== 'creative') {
-        await bot.waitForTicks(1)
-        await tap(bot, 1)
-        await bot.waitForTicks(1)
-        await tap(bot, 1)
-    }
-    return { airborne, mayFly, flightRequests: (bot.flightRequests ?? 0) - requestsBefore }
 }

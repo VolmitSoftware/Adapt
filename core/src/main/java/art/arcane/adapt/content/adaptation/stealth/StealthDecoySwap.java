@@ -265,7 +265,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
       return;
     }
     swapsInFlight.remove(playerId);
-    cooldowns.mark(playerId);
+    cooldowns.mark(playerId, getCooldown(getActiveLevel(p)));
     xp(p, getConfig().xpOnSwap);
     addStat(p, "stealth.decoy-swap.swaps", 1);
     swapFx(anchorOrigin);

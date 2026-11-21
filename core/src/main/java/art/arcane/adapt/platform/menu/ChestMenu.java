@@ -1,6 +1,7 @@
 package art.arcane.adapt.platform.menu;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -9,7 +10,8 @@ import java.util.function.Consumer;
 /**
  * Immutable chest menu: title, 1 to 6 rows of 9 slots, buttons by slot and an optional close
  * callback. Rendered by {@link MenuHost}; Bukkit renders it through inventorygui-style chest windows,
- * modded through a vanilla chest container.
+ * modded through a vanilla chest container. {@code layout}, {@code paging} and {@code breadcrumb} only describe the
+ * menu to clients that draw it natively; chests ignore them.
  */
 public final class ChestMenu {
   public static final int COLUMNS = 9;
@@ -20,13 +22,19 @@ public final class ChestMenu {
   private final Map<Integer, MenuButton> buttons;
   private final Consumer<MenuSession> onClose;
   private final boolean freePlayerInventory;
+  private final MenuLayout layout;
+  private final MenuPaging paging;
+  private final List<String> breadcrumb;
 
-  private ChestMenu(String title, int rows, Map<Integer, MenuButton> buttons, Consumer<MenuSession> onClose, boolean freePlayerInventory) {
-    this.title = title;
-    this.rows = rows;
-    this.buttons = buttons;
-    this.onClose = onClose;
-    this.freePlayerInventory = freePlayerInventory;
+  private ChestMenu(Builder builder) {
+    this.title = builder.title;
+    this.rows = builder.rows;
+    this.buttons = Collections.unmodifiableMap(new TreeMap<>(builder.buttons));
+    this.onClose = builder.onClose;
+    this.freePlayerInventory = builder.freePlayerInventory;
+    this.layout = builder.layout;
+    this.paging = builder.paging;
+    this.breadcrumb = builder.breadcrumb;
   }
 
   public static Builder builder(String title, int rows) {
@@ -74,11 +82,29 @@ public final class ChestMenu {
     return freePlayerInventory;
   }
 
+  /** How native clients arrange the menu, or null to let them infer it. */
+  public MenuLayout layout() {
+    return layout;
+  }
+
+  /** The page this menu shows, or null when it has one page. */
+  public MenuPaging paging() {
+    return paging;
+  }
+
+  /** Names of the menus above this one, outermost first. */
+  public List<String> breadcrumb() {
+    return breadcrumb;
+  }
+
   public Builder toBuilder() {
     Builder builder = new Builder(title, rows);
     builder.buttons.putAll(buttons);
     builder.onClose = onClose;
     builder.freePlayerInventory = freePlayerInventory;
+    builder.layout = layout;
+    builder.paging = paging;
+    builder.breadcrumb = breadcrumb;
     return builder;
   }
 
@@ -88,6 +114,9 @@ public final class ChestMenu {
     private final TreeMap<Integer, MenuButton> buttons = new TreeMap<>();
     private Consumer<MenuSession> onClose;
     private boolean freePlayerInventory;
+    private MenuLayout layout;
+    private MenuPaging paging;
+    private List<String> breadcrumb = List.of();
 
     private Builder(String title, int rows) {
       this.title = Objects.requireNonNull(title, "title");
@@ -132,8 +161,23 @@ public final class ChestMenu {
       return this;
     }
 
+    public Builder layout(MenuLayout newLayout) {
+      this.layout = newLayout;
+      return this;
+    }
+
+    public Builder paging(MenuPaging newPaging) {
+      this.paging = newPaging;
+      return this;
+    }
+
+    public Builder breadcrumb(List<String> crumbs) {
+      this.breadcrumb = crumbs == null ? List.of() : List.copyOf(crumbs);
+      return this;
+    }
+
     public ChestMenu build() {
-      return new ChestMenu(title, rows, Collections.unmodifiableMap(new TreeMap<>(buttons)), onClose, freePlayerInventory);
+      return new ChestMenu(this);
     }
   }
 }

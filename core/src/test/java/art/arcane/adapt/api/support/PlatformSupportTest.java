@@ -163,7 +163,7 @@ class PlatformSupportTest {
   @Test
   void anAdaptationWhoseNeedsAreMissingIsLeftOutOfItsSkillAndLoggedOnce() {
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
-    platform.host().runGame(FakeGameContent.v1_20_1());
+    platform.host().runGame(FakeGameContent.v1_21_1());
     adapt = TestAdapt.start(platform, List.of(SkillKinetics.class));
     SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
 
@@ -174,10 +174,26 @@ class PlatformSupportTest {
     for (Adaptation<?> adaptation : kinetics.getAdaptations()) {
       names.add(adaptation.getName());
     }
-    assertThat(names).contains("kinetics-moon-jump", "kinetics-soft-catch").doesNotContain("kinetics-windburst", "kinetics-mass-shift");
-    assertThat(PlatformSupport.leftOut()).extracting(PlatformSupport.LeftOut::name).contains("kinetics-windburst");
-    assertThat(platform.log().infos()).filteredOn((String line) -> line.startsWith("Disabled adaptation kinetics-windburst "))
-        .containsExactly("Disabled adaptation kinetics-windburst on Minecraft 1.20.1: missing item minecraft:mace.");
+    assertThat(names).contains("kinetics-moon-jump", "kinetics-windburst").doesNotContain("kinetics-impale-pin", "kinetics-charge-lance");
+    assertThat(PlatformSupport.leftOut()).extracting(PlatformSupport.LeftOut::name).contains("kinetics-impale-pin");
+    assertThat(platform.log().infos()).filteredOn((String line) -> line.startsWith("Disabled adaptation kinetics-impale-pin "))
+        .containsExactly("Disabled adaptation kinetics-impale-pin on Minecraft 1.21.1: missing item minecraft:iron_spear.");
+    assertThat(adapt.handlerFailures()).isEmpty();
+  }
+
+  @Test
+  void aSkillWhoseNeedsAreMissingIsLeftOutAndLoggedOnce() {
+    TestPlatform platform = TestPlatform.builder(dataFolder).build();
+    platform.host().runGame(FakeGameContent.v1_20_1());
+    adapt = TestAdapt.start(platform, List.of(SkillKinetics.class));
+    SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
+
+    registry.registerSkill(SkillKinetics.class);
+
+    assertThat(registry.getSkill("kinetics")).isNull();
+    assertThat(registry.getSkills()).isEmpty();
+    assertThat(platform.log().infos()).filteredOn((String line) -> line.startsWith("Disabled skill kinetics "))
+        .containsExactly("Disabled skill kinetics on Minecraft 1.20.1: missing item minecraft:mace.");
     assertThat(adapt.handlerFailures()).isEmpty();
   }
 

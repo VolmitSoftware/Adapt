@@ -132,7 +132,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
 
     p.removeEffect(LEVITATION);
     addStat(p, "rift.descent.levitation-cancelled", 1);
-    cooldown.mark(playerId);
+    cooldown.mark(playerId, cooldownMs);
     fx(p, FxPriority.TRANSITION)
         .particle(Particles.REVERSE_PORTAL, 8, 0, 1.2, 0, 0.12, 0.02)
         .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.5f, 1.7f);

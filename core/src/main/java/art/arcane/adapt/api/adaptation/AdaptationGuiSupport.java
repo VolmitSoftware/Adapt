@@ -34,6 +34,10 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
@@ -308,6 +312,7 @@ final class AdaptationGuiSupport {
     GuiWindow w = new GuiWindow(player);
     GuiTheme.apply(w, "skill/" + adaptation.getSkill().getName() + "/" + adaptation.getName());
     w.setViewportHeight(plan.rows());
+    w.setLayout(MenuLayout.GRID).setPaging(new MenuPaging(currentPage, plan.pageCount(), Math.max(0, adaptation.getMaxLevel())));
 
     List<GuiEffects.Placement> reveal = new ArrayList<>();
     for (int row = 0; row < plan.contentRows(); row++) {
@@ -399,7 +404,8 @@ final class AdaptationGuiSupport {
             .onLeftClick((MenuClick e) -> navigateBack(adaptation, player));
       } else {
         center = GuiTheme.element("adapt-page-info", PAPER, "gui", "navigation", "page")
-            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.LEVELS));
+            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.LEVELS))
+            .setHint(MenuHint.navigation("page-info"));
       }
       center.addLore(C.DARK_GRAY + AdaptLanguage.text(
           GuiMessages.PAGE_SHOWING_RANGE,
@@ -428,7 +434,7 @@ final class AdaptationGuiSupport {
     }
     PlayerSkillLine skillLine = currentPlayer.getSkillLine(adaptation.getSkill().getName());
     if (skillLine == null) {
-      spw.play(player.location(), Sounds.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+      playRefused(player, spw);
       return;
     }
 
@@ -438,9 +444,7 @@ final class AdaptationGuiSupport {
       AdaptationLearningTransaction.Result unlearnResult = adaptation.unlearn(player, lvl, false);
       int updatedLevel = skillLine.getAdaptationLevel(adaptation.getName());
       if (updatedLevel < currentLevel) {
-        spw.play(player.location(), Sounds.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-        spw.play(player.location(), Sounds.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
-        FxPresets.failFizzle(adaptation, player);
+        playUnlearned(adaptation, player, spw);
         if (delayTicks != 0) {
           AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
               SnippetsMessages.ADAPT_MENU_UNLEARNED_TITLE,
@@ -451,7 +455,7 @@ final class AdaptationGuiSupport {
         return;
       }
 
-      spw.play(player.location(), Sounds.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+      playUnlearnRefused(player, spw);
       notifyDependents(adaptation, player, currentPlayer, lvl - 1, unlearnResult);
       if (delayTicks != 0) {
         AdaptHud.guiTitle(player, " ", C.RED + "" + C.BOLD + AdaptLanguage.text(
@@ -468,7 +472,7 @@ final class AdaptationGuiSupport {
     if (debugLearningClick || (currentKnowledge >= c && currentPlayer.getData().hasPowerAvailable(pc))) {
       LearnGate gate = learnGate(adaptation, player, currentPlayer, lvl, debugLearningClick);
       if (gate == LearnGate.REQUIREMENTS_MISSING) {
-        spw.play(player.location(), Sounds.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+        playRefused(player, spw);
         notifyLearningFailure(adaptation, player, currentPlayer, AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING);
         return;
       }
@@ -482,15 +486,7 @@ final class AdaptationGuiSupport {
       AdaptationLearningTransaction.Result result =
           AdaptationLearningTransaction.learn(adaptation, player, lvl, debugLearningClick);
       if (result == AdaptationLearningTransaction.Result.LEARNED) {
-        spw.play(player.location(), Sounds.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
-        spw.play(player.location(), Sounds.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
-        spw.play(player.location(), Sounds.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
-        spw.play(player.location(), Sounds.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
-        if (adaptation.isPermanent()) {
-          spw.play(player.location(), Sounds.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
-          spw.play(player.location(), Sounds.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
-        }
-        FxPresets.learnCelebration(adaptation, player);
+        playLearned(adaptation, player, spw);
         if (delayTicks != 0) {
           AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
               SnippetsMessages.ADAPT_MENU_LEARNED_TITLE,
@@ -499,12 +495,38 @@ final class AdaptationGuiSupport {
         }
         closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
       } else {
-        spw.play(player.location(), Sounds.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+        playRefused(player, spw);
         notifyLearningFailure(adaptation, player, currentPlayer, result);
       }
     } else {
-      spw.play(player.location(), Sounds.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+      playRefused(player, spw);
     }
+  }
+
+  static void playLearned(Adaptation<?> adaptation, PlayerRef player, SoundPlayer spw) {
+    spw.play(player.location(), Sounds.BLOCK_NETHER_GOLD_ORE_PLACE, 0.9f, 1.355f);
+    spw.play(player.location(), Sounds.BLOCK_ENCHANTMENT_TABLE_USE, 1.7f, 0.355f);
+    spw.play(player.location(), Sounds.BLOCK_BEACON_POWER_SELECT, 0.4f, 0.155f);
+    spw.play(player.location(), Sounds.BLOCK_BEACON_ACTIVATE, 0.2f, 1.455f);
+    if (adaptation.isPermanent()) {
+      spw.play(player.location(), Sounds.ENTITY_PLAYER_LEVELUP, 0.7f, 1.355f);
+      spw.play(player.location(), Sounds.ITEM_GOAT_HORN_SOUND_1, 0.7f, 1.355f);
+    }
+    FxPresets.learnCelebration(adaptation, player);
+  }
+
+  static void playUnlearned(Adaptation<?> adaptation, PlayerRef player, SoundPlayer spw) {
+    spw.play(player.location(), Sounds.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
+    spw.play(player.location(), Sounds.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+    FxPresets.failFizzle(adaptation, player);
+  }
+
+  static void playUnlearnRefused(PlayerRef player, SoundPlayer spw) {
+    spw.play(player.location(), Sounds.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+  }
+
+  static void playRefused(PlayerRef player, SoundPlayer spw) {
+    spw.play(player.location(), Sounds.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
   }
 
   static boolean isPermanentLearnConfirmationPending(PlayerRef player, Adaptation<?> adaptation, int level) {
@@ -544,10 +566,23 @@ final class AdaptationGuiSupport {
       int level,
       boolean debugLearning
   ) {
+    return learnGate(adaptation, player, adaptPlayer, level, debugLearning, false);
+  }
+
+  /** {@code confirmed} is true when the player already confirmed a permanent learn elsewhere, such as the client screen. */
+  static LearnGate learnGate(
+      Adaptation<?> adaptation,
+      PlayerRef player,
+      AdaptPlayer adaptPlayer,
+      int level,
+      boolean debugLearning,
+      boolean confirmed
+  ) {
     if (!AdaptationRequirements.missing(adaptation, adaptPlayer.getData()).isEmpty()) {
       return LearnGate.REQUIREMENTS_MISSING;
     }
-    if (adaptation.isPermanent() && !debugLearning && !consumePermanentLearnConfirmation(player, adaptation, level)) {
+    if (adaptation.isPermanent() && !debugLearning && !confirmed
+        && !consumePermanentLearnConfirmation(player, adaptation, level)) {
       return LearnGate.CONFIRM_PERMANENT;
     }
     return LearnGate.READY;
@@ -592,7 +627,8 @@ final class AdaptationGuiSupport {
 
   private static GuiElement boundaryElement(String id, TextKey name) {
     return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name))
+        .setRole(MenuRole.DECORATION);
   }
 
   private static void openAdaptationPage(Adaptation<?> adaptation, PlayerRef player, int page) {
@@ -618,11 +654,7 @@ final class AdaptationGuiSupport {
   }
 
   private static void reopenAdaptationPageIfReady(Adaptation<?> adaptation, PlayerRef player, int page) {
-    if (player == null || !player.isOnline()) {
-      return;
-    }
-
-    if (AdaptCore.platform().menus().current(player) != null) {
+    if (player == null || !GuiCloseSuppression.windowFree(player)) {
       return;
     }
 
@@ -649,7 +681,7 @@ final class AdaptationGuiSupport {
     }
 
     Tasks.runEntity(player, () -> {
-      if (player.isOnline() && AdaptCore.platform().menus().current(player) == null) {
+      if (GuiCloseSuppression.windowFree(player)) {
         adaptation.getSkill().openGui(player);
       }
     }, 1);
@@ -731,16 +763,19 @@ final class AdaptationGuiSupport {
       int targetLevel,
       AdaptationLearningTransaction.Result result
   ) {
-    if (result != AdaptationLearningTransaction.Result.REQUIRED_BY_DEPENDENTS) {
-      return;
+    if (result == AdaptationLearningTransaction.Result.REQUIRED_BY_DEPENDENTS) {
+      messagePlayer(player, dependentsText(adaptation, adaptPlayer, targetLevel));
     }
-    messagePlayer(player, AdaptLanguage.text(
+  }
+
+  static String dependentsText(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, int targetLevel) {
+    return AdaptLanguage.text(
         GuiMessages.REQUIRED_BY_DEPENDENTS,
         trusted("dependents", AdaptationRequirements.names(
             AdaptationRequirements.dependents(adaptation, adaptPlayer.getData(), targetLevel)
         )),
         trusted("adaptation", AdaptationRequirements.plainName(adaptation))
-    ));
+    );
   }
 
   private static void notifyLearningFailure(
@@ -749,24 +784,30 @@ final class AdaptationGuiSupport {
       AdaptPlayer adaptPlayer,
       AdaptationLearningTransaction.Result result
   ) {
-    if (result == AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING) {
-      messagePlayer(player, AdaptLanguage.text(
+    String text = learningFailureText(adaptation, adaptPlayer, result);
+    if (!text.isEmpty()) {
+      messagePlayer(player, text);
+    }
+  }
+
+  /** The chat text the chest GUI shows for a failed learn, or an empty string when it shows none. */
+  static String learningFailureText(
+      Adaptation<?> adaptation,
+      AdaptPlayer adaptPlayer,
+      AdaptationLearningTransaction.Result result
+  ) {
+    return switch (result) {
+      case REQUIREMENTS_MISSING -> AdaptLanguage.text(
           GuiMessages.REQUIREMENTS_MISSING,
           trusted("requirements", AdaptationRequirements.describe(
               AdaptationRequirements.missing(adaptation, adaptPlayer.getData())
           )),
           trusted("adaptation", AdaptationRequirements.plainName(adaptation))
-      ));
-      return;
-    }
-    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
-      messagePlayer(player, AdaptLanguage.text(GuiMessages.VAULT_INSUFFICIENT_FUNDS));
-      return;
-    }
-    if (result == AdaptationLearningTransaction.Result.ECONOMY_UNAVAILABLE
-        || result == AdaptationLearningTransaction.Result.ECONOMY_FAILED) {
-      messagePlayer(player, AdaptLanguage.text(GuiMessages.VAULT_TRANSACTION_FAILED));
-    }
+      );
+      case INSUFFICIENT_FUNDS -> AdaptLanguage.text(GuiMessages.VAULT_INSUFFICIENT_FUNDS);
+      case ECONOMY_UNAVAILABLE, ECONOMY_FAILED -> AdaptLanguage.text(GuiMessages.VAULT_TRANSACTION_FAILED);
+      default -> "";
+    };
   }
 
   private static void messagePlayer(PlayerRef player, String message) {

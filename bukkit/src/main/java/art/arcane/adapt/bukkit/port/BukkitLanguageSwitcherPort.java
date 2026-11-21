@@ -5,6 +5,7 @@ import art.arcane.adapt.command.CommandSource;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptLanguageEditor;
+import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.localization.BukkitLanguageEditorPresentation;
@@ -14,9 +15,15 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 
+/**
+ * VolmLib's switcher and chest editor for every player, except that a player whose client shows native panels opens
+ * the message editor through {@link AdaptLanguageSwitcher}, the menu-based editor every other platform uses. Both
+ * editors save through {@link AdaptLanguage#editorOptions()} over the same selections.
+ */
 public final class BukkitLanguageSwitcherPort implements LanguageSwitcherPort {
   private final Plugin plugin;
   private volatile BukkitLanguageSwitcher switcher;
+  private volatile AdaptLanguageSwitcher panels;
 
   BukkitLanguageSwitcherPort(Plugin plugin) {
     this.plugin = plugin;
@@ -24,6 +31,11 @@ public final class BukkitLanguageSwitcherPort implements LanguageSwitcherPort {
 
   @Override
   public void command(CommandSource source, String[] arguments) {
+    AdaptLanguageSwitcher nativeEditor = panels;
+    if (nativeEditor != null && AdaptLanguageSwitcher.opensNativeEditor(source, arguments)) {
+      nativeEditor.command(source, arguments);
+      return;
+    }
     BukkitLanguageSwitcher current = switcher;
     if (current != null) {
       current.command(BukkitCommandSource.sender(source), arguments);
@@ -43,6 +55,14 @@ public final class BukkitLanguageSwitcherPort implements LanguageSwitcherPort {
         new BukkitLanguageSwitcher.Options("adapt", "adapt.configurator",
             DirectorMiniMenu.Theme.adaptRed(), AdaptLanguage.directorResolver(), AdaptLanguage.editorOptions(), null,
             AdaptLanguage::startUpstreamCheck, AdaptLanguage::displayName), presentation());
+    AdaptLanguageSwitcher nativeEditor = new AdaptLanguageSwitcher();
+    nativeEditor.open(selections);
+    panels = nativeEditor;
+  }
+
+  @Override
+  public boolean usesCoreEditor() {
+    return true;
   }
 
   private static BukkitLanguageEditorPresentation presentation() {
@@ -53,6 +73,11 @@ public final class BukkitLanguageSwitcherPort implements LanguageSwitcherPort {
 
   @Override
   public synchronized void close() {
+    AdaptLanguageSwitcher nativeEditor = panels;
+    panels = null;
+    if (nativeEditor != null) {
+      nativeEditor.close();
+    }
     BukkitLanguageSwitcher current = switcher;
     switcher = null;
     if (current != null) {

@@ -105,7 +105,8 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
       }
 
       UUID id = p.uuid();
-      if (!cooldowns.isReady(id, getInternalCooldownMillis(level))) {
+      long cooldownMillis = getInternalCooldownMillis(level);
+      if (!cooldowns.isReady(id, cooldownMillis)) {
         return;
       }
 
@@ -126,7 +127,7 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
       })) {
         return;
       }
-      cooldowns.mark(id);
+      cooldowns.mark(id, cooldownMillis);
       double absorbed = e.damage() * getAbsorbPercent(level);
       e.setDamage(Math.max(0, e.damage() - absorbed));
       playMarrowShield(p);

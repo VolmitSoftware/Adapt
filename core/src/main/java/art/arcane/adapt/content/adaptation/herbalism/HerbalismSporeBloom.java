@@ -374,7 +374,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
     int level = getActiveLevel(player);
     Loc failAt = center.location().add(0.5, 0.75, 0.5);
-    if (!bloomCooldown.isReady(player.uuid(), getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!bloomCooldown.isReady(player.uuid(), cooldownMillis)) {
       fx(failAt, FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 2, 0.2D)
           .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.75F);
@@ -413,6 +414,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         getFoodCost(level),
         failAt,
         activation,
+        cooldownMillis,
         new AtomicInteger(CHARGE_UNPAID)
     );
     startBloom(player, center, catalyst, spreadSurface, level, path, ownershipRadius, charge);
@@ -453,7 +455,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         return false;
       }
       player.setFoodLevel(Math.max(0, player.foodLevel() - charge.foodCost()));
-      bloomCooldown.mark(player.uuid());
+      bloomCooldown.mark(player.uuid(), charge.cooldownMillis());
       fx(charge.activation(), FxPriority.TRANSITION)
           .burst(Particles.SPORE_BLOSSOM_AIR, 20, 0.35D)
           .sound(Sounds.ENTITY_ENDERMAN_AMBIENT, 0.45F, 0.55F);
@@ -466,7 +468,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
   }
 
   private record BloomCharge(Id catalyst, int catalystCost, int foodCost, Loc failAt,
-                             Loc activation, AtomicInteger state) {
+                             Loc activation, long cooldownMillis, AtomicInteger state) {
   }
 
   private Id resolveSpreadSurface(Id floorType) {

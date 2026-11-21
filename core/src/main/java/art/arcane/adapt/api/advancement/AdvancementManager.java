@@ -7,6 +7,8 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdvancementHandler;
+import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.client.server.hud.ClientToasts;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.advancement.AdvancementNode;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -17,8 +19,9 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +39,7 @@ public class AdvancementManager {
   private static final int RESTORE_SETTLE_DELAY_TICKS = 60;
   private static final int RESTORE_STAGGER_TICKS = 20;
   private static final int GRANT_DELAY_TICKS = 5;
-  private final Set<String> registeredKeys = ConcurrentHashMap.newKeySet();
+  private final Map<String, ServerFrame.Toast> registeredToasts = new ConcurrentHashMap<>();
   private final AtomicBoolean enabled = new AtomicBoolean(false);
   private final AtomicBoolean catalogReady = new AtomicBoolean(false);
   private final AtomicBoolean synchronizationScheduled = new AtomicBoolean(false);
@@ -53,7 +56,7 @@ public class AdvancementManager {
     if (!player.getData().ensureGranted(key)) {
       return false;
     }
-    if (!canRenderGrant(enabled.get(), catalogReady.get(), registeredKeys.contains(key))) {
+    if (!canRenderGrant(enabled.get(), catalogReady.get(), registeredToasts.containsKey(key))) {
       return true;
     }
 
@@ -73,13 +76,21 @@ public class AdvancementManager {
       }
 
       try {
-        host.grant(target, AdaptAdvancement.advancementId(key), showToast);
+        renderGrant(host, target, key, showToast, registeredToasts.get(key));
       } catch (RuntimeException failure) {
         AdaptLog.warn("Failed to grant advancement '" + key + "' for " + target.name() + ": " + summarizeThrowable(failure));
         AdaptLog.error(failure);
       }
     }, GRANT_DELAY_TICKS);
     return true;
+  }
+
+  /** Grants on the host; a player with client toasts gets the toast frame and no vanilla popup. */
+  static void renderGrant(AdvancementHost host, PlayerRef target, String key, boolean showToast,
+                          ServerFrame.Toast clientToast) {
+    boolean sentToClient = showToast && clientToast != null && ClientToasts.capable(target.uuid())
+        && ClientToasts.send(target.uuid(), clientToast);
+    host.grant(target, AdaptAdvancement.advancementId(key), showToast && !sentToClient);
   }
 
   static boolean shouldDisplayToast(boolean requested, boolean enabled) {
@@ -161,7 +172,7 @@ public class AdvancementManager {
     List<Id> batch = new ArrayList<>(endIndex - startIndex);
     for (int index = startIndex; index < endIndex; index++) {
       String key = grantedKeys.get(index);
-      if (player.getData().isGranted(key) && registeredKeys.contains(key)) {
+      if (player.getData().isGranted(key) && registeredToasts.containsKey(key)) {
         batch.add(AdaptAdvancement.advancementId(key));
       }
     }
@@ -258,7 +269,7 @@ public class AdvancementManager {
       }
       List<AdvancementNode> trees = new ArrayList<>();
       List<String> roots = new ArrayList<>();
-      Set<String> keys = ConcurrentHashMap.newKeySet();
+      Map<String, ServerFrame.Toast> toasts = new HashMap<>();
       for (Skill<?> skill : server().getSkillRegistry().getSkills()) {
         AdaptAdvancement advancement = skill.buildAdvancements();
         String rootKey = advancement.getKey();
@@ -266,12 +277,12 @@ public class AdvancementManager {
           roots.add(rootKey);
         }
         trees.add(advancement.toNode());
-        collectKeys(advancement, keys);
+        collectToasts(advancement, toasts);
       }
 
       host.setCatalog(trees);
-      registeredKeys.clear();
-      registeredKeys.addAll(keys);
+      registeredToasts.clear();
+      registeredToasts.putAll(toasts);
       skillRootKeys = List.copyOf(roots);
       registeredCatalogRevision = requestedCatalogRevision;
       registerQuitHandler();
@@ -285,11 +296,11 @@ public class AdvancementManager {
     }
   }
 
-  private static void collectKeys(AdaptAdvancement advancement, Set<String> keys) {
-    keys.add(advancement.getKey());
+  private static void collectToasts(AdaptAdvancement advancement, Map<String, ServerFrame.Toast> toasts) {
+    toasts.put(advancement.getKey(), advancement.clientToast());
     if (advancement.getChildren() != null) {
       for (AdaptAdvancement child : advancement.getChildren()) {
-        collectKeys(child, keys);
+        collectToasts(child, toasts);
       }
     }
   }
@@ -435,7 +446,7 @@ public class AdvancementManager {
   }
 
   private void resetState() {
-    registeredKeys.clear();
+    registeredToasts.clear();
     skillRootKeys = List.of();
     registeredCatalogRevision = -1L;
     catalogReady.set(false);

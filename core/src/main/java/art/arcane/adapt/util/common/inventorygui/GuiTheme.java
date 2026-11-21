@@ -1,12 +1,17 @@
 package art.arcane.adapt.util.common.inventorygui;
 
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
+
+import java.util.Set;
 
 public final class GuiTheme {
   private static final Id BLACK_PANE = Id.minecraft("black_stained_glass_pane");
   private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
   private static final Id LIGHT_GRAY_PANE = Id.minecraft("light_gray_stained_glass_pane");
+  private static final Set<String> NAVIGATION_TARGETS = Set.of("back", "previous", "next", "first", "last", "page-info");
 
   private GuiTheme() {
   }
@@ -23,18 +28,23 @@ public final class GuiTheme {
 
     if (tag != null && tag.startsWith("golemancy-")) {
       window.setDecorator((GuiWindow w, int position, int row) -> element("bg-" + row + "-" + position, BLACK_PANE,
-          "gui", "golemancy", "background").setName(" "));
+          "gui", "golemancy", "background").setName(" ").setRole(MenuRole.DECORATION));
       return;
     }
 
     window.setDecorator((GuiWindow w, int position, int row) -> element("bg-" + row + "-" + position,
         background(row, position, w.getViewportHeight()),
-        "gui", "background", backgroundKey(row, position, w.getViewportHeight())).setName(" "));
+        "gui", "background", backgroundKey(row, position, w.getViewportHeight())).setName(" ").setRole(MenuRole.DECORATION));
   }
 
   public static GuiElement element(String id, Id fallback, String... path) {
     CustomModel model = CustomModel.get(fallback, path);
-    return new GuiElement(id).setMaterial(model.material()).setModel(model);
+    GuiElement element = new GuiElement(id).setMaterial(model.material()).setModel(model);
+    String target = path.length == 0 ? null : path[path.length - 1];
+    if (target != null && NAVIGATION_TARGETS.contains(target)) {
+      element.setHint(MenuHint.navigation(target));
+    }
+    return element;
   }
 
   public static String backgroundKey(int row, int position, int rows) {

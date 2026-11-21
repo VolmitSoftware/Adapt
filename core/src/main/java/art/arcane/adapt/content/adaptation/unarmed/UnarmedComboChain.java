@@ -29,6 +29,8 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -99,13 +101,14 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     long now = System.currentTimeMillis();
     int level = attack.level();
     ComboState state = combos.computeIfAbsent(p.uuid(), id -> new ComboState());
-
-    if (now - state.lastHitMillis > getComboWindowMillis(level)) {
+    long windowMillis = getComboWindowMillis(level);
+    if (now - state.lastHitMillis > windowMillis) {
       state.stacks = 0;
     }
 
     state.lastHitMillis = now;
     state.stacks = Math.min(getMaxStacks(level), state.stacks + 1);
+    AbilityGlyphs.duration(p.uuid(), this, now, windowMillis, state.stacks, getMaxStacks(level));
 
     double bonus = state.stacks * getDamagePerStack(level);
     e.setDamage(e.damage() + bonus);
@@ -146,6 +149,9 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
 
   private void dropCombo(PlayerRef p) {
     ComboState state = combos.remove(p.uuid());
+    if (state != null) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
+    }
     if (state == null || state.stacks < 3) {
       return;
     }

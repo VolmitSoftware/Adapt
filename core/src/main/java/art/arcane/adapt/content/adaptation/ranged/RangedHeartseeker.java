@@ -34,6 +34,7 @@ import art.arcane.adapt.api.fx.ViewerGlowPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 import art.arcane.adapt.platform.entity.ArrowPickup;
@@ -788,7 +789,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (!lifecycle.isCurrent(lifecycleToken) || !owner.isOnline()) {
       return;
     }
-    owner.setCooldown(BOW, getCooldownTicks(level));
+    int cooldownTicks = getCooldownTicks(level);
+    owner.setCooldown(BOW, cooldownTicks);
+    AbilityGlyphs.cooldown(owner, this, cooldownTicks * 50L);
     addStat(owner, "ranged.heartseeker.seeks", 1);
     xp(owner, Math.max(0D, getConfig().xpPerSeek));
     applyGlowOwned(owner, target);

@@ -15,7 +15,7 @@ class CooldownsTest {
     Map<UUID, Long> uses = new ConcurrentHashMap<>();
     UUID id = UUID.randomUUID();
     uses.put(id, M.ms() - 2_000L);
-    Cooldowns cooldowns = new Cooldowns(uses);
+    Cooldowns cooldowns = new Cooldowns(uses, null);
 
     assertThat(cooldowns.isReady(id, 1_000L)).isTrue();
     assertThat(uses).doesNotContainKey(id);
@@ -29,7 +29,7 @@ class CooldownsTest {
     long now = M.ms();
     uses.put(expired, now - 2_000L);
     uses.put(active, now);
-    Cooldowns cooldowns = new Cooldowns(uses);
+    Cooldowns cooldowns = new Cooldowns(uses, null);
 
     cooldowns.clearExpired(1_000L);
 

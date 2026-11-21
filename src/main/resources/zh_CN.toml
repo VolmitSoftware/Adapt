@@ -4059,6 +4059,12 @@ jump = "跳跃"
 attack = "攻击"
 stat = "{label} {value}"
 stable_hand = "已受育兽巧手强化"
+armor = "护甲"
+effects = "效果"
+wild = "未驯服"
+yours = "你的"
+tamed = "已驯服"
+tamed_by = "由 {owner} 驯服"
 lore = ["侦测范围"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "请先遗忘 {dependents}；它们需要 {adaptation}�
 
 [gui.skill]
 title = "{skill} {progress}（{xp} 经验 {nextLevel}）"
+
+[gui.client]
+catalog_changed = "此界面打开期间 Adapt 已发生变化。请重试。"
+unavailable = "你无法使用该适应。"
+no_change = "没有任何变化。"
+preference_saved = "设置已保存。"
+preference_denied = "该设置当前无法更改。"
 
 [items.backpack]
 name = "背包"
@@ -6681,6 +6694,7 @@ lore3 = "战斗后禁用时长"
 lore = ["伤害吸收上限", "每次脉冲获得的伤害吸收", "战斗后禁用时长"]
 
 [command.help]
+show_client_ui_status = "显示玩家是否使用 Adapt 客户端界面"
 version = "显示已安装的插件版本"
 debug_dump = "生成诊断报告，并可选择上传"
 debug_upload = "将报告上传至 mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "数量，范围 1 到 64，默认为 1"
 
 [command.runtime]
+client_ui_absent = "{player} 使用箱子和动作栏界面（未协商 Adapt 客户端）。"
+client_ui_negotiated = "{player} 使用 Adapt 客户端界面：协议 {version}，功能 {capabilities}。"
 missing_permission = "你缺少权限“{permission}”。"
 player_required_from_console = "从控制台使用此命令时，必须指定玩家。"
 player_required_from_console_short = "从控制台执行时必须指定玩家。"

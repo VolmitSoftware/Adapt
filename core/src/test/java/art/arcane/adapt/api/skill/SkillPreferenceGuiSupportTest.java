@@ -10,7 +10,10 @@ import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
@@ -172,6 +175,32 @@ class SkillPreferenceGuiSupportTest {
     verify(owner, never()).requestSave();
     verify(window, never()).setElement(anyInt(), anyInt(), any());
     verify(window, never()).update();
+  }
+
+  @Test
+  void toggleIsASettingAndResetAnAction() {
+    MenuButton button = toggle.button();
+
+    assertThat(button.icon().type()).isEqualTo(Id.minecraft("lime_stained_glass_pane"));
+    assertThat(button.icon().lore()).containsExactly("Text", "Text");
+    assertThat(button.hint().kind()).isEqualTo(MenuHint.Kind.TOGGLE);
+    assertThat(button.meta().role()).isEqualTo(MenuRole.SETTING);
+    assertThat(button.meta().description()).isEmpty();
+    assertThat(reset.button().meta().role()).isEqualTo(MenuRole.ACTION);
+  }
+
+  @Test
+  void lockedToggleIsInfoWithItsValue() {
+    config.playerPreferences.get("enabled").playerEditable = false;
+    SkillPreferenceGuiSupport.populate(skill, window, 3);
+    ArgumentCaptor<GuiElement> locked = ArgumentCaptor.forClass(GuiElement.class);
+    verify(window).setElement(eq(-1), eq(3), locked.capture());
+
+    MenuButton button = locked.getValue().button();
+    assertThat(button.hint()).isNull();
+    assertThat(button.meta().role()).isEqualTo(MenuRole.INFO);
+    assertThat(button.meta().value()).isEqualTo("Text");
+    assertThat(button.meta().description()).containsExactly("Text");
   }
 
   private void click(GuiElement element, ClickKind kind) {

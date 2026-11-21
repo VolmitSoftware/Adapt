@@ -85,7 +85,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
    * The skull is both the ability trigger and the ammunition, so the sweep and
    * the gate share one state on the whole material.
    */
-  private final ItemCooldowns cooldowns = ItemCooldowns.forMaterial(WITHER_SKELETON_SKULL);
+  private final ItemCooldowns cooldowns = ItemCooldowns.forMaterial(WITHER_SKELETON_SKULL).ownedBy(this);
 
   public NetherSkullYeet() {
     super("nether-skull-toss");

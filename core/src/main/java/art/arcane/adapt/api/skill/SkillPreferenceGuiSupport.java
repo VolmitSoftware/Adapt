@@ -11,6 +11,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -19,6 +21,7 @@ import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 
+import java.util.List;
 import java.util.Locale;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -67,9 +70,19 @@ final class SkillPreferenceGuiSupport {
         .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), locked ? GuiMessages.PREFERENCE_SERVER_CONTROLLED : GuiMessages.PREFERENCE_CYCLE))
         .onLeftClick((MenuClick element) -> onOwner(false))
         .onRightClick((MenuClick element) -> onOwner(false));
+    if (locked) {
+      toggle.setRole(MenuRole.INFO)
+          .setValue(AdaptLanguage.text(CommonPreferences.SKILL_ENABLED.choice(value).label()))
+          .setDescription(List.of(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED)));
+    } else {
+      toggle.setHint(MenuHint.toggle(value == CommonPreferences.Toggle.ON))
+          .setRole(MenuRole.SETTING)
+          .setDescription(List.of());
+    }
     GuiElement reset = GuiTheme.element("skill-preference-reset", MILK_BUCKET, "gui", "preferences", "reset")
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_RESET))
         .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_RESET_DESCRIPTION))
+        .setRole(MenuRole.ACTION)
         .onLeftClick((MenuClick element) -> onOwner(true));
     window.setElement(-1, row, toggle);
     window.setElement(1, row, reset);

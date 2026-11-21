@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -97,8 +98,10 @@ public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> 
     int current = state == null || now > state.expiresAt() ? 0 : state.stacks();
     int blocksPerStack = Math.max(1, getConfig().blocksPerStack);
     int tierCap = getTierCap(context.level());
-    int next = Math.min(current + 1, tierCap * blocksPerStack);
+    int maxStacks = tierCap * blocksPerStack;
+    int next = Math.min(current + 1, maxStacks);
     stacks.put(id, new StackState(next, now + getConfig().stackDurationMs));
+    AbilityGlyphs.duration(id, this, now, getConfig().stackDurationMs, next, maxStacks);
     if (next > current) {
       addStat(p, "pickaxe.stone-skin.stacks-gained", 1);
     }

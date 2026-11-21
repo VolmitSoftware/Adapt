@@ -9,6 +9,13 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelTile;
+import art.arcane.adapt.client.protocol.PanelView;
+import art.arcane.adapt.client.protocol.TileRole;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -294,6 +301,32 @@ class RosterGuiLiveTest extends AdaptTestBase {
     assertThat(before.rows()).hasSize(45);
     assertThat(afterLastPacked).isEqualTo(before);
     assertThat(afterFirstPacked).isNotEqualTo(before);
+  }
+
+  @Test
+  void theRosterIsAPagedListOfGolemsWithTheirStateAsValue() {
+    openAndDraw();
+
+    PanelView view = MenuReplay.view(windows.constructed().getFirst());
+
+    assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
+    assertThat(view.paging().page()).isZero();
+    assertThat(view.paging().pages()).isEqualTo(1);
+    assertThat(view.paging().total()).isEqualTo(2);
+    List<PanelTile> golems = view.tiles().stream().filter(tile -> tile.role() == TileRole.ENTRY).toList();
+    assertThat(golems).hasSize(2);
+    String locate = AdaptLanguage.text(GolemancyMessages.ROSTER_LOCATE);
+    String active = AdaptLanguage.text(GolemancyMessages.STATUS_ACTIVE);
+    for (PanelTile golem : golems) {
+      assertThat(golem.value()).isEqualTo(active);
+      assertThat(golem.lore()).contains("§8" + locate);
+      assertThat(golem.description()).isNotEmpty().doesNotContain("§8" + locate);
+      assertThat(golem.description()).allMatch(golem.lore()::contains);
+      assertThat(MenuReplay.actions(golem)).containsEntry(ClickKind.LEFT, locate);
+      if (MenuReplay.actions(golem).containsKey(ClickKind.SHIFT_RIGHT)) {
+        assertThat(MenuReplay.actions(golem)).containsEntry(ClickKind.SHIFT_RIGHT, AdaptLanguage.text(GolemancyMessages.ROSTER_RELEASE));
+      }
+    }
   }
 
   private void openAndDraw() {

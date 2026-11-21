@@ -90,7 +90,7 @@ class PlatformSupportCatalogTest {
       SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
       Set<String> listed = new TreeSet<>();
       List<String> missingIcons = new ArrayList<>();
-      for (Skill<?> skill : registry.getAllSkills()) {
+      for (Skill<?> skill : registry.getSkills()) {
         requireIcon(host, "skill " + skill.getName(), skill.getIcon(), missingIcons);
         if (skill instanceof SimpleSkill<?> simple) {
           requireAdvancementIcons(host, simple.buildAdvancements(), missingIcons);

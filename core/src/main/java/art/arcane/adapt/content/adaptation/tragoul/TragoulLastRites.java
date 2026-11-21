@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -116,9 +117,12 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
         return;
       }
 
-      if (!DeathSaveCooldown.LAST_RITES.activate(p, System.currentTimeMillis(), getCooldownMillis(level))) {
+      long now = System.currentTimeMillis();
+      long cooldownMillis = getCooldownMillis(level);
+      if (!DeathSaveCooldown.LAST_RITES.activate(p, now, cooldownMillis)) {
         return;
       }
+      AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
 
       e.setCancelled(true);
       p.setHealth(1.0);

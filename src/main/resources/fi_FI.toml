@@ -4059,6 +4059,12 @@ jump = "Hyppy"
 attack = "Hyökkäys"
 stat = "{label} {value}"
 stable_hand = "Tallirengin tehostama"
+armor = "Panssari"
+effects = "Vaikutukset"
+wild = "Kesyttämätön"
+yours = "Sinun"
+tamed = "Kesytetty"
+tamed_by = "Kesyttänyt {owner}"
 lore = ["Havaitsemisalue"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Poista ensin {dependents}; ne vaativat {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt muuttui tämän näkymän ollessa auki. Yritä uudelleen."
+unavailable = "Tämä sopeutus ei ole käytettävissäsi."
+no_change = "Mikään ei muuttunut."
+preference_saved = "Asetus tallennettu."
+preference_denied = "Tätä asetusta ei voi muuttaa juuri nyt."
 
 [items.backpack]
 name = "Reppu"
@@ -6681,6 +6694,7 @@ lore3 = "Taistelun esto"
 lore = ["Absorption enimmäismäärä", "Absorptio pulssia kohden", "Taistelun esto"]
 
 [command.help]
+show_client_ui_status = "Näyttää, käyttääkö pelaaja Adapt-asiakkaan käyttöliittymää"
 version = "Näytä asennetun lisäosan versio"
 debug_dump = "Luo diagnostiikkaraportti ja lähetä se halutessasi"
 debug_upload = "Lähetä raportti mclo.gs-palveluun"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Määrä väliltä 1–64, oletus 1"
 
 [command.runtime]
+client_ui_absent = "{player} käyttää arkku- ja toimintopalkkikäyttöliittymää (Adapt-asiakasta ei neuvoteltu)."
+client_ui_negotiated = "{player} käyttää Adapt-asiakkaan käyttöliittymää: protokolla {version}, ominaisuudet {capabilities}."
 missing_permission = "Sinulta puuttuu oikeus '{permission}'."
 player_required_from_console = "Sinun täytyy määritellä pelaaja, kun käytät tätä komentoa konsolista."
 player_required_from_console_short = "Sinun täytyy määritellä pelaaja konsolista."

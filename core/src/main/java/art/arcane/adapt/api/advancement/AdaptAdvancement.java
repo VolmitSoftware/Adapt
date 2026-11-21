@@ -19,6 +19,9 @@
 package art.arcane.adapt.api.advancement;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.hud.ClientToasts;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptMessages;
 import art.arcane.adapt.platform.advancement.AdvancementNode;
@@ -35,11 +38,13 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Builder
 @Data
 public class AdaptAdvancement {
   private static final String MISSING_TITLE = "MISSING TITLE";
+  private static final Pattern PADDED_FRAME = Pattern.compile("^((?:\u00a7.)*)\\[\\s{2,}(.*?)(?:\u00a7.)*\\s{2,}]$");
   private static final String MISSING_DESCRIPTION = "MISSING DESCRIPTION";
 
   private String background;
@@ -89,6 +94,30 @@ public class AdaptAdvancement {
     return new AdvancementNode(advancementId(getKey()), iconItem(), resolveTitle(), resolveDescription(),
         getFrame().platform(), toast, announce, getVisibility().platform(), position.x(), position.y(), 1,
         rootBackground, childNodes);
+  }
+
+  /** The toast a client with native toasts shows for this advancement instead of the vanilla popup. */
+  ServerFrame.Toast clientToast() {
+    return ClientToasts.toast(toastKind(getKey(), getFrame()), ClientToasts.icon(getIcon(), getModel()),
+        toastTitle(resolveTitle()), resolveDescription());
+  }
+
+  /** Drops the padded bracket frame that centres a title in the vanilla advancement tab; a toast has its own frame. */
+  static String toastTitle(String title) {
+    return PADDED_FRAME.matcher(title).replaceAll("$1$2");
+  }
+
+  static ToastKind toastKind(String key, AdaptAdvancementFrame frame) {
+    if (frame == AdaptAdvancementFrame.CHALLENGE) {
+      return ToastKind.CHALLENGE;
+    }
+    if (key.startsWith("skill_")) {
+      return ToastKind.DISCOVERY;
+    }
+    if (key.startsWith("adaptation_")) {
+      return ToastKind.UNLOCK;
+    }
+    return ToastKind.GENERIC;
   }
 
   private ItemRef iconItem() {

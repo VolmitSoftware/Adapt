@@ -7,10 +7,8 @@
   "authors": ["Volmit Software"],
   "license": "GPL-3.0",
   "environment": "*",
-  "entrypoints": {
-    "main": ["${projectGroup}.fabric.AdaptFabric"]
-  },
-  "mixins": ["adapt.mixins.json", "adapt-platform.mixins.json", "adapt.feature.mixins.json", "adapt.gap-block.mixins.json", "adapt.gap-entity.mixins.json"],
+  "entrypoints": ${fabricEntrypoints},
+  "mixins": ["adapt.mixins.json", "adapt-platform.mixins.json", "adapt.feature.mixins.json", "adapt.gap-block.mixins.json", "adapt.gap-entity.mixins.json", "adapt-fabric.mixins.json"],
   "jars": ${fabricNestedJars},
   "depends": {
     "fabricloader": ">=${fabricLoaderVersion}",

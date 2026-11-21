@@ -51,6 +51,11 @@ public final class GuiMessages {
   public static final TextKey REQUIRED_BY_DEPENDENTS = TextKey.of("gui.adaptations.required_by_dependents", "Unlearn {dependents} first; they require {adaptation}.");
   public static final TextKey SKILLS_TITLE = TextKey.of("gui.skills.title", "Level {level} ({used}/{maximum} Power Used)");
   public static final TextKey SKILL_TITLE = TextKey.of("gui.skill.title", "{skill} {progress} ({xp}XP {nextLevel})");
+  public static final TextKey CLIENT_CATALOG_CHANGED = TextKey.of("gui.client.catalog_changed", "Adapt changed while this screen was open. Try again.");
+  public static final TextKey CLIENT_UNAVAILABLE = TextKey.of("gui.client.unavailable", "That adaptation is not available to you.");
+  public static final TextKey CLIENT_NO_CHANGE = TextKey.of("gui.client.no_change", "Nothing changed.");
+  public static final TextKey CLIENT_PREFERENCE_SAVED = TextKey.of("gui.client.preference_saved", "Setting saved.");
+  public static final TextKey CLIENT_PREFERENCE_DENIED = TextKey.of("gui.client.preference_denied", "That setting cannot be changed right now.");
 
   public static final TextKey PREFERENCE_CURRENT = TextKey.of("gui.preferences.current", "Current: {value}");
   public static final TextKey PREFERENCE_SERVER_CONTROLLED = TextKey.of("gui.preferences.server_controlled", "Controlled by the server");
@@ -126,5 +131,10 @@ public final class GuiMessages {
     builder.add(REQUIRED_BY_DEPENDENTS);
     builder.add(SKILLS_TITLE);
     builder.add(SKILL_TITLE);
+    builder.add(CLIENT_CATALOG_CHANGED);
+    builder.add(CLIENT_UNAVAILABLE);
+    builder.add(CLIENT_NO_CHANGE);
+    builder.add(CLIENT_PREFERENCE_SAVED);
+    builder.add(CLIENT_PREFERENCE_DENIED);
   }
 }

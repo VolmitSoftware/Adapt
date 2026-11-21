@@ -225,7 +225,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         return;
       }
 
-      cooldowns.mark(id);
+      cooldowns.mark(id, 1000);
       addStat(p, "agility.super-jump.jumps", 1);
 
       double jumpHeight = getJumpHeight(getLevel(p));

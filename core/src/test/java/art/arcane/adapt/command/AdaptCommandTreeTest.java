@@ -23,7 +23,7 @@ import static org.mockito.Mockito.doAnswer;
 
 class AdaptCommandTreeTest extends AdaptTestBase {
   private static final List<String> COMMANDS = List.of(
-      "boost", "claim-adaptation", "claim-skill", "determine", "effects", "experience", "global-boost", "gui", "knowledge",
+      "boost", "claim-adaptation", "claim-skill", "client", "determine", "effects", "experience", "global-boost", "gui", "knowledge",
       "language", "version", "configure",
       "clear adaptations", "clear all", "clear discoveries", "clear knowledge", "clear stats", "clear xp",
       "debug dump", "debug mode", "debug pap", "debug particle", "debug perf", "debug psp", "debug sound", "debug verbose", "debug version",

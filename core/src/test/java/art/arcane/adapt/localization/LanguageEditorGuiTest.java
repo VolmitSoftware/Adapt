@@ -6,6 +6,13 @@ import art.arcane.adapt.TestCores;
 import art.arcane.adapt.command.CommandHelpPort;
 import art.arcane.adapt.command.CommandMenu;
 import art.arcane.adapt.command.CommandSource;
+import art.arcane.adapt.client.protocol.HintKind;
+import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelPaging;
+import art.arcane.adapt.client.protocol.PanelTile;
+import art.arcane.adapt.client.protocol.PanelView;
+import art.arcane.adapt.client.protocol.TileRole;
+import art.arcane.adapt.client.server.panel.PanelViews;
 import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
@@ -16,6 +23,7 @@ import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
@@ -193,6 +201,86 @@ class LanguageEditorGuiTest extends AdaptTestBase {
   }
 
   @Test
+  void languageListIsANavigationListWithTheDefaultMarked() {
+    switcher.command(source(), new String[]{"server", "edit"});
+    ChestMenu menu = host.open.menu();
+    List<String> locales = selections.availableLocales();
+
+    assertThat(menu.rows()).isEqualTo(6);
+    assertThat(menu.button(0).icon().name()).contains(locales.getFirst());
+    assertThat(menu.button(0).clickable()).isTrue();
+    assertThat(menu.button(ChestMenu.slot(5, 1)).icon().name()).isEqualTo(" ");
+    assertThat(menu.button(ChestMenu.slot(5, 1)).clickable()).isFalse();
+
+    PanelView view = PanelViews.view(1, 0, menu);
+    assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
+    assertThat(view.paging()).isEqualTo(new PanelPaging(0, 1, locales.size()));
+    for (int index = 0; index < locales.size(); index++) {
+      PanelTile locale = tile(view, index);
+      assertThat(locale.role()).isEqualTo(TileRole.NAVIGATION);
+      assertThat(locale.value()).isEqualTo(locales.get(index).equalsIgnoreCase(selections.defaultLocale()) ? "Server default" : "");
+    }
+    assertThat(tile(view, ChestMenu.slot(5, 1)).role()).isEqualTo(TileRole.DECORATION);
+    assertThat(PanelViews.chromeTarget(tile(view, ChestMenu.slot(5, 0)))).isEqualTo("back");
+    assertThat(tile(view, ChestMenu.slot(5, 8)).role()).isEqualTo(TileRole.ACTION);
+  }
+
+  @Test
+  void aPanelEditsAMessageInPlaceThroughTheChatChecks() {
+    openCommandGroup();
+    ChestMenu menu = host.open.menu();
+    MenuHint hint = menu.button(0).hint();
+    assertThat(hint.kind()).isEqualTo(MenuHint.Kind.TEXT);
+    assertThat(hint.value()).isEqualTo("First {player}");
+    assertThat(menu.button(0).icon().lore()).anyMatch(line -> line.contains("{player}"));
+    PanelView view = PanelViews.view(1, 0, menu);
+    assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
+    assertThat(tile(view, 0).role()).isEqualTo(TileRole.SETTING);
+    assertThat(tile(view, 0).hint().kind()).isEqualTo(HintKind.TEXT);
+
+    hint.input().input(new MenuClick(player, host.open, 0, ClickKind.OTHER), "Hello\\n{player}");
+
+    settle(() -> !edits.isEmpty() && host.open != null);
+    assertThat(edits.getFirst().key()).isEqualTo("command.first");
+    assertThat(edits.getFirst().value()).isEqualTo(new TextValue("Hello\n{player}"));
+    assertThat(host.open.menu().title()).contains("Command");
+    PlayerChatEvent later = new PlayerChatEvent(player, "hello", false);
+    new LanguageEditorGui.Input().onChat(later);
+    assertThat(later.isCancelled()).isFalse();
+  }
+
+  @Test
+  void aPanelInputOverTheLimitIsRejected() {
+    openCommandGroup();
+    MenuHint hint = host.open.menu().button(0).hint();
+
+    hint.input().input(new MenuClick(player, host.open, 0, ClickKind.OTHER), "x".repeat(513));
+
+    assertThat(edits).isEmpty();
+    assertThat(chat).anyMatch(line -> line.contains("512"));
+    assertThat(host.open.menu().title()).contains("Command");
+  }
+
+  @Test
+  void aPanelSearchFiltersLikeChat() {
+    switcher.command(source(), new String[]{"server", "edit", "de_DE"});
+    settle(() -> host.open != null);
+    MenuHint search = host.open.menu().button(ChestMenu.slot(5, 4)).hint();
+    assertThat(search.kind()).isEqualTo(MenuHint.Kind.TEXT);
+
+    search.input().input(new MenuClick(player, host.open, ChestMenu.slot(5, 4), ClickKind.OTHER), "menu");
+
+    assertThat(host.open.menu().title()).contains("Search");
+    assertThat(host.open.menu().button(0).icon().name()).contains("gui.title");
+  }
+
+  @Test
+  void encodedValuesDecodeBackUnchanged() {
+    String raw = "a\nb\\nc\\";
+    assertThat(LanguageEditorGui.decodeInput(LanguageEditorGui.encodeInput(raw))).isEqualTo(raw);
+  }
+
+  @Test
   void chatWithoutAPromptIsLeftAlone() {
     PlayerChatEvent typed = new PlayerChatEvent(player, "hello", false);
 
@@ -254,6 +342,17 @@ class LanguageEditorGuiTest extends AdaptTestBase {
     assertThat(last.hasPrevious()).isTrue();
     assertThat(last.hasNext()).isFalse();
     assertThat(LanguageEditorGui.Page.of(0, 1, LanguageEditorGui.PAGE_SIZE).hasNext()).isFalse();
+  }
+
+  private void openCommandGroup() {
+    switcher.command(source(), new String[]{"server", "edit", "de_DE"});
+    settle(() -> host.open != null);
+    click(0);
+    assertThat(host.open.menu().title()).contains("Command");
+  }
+
+  private static PanelTile tile(PanelView view, int slot) {
+    return view.tiles().stream().filter((PanelTile tile) -> tile.slot() == slot).findFirst().orElseThrow();
   }
 
   private LocalizationSnapshot snapshot() {

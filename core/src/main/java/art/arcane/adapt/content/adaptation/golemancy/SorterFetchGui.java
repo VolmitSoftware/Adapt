@@ -3,6 +3,10 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.platform.world.WorldRef;
@@ -98,9 +102,12 @@ final class SorterFetchGui {
       GuiWindow window = new GuiWindow(player);
       GuiTheme.apply(window, "golemancy-fetch");
       window.setViewportHeight(plan.rows());
+      window.setLayout(MenuLayout.LIST);
+      window.setPaging(new MenuPaging(current, plan.pageCount(), listing.size()));
       if (listing.isEmpty()) {
         window.setElement(0, 0, GuiTheme.element("fetch-empty", Id.minecraft("paper"), "gui", "golemancy", "fetch_empty")
-            .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_EMPTY)));
+            .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_EMPTY))
+            .setRole(MenuRole.INFO));
       }
       for (int index = start; index < end; index++) {
         int slot = index - start;
@@ -116,11 +123,17 @@ final class SorterFetchGui {
     ItemRef shown = available.prototype().copy();
     shown.setAmount(Math.max(1, Math.min(available.count(), shown.maxStackSize())));
     int requested = Math.min(amount, available.count());
+    String request = AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_REQUEST, trusted("amount", requested));
+    String stock = C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_AVAILABLE, trusted("count", available.count()));
     return new GuiElement("fetch-" + index)
         .setItem(shown)
-        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_AVAILABLE, trusted("count", available.count())))
-        .addLore(C.GREEN + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_REQUEST, trusted("amount", requested)))
-        .onLeftClick(clicked -> request(player, window, key, available.prototype(), requested));
+        .addLore(stock)
+        .addLore(C.GREEN + request)
+        .onLeftClick(clicked -> request(player, window, key, available.prototype(), requested))
+        .setRole(MenuRole.ENTRY)
+        .setValue(Integer.toString(available.count()))
+        .setDescription(List.of(stock))
+        .setActionLabel(ClickKind.LEFT, request);
   }
 
   private void request(PlayerRef player, GuiWindow window, NodeKey key, ItemRef item, int amount) {
@@ -150,7 +163,9 @@ final class SorterFetchGui {
               .setName((selected ? C.GREEN : C.WHITE) + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH_AMOUNT, trusted("amount", choice)))
               .setCount(choice)
               .setEnchanted(selected)
-              .onLeftClick(clicked -> render(player, key, listing, page, choice)));
+              .onLeftClick(clicked -> render(player, key, listing, page, choice))
+              .setRole(MenuRole.ENTRY)
+              .setValue(selected ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : ""));
     }
   }
 }

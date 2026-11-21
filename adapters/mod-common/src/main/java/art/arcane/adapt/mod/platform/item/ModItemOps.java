@@ -24,6 +24,7 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -40,6 +41,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -195,6 +198,29 @@ public final class ModItemOps implements ItemOps {
         } catch (CommandSyntaxException invalid) {
             throw new IllegalArgumentException("Unreadable item data", invalid);
         }
+    }
+
+    @Override
+    public byte[] encodeNbt(ItemRef item) {
+        ItemStack stack = ModRefs.item(item);
+        if (stack.isEmpty()) {
+            throw new IllegalArgumentException("Cannot encode an empty item stack");
+        }
+        Tag encoded = ItemStack.CODEC.encodeStart(ops(), stack).getOrThrow(IllegalArgumentException::new);
+        if (!(encoded instanceof CompoundTag compound)) {
+            throw new IllegalArgumentException("Item stack did not encode to a compound");
+        }
+        return compressed(compound);
+    }
+
+    private static byte[] compressed(CompoundTag tag) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try {
+            NbtIo.writeCompressed(tag, bytes);
+        } catch (IOException failed) {
+            throw new IllegalArgumentException("Item stack could not be written", failed);
+        }
+        return bytes.toByteArray();
     }
 
     @Override

@@ -16,6 +16,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.UsePermissions;
 import art.arcane.adapt.api.value.MaterialValuePort;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.client.link.ClientLink;
 import art.arcane.adapt.command.AdaptCommands;
 import art.arcane.adapt.command.AdaptDebugDump;
 import art.arcane.adapt.command.CommandHelpPort;
@@ -31,6 +32,7 @@ import art.arcane.adapt.mod.event.world.WorldHooks;
 import art.arcane.adapt.mod.feature.ModFeatures;
 import art.arcane.adapt.mod.feature.protection.ModProtectionProbePort;
 import art.arcane.adapt.mod.feature.recipe.ModMaterialValuePort;
+import art.arcane.adapt.mod.network.ModClientLink;
 import art.arcane.adapt.mod.platform.MixinAudit;
 import art.arcane.adapt.mod.platform.ModAttributeResolver;
 import art.arcane.adapt.mod.platform.ModComponentPort;
@@ -127,6 +129,7 @@ public final class AdaptModBootstrap {
         AdaptPorts.install(MaterialValuePort.class, new ModMaterialValuePort());
         AdaptPorts.install(AdaptAttributeResolver.class, new ModAttributeResolver());
         AdaptPorts.install(ProtectionProbePort.class, new ModProtectionProbePort());
+        AdaptPorts.install(ClientLink.class, ModClientLink.LINK);
         ComponentRegistrar registrar = new ComponentRegistrar(ModPlatform.bus());
         AdaptCore created = new AdaptCore(platform, ModPlatform.bus(), registrar, CoreContent.skillTypes());
         try {
@@ -190,6 +193,7 @@ public final class AdaptModBootstrap {
         AdaptPorts.uninstall(MaterialValuePort.class);
         AdaptPorts.uninstall(AdaptAttributeResolver.class);
         AdaptPorts.uninstall(ProtectionProbePort.class);
+        AdaptPorts.uninstall(ClientLink.class);
     }
 
     private static String skillNames(AdaptCore running) {

@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -256,7 +257,10 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
         return;
       }
 
-      cooldowns.put(id, M.ms() + getCooldownMillis(level));
+      long cooldownStart = M.ms();
+      long cooldownMillis = getCooldownMillis(level);
+      cooldowns.put(id, cooldownStart + cooldownMillis);
+      AbilityGlyphs.cooldown(id, this, cooldownStart, cooldownMillis);
       cooldownReadyNotify.put(id, true);
       applySuccessfulRewind(p, snapshot, departure, destination, hungerCost, level);
     };

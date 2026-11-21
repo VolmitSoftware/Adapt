@@ -28,6 +28,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
@@ -148,6 +149,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     p.setCooldown(hand.type(), getConfig().cooldown);
+    AbilityGlyphs.cooldown(p, this, getConfig().cooldown * 50L);
     materializeStation(handTip);
     p.openStation(station);
     addStat(p, "crafting.stations.portable-opens", 1);

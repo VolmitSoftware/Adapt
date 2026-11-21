@@ -67,6 +67,14 @@ public interface ItemOps {
   /** Decodes {@link #serialize} output; throws {@link IllegalArgumentException} for unreadable input. */
   ItemRef deserialize(byte[] data);
 
+  /**
+   * Gzip-compressed binary NBT compound of one non-empty stack in this Minecraft version's own save form (the
+   * ItemStack codec with registries from 1.20.5, {@code ItemStack#save} before), as Paper's {@code serializeAsBytes}
+   * writes it; it may carry an extra {@code DataVersion} entry. A client on the same Minecraft version rebuilds the
+   * exact stack from it. Throws when the stack cannot be encoded.
+   */
+  byte[] encodeNbt(ItemRef item);
+
   /** True when placing {@code block} creates a block entity (chests, furnaces, signs...). */
   boolean hasBlockEntity(Id block);
 

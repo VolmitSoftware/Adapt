@@ -15,6 +15,8 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.event.player.PlayerChatEvent;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuClick;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -189,6 +192,44 @@ class NodeTagPromptTest extends AdaptTestBase {
     } finally {
       NodeItemTags.shared().clear();
     }
+  }
+
+  @Test
+  void aTagTypedIntoTheMenuIsAddedWithoutAChatPrompt() {
+    prompt.input(KEY).input(new MenuClick(player, null, 12, ClickKind.OTHER), " #Logs ");
+
+    assertThat(applied.get()).isNotNull();
+    NodeRecord record = applied.get().apply(NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).build());
+    assertThat(record.filterTags()).containsExactly("#minecraft:logs");
+    verify(player, never()).closeInventory();
+    messages.verify(() -> GolemGuiSupport.message(eq(player), anyString()), never());
+    PlayerChatEvent chat = chat("hello");
+    prompt.on(chat);
+    verify(chat, never()).setCancelled(true);
+  }
+
+  @Test
+  void anUnknownTagTypedIntoTheMenuIsRefusedAndTheMenuStaysOpen() {
+    prompt.input(KEY).input(new MenuClick(player, null, 12, ClickKind.OTHER), "#not_a_tag");
+
+    assertThat(applied.get()).isNull();
+    gui.verify(() -> NodeGui.open(any(PlayerRef.class), any(NodeKey.class), any(NodeTagPrompt.class), any(NodeAreaSelector.class)), never());
+    verify(player, never()).closeInventory();
+    messages.verify(() -> GolemGuiSupport.message(eq(player), contains("#not_a_tag is not an item tag")));
+    messages.verify(() -> GolemGuiSupport.message(eq(player), anyString()), times(1));
+    PlayerChatEvent chat = chat("#logs");
+    prompt.on(chat);
+    verify(chat, never()).setCancelled(true);
+  }
+
+  @Test
+  void aTagTypedIntoTheMenuBelowLevelFiveOnlyRedrawsTheMenu() {
+    level = 4;
+
+    prompt.input(KEY).input(new MenuClick(player, null, 12, ClickKind.OTHER), "#logs");
+
+    gui.verify(() -> NodeGui.open(player, KEY, prompt, areas));
+    assertThat(applied.get()).isNull();
   }
 
   private PlayerChatEvent chat(String message) {

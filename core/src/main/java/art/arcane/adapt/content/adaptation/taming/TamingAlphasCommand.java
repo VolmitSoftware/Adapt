@@ -39,6 +39,8 @@ import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.EntityMarkerPort;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.AnimalOps;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -230,7 +232,8 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
       return false;
     }
 
-    commandCd.mark(playerId);
+    commandCd.mark(playerId, getConfig().commandCooldownMillis);
+    AbilityGlyphs.duration(playerId, this, System.currentTimeMillis(), focusTicks * 50L);
     consumeOneBone(p);
     showTargetGlow(p, target, focusTicks, generation);
     Loc origin = p.location().add(0, 1, 0);
@@ -458,6 +461,7 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   private void clearOwnerFocuses(UUID ownerId) {
+    AbilityGlyphs.clear(ownerId, this, HudGlyph.DURATION);
     for (FocusState focus : new ArrayList<>(activeFocuses.values())) {
       if (focus.ownerId().equals(ownerId) && activeFocuses.remove(focus.petId(), focus)) {
         Tasks.runEntity(focus.pet(), () -> clearFocusOwned(focus));

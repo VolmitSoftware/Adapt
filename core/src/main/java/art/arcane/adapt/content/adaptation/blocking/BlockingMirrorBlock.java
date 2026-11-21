@@ -30,6 +30,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -269,6 +270,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
     long now = System.currentTimeMillis();
     setStorage(defender, "mirrorBlockNext", now + reflection.cooldownMillis());
+    AbilityGlyphs.cooldown(defender.uuid(), this, now, reflection.cooldownMillis());
     mirrorFlash(defender);
     xp(defender, getConfig().xpOnReflect);
     addStat(defender, "blocking.mirror-block.projectiles-reflected", 1);

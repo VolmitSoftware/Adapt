@@ -4059,6 +4059,12 @@ jump = "Skok"
 attack = "Atak"
 stat = "{label} {value}"
 stable_hand = "Wzmocnione przez Stajennego"
+armor = "Pancerz"
+effects = "Efekty"
+wild = "Dziki"
+yours = "Twój"
+tamed = "Oswojony"
+tamed_by = "Oswojony przez {owner}"
 lore = ["Zakres wykrywania"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Najpierw oducz się {dependents}; wymagają {adaptatio
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt zmienił się, gdy ten ekran był otwarty. Spróbuj ponownie."
+unavailable = "Ta adaptacja nie jest dla ciebie dostępna."
+no_change = "Nic się nie zmieniło."
+preference_saved = "Ustawienie zapisane."
+preference_denied = "Tego ustawienia nie można teraz zmienić."
 
 [items.backpack]
 name = "Plecak"
@@ -6681,6 +6694,7 @@ lore3 = "Blokada w walce"
 lore = ["Maks. absorpcja", "Absorpcja na impuls", "Blokada w walce"]
 
 [command.help]
+show_client_ui_status = "Pokazuje, czy gracz używa interfejsu klienta Adapt"
 version = "Pokaż wersję zainstalowanej wtyczki"
 debug_dump = "Utwórz raport diagnostyczny i opcjonalnie go prześlij"
 debug_upload = "Prześlij raport do mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Ilość od 1 do 64, domyślnie 1"
 
 [command.runtime]
+client_ui_absent = "{player} używa interfejsu skrzyń i paska akcji (nie wynegocjowano klienta Adapt)."
+client_ui_negotiated = "{player} używa interfejsu klienta Adapt: protokół {version}, możliwości {capabilities}."
 missing_permission = "Brakuje ci uprawnienia '{permission}'."
 player_required_from_console = "Podczas używania tego polecenia z konsoli należy określić gracza."
 player_required_from_console_short = "Musisz określić gracza z konsoli."

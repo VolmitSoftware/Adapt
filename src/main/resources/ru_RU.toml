@@ -4059,6 +4059,12 @@ jump = "Прыжок"
 attack = "Атака"
 stat = "{label} {value}"
 stable_hand = "Усилено Конюхом"
+armor = "Броня"
+effects = "Эффекты"
+wild = "Дикий"
+yours = "Ваш"
+tamed = "Приручён"
+tamed_by = "Приручён: {owner}"
 lore = ["Диапазон обнаружения"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Сначала отмените изучение {depe
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt изменился, пока этот экран был открыт. Попробуй ещё раз."
+unavailable = "Эта адаптация тебе недоступна."
+no_change = "Ничего не изменилось."
+preference_saved = "Настройка сохранена."
+preference_denied = "Эту настройку сейчас нельзя изменить."
 
 [items.backpack]
 name = "Рюкзак"
@@ -6681,6 +6694,7 @@ lore3 = "Блокировка в бою"
 lore = ["Макс. поглощение", "Поглощение за импульс", "Блокировка в бою"]
 
 [command.help]
+show_client_ui_status = "Показывает, использует ли игрок интерфейс клиента Adapt"
 version = "Показать установленную версию плагина"
 debug_dump = "Создать диагностический отчёт и при желании загрузить его"
 debug_upload = "Загрузить отчёт на mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Количество от 1 до 64, по умолчанию 1"
 
 [command.runtime]
+client_ui_absent = "{player} использует интерфейс сундуков и панели действий (клиент Adapt не согласован)."
+client_ui_negotiated = "{player} использует интерфейс клиента Adapt: протокол {version}, возможности {capabilities}."
 missing_permission = "Вам не хватает разрешения '{permission}'."
 player_required_from_console = "При использовании этой команды из консоли нужно указать игрока."
 player_required_from_console_short = "Из консоли нужно указать игрока."

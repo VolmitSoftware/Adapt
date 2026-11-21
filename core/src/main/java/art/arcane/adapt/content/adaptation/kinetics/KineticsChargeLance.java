@@ -103,7 +103,7 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), getConfig().cooldownMs);
     e.setDamage(e.damage() * (1D + bonus));
     addStat(p, "kinetics.lance.charges", 1);
   }

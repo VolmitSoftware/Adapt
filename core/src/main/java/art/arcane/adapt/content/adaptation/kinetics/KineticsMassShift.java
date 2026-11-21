@@ -13,6 +13,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -182,6 +184,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     clearOwnedEffect(p, previous);
     attributes.removeAll(p, getName());
     if (form == FORM_NORMAL) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
       clampHealth(p);
       playFormFeedback(p, form);
       return;
@@ -199,6 +202,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     FormState initialState = new FormState(form, level, false);
     boolean ownsEffect = ensureFormEffect(p, initialState);
     forms.put(p.uuid(), new FormState(form, level, ownsEffect));
+    AbilityGlyphs.toggle(p.uuid(), this, true);
     clampHealth(p);
     playFormFeedback(p, form);
   }
@@ -255,6 +259,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
   private void resetForm(PlayerRef p) {
     FormState state = forms.remove(p.uuid());
     clearOwnedEffect(p, state);
+    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
     AdaptAttributeService.get().removeAll(p, getName());
     clampHealth(p);
   }

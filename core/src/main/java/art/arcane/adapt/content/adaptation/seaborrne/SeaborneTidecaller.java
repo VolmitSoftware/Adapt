@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -404,6 +405,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
 
     int cooldownTicks = getCooldownTicks(level);
     p.setCooldown(HEART_OF_THE_SEA, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
     Tasks.runEntity(p, () -> {
       if (p.isOnline() && !p.hasCooldown(HEART_OF_THE_SEA)) {
         FxPresets.readyPing(this, p);

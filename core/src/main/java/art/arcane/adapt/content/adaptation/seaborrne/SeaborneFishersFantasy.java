@@ -104,7 +104,7 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
           return;
         }
 
-        rewardCooldown.mark(p.uuid());
+        rewardCooldown.mark(p.uuid(), config.cooldownMillis);
         Id drop = FISHING_DROPS.get(ThreadLocalRandom.current().nextInt(FISHING_DROPS.size()));
         ItemRef item = AdaptCore.platform().host().items().create(drop, 1);
         p.world().dropItemNaturally(p.location().position(), item);

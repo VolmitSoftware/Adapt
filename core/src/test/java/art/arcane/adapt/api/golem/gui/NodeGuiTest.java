@@ -6,13 +6,24 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeEdits;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.client.protocol.HintKind;
+import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelTile;
+import art.arcane.adapt.client.protocol.PanelView;
+import art.arcane.adapt.client.protocol.TileRole;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.NodeEditorMessages;
 import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuInput;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -250,6 +261,113 @@ class NodeGuiTest extends AdaptTestBase {
     click(select, ClickKind.LEFT);
 
     verify(areas).toggle(player, key, record);
+  }
+
+  @Test
+  void theNodeMenuIsAGridOfNamedSettingsWithAnInScreenTagField() throws ReflectiveOperationException {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).priority(2).area(NodeCuboid.symmetric(2, 8, 30)).build();
+    NodeTagPrompt prompt = mock(NodeTagPrompt.class);
+    MenuInput typed = (context, text) -> {
+    };
+    when(prompt.input(key)).thenReturn(typed);
+    NodeWeavingPolicy policy = mock(NodeWeavingPolicy.class);
+    when(policy.level(player)).thenReturn(5);
+    lenient().when(policy.filterSlots(anyInt())).thenReturn(9);
+    lenient().when(policy.maxAreaRadius(anyInt())).thenReturn(8);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
+      runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
+      render(newGui(key, prompt), record);
+    }
+    GuiWindow window = windows.constructed().getFirst();
+
+    PanelView view = MenuReplay.view(window);
+
+    assertThat(view.layout()).isEqualTo(PanelLayout.GRID);
+    PanelTile priority = MenuReplay.tile(view, -1, 0);
+    assertThat(priority.role()).isEqualTo(TileRole.SETTING);
+    assertThat(priority.hint().kind()).isEqualTo(HintKind.NUMBER);
+    assertThat(priority.hint().typed()).isFalse();
+    assertThat(priority.value()).isEqualTo("2");
+    assertThat(priority.amount()).isEqualTo(2);
+    PanelTile redstone = MenuReplay.tile(view, 0, 0);
+    assertThat(redstone.hint().kind()).isEqualTo(HintKind.CHOICE);
+    assertThat(redstone.hint().options()).hasSize(3);
+    PanelTile mode = MenuReplay.tile(view, 2, 0);
+    assertThat(mode.hint().kind()).isEqualTo(HintKind.CHOICE);
+    assertThat(mode.value()).isEqualTo(AdaptLanguage.text(GolemancyMessages.NODE_GUI_WHITELIST));
+    assertThat(mode.lore()).hasSize(mode.description().size() + 1);
+    PanelTile tag = MenuReplay.tile(view, 3, 0);
+    assertThat(tag.role()).isEqualTo(TileRole.SETTING);
+    assertThat(tag.hint().kind()).isEqualTo(HintKind.TEXT);
+    assertThat(tag.hint().typed()).isTrue();
+    assertThat(tag.lore()).anyMatch(line -> line.contains("#logs"));
+    assertThat(MenuReplay.actions(tag)).containsEntry(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.NODE_GUI_TAG_ADD));
+    PanelTile x = MenuReplay.tile(view, -2, 1);
+    assertThat(x.hint().kind()).isEqualTo(HintKind.NUMBER);
+    assertThat(x.value()).isEqualTo("5");
+    assertThat(MenuReplay.actions(x)).containsEntry(ClickKind.LEFT, "+1").containsEntry(ClickKind.RIGHT, "-1")
+        .containsEntry(ClickKind.SHIFT_LEFT, "+4").containsEntry(ClickKind.SHIFT_RIGHT, "-4");
+    assertThat(x.lore()).anyMatch(line -> line.contains("Shift: 4 blocks"));
+    assertThat(x.description()).noneMatch(line -> line.contains("Shift: 4 blocks"));
+    assertThat(MenuReplay.tile(view, -4, 0).role()).isEqualTo(TileRole.INFO);
+    assertThat(MenuReplay.tile(view, -2, 0).role()).isEqualTo(TileRole.NAVIGATION);
+    assertThat(MenuReplay.tile(view, -4, 2).role()).isEqualTo(TileRole.ACTION);
+  }
+
+  @Test
+  void theTagButtonStillStartsTheChatPromptOnClick() throws ReflectiveOperationException {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).build();
+    NodeTagPrompt prompt = mock(NodeTagPrompt.class);
+    NodeWeavingPolicy policy = mock(NodeWeavingPolicy.class);
+    when(policy.level(player)).thenReturn(5);
+    lenient().when(policy.filterSlots(anyInt())).thenReturn(9);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
+      runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
+      render(newGui(key, prompt), record);
+    }
+    ArgumentCaptor<GuiElement> placed = ArgumentCaptor.forClass(GuiElement.class);
+    verify(windows.constructed().getFirst()).setElement(eq(3), eq(0), placed.capture());
+    GuiElement tag = placed.getValue();
+
+    click(tag, ClickKind.LEFT);
+
+    verify(prompt).begin(player, key);
+    assertThat(tag.getHint().kind()).isEqualTo(MenuHint.Kind.TEXT);
+    assertThat(tag.button().icon().lore()).containsExactly("§7Click, then type an item tag such as #logs", "§7in chat");
+  }
+
+  @Test
+  void theChannelPickerIsAListThatMarksTheChosenChannel() throws ReflectiveOperationException {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).build();
+    NodeGui gui = newGui(key, mock(NodeTagPrompt.class));
+    Field picker = NodeGui.class.getDeclaredField("channelPicker");
+    picker.setAccessible(true);
+    picker.setBoolean(gui, true);
+
+    render(gui, record);
+    PanelView view = MenuReplay.view(windows.constructed().getFirst());
+
+    assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
+    assertThat(view.breadcrumb()).hasSize(1);
+    PanelTile none = MenuReplay.tile(view, 0, 3);
+    assertThat(none.name()).contains(AdaptLanguage.text(NodeEditorMessages.CHANNEL_CLEAR));
+    assertThat(none.value()).isEqualTo(AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED));
+    assertThat(MenuReplay.tile(view, -3, 1).value()).isEmpty();
+  }
+
+  private NodeGui newGui(NodeKey key, NodeTagPrompt prompt) throws ReflectiveOperationException {
+    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(PlayerRef.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
+    constructor.setAccessible(true);
+    return constructor.newInstance(player, key, prompt, areas);
+  }
+
+  private static void render(NodeGui gui, NodeRecord record) throws ReflectiveOperationException {
+    Method render = NodeGui.class.getDeclaredMethod("render", NodeRecord.class);
+    render.setAccessible(true);
+    render.invoke(gui, record);
   }
 
   private void click(GuiElement element, ClickKind kind) {

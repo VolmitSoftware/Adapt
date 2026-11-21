@@ -4059,6 +4059,12 @@ jump = "Sprung"
 attack = "Angriff"
 stat = "{label} {value}"
 stable_hand = "Durch Stallbursche verbessert"
+armor = "Rüstung"
+effects = "Effekte"
+wild = "Ungezähmt"
+yours = "Deins"
+tamed = "Gezähmt"
+tamed_by = "Gezähmt von {owner}"
 lore = ["Erkennungsreichweite"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Verlerne zuerst {dependents}; sie benötigen {adaptati
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt wurde geändert, während dieser Bildschirm offen war. Versuche es erneut."
+unavailable = "Diese Anpassung steht dir nicht zur Verfügung."
+no_change = "Nichts wurde geändert."
+preference_saved = "Einstellung gespeichert."
+preference_denied = "Diese Einstellung kann gerade nicht geändert werden."
 
 [items.backpack]
 name = "Rucksack"
@@ -6681,6 +6694,7 @@ lore3 = "Kampfsperre"
 lore = ["Max. Absorption", "Absorption pro Puls", "Kampfsperre"]
 
 [command.help]
+show_client_ui_status = "Zeigt, ob ein Spieler die Adapt-Client-Oberfläche nutzt"
 version = "Installierte Plugin-Version anzeigen"
 debug_dump = "Einen Diagnosebericht erstellen und optional hochladen"
 debug_upload = "Den Bericht zu mclo.gs hochladen"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Menge von 1 bis 64, Standard 1"
 
 [command.runtime]
+client_ui_absent = "{player} nutzt die Truhen- und Aktionsleisten-Oberfläche (kein Adapt-Client ausgehandelt)."
+client_ui_negotiated = "{player} nutzt die Adapt-Client-Oberfläche: Protokoll {version}, Fähigkeiten {capabilities}."
 missing_permission = "Dir fehlt die Berechtigung '{permission}'."
 player_required_from_console = "Du musst einen Spieler angeben, wenn du diesen Befehl über die Konsole verwendest."
 player_required_from_console_short = "Du musst über die Konsole einen Spieler angeben."

@@ -331,7 +331,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       recoverRetiredAxe(state);
       return;
     }
-    cooldowns.mark(id);
+    cooldowns.mark(id, cooldown);
     p.setCooldown(thrown.type(), (int) Math.max(1L, cooldown / 50L));
     addStat(p, "axe.throwing-axe.thrown", 1);
 

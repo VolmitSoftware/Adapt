@@ -10,6 +10,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -67,6 +69,7 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
     AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
     states.remove(player.getPlayer().uuid());
     lastTap.remove(player.getPlayer().uuid());
+    AbilityGlyphs.clear(player.getPlayer().uuid(), this, HudGlyph.TOGGLE);
   }
 
   @Override
@@ -108,6 +111,11 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
       case HANG_ONLY -> active.mode == MODE_HANG ? MODE_NONE : MODE_HANG;
     };
     states.put(p.uuid(), active);
+    if (active.mode == MODE_NONE) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
+    } else {
+      AbilityGlyphs.toggle(p.uuid(), this, true);
+    }
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -124,6 +132,7 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
       AirState landed = states.remove(p.uuid());
       if (landed != null && landed.mode != MODE_NONE) {
         AdaptAttributeService.get().removeAll(p, getName());
+        AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
       }
       return;
     }
@@ -141,6 +150,7 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
     if (level <= 0) {
       state.mode = MODE_NONE;
       AdaptAttributeService.get().removeAll(p, getName());
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
       return;
     }
 

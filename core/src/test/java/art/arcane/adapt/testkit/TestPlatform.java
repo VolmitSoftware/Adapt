@@ -29,7 +29,7 @@ import java.util.Set;
 /**
  * A complete {@link AdaptPlatform} for unit tests: fake host and worlds, a manual scheduler, recording FX and log, an
  * allow-all protection host that breaks blocks naturally, a permission host that asks the player, a recording recipe
- * host, and no-op viewer, menu and advancement hosts. Build one with {@link #builder(Path)}.
+ * host, and no-op viewer, menu and advancement hosts (the menu host can be replaced). Build one with {@link #builder(Path)}.
  */
 public final class TestPlatform {
   private final ManualScheduler scheduler;
@@ -49,7 +49,7 @@ public final class TestPlatform {
     protection = new Protection();
     recipes = new FakeRecipes();
     host = new FakeHost(items, builder.dataDirectory, log, scheduler);
-    platform = new AdaptPlatform(host, scheduler, fx, builder.viewers, noop(MenuHost.class), builder.permissions,
+    platform = new AdaptPlatform(host, scheduler, fx, builder.viewers, builder.menus, builder.permissions,
         protection, recipes, noop(AdvancementHost.class));
   }
 
@@ -153,6 +153,7 @@ public final class TestPlatform {
     private FakeItems items = new FakeItems();
     private ViewerHost viewers = noop(ViewerHost.class);
     private PermissionHost permissions = new Permissions();
+    private MenuHost menus = noop(MenuHost.class);
 
     private Builder(Path dataDirectory) {
       this.dataDirectory = dataDirectory;
@@ -180,6 +181,11 @@ public final class TestPlatform {
 
     public Builder permissions(PermissionHost value) {
       permissions = value;
+      return this;
+    }
+
+    public Builder menus(MenuHost value) {
+      menus = value;
       return this;
     }
 

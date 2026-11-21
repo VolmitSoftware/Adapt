@@ -10,6 +10,7 @@ import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
+import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsBreachwright;
@@ -108,6 +109,11 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
   private final ConcurrentHashMap<UUID, PendingCrush> pendingCrushes = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<String, Long> anvilLocationStamps = new ConcurrentHashMap<>();
   private final AtomicLong lastSweepAtMs = new AtomicLong();
+
+  @Override
+  public List<PlatformNeed> getPlatformNeeds() {
+    return List.of(PlatformNeed.item("mace"));
+  }
 
   public SkillKinetics() {
     super("kinetics", SkillPresentation.of(SkillMessages.KINETICS_NAME, SkillMessages.KINETICS_ICON, SkillMessages.KINETICS_DESCRIPTION));

@@ -11,19 +11,24 @@ final class OverseerRally implements OverseerSignal.Rally {
   private final UUID owner;
   private final long nowMillis;
   private final long cooldownMillis;
+  private final Runnable onGranted;
   private Boolean granted;
 
-  OverseerRally(GolemXpCooldowns<UUID> cooldowns, UUID owner, long nowMillis, long cooldownMillis) {
+  OverseerRally(GolemXpCooldowns<UUID> cooldowns, UUID owner, long nowMillis, long cooldownMillis, Runnable onGranted) {
     this.cooldowns = Objects.requireNonNull(cooldowns);
     this.owner = Objects.requireNonNull(owner);
     this.nowMillis = nowMillis;
     this.cooldownMillis = cooldownMillis;
+    this.onGranted = Objects.requireNonNull(onGranted);
   }
 
   @Override
   public synchronized boolean claim() {
     if (granted == null) {
       granted = cooldowns.tryClaim(owner, nowMillis, cooldownMillis);
+      if (granted) {
+        onGranted.run();
+      }
     }
     return granted;
   }

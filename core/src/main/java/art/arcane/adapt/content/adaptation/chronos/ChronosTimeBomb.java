@@ -38,6 +38,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
@@ -355,6 +356,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     long cooldownMillis = getCooldownMillis();
     cooldowns.put(p.uuid(), now + cooldownMillis);
+    AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
     cooldownReadyNotify.put(p.uuid(), true);
     // Vanilla finishes the throw after this handler and would overwrite an
     // overlay pushed now with the item's group marker, so push on the next tick.

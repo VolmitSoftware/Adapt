@@ -104,7 +104,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   public static final Id COOLDOWN_GROUP = ItemCooldowns.groupKey("item_rift_ender_taglock");
   private static final Id ENDER_PEARL = Id.minecraft("ender_pearl");
   private static final Id VILLAGER = Id.minecraft("villager");
-  private final ItemCooldowns throwCooldown = ItemCooldowns.forGroup(COOLDOWN_GROUP);
+  private final ItemCooldowns throwCooldown = ItemCooldowns.forGroup(COOLDOWN_GROUP).ownedBy(this);
   private final DataKey<String> targetKey;
   private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
   private final TeleportAdmission pendingTeleports = new TeleportAdmission(MAX_PENDING_TELEPORTS);

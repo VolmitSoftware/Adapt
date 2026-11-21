@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerInventoryRef;
@@ -159,7 +160,9 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       return;
     }
 
-    p.setCooldown(ENCHANTING_TABLE, getCooldownTicks(level));
+    int cooldownTicks = getCooldownTicks(level);
+    p.setCooldown(ENCHANTING_TABLE, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
     e.setCancelled(true);
 
     rerollSurgeFx(tableTop);

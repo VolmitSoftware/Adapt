@@ -12,8 +12,10 @@ import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.client.protocol.ClientCapability;
+import art.arcane.adapt.client.server.AdaptScreens;
+import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -160,6 +163,38 @@ public class CommandAdapt {
     )).send(CommandContext.source());
   }
 
+  @Director(description = "Show whether a player uses the Adapt client UI", descriptionKey = "command.help.show_client_ui_status")
+  public void client(
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      PlayerRef player
+  ) {
+    CommandSource sender = CommandContext.source();
+    if (!sender.hasPermission("adapt.debug")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.debug")))
+          .send(sender);
+      return;
+    }
+    PlayerRef targetPlayer = resolveTargetPlayer(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
+    ClientUiService service = ClientUiService.current();
+    Optional<ClientCapability> capability = service == null
+        ? Optional.empty()
+        : service.capability(targetPlayer.uuid());
+    if (capability.isEmpty()) {
+      FConst.info(AdaptLanguage.text(CommandRuntimeMessages.CLIENT_UI_ABSENT, untrusted("player", targetPlayer.name())))
+          .send(sender);
+      return;
+    }
+    FConst.success(AdaptLanguage.text(
+        CommandRuntimeMessages.CLIENT_UI_NEGOTIATED,
+        untrusted("player", targetPlayer.name()),
+        trusted("version", capability.get().version()),
+        trusted("capabilities", String.join(", ", ClientUiService.capabilityNames(capability.get().mask())))
+    )).send(sender);
+  }
+
   @Director(description = "Open the Adapt GUI", descriptionKey = "command.help.open_the_adapt_gui")
   public void gui(
       @Param(description = "GUI to open: main, skill:<name>, or adaptation:<name>", defaultValue = "main", descriptionKey = "command.help.gui_to_open_main_skill_name_or_adaptation_name")
@@ -199,7 +234,7 @@ public class CommandAdapt {
     }
 
     if (target.equals("main")) {
-      SkillsGui.open(targetPlayer);
+      AdaptScreens.openSkills(targetPlayer);
       return;
     }
 
@@ -877,11 +912,11 @@ public class CommandAdapt {
   }
 
   static boolean openSkillGui(Skill<?> skill, PlayerRef player, boolean force) {
-    return skill.openGui(player, !force);
+    return AdaptScreens.openSkill(player, skill, !force);
   }
 
   static boolean openAdaptationGui(Adaptation<?> adaptation, PlayerRef player, boolean force) {
-    return adaptation.openGui(player, !force);
+    return AdaptScreens.openAdaptation(player, adaptation, !force);
   }
 
   private List<Skill<?>> allSkillSnapshot() {

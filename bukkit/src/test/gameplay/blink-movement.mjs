@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { doubleJump, serverSeesJumpKey } from './client-input.mjs'
+import { doubleJump } from './client-input.mjs'
 import { fixtureJson } from './fixture-json.mjs'
 import { contentSince } from './version-ids.mjs'
 import { synchronizePlayerInput } from './player-input.mjs'
@@ -35,16 +35,7 @@ export default {
             actor.bot.setControlState(motion, true)
             try {
                 await actor.bot.waitForTicks(5)
-                if (serverSeesJumpKey()) {
-                    actor.bot.setControlState('jump', true)
-                    await actor.bot.waitForTicks(4)
-                    actor.bot.setControlState('jump', false)
-                    await actor.bot.waitForTicks(1)
-                    actor.bot.setControlState('jump', true)
-                    await actor.bot.waitForTicks(3)
-                } else {
-                    await doubleJump(actor.bot)
-                }
+                await doubleJump(actor.bot)
             } finally {
                 actor.bot.clearControlStates()
             }

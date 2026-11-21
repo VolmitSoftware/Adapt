@@ -125,7 +125,8 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       return;
     }
 
-    if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       fx(p.location(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
           .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
@@ -141,7 +142,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     }
 
     Loc target = locateNearestStructure(p, p.world(), p.location(), getSearchRange(level));
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
     if (target == null) {
       fx(p.location(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)

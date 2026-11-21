@@ -21,6 +21,8 @@ package art.arcane.adapt.api.notification;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.hud.ClientToasts;
 import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
@@ -44,6 +46,8 @@ public class AdvancementNotification implements Notification {
   private final AdaptAdvancementFrame frameType = AdaptAdvancementFrame.TASK;
   @Builder.Default
   private final String group = "default";
+  @Builder.Default
+  private final ToastKind kind = ToastKind.GENERIC;
 
   @Override
   public long getTotalDuration() {
@@ -60,6 +64,10 @@ public class AdvancementNotification implements Notification {
     PlayerRef player = p.getPlayer();
     AdaptCore core = AdaptCore.current();
     if (player == null || core == null) {
+      return;
+    }
+    if (ClientToasts.capable(player.uuid())
+        && ClientToasts.send(player.uuid(), ClientToasts.toast(kind, ClientToasts.icon(getIcon(), getModel()), title, description))) {
       return;
     }
     AdaptPlatform platform = core.getPlatform();

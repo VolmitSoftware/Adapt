@@ -16,9 +16,11 @@ public final class BukkitPorts {
     BukkitWorldPorts.install(plugin);
     BukkitAdaptationPorts.install(plugin);
     BukkitCommandPorts.install();
+    BukkitClientLink.install(plugin);
   }
 
   public static void uninstall() {
+    BukkitClientLink.uninstall();
     BukkitCommandPorts.uninstall();
     BukkitAdaptationPorts.uninstall();
     BukkitWorldPorts.uninstall();

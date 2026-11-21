@@ -154,7 +154,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
       return;
     }
 
-    cooldowns.mark(playerId);
+    cooldowns.mark(playerId, cooldownMillis);
     addStat(p, "tragoul.globe.mobs-shared-with", mobsSharedWith);
     playShareShockwave(playerLocation, range, mobsSharedWith);
     if (mobsSharedWith >= 5) {

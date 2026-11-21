@@ -31,13 +31,21 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.insight.EntityInsight;
 import art.arcane.adapt.api.insight.GlossInsightPort;
+import art.arcane.adapt.api.insight.InsightReadout;
+import art.arcane.adapt.api.insight.InsightTier;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.insight.InsightFrames;
+import art.arcane.adapt.client.view.InsightMark;
+import art.arcane.adapt.client.view.InsightView;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.platform.RegistryLookup;
+import art.arcane.adapt.platform.entity.EffectCategory;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -62,6 +70,7 @@ import art.arcane.volmlib.util.localization.TextKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -85,12 +94,17 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   private static final long HUD_UPDATE_INTERVAL_MILLIS = 250L;
   private static final long HUD_CLEANUP_INTERVAL_MILLIS = 1000L;
   private static final long INSIGHT_DURATION_MILLIS = 2000L;
+  private static final long ACTION_BAR_REFRESH_MILLIS = 1000L;
+  private static final String ACTION_BAR_PURPOSE = "insight";
+  private static final int MAX_MARKS = 6;
+  private static final double MAX_MARK_RANGE = 16D;
 
   private final Map<UUID, InsightHud> huds = new ConcurrentHashMap<>();
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns hudUpdateThrottle = cooldowns();
   private final InsightRequestGate requestGate = new InsightRequestGate();
   private final EntityInsight.Display display = new Readout();
+  private final InsightFrames frames = InsightFrames.standard();
   private final ConcurrentLinkedQueue<MovedViewer> movedViewers = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedMovedViewers = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingViewerUpdates = ConcurrentHashMap.newKeySet();
@@ -163,6 +177,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     queuedMovedViewers.remove(playerId);
     pendingViewerUpdates.remove(playerId);
     clearHud(playerId);
+    frames.forget(playerId);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -193,6 +208,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       for (UUID playerId : huds.keySet()) {
         clearHud(playerId);
       }
+      frames.forgetAll();
       gloss().setRestricted(false);
     }
     super.unregister();
@@ -341,7 +357,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     UUID playerId = player.uuid();
     long token = requestGate.advance(playerId);
     int level = getActiveLevel(player);
-    if (level <= 0 || !gloss().available()) {
+    if (level <= 0) {
       clearHudIfCurrent(playerId, token);
       return;
     }
@@ -355,9 +371,33 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       return;
     }
 
-    if (!Tasks.runEntity(target, () -> inspectTargetOwned(playerId, player, target, token))) {
+    InsightTier tier = InsightTier.of(getLevelPercent(level), preferenceEnabled(player, FULL));
+    List<InsightMark> marks = tier.marks() && frames.capable(playerId)
+        ? nearbyMarks(player, target, Math.min(getRange(level), MAX_MARK_RANGE)) : List.of();
+    if (!Tasks.runEntity(target, () -> inspectTargetOwned(playerId, player, target, tier, marks, token))) {
       clearHudIfCurrent(playerId, token);
     }
+  }
+
+  private List<InsightMark> nearbyMarks(PlayerRef player, LivingRef focus, double range) {
+    UUID playerId = player.uuid();
+    UUID focusId = focus.uuid();
+    Vec3 eye = player.eyeLocation().position();
+    List<LivingRef> nearby = new ArrayList<>();
+    for (EntityRef entity : player.nearbyEntities(range, range, range)) {
+      if (entity instanceof LivingRef living && !living.uuid().equals(playerId) && !living.uuid().equals(focusId)
+          && !living.has(EntityTrait.ARMOR_STAND) && living.isValid() && !living.isDead() && !living.isInvisible()
+          && eye.distanceSquared(living.location().position()) <= range * range && player.hasLineOfSight(living)
+          && preferenceEnabled(player, living instanceof PlayerRef ? PLAYERS : living.has(EntityTrait.ENEMY) ? HOSTILE : PASSIVE)) {
+        nearby.add(living);
+      }
+    }
+    nearby.sort(Comparator.comparingDouble((LivingRef living) -> eye.distanceSquared(living.location().position())));
+    List<InsightMark> marks = new ArrayList<>(Math.min(MAX_MARKS, nearby.size()));
+    for (LivingRef living : nearby.subList(0, Math.min(MAX_MARKS, nearby.size()))) {
+      marks.add(InsightReadout.mark(living));
+    }
+    return marks;
   }
 
   private LivingRef findLookTargetCandidate(PlayerRef player, Loc eye, double range) {
@@ -388,7 +428,8 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return origin.distanceSquared(blockHit) + 1.0E-8D < origin.distanceSquared(entityHit);
   }
 
-  private void inspectTargetOwned(UUID playerId, PlayerRef owner, LivingRef target, long token) {
+  private void inspectTargetOwned(UUID playerId, PlayerRef owner, LivingRef target, InsightTier tier,
+                                  List<InsightMark> marks, long token) {
     if (lifecycleCleanupStarted.get() || !requestGate.isCurrent(playerId, token)) {
       return;
     }
@@ -399,25 +440,57 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     UUID targetId = target.uuid();
     List<String> provided = EntityInsight.details(owner, target);
-    List<String> details = buildInsightDetails(readStats(target));
-    if (!Tasks.runEntity(owner, () -> acceptInspectionOwned(owner, target, targetId, provided, details, token))) {
+    InsightStats stats = readStats(target);
+    List<String> details = buildInsightDetails(stats);
+    RegistryLookup registries = AdaptCore.platform().host().registries();
+    InsightView view = InsightReadout.read(target, playerId, tier, stats.stableHandEnhanced(), DiscoveryInsight::onlineName,
+        (Id effect) -> registries.effectCategory(effect) == EffectCategory.HARMFUL);
+    Inspection inspection = new Inspection(target, targetId, provided, details, view, marks, stats.species());
+    if (!Tasks.runEntity(owner, () -> acceptInspectionOwned(owner, inspection, token))) {
       clearHudIfCurrent(playerId, token);
     }
   }
 
-  private void acceptInspectionOwned(PlayerRef owner, LivingRef target, UUID targetId,
-                                     List<String> provided, List<String> details, long token) {
+  private void acceptInspectionOwned(PlayerRef owner, Inspection inspection, long token) {
     UUID playerId = owner.uuid();
     if (lifecycleCleanupStarted.get() || !requestGate.isCurrent(playerId, token)) {
       return;
     }
-    if (!owner.isOnline() || getActiveLevel(owner) <= 0
-        || !gloss().update(owner, target, readout(provided, details, preferenceEnabled(owner, FULL)), INSIGHT_DURATION_MILLIS)) {
+    if (!owner.isOnline() || getActiveLevel(owner) <= 0) {
+      clearHudIfCurrent(playerId, token);
+      return;
+    }
+    UUID targetId = inspection.targetId();
+    InsightHud current = huds.get(playerId);
+    InsightRoute route = frames.capable(playerId) ? InsightRoute.CLIENT
+        : gloss().available() ? InsightRoute.GLOSS : InsightRoute.ACTION_BAR;
+    if (current != null && current.route() != route) {
+      clearHud(playerId);
+      current = null;
+    }
+    long now = System.currentTimeMillis();
+    String barText = "";
+    long barSentAt = 0L;
+    boolean shown = switch (route) {
+      case CLIENT -> frames.show(playerId, inspection.view(), inspection.marks());
+      case GLOSS -> gloss().update(owner, inspection.target(),
+          readout(inspection.provided(), inspection.details(), preferenceEnabled(owner, FULL)), INSIGHT_DURATION_MILLIS);
+      case ACTION_BAR -> {
+        barText = InsightActionBar.text(inspection.view(), inspection.species());
+        barSentAt = current != null && barText.equals(current.barText())
+            && now - current.barSentAt() < ACTION_BAR_REFRESH_MILLIS ? current.barSentAt() : now;
+        if (barSentAt == now) {
+          AdaptHud.ambientStatus(owner, ACTION_BAR_PURPOSE, barText);
+        }
+        yield true;
+      }
+    };
+    if (!shown) {
       clearHudIfCurrent(playerId, token);
       return;
     }
 
-    InsightHud previous = huds.put(playerId, new InsightHud(owner, targetId));
+    InsightHud previous = huds.put(playerId, new InsightHud(owner, targetId, route, barText, barSentAt));
     if ((previous == null || !previous.targetId().equals(targetId))
         && xpCooldowns.isReady(playerId, getConfig().xpCooldownMs)) {
       xpCooldowns.mark(playerId);
@@ -506,9 +579,20 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   }
 
   private void clearHud(UUID playerId) {
-    if (huds.remove(playerId) != null) {
-      gloss().clear(playerId);
+    InsightHud hud = huds.remove(playerId);
+    if (hud == null) {
+      return;
     }
+    switch (hud.route()) {
+      case CLIENT -> frames.clear(playerId);
+      case GLOSS -> gloss().clear(playerId);
+      case ACTION_BAR -> Tasks.runEntity(hud.owner(), () -> AdaptHud.clearAmbientStatus(hud.owner(), ACTION_BAR_PURPOSE));
+    }
+  }
+
+  private static String onlineName(UUID playerId) {
+    PlayerRef player = AdaptCore.platform().host().player(playerId);
+    return player == null ? null : player.name();
   }
 
   private void clearHudIfCurrent(UUID playerId, long token) {
@@ -525,7 +609,17 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return AdaptPorts.get(GlossInsightPort.class, GlossInsightPort.NONE);
   }
 
-  private record InsightHud(PlayerRef owner, UUID targetId) {
+  private record InsightHud(PlayerRef owner, UUID targetId, InsightRoute route, String barText, long barSentAt) {
+  }
+
+  private enum InsightRoute {
+    CLIENT,
+    GLOSS,
+    ACTION_BAR
+  }
+
+  private record Inspection(LivingRef target, UUID targetId, List<String> provided, List<String> details,
+                            InsightView view, List<InsightMark> marks, String species) {
   }
 
   private final class Readout implements EntityInsight.Display {
@@ -538,7 +632,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
   private record MovedViewer(UUID playerId, PlayerRef player) {
   }
 
-  @ConfigDescription("Inspect creatures through Gloss entity overlays and reveal their live attributes.")
+  @ConfigDescription("Inspect creatures and reveal their live attributes, through the Adapt client, Gloss entity overlays or the action bar.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base inspection range in blocks.", impact = "Higher values allow inspection from farther away.")
     double rangeBase = 6;

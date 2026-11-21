@@ -200,7 +200,8 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     }
 
     UUID id = p.uuid();
-    if (!slideCooldown.isReady(id, getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!slideCooldown.isReady(id, cooldownMillis)) {
       return;
     }
 
@@ -215,7 +216,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     }
 
     direction = direction.normalize();
-    slideCooldown.mark(id);
+    slideCooldown.mark(id, cooldownMillis);
     applyHungerCost(p, getConfig().hungerCost);
 
     double force = getSlideForce(level);

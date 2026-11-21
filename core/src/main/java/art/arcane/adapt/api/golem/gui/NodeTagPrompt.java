@@ -16,6 +16,8 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerChatEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuInput;
 
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +58,15 @@ public final class NodeTagPrompt {
     }
   }
 
+  /** Adds or removes a tag typed into the open node menu, with no chat prompt; an invalid tag leaves the menu open. */
+  public MenuInput input(NodeKey key) {
+    Objects.requireNonNull(key);
+    return (MenuClick context, String text) -> {
+      PlayerRef player = context.viewer();
+      LanguageAudience.run(player.uuid(), () -> enter(player, key, text.trim()));
+    };
+  }
+
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerChatEvent e) {
     PlayerRef player = e.player();
@@ -86,21 +97,37 @@ public final class NodeTagPrompt {
       NodeGui.open(player, session.key(), this, areas);
       return;
     }
-    Optional<String> tag = NodeFilters.normalizeTag(message).filter(tags::exists);
+    Optional<String> tag = tag(player, message);
     if (tag.isEmpty()) {
-      GolemGuiSupport.message(player, C.RED + AdaptLanguage.text(GolemancyMessages.NODE_TAG_INVALID, untrusted("tag", message)));
       GolemGuiSupport.message(player, AdaptLanguage.text(ConfigMessages.TRY_AGAIN_OR_CANCEL));
       return;
     }
     sessions.remove(playerId, session);
+    apply(player, session.key(), tag.get());
+  }
+
+  private void enter(PlayerRef player, NodeKey key, String message) {
+    if (player.isOnline()) {
+      tag(player, message).ifPresent(entry -> apply(player, key, entry));
+    }
+  }
+
+  private Optional<String> tag(PlayerRef player, String message) {
+    Optional<String> tag = NodeFilters.normalizeTag(message).filter(tags::exists);
+    if (tag.isEmpty()) {
+      GolemGuiSupport.message(player, C.RED + AdaptLanguage.text(GolemancyMessages.NODE_TAG_INVALID, untrusted("tag", message)));
+    }
+    return tag;
+  }
+
+  private void apply(PlayerRef player, NodeKey key, String entry) {
     int level = NodeGui.level(player);
     if (!NodeRules.allowsBlacklistAndTags(level)) {
-      NodeGui.open(player, session.key(), this, areas);
+      NodeGui.open(player, key, this, areas);
       return;
     }
     int slots = NodeGui.filterSlots(level);
-    String entry = tag.get();
-    NodeGui.openAfter(player, session.key(), this, areas, current -> {
+    NodeGui.openAfter(player, key, this, areas, current -> {
       NodeFilters.FilterEdit change = NodeFilters.toggleTag(current, entry, slots);
       switch (change.outcome()) {
         case ADDED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_ADDED, untrusted("item", entry));

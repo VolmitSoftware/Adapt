@@ -1,11 +1,16 @@
 package art.arcane.adapt.api.notification;
 
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.client.protocol.ClientProtocol;
+import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.client.server.hud.ClientHud;
+import art.arcane.adapt.client.server.hud.ClientHudPort;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public final class AdaptHud {
   private static final String NOTICE_PURPOSE = "adapt:notice";
@@ -26,10 +31,13 @@ public final class AdaptHud {
   private AdaptHud() {
   }
 
-  /** Starts the HUD on the platform's installed {@link HudPort}, or on Adapt's own compositor when none is. */
+  /**
+   * Starts the HUD on the platform's installed {@link HudPort}, or on Adapt's own compositor when none is, behind a
+   * {@link ClientHudPort} so players with the client HUD get frames instead.
+   */
   public static void start() {
     HudPort installed = AdaptPorts.get(HudPort.class, null);
-    bar = installed == null ? new ActionBarHud() : installed;
+    bar = new ClientHudPort(installed == null ? new ActionBarHud() : installed);
   }
 
   public static void stop() {
@@ -74,6 +82,26 @@ public final class AdaptHud {
       return;
     }
     active.publish(player, new HudSegment(hudPurpose, HudPriority.STATUS, AMBIENT_STATUS_TTL_MILLIS, STATUS_SLOTS, legacyText(message)));
+  }
+
+  /**
+   * Sends a structured status to a player with the client HUD. Returns false for everyone else, who keep their own
+   * output. {@link #clearStatus} with the same purpose removes it.
+   */
+  public static boolean status(UUID playerId, String purpose, HudStatusSpec spec) {
+    if (playerId == null || !ClientHud.capable(playerId, ClientProtocol.HUD)) {
+      return false;
+    }
+    return ClientHud.send(playerId, ClientProtocol.HUD, new ServerFrame.HudStatus(ambientStatusPurpose(purpose),
+        spec.glyph(), spec.skillId(), spec.icon(), legacyText(spec.label()), spec.startedAtMillis(), spec.durationMillis(),
+        spec.stacks(), spec.maxStacks(), spec.lit()));
+  }
+
+  /** Removes a structured status from a player with the client HUD; nothing for everyone else. */
+  public static void clearStatus(UUID playerId, String purpose) {
+    if (playerId != null && ClientHud.capable(playerId, ClientProtocol.HUD)) {
+      ClientHud.send(playerId, ClientProtocol.HUD, new ServerFrame.HudClear(ambientStatusPurpose(purpose)));
+    }
   }
 
   public static void clearAmbientStatus(PlayerRef player, String purpose) {

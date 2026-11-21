@@ -11,6 +11,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -56,6 +58,7 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     riposteUntil.remove(player.getPlayer().uuid());
+    AbilityGlyphs.clear(player.getPlayer().uuid(), this, HudGlyph.DURATION);
   }
 
   @Override
@@ -127,7 +130,7 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
       return;
     }
 
-    shoveCooldown.mark(defender.uuid());
+    shoveCooldown.mark(defender.uuid(), getConfig().cooldownMs);
     Vec3 shove = shoveVector(defender.location().position(), attacker.location().position(), getShoveForce(level));
     Tasks.runEntity(attacker, () -> {
       if (!isRuntimeRegistered() || !attacker.isValid()) {
@@ -136,7 +139,9 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
 
       attacker.setVelocity(attacker.velocity().multiply(SHOVE_DAMPING).add(shove));
     });
-    riposteUntil.put(defender.uuid(), System.currentTimeMillis() + (getConfig().riposteWindowTicks * 50L));
+    long now = System.currentTimeMillis();
+    riposteUntil.put(defender.uuid(), now + (getConfig().riposteWindowTicks * 50L));
+    AbilityGlyphs.duration(defender.uuid(), this, now, getConfig().riposteWindowTicks * 50L);
     fx(defender.location().add(0, 1, 0), FxPriority.COMBAT)
         .particle(Particles.SWEEP_ATTACK, 1, 0, 0, 0, 0, 0)
         .dustBurst(ZONE, 5, 0.4D, 1.0F)
@@ -160,6 +165,7 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
     }
 
     riposteUntil.remove(combat.attacker().uuid());
+    AbilityGlyphs.clear(combat.attacker().uuid(), this, HudGlyph.DURATION);
     e.setDamage(e.damage() * (1D + getRiposteBonus(combat.level())));
     fx(combat.target().location().add(0, 1, 0), FxPriority.COMBAT)
         .particle(Particles.CRIT, 8, 0, 0, 0, 0.25D, 0.05D)

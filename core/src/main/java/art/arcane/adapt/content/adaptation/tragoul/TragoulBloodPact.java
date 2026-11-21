@@ -124,7 +124,8 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         return;
       }
 
-      if (!procCooldowns.isReady(p.uuid(), getProcCooldownMillis(level))) {
+      long cooldownMillis = getProcCooldownMillis(level);
+      if (!procCooldowns.isReady(p.uuid(), cooldownMillis)) {
         return;
       }
 
@@ -132,7 +133,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         return;
       }
 
-      procCooldowns.mark(p.uuid());
+      procCooldowns.mark(p.uuid(), cooldownMillis);
       addStat(p, "tragoul.blood-pact.health-sacrificed", (int) settledDamage);
       if (p.health() - settledDamage <= 6.0) {
         lowHealthProcs.put(p.uuid(), true);

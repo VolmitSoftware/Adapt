@@ -18,14 +18,14 @@ modId = "neoforge"
 type = "required"
 versionRange = "[${neoForgeVersion},)"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[dependencies.${projectId}]]
 modId = "minecraft"
 type = "required"
 versionRange = "[${minecraftVersion}]"
 ordering = "NONE"
-side = "SERVER"
+side = "BOTH"
 
 [[mixins]]
 config = "adapt.mixins.json"

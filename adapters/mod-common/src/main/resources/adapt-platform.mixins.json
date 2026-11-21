@@ -31,7 +31,11 @@
     "ProjectileAccess",
     "ServerPlayerDataMixin",
     "SpectralArrowAccess",
+    "UiPayloadOrderMixin",
     "VillagerAccess"
+  ],
+  "client": [
+    "client.UiPayloadClientOrderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

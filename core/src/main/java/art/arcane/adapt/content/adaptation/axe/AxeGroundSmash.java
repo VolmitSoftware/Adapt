@@ -143,7 +143,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
       return;
     }
 
-    cooldowns.mark(playerId);
+    cooldowns.mark(playerId, cooldownMs);
     smash(p, level);
   }
 

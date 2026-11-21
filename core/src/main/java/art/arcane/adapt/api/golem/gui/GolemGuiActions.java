@@ -18,6 +18,8 @@ import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -246,6 +248,12 @@ public final class GolemGuiActions {
       case STAY -> Id.minecraft("armor_stand");
       case HOME -> Id.minecraft("red_bed");
     };
+  }
+
+  /** A channel tile themed per colour, so each colour keeps its own icon and resource-pack model. */
+  public static GuiElement channelElement(String id, int mask) {
+    Id icon = channelIcon(mask);
+    return GuiTheme.element(id, icon, "gui", "golemancy", "channel", icon.path());
   }
 
   public static Id channelIcon(int mask) {

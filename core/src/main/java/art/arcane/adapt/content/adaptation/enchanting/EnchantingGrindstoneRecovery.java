@@ -30,6 +30,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -164,7 +165,9 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
       giveExp(p, xp);
     }
 
-    p.setCooldown(GRINDSTONE, getCooldownTicks(pending.level()));
+    int cooldownTicks = getCooldownTicks(pending.level());
+    p.setCooldown(GRINDSTONE, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
     recoverySuccessFx(p, pending.level());
     xp(p, getConfig().skillXpOnRecovery);
     addStat(p, "enchanting.grindstone-recovery.enchants-recovered", 1);

@@ -38,6 +38,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -174,6 +176,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerDeathEvent e) {
     luckUntil.remove(e.player().uuid());
+    AbilityGlyphs.clear(e.player().uuid(), this, HudGlyph.DURATION);
     unluckUntil.remove(e.player().uuid());
   }
 
@@ -205,6 +208,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
     long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
     AdaptAttributeService.get().applyTimed(p, getName(), "luck", Attributes.LUCK, luckBonus(level), AttributeOperation.ADD_VALUE, durationTicks);
     luckUntil.put(p.uuid(), now + (durationTicks * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * 50L);
     return true;
   }
 

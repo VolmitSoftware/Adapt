@@ -20,10 +20,13 @@ import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.xp.XpProvenanceListener;
+import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.client.server.hud.ClientHud;
+import art.arcane.adapt.client.server.hud.HudLink;
+import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
 import art.arcane.adapt.content.adaptation.architect.ArchitectElevator;
 import art.arcane.adapt.content.gui.ConfigInput;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.LanguageEditorGui;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.platform.EngineFeature;
@@ -64,6 +67,7 @@ public final class AdaptCore {
   private volatile AdvancementManager advancementManager;
   private volatile SQLManager sqlManager;
   private volatile PlayerDataPersistenceQueue playerDataPersistenceQueue;
+  private volatile ClientUiService clientUi;
   private final List<Object> coreListeners = new ArrayList<>();
   private final ConfigHotload hotload = new ConfigHotload();
   private final ConfigInput configInput = new ConfigInput();
@@ -138,6 +142,12 @@ public final class AdaptCore {
     attributes.reconcileOnline();
     advancementManager = new AdvancementManager();
     advancementManager.enable();
+    clientUi = new ClientUiService(this);
+    registerCoreListener(clientUi);
+    ClientHud.install(HudLink.of(clientUi.sessions()));
+    if (platform.menus() instanceof ClientAwareMenuHost panelHost) {
+      clientUi.panels(panelHost.panels());
+    }
     registerCoreListener(new ArchitectElevator.BlockGuard());
     registerCoreListener(new XpProvenanceListener());
     registerCoreListener(new SimpleAdaptation.PlayerDamageListener());
@@ -151,7 +161,7 @@ public final class AdaptCore {
     registerCoreListener(new BrewingManager());
     configInput.start();
     registerCoreListener(configInput);
-    if (AdaptPorts.get(LanguageSwitcherPort.class, LanguageSwitcherPort.NONE) instanceof AdaptLanguageSwitcher) {
+    if (AdaptPorts.get(LanguageSwitcherPort.class, LanguageSwitcherPort.NONE).usesCoreEditor()) {
       registerCoreListener(new LanguageEditorGui.Input());
     }
     hotload.start();
@@ -174,6 +184,12 @@ public final class AdaptCore {
     phase("config hotload", hotload::stop);
     phase("config input", configInput::stop);
     phase("open menus", GuiSessions::clear);
+    ClientUiService activeClientUi = clientUi;
+    clientUi = null;
+    if (activeClientUi != null) {
+      phase("client HUD", ClientHud::uninstall);
+      phase("client UI", activeClientUi::shutdown);
+    }
     Ticker activeTicker = ticker;
     if (activeTicker != null) {
       phase("ticker", activeTicker::shutdown);
@@ -294,6 +310,11 @@ public final class AdaptCore {
 
   public AdaptServer getAdaptServer() {
     return adaptServer;
+  }
+
+  /** The native client UI service while the runtime runs, else null. */
+  public ClientUiService getClientUi() {
+    return clientUi;
   }
 
   public AdvancementManager getAdvancementManager() {

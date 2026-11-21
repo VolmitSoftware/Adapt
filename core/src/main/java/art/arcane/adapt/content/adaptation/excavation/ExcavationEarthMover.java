@@ -133,11 +133,12 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     int level = context.level();
-    if (!cooldowns.isReady(p.uuid(), getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
     p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
 
     double radius = getRadius(level);

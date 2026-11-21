@@ -212,7 +212,7 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
     public void onActivationAccepted() {
       activeRuns.put(cost.playerId(), this);
       if (cost.cooldownMillis() > 0L) {
-        activationCooldown.mark(cost.playerId());
+        activationCooldown.mark(cost.playerId(), cost.cooldownMillis());
       }
     }
 

@@ -31,6 +31,10 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
@@ -44,16 +48,13 @@ import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.Tasks;
-import art.arcane.volmlib.util.format.ColorFormatter;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.localization.TextKey;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -136,33 +137,11 @@ final class SkillGuiSupport {
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
 
-    List<Adaptation<?>> visibleAdaptations = new ArrayList<>();
-    List<String> knownAdaptations = new ArrayList<>();
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
-      knownAdaptations.add(adaptation.getName());
-      if (!adaptation.isEnabled()) {
-        continue;
-      }
-      if (!adaptation.getSkill().isEnabled()) {
-        continue;
-      }
-      if (!adaptation.hasUsePermission(player, adaptation)) {
-        continue;
-      }
-      visibleAdaptations.add(adaptation);
+    List<List<Adaptation<?>>> groups = SkillMenus.adaptationRows(skill, player);
+    int visibleCount = 0;
+    for (List<Adaptation<?>> group : groups) {
+      visibleCount += group.size();
     }
-    Map<String, Integer> configuredOrder = GuiConfig.adaptationOrder(skill.getName(), knownAdaptations);
-    Comparator<Adaptation<?>> defaultOrder =
-        Comparator.comparingInt((Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()))
-            .thenComparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
-            .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER);
-    List<List<Adaptation<?>>> groups = GuiGroupLayout.arrange(
-        visibleAdaptations,
-        Adaptation::getName,
-        (Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()),
-        defaultOrder,
-        skill.getAdaptationRowGroups()
-    );
 
     boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
     boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled();
@@ -175,11 +154,13 @@ final class SkillGuiSupport {
     GuiWindow window = new GuiWindow(player);
     GuiTheme.apply(window, "skill/" + skill.getName());
     window.setViewportHeight(plan.rows());
+    window.setLayout(MenuLayout.GRID).setPaging(new MenuPaging(currentPage, plan.pageCount(), visibleCount));
 
-    if (visibleAdaptations.isEmpty()) {
+    if (visibleCount == 0) {
       window.setElement(0, 0, new GuiElement("ada-empty")
           .setMaterial(PAPER)
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_ADAPTATIONS_AVAILABLE)));
+          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_ADAPTATIONS_AVAILABLE))
+          .setRole(MenuRole.HEADER));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < currentLayout.rows().size(); row++) {
@@ -205,6 +186,7 @@ final class SkillGuiSupport {
                       SnippetsMessages.GUI_LEVEL_VALUE,
                       trusted("level", C.WHITE + Form.toRoman(level))
                   ))
+              .setRole(MenuRole.NAVIGATION)
               .onLeftClick((MenuClick e) -> openAdaptation(adaptation, player));
           reveal.add(new GuiEffects.Placement(pos, row, element));
         }
@@ -244,8 +226,8 @@ final class SkillGuiSupport {
         window.setElement(4, navRow, boundaryElement("skill-last-disabled", GuiMessages.LAST_PAGE));
       }
 
-      int from = visibleAdaptations.isEmpty() ? 0 : (start + 1);
-      int to = visibleAdaptations.isEmpty() ? 0 : end;
+      int from = visibleCount == 0 ? 0 : (start + 1);
+      int to = visibleCount == 0 ? 0 : end;
       GuiElement center;
       if (AdaptConfig.get().isGuiBackButton()) {
         center = GuiTheme.element("back", ARROW, "gui", "navigation", "back")
@@ -253,7 +235,8 @@ final class SkillGuiSupport {
             .onLeftClick((MenuClick e) -> navigateBack(player));
       } else {
         center = GuiTheme.element("skill-page-info", PAPER, "gui", "navigation", "page")
-            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.ADAPTATIONS));
+            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.ADAPTATIONS))
+            .setHint(MenuHint.navigation("page-info"));
       }
       center.addLore(C.DARK_GRAY + AdaptLanguage.text(
           GuiMessages.PAGE_SHOWING_RANGE,
@@ -261,7 +244,7 @@ final class SkillGuiSupport {
           trusted("pages", plan.pageCount()),
           trusted("from", from),
           trusted("to", to),
-          trusted("total", visibleAdaptations.size())
+          trusted("total", visibleCount)
       ));
       window.setElement(0, navRow, center);
     }
@@ -308,7 +291,7 @@ final class SkillGuiSupport {
     }
 
     Tasks.runEntity(player, () -> {
-      if (player.isOnline() && AdaptCore.platform().menus().current(player) == null) {
+      if (GuiCloseSuppression.windowFree(player)) {
         SkillsGui.open(player);
       }
     }, 1);
@@ -321,18 +304,10 @@ final class SkillGuiSupport {
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
   }
 
-  private static String normalizeSortKey(String value) {
-    if (value == null) {
-      return "";
-    }
-
-    String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
-    return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
-  }
-
   private static GuiElement boundaryElement(String id, TextKey name) {
     return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name))
+        .setRole(MenuRole.DECORATION);
   }
 
   private static Boolean readBooleanField(Object source, String fieldName) {

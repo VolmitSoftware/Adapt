@@ -30,6 +30,8 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -105,8 +107,8 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
       if (!sprintJumpActive.isEmpty()) {
         sprintJumpActive.remove(id);
       }
-      if (!chargesUsed.isEmpty()) {
-        chargesUsed.remove(id);
+      if (!chargesUsed.isEmpty() && chargesUsed.remove(id) != null) {
+        AbilityGlyphs.clear(id, this, HudGlyph.CHARGES);
       }
       return;
     }
@@ -171,7 +173,8 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
 
     direction = direction.normalize();
     debounce.mark(id);
-    chargesUsed.merge(id, 1, Integer::sum);
+    int used = chargesUsed.merge(id, 1, Integer::sum);
+    AbilityGlyphs.charges(id, this, Math.max(0, maxCharges - used), maxCharges);
     applyHungerCost(p, getConfig().hungerCost);
 
     double force = getDashForce(level) * preference(p, SPEED).multiplier();

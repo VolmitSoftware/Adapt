@@ -103,6 +103,15 @@ public final class ItemCooldowns {
   }
 
   /**
+   * The same gate and overlay, also shown as {@code owner}'s cooldown glyph on
+   * the client HUD whenever it is marked. Call while building the adaptation,
+   * before the gate is used: the returned gate starts empty.
+   */
+  public ItemCooldowns ownedBy(Adaptation<?> owner) {
+    return new ItemCooldowns(PlayerStateRegistry.newCooldowns(owner), group, material);
+  }
+
+  /**
    * Gate with no overlay, for triggers where showing one would gray out an
    * unrelated vanilla item.
    */
@@ -274,7 +283,7 @@ public final class ItemCooldowns {
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMs);
     push(p, ticksFromMillis(cooldowns.remaining(p.uuid(), cooldownMs)));
   }
 
@@ -288,7 +297,7 @@ public final class ItemCooldowns {
       return;
     }
 
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMs);
     UUID id = p.uuid();
     Tasks.runEntity(p, () -> {
       if (p.isOnline()) {

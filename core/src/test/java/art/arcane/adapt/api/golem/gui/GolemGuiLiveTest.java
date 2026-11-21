@@ -19,6 +19,14 @@ import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemWorkStatus;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.client.protocol.HintKind;
+import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelTile;
+import art.arcane.adapt.client.protocol.PanelView;
+import art.arcane.adapt.client.protocol.TileRole;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -27,6 +35,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuIcon;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.testkit.FakeItem;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -754,6 +763,77 @@ class GolemGuiLiveTest extends AdaptTestBase {
 
     assertThat(windows.constructed()).isEmpty();
     assertThat(scheduler.pending()).isZero();
+  }
+
+  @Test
+  void theMainPageIsAGridThatNamesEachTileForNativeClients() {
+    openAndDraw();
+
+    PanelView view = MenuReplay.view(onlyWindow());
+
+    assertThat(view.layout()).isEqualTo(PanelLayout.GRID);
+    PanelTile body = MenuReplay.tile(view, -4, HEADER_ROW);
+    assertThat(body.role()).isEqualTo(TileRole.INFO);
+    assertThat(body.value()).isEqualTo("20/20");
+    PanelTile mode = MenuReplay.tile(view, 0, HEADER_ROW);
+    String work = AdaptLanguage.text(GolemMode.WORK.displayName());
+    assertThat(mode.role()).isEqualTo(TileRole.SETTING);
+    assertThat(mode.hint().kind()).isEqualTo(HintKind.CHOICE);
+    assertThat(mode.hint().typed()).isFalse();
+    assertThat(mode.hint().options()).contains(work);
+    assertThat(mode.value()).isEqualTo(work);
+    assertThat(MenuReplay.actions(mode)).containsEntry(ClickKind.LEFT, AdaptLanguage.text(GuiMessages.NEXT))
+        .containsEntry(ClickKind.RIGHT, AdaptLanguage.text(GuiMessages.PREVIOUS));
+    assertThat(mode.lore()).hasSize(3);
+    assertThat(mode.description()).containsExactly(mode.lore().getFirst());
+    PanelTile carried = MenuReplay.tile(view, CARRIED_FIRST, CARRIED_ROW);
+    String take = AdaptLanguage.text(GolemancyMessages.GUI_TAKE);
+    assertThat(carried.role()).isEqualTo(TileRole.ACTION);
+    assertThat(carried.lore()).last().asString().contains(take);
+    assertThat(carried.description()).noneMatch(line -> line.contains(take));
+    assertThat(MenuReplay.actions(carried)).containsOnlyKeys(ClickKind.LEFT, ClickKind.SHIFT_LEFT).containsValue(take);
+    PanelTile release = MenuReplay.tile(view, 4, FOOTER_ROW);
+    assertThat(release.role()).isEqualTo(TileRole.ACTION);
+    assertThat(release.hint().kind()).isEqualTo(HintKind.DESTRUCTIVE);
+    assertThat(MenuReplay.actions(release)).containsEntry(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_RELEASE));
+    assertThat(MenuReplay.tile(view, -4, FOOTER_ROW).role()).isEqualTo(TileRole.INFO);
+    assertThat(MenuReplay.tile(view, 1, HEADER_ROW).role()).isEqualTo(TileRole.NAVIGATION);
+  }
+
+  @Test
+  void annotationsLeaveTheChestTilesAsTheyWere() {
+    openAndDraw();
+    GuiElement mode = placed(onlyWindow(), 0, HEADER_ROW);
+    GuiElement carried = placed(onlyWindow(), CARRIED_FIRST, CARRIED_ROW);
+
+    MenuIcon modeIcon = mode.button().icon();
+    MenuIcon carriedIcon = carried.button().icon();
+
+    assertThat(modeIcon.name()).contains(AdaptLanguage.text(GolemMode.WORK.displayName()));
+    assertThat(modeIcon.lore()).containsExactly("§7Do your core's jobs around home", "§7Left-click for next, right-click for", "§7previous");
+    assertThat(mode.button().clickable()).isTrue();
+    assertThat(carriedIcon.lore()).last().asString().contains(AdaptLanguage.text(GolemancyMessages.GUI_TAKE));
+    assertThat(carriedIcon.amount()).isEqualTo(12);
+    assertThat(placed(onlyWindow(), -4, FOOTER_ROW).button().clickable()).isFalse();
+  }
+
+  @Test
+  void theChannelPageIsAFormOfChannelToggles() {
+    openAndDraw();
+    click(placed(onlyWindow(), 1, HEADER_ROW), ClickKind.LEFT);
+    scheduler.advance(0);
+    GuiWindow channels = windows.constructed().getLast();
+
+    PanelView view = MenuReplay.view(channels);
+
+    assertThat(windows.constructed()).hasSize(2);
+    assertThat(view.layout()).isEqualTo(PanelLayout.FORM);
+    assertThat(view.breadcrumb()).hasSize(1);
+    PanelTile first = view.tiles().stream().filter(tile -> tile.hint() != null && tile.hint().kind() == HintKind.TOGGLE).findFirst().orElseThrow();
+    assertThat(first.role()).isEqualTo(TileRole.SETTING);
+    assertThat(first.hint().value()).isEqualTo("OFF");
+    assertThat(first.description()).isEmpty();
+    assertThat(view.tiles().stream().filter(tile -> tile.hint() != null && tile.hint().kind() == HintKind.TOGGLE)).hasSize(16);
   }
 
   private void click(GuiElement element, ClickKind kind) {

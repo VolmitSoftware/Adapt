@@ -24,6 +24,7 @@ public final class AdaptFabric implements ModInitializer {
             }
         }
         LoaderRecipeSync.install();
+        FabricUiChannel.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> bootstrap.registerCommands(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(bootstrap::serverStarting);
         ServerLifecycleEvents.SERVER_STARTED.register(bootstrap::serverStarted);

@@ -13,6 +13,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
@@ -104,15 +106,20 @@ final class PreferenceGuiSupport {
     controls[resetPosition + 4] = GuiTheme.element("preference-reset", MILK_BUCKET, "gui", "preferences", "reset")
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_RESET))
         .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_RESET_DESCRIPTION))
+        .setRole(MenuRole.ACTION)
         .onLeftClick((MenuClick click) -> onOwner(this::reset));
     if (paged) {
       controls[0] = GuiTheme.element("preference-previous", page > 0 ? ARROW : GRAY_PANE,
           "gui", "navigation", page > 0 ? "previous" : "previous-disabled")
           .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREVIOUS))
+          .setHint(null)
+          .setRole(page > 0 ? MenuRole.ACTION : MenuRole.DECORATION)
           .onLeftClick((MenuClick click) -> onOwner(() -> changePage(-1)));
       controls[7] = GuiTheme.element("preference-next", start + count < entries.size() ? ARROW : GRAY_PANE,
           "gui", "navigation", start + count < entries.size() ? "next" : "next-disabled")
           .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.NEXT))
+          .setHint(null)
+          .setRole(start + count < entries.size() ? MenuRole.ACTION : MenuRole.DECORATION)
           .onLeftClick((MenuClick click) -> onOwner(() -> changePage(1)));
     }
     for (int slot = 0; slot < controls.length; slot++) {
@@ -167,31 +174,57 @@ final class PreferenceGuiSupport {
     PlayerPreference.Choice<E> selected = preference.choice(value);
     List<PlayerPreference.Choice<E>> allowed = PlayerPreferences.allowedChoices(adaptation, preference, level);
     boolean serverControlled = !policy.playerEditable || policy.allowedValues.size() == 1;
+    String current = AdaptLanguage.text(selected.label());
+    List<String> description = new ArrayList<>();
     GuiElement element = GuiTheme.element("preference-" + preference.id(), serverControlled || allowed.isEmpty()
             ? GRAY_PANE : selected.shownIcon(),
             "gui", "preferences", "adaptation", adaptation.getName(), preference.id(),
             serverControlled || allowed.isEmpty() ? "locked" : value.name().toLowerCase(Locale.ROOT))
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), preference.label()))
         .addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_CURRENT,
-            trusted("value", AdaptLanguage.text(selected.label()))));
-    if (serverControlled) {
-      element.addLore(AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED));
-    } else if (level < 1) {
-      element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_LEARN_FIRST));
+            trusted("value", current)));
+    if (serverControlled || level < 1) {
+      String status = serverControlled
+          ? AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED)
+          : AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_LEARN_FIRST);
+      element.addLore(status);
+      description.add(status);
     } else if (allowed.size() > 1) {
       element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_CYCLE));
     }
     for (PlayerPreference.Choice<E> choice : preference.choices()) {
+      String line = null;
       if (choice.minimumLevel() > level) {
-        element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_LEVEL_REQUIRED,
-            trusted("value", AdaptLanguage.text(choice.label())), trusted("level", choice.minimumLevel())));
+        line = AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_LEVEL_REQUIRED,
+            trusted("value", AdaptLanguage.text(choice.label())), trusted("level", choice.minimumLevel()));
       } else if (!allowed.contains(choice)) {
-        element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_SERVER_DISABLED,
-            trusted("value", AdaptLanguage.text(choice.label()))));
+        line = AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_SERVER_DISABLED,
+            trusted("value", AdaptLanguage.text(choice.label())));
+      }
+      if (line != null) {
+        element.addLore(line);
+        description.add(line);
       }
     }
+    if (value instanceof CommonPreferences.Toggle toggle && !serverControlled && !allowed.isEmpty()) {
+      element.setHint(MenuHint.toggle(toggle == CommonPreferences.Toggle.ON));
+    } else {
+      element.setValue(current);
+      if (!serverControlled && !allowed.isEmpty()) {
+        element.setHint(MenuHint.choice(current, choiceLabels(allowed), null));
+      }
+    }
+    element.setRole(element.getHint() == null ? MenuRole.INFO : MenuRole.SETTING).setDescription(description);
     return element.onLeftClick((MenuClick clicked) -> onOwner(() -> cycle(preference, position, 1)))
         .onRightClick((MenuClick clicked) -> onOwner(() -> cycle(preference, position, -1)));
+  }
+
+  private static <E extends Enum<E>> List<String> choiceLabels(List<PlayerPreference.Choice<E>> choices) {
+    List<String> labels = new ArrayList<>(choices.size());
+    for (PlayerPreference.Choice<E> choice : choices) {
+      labels.add(AdaptLanguage.text(choice.label()));
+    }
+    return labels;
   }
 
   private GuiElement groupControl(PreferenceToggleGroup group, AdaptPlayer player) {
@@ -214,6 +247,9 @@ final class PreferenceGuiSupport {
         .addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_GROUP_ENABLED,
             trusted("enabled", enabled), trusted("total", total)))
         .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_GROUP_OPEN))
+        .setRole(MenuRole.NAVIGATION)
+        .setValue(enabled + "/" + total)
+        .setDescription(List.of())
         .onLeftClick((MenuClick clicked) -> onOwner(() -> openGroup(group)))
         .onRightClick((MenuClick clicked) -> onOwner(() -> openGroup(group)));
   }

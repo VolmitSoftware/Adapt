@@ -6,7 +6,10 @@ import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuAction;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuIcon;
+import art.arcane.adapt.platform.menu.MenuMeta;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 
 import java.util.ArrayList;
@@ -17,7 +20,9 @@ import java.util.Map;
 /**
  * One slot of a {@link GuiWindow}, with the same builder calls as the inventorygui elements the Bukkit menus used:
  * name, wrapped lore, glint, count and per-click actions. Left and right handlers fire for plain left and right
- * clicks only, shift and middle clicks have their own handlers.
+ * clicks only, shift and middle clicks have their own handlers. An optional {@link MenuHint} and the presentation
+ * fields (role, section, value, description, click labels; see {@link MenuMeta}) tell native clients what the element
+ * means; chest menus ignore them.
  */
 public final class GuiElement {
   private static final int LORE_WRAP_VISIBLE_WIDTH = 42;
@@ -32,6 +37,13 @@ public final class GuiElement {
   private String name;
   private boolean enchanted;
   private int count = 1;
+  private MenuHint hint;
+  private MenuRole role;
+  private String label;
+  private String section = "";
+  private String value = "";
+  private List<String> description;
+  private final Map<ClickKind, String> actionLabels = new EnumMap<>(ClickKind.class);
 
   public GuiElement(String id) {
     this.id = id;
@@ -111,6 +123,56 @@ public final class GuiElement {
     return count;
   }
 
+  public GuiElement setHint(MenuHint hint) {
+    this.hint = hint;
+    return this;
+  }
+
+  public MenuHint getHint() {
+    return hint;
+  }
+
+  public GuiElement setRole(MenuRole role) {
+    this.role = role;
+    return this;
+  }
+
+  public MenuRole getRole() {
+    return role;
+  }
+
+  /** The name native clients show instead of the icon name, for names that carry chest-only markers. */
+  public GuiElement setLabel(String label) {
+    this.label = label;
+    return this;
+  }
+
+  public GuiElement setSection(String section) {
+    this.section = section == null ? "" : section;
+    return this;
+  }
+
+  public GuiElement setValue(String value) {
+    this.value = value == null ? "" : value;
+    return this;
+  }
+
+  /** The lines native rows show under the name instead of the lore; null shows the lore. */
+  public GuiElement setDescription(List<String> description) {
+    this.description = description == null ? null : List.copyOf(description);
+    return this;
+  }
+
+  /** Names what a click kind does, for native clients; only kinds with a handler are reported. */
+  public GuiElement setActionLabel(ClickKind kind, String label) {
+    if (label == null) {
+      actionLabels.remove(kind);
+    } else {
+      actionLabels.put(kind, label);
+    }
+    return this;
+  }
+
   public GuiElement addLore(String loreLine) {
     if (loreLine == null) {
       lore.add("");
@@ -179,17 +241,19 @@ public final class GuiElement {
   public MenuIcon icon() {
     Id type = getMaterial();
     if (item != null) {
-      return MenuIcon.of(decorate(item.copy()));
+      return new MenuIcon(type, count, name, lore, enchanted, null, 0, decorate(item.copy()));
     }
     if (model == null) {
-      return new MenuIcon(type, count, name, lore, enchanted, null, null);
+      return new MenuIcon(type, count, name, lore, enchanted, null, 0, null);
     }
     CustomModel base = type.equals(model.material()) ? model : new CustomModel(type, model.model(), model.modelKey(), model.headTexture());
     ItemRef rendered = base.toItemStack();
     if (rendered == null || rendered.isEmpty()) {
-      return new MenuIcon(type, count, name, lore, enchanted, null, null);
+      return new MenuIcon(type, count, name, lore, enchanted, null, 0, null);
     }
-    return MenuIcon.of(decorate(rendered));
+    Id modelKey = base.modelKey();
+    Id itemModel = modelKey == null || CustomModel.EMPTY_KEY.equals(modelKey) ? null : modelKey;
+    return new MenuIcon(type, count, name, lore, enchanted, itemModel, base.model(), decorate(rendered));
   }
 
   private ItemRef decorate(ItemRef shown) {
@@ -209,7 +273,7 @@ public final class GuiElement {
   public MenuButton button() {
     MenuIcon icon = icon();
     if (actions.isEmpty()) {
-      return MenuButton.display(icon);
+      return new MenuButton(icon, null, hint, meta());
     }
     Map<ClickKind, MenuAction> bound = new EnumMap<>(actions);
     return new MenuButton(icon, (MenuClick click) -> {
@@ -217,7 +281,18 @@ public final class GuiElement {
       if (action != null) {
         action.click(click);
       }
-    });
+    }, hint, meta());
+  }
+
+  private MenuMeta meta() {
+    Map<ClickKind, String> labels = new EnumMap<>(ClickKind.class);
+    for (ClickKind kind : actions.keySet()) {
+      labels.put(kind, actionLabels.getOrDefault(kind, ""));
+    }
+    if (role == null && label == null && section.isEmpty() && value.isEmpty() && description == null && labels.isEmpty()) {
+      return MenuMeta.NONE;
+    }
+    return new MenuMeta(role, label, section, value, description, labels);
   }
 
   private void addWrappedLore(String line) {

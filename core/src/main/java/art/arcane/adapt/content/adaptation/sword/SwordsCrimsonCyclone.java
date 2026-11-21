@@ -137,7 +137,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     Loc center = primaryTarget.location();
     int targetFxLimit = preferenceEnabled(p, SwordPreferences.VISUALS) ? getTargetFxLimit() : 0;
     p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
-    cooldowns.mark(playerId);
+    cooldowns.mark(playerId, cooldownTicks * 50L);
 
     e.setDamage(e.damage() + damage);
     applyBleed(primaryTarget, p, level, targetFxLimit > 0);

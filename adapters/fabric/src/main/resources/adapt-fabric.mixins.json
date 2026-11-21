@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "art.arcane.adapt.fabric.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "KeyMappingShiftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

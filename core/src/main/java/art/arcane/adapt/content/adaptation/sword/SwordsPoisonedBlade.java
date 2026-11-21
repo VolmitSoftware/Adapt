@@ -115,7 +115,8 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
     }
     if (e.damager() instanceof PlayerRef p && hasActiveAdaptation(p) && isSword(p.inventory().mainHand())) {
       UUID id = p.uuid();
-      if (!cooldowns.isReady(id, getCooldown(getLevel(p)))) {
+      long cooldownMillis = getCooldown(getLevel(p));
+      if (!cooldowns.isReady(id, cooldownMillis)) {
         return;
       }
       EntityRef victim = e.entity();
@@ -123,7 +124,7 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
           || !canDamageTarget(p, victim)) {
         return;
       }
-      cooldowns.mark(id);
+      cooldowns.mark(id, cooldownMillis);
       if (victim instanceof PlayerRef pvic) {
         startBleedVisual(pvic, p);
         addPotionStacks(pvic, POISON, 2, 50 * getLevel(p), true);

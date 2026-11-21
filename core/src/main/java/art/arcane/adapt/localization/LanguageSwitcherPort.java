@@ -39,4 +39,9 @@ public interface LanguageSwitcherPort {
 
   /** Completions for the words after {@code /adapt language}. */
   List<String> complete(CommandSource source, String[] arguments);
+
+  /** True when some players edit messages in {@link LanguageEditorGui}, which takes chat prompts from the core bus. */
+  default boolean usesCoreEditor() {
+    return false;
+  }
 }

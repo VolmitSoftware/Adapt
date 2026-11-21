@@ -22,6 +22,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillMenus;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
@@ -33,6 +34,10 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
@@ -43,14 +48,12 @@ import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.Tasks;
-import art.arcane.volmlib.util.format.ColorFormatter;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.TextKey;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -88,38 +91,7 @@ public class SkillsGui {
         return;
       }
 
-      boolean debugMode = AdaptDebugMode.isActive(player);
-      boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
-      List<SkillPageEntry> entries = new ArrayList<>();
-      List<String> knownSkills = new ArrayList<>();
-      for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
-        if (skill == null) {
-          continue;
-        }
-        knownSkills.add(skill.getName());
-        if (!skill.isEnabled()) {
-          continue;
-        }
-        PlayerSkillLine line = resolveSkillLine(adaptPlayer.getData(), skill.getName(), debugMode, showAll);
-        if (line == null) {
-          continue;
-        }
-
-        int adaptationLevel = sumAdaptationLevels(line);
-        boolean permitted = skill.hasUsePermission(adaptPlayer.getPlayer(), skill);
-        if (!isSkillEntryVisible(permitted, debugMode, showAll, line, adaptationLevel)) {
-          continue;
-        }
-
-        entries.add(new SkillPageEntry(skill, line, adaptationLevel));
-      }
-
-      Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
-      entries.sort(
-          Comparator.comparingInt((SkillPageEntry entry) -> GuiConfig.rankOf(configuredOrder, entry.skill().getName()))
-              .thenComparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
-              .thenComparing((SkillPageEntry entry) -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
-      );
+      List<SkillPageEntry> entries = entries(adaptPlayer, player);
 
       int configuredRows = GuiConfig.skillsGuiRows();
       GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
@@ -133,12 +105,14 @@ public class SkillsGui {
       GuiWindow w = new GuiWindow(player);
       GuiTheme.apply(w, "/");
       w.setViewportHeight(viewportRows);
+      w.setLayout(MenuLayout.LIST).setPaging(new MenuPaging(currentPage, plan.pageCount(), entries.size()));
 
       if (entries.isEmpty()) {
         w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new GuiElement("skills-empty")
             .setMaterial(PAPER)
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
-            .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS)));
+            .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS))
+            .setRole(MenuRole.HEADER));
       } else {
         List<GuiEffects.Placement> reveal = new ArrayList<>();
         int pageItems = end - start;
@@ -172,6 +146,7 @@ public class SkillsGui {
                     SnippetsMessages.GUI_POWER_USED_VALUE,
                     trusted("power", C.DARK_GREEN + String.valueOf(entry.adaptationLevel()))
                 ))
+                .setRole(MenuRole.NAVIGATION)
                 .onLeftClick((MenuClick e) -> entry.skill().openGui(player));
             reveal.add(new GuiEffects.Placement(pos, row, element));
           }
@@ -189,6 +164,51 @@ public class SkillsGui {
       ));
       w.open();
     }
+  }
+
+  /** The skills the skills menu lists for {@code player}, in the menu's order. */
+  public static List<Skill<?>> visibleSkills(AdaptPlayer adaptPlayer, PlayerRef player) {
+    List<Skill<?>> skills = new ArrayList<>();
+    for (SkillPageEntry entry : entries(adaptPlayer, player)) {
+      skills.add(entry.skill());
+    }
+    return skills;
+  }
+
+  private static List<SkillPageEntry> entries(AdaptPlayer adaptPlayer, PlayerRef player) {
+    boolean debugMode = AdaptDebugMode.isActive(player);
+    boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
+    List<SkillPageEntry> entries = new ArrayList<>();
+    List<String> knownSkills = new ArrayList<>();
+    for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
+      if (skill == null) {
+        continue;
+      }
+      knownSkills.add(skill.getName());
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      PlayerSkillLine line = resolveSkillLine(adaptPlayer.getData(), skill.getName(), debugMode, showAll);
+      if (line == null) {
+        continue;
+      }
+
+      int adaptationLevel = sumAdaptationLevels(line);
+      boolean permitted = skill.hasUsePermission(player, skill);
+      if (!isSkillEntryVisible(permitted, debugMode, showAll, line, adaptationLevel)) {
+        continue;
+      }
+
+      entries.add(new SkillPageEntry(skill, line, adaptationLevel));
+    }
+
+    Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
+    entries.sort(
+        Comparator.comparingInt((SkillPageEntry entry) -> GuiConfig.rankOf(configuredOrder, entry.skill().getName()))
+            .thenComparing((SkillPageEntry entry) -> SkillMenus.sortKey(entry.skill().getDisplayName()))
+            .thenComparing((SkillPageEntry entry) -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
+    );
+    return entries;
   }
 
   static PlayerSkillLine resolveSkillLine(PlayerData data, String skillName, boolean debugMode, boolean showAll) {
@@ -237,15 +257,6 @@ public class SkillsGui {
     return line.getXp() > 0D || line.getKnowledge() > 0L || adaptationLevel > 0;
   }
 
-  private static String normalizeSortKey(String value) {
-    if (value == null) {
-      return "";
-    }
-
-    String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
-    return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
-  }
-
   private static void applyPageControls(
       GuiWindow window,
       PlayerRef player,
@@ -290,7 +301,8 @@ public class SkillsGui {
     int from = totalEntries <= 0 ? 0 : (start + 1);
     int to = totalEntries <= 0 ? 0 : end;
     GuiElement center = GuiTheme.element("skills-page-info", PAPER, "gui", "navigation", "page")
-        .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS));
+        .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS))
+        .setHint(MenuHint.navigation("page-info"));
     center.addLore(C.DARK_GRAY + AdaptLanguage.text(
         GuiMessages.PAGE_SHOWING_RANGE,
         trusted("page", currentPage + 1),
@@ -304,7 +316,8 @@ public class SkillsGui {
 
   private static GuiElement boundaryElement(String id, TextKey name) {
     return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(C.DARK_GRAY + AdaptLanguage.text(name));
+        .setName(C.DARK_GRAY + AdaptLanguage.text(name))
+        .setRole(MenuRole.DECORATION);
   }
 
   private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line,

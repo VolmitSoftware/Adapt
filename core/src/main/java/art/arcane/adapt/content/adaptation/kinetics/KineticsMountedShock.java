@@ -56,7 +56,7 @@ public class KineticsMountedShock extends SimpleAdaptation<KineticsMountedShock.
       return;
     }
 
-    chargeCooldown.mark(p.uuid());
+    chargeCooldown.mark(p.uuid(), getConfig().cooldownMs);
     e.setDamage(e.damage() * (1D + bonus));
     addStat(p, "kinetics.mounted.charges", 1);
     fx(combat.target().location().add(0, 0.8D, 0), FxPriority.COMBAT)

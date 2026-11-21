@@ -31,6 +31,8 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.LastDamage;
@@ -94,7 +96,9 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     PlayerRef player = event.player();
     if (event.hand() == Hand.MAIN_HAND && event.action() == InteractAction.RIGHT_CLICK_AIR
         && player.isSneaking() && getActiveLevel(player) > 0 && preferenceEnabled(player, UnarmedPreferences.ARM)) {
-      armedUntil.put(player.uuid(), System.currentTimeMillis() + 5000L);
+      long now = System.currentTimeMillis();
+      armedUntil.put(player.uuid(), now + 5000L);
+      AbilityGlyphs.duration(player.uuid(), this, now, 5000L);
     }
   }
 
@@ -144,10 +148,12 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     EntityRef target = e.entity();
     target.setVelocity(target.velocity().add(p.location().direction().normalize().multiply(getKnockback(level))));
 
+    long cooldownMillis = getCooldownTicks(level) * 50L;
     if (cooldownItem != null) {
       p.setCooldown(cooldownItem.type(), getCooldownTicks(level));
+      AbilityGlyphs.cooldown(p, this, cooldownMillis);
     } else {
-      fistsCooldown.mark(p.uuid());
+      fistsCooldown.mark(p.uuid(), cooldownMillis);
     }
 
     long now = System.currentTimeMillis();
@@ -158,7 +164,9 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     primedState.put(p.uuid(), false);
     xp(p, e.damage() * getConfig().xpPerDamage);
     addStat(p, "unarmed.battering-charge.charges", 1);
-    armedUntil.remove(p.uuid());
+    if (armedUntil.remove(p.uuid()) != null) {
+      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
+    }
   }
 
   @Handle(priority = EventPriority.MONITOR)

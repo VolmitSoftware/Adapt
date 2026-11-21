@@ -120,7 +120,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         }
 
         if (le != null) {
-          cooldowns.mark(id);
+          cooldowns.mark(id, 1500L);
           Reflection reflection = new Reflection(p, le, getConfig().damageMultiplierPerLevel * level,
               getConfig().ignorePassiveMobs || preferenceEnabled(p, TragoulPreferences.PASSIVE));
           LivingRef attacker = le;

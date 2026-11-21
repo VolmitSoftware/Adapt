@@ -33,6 +33,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -112,6 +113,7 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     Long until = hasteUntil.get(id);
     boolean onset = until == null || now >= until;
     hasteUntil.put(id, now + (durationTicks * 50L));
+    AbilityGlyphs.duration(id, this, now, durationTicks * 50L);
     if (onset) {
       hasteLevel.put(id, level);
       fx(p.eyeLocation(), FxPriority.AMBIENT)

@@ -35,6 +35,7 @@ import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
@@ -183,7 +184,9 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     p.inventory().setMainHand(marked);
 
     setStorage(p, "soul-link-token", token);
-    setStorage(p, "soul-link-last-mark", now + getRemarkCooldownMs(level));
+    long remarkCooldownMs = getRemarkCooldownMs(level);
+    setStorage(p, "soul-link-last-mark", now + remarkCooldownMs);
+    AbilityGlyphs.cooldown(p.uuid(), this, now, remarkCooldownMs);
     markFx(p);
     AdaptHud.actionBar(p, C.LIGHT_PURPLE + AdaptLanguage.text(EnchantingMessages.SOUL_LINK_LINKED));
   }

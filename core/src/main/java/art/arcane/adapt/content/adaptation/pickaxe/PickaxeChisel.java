@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -162,7 +163,9 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
           .particle(Particles.ELECTRIC_SPARK, 4, 0, 0, 0, 0.06, 0.05)
           .chord(Sounds.BLOCK_DEEPSLATE_PLACE, 1.25f, 1.4f, Sounds.BLOCK_METAL_HIT, 1.25f, 1.7f, Sounds.BLOCK_STONE_HIT, 0.6f, 1.9f);
 
-      p.setCooldown(hand.type(), getCooldownTime(getLevelPercent(p)));
+      int cooldownTicks = getCooldownTime(getLevelPercent(p));
+      p.setCooldown(hand.type(), cooldownTicks);
+      AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
       damageHand(p, getDamagePerBlock(getLevelPercent(p)));
 
       if (M.r(getDropChance(getLevelPercent(p)))) {

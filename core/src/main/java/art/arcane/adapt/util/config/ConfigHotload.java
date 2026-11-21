@@ -73,6 +73,7 @@ public final class ConfigHotload {
   );
   private TickedObject configTicker;
   private ExecutorService hotloadIo;
+  private ExecutorService operatorDiffs;
   private File adaptConfigFile;
   private File modelsFile;
   private File skillsFolder;
@@ -118,11 +119,8 @@ public final class ConfigHotload {
         List.of(skillsFolder, adaptationsFolder, localeLanguageFolder)
     );
     hotloadGeneration.incrementAndGet();
-    hotloadIo = Executors.newSingleThreadExecutor((Runnable task) -> {
-      Thread thread = new Thread(task, "Adapt-Config-Hotload-IO");
-      thread.setDaemon(true);
-      return thread;
-    });
+    hotloadIo = worker("Adapt-Config-Hotload-IO");
+    operatorDiffs = worker("Adapt-Config-Hotload-Diff");
     AdaptLog.info("Config hotload watcher enabled for Adapt configs and language files.");
 
     configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
@@ -140,21 +138,37 @@ public final class ConfigHotload {
       configTicker = null;
     }
     hotloadGeneration.incrementAndGet();
-    ExecutorService active = hotloadIo;
+    ExecutorService io = hotloadIo;
+    ExecutorService diffs = operatorDiffs;
     hotloadIo = null;
-    if (active != null) {
-      active.shutdownNow();
-      try {
-        if (!active.awaitTermination(HOTLOAD_IO_SHUTDOWN_MILLIS, TimeUnit.MILLISECONDS)) {
-          AdaptLog.warn("Config hotload IO worker did not stop within two seconds.");
-        }
-      } catch (InterruptedException interrupted) {
-        Thread.currentThread().interrupt();
-        AdaptLog.error(interrupted);
-      }
-    }
+    operatorDiffs = null;
+    drain(io, "Config hotload IO worker");
+    drain(diffs, "Config hotload diff worker");
     hotloadPollInFlight.set(false);
     hotloadEngine.clear();
+  }
+
+  private static ExecutorService worker(String name) {
+    return Executors.newSingleThreadExecutor((Runnable task) -> {
+      Thread thread = new Thread(task, name);
+      thread.setDaemon(true);
+      return thread;
+    });
+  }
+
+  private static void drain(ExecutorService worker, String name) {
+    if (worker == null) {
+      return;
+    }
+    worker.shutdownNow();
+    try {
+      if (!worker.awaitTermination(HOTLOAD_IO_SHUTDOWN_MILLIS, TimeUnit.MILLISECONDS)) {
+        AdaptLog.warn(name + " did not stop within two seconds.");
+      }
+    } catch (InterruptedException interrupted) {
+      Thread.currentThread().interrupt();
+      AdaptLog.error(interrupted);
+    }
   }
 
   public void refreshLocalizationConsumers() {
@@ -546,14 +560,27 @@ public final class ConfigHotload {
   }
 
   /**
-   * The operator diff parses both versions of the file (a language file is thousands of keys), so it is built off the
-   * server thread; the messages go out from the server thread as before.
+   * The operator diff parses both versions of the file (a language file is thousands of keys), so it is built on its
+   * own worker, which keeps the file poll free and which {@link #stop()} drains before the plugin unloads; the messages
+   * go out from the server thread.
    */
   private void notifyOps(File file, String before, String after) {
-    Tasks.a(() -> notifyOpsOfDiff(file, before, after));
+    ExecutorService active = operatorDiffs;
+    if (active == null) {
+      return;
+    }
+    long generation = hotloadGeneration.get();
+    try {
+      active.execute(() -> notifyOpsOfDiff(generation, file, before, after));
+    } catch (RejectedExecutionException stopped) {
+      AdaptLog.verbose("Skipped the operator diff for " + file.getName() + ": config hotload stopped.");
+    }
   }
 
-  private void notifyOpsOfDiff(File file, String before, String after) {
+  private void notifyOpsOfDiff(long generation, File file, String before, String after) {
+    if (generation != hotloadGeneration.get()) {
+      return;
+    }
     List<ConfigHotloadEngine.DiffEntry> diffs = ConfigHotloadEngine.computeStructuredDiff(
         before,
         after,
@@ -580,6 +607,9 @@ public final class ConfigHotload {
       ));
     }
 
+    if (generation != hotloadGeneration.get()) {
+      return;
+    }
     Tasks.s(() -> {
       AdaptServer server = adaptServer();
       if (server == null) {

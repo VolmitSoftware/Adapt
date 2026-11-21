@@ -1,7 +1,6 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -14,6 +13,9 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
@@ -67,6 +69,7 @@ final class PreferenceGroupGui {
   static void populate(Adaptation<?> adaptation, PreferenceToggleGroup group, GuiWindow window, int adaptationPage) {
     PreferenceGroupGui gui = new PreferenceGroupGui(adaptation, group, window, adaptationPage);
     window.setViewportHeight(gui.layout.rows());
+    window.setLayout(MenuLayout.FORM);
     gui.render(false);
   }
 
@@ -108,19 +111,30 @@ final class PreferenceGroupGui {
             locked ? "locked" : value.name().toLowerCase(Locale.ROOT))
         .setName(AdaptLanguage.textStyled(C.WHITE.toString(), preference.label()))
         .setEnchanted(!locked && value == CommonPreferences.Toggle.ON);
+    List<String> description = new ArrayList<>(1);
     if (blocked) {
-      element.addLore(AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_BLOCKED));
+      element.addLore(AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_BLOCKED))
+          .setValue(AdaptLanguage.text(GuiMessages.PREFERENCE_SERVER_BLOCKED));
     } else {
+      String current = AdaptLanguage.text(preference.choice(value).label());
       element.addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_CURRENT,
-          trusted("value", AdaptLanguage.text(preference.choice(value).label()))));
-      if (locked) {
-        element.addLore(AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED));
-      } else if (level < 1) {
-        element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_LEARN_FIRST));
+          trusted("value", current)));
+      if (locked || level < 1) {
+        String status = locked
+            ? AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED)
+            : AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_LEARN_FIRST);
+        element.addLore(status);
+        description.add(status);
       } else if (allowed.size() > 1) {
         element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_CYCLE));
       }
+      if (locked) {
+        element.setValue(current);
+      } else {
+        element.setHint(MenuHint.toggle(value == CommonPreferences.Toggle.ON));
+      }
     }
+    element.setRole(locked ? MenuRole.INFO : MenuRole.SETTING).setDescription(description);
     return element.onLeftClick((MenuClick clicked) -> onOwner(() -> toggle(entry, slot)))
         .onRightClick((MenuClick clicked) -> onOwner(() -> toggle(entry, slot)));
   }
@@ -191,7 +205,7 @@ final class PreferenceGroupGui {
       return;
     }
     Tasks.runEntity(player, () -> {
-      if (player.isOnline() && AdaptCore.platform().menus().current(player) == null) {
+      if (GuiCloseSuppression.windowFree(player)) {
         AdaptationGuiSupport.openGui(adaptation, player, adaptationPage);
       }
     }, 1);

@@ -38,6 +38,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -171,6 +173,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
   @Handle
   public void on(PlayerDeathEvent e) {
     strengthUntil.remove(e.player().uuid());
+    AbilityGlyphs.clear(e.player().uuid(), this, HudGlyph.DURATION);
   }
 
   private boolean canApplyStrengthBuff(PlayerRef p, int level) {
@@ -201,6 +204,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
     AdaptAttributeService.get().applyTimed(p, getName(), "strength", Attributes.ATTACK_DAMAGE, strengthDamageBonus(level), AttributeOperation.ADD_VALUE, durationTicks);
     strengthUntil.put(p.uuid(), now + (durationTicks * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * 50L);
     return true;
   }
 

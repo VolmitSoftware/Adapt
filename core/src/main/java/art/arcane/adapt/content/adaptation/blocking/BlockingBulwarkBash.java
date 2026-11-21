@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -131,7 +132,9 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
         getStunTicks(level), getStunAmplifier(level), targetFxLimit > 0);
 
     e.setDamage(e.damage() + getBaseDamage(level));
-    p.setCooldown(SHIELD, getCooldownTicks(level));
+    int cooldownTicks = getCooldownTicks(level);
+    p.setCooldown(SHIELD, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
 
     List<LivingRef> candidates = collectCandidates(p, target, center, radius);
     if (candidates.isEmpty() || getAffectedLimit() <= 1) {

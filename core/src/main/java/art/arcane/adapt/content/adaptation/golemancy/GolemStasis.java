@@ -46,6 +46,8 @@ import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
@@ -210,17 +212,24 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       return;
     }
     long now = System.currentTimeMillis();
-    if (!recalls.tryStart(owner, now, config.recallCooldownSeconds * MILLIS_PER_SECOND)) {
+    long cooldownMillis = config.recallCooldownSeconds * MILLIS_PER_SECOND;
+    if (!recalls.tryStart(owner, now, cooldownMillis)) {
       long remaining = recalls.remainingMillis(owner, now);
       warn(player, GolemancyMessages.STASIS_RECALL_COOLDOWN, trusted("seconds", (remaining + MILLIS_PER_SECOND - 1) / MILLIS_PER_SECOND));
       return;
     }
-    packOnGolemThread(player, handle, () -> recalls.cancel(owner));
+    AbilityGlyphs.cooldown(owner, this, now, cooldownMillis);
+    packOnGolemThread(player, handle, () -> {
+      recalls.cancel(owner);
+      AbilityGlyphs.clear(owner, this, HudGlyph.COOLDOWN);
+    });
   }
 
   void channel(PlayerRef player, GolemHandle handle, int ticks) {
-    PackChannel channel = new PackChannel(player, handle, ticks, System.currentTimeMillis());
+    long now = System.currentTimeMillis();
+    PackChannel channel = new PackChannel(player, handle, ticks, now);
     channelsByOwner.put(player.uuid(), channel);
+    AbilityGlyphs.duration(player.uuid(), this, now, ticks * 50L);
     channelsByGolem.put(handle.entity().uuid(), channel);
     channel.attach(channelFx(channel));
     schedulePulse(channel);
@@ -404,7 +413,9 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   }
 
   private void forget(PackChannel channel) {
-    channelsByOwner.remove(channel.owner().uuid(), channel);
+    if (channelsByOwner.remove(channel.owner().uuid(), channel)) {
+      AbilityGlyphs.clear(channel.owner().uuid(), this, HudGlyph.DURATION);
+    }
     channelsByGolem.remove(channel.golem().uuid(), channel);
   }
 

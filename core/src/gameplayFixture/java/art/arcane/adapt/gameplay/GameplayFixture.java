@@ -11,6 +11,7 @@ import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -207,6 +208,10 @@ public final class GameplayFixture {
                 sendJson(sender, "EXPERIENCE " + args[2], ExperienceFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("golem-controls")) {
                 sendJson(sender, "GOLEM_CONTROLS " + args[2], GolemControlsFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length == 3 && args[0].equals("golem-menu")) {
+                sendJson(sender, "GOLEM_MENU " + args[2], GolemMenuFixtures.execute(Objects.requireNonNull(Fixtures.host().player(args[1]), "Player is not online"), args));
+            } else if (args.length >= 3 && args[0].equals("hud")) {
+                sendJson(sender, "HUD " + args[2], HudFixtures.execute(Objects.requireNonNull(Fixtures.host().player(args[1]), "Player is not online"), args));
             } else if (args.length >= 3 && args[0].equals("golem-lifecycle")) {
                 sendJson(sender, "GOLEM_LIFECYCLE " + args[2], GolemLifecycleFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("lumber-replant")) {
@@ -227,6 +232,8 @@ public final class GameplayFixture {
                 sendJson(sender, "PREFERENCES " + args[2], PreferenceFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("blink")) {
                 sendJson(sender, "BLINK " + args[2], BlinkPreferencesFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length == 3 && args[0].equals("afford")) {
+                afford(sender, ordinaryPlayer(args[1]), args[2]);
             } else if (args.length == 2 && args[0].equals("attribute-registry")) {
                 sendJson(sender, "ATTRIBUTE_REGISTRY " + args[1], ProtocolFixtures.attributes());
             } else if (args.length >= 3 && args[0].equals("items-audit")) {
@@ -658,6 +665,19 @@ public final class GameplayFixture {
         return result;
     }
 
+    private static void afford(FixtureSender sender, PlayerRef subject, String skill) {
+        Tasks.runEntity(subject, () -> {
+            try {
+                AdaptPlayer adaptPlayer = runtimePlayer(subject);
+                adaptPlayer.getData().getSkillLine(skill).giveKnowledge(1_000L);
+                adaptPlayer.getData().giveMasterXp(XP.getXpForLevel(30));
+                sender.send("ADAPT_QA AFFORD " + skill);
+            } catch (RuntimeException failure) {
+                sender.send("ADAPT_QA ERROR " + failure.getMessage());
+            }
+        });
+    }
+
     private void learn(String name, int level, boolean exclusive) {
         requireSetup();
         AdaptPlayer adaptPlayer = runtimePlayer(actor);
@@ -845,6 +865,7 @@ public final class GameplayFixture {
 
     private void cleanup() {
         ExperienceFixtures.cleanup();
+        GolemMenuFixtures.cleanup();
         if (arena == null) {
             return;
         }

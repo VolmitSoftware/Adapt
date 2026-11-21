@@ -36,7 +36,11 @@ import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.api.xp.XpAward;
 import art.arcane.adapt.api.xp.XpEarnings;
 import art.arcane.adapt.api.xp.XpReceipt;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.server.hud.ToastNotification;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
+import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -51,6 +55,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.util.common.format.C;
+
+import java.util.List;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -225,6 +232,9 @@ public class PlayerSkillLine {
       if (p != null && AdaptConfig.get().isActionbarNotifyXp()) {
         p.notifyXP(line, credited);
       }
+    }
+    if (p != null) {
+      p.xpEarned(this, credited);
     }
     return receipt;
   }
@@ -468,6 +478,7 @@ public class PlayerSkillLine {
       return;
     }
     adaptation.onLevelChanged(owner.getPlayer(), level);
+    ClientUiService.changed(owner);
   }
 
   private void removeAdaptationModifiers(String adaptationName) {
@@ -494,6 +505,7 @@ public class PlayerSkillLine {
       String group = "lvl" + getLine();
       long displayDurationMillis = config.getActionbarLevelDurationMillis();
       KList<Notification> notifications = new KList<>();
+      boolean clientToast = showPopup && p.getPlayer() != null && ClientToasts.capable(p.getPlayer().uuid());
       if (level % 10 == 0) {
         if (playSounds) {
           float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();
@@ -510,31 +522,33 @@ public class PlayerSkillLine {
               .group(group)
               .build());
         }
-        if (showPopup) {
-          notifications.add(TitleNotification.builder()
-              .in(250)
-              .stay(1450)
-              .out(2250)
-              .group(group)
-              .displayDurationMillis(displayDurationMillis)
-              .title("")
-              .subtitle(skill.getDisplayName(level))
-              .build());
+        Notification title = TitleNotification.builder()
+            .in(250)
+            .stay(1450)
+            .out(2250)
+            .group(group)
+            .displayDurationMillis(displayDurationMillis)
+            .title("")
+            .subtitle(skill.getDisplayName(level))
+            .build();
+        Notification knowledgeBar = ActionBarNotification.builder()
+            .duration(450)
+            .displayDurationMillis(displayDurationMillis)
+            .group("know" + getLine())
+            .title(knowledgeStatus(skill, knowledge))
+            .build();
+        if (clientToast) {
+          notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP,
+              ClientToasts.skillIcon(skill), toastTitle(skill, level), toastKnowledge(skill, knowledge)), group,
+              List.of(title, knowledgeBar)));
+        } else if (showPopup) {
+          notifications.add(title);
         }
         if (!notifications.isEmpty()) {
           p.getNot().queue(notifications.toArray(new Notification[0]));
         }
-        if (showPopup) {
-          p.getActionBarNotifier().queue(ActionBarNotification.builder()
-              .duration(450)
-              .displayDurationMillis(displayDurationMillis)
-              .group("know" + getLine())
-              .title(AdaptLanguage.text(
-                  RuntimeMessages.KNOWLEDGE_STATUS,
-                  trusted("amount", knowledge),
-                  trusted("skill", skill.getShortName())
-              ))
-              .build());
+        if (showPopup && !clientToast) {
+          p.getActionBarNotifier().queue(knowledgeBar);
         }
         return;
       }
@@ -553,13 +567,17 @@ public class PlayerSkillLine {
             .group(group)
             .build());
       }
-      if (showPopup) {
-        notifications.add(ActionBarNotification.builder()
-            .duration(450)
-            .displayDurationMillis(displayDurationMillis)
-            .group(group)
-            .title(skill.getDisplayName(level))
-            .build());
+      Notification levelBar = ActionBarNotification.builder()
+          .duration(450)
+          .displayDurationMillis(displayDurationMillis)
+          .group(group)
+          .title(skill.getDisplayName(level))
+          .build();
+      if (clientToast) {
+        notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP, ClientToasts.skillIcon(skill),
+            toastTitle(skill, level), ""), group, List.of(levelBar)));
+      } else if (showPopup) {
+        notifications.add(levelBar);
       }
       if (!notifications.isEmpty()) {
         p.getActionBarNotifier().queue(notifications.toArray(new Notification[0]));
@@ -567,8 +585,31 @@ public class PlayerSkillLine {
     }
   }
 
+  /** The level-up toast title: the skill's colour and plain name, then the level, without the menu symbol. */
+  static String toastTitle(Skill<?> skill, int level) {
+    return skill.getColor().toString() + C.BOLD + skill.getLocalizedName() + C.RESET + " " + C.WHITE + level;
+  }
+
+  /** The level-up toast body: the knowledge line with the skill's plain name, since a menu symbol draws as a fallback glyph. */
+  static String toastKnowledge(Skill<?> skill, long knowledge) {
+    return AdaptLanguage.text(
+        RuntimeMessages.KNOWLEDGE_STATUS,
+        trusted("amount", knowledge),
+        trusted("skill", skill.getColor().toString() + skill.getLocalizedName() + C.RESET)
+    );
+  }
+
+  private static String knowledgeStatus(Skill<?> skill, long knowledge) {
+    return AdaptLanguage.text(
+        RuntimeMessages.KNOWLEDGE_STATUS,
+        trusted("amount", knowledge),
+        trusted("skill", skill.getShortName())
+    );
+  }
+
   public void giveKnowledge(long points) {
     this.knowledge += points;
+    ClientUiService.changed(runtimeOwner);
   }
 
   public double getMinimumXPForLevel() {
@@ -636,6 +677,7 @@ public class PlayerSkillLine {
 
     if (getKnowledge() >= c) {
       setKnowledge(getKnowledge() - c);
+      ClientUiService.changed(runtimeOwner);
       return true;
     }
 

@@ -109,7 +109,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     PlayerRef player = combat.attacker();
     UUID playerId = player.uuid();
     long durationMillis = getDurationOfEffect(combat.level());
-    if (!cooldowns.isReady(playerId, getCooldown(combat.level()))) {
+    long cooldownMillis = getCooldown(combat.level());
+    if (!cooldowns.isReady(playerId, cooldownMillis)) {
       return;
     }
 
@@ -120,7 +121,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
       return;
     }
 
-    cooldowns.mark(playerId);
+    cooldowns.mark(playerId, cooldownMillis);
     long now = System.currentTimeMillis();
     pruneExpired(now);
     bleedSource.put(target.uuid(), new BleedMark(playerId, now + durationMillis + KILL_CREDIT_GRACE_MS));

@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -150,7 +151,9 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         e.setCancelled(true);
       }
 
-      p.setCooldown(HAY_BLOCK, getCooldownTicks(level));
+      int cooldownTicks = getCooldownTicks(level);
+      p.setCooldown(HAY_BLOCK, cooldownTicks);
+      AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
       triggerRollPose(p, level);
 
       int dust = (int) Math.max(4, Math.min(12, 4 + Math.round(absorbed)));
@@ -192,9 +195,11 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
   private void triggerRollPose(PlayerRef p, int level) {
     int proneTicks = getProneTicks(level);
-    long until = System.currentTimeMillis() + (proneTicks * 50L);
+    long now = System.currentTimeMillis();
+    long until = now + (proneTicks * 50L);
     UUID id = p.uuid();
     proneUntilMillis.put(id, until);
+    AbilityGlyphs.duration(id, this, now, proneTicks * 50L);
     p.setSwimming(true);
 
     timeline(p)

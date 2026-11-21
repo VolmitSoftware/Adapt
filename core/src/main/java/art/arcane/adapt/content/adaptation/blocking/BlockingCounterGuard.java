@@ -29,6 +29,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.notification.ActionBarNotification;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -58,6 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.Config> {
   private static final Id SHIELD = Id.minecraft("shield");
+  private static final long STACK_DISPLAY_MILLIS = 750L;
   private final Map<UUID, Integer> reservedStackCosts = playerState();
   private final Set<ReflectionKey> pendingReflections = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean acceptingReflections = new AtomicBoolean(true);
@@ -294,12 +297,20 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
   }
 
   private void displayStacks(PlayerRef defender, int stacks, int maxStacks) {
+    if (AbilityGlyphs.capable(defender.uuid())) {
+      if (stacks > 0) {
+        AbilityGlyphs.charges(defender.uuid(), this, stacks, maxStacks);
+      } else {
+        AbilityGlyphs.clear(defender.uuid(), this, HudGlyph.CHARGES);
+      }
+      return;
+    }
+    String name = C.GOLD + AdaptLanguage.text(BlockingMessages.COUNTER_GUARD_NAME);
     getPlayer(defender).getActionBarNotifier().queue(ActionBarNotification.builder()
         .duration(350)
-        .maxTTL(M.ms() + 750L)
+        .maxTTL(M.ms() + STACK_DISPLAY_MILLIS)
         .group("blocking-counter-guard")
-        .title(C.GOLD + AdaptLanguage.text(BlockingMessages.COUNTER_GUARD_NAME)
-            + C.GRAY + " " + stackFraction(stacks, maxStacks))
+        .title(name + C.GRAY + " " + stackFraction(stacks, maxStacks))
         .build());
   }
 

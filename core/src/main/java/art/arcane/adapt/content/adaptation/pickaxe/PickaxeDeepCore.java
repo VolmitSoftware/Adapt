@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.support.PlatformNeed;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -124,6 +125,7 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
     AdaptAttributeService.get().applyTimed(p, getName(), HASTE_SLOT, Attributes.BLOCK_BREAK_SPEED,
         hasteMultiplier(amplifier), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
     hasteExpiresAt.put(p.uuid(), now + durationTicks * MILLIS_PER_TICK);
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * MILLIS_PER_TICK);
     if (onset) {
       fx(p.eyeLocation(), FxPriority.TRANSITION)
           .particle(Particles.CRIT, 4, 0, 0.3, 0, 0.2, 0.05)

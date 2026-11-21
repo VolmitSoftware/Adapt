@@ -4059,6 +4059,12 @@ jump = "קפיצה"
 attack = "התקפה"
 stat = "{label} {value}"
 stable_hand = "משופר על ידי עובד האורווה"
+armor = "שריון"
+effects = "השפעות"
+wild = "פראי"
+yours = "שלך"
+tamed = "מאולף"
+tamed_by = "אולף על ידי {owner}"
 lore = ["טווח זיהוי"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "בטל קודם את הלמידה של {dependents}; �
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt השתנה בזמן שהמסך הזה היה פתוח. נסה שוב."
+unavailable = "ההתאמה הזו אינה זמינה עבורך."
+no_change = "שום דבר לא השתנה."
+preference_saved = "ההגדרה נשמרה."
+preference_denied = "לא ניתן לשנות את ההגדרה הזו כרגע."
 
 [items.backpack]
 name = "תרמיל"
@@ -6681,6 +6694,7 @@ lore3 = "נעילה בזמן קרב"
 lore = ["ספיגה מרבית", "ספיגה בכל פעימה", "נעילה בזמן קרב"]
 
 [command.help]
+show_client_ui_status = "מציג אם שחקן משתמש בממשק הלקוח של Adapt"
 version = "הצגת גרסת התוסף המותקן"
 debug_dump = "יצירת דוח אבחון והעלאתו לפי בחירה"
 debug_upload = "העלאת הדוח אל mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "כמות בין 1 ל-64, ברירת מחדל 1"
 
 [command.runtime]
+client_ui_absent = "{player} משתמש בממשק התיבות ושורת הפעולה (לא סוכם לקוח Adapt)."
+client_ui_negotiated = "{player} משתמש בממשק הלקוח של Adapt: פרוטוקול {version}, יכולות {capabilities}."
 missing_permission = "אין לך את ההרשאה '{permission}'."
 player_required_from_console = "עליך לציין שחקן כשאתה משתמש בפקודה זו מהקונסולה."
 player_required_from_console_short = "עליך לציין שחקן מהקונסולה."

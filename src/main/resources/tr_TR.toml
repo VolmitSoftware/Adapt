@@ -4059,6 +4059,12 @@ jump = "Zıplama"
 attack = "Saldırı"
 stat = "{label} {value}"
 stable_hand = "Seyis ile güçlendirildi"
+armor = "Zırh"
+effects = "Efektler"
+wild = "Vahşi"
+yours = "Senin"
+tamed = "Evcil"
+tamed_by = "{owner} tarafından evcilleştirildi"
 lore = ["Algılama Menzili"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Önce {dependents} öğrenimini geri al; bunlar {adapt
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Bu ekran açıkken Adapt değişti. Tekrar dene."
+unavailable = "Bu adaptasyon senin için kullanılamaz."
+no_change = "Hiçbir şey değişmedi."
+preference_saved = "Ayar kaydedildi."
+preference_denied = "Bu ayar şu anda değiştirilemez."
 
 [items.backpack]
 name = "Sırt çantası"
@@ -6681,6 +6694,7 @@ lore3 = "Savaş Kilidi"
 lore = ["Maksimum Emilim", "Dalga Başına Emilim", "Savaş Kilidi"]
 
 [command.help]
+show_client_ui_status = "Bir oyuncunun Adapt istemci arayüzünü kullanıp kullanmadığını gösterir"
 version = "Yüklü eklenti sürümünü göster"
 debug_dump = "Tanılama raporu oluştur ve isteğe bağlı olarak yükle"
 debug_upload = "Raporu mclo.gs üzerine yükle"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "1 ile 64 arası miktar, varsayılan 1"
 
 [command.runtime]
+client_ui_absent = "{player} sandık ve eylem çubuğu arayüzünü kullanıyor (Adapt istemcisi anlaşılmadı)."
+client_ui_negotiated = "{player} Adapt istemci arayüzünü kullanıyor: protokol {version}, yetenekler {capabilities}."
 missing_permission = "'{permission}' iznine sahip değilsiniz."
 player_required_from_console = "Bu komutu konsoldan kullanırken bir oyuncu belirtmeniz gerekir."
 player_required_from_console_short = "Bir oyuncuyu konsoldan belirtmelisiniz."

@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -153,9 +154,10 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     e.setCancelled(true);
     p.inventory().setMainHand(hand);
     p.giveExpLevels(-xpCost);
-    ritualCooldown.mark(p.uuid());
+    ritualCooldown.mark(p.uuid(), (long) getConfig().cooldownMillis);
 
     AdaptAttributeService.get().applyTimed(p, getName(), SHARP_SLOT, Attributes.ATTACK_DAMAGE, sharpnessDamage(getBuffStrength(level)), AttributeOperation.ADD_VALUE, duration);
+    AbilityGlyphs.duration(p.uuid(), this, System.currentTimeMillis(), duration * 50L);
 
     ritualFx(p, level);
     xp(p, getConfig().skillXpOnRitual);

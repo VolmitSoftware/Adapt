@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
@@ -963,6 +964,7 @@ public class AdaptPlayer extends TickedObject {
         RegionGrantRuntime.refresh(this, playerLocation);
         getData().update(this);
         placeholderPort().publishPlayer(this);
+        ClientUiService.changed(this);
         nextUpdateAt = now + UPDATE_INTERVAL_MS;
       }
 

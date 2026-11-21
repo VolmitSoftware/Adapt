@@ -15,11 +15,22 @@ import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.client.protocol.HintKind;
+import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelTile;
+import art.arcane.adapt.client.protocol.PanelView;
+import art.arcane.adapt.client.protocol.TileRole;
+import art.arcane.adapt.client.server.panel.PanelViews;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuIcon;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.WorldRef;
@@ -466,6 +477,75 @@ class PreferenceGuiSupportTest {
       verify(adaptPlayer).requestSave();
       verify(sounds).play(player.location(), Sounds.BLOCK_NOTE_BLOCK_BASS, 0.3F, 0.7F);
     }
+  }
+
+  @Test
+  void multiChoicePreferenceIsAChoiceSettingWithItsAllowedOptions() {
+    MenuButton button = control.button();
+
+    assertThat(button.icon().name()).isEqualTo("Text");
+    assertThat(button.icon().lore()).containsExactly("Text", "Text", "Text");
+    assertThat(button.clickable()).isTrue();
+    assertThat(button.hint().kind()).isEqualTo(MenuHint.Kind.CHOICE);
+    assertThat(button.hint().input()).isNull();
+    assertThat(button.hint().options()).hasSize(2);
+    assertThat(button.meta().role()).isEqualTo(MenuRole.SETTING);
+    assertThat(button.meta().value()).isEqualTo("Text");
+    assertThat(button.meta().description()).containsExactly("Text");
+    assertThat(reset.button().meta().role()).isEqualTo(MenuRole.ACTION);
+  }
+
+  @Test
+  void serverControlledPreferenceIsInfoWithItsValue() {
+    policy.playerEditable = false;
+    PreferenceGuiSupport.populate(adaptation, window, 2, 0);
+    ArgumentCaptor<GuiElement> locked = ArgumentCaptor.forClass(GuiElement.class);
+    verify(window).setElement(eq(-1), eq(2), locked.capture());
+
+    MenuButton button = locked.getValue().button();
+    assertThat(button.hint()).isNull();
+    assertThat(button.meta().role()).isEqualTo(MenuRole.INFO);
+    assertThat(button.meta().value()).isEqualTo("Text");
+  }
+
+  @Test
+  void toggleGroupMenuIsAFormOfTogglesWithLockedEntriesAsInfo() {
+    when(adaptation.getPlayerPreferences()).thenReturn(List.of(PREFERENCE, WHEAT, GLOW_BERRIES, KELP));
+    when(adaptation.isPlayerPreferenceBlocked(GLOW_BERRIES)).thenReturn(true);
+    GuiWindow real = new GuiWindow(player);
+    AdaptConfig defaults = new AdaptConfig();
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(defaults);
+      PreferenceGroupGui.populate(adaptation, GROWABLES, real, 0);
+    }
+    ChestMenu menu = real.build();
+
+    assertThat(menu.rows()).isEqualTo(2);
+    assertThat(menu.buttons().keySet()).containsExactlyInAnyOrder(3, 4, 5, 13);
+    MenuIcon wheat = menu.button(3).icon();
+    assertThat(wheat.type()).isEqualTo(Id.minecraft("wheat"));
+    assertThat(wheat.name()).isEqualTo("Text");
+    assertThat(wheat.lore()).containsExactly("Text", "Text");
+    assertThat(wheat.glint()).isTrue();
+    assertThat(menu.button(4).icon().type()).isEqualTo(Id.minecraft("gray_stained_glass_pane"));
+    assertThat(menu.button(4).icon().lore()).containsExactly("Text");
+    assertThat(menu.buttons().values()).allMatch(MenuButton::clickable);
+
+    PanelView view = PanelViews.view(1, 0, menu);
+    assertThat(view.layout()).isEqualTo(PanelLayout.FORM);
+    PanelTile wheatTile = tile(view, 3);
+    assertThat(wheatTile.role()).isEqualTo(TileRole.SETTING);
+    assertThat(wheatTile.hint().kind()).isEqualTo(HintKind.TOGGLE);
+    assertThat(wheatTile.description()).isEmpty();
+    PanelTile blocked = tile(view, 4);
+    assertThat(blocked.role()).isEqualTo(TileRole.INFO);
+    assertThat(blocked.hint()).isNull();
+    assertThat(blocked.value()).isEqualTo("Text");
+    assertThat(PanelViews.chromeTarget(tile(view, 13))).isEqualTo("back");
+  }
+
+  private static PanelTile tile(PanelView view, int slot) {
+    return view.tiles().stream().filter((PanelTile tile) -> tile.slot() == slot).findFirst().orElseThrow();
   }
 
   private void click(GuiElement element, ClickKind kind) {

@@ -13,6 +13,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +39,12 @@ public final class PlayerStateRegistry {
   }
 
   public static Cooldowns newCooldowns() {
-    return new Cooldowns(newPlayerMap());
+    return new Cooldowns(newPlayerMap(), null);
+  }
+
+  /** Cooldowns whose {@link Cooldowns#mark(UUID, long)} shows {@code owner}'s cooldown on the client HUD. */
+  public static Cooldowns newCooldowns(Adaptation<?> owner) {
+    return new Cooldowns(newPlayerMap(), Objects.requireNonNull(owner, "owner"));
   }
 
   public static void start() {

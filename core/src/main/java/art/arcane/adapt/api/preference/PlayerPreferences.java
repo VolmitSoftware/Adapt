@@ -10,6 +10,7 @@ import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
@@ -104,6 +105,7 @@ public final class PlayerPreferences {
     player.requestSave();
     PreferenceConfirmation.clear(player.getPlayer());
     reconcile(adaptation, player);
+    ClientUiService.changed(player);
     return true;
   }
 
@@ -116,6 +118,7 @@ public final class PlayerPreferences {
     }
     PreferenceConfirmation.clear(player.getPlayer());
     reconcile(adaptation, player);
+    ClientUiService.changed(player);
     return true;
   }
 
@@ -179,6 +182,7 @@ public final class PlayerPreferences {
     player.getData().getPreferences().setSkill(skill.getName(), CommonPreferences.SKILL_ENABLED.id(), value.name());
     player.requestSave();
     reconcileSkill(skill, player);
+    ClientUiService.changed(player);
     return true;
   }
 
@@ -190,6 +194,7 @@ public final class PlayerPreferences {
       player.requestSave();
     }
     reconcileSkill(skill, player);
+    ClientUiService.changed(player);
     return true;
   }
 

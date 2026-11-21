@@ -165,6 +165,18 @@ public final class FakeItems implements ItemOps {
     return encode(item).getBytes(StandardCharsets.UTF_8);
   }
 
+  /** Every field a test can tell stacks apart by; real platforms write gzip NBT instead. */
+  @Override
+  public byte[] encodeNbt(ItemRef item) {
+    if (item == null || item.isEmpty()) {
+      throw new IllegalArgumentException("Cannot encode an empty item stack");
+    }
+    StringBuilder encoded = new StringBuilder(item.type().toString()).append('|').append(item.displayName())
+        .append('|').append(item.lore()).append('|').append(item.enchantments()).append('|').append(item.itemModel());
+    item.data().keys().stream().map(Id::toString).sorted().forEach(key -> encoded.append('|').append(key));
+    return encoded.toString().getBytes(StandardCharsets.UTF_8);
+  }
+
   @Override
   public ItemRef deserialize(byte[] data) {
     String encoded = new String(data, StandardCharsets.UTF_8);

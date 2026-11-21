@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.Map;
@@ -28,6 +29,14 @@ public final class GuiCloseSuppression {
     }
 
     return consume(player.uuid());
+  }
+
+  /**
+   * True when a closed Adapt menu may reopen its parent: the viewer is online and nothing replaced the menu, neither
+   * another Adapt menu nor a window opened outside the menu host (a plugin inventory, a station, a container).
+   */
+  public static boolean windowFree(PlayerRef player) {
+    return player.isOnline() && AdaptCore.platform().menus().current(player) == null && !player.hasOpenContainer();
   }
 
   public static void suppress(UUID playerId) {

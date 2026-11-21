@@ -193,6 +193,21 @@ public final class AdaptLanguage {
     return activeLocale;
   }
 
+  /** The locale text for {@code player} resolves in: their personal choice, else the server locale. */
+  public static String locale(UUID player) {
+    PluginLanguageService current = selections;
+    return current == null || player == null ? activeLocale : current.effectiveLocale(player);
+  }
+
+  /**
+   * The messages {@code player}'s text resolves from right now. Every reload, edit or locale switch that changes those
+   * messages yields a new instance, so identity tells a cached rendering apart from the current one.
+   */
+  public static LocalizationSnapshot snapshot(UUID player) {
+    PluginLanguageService current = selections;
+    return current == null || player == null ? MANAGER.snapshot() : current.snapshot(player);
+  }
+
   public static File languageFolder() {
     return new File(dataFolder(), "languages");
   }

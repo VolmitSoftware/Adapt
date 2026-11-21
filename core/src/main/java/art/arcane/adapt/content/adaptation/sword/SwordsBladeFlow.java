@@ -30,6 +30,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -110,6 +112,7 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     long windowMillis = (long) getConfig().windowMillis;
     flowStacks.put(id, next);
     flowExpireAt.put(id, now + windowMillis);
+    AbilityGlyphs.duration(id, this, now, windowMillis, next, cap);
     AdaptAttributeService.get().applyTimed(p, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED,
         attackSpeedBonus(next), AttributeOperation.ADD_MULTIPLIED_BASE, effectDurationTicks(windowMillis));
 
@@ -169,6 +172,7 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     UUID id = player.uuid();
     flowStacks.remove(id);
     flowExpireAt.remove(id);
+    AbilityGlyphs.clear(id, this, HudGlyph.DURATION);
     AdaptAttributeService.get().remove(player, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED);
   }
 

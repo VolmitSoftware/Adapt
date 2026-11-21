@@ -4059,6 +4059,12 @@ jump = "Šuolis"
 attack = "Ataka"
 stat = "{label} {value}"
 stable_hand = "Sustiprinta Arklininko įgūdžiu"
+armor = "Šarvai"
+effects = "Efektai"
+wild = "Laukinis"
+yours = "Tavo"
+tamed = "Prijaukintas"
+tamed_by = "Prijaukino {owner}"
 lore = ["Aptikimo nuotolis"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Pirmiausia atsisakykite {dependents}; jiems reikia {ad
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt pasikeitė, kol šis langas buvo atidarytas. Bandyk dar kartą."
+unavailable = "Ši adaptacija tau neprieinama."
+no_change = "Niekas nepasikeitė."
+preference_saved = "Nustatymas išsaugotas."
+preference_denied = "Šio nustatymo dabar pakeisti negalima."
 
 [items.backpack]
 name = "Kuprinė"
@@ -6681,6 +6694,7 @@ lore3 = "Išjungimas kovos metu"
 lore = ["Didžiausia Absorbcija", "Absorbcija per impulsą", "Išjungimas kovos metu"]
 
 [command.help]
+show_client_ui_status = "Parodo, ar žaidėjas naudoja Adapt kliento sąsają"
 version = "Rodyti įdiegto papildinio versiją"
 debug_dump = "Sukurti diagnostikos ataskaitą ir pasirinktinai ją įkelti"
 debug_upload = "Įkelti ataskaitą į mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Kiekis nuo 1 iki 64, numatytasis 1"
 
 [command.runtime]
+client_ui_absent = "{player} naudoja skrynių ir veiksmų juostos sąsają (Adapt klientas nesuderintas)."
+client_ui_negotiated = "{player} naudoja Adapt kliento sąsają: protokolas {version}, galimybės {capabilities}."
 missing_permission = "Neturite leidimo '{permission}'."
 player_required_from_console = "Naudodami šią komandą konsolėje turite nurodyti žaidėją."
 player_required_from_console_short = "Konsolėje turite nurodyti žaidėją."

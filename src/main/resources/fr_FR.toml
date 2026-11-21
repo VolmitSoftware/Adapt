@@ -4055,6 +4055,12 @@ jump = "Saut"
 attack = "Attaque"
 stat = "{label} {value}"
 stable_hand = "Amélioré par Main d'Éleveur"
+armor = "Armure"
+effects = "Effets"
+wild = "Sauvage"
+yours = "À toi"
+tamed = "Apprivoisé"
+tamed_by = "Apprivoisé par {owner}"
 lore = ["Portée de détection"]
 
 [discovery.trailblazer]
@@ -5261,6 +5267,13 @@ required_by_dependents = "Oubliez d'abord {dependents} ; ils nécessitent {adapt
 
 [gui.skill]
 title = "{skill} {progress} ({xp}EXP {nextLevel})"
+
+[gui.client]
+catalog_changed = "Adapt a changé pendant que cet écran était ouvert. Réessaie."
+unavailable = "Cette adaptation ne t'est pas disponible."
+no_change = "Rien n'a changé."
+preference_saved = "Réglage enregistré."
+preference_denied = "Ce réglage ne peut pas être modifié pour le moment."
 
 [items.backpack]
 name = "Sac à Dos"
@@ -6677,6 +6690,7 @@ lore3 = "Délai après un combat"
 lore = ["Absorption max", "Absorption par impulsion", "Délai après un combat"]
 
 [command.help]
+show_client_ui_status = "Indique si un joueur utilise l'interface du client Adapt"
 version = "Afficher la version installée du plugin"
 debug_dump = "Créer et téléverser facultativement un rapport de diagnostic"
 debug_upload = "Téléverser le rapport sur mclo.gs"
@@ -6747,6 +6761,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Quantité de 1 à 64, 1 par défaut"
 
 [command.runtime]
+client_ui_absent = "{player} utilise l'interface de coffres et de barre d'action (aucun client Adapt négocié)."
+client_ui_negotiated = "{player} utilise l'interface du client Adapt : protocole {version}, capacités {capabilities}."
 missing_permission = "Il vous manque la permission '{permission}'."
 player_required_from_console = "Vous devez spécifier un joueur lorsque vous utilisez cette commande depuis la console."
 player_required_from_console_short = "Vous devez spécifier un joueur depuis la console."

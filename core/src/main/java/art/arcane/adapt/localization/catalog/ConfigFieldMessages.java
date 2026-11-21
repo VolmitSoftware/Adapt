@@ -26,6 +26,10 @@ public final class ConfigFieldMessages {
     }
   }
 
+  public static boolean has(String path) {
+    return FIELDS.containsKey(path);
+  }
+
   public static FieldMessages field(String path) {
     FieldMessages messages = FIELDS.get(path);
     if (messages == null) {

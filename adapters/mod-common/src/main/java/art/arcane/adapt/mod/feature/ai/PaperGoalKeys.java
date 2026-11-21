@@ -3,7 +3,20 @@ package art.arcane.adapt.mod.feature.ai;
 import art.arcane.adapt.platform.value.Id;
 import com.google.common.base.CaseFormat;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.FleeSunGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.GolemRandomStrollInVillageGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.MoveBackToVillageGoal;
+import net.minecraft.world.entity.ai.goal.OfferFlowerGoal;
+import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
+import net.minecraft.world.entity.ai.goal.RestrictSunGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.DefendVillageTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 
 import java.lang.reflect.Constructor;
@@ -48,6 +61,25 @@ final class PaperGoalKeys {
             "AbstractSkeleton$1", "AbstractSkeletonMelee",
             "TraderLlama$TraderLlamaDefendWanderingTraderGoal", "TraderLlamaDefendWanderingTraderGoal",
             "AbstractIllager$RaiderOpenDoorGoal", "RaiderOpenDoorGoal");
+    /**
+     * Keys of the vanilla goals Adapt removes or restores, matched by class identity: Fabric before 26.1 runs with
+     * intermediary class names, so the name-derived key cannot match there.
+     */
+    private static final Map<Class<?>, String> KNOWN = Map.ofEntries(
+            Map.entry(AvoidEntityGoal.class, "avoid_entity"),
+            Map.entry(DefendVillageTargetGoal.class, "iron_golem_defend_village"),
+            Map.entry(FleeSunGoal.class, "flee_sun"),
+            Map.entry(GolemRandomStrollInVillageGoal.class, "golem_random_stroll_in_village"),
+            Map.entry(HurtByTargetGoal.class, "hurt_by"),
+            Map.entry(MeleeAttackGoal.class, "melee_attack"),
+            Map.entry(MoveBackToVillageGoal.class, "move_back_to_village"),
+            Map.entry(NearestAttackableTargetGoal.class, "nearest_attackable"),
+            Map.entry(OfferFlowerGoal.class, "iron_golem_offer_flower"),
+            Map.entry(RangedAttackGoal.class, "ranged_attack"),
+            Map.entry(RangedBowAttackGoal.class, "ranged_bow_attack"),
+            Map.entry(RestrictSunGoal.class, "restrict_sun"),
+            Map.entry(WaterAvoidingRandomStrollGoal.class, "water_avoiding_random_stroll"));
+    private static final String SKELETON_MELEE = "skeleton_melee";
     private static final Comparator<Constructor<?>> VISIBILITY = Comparator.comparingInt(PaperGoalKeys::visibilityRank);
     private static final Map<Class<?>, Id> CACHE = new ConcurrentHashMap<>();
 
@@ -59,9 +91,24 @@ final class PaperGoalKeys {
         if (cached != null) {
             return cached;
         }
-        Id created = Id.minecraft(pathName(mobType(goalClass), topLevel(goalClass), goalClass.getName()));
+        String known = known(goalClass);
+        Id created = known == null ? derived(goalClass) : Id.minecraft(known);
         CACHE.put(goalClass, created);
         return created;
+    }
+
+    static String known(Class<?> goalClass) {
+        String known = KNOWN.get(goalClass);
+        if (known != null) {
+            return known;
+        }
+        Class<?> enclosing = goalClass.getEnclosingClass();
+        return goalClass.isAnonymousClass() && MeleeAttackGoal.class.isAssignableFrom(goalClass)
+                && enclosing != null && RangedAttackMob.class.isAssignableFrom(enclosing) ? SKELETON_MELEE : null;
+    }
+
+    static Id derived(Class<?> goalClass) {
+        return Id.minecraft(pathName(mobType(goalClass), topLevel(goalClass), goalClass.getName()));
     }
 
     static String pathName(String type, Class<?> holder, String name) {

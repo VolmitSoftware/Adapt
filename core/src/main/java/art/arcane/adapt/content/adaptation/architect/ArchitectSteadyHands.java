@@ -34,6 +34,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -138,7 +139,9 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     if (preferenceEnabled(p, FALL)) {
       attributes.applyTimed(p, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE, getShieldedHeight(getLevelPercent(context.level())), AttributeOperation.ADD_VALUE, graceTicks);
     }
-    bridgeGraceUntil.put(p.uuid(), M.ms() + (graceTicks * 50L));
+    long now = M.ms();
+    bridgeGraceUntil.put(p.uuid(), now + (graceTicks * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, graceTicks * 50L);
     addStat(p, "architect.steady-hands.bridge-blocks", 1);
     if (auraCd.isReady(p.uuid(), 250)) {
       auraCd.mark(p.uuid());

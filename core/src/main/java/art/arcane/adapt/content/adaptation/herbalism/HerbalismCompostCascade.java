@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
@@ -202,7 +203,9 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int updatedLevel = Math.min(MAX_COMPOST_LEVEL, Math.max(oldLevel, state.compostLevel));
     composter.setState(composter.state().with("level", Integer.toString(updatedLevel)), true);
 
-    p.setCooldown(COMPOSTER, getCooldownTicks(level));
+    int cooldownTicks = getCooldownTicks(level);
+    p.setCooldown(COMPOSTER, cooldownTicks);
+    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
     e.setCancelled(true);
 
     addStat(p, "harvest.composted", state.consumed);

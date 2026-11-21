@@ -116,7 +116,7 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
       return;
     }
 
-    interceptCd.mark(ownerId);
+    interceptCd.mark(ownerId, getConfig().cooldownMillis);
     double petDamage = Math.max(0.0, damage * (1.0 - getPetReduction(level)));
     e.setCancelled(true);
 

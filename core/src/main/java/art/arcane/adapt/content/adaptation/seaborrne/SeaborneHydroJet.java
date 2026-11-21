@@ -32,6 +32,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -40,6 +42,7 @@ import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Vec3;
+import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -131,6 +134,30 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     charges.remove(e.player().uuid());
   }
 
+  private void publishCharges(PlayerRef p, ChargeState state, int max, long now) {
+    UUID id = p.uuid();
+    long regenMillis = getConfig().chargeRegenMillis;
+    int lit = (int) Math.floor(state.value);
+    if (lit >= max || regenMillis <= 0L) {
+      AbilityGlyphs.clear(id, this, HudGlyph.CHARGES);
+      return;
+    }
+    long rechargeStartedAt = now - (long) ((state.value - lit) * regenMillis);
+    if (!AbilityGlyphs.charges(id, this, lit, max, rechargeStartedAt, regenMillis) || state.refreshPending) {
+      return;
+    }
+    int waitTicks = (int) Math.max(1L, (rechargeStartedAt + regenMillis - now + 49L) / 50L);
+    state.refreshPending = Tasks.runEntity(p, () -> {
+      state.refreshPending = false;
+      if (charges.get(id) != state) {
+        return;
+      }
+      long at = System.currentTimeMillis();
+      state.refill(max, regenMillis, at);
+      publishCharges(p, state, max, at);
+    }, waitTicks);
+  }
+
   public boolean reservesSneak(PlayerRef p) {
     if (!isPlayerEnabled(p) || getActiveLevel(p) <= 0 || !p.isSwimming()) {
       return false;
@@ -169,15 +196,18 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     }
 
     UUID id = p.uuid();
-    double max = getMaxCharges(level);
-    ChargeState state = charges.computeIfAbsent(id, key -> new ChargeState(max, System.currentTimeMillis()));
-    state.refill(max, getConfig().chargeRegenMillis, System.currentTimeMillis());
+    int max = getMaxCharges(level);
+    long now = System.currentTimeMillis();
+    ChargeState state = charges.computeIfAbsent(id, key -> new ChargeState(max, now));
+    state.refill(max, getConfig().chargeRegenMillis, now);
     if (state.value < 1D) {
+      publishCharges(p, state, max, now);
       FxPresets.failFizzle(this, p);
       return;
     }
 
     state.value -= 1D;
+    publishCharges(p, state, max, now);
     Vec3 direction = p.eyeLocation().direction().normalize();
     Vec3 velocity = p.velocity().multiply(0.4D).add(direction.multiply(getBurstForce(level)));
     if (velocity.lengthSquared() > MAX_RESULTING_VELOCITY * MAX_RESULTING_VELOCITY) {
@@ -244,6 +274,7 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
   private static final class ChargeState {
     private double value;
     private long lastRefillAt;
+    private boolean refreshPending;
 
     private ChargeState(double value, long lastRefillAt) {
       this.value = value;

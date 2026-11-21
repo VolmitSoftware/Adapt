@@ -4059,6 +4059,12 @@ jump = "Salto"
 attack = "Ataque"
 stat = "{label} {value}"
 stable_hand = "Melhorado pelo Moço de Estrebaria"
+armor = "Armadura"
+effects = "Efeitos"
+wild = "Selvagem"
+yours = "Teu"
+tamed = "Domesticado"
+tamed_by = "Domesticado por {owner}"
 lore = ["Alcance de deteção"]
 
 [discovery.trailblazer]
@@ -5265,6 +5271,13 @@ required_by_dependents = "Desaprende primeiro {dependents}; estes requerem {adap
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[gui.client]
+catalog_changed = "O Adapt mudou enquanto este ecrã estava aberto. Tenta novamente."
+unavailable = "Essa adaptação não está disponível para ti."
+no_change = "Nada mudou."
+preference_saved = "Definição guardada."
+preference_denied = "Essa definição não pode ser alterada agora."
 
 [items.backpack]
 name = "Mochila"
@@ -6681,6 +6694,7 @@ lore3 = "Bloqueio de Combate"
 lore = ["Absorção Máxima", "Absorção por pulso", "Bloqueio de Combate"]
 
 [command.help]
+show_client_ui_status = "Mostra se um jogador usa a interface do cliente Adapt"
 version = "Mostrar a versão do plugin instalado"
 debug_dump = "Criar um relatório de diagnóstico e carregá-lo opcionalmente"
 debug_upload = "Carregar o relatório para mclo.gs"
@@ -6751,6 +6765,8 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "Quantidade de 1 a 64, predefinição 1"
 
 [command.runtime]
+client_ui_absent = "{player} usa a interface de baús e barra de ação (nenhum cliente Adapt negociado)."
+client_ui_negotiated = "{player} usa a interface do cliente Adapt: protocolo {version}, capacidades {capabilities}."
 missing_permission = "Não tens a permissão '{permission}'."
 player_required_from_console = "Tens de indicar um jogador ao usar este comando a partir da consola."
 player_required_from_console_short = "Tens de indicar um jogador a partir da consola."

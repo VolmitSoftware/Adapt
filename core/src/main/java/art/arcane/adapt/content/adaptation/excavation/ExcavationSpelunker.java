@@ -148,7 +148,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       return;
     }
 
-    if (!cooldowns.isReady(p.uuid(), (long) (1000 * getConfig().cooldown))) {
+    long cooldownMillis = (long) (1000 * getConfig().cooldown);
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis)) {
       fx(p.eyeLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.1D, 0.01D)
           .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1.0f);
@@ -166,7 +167,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       return;
     }
     startScan(p, origin, targetOre, radius);
-    cooldowns.mark(p.uuid());
+    cooldowns.mark(p.uuid(), cooldownMillis);
   }
 
   private boolean hasGlowberries(PlayerRef player) {

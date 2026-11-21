@@ -251,7 +251,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerTeleportEvent event) {
     movement.remove(event.player().uuid());
-    doubleJump.reset(event.player().uuid());
+    doubleJump.restart(event.player().uuid());
   }
 
   @Handle(priority = EventPriority.LOWEST)
@@ -417,7 +417,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         return;
       }
 
-      lastBlink.mark(operation.playerId());
+      lastBlink.mark(operation.playerId(), Math.max(0L, getConfig().cooldownMillis));
       awardUsageBaselineXp(p, getLevel(p));
       if (getActiveSiblingLevel(p, "rift-resist") > 0) {
         RiftResist.riftResistStackAdd(this, p, 10, 5);

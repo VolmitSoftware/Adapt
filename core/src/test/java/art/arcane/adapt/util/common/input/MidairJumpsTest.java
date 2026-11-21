@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.common.input;
 
+import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.entity.DamageCause;
@@ -13,6 +14,7 @@ import art.arcane.adapt.platform.event.player.PlayerRespawnEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleFlightEvent;
 import art.arcane.adapt.testkit.FakeGameContent;
+import art.arcane.adapt.testkit.FakeItem;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -23,12 +25,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MidairJumpsTest {
-  private final AtomicLong clock = new AtomicLong(1_000L);
   private final Object owner = new Object();
 
   @TempDir
@@ -42,7 +42,7 @@ class MidairJumpsTest {
   void setUp() {
     platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v1_20_1());
-    jumps = new MidairJumps(clock::get);
+    jumps = new MidairJumps();
     player = platform.player("Jumper", 0.5, 64, 0.5);
   }
 
@@ -52,19 +52,40 @@ class MidairJumpsTest {
   }
 
   @Test
-  void grantsOnlyWhileAirborneAndEndsOnLanding() {
+  void grantsOnTheGroundBeforeTheJumpAndKeepsItAfterLanding() {
     jumps.listen(player, owner);
-    assertThat(player.mayFly()).isFalse();
-
-    takeOff();
     assertThat(player.mayFly()).isTrue();
     assertThat(player.allowFlight()).isFalse();
     assertThat(player.data().has(MidairJumps.GRANT_MARKER)).isTrue();
 
+    takeOff();
+    land();
+    jumps.on(move());
+
+    assertThat(player.mayFly()).isTrue();
+    assertThat(player.flightRequestsGranted()).isTrue();
+  }
+
+  @Test
+  void groundGrantNeedsSprintFoodAndNoElytraButTheAirGrantDoesNot() {
+    player.setFoodLevel(MidairJumps.SPRINT_FOOD_LEVEL);
+    jumps.listen(player, owner);
+    assertThat(player.mayFly()).isFalse();
+    takeOff();
+    assertThat(player.mayFly()).isTrue();
     land();
     assertThat(player.mayFly()).isFalse();
-    assertThat(player.flightRequestsGranted()).isFalse();
-    assertThat(player.data().has(MidairJumps.GRANT_MARKER)).isFalse();
+
+    player.setFoodLevel(MidairJumps.SPRINT_FOOD_LEVEL + 1);
+    player.setEquipment(EquipmentSlot.CHEST, FakeItem.of("elytra"));
+    jumps.listen(player, owner);
+    assertThat(player.mayFly()).isFalse();
+    takeOff();
+    assertThat(player.mayFly()).isTrue();
+
+    player.setEquipment(EquipmentSlot.CHEST, FakeItem.of("iron_chestplate"));
+    land();
+    assertThat(player.mayFly()).isTrue();
   }
 
   @Test
@@ -77,16 +98,6 @@ class MidairJumpsTest {
     assertThat(request.isCancelled()).isTrue();
     assertThat(player.isFlying()).isFalse();
     assertThat(jumps.listen(player, owner)).isEqualTo(before + 1);
-  }
-
-  @Test
-  void landingWithoutAnotherListenStillEndsTheGrant() {
-    takeOff();
-    player.setOnGround(true);
-
-    jumps.on(move());
-
-    assertThat(player.mayFly()).isFalse();
   }
 
   @Test
@@ -131,7 +142,10 @@ class MidairJumpsTest {
   @Test
   void grantEndsWhenNoGestureListensAnymore() {
     takeOff();
-    clock.addAndGet(MidairJumps.LISTEN_TIMEOUT_MILLIS + 1L);
+    for (int move = 0; move < MidairJumps.STALE_MOVES; move++) {
+      jumps.on(move());
+    }
+    assertThat(player.mayFly()).isTrue();
 
     jumps.on(move());
 
@@ -153,10 +167,8 @@ class MidairJumpsTest {
   }
 
   @Test
-  void teleportWorldChangeGameModeDeathAndRespawnEndTheGrantUntilTheNextAirborneMove() {
+  void gameModeChangeDeathAndRespawnEndTheGrantUntilTheNextListen() {
     List<Runnable> endings = List.of(
-        () -> jumps.on(new PlayerTeleportEvent(player, player.location(), player.location().add(10, 0, 0), TeleportCause.PLUGIN)),
-        () -> jumps.on(new PlayerChangedWorldEvent(player, player.world())),
         () -> jumps.on(new PlayerGameModeChangeEvent(player, GameMode.ADVENTURE)),
         () -> jumps.on(new PlayerDeathEvent(player, null, null, null, DamageCause.FALL, List.of(), 0, false, false, 0, 0, 0)),
         () -> jumps.on(new PlayerRespawnEvent(player, player.location(), false, false)));
@@ -171,6 +183,20 @@ class MidairJumpsTest {
     }
     takeOff();
     assertThat(player.mayFly()).isTrue();
+  }
+
+  @Test
+  void teleportAndWorldChangeKeepTheGrant() {
+    try (TestAdapt adapt = TestAdapt.start(platform, List.of())) {
+      MidairJumps running = MidairJumps.active();
+      running.listen(player, owner);
+
+      adapt.post(new PlayerTeleportEvent(player, player.location(), player.location().add(10, 0, 0), TeleportCause.PLUGIN));
+      adapt.post(new PlayerChangedWorldEvent(player, player.world()));
+
+      assertThat(player.mayFly()).isTrue();
+      assertThat(running.granted(player.uuid())).isTrue();
+    }
   }
 
   @Test

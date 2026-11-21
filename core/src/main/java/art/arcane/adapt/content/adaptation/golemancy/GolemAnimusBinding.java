@@ -46,6 +46,8 @@ import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -260,6 +262,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     BindingRitual ritual = new BindingRitual(target, ticks, now, takeCore(owner));
     ritualsByOwner.put(owner.uuid(), ritual);
     ritualsByGolem.put(golem.uuid(), ritual);
+    AbilityGlyphs.duration(owner.uuid(), this, now, ticks * 50L);
     GolemRitualMarker.start(golem, ritual.wasAware());
     golem.setAware(false);
     FxTimeline timeline = ritualTimeline(target, ticks);
@@ -446,7 +449,9 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
 
   private void forget(BindingRitual ritual) {
     BindingTarget target = ritual.target();
-    ritualsByOwner.remove(target.owner().uuid(), ritual);
+    if (ritualsByOwner.remove(target.owner().uuid(), ritual)) {
+      AbilityGlyphs.clear(target.owner().uuid(), this, HudGlyph.DURATION);
+    }
     ritualsByGolem.remove(target.golem().uuid(), ritual);
   }
 

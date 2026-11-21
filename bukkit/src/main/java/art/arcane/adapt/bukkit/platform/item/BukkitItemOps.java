@@ -179,6 +179,11 @@ public final class BukkitItemOps implements ItemOps {
   }
 
   @Override
+  public byte[] encodeNbt(ItemRef item) {
+    return BukkitRefs.item(item).serializeAsBytes();
+  }
+
+  @Override
   public boolean hasBlockEntity(Id block) {
     Material material = BukkitResolve.material(block);
     return material != null && material.isBlock() && material.createBlockData().createBlockState() instanceof TileState;

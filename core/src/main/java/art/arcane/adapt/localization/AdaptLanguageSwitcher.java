@@ -3,6 +3,8 @@ package art.arcane.adapt.localization;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.client.protocol.ClientProtocol;
+import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.command.CommandHelpPort;
 import art.arcane.adapt.command.CommandMenu;
 import art.arcane.adapt.command.CommandSource;
@@ -76,8 +78,8 @@ public final class AdaptLanguageSwitcher implements LanguageSwitcherPort {
   public synchronized void open(PluginLanguageService selections) {
     close();
     languages = Objects.requireNonNull(selections, "selections");
-    editor = new LanguageEditorGui(selections, editing,
-        (PlayerRef player) -> command(new PlayerCommandSource(player), new String[0]));
+    editor = new LanguageEditorGui(selections, editing, (PlayerRef player) ->
+        AdaptPorts.get(LanguageSwitcherPort.class, this).command(new PlayerCommandSource(player), new String[0]));
     AdaptCore core = AdaptCore.current();
     if (core != null) {
       PermissionHost permissions = core.getPlatform().permissions();
@@ -94,6 +96,25 @@ public final class AdaptLanguageSwitcher implements LanguageSwitcherPort {
     if (current != null) {
       current.close();
     }
+  }
+
+  @Override
+  public boolean usesCoreEditor() {
+    return true;
+  }
+
+  /**
+   * True when {@code /adapt language <arguments>} opens the message editor for a player whose client shows native
+   * panels; a platform with its own chest editor hands those players to this switcher so they get the same editor
+   * as on every other platform.
+   */
+  public static boolean opensNativeEditor(CommandSource source, String[] arguments) {
+    if (arguments.length < 2 || !arguments[0].equalsIgnoreCase("server") || !arguments[1].equalsIgnoreCase("edit")) {
+      return false;
+    }
+    Optional<PlayerRef> player = source.player();
+    ClientUiService clients = ClientUiService.current();
+    return player.isPresent() && clients != null && clients.has(player.get().uuid(), ClientProtocol.PANEL);
   }
 
   @Override

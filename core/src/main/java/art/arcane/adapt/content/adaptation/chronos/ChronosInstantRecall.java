@@ -34,6 +34,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -897,6 +898,10 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       return false;
     }
 
+    return holdsRequiredClock(p);
+  }
+
+  private boolean holdsRequiredClock(PlayerRef p) {
     return !(getConfig().doubleJumpRequiresClockInHand || preferenceEnabled(p, JUMP_CLOCK)) || hasRecallClockInEitherHand(p);
   }
 
@@ -1047,6 +1052,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     UUID operationId = UUID.randomUUID();
     long recallCooldownMillis = getCooldownMillis(level);
     cooldowns.put(id, castAt + recallCooldownMillis);
+    AbilityGlyphs.cooldown(id, this, castAt, recallCooldownMillis);
     ItemCooldowns.pushMaterial(p, CLOCK, recallCooldownMillis);
     cooldownReadyNotify.put(id, true);
     rewinding.put(id, operationId);
@@ -1405,7 +1411,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @Handle(priority = EventPriority.HIGHEST)
   public void onDoubleJumpMove(PlayerMoveEvent e) {
     PlayerRef p = e.player();
-    if ((!getConfig().enableDoubleJumpTrigger || !preferenceEnabled(p, DOUBLE_JUMP)) || !isRecallEligible(p)) {
+    if ((!getConfig().enableDoubleJumpTrigger || !preferenceEnabled(p, DOUBLE_JUMP)) || !isRecallEligible(p)
+        || !holdsRequiredClock(p)) {
       doubleJump.reset(p);
       return;
     }

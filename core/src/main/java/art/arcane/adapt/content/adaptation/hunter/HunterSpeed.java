@@ -33,6 +33,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -44,11 +46,14 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   private static final Id HUNGER = Id.minecraft("hunger");
   private static final Id POISON = Id.minecraft("poison");
   private final VelocityBurstRuntime.Client speedBursts;
+  private final Map<UUID, Long> burstUntil = playerState();
 
   public HunterSpeed() {
     super("hunter-speed");
@@ -145,7 +150,17 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         overlap,
         burstProfile()
     );
-    return speedBursts.start(p, request).accepted();
+    VelocityBurstRuntime.StartResult result = speedBursts.start(p, request);
+    UUID id = p.uuid();
+    if (result.accepted() && AbilityGlyphs.capable(id)) {
+      long now = System.currentTimeMillis();
+      Long until = burstUntil.get(id);
+      long base = result == VelocityBurstRuntime.StartResult.EXTENDED && until != null && until > now ? until : now;
+      long endsAt = base + (durationTicks * 50L);
+      burstUntil.put(id, endsAt);
+      AbilityGlyphs.duration(id, this, now, endsAt - now);
+    }
+    return result.accepted();
   }
 
   private void brakeScuff(PlayerRef p) {
@@ -191,6 +206,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
     @Override
     public void onEnded(PlayerRef ref) {
+      burstUntil.remove(ref.uuid());
+      AbilityGlyphs.clear(ref.uuid(), HunterSpeed.this, HudGlyph.DURATION);
       fx(ref.location().add(0, 1.0D, 0), FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 3, 0.2D)
           .sound(Sounds.BLOCK_NOTE_BLOCK_HAT, 0.2F, 0.6F);

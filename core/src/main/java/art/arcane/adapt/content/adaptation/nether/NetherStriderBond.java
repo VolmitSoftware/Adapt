@@ -35,6 +35,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -331,6 +332,7 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
 
     setStorage(p, "striderBondMountId", mountId);
     setStorage(p, "striderBondSpeedUntil", now + (durationTicks * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * 50L);
     setStorage(p, "striderBondSpeedAmp", amplifier);
     AdaptAttributeService.get().applyTimed(strider, getName(), SLOT_RIDE, Attributes.MOVEMENT_SPEED, striderSpeedBonus(amplifier), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
   }

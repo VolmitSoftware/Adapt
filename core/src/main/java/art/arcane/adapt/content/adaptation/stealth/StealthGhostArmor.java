@@ -31,6 +31,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -226,6 +228,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     AdaptAttributeService.get().removeAll(p, getName());
     session.armorAmount = 0.0D;
     session.charged = false;
+    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
     double incomingDamage = e.damage();
     int damageXP = (int) Math.min(10, 2.5D * incomingDamage);
     xp(p, damageXP);
@@ -278,6 +281,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     boolean wasCharged = session.charged;
     session.charged = nowCharged;
     if (nowCharged && !wasCharged) {
+      AbilityGlyphs.toggle(player.uuid(), this, true);
       timeline(player).duration(6).priority(FxPriority.TRANSITION).cullRadius(24)
           .frame((emit, tick, progress) -> {
             emit.ring(Particles.END_ROD, 0.6D, 8, 1.4D + (progress * 0.3D));
@@ -289,6 +293,9 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
     }
 
     if (!nowCharged) {
+      if (wasCharged) {
+        AbilityGlyphs.clear(player.uuid(), this, HudGlyph.TOGGLE);
+      }
       fx(player.location().add(0, 1.0D, 0), FxPriority.AMBIENT)
           .particle(Particles.WAX_ON, 1, 0, 0.3D, 0, 0.1D, 0.01D);
     }
@@ -325,6 +332,7 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
       session.armorAmount = 0.0D;
       session.charged = false;
     }
+    AbilityGlyphs.clear(playerId, this, HudGlyph.TOGGLE);
     AdaptAttributeService.get().removeAll(player, getName());
   }
 

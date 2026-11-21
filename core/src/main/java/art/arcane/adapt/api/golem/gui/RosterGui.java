@@ -5,6 +5,10 @@ import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
@@ -99,11 +103,14 @@ public final class RosterGui {
       GuiWindow window = new GuiWindow(player);
       GuiTheme.apply(window, "golemancy-roster");
       window.setViewportHeight(plan.rows());
+      window.setLayout(MenuLayout.LIST);
+      window.setPaging(new MenuPaging(current, plan.pageCount(), entries.size()));
       if (entries.isEmpty()) {
         window.setElement(0, 0, GuiTheme.element("roster-empty", Id.minecraft("paper"), "gui", "golemancy", "roster_empty")
             .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_EMPTY))
             .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.ROSTER_BIND))
-            .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.ROSTER_WORKER)));
+            .addLore(C.GRAY + AdaptLanguage.text(GolemHelpMessages.ROSTER_WORKER))
+            .setRole(MenuRole.INFO));
       }
       for (int index = start; index < end; index++) {
         int slot = index - start;
@@ -207,6 +214,8 @@ public final class RosterGui {
       GuiWindow window = new GuiWindow(player);
       GuiTheme.apply(window, "golemancy-roster");
       window.setViewportHeight(CHANNEL_ROWS);
+      window.setLayout(MenuLayout.LIST);
+      window.setBreadcrumb(List.of(AdaptLanguage.text(GolemancyMessages.ROSTER_TITLE)));
       DyeColor[] colors = DyeColor.values();
       for (int index = 0; index < colors.length; index++) {
         DyeColor color = colors[index];
@@ -219,7 +228,10 @@ public final class RosterGui {
       window.setElement(RIGHT_EDGE, CHANNEL_ROWS - 1, GuiTheme.element("roster-crook-channel-all", Id.minecraft("glass_bottle"), "gui", "golemancy", "channels_clear")
           .setName((selected == null ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_ALL))
           .setEnchanted(selected == null)
-          .onLeftClick(clicked -> setCrookChannel(player, null, page)));
+          .onLeftClick(clicked -> setCrookChannel(player, null, page))
+          .setRole(MenuRole.ENTRY)
+          .setValue(selected == null ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT)));
       window.setTitle(AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_TITLE));
       window.open();
     }
@@ -229,26 +241,35 @@ public final class RosterGui {
     DyeColor channel = GolemItems.crookChannel(player.inventory().mainHand()).orElse(null);
     int mask = channel == null ? ChannelMask.NONE : ChannelMask.of(channel);
     String name = AdaptLanguage.text(channel == null ? GolemancyMessages.ROSTER_CROOK_CHANNEL_ALL : GolemGuiActions.channelName(mask));
-    return GuiTheme.element("roster-crook-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+    return GolemGuiActions.channelElement("roster-crook-channel", mask)
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL, trusted("channel", name)))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_LORE))
-        .onLeftClick(clicked -> openCrookChannels(player, page));
+        .onLeftClick(clicked -> openCrookChannels(player, page))
+        .setRole(MenuRole.NAVIGATION)
+        .setValue(name)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_LORE));
   }
 
   private static GuiElement boneLatticeElement(PlayerRef player, int page) {
     return GuiTheme.element("roster-bone-lattice", Id.minecraft("bone_block"), "gui", "golemancy", "bone_lattice")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE_LORE))
-        .onLeftClick(clicked -> ServantFrame.frame().ifPresent(frame -> frame.openLattice(player, page)));
+        .onLeftClick(clicked -> ServantFrame.frame().ifPresent(frame -> frame.openLattice(player, page)))
+        .setRole(MenuRole.NAVIGATION)
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE_LORE));
   }
 
   private static GuiElement channelChoice(PlayerRef player, DyeColor color, boolean selected, int page) {
     int mask = ChannelMask.of(color);
-    return GuiTheme.element("roster-crook-channel-" + color.name().toLowerCase(Locale.ROOT), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+    return GolemGuiActions.channelElement("roster-crook-channel-" + color.name().toLowerCase(Locale.ROOT), mask)
         .setName((selected ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(mask)))
         .addLore(selected ? C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT))
         .setEnchanted(selected)
-        .onLeftClick(clicked -> setCrookChannel(player, color, page));
+        .onLeftClick(clicked -> setCrookChannel(player, color, page))
+        .setRole(MenuRole.ENTRY)
+        .setValue(selected ? AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : "")
+        .setDescription(List.of())
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT));
   }
 
   private static void setCrookChannel(PlayerRef player, DyeColor channel, int page) {
@@ -306,18 +327,22 @@ public final class RosterGui {
     } else {
       element.addLore(C.GRAY + lastSeen(entry));
     }
-    element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_STATUS,
-        trusted("status", AdaptLanguage.text(GolemGuiActions.statusName(entry.status())))));
+    String status = AdaptLanguage.text(GolemGuiActions.statusName(entry.status()));
+    element.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_STATUS, trusted("status", status)));
+    element.setRole(MenuRole.ENTRY).setValue(status).setDescription(element.getLore());
     element.addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_LOCATE));
-    element.onLeftClick(clicked -> locate(player, window, entry, handle));
+    element.onLeftClick(clicked -> locate(player, window, entry, handle))
+        .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(GolemancyMessages.ROSTER_LOCATE));
     boolean loaded = handle != null && !handle.isRetired();
     if (context.recalls() && GolemGuiActions.recallable(entry.status(), loaded, loaded && player.world().equals(handle.entity().world()))) {
       element.addLore(C.AQUA + AdaptLanguage.text(GolemancyMessages.ROSTER_RECALL));
-      element.onRightClick(clicked -> recall(player, window, handle));
+      element.onRightClick(clicked -> recall(player, window, handle))
+          .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(GolemancyMessages.ROSTER_RECALL));
     }
     if (GolemGuiActions.releasableFromRoster(entry.status())) {
       element.addLore(C.RED + AdaptLanguage.text(GolemancyMessages.ROSTER_RELEASE));
-      element.onShiftRightClick(clicked -> confirmRelease(player, entry, page));
+      element.onShiftRightClick(clicked -> confirmRelease(player, entry, page))
+          .setActionLabel(ClickKind.SHIFT_RIGHT, AdaptLanguage.text(GolemancyMessages.ROSTER_RELEASE));
     }
     return element;
   }

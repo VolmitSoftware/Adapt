@@ -33,6 +33,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -136,6 +138,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
       if (preferenceEnabled(p, BURST) && level >= getMaxLevel() && now - lastOn > getConfig().burstGapMillis
           && getStorageLong(p, "soulStriderBurstNext", 0L) <= now) {
         setStorage(p, "soulStriderBurstNext", now + getConfig().burstCooldownMillis);
+        AbilityGlyphs.cooldown(p.uuid(), this, now, getConfig().burstCooldownMillis);
         applyBurst(p);
       }
 
@@ -157,6 +160,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     }
 
     setStorage(p, "soulStriderHoldUntil", now + (HOLD_TICKS * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, HOLD_TICKS * 50L);
     AdaptAttributeService attributes = AdaptAttributeService.get();
     if (preferenceEnabled(p, IMMUNITY)) {
       attributes.applyTimed(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY, 1.0D, AttributeOperation.ADD_VALUE, HOLD_TICKS);
@@ -173,6 +177,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     }
 
     setStorage(p, "soulStriderHoldUntil", 0L);
+    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
     AdaptAttributeService attributes = AdaptAttributeService.get();
     attributes.remove(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY);
     attributes.remove(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED);

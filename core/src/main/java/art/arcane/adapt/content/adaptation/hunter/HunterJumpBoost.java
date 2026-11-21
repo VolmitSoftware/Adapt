@@ -39,6 +39,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -198,6 +199,7 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     attributes.applyTimed(p, getName(), "jump", Attributes.JUMP_STRENGTH, jumpStrengthBonus(level), AttributeOperation.ADD_VALUE, durationTicks);
     attributes.applyTimed(p, getName(), "fall", Attributes.SAFE_FALL_DISTANCE, safeFallBonus(level), AttributeOperation.ADD_VALUE, durationTicks);
     jumpUntil.put(p.uuid(), now + (durationTicks * 50L));
+    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * 50L);
     return true;
   }
 

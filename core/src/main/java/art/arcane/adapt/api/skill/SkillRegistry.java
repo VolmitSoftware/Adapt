@@ -34,12 +34,13 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.recipe.AdaptRecipeBook;
+import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XPMultiplier;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.client.server.AdaptScreens;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataHolder;
@@ -184,7 +185,7 @@ public class SkillRegistry extends TickedObject {
       SoundPlayer spw = SoundPlayer.of(clicked.world());
       spw.play(at, Sounds.ITEM_BOOK_PAGE_TURN, 0.5f, 0.72f);
       spw.play(at, Sounds.BLOCK_ENCHANTMENT_TABLE_USE, 0.35f, 0.755f);
-      SkillsGui.open(p);
+      AdaptScreens.openSkills(p);
       e.setCancelled(true);
       Loc burst = at.add(0.5, 1, 0.5);
       spawnParticle(burst, Particles.CRIT_MAGIC, 25);
@@ -374,6 +375,11 @@ public class SkillRegistry extends TickedObject {
     boolean skillEnabled;
     try {
       skillEnabled = skill.isEnabled();
+      PlatformSupport.Verdict verdict = PlatformSupport.check(skill.getPlatformNeeds());
+      if (!verdict.usable()) {
+        PlatformSupport.leaveOut("skill", skill.getName(), skill.getName(), verdict);
+        skillEnabled = false;
+      }
     } catch (RuntimeException | Error error) {
       instantiation.rollbackRegistrations();
       skill.unregister();

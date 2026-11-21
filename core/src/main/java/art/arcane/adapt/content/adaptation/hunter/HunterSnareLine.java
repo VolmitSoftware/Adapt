@@ -34,6 +34,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
@@ -110,6 +112,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     if (getActiveLevel(player.getPlayer()) <= 0) {
       snares.removeIf(snare -> snare.owner.equals(player.getPlayer().uuid()));
+      AbilityGlyphs.clear(player.getPlayer().uuid(), this, HudGlyph.CHARGES);
     }
   }
 
@@ -212,6 +215,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
         getRootDurationTicks(level),
         now + (getConfig().snareLifetimeTicks * 50L));
     snares.add(snare);
+    publishSnares(p.uuid());
 
     fx(snareLocation, FxPriority.GAMEPLAY)
         .dustRing(SNARE_GREEN, getConfig().triggerRadius, 14, 1.0F)
@@ -245,6 +249,18 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
     return count;
   }
 
+  private void publishSnares(UUID owner) {
+    if (!AbilityGlyphs.capable(owner)) {
+      return;
+    }
+    int count = countOwned(owner);
+    if (count <= 0) {
+      AbilityGlyphs.clear(owner, this, HudGlyph.CHARGES);
+      return;
+    }
+    AbilityGlyphs.charges(owner, this, count, Math.max(1, getConfig().maxSnaresPerPlayer));
+  }
+
   @Override
   public boolean hasTickDemand() {
     return !snares.isEmpty();
@@ -257,6 +273,7 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
       if (snare.expiresAt <= now || snare.charges.get() <= 0) {
         if (snares.remove(snare)) {
           emitSnareBreak(snare);
+          publishSnares(snare.owner);
         }
         continue;
       }

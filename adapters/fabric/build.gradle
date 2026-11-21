@@ -14,6 +14,10 @@ repositories {
 configurations {
     nestedApi { transitive = false }
 }
+Map<String, String> fabricModuleVersions = ((List<String>) targetProperties.fabricModules).collectEntries { String module ->
+    [(module): fabricApi.moduleVersion(module, (String) targetProperties.fabricApi)]
+}
+ext.fabricModuleVersions = fabricModuleVersions
 dependencies {
     minecraft("com.mojang:minecraft:${adapt.minecraftVersion}")
     if (targetProperties.obfuscated) {
@@ -21,7 +25,7 @@ dependencies {
     }
     String modConfiguration = targetProperties.obfuscated ? 'modImplementation' : 'implementation'
     add(modConfiguration, "net.fabricmc:fabric-loader:${targetProperties.fabricLoader}")
-    targetProperties.fabricModules.each { String module, String moduleVersion ->
+    fabricModuleVersions.each { String module, String moduleVersion ->
         add(modConfiguration, "net.fabricmc.fabric-api:${module}:${moduleVersion}")
         nestedApi("net.fabricmc.fabric-api:${module}:${moduleVersion}")
     }
@@ -30,7 +34,7 @@ tasks.named('shadowJar').configure {
     from(project.configurations.nestedApi) {
         into('META-INF/jars')
         rename { String filename ->
-            String module = targetProperties.fabricModules.keySet().find { String name -> filename.startsWith(name + '-') }
+            String module = fabricModuleVersions.keySet().find { String name -> filename.startsWith(name + '-') }
             if (module == null) {
                 throw new GradleException("Unexpected Fabric API jar ${filename}")
             }

@@ -704,7 +704,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   }
 
   protected Cooldowns cooldowns() {
-    return PlayerStateRegistry.newCooldowns();
+    return PlayerStateRegistry.newCooldowns(this);
   }
 
   @Override
