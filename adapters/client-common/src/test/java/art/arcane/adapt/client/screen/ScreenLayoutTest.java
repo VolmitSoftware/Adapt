@@ -6,10 +6,8 @@ import art.arcane.adapt.client.ui.kit.ScrollArea;
 import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.TextField;
 import art.arcane.adapt.client.ui.kit.UiBreakpoint;
-import art.arcane.adapt.client.ui.kit.UiLayout;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
-import art.arcane.adapt.client.ui.kit.UiTheme;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -29,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 class ScreenLayoutTest {
     private static final int[][] SIZES = {
             {284, 160, 3}, {320, 240, 4}, {427, 240, 3}, {480, 270, 4}, {640, 360, 3}, {683, 384, 2}, {960, 540, 2}, {1280, 720, 2}, {1920, 1080, 1}, {2560, 1440, 1}};
+    /** 1080p at GUI 3 and 2, 1440p at GUI 2, and a 2445x1376 window at GUI 3. */
+    private static final int[][] BOOK_SIZES = {{640, 360, 3}, {960, 540, 2}, {1280, 720, 2}, {815, 458, 3}};
     private static final int MIN_TARGET = 9;
     private static final List<Route> ROUTES = List.of(new Route.Skills(), new Route.Skill("agility"), new Route.Skill("rift"),
             new Route.Adaptation("rift-gate"), new Route.Adaptation("agility-wall-jump"), new Route.Adaptation("rift-resistance"));
@@ -52,16 +52,55 @@ class ScreenLayoutTest {
     }
 
     @Test
-    void wideWindowsCentreAFrameSizedToItsPage() {
-        ScreenFixture fixture = new ScreenFixture(2560, 1440, 1);
-        AdaptScreen screen = fixture.open(new Route.Skills());
-        UiRect frame = fixture.find("frame").bounds();
-        int grid = UiLayout.span(SkillsScreen.MAX_COLUMNS, TileGrid.WIDTH, TileGrid.GAP);
-        assertTrue(frame.width() <= grid + 2 + UiTheme.DEFAULT.padding() * 2, frame.toString());
-        assertTrue(Math.abs(frame.centerX() - screen.width() / 2) <= 1, frame.toString());
-        UiRect tile = fixture.find("skill:agility").bounds();
-        assertEquals(TileGrid.WIDTH, tile.width());
-        assertEquals(TileGrid.HEIGHT, tile.height());
+    void theSkillsBookKeepsToFourColumnsCentredAndNeverScrolls() {
+        for (int[] size : BOOK_SIZES) {
+            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player());
+            AdaptScreen screen = fixture.open(new Route.Skills());
+            String where = size[0] + "x" + size[1];
+            List<Integer> columns = new ArrayList<>();
+            int top = fixture.find("skill:skill00").bounds().y();
+            for (int index = 0; index < MaxCatalog.SKILLS; index++) {
+                UiRect tile = fixture.find(String.format("skill:skill%02d", index)).bounds();
+                assertEquals(TileGrid.HEIGHT, tile.height(), where);
+                if (tile.y() == top && !columns.contains(tile.x())) {
+                    columns.add(tile.x());
+                }
+            }
+            assertEquals(SkillsScreen.MAX_COLUMNS, columns.size(), where + " columns " + columns);
+            assertEquals(0, screen.scroll().maxScroll(), where + " scrolls");
+            UiRect frame = fixture.find("frame").bounds();
+            assertTrue(Math.abs(frame.centerX() - screen.width() / 2) <= 1, where + " " + frame);
+            if (size[0] >= 960) {
+                assertTrue(frame.width() < screen.width() * 3 / 4, where + " " + frame);
+            }
+        }
+    }
+
+    @Test
+    void largeWindowsStayWithinSixteenByNine() {
+        for (int[] size : BOOK_SIZES) {
+            for (Route route : ROUTES) {
+                ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2]);
+                AdaptScreen screen = fixture.open(route);
+                UiRect frame = fixture.find("frame").bounds();
+                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route) + " " + frame;
+                assertTrue(frame.width() * 9 <= frame.height() * 16, where);
+                assertTrue(frame.width() < screen.width(), where);
+                assertTrue(Math.abs(frame.centerX() - screen.width() / 2) <= 1, where);
+            }
+        }
+        ScreenFixture ultrawide = new ScreenFixture(1720, 480, 2);
+        ultrawide.open(new Route.Skills());
+        UiRect frame = ultrawide.find("frame").bounds();
+        assertTrue(frame.width() * 9 <= frame.height() * 16, frame.toString());
+    }
+
+    @Test
+    void facingPagesShareOneWidth() {
+        ScreenFixture fixture = new ScreenFixture(960, 540, 2);
+        AdaptScreen screen = fixture.open(new Route.Skill("agility"));
+        assertTrue(screen.spreadOpen());
+        assertEquals(fixture.find("page").bounds().width(), fixture.find("facing").bounds().width());
     }
 
     @Test

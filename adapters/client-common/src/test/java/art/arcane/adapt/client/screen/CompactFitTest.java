@@ -96,7 +96,7 @@ class CompactFitTest {
     }
 
     @Test
-    void framesAreCentredAndHugTheirPage() {
+    void framesAreCentredAndBookShaped() {
         for (int[] size : SIZES) {
             ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player());
             for (int index = 0; index < ROUTES.size(); index++) {
@@ -105,8 +105,11 @@ class CompactFitTest {
                 String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
                 UiRect frame = fixture.find("frame").bounds();
                 assertEquals(screen.width() / 2, frame.centerX(), 1.0, where + " " + frame);
+                if (size[0] >= 640) {
+                    assertTrue(frame.width() * 9 <= frame.height() * 16, where + " " + frame);
+                }
                 if (size[0] >= FITS[index]) {
-                    assertEquals(screen.scroll().bounds().height(), screen.scroll().contentHeight(), where);
+                    assertEquals(0, screen.scroll().maxScroll(), where);
                 }
             }
         }
@@ -134,7 +137,7 @@ class CompactFitTest {
         ScreenFixture wide = new ScreenFixture(1920, 1080, 1, MaxCatalog.catalog(), MaxCatalog.player());
         wide.open(new Route.Skills());
         UiRect tile = wide.find("skill:skill00").bounds();
-        assertEquals(Math.max(TileGrid.WIDTH, ((RowTile) wide.find("skill:skill00")).naturalWidth(DRAW)), tile.width());
+        assertEquals(Math.max(SkillsScreen.SHAPE.width(), ((RowTile) wide.find("skill:skill00")).naturalWidth(DRAW)), tile.width());
     }
 
     @Test

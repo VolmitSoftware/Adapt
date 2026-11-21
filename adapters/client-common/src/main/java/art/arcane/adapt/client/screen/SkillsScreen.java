@@ -23,14 +23,16 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The skills list: a grid of skill tiles in the chest menu's order, total knowledge and power used as chips in the top
- * bar, filtered by the search field there. The grid is fitted to the whole skill list, so typing a search never resizes
- * it sideways.
+ * The skills list: skill tiles in the chest menu's order over two facing pages when there is room, at most
+ * {@link #MAX_COLUMNS} columns in all, with total knowledge and power used as chips in the top bar, filtered by the
+ * search field there. The grid is fitted to the whole skill list, so typing a search never resizes it sideways, and its
+ * rows spread out to fill a page shaped like a book.
  */
 public final class SkillsScreen extends AdaptScreen {
     static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), "adapt:textures/gui/mark/power.png");
     static final IconRef KNOWLEDGE_ICON = IconRef.item("minecraft:knowledge_book");
-    static final int MAX_COLUMNS = 6;
+    static final int MAX_COLUMNS = 4;
+    static final TileGrid.Shape SHAPE = new TileGrid.Shape(MAX_COLUMNS, MAX_COLUMNS, 112, true);
     private static final int SEARCH_WIDTH = 84;
 
     private final TextField search;
@@ -87,8 +89,15 @@ public final class SkillsScreen extends AdaptScreen {
     @Override
     protected int pageWidth(UiDraw metrics, int available, int room) {
         int need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
-        fit = TileGrid.fit(List.of(Math.max(1, total)), available, room, MAX_COLUMNS, need);
+        int count = Math.max(1, total);
+        TileGrid.Fit grid = TileGrid.fit(List.of(count), available, room, need, SHAPE);
+        fit = grid.stretched(count, bookBody(grid.span()));
         return fit.span();
+    }
+
+    @Override
+    protected int gutter() {
+        return TileGrid.spine(fit, grid.bounds());
     }
 
     @Override

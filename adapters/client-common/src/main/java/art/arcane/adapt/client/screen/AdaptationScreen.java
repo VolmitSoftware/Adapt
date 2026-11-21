@@ -31,7 +31,7 @@ import java.util.Map;
  * One adaptation. The left page reads top to bottom from one left edge: icon, name and level pips on one line, the
  * description, the selected level's stat lines, what blocks it, then its cost or refund with the learn or unlearn
  * button (every requirement is in the button's tooltip). Its preferences are a grid on the facing page. Text wraps
- * instead of being cut, and the panel widens while that would otherwise make the page scroll. Learning a permanent adaptation asks for confirmation first,
+ * instead of being cut, and the page widens past {@link #MAX_PAGE} only while that would otherwise make it scroll. Learning a permanent adaptation asks for confirmation first,
  * except in debug mode where the server skips it. An adaptation the player's skill page does not show says so instead.
  * Every change waits for the server: the button and preferences are disabled and the target level blinks until the
  * answer arrives.
@@ -40,7 +40,6 @@ public final class AdaptationScreen extends AdaptScreen {
     static final String LEARN = "learn";
     static final String UNLEARN = "unlearn";
     static final String PREFERENCE = "preference";
-    private static final int MAX_WIDTH = 420;
     private static final int WIDEN_STEP = 32;
 
     private final String adaptationId;
@@ -149,7 +148,7 @@ public final class AdaptationScreen extends AdaptScreen {
             width = Math.max(width, Math.min(StatColumns.NATURAL, line.preferredWidth(metrics)));
         }
         width = Math.max(width, reason.visible() ? reason.preferredWidth(metrics) : 0);
-        width = Math.min(Math.min(available, MAX_WIDTH), width);
+        width = Math.min(Math.min(available, MAX_PAGE), width);
         while (width < available && page().preferredHeight(width, metrics) > room) {
             width = Math.min(available, width + WIDEN_STEP);
         }

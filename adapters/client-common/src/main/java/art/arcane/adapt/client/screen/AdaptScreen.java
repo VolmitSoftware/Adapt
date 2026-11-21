@@ -16,6 +16,7 @@ import art.arcane.adapt.client.ui.kit.ScrollArea;
 import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.StatChip;
 import art.arcane.adapt.client.ui.kit.Tooltip;
+import art.arcane.adapt.client.ui.kit.UiBreakpoint;
 import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiGroup;
 import art.arcane.adapt.client.ui.kit.UiLayout;
@@ -32,11 +33,12 @@ import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 /**
- * The frame every Adapt page shares: an open book centred over the world and sized to its pages, with a one-line top
- * bar (back, the breadcrumbs on a ribbon, an optional tool, small stat chips) above a ruled divider, and one page
- * below it or two facing pages across the spine when the screen has room for both. The page scrolls only
- * when it cannot fit the screen at all. Messages show on a paper slip under the book, which always leaves room for it, so
- * they never cover the page. Escape and Backspace go back one level, E closes. The page follows the client state live
+ * The frame every Adapt page shares: an open book centred over the world, sized to its pages and never wider than 16:9
+ * (a short page gets blank paper below it instead; below the WIDE breakpoint the message slip's room counts as height),
+ * with a one-line top bar (back, the breadcrumbs on a ribbon, an optional tool, small stat chips) above a ruled
+ * divider, and one page below it or two facing pages across the spine when the screen has room for both. The page
+ * scrolls only when it cannot fit the screen at all. Messages show on a paper slip under the book, which always leaves
+ * room for it, so they never cover the page. Escape and Backspace go back one level, E closes. The page follows the client state live
  * while open; requests the page sends show a waiting state until the server answers with {@code Feedback}, and nothing
  * on the page changes before the server's own update arrives.
  */
@@ -52,6 +54,8 @@ public abstract class AdaptScreen extends KitScreen {
     private static final int MARGIN = 2;
     private static final int MIN_WIDTH = 220;
     private static final int CRUMBS_NATURAL = 200;
+    /** The widest a page grows before it would read as a banner; a facing page wider by nature keeps its width. */
+    static final int MAX_PAGE = 280;
 
     private final ScreenRouter router;
     private final Route route;
@@ -71,6 +75,9 @@ public abstract class AdaptScreen extends KitScreen {
     private String pendingAction;
     private long pendingSince;
     private boolean scrollRestored;
+    private int chrome;
+    private int bodyRoom;
+    private int barMinimum;
 
     protected AdaptScreen(String title, Route route, ScreenRouter router) {
         super(title, router.theme(), router.motion());
@@ -279,36 +286,39 @@ public abstract class AdaptScreen extends KitScreen {
         int pad = theme.padding();
         int gap = theme.gap() * 2;
         UiRect area = screen.inset(MARGIN);
-        int chrome = theme.frame() * 2 + pad * 2;
-        int maxInner = Math.max(0, area.width() - chrome);
+        chrome = theme.frame() * 2 + pad * 2;
+        int head = BAR + pad + RULE;
+        int messageHeight = snackbar.preferredHeight(area.width(), metrics);
+        int messageRoom = messageHeight + 2 - MARGIN;
+        int tallest = Math.max(0, area.height() - messageRoom);
+        int maxInner = Math.max(0, Math.min(area.width(), UiLayout.widest(breakpoint() == UiBreakpoint.WIDE ? tallest : area.height())) - chrome);
+        bodyRoom = Math.max(0, tallest - chrome - head);
         int chipsWidth = chipsWidth(metrics);
         int shownTool = tool == null || !tool.visible() ? 0 : toolWidth;
         int barWidth = BAR + gap + Math.max(crumbs.minimumWidth(metrics), Math.min(CRUMBS_NATURAL, crumbs.preferredWidth(metrics))) + (shownTool > 0 ? shownTool + gap : 0)
                 + (chipsWidth > 0 ? chipsWidth + gap : 0);
-        int messageHeight = snackbar.preferredHeight(maxInner, metrics);
-        int messageRoom = messageHeight + 2 - MARGIN;
-        int bodyRoom = Math.max(0, area.height() - chrome - BAR - pad - RULE - messageRoom);
         int minWidth = Math.max(MIN_WIDTH, barWidth);
-        int facingNeed = facing.preferredHeight(maxInner, metrics) > 0 ? facingWidth(metrics) : 0;
-        int innerWidth = 0;
+        barMinimum = minWidth;
+        int facingNatural = facing.preferredHeight(maxInner, metrics) > 0 ? facingWidth(metrics) : 0;
+        int facingNeed = Math.min(MAX_PAGE, facingNatural);
+        int half = (maxInner - SPREAD_GAP) / 2;
         spread.open = false;
-        if (facingNeed > 0 && maxInner - facingNeed - SPREAD_GAP >= MIN_PAGE) {
-            int left = Math.max(MIN_PAGE, pageWidth(metrics, maxInner - facingNeed - SPREAD_GAP, bodyRoom));
-            int right = Math.max(facingNeed, minWidth - left - SPREAD_GAP);
-            if (left + SPREAD_GAP + right <= maxInner && page.preferredHeight(left, metrics) <= bodyRoom
-                    && facing.preferredHeight(right, metrics) <= bodyRoom) {
-                spread.open = true;
-                spread.left = left;
-                innerWidth = left + SPREAD_GAP + right;
+        if (facingNeed > 0 && half >= MIN_PAGE) {
+            int side = Math.min(half, Math.max(Math.max(MIN_PAGE, pageWidth(metrics, half, bodyRoom)),
+                    Math.max(facingNeed, (minWidth - SPREAD_GAP + 1) / 2)));
+            if (!open(side, Math.max(side, facingNatural), maxInner, metrics) && maxInner - facingNatural - SPREAD_GAP >= MIN_PAGE) {
+                int left = Math.max(MIN_PAGE, pageWidth(metrics, maxInner - facingNatural - SPREAD_GAP, bodyRoom));
+                open(left, Math.max(facingNatural, minWidth - left - SPREAD_GAP), maxInner, metrics);
             }
         }
+        int innerWidth = spread.open ? spread.left + SPREAD_GAP + spread.right : 0;
         if (!spread.open) {
             int facingHeight = facingNeed > 0 ? facing.preferredHeight(maxInner, metrics) + Spread.STACK_GAP : 0;
-            innerWidth = Math.min(maxInner, Math.max(Math.max(minWidth, facingNeed),
+            innerWidth = Math.min(maxInner, Math.max(Math.max(minWidth, facingNatural),
                     pageWidth(metrics, maxInner, Math.max(0, bodyRoom - facingHeight))));
         }
-        int bodyHeight = Math.min(bodyRoom, spread.preferredHeight(innerWidth, metrics));
-        UiRect centred = UiLayout.center(area, innerWidth + chrome, chrome + BAR + pad + RULE + bodyHeight);
+        int bodyHeight = Math.min(bodyRoom, Math.max(spread.preferredHeight(innerWidth, metrics), bookBody(innerWidth)));
+        UiRect centred = UiLayout.center(area, innerWidth + chrome, chrome + head + bodyHeight);
         int lift = Math.max(0, centred.bottom() - (area.bottom() - messageRoom));
         UiRect box = new UiRect(centred.x(), Math.max(area.y(), centred.y() - lift), centred.width(), centred.height());
         frame.place(box, metrics);
@@ -338,6 +348,32 @@ public abstract class AdaptScreen extends KitScreen {
         snackbar.place(new UiRect(box.x(), box.bottom() + 2, box.width(), messageHeight), metrics);
     }
 
+    /** Opens the pages side by side, {@code left} and {@code right} wide, when both fit the screen without scrolling. */
+    private boolean open(int left, int right, int maxInner, UiDraw metrics) {
+        if (left + SPREAD_GAP + right > maxInner || page.preferredHeight(left, metrics) > bodyRoom
+                || facing.preferredHeight(right, metrics) > bodyRoom) {
+            return false;
+        }
+        spread.open = true;
+        spread.left = left;
+        spread.right = right;
+        return true;
+    }
+
+    /**
+     * The page height a book {@code innerWidth} wide (or as wide as its top bar needs) gets so the window stays within
+     * 16:9, at most the room the screen has. Valid while the page is being laid out.
+     */
+    protected final int bookBody(int innerWidth) {
+        int width = Math.max(innerWidth, barMinimum) + chrome;
+        return Math.min(bodyRoom, Math.max(0, UiLayout.shortest(width) - chrome - BAR - theme().padding() - RULE));
+    }
+
+    /** Where a page that splits itself into two (see {@link TileGrid#spine}) has its spine, or {@link Integer#MIN_VALUE}. */
+    protected int gutter() {
+        return Integer.MIN_VALUE;
+    }
+
     private static UiRect centred(UiRect cell, int height) {
         int shown = Math.min(cell.height(), height);
         return new UiRect(cell.x(), cell.y() + (cell.height() - shown) / 2, cell.width(), shown);
@@ -358,7 +394,10 @@ public abstract class AdaptScreen extends KitScreen {
         requestLayout();
     }
 
-    /** The book: cover, page, the title ribbon behind the breadcrumbs and a ruled divider under the top bar. */
+    /**
+     * The book: cover, page, a bookmark over the top edge beside the middle, the title ribbon behind the breadcrumbs and
+     * a ruled divider under the top bar.
+     */
     private static final class Frame extends Panel {
         private int divider = Integer.MIN_VALUE;
         private UiRect ribbon = UiRect.EMPTY;
@@ -373,6 +412,7 @@ public abstract class AdaptScreen extends KitScreen {
         protected void paint(UiFrame frame) {
             super.paint(frame);
             UiRect box = bounds();
+            UiTome.bookmark(frame.draw(), box.centerX() + UiTome.SPINE_WIDTH / 2 + 4, box.y() - OVERHANG, frame.theme().frame() + OVERHANG);
             if (!ribbon.isEmpty()) {
                 UiTome.ribbon(frame.draw(), ribbon, frame.theme());
             }
@@ -390,6 +430,7 @@ public abstract class AdaptScreen extends KitScreen {
         static final int STACK_GAP = PAGE_GAP * 2 + UiTome.DIVIDER;
         private boolean open;
         private int left;
+        private int right;
 
         private Spread() {
             super("spread");
@@ -425,12 +466,17 @@ public abstract class AdaptScreen extends KitScreen {
         @Override
         protected void paint(UiFrame frame) {
             UiRect box = bounds();
+            int bottom = Math.max(box.bottom(), scroll.bounds().bottom());
+            int gutter = gutter();
+            if (gutter != Integer.MIN_VALUE) {
+                UiTome.spine(frame.draw(), gutter, box.y(), bottom);
+            }
             UiRect second = facing.bounds();
             if (second.isEmpty()) {
                 return;
             }
             if (open) {
-                UiTome.spine(frame.draw(), box.x() + left + SPREAD_GAP / 2, box.y(), box.bottom());
+                UiTome.spine(frame.draw(), box.x() + left + SPREAD_GAP / 2, box.y(), bottom);
             } else if (page.bounds().height() > 0) {
                 UiTome.divider(frame.draw(), box.x(), box.right(), second.y() - PAGE_GAP - UiTome.DIVIDER);
             }

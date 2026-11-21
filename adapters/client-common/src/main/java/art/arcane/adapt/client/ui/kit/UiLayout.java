@@ -58,6 +58,16 @@ public final class UiLayout {
         return Math.max(min, Math.min(max, cell));
     }
 
+    /** The widest a window {@code height} tall may be: 16:9 at most. */
+    public static int widest(int height) {
+        return Math.max(0, height) * 16 / 9;
+    }
+
+    /** The shortest a window {@code width} wide may be to stay within 16:9. */
+    public static int shortest(int width) {
+        return (Math.max(0, width) * 9 + 15) / 16;
+    }
+
     /** A rectangle of the given size centred in {@code area}, shrunk to fit it. */
     public static UiRect center(UiRect area, int width, int height) {
         int w = Math.min(width, area.width());

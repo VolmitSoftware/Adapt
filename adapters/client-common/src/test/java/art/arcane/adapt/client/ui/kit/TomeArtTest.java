@@ -26,7 +26,7 @@ class TomeArtTest {
     private static final List<String> ADAPTATIONS = List.of("agility-air-dash", "agility-armor-up", "agility-cat-reflexes",
             "agility-featherfoot", "agility-kip-up", "agility-ladder-slide", "agility-marathoner", "agility-roll-landing",
             "agility-slipstream-slide", "agility-super-jump", "agility-vault", "agility-wall-jump", "agility-wind-up");
-    private static final List<String> KIT = List.of("panel", "spine", "ribbon", "tooltip", "field", "chip", "tile", "tile_hover",
+    private static final List<String> KIT = List.of("panel", "spine", "ribbon", "bookmark", "tooltip", "field", "chip", "tile", "tile_hover",
             "tile_selected", "button", "button_hover", "button_pressed", "button_disabled", "button_primary", "button_destructive", "token",
             "token_learned", "token_maxed", "token_locked");
 

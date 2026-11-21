@@ -370,6 +370,7 @@ class NativePanelListTest {
             assertTrue(screen.navigationButton("next").bounds().bottom() <= panel.bottom(), where);
             if (size[0] >= 640) {
                 assertTrue(panel.width() <= 460, where);
+                assertTrue(panel.width() * 9 <= panel.height() * 16, where + " wider than 16:9 " + panel);
             }
         }
     }

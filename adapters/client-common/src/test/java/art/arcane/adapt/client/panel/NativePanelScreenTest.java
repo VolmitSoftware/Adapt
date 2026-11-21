@@ -326,6 +326,7 @@ class NativePanelScreenTest {
             assertTrue(screen.navigationButton("next").bounds().bottom() <= bounds.bottom(), where);
             if (size[0] >= 640) {
                 assertTrue(tile > 22, where + " tile " + tile);
+                assertTrue(bounds.width() * 9 <= bounds.height() * 16, where + " wider than 16:9 " + bounds);
             }
         }
     }

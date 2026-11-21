@@ -14,6 +14,10 @@ public final class UiTome {
     public static final String TOOLTIP = "tooltip";
     public static final String FIELD = "field";
     public static final String CHIP = "chip";
+    public static final String BOOKMARK = "bookmark";
+    private static final int BOOKMARK_WIDTH = 7;
+    private static final int BOOKMARK_RISE = 9;
+    private static final int BOOKMARK_CLOTH = 0xFF7E2A22;
     /** A medallion's size; the icon sits {@link #TOKEN_INSET} in from its edge. */
     public static final int TOKEN = 20;
     public static final int TOKEN_INSET = 2;
@@ -250,6 +254,24 @@ public final class UiTome {
         }
         draw.fill(box.x() + 3, top, box.right() - 3, bottom, 0x205A3E26);
         draw.fill(centerX - 1, top, centerX + 1, bottom, 0xFF7A5E3E);
+    }
+
+    /**
+     * The ribbon bookmark centred on {@code centerX}: its forked tail stands {@link #BOOKMARK_RISE} above the book's top
+     * edge at {@code top} and the cloth runs down over the {@code cover} to the page.
+     */
+    public static void bookmark(UiDraw draw, int centerX, int top, int cover) {
+        int left = centerX - BOOKMARK_WIDTH / 2;
+        int y = top - BOOKMARK_RISE;
+        int height = BOOKMARK_RISE + cover + 1;
+        UiTexture texture = draw.sprites().texture(UiChrome.textureId(BOOKMARK));
+        if (texture != null) {
+            draw.blit(texture, left, y, BOOKMARK_WIDTH, height);
+            return;
+        }
+        draw.fill(left, y + 3, left + BOOKMARK_WIDTH, y + height, BOOKMARK_CLOTH);
+        draw.fill(left, y, left + 2, y + 3, BOOKMARK_CLOTH);
+        draw.fill(left + BOOKMARK_WIDTH - 2, y, left + BOOKMARK_WIDTH, y + 3, BOOKMARK_CLOTH);
     }
 
     /** The title ribbon behind the breadcrumbs. */

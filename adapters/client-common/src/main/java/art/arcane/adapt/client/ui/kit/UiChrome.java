@@ -8,7 +8,7 @@ import art.arcane.adapt.client.ui.UiNineSlice;
  * file {@code <name>.json} (see {@link art.arcane.adapt.client.ui.UiAssetCheck}) replaces the flat drawing of that
  * widget. Names: {@code panel}; {@code button}, {@code button_primary}, {@code button_destructive}, each with optional
  * {@code _hover}, {@code _pressed} and {@code _disabled} variants; {@code tile} with {@code tile_hover} and
- * {@code tile_selected}; the tome's {@code spine}, {@code ribbon}, {@code tooltip}, {@code field}, {@code chip} and the
+ * {@code tile_selected}; the tome's {@code spine}, {@code ribbon}, {@code bookmark}, {@code tooltip}, {@code field}, {@code chip} and the
  * {@code token} medallion rims ({@code token_learned}, {@code token_maxed}, {@code token_locked}, drawn at their own
  * size). A missing variant uses its base name; a missing base keeps the flat look. The client ships all of them.
  */

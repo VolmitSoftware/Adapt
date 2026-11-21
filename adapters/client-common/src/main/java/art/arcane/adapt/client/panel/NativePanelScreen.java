@@ -295,6 +295,7 @@ public final class NativePanelScreen extends KitScreen {
         UiTheme theme = theme();
         UiBreakpoint breakpoint = breakpoint();
         UiRect area = screen.inset(MARGIN);
+        int widest = Math.min(area.width(), UiLayout.widest(area.height()));
         int control = theme.controlHeight();
         int barHeight = Math.max(control, UiIcons.SIZE);
         int pad = theme.padding();
@@ -306,9 +307,9 @@ public final class NativePanelScreen extends KitScreen {
         int bodyHeight;
         if (listed()) {
             width = switch (breakpoint) {
-                case WIDE -> Math.min(WIDE_WIDTH, area.width());
-                case REGULAR -> Math.min(REGULAR_WIDTH, area.width());
-                case COMPACT -> area.width();
+                case WIDE -> Math.min(WIDE_WIDTH, widest);
+                case REGULAR -> Math.min(REGULAR_WIDTH, widest);
+                case COMPACT -> widest;
             };
             int content = list.preferredHeight(width - rim - pad * 2, metrics);
             bodyHeight = Math.min(area.height() - chromeHeight, Math.max(MIN_BODY, content));
@@ -319,7 +320,7 @@ public final class NativePanelScreen extends KitScreen {
                 case REGULAR -> 26;
                 case COMPACT -> 22;
             };
-            int available = area.width() - rim - pad * 2 - ScrollArea.BAR_WIDTH - 1;
+            int available = widest - rim - pad * 2 - ScrollArea.BAR_WIDTH - 1;
             int tile = Math.min(UiLayout.fit(available, PanelView.COLUMNS, gap, MIN_TILE, maxTile),
                     UiLayout.fit(area.height() - chromeHeight, view.rows(), gap, MIN_TILE, maxTile));
             int cell = (available - gap * (PanelView.COLUMNS - 1)) / PanelView.COLUMNS;
@@ -334,9 +335,9 @@ public final class NativePanelScreen extends KitScreen {
             int scrollbar = gridHeight > bodyHeight ? ScrollArea.BAR_WIDTH + 1 : 0;
             int titleWidth = metrics.textWidth(LegacyText.strip(view.title())) + barHeight * 2 + pad * 2
                     + (chipsInBar ? footer.chipsWidth(theme.gap()) + theme.gap() * 2 : 0);
-            width = Math.min(area.width(), Math.max(gridWidth + scrollbar + rim + pad * 2, titleWidth));
+            width = Math.min(widest, Math.max(gridWidth + scrollbar + rim + pad * 2, titleWidth));
         }
-        int height = Math.min(area.height(), chromeHeight + bodyHeight);
+        int height = Math.min(area.height(), Math.max(chromeHeight + bodyHeight, UiLayout.shortest(width)));
         UiRect box = UiLayout.center(area, width, height);
         frame.place(box, metrics);
         UiRect inner = box.inset(theme.frame()).inset(pad);

@@ -5,12 +5,14 @@ import art.arcane.adapt.client.ui.UiDraw;
 import java.util.Map;
 
 /**
- * A framed surface: the tome's cover and page (the kit {@code panel} texture, else a soft page with a leather edge
- * {@link UiTheme#frame} thick) and an optional title bar. Children go in
+ * A framed surface: the tome's cover and page (the kit {@code panel} texture, its cover reaching {@link #OVERHANG}
+ * past the bounds, else a soft page with a leather edge {@link UiTheme#frame} thick) and an optional title bar. Children go in
  * {@link #contentBounds()} through the group's layout policy. The panel itself takes pointer hits so clicks on its
  * background never reach what is behind it.
  */
 public class Panel extends UiGroup {
+    /** How far the textured cover reaches past the panel's bounds, so it reads thicker without taking page room. */
+    public static final int OVERHANG = 2;
     private String title;
     private int titleLeft;
     private int titleRight;
@@ -90,7 +92,7 @@ public class Panel extends UiGroup {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect box = bounds();
-        if (!UiChrome.paint(draw, UiChrome.PANEL, null, box)) {
+        if (!UiChrome.paint(draw, UiChrome.PANEL, null, box.inset(-OVERHANG))) {
             UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), theme.panelBorder());
             UiRect page = box.inset(theme.frame() - 1);
             draw.fill(page.x(), page.y(), page.right(), page.bottom(), theme.panel());

@@ -26,7 +26,7 @@ import java.util.Map;
  * colour. A skill the player may not open says why instead of showing its adaptations.
  */
 public final class SkillScreen extends AdaptScreen {
-    static final int MAX_COLUMNS = 6;
+    static final TileGrid.Shape SHAPE = new TileGrid.Shape(2, 4, TileGrid.WIDTH, false);
     private static final int STRIP_WIDTH = 160;
 
     private final String skillId;
@@ -115,7 +115,7 @@ public final class SkillScreen extends AdaptScreen {
         for (UiGroup group : groups) {
             counts.add(group.children().size());
         }
-        fit = TileGrid.fit(counts, available, room - rest, MAX_COLUMNS, RowTile.need(shownTiles(), metrics));
+        fit = TileGrid.fit(counts, available, room - rest, RowTile.need(shownTiles(), metrics), SHAPE);
         return groups.isEmpty() ? 0 : fit.span();
     }
 
