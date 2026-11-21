@@ -141,6 +141,7 @@ legacyTargets.each { String minecraftVersion, Map<String, Object> target ->
         TaskProvider<Jar> strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Jar) {
             archiveClassifier = 'advancement-library'
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            inputs.files(advancementConfiguration)
             from({ advancementConfiguration.collect { File dependency -> zipTree(dependency) } })
             exclude { FileTreeElement entry ->
                 String path = entry.path
@@ -155,6 +156,7 @@ legacyTargets.each { String minecraftVersion, Map<String, Object> target ->
         Configuration nativeApiConfiguration = configurations.create('nativeApiLibrary')
         TaskProvider<Jar> strippedNativeApi = tasks.register('strippedNativeApi', Jar) {
             archiveClassifier = 'native-api'
+            inputs.files(nativeApiConfiguration)
             from({ nativeApiConfiguration.collect { File dependency -> zipTree(dependency) } })
             exclude('com/fren_gor/**')
         }
@@ -162,6 +164,7 @@ legacyTargets.each { String minecraftVersion, Map<String, Object> target ->
         TaskProvider<Jar> strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
             archiveClassifier = 'platform-utils'
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            inputs.files(platformUtilsConfiguration)
             from({ platformUtilsConfiguration.collect { File dependency -> zipTree(dependency) } })
             exclude('net/kyori/**')
             exclude('META-INF/services/net.kyori.**')

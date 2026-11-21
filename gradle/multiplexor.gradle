@@ -1,5 +1,67 @@
+import groovy.json.JsonSlurper
+
 afterEvaluate {
     File packedArchive = tasks.named('packedJar').get().outputJar.get().asFile
+    Map<String, Map<String, Object>> minecraftTargets = (Map<String, Map<String, Object>>) new JsonSlurper().parse(rootProject.file('gradle/targets.json'))
+    List<Map<String, Object>> targets = [[
+        id: 'bukkit',
+        tasks: [':core:build', ':bukkit:build'],
+        arguments: [],
+        java: 25,
+        memoryMiB: 8192,
+        workers: 4,
+        dependsOn: [],
+        artifacts: [[
+            path: rootProject.relativePath(packedArchive),
+            role: 'runtime',
+            platforms: ['plugin'],
+            minecraftVersions: [bukkitMinecraftRange.toString()]
+        ]]
+    ]]
+    minecraftTargets.findAll { String minecraft, Map<String, Object> properties -> properties.obfuscated }.each { String minecraft, Map<String, Object> properties ->
+        targets.add([
+            id: "bukkit-${minecraft}".toString(),
+            tasks: [":bukkit-${minecraft}:build".toString()],
+            arguments: [],
+            java: (int) properties.javaVersion,
+            memoryMiB: 8192,
+            workers: 4,
+            dependsOn: [],
+            artifacts: [[
+                path: "build/bukkit-${minecraft}/libs/Adapt v${project.version} [CraftBukkit] ${minecraft}.jar".toString(),
+                role: 'runtime',
+                platforms: ['plugin'],
+                minecraftVersions: [minecraft]
+            ]]
+        ])
+    }
+    Map<String, String> loaders = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge']
+    loaders.each { String loader, String platform ->
+        minecraftTargets.each { String minecraft, Map<String, Object> properties ->
+            if (loader == 'neoforge' && properties.neoforgeUsesForge) {
+                return
+            }
+            String loaderVersion = loader == 'fabric' ? (String) properties.fabricLoader : (String) properties[loader]
+            String displayVersion = (loaderVersion.startsWith(minecraft + '-') ? loaderVersion.substring(minecraft.length() + 1) : loaderVersion)
+                    .replaceFirst(/-beta$/, '')
+            targets.add([
+                id: "${loader}-${minecraft}".toString(),
+                tasks: [':build'],
+                arguments: ['-p', "adapters/${loader}".toString(), "-PminecraftVersion=${minecraft}".toString(),
+                        '-Dorg.gradle.jvmargs=-Xmx7168m -Dfile.encoding=UTF-8'],
+                java: (int) properties.javaVersion,
+                memoryMiB: 8192,
+                workers: 2,
+                dependsOn: [],
+                artifacts: [[
+                    path: "adapters/${loader}/build/${minecraft}/libs/Adapt v${project.version} [${platform}] ${minecraft}+${displayVersion}.jar".toString(),
+                    role: 'runtime',
+                    platforms: loader == 'forge' && properties.neoforgeUsesForge ? ['forge', 'neoforge'] : [loader],
+                    minecraftVersions: [minecraft]
+                ]]
+            ])
+        }
+    }
     rootProject.ext.multiplexor = [
         schema: 1,
         id: 'adapt',
@@ -8,20 +70,6 @@ afterEvaluate {
         parallelTargets: true,
         sourceDependencies: ['volmlib', 'iris', 'hiddenore'],
         sourceInputs: ['docs/adapt'],
-        targets: [[
-            id: 'bukkit',
-            tasks: ['build'],
-            arguments: [],
-            java: 25,
-            memoryMiB: 8192,
-            workers: 4,
-            dependsOn: [],
-            artifacts: [[
-                path: rootProject.relativePath(packedArchive),
-                role: 'runtime',
-                platforms: ['plugin'],
-                minecraftVersions: [bukkitMinecraftRange.toString()]
-            ]]
-        ]]
+        targets: targets
     ]
 }

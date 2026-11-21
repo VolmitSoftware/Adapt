@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Zombie;
 import org.bukkit.util.BoundingBox;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -30,6 +32,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
+  @BeforeAll
+  static void initializeRegistries() {
+    TestVersion.initializeRegistries();
+  }
+
   @Test
   void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
     Snowman golem = mock(Snowman.class);
