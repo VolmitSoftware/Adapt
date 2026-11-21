@@ -8,6 +8,8 @@ import art.arcane.adapt.client.ui.UiSpriteCache;
 import art.arcane.adapt.client.ui.UiTexture;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
+import art.arcane.adapt.client.view.PreferenceChoiceView;
+import art.arcane.adapt.client.view.PreferenceGroupView;
 import art.arcane.adapt.client.view.SkillView;
 import art.arcane.adapt.client.screen.PreviewSamples;
 import org.junit.jupiter.api.Test;
@@ -105,6 +107,43 @@ class UiIconsTest {
         draw.calls().clear();
         tile.render(new UiFrame(draw, UiTheme.DEFAULT, new UiMotion(() -> 0L, true), -1, -1, null, null, null, false));
         assertEquals(List.of("blit " + AGILITY + " 2,2 16x16"), draw.calls("blit"));
+    }
+
+    @Test
+    void choiceTilePrefersOwnerArtThenCommonArtThenTheItem() {
+        String owner = "adapt:textures/gui/preference/agility-wall-jump/control/sneak.png";
+        String common = "adapt:textures/gui/preference/common/choice/sneak.png";
+        PreferenceChoiceView choice = new PreferenceChoiceView("SNEAK", "Sneak", IconRef.item("minecraft:leather_boots"), 0);
+        IconTile tile = new IconTile("tile", UiIcons.choice(choice), "Sneak")
+                .setSprite(UiIcons.choiceSprite("agility-wall-jump", "control", choice));
+        tile.place(new UiRect(0, 0, 20, 20), draw);
+        assertEquals(1, renderTile(tile).stream().filter((String call) -> call.startsWith("item minecraft:leather_boots")).count());
+        resources.put(common, FakeResources.png(16, 16)).reload();
+        sprites.refresh();
+        assertEquals(List.of("blit " + common + " 2,2 16x16"), blits(tile));
+        resources.put(owner, FakeResources.png(16, 16)).reload();
+        sprites.refresh();
+        assertEquals(List.of("blit " + owner + " 2,2 16x16"), blits(tile));
+    }
+
+    @Test
+    void groupConventionsNameOwnerMemberAndGroup() {
+        PreferenceGroupView.Entry entry = new PreferenceGroupView.Entry("crops", IconRef.item("minecraft:wheat"));
+        PreferenceGroupView group = new PreferenceGroupView("plants", "Plants", IconRef.item("minecraft:oak_sapling"), List.of(entry));
+        assertEquals("adapt:textures/gui/preference/herbalism-growables/crops.png", UiIcons.groupMember("herbalism-growables", entry).spriteId());
+        assertEquals("adapt:textures/gui/preference/herbalism-growables/group-plants.png",
+                UiIcons.groupHeading("herbalism-growables", group).spriteId());
+    }
+
+    private List<String> renderTile(IconTile tile) {
+        draw.calls().clear();
+        tile.render(new UiFrame(draw, UiTheme.DEFAULT, new UiMotion(() -> 0L, true), -1, -1, null, null, null, false));
+        return List.copyOf(draw.calls());
+    }
+
+    private List<String> blits(IconTile tile) {
+        renderTile(tile);
+        return draw.calls("blit");
     }
 
     @Test

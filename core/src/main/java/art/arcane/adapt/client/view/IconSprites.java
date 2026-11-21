@@ -9,6 +9,11 @@ import java.util.Locale;
  *   <li>{@code adaptation/<adaptation id>.png}, e.g. {@code adaptation/agility-wall-jump.png}</li>
  *   <li>{@code toast/<kind>.png}, kind one of {@code level_up unlock discovery knowledge generic challenge}</li>
  *   <li>{@code hud/<status>.png}, the HUD status name such as {@code rift_gate}</li>
+ *   <li>{@code preference/<owner>/<preference id>/<choice>.png} for a preference choice, falling back to
+ *   {@code preference/common/choice/<choice>.png}; the owner is the adaptation id, or the skill id for skill
+ *   preferences</li>
+ *   <li>{@code preference/<owner>/<preference id>.png} for a toggle group member and
+ *   {@code preference/<owner>/group-<group id>.png} for a toggle group heading</li>
  * </ul>
  * Icons are square PNGs, 16x16 or a larger power of two up to 512 for high-resolution art. Names are lower case;
  * characters a resource path cannot hold become {@code _}. A resource pack, including a server resource pack, replaces
@@ -35,6 +40,26 @@ public final class IconSprites {
 
   public static String hud(String name) {
     return texture("hud", name);
+  }
+
+  public static String preferenceChoice(String ownerId, String preferenceId, String value) {
+    return preference(pathSegment(ownerId) + '/' + pathSegment(preferenceId) + '/' + pathSegment(value));
+  }
+
+  public static String commonChoice(String value) {
+    return preference("common/choice/" + pathSegment(value));
+  }
+
+  public static String preferenceMember(String ownerId, String preferenceId) {
+    return preference(pathSegment(ownerId) + '/' + pathSegment(preferenceId));
+  }
+
+  public static String preferenceGroup(String ownerId, String groupId) {
+    return preference(pathSegment(ownerId) + "/group-" + pathSegment(groupId));
+  }
+
+  private static String preference(String path) {
+    return NAMESPACE + ':' + ROOT + "preference/" + path + ".png";
   }
 
   /** {@code icon} with {@code spriteId} when it names none yet; an explicit sprite id is kept. */

@@ -14,6 +14,17 @@ class IconSpritesTest {
   }
 
   @Test
+  void preferencePathsNameOwnerPreferenceAndChoice() {
+    assertThat(IconSprites.preferenceChoice("agility-wall-jump", "control", "SNEAK"))
+        .isEqualTo("adapt:textures/gui/preference/agility-wall-jump/control/sneak.png");
+    assertThat(IconSprites.commonChoice("HALF")).isEqualTo("adapt:textures/gui/preference/common/choice/half.png");
+    assertThat(IconSprites.preferenceMember("herbalism-growables", "crops"))
+        .isEqualTo("adapt:textures/gui/preference/herbalism-growables/crops.png");
+    assertThat(IconSprites.preferenceGroup("herbalism-growables", "plants"))
+        .isEqualTo("adapt:textures/gui/preference/herbalism-growables/group-plants.png");
+  }
+
+  @Test
   void pathSegmentLowercasesAndReplacesCharactersResourcePathsReject() {
     assertThat(IconSprites.pathSegment("Trag'Oul Blood")).isEqualTo("trag_oul_blood");
     assertThat(IconSprites.pathSegment("a/b:c")).isEqualTo("a_b_c");

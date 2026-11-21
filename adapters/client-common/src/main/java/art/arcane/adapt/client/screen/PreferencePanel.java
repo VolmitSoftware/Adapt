@@ -122,7 +122,7 @@ final class PreferencePanel extends UiGroup {
             } else if (isToggle(preference)) {
                 cell = toggle(preference, value);
             } else {
-                rows.add(choices(preference, value, level));
+                rows.add(choices(ownerId, preference, value, level));
                 continue;
             }
             if (primary == null && PRIMARY.equals(preference.id()) && isToggle(preference)) {
@@ -286,11 +286,12 @@ final class PreferencePanel extends UiGroup {
         return toggle;
     }
 
-    private UiNode choices(PreferenceView preference, String value, int level) {
+    private UiNode choices(String ownerId, PreferenceView preference, String value, int level) {
         UiGroup tiles = new UiGroup("pref:" + preference.id(), UiLayoutPolicy.flow(TILE_GAP));
         for (PreferenceChoiceView choice : preference.choices()) {
-            IconTile tile = tiles.add(new IconTile("pref:" + preference.id() + ":" + choice.value(), choice.icon(), choice.label()));
-            tile.setSprite(UiIcons.sprite(choice.icon()));
+            IconTile tile = tiles.add(new IconTile("pref:" + preference.id() + ":" + choice.value(), UiIcons.choice(choice),
+                    choice.label()));
+            tile.setSprite(UiIcons.choiceSprite(ownerId, preference.id(), choice));
             tile.setSelected(choice.value().equals(value));
             boolean reachable = choice.minimumLevel() <= level;
             tile.setLocked(!reachable);
@@ -326,7 +327,7 @@ final class PreferencePanel extends UiGroup {
             if (active) {
                 on++;
             }
-            IconSwitch tile = tiles.add(new IconSwitch("pref:" + member.id(), entry.icon(), member.label(), active,
+            IconSwitch tile = tiles.add(new IconSwitch("pref:" + member.id(), UiIcons.groupMember(ownerId, entry), member.label(), active,
                     (Boolean next) -> actions.set(member.id(), next ? ON : OFF)));
             tile.setValue(choiceLabel(member, value));
             boolean changeable = lockedText == null && editable(member);
@@ -341,7 +342,8 @@ final class PreferencePanel extends UiGroup {
         if (tiles.children().isEmpty()) {
             return null;
         }
-        GroupHeading heading = new GroupHeading("pref-group:" + group.id(), group, ScreenText.GROUP_ON.text(on, tiles.children().size()));
+        GroupHeading heading = new GroupHeading("pref-group:" + group.id(), group, UiIcons.groupHeading(ownerId, group),
+                ScreenText.GROUP_ON.text(on, tiles.children().size()));
         heading.setTooltip(new Tooltip(group.label(), List.of("§7" + ScreenText.GROUP_ON.text(on, tiles.children().size()))));
         return new Row(id() + ".row.group." + group.id(), heading, tiles);
     }
@@ -716,11 +718,13 @@ final class PreferencePanel extends UiGroup {
     /** A toggle group's icon, name and how many of its switches are on. */
     private static final class GroupHeading extends UiNode {
         private final PreferenceGroupView group;
+        private final IconRef icon;
         private final String count;
 
-        private GroupHeading(String id, PreferenceGroupView group, String count) {
+        private GroupHeading(String id, PreferenceGroupView group, IconRef icon, String count) {
             super(id);
             this.group = group;
+            this.icon = icon;
             this.count = count;
         }
 
@@ -758,7 +762,7 @@ final class PreferencePanel extends UiGroup {
         protected void paint(UiFrame frame) {
             UiDraw draw = frame.draw();
             UiRect box = bounds();
-            UiIcons.paintOn(draw, group.icon(), box.x(), box.y() + (box.height() - UiIcons.SIZE) / 2, UiIcons.SIZE, false,
+            UiIcons.paintOn(draw, icon, box.x(), box.y() + (box.height() - UiIcons.SIZE) / 2, UiIcons.SIZE, false,
                     frame.theme().backdrop());
             int room = Math.max(1, box.width() - UiIcons.SIZE - 4);
             int textY = box.y() + Math.max(0, (box.height() - draw.wrappedHeight(group.label(), room)) / 2) + 1;

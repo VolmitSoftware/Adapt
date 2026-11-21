@@ -8,6 +8,8 @@ import art.arcane.adapt.client.ui.UiTexture;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.IconSprites;
+import art.arcane.adapt.client.view.PreferenceChoiceView;
+import art.arcane.adapt.client.view.PreferenceGroupView;
 import art.arcane.adapt.client.view.SkillView;
 
 import java.util.HashMap;
@@ -63,6 +65,29 @@ public final class UiIcons {
         IconRef known = MEMO.get(icon);
         return known != null ? known
                 : remember(icon, IconSprites.withSprite(icon, IconSprites.hud(purpose.substring(purpose.lastIndexOf(':') + 1))));
+    }
+
+    /** A preference choice with the shared {@link IconSprites#commonChoice} art; see {@link #choiceSprite}. */
+    public static IconRef choice(PreferenceChoiceView choice) {
+        IconRef known = MEMO.get(choice);
+        return known != null ? known : remember(choice, IconSprites.withSprite(choice.icon(), IconSprites.commonChoice(choice.value())));
+    }
+
+    /** The owner's own art for a preference choice, unchecked, drawn ahead of {@link #choice}. */
+    public static UiTexture choiceSprite(String ownerId, String preferenceId, PreferenceChoiceView choice) {
+        return new UiTexture(IconSprites.preferenceChoice(ownerId, preferenceId, choice.value()), SIZE, SIZE);
+    }
+
+    public static IconRef groupMember(String ownerId, PreferenceGroupView.Entry entry) {
+        IconRef known = MEMO.get(entry);
+        return known != null ? known
+                : remember(entry, IconSprites.withSprite(entry.icon(), IconSprites.preferenceMember(ownerId, entry.preferenceId())));
+    }
+
+    public static IconRef groupHeading(String ownerId, PreferenceGroupView group) {
+        IconRef known = MEMO.get(group);
+        return known != null ? known
+                : remember(group, IconSprites.withSprite(group.icon(), IconSprites.preferenceGroup(ownerId, group.id())));
     }
 
     /** Views and frames are immutable, so their derived icon is kept by identity; render thread only. */
