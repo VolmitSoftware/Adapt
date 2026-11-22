@@ -204,10 +204,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
       addStat(player, "crafting.armor", amount);
     }
     xp(player, value + getConfig().baseCraftingXP, transaction.rewardKey());
-    float pitch = (float) Math.min(1.8D, 0.9D + Math.min(1.0D, value / 200.0D) * 0.9D);
     fx(player.location().add(0, 1, 0), FxPriority.AMBIENT)
-        .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0.2D, 0, 0.3D, 0.3D)
-        .sound(Sounds.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, pitch);
+        .particle(Particles.ENCHANTMENT_TABLE, 3, 0, 0.2D, 0, 0.3D, 0.3D);
   }
 
   @Handle(priority = EventPriority.MONITOR)
