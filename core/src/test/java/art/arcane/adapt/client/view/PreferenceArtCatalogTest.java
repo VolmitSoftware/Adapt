@@ -6,6 +6,7 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.content.adaptation.axe.AxeIrisFeller;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -28,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Lists every preference texture the client looks up for the catalog, relative to {@code gui/preference}, in
  * {@code build/reports/preference-art/expected.txt}: choice tiles (owner art, or {@code common/choice} for the shared
- * factory enums), toggle group members and headings. Plain ON/OFF toggles are checkboxes and need none. Once the
+ * factory enums), toggle group members and headings, and the Iris feller that only registers beside Iris. Plain ON/OFF toggles are checkboxes and need none. Once the
  * {@code gui/preference} folder exists in the client resources, every listed file must be there and nothing else.
  */
 class PreferenceArtCatalogTest {
@@ -67,6 +68,8 @@ class PreferenceArtCatalogTest {
           addChoices(adaptation.getName(), adaptation.getPlayerPreferences(), grouped, expected, overrides);
         }
       }
+      Adaptation<?> irisFeller = new AxeIrisFeller();
+      addChoices(irisFeller.getName(), irisFeller.getPlayerPreferences(), Set.of(), expected, overrides);
     }
     Files.createDirectories(REPORT.getParent());
     Files.write(REPORT, expected, StandardCharsets.UTF_8);
