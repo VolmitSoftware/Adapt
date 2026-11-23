@@ -157,8 +157,8 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
 
     public Config() {
       baseCost = 2;
-      costFactor = 0.225;
-      initialCost = 4;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

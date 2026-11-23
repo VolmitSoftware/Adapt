@@ -32,6 +32,7 @@ import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.api.xp.MovementXp;
 import art.arcane.adapt.content.adaptation.stealth.StealthAssassinate;
 import art.arcane.adapt.content.adaptation.stealth.StealthCore;
@@ -51,6 +52,7 @@ import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.LivingRef;
+import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -60,6 +62,7 @@ import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
@@ -68,6 +71,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
+  private static final double LOOKING_AT_DOT = 0.5D;
+  private static final String OPENER_LEDGER = "stealth:opener";
   private final Cooldowns cooldowns = cooldowns();
   private final SkillOwnerPulse.Registration ownerPulse;
   private final Map<UUID, Loc> lastPassivePositions = playerState();
@@ -177,9 +182,13 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.damager() instanceof PlayerRef p)
-        || !p.isSneaking()
-        || !checkValidEntity(e.entity())) {
+    if (!(e.damager() instanceof PlayerRef p) || !checkValidEntity(e.entity())) {
+      return;
+    }
+    if (e.entity() instanceof MobRef victim) {
+      shouldReturnForPlayer(p, e, () -> rewardOpener(p, victim));
+    }
+    if (!p.isSneaking()) {
       return;
     }
     shouldReturnForPlayer(p, e, () -> {
@@ -194,6 +203,31 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
       cooldowns.mark(p.uuid());
       xp(p, e.entity().location(), creditedDamage * getConfig().sneakCombatXPMultiplier, "stealth:combat");
     });
+  }
+
+  private void rewardOpener(PlayerRef p, MobRef victim) {
+    LivingRef target = victim.target();
+    if (victim.isDead() || victim.isInvulnerable() || !MobOrigin.paysKillReward(p, victim)
+        || target != null && target.uuid().equals(p.uuid())
+        || getPlayer(p).getData().getCombatXp().claim(OPENER_LEDGER, victim.uuid(), 1D, 1D, System.currentTimeMillis()) <= 0D) {
+      return;
+    }
+    double amount = openerXp(getConfig().unawareOpenerXp, getConfig().unseenOpenerBonusXp,
+        p.isSneaking() && !isLookingAt(victim.eyeLocation(), p.eyeLocation()));
+    xp(p, victim.location(), amount, "stealth:opener");
+  }
+
+  static double openerXp(double unawareXp, double unseenBonusXp, boolean sneakingUnseen) {
+    double base = Math.max(0D, unawareXp);
+    return sneakingUnseen ? base + Math.max(0D, unseenBonusXp) : base;
+  }
+
+  static boolean isLookingAt(Loc viewer, Loc target) {
+    Vec3 toTarget = target.position().subtract(viewer.position());
+    if (toTarget.lengthSquared() < 1.0E-6D) {
+      return true;
+    }
+    return viewer.direction().normalize().dot(toTarget.normalize()) >= LOOKING_AT_DOT;
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -211,7 +245,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     if (p.isSneaking()) {
       shouldReturnForPlayer(p, () -> {
         addStat(p, "stealth.kills.sneaking", 1);
-        xp(p, victim.location(), getConfig().sneakKillXP);
+        if (MobOrigin.paysKillReward(p, victim)) {
+          xp(p, victim.location(), getConfig().sneakKillXP, "stealth:kill");
+        }
         fx(victim.location().add(0, 0.5D, 0), FxPriority.COMBAT)
             .burst(Particles.SMOKE, 6, 0.2D)
             .burst(Particles.CRIT, 2, 0.15D)
@@ -284,7 +320,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown in milliseconds between XP awards for sneaking combat damage.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     long sneakCombatXpCooldown = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP awarded for killing while sneaking.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double sneakKillXP = 15;
+    double sneakKillXP = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeStealthDmg500Reward = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Dmg 5k Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -297,5 +333,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     double challengeStealthArrows50Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Stealth Arrows 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeStealthArrows500Reward = 5000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for the first hit on a mob that is not targeting you.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double unawareOpenerXp = 150;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra XP for that first hit when you are sneaking and the mob is not looking at you.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double unseenOpenerBonusXp = 200;
   }
 }

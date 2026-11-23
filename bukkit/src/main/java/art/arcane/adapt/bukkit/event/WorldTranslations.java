@@ -1,18 +1,23 @@
 package art.arcane.adapt.bukkit.event;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.player.PlayerLootGenerateEvent;
 import art.arcane.adapt.platform.event.server.PluginStateEvent;
 import art.arcane.adapt.platform.event.server.ResourcesReloadedEvent;
 import art.arcane.adapt.platform.event.server.ServiceChangeEvent;
 import art.arcane.adapt.platform.event.world.ChunkEntitiesEvent;
 import art.arcane.adapt.platform.event.world.ChunkEvent;
 import art.arcane.adapt.platform.event.world.LightningStrikeEvent;
+import art.arcane.adapt.platform.event.world.NightSkipEvent;
 import art.arcane.adapt.platform.event.world.WorldLifecycleEvent;
 import art.arcane.adapt.platform.value.ChunkPos;
 import art.arcane.adapt.platform.world.WorldRef;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LightningStrike;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.List;
@@ -26,9 +31,31 @@ final class WorldTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(CHUNK_LOAD, CHUNK_UNLOAD, ENTITIES_LOAD, ENTITIES_UNLOAD, WORLD_LOAD, WORLD_SAVE, WORLD_UNLOAD, LIGHTNING,
+    return List.of(CHUNK_LOAD, CHUNK_UNLOAD, ENTITIES_LOAD, ENTITIES_UNLOAD, WORLD_LOAD, WORLD_SAVE, WORLD_UNLOAD, LIGHTNING, NIGHT_SKIP, LOOT_GENERATE,
         PLUGIN_ENABLE, PLUGIN_DISABLE, SERVICE_REGISTER, SERVICE_UNREGISTER, RESOURCES_RELOADED);
   }
+
+  static final Translation<org.bukkit.event.world.TimeSkipEvent> NIGHT_SKIP = BukkitTranslations.simple(
+      org.bukkit.event.world.TimeSkipEvent.class, NightSkipEvent.class, (event, poster) -> {
+        if (event.isCancelled() || event.getSkipReason() != org.bukkit.event.world.TimeSkipEvent.SkipReason.NIGHT_SKIP) {
+          return;
+        }
+        List<PlayerRef> sleepers = event.getWorld().getPlayers().stream()
+            .filter(Player::isDeeplySleeping)
+            .map(BukkitRefs::player)
+            .toList();
+        poster.post(new NightSkipEvent(BukkitRefs.world(event.getWorld()), sleepers));
+      });
+
+  static final Translation<org.bukkit.event.world.LootGenerateEvent> LOOT_GENERATE = BukkitTranslations.simple(
+      org.bukkit.event.world.LootGenerateEvent.class, PlayerLootGenerateEvent.class, (event, poster) -> {
+        Location origin = event.getLootContext().getLocation();
+        if (event.isCancelled() || event.isPlugin() || !(event.getEntity() instanceof Player player)
+            || event.getInventoryHolder() == null || origin.getWorld() == null) {
+          return;
+        }
+        poster.post(new PlayerLootGenerateEvent(BukkitRefs.player(player), BukkitRefs.loc(origin)));
+      });
 
   static final Translation<org.bukkit.event.world.ChunkLoadEvent> CHUNK_LOAD = BukkitTranslations.simple(
       org.bukkit.event.world.ChunkLoadEvent.class, ChunkEvent.class,

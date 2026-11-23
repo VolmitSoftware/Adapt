@@ -941,10 +941,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     double displayEntityViewRange = 0.75;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 2;
+      baseCost = 5;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 4;
+      initialCost = 6;
     }
   }
 

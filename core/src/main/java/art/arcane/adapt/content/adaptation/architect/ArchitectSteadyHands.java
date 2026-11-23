@@ -49,7 +49,6 @@ import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -197,7 +196,6 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
   }
 
 
-  @NoArgsConstructor
   @ConfigDescription("Stay rock-steady while bridging: no knockback and reduced fall damage.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Fall damage shielded in blocks at level 0 progression.", impact = "Higher values absorb more fall damage for low-level players while bridging.")
@@ -210,5 +208,11 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     int hasteDurationTicks = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Amplifier of the haste boost granted per bridge placement.", impact = "Higher values strengthen the placement-speed boost.")
     int hasteAmplifier = 0;
+
+    public Config() {
+      baseCost = 2;
+      initialCost = 1;
+      costFactor = 0.5;
+    }
   }
 }

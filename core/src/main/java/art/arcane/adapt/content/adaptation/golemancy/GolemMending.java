@@ -521,6 +521,9 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     int rebornResistanceAmplifier = 1;
 
     public Config() {
+      costFactor = 0.5;
+      initialCost = 1;
+      baseCost = 2;
       requires = new ArrayList<>(List.of("golem-animus-binding:1"));
     }
   }

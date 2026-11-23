@@ -182,6 +182,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
   @ConfigDescription("Mob and block drops teleport directly into your inventory.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       baseCost = 1;
       costFactor = 1;
       maxLevel = 1;

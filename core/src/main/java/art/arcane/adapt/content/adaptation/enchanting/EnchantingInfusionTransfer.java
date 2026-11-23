@@ -260,8 +260,8 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
     double skillXpOnTransfer = 20;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.8;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 5;
       initialCost = 6;
     }

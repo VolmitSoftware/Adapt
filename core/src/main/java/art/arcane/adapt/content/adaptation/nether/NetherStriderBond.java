@@ -382,10 +382,10 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     double xpPerRescue = 30;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.6;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

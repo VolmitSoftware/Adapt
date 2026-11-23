@@ -119,10 +119,10 @@ public class KineticsQuakeGuard extends SimpleAdaptation<KineticsQuakeGuard.Conf
     double braceTicksFactor = 40;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.45;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 2;
+      initialCost = 1;
     }
   }
 }

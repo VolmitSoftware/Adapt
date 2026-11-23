@@ -74,17 +74,19 @@ class AgilityMovementAdaptationConfigTest {
     AgilityFeatherfoot.Config c = new AgilityFeatherfoot.Config();
     AgilitySlipstreamSlide.Config reference = new AgilitySlipstreamSlide.Config();
 
-    assertThat(c.baseCost).isLessThanOrEqualTo(reference.baseCost);
+    assertThat(c.baseCost).isLessThan(reference.baseCost);
     assertThat(c.initialCost).isLessThanOrEqualTo(reference.initialCost);
-    assertThat(c.costFactor).isLessThan(reference.costFactor);
+    assertThat(c.costFactor).isLessThanOrEqualTo(reference.costFactor);
     assertThat(c.baseCost).isGreaterThan(0);
   }
 
   @Test
-  void vaultIsASingleLevelFenceJumpWithoutScalingOrHungerConfiguration() {
+  void vaultIsASingleLevelMinorTierFenceJumpWithoutHungerConfiguration() {
     AgilityVault.Config c = new AgilityVault.Config();
     assertThat(c.maxLevel).isEqualTo(1);
-    assertThat(c.costFactor).isZero();
+    assertThat(c.baseCost).isEqualTo(1);
+    assertThat(c.initialCost).isEqualTo(1);
+    assertThat(c.costFactor).isEqualTo(1D);
     assertThat(c.jumpHeight).isGreaterThan(1.5D);
     assertThat(c.xpPerVault).isGreaterThanOrEqualTo(0D);
   }

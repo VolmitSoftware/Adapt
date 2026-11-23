@@ -901,9 +901,9 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     double xpPerLevel = 3D;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.4D;
-      initialCost = 6;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

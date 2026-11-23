@@ -258,6 +258,9 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     int auraIntervalTicks = 40;
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 3;
+      baseCost = 5;
       maxLevel = 3;
       requires = new ArrayList<>(List.of("golem-runic-augments:3", "golem-animus-binding:5"));
     }

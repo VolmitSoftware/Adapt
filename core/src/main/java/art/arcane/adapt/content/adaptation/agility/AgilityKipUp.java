@@ -254,10 +254,10 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
     double xpPerRecovery = 5;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.55;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

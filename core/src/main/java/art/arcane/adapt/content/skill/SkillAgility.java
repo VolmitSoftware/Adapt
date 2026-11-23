@@ -58,6 +58,7 @@ import java.util.UUID;
 public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
   private final Map<UUID, Loc> lastPassivePositions = playerState();
+  private final Map<UUID, Double> pendingMoveDistance = playerState();
 
   public SkillAgility() {
     super("agility", SkillPresentation.of(SkillMessages.AGILITY_NAME, SkillMessages.AGILITY_ICON, SkillMessages.AGILITY_DESCRIPTION));
@@ -162,6 +163,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     PlayerRef p = e.player();
     if (p.vehicle() != null) {
       lastPassivePositions.remove(p.uuid());
+      pendingMoveDistance.remove(p.uuid());
       return;
     }
     Loc from = e.from();
@@ -193,7 +195,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
         adaptPlayer.getData().addStat("move.sprint", distance);
       }
 
-      xpSilent(p, getConfig().moveXpPassive * distance, "agility:move");
+      pendingMoveDistance.merge(p.uuid(), distance, Double::sum);
     });
   }
 
@@ -201,6 +203,7 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerTeleportEvent event) {
     lastPassivePositions.remove(event.player().uuid());
+    pendingMoveDistance.remove(event.player().uuid());
   }
 
   @Override
@@ -213,9 +216,13 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     shouldReturnForPlayer(player, () -> {
       Loc current = player.location();
       Loc previous = lastPassivePositions.put(player.uuid(), current);
+      Double moved = pendingMoveDistance.remove(player.uuid());
       if (player.vehicle() != null || player.isFlying() || player.isGliding()
           || !MovementXp.moved(previous, current)) {
         return;
+      }
+      if (moved != null) {
+        xpSilent(player, getConfig().moveXpPassive * moved, "agility:move");
       }
       double cadenceScale = (double) elapsedMillis / cadenceMillis;
       if (player.isSprinting() && !player.isFlying() && !player.isSwimming() && !player.isSneaking()) {
@@ -254,14 +261,14 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Sprint Marathon Reward for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeSprintMarathonReward = 6500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sprint Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double sprintXpPassive = 0.35;
+    double sprintXpPassive = 1.05;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Swim Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double swimXpPassive = 0.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Jump Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double jumpXpPassive = 0.15;
+    double jumpXpPassive = 0.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Climb Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double climbXpPassive = 0.4;
+    double climbXpPassive = 0.8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Move Xp Passive for the Agility skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double moveXpPassive = 0.05;
+    double moveXpPassive = 0.15;
   }
 }

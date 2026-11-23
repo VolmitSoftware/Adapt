@@ -15,9 +15,12 @@ public interface FxHost {
   void particle(WorldRef world, ParticleSpec particle, double x, double y, double z,
                 int count, double spreadX, double spreadY, double spreadZ, double speed);
 
-  /** Particles only {@code viewer} sees; used by Adapt's per-viewer FX budget. */
+  /**
+   * Particles only {@code viewer} sees; used by Adapt's per-viewer FX budget. {@code force} shows them whatever the
+   * viewer's particle setting and from far away.
+   */
   void particle(PlayerRef viewer, ParticleSpec particle, double x, double y, double z,
-                int count, double spreadX, double spreadY, double spreadZ, double speed);
+                int count, double spreadX, double spreadY, double spreadZ, double speed, boolean force);
 
   void sound(WorldRef world, double x, double y, double z, Id sound, SoundCategory category, float volume, float pitch);
 

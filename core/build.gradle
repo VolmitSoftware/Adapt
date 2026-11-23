@@ -48,6 +48,9 @@ tasks.named('test', Test) {
     if (providers.gradleProperty('updatePlatformCatalog').isPresent()) {
         systemProperty('adapt.updatePlatformCatalog', 'true')
     }
+    if (providers.gradleProperty('updateAdaptationCosts').isPresent()) {
+        systemProperty('adapt.updateAdaptationCosts', 'true')
+    }
     testLogging {
         events('failed')
         exceptionFormat = 'full'

@@ -197,10 +197,10 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
     double xpPerFocusedHit = 4;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.68;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

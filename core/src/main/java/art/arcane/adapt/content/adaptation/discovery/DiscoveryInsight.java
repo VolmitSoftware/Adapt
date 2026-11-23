@@ -648,10 +648,10 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     int maxPlayersPerPass = 32;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.2;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 2;
+      initialCost = 1;
     }
   }
 }

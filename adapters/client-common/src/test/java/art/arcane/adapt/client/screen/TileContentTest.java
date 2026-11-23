@@ -2,9 +2,11 @@ package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.kit.ProgressBar;
+import art.arcane.adapt.client.ui.kit.TextBox;
 import art.arcane.adapt.client.ui.kit.Tooltip;
 import art.arcane.adapt.client.ui.kit.UiContrast;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiRamp;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.client.ui.kit.UiTome;
@@ -20,6 +22,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** What the row tiles draw: an adaptation is its token, name and pips, a skill adds its level and knowledge in ink. */
@@ -56,8 +59,11 @@ class TileContentTest {
         SkillScreen screen = fixture.open(new Route.Skill("agility"));
         for (String id : List.of("agility-wall-jump", "agility-super-jump", "agility-ladder-slide", "agility-armor-up")) {
             AdaptationTile tile = screen.tile(id);
+            screen.reveal(tile);
+            fixture.render();
             UiRect box = tile.bounds();
-            List<String> texts = inside("text", box);
+            List<String> texts = new ArrayList<>(inside("text", box));
+            texts.removeIf((String text) -> Integer.parseInt(text.split(",")[0]) < tile.textBounds().x());
             assertEquals(List.of(tile.textBounds().x() + "," + (box.y() + tile.nameTop()) + " " + tile.label()), texts, id + ": only the name is written");
             assertTrue(inside("blit", box).stream().noneMatch((String blit) -> blit.contains("gui/mark/")), id + " draws a mark");
             for (String fill : inside("fill", box)) {
@@ -66,36 +72,31 @@ class TileContentTest {
         }
     }
 
+    /** The level sits on the medallion's corner: the learned level in numerals, gold when mastered, a ring before any. */
     @Test
-    void theNextPipIsOpenOnlyWhileItCanBeLearned() {
-        SkillScreen screen = fixture.open(new Route.Skill("agility"));
-        assertEquals("2", describe(screen.tile("agility-wall-jump")).get("openPip"), "two learned, the third open");
-        assertEquals("0", describe(screen.tile("agility-super-jump")).get("openPip"));
-        assertEquals("-1", describe(screen.tile("agility-ladder-slide")).get("openPip"), "mastered");
-        assertEquals("-1", describe(screen.tile("agility-armor-up")).get("openPip"), "too expensive");
-        SkillScreen rift = fixture.open(new Route.Skill("rift"));
-        assertEquals("-1", describe(rift.tile("rift-blink")).get("openPip"), "behind a requirement");
-
+    void theLevelIsABadgeOnTheMedallion() {
         SkillScreen agility = fixture.open(new Route.Skill("agility"));
-        AdaptationTile tile = agility.tile("agility-wall-jump");
-        UiRect box = tile.bounds();
         UiTheme theme = agility.theme();
-        String ink = hex(UiContrast.darkenFor(theme.accent(), theme.backdrop(), UiContrast.GRAPHIC));
-        int top = box.y() + tile.barTop();
-        int left = tile.textBounds().x();
-        int step = 8 + ProgressBar.PIP_GAP;
-        List<String> fills = inside("fill", box);
-        assertTrue(fills.contains(left + "," + (top + 1) + "," + (left + 8) + "," + (top + AdaptationTile.PIP_HEIGHT - 1) + " " + ink),
-                "a learned level is a solid pip: " + fills);
-        int open = left + 2 * step;
-        assertTrue(fills.contains((open + 1) + "," + top + "," + (open + 7) + "," + (top + 1) + " " + ink)
-                && fills.contains(open + "," + (top + 1) + "," + (open + 1) + "," + (top + AdaptationTile.PIP_HEIGHT - 1) + " " + ink),
-                "the level that can be learned is an outline in the same ink: " + fills);
-        assertFalse(fills.contains(open + "," + (top + 1) + "," + (open + 8) + "," + (top + AdaptationTile.PIP_HEIGHT - 1) + " " + ink),
-                "the open pip is filled: " + fills);
-        int rest = left + 3 * step;
-        assertTrue(fills.contains(rest + "," + (top + AdaptationTile.PIP_HEIGHT - 1) + "," + (rest + 8) + "," + (top + AdaptationTile.PIP_HEIGHT) + " "
-                + hex(ProgressBar.rail(theme))), "later levels are a hairline: " + fills);
+        AdaptationTile learned = agility.tile("agility-wall-jump");
+        agility.reveal(learned);
+        fixture.render();
+        UiRect icon = learned.iconBounds();
+        List<String> texts = inside("text", learned.bounds());
+        assertTrue(texts.stream().anyMatch((String text) -> text.endsWith(" II") && Integer.parseInt(text.split(",")[0]) < icon.right() + 2),
+                "two learned levels read II on the medallion: " + texts);
+        assertEquals(1, texts.stream().filter((String text) -> text.endsWith(" Wall Jump")).count(), texts.toString());
+
+        AdaptationTile mastered = agility.tile("agility-ladder-slide");
+        List<String> fills = inside("fill", mastered.bounds());
+        assertTrue(fills.stream().anyMatch((String fill) -> fill.endsWith(" " + hex(UiRamp.GOLD[3]))), "a mastered badge is gold: " + fills);
+
+        AdaptationTile fresh = agility.tile("agility-super-jump");
+        assertEquals(0, fresh.level());
+        texts = inside("text", fresh.bounds());
+        assertEquals(List.of(), texts.stream().filter((String text) -> text.endsWith(" I")).toList(), "nothing learned shows a numeral");
+        fills = inside("fill", fresh.bounds());
+        assertTrue(fills.stream().anyMatch((String fill) -> fill.endsWith(" " + hex(theme.accent()))),
+                "a level that can be learned now rings the corner in the skill's colour: " + fills);
     }
 
     @Test
@@ -103,14 +104,14 @@ class TileContentTest {
         SkillScreen screen = fixture.open(new Route.Skill("agility"));
         AdaptationTile tile = screen.tile("agility-ladder-slide");
         assertEquals(AdaptationTile.Status.MASTERED, tile.status());
+        screen.reveal(tile);
         assertTrue(inside("text", tile.bounds()).stream().noneMatch((String text) -> text.endsWith(ScreenText.MASTERED.text())));
-        assertEquals(ScreenText.MASTERED.text(), tile.detail().second());
+        assertTrue(tile.tooltip().lines().contains("§a" + ScreenText.MASTERED.text()), tile.tooltip().lines().toString());
     }
 
     @Test
-    void theNextLevelsCostIsInTheTooltipAndOnTheDetailPage() {
+    void theNextLevelsCostIsInTheTooltipOnASinglePageAndBesideTheGridOnASpread() {
         SkillScreen single = fixture.open(new Route.Skill("agility"));
-        assertFalse(single.spreadOpen());
         Tooltip tooltip = single.tile("agility-wall-jump").tooltip();
         assertNotNull(tooltip);
         assertTrue(tooltip.lines().contains("§aLearn III for 8 knowledge"), tooltip.lines().toString());
@@ -118,8 +119,14 @@ class TileContentTest {
 
         ScreenFixture wide = new ScreenFixture(960, 540, 2);
         SkillScreen spread = wide.open(new Route.Skill("agility"));
-        assertTrue(spread.spreadOpen());
-        assertEquals("Learn III for 8 knowledge", spread.tile("agility-wall-jump").detail().second());
+        AdaptationTile tile = spread.tile("agility-wall-jump");
+        assertNull(tile.tooltip(), "the tooltip repeats the left page");
+        spread.render(wide.draw, tile.bounds().centerX(), tile.bounds().centerY(), 0.0F);
+        wide.render();
+        assertEquals("Wall Jump", wide.find("detail").label());
+        Map<String, String> state = describe(wide.find("detail"));
+        assertEquals("Learn III for 8 knowledge", state.get("status"));
+        assertEquals("Jump off walls while airborne.", ((TextBox) wide.find("detail.description")).text());
     }
 
     @Test

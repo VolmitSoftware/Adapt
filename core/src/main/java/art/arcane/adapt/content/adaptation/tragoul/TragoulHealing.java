@@ -266,8 +266,9 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
     double drainDamageEnd = 2.0;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

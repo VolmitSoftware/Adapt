@@ -65,7 +65,7 @@ public final class RecordingFx implements FxHost {
 
   @Override
   public synchronized void particle(PlayerRef viewer, ParticleSpec particle, double x, double y, double z, int count,
-                                    double spreadX, double spreadY, double spreadZ, double speed) {
+                                    double spreadX, double spreadY, double spreadZ, double speed, boolean force) {
     particles.add(new Particle(viewer, particle, x, y, z, count));
   }
 

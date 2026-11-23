@@ -101,8 +101,9 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
   @ConfigDescription("Brew a Potion of Blindness from Awkward Potion and Ink Sack.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 3;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

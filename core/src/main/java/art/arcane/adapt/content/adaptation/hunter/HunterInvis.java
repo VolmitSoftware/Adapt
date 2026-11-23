@@ -223,8 +223,9 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
     String consumable = "ROTTEN_FLESH";
 
     public Config() {
-      costFactor = 0.4;
-      initialCost = 8;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

@@ -131,6 +131,7 @@ public class PlayerData {
   private Discovery<String> seenEnvironments = new Discovery<>();
   private Discovery<String> seenPotionEffects = new Discovery<>();
   private Discovery<String> seenBlocks = new Discovery<>();
+  private ChunkDiscovery seenChunks = new ChunkDiscovery();
   private KList<XPMultiplier> multipliers = new KList<>();
   private long wisdom = 0;
   private double multiplier = 1D;
@@ -853,6 +854,7 @@ public class PlayerData {
     seenEnvironments = new Discovery<>();
     seenPotionEffects = new Discovery<>();
     seenBlocks = new Discovery<>();
+    seenChunks = new ChunkDiscovery();
   }
 
   public void pruneAdaptationsForPowerBudget() {

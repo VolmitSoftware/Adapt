@@ -252,8 +252,9 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     double xpPerDisarm = 28;
 
     public Config() {
-      costFactor = 0.55;
-      initialCost = 5;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

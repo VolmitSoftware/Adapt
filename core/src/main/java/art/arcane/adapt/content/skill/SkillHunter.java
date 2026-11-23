@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.content.adaptation.hunter.HunterAdrenaline;
 import art.arcane.adapt.content.adaptation.hunter.HunterBigGameHunter;
@@ -46,15 +47,12 @@ import art.arcane.adapt.content.adaptation.hunter.HunterStrength;
 import art.arcane.adapt.content.adaptation.hunter.HunterTrophySkinner;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
@@ -66,7 +64,6 @@ import java.util.Locale;
 import java.util.Set;
 
 public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
-  private static final DataKey<Byte> SPAWNER_MOB_KEY = DataKey.adapt("hunter-spawner-mob", DataCodecs.BYTE);
   private static final Id CREEPER = Id.minecraft("creeper");
   private static final Set<Id> BOSSES = Set.of(Id.minecraft("ender_dragon"), Id.minecraft("wither"),
       Id.minecraft("elder_guardian"), Id.minecraft("warden"));
@@ -159,12 +156,12 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
         .build());
 
     registerMilestone("challenge_novice_hunter", "killed.monsters", 100, () -> getConfig().killsChallengeReward);
-    registerMilestone("challenge_intermediate_hunter", "killed.monsters", 500, () -> getConfig().killsChallengeReward * 2);
-    registerMilestone("challenge_advanced_hunter", "killed.monsters", 5000, () -> getConfig().killsChallengeReward * 5);
+    registerMilestone("challenge_intermediate_hunter", "killed.monsters", 500, () -> getConfig().killsChallengeReward * 3);
+    registerMilestone("challenge_advanced_hunter", "killed.monsters", 5000, () -> getConfig().killsChallengeReward * 8);
     registerMilestone("challenge_creeper_conqueror", "killed.creepers", 50, () -> getConfig().killsChallengeReward);
-    registerMilestone("challenge_creeper_annihilator", "killed.creepers", 200, () -> getConfig().killsChallengeReward * 2);
+    registerMilestone("challenge_creeper_annihilator", "killed.creepers", 200, () -> getConfig().killsChallengeReward * 3);
     registerMilestone("challenge_kills_500", "killed.kills", 500, () -> getConfig().killsChallengeReward);
-    registerMilestone("challenge_kills_5k", "killed.kills", 5000, () -> getConfig().killsChallengeReward * 5);
+    registerMilestone("challenge_kills_5k", "killed.kills", 5000, () -> getConfig().killsChallengeReward * 3);
     registerMilestone("challenge_boss_1", "hunter.boss.kills", 1, () -> getConfig().bossKillReward);
     registerMilestone("challenge_boss_10", "hunter.boss.kills", 10, () -> getConfig().bossKillReward * 5);
   }
@@ -214,30 +211,18 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     shouldReturnForPlayer(p, () -> {
       recordKillStats(p, victim);
       Id type = victim.type();
-      if (type.equals(CREEPER)) {
-        double xpAmount = victim.maxHealth() * getConfig().killMaxHealthXPMultiplier * getConfig().creeperKillMultiplier;
-        if (isSpawnerMob(victim)) {
-          xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
-        }
-        handleCooldownAndXp(p, xpAmount, "hunter:kill:creeper");
-      } else {
-        handleEntityKill(p, victim);
+      if (!p.uuid().equals(victim.tameOwner())) {
+        double healthMultiplier = getConfig().killMaxHealthXPMultiplier
+            * (type.equals(CREEPER) ? getConfig().creeperKillMultiplier : 1D);
+        double amount = killXp(victim.maxHealth(), healthMultiplier, getConfig().killFlatXp,
+            MobOrigin.isFarmed(victim) ? getConfig().spawnerMobReductionXpMultiplier : 1D);
+        handleCooldownAndXp(p, amount, "hunter:kill:" + type.legacyName().toLowerCase(Locale.ROOT));
       }
       if (BOSSES.contains(type)) {
         addStat(p, "hunter.boss.kills", 1);
         bossCelebration(victim.location().add(0, 1.0D, 0));
       }
     });
-  }
-
-  @Handle(priority = EventPriority.MONITOR)
-  public void on(CreatureSpawnEvent e) {
-    if (!isEnabled()) {
-      return;
-    }
-    if (e.reason() == CreatureSpawnEvent.Reason.SPAWNER) {
-      e.entity().data().set(SPAWNER_MOB_KEY, (byte) 1);
-    }
   }
 
   private void recordKillStats(PlayerRef p, EntityRef entity) {
@@ -250,17 +235,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     }
   }
 
-  private boolean isSpawnerMob(EntityRef entity) {
-    return entity.data().has(SPAWNER_MOB_KEY);
-  }
-
-  private void handleEntityKill(PlayerRef p, LivingRef entity) {
-    double xpAmount = entity.maxHealth() * getConfig().killMaxHealthXPMultiplier;
-    if (isSpawnerMob(entity)) {
-      xpAmount *= getConfig().spawnerMobReductionXpMultiplier;
-    }
-    String rewardKey = "hunter:kill:" + entity.type().legacyName().toLowerCase(Locale.ROOT);
-    handleCooldownAndXp(p, xpAmount, rewardKey);
+  static double killXp(double maxHealth, double healthMultiplier, double flatXp, double farmedMultiplier) {
+    double healthXp = Double.isFinite(maxHealth) && maxHealth > 0D ? maxHealth * Math.max(0D, healthMultiplier) : 0D;
+    return (healthXp + Math.max(0D, flatXp)) * Math.max(0D, farmedMultiplier);
   }
 
   @Override
@@ -278,10 +255,12 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Creeper Kill Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double creeperKillMultiplier = 2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kill Max Health XPMultiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double killMaxHealthXPMultiplier = 3.0;
+    double killMaxHealthXPMultiplier = 4.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Flat XP added to every kill reward.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double killFlatXp = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Spawner Mob Reduction Xp Multiplier for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Kill reward multiplier for mobs from spawners, spawn eggs, buckets, breeding, portals, and golem or snowman builds.", impact = "Lower values make mob farms pay less.")
     double spawnerMobReductionXpMultiplier = 0.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kills Challenge Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double killsChallengeReward = 500;

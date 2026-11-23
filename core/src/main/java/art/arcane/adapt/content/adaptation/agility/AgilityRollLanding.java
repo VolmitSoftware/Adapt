@@ -312,9 +312,9 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     double xpPerDamagePrevented = 4.2;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.62;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

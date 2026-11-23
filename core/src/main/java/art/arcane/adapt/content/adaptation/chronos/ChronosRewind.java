@@ -382,9 +382,9 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     double xpPerLevel = 3;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.4;
-      initialCost = 5;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

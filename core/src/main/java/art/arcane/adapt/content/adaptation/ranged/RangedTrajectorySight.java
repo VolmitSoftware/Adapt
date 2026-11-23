@@ -716,7 +716,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
   private static void viewerDust(PlayerRef viewer, Loc at, Rgb color, float size, int count, double spread) {
     FxHost fx = AdaptCore.platform().fx();
-    fx.particle(viewer, Particles.dust(color, size), at.x(), at.y(), at.z(), count, spread, spread, spread, 0.0D);
+    fx.particle(viewer, Particles.dust(color, size), at.x(), at.y(), at.z(), count, spread, spread, spread, 0.0D, false);
   }
 
   private double drawDottedSegment(PlayerRef p, Loc eye, Loc from, Loc to, Rgb color, double minDistanceSq, double spacing, double carry) {
@@ -1335,8 +1335,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     double previewHighLoadSegmentScale = 0.7;
 
     public Config() {
-      costFactor = 0.75;
-      initialCost = 4;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

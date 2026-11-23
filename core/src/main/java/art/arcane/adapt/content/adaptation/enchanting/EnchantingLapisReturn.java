@@ -192,8 +192,9 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     double maxRefundChance = 0.4;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.9;
+      initialCost = 1;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
     }
   }

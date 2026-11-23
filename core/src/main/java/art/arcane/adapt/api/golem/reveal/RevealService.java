@@ -301,7 +301,7 @@ public final class RevealService extends TickedObject implements EntityInsight.P
     int points = Math.min(LINE_MAX_POINTS, (int) ((distance - LINE_START_OFFSET) / LINE_SPACING));
     FxHost fx = AdaptCore.platform().fx();
     for (int index = 0; index < points; index++) {
-      fx.particle(owner, Particles.END_ROD, cursor.x(), cursor.y(), cursor.z(), 1, 0D, 0D, 0D, 0D);
+      fx.particle(owner, Particles.END_ROD, cursor.x(), cursor.y(), cursor.z(), 1, 0D, 0D, 0D, 0D, false);
       cursor = cursor.add(step);
     }
   }

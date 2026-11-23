@@ -277,8 +277,9 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
     String consumable = "ROTTEN_FLESH";
 
     public Config() {
-      costFactor = 0.4;
-      initialCost = 8;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

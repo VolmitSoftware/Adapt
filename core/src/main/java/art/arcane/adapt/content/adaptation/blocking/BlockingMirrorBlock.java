@@ -364,8 +364,9 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     double xpOnReflect = 8;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

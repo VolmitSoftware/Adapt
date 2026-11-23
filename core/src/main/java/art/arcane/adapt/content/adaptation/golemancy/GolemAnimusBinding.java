@@ -76,7 +76,6 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -624,7 +623,6 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Sneak-right-click a golem while holding an Animus Core to bind it to you as a companion.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Most golems you can own at once, by Animus Binding level from level 1 upward.", impact = "Higher values let players keep more golems; hardCapPerPlayer in the Golemancy skill config still caps every level.")
@@ -656,5 +654,11 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
         .key('R', "REDSTONE")
         .key('P', "ENDER_PEARL")
         .result("golemancy:blank_core", 1);
+
+    public Config() {
+      baseCost = 2;
+      initialCost = 1;
+      costFactor = 0.5;
+    }
   }
 }

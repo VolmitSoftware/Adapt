@@ -240,9 +240,10 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     double skillXpPerDurability = 0.35;
 
     public Config() {
-      costFactor = 0.8;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 3;
     }
   }
 }

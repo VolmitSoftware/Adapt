@@ -101,8 +101,9 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
   @ConfigDescription("Brew a Potion of Saturation from Regen Potion and Baked Potato.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       permanent = true;
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
     }

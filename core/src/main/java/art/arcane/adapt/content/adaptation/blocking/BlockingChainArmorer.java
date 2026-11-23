@@ -111,7 +111,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
     public Config() {
       permanent = true;
       baseCost = 1;
-      costFactor = 0;
+      costFactor = 1;
       maxLevel = 1;
       initialCost = 1;
     }

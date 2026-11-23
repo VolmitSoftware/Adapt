@@ -1306,10 +1306,10 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     double xpPerFlow = 0.4;
 
     public Config() {
-      baseCost = 8;
+      baseCost = 5;
       costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 8;
+      initialCost = 3;
     }
   }
 

@@ -10,9 +10,6 @@ import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.TextField;
 import art.arcane.adapt.client.ui.kit.Tooltip;
 import art.arcane.adapt.client.ui.kit.UiGroup;
-import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
-import art.arcane.adapt.client.ui.kit.UiNode;
-import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.IconSprites;
 import art.arcane.adapt.client.view.PlayerView;
@@ -26,61 +23,44 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The skills list: skill tiles in the chest menu's order over both facing pages, as many columns as the page width
- * holds up to {@link #MAX_COLUMNS} in all, with total knowledge and power used as chips in the top bar, filtered by the
- * search field there. The grid is fitted to the whole skill list and keeps its height, so typing a search never moves
- * the tiles that stay; its rows spread out to fill the pages.
+ * The skills list: skill tiles in the chest menu's order, row by row down the left page and on down the right one, as
+ * many columns to a page as its width holds up to {@link #COLUMNS}, or one column on each page when the whole list fits
+ * one spread that way, with total knowledge and power used as chips in the right page's header beside the search field
+ * that filters them. The columns follow the whole list, so a search never reshapes the tiles. A last spread with room to
+ * spare shares its rows evenly between its two pages. A new search starts again from the first leaf.
  */
 public final class SkillsScreen extends AdaptScreen {
     static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), "adapt:textures/gui/mark/power.png");
     static final IconRef KNOWLEDGE_ICON = IconRef.item("minecraft:knowledge_book");
-    static final int MAX_COLUMNS = 4;
-    static final TileGrid.Shape SHAPE = new TileGrid.Shape(MAX_COLUMNS, MAX_COLUMNS, 112, true);
+    /** The most columns of tiles on one page. */
+    static final int COLUMNS = 2;
+    /** The most columns when the book shows one page as wide as both. */
+    static final int SINGLE_COLUMNS = 4;
     private static final int SEARCH_WIDTH = 84;
 
     private final TextField search;
     private final Label empty;
     private final Label emptyHint;
-    private final UiGroup grid;
     private final Map<String, SkillTile> tiles = new HashMap<>();
-    private int shown;
+    private final List<SkillTile> matching = new ArrayList<>();
     private int total;
-    private TileGrid.Fit fit = TileGrid.Fit.NONE;
 
     SkillsScreen(ScreenRouter router) {
         super(ScreenText.SKILLS.text(), new Route.Skills(), router);
         search = new TextField("search", 48);
         search.setPlaceholder(ScreenText.SEARCH.text());
-        search.setOnChange((String text) -> refresh());
-        setTool(search, SEARCH_WIDTH);
-        empty = page().add(new Label("empty", "").setAlign(Label.Align.CENTER));
-        emptyHint = page().add(new Label("empty.hint", "").setAlign(Label.Align.CENTER).setColor(Palette.MUTED));
-        grid = page().add(new UiGroup("skills", TileGrid.rows(() -> fit, () -> total)));
-        UiLayoutPolicy notes = UiLayoutPolicy.column(PAGE_GAP);
-        page().setLayout(new UiLayoutPolicy() {
-            @Override
-            public void layout(List<UiNode> children, UiRect area, UiDraw metrics) {
-                notes.layout(notes(children), area, metrics);
-                grid.place(area, metrics);
-            }
-
-            @Override
-            public int preferredHeight(List<UiNode> children, int width, UiDraw metrics) {
-                return Math.max(grid.preferredHeight(width, metrics), notes.preferredHeight(notes(children), width, metrics));
-            }
+        search.setOnChange((String text) -> {
+            refresh();
+            restart();
         });
+        setTool(search, SEARCH_WIDTH);
+        empty = new Label("empty", "").setWrap(true);
+        emptyHint = new Label("empty.hint", "").setWrap(true).setColor(Palette.MUTED);
         refresh();
     }
 
     public TextField search() {
         return search;
-    }
-
-    /** The messages that show over the grid's place while it has no tiles. */
-    private List<UiNode> notes(List<UiNode> shown) {
-        List<UiNode> notes = new ArrayList<>(shown);
-        notes.remove(grid);
-        return notes;
     }
 
     SkillTile tile(String skillId) {
@@ -96,7 +76,7 @@ public final class SkillsScreen extends AdaptScreen {
     protected void describe(Map<String, String> state) {
         super.describe(state);
         state.put("query", search.text());
-        state.put("shown", Integer.toString(shown));
+        state.put("shown", Integer.toString(matching.size()));
     }
 
     @Override
@@ -104,34 +84,26 @@ public final class SkillsScreen extends AdaptScreen {
         if (event.key() == UiKey.ESCAPE && search.isFocused() && !search.text().isEmpty()) {
             search.setText("");
             refresh();
+            restart();
             return true;
         }
         return super.keyPressed(event);
     }
 
-    private List<Integer> counts() {
-        return List.of(Math.max(1, total));
-    }
-
     @Override
-    protected void arrange(UiDraw metrics, int width, int room, boolean open) {
+    protected void compose(Flow flow, UiDraw metrics, int width) {
+        flow.add(empty);
+        flow.add(emptyHint);
         int need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
-        fit = TileGrid.fit(counts(), width, room, need, open ? SHAPE : SHAPE.flat()).filling(width);
-    }
-
-    @Override
-    protected boolean spans() {
-        return true;
-    }
-
-    @Override
-    protected int slack(int maxPitch) {
-        return fit.slack(counts(), maxPitch);
-    }
-
-    @Override
-    protected void stretch(int extra, int maxPitch) {
-        fit = fit.stretched(counts(), fit.height(counts()) + extra, maxPitch);
+        TileGrid.Fit fit = TileGrid.fit(width, need, flow.spread() ? COLUMNS : SINGLE_COLUMNS);
+        int rows = Math.max(1, (flow.height() + TileGrid.ROW_GAP) / TileGrid.PITCH);
+        if (flow.spread() && fit.columns() > 1 && (total + 1) / 2 <= rows) {
+            fit = TileGrid.fit(width, need, 1);
+        }
+        for (UiGroup row : TileGrid.rows("skills", matching, fit)) {
+            flow.row(row, TileGrid.ROW_GAP);
+        }
+        flow.balance();
     }
 
     @Override
@@ -143,7 +115,7 @@ public final class SkillsScreen extends AdaptScreen {
             chip("stat:knowledge").setVisible(false);
             chip("stat:power").setVisible(false);
             showEmpty(ScreenText.WAITING.text(), "");
-            replaceTiles(List.of());
+            matching.clear();
             total = 0;
             return;
         }
@@ -158,7 +130,7 @@ public final class SkillsScreen extends AdaptScreen {
         List<SkillView> visible = catalog.visibleSkills(player);
         total = visible.size();
         String query = search.text().trim().toLowerCase(Locale.ROOT);
-        List<SkillTile> matching = new ArrayList<>();
+        matching.clear();
         for (SkillView skill : visible) {
             if (!query.isEmpty() && !matches(skill, query)) {
                 continue;
@@ -170,7 +142,6 @@ public final class SkillsScreen extends AdaptScreen {
                     player.access().canOpen(skill.id()));
             matching.add(tile);
         }
-        replaceTiles(matching);
         if (visible.isEmpty()) {
             showEmpty(ScreenText.NO_SKILLS.text(), ScreenText.NO_SKILLS_HINT.text());
         } else if (matching.isEmpty()) {
@@ -194,17 +165,6 @@ public final class SkillsScreen extends AdaptScreen {
         return skill.name().toLowerCase(Locale.ROOT).contains(query)
                 || skill.id().toLowerCase(Locale.ROOT).contains(query)
                 || LegacyText.strip(skill.description()).toLowerCase(Locale.ROOT).contains(query);
-    }
-
-    private void replaceTiles(List<SkillTile> next) {
-        shown = next.size();
-        if (grid.children().equals(next)) {
-            return;
-        }
-        grid.clearChildren();
-        for (SkillTile tile : next) {
-            grid.add(tile);
-        }
     }
 
     private void showEmpty(String text, String hint) {

@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.nether.NetherAshwalker;
 import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
@@ -63,6 +64,8 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 public class SkillNether extends SimpleSkill<SkillNether.Config> {
   private final Cooldowns witherRoseCooldowns = cooldowns();
@@ -111,8 +114,8 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .build())
         .build());
     registerMilestone("challenge_nether_50", "nether.kills", 50, () -> getConfig().getChallengeNetherReward());
-    registerMilestone("challenge_nether_500", "nether.kills", 500, () -> getConfig().getChallengeNetherReward() * 2);
-    registerMilestone("challenge_nether_5k", "nether.kills", 5000, () -> getConfig().getChallengeNetherReward() * 5);
+    registerMilestone("challenge_nether_500", "nether.kills", 500, () -> getConfig().getChallengeNetherReward() * 3);
+    registerMilestone("challenge_nether_5k", "nether.kills", 5000, () -> getConfig().getChallengeNetherReward() * 8);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wither_rose"))
         .key("challenge_wither_dmg_500")
@@ -128,7 +131,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .build())
         .build());
     registerMilestone("challenge_wither_dmg_500", "nether.wither.damage", 500, () -> getConfig().getChallengeWitherDmgReward());
-    registerMilestone("challenge_wither_dmg_5k", "nether.wither.damage", 5000, () -> getConfig().getChallengeWitherDmgReward() * 2);
+    registerMilestone("challenge_wither_dmg_5k", "nether.wither.damage", 5000, () -> getConfig().getChallengeWitherDmgReward() * 3);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("bone"))
         .key("challenge_wither_skel_25")
@@ -144,7 +147,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .build())
         .build());
     registerMilestone("challenge_wither_skel_25", "nether.skeleton.kills", 25, () -> getConfig().getChallengeWitherSkelReward());
-    registerMilestone("challenge_wither_skel_250", "nether.skeleton.kills", 250, () -> getConfig().getChallengeWitherSkelReward() * 2);
+    registerMilestone("challenge_wither_skel_250", "nether.skeleton.kills", 250, () -> getConfig().getChallengeWitherSkelReward() * 3);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("nether_star"))
         .key("challenge_wither_boss_1")
@@ -176,12 +179,18 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
             .build())
         .build());
     registerMilestone("challenge_roses_10", "nether.roses.broken", 10, () -> getConfig().getChallengeRosesReward());
-    registerMilestone("challenge_roses_100", "nether.roses.broken", 100, () -> getConfig().getChallengeRosesReward() * 2);
+    registerMilestone("challenge_roses_100", "nether.roses.broken", 100, () -> getConfig().getChallengeRosesReward() * 3);
   }
 
   private static final Id WITHER_ROSE = Id.minecraft("wither_rose");
   private static final Id WITHER_SKELETON = Id.minecraft("wither_skeleton");
   private static final Id WITHER = Id.minecraft("wither");
+  private static final Set<Id> NETHER_MOBS = Set.of(Id.minecraft("blaze"), Id.minecraft("ghast"), Id.minecraft("piglin"),
+      Id.minecraft("piglin_brute"), Id.minecraft("hoglin"), Id.minecraft("zoglin"), Id.minecraft("magma_cube"),
+      Id.minecraft("zombified_piglin"));
+  private static final Id NETHER_QUARTZ_ORE = Id.minecraft("nether_quartz_ore");
+  private static final Id NETHER_GOLD_ORE = Id.minecraft("nether_gold_ore");
+  private static final Id ANCIENT_DEBRIS = Id.minecraft("ancient_debris");
 
   private boolean isWitherDamageCause(DamageCause cause) {
     return cause == DamageCause.WITHER;
@@ -204,6 +213,16 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(BlockBreakEvent e) {
+    double oreXp = oreXp(e.block().type());
+    if (oreXp > 0D) {
+      PlayerRef miner = e.player();
+      shouldReturnForPlayer(miner, e, () -> {
+        if (XpProvenance.breakXpMultiplier(e.block()) > 0D) {
+          xp(miner, e.block().center(), blockXP(e.block(), oreXp), "nether:ore");
+        }
+      });
+      return;
+    }
     if (!e.block().type().equals(WITHER_ROSE)) {
       return;
     }
@@ -229,6 +248,20 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     });
   }
 
+  double oreXp(Id type) {
+    if (NETHER_QUARTZ_ORE.equals(type)) {
+      return getConfig().getNetherQuartzOreXp();
+    }
+    if (NETHER_GOLD_ORE.equals(type)) {
+      return getConfig().getNetherGoldOreXp();
+    }
+    return ANCIENT_DEBRIS.equals(type) ? getConfig().getAncientDebrisXp() : 0D;
+  }
+
+  static double netherMobKillXp(double perMaxHealth, double maxHealth) {
+    return Double.isFinite(maxHealth) && maxHealth > 0D ? Math.max(0D, perMaxHealth) * maxHealth : 0D;
+  }
+
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(EntityDeathEvent e) {
     if (e.platformCancelled()) {
@@ -240,7 +273,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
       return;
     }
     shouldReturnForPlayer(p, () -> {
-      if (dead.type().equals(WITHER_SKELETON)) {
+      if (NETHER_MOBS.contains(dead.type())) {
+        addStat(p, "nether.kills", 1);
+        if (MobOrigin.paysKillReward(p, dead)) {
+          xp(p, dead.location(), netherMobKillXp(getConfig().getNetherMobMaxHealthXpMultiplier(), dead.maxHealth()),
+              "nether:kill");
+        }
+      } else if (dead.type().equals(WITHER_SKELETON)) {
         addStat(p, "nether.kills", 1);
         addStat(p, "nether.skeleton.kills", 1);
         xp(p, getConfig().getWitherSkeletonKillXp());
@@ -313,5 +352,13 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     private double challengeWitherBossReward = 1000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Roses Broken Reward for the Nether skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private double challengeRosesReward = 500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per point of maximum health for killing blazes, ghasts, piglins, piglin brutes, hoglins, zoglins, magma cubes, and zombified piglins.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private double netherMobMaxHealthXpMultiplier = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for mining nether quartz ore.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private double netherQuartzOreXp = 62.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for mining nether gold ore.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private double netherGoldOreXp = 52.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for mining ancient debris.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    private double ancientDebrisXp = 105;
   }
 }

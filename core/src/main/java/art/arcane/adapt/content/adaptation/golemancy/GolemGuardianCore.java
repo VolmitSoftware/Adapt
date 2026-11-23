@@ -359,6 +359,9 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
         .result("golemancy:node/guard", 1);
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 2;
+      baseCost = 3;
       requires = new ArrayList<>(List.of("golem-animus-binding:1"));
     }
   }

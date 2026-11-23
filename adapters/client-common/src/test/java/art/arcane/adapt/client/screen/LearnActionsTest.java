@@ -361,8 +361,10 @@ class LearnActionsTest {
         assertNull(screen.offer());
         fixture.draw.calls().clear();
         screen.render(fixture.draw, pip.centerX(), pip.centerY(), 0.0F);
-        assertTrue(fixture.draw.calls().contains("text " + fixture.find("stat-line:0").bounds().x() + ","
-                + fixture.find("stat-line:0").bounds().y() + " +"), "the stat lines are the pointed level's");
+        UiRect stats = fixture.find("detail.stats").bounds();
+        assertTrue(fixture.draw.calls().contains("text " + stats.x() + "," + stats.y() + " +"), "the stat lines lose their mark");
+        assertTrue(fixture.draw.calls("wrapped ").stream().anyMatch((String call) -> call.endsWith(" 50% strength")),
+                "the stat lines are not the pointed level's");
 
         pip = screen.levelNode(1).bounds();
         screen.render(fixture.draw, pip.centerX(), pip.centerY(), 0.0F);

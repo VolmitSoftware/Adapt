@@ -121,24 +121,4 @@ class UiLayoutTest {
         assertEquals(new UiRect(0, 0, 100, 9), first.bounds());
         assertEquals(new UiRect(0, 11, 100, 9), second.bounds());
     }
-
-    @Test
-    void footedPolicyHoldsItsFootAgainstTheBottom() {
-        KitDraw draw = new KitDraw();
-        UiGroup group = new UiGroup("g");
-        Label first = group.add(new Label("a", "one"));
-        Label reason = group.add(new Label("b", "two"));
-        Label action = group.add(new Label("c", "three"));
-        group.setLayout(UiLayoutPolicy.footed(2, reason, action));
-        assertEquals(31, group.preferredHeight(100, draw));
-        group.place(new UiRect(0, 0, 100, 60), draw);
-        assertEquals(new UiRect(0, 0, 100, 9), first.bounds());
-        assertEquals(new UiRect(0, 40, 100, 9), reason.bounds());
-        assertEquals(new UiRect(0, 51, 100, 9), action.bounds());
-        group.place(new UiRect(0, 0, 100, 31), draw);
-        assertEquals(new UiRect(0, 22, 100, 9), action.bounds());
-        reason.setVisible(false);
-        group.place(new UiRect(0, 0, 100, 60), draw);
-        assertEquals(new UiRect(0, 51, 100, 9), action.bounds());
-    }
 }

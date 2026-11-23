@@ -4,7 +4,6 @@ import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.ui.kit.LegacyText;
-import art.arcane.adapt.client.ui.kit.UiContrast;
 import art.arcane.adapt.client.ui.kit.UiControl;
 import art.arcane.adapt.client.ui.kit.UiEase;
 import art.arcane.adapt.client.ui.kit.UiFade;
@@ -20,18 +19,19 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A row tile of the skill and adaptation grids, {@link TileGrid#HEIGHT} tall, bare on the page and washed warm under
- * the pointer: the icon at the left, then the name with a number at its right and a thin bar or a row of pips under
- * it. A tile may add one short line below, led by a small ink glyph; one without that line centres its name and bar
- * on the icon. The grid gives the tile room for all of its text ({@link #naturalWidth}); only a screen too narrow for
- * that cuts it. Clicking or Enter opens its page.
+ * A tile of the skill and adaptation grids, bare on the page and framed in gold filigree under the pointer or keyboard
+ * focus: the icon at the left, then the name with a number at its right, and on the line below a short value led by a
+ * small ink glyph with a small framed bar after it where the line has room for one. A tile too narrow for the number beside the name puts it at the end
+ * of the line below. The grid gives the tile room for all of its text ({@link #naturalWidth}); only a screen too
+ * narrow for that cuts it. Clicking or Enter opens its page.
  */
 abstract class RowTile extends UiNode {
-    static final int FIRST_LINE = 2;
-    static final int BAR_HEIGHT = 2;
-    static final int SECOND_LINE = 14;
+    static final int FIRST_LINE = 3;
+    static final int BAR_HEIGHT = 5;
+    static final int SECOND_LINE = 13;
+    /** The least width the bar on the second line keeps. */
+    static final int BAR_LEAST = 20;
     private static final int ICON_LEFT = 3;
-    private static final int BAR_TOP = 11;
     private static final int TEXT_GAP = 4;
     private static final int RIGHT_PAD = 3;
     private static final int GLYPH_GAP = 3;
@@ -60,11 +60,12 @@ abstract class RowTile extends UiNode {
 
     /** Where the bar starts below the tile's top. */
     int barTop() {
-        return BAR_TOP;
+        return SECOND_LINE + 1;
     }
 
-    /** Paints the bar inside {@code left..right} from {@code top} down. */
-    abstract void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right);
+    /** Paints the bar inside {@code left..right} from {@code top} down; nothing by default. */
+    void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
+    }
 
     /** The line under the bar, or empty for none. */
     abstract String second();
@@ -86,9 +87,6 @@ abstract class RowTile extends UiNode {
         UiIcons.paintOn(draw, icon(), icon.x(), icon.y(), UiIcons.SIZE, glint(), backdrop);
     }
 
-    /** The ink underline under the pointer, the tile's accent. */
-    abstract int accent(UiTheme theme);
-
     /** Whether the icon shows dimmed behind a lock. */
     abstract boolean locked();
 
@@ -97,17 +95,36 @@ abstract class RowTile extends UiNode {
     }
 
     /** Where the icon sits. */
-    final UiRect iconBounds() {
+    UiRect iconBounds() {
         UiRect box = bounds();
         return new UiRect(box.x() + ICON_LEFT, box.y() + (box.height() - UiIcons.SIZE) / 2, UiIcons.SIZE, UiIcons.SIZE);
     }
 
-    /** The width this tile needs to show all of its text on its two lines. */
+    /**
+     * The width this tile needs to show all of its text on its two lines, with the number after the name or, when that
+     * is narrower, after the line below.
+     */
     final int naturalWidth(UiDraw metrics) {
+        int number = numberRoom(metrics);
+        int name = metrics.textWidth(label());
+        int second = secondWidth(metrics);
+        int text = Math.min(Math.max(name + number, second), Math.max(name, second + number));
+        return ICON_LEFT + UiIcons.SIZE + TEXT_GAP + text + RIGHT_PAD;
+    }
+
+    private int numberRoom(UiDraw metrics) {
         int number = metrics.textWidth(number());
-        int first = metrics.textWidth(label()) + (number > 0 ? number + TEXT_GAP : 0);
-        int second = glyphWidth() + metrics.textWidth(second());
-        return ICON_LEFT + UiIcons.SIZE + TEXT_GAP + Math.max(first, second) + RIGHT_PAD;
+        return number > 0 ? number + TEXT_GAP : 0;
+    }
+
+    private int secondWidth(UiDraw metrics) {
+        return glyphWidth() + metrics.textWidth(second());
+    }
+
+    /** Whether the number shares the name's line in text {@code room} wide, rather than the line below. */
+    private boolean numberBesideName(int room, UiDraw metrics) {
+        int number = numberRoom(metrics);
+        return metrics.textWidth(label()) + number <= room || secondWidth(metrics) + number > room;
     }
 
     /** The widest {@link #naturalWidth} of {@code tiles}. */
@@ -120,7 +137,7 @@ abstract class RowTile extends UiNode {
     }
 
     /** Where the text goes: right of the icon to the tile's right padding. */
-    final UiRect textBounds() {
+    UiRect textBounds() {
         UiRect box = bounds();
         int left = box.x() + ICON_LEFT + UiIcons.SIZE + TEXT_GAP;
         return UiRect.of(left, box.y(), Math.max(left, box.right() - RIGHT_PAD), box.bottom());
@@ -138,7 +155,7 @@ abstract class RowTile extends UiNode {
 
     @Override
     public int preferredWidth(UiDraw metrics) {
-        return TileGrid.WIDTH;
+        return TileGrid.MIN_WIDTH;
     }
 
     @Override
@@ -167,28 +184,27 @@ abstract class RowTile extends UiNode {
         UiTheme theme = frame.theme();
         UiRect box = bounds();
         float lift = hover.update(frame.motion(), frame.isHovered(this) || frame.showsFocus(this));
-        int well = UiEase.fade(UiTome.HOVER, lift);
-        if (lift > 0.0F) {
-            UiTome.soft(draw, box.x(), box.y(), box.right(), box.bottom(), well);
-        }
-        if (frame.showsFocus(this)) {
-            UiControl.focusRing(draw, box.inset(1), theme);
-        }
-        paintIcon(draw, theme, iconBounds(), UiContrast.over(well, theme.backdrop()));
+        UiTome.filigree(draw, box, frame.showsFocus(this) ? 1.0F : lift);
+        paintCell(draw, theme, theme.backdrop());
+    }
+
+    /** Paints the tile's icon, text and bar; {@code backdrop} is the opaque colour under the icon. */
+    void paintCell(UiDraw draw, UiTheme theme, int backdrop) {
+        UiRect box = bounds();
+        paintIcon(draw, theme, iconBounds(), backdrop);
         UiRect text = textBounds();
         String number = number();
         int numberWidth = draw.textWidth(number);
         int nameY = box.y() + nameTop();
+        boolean beside = numberBesideName(text.width(), draw);
         if (numberWidth > 0) {
-            draw.text(number, text.right() - numberWidth, nameY, numberColor(theme), false);
+            draw.text(number, text.right() - numberWidth, beside ? nameY : box.y() + SECOND_LINE, numberColor(theme), false);
         }
-        int nameRoom = Math.max(0, text.width() - (numberWidth > 0 ? numberWidth + TEXT_GAP : 0));
+        int numberRoom = numberWidth > 0 ? numberWidth + TEXT_GAP : 0;
+        int nameRoom = Math.max(0, text.width() - (beside ? numberRoom : 0));
         draw.text(LegacyText.truncate(draw, label(), nameRoom), text.x(), nameY, nameColor(theme), false);
-        paintBar(draw, theme, text.x(), box.y() + barTop(), text.right());
-        if (lift > 0.0F) {
-            draw.fill(text.x(), box.bottom() - 1, text.right(), box.bottom(), UiEase.fade(accent(theme), lift));
-        }
         String second = second();
+        int barLeft = text.x();
         if (!second.isEmpty()) {
             int lead = glyphWidth();
             int color = secondColor(theme);
@@ -196,7 +212,12 @@ abstract class RowTile extends UiNode {
                 UiTome.Glyph glyph = secondGlyph();
                 UiTome.glyph(draw, glyph, text.x(), box.y() + SECOND_LINE + UiControl.CAP_HEIGHT - glyph.height(), color);
             }
-            draw.text(LegacyText.truncate(draw, second, Math.max(0, text.width() - lead)), text.x() + lead, box.y() + SECOND_LINE, color, false);
+            draw.text(second, text.x() + lead, box.y() + SECOND_LINE, color, false);
+            barLeft = text.x() + secondWidth(draw) + TEXT_GAP;
+        }
+        int barRight = text.right() - (beside ? 0 : numberRoom);
+        if (barRight - barLeft >= BAR_LEAST / 2) {
+            paintBar(draw, theme, barLeft, box.y() + barTop(), barRight);
         }
     }
 

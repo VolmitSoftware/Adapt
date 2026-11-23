@@ -251,9 +251,9 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
     double xpPerTame = 60;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.6;
-      initialCost = 3;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

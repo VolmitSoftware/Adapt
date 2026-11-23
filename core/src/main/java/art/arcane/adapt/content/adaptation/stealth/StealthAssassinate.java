@@ -195,8 +195,8 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     double xpOnExecution = 45;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.85;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 4;
       initialCost = 6;
     }

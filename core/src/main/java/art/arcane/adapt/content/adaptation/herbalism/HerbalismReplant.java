@@ -335,10 +335,10 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     int radiusSub = 1;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.95;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

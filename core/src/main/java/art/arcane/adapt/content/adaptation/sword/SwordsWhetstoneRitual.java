@@ -238,10 +238,10 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     double skillXpOnRitual = 14;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.7;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 1;
     }
   }
 }

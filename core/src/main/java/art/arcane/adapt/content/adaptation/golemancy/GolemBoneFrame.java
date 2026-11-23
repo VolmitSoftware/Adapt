@@ -337,6 +337,9 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     double servantLabelRange = 8;
 
     public Config() {
+      costFactor = 0.5;
+      initialCost = 1;
+      baseCost = 2;
       maxLevel = 3;
       requires = new ArrayList<>(List.of("golem-animus-binding:1", "tragoul-skeletal-servant:1"));
     }

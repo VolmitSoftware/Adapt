@@ -131,10 +131,10 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
     double xpGainedMultiplier = 8;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.3;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 7;
-      initialCost = 3;
+      initialCost = 6;
     }
   }
 }

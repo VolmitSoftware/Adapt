@@ -363,9 +363,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     int maxBlocks = 64;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.95;
-      initialCost = 4;
+      baseCost = 7;
+      costFactor = 0.7;
+      initialCost = 6;
     }
   }
 }

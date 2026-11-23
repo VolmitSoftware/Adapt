@@ -186,8 +186,9 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
     double xpPerAbsorb = 8;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

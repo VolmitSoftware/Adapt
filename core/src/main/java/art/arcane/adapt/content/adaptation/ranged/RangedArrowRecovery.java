@@ -156,10 +156,10 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
     double[] hitChance = {10, 20, 30, 40, 50, 60, 70, 80};
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.78;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 8;
-      initialCost = 5;
+      initialCost = 1;
     }
   }
 }

@@ -233,9 +233,9 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.425;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 6;
+      initialCost = 2;
     }
   }
 }

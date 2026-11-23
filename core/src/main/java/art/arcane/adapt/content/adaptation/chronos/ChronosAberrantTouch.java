@@ -266,9 +266,9 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     double xpPerLevel = 1.25;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.38;
-      initialCost = 6;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

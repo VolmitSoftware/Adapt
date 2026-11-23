@@ -201,10 +201,10 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
   @ConfigDescription("Automatically smelt mined ores with a chance for extra drops.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 6;
-      costFactor = 0.95;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 3;
     }
   }
 }

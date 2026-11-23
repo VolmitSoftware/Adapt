@@ -205,9 +205,9 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.5;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

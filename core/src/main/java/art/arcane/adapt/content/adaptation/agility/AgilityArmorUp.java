@@ -388,8 +388,8 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
 
     public Config() {
       baseCost = 2;
-      costFactor = 0.65;
-      initialCost = 8;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

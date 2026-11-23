@@ -274,7 +274,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Crafting Value XPMultiplier for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double craftingValueXPMultiplier = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Crafting XP for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double baseCraftingXP = 3.0;
+    double baseCraftingXP = 1.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Craft1k Reward for the Crafting skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeCraft1kReward = 1200;
   }

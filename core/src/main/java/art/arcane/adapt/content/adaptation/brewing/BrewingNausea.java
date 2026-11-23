@@ -111,8 +111,9 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
   @ConfigDescription("Brew a Potion of Nausea from Awkward Potion and Mushroom.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 3;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

@@ -574,8 +574,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     double unarmoredDamageMultiplier = 3.0;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

@@ -559,9 +559,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     long statIntervalMs = 200;
 
     public Config() {
-      baseCost = 4;
+      baseCost = 3;
       costFactor = 0.6;
-      initialCost = 5;
+      initialCost = 2;
       maxLevel = 3;
     }
   }

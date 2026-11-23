@@ -398,8 +398,9 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     double xpOnNegate = 8.0;
 
     public Config() {
-      costFactor = 0.68;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

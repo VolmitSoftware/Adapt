@@ -751,10 +751,10 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     boolean requireCraftedEye = true;
 
     public Config() {
-      baseCost = 0;
-      costFactor = 0.0;
+      baseCost = 8;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 30;
+      initialCost = 8;
     }
   }
 }

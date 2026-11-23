@@ -537,10 +537,10 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     double strengthFactor = 0.75;
 
     public Config() {
-      baseCost = 8;
-      costFactor = 0.325;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 12;
+      initialCost = 3;
     }
   }
 }

@@ -278,8 +278,9 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
     String consumable = "ROTTEN_FLESH";
 
     public Config() {
-      costFactor = 0.4;
-      initialCost = 8;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

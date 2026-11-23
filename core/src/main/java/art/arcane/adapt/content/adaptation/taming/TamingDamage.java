@@ -356,9 +356,9 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     int maxTameablesPerPass = 128;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.4;
-      initialCost = 5;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

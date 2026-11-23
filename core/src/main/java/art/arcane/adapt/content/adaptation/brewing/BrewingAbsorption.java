@@ -111,8 +111,9 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
   @ConfigDescription("Brew a Potion of Absorption from Instant Heal and Quartz.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       permanent = true;
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
     }

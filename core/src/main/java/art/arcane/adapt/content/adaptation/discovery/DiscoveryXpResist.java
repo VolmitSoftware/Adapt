@@ -234,7 +234,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.8;
+      costFactor = 0.6;
       initialCost = 3;
     }
   }

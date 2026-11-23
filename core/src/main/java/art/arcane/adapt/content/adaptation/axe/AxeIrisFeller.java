@@ -189,10 +189,10 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
     int cooldownSeconds = 30;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.95;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 3;
     }
   }
 

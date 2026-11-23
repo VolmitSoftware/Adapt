@@ -452,8 +452,9 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     double targetValueXpMultiplier = 0.5;
 
     public Config() {
-      costFactor = 0.78;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

@@ -113,8 +113,8 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             .build())
         .build());
     registerMilestone("challenge_trag_1k", "trag.damage", 1000, () -> getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_10k", "trag.damage", 10000, () -> getConfig().challengeTragReward * 2);
-    registerMilestone("challenge_trag_100k", "trag.damage", 100000, () -> getConfig().challengeTragReward * 5);
+    registerMilestone("challenge_trag_10k", "trag.damage", 10000, () -> getConfig().challengeTragReward * 3);
+    registerMilestone("challenge_trag_100k", "trag.damage", 100000, () -> getConfig().challengeTragReward * 8);
 
     // Chain 2 - Hits Received
     registerAdvancement(AdaptAdvancement.builder()
@@ -132,7 +132,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
             .build())
         .build());
     registerMilestone("challenge_trag_hits_500", "trag.hitsrecieved", 500, () -> getConfig().challengeTragReward);
-    registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, () -> getConfig().challengeTragReward * 2);
+    registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, () -> getConfig().challengeTragReward * 3);
 
   }
 
@@ -279,9 +279,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 450;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Received Xp Multiplier for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double damageReceivedXpMultiplier = 4.8;
+    double damageReceivedXpMultiplier = 14.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP bonus for surviving a hit below 4 hearts.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double lowHealthSurvivalXP = 28;
+    double lowHealthSurvivalXP = 84;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Trag Reward for the Trag Oul skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeTragReward = 500;
   }

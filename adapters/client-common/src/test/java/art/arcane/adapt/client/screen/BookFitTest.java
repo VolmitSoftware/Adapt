@@ -1,7 +1,12 @@
 package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
-import art.arcane.adapt.client.ui.kit.ScrollArea;
+import art.arcane.adapt.client.ui.UiCharEvent;
+import art.arcane.adapt.client.ui.UiKey;
+import art.arcane.adapt.client.ui.UiModifiers;
+import art.arcane.adapt.client.ui.UiScrollEvent;
+import art.arcane.adapt.client.ui.kit.KitDraw;
+import art.arcane.adapt.client.ui.kit.TextBox;
 import art.arcane.adapt.client.ui.kit.UiBreakpoint;
 import art.arcane.adapt.client.ui.kit.UiLayout;
 import art.arcane.adapt.client.ui.kit.UiNode;
@@ -18,7 +23,6 @@ import java.util.TreeSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * One book for every page: at each screen size and GUI scale the skills list, a skill and an adaptation get the same
  * frame, {@link AdaptScreen#BOOK_WIDTH} by {@link AdaptScreen#BOOK_HEIGHT} where the screen has room and the largest
  * 16:9 book it allows where it does not, whatever the pages hold and however it changes. Medium and large screens open
- * two equal facing pages with the spine in the middle. On the everyday catalog ({@link TypicalCatalog}) columns balance
- * across the spine, no text is cut, the size classes hold steady around their thresholds, and a resize or GUI scale
- * change under an open page gives the layout a fresh page would have while keeping scroll, selection, focus and hover.
+ * two equal facing pages with the spine in the middle, and every page of the budget's catalog fits the one open spread
+ * with nothing to turn; a single page reaches the spread's second page by turning. A resize or GUI scale change under an
+ * open page gives the layout a fresh page would have while keeping the page, selection, focus and hover.
  */
 class BookFitTest {
     /** 1080p at GUI 4, 3 and 2, 1440p at GUI 2, and a 2445x1376 window at GUI 3. */
@@ -41,9 +45,7 @@ class BookFitTest {
             {427, 240, 1}};
     private static final List<Route> ROUTES = List.of(new Route.Skills(), new Route.Skill(TypicalCatalog.SKILL),
             new Route.Adaptation(TypicalCatalog.ADAPTATION), new Route.Adaptation(TypicalCatalog.PLAIN_ADAPTATION),
-            new Route.Adaptation(TypicalCatalog.SWITCH_ADAPTATION));
-    /** The most blank paper allowed above or below the full skills list: one row at its tightest. */
-    private static final int BLANK = TileGrid.PITCH;
+            new Route.Adaptation(TypicalCatalog.SWITCH_ADAPTATION), new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION));
 
     private static ScreenFixture typical(int[] size) {
         return typical(size, TypicalCatalog.SKILLS);
@@ -54,7 +56,7 @@ class BookFitTest {
     }
 
     private static List<UiRect> tiles(UiNode node, List<UiRect> found) {
-        if (node instanceof RowTile && node.visible()) {
+        if (node instanceof RowTile && node.shown()) {
             found.add(node.bounds());
         }
         for (UiNode child : node.children()) {
@@ -73,93 +75,59 @@ class BookFitTest {
         return rows;
     }
 
+    private static boolean spread(AdaptScreen screen) {
+        return screen.breakpoint() != UiBreakpoint.COMPACT;
+    }
+
     @Test
-    void skillsBalanceAcrossTheSpine() {
-        int[][] expected = {{24, 12, 12}, {23, 12, 11}, {22, 12, 10}, {21, 12, 9}, {17, 10, 7}, {13, 8, 5}, {5, 3, 2}};
+    void skillsBalanceAcrossTheSpineInWholeRows() {
         for (int[] size : SIZES) {
-            for (int[] counts : expected) {
-                ScreenFixture fixture = typical(size, counts[0]);
+            for (int skills : new int[] {24, 23, 22, 21, 17, 13, 5}) {
+                ScreenFixture fixture = typical(size, skills);
                 SkillsScreen screen = fixture.open(new Route.Skills());
-                String where = size[0] + "x" + size[1] + " " + counts[0] + " skills";
-                assertTrue(screen.spreadOpen(), where + " has no spine");
-                int spine = fixture.find("frame").bounds().centerX();
-                List<UiRect> left = new ArrayList<>();
-                List<UiRect> right = new ArrayList<>();
-                for (UiRect tile : tiles(fixture.find("skills"), new ArrayList<>())) {
-                    (tile.x() < spine ? left : right).add(tile);
-                }
-                assertEquals(counts[1], left.size(), where + " left page");
-                assertEquals(counts[2], right.size(), where + " right page");
+                String where = size[0] + "x" + size[1] + " " + skills + " skills";
+                assertTrue(spread(screen), where + " has no spine");
+                assertEquals(1, screen.leaves(), where + " needs a second leaf");
+                UiRect leftPage = fixture.find("sheet:0").bounds();
+                List<UiRect> left = tiles(fixture.find("sheet:0"), new ArrayList<>());
+                List<UiRect> right = tiles(fixture.find("sheet:1"), new ArrayList<>());
+                assertEquals(skills, left.size() + right.size(), where);
                 TreeSet<Integer> leftRows = rows(left);
                 TreeSet<Integer> rightRows = rows(right);
-                assertTrue(leftRows.size() - rightRows.size() <= 1, where + " rows " + leftRows.size() + " and " + rightRows.size());
+                assertTrue(leftRows.size() - rightRows.size() <= 1 && leftRows.size() >= rightRows.size(),
+                        where + " rows " + leftRows.size() + " and " + rightRows.size());
                 assertTrue(leftRows.containsAll(rightRows), where + ": rows do not line up across the spine " + leftRows + " " + rightRows);
+                assertEquals(leftPage.y(), leftRows.first().intValue(), where + ": the first row leaves the top of the page");
                 TreeSet<Integer> columns = new TreeSet<>();
                 for (UiRect tile : left) {
                     columns.add(tile.x());
                 }
                 assertEquals(left.size(), leftRows.size() * columns.size(), where + ": the left page has a short row");
-                int shortRows = 0;
-                for (int row : rightRows) {
-                    int inRow = 0;
-                    for (UiRect tile : right) {
-                        inRow += tile.y() == row ? 1 : 0;
-                    }
-                    if (inRow < columns.size()) {
-                        shortRows++;
-                        assertEquals(rightRows.last().intValue(), row, where + ": a short row that is not the last");
-                    }
-                }
-                assertTrue(shortRows <= 1, where);
-                assertTrue(columns.size() * 2 <= SkillsScreen.MAX_COLUMNS, where + " columns " + columns);
+                assertTrue(columns.size() <= SkillsScreen.COLUMNS, where + " columns " + columns);
+                int rowsPerPage = (fixture.find("sheet:0").bounds().height() + TileGrid.ROW_GAP) / TileGrid.PITCH;
+                assertEquals((skills + 1) / 2 <= rowsPerPage ? 1 : 2, columns.size(), where + ": one column when that fits the spread");
             }
         }
     }
 
     @Test
-    void aSmallCatalogsTilesReachThePageMargins() {
-        for (int[] size : new int[][] {{480, 270, 4}, {640, 360, 3}}) {
-            ScreenFixture fixture = typical(size, 13);
-            SkillsScreen screen = fixture.open(new Route.Skills());
-            String where = size[0] + "x" + size[1];
-            UiRect page = screen.scroll().bounds();
-            int left = Integer.MAX_VALUE;
-            int right = Integer.MIN_VALUE;
-            for (UiRect tile : tiles(fixture.find("skills"), new ArrayList<>())) {
-                left = Math.min(left, tile.x());
-                right = Math.max(right, tile.right());
-                assertTrue(tile.width() <= TileGrid.MAX_WIDTH, where + " " + tile);
-            }
-            assertTrue(left - page.x() <= UiLayout.UNIT && page.right() - right <= UiLayout.UNIT,
-                    where + ": tiles float " + (left - page.x()) + " and " + (page.right() - right) + " inside a page the top bar widened");
-        }
-    }
-
-    @Test
-    void tilePagesHaveNoBandOfBlankPaper() {
-        for (int[] size : SIZES) {
-            for (int skills : new int[] {TypicalCatalog.SKILLS, 16, 9}) {
+    void tilesReachBothMarginsOfTheirPage() {
+        for (int[] size : new int[][] {{480, 270, 4}, {640, 352, 4}, {960, 540, 2}}) {
+            for (int skills : new int[] {24, 9}) {
                 ScreenFixture fixture = typical(size, skills);
-                AdaptScreen screen = fixture.open(new Route.Skills());
-                String where = size[0] + "x" + size[1] + " " + skills + " skills";
-                UiRect page = screen.scroll().bounds();
-                List<UiRect> tiles = tiles(screen.root(), new ArrayList<>());
-                int top = Integer.MAX_VALUE;
-                int bottom = Integer.MIN_VALUE;
-                for (UiRect tile : tiles) {
-                    top = Math.min(top, tile.y());
-                    bottom = Math.max(bottom, tile.bottom());
+                fixture.open(new Route.Skills());
+                for (String id : List.of("sheet:0", "sheet:1")) {
+                    UiRect page = fixture.find(id).bounds();
+                    int left = Integer.MAX_VALUE;
+                    int right = Integer.MIN_VALUE;
+                    for (UiRect tile : tiles(fixture.find(id), new ArrayList<>())) {
+                        left = Math.min(left, tile.x());
+                        right = Math.max(right, tile.right());
+                    }
+                    String where = size[0] + "x" + size[1] + " " + skills + " skills " + id;
+                    assertEquals(page.x(), left, where);
+                    assertTrue(page.right() - right <= UiLayout.UNIT, where + ": tiles stop " + (page.right() - right) + " short of the margin");
                 }
-                int above = top - page.y();
-                int below = page.bottom() - bottom;
-                if (skills == TypicalCatalog.SKILLS) {
-                    assertTrue(above <= BLANK, where + ": " + above + " blank above the tiles");
-                    assertTrue(below <= BLANK, where + ": " + below + " blank below the tiles");
-                }
-                assertTrue(Math.abs(above - below) <= UiLayout.UNIT, where + ": margins " + above + " above and " + below + " below");
-                TreeSet<Integer> rows = rows(tiles);
-                int pitch = rows.higher(rows.first()) - rows.first();
-                assertTrue(pitch >= TileGrid.PITCH && pitch <= TileGrid.MAX_PITCH, where + ": rows " + pitch + " apart");
             }
         }
     }
@@ -194,21 +162,13 @@ class BookFitTest {
                     assertTrue(frame.width() * 9 <= frame.height() * 16, where + " is wider than 16:9");
                     assertTrue(frame.width() <= AdaptScreen.BOOK_WIDTH && frame.height() <= AdaptScreen.BOOK_HEIGHT, where);
                     assertEquals(screen.width() / 2, frame.centerX(), 1.0, where);
-                    boolean spreads = screen.breakpoint() != UiBreakpoint.COMPACT;
-                    assertEquals(spreads, screen.spreadOpen(), where);
-                    if (spreads) {
-                        UiRect page = fixture.find("page").bounds();
-                        UiRect facing = fixture.find("facing").bounds();
-                        int bar = screen.scroll().maxScroll() > 0 ? ScrollArea.BAR_WIDTH + 1 : 0;
-                        if (route instanceof Route.Skills) {
-                            assertEquals(screen.scroll().bounds().width() - bar, page.width(), where + ": the skills leave a page");
-                        } else {
-                            assertEquals(page.width() - bar, facing.width(), where + ": the facing pages differ");
-                            assertEquals(frame.centerX(), page.right() + AdaptScreen.SPREAD_GAP / 2, 1.0, where + ": the spine is off centre");
-                        }
+                    UiNode right = fixture.find("sheet:1");
+                    if (spread(screen) && right != null) {
+                        UiRect left = fixture.find("sheet:0").bounds();
+                        assertEquals(left.width(), right.bounds().width(), where + ": the facing pages differ");
+                        assertEquals(frame.centerX(), left.right() + AdaptScreen.SPREAD_GAP / 2, 1.0, where + ": the spine is off centre");
                     }
-                    ScreenLayoutTest.check(screen, where);
-                    ScreenLayoutTest.checkText(fixture, where);
+                    ScreenLayoutTest.checkEveryLeaf(fixture, where);
                     CompactFitTest.checkTiles(screen.root(), where);
                 }
                 if (size[0] == 640 && size[1] == 352) {
@@ -236,25 +196,190 @@ class BookFitTest {
         UiRect frame = small.find("frame").bounds();
         assertEquals(UiBreakpoint.COMPACT, screen.breakpoint());
         assertEquals(new UiRect(16, 2, 394, 222), frame);
-        assertFalse(screen.spreadOpen());
         ScreenFixture squat = typical(new int[] {1720, 480, 2});
         squat.open(new Route.Skills());
         frame = squat.find("frame").bounds();
         assertTrue(frame.width() * 9 <= frame.height() * 16, frame.toString());
     }
 
+    /** Every block of every page of the budget's catalog shows on the one open spread, with no leaf to turn. */
     @Test
-    void adaptationsOfEverydayNameLengthTakeTwoColumnsOnTheLeftPage() {
-        ScreenFixture fixture = new ScreenFixture(640, 352, 4);
-        SkillScreen screen = fixture.open(new Route.Skill("agility"));
-        UiRect page = fixture.find("page").bounds();
-        TreeSet<Integer> columns = new TreeSet<>();
-        for (UiRect tile : tiles(fixture.find("sections"), new ArrayList<>())) {
-            columns.add(tile.x());
-            assertTrue(tile.x() >= page.x() && tile.right() <= page.right(), tile + " leaves the left page " + page);
+    void everythingFitsTheOpenSpread() {
+        List<Route> routes = new ArrayList<>(List.of(new Route.Skills(), new Route.Skill("skill01"),
+                new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION), new Route.Adaptation(MaxCatalog.SWITCHES_ADAPTATION)));
+        for (int index = 0; index < 15; index++) {
+            routes.add(new Route.Adaptation(String.format("skill01-a%02d", index)));
         }
-        assertEquals(2, columns.size(), columns.toString());
-        assertEquals(0, screen.scroll().maxScroll());
+        for (int[] size : new int[][] {{640, 352, 4}, {1280, 705, 2}, {2560, 1410, 1}, {960, 540, 2}, {853, 470, 3}}) {
+            ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player(), true);
+            for (Route route : routes) {
+                AdaptScreen screen = fixture.open(route);
+                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
+                assertEquals(1, screen.leaves(), where + " needs a second leaf");
+                assertFalse(fixture.shows("leaf:next"), where);
+                ScreenLayoutTest.check(screen, where);
+                ScreenLayoutTest.checkText(fixture, where);
+            }
+            for (Route route : ROUTES) {
+                ScreenFixture typical = typical(size);
+                AdaptScreen screen = typical.open(route);
+                assertEquals(1, screen.leaves(), size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route) + " needs a second leaf");
+            }
+        }
+    }
+
+    /** The adaptations take the right page alone, as an even grid: one column count, every cell the same size. */
+    @Test
+    void theAdaptationsAreAnEvenGridOnTheRightPage() {
+        for (int[] size : new int[][] {{640, 352, 4}, {480, 270, 4}, {960, 540, 2}}) {
+            for (boolean max : new boolean[] {false, true}) {
+                ScreenFixture fixture = max ? new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player(), true)
+                        : typical(size);
+                String skill = max ? "skill01" : TypicalCatalog.SKILL;
+                AdaptScreen screen = fixture.open(new Route.Skill(skill));
+                String where = size[0] + "x" + size[1] + " " + skill;
+                assertEquals(1, screen.leaves(), where);
+                UiRect right = fixture.find("sheet:1").bounds();
+                List<UiRect> cells = tiles(fixture.find("sheet:1"), new ArrayList<>());
+                assertTrue(tiles(fixture.find("sheet:0"), new ArrayList<>()).isEmpty(), where + ": an adaptation on the left page");
+                TreeSet<Integer> columns = new TreeSet<>();
+                for (UiRect cell : cells) {
+                    assertEquals(cells.get(0).width(), cell.width(), where + " " + cell);
+                    assertEquals(cells.get(0).height(), cell.height(), where + " " + cell);
+                    assertTrue(cell.x() >= right.x() && cell.right() <= right.right(), where + " " + cell);
+                    columns.add(cell.x());
+                }
+                assertEquals(right.x(), columns.first().intValue(), where);
+                assertEquals(SkillScreen.COLUMNS, columns.size(), where + " columns " + columns);
+                assertEquals(max ? 15 : TypicalCatalog.ADAPTATIONS, cells.size(), where);
+                assertTrue(fixture.shows("detail"), where + ": no adaptation beside the skill");
+            }
+        }
+    }
+
+    /** The words that open the two pages, the skill's name and the adaptations' heading, share one line. */
+    @Test
+    void thePagesOpenOnOneLine() {
+        for (String[] pair : new String[][] {{"adaptation", "Wall Jump", "Settings"}}) {
+            ScreenFixture fixture = typical(new int[] {640, 352, 4});
+            fixture.open(pair[0].equals("skill") ? new Route.Skill(TypicalCatalog.SKILL) : new Route.Adaptation(TypicalCatalog.ADAPTATION));
+            fixture.draw.calls().clear();
+            fixture.render();
+            int top = fixture.find("sheet:0").bounds().y();
+            int left = Integer.MIN_VALUE;
+            int right = Integer.MAX_VALUE - 1;
+            for (String call : fixture.draw.calls("text ")) {
+                String[] parts = call.split(" ", 3);
+                int y = Integer.parseInt(parts[1].split(",")[1]);
+                if (y < top) {
+                    continue;
+                }
+                left = parts[2].equals(pair[1]) && left == Integer.MIN_VALUE ? y : left;
+                right = parts[2].equals(pair[2]) && right == Integer.MAX_VALUE - 1 ? y : right;
+            }
+            assertEquals(left, right, pair[0] + ": the pages open on different lines");
+        }
+    }
+
+    @Test
+    void aLongNameWrapsInsideItsCellAtAHyphen() {
+        KitDraw draw = KitDraw.vanilla(640, 352, 4);
+        assertEquals(List.of("Shovel Drop-", "To-Inventory"), AdaptationTile.nameLines(draw, "Shovel Drop-To-Inventory", 80));
+        assertEquals(List.of("Inflated Pocket", "Dimension"), AdaptationTile.nameLines(draw, "Inflated Pocket Dimension", 80));
+        assertEquals(List.of("Wall Jump"), AdaptationTile.nameLines(draw, "Wall Jump", 80));
+    }
+
+    @Test
+    void anArmorUpChecklistFitsTheRightPageWhole() {
+        for (int[] size : new int[][] {{640, 352, 4}, {640, 360, 3}, {960, 540, 2}, {815, 458, 3}, {480, 270, 4}}) {
+            ScreenFixture fixture = typical(size);
+            AdaptScreen screen = fixture.open(new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION));
+            String where = size[0] + "x" + size[1];
+            assertEquals(1, screen.leaves(), where);
+            UiRect right = fixture.find("sheet:1").bounds();
+            for (int index = 0; index < 18; index++) {
+                UiRect entry = fixture.find("pref:effect-" + index).bounds();
+                assertTrue(entry.x() >= right.x() && entry.right() <= right.right() && entry.y() >= right.y()
+                        && entry.bottom() <= right.bottom(), where + " effect-" + index + " " + entry + " outside " + right);
+            }
+            ScreenLayoutTest.check(screen, where);
+        }
+    }
+
+    @Test
+    void statMarksHangInTheMargin() {
+        ScreenFixture notes = typical(new int[] {640, 360, 3});
+        notes.open(new Route.Adaptation(TypicalCatalog.ADAPTATION));
+        UiRect box = notes.find("detail.stats").bounds();
+        notes.draw.calls().clear();
+        notes.render();
+        assertTrue(notes.draw.calls("text ").contains("text " + box.x() + "," + box.y() + " +"), "the mark leaves the margin");
+        assertTrue(notes.draw.calls("wrapped ").stream().anyMatch((String call) -> call.startsWith("wrapped " + (box.x() + 9) + ","
+                + box.y() + " ") && call.endsWith(" 4 Max Jumps")), "a marked stat line wraps beside its mark");
+    }
+
+    @Test
+    void theGutterRunsTheWholePageAndHoldsNothingButTheSpine() {
+        for (Route route : ROUTES) {
+            ScreenFixture fixture = typical(new int[] {640, 360, 3});
+            AdaptScreen screen = fixture.open(route);
+            String where = AdaptScreen.routeId(route);
+            UiRect frame = fixture.find("frame").bounds();
+            fixture.draw.calls().clear();
+            fixture.render();
+            int top = Integer.MAX_VALUE;
+            int bottom = Integer.MIN_VALUE;
+            int centre = Integer.MIN_VALUE;
+            String crease = " " + Integer.toHexString(UiRamp.PAGE[6]);
+            for (String call : fixture.draw.calls("fill ")) {
+                String[] box = call.substring(5, call.indexOf(' ', 5)).split(",");
+                if (call.endsWith(crease) && Integer.parseInt(box[2]) - Integer.parseInt(box[0]) == 1) {
+                    top = Integer.parseInt(box[1]);
+                    bottom = Integer.parseInt(box[3]);
+                    centre = Integer.parseInt(box[0]);
+                }
+            }
+            assertEquals(frame.y() + screen.theme().frame(), top, where + ": the gutter starts below the page's top edge");
+            assertEquals(frame.bottom() - screen.theme().frame(), bottom, where + ": the gutter stops short of the page's bottom edge");
+            assertEquals(frame.centerX(), centre, where + ": the gutter is off the fold");
+            assertEquals(fixture.find("sheet:0").bounds().right() + AdaptScreen.SPREAD_GAP / 2, centre, where + ": the gutter is off the fold");
+            ScreenLayoutTest.checkEveryLeaf(fixture, where);
+        }
+    }
+
+    @Test
+    void everythingSitsOnTheUnitGrid() {
+        for (int[] size : SIZES) {
+            for (Route route : ROUTES) {
+                ScreenFixture fixture = typical(size);
+                fixture.open(route);
+                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
+                UiRect page = fixture.find("sheet:0").bounds();
+                for (UiRect tile : tiles(fixture.current().root(), new ArrayList<>())) {
+                    UiRect own = tile.x() >= page.right() ? fixture.find("sheet:1").bounds() : page;
+                    assertEquals(0, (tile.x() - own.x()) % UiLayout.UNIT, where + " " + tile);
+                }
+                assertEquals(0, page.width() % UiLayout.UNIT, where + " page " + page);
+            }
+        }
+    }
+
+    @Test
+    void theHeadersKeepToThePageMargins() {
+        for (int[] size : SIZES) {
+            for (Route route : ROUTES) {
+                ScreenFixture fixture = typical(size);
+                fixture.open(route);
+                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
+                UiRect left = fixture.find("sheet:0").bounds();
+                UiNode second = fixture.find("sheet:1");
+                UiRect right = second == null ? left : second.bounds();
+                UiRect frame = fixture.find("frame").bounds();
+                assertEquals(left.x(), fixture.find("back").bounds().x(), where + " back");
+                assertEquals(right.right(), fixture.find("stat:power").bounds().right(), where + " chips");
+                assertEquals(left.x() - frame.x(), fixture.find("back").bounds().y() - frame.y(), where + " top margin");
+            }
+        }
     }
 
     @Test
@@ -285,219 +410,15 @@ class BookFitTest {
     }
 
     @Test
-    void aLongChecklistStaysOnTheFacingPageWithEveryEntryInReach() {
-        for (int[] size : new int[][] {{640, 360, 3}, {960, 540, 2}, {1280, 720, 2}, {815, 458, 3}}) {
-            ScreenFixture fixture = typical(size);
-            AdaptScreen screen = fixture.open(new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION));
-            String where = size[0] + "x" + size[1];
-            assertTrue(screen.spreadOpen(), where);
-            UiRect facing = fixture.find("facing").bounds();
-            UiRect first = fixture.find("pref:effect-0").bounds();
-            UiRect third = fixture.find("pref:effect-2").bounds();
-            int pitch = third.y() - first.y();
-            assertTrue(pitch > PreferencePanel.CELL_HEIGHT && pitch <= 2 * (PreferencePanel.CELL_HEIGHT + PreferencePanel.ROW_SPACING + 5),
-                    where + ": rows " + pitch + " apart");
-            for (int index = 0; index < 18; index++) {
-                UiNode entry = fixture.find("pref:effect-" + index);
-                assertTrue(entry.bounds().x() >= facing.x() && entry.bounds().right() <= facing.right(), where + " " + entry.id() + " " + entry.bounds());
-                screen.scroll().reveal(entry.bounds());
-                fixture.render();
-                UiRect view = screen.scroll().bounds();
-                assertTrue(entry.bounds().y() >= view.y() && entry.bounds().bottom() <= view.bottom(), where + " " + entry.id() + " out of reach");
-            }
-            ScreenLayoutTest.checkText(fixture, where);
-        }
-    }
-
-    @Test
-    void resetJoinsTheMainSwitchWhenThePagesStackAndStatNotesHang() {
-        ScreenFixture wide = typical(new int[] {640, 360, 3});
-        wide.open(new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION));
-        UiRect foot = wide.find("pref-reset").bounds();
-        assertTrue(foot.y() > wide.find("pref:effect-17").bounds().bottom(), "reset leaves the foot of its own page");
-        ScreenFixture small = typical(new int[] {427, 240, 2});
-        AdaptScreen stacked = small.open(new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION));
-        assertFalse(stacked.spreadOpen());
-        UiRect reset = small.find("pref-reset").bounds();
-        UiRect main = small.find("pref:enabled").bounds();
-        assertTrue(reset.intersects(new UiRect(reset.x(), main.y(), 1, main.height())) && reset.x() > main.right(),
-                "reset takes a row of its own under a stacked checklist: " + reset + " " + main);
-        assertEquals(small.find("preferences").bounds().right(), reset.right());
-
-        ScreenFixture notes = typical(new int[] {640, 360, 3});
-        notes.open(new Route.Adaptation(TypicalCatalog.ADAPTATION));
-        UiNode line = notes.find("stat-line:0");
-        assertEquals("+ 4 Max Jumps", line.label());
-        notes.draw.calls().clear();
-        notes.render();
-        assertTrue(notes.draw.calls("text ").contains("text " + line.bounds().x() + "," + line.bounds().y() + " +"), "the mark leaves the margin");
-        assertTrue(notes.draw.calls("wrapped ").stream().anyMatch((String call) -> call.startsWith("wrapped " + (line.bounds().x() + 9) + ","
-                + line.bounds().y() + " ") && call.endsWith(" 4 Max Jumps")), "a marked stat line wraps beside its mark");
-    }
-
-    @Test
-    void theGutterRunsTheWholePageWithTheDividersDiamondOnIt() {
-        for (Route route : List.of(new Route.Skills(), new Route.Skill(TypicalCatalog.SKILL), new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION))) {
-            ScreenFixture fixture = typical(new int[] {640, 360, 3});
-            AdaptScreen screen = fixture.open(route);
-            String where = AdaptScreen.routeId(route);
-            UiRect frame = fixture.find("frame").bounds();
-            fixture.draw.calls().clear();
-            fixture.render();
-            int top = Integer.MAX_VALUE;
-            int bottom = Integer.MIN_VALUE;
-            int centre = Integer.MIN_VALUE;
-            String crease = " " + Integer.toHexString(UiRamp.PAGE[6]);
-            for (String call : fixture.draw.calls("fill ")) {
-                String[] box = call.substring(5, call.indexOf(' ', 5)).split(",");
-                if (call.endsWith(crease) && Integer.parseInt(box[2]) - Integer.parseInt(box[0]) == 1) {
-                    top = Integer.parseInt(box[1]);
-                    bottom = Integer.parseInt(box[3]);
-                    centre = Integer.parseInt(box[0]);
-                }
-            }
-            assertEquals(frame.y() + screen.theme().frame(), top, where + ": the gutter starts below the page's top edge");
-            assertEquals(frame.bottom() - screen.theme().frame(), bottom, where + ": the gutter stops short of the page's bottom edge");
-            assertEquals(frame.centerX(), centre, where + ": the gutter is off the fold");
-            if (!(route instanceof Route.Skills)) {
-                assertEquals(fixture.find("facing").bounds().x() - AdaptScreen.SPREAD_GAP / 2, centre, where + ": the gutter is off the fold");
-            }
-        }
-    }
-
-    @Test
-    void everydayListsAndAdaptationsNeverScroll() {
-        for (int[] size : SIZES) {
-            for (Route route : List.of(new Route.Skills(), new Route.Adaptation(TypicalCatalog.ADAPTATION),
-                    new Route.Adaptation(TypicalCatalog.PLAIN_ADAPTATION), new Route.Adaptation(TypicalCatalog.SWITCH_ADAPTATION))) {
-                ScreenFixture fixture = typical(size);
-                AdaptScreen screen = fixture.open(route);
-                UiRect frame = fixture.find("frame").bounds();
-                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route) + " " + frame;
-                ScreenLayoutTest.check(screen, where);
-                ScreenLayoutTest.checkText(fixture, where);
-                assertEquals(0, screen.scroll().maxScroll(), where + " scrolls");
-                if (screen.breakpoint() == UiBreakpoint.WIDE) {
-                    assertTrue(frame.width() * 9 <= frame.height() * 16, where + " is wider than 16:9");
-                }
-                assertTrue(frame.width() < screen.width() && frame.height() < screen.height(), where + " fills the screen");
-                assertEquals(screen.width() / 2, frame.centerX(), 1.0, where);
-            }
-        }
-    }
-
-    @Test
-    void everythingSitsOnTheUnitGrid() {
-        for (int[] size : SIZES) {
-            for (Route route : ROUTES) {
-                ScreenFixture fixture = typical(size);
-                AdaptScreen screen = fixture.open(route);
-                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
-                UiRect page = screen.scroll().bounds();
-                for (UiRect tile : tiles(screen.root(), new ArrayList<>())) {
-                    assertEquals(0, (tile.x() - page.x()) % UiLayout.UNIT, where + " " + tile);
-                    assertEquals(0, (tile.y() - page.y()) % UiLayout.UNIT, where + " " + tile);
-                    assertEquals(0, tile.width() % UiLayout.UNIT, where + " " + tile);
-                }
-                assertEquals(0, page.width() % UiLayout.UNIT, where + " page " + page);
-                if (screen.spreadOpen() && !(route instanceof Route.Skills)) {
-                    assertEquals(0, fixture.find("page").bounds().width() % UiLayout.UNIT, where);
-                    assertEquals(fixture.find("page").bounds().y(), fixture.find("facing").bounds().y(), where);
-                }
-            }
-        }
-    }
-
-    @Test
-    void theTopBarKeepsToThePageMargins() {
-        for (int[] size : SIZES) {
-            for (Route route : ROUTES) {
-                ScreenFixture fixture = typical(size);
-                AdaptScreen screen = fixture.open(route);
-                String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
-                UiRect page = screen.scroll().bounds();
-                UiRect frame = fixture.find("frame").bounds();
-                assertEquals(page.x(), fixture.find("back").bounds().x(), where + " back");
-                assertEquals(page.right(), fixture.find("stat:power").bounds().right(), where + " chips");
-                assertEquals(page.x() - frame.x(), frame.right() - page.right(), where + " side margins");
-                assertEquals(page.x() - frame.x(), fixture.find("back").bounds().y() - frame.y(), where + " top margin");
-            }
-        }
-    }
-
-    @Test
-    void firstLinesShareABaselineAcrossTheSpine() {
-        for (int[] size : new int[][] {{640, 360, 3}, {815, 458, 3}, {960, 540, 2}}) {
-            ScreenFixture fixture = typical(size);
-            SkillScreen skill = fixture.open(new Route.Skill(TypicalCatalog.SKILL));
-            assertTrue(skill.spreadOpen());
-            int top = skill.scroll().bounds().y();
-            assertEquals(textY(fixture, "Air Dash", top), textY(fixture, "Agility", top), size[0] + "x" + size[1] + " skill");
-            AdaptationScreen adaptation = fixture.open(new Route.Adaptation(TypicalCatalog.ADAPTATION));
-            assertTrue(adaptation.spreadOpen());
-            top = adaptation.scroll().bounds().y();
-            assertEquals(textY(fixture, "Wall Jump", top), textY(fixture, "Adaptation enabled", top), size[0] + "x" + size[1] + " adaptation");
-            assertEquals(fixture.find("unlearn").bounds().centerY(), fixture.find("pref-reset").bounds().centerY(),
-                    size[0] + "x" + size[1] + ": unlearn and reset share the foot of the pages");
-        }
-    }
-
-    /** The y of the first drawn line of exactly {@code text} at or below {@code from}. */
-    private static int textY(ScreenFixture fixture, String text, int from) {
-        fixture.draw.calls().clear();
-        fixture.render();
-        for (String call : fixture.draw.calls("text ")) {
-            int space = call.indexOf(' ', 5);
-            int y = Integer.parseInt(call.substring(5, space).split(",")[1]);
-            if (call.substring(space + 1).equals(text) && y >= from) {
-                return y;
-            }
-        }
-        throw new AssertionError("no text \"" + text + "\" below " + from);
-    }
-
-    @Test
-    void theDetailPageKeepsTheSkillAboveTheHoveredAdaptation() {
-        ScreenFixture fixture = typical(new int[] {960, 540, 2});
-        SkillScreen screen = fixture.open(new Route.Skill(TypicalCatalog.SKILL));
-        AdaptationTile tile = screen.tile(TypicalCatalog.adaptationId(0, 4));
-        UiRect strip = fixture.find("strip").bounds();
-        UiRect frame = fixture.find("frame").bounds();
-        fixture.draw.calls().clear();
-        screen.render(fixture.draw, tile.bounds().centerX(), tile.bounds().centerY(), 0.0F);
-        int skill = -1;
-        int adaptation = -1;
-        boolean described = false;
-        for (String call : fixture.draw.calls()) {
-            String[] parts = call.split(" ", 3);
-            if (call.startsWith("text ") && Integer.parseInt(parts[1].split(",")[0]) == strip.x()) {
-                skill = parts[2].equals("Agility") ? Integer.parseInt(parts[1].split(",")[1]) : skill;
-                adaptation = parts[2].equals("Kip-Up") ? Integer.parseInt(parts[1].split(",")[1]) : adaptation;
-            }
-            described |= call.startsWith("wrapped ") && call.endsWith("release shift to jump.");
-        }
-        assertTrue(skill >= strip.y() && adaptation > skill, "skill at " + skill + ", adaptation at " + adaptation);
-        assertTrue(described, "the detail page leaves out what the adaptation does");
-        assertNull(tile.tooltip(), "the tooltip repeats the detail page");
-        assertEquals(frame, fixture.find("frame").bounds(), "hovering resizes the book");
-        assertEquals(fixture.find("facing").bounds().bottom(), fixture.find("preferences").bounds().bottom(),
-                "the skill's preferences leave the foot of the page");
-
-        ScreenFixture small = typical(new int[] {427, 240, 2});
-        SkillScreen stacked = small.open(new Route.Skill(TypicalCatalog.SKILL));
-        assertFalse(stacked.spreadOpen());
-        assertNotNull(stacked.tile(TypicalCatalog.adaptationId(0, 4)).tooltip(), "a single page keeps the description in the tooltip");
-    }
-
-    @Test
-    void theActionStaysAtTheFootOfThePageForEveryLevel() {
+    void theActionStaysAtTheFootOfTheLeftPageForEveryLevel() {
         for (int[] size : SIZES) {
             ScreenFixture fixture = typical(size);
             AdaptationScreen screen = fixture.open(new Route.Adaptation(TypicalCatalog.ADAPTATION));
             String where = size[0] + "x" + size[1];
             UiRect frame = fixture.find("frame").bounds();
-            UiRect page = fixture.find("page").bounds();
+            UiRect page = fixture.find("sheet:0").bounds();
             Integer row = null;
+            Map<String, UiRect> before = null;
             for (int level = 1; level <= 5; level++) {
                 screen.pick(level);
                 fixture.render();
@@ -509,22 +430,124 @@ class BookFitTest {
                 }
                 assertEquals(row.intValue(), action.y(), where + " level " + level + " moves the action");
                 assertEquals(frame, fixture.find("frame").bounds(), where + " level " + level + " resizes the book");
+                Map<String, UiRect> blocks = new LinkedHashMap<>();
+                for (UiNode block : fixture.find("sheet:0").children()) {
+                    blocks.put(block.id(), block.bounds());
+                }
+                if (before != null) {
+                    assertEquals(before, blocks, where + " level " + level + " moves the left page");
+                }
+                before = blocks;
             }
         }
     }
 
     @Test
-    void searchingKeepsTheBookItsSize() {
-        ScreenFixture fixture = typical(new int[] {815, 458, 3});
+    void searchingKeepsTheBookItsSizeAndStartsFromTheFirstPage() {
+        ScreenFixture fixture = new ScreenFixture(427, 240, 2, MaxCatalog.catalog(), MaxCatalog.player());
         SkillsScreen screen = fixture.open(new Route.Skills());
         UiRect frame = fixture.find("frame").bounds();
-        UiRect first = screen.tile(TypicalCatalog.SKILL).bounds();
-        for (String query : List.of("a", "ag", "agi", "zzz", "")) {
-            screen.search().setText(query);
+        assertTrue(screen.leaves() > 1);
+        screen.focus(screen.search());
+        for (char typed : "skill".toCharArray()) {
+            screen.turnTo(1);
             fixture.render();
-            assertEquals(frame, fixture.find("frame").bounds(), "query \"" + query + "\"");
+            screen.charTyped(new UiCharEvent(typed, UiModifiers.NONE));
+            fixture.render();
+            assertEquals(frame, fixture.find("frame").bounds(), "query \"" + screen.search().text() + "\"");
+            assertEquals(0, screen.leaf(), "query \"" + screen.search().text() + "\"");
         }
-        assertEquals(first, screen.tile(TypicalCatalog.SKILL).bounds());
+        assertEquals("skill", screen.search().text());
+    }
+
+    /** A single page shows the spread's second page by turning, with arrows, its number, the wheel and the keys. */
+    @Test
+    void aSinglePageTurnsToTheSecondPage() {
+        ScreenFixture fixture = typical(new int[] {427, 240, 2});
+        AdaptScreen screen = fixture.open(new Route.Skills());
+        assertEquals(2, screen.leaves());
+        assertFalse(fixture.shows("leaf:previous"), "a first page offers to turn back");
+        fixture.click(fixture.find("leaf:next"));
+        assertEquals(1, screen.leaf());
+        fixture.click(fixture.find("leaf:previous"));
+        assertEquals(0, screen.leaf());
+        screen.focus(null);
+        assertTrue(fixture.key(UiKey.PAGE_DOWN));
+        assertEquals(1, screen.leaf());
+        assertTrue(fixture.key(UiKey.PAGE_UP));
+        assertEquals(0, screen.leaf());
+        assertTrue(fixture.key(UiKey.RIGHT));
+        assertEquals(1, screen.leaf(), "the right arrow with nothing focused turns");
+        assertTrue(fixture.key(UiKey.LEFT));
+        assertEquals(0, screen.leaf());
+        UiRect page = fixture.find("sheet:0").bounds();
+        assertTrue(screen.mouseScrolled(new UiScrollEvent(page.centerX(), page.centerY(), 0.0, -1.0)));
+        assertEquals(1, screen.leaf(), "the wheel turns");
+        fixture.key(UiKey.PAGE_DOWN);
+        assertEquals(1, screen.leaf(), "turning stops at the last page");
+        assertFalse(fixture.shows("leaf:next"));
+        fixture.draw.calls().clear();
+        fixture.render();
+        assertTrue(fixture.draw.calls("text ").stream().anyMatch((String call) -> call.endsWith(" 2")), "the page number is missing");
+    }
+
+    @Test
+    void anOpenSpreadHasNoArrowsNoNumbersAndNothingToTurn() {
+        ScreenFixture fixture = new ScreenFixture(640, 352, 4, MaxCatalog.catalog(), MaxCatalog.player());
+        AdaptScreen screen = fixture.open(new Route.Skill("skill01"));
+        assertEquals(1, screen.leaves());
+        assertFalse(fixture.shows("leaf:previous"));
+        assertFalse(fixture.shows("leaf:next"));
+        screen.focus(null);
+        fixture.key(UiKey.PAGE_DOWN);
+        fixture.key(UiKey.RIGHT);
+        assertEquals(0, screen.leaf());
+        UiRect frame = fixture.find("frame").bounds();
+        fixture.draw.calls().clear();
+        fixture.render();
+        for (String call : fixture.draw.calls("text ")) {
+            String[] parts = call.split(" ", 3);
+            int y = Integer.parseInt(parts[1].split(",")[1]);
+            assertFalse(y > frame.bottom() - 16 && parts[2].matches("\\d+"), "a page number on an open spread: " + call);
+        }
+    }
+
+    @Test
+    void longTextScrollsItselfInsideItsBox() {
+        ScreenFixture fixture = new ScreenFixture(640, 352, 4, MaxCatalog.catalog(), MaxCatalog.player());
+        fixture.open(new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION));
+        TextBox description = (TextBox) fixture.find("description");
+        assertTrue(description.overflow() > 0, "the long description fits its box");
+        assertEquals(0, description.offset());
+        fixture.clock.advance(TextBox.PAUSE_MILLIS - 100L);
+        fixture.render();
+        fixture.render();
+        assertEquals(0, description.offset(), "the text moves before its pause is over");
+        fixture.clock.advance(200L);
+        fixture.render();
+        fixture.clock.advance(1000L);
+        fixture.render();
+        assertEquals(Math.round(TextBox.SPEED), description.offset(), 1, "the text drifts at its slow speed");
+        UiRect box = description.bounds();
+        fixture.current().render(fixture.draw, box.centerX(), box.centerY(), 0.0F);
+        int held = description.offset();
+        fixture.clock.advance(3000L);
+        fixture.current().render(fixture.draw, box.centerX(), box.centerY(), 0.0F);
+        assertEquals(held, description.offset(), "the text moves under the pointer");
+        assertTrue(fixture.current().mouseScrolled(new UiScrollEvent(box.centerX(), box.centerY(), 0.0, -2.0)));
+        assertTrue(description.offset() > held, "the wheel does not move the text");
+        assertEquals(0, fixture.current().leaf(), "the wheel over the text turned the leaf");
+        long full = (long) (description.overflow() / TextBox.SPEED * 1000.0F) + TextBox.PAUSE_MILLIS * 3;
+        boolean bottom = false;
+        boolean over = false;
+        for (long step = 0; step < full; step += 250L) {
+            fixture.clock.advance(250L);
+            fixture.render();
+            bottom |= description.offset() == description.overflow();
+            over |= bottom && description.offset() == 0;
+        }
+        assertTrue(bottom, "the text never reaches its end");
+        assertTrue(over, "the text never starts over");
     }
 
     @Test
@@ -558,31 +581,6 @@ class BookFitTest {
     }
 
     @Test
-    void aWiderWindowNeverTakesColumnsAwayFromTheSpread() {
-        ScreenFixture fixture = typical(new int[] {UiBreakpoint.REGULAR_WIDTH + UiBreakpoint.HYSTERESIS, 400, 2});
-        SkillsScreen screen = fixture.open(new Route.Skills());
-        int columns = 0;
-        StringBuilder seen = new StringBuilder();
-        for (int width = UiBreakpoint.REGULAR_WIDTH + UiBreakpoint.HYSTERESIS; width <= 1000; width++) {
-            fixture.resize(width, 400, 2);
-            fixture.render();
-            TreeSet<Integer> lefts = new TreeSet<>();
-            for (UiRect tile : tiles(fixture.find("skills"), new ArrayList<>())) {
-                lefts.add(tile.x());
-            }
-            if (lefts.size() != columns) {
-                seen.append(width).append(':').append(lefts.size()).append(' ');
-            }
-            assertTrue(screen.spreadOpen(), width + " closes the spread");
-            assertTrue(lefts.size() >= columns, "columns drop as the window grows: " + seen);
-            assertTrue(lefts.size() <= SkillsScreen.MAX_COLUMNS, seen.toString());
-            assertEquals(0, lefts.size() % 2, seen.toString());
-            columns = lefts.size();
-        }
-        assertEquals(SkillsScreen.MAX_COLUMNS, columns, seen.toString());
-    }
-
-    @Test
     void commonSizesGetOneLayoutHoweverTheWindowGotThere() {
         int[][] sequence = {{640, 360, 3}, {960, 540, 2}, {480, 270, 4}, {815, 458, 3}, {427, 240, 2}, {1280, 720, 2}, {320, 240, 2},
                 {640, 360, 3}, {480, 270, 4}, {1920, 1080, 1}, {815, 458, 3}};
@@ -591,6 +589,8 @@ class BookFitTest {
             AdaptScreen screen = fixture.open(route);
             for (int[] size : sequence) {
                 fixture.resize(size[0], size[1], size[2]);
+                fixture.render();
+                screen.turnTo(0);
                 fixture.render();
                 String where = AdaptScreen.routeId(route) + " resized to " + size[0] + "x" + size[1];
                 ScreenLayoutTest.check(screen, where);
@@ -666,61 +666,28 @@ class BookFitTest {
             fixture.render();
             assertEquals(5, adaptation.shownLevel(), size[0] + "x" + size[1]);
         }
-
-        SkillScreen skill = fixture.open(new Route.Skill(TypicalCatalog.SKILL));
-        UiNode hovered = skill.tile(TypicalCatalog.adaptationId(0, 4));
-        fixture.resize(815, 458, 3);
-        skill.render(fixture.draw, 0, 0, 0.0F);
-        skill.render(fixture.draw, hovered.bounds().centerX(), hovered.bounds().centerY(), 0.0F);
-        assertEquals("Kip-Up", fixture.find("strip").label());
-        fixture.resize(640, 360, 3);
-        skill.render(fixture.draw, 0, 0, 0.0F);
-        assertEquals("Kip-Up", fixture.find("strip").label(), "the detail page forgets its adaptation on a resize");
     }
 
     @Test
-    void aResizeKeepsTheScrolledPagesPlace() {
-        ScreenFixture fixture = new ScreenFixture(320, 180, 4, MaxCatalog.catalog(), MaxCatalog.player());
-        SkillScreen screen = fixture.open(new Route.Skill(MaxCatalog.LARGEST_SKILL));
-        assertTrue(screen.scroll().maxScroll() > 0);
-        UiNode tile = fixture.find(String.format("adaptation:%s-a%02d", MaxCatalog.LARGEST_SKILL, 12));
-        screen.scroll().setScroll(screen.scroll().scroll() + tile.bounds().y() - screen.scroll().bounds().y());
-        assertTrue(screen.scroll().scroll() > 0);
+    void aResizeKeepsThePageHoldingTheFirstBlockShowing() {
+        ScreenFixture fixture = typical(new int[] {427, 240, 2});
+        SkillsScreen screen = fixture.open(new Route.Skills());
+        assertEquals(2, screen.leaves());
+        screen.turnTo(1);
         fixture.render();
-        UiNode anchor = firstShowing(screen);
-        int offset = anchor.bounds().y() - screen.scroll().bounds().y();
-        for (int[] size : new int[][] {{330, 186, 4}, {300, 170, 4}, {284, 160, 3}, {320, 180, 4}}) {
+        for (int[] size : new int[][] {{427, 240, 3}, {420, 236, 2}, {427, 240, 2}}) {
+            UiNode first = null;
+            for (int index = 0; index < TypicalCatalog.SKILLS && first == null; index++) {
+                UiNode tile = screen.tile(TypicalCatalog.skillId(index));
+                first = tile.shown() ? tile : null;
+            }
+            assertNotNull(first);
             fixture.resize(size[0], size[1], size[2]);
             fixture.render();
-            String where = size[0] + "x" + size[1];
-            assertTrue(screen.scroll().maxScroll() > 0, where);
-            assertEquals(offset, anchor.bounds().y() - screen.scroll().bounds().y(), where + ": the page jumped");
+            assertTrue(first.shown(), size[0] + "x" + size[1] + ": the page lost " + first.id());
         }
-    }
-
-    private static UiNode firstShowing(AdaptScreen screen) {
-        int top = screen.scroll().bounds().y();
-        UiNode best = null;
-        List<UiNode> leaves = new ArrayList<>();
-        leaves(screen.scroll(), leaves);
-        for (UiNode leaf : leaves) {
-            if (leaf.bounds().bottom() > top && (best == null || leaf.bounds().y() < best.bounds().y())) {
-                best = leaf;
-            }
-        }
-        return best;
-    }
-
-    private static void leaves(UiNode node, List<UiNode> found) {
-        boolean leaf = true;
-        for (UiNode child : node.children()) {
-            if (child.visible()) {
-                leaf = false;
-                leaves(child, found);
-            }
-        }
-        if (leaf && !node.bounds().isEmpty()) {
-            found.add(node);
-        }
+        fixture.resize(640, 352, 4);
+        fixture.render();
+        assertEquals(0, screen.leaf(), "an open spread shows everything from its first leaf");
     }
 }

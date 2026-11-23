@@ -140,10 +140,10 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
     private double chanceAddition = 5;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 1;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 5;
+      initialCost = 1;
     }
   }
 }

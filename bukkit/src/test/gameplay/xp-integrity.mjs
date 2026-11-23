@@ -31,7 +31,7 @@ export function progressionRequirements(catalog) {
         let level = 0
         let earnedKnowledge = 0
         while (earnedKnowledge < knowledge && level < catalog.maximumSkillLevel) {
-            earnedKnowledge += Math.floor(level / 13) + 1
+            earnedKnowledge += level === 0 ? 0 : level <= 4 ? 5 : level <= 14 ? 1 : level <= 29 ? 2 : 3
             level++
         }
         return { skill: skill.skill, adaptationCount: adaptations.length,

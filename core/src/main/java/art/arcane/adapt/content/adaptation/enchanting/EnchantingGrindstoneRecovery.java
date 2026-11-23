@@ -295,8 +295,9 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     double skillXpOnRecovery = 8;
 
     public Config() {
-      costFactor = 0.74;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
       normalizeForPersistence();
     }
 

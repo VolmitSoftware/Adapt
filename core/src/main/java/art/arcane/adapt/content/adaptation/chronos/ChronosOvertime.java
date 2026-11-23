@@ -338,9 +338,9 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     double maxLevelHarmfulDurationMultiplier = 0.5;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.38;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

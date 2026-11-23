@@ -5,7 +5,7 @@ import art.arcane.adapt.client.ui.UiTexture;
 
 /**
  * The tome's shared ornaments: soft-cornered paper shapes, ruled dividers, the spine between facing pages, the title
- * ribbon and the medallions adaptations sit on. Each draws its {@code kit/} texture (see {@link UiChrome}) when a pack
+ * ribbon, the medallions adaptations sit on and the filigree that marks a selected tile. Each draws its {@code kit/} texture (see {@link UiChrome}) when a pack
  * provides it and plain fills otherwise.
  */
 public final class UiTome {
@@ -110,15 +110,11 @@ public final class UiTome {
     }
 
     /**
-     * One ruled line from {@code left} to {@code right} that fades out at both ends and breaks round a small diamond,
-     * {@link #DIVIDER} tall from {@code top}.
+     * One ruled line from {@code left} to {@code right} that fades out at both ends and breaks round a small diamond in
+     * its middle, {@link #DIVIDER} tall from {@code top}.
      */
     public static void divider(UiDraw draw, int left, int right, int top) {
-        divider(draw, left, right, top, (left + right) / 2);
-    }
-
-    /** {@link #divider(UiDraw, int, int, int)} with its diamond at {@code middle}, such as on the fold between two pages. */
-    public static void divider(UiDraw draw, int left, int right, int top, int middle) {
+        int middle = (left + right) / 2;
         int from = left + RULE_INSET;
         int to = right - RULE_INSET;
         int fade = Math.max(0, Math.min(RULE_FADE, (middle - 3 - from) / 2));
@@ -316,6 +312,43 @@ public final class UiTome {
         disc(draw, x, y, DISC, tint);
         if (texture != null) {
             draw.blit(texture, x, y, TOKEN, TOKEN);
+        }
+    }
+
+    /** The top left corner flourish of {@link #filigree}: a scroll curling in from the corner, gold over an ink shadow. */
+    private static final String[] FLOURISH = {"..####", ".#....", "#..##.", "#.#...", "#.#...", "#....."};
+    private static final int FILIGREE_LINE = UiRamp.alpha(UiRamp.GOLD[2], 0x90);
+
+    /**
+     * The selection border: a fine gold line round the box with a scrolled flourish at each corner, drawn just inside
+     * the box. It marks the tile under the pointer or keyboard focus without covering what the tile shows.
+     */
+    public static void filigree(UiDraw draw, UiRect box, float strength) {
+        if (strength <= 0.0F || box.width() < 14 || box.height() < 14) {
+            return;
+        }
+        int gold = UiEase.fade(UiRamp.GOLD[2], strength);
+        int shade = UiEase.fade(UiRamp.alpha(UiRamp.INK[1], 0x80), strength);
+        int line = UiEase.fade(FILIGREE_LINE, strength);
+        int size = FLOURISH.length;
+        draw.fill(box.x() + size, box.y(), box.right() - size, box.y() + 1, line);
+        draw.fill(box.x() + size, box.bottom() - 1, box.right() - size, box.bottom(), line);
+        draw.fill(box.x(), box.y() + size, box.x() + 1, box.bottom() - size, line);
+        draw.fill(box.right() - 1, box.y() + size, box.right(), box.bottom() - size, line);
+        for (int pass = 0; pass < 2; pass++) {
+            for (int row = 0; row < size; row++) {
+                for (int column = 0; column < size; column++) {
+                    if (FLOURISH[row].charAt(column) != '#') {
+                        continue;
+                    }
+                    int[][] corners = {{box.x() + column, box.y() + row}, {box.right() - 1 - column, box.y() + row},
+                            {box.x() + column, box.bottom() - 1 - row}, {box.right() - 1 - column, box.bottom() - 1 - row}};
+                    for (int[] at : corners) {
+                        int y = pass == 0 ? (at[1] < box.centerY() ? at[1] + 1 : at[1] - 1) : at[1];
+                        draw.fill(at[0], y, at[0] + 1, y + 1, pass == 0 ? shade : gold);
+                    }
+                }
+            }
         }
     }
 

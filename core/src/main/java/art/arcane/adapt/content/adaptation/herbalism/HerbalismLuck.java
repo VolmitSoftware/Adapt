@@ -168,10 +168,10 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
     double highChance = 90;
 
     public Config() {
-      baseCost = 8;
-      costFactor = 0.75;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 7;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

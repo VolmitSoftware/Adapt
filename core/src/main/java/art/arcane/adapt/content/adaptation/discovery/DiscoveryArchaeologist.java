@@ -419,9 +419,10 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     double rewardValueXpMultiplier = 0.45;
 
     public Config() {
-      costFactor = 0.8;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

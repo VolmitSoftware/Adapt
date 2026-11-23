@@ -23,11 +23,11 @@ class SkillGolemancyWorkXpTest {
   void workXpStopsAtTheHourlyCapPerOwner() {
     long now = 1_000L;
     double paid = 0D;
-    for (int i = 0; i < 3_000; i++) {
+    for (int i = 0; i < 6_000; i++) {
       paid += SkillGolemancy.grantWorkXp(cap, OWNER, 0.5D, 25D, config, now);
     }
 
-    assertThat(paid).isEqualTo(1_200D);
+    assertThat(paid).isEqualTo(2_400D);
     assertThat(SkillGolemancy.grantWorkXp(cap, OWNER, 6D, 25D, config, now)).isZero();
     assertThat(SkillGolemancy.grantWorkXp(cap, OTHER, 6D, 25D, config, now)).isEqualTo(6D);
   }
@@ -43,14 +43,14 @@ class SkillGolemancyWorkXpTest {
       now += defaults.bindXpCooldownMillis;
     }
 
-    assertThat(defaults.bindXpHourlyCap).isEqualTo(600D);
-    assertThat(paid).isCloseTo(1_200D, offset(1e-9));
+    assertThat(defaults.bindXpHourlyCap).isEqualTo(1200D);
+    assertThat(paid).isCloseTo(2_400D, offset(1e-9));
     assertThat(SkillGolemancy.grantBindXp(cap, OTHER, defaults.buildSnowXp, defaults, now)).isEqualTo(40D);
   }
 
   @Test
   void theCapRollsOverAfterAnHour() {
-    SkillGolemancy.grantWorkXp(cap, OWNER, 1_200D, 0D, config, 0L);
+    SkillGolemancy.grantWorkXp(cap, OWNER, 2_400D, 0D, config, 0L);
 
     assertThat(SkillGolemancy.grantWorkXp(cap, OWNER, 4D, 0D, config, HOUR - 1L)).isZero();
     assertThat(SkillGolemancy.grantWorkXp(cap, OWNER, 4D, 0D, config, HOUR)).isEqualTo(4D);
@@ -58,7 +58,7 @@ class SkillGolemancyWorkXpTest {
 
   @Test
   void aGrantThatCrossesTheCapPaysOnlyTheRemainder() {
-    SkillGolemancy.grantWorkXp(cap, OWNER, 1_198D, 0D, config, 0L);
+    SkillGolemancy.grantWorkXp(cap, OWNER, 2_398D, 0D, config, 0L);
 
     assertThat(SkillGolemancy.grantWorkXp(cap, OWNER, 6D, 0D, config, 1L)).isCloseTo(2D, offset(1e-9));
   }

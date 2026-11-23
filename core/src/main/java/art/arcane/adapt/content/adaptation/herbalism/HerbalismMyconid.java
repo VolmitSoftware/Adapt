@@ -92,10 +92,11 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
   @ConfigDescription("Craft Mycelium from Dirt and Mushrooms.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      baseCost = 1;
       permanent = true;
-      costFactor = 0.75;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

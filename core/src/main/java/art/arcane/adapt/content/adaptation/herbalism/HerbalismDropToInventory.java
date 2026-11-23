@@ -148,6 +148,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
   @ConfigDescription("Harvested crops drop directly into your inventory.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       baseCost = 1;
       costFactor = 1;
       maxLevel = 1;

@@ -27,16 +27,19 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.block.BlockChange;
 import art.arcane.adapt.platform.event.block.BlockFertilizeEvent;
+import art.arcane.adapt.platform.event.block.BlockFormEvent;
 import art.arcane.adapt.platform.event.block.BlockFromToEvent;
 import art.arcane.adapt.platform.event.block.BlockGrowEvent;
 import art.arcane.adapt.platform.event.block.BlockPistonEvent;
 import art.arcane.adapt.platform.event.block.BlockPlaceEvent;
 import art.arcane.adapt.platform.event.block.StructureGrowEvent;
+import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
 import art.arcane.adapt.platform.event.entity.EntityChangeBlockEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockRef;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Keeps block placement provenance current. Register one instance on the core event bus.
@@ -46,6 +49,8 @@ public class XpProvenanceListener {
   private static final Id AIR = Id.minecraft("air");
   private static final Id DRAGON_EGG = Id.minecraft("dragon_egg");
   private static final Id FALLING_BLOCK = Id.minecraft("falling_block");
+  private static final Set<Id> FLUID_FORMED = Set.of(Id.minecraft("cobblestone"), Id.minecraft("stone"),
+      Id.minecraft("basalt"), Id.minecraft("obsidian"));
   private static final DataKey<Byte> PLAYER_MODIFIED_FALLING_BLOCK_KEY =
       DataKey.adapt("xp-provenance-player-modified-falling-block", DataCodecs.BYTE);
 
@@ -63,6 +68,18 @@ public class XpProvenanceListener {
       return;
     }
     XpProvenance.recordBreak(e.block());
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(BlockFormEvent e) {
+    if (FLUID_FORMED.contains(e.newState().type())) {
+      XpProvenance.recordPlacement(e.block());
+    }
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(CreatureSpawnEvent e) {
+    MobOrigin.record(e.entity(), e.reason());
   }
 
   @Handle(priority = EventPriority.MONITOR)

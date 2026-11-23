@@ -16,9 +16,9 @@ class KineticsMoonJumpTest {
     KineticsMoonJump.Config config = new KineticsMoonJump.Config();
     assertThat(config.enabled).isTrue();
     assertThat(config.maxLevel).isEqualTo(5);
-    assertThat(config.baseCost).isEqualTo(4);
+    assertThat(config.baseCost).isEqualTo(3);
     assertThat(config.initialCost).isEqualTo(2);
-    assertThat(config.costFactor).isCloseTo(0.5D, offset(1.0E-9D));
+    assertThat(config.costFactor).isCloseTo(0.6D, offset(1.0E-9D));
     assertThat(config.jumpBonusBase).isCloseTo(0.06D, offset(1.0E-9D));
     assertThat(config.jumpBonusFactor).isCloseTo(0.10D, offset(1.0E-9D));
     assertThat(config.gravityReductionBase).isCloseTo(0.15D, offset(1.0E-9D));

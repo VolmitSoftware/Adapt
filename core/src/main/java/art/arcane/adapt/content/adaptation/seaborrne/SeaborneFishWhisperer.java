@@ -309,10 +309,10 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     double dolphinChargeStrength = 0.9;
 
     public Config() {
-      baseCost = 4;
+      baseCost = 3;
       costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 2;
     }
   }
 }

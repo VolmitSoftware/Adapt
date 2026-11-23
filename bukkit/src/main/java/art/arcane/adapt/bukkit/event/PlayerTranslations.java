@@ -1,7 +1,9 @@
 package art.arcane.adapt.bukkit.event;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.event.player.FoodLevelChangeEvent;
+import art.arcane.adapt.platform.event.player.PlayerAdvancementDoneEvent;
 import art.arcane.adapt.platform.event.player.PlayerChangedWorldEvent;
 import art.arcane.adapt.platform.event.player.PlayerDropItemEvent;
 import art.arcane.adapt.platform.event.player.PlayerExpChangeEvent;
@@ -26,6 +28,7 @@ import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
+import io.papermc.paper.advancement.AdvancementDisplay;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -47,7 +50,7 @@ final class PlayerTranslations {
   static List<Translation<?>> all() {
     return List.of(INTERACT, INTERACT_ENTITY, MOVE, TELEPORT, JUMP, JOIN, QUIT, RESPAWN, CHANGED_WORLD, DROP_ITEM,
         EXP_CHANGE, FISH, GAME_MODE_CHANGE, ITEM_CONSUME, ITEM_DAMAGE, ITEM_HELD, SWAP_HANDS, TOGGLE_FLIGHT,
-        TOGGLE_SNEAK, TOGGLE_SPRINT, FOOD_LEVEL);
+        TOGGLE_SNEAK, TOGGLE_SPRINT, FOOD_LEVEL, ADVANCEMENT_DONE);
   }
 
   static final Translation<org.bukkit.event.player.PlayerInteractEvent> INTERACT = new Translation<>(
@@ -143,6 +146,21 @@ final class PlayerTranslations {
   static final Translation<org.bukkit.event.player.PlayerChangedWorldEvent> CHANGED_WORLD = BukkitTranslations.simple(
       org.bukkit.event.player.PlayerChangedWorldEvent.class, PlayerChangedWorldEvent.class,
       (event, poster) -> poster.post(new PlayerChangedWorldEvent(player(event.getPlayer()), BukkitRefs.world(event.getFrom()))));
+
+  static final Translation<org.bukkit.event.player.PlayerAdvancementDoneEvent> ADVANCEMENT_DONE = BukkitTranslations.simple(
+      org.bukkit.event.player.PlayerAdvancementDoneEvent.class, PlayerAdvancementDoneEvent.class, (event, poster) -> {
+        AdvancementDisplay display = event.getAdvancement().getDisplay();
+        poster.post(new PlayerAdvancementDoneEvent(player(event.getPlayer()), BukkitRefs.id(event.getAdvancement().getKey()),
+            display == null ? null : frame(display.frame())));
+      });
+
+  private static AdvancementFrame frame(AdvancementDisplay.Frame frame) {
+    return switch (frame) {
+      case GOAL -> AdvancementFrame.GOAL;
+      case CHALLENGE -> AdvancementFrame.CHALLENGE;
+      case TASK -> AdvancementFrame.TASK;
+    };
+  }
 
   static final Translation<org.bukkit.event.player.PlayerDropItemEvent> DROP_ITEM = BukkitTranslations.simple(
       org.bukkit.event.player.PlayerDropItemEvent.class, PlayerDropItemEvent.class, (event, poster) -> {

@@ -1,5 +1,10 @@
 package art.arcane.adapt.mod.platform;
 
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.advancements.AdvancementType;
+import net.minecraft.advancements.DisplayInfo;
 import java.util.stream.Stream;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +20,18 @@ import net.minecraft.world.item.component.ItemContainerContents;
 /** Calls whose vanilla signature differs between supported Minecraft versions; overlays replace this class. */
 public final class Compat {
     private Compat() {
+    }
+
+    public static Entity lootEntity(LootParams params) {
+        return params.getParamOrNull(LootContextParams.THIS_ENTITY);
+    }
+
+    public static Vec3 lootOrigin(LootParams params) {
+        return params.getParamOrNull(LootContextParams.ORIGIN);
+    }
+
+    public static AdvancementType advancementType(DisplayInfo display) {
+        return display.getType();
     }
 
     public static void swing(LivingEntity entity, InteractionHand hand) {

@@ -274,8 +274,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.75;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

@@ -152,10 +152,10 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
     double xpPerGuard = 8;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.66;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 1;
     }
   }
 }

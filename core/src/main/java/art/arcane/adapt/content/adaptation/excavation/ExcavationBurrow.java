@@ -361,9 +361,9 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     double xpPerBlock = 2;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.78;
-      initialCost = 6;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

@@ -111,10 +111,10 @@ public class AgilityMarathoner extends SimpleAdaptation<AgilityMarathoner.Config
     double xpPerSaturationSaved = 0.6;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.4;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

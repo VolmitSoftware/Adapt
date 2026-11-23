@@ -31,6 +31,7 @@ import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneBrineSkin;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneCoralGardener;
@@ -49,6 +50,8 @@ import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.EntityTrait;
+import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -60,6 +63,7 @@ import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerFishEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
+import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
@@ -67,6 +71,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
@@ -78,6 +83,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   private static final Id SEA_PICKLE = Id.minecraft("sea_pickle");
   private static final Id WATER_BREATHING = Id.minecraft("water_breathing");
   private static final Id CONDUIT_POWER = Id.minecraft("conduit_power");
+  private static final double MINIMUM_SWIM_DISPLACEMENT = 0.5D;
+  private static final Set<Id> TREASURE = Set.of(Id.minecraft("enchanted_book"), Id.minecraft("name_tag"),
+      Id.minecraft("nautilus_shell"), Id.minecraft("saddle"));
+  private static final Set<Id> ENCHANTABLE_TREASURE = Set.of(Id.minecraft("bow"), Id.minecraft("fishing_rod"));
+  private static final Set<Id> SEA_CREATURES = Set.of(DROWNED, GUARDIAN, ELDER_GUARDIAN, Id.minecraft("squid"),
+      Id.minecraft("glow_squid"), Id.minecraft("dolphin"), Id.minecraft("turtle"), Id.minecraft("axolotl"),
+      Id.minecraft("cod"), Id.minecraft("salmon"), Id.minecraft("pufferfish"), Id.minecraft("tropical_fish"),
+      Id.minecraft("tadpole"), Id.minecraft("nautilus"), Id.minecraft("zombie_nautilus"));
 
   private final Cooldowns underwaterBlockCooldowns = cooldowns();
   private final Cooldowns drownedDamageCooldowns = cooldowns();
@@ -85,6 +98,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   private final Cooldowns fishCooldowns = cooldowns();
   private final Map<UUID, Boolean> swimming = playerState();
   private final Map<UUID, Long> lastWaterMovementAt = playerState();
+  private final Map<UUID, Double> swimDistance = playerState();
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillSeaborne() {
@@ -201,6 +215,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerTeleportEvent event) {
     lastWaterMovementAt.remove(event.player().uuid());
+    swimDistance.remove(event.player().uuid());
   }
 
   @Override
@@ -208,12 +223,15 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     ownerPulse.unregister();
     swimming.clear();
     lastWaterMovementAt.clear();
+    swimDistance.clear();
     super.unregister();
   }
 
   private void pulseSwimmingXp(AdaptPlayer adaptPlayer, PlayerRef player, long elapsedMillis, long cadenceMillis) {
     shouldReturnForPlayer(player, () -> {
       UUID playerId = player.uuid();
+      Double swum = swimDistance.remove(playerId);
+      double distance = swum == null ? 0D : swum;
       boolean waterBreathing = hasWaterBreathingEffect(player);
       boolean recentWaterMovement = isRecentWaterMovement(
           lastWaterMovementAt.get(playerId),
@@ -225,7 +243,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
           player.remainingAir(),
           player.maximumAir(),
           waterBreathing,
-          recentWaterMovement);
+          recentWaterMovement) && distance >= MINIMUM_SWIM_DISPLACEMENT;
       boolean wasSwimming = swimming.getOrDefault(playerId, false);
       if (!qualifies) {
         if (wasSwimming) {
@@ -234,12 +252,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         return;
       }
 
-      double cadenceScale = (double) elapsedMillis / cadenceMillis;
       double xpAmount = passiveSwimXp(
-          getConfig().swimXP,
-          cadenceScale,
+          getConfig().swimXpPerSecond,
+          elapsedMillis / 1000D,
           waterBreathing,
-          getConfig().waterBreathingSwimXpBonusMultiplier);
+          getConfig().waterBreathingSwimXpBonusMultiplier)
+          + Math.max(0D, getConfig().swimXpPerBlock) * distance;
       xpSilent(player, xpAmount, "seaborne:swim");
       if (!wasSwimming) {
         swimming.put(playerId, true);
@@ -253,15 +271,23 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
-    if (!hasPositionChanged(e) || e.from().distanceSquared(e.to()) > 64D) {
+    Loc from = e.from();
+    Loc to = e.to();
+    if (to == null || !from.sameWorld(to)) {
+      return;
+    }
+    double horizontal = horizontalDistance(from, to);
+    if (horizontal <= 0D || horizontal > 8D) {
       return;
     }
 
     PlayerRef player = e.player();
     if (player.isInWater() && player.vehicle() == null && !player.isFlying()) {
       lastWaterMovementAt.put(player.uuid(), System.currentTimeMillis());
+      swimDistance.merge(player.uuid(), horizontal, Double::sum);
     }
   }
+
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(PlayerFishEvent e) {
@@ -270,7 +296,8 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
       double amount;
       if (e.state() == PlayerFishEvent.State.CAUGHT_FISH) {
         addStat(p, "seaborne.fish.caught", 1);
-        amount = getConfig().fishCaughtXp;
+        amount = e.caught() instanceof ItemEntityRef catchEntity && isTreasure(catchEntity.item())
+            ? getConfig().treasureCaughtXp : getConfig().fishCaughtXp;
       } else if (e.state() == PlayerFishEvent.State.CAUGHT_ENTITY) {
         amount = getConfig().entityCaughtXp;
       } else {
@@ -321,6 +348,12 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
       } else if (type.equals(GUARDIAN) || type.equals(ELDER_GUARDIAN)) {
         addStat(p, "seaborne.guardian.kills", 1);
         seaKill = true;
+      }
+
+      LivingRef victim = e.entity();
+      if (isSeaCreature(victim) && MobOrigin.paysKillReward(p, victim)) {
+        xp(p, victim.location(), seaCreatureKillXp(getConfig().seaCreatureKillXp,
+            getConfig().seaCreatureMaxHealthXpMultiplier, victim.maxHealth()), "seaborne:sea-kill");
       }
 
       if (seaKill) {
@@ -375,6 +408,30 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     xp(p, getConfig().tridentxpmultiplier * damage, "seaborne:trident-hit");
   }
 
+  static boolean isTreasure(ItemRef item) {
+    if (item == null || item.isEmpty()) {
+      return false;
+    }
+    Id type = item.type();
+    return TREASURE.contains(type) || (ENCHANTABLE_TREASURE.contains(type) && !item.enchantments().isEmpty());
+  }
+
+  static double horizontalDistance(Loc from, Loc to) {
+    double dx = to.x() - from.x();
+    double dz = to.z() - from.z();
+    double distance = Math.sqrt(dx * dx + dz * dz);
+    return Double.isFinite(distance) ? distance : 0D;
+  }
+
+  static double seaCreatureKillXp(double baseXp, double maxHealthMultiplier, double maxHealth) {
+    double healthBonus = Double.isFinite(maxHealth) && maxHealth > 0D ? Math.max(0D, maxHealthMultiplier) * maxHealth : 0D;
+    return Math.max(0D, baseXp) + healthBonus;
+  }
+
+  static boolean isSeaCreature(EntityRef entity) {
+    return entity.has(EntityTrait.WATER_MOB) || entity.has(EntityTrait.FISH) || SEA_CREATURES.contains(entity.type());
+  }
+
   static boolean qualifiesForPassiveSwimXp(
       boolean inWater,
       boolean swimming,
@@ -414,16 +471,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
         player.hasEffect(CONDUIT_POWER));
   }
 
-  private boolean hasPositionChanged(PlayerMoveEvent event) {
-    Loc from = event.from();
-    Loc to = event.to();
-    return to != null
-        && from.sameWorld(to)
-        && (from.x() != to.x()
-        || from.y() != to.y()
-        || from.z() != to.z());
-  }
-
   @Override
   public boolean isEnabled() {
     return getConfig().enabled;
@@ -438,7 +485,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between XP awards for trident damage.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     public long tridentDamageXpCooldown = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP awarded for catching a fish.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double fishCaughtXp = 250;
+    public double fishCaughtXp = 120;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for reeling in treasure: enchanted books, name tags, nautilus shells, saddles, or an enchanted bow or rod.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    public double treasureCaughtXp = 250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "XP awarded for reeling in an entity.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double entityCaughtXp = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between fishing XP awards.", impact = "Higher values reduce AFK fishing XP frequency; lower values reward catches more often.")
@@ -456,8 +505,14 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     double challengeSwim5kReward = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Swim20k Reward for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeSwim20kReward = 3750;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Swim XP for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double swimXP = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per second spent swimming while moving horizontally.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double swimXpPerSecond = 1.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per block of horizontal distance swum.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double swimXpPerBlock = 0.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for killing a sea creature such as fish, squid, dolphins, guardians, drowned, turtles, or axolotls.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double seaCreatureKillXp = 150;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra sea creature kill XP per point of the victim's maximum health.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double seaCreatureMaxHealthXpMultiplier = 5.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional passive swimming XP multiplier for players actively moving in water with Water Breathing or Conduit Power.", impact = "1.0 adds one base swim XP award for 2x total; 0 disables the bonus while retaining the base moving-swimmer award.")
     double waterBreathingSwimXpBonusMultiplier = 1.0;
   }

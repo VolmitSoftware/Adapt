@@ -195,10 +195,10 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
   @ConfigDescription("Prevent Enderman aggression without wearing a pumpkin.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 6;
-      costFactor = 1.0;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 2;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

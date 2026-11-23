@@ -364,10 +364,10 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
     double xpOnSwap = 12;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.5;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 

@@ -245,9 +245,9 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
     double xpPerAnimal = 20;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 2;
       costFactor = 0.5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 

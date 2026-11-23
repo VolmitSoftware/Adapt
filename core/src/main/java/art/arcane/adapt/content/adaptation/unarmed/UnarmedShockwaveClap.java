@@ -337,9 +337,9 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     int maxTargetFxPerActivation = 8;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.7;
-      initialCost = 6;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

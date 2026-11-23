@@ -35,7 +35,7 @@ class ScreenPreviewTest {
         AdaptScreen screen = preview.router().current();
         screen.render(draw, 0, 0, 0.0F);
         UiNode node = screen.root().find(id);
-        screen.scroll().reveal(node.bounds());
+        screen.reveal(node);
         screen.render(draw, 0, 0, 0.0F);
         UiMouseEvent event = new UiMouseEvent(node.bounds().centerX(), node.bounds().centerY(), UiMouseButton.LEFT, UiModifiers.NONE);
         screen.mouseClicked(event);

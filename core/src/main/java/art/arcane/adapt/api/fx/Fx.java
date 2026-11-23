@@ -73,7 +73,7 @@ public final class Fx {
     double z = location.z();
     FxDispatch.Emission emission = FxDispatch.emission(player -> {
       if (viewerEffectsEnabled(player)) {
-        host.particle(player, particle, x, y, z, count, spreadX, spreadY, spreadZ, speed);
+        host.particle(player, particle, x, y, z, count, spreadX, spreadY, spreadZ, speed, false);
       }
     }, null);
     if (!FxViewers.dispatch(viewer, emission) && FxViewers.shouldFallback(viewer)) {

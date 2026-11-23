@@ -28,6 +28,7 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.adaptation.chronos.ChronosAberrantTouch;
 import art.arcane.adapt.content.adaptation.chronos.ChronosAccelerate;
 import art.arcane.adapt.content.adaptation.chronos.ChronosBorrowedTime;
@@ -57,10 +58,10 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.AreaEffectCloudApplyEvent;
 import art.arcane.adapt.platform.event.entity.PotionSplashEvent;
 import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
-import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
+import art.arcane.adapt.platform.event.world.NightSkipEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.value.Id;
@@ -81,6 +82,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private static final double LEGACY_SPEED_POTION_BASE_XP = 45D;
   private static final double DEFAULT_SPEED_POTION_BASE_XP = 120D;
   private static final Id CLOCK = Id.minecraft("clock");
+  private static final String SLEEP_WORLD_KEY = "sleep-world";
+  private static final String SLEEP_DAY_KEY = "sleep-day";
+  private static final String SLEEP_STREAK_KEY = "sleep-streak";
   private static final Id POTION = Id.minecraft("potion");
   private static final Id ENDER_PEARL = Id.minecraft("ender_pearl");
   private static final Id SPEED = Id.minecraft("speed");
@@ -94,7 +98,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private final Map<UUID, Set<String>> recentActionTypes = playerState();
   private final Map<UUID, Long> actionTypeResetTimestamps = playerState();
   private final Map<UUID, Long> lastActivityTimestamps = playerState();
-  private final Map<UUID, Long> sleepCooldowns = playerState();
   private final Map<UUID, SpeedPotionTracker> speedPotionTrackers = playerState();
   private final Map<UUID, Long> enderPearlCooldowns = playerState();
   private final Map<UUID, Long> survivalStreakStart = playerState();
@@ -136,7 +139,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .build())
         .build());
     registerMilestone("challenge_chronos_1h", "minutes.online", 60, () -> getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_24h", "minutes.online", 1440, () -> getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_chronos_24h", "minutes.online", 1440, () -> getConfig().challengeChronosReward * 3);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("compass")).key("challenge_active_dist_1k")
@@ -159,8 +162,8 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .build())
         .build());
     registerMilestone("challenge_active_dist_1k", "chronos.active.distance", 1000, () -> getConfig().challengeChronosReward);
-    registerMilestone("challenge_active_dist_10k", "chronos.active.distance", 10000, () -> getConfig().challengeChronosReward * 2);
-    registerMilestone("challenge_active_dist_100k", "chronos.active.distance", 100000, () -> getConfig().challengeChronosReward * 5);
+    registerMilestone("challenge_active_dist_10k", "chronos.active.distance", 10000, () -> getConfig().challengeChronosReward * 3);
+    registerMilestone("challenge_active_dist_100k", "chronos.active.distance", 100000, () -> getConfig().challengeChronosReward * 8);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("white_bed")).key("challenge_beds_10")
@@ -176,7 +179,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .build())
         .build());
     registerMilestone("challenge_beds_10", "chronos.beds.used", 10, () -> getConfig().challengeChronosReward);
-    registerMilestone("challenge_beds_100", "chronos.beds.used", 100, () -> getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_beds_100", "chronos.beds.used", 100, () -> getConfig().challengeChronosReward * 3);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("ender_pearl")).key("challenge_chronos_tp_50")
@@ -192,7 +195,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
             .build())
         .build());
     registerMilestone("challenge_chronos_tp_50", "chronos.teleports", 50, () -> getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, () -> getConfig().challengeChronosReward * 2);
+    registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, () -> getConfig().challengeChronosReward * 3);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseChronos);
   }
 
@@ -360,34 +363,54 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   // --- Sleep XP ---
 
   @Handle(priority = EventPriority.MONITOR)
-  public void on(PlayerBedEnterEvent e) {
-    if (!isSuccessfulBedEntry(e.result())) {
-      return;
+  public void on(NightSkipEvent e) {
+    long sleepDay = sleepDay(e.world().fullTime());
+    String worldId = e.world().uid().toString();
+    for (PlayerRef p : e.sleepers()) {
+      shouldReturnForPlayer(p, () -> rewardNightSlept(p, worldId, sleepDay));
     }
-    PlayerRef p = e.player();
-    shouldReturnForPlayer(p, e, () -> {
-      UUID uuid = p.uuid();
-      long now = System.currentTimeMillis();
-
-      Long lastSleep = sleepCooldowns.get(uuid);
-      if (lastSleep != null && now - lastSleep < getConfig().sleepCooldown) {
-        return;
-      }
-
-      trackAction(uuid, "sleep");
-      sleepCooldowns.put(uuid, now);
-      addStat(p, "chronos.beds.used", 1);
-      Loc location = p.location();
-      xp(p, location, getConfig().sleepXP * getClockXpMultiplier(p), "chronos:sleep");
-      fx(location.add(0, 1, 0), FxPriority.TRANSITION)
-          .arc(Particles.END_ROD, 1.4D, 10, 0, Math.PI, 0.4D)
-          .chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.1F,
-              Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
-    });
   }
 
-  static boolean isSuccessfulBedEntry(PlayerBedEnterEvent.Result result) {
-    return result == PlayerBedEnterEvent.Result.OK;
+  private void rewardNightSlept(PlayerRef p, String worldId, long sleepDay) {
+    PlayerSkillLine line = getPlayer(p).getData().getSkillLine(getName());
+    if (line == null) {
+      return;
+    }
+    Map<String, Object> storage = line.getStorage();
+    Object lastWorld = storage.get(SLEEP_WORLD_KEY);
+    long lastDay = storage.get(SLEEP_DAY_KEY) instanceof Number day ? day.longValue() : Long.MIN_VALUE;
+    long lastStreak = storage.get(SLEEP_STREAK_KEY) instanceof Number streak ? streak.longValue() : 0L;
+    boolean sameWorld = worldId.equals(lastWorld);
+    if (sameWorld && lastDay == sleepDay) {
+      return;
+    }
+    long streak = nextSleepStreak(sameWorld, lastDay, sleepDay, lastStreak);
+    storage.put(SLEEP_WORLD_KEY, worldId);
+    storage.put(SLEEP_DAY_KEY, sleepDay);
+    storage.put(SLEEP_STREAK_KEY, streak);
+    trackAction(p.uuid(), "sleep");
+    addStat(p, "chronos.beds.used", 1);
+    Loc location = p.location();
+    double amount = sleepThroughNightXp(getConfig().sleepThroughNightXp, getConfig().sleepStreakBonusXp,
+        getConfig().sleepStreakBonusCap, streak);
+    xp(p, location, amount * getClockXpMultiplier(p), "chronos:sleep");
+    fx(location.add(0, 1, 0), FxPriority.TRANSITION)
+        .arc(Particles.END_ROD, 1.4D, 10, 0, Math.PI, 0.4D)
+        .chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.1F,
+            Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.6F);
+  }
+
+  static long sleepDay(long fullTime) {
+    return Math.floorDiv(fullTime + 12000L, 24000L);
+  }
+
+  static long nextSleepStreak(boolean sameWorld, long lastDay, long sleepDay, long lastStreak) {
+    return sameWorld && lastDay == sleepDay - 1L ? Math.max(0L, lastStreak) + 1L : 1L;
+  }
+
+  static double sleepThroughNightXp(double baseXp, double streakBonusXp, double streakBonusCap, long streak) {
+    double bonus = Math.max(0L, streak - 1L) * Math.max(0D, streakBonusXp);
+    return Math.max(0D, baseXp) + Math.min(Math.max(0D, streakBonusCap), bonus);
   }
 
   // --- Speed Potion XP ---
@@ -622,7 +645,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     recentActionTypes.clear();
     actionTypeResetTimestamps.clear();
     lastActivityTimestamps.clear();
-    sleepCooldowns.clear();
     speedPotionTrackers.clear();
     enderPearlCooldowns.clear();
     survivalStreakStart.clear();
@@ -676,11 +698,11 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Distance Per Bonus XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double distancePerBonusXP = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Active Movement XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double activeMovementXP = 3.5;
+    double activeMovementXP = 5.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Active Movement XPCap Per Tick for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double activeMovementXPCapPerTick = 6;
+    double activeMovementXPCapPerTick = 9;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP multiplier while a clock is held in the offhand.", impact = "Takes precedence over the inventory multiplier; 1.0 disables the offhand bonus.")
-    double clockOffhandXpMultiplier = 3D;
+    double clockOffhandXpMultiplier = 5D;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP multiplier while a clock is stored in the player's inventory.", impact = "Applies when no clock is in the offhand; 1.0 disables the inventory bonus.")
     double clockInventoryXpMultiplier = 2D;
 
@@ -696,7 +718,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     // Passive active XP
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Passive Active XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double passiveActiveXP = 0.4;
+    double passiveActiveXP = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Activity Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long activityWindow = 15000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Activity Types For Bonus for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -709,10 +731,12 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     double nightActivityMultiplier = 1.3;
 
     // Sleep
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP granted when the player successfully enters a bed.", impact = "The clock multiplier is applied to this burst; failed bed entries never grant XP.")
-    double sleepXP = 150D;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sleep Cooldown for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    long sleepCooldown = 30000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP for sleeping until the night is skipped.", impact = "The clock multiplier is applied; entering or leaving a bed alone pays nothing.")
+    double sleepThroughNightXp = 150D;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra XP per consecutive night slept through, from the second night on.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double sleepStreakBonusXp = 15D;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum streak bonus XP for one night.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double sleepStreakBonusCap = 300D;
 
     // Speed potion
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base Chronos XP granted for applying a Speed potion to the user or another player.", impact = "The potion-strength, repetition, and clock multipliers are applied to this amount.")
@@ -738,7 +762,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
     // Survival streak
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Survival XPPer Minute for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double survivalXPPerMinute = 3;
+    double survivalXPPerMinute = 4.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Bonus Per Hour for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double survivalStreakBonusPerHour = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Survival Streak Hour Cap for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -284,10 +284,10 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     double damageFactorInverseMultiplier = 2;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.4;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

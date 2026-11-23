@@ -154,9 +154,9 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
     double xpPerDamagePrevented = 3.0;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.55;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

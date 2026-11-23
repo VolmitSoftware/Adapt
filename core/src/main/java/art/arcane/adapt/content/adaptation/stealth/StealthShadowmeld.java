@@ -407,9 +407,9 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.4;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 3;
     }
   }
 

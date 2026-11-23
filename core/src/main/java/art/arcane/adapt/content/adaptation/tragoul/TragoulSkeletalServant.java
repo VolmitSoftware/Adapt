@@ -1842,8 +1842,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.75;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

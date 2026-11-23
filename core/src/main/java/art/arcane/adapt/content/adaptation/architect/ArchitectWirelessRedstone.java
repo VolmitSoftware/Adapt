@@ -1022,10 +1022,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
 
     public Config() {
       permanent = true;
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 0;
+      initialCost = 4;
     }
   }
 }

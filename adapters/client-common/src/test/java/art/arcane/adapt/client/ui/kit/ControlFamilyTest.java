@@ -218,34 +218,17 @@ class ControlFamilyTest {
     }
 
     @Test
-    void theSlimBarShowsFillAndTrackByThickness() {
+    void theFramedBarIsAFrameAroundATrackAndItsFill() {
         KitDraw draw = new KitDraw();
-        ProgressBar.slim(draw, THEME, 10, 20, 110, 2, 0.5F, 0xFFE8D44A);
+        ProgressBar.framed(draw, THEME, 10, 20, 110, 5, 0.5F, 0xFFE8D44A);
         List<String> fills = draw.calls("fill ");
-        assertTrue(fills.get(0).startsWith("fill 10,21,110,22 "), "a one unit hairline for the track: " + fills);
-        assertTrue(fills.get(1).startsWith("fill 10,20,60,22 "), "the fill at full height: " + fills);
-        int fill = (int) Long.parseLong(fills.get(1).substring(fills.get(1).lastIndexOf(' ') + 1), 16);
-        assertTrue(UiContrast.ratio(fill, THEME.backdrop()) >= UiContrast.GRAPHIC, "fill on paper");
+        assertTrue(fills.size() >= 6, fills.toString());
+        String fill = fills.get(fills.size() - 1);
+        assertTrue(fill.startsWith("fill 11,21,60,24 "), "the fill inside the frame: " + fills);
+        int color = (int) Long.parseLong(fill.substring(fill.lastIndexOf(' ') + 1), 16);
+        assertTrue(UiContrast.ratio(color, THEME.backdrop()) >= UiContrast.GRAPHIC, "fill on paper");
         assertEquals(1, ProgressBar.filled(100, 0.001F));
         assertEquals(0, ProgressBar.filled(100, 0.0F));
-    }
-
-    @Test
-    void pipsAreSolidOpenOrAHairline() {
-        KitDraw draw = new KitDraw();
-        ProgressBar.pips(draw, THEME, 10, 20, 6, 4, 4, 2, 2, 0xFFE8D44A);
-        List<String> fills = draw.calls("fill ");
-        assertEquals(11, fills.size());
-        assertTrue(fills.get(0).startsWith("fill 11,20,15,21 ") && fills.get(1).startsWith("fill 10,21,16,23 ")
-                && fills.get(2).startsWith("fill 11,23,15,24 "), "a learned level is a solid pip with soft corners: " + fills);
-        assertTrue(fills.get(3).startsWith("fill 19,20,23,21 "), "pips sit two units apart: " + fills);
-        assertTrue(fills.get(6).startsWith("fill 27,20,31,21 ") && fills.get(7).startsWith("fill 27,23,31,24 ")
-                && fills.get(8).startsWith("fill 26,21,27,23 ") && fills.get(9).startsWith("fill 31,21,32,23 "),
-                "the level that can be learned is an empty outline: " + fills);
-        String ink = fills.get(0).substring(fills.get(0).lastIndexOf(' '));
-        assertTrue(fills.get(6).endsWith(ink), "the open pip is edged in the learned colour: " + fills);
-        assertTrue(fills.get(10).startsWith("fill 34,23,40,24 "), "a hairline for the rest: " + fills);
-        assertTrue(fills.get(10).endsWith(" " + Integer.toHexString(ProgressBar.rail(THEME))), "the slim bar's rail: " + fills);
     }
 
     @Test

@@ -1197,9 +1197,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     double maxXPPerUse = 55;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.35;
-      initialCost = 6;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

@@ -230,7 +230,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
       baseCost = 3;
       costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 

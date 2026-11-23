@@ -128,7 +128,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
       baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

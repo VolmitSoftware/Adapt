@@ -254,10 +254,10 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     int maxPowerBonus1PerLevels = 3;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.9;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 8;
+      initialCost = 3;
     }
   }
 }

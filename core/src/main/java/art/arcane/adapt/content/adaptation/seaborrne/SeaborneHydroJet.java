@@ -264,10 +264,10 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     double jetXp = 6;
 
     public Config() {
-      baseCost = 4;
+      baseCost = 3;
       costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 2;
     }
   }
 

@@ -135,9 +135,9 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
     double maxIgnoreChance = 0.25;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.65;
-      initialCost = 5;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

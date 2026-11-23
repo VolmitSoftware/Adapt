@@ -289,8 +289,9 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     double xpPerGrave = 35;
 
     public Config() {
-      costFactor = 0.68;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

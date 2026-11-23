@@ -96,10 +96,10 @@ public class KineticsMountedShock extends SimpleAdaptation<KineticsMountedShock.
     long cooldownMs = 2000;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.55;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

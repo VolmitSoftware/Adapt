@@ -444,9 +444,9 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     long inputWindowMs = 450;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.65;
-      initialCost = 8;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

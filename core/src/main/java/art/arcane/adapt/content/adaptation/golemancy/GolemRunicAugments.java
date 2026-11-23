@@ -478,6 +478,9 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     List<Double> bulwarkKnockbackResistanceByTier = new ArrayList<>(List.of(0.0, 0.0, 0.5));
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 3;
+      baseCost = 5;
       requires = new ArrayList<>(List.of("golem-animus-binding:2"));
     }
   }

@@ -713,8 +713,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
     public Config() {
       baseCost = 7;
-      costFactor = 0.12;
-      initialCost = 1;
+      costFactor = 0.7;
+      initialCost = 6;
     }
   }
 

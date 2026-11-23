@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * An inked checkbox at the right with an optional label on its left. A label too long for its width wraps onto more
- * lines and the control grows to hold them.
+ * An inked checkbox at the right with an optional label on its left, or at the left right before its label. A label
+ * too long for its width wraps onto more lines and the control grows to hold them.
  */
 public class Toggle extends UiNode {
     private static final int BOX = UiTome.CHECK;
@@ -19,6 +19,7 @@ public class Toggle extends UiNode {
     private String text;
     private boolean on;
     private Consumer<Boolean> onChange;
+    private boolean boxFirst;
 
     public Toggle(String id, String text, boolean on, Consumer<Boolean> onChange) {
         super(id);
@@ -44,6 +45,12 @@ public class Toggle extends UiNode {
 
     public boolean on() {
         return on;
+    }
+
+    /** Puts the checkbox before the label instead of after it. */
+    public Toggle setBoxFirst(boolean first) {
+        boxFirst = first;
+        return this;
     }
 
     /** Sets the value without notifying the listener. */
@@ -129,16 +136,17 @@ public class Toggle extends UiNode {
         boolean active = enabled();
         float lift = hover.update(frame.motion(), active && (frame.isHovered(this) || frame.showsFocus(this)));
         UiControl.State state = UiControl.State.of(active, frame.isPressed(this), lift);
-        int boxLeft = box.right() - BOX - 1;
+        int boxLeft = boxFirst ? box.x() + 1 : box.right() - BOX - 1;
         int boxTop = box.y() + (box.height() - BOX) / 2;
         if (!text.isEmpty()) {
             int color = UiControl.ink(state, theme);
             int room = labelRoom(box.width());
+            int left = boxFirst ? box.right() - room : box.x();
             if (draw.textWidth(text) <= room) {
-                draw.text(text, box.x(), UiControl.textY(box), color, false);
+                draw.text(text, left, UiControl.textY(box), color, false);
             } else {
                 int height = draw.wrappedHeight(text, room);
-                draw.wrappedText(text, box.x(), box.y() + Math.max(0, (box.height() - height) / 2) + 1, room, color, false);
+                draw.wrappedText(text, left, box.y() + Math.max(0, (box.height() - height) / 2) + 1, room, color, false);
             }
         }
         UiControl.check(draw, boxLeft, boxTop, on, state, theme);

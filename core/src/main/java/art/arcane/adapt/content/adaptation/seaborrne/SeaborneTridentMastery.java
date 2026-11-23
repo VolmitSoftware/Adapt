@@ -306,10 +306,10 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
     boolean enableRecall = true;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

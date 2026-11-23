@@ -112,10 +112,10 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
     double factor = 0.935;
 
     public Config() {
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 8;
+      initialCost = 1;
     }
   }
 }

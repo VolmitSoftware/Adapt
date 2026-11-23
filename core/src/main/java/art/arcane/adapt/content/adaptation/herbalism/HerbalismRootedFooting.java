@@ -192,10 +192,10 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
 
     public Config() {
       permanent = true;
-      baseCost = 3;
-      costFactor = 0.65;
+      baseCost = 2;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 2;
     }
   }
 }

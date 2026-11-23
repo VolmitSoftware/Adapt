@@ -202,9 +202,9 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.7;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 3;
     }
   }
 }

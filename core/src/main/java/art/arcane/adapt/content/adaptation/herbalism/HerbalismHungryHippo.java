@@ -143,10 +143,10 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
   @ConfigDescription("Consuming food gives you more saturation.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 8;
-      costFactor = 0.75;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 7;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.adaptation.chronos.ChronosInstantRecall;
 import art.arcane.adapt.content.adaptation.rift.RiftAccess;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
@@ -49,6 +50,7 @@ import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
+import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
@@ -67,8 +69,11 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
   private static final Id ENDERMAN = Id.minecraft("enderman");
   private static final Id ENDERMITE = Id.minecraft("endermite");
   private static final Id ENDER_DRAGON = Id.minecraft("ender_dragon");
+  private static final Id SHULKER = Id.minecraft("shulker");
 
   private final Cooldowns teleportXpCooldown = cooldowns();
+  private final Cooldowns portalXpCooldown = cooldowns();
+  private final Cooldowns chorusXpCooldown = cooldowns();
 
   public SkillRift() {
     super("rift", SkillPresentation.of(SkillMessages.RIFT_NAME, SkillMessages.RIFT_ICON, SkillMessages.RIFT_DESCRIPTION));
@@ -111,8 +116,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             .build())
         .build());
     registerMilestone("challenge_rift_50", "rift.teleports", 50, () -> getConfig().challengeRiftReward);
-    registerMilestone("challenge_rift_500", "rift.teleports", 500, () -> getConfig().challengeRiftReward * 2);
-    registerMilestone("challenge_rift_5k", "rift.teleports", 5000, () -> getConfig().challengeRiftReward * 5);
+    registerMilestone("challenge_rift_500", "rift.teleports", 500, () -> getConfig().challengeRiftReward * 3);
+    registerMilestone("challenge_rift_5k", "rift.teleports", 5000, () -> getConfig().challengeRiftReward * 8);
 
     // Chain 2 - Ender Pearl Throws
     registerAdvancement(AdaptAdvancement.builder()
@@ -130,7 +135,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             .build())
         .build());
     registerMilestone("challenge_rift_pearls_50", "rift.ender.pearls", 50, () -> getConfig().challengeRiftReward);
-    registerMilestone("challenge_rift_pearls_500", "rift.ender.pearls", 500, () -> getConfig().challengeRiftReward * 2);
+    registerMilestone("challenge_rift_pearls_500", "rift.ender.pearls", 500, () -> getConfig().challengeRiftReward * 3);
 
     // Chain 3 - Enderman Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -148,7 +153,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             .build())
         .build());
     registerMilestone("challenge_rift_enderman_50", "rift.enderman.kills", 50, () -> getConfig().challengeRiftReward);
-    registerMilestone("challenge_rift_enderman_500", "rift.enderman.kills", 500, () -> getConfig().challengeRiftReward * 2);
+    registerMilestone("challenge_rift_enderman_500", "rift.enderman.kills", 500, () -> getConfig().challengeRiftReward * 3);
 
     // Chain 4 - Dragon Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -166,7 +171,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             .build())
         .build());
     registerMilestone("challenge_rift_dragon_500", "rift.dragon.damage", 500, () -> getConfig().challengeRiftReward);
-    registerMilestone("challenge_rift_dragon_5k", "rift.dragon.damage", 5000, () -> getConfig().challengeRiftReward * 2);
+    registerMilestone("challenge_rift_dragon_5k", "rift.dragon.damage", 5000, () -> getConfig().challengeRiftReward * 3);
 
     // Chain 5 - End Crystal Destruction
     registerAdvancement(AdaptAdvancement.builder()
@@ -184,7 +189,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
             .build())
         .build());
     registerMilestone("challenge_rift_crystal_10", "rift.crystals.destroyed", 10, () -> getConfig().challengeRiftReward);
-    registerMilestone("challenge_rift_crystal_100", "rift.crystals.destroyed", 100, () -> getConfig().challengeRiftReward * 2);
+    registerMilestone("challenge_rift_crystal_100", "rift.crystals.destroyed", 100, () -> getConfig().challengeRiftReward * 3);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -196,7 +201,17 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
     shouldReturnForPlayer(e.player(), e, () -> {
       addStat(p, "rift.teleports", 1);
-      if (teleportXpCooldown.isReady(p.uuid(), (long) getConfig().teleportXPCooldown)) {
+      if (isPortalTrip(e.cause())) {
+        if (portalXpCooldown.isReady(p.uuid(), getConfig().portalTripXpCooldown)) {
+          portalXpCooldown.mark(p.uuid());
+          xp(p, getConfig().portalTripXp, "rift:portal");
+        }
+      } else if (e.cause() == TeleportCause.CHORUS_FRUIT) {
+        if (chorusXpCooldown.isReady(p.uuid(), getConfig().chorusTeleportXpCooldown)) {
+          chorusXpCooldown.mark(p.uuid());
+          xp(p, getConfig().chorusTeleportXp, "rift:chorus");
+        }
+      } else if (teleportXpCooldown.isReady(p.uuid(), (long) getConfig().teleportXPCooldown)) {
         xpSilent(p, getConfig().teleportXP, "rift:teleport");
         teleportXpCooldown.mark(p.uuid());
       }
@@ -274,13 +289,26 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(EntityDeathEvent e) {
-    PlayerRef p = e.entity().killer();
-    if (e.platformCancelled() || p == null || !e.entity().type().equals(ENDERMAN)
-        || GolemKillCredit.isGolemKill(e.entity())) {
+    LivingRef victim = e.entity();
+    PlayerRef p = victim.killer();
+    if (e.platformCancelled() || p == null || GolemKillCredit.isGolemKill(victim)) {
       return;
     }
+    Id type = victim.type();
+    if (type.equals(ENDERMAN)) {
+      shouldReturnForPlayer(p, () -> addStat(p, "rift.enderman.kills", 1));
+      return;
+    }
+    double perMaxHealth = type.equals(SHULKER) ? getConfig().shulkerKillMaxHealthXpMultiplier
+        : type.equals(ENDERMITE) ? getConfig().endermiteKillMaxHealthXpMultiplier : 0D;
+    if (perMaxHealth > 0D && MobOrigin.paysKillReward(p, victim)) {
+      shouldReturnForPlayer(p, () -> xp(p, victim.location(), perMaxHealth * Math.max(0D, victim.maxHealth()),
+          "rift:kill"));
+    }
+  }
 
-    shouldReturnForPlayer(p, () -> addStat(p, "rift.enderman.kills", 1));
+  static boolean isPortalTrip(TeleportCause cause) {
+    return cause == TeleportCause.NETHER_PORTAL || cause == TeleportCause.END_PORTAL || cause == TeleportCause.END_GATEWAY;
   }
 
   @Override
@@ -311,5 +339,17 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     double teleportXPCooldown = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Rift Reward for the Rift skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeRiftReward = 500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for travelling through a nether portal, end portal, or end gateway.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double portalTripXp = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between paid portal trips.", impact = "Higher values reduce how often portal hopping pays.")
+    long portalTripXpCooldown = 60000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for a chorus fruit teleport.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double chorusTeleportXp = 20;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between paid chorus fruit teleports.", impact = "Higher values reduce how often chorus fruit pays.")
+    long chorusTeleportXpCooldown = 10000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per point of maximum health for killing a shulker.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double shulkerKillMaxHealthXpMultiplier = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per point of maximum health for killing an endermite.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double endermiteKillMaxHealthXpMultiplier = 3;
   }
 }

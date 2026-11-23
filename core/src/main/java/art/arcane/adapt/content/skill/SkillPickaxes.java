@@ -164,13 +164,14 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
-      if (!beginCooldown(p)) {
+      if (!cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
         return;
       }
       double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
       if (creditedDamage <= 0D) {
         return;
       }
+      cooldowns.mark(p.uuid());
       AdaptPlayer adaptPlayer = getPlayer(p);
       adaptPlayer.getData().addStat("pickaxe.damage", creditedDamage);
       xp(p, e.entity().location(), getConfig().damageXPMultiplier * creditedDamage, "pickaxe:combat");
@@ -199,14 +200,11 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         adaptPlayer.getData().addStat("pickaxe.ores", 1);
       }
 
-      if (!beginCooldown(p)) {
-        return;
-      }
+      Loc blockLocation = e.block().center();
       if (mainHand.enchantmentLevel(SILK_TOUCH) > 0) {
-        xp(p, 5);
+        xp(p, blockLocation, 5, "pickaxe:mine");
       } else {
-        Loc blockLocation = e.block().center();
-        xp(p, blockLocation, blockXP(e.block(), blockValue));
+        xp(p, blockLocation, blockXP(e.block(), blockValue), "pickaxe:mine");
       }
     });
   }
@@ -245,13 +243,6 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     return value * 0.48;
   }
 
-  private boolean beginCooldown(PlayerRef p) {
-    if (!cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
-      return false;
-    }
-    cooldowns.mark(p.uuid());
-    return true;
-  }
 
   @Override
   public boolean isEnabled() {
@@ -287,7 +278,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     double goldBonus = 38;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Lapis Bonus for the Pickaxes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double lapisBonus = 75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Pickaxes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between Pickaxes combat XP awards.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     long cooldownDelay = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Diamond Bonus for the Pickaxes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double diamondBonus = 175;

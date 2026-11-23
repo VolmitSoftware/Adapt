@@ -203,18 +203,20 @@ class ScreenFlowTest {
     }
 
     @Test
-    void liveUpdatesKeepScrollAndFocus() {
-        ScreenFixture small = new ScreenFixture(320, 180, 4.0, MaxCatalog.catalog(), MaxCatalog.player());
+    void liveUpdatesKeepTheLeafAndFocus() {
+        ScreenFixture small = new ScreenFixture(427, 240, 2.0, MaxCatalog.catalog(), MaxCatalog.player());
         AdaptationScreen screen = small.open(new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION));
-        assertTrue(screen.scroll().maxScroll() > 0);
-        screen.scroll().setScroll(30);
+        assertTrue(screen.leaves() > 1);
         UiNode node = screen.levelNode(4);
         screen.focus(node);
-        int scrolled = screen.scroll().scroll();
         small.state.acceptPlayer(small.state.player());
         small.render();
         assertSame(node, screen.focused());
-        assertEquals(scrolled, screen.scroll().scroll());
+        screen.turnTo(1);
+        small.render();
+        small.state.acceptPlayer(small.state.player());
+        small.render();
+        assertEquals(1, screen.leaf());
         assertSame(screen, small.current());
     }
 
@@ -311,11 +313,11 @@ class ScreenFlowTest {
         fixture.open(new Route.Skill("rift"));
         assertEquals(ScreenText.NO_ACCESS.text(), fixture.find("notice").label());
         assertNull(fixture.find("adaptation:rift-gate"));
-        assertFalse(fixture.find("preferences").visible());
+        assertFalse(fixture.shows("pref:enabled"));
         fixture.open(new Route.Adaptation("rift-gate"));
         assertEquals(ScreenText.DENIED.text(), fixture.find("notice").label());
-        assertFalse(fixture.find("detail.action").visible());
-        assertFalse(fixture.find("detail.stats").visible());
+        assertFalse(fixture.shows("detail.action"));
+        assertFalse(fixture.shows("detail.stats"));
     }
 
     @Test
@@ -334,9 +336,11 @@ class ScreenFlowTest {
         fixture.state.acceptPlayer(new PlayerView(player.header(), player.skills(), player.adaptationLevels(), player.preferences(),
                 access(false, true, false)));
         fixture.open(new Route.Adaptation("rift-gate"));
-        assertFalse(fixture.find("preferences").visible());
+        assertFalse(fixture.shows("heading:settings"));
+        assertFalse(fixture.shows("pref:gate-style"));
         fixture.open(new Route.Skill("agility"));
-        assertFalse(fixture.find("preferences").visible());
+        assertFalse(fixture.shows("heading:settings"));
+        assertFalse(fixture.shows("pref:enabled"));
     }
 
     @Test
@@ -379,17 +383,17 @@ class ScreenFlowTest {
     }
 
     @Test
-    void scrollIsRememberedPerPage() {
+    void theLeafIsRememberedPerPage() {
         ScreenFixture small = new ScreenFixture(284, 160, 3.0, MaxCatalog.catalog(), MaxCatalog.player());
         SkillScreen skill = small.open(new Route.Skill(MaxCatalog.LARGEST_SKILL));
-        skill.scroll().setScroll(40);
-        int scrolled = skill.scroll().scroll();
-        assertTrue(scrolled > 0);
+        assertTrue(skill.leaves() > 1);
+        skill.turnTo(1);
         small.open(new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION));
+        assertEquals(0, small.current().leaf());
         small.key(UiKey.ESCAPE);
         small.render();
         SkillScreen back = (SkillScreen) small.current();
-        assertEquals(scrolled, back.scroll().scroll());
+        assertEquals(1, back.leaf());
     }
 
     @Test
@@ -414,7 +418,7 @@ class ScreenFlowTest {
 
     private static String probe(ScreenFixture fixture, String id) {
         AdaptScreen screen = fixture.current();
-        screen.scroll().reveal(fixture.find(id).bounds());
+        screen.reveal(fixture.find(id));
         fixture.clock.advance(200L);
         fixture.render();
         return UiProbe.snapshot();

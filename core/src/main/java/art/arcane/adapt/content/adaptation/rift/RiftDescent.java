@@ -163,8 +163,8 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     public Config() {
       permanent = true;
       baseCost = 1;
-      costFactor = 0.95;
-      initialCost = 3;
+      costFactor = 1;
+      initialCost = 1;
       maxLevel = 1;
     }
   }

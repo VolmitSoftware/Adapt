@@ -30,6 +30,7 @@ import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedComboChain;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedDisarm;
@@ -100,8 +101,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
             .build())
         .build());
     registerMilestone("challenge_unarmed_100", "unarmed.hits", 100, () -> getConfig().challengeUnarmedReward);
-    registerMilestone("challenge_unarmed_1k", "unarmed.hits", 1000, () -> getConfig().challengeUnarmedReward * 2);
-    registerMilestone("challenge_unarmed_10k", "unarmed.hits", 10000, () -> getConfig().challengeUnarmedReward * 5);
+    registerMilestone("challenge_unarmed_1k", "unarmed.hits", 1000, () -> getConfig().challengeUnarmedReward * 3);
+    registerMilestone("challenge_unarmed_10k", "unarmed.hits", 10000, () -> getConfig().challengeUnarmedReward * 8);
 
     // Chain 2 - Unarmed Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -224,6 +225,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
       if (!isMelee(hand)) {
         a.getData().addStat("unarmed.kills", 1);
+        if (!e.platformCancelled() && checkValidEntity(victim) && MobOrigin.paysKillReward(p, victim)) {
+          xp(p, victim.location(), getConfig().killXp, "unarmed:kill");
+        }
         if (victim.has(EntityTrait.BOSS)) {
           fx(victim.location().add(0, 1.2D, 0), FxPriority.TRANSITION)
               .burst(Particles.TOTEM, 16, 0.5D)
@@ -244,8 +248,10 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&e";
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage XPMultiplier for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double damageXPMultiplier = 4.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per health point of unarmed damage dealt; 5 pays 10 XP per heart.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double damageXPMultiplier = 5.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for killing a mob while the main hand holds no weapon or tool.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double killXp = 300;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Unarmed Reward for the Unarmed skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

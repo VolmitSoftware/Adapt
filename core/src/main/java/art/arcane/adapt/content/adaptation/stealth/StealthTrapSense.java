@@ -478,10 +478,10 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     long scanIntervalMillis = 500;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.35;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

@@ -371,9 +371,10 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     double radiusFactor = 5.55;
 
     public Config() {
-      costFactor = 0.125;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 12;
+      initialCost = 1;
     }
   }
 

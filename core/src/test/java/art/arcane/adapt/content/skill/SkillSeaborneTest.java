@@ -1,10 +1,17 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.platform.entity.EntityTrait;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.testkit.FakeLiving;
+import art.arcane.adapt.testkit.FakeWorld;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SkillSeaborneTest {
+  private static final FakeWorld WORLD = new FakeWorld("world");
+
   @Test
   void normalSwimmersRequireMovementAndAirLoss() {
     assertThat(SkillSeaborne.qualifiesForPassiveSwimXp(true, false, 299, 300, false, false)).isFalse();
@@ -57,5 +64,33 @@ class SkillSeaborneTest {
   void nonFiniteBonusFallsBackToBaseXp() {
     assertThat(SkillSeaborne.passiveSwimXp(0.4D, 1D, true, Double.NaN)).isEqualTo(0.4D);
     assertThat(SkillSeaborne.passiveSwimXp(0.4D, 1D, true, Double.POSITIVE_INFINITY)).isEqualTo(0.4D);
+  }
+
+  @Test
+  void swimDistanceIgnoresVerticalBubbleColumnMovement() {
+    assertThat(SkillSeaborne.horizontalDistance(new Loc(WORLD, 0D, 40D, 0D), new Loc(WORLD, 0D, 44D, 0D))).isZero();
+    assertThat(SkillSeaborne.horizontalDistance(new Loc(WORLD, 0D, 40D, 0D), new Loc(WORLD, 3D, 41D, 4D))).isEqualTo(5D);
+  }
+
+  @Test
+  void seaCreatureKillXpAddsAMaxHealthBonus() {
+    assertThat(SkillSeaborne.seaCreatureKillXp(150D, 5D, 30D)).isEqualTo(300D);
+    assertThat(SkillSeaborne.seaCreatureKillXp(150D, 5D, Double.NaN)).isEqualTo(150D);
+    assertThat(SkillSeaborne.seaCreatureKillXp(150D, -5D, 30D)).isEqualTo(150D);
+  }
+
+  @Test
+  void seaCreaturesComeFromTraitsAndTheAquaticList() {
+    Loc at = new Loc(WORLD, 0D, 40D, 0D);
+    FakeLiving squid = new FakeLiving(Id.minecraft("squid"), at);
+    FakeLiving fish = new FakeLiving(Id.of("somemod", "eel"), at);
+    fish.trait(EntityTrait.FISH);
+    FakeLiving cow = new FakeLiving(Id.minecraft("cow"), at);
+
+    assertThat(SkillSeaborne.isSeaCreature(squid)).isTrue();
+    assertThat(SkillSeaborne.isSeaCreature(new FakeLiving(Id.minecraft("drowned"), at))).isTrue();
+    assertThat(SkillSeaborne.isSeaCreature(new FakeLiving(Id.minecraft("axolotl"), at))).isTrue();
+    assertThat(SkillSeaborne.isSeaCreature(fish)).isTrue();
+    assertThat(SkillSeaborne.isSeaCreature(cow)).isFalse();
   }
 }

@@ -171,10 +171,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     }
 
     shouldReturnForPlayer(p, e, () -> {
-      if (p.isDead() || p.isInvulnerable()) {
-        return;
-      }
-      if (!beginCooldown(p)) {
+      if (p.isDead() || p.isInvulnerable() || !cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
         return;
       }
 
@@ -182,9 +179,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
       if (creditedDamage <= 0D) {
         return;
       }
+      cooldowns.mark(p.uuid());
       AdaptPlayer adaptPlayer = getPlayer(p);
       adaptPlayer.getData().addStat("axes.damage", creditedDamage);
-      xp(p, e.entity().location(), getConfig().axeDamageXPMultiplier * creditedDamage, "axes:combat");
+      xp(p, e.entity().location(), combatXp(getConfig().axeHitXp, getConfig().axeDamageXPMultiplier, creditedDamage),
+          "axes:combat");
     });
   }
 
@@ -205,9 +204,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         AdaptPlayer adaptPlayer = getPlayer(p);
         adaptPlayer.getData().addStat("axes.blocks.broken", 1);
         adaptPlayer.getData().addStat("axes.blocks.value", getValue(e.block().state()));
-        if (beginCooldown(p)) {
-          xp(p, e.block().center(), blockXP(e.block(), value));
-        }
+        xp(p, e.block().center(), blockXP(e.block(), value), "axes:chop");
       }
       if (blockType.path().endsWith("_leaves")) {
         addStat(p, "axes.leaves", 1);
@@ -215,12 +212,11 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     });
   }
 
-  private boolean beginCooldown(PlayerRef p) {
-    if (!cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
-      return false;
+  static double combatXp(double hitXp, double damageMultiplier, double creditedDamage) {
+    if (!Double.isFinite(creditedDamage) || creditedDamage <= 0D) {
+      return 0D;
     }
-    cooldowns.mark(p.uuid());
-    return true;
+    return Math.max(0D, hitXp) + Math.max(0D, damageMultiplier) * creditedDamage;
   }
 
   private boolean isLogMaterial(Id type) {
@@ -276,11 +272,13 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     double logOrWoodXPMultiplier = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Leaves Multiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double leavesMultiplier = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between Axes combat XP awards.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     long cooldownDelay = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double valueXPMultiplier = 0.175;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Axes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double axeDamageXPMultiplier = 7.0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Flat XP paid for each credited axe hit, before the damage XP.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double axeHitXp = 5.0;
   }
 }

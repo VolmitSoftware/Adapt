@@ -777,9 +777,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   @ConfigDescription("Craft a Reliquary Portkey to access marked containers remotely.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 3;
-      costFactor = 0.2;
-      initialCost = 15;
+      baseCost = 5;
+      costFactor = 1;
+      initialCost = 6;
       maxLevel = 1;
     }
   }

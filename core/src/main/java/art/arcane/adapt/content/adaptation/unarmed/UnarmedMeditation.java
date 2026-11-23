@@ -394,8 +394,9 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     double xpPerPulse = 1.2;
 
     public Config() {
-      costFactor = 0.55;
-      initialCost = 5;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

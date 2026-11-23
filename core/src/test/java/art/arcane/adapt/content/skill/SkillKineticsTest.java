@@ -126,11 +126,11 @@ class SkillKineticsTest {
     SkillKinetics.Config config = new SkillKinetics.Config();
     assertThat(config.enabled).isTrue();
     assertThat(config.cooldownDelay).isEqualTo(1000L);
-    assertThat(config.smashHitXp).isEqualTo(12D);
-    assertThat(config.plainMaceHitXp).isEqualTo(3D);
-    assertThat(config.spearJabXp).isEqualTo(6D);
-    assertThat(config.spearChargeXp).isEqualTo(12D);
-    assertThat(config.mountedChargeXp).isEqualTo(14D);
+    assertThat(config.smashHitXp).isEqualTo(24D);
+    assertThat(config.plainMaceHitXp).isEqualTo(6D);
+    assertThat(config.spearJabXp).isEqualTo(12D);
+    assertThat(config.spearChargeXp).isEqualTo(24D);
+    assertThat(config.mountedChargeXp).isEqualTo(28D);
     assertThat(config.sweetRangeMin).isEqualTo(3.0D);
     assertThat(config.sweetRangeMax).isEqualTo(6.0D);
     assertThat(config.chargeMinSpeed).isEqualTo(0.18D);

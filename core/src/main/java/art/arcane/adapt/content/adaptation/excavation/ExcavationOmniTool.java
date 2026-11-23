@@ -356,8 +356,8 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
     int startingSlots = 1;
 
     public Config() {
-      baseCost = 10;
-      costFactor = 0.20;
+      baseCost = 5;
+      costFactor = 0.6;
       initialCost = 3;
     }
   }

@@ -123,10 +123,10 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     long activationCooldownMillis = 4000;
 
     public Config() {
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

@@ -139,7 +139,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
       baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

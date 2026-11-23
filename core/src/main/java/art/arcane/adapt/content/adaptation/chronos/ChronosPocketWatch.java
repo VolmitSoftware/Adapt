@@ -297,8 +297,9 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     int maxPlayersPerPass = 512;
 
     public Config() {
-      costFactor = 0.35;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

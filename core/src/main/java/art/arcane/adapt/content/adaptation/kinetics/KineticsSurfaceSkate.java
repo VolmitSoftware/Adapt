@@ -16,6 +16,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
+import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSprintEvent;
 import art.arcane.adapt.platform.value.Id;
@@ -26,6 +27,9 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.Config> {
   public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
@@ -37,6 +41,17 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   private static final double HORIZONTAL_AIR_DRAG = 0.91D;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_SLIDE = "slide";
+  /** A skater whose step is shorter than this has come to rest and gets ordinary friction back. */
+  private static final double REST_SPEED_SQUARED = 9.0E-4D;
+  /** How long a skater who is no longer sprinting may send no movement before they count as stopped. */
+  private static final long REST_MS = 500L;
+  /**
+   * A grounded step this much shorter than the one before it means the player let go: held input keeps the step
+   * length, airborne drag only shortens it to 0.91, and released ground friction cuts it to about 0.55.
+   */
+  private static final double RELEASE_RATIO = 0.8D;
+
+  private final Map<UUID, Glide> glides = new ConcurrentHashMap<>();
 
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
@@ -71,29 +86,22 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   @Override
   public void unregister() {
     ownerMaintenance.unregister();
+    glides.clear();
     super.unregister();
   }
 
   @Handle
   public void on(PlayerToggleSprintEvent e) {
-    PlayerRef p = e.player();
-    if (!p.hasAttribute(Attributes.FRICTION_MODIFIER)) {
-      return;
-    }
-
-    AdaptAttributeService attributes = AdaptAttributeService.get();
     if (!e.isSprinting()) {
-      attributes.remove(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER);
       return;
     }
 
+    PlayerRef p = e.player();
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (!shouldSlide(e.isSprinting(), p.isSneaking(), level)) {
-        return;
+      if (shouldSlide(true, p.isSneaking(), level)) {
+        applyFriction(p, level);
       }
-
-      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, nativeSlideModifier(getSlidePercent(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL);
     });
   }
 
@@ -105,13 +113,15 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     }
 
     AdaptAttributeService.get().removeAll(p, getName());
+    Glide glide = glides.remove(p.uuid());
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
       if (level <= 0 || !p.isOnGround()) {
         return;
       }
 
-      Vec3 braked = applyHorizontalBrake(p.velocity(), getSneakBrakePercent());
+      Vec3 motion = glide == null ? p.velocity() : new Vec3(glide.stepX(), p.velocity().y(), glide.stepZ());
+      Vec3 braked = applyHorizontalBrake(motion, getSneakBrakePercent());
       if (braked != null) {
         p.setVelocity(braked);
       }
@@ -121,36 +131,51 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerMoveEvent e) {
     PlayerRef p = e.player();
-    if (p.hasAttribute(Attributes.FRICTION_MODIFIER)) {
-      return;
-    }
-
-    if (!p.isOnGround()) {
+    UUID id = p.uuid();
+    Glide previous = glides.get(id);
+    boolean skating = p.isSprinting() || preference(p, CONTROL) == Control.ARMED;
+    if (!skating && previous == null) {
       return;
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    if (!shouldSlide(p.isSprinting() || preference(p, CONTROL) == Control.ARMED, p.isSneaking(), level)) {
+    if (!shouldSlide(true, p.isSneaking(), level)) {
+      stop(p);
       return;
     }
 
     Loc to = e.to();
-    Vec3 velocity = applyFallbackHorizontalVelocity(
-        p.velocity(),
-        to.x() - e.from().x(),
-        to.z() - e.from().z(),
-        AdaptCore.platform().host().items().blockFriction(
-            to.world().blockAt(to.blockX(), (int) Math.floor(to.y() - 0.500001D), to.blockZ()).type()),
-        getSlidePercent(level));
-    if (velocity == null) {
+    double stepX = to.x() - e.from().x();
+    double stepZ = to.z() - e.from().z();
+    if (!skating && p.isOnGround() && (stepX * stepX) + (stepZ * stepZ) < REST_SPEED_SQUARED) {
+      stop(p);
       return;
     }
 
-    p.setVelocity(velocity);
+    glides.put(id, new Glide(stepX, stepZ, System.currentTimeMillis()));
+    if (p.hasAttribute(Attributes.FRICTION_MODIFIER)) {
+      return;
+    }
+
+    if (previous == null || !p.isOnGround() || !released(previous.stepX(), previous.stepZ(), stepX, stepZ)) {
+      return;
+    }
+
+    Vec3 velocity = glideVelocity(
+        p.velocity(),
+        stepX,
+        stepZ,
+        AdaptCore.platform().host().items().blockFriction(
+            to.world().blockAt(to.blockX(), (int) Math.floor(to.y() - 0.500001D), to.blockZ()).type()),
+        getSlidePercent(level));
+    if (velocity != null) {
+      p.setVelocity(velocity);
+    }
+  }
+
+  @Handle(priority = EventPriority.LOWEST)
+  public void on(PlayerQuitEvent e) {
+    glides.remove(e.player().uuid());
   }
 
   static double slidePercent(double base, double factor, double levelPercent) {
@@ -158,12 +183,19 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     return finitePercent(base + (normalizedLevel * factor));
   }
 
+  static boolean shouldSlide(boolean sprinting, boolean sneaking, int level) {
+    return sprinting && !sneaking && level > 0;
+  }
+
   static double nativeSlideModifier(double slidePercent) {
     return -finitePercent(slidePercent);
   }
 
-  static boolean shouldSlide(boolean sprinting, boolean sneaking, int level) {
-    return sprinting && !sneaking && level > 0;
+  /** Whether the step is short enough against the one before it to mean the player stopped pushing. */
+  static boolean released(double previousX, double previousZ, double stepX, double stepZ) {
+    double previousSquared = (previousX * previousX) + (previousZ * previousZ);
+    double stepSquared = (stepX * stepX) + (stepZ * stepZ);
+    return stepSquared > MIN_HORIZONTAL_SPEED_SQUARED && stepSquared < previousSquared * RELEASE_RATIO * RELEASE_RATIO;
   }
 
   static double modifiedSurfaceFriction(double blockSlipperiness, double slidePercent) {
@@ -171,34 +203,25 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return 0D;
     }
     double surfaceFriction = finitePercent(blockSlipperiness);
-    double cancelledFriction = finitePercent(slidePercent);
-    return surfaceFriction + ((1D - surfaceFriction) * cancelledFriction);
+    return surfaceFriction + ((1D - surfaceFriction) * finitePercent(slidePercent));
   }
 
-  static Vec3 applyFallbackHorizontalVelocity(Vec3 velocity, double movementX, double movementZ,
-      double blockSlipperiness, double slidePercent) {
-    if (velocity == null
-        || !Double.isFinite(velocity.x()) || !Double.isFinite(velocity.y()) || !Double.isFinite(velocity.z())
-        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)
+  /**
+   * The velocity a coasting player keeps from their last step with part of the surface's friction cancelled, or null
+   * when there is nothing to keep. It stands in for the friction attribute on versions without one, and is only sent
+   * while the player is not pushing, so it never fights their input.
+   */
+  static Vec3 glideVelocity(Vec3 velocity, double stepX, double stepZ, double blockSlipperiness, double slidePercent) {
+    if (velocity == null || !Double.isFinite(velocity.y())
+        || !Double.isFinite(stepX) || !Double.isFinite(stepZ)
         || !Double.isFinite(blockSlipperiness) || !Double.isFinite(slidePercent)
-        || slidePercent <= 0D) {
+        || slidePercent <= 0D
+        || (stepX * stepX) + (stepZ * stepZ) <= MIN_HORIZONTAL_SPEED_SQUARED) {
       return null;
     }
 
-    double movementSquared = (movementX * movementX) + (movementZ * movementZ);
-    if (movementSquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
-      return null;
-    }
     double retention = HORIZONTAL_AIR_DRAG * modifiedSurfaceFriction(blockSlipperiness, slidePercent);
-    double adjustedX = movementX * retention;
-    double adjustedZ = movementZ * retention;
-    double velocitySquared = (velocity.x() * velocity.x()) + (velocity.z() * velocity.z());
-    double adjustedSquared = (adjustedX * adjustedX) + (adjustedZ * adjustedZ);
-    if (!Double.isFinite(adjustedSquared) || adjustedSquared <= velocitySquared) {
-      return null;
-    }
-
-    return new Vec3(adjustedX, velocity.y(), adjustedZ);
+    return new Vec3(stepX * retention, velocity.y(), stepZ * retention);
   }
 
   static Vec3 applyHorizontalBrake(Vec3 velocity, double brakePercent) {
@@ -226,18 +249,28 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return;
     }
 
-    AdaptAttributeService attributes = AdaptAttributeService.get();
     int level = getActiveLevel(p);
-    if (!p.hasAttribute(Attributes.FRICTION_MODIFIER) || level <= 0) {
-      attributes.removeAll(p, getName());
-      return;
-    }
-
-    if (shouldSlide(p.isSprinting() || preference(p, CONTROL) == Control.ARMED, p.isSneaking(), level)) {
-      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, nativeSlideModifier(getSlidePercent(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL);
+    Glide glide = glides.get(p.uuid());
+    boolean skating = p.isSprinting() || preference(p, CONTROL) == Control.ARMED;
+    boolean coasting = glide != null && System.currentTimeMillis() - glide.at() <= REST_MS;
+    if (shouldSlide(skating || coasting, p.isSneaking(), level)) {
+      applyFriction(p, level);
     } else {
-      attributes.remove(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER);
+      stop(p);
     }
+  }
+
+  /** Lowers the player's ground friction where the game has the attribute; elsewhere the glide stands in for it. */
+  private void applyFriction(PlayerRef p, int level) {
+    if (p.hasAttribute(Attributes.FRICTION_MODIFIER)) {
+      AdaptAttributeService.get().apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER,
+          nativeSlideModifier(getSlidePercent(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL);
+    }
+  }
+
+  private void stop(PlayerRef p) {
+    glides.remove(p.uuid());
+    AdaptAttributeService.get().remove(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER);
   }
 
   private double getSlidePercent(int level) {
@@ -263,22 +296,26 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     return true;
   }
 
-  @ConfigDescription("Sprint to cancel a level-scaled percentage of friction on every ground surface; press sneak to brake horizontally.")
+  @ConfigDescription("Sprint to cancel a level-scaled percentage of friction on every ground surface until you stop; press sneak to brake horizontally.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base percentage of each ground surface's friction loss cancelled while sprinting before level scaling, from 0 to 1.", impact = "Higher values preserve more horizontal momentum on every ground material at every level.")
     double slidePercentBase = 0.15;
     @ConfigDoc(value = "Additional ground-friction percentage cancelled at max level, from 0 to 1 minus slidePercentBase.", impact = "Higher values make leveling add a stronger slide without exceeding complete friction cancellation.")
-    double slidePercentFactor = 0.35;
+    double slidePercentFactor = 0.8;
     @ConfigDoc(value = "Percentage of horizontal velocity removed immediately when sneak is pressed while grounded, from 0 to 1.", impact = "The default 1 stops horizontal movement completely; lower values leave some momentum after braking.")
     double sneakBrakePercent = 1D;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.45;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
       initialCost = 2;
     }
   }
 
   public enum Control { SPRINT, ARMED }
+
+  /** A skating player's last horizontal step and when it was seen. */
+  private record Glide(double stepX, double stepZ, long at) {
+  }
 }

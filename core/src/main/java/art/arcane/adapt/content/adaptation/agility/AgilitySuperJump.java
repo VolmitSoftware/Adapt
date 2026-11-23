@@ -248,10 +248,10 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     double maximumJumpHeight = 3.75D;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.55;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = SUPER_JUMP_LEVELS;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 

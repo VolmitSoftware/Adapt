@@ -640,9 +640,9 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     public int cooldown = 5000;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.40;
-      initialCost = 1;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

@@ -180,8 +180,8 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
   protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 3;
-      costFactor = 0.5;
-      initialCost = 8;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

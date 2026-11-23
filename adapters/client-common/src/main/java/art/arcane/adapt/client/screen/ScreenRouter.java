@@ -21,8 +21,8 @@ import java.util.Objects;
 
 /**
  * Opens the Adapt pages: the skills list, a skill and an adaptation. The pages form a path (skills, then a skill, then
- * one of its adaptations); going back opens the parent page and closes from the skills list. Each page's scroll
- * position is remembered for the session. Server routes and feedback arrive here on the client thread; feedback with no
+ * one of its adaptations); going back opens the parent page and closes from the skills list. The leaf each page
+ * was turned to is remembered for the session. Server routes and feedback arrive here on the client thread; feedback with no
  * Adapt page open goes to {@code fallback} (the HUD in game). A session end closes the open page.
  */
 public final class ScreenRouter implements RouteSink, FeedbackSink {
@@ -32,7 +32,7 @@ public final class ScreenRouter implements RouteSink, FeedbackSink {
     private final UiTheme theme;
     private final UiMotion motion;
     private final FeedbackSink fallback;
-    private final Map<Route, Integer> scrolls = new HashMap<>();
+    private final Map<Route, Integer> leaves = new HashMap<>();
     private CatalogIndex index;
 
     public ScreenRouter(UiHost host, ClientState state, ClientActions actions, UiTheme theme, UiMotion motion, FeedbackSink fallback) {
@@ -97,13 +97,13 @@ public final class ScreenRouter implements RouteSink, FeedbackSink {
         }
     }
 
-    /** Closes the open page and forgets scroll positions, for a session that ended. */
+    /** Closes the open page and forgets the leaves turned to, for a session that ended. */
     public void reset() {
         AdaptScreen current = current();
         if (current != null) {
             current.close();
         }
-        scrolls.clear();
+        leaves.clear();
     }
 
     /** The open Adapt page, or null when another screen (or none) is showing. */
@@ -142,12 +142,13 @@ public final class ScreenRouter implements RouteSink, FeedbackSink {
         };
     }
 
-    int scroll(Route route) {
-        return scrolls.getOrDefault(route, 0);
+    /** The leaf {@code route}'s page was last turned to, 0 at first. */
+    int leaf(Route route) {
+        return leaves.getOrDefault(route, 0);
     }
 
-    void remember(Route route, int scroll) {
-        scrolls.put(route, scroll);
+    void remember(Route route, int leaf) {
+        leaves.put(route, leaf);
     }
 
     /** An index of the current catalog, or null before the server sent one. */

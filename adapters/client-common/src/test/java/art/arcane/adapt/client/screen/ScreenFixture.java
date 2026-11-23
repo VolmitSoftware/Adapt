@@ -46,8 +46,13 @@ final class ScreenFixture {
     }
 
     ScreenFixture(int width, int height, double scale, CatalogView catalog, PlayerView player) {
+        this(width, height, scale, catalog, player, false);
+    }
+
+    /** {@code vanilla} measures text as the vanilla font does, for tests about what fits a page. */
+    ScreenFixture(int width, int height, double scale, CatalogView catalog, PlayerView player, boolean vanilla) {
         host = new FakeHost(width, height);
-        draw = new KitDraw(width, height, scale);
+        draw = vanilla ? KitDraw.vanilla(width, height, scale) : new KitDraw(width, height, scale);
         state.negotiated(ClientProtocol.VERSION, new ServerInfo("test", "26.3", ClientProtocol.SCREENS | ClientProtocol.PANEL));
         state.acceptCatalog(catalog);
         state.acceptPlayer(player);
@@ -69,7 +74,7 @@ final class ScreenFixture {
 
     /** Resizes the window or changes the GUI scale under the open page, as Minecraft does: the page is told and laid out again. */
     void resize(int width, int height, double scale) {
-        draw = new KitDraw(width, height, scale);
+        draw = draw.measuresVanilla() ? KitDraw.vanilla(width, height, scale) : new KitDraw(width, height, scale);
         ScreenHarness.attach(router.current(), host, host, width, height);
     }
 
@@ -80,11 +85,11 @@ final class ScreenFixture {
         }
     }
 
-    /** Scrolls {@code node} into view like a player would, then clicks its centre. */
+    /** Turns to the leaf holding {@code node} like a player would, then clicks its centre. */
     void click(UiNode node) {
         AdaptScreen screen = router.current();
         render();
-        screen.scroll().reveal(node.bounds());
+        screen.reveal(node);
         render();
         UiMouseEvent event = new UiMouseEvent(node.bounds().centerX(), node.bounds().centerY(), UiMouseButton.LEFT, UiModifiers.NONE);
         screen.mouseClicked(event);
@@ -96,6 +101,12 @@ final class ScreenFixture {
         boolean used = router.current().keyPressed(new UiKeyEvent(key, UiModifiers.NONE));
         render();
         return used;
+    }
+
+    /** Whether the node {@code id} is on the page and showing. */
+    boolean shows(String id) {
+        UiNode node = find(id);
+        return node != null && node.shown();
     }
 
     UiNode find(String id) {

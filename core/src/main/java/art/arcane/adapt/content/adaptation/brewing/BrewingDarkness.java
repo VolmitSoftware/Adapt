@@ -99,8 +99,9 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
   @ConfigDescription("Brew a Potion of Darkness from NightVision Potion and Black Concrete.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 3;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

@@ -609,9 +609,9 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
     int maxPets = 12;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.55;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

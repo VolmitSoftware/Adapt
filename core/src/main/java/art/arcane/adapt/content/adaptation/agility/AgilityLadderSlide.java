@@ -686,7 +686,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
 
     public Config() {
       baseCost = 1;
-      costFactor = 0.12D;
+      costFactor = 1;
       maxLevel = 1;
       initialCost = 1;
     }

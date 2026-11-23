@@ -353,10 +353,10 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     double growthXp = 14;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.55;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

@@ -159,8 +159,9 @@ public class CraftingSkulls extends SimpleAdaptation<CraftingSkulls.Config> {
   @ConfigDescription("Craft Mob Skulls using materials surrounding a Bone Block.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       permanent = true;
-      baseCost = 8;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
     }

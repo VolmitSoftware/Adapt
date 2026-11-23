@@ -244,10 +244,10 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     double skillXpOnSplit = 14;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.7;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

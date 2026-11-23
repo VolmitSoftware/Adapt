@@ -240,10 +240,10 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     double xpPerNegatedDamage = 3;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.7;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

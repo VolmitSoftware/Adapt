@@ -146,9 +146,9 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
     double xpPerRampedHit = 2;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.45;
-      initialCost = 6;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

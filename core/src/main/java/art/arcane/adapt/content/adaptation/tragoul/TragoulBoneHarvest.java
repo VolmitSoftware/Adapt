@@ -351,8 +351,9 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
     double xpPerGlobeSpawned = 8;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

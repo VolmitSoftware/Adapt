@@ -37,13 +37,13 @@ public final class BukkitFxHost implements FxHost {
 
   @Override
   public void particle(PlayerRef viewer, ParticleSpec particle, double x, double y, double z,
-                       int count, double spreadX, double spreadY, double spreadZ, double speed) {
+                       int count, double spreadX, double spreadY, double spreadZ, double speed, boolean force) {
     Player target = BukkitRefs.player(viewer);
     Particle type = BukkitParticles.particle(particle.type());
     if (target == null || type == null || !target.isOnline()) {
       return;
     }
-    target.spawnParticle(type, x, y, z, count, spreadX, spreadY, spreadZ, speed, BukkitParticles.data(type, particle.data()));
+    target.spawnParticle(type, x, y, z, count, spreadX, spreadY, spreadZ, speed, BukkitParticles.data(type, particle.data()), force);
   }
 
   @Override

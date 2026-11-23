@@ -181,9 +181,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
 
     public Config() {
       baseCost = 2;
-      costFactor = 0.225;
+      costFactor = 0.5;
       maxLevel = 7;
-      initialCost = 5;
+      initialCost = 1;
     }
   }
 

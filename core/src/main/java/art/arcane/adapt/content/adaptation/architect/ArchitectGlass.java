@@ -120,10 +120,10 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   protected static class Config extends AdaptationConfig {
     public Config() {
       permanent = true;
-      baseCost = 3;
-      costFactor = 5;
+      baseCost = 2;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 0;
+      initialCost = 2;
     }
   }
 

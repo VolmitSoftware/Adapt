@@ -90,7 +90,7 @@ public class AdaptConfig {
   @ConfigDoc(value = "Master xp added per skill level already reached when a skill levels up.", impact = "Clamped to a finite non-negative value. Increasing it back-loads master progression toward high skill levels.")
   private double playerXpPerSkillLevelUpLevelMultiplier = 44;
   @ConfigDoc(value = "Power granted per master level.", impact = "Clamped to a finite non-negative value. Lowering it shrinks how many adaptation levels a player can hold at once.")
-  private double powerPerLevel = 0.65;
+  private double powerPerLevel = 0.75;
   private boolean hardcoreResetOnPlayerDeath = false;
   private boolean hardcoreNoRefunds = false;
 
@@ -356,7 +356,7 @@ public class AdaptConfig {
     experienceMaxLevel = Math.max(1, experienceMaxLevel);
     playerXpPerSkillLevelUpBase = normalizeNonNegativeFinite(playerXpPerSkillLevelUpBase, 489D);
     playerXpPerSkillLevelUpLevelMultiplier = normalizeNonNegativeFinite(playerXpPerSkillLevelUpLevelMultiplier, 44D);
-    powerPerLevel = normalizeNonNegativeFinite(powerPerLevel, 0.65D);
+    powerPerLevel = normalizeNonNegativeFinite(powerPerLevel, 0.75D);
     xpCurve = xpCurve == null ? Curves.ADAPT_BALANCED : xpCurve;
     levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.175D);
     actionbarXpDurationMillis = normalizePopupDuration(actionbarXpDurationMillis);

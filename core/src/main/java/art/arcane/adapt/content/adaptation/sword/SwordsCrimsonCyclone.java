@@ -394,8 +394,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.76;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

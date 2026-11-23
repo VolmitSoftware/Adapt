@@ -141,10 +141,10 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     double maxDamagePerLevelMultiplier = 0.15;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.425;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 6;
+      initialCost = 3;
     }
   }
 

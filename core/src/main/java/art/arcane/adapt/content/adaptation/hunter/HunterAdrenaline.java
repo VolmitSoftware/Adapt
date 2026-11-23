@@ -135,8 +135,9 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     double damageFactor = 0.21;
 
     public Config() {
-      costFactor = 0.4;
-      initialCost = 8;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

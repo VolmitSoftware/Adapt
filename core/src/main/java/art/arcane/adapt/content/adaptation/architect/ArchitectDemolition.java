@@ -52,7 +52,6 @@ import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.math.M;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -341,7 +340,6 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     }
   }
 
-  @NoArgsConstructor
   @ConfigDescription("Blocks you recently placed break near-instantly and hand the placed item plus any stored contents straight back to you.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "How many seconds a placement counts as recent at level 0 progression.", impact = "Higher values let low-level players instabreak older placements.")
@@ -352,6 +350,12 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     int maxTrackedPerPlayer = 64;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Adaptation xp granted per demolished block.", impact = "Higher values speed up adaptation progression from demolition.")
     double xpPerDemolish = 1;
+
+    public Config() {
+      baseCost = 2;
+      initialCost = 1;
+      costFactor = 0.5;
+    }
   }
 
   public enum Materials { ALL, WOOD, STONE, GLASS }

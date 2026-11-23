@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.content.adaptation.taming.TamingAlphasCommand;
 import art.arcane.adapt.content.adaptation.taming.TamingBattleBond;
@@ -62,10 +63,13 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   private final Cooldowns xpCooldowns = cooldowns();
+  private final Map<String, Long> paidBreedingPairs = new ConcurrentHashMap<>();
 
   public SkillTaming() {
     super("taming", SkillPresentation.of(SkillMessages.TAMING_NAME, SkillMessages.TAMING_ICON, SkillMessages.TAMING_DESCRIPTION));
@@ -151,14 +155,14 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
             .build())
         .build());
     registerMilestone("challenge_taming_10", "taming.bred", 10, () -> getConfig().challengeTamingReward);
-    registerMilestone("challenge_taming_50", "taming.bred", 50, () -> getConfig().challengeTamingReward * 2);
-    registerMilestone("challenge_taming_500", "taming.bred", 500, () -> getConfig().challengeTamingReward * 5);
+    registerMilestone("challenge_taming_50", "taming.bred", 50, () -> getConfig().challengeTamingReward * 3);
+    registerMilestone("challenge_taming_500", "taming.bred", 500, () -> getConfig().challengeTamingReward * 8);
     registerMilestone("challenge_pet_dmg_500", "taming.pet.damage", 500, () -> getConfig().challengePetDmgReward);
-    registerMilestone("challenge_pet_dmg_5k", "taming.pet.damage", 5000, () -> getConfig().challengePetDmgReward * 5);
+    registerMilestone("challenge_pet_dmg_5k", "taming.pet.damage", 5000, () -> getConfig().challengePetDmgReward * 3);
     registerMilestone("challenge_tamed_10", "taming.tamed", 10, () -> getConfig().challengeTamedReward);
-    registerMilestone("challenge_tamed_100", "taming.tamed", 100, () -> getConfig().challengeTamedReward * 5);
+    registerMilestone("challenge_tamed_100", "taming.tamed", 100, () -> getConfig().challengeTamedReward * 3);
     registerMilestone("challenge_pet_kills_25", "taming.pet.kills", 25, () -> getConfig().challengePetKillsReward);
-    registerMilestone("challenge_pet_kills_250", "taming.pet.kills", 250, () -> getConfig().challengePetKillsReward * 5);
+    registerMilestone("challenge_pet_kills_250", "taming.pet.kills", 250, () -> getConfig().challengePetKillsReward * 3);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -169,9 +173,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
     shouldReturnForPlayer(p, e, () -> {
       addStat(p, "taming.bred", 1);
-      if (!isOnCooldown(p)) {
-        setCooldown(p);
-        xp(p, getConfig().tameXpBase);
+      long now = System.currentTimeMillis();
+      paidBreedingPairs.values().removeIf(paidAt -> now - paidAt >= getConfig().breedPairCooldownMs);
+      if (paidBreedingPairs.putIfAbsent(pairKey(e.mother().uuid(), e.father().uuid()), now) == null) {
+        xp(p, e.child().location(), getConfig().breedXp, "taming:breed");
       }
     });
   }
@@ -238,13 +243,25 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
       if (p != null) {
         shouldReturnForPlayer(p, () -> {
           addStat(p, "taming.pet.kills", 1);
-          xp(p, victim.location(), getConfig().petKillXP);
+          if (MobOrigin.paysKillReward(p, victim)) {
+            xp(p, victim.location(), petKillXp(getConfig().petKillXP, getConfig().petKillMaxHealthXpMultiplier,
+                victim.maxHealth()), "taming:pet-kill");
+          }
           fx(victim.location(), FxPriority.COMBAT)
               .burst(Particles.CRIT_MAGIC, 4, 0.25D)
               .sound(Sounds.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4F, 1.4F);
         });
       }
     }
+  }
+
+  static String pairKey(UUID first, UUID second) {
+    return first.compareTo(second) <= 0 ? first + ":" + second : second + ":" + first;
+  }
+
+  static double petKillXp(double baseXp, double perMaxHealth, double maxHealth) {
+    double healthBonus = Double.isFinite(maxHealth) && maxHealth > 0D ? Math.max(0D, perMaxHealth) * maxHealth : 0D;
+    return Math.max(0D, baseXp) + healthBonus;
   }
 
   private static PlayerRef onlineTamedOwner(EntityRef pet) {
@@ -274,8 +291,10 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&6";
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tame Xp Base for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double tameXpBase = 65;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for breeding two animals.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double breedXp = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds before the same two parents can pay breeding XP again.", impact = "Higher values reduce repeated breeding XP from one pair.")
+    long breedPairCooldownMs = 300000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Tame Damage XPMultiplier for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -284,6 +303,8 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     double tameSuccessXP = 150;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP awarded when a pet kills a mob.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double petKillXP = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra pet kill XP per point of the victim's maximum health.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double petKillMaxHealthXpMultiplier = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Taming Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeTamingReward = 500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Pet Damage Reward for the Taming skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

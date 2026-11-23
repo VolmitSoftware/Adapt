@@ -126,7 +126,7 @@ class FxEmitterTest {
       filtered.particle(Particles.FLAME, 1, 0, 0, 0, 0, 0);
       scheduler.verify(() -> Tasks.runEntity(same(excluded), any(Runnable.class)), never());
       if (ownerTask.get() != null) ownerTask.get().run();
-      verify(fx, times(expected)).particle(recipient, Particles.FLAME, 0D, 64D, 0D, 1, 0D, 0D, 0D, 0D);
+      verify(fx, times(expected)).particle(recipient, Particles.FLAME, 0D, 64D, 0D, 1, 0D, 0D, 0D, 0D, false);
     }
   }
 
@@ -204,8 +204,8 @@ class FxEmitterTest {
       ownerTask.get().run();
 
       verify(fx, times(2)).particle(player, new ParticleSpec(Particles.FLASH.type(), new ParticleData.Color(emitterColor)),
-          0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D);
-      verify(fx).particle(player, new ParticleSpec(Particles.DUST.type(), dust), 0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+          0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D, false);
+      verify(fx).particle(player, new ParticleSpec(Particles.DUST.type(), dust), 0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D, false);
     }
   }
 
@@ -241,7 +241,7 @@ class FxEmitterTest {
 
       ArgumentCaptor<ParticleSpec> spec = ArgumentCaptor.forClass(ParticleSpec.class);
       ArgumentCaptor<Double> ys = ArgumentCaptor.forClass(Double.class);
-      verify(fx, times(2)).particle(same(player), spec.capture(), eq(0.0D), ys.capture(), eq(0.0D), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D));
+      verify(fx, times(2)).particle(same(player), spec.capture(), eq(0.0D), ys.capture(), eq(0.0D), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D), eq(false));
 
       assertThat(spec.getAllValues().get(0).type()).isEqualTo(Particles.DUST.type());
       assertThat(ys.getAllValues().get(0)).isEqualTo(65.0D);
@@ -291,7 +291,7 @@ class FxEmitterTest {
       ArgumentCaptor<Double> xs = ArgumentCaptor.forClass(Double.class);
       ArgumentCaptor<Double> ys = ArgumentCaptor.forClass(Double.class);
       ArgumentCaptor<Double> zs = ArgumentCaptor.forClass(Double.class);
-      verify(fx, times(4)).particle(same(player), specs.capture(), xs.capture(), ys.capture(), zs.capture(), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D));
+      verify(fx, times(4)).particle(same(player), specs.capture(), xs.capture(), ys.capture(), zs.capture(), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D), eq(false));
       for (int arm = 0; arm < 4; arm++) {
         double angle = start + (arm * Math.PI / 2.0D);
         assertThat(specs.getAllValues().get(arm).type()).isEqualTo(Particles.DUST.type());

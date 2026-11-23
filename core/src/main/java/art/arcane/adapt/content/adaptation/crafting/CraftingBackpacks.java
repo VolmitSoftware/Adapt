@@ -1139,6 +1139,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     boolean denyNestedContainers = true;
 
     public Config() {
+      initialCost = 6;
       permanent = true;
       baseCost = 5;
       costFactor = 1;

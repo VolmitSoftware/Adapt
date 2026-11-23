@@ -441,8 +441,8 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
 
     public Config() {
       baseCost = 5;
-      costFactor = 1;
-      initialCost = 10;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

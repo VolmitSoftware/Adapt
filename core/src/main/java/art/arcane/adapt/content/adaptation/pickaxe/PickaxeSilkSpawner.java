@@ -174,10 +174,10 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
   @ConfigDescription("Spawners drop when broken with silk touch or while sneaking.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 6;
-      costFactor = 0.95;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 2;
-      initialCost = 4;
+      initialCost = 6;
     }
   }
 

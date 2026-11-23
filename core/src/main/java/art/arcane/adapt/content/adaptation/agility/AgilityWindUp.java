@@ -386,9 +386,9 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     double movementVelocityThreshold = 0.015;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.65;
-      initialCost = 8;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

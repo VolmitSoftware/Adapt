@@ -35,10 +35,12 @@ import art.arcane.adapt.content.skill.kinetics.KineticsAnvils;
 import art.arcane.adapt.content.skill.kinetics.KineticsKnockback;
 import art.arcane.adapt.content.skill.kinetics.KineticsLevitation;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
+import art.arcane.adapt.content.skill.kinetics.KineticsWorkstations;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -61,6 +63,9 @@ import art.arcane.adapt.platform.event.entity.EntityPotionEffectEvent;
 import art.arcane.adapt.platform.event.entity.EntityPushedByEntityAttackEvent;
 import art.arcane.adapt.platform.event.entity.EntityRemoveEvent;
 import art.arcane.adapt.platform.event.entity.PotionSplashEvent;
+import art.arcane.adapt.platform.event.inventory.InventoryAction;
+import art.arcane.adapt.platform.event.inventory.InventoryClickEvent;
+import art.arcane.adapt.platform.event.inventory.InventoryKind;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
@@ -88,6 +93,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
   private static final long SWEEP_INTERVAL_MS = 5000L;
   private static final int ANVIL_SHARE_CAP = 8;
   private static final int LEVITATION_TARGET_CAP = 8;
+  private static final int RECENT_LANDINGS = 3;
   private static final Id LEVITATION = Id.minecraft("levitation");
   private static final Id AIR = Id.minecraft("air");
   private static final Id FALLING_BLOCK = Id.minecraft("falling_block");
@@ -101,6 +107,8 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
   private final Cooldowns levitationCooldowns = cooldowns();
   private final Cooldowns anvilCooldowns = cooldowns();
   private final Cooldowns anvilShareCooldowns = cooldowns();
+  private final Cooldowns fallCooldowns = cooldowns();
+  private final Map<UUID, List<Loc>> recentLandings = playerState();
   private final Map<UUID, Long> lungeStamps = playerState();
   private final Map<UUID, KineticsMotion.MotionState> motionStates = playerState();
   private final Map<UUID, MotionRewardState> motionRewards = playerState();
@@ -280,6 +288,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
       Id below = feet.relative(BlockFace.DOWN).type();
       boolean mitigated = e.isCancelled() || e.finalDamage() < Math.max(0D, fallDistance - 3.0D);
       if (!mitigated && !KineticsMotion.isSoftLanding(feetMaterial) && !KineticsMotion.isSoftLanding(below)) {
+        rewardHardLanding(p, fallDistance, e.finalDamage());
         return;
       }
       double amount = KineticsMotion.breakFallXp(fallDistance, getConfig().breakFallXpPerBlock, getConfig().breakFallCap);
@@ -287,6 +296,28 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
         xp(p, p.location(), amount, "kinetics:break-fall");
       }
     });
+  }
+
+  private void rewardHardLanding(PlayerRef p, double fallDistance, double damage) {
+    if (damage <= 0D || !fallCooldowns.isReady(p.uuid(), getConfig().fallXpCooldownMs)) {
+      return;
+    }
+    Loc landing = p.location();
+    List<Loc> landings = recentLandings.computeIfAbsent(p.uuid(), ignored -> new ArrayList<>());
+    if (KineticsMotion.nearAnyLanding(landings, landing, getConfig().fallXpRepeatRadius)) {
+      return;
+    }
+    double amount = KineticsMotion.fallXp(fallDistance, getConfig().fallXpFreeBlocks, getConfig().fallXpPerBlock,
+        getConfig().fallXpCap);
+    if (amount <= 0D) {
+      return;
+    }
+    fallCooldowns.mark(p.uuid());
+    landings.add(landing);
+    if (landings.size() > RECENT_LANDINGS) {
+      landings.removeFirst();
+    }
+    xp(p, landing, amount, "kinetics:fall");
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -403,6 +434,38 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockBreakEvent e) {
     anvils.clearPlacement(e.block().location());
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(InventoryClickEvent e) {
+    InventoryKind kind = e.viewKind();
+    if (e.rawSlot() != 2 || (kind != InventoryKind.ANVIL && kind != InventoryKind.GRINDSTONE)
+        || !isItem(e.currentItem()) || e.action() == InventoryAction.NOTHING || e.action() == InventoryAction.CLONE_STACK) {
+      return;
+    }
+    PlayerRef p = e.player();
+    shouldReturnForPlayer(p, e, () -> {
+      InventoryRef menu = p.openMenuInventory();
+      if (menu == null) {
+        return;
+      }
+      if (kind == InventoryKind.ANVIL) {
+        int levelsBefore = p.level();
+        Tasks.runEntity(p, () -> shouldReturnForPlayer(p, () -> xp(p,
+            KineticsWorkstations.anvilXp(levelsBefore, p.level(), getConfig().anvilUseXpPerLevel), "kinetics:anvil-use")), 1);
+        return;
+      }
+      int removed = KineticsWorkstations.removedEnchantLevels(menu.item(0), menu.item(1), e.currentItem());
+      if (removed <= 0) {
+        return;
+      }
+      Tasks.runEntity(p, () -> shouldReturnForPlayer(p, () -> {
+        if (isItem(menu.item(0)) || isItem(menu.item(1))) {
+          return;
+        }
+        xp(p, KineticsWorkstations.grindstoneXp(removed, getConfig().grindstoneXpPerEnchantLevel), "kinetics:grindstone-use");
+      }), 1);
+    });
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -767,15 +830,15 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Smash Hit Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double smashHitXp = 12;
+    double smashHitXp = 24;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Plain Mace Hit Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double plainMaceHitXp = 3;
+    double plainMaceHitXp = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Spear Jab Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double spearJabXp = 6;
+    double spearJabXp = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Spear Charge Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double spearChargeXp = 12;
+    double spearChargeXp = 24;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Mounted Charge Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double mountedChargeXp = 14;
+    double mountedChargeXp = 28;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sweet Range Min for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double sweetRangeMin = 3.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sweet Range Max for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -788,16 +851,26 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     double breakFallXpPerBlock = 1.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Break Fall Cap for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double breakFallCap = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per block fallen past fallXpFreeBlocks when the fall hurts you.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double fallXpPerBlock = 1.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Blocks of a damaging fall that pay nothing.", impact = "Higher values require longer falls before they pay.")
+    double fallXpFreeBlocks = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Most XP one damaging fall can pay.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double fallXpCap = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between paid damaging falls.", impact = "Higher values reduce how often falls pay.")
+    long fallXpCooldownMs = 30000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "A damaging fall that lands within this many blocks of one of your last three paid landings pays nothing.", impact = "Higher values stop repeated drops from the same spot over a wider area.")
+    double fallXpRepeatRadius = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bounce Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double bounceXp = 4;
+    double bounceXp = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bounce Chain Bonus for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double bounceChainBonus = 2;
+    double bounceChainBonus = 4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bounce Chain Window Ms for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long bounceChainWindowMs = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bounce Cap for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double bounceCap = 20;
+    double bounceCap = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Launch Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double launchXp = 4;
+    double launchXp = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Launch Min Delta Y for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double launchMinDeltaY = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum delay in milliseconds between bounce or launch rewards.", impact = "Higher values reduce repeated motion rewards from rapid mechanisms.")
@@ -805,25 +878,25 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum horizontal travel in blocks between bounce or launch rewards.", impact = "Higher values require players to traverse farther before motion rewards rearm.")
     double motionRewardMinDistance = 1.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kb Dealt Base Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double kbDealtBaseXp = 3;
+    double kbDealtBaseXp = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kb Taken Base Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double kbTakenBaseXp = 1.5;
+    double kbTakenBaseXp = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kb Min Magnitude for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double kbMinMagnitude = 0.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kb Xp Cap for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double kbXpCap = 12;
+    double kbXpCap = 24;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Kb Cooldown Ms for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long kbCooldownMs = 750;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Self Knockback Factor for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double selfKnockbackFactor = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Levitation Receive Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double levitationReceiveXp = 5;
+    double levitationReceiveXp = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Levitation Apply Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double levitationApplyXp = 5;
+    double levitationApplyXp = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Levitation Pulse Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double levitationPulseXp = 0.8;
+    double levitationPulseXp = 1.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Levitation Xp Cap for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double levitationXpCap = 15;
+    double levitationXpCap = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Levitation Cooldown Ms for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long levitationCooldownMs = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Anvil Base Xp for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -850,5 +923,9 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     double anvilAdvancementMinFall = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Anvil Drop Reward for the Kinetics skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double anvilDropReward = 500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per experience level spent taking an anvil result.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double anvilUseXpPerLevel = 15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per enchantment level a grindstone removes, curses excluded.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double grindstoneXpPerEnchantLevel = 10;
   }
 }

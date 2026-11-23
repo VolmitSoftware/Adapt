@@ -174,8 +174,9 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
     long cooldownMillis = 5000L;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.9;
+      initialCost = 2;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 7;
       normalizeForPersistence();
     }

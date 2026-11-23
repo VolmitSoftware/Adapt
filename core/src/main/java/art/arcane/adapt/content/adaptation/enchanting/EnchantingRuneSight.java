@@ -145,10 +145,10 @@ public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Co
     long revealThrottleMs = 400;
 
     public Config() {
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

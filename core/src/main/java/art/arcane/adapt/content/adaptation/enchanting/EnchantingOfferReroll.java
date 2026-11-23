@@ -343,9 +343,10 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     double xpGainOnReroll = 15;
 
     public Config() {
-      costFactor = 0.7;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

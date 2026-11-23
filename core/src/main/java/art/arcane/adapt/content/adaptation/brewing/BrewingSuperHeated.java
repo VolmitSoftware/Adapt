@@ -258,8 +258,8 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.75;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

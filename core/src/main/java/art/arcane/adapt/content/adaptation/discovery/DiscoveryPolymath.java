@@ -153,10 +153,10 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
     double maxTotalBonus = 1.0;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.4;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 3;
     }
   }
 }

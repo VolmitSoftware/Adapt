@@ -198,8 +198,9 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
     double xpPerDurabilityRepaired = 2.0;
 
     public Config() {
-      costFactor = 0.6;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

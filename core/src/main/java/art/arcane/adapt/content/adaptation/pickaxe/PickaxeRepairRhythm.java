@@ -195,9 +195,9 @@ public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Co
     int restoreMax = 2;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 0.6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 

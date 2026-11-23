@@ -231,8 +231,8 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
     double terminalFallSpeed = 3.5;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.45;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
       initialCost = 2;
     }

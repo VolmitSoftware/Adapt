@@ -687,8 +687,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     double xpOnDecoy = 18;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

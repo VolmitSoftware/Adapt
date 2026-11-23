@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * One skill in the skills grid: icon, name in the skill's colour, level, the experience bar in the skill's colour and
- * its knowledge as an ink book and number when it has any: a closed book in muted ink, or an open one in the skill's
- * colour while that knowledge can buy an adaptation level now. A skill the player may not open shows locked. The
- * tooltip carries the exact numbers.
+ * One skill in the skills grid: icon, name in the skill's colour and level, and under them its knowledge as an ink
+ * book and number when it has any, then a small framed experience bar in the skill's colour. The book is closed in
+ * muted ink, or open in the skill's colour while that knowledge can buy an adaptation level now. A skill the player may
+ * not open shows locked. The tooltip carries the exact numbers.
  */
 final class SkillTile extends RowTile {
 
@@ -155,14 +155,12 @@ final class SkillTile extends RowTile {
         return learnable > 0 ? accent : theme.textMuted();
     }
 
-    @Override
-    int accent(UiTheme theme) {
-        return openable ? accent : theme.textMuted();
-    }
-
+    /** The experience to the next level as a small framed bar after the knowledge. */
     @Override
     void paintBar(UiDraw draw, UiTheme theme, int left, int top, int right) {
-        ProgressBar.slim(draw, theme, left, top, right, BAR_HEIGHT, openable ? progress() : 0.0F, accent);
+        if (openable) {
+            ProgressBar.framed(draw, theme, left, top, right, BAR_HEIGHT, progress(), accent);
+        }
     }
 
     @Override

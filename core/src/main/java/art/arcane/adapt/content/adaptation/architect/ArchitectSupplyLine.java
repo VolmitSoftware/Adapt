@@ -383,8 +383,9 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     double xpPerRefill = 2;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.5;
+      initialCost = 2;
+      baseCost = 3;
+      costFactor = 0.6;
     }
   }
 }

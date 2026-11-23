@@ -146,10 +146,10 @@ public class SwordsHamstring extends SimpleAdaptation<SwordsHamstring.Config> {
     double xpPerHamstring = 5;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.6;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

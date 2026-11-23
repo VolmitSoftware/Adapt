@@ -138,8 +138,8 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
 
     public Config() {
       baseCost = 5;
-      costFactor = 0.7;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

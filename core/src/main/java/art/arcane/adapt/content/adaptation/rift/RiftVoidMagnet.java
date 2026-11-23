@@ -480,8 +480,9 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     double xpPerMovedItem = 0.7;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

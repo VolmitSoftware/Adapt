@@ -239,10 +239,10 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
     int startingSlots = 1;
 
     public Config() {
-      baseCost = 1;
+      baseCost = 5;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 6;
     }
   }
 }

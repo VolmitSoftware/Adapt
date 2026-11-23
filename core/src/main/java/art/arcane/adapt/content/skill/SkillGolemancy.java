@@ -296,18 +296,18 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
             .build())
         .build());
     registerMilestone("challenge_golemancy_built_10", "golemancy.built", 10, () -> getConfig().challengeBuiltReward);
-    registerMilestone("challenge_golemancy_built_100", "golemancy.built", 100, () -> getConfig().challengeBuiltReward * 5);
+    registerMilestone("challenge_golemancy_built_100", "golemancy.built", 100, () -> getConfig().challengeBuiltReward * 3);
     registerMilestone("challenge_golemancy_bound_5", "golemancy.bound", 5, () -> getConfig().challengeBoundReward);
-    registerMilestone("challenge_golemancy_bound_25", "golemancy.bound", 25, () -> getConfig().challengeBoundReward * 5);
+    registerMilestone("challenge_golemancy_bound_25", "golemancy.bound", 25, () -> getConfig().challengeBoundReward * 3);
     registerMilestone("challenge_golemancy_golem_kills_50", "golemancy.golem.kills", 50, () -> getConfig().challengeGolemKillsReward);
-    registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
-    registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
+    registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 3);
+    registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 8);
     registerMilestone("challenge_golemancy_tasks_1000", "golemancy.tasks", 1000, () -> getConfig().challengeTasksReward);
-    registerMilestone("challenge_golemancy_tasks_25000", "golemancy.tasks", 25000, () -> getConfig().challengeTasksReward * 5);
+    registerMilestone("challenge_golemancy_tasks_25000", "golemancy.tasks", 25000, () -> getConfig().challengeTasksReward * 3);
     registerMilestone("challenge_golemancy_items_moved_10000", "golemancy.items.moved", 10000, () -> getConfig().challengeItemsMovedReward);
-    registerMilestone("challenge_golemancy_items_moved_250000", "golemancy.items.moved", 250000, () -> getConfig().challengeItemsMovedReward * 5);
+    registerMilestone("challenge_golemancy_items_moved_250000", "golemancy.items.moved", 250000, () -> getConfig().challengeItemsMovedReward * 3);
     registerMilestone("challenge_golemancy_infusions_10", "golemancy.infusions", 10, () -> getConfig().challengeInfusionsReward);
-    registerMilestone("challenge_golemancy_infusions_100", "golemancy.infusions", 100, () -> getConfig().challengeInfusionsReward * 5);
+    registerMilestone("challenge_golemancy_infusions_100", "golemancy.infusions", 100, () -> getConfig().challengeInfusionsReward * 3);
     GolemancyRuntime.setBindListener(this::golemBound);
     GolemancyRuntime.setPlinthHost(new GolemancyPlinthHost());
     GolemWorkXp.setSink(this::golemWorked);
@@ -993,7 +993,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Milliseconds before one player earns witness XP again from the same golem.", impact = "Higher values limit witness XP from a single busy golem.")
     long witnessCooldownMillis = 6000;
     @ConfigDoc(value = "Most witness XP one player can earn in any rolling 60 minutes.", impact = "Higher values allow more passive witness XP per hour.")
-    double witnessHourlyCap = 600;
+    double witnessHourlyCap = 1200;
     @ConfigDoc(value = "Base skill XP value of a golem kill before the victim's health is added.", impact = "Higher values raise the value of every golem kill.")
     double golemKillXpBase = 15;
     @ConfigDoc(value = "Skill XP added to a golem kill value per point of the victim's maximum health.", impact = "Higher values make tougher victims worth more.")
@@ -1029,7 +1029,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Milliseconds before one player earns bind XP again for the same golem type. Bindings during the cooldown still count toward golemancy.bound.", impact = "Higher values stop build, bind and release loops from paying bind XP quickly.")
     long bindXpCooldownMillis = 20000;
     @ConfigDoc(value = "Most build and bind XP one player can earn together in any rolling 60 minutes. First-bind challenges are not counted. Values below 0 count as 0.", impact = "Higher values let build, bind and release loops pay more per hour; 0 pays no build or bind XP.")
-    double bindXpHourlyCap = 600;
+    double bindXpHourlyCap = 1200;
     @ConfigDoc(value = "Skill XP paid with each first-bind challenge, the first time you bind a frost, copper or iron golem.", impact = "Higher values make each first bind worth more; each challenge pays once per player.")
     double firstBindXp = 600;
     @ConfigDoc(value = "Skill XP per point of damage your bound golems deal to hostile mobs, before the body multiplier. Damage beyond the victim's remaining health does not count.", impact = "Higher values pay more for golem combat.")
@@ -1127,7 +1127,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     @ConfigDoc(value = "Seconds a trapped golem rests without looking for jobs or containers after giving up stuckReleasesBeforePause in a row, clamped to 0-600.", impact = "Higher values save server time on trapped golems; 0 never rests them.")
     int stuckPauseSeconds = 15;
     @ConfigDoc(value = "Most work XP one player can earn from their golems' finished jobs in any rolling 60 minutes. Values below 0 count as 0.", impact = "Higher values allow more passive XP from golem labor per hour; 0 pays no work XP.")
-    double workXpHourlyCap = 1200;
+    double workXpHourlyCap = 2400;
     @ConfigDoc(value = "Blocks from a working golem within which its owner earns work XP for its finished jobs. Owners farther away or in another world earn none. Values below 0 count as 0.", impact = "Higher values let owners earn work XP while farther from their golems.")
     double workXpOwnerRadius = 96;
     @ConfigDoc(value = "Skill XP paid by the golem job challenges.", impact = "Higher values pay more; the 25,000 jobs challenge pays five times this value.")

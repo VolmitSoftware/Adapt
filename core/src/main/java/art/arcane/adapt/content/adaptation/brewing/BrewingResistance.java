@@ -109,8 +109,9 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
   @ConfigDescription("Brew a Potion of Resistance from Awkward Potion and Iron.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       permanent = true;
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
     }

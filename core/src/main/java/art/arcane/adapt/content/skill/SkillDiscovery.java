@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -48,6 +49,7 @@ import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -56,11 +58,14 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityPickupItemEvent;
 import art.arcane.adapt.platform.event.inventory.CraftItemEvent;
+import art.arcane.adapt.platform.event.player.PlayerAdvancementDoneEvent;
 import art.arcane.adapt.platform.event.player.PlayerChangedWorldEvent;
 import art.arcane.adapt.platform.event.player.PlayerExpChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
+import art.arcane.adapt.platform.event.player.PlayerLootGenerateEvent;
+import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
@@ -123,7 +128,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             .build())
         .build());
     registerMilestone("challenge_discover_items_50", "discovery.items", 50, 500);
-    registerMilestone("challenge_discover_items_250", "discovery.items", 250, 2500);
+    registerMilestone("challenge_discover_items_250", "discovery.items", 250, 1500);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("grass_block")).key("challenge_discover_blocks_50")
@@ -139,7 +144,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             .build())
         .build());
     registerMilestone("challenge_discover_blocks_50", "discovery.blocks", 50, 500);
-    registerMilestone("challenge_discover_blocks_250", "discovery.blocks", 250, 2500);
+    registerMilestone("challenge_discover_blocks_250", "discovery.blocks", 250, 1500);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("egg")).key("challenge_discover_mobs_25")
@@ -155,7 +160,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             .build())
         .build());
     registerMilestone("challenge_discover_mobs_25", "discovery.mobs", 25, 500);
-    registerMilestone("challenge_discover_mobs_75", "discovery.mobs", 75, 2500);
+    registerMilestone("challenge_discover_mobs_75", "discovery.mobs", 75, 1500);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("map")).key("challenge_discover_biomes_10")
@@ -171,7 +176,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             .build())
         .build());
     registerMilestone("challenge_discover_biomes_10", "discovery.biomes", 10, 500);
-    registerMilestone("challenge_discover_biomes_40", "discovery.biomes", 40, 2500);
+    registerMilestone("challenge_discover_biomes_40", "discovery.biomes", 40, 1500);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("apple")).key("challenge_discover_foods_10")
@@ -187,7 +192,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
             .build())
         .build());
     registerMilestone("challenge_discover_foods_10", "discovery.foods", 10, 500);
-    registerMilestone("challenge_discover_foods_30", "discovery.foods", 30, 2500);
+    registerMilestone("challenge_discover_foods_30", "discovery.foods", 30, 1500);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -248,6 +253,49 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     });
   }
 
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(PlayerMoveEvent e) {
+    Loc from = e.from();
+    Loc to = e.to();
+    if (to == null || to.world() == null || !from.sameWorld(to)
+        || (from.chunkX() == to.chunkX() && from.chunkZ() == to.chunkZ())) {
+      return;
+    }
+    PlayerRef p = e.player();
+    shouldReturnForPlayer(p, e, () -> {
+      if (getPlayer(p).getData().getSeenChunks().isNewDiscovery(to.world().uid(), to.chunkX(), to.chunkZ())) {
+        xpSilent(p, getConfig().discoverChunkXP, "discovery:chunk");
+      }
+    });
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(PlayerLootGenerateEvent e) {
+    shouldReturnForPlayer(e.player(), () -> xp(e.player(), e.location(), getConfig().discoverLootContainerXP,
+        "discovery:loot-container"));
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(PlayerAdvancementDoneEvent e) {
+    double amount = advancementXp(e.advancement(), e.frame(), getConfig().advancementTaskXP,
+        getConfig().advancementGoalXP, getConfig().advancementChallengeXP);
+    if (amount > 0D) {
+      shouldReturnForPlayer(e.player(), () -> xp(e.player(), amount, "discovery:advancement"));
+    }
+  }
+
+  static double advancementXp(Id advancement, AdvancementFrame frame, double taskXp, double goalXp, double challengeXp) {
+    if (frame == null || Id.ADAPT.equals(advancement.namespace()) || advancement.path().startsWith("recipes/")) {
+      return 0D;
+    }
+    double amount = switch (frame) {
+      case TASK -> taskXp;
+      case GOAL -> goalXp;
+      case CHALLENGE -> challengeXp;
+    };
+    return Math.max(0D, amount);
+  }
+
   private void scheduleSeeWorld(PlayerRef p) {
     try {
       Tasks.runEntity(p, () -> seeWorld(p, p.world()), 15);
@@ -273,12 +321,17 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   private void celebrateDiscovery(Loc loc, double value) {
+    boolean force = getConfig().forceDiscoveryParticles;
+    FxPriority priority = force ? FxPriority.GAMEPLAY : FxPriority.AMBIENT;
     if (value >= DISCOVERY_RARE_VALUE) {
       timeline(loc)
           .duration(8)
-          .priority(FxPriority.AMBIENT)
+          .priority(priority)
           .cullRadius(20)
           .frame((f, tick, progress) -> {
+            if (force) {
+              f.forced();
+            }
             f.dustHelix(0.5D, 1.6D, 6, progress * Math.PI * 2.0D, 0.9F);
             if (tick == 0) {
               f.chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.0F, Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.3F, 1.0F);
@@ -289,8 +342,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
           })
           .start();
     } else {
-      fx(loc, FxPriority.AMBIENT)
-          .particle(Particles.END_ROD, 3, 0, 0, 0, 0.1, 0.02);
+      FxEmitter emitter = fx(loc, priority);
+      if (force) {
+        emitter.forced();
+      }
+      emitter.particle(Particles.END_ROD, 3, 0, 0, 0, 0.1, 0.02);
     }
   }
 
@@ -540,6 +596,8 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     String skillColor = "&b";
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Particles for the Discovery skill.", impact = "True enables this behavior and false disables it.")
     boolean showParticles = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Sends new-discovery particles forced, so they show on reduced particle settings and are never thinned under load.", impact = "True forces them and false treats them as ambient effects.")
+    boolean forceDiscoveryParticles = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover Biome XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double discoverBiomeXP = 15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover Potion XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -552,6 +610,16 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     double discoverPlayerXP = 125;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover Environment XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double discoverEnvironmentXP = 750;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for completing a non-Adapt task advancement.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double advancementTaskXP = 150;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP the first time you enter each chunk.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double discoverChunkXP = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for opening a naturally generated loot container before anyone else.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double discoverLootContainerXP = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for completing a non-Adapt goal advancement.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double advancementGoalXP = 400;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for completing a non-Adapt challenge advancement.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double advancementChallengeXP = 1000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover World XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double discoverWorldXP = 750;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Discover Enchant Max XP for the Discovery skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

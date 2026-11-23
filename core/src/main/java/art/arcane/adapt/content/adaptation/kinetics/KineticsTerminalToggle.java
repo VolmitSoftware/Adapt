@@ -215,10 +215,10 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
     int minAirTicks = 6;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.45;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 2;
+      initialCost = 1;
     }
   }
 

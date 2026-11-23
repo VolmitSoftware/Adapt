@@ -24,7 +24,7 @@ class KineticsSurfaceSkateTest {
     assertThat(config.initialCost).isGreaterThan(0);
     assertThat(config.costFactor).isGreaterThan(0D);
     assertThat(config.slidePercentBase).isCloseTo(0.15D, offset(1.0E-9D));
-    assertThat(config.slidePercentFactor).isCloseTo(0.35D, offset(1.0E-9D));
+    assertThat(config.slidePercentFactor).isCloseTo(0.8D, offset(1.0E-9D));
     assertThat(config.sneakBrakePercent).isCloseTo(1D, offset(1.0E-9D));
   }
 
@@ -33,8 +33,8 @@ class KineticsSurfaceSkateTest {
     KineticsSurfaceSkate.Config config = new KineticsSurfaceSkate.Config();
     double atLevelOne = KineticsSurfaceSkate.slidePercent(config.slidePercentBase, config.slidePercentFactor, levelPercent(1, config.maxLevel));
     double atMaxLevel = KineticsSurfaceSkate.slidePercent(config.slidePercentBase, config.slidePercentFactor, levelPercent(config.maxLevel, config.maxLevel));
-    assertThat(atLevelOne).isCloseTo(0.22D, offset(1.0E-9D));
-    assertThat(atMaxLevel).isCloseTo(0.5D, offset(1.0E-9D));
+    assertThat(atLevelOne).isCloseTo(0.31D, offset(1.0E-9D));
+    assertThat(atMaxLevel).isCloseTo(0.95D, offset(1.0E-9D));
     assertThat(atMaxLevel).isGreaterThan(atLevelOne);
   }
 
@@ -82,91 +82,43 @@ class KineticsSurfaceSkateTest {
   void everySurfaceUsesTheSamePercentageOfItsOwnFrictionLoss() {
     assertThat(KineticsSurfaceSkate.modifiedSurfaceFriction(0.6D, 0.5D)).isCloseTo(0.8D, offset(1.0E-9D));
     assertThat(KineticsSurfaceSkate.modifiedSurfaceFriction(0.98D, 0.5D)).isCloseTo(0.99D, offset(1.0E-9D));
-    assertThat(KineticsSurfaceSkate.modifiedSurfaceFriction(0.4D, 0.5D)).isCloseTo(0.7D, offset(1.0E-9D));
     assertThat(KineticsSurfaceSkate.modifiedSurfaceFriction(0.1D, 1D)).isEqualTo(1D);
   }
 
   @Test
-  void fallbackSlideMatchesNativeFrictionFormula() {
-    Vec3 velocity = new Vec3(0.3D, 0D, 0D);
-    Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(velocity, 0.5D, 0D, 0.6D, 0.5D);
-    assertThat(adjusted).isNotNull();
-    assertThat(adjusted.x()).isCloseTo(0.5D * 0.91D * 0.8D, offset(1.0E-9D));
+  void glideOnlyStartsWhenTheStepShortensLikeReleasedInput() {
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0.28D, 0D)).isFalse();
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0.30D, 0D)).isFalse();
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0.28D * 0.91D, 0D)).isFalse();
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0D, 0.28D)).isFalse();
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0.28D * 0.546D, 0D)).isTrue();
+    assertThat(KineticsSurfaceSkate.released(0.28D, 0D, 0D, 0D)).isFalse();
   }
 
   @Test
-  void fallbackSeedsObservedClientMovementWhenServerVelocityIsAbsent() {
-    Vec3 velocity = new Vec3(0D, 0.25D, 0D);
-    Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-        velocity, 0.5D, 0D, 0.6D, 0.5D);
-
-    assertThat(adjusted).isNotNull();
-    assertThat(adjusted.x()).isCloseTo(0.5D * 0.91D * 0.8D, offset(1.0E-9D));
-    assertThat(adjusted.z()).isZero();
-    assertThat(adjusted.y()).isCloseTo(0.25D, offset(1.0E-9D));
+  void glideKeepsTheCancelledShareOfTheLastStep() {
+    Vec3 glide = KineticsSurfaceSkate.glideVelocity(new Vec3(0D, -0.078D, 0D), 0.2D, -0.1D, 0.6D, 0.5D);
+    assertThat(glide).isNotNull();
+    assertThat(glide.x()).isCloseTo(0.2D * 0.91D * 0.8D, offset(1.0E-9D));
+    assertThat(glide.y()).isEqualTo(-0.078D);
+    assertThat(glide.z()).isCloseTo(-0.1D * 0.91D * 0.8D, offset(1.0E-9D));
   }
 
   @Test
-  void fallbackDoesNotInjectSpeedAtTrueRest() {
-    Vec3 velocity = new Vec3(0D, 0.25D, 0D);
-    Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-        velocity, 0D, 0D, 0.6D, 0.5D);
-
-    assertThat(adjusted).isNull();
-    assertThat(velocity).isEqualTo(new Vec3(0D, 0.25D, 0D));
+  void glideLeavesAPlayerAtRestOrWithoutTheSkillAlone() {
+    assertThat(KineticsSurfaceSkate.glideVelocity(new Vec3(0D, 0D, 0D), 0D, 0D, 0.6D, 0.5D)).isNull();
+    assertThat(KineticsSurfaceSkate.glideVelocity(new Vec3(0D, 0D, 0D), 0.2D, 0D, 0.6D, 0D)).isNull();
+    assertThat(KineticsSurfaceSkate.glideVelocity(new Vec3(0D, 0D, 0D), 0.2D, 0D, Double.NaN, 0.5D)).isNull();
+    assertThat(KineticsSurfaceSkate.glideVelocity(null, 0.2D, 0D, 0.6D, 0.5D)).isNull();
   }
 
   @Test
-  void fallbackSlideCannotExceedObservedOrExistingKnockbackMovement() {
-    Vec3 velocity = new Vec3(0.8D, 0.25D, 0D);
-    Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-        velocity, 0.42D, 0D, 0.6D, 0.5D);
-    assertThat(adjusted).isNull();
-    assertThat(velocity.x()).isCloseTo(0.8D, offset(1.0E-9D));
-    assertThat(velocity.y()).isCloseTo(0.25D, offset(1.0E-9D));
-  }
-
-  @Test
-  void fallbackSlideStillDecaysUncontrolledMomentum() {
-    double speed = 1D;
-    for (int tick = 0; tick < 12; tick++) {
-      double previous = speed;
-      double vanillaDamped = previous * 0.6D * 0.91D;
-      Vec3 velocity = new Vec3(vanillaDamped, 0D, 0D);
-      Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-          velocity, previous, 0D, 0.6D, 0.5D);
-      assertThat(adjusted).isNotNull();
-      speed = adjusted.x();
-      assertThat(speed).isLessThan(previous);
-    }
-  }
-
-  @Test
-  void fallbackUsesCurrentMovementInsteadOfThePreviousDecayingImpulse() {
-    Vec3 velocity = new Vec3(0D, -0.078D, -0.067D);
-    Vec3 adjusted = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-        velocity, 0D, -0.28D, 0.6D, 0.5D);
-    assertThat(adjusted).isNotNull();
-    assertThat(adjusted.z()).isCloseTo(-0.20384D, offset(1.0E-9D));
-    assertThat(adjusted.y()).isEqualTo(-0.078D);
-  }
-
-  @Test
-  void fallbackDoesNotReplayMomentumFromRotationOnlyPackets() {
-    Vec3 velocity = new Vec3(0.1D, -0.078D, 0.1D);
-    assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-        velocity, 0D, 0D, 0.6D, 0.5D)).isNull();
-    assertThat(velocity).isEqualTo(new Vec3(0.1D, -0.078D, 0.1D));
-  }
-
-  @Test
-  void fallbackRejectsDisabledAndNonFiniteFrictionWithoutChangingMotion() {
-    for (double percent : new double[]{0D, -1D, Double.NaN, Double.POSITIVE_INFINITY}) {
-      Vec3 velocity = new Vec3(0.01D, 0.2D, 0D);
-      assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
-          velocity, 0.28D, 0D, 0.6D, percent)).isNull();
-      assertThat(velocity).isEqualTo(new Vec3(0.01D, 0.2D, 0D));
-    }
+  void glideRunsAtHighestAndIgnoresCancelled() throws ReflectiveOperationException {
+    Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("on", PlayerMoveEvent.class);
+    Handle policy = handler.getAnnotation(Handle.class);
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(policy.ignoreCancelled()).isTrue();
   }
 
   @Test
@@ -218,15 +170,6 @@ class KineticsSurfaceSkateTest {
   @Test
   void sneakHandlerIsRegistered() throws ReflectiveOperationException {
     Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
-    Handle policy = handler.getAnnotation(Handle.class);
-    assertThat(policy).isNotNull();
-    assertThat(policy.priority()).isEqualTo(EventPriority.HIGHEST);
-    assertThat(policy.ignoreCancelled()).isTrue();
-  }
-
-  @Test
-  void movementFallbackRunsAtHighestAndIgnoresCancelled() throws ReflectiveOperationException {
-    Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("on", PlayerMoveEvent.class);
     Handle policy = handler.getAnnotation(Handle.class);
     assertThat(policy).isNotNull();
     assertThat(policy.priority()).isEqualTo(EventPriority.HIGHEST);

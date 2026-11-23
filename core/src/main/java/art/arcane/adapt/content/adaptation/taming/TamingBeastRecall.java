@@ -404,8 +404,9 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     int maxAffectedPerActivation = 1;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

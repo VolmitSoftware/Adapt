@@ -233,10 +233,10 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
     double xpOnSteal = 15;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.4;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 

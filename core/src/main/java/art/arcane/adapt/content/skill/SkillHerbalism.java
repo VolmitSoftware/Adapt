@@ -112,7 +112,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         .build());
     registerMilestone("challenge_eat_100", "food.eaten", 100, () -> getConfig().challengeEat100Reward);
     registerMilestone("challenge_eat_1000", "food.eaten", 1000, () -> getConfig().challengeEat1kReward);
-    registerMilestone("challenge_eat_10000", "food.eaten", 10000, () -> getConfig().challengeEat1kReward * 5);
+    registerMilestone("challenge_eat_10000", "food.eaten", 10000, () -> getConfig().challengeEat1kReward * 2);
 
 
     registerAdvancement(AdaptAdvancement.builder()
@@ -261,17 +261,15 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   }
 
   private void handleEvent(PlayerRef p, BlockRef block, String stat) {
-    handleHerbCooldown(p, () -> {
-      BlockStateRef state = block.state();
-      if (state.age() >= 0) {
-        double integrity = XpProvenance.harvestXpMultiplier(block) * XpNovelty.fieldCycleMultiplier(p, block);
-        if (integrity <= 0D) {
-          return;
-        }
-        xp(p, block.center(), getConfig().harvestPerAgeXP * state.age() * integrity);
-        addStat(p, stat, 1);
+    BlockStateRef state = block.state();
+    if (state.age() >= 0) {
+      double integrity = XpProvenance.harvestXpMultiplier(block) * XpNovelty.fieldCycleMultiplier(p, block);
+      if (integrity <= 0D) {
+        return;
       }
-    });
+      xp(p, block.center(), getConfig().harvestPerAgeXP * state.age() * integrity, "herbalism:harvest");
+      addStat(p, stat, 1);
+    }
   }
 
   private void handleComposterInteraction(BlockRef b, PlayerRef p) {
@@ -311,7 +309,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   public static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     public boolean enabled = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between Herbalism XP awards for eating.", impact = "Higher values reduce how often eating pays; harvesting crops has no cooldown.")
     public double harvestXpCooldown = 3500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Food Consume XP for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double foodConsumeXP = 35;
@@ -332,25 +330,25 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat100Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengeEat100Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Eat1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengeEat1kReward = 6250;
+    public double challengeEat1kReward = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Harvest100Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengeHarvest100Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Harvest1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengeHarvest1kReward = 6250;
+    public double challengeHarvest1kReward = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Plant100 Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengePlant100Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Plant1k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengePlant1kReward = 6250;
+    public double challengePlant1kReward = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Plant5k Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengePlant5kReward = 25000;
+    public double challengePlant5kReward = 8000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Compost50 Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengeCompost50Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Compost500 Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengeCompost500Reward = 6250;
+    public double challengeCompost500Reward = 4000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Shear50 Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double challengeShear50Reward = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Shear250 Reward for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public double challengeShear250Reward = 6250;
+    public double challengeShear250Reward = 4000;
     String skillColor = "&a";
   }
 }

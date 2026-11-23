@@ -170,9 +170,9 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
     int maximumXpPerTrophy = 24;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
       normalizeForPersistence();
     }
 

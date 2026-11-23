@@ -367,10 +367,10 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
     public Config() {
       permanent = true;
-      baseCost = 7;
+      baseCost = 5;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 7;
+      initialCost = 6;
     }
   }
 

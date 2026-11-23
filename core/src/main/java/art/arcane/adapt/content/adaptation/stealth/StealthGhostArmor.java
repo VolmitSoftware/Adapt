@@ -360,9 +360,9 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.335;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 1;
+      initialCost = 2;
     }
   }
 }

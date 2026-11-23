@@ -117,8 +117,8 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
     public Config() {
       enabled = true;
       permanent = true;
-      baseCost = 5;
-      costFactor = 0;
+      baseCost = 1;
+      costFactor = 1;
       maxLevel = 1;
       initialCost = 1;
     }

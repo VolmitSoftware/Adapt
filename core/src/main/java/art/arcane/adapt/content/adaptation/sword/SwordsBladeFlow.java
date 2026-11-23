@@ -188,10 +188,10 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     double xpPerStack = 3;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.62;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

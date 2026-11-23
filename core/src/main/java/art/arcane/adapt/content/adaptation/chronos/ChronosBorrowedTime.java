@@ -212,6 +212,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     queue.add(chunk);
     persistDeferredDamage(player, queue);
     addStat(player, "chronos.borrowed-time.damage-deferred", deferredAmount);
+    xpSilent(player, deferredAmount * getConfig().xpPerDeferredDamage, "chronos:borrowed-time");
     emitDeferralFeedback(player);
   }
 
@@ -440,11 +441,13 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     double minimumDeferDamage = 1.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Number of one second pulses the deferred damage is paid back over.", impact = "Higher values spread payback thinner over a longer window.")
     int paybackPulses = 10;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chronos XP granted per point of damage deferred.", impact = "Higher values make every deferred hit teach more Chronos; 0 disables the reward.")
+    double xpPerDeferredDamage = 3;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.42;
-      initialCost = 5;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

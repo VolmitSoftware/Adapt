@@ -109,8 +109,8 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .build())
         .build());
     registerMilestone("challenge_block_1k", "blocked.hits", 1000, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_5k", "blocked.hits", 5000, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_50k", "blocked.hits", 50000, () -> getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_5k", "blocked.hits", 5000, () -> getConfig().challengeBlock1kReward * 3);
+    registerMilestone("challenge_block_50k", "blocked.hits", 50000, () -> getConfig().challengeBlock1kReward * 8);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("iron_chestplate")).key("challenge_block_dmg_1k")
@@ -126,7 +126,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .build())
         .build());
     registerMilestone("challenge_block_dmg_1k", "blocked.damage", 1000, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_dmg_10k", "blocked.damage", 10000, () -> getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_dmg_10k", "blocked.damage", 10000, () -> getConfig().challengeBlock1kReward * 3);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("arrow")).key("challenge_block_proj_100")
@@ -142,7 +142,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .build())
         .build());
     registerMilestone("challenge_block_proj_100", "blocked.projectiles", 100, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_proj_1k", "blocked.projectiles", 1000, () -> getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_proj_1k", "blocked.projectiles", 1000, () -> getConfig().challengeBlock1kReward * 3);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("iron_sword")).key("challenge_block_melee_500")
@@ -158,7 +158,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .build())
         .build());
     registerMilestone("challenge_block_melee_500", "blocked.melee", 500, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_melee_5k", "blocked.melee", 5000, () -> getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_melee_5k", "blocked.melee", 5000, () -> getConfig().challengeBlock1kReward * 3);
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("diamond_chestplate")).key("challenge_block_heavy_50")
@@ -174,7 +174,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
             .build())
         .build());
     registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, () -> getConfig().challengeBlock1kReward);
-    registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, () -> getConfig().challengeBlock5kReward);
+    registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, () -> getConfig().challengeBlock1kReward * 3);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseShieldXp);
   }
 
@@ -216,7 +216,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
       }
 
       recentBlocks.put(p.uuid(), System.currentTimeMillis());
-      xp(p, getConfig().xpOnBlockedAttack, "blocking:blocked-hit");
+      xp(p, blockedXp(getConfig().blockedDamageXpMultiplier, getConfig().blockedAttackMinXp, damage), "blocking:blocked-hit");
       blockFlash(p, heavy);
     });
   }
@@ -263,6 +263,13 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   }
 
 
+  static double blockedXp(double perDamage, double minimum, double blockedDamage) {
+    if (!Double.isFinite(blockedDamage) || blockedDamage <= 0D) {
+      return 0D;
+    }
+    return Math.max(Math.max(0D, minimum), Math.max(0D, perDamage) * blockedDamage);
+  }
+
   @Override
   public boolean isEnabled() {
     return getConfig().enabled;
@@ -273,12 +280,12 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&8";
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp On Blocked Attack for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double xpOnBlockedAttack = 25;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP per point of damage your shield blocks.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double blockedDamageXpMultiplier = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Least XP a credited blocked hit pays.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double blockedAttackMinXp = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Block1k Reward for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeBlock1kReward = 500;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Block5k Reward for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double challengeBlock5kReward = 2000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Passive Xp For Using Shield for the Blocking skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

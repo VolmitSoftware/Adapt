@@ -149,7 +149,9 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     double xpPerUse = 2;
 
     public Config() {
-      costFactor = 0.5;
+      initialCost = 1;
+      baseCost = 1;
+      costFactor = 1;
       maxLevel = STONECUTTER_LEVELS;
     }
   }

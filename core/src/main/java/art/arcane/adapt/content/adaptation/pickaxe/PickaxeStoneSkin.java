@@ -141,10 +141,10 @@ public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> 
     int maxAmplifier = 3;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.55;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

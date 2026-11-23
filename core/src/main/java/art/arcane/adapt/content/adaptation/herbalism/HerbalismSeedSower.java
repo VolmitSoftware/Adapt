@@ -399,9 +399,9 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     double xpPerCrop = 1.45;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.675;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

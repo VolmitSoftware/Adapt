@@ -267,8 +267,9 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
     double xpPerSave = 40;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

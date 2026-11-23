@@ -542,9 +542,10 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     long xpPulseCooldownMillis = 3000;
 
     public Config() {
-      costFactor = 0.7;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

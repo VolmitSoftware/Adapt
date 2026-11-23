@@ -209,9 +209,10 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     double skillXpOnProc = 8.0;
 
     public Config() {
-      costFactor = 0.78;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

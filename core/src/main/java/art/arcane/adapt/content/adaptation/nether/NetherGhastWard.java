@@ -216,9 +216,10 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
     double xpPerMitigatedDamage = 4.2;
 
     public Config() {
-      costFactor = 0.73;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

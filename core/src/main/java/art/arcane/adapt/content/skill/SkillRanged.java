@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.adaptation.ranged.RangedArrowRecovery;
 import art.arcane.adapt.content.adaptation.ranged.RangedFetchShot;
 import art.arcane.adapt.content.adaptation.ranged.RangedFloaters;
@@ -108,8 +109,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
             .build())
         .build());
     registerMilestone("challenge_ranged_100", "ranged.shotsfired", 100, () -> getConfig().challengeRangedReward);
-    registerMilestone("challenge_ranged_1k", "ranged.shotsfired", 1000, () -> getConfig().challengeRangedReward * 2);
-    registerMilestone("challenge_ranged_10k", "ranged.shotsfired", 10000, () -> getConfig().challengeRangedReward * 5);
+    registerMilestone("challenge_ranged_1k", "ranged.shotsfired", 1000, () -> getConfig().challengeRangedReward * 3);
+    registerMilestone("challenge_ranged_10k", "ranged.shotsfired", 10000, () -> getConfig().challengeRangedReward * 8);
 
     // Chain 2 - Ranged Damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -255,6 +256,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
       ItemRef hand = p.inventory().mainHand();
       if (hand.type().equals(BOW) || hand.type().equals(CROSSBOW)) {
         addStat(p, "ranged.kills", 1);
+        if (checkValidEntity(e.entity()) && MobOrigin.paysKillReward(p, e.entity())) {
+          xp(p, e.entity().location(), getConfig().killXp, "ranged:kill");
+        }
       }
     });
   }
@@ -276,6 +280,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     String skillColor = "&2";
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Shoot XP for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double shootXP = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for a kill made with a bow or crossbow in hand.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double killXp = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hit Damage XPMultiplier for the Ranged skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

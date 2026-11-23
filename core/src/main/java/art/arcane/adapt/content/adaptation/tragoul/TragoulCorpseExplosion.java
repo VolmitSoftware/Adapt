@@ -490,8 +490,9 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     double xpPerMobHit = 6;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

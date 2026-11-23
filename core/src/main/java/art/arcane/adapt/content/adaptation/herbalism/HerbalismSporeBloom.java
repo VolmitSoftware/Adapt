@@ -630,8 +630,9 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     double xpPerMushroomPlaced = 1.4;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

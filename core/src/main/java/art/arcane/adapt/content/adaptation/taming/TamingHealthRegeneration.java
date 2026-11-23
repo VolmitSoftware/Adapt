@@ -299,10 +299,10 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
     double regenBase = 1;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.4;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 8;
+      initialCost = 1;
     }
   }
 

@@ -406,10 +406,10 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     double armorBonus = 1.0;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.4;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 

@@ -193,8 +193,9 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
     double xpPerStride = 3.5;
 
     public Config() {
-      costFactor = 0.75;
-      initialCost = 4;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

@@ -249,9 +249,10 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     int hungerCost = 2;
 
     public Config() {
-      costFactor = 0.7;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

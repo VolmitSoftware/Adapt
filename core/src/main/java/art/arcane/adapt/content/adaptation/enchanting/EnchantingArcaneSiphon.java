@@ -219,10 +219,10 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     double bonusXpPerEnchant = 12;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.6;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

@@ -561,8 +561,8 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> implemen
     double xpOnEscape = 40;
 
     public Config() {
-      baseCost = 8;
-      costFactor = 0.4;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 4;
       initialCost = 6;
     }

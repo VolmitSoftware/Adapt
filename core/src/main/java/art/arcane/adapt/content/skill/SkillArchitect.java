@@ -60,7 +60,6 @@ import lombok.NoArgsConstructor;
 import java.util.Locale;
 
 public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
-  private final Cooldowns placeCooldown = cooldowns();
   private final Cooldowns highBuildPing = cooldowns();
 
   public SkillArchitect() {
@@ -193,18 +192,14 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
           }
         }
 
-        handleBlockCooldown(p, () -> {
-          try {
-            double integrity = XpProvenance.placeXpMultiplier(block);
-            if (integrity <= 0) {
-              return;
-            }
-            double adjacency = XpNovelty.adjacencyBonusMultiplier(p, block);
-            xp(p, block.location().add(0.5, 0.5, 0.5), blockXP(block, getConfig().xpBase + v) * integrity * adjacency);
-          } catch (Exception ignored) {
-            AdaptLog.verbose("Failed to give XP to " + p.name() + " for placing " + block.type().path().toUpperCase(Locale.ROOT));
-          }
-        });
+        try {
+          double integrity = XpProvenance.placeXpMultiplier(block);
+          double adjacency = XpNovelty.adjacencyBonusMultiplier(p, block);
+          xp(p, block.location().add(0.5, 0.5, 0.5), blockXP(block, getConfig().xpBase + v) * integrity * adjacency,
+              "architect:place");
+        } catch (Exception ignored) {
+          AdaptLog.verbose("Failed to give XP to " + p.name() + " for placing " + block.type().path().toUpperCase(Locale.ROOT));
+        }
       }
     });
   }
@@ -222,14 +217,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     });
   }
 
-  private void handleBlockCooldown(PlayerRef p, Runnable action) {
-    if (!placeCooldown.isReady(p.uuid(), getConfig().cooldownDelay)) {
-      return;
-    }
-    placeCooldown.mark(p.uuid());
-    action.run();
-  }
-
 
   @Override
   public boolean isEnabled() {
@@ -245,8 +232,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     double challengePlace1kReward = 1750;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Value Multiplier for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpValueMultiplier = 1.5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    long cooldownDelay = 1000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Base for the Architect skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpBase = 3;
   }

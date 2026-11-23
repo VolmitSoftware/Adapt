@@ -174,11 +174,25 @@ public class PlayerSkillLine {
       lastXP = xp;
   }
 
+  public static long knowledgeForLevelUp(int levelLeft) {
+    int reached = levelLeft + 1;
+    if (reached <= 1) {
+      return 0L;
+    }
+    if (reached <= 5) {
+      return 5L;
+    }
+    if (reached <= 15) {
+      return 1L;
+    }
+    return reached <= 30 ? 2L : 3L;
+  }
+
   private void updateLevel(AdaptPlayer p, String line, PlayerData data, int level) {
     if (lastLevel < level) {
       long kb = getKnowledge();
       for (int i = lastLevel; i < level; i++) {
-        giveKnowledge((i / 13) + 1);
+        giveKnowledge(knowledgeForLevelUp(i));
         p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
       }
 

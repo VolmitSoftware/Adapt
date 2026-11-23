@@ -414,8 +414,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   @ConfigDescription("Deconstruct blocks and items into salvageable base components using shears.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 9;
-      costFactor = 1.0;
+      baseCost = 8;
+      costFactor = 1;
       initialCost = 8;
       maxLevel = 1;
     }

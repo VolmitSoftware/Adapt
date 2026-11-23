@@ -766,10 +766,10 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     double xpOnTeleport = 14;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.95;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 7;
+      initialCost = 3;
     }
   }
 

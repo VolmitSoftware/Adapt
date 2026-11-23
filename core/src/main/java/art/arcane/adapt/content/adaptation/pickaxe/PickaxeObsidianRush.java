@@ -188,10 +188,10 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
     int durationTicks = 120;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.55;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

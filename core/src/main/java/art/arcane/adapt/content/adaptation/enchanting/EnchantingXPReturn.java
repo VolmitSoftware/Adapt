@@ -133,8 +133,9 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     long cooldownMillis = 30000L;
 
     public Config() {
+      initialCost = 1;
       baseCost = 1;
-      costFactor = 0.9;
+      costFactor = 0.5;
       maxLevel = 7;
       normalizeForPersistence();
     }

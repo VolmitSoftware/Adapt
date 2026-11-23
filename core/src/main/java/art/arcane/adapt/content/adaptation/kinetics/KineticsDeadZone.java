@@ -205,10 +205,10 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
     long cooldownMs = 3000;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.6;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

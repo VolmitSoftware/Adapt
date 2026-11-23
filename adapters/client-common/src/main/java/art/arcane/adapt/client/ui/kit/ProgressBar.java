@@ -13,8 +13,6 @@ import java.util.Objects;
 public class ProgressBar extends UiNode {
     private static final long EASE_MILLIS = 250L;
     private static final int HEIGHT = 6;
-    /** The space between two {@link #pips}. */
-    public static final int PIP_GAP = 2;
 
     private float progress;
     private float shownFrom;
@@ -87,45 +85,22 @@ public class ProgressBar extends UiNode {
     }
 
     /**
-     * A bar without a frame for tight places, such as the XP line on a skill tile: a hairline from {@code left} to
-     * {@code right} along the bottom of {@code height} units from {@code top}, an ink tick at each end and the fill
-     * at full height, so filled and empty differ in thickness as well as colour.
+     * A small bar that reads as a bar, not a rule: an ink frame with soft corners round a paper track, filled from the
+     * left to {@code progress} in {@code color}, {@code height} units tall from {@code top}.
      */
-    public static void slim(UiDraw draw, UiTheme theme, int left, int top, int right, int height, float progress, int color) {
+    public static void framed(UiDraw draw, UiTheme theme, int left, int top, int right, int height, float progress, int color) {
         int bottom = top + height;
-        int ink = theme.textMuted();
-        draw.fill(left, bottom - 1, right, bottom, rail(theme));
-        int filled = filled(right - left, progress);
+        UiTome.softEdge(draw, left, top, right - left, height, theme.textMuted());
+        draw.fill(left + 1, top + 1, right - 1, bottom - 1, UiEase.fade(theme.textMuted(), 0.25F));
+        int filled = filled(right - left - 2, progress);
         if (filled > 0) {
-            draw.fill(left, top, left + filled, bottom, UiContrast.darkenFor(color, theme.backdrop(), UiContrast.GRAPHIC));
+            draw.fill(left + 1, top + 1, left + 1 + filled, bottom - 1, UiContrast.darkenFor(color, theme.backdrop(), UiContrast.GRAPHIC));
         }
-        draw.fill(left, top, left + 1, bottom, ink);
-        draw.fill(right - 1, top, right, bottom, ink);
     }
 
-    /** The hairline of a {@link #slim} bar where nothing is filled. */
+    /** The hairline of a track where nothing is filled, such as between two level pips. */
     public static int rail(UiTheme theme) {
         return UiEase.fade(theme.textMuted(), 0.8F);
-    }
-
-    /**
-     * {@code count} level pips {@code pip} wide and {@link #PIP_GAP} apart from {@code left}: each of the first
-     * {@code filled} solid in {@code color}, the pip at index {@code open} (or none when negative) an empty outline in
-     * the same colour, and the rest a hairline along the bottom, so the three differ in shape as well as colour.
-     */
-    public static void pips(UiDraw draw, UiTheme theme, int left, int top, int pip, int height, int count, int filled, int open, int color) {
-        int bottom = top + height;
-        int fill = UiContrast.darkenFor(color, theme.backdrop(), UiContrast.GRAPHIC);
-        for (int index = 0; index < count; index++) {
-            int x = left + index * (pip + PIP_GAP);
-            if (index < filled) {
-                UiTome.soft(draw, x, top, x + pip, bottom, fill);
-            } else if (index == open) {
-                UiTome.softEdge(draw, x, top, pip, height, fill);
-            } else {
-                draw.fill(x, bottom - 1, x + pip, bottom, rail(theme));
-            }
-        }
     }
 
     @Override

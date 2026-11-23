@@ -446,6 +446,9 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     double formationArmorRange = 8.0;
 
     public Config() {
+      costFactor = 0.5;
+      initialCost = 1;
+      baseCost = 2;
       requires = new ArrayList<>(List.of("golem-animus-binding:1"));
     }
   }

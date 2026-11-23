@@ -298,10 +298,10 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     int refreshIntervalMillis = 3000;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 2;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 2;
     }
   }
 }

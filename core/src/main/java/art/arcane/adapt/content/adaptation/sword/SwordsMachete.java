@@ -193,9 +193,10 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     double toolDamageInverseLevelFactor = 5;
 
     public Config() {
-      costFactor = 0.225;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 7;
+      initialCost = 1;
     }
   }
 }

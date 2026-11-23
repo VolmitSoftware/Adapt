@@ -133,7 +133,7 @@ class SkillGolemancySettingsTest {
     SkillGolemancy.Config config = new SkillGolemancy.Config();
 
     assertThat(SkillGolemancy.workSettings(config)).isEqualTo(GolemWorkSettings.defaults());
-    assertThat(config.workXpHourlyCap).isEqualTo(1200D);
+    assertThat(config.workXpHourlyCap).isEqualTo(2400D);
     assertThat(config.workXpOwnerRadius).isEqualTo(96D);
     assertThat(config.challengeTasksReward).isEqualTo(500D);
     assertThat(config.challengeItemsMovedReward).isEqualTo(500D);

@@ -323,8 +323,9 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
   @ConfigDescription("Swim faster with dolphin-like grace.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       baseCost = 3;
-      costFactor = 0.525;
+      costFactor = 0.6;
       maxLevel = 7;
     }
   }

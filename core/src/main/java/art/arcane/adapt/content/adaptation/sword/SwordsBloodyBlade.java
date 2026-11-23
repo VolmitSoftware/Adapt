@@ -243,10 +243,10 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     public long effectDuration = 1000;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.325;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 7;
-      initialCost = 7;
+      initialCost = 2;
     }
 
   }

@@ -317,8 +317,8 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.75;
-      initialCost = 5;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

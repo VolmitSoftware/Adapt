@@ -2336,10 +2336,10 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     double xpPerHit = 4D;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.6D;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 5;
-      initialCost = 8;
+      initialCost = 6;
     }
   }
 }

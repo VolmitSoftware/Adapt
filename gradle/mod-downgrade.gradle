@@ -7,6 +7,33 @@ Provider<Directory> devLibs = layout.buildDirectory.dir('devlibs')
 
 jvmdg.downgradeTo = JavaVersion.toVersion(javaVersion)
 
+// JvmDowngrader's worker pool sometimes reports a TimeoutException on a busy machine although nothing timed out;
+// the same task succeeds when run again, so its actions are repeated instead of failing the build.
+ext.retryDowngradeTimeouts = { Jar task ->
+    List<Action<? super Task>> actions = new ArrayList<Action<? super Task>>(task.actions)
+    Action<Task> retrying = { Task running ->
+        int attempt = 1
+        while (true) {
+            try {
+                actions.each { Action<? super Task> action -> action.execute(running) }
+                return
+            } catch (Exception failure) {
+                boolean timedOut = false
+                for (Throwable cause = failure; cause != null && !timedOut; cause = cause.cause) {
+                    timedOut = cause instanceof java.util.concurrent.TimeoutException
+                }
+                if (!timedOut || attempt == 3) {
+                    throw failure
+                }
+                attempt++
+                running.logger.warn("${running.path} hit a JvmDowngrader timeout, running it again (attempt ${attempt} of 3)")
+                ((Jar) running).archiveFile.get().asFile.delete()
+            }
+        }
+    } as Action<Task>
+    task.actions = [retrying]
+}
+
 TaskProvider<Jar> shadowJarTask = tasks.named('shadowJar', Jar)
 shadowJarTask.configure {
     destinationDirectory.set(devLibs)
@@ -24,6 +51,8 @@ downgradedJar.configure {
     shadePath.set('art/arcane/adapt/shadow/jvmdg/')
     archiveFileName.set((String) distributionName)
 }
+tasks.named('downgradeJar', Jar).configure { Jar task -> retryDowngradeTimeouts(task) }
+downgradedJar.configure { Jar task -> retryDowngradeTimeouts(task) }
 tasks.named('assemble').configure { dependsOn(downgradedJar) }
 ext.packagedJar = downgradedJar
 ext.distributionJar = downgradedJar.flatMap { Jar task -> task.archiveFile }

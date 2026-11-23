@@ -130,10 +130,10 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
   @ConfigDescription("Open an enderchest by left-clicking it in your hand.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 0;
-      costFactor = 0.0;
+      baseCost = 2;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 10;
+      initialCost = 2;
     }
   }
 

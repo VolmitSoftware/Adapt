@@ -168,11 +168,11 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
       if (!cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
         return;
       }
-      cooldowns.mark(p.uuid());
       double creditedDamage = CombatXp.credit(getPlayer(p).getData().getCombatXp(), getName(), p, e);
       if (creditedDamage <= 0D) {
         return;
       }
+      cooldowns.mark(p.uuid());
       addStat(p, "excavation.damage", creditedDamage);
       xp(a.getPlayer(), e.entity().location(), getConfig().axeDamageXPMultiplier * creditedDamage, "excavation:combat");
     }
@@ -199,12 +199,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     if (blockType.isMinecraft() && LOOSE_GROUND.contains(blockType.path())) {
       addStat(p, "excavation.gravel", 1);
     }
-    if (!cooldowns.isReady(p.uuid(), getConfig().cooldownDelay)) {
-      return;
-    }
-    cooldowns.mark(p.uuid());
     double v = getValue(blockType);
-    xp(p, e.block().center(), blockXP(e.block(), v));
+    xp(p, e.block().center(), blockXP(e.block(), v), "excavation:dig");
   }
 
   @Override
@@ -237,7 +233,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     double challengeExcavationReward = 1200;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Value XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double valueXPMultiplier = 0.6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between Excavation combat XP awards.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")
     long cooldownDelay = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double axeDamageXPMultiplier = 4.0;

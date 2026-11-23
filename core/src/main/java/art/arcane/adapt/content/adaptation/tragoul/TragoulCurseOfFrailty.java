@@ -290,8 +290,9 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
     double xpPerCurse = 5;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

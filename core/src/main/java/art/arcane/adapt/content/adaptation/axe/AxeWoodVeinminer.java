@@ -272,9 +272,9 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     int baseRange = 3;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.95;
-      initialCost = 4;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

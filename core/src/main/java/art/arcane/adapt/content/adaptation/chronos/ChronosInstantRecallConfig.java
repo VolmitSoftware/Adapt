@@ -99,7 +99,8 @@ public class ChronosInstantRecallConfig extends AdaptationConfig {
   double xpRepeatPenaltyMultiplier = 0.2;
 
   public ChronosInstantRecallConfig() {
-    baseCost = 3;
+    costFactor = 0.6;
+    baseCost = 5;
     initialCost = 3;
   }
 }

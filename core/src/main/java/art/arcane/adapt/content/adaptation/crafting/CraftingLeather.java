@@ -109,8 +109,9 @@ public class CraftingLeather extends SimpleAdaptation<CraftingLeather.Config> {
   @ConfigDescription("Craft Leather from Rotten Flesh on a campfire.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 3;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

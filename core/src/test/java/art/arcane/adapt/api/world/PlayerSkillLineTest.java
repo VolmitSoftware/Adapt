@@ -47,6 +47,29 @@ class PlayerSkillLineTest extends AdaptTestBase {
     }
 
     @Test
+    @DisplayName("knowledge per level reached: none at 1, 5 for 2-5, 1 for 6-15, 2 for 16-30, 3 beyond")
+    void knowledgePerLevelFollowsTheTieredSchedule() {
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(0)).isZero();
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(1)).isEqualTo(5L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(4)).isEqualTo(5L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(5)).isEqualTo(1L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(14)).isEqualTo(1L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(15)).isEqualTo(2L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(29)).isEqualTo(2L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(30)).isEqualTo(3L);
+        long totalAtThree = 0L;
+        long totalAtSix = 0L;
+        for (int level = 0; level < 6; level++) {
+            totalAtSix += PlayerSkillLine.knowledgeForLevelUp(level);
+            if (level < 3) {
+                totalAtThree += PlayerSkillLine.knowledgeForLevelUp(level);
+            }
+        }
+        assertThat(totalAtThree).isEqualTo(10L);
+        assertThat(totalAtSix).isEqualTo(21L);
+    }
+
+    @Test
     @DisplayName("spending more knowledge than available fails and leaves the balance intact")
     void overspendingKnowledgeFails() {
         PlayerSkillLine line = new PlayerSkillLine();

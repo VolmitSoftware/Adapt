@@ -207,8 +207,8 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
     double xpPerSave = 120;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.85;
+      baseCost = 7;
+      costFactor = 0.7;
       initialCost = 6;
     }
   }

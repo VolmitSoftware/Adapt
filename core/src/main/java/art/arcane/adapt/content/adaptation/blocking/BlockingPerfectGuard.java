@@ -244,8 +244,9 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
     double xpOnNegate = 14;
 
     public Config() {
-      costFactor = 0.78;
-      initialCost = 5;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

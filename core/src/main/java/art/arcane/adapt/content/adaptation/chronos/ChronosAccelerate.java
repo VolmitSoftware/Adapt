@@ -377,9 +377,9 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     double xpPerAcceleratedBlock = 1.2;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.4;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

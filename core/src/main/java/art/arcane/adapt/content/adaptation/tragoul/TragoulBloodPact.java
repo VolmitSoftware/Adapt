@@ -312,8 +312,9 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     double xpPerProc = 24;
 
     public Config() {
-      costFactor = 0.62;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

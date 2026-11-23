@@ -230,6 +230,9 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
         .result("golemancy:node/collection", 1);
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 2;
+      baseCost = 3;
       requires = new ArrayList<>(List.of("golem-node-weaving:1"));
     }
   }

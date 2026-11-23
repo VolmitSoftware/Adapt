@@ -166,9 +166,10 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
     int durationTicks = 60;
 
     public Config() {
+      baseCost = 2;
       costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

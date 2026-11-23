@@ -616,9 +616,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   @ConfigDescription("Throw a crafted web snare to trap targets in cobwebs.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 5;
-      costFactor = 0.9;
-      initialCost = 1;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

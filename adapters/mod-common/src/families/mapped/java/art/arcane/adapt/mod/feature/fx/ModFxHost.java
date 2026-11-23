@@ -51,7 +51,7 @@ public final class ModFxHost implements FxHost {
 
     @Override
     public void particle(PlayerRef viewer, ParticleSpec particle, double x, double y, double z,
-                         int count, double spreadX, double spreadY, double spreadZ, double speed) {
+                         int count, double spreadX, double spreadY, double spreadZ, double speed, boolean force) {
         ServerPlayer player = ModRefs.player(viewer);
         if (player == null || player.hasDisconnected()) {
             return;
@@ -60,7 +60,7 @@ public final class ModFxHost implements FxHost {
         if (options == null) {
             return;
         }
-        player.connection.send(new ClientboundLevelParticlesPacket(options, false, x, y, z,
+        player.connection.send(new ClientboundLevelParticlesPacket(options, force, x, y, z,
                 (float) spreadX, (float) spreadY, (float) spreadZ, (float) speed, count));
     }
 

@@ -108,9 +108,10 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
   @ConfigDescription("Prevents Endermen from becoming aggressive when you carry Enderpearls.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 2;
       permanent = true;
-      baseCost = 8;
-      costFactor = 0;
+      baseCost = 2;
+      costFactor = 1;
       maxLevel = 1;
     }
   }

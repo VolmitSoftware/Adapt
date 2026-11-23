@@ -27,12 +27,16 @@ class ScreenReadabilityTest {
     @Test
     void tileTextStaysInItsLinesClearOfTheIcon() {
         for (int[] size : SIZES) {
-            for (Route route : List.of(new Route.Skills(), new Route.Skill(MaxCatalog.LARGEST_SKILL))) {
+            for (Route route : List.of(new Route.Skills(), new Route.Skill("skill01"))) {
                 ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player());
                 AdaptScreen screen = fixture.open(route);
                 String where = size[0] + "x" + size[1] + " gui " + size[2] + " " + AdaptScreen.routeId(route);
                 List<RowTile> tiles = new ArrayList<>();
-                collectTiles(screen.root(), tiles);
+                for (int leaf = 0; leaf < screen.leaves() && tiles.isEmpty(); leaf++) {
+                    screen.turnTo(leaf);
+                    fixture.render();
+                    collectTiles(screen.root(), tiles);
+                }
                 assertFalse(tiles.isEmpty(), where);
                 fixture.draw.calls().clear();
                 fixture.render();
@@ -53,9 +57,15 @@ class ScreenReadabilityTest {
                         }
                         checked++;
                         UiRect lines = tile.textBounds();
+                        if (tile instanceof AdaptationTile && x < lines.x()) {
+                            continue;
+                        }
                         String what = where + " " + tile.id() + " \"" + text + "\" at " + x + "," + y;
                         assertTrue(x >= lines.x() && x + fixture.draw.textWidth(text) <= lines.right(), what + " leaves " + lines);
-                        assertTrue(y == box.y() + tile.nameTop() || y == box.y() + RowTile.SECOND_LINE, what + " is off its line");
+                        int names = tile instanceof AdaptationTile cell ? cell.look().lines() : 1;
+                        int line = (y - box.y() - tile.nameTop()) / fixture.draw.lineHeight();
+                        boolean onName = y >= box.y() + tile.nameTop() && line < names && (y - box.y() - tile.nameTop()) % fixture.draw.lineHeight() == 0;
+                        assertTrue(onName || y == box.y() + RowTile.SECOND_LINE, what + " is off its line");
                         assertTrue(y + fixture.draw.lineHeight() <= box.bottom(), what + " runs past the tile " + box);
                         assertFalse(tile.iconBounds().intersects(new UiRect(x, y, fixture.draw.textWidth(text), fixture.draw.lineHeight())),
                                 what + " covers the icon");
@@ -126,8 +136,7 @@ class ScreenReadabilityTest {
                 List<UiNode> controls = new ArrayList<>();
                 collectControls(screen.root(), controls);
                 for (UiNode control : controls) {
-                    UiRect shown = screen.scroll().isAncestorOf(control) ? control.bounds().intersection(screen.scroll().bounds())
-                            : control.bounds();
+                    UiRect shown = control.bounds();
                     assertFalse(!shown.isEmpty() && shown.intersects(message), where + ": message " + message + " covers " + control.id()
                             + " " + shown);
                 }

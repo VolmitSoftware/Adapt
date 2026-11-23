@@ -808,9 +808,10 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     double xpPerCropMatured = 2.0;
 
     public Config() {
-      costFactor = 0.72;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 

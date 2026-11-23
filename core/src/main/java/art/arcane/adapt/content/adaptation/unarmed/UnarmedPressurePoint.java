@@ -152,9 +152,9 @@ public class UnarmedPressurePoint extends SimpleAdaptation<UnarmedPressurePoint.
     double xpPerStrike = 3.1;
 
     public Config() {
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 0.5;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

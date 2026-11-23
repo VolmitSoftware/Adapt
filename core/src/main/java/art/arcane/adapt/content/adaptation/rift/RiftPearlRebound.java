@@ -321,10 +321,10 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     double xpOnRebound = 6;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.35;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

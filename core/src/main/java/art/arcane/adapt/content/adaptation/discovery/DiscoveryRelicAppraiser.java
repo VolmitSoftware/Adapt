@@ -370,10 +370,10 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
     double sherdRarityWeight = 1.0;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.3;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

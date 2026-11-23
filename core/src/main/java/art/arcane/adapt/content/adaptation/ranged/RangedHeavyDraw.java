@@ -192,10 +192,10 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
     double xpPerHeavyHit = 4;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.5;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 6;
+      initialCost = 2;
     }
   }
 }

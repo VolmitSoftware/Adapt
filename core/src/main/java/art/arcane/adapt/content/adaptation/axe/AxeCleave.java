@@ -236,10 +236,10 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
     double xpPerTarget = 4;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 6;
+      initialCost = 2;
     }
   }
 }

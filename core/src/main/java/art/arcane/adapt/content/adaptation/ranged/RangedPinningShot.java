@@ -264,9 +264,10 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     double xpOnProc = 12;
 
     public Config() {
-      costFactor = 0.74;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

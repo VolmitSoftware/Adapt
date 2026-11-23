@@ -212,6 +212,9 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
         .result("golemancy:node/fishing", 1);
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 2;
+      baseCost = 3;
       requires = new ArrayList<>(List.of("golem-node-weaving:1"));
     }
   }

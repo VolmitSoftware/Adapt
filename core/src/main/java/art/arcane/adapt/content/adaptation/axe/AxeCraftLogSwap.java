@@ -130,8 +130,9 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
   @ConfigDescription("Convert log types using a sapling in a crafting table.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 2;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

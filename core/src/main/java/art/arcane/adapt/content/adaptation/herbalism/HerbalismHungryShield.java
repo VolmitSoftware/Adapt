@@ -234,9 +234,9 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     long dotChargeIntervalMs = 1000;
 
     public Config() {
-      baseCost = 7;
-      costFactor = 0.78;
-      initialCost = 10;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

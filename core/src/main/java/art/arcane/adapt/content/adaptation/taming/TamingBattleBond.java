@@ -293,9 +293,9 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     int glowTicks = 30;
 
     public Config() {
-      baseCost = 3;
+      baseCost = 2;
       costFactor = 0.5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

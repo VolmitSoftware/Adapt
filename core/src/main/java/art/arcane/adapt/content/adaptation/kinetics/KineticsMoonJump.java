@@ -194,8 +194,8 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     double floatWindowTicksFactor = 20;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.5;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 5;
       initialCost = 2;
     }

@@ -245,10 +245,10 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     long xpIntervalMillis = 1500;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.6;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

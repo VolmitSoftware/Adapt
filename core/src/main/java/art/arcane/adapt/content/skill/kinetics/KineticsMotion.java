@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.skill.kinetics;
 
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,24 @@ public final class KineticsMotion {
       return 0D;
     }
     return Math.max(0D, Math.min(cap, fallDistance * xpPerBlock));
+  }
+
+  public static double fallXp(double fallDistance, double freeBlocks, double xpPerBlock, double cap) {
+    if (!Double.isFinite(fallDistance) || !Double.isFinite(freeBlocks) || !Double.isFinite(xpPerBlock)
+        || !Double.isFinite(cap) || xpPerBlock <= 0D || cap <= 0D) {
+      return 0D;
+    }
+    return Math.max(0D, Math.min(cap, (fallDistance - Math.max(0D, freeBlocks)) * xpPerBlock));
+  }
+
+  public static boolean nearAnyLanding(List<Loc> landings, Loc landing, double radius) {
+    double radiusSquared = radius * radius;
+    for (Loc previous : landings) {
+      if (previous.sameWorld(landing) && previous.distanceSquared(landing) <= radiusSquared) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static boolean isLaunch(double deltaY, double previousDeltaY, double minDeltaY) {

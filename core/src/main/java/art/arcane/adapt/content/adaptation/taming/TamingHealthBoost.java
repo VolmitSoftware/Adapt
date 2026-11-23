@@ -397,9 +397,9 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     int maxTameablesPerPass = 128;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.4;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

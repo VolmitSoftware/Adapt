@@ -247,10 +247,10 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
     double xpPerNetherMeal = 3;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.55;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

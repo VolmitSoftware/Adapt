@@ -401,9 +401,9 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     int maxTargetFxPerActivation = 8;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.8;
-      initialCost = 7;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

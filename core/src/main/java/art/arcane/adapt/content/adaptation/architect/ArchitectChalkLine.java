@@ -944,8 +944,8 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     double xpPerGuide = 3D;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.4D;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = CHALK_LEVELS;
       initialCost = 1;
     }

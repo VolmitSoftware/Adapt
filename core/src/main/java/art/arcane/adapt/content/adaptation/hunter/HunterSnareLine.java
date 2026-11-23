@@ -384,9 +384,9 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
     double xpPerSnare = 6;
 
     public Config() {
-      baseCost = 5;
+      baseCost = 2;
       costFactor = 0.5;
-      initialCost = 6;
+      initialCost = 1;
     }
   }
 

@@ -366,10 +366,10 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     double xpPerVault = 3D;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0D;
+      baseCost = 1;
+      costFactor = 1;
       maxLevel = VAULT_LEVELS;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 

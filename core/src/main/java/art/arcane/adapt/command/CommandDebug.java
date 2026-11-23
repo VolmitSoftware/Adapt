@@ -153,7 +153,7 @@ public class CommandDebug {
       return;
     }
     AdaptCore.platform().fx().particle(player, particle, player.location().x(), player.location().y(), player.location().z(),
-        10, 0.5D, 0.5D, 0.5D, 1D);
+        10, 0.5D, 0.5D, 0.5D, 1D, false);
   }
 
   @Director(name = "sound", origin = DirectorOrigin.PLAYER, description = "Play a sound at your location for testing!", descriptionKey = "command.help.play_a_sound_at_your_location_for_testing")

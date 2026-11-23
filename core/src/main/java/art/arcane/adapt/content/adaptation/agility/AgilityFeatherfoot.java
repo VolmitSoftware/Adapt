@@ -471,7 +471,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
 
     public Config() {
       baseCost = 1;
-      costFactor = 0.2;
+      costFactor = 0.5;
       maxLevel = 4;
       initialCost = 1;
     }

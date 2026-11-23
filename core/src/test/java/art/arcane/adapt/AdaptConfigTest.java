@@ -70,7 +70,7 @@ class AdaptConfigTest {
         assertThat(config.experienceMaxLevel).isOne();
         assertThat(config.getPlayerXpPerSkillLevelUpBase()).isZero();
         assertThat(config.getPlayerXpPerSkillLevelUpLevelMultiplier()).isEqualTo(44D);
-        assertThat(config.getPowerPerLevel()).isEqualTo(0.65D);
+        assertThat(config.getPowerPerLevel()).isEqualTo(0.75D);
     }
 
     @Test

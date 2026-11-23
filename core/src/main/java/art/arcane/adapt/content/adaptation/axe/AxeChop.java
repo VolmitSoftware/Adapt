@@ -234,8 +234,9 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     double damagePerBlockInverseLevelMultiplier = 4;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.35;
+      initialCost = 3;
+      baseCost = 5;
+      costFactor = 0.6;
     }
   }
 }

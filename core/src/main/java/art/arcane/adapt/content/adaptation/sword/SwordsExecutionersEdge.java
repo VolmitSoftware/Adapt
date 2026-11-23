@@ -171,9 +171,9 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.65;
+      costFactor = 0.6;
       maxLevel = 6;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 }

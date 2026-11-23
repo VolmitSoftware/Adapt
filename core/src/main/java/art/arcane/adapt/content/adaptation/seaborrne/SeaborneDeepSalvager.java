@@ -367,10 +367,10 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     boolean enableShimmer = true;
 
     public Config() {
-      baseCost = 4;
+      baseCost = 3;
       costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 4;
+      initialCost = 2;
     }
   }
 

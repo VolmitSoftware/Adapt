@@ -282,9 +282,9 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
     double xpPerWound = 3;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.4;
-      initialCost = 5;
+      baseCost = 1;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

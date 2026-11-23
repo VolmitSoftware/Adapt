@@ -198,8 +198,9 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     int hungerCost = 2;
 
     public Config() {
+      initialCost = 4;
       permanent = true;
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 1;
       maxLevel = 1;
     }

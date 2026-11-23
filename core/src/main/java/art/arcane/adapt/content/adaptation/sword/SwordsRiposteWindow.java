@@ -178,8 +178,9 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
     double xpPerBuffedDamage = 1.8;
 
     public Config() {
-      costFactor = 0.71;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

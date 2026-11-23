@@ -294,8 +294,9 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
     double bonusDamagePerLevel = 1;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

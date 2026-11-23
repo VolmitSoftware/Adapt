@@ -263,10 +263,10 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     int refreshIntervalMillis = 3000;
 
     public Config() {
-      baseCost = 15;
+      baseCost = 3;
       costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 4;
     }
   }
 }

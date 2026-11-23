@@ -339,10 +339,10 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
     double burstXp = 10;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.55;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 5;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

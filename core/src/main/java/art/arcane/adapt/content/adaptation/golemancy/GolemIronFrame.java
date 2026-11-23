@@ -471,6 +471,9 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     int colossusGrowTicks = 20;
 
     public Config() {
+      costFactor = 0.6;
+      initialCost = 2;
+      baseCost = 3;
       requires = new ArrayList<>(List.of("golem-animus-binding:1"));
     }
   }

@@ -215,8 +215,9 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
     double xpPerDamageShielded = 3.0;
 
     public Config() {
-      costFactor = 0.65;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

@@ -1307,9 +1307,9 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     double xpPerLevel = 3;
 
     public Config() {
-      baseCost = 8;
-      costFactor = 0.42;
-      initialCost = 7;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

@@ -151,10 +151,10 @@ public class StealthUmbralRecovery extends SimpleAdaptation<StealthUmbralRecover
     double xpOnRecovery = 8;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.35;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

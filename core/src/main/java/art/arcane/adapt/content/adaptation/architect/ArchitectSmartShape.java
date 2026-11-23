@@ -273,10 +273,10 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     double xpPerOrientationOption = 0.16;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.6;
+      baseCost = 1;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 

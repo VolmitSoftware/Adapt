@@ -144,8 +144,9 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
     long fxCooldownMillis = 1500;
 
     public Config() {
-      costFactor = 0.35;
-      initialCost = 3;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

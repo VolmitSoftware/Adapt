@@ -1237,10 +1237,10 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
     double xpPerHit = 6;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.55;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

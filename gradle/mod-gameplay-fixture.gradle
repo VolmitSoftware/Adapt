@@ -92,6 +92,7 @@ if ((int) targetProperties.javaVersion < 25) {
         task.classpath = sourceSets.gameplayFixture.compileClasspath
         task.destinationDirectory.set(fixtureDevLibs)
         task.archiveFileName.set('AdaptGameplayFixture-downgraded.jar')
+        retryDowngradeTimeouts(task)
     } as TaskProvider<Jar>
     TaskProvider<Jar> shadedFixture = tasks.register('shadeGameplayFixtureJar', shadeType) { Jar task ->
         group = 'verification'
@@ -100,6 +101,7 @@ if ((int) targetProperties.javaVersion < 25) {
         boolean remapped = targetProperties.obfuscated && (projectDir.name == 'fabric' || targetProperties.forgeRuntimeMappings == 'srg')
         task.destinationDirectory.set(remapped ? fixtureDevLibs : layout.buildDirectory.dir('gameplay'))
         task.archiveFileName.set(remapped ? 'AdaptGameplayFixture-dev.jar' : 'AdaptGameplayFixture.jar')
+        retryDowngradeTimeouts(task)
     } as TaskProvider<Jar>
     ext.gameplayFixturePackagedJar = shadedFixture
 }

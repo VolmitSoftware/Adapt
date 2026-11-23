@@ -493,10 +493,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     int multiplier = 1;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.40;
+      baseCost = 3;
+      costFactor = 1;
       maxLevel = ELEVATOR_LEVELS;
-      initialCost = 1;
+      initialCost = 4;
     }
   }
 

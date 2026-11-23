@@ -161,10 +161,10 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     long cooldownMillis = 30000L;
 
     public Config() {
-      baseCost = 2;
-      costFactor = 0.3;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 7;
-      initialCost = 3;
+      initialCost = 1;
       normalizeForPersistence();
     }
 

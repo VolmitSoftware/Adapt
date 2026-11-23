@@ -225,8 +225,9 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
     double xpPerDamageRedirected = 3.0;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

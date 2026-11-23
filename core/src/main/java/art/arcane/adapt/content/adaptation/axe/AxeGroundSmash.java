@@ -417,9 +417,9 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     double cooldownTicksInverseLevelMultiplier = 225;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.75;
-      initialCost = 8;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 }

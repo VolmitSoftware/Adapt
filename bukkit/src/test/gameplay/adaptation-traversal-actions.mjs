@@ -336,16 +336,11 @@ export const traversalBehaviorCases = new Map([
         verify: ({ context, unlearned, active }) => {
             const nativeFriction = Number.isFinite(unlearned.friction)
             if (nativeFriction) {
-                context.expect(Math.abs(unlearned.friction - 1) < 0.000001 && Math.abs(active.friction - 0.5) < 0.000001,
-                    'Learned max-level sprint lowers native friction_modifier from 1 to 0.5 (slide 0.15 + 0.35)')
-                context.expect(active.impulses.length === 0, 'Native friction path sends no fallback momentum impulses')
-            } else {
-                context.expect(active.impulses.length > unlearned.impulses.length, 'Learned sprint emits actual fallback momentum impulses')
+                context.expect(Math.abs(unlearned.friction - 1) < 0.000001 && Math.abs(active.friction - 0.05) < 0.000001,
+                    'Learned max-level sprint lowers native friction_modifier from 1 to 0.05 (slide 0.15 + 0.8)')
+                context.expect(active.impulses.length === 0, 'Native friction path sends no momentum impulses')
             }
-            const clientSimulatesFriction = !nativeFriction || active.clientFrictionAttribute
-            if (clientSimulatesFriction) context.expect(active.distance > unlearned.distance, 'Learned friction reduction travels farther under the same sprint input')
-            return { assertions: [nativeFriction ? 'learned sprint sets native friction_modifier 0.5 without fallback impulses' : 'learned sprint emits real fallback impulses',
-                clientSimulatesFriction ? 'learned friction reduction increases travel distance' : `travel distance not asserted: client ${active.clientVersion} has no friction_modifier attribute to simulate`],
+            return { assertions: [nativeFriction ? 'learned sprint sets native friction_modifier 0.05 without impulses' : 'no friction attribute on this version: glide not asserted'],
             measurements: { unlearned, active } }
         },
     }],

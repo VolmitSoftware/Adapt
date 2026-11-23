@@ -343,10 +343,10 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     double xpPerLevel = 10;
 
     public Config() {
-      baseCost = 9;
-      costFactor = 0.5;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 3;
-      initialCost = 8;
+      initialCost = 6;
     }
   }
 

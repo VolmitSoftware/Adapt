@@ -444,8 +444,8 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     double skillXpOnSave = 40;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.85;
+      baseCost = 7;
+      costFactor = 0.7;
       maxLevel = 5;
       initialCost = 6;
     }

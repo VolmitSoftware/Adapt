@@ -195,9 +195,9 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.55;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 3;
+      initialCost = 2;
     }
   }
 }

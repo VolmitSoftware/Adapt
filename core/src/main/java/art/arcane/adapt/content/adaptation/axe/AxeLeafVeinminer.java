@@ -276,8 +276,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     int maxBlocks = 128;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.325;
+      baseCost = 2;
+      costFactor = 0.5;
       initialCost = 1;
     }
   }

@@ -247,8 +247,9 @@ public class TragoulSoulSiphon extends SimpleAdaptation<TragoulSoulSiphon.Config
     double xpPerHeal = 3;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 5;
+      costFactor = 0.6;
+      initialCost = 3;
     }
   }
 

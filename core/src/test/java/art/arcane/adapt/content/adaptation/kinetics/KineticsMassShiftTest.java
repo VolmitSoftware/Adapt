@@ -29,8 +29,8 @@ class KineticsMassShiftTest {
   void configMatchesCardValues() {
     KineticsMassShift.Config config = new KineticsMassShift.Config();
     assertThat(config.maxLevel).isEqualTo(3);
-    assertThat(config.baseCost).isEqualTo(6);
-    assertThat(config.initialCost).isEqualTo(5);
+    assertThat(config.baseCost).isEqualTo(5);
+    assertThat(config.initialCost).isEqualTo(3);
     assertThat(config.titanScaleBase).isCloseTo(0.25D, offset(1e-9));
     assertThat(config.titanScaleFactor).isCloseTo(0.35D, offset(1e-9));
     assertThat(config.pocketScaleBase).isCloseTo(0.25D, offset(1e-9));

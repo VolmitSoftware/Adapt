@@ -201,7 +201,7 @@ public final class GameplayFixture {
             } else if (args.length == 1 && args[0].equals("feedback")) {
                 requireSetup();
                 Loc at = actor.location();
-                AdaptCore.platform().fx().particle(actor, ParticleSpec.dust(Rgb.of(0xFF0000), 1.0F), at.x(), at.y(), at.z(), 2, 0, 0, 0, 0);
+                AdaptCore.platform().fx().particle(actor, ParticleSpec.dust(Rgb.of(0xFF0000), 1.0F), at.x(), at.y(), at.z(), 2, 0, 0, 0, 0, false);
                 Fx.now(Fixtures.skill("agility"), actor.location(), FxPriority.GAMEPLAY).dustBurst(3, 0.1D, 1.0F);
                 sender.send("ADAPT_QA FEEDBACK DUST");
             } else if (args.length >= 3 && args[0].equals("experience")) {

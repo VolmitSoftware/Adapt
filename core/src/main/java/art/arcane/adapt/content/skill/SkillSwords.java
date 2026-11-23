@@ -30,6 +30,7 @@ import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.adaptation.sword.SwordsBladeFlow;
 import art.arcane.adapt.content.adaptation.sword.SwordsBloodyBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsCrescentGuard;
@@ -102,8 +103,8 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
             .build())
         .build());
     registerMilestone("challenge_sword_100", "sword.hits", 100, () -> getConfig().challengeSwordReward);
-    registerMilestone("challenge_sword_1k", "sword.hits", 1000, () -> getConfig().challengeSwordReward * 2);
-    registerMilestone("challenge_sword_10k", "sword.hits", 10000, () -> getConfig().challengeSwordReward * 5);
+    registerMilestone("challenge_sword_1k", "sword.hits", 1000, () -> getConfig().challengeSwordReward * 3);
+    registerMilestone("challenge_sword_10k", "sword.hits", 10000, () -> getConfig().challengeSwordReward * 8);
 
     // Chain 2 - sword.damage
     registerAdvancement(AdaptAdvancement.builder()
@@ -225,6 +226,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
       ItemRef hand = p.inventory().mainHand();
       if (isSword(hand)) {
         addStat(p, "sword.kills", 1);
+        if (!e.platformCancelled() && checkValidEntity(e.entity()) && MobOrigin.paysKillReward(p, e.entity())) {
+          xp(p, e.entity().location(), getConfig().killXp, "swords:kill");
+        }
       }
     });
   }
@@ -251,7 +255,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Delay for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage XPMultiplier for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double damageXPMultiplier = 4.5;
+    double damageXPMultiplier = 6;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "XP for killing a mob with a sword.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double killXp = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeSwordReward = 500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Challenge Sword Damage Reward for the Swords skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

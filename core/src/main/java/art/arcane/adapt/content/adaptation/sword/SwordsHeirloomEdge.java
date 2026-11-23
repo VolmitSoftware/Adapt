@@ -232,10 +232,10 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     double xpPerBank = 12;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.72;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 5;
-      initialCost = 6;
+      initialCost = 3;
     }
   }
 }

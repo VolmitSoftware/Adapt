@@ -302,9 +302,9 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     double xpPerEcho = 12;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.75;
-      initialCost = 5;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

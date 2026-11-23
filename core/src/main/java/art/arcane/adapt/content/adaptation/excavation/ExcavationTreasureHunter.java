@@ -215,8 +215,9 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
     double xpPerTreasure = 12;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

@@ -479,10 +479,10 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     double xpOnThrow = 10;
 
     public Config() {
-      baseCost = 4;
-      costFactor = 0.4;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 

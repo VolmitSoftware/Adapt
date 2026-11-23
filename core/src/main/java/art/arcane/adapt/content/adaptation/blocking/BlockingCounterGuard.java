@@ -385,9 +385,9 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     double xpPerReflectedDamage = 5.0;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.75;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

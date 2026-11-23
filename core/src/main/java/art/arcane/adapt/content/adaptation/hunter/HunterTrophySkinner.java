@@ -244,9 +244,9 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     double xpPerTrophy = 16;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.8;
-      initialCost = 5;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 

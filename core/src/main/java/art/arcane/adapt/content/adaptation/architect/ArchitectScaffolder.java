@@ -404,6 +404,8 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     double hungerExhaustionPerScaffold = 0;
 
     public Config() {
+      initialCost = 1;
+      baseCost = 2;
       costFactor = 0.5;
     }
   }

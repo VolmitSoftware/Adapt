@@ -235,6 +235,11 @@ public final class FakeWorld implements WorldRef {
     return 63;
   }
 
+  public FakeWorld fullTime(long value) {
+    time = value;
+    return this;
+  }
+
   @Override
   public long time() {
     return time % 24000L;

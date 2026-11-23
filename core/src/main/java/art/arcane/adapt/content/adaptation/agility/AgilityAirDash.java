@@ -245,9 +245,9 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
 
     public Config() {
       baseCost = 3;
-      costFactor = 0.55;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 

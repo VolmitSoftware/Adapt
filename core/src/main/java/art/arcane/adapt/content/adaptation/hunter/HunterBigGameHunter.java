@@ -182,9 +182,9 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
     double xpPerBigGameKill = 45;
 
     public Config() {
-      baseCost = 6;
+      baseCost = 3;
       costFactor = 0.6;
-      initialCost = 7;
+      initialCost = 2;
     }
   }
 }

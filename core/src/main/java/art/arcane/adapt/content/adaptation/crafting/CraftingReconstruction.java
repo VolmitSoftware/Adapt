@@ -165,8 +165,9 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
   @ConfigDescription("Recraft ores from their base smelted components.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 4;
       permanent = true;
-      baseCost = 5;
+      baseCost = 3;
       costFactor = 1;
       maxLevel = 1;
     }

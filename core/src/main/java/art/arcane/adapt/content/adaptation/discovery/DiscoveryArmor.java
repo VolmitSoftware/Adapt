@@ -356,9 +356,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
     public Config() {
       baseCost = 2;
-      costFactor = 0.3;
+      costFactor = 0.5;
       maxLevel = 3;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

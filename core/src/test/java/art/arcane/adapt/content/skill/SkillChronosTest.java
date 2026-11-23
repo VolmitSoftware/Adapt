@@ -5,8 +5,8 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.AreaEffectCloudApplyEvent;
 import art.arcane.adapt.platform.event.entity.PotionSplashEvent;
-import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
+import art.arcane.adapt.platform.event.world.NightSkipEvent;
 import art.arcane.adapt.platform.value.Id;
 import org.junit.jupiter.api.Test;
 
@@ -57,28 +57,46 @@ class SkillChronosTest {
   }
 
   @Test
-  void sleepRewardsOnlyAcceptedBedEntries() {
-    for (PlayerBedEnterEvent.Result result : PlayerBedEnterEvent.Result.values()) {
-      assertThat(SkillChronos.isSuccessfulBedEntry(result))
-          .isEqualTo(result == PlayerBedEnterEvent.Result.OK);
-    }
-    assertThat(SkillChronos.isSuccessfulBedEntry(null)).isFalse();
+  void aSkippedNightAndTheMorningAfterItShareOneSleepDay() {
+    assertThat(SkillChronos.sleepDay(13000L)).isEqualTo(1L);
+    assertThat(SkillChronos.sleepDay(23999L)).isEqualTo(1L);
+    assertThat(SkillChronos.sleepDay(24000L)).isEqualTo(1L);
+    assertThat(SkillChronos.sleepDay(24000L * 5 + 18000L)).isEqualTo(6L);
+  }
+
+  @Test
+  void consecutiveNightsGrowTheStreakAndAMissedNightResetsIt() {
+    assertThat(SkillChronos.nextSleepStreak(true, 4L, 5L, 3L)).isEqualTo(4L);
+    assertThat(SkillChronos.nextSleepStreak(true, 3L, 5L, 3L)).isEqualTo(1L);
+    assertThat(SkillChronos.nextSleepStreak(false, 4L, 5L, 3L)).isEqualTo(1L);
+    assertThat(SkillChronos.nextSleepStreak(true, Long.MIN_VALUE, 5L, 0L)).isEqualTo(1L);
+  }
+
+  @Test
+  void streakBonusAddsFifteenPerExtraNightUpToTheCap() {
+    assertThat(SkillChronos.sleepThroughNightXp(150D, 15D, 300D, 1L)).isEqualTo(150D);
+    assertThat(SkillChronos.sleepThroughNightXp(150D, 15D, 300D, 2L)).isEqualTo(165D);
+    assertThat(SkillChronos.sleepThroughNightXp(150D, 15D, 300D, 3L)).isEqualTo(180D);
+    assertThat(SkillChronos.sleepThroughNightXp(150D, 15D, 300D, 21L)).isEqualTo(450D);
+    assertThat(SkillChronos.sleepThroughNightXp(150D, 15D, 300D, 100L)).isEqualTo(450D);
   }
 
   @Test
   void configDefaultsProvideRequestedClockAndBurstTuning() throws ReflectiveOperationException {
     SkillChronos.Config config = new SkillChronos.Config();
 
-    assertThat(config.clockOffhandXpMultiplier).isEqualTo(3D);
+    assertThat(config.clockOffhandXpMultiplier).isEqualTo(5D);
     assertThat(config.clockInventoryXpMultiplier).isEqualTo(2D);
-    assertThat(config.sleepXP).isEqualTo(150D);
+    assertThat(config.sleepThroughNightXp).isEqualTo(150D);
+    assertThat(config.sleepStreakBonusXp).isEqualTo(15D);
+    assertThat(config.sleepStreakBonusCap).isEqualTo(300D);
     assertThat(config.speedPotionBaseXP).isEqualTo(120D);
     assertThat(config.speedPotionRewardCooldown).isEqualTo(1000L);
     assertThat(config.speedPotionDiminishingFloor).isGreaterThan(0D);
 
     Field[] fields = SkillChronos.Config.class.getDeclaredFields();
     assertThat(fields).extracting(Field::getName)
-        .doesNotContain("sleepAttemptXP", "sleepSkipXP");
+        .doesNotContain("sleepAttemptXP", "sleepSkipXP", "sleepXP", "sleepCooldown");
   }
 
   @Test
@@ -96,7 +114,7 @@ class SkillChronosTest {
 
   @Test
   void rewardEventsObserveOnlyUncancelledOutcomesAtMonitorPriority() throws ReflectiveOperationException {
-    assertHandlerPolicy(PlayerBedEnterEvent.class);
+    assertHandlerPolicy(NightSkipEvent.class);
     assertHandlerPolicy(PlayerItemConsumeEvent.class);
     assertHandlerPolicy(PotionSplashEvent.class);
     assertHandlerPolicy(AreaEffectCloudApplyEvent.class);

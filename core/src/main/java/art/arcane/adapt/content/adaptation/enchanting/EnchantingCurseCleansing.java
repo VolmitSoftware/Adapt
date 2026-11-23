@@ -275,10 +275,10 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     double skillXpPerCurse = 30;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.8;
+      baseCost = 3;
+      costFactor = 0.6;
       maxLevel = 4;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 }

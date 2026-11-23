@@ -237,10 +237,10 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
     double xpOnBonusDrop = 5;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.65;
+      baseCost = 2;
+      costFactor = 0.5;
       maxLevel = 4;
-      initialCost = 3;
+      initialCost = 1;
     }
   }
 }

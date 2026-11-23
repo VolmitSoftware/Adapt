@@ -370,10 +370,10 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     double pocketScaleFactor = 0.25;
 
     public Config() {
-      baseCost = 6;
-      costFactor = 0.45;
+      baseCost = 5;
+      costFactor = 0.6;
       maxLevel = 3;
-      initialCost = 5;
+      initialCost = 3;
     }
   }
 

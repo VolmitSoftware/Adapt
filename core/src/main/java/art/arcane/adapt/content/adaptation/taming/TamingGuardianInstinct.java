@@ -221,8 +221,9 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
     double xpPerDamageIntercepted = 2.0;
 
     public Config() {
-      costFactor = 0.7;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

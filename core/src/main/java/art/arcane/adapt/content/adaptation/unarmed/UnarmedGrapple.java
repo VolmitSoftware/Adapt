@@ -309,9 +309,9 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
     double xpPerHurl = 32;
 
     public Config() {
-      baseCost = 5;
-      costFactor = 0.65;
-      initialCost = 6;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 

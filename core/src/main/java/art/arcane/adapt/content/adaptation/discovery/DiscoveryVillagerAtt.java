@@ -328,9 +328,9 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     double amplifier = 1.0;
 
     public Config() {
-      baseCost = 1;
-      costFactor = 0.01;
-      initialCost = 5;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

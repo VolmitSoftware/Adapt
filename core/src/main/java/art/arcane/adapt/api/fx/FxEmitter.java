@@ -45,6 +45,7 @@ public final class FxEmitter {
   private final Consumer<Throwable> failureHandler;
   private int emittedParticles;
   private boolean restrictedAudience;
+  private boolean forced;
 
   private FxEmitter() {
     this.host = null;
@@ -125,7 +126,7 @@ public final class FxEmitter {
     double py = y + oy;
     double pz = z + oz;
     ParticleSpec spec = resolve(particle, data, color);
-    dispatch(emission(player -> host.particle(player, spec, px, py, pz, allowed, spread, spread, spread, speed)));
+    dispatch(emission(player -> host.particle(player, spec, px, py, pz, allowed, spread, spread, spread, speed, forced)));
     return this;
   }
 
@@ -150,7 +151,7 @@ public final class FxEmitter {
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int i = (int) (((long) k * total) / allowed);
-        host.particle(player, spec, x + (lut[i << 1] * radius), py, z + (lut[(i << 1) + 1] * radius), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + (lut[i << 1] * radius), py, z + (lut[(i << 1) + 1] * radius), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -182,7 +183,7 @@ public final class FxEmitter {
         last = i;
         double lx = CIRCLE_32[i << 1] * radius;
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
-        host.particle(player, spec, x + ((cosYaw * lx) - (sinYaw * lz)), py, z + ((sinYaw * lx) + (cosYaw * lz)), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + ((cosYaw * lx) - (sinYaw * lz)), py, z + ((sinYaw * lx) + (cosYaw * lz)), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -212,7 +213,7 @@ public final class FxEmitter {
         int i = (int) (((long) k * total * HELIX_REVOLUTIONS) / allowed) % total;
         double lx = CIRCLE_32[i << 1] * radius;
         double lz = CIRCLE_32[(i << 1) + 1] * radius;
-        host.particle(player, spec, x + ((cosPhase * lx) - (sinPhase * lz)), y + (t * height), z + ((sinPhase * lx) + (cosPhase * lz)), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + ((cosPhase * lx) - (sinPhase * lz)), y + (t * height), z + ((sinPhase * lx) + (cosPhase * lz)), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -238,7 +239,7 @@ public final class FxEmitter {
       double armCos = startCos;
       double armSin = startSin;
       for (int k = 0; k < allowed; k++) {
-        host.particle(player, spec, x + (armCos * radius), py, z + (armSin * radius), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + (armCos * radius), py, z + (armSin * radius), 1, 0, 0, 0, 0, forced);
         double nextCos = (armCos * stepCos) - (armSin * stepSin);
         armSin = (armSin * stepCos) + (armCos * stepSin);
         armCos = nextCos;
@@ -264,7 +265,7 @@ public final class FxEmitter {
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
-        host.particle(player, spec, x + (dx * t), y + (dy * t), z + (dz * t), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + (dx * t), y + (dy * t), z + (dz * t), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -281,7 +282,7 @@ public final class FxEmitter {
     }
 
     ParticleSpec spec = resolve(particle, null, color);
-    dispatch(emission(player -> host.particle(player, spec, x, y, z, allowed, spread, spread, spread, 0)));
+    dispatch(emission(player -> host.particle(player, spec, x, y, z, allowed, spread, spread, spread, 0, forced)));
     return this;
   }
 
@@ -299,7 +300,7 @@ public final class FxEmitter {
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = allowed == 1 ? 0.5D : (double) k / (allowed - 1);
-        host.particle(player, spec, x, y + (t * height), z, 1, 0, 0, 0, 0);
+        host.particle(player, spec, x, y + (t * height), z, 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -320,7 +321,7 @@ public final class FxEmitter {
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         int base = ((int) (((long) k * total) / allowed)) * 3;
-        host.particle(player, spec, x + (DOME_48[base] * radius), y + (DOME_48[base + 1] * radius), z + (DOME_48[base + 2] * radius), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + (DOME_48[base] * radius), y + (DOME_48[base + 1] * radius), z + (DOME_48[base + 2] * radius), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -349,7 +350,7 @@ public final class FxEmitter {
     dispatch(emission(player -> {
       for (int k = 0; k < allowed; k++) {
         double t = (double) (k + 1) / allowed;
-        host.particle(player, spec, x + (sx * t), y + (sy * t), z + (sz * t), 1, 0, 0, 0, 0);
+        host.particle(player, spec, x + (sx * t), y + (sy * t), z + (sz * t), 1, 0, 0, 0, 0, forced);
       }
     }));
     return this;
@@ -458,6 +459,14 @@ public final class FxEmitter {
     return viewerCount;
   }
 
+  /** Sends this emitter's particles forced: shown whatever a viewer's particle setting and from far away. */
+  public FxEmitter forced() {
+    if (this != NO_OP) {
+      forced = true;
+    }
+    return this;
+  }
+
   public FxEmitter only(PlayerRef viewer) {
     if (viewer == null || viewersSnapshot == null || viewerCount == 0) {
       return NO_OP;
@@ -469,6 +478,7 @@ public final class FxEmitter {
             viewersSnapshot, new int[]{index}, 1, failureHandler);
         filtered.emittedParticles = emittedParticles;
         filtered.restrictedAudience = true;
+        filtered.forced = forced;
         return filtered;
       }
     }
@@ -492,6 +502,7 @@ public final class FxEmitter {
           viewersSnapshot, viewerIndices, viewerCount, failureHandler);
       filtered.emittedParticles = emittedParticles;
       filtered.restrictedAudience = true;
+      filtered.forced = forced;
       return filtered;
     }
     if (viewerCount == 1) {
@@ -504,6 +515,7 @@ public final class FxEmitter {
         viewersSnapshot, indices, indices.length, failureHandler);
     filtered.emittedParticles = emittedParticles;
     filtered.restrictedAudience = true;
+    filtered.forced = forced;
     return filtered;
   }
 

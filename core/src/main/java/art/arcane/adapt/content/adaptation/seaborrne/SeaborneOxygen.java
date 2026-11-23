@@ -166,9 +166,9 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     int airPerLevelTics = 15;
 
     public Config() {
-      baseCost = 3;
-      costFactor = 0.525;
-      initialCost = 5;
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
     }
   }
 }

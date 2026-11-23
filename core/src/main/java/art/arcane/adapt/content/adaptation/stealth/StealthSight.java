@@ -633,9 +633,9 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 2;
-      costFactor = 0.6;
+      costFactor = 1;
       maxLevel = 1;
-      initialCost = 5;
+      initialCost = 2;
     }
   }
 

@@ -96,6 +96,8 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
   @ConfigDescription("Craft Cobwebs from String in a Crafting Table.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
+      baseCost = 1;
       permanent = true;
       costFactor = 1;
       maxLevel = 1;

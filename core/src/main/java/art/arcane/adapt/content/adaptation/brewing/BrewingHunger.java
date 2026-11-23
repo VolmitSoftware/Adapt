@@ -101,8 +101,9 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
   @ConfigDescription("Brew a Potion of Hunger from Awkward Potion and Rotten Flesh.")
   protected static class Config extends AdaptationConfig {
     public Config() {
+      initialCost = 1;
       permanent = true;
-      baseCost = 3;
+      baseCost = 1;
       costFactor = 1;
       maxLevel = 1;
     }

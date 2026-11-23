@@ -207,10 +207,10 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
   @ConfigDescription("Unlock a wool-plank field shield recipe, then reinforce a shield with four netherite ingots for 1,200 durability and a preserved or default banner face.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 3;
-      costFactor = 0;
+      baseCost = 1;
+      costFactor = 0.5;
       maxLevel = 2;
-      initialCost = 2;
+      initialCost = 1;
     }
   }
 }

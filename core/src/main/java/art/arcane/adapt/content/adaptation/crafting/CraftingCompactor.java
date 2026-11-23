@@ -241,10 +241,10 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
   @ConfigDescription("Sneak and swap hands while aiming at a Crafting Table to compact full stacks of ingots, gems, and raw ores into blocks.")
   protected static class Config extends AdaptationConfig {
     public Config() {
-      baseCost = 3;
-      costFactor = 0.3;
+      baseCost = 1;
+      costFactor = 1;
       maxLevel = COMPACTOR_LEVELS;
-      initialCost = 4;
+      initialCost = 1;
     }
   }
 }

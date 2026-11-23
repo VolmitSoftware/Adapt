@@ -282,8 +282,9 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
     double xpPerRedirectedDamage = 2.0;
 
     public Config() {
-      costFactor = 0.72;
-      initialCost = 4;
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
     }
   }
 }

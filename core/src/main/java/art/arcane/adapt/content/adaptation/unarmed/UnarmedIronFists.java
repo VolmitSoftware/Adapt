@@ -190,8 +190,9 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
     double xpPerHit = 2.4;
 
     public Config() {
-      baseCost = 3;
-      initialCost = 4;
+      costFactor = 0.5;
+      baseCost = 2;
+      initialCost = 1;
     }
   }
 }
