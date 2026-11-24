@@ -18,7 +18,7 @@ class AdaptPlayerSnapshotBuilderTest {
         data,
         curve,
         AdaptPapiFixtures.CONFIGURED_MAX_LEVEL,
-        AdaptPapiFixtures.POWER_PER_LEVEL
+        AdaptPapiFixtures.MAX_POWER_SCALE
     );
   }
 

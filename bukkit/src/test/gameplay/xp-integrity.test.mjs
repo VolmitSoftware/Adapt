@@ -19,14 +19,14 @@ test('progress evidence separates observed balances from elapsed time and reject
 
 test('tree requirements distinguish individual knowledge from simultaneous power and the skill cap', () => {
     const requirements = progressionRequirements({ maximumSkillLevel: 1000, maximumSkillXp: 101200000,
-        powerPerLevel: 0.65, skills: [{ skill: 'crafting', enabled: true,
+        maxPowerScale: 1.6, skills: [{ skill: 'crafting', enabled: true,
             adaptations: [{ id: 'a', enabled: true, maximumLevel: 5, knowledge: 15, requirements: [] },
                 { id: 'b', enabled: false, maximumLevel: 10, knowledge: 200, requirements: [] }] }] })
     assert.equal(requirements.maximumSkillXp, 101200000)
-    assert.equal(requirements.skills[0].minimumSkillLevelForKnowledge, 14)
+    assert.equal(requirements.skills[0].minimumSkillLevelForKnowledge, 7)
     assert.equal(requirements.skills[0].adaptationLevels, 5)
-    assert.equal(requirements.skills[0].minimumMasterLevelForPower, 8)
-    assert.equal(requirements.masterLevelForSimultaneousMaximumAdaptations, 8)
+    assert.equal(requirements.skills[0].minimumMasterLevelForPower, 1)
+    assert.equal(requirements.masterLevelForSimultaneousMaximumAdaptations, 1)
     assert.equal(requirements.simultaneousMaximumFitsMasterCap, true)
 })
 

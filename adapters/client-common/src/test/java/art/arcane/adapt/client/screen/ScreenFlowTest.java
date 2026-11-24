@@ -199,7 +199,7 @@ class ScreenFlowTest {
         assertFalse(fixture.find("learn").enabled());
         assertEquals("Requires Rift Gate II", fixture.find("reason").label());
         fixture.open(new Route.Adaptation("stealth-vision"));
-        assertEquals("Needs 6 power, 4 free", fixture.find("reason").label());
+        assertEquals("Needs 6 power, 5 free", fixture.find("reason").label());
     }
 
     @Test

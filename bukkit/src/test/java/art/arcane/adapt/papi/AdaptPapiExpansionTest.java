@@ -151,9 +151,9 @@ class AdaptPapiExpansionTest {
     assertEquals("true", resolve("adaptation.mining-vein.learned"));
     assertEquals("true", resolve("adaptation.mining-vein.can-use"));
     assertEquals("7", resolve("adaptation.mining-vein.cost-next"));
-    assertEquals("1", resolve("adaptation.mining-vein.power-next"));
+    assertEquals("0", resolve("adaptation.mining-vein.power-next"));
     assertEquals("15", resolve("adaptation.mining-vein.cost-to.3"));
-    assertEquals("2", resolve("adaptation.mining-vein.power-to.3"));
+    assertEquals("0", resolve("adaptation.mining-vein.power-to.3"));
   }
 
   @Test
@@ -166,7 +166,7 @@ class AdaptPapiExpansionTest {
 
   @Test
   void shouldAnswerCanClaimNextOnlyWhenBothKnowledgeAndAbilityPowerAffordTheNextLevel() {
-    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER));
+    players.publish(POWER_SPENT, AdaptPapiFixtures.unheldVeinPlayer(AdaptPapiFixtures.MAX_POWER));
 
     assertEquals("8", resolve("player.power"));
     assertEquals("10", resolve("skill.mining.knowledge"));
@@ -174,7 +174,7 @@ class AdaptPapiExpansionTest {
 
     assertEquals("0", resolveFor(POWER_SPENT, "player.power"));
     assertEquals("1000", resolveFor(POWER_SPENT, "skill.mining.knowledge"));
-    assertEquals("7", resolveFor(POWER_SPENT, "adaptation.mining-vein.cost-next"));
+    assertEquals("6", resolveFor(POWER_SPENT, "adaptation.mining-vein.cost-next"));
     assertEquals("1", resolveFor(POWER_SPENT, "adaptation.mining-vein.power-next"));
     assertEquals(
         "false",
@@ -190,28 +190,31 @@ class AdaptPapiExpansionTest {
   }
 
   @Test
-  void shouldAnswerCanClaimFalseWhenTheTargetLevelCostsMoreAbilityPowerThanTheOwnerHas() {
+  void shouldLevelAHeldAdaptationWithoutFreeAbilityPower() {
     players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER));
 
+    assertEquals("0", resolveFor(POWER_SPENT, "player.power"));
     assertEquals("15", resolveFor(POWER_SPENT, "adaptation.mining-vein.cost-to.3"));
-    assertEquals("2", resolveFor(POWER_SPENT, "adaptation.mining-vein.power-to.3"));
-    assertEquals("false", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.3"));
-    assertEquals("false", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.2"));
-    assertEquals("true", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.1"));
+    assertEquals("0", resolveFor(POWER_SPENT, "adaptation.mining-vein.power-to.3"));
+    assertEquals("true", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.3"));
   }
 
   @Test
-  void shouldClaimExactlyAsFarAsTheRemainingAbilityPowerReaches() {
-    players.publish(POWER_EDGE, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER - 1));
+  void shouldRefuseANewAdaptationWhenNoAbilityPowerIsLeft() {
+    players.publish(POWER_SPENT, AdaptPapiFixtures.unheldVeinPlayer(AdaptPapiFixtures.MAX_POWER));
+
+    assertEquals("1", resolveFor(POWER_SPENT, "adaptation.mining-vein.power-to.3"));
+    assertEquals("false", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.1"));
+    assertEquals("false", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.3"));
+  }
+
+  @Test
+  void shouldClaimANewAdaptationAtAnyLevelWithOneSparePower() {
+    players.publish(POWER_EDGE, AdaptPapiFixtures.unheldVeinPlayer(AdaptPapiFixtures.MAX_POWER - 1));
 
     assertEquals("1", resolveFor(POWER_EDGE, "player.power"));
     assertEquals("1000", resolveFor(POWER_EDGE, "skill.mining.knowledge"));
-    assertEquals("true", resolveFor(POWER_EDGE, "adaptation.mining-vein.can-claim.2"));
-    assertEquals(
-        "false",
-        resolveFor(POWER_EDGE, "adaptation.mining-vein.can-claim.3"),
-        "one spare power buys one level, never two"
-    );
+    assertEquals("true", resolveFor(POWER_EDGE, "adaptation.mining-vein.can-claim.3"));
   }
 
   @Test

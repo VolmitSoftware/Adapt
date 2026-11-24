@@ -235,7 +235,8 @@ public final class AdaptPapiExpansion extends VolmitPlaceholderExpansion {
     }
 
     if (targetLevel > currentLevel) {
-      if (snapshot.availablePower() < adaptation.powerCostFor(targetLevel, currentLevel)) {
+      int powerCost = adaptation.powerCostFor(targetLevel, currentLevel);
+      if (powerCost > 0 && snapshot.availablePower() < powerCost) {
         return false;
       }
 

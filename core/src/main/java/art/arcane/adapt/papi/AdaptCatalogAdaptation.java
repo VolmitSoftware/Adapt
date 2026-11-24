@@ -101,12 +101,7 @@ public final class AdaptCatalogAdaptation {
   public int powerCostFor(int targetLevel, int currentLevel) {
     int target = clampLevel(targetLevel);
     int current = clampLevel(currentLevel);
-
-    if (target <= current) {
-      return 0;
-    }
-
-    return target - current;
+    return target > current && current <= 0 ? 1 : 0;
   }
 
   public int nextLevel(int currentLevel) {

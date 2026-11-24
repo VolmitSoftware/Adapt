@@ -64,13 +64,13 @@ class AdaptConfigTest {
         config.experienceMaxLevel = -20;
         setDouble(config, "playerXpPerSkillLevelUpBase", -1D);
         setDouble(config, "playerXpPerSkillLevelUpLevelMultiplier", Double.POSITIVE_INFINITY);
-        setDouble(config, "powerPerLevel", Double.NEGATIVE_INFINITY);
+        setDouble(config, "maxPowerScale", Double.NEGATIVE_INFINITY);
         config.normalize();
 
         assertThat(config.experienceMaxLevel).isOne();
         assertThat(config.getPlayerXpPerSkillLevelUpBase()).isZero();
         assertThat(config.getPlayerXpPerSkillLevelUpLevelMultiplier()).isEqualTo(44D);
-        assertThat(config.getPowerPerLevel()).isEqualTo(0.75D);
+        assertThat(config.getMaxPowerScale()).isEqualTo(1.6D);
     }
 
     @Test

@@ -97,7 +97,7 @@ public final class PreviewSamples {
         preferences.add(value("rift-gate", "gate-style", "DEFAULT"));
         preferences.add(value("rift-gate", "gate-sounds", "ON"));
         preferences.add(value("rift-gate", "gate-particles", "OFF"));
-        return new PlayerView(new PlayerHeader(12, 0.63D, 4, 8, 0L, true), lines, levels, preferences, access());
+        return new PlayerView(new PlayerHeader(12, 0.63D, 3, 8, 0L, true), lines, levels, preferences, access());
     }
 
     public static PlayerAccess access() {
@@ -126,7 +126,7 @@ public final class PreviewSamples {
         List<Integer> powers = new ArrayList<>();
         List<List<String>> stats = new ArrayList<>();
         for (int level = 1; level <= maxLevel; level++) {
-            powers.add(power);
+            powers.add(level == 1 ? power : 0);
             stats.add(List.of("§a+ " + (level * 10) + "% §7strength", "§c- " + (level * 2) + " §7hunger per use"));
         }
         return new AdaptationView(id, skillId, name, description, IconRef.item(icon), true, maxLevel, permanent, costs, costs,

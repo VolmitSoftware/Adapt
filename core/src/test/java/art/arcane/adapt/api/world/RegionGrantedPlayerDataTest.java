@@ -16,7 +16,7 @@ class RegionGrantedPlayerDataTest extends AdaptTestBase {
     line.getAdaptations().put("axe-shield-splitter", adaptation("axe-shield-splitter", 2, false));
     line.getAdaptations().put("axe-heavy-hands", adaptation("axe-heavy-hands", 1, true));
 
-    assertThat(data.getUsedPower()).isEqualTo(2);
+    assertThat(data.getUsedPower()).isEqualTo(1);
   }
 
   @Test
@@ -59,7 +59,7 @@ class RegionGrantedPlayerDataTest extends AdaptTestBase {
     assertThat(restored).isNotNull();
     assertThat(restored.getSkillLines().get("axes").getAdaptations()).containsOnlyKeys("axe-shield-splitter");
     assertThat(restored.getRegionGrantedCount()).isZero();
-    assertThat(restored.getUsedPower()).isEqualTo(2);
+    assertThat(restored.getUsedPower()).isEqualTo(1);
   }
 
   @Test

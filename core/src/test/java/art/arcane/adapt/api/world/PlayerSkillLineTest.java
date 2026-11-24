@@ -47,26 +47,26 @@ class PlayerSkillLineTest extends AdaptTestBase {
     }
 
     @Test
-    @DisplayName("knowledge per level reached: none at 1, 5 for 2-5, 1 for 6-15, 2 for 16-30, 3 beyond")
+    @DisplayName("knowledge per level reached: none at 1, 3 for 2-5, 2 for 6-30, 3 beyond")
     void knowledgePerLevelFollowsTheTieredSchedule() {
         assertThat(PlayerSkillLine.knowledgeForLevelUp(0)).isZero();
-        assertThat(PlayerSkillLine.knowledgeForLevelUp(1)).isEqualTo(5L);
-        assertThat(PlayerSkillLine.knowledgeForLevelUp(4)).isEqualTo(5L);
-        assertThat(PlayerSkillLine.knowledgeForLevelUp(5)).isEqualTo(1L);
-        assertThat(PlayerSkillLine.knowledgeForLevelUp(14)).isEqualTo(1L);
-        assertThat(PlayerSkillLine.knowledgeForLevelUp(15)).isEqualTo(2L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(1)).isEqualTo(3L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(4)).isEqualTo(3L);
+        assertThat(PlayerSkillLine.knowledgeForLevelUp(5)).isEqualTo(2L);
         assertThat(PlayerSkillLine.knowledgeForLevelUp(29)).isEqualTo(2L);
         assertThat(PlayerSkillLine.knowledgeForLevelUp(30)).isEqualTo(3L);
-        long totalAtThree = 0L;
-        long totalAtSix = 0L;
-        for (int level = 0; level < 6; level++) {
-            totalAtSix += PlayerSkillLine.knowledgeForLevelUp(level);
-            if (level < 3) {
-                totalAtThree += PlayerSkillLine.knowledgeForLevelUp(level);
-            }
+        assertThat(totalKnowledgeAt(5)).isEqualTo(12L);
+        assertThat(totalKnowledgeAt(6)).isEqualTo(14L);
+        assertThat(totalKnowledgeAt(15)).isEqualTo(32L);
+        assertThat(totalKnowledgeAt(25)).isEqualTo(52L);
+    }
+
+    private static long totalKnowledgeAt(int level) {
+        long total = 0L;
+        for (int left = 0; left < level; left++) {
+            total += PlayerSkillLine.knowledgeForLevelUp(left);
         }
-        assertThat(totalAtThree).isEqualTo(10L);
-        assertThat(totalAtSix).isEqualTo(21L);
+        return total;
     }
 
     @Test

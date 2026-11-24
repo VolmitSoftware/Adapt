@@ -914,10 +914,16 @@ public interface Adaptation<T> extends Ticked, Component {
   }
 
   /**
-   * Power cost delta for level transitions.
+   * Power change for a level transition: a held adaptation uses 1 power at any level, so learning it from level 0
+   * costs 1, unlearning it to level 0 frees 1, and every other change costs nothing.
    */
   default int getPowerCostFor(int level, int myLevel) {
-    return level - myLevel;
+    boolean holds = myLevel > 0;
+    boolean willHold = level > 0;
+    if (holds == willHold) {
+      return 0;
+    }
+    return willHold ? 1 : -1;
   }
 
   /**

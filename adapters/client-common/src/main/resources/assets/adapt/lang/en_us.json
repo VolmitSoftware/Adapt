@@ -125,7 +125,7 @@
   "adapt.screen.settings": "Settings",
   "adapt.screen.requirements": "Requires",
   "adapt.screen.power_title": "Power",
-  "adapt.screen.power_tip": "Learned adaptation levels use power. %s of %s is free.",
+  "adapt.screen.power_tip": "Each learned adaptation uses 1 power. %s of %s is free.",
   "adapt.screen.power_used": "%s power used",
   "adapt.screen.knowledge": "knowledge",
   "adapt.screen.knowledge_title": "Knowledge",

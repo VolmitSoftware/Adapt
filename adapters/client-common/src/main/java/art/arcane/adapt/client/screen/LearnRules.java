@@ -27,7 +27,7 @@ public final class LearnRules {
         return sum(adaptation.knowledgeCosts(), from, to);
     }
 
-    /** Power the levels between {@code from} and {@code to} use. */
+    /** Power the move from {@code from} to {@code to} takes: 1 to start holding the adaptation, nothing for further levels. */
     public static int powerCost(AdaptationView adaptation, int from, int to) {
         return sum(adaptation.powerCosts(), from, to);
     }

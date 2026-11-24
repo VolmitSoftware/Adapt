@@ -242,7 +242,7 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("rift").getAdaptations())
             .containsOnlyKeys("rift-blink");
-        assertThat(restored.getUsedPower()).isEqualTo(2);
+        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("rift.blink.blinks", 14D);
@@ -270,7 +270,7 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("agility").getAdaptations())
             .containsOnlyKeys("agility-roll-landing");
-        assertThat(restored.getUsedPower()).isEqualTo(2);
+        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("agility.roll-landing.damage-prevented", 30D);

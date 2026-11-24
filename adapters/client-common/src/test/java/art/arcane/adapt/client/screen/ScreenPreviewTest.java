@@ -61,7 +61,7 @@ class ScreenPreviewTest {
         assertFalse(screen.pending());
         assertEquals(1, CatalogIndex.level(preview.state().player(), "agility-super-jump"));
         assertEquals(22L, LearnRules.knowledge(preview.state().player(), "agility"));
-        assertEquals(5, preview.state().player().header().powerUsed());
+        assertEquals(4, preview.state().player().header().powerUsed());
         assertEquals(Snackbar.Tone.SUCCESS, screen.snackbar().tone());
     }
 

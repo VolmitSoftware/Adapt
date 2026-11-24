@@ -38,6 +38,7 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.TextKey;
+import art.arcane.volmlib.util.math.M;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,9 @@ public final class ClientUiService implements ClientFrameHandler {
     }
   };
 
+  /** How long permissions, config and region bonuses may go unchecked while the player's own numbers stand still. */
+  private static final long ACCESS_REFRESH_MS = 5_000L;
+
   private final AdaptCore core;
   private final ClientSessions sessions;
   private final Map<UUID, Viewer> viewers = new ConcurrentHashMap<>();
@@ -109,6 +113,17 @@ public final class ClientUiService implements ClientFrameHandler {
     ClientUiService service = current();
     if (service != null && player != null) {
       service.changed(player.getPlayer());
+    }
+  }
+
+  /**
+   * The once-a-second check for changes nothing reports, such as earned xp. It rebuilds the view only when the
+   * player's stored numbers moved, the catalog went stale, or the access check is due. Call on the player's thread.
+   */
+  public static void refresh(AdaptPlayer player) {
+    ClientUiService service = current();
+    if (service != null && player != null) {
+      service.refresh(player, player.getPlayer());
     }
   }
 
@@ -235,6 +250,28 @@ public final class ClientUiService implements ClientFrameHandler {
     if (viewer != null) {
       schedule(player, viewer, 1);
     }
+  }
+
+  private void refresh(AdaptPlayer adaptPlayer, PlayerRef player) {
+    if (player == null || viewers.isEmpty()) {
+      return;
+    }
+    Viewer viewer = viewers.get(player.uuid());
+    SkillRegistry registry = registry();
+    if (viewer == null || registry == null) {
+      return;
+    }
+    if (viewer.view == null || M.ms() >= viewer.accessDueAt
+        || viewer.fingerprint != PlayerViews.fingerprint(adaptPlayer.getData())
+        || catalogStale(viewer, registry, player.uuid(), AdaptLanguage.snapshot(player.uuid()))) {
+      schedule(player, viewer, 1);
+    }
+  }
+
+  private static boolean catalogStale(Viewer viewer, SkillRegistry registry, UUID playerId,
+                                      LocalizationSnapshot texts) {
+    return viewer.catalogRevision != registry.getCatalogRevision()
+        || !AdaptLanguage.locale(playerId).equals(viewer.catalogLocale) || viewer.catalogTexts != texts;
   }
 
   private void schedule(PlayerRef player, Viewer viewer, int delayTicks) {
@@ -386,8 +423,7 @@ public final class ClientUiService implements ClientFrameHandler {
     }
     UUID playerId = player.uuid();
     LocalizationSnapshot texts = AdaptLanguage.snapshot(playerId);
-    if (viewer.catalogRevision != registry.getCatalogRevision()
-        || !AdaptLanguage.locale(playerId).equals(viewer.catalogLocale) || viewer.catalogTexts != texts) {
+    if (catalogStale(viewer, registry, playerId, texts)) {
       CatalogView catalog = CatalogViews.build(registry, playerId);
       if (!sessions.send(playerId, new ServerFrame.Catalog(catalog))) {
         return;
@@ -397,6 +433,8 @@ public final class ClientUiService implements ClientFrameHandler {
       viewer.catalogTexts = texts;
       viewer.view = null;
     }
+    viewer.fingerprint = PlayerViews.fingerprint(adaptPlayer.getData());
+    viewer.accessDueAt = M.ms() + ACCESS_REFRESH_MS;
     PlayerView view = PlayerViews.build(registry, adaptPlayer);
     PlayerView previous = viewer.view;
     if (previous == null) {
@@ -478,5 +516,7 @@ public final class ClientUiService implements ClientFrameHandler {
     private volatile String catalogLocale = "";
     private volatile LocalizationSnapshot catalogTexts;
     private volatile PlayerView view;
+    private volatile long fingerprint;
+    private volatile long accessDueAt;
   }
 }

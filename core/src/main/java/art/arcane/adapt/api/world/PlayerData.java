@@ -54,7 +54,6 @@ import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.collection.KSet;
-import art.arcane.volmlib.util.format.Form;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -65,7 +64,7 @@ import lombok.ToString;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,6 +75,11 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 @Data
 @NoArgsConstructor
 public class PlayerData {
+  private static final Comparator<TrimCandidate> TRIM_ORDER = Comparator
+      .comparing(TrimCandidate::required)
+      .thenComparingInt((TrimCandidate candidate) -> candidate.stored().getLevel())
+      .thenComparing(TrimCandidate::skill)
+      .thenComparing(TrimCandidate::adaptationId);
   private static final IconRef MASTER_LEVEL_ICON = IconRef.item("minecraft:experience_bottle");
   private static final Set<String> REMOVED_AXES_ADAPTATIONS = Set.of(
       "axe-orchardist",
@@ -395,7 +399,7 @@ public class PlayerData {
   private static String maxPowerText(int level, AdaptConfig config) {
     return C.GOLD + AdaptLanguage.text(
         RuntimeMessages.MAX_ABILITY_POWER,
-        trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
+        trusted("power", maxPowerFor(level, config.getMaxPowerScale()) + "" + C.GRAY)
     );
   }
 
@@ -518,7 +522,9 @@ public class PlayerData {
         if (adaptation == null || adaptation.isRegionGranted()) {
           continue;
         }
-        usedPower += adaptation.getLevel();
+        if (adaptation.getLevel() > 0) {
+          usedPower++;
+        }
       }
     }
     return usedPower;
@@ -529,8 +535,15 @@ public class PlayerData {
   }
 
   public int getMaxPower() {
-    int earned = (int) (masterLevel() * AdaptConfig.get().getPowerPerLevel());
-    return Math.max(0, earned + regionPowerBonus);
+    return Math.max(0, maxPowerFor(masterLevel(), AdaptConfig.get().getMaxPowerScale()) + regionPowerBonus);
+  }
+
+  /** Power earned at a master level, before region bonuses: floor(scale * sqrt(level)). */
+  public static int maxPowerFor(double masterLevel, double scale) {
+    if (!Double.isFinite(masterLevel) || masterLevel <= 0D || !Double.isFinite(scale) || scale <= 0D) {
+      return 0;
+    }
+    return (int) Math.floor(scale * Math.sqrt(masterLevel));
   }
 
   public int stripRegionGrantedAdaptations() {
@@ -868,7 +881,7 @@ public class PlayerData {
   private List<AdaptationRequirements.Lowering> trimToPowerBudget() {
     int usedPower = getUsedPower();
     int maxPower = getMaxPower();
-    Map<String, AdaptationRequirements.Lowering> lowered = new LinkedHashMap<>();
+    List<AdaptationRequirements.Lowering> removed = new ArrayList<>();
 
     while (usedPower > maxPower) {
       TrimCandidate candidate = nextTrimCandidate();
@@ -876,27 +889,18 @@ public class PlayerData {
         break;
       }
 
-      PlayerAdaptation stored = candidate.stored();
       if (candidate.adaptation() != null) {
-        lowered.putIfAbsent(
-            candidate.skill() + ":" + candidate.adaptationId(),
-            new AdaptationRequirements.Lowering(candidate.adaptation(), stored.getLevel())
-        );
+        removed.add(new AdaptationRequirements.Lowering(candidate.adaptation(), candidate.stored().getLevel()));
       }
-      if (stored.getLevel() <= 1) {
-        skillLines.get(candidate.skill()).getAdaptations().remove(candidate.adaptationId());
-      } else {
-        stored.setLevel(stored.getLevel() - 1);
-      }
+      skillLines.get(candidate.skill()).getAdaptations().remove(candidate.adaptationId());
       usedPower -= 1;
     }
     refreshLearnedIndex();
-    return List.copyOf(lowered.values());
+    return List.copyOf(removed);
   }
 
   private TrimCandidate nextTrimCandidate() {
-    TrimCandidate lowest = null;
-    TrimCandidate lowestFree = null;
+    TrimCandidate best = null;
     for (Map.Entry<String, PlayerSkillLine> skillEntry : skillLines.entrySet()) {
       for (Map.Entry<String, PlayerAdaptation> adaptEntry : skillEntry.getValue().getAdaptations().entrySet()) {
         PlayerAdaptation stored = adaptEntry.getValue();
@@ -905,19 +909,16 @@ public class PlayerData {
         }
 
         Adaptation<?> adaptation = AdaptationRequirements.find(adaptEntry.getKey());
-        TrimCandidate candidate = new TrimCandidate(skillEntry.getKey(), adaptEntry.getKey(), stored, adaptation);
-        if (lowest == null || stored.getLevel() < lowest.stored().getLevel()) {
-          lowest = candidate;
-        }
-        boolean needed = adaptation != null
-            && !AdaptationRequirements.dependents(adaptation, this, stored.getLevel() - 1).isEmpty();
-        if (!needed && (lowestFree == null || stored.getLevel() < lowestFree.stored().getLevel())) {
-          lowestFree = candidate;
+        boolean required = adaptation != null && !AdaptationRequirements.dependents(adaptation, this, 0).isEmpty();
+        TrimCandidate candidate = new TrimCandidate(skillEntry.getKey(), adaptEntry.getKey(), stored, adaptation, required);
+        if (best == null || TRIM_ORDER.compare(candidate, best) < 0) {
+          best = candidate;
         }
       }
     }
-    return lowestFree == null ? lowest : lowestFree;
+    return best;
   }
+
 
   private String ownerName() {
     AdaptPlayer owner = runtimeOwner;
@@ -992,7 +993,8 @@ public class PlayerData {
     }
   }
 
-  private record TrimCandidate(String skill, String adaptationId, PlayerAdaptation stored, Adaptation<?> adaptation) {
+  private record TrimCandidate(String skill, String adaptationId, PlayerAdaptation stored, Adaptation<?> adaptation,
+                               boolean required) {
   }
 
   private record MasterLevelCache(long xpBits, Curves curve, int maximumLevel, double level) {

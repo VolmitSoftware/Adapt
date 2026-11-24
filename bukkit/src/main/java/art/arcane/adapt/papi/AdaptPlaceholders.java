@@ -75,7 +75,7 @@ public final class AdaptPlaceholders {
           data,
           curve,
           config.experienceMaxLevel,
-          config.getPowerPerLevel()
+          config.getMaxPowerScale()
       ));
     } catch (Throwable failure) {
       reportPublishFailure(failure);

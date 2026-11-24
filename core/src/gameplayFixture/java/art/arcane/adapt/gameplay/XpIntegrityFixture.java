@@ -307,7 +307,7 @@ public final class XpIntegrityFixture {
         JsonObject result = new JsonObject();
         result.addProperty("maximumSkillLevel", AdaptConfig.get().experienceMaxLevel);
         result.addProperty("maximumSkillXp", XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel));
-        result.addProperty("powerPerLevel", AdaptConfig.get().getPowerPerLevel());
+        result.addProperty("maxPowerScale", AdaptConfig.get().getMaxPowerScale());
         result.addProperty("masterXpBase", AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
         result.addProperty("masterXpLevelMultiplier", AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
         JsonArray skills = new JsonArray();

@@ -62,6 +62,31 @@ public final class PlayerViews {
     return new PlayerView(header(data), skills, levels, preferences, access);
   }
 
+  /**
+   * A cheap stamp of the stored numbers a view is built from: master xp, wisdom, effects, and each skill line's xp,
+   * knowledge and paid adaptation levels. Equal data gives an equal stamp. Preferences, permissions and config are
+   * not covered.
+   */
+  public static long fingerprint(PlayerData data) {
+    long stamp = Double.doubleToLongBits(data.getMasterXp());
+    stamp = 31L * stamp + data.getWisdom();
+    stamp = 31L * stamp + (data.isEffectsEnabled() ? 1L : 0L);
+    for (Map.Entry<String, PlayerSkillLine> entry : data.getSkillLines().entrySet()) {
+      PlayerSkillLine line = entry.getValue();
+      if (line == null) {
+        continue;
+      }
+      long lineStamp = 31L * Double.doubleToLongBits(line.getXp()) + line.getKnowledge();
+      for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
+        if (adaptation != null && !adaptation.isRegionGranted()) {
+          lineStamp += (long) adaptation.getId().hashCode() * (adaptation.getLevel() + 1L);
+        }
+      }
+      stamp += (entry.getKey().hashCode() * 1_000_003L) ^ lineStamp;
+    }
+    return stamp;
+  }
+
   /** What the chest menus would show {@code ref}: the skills list and each openable skill's adaptation rows. */
   static PlayerAccess access(SkillRegistry registry, AdaptPlayer player, PlayerRef ref) {
     List<String> skills = new ArrayList<>();

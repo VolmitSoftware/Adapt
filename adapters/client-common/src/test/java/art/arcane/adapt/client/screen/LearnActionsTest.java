@@ -183,7 +183,7 @@ class LearnActionsTest {
 
         open("stealth-vision");
         assertFalse(fixture.find("learn").enabled());
-        assertEquals("Needs 6 power, 4 free", fixture.find("reason").label());
+        assertEquals("Needs 6 power, 5 free", fixture.find("reason").label());
         assertEquals("SHORT", describe(fixture.find("reason")).get("tone"));
     }
 
@@ -268,7 +268,7 @@ class LearnActionsTest {
         assertEquals("Learn to V", fixture.find("confirm").label());
         assertTrue(fixture.find("confirm").enabled());
         assertEquals("30", value("stat:cost"));
-        assertEquals("3", value("stat:power-cost"));
+        assertEquals("0", value("stat:power-cost"));
         assertEquals("##[o][.][.]", pips(screen, 5));
         assertEquals(5, screen.shownLevel());
         assertFalse(shows("learn"));

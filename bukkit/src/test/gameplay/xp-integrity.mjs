@@ -23,6 +23,12 @@ export function measureProgress(before, after, startedAt, actions) {
         masterLevelsGained: after.masterLevel - before.masterLevel }
 }
 
+export function masterLevelForPower(power, scale) {
+    let level = Math.max(1, Math.ceil((power / scale) ** 2))
+    while (Math.floor(scale * Math.sqrt(level)) < power) level++
+    return level
+}
+
 export function progressionRequirements(catalog) {
     const enabled = catalog.skills.filter(skill => skill.enabled)
     const skills = enabled.map(skill => {
@@ -31,21 +37,22 @@ export function progressionRequirements(catalog) {
         let level = 0
         let earnedKnowledge = 0
         while (earnedKnowledge < knowledge && level < catalog.maximumSkillLevel) {
-            earnedKnowledge += level === 0 ? 0 : level <= 4 ? 5 : level <= 14 ? 1 : level <= 29 ? 2 : 3
+            earnedKnowledge += level === 0 ? 0 : level <= 4 ? 3 : level <= 29 ? 2 : 3
             level++
         }
         return { skill: skill.skill, adaptationCount: adaptations.length,
             adaptationLevels: adaptations.reduce((sum, adaptation) => sum + adaptation.maximumLevel, 0),
-            minimumMasterLevelForPower: Math.ceil(adaptations.reduce((sum, adaptation) => sum + adaptation.maximumLevel, 0) / catalog.powerPerLevel),
+            minimumMasterLevelForPower: masterLevelForPower(adaptations.length, catalog.maxPowerScale),
             knowledge, minimumSkillLevelForKnowledge: level, knowledgeFitsBeforeCap: earnedKnowledge >= knowledge,
             prerequisites: adaptations.filter(adaptation => adaptation.requirements.length).map(adaptation => ({ id: adaptation.id, requires: adaptation.requirements })) }
     })
-    const requiredPower = skills.reduce((sum, skill) => sum + skill.adaptationLevels, 0)
+    const requiredPower = skills.reduce((sum, skill) => sum + skill.adaptationCount, 0)
     return { maximumSkillLevel: catalog.maximumSkillLevel, maximumSkillXp: catalog.maximumSkillXp,
         enabledSkills: enabled.length, allSkillsAtCapXp: enabled.length * catalog.maximumSkillXp,
-        totalAdaptationLevels: requiredPower,
-        masterLevelForSimultaneousMaximumAdaptations: Math.ceil(requiredPower / catalog.powerPerLevel),
-        simultaneousMaximumFitsMasterCap: requiredPower <= Math.floor(catalog.maximumSkillLevel * catalog.powerPerLevel),
+        totalAdaptationLevels: skills.reduce((sum, skill) => sum + skill.adaptationLevels, 0),
+        totalAdaptations: requiredPower,
+        masterLevelForSimultaneousMaximumAdaptations: masterLevelForPower(requiredPower, catalog.maxPowerScale),
+        simultaneousMaximumFitsMasterCap: requiredPower <= Math.floor(catalog.maxPowerScale * Math.sqrt(catalog.maximumSkillLevel)),
         skills }
 }
 

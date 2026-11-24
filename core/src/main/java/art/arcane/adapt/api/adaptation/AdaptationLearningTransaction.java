@@ -44,7 +44,7 @@ public final class AdaptationLearningTransaction {
     }
     int knowledgeCost = adaptation.getCostFor(normalizedTarget, paidLevel);
     int powerCost = adaptation.getPowerCostFor(normalizedTarget, paidLevel);
-    if (!bypassCosts && !adaptPlayer.getData().hasPowerAvailable(powerCost)) {
+    if (!bypassCosts && powerCost > 0 && !adaptPlayer.getData().hasPowerAvailable(powerCost)) {
       return Result.INSUFFICIENT_POWER;
     }
     if (!bypassCosts && skillLine.getKnowledge() < knowledgeCost) {

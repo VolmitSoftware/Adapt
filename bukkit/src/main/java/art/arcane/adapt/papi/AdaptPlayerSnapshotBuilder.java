@@ -23,7 +23,7 @@ public final class AdaptPlayerSnapshotBuilder {
       PlayerData data,
       NewtonCurve curve,
       int configuredMaxLevel,
-      double powerPerLevel
+      double maxPowerScale
   ) {
     double masterXp = data.getMasterXp();
     double masterLevelExact;
@@ -71,7 +71,9 @@ public final class AdaptPlayerSnapshotBuilder {
         }
 
         String adaptationId = normalize(owned.getKey());
-        usedPower += adaptation.getLevel();
+        if (!adaptation.isRegionGranted()) {
+          usedPower++;
+        }
         lineLearned++;
 
         if (adaptationId != null) {
@@ -88,7 +90,7 @@ public final class AdaptPlayerSnapshotBuilder {
       }
     }
 
-    int maxPower = (int) (masterLevelExact * powerPerLevel);
+    int maxPower = PlayerData.maxPowerFor(masterLevelExact, maxPowerScale);
     int availablePower = maxPower - usedPower;
     double multiplier = data.getMultiplier();
     long wisdom = data.getWisdom();

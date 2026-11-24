@@ -964,7 +964,7 @@ public class AdaptPlayer extends TickedObject {
         RegionGrantRuntime.refresh(this, playerLocation);
         getData().update(this);
         placeholderPort().publishPlayer(this);
-        ClientUiService.changed(this);
+        ClientUiService.refresh(this);
         nextUpdateAt = now + UPDATE_INTERVAL_MS;
       }
 

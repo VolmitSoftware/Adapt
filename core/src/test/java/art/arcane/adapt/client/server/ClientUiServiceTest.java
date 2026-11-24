@@ -25,6 +25,7 @@ import art.arcane.adapt.client.view.CatalogViews;
 import art.arcane.adapt.client.view.PreferenceKey;
 import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.client.view.PreferenceValue;
+import art.arcane.adapt.client.view.PlayerViews;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.content.skill.SkillAgility;
 import art.arcane.adapt.content.skill.SkillRift;
@@ -306,6 +307,34 @@ class ClientUiServiceTest {
     } finally {
       config.playerPreferences = previous;
     }
+  }
+
+  @Test
+  void theSecondlyCheckDoesNotRebuildAnUnchangedPlayer() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    link.clear();
+
+    try (MockedStatic<PlayerViews> views = mockStatic(PlayerViews.class, CALLS_REAL_METHODS)) {
+      ClientUiService.refresh(profile);
+      platform.scheduler().advance(2);
+
+      views.verify(() -> PlayerViews.build(registry, profile), never());
+    }
+    assertThat(link.frames(player.uuid())).isEmpty();
+  }
+
+  @Test
+  void theSecondlyCheckSendsXpNothingReported() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    link.clear();
+
+    line().setXp(line().getXp() + 500D);
+    ClientUiService.refresh(profile);
+    platform.scheduler().advance(1);
+
+    ServerFrame.PlayerUpdate update = only(ServerFrame.PlayerUpdate.class);
+    assertThat(update.delta().skills()).anySatisfy((SkillLineView skill) ->
+        assertThat(skill.xp()).isEqualTo(line().getXp()));
   }
 
   @Test

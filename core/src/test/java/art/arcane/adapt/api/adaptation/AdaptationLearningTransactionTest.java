@@ -274,7 +274,7 @@ class AdaptationLearningTransactionTest {
     assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE - 4);
     assertThat(region.skillLine.getStorage()).doesNotContainKey("vault-learning-refund-test-adaptation-level-1");
     assertThat(region.skillLine.getStorage().get("vault-learning-refund-test-adaptation-level-2")).isEqualTo(4D);
-    assertThat(region.data.getUsedPower()).isEqualTo(2);
+    assertThat(region.data.getUsedPower()).isEqualTo(1);
     verify(charge).commit();
   }
 

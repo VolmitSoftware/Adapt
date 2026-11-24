@@ -23,11 +23,11 @@ public final class Compat {
     }
 
     public static Entity lootEntity(LootParams params) {
-        return params.contextMap().get(LootContextParams.THIS_ENTITY);
+        return params.contextMap().getOptional(LootContextParams.THIS_ENTITY);
     }
 
     public static Vec3 lootOrigin(LootParams params) {
-        return params.contextMap().get(LootContextParams.ORIGIN);
+        return params.contextMap().getOptional(LootContextParams.ORIGIN);
     }
 
     public static AdvancementType advancementType(DisplayInfo display) {

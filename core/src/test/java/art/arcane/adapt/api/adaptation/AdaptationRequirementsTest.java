@@ -279,7 +279,7 @@ class AdaptationRequirementsTest {
     fixture.storeDisabledSkillAdaptation("gamma", "gamma-hidden", 1);
 
     assertThat(fixture.unlearn(fixture.base, 0, true)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
-    fixture.data.setRegionPowerBonus(6);
+    fixture.data.setRegionPowerBonus(2);
     fixture.data.pruneAdaptationsForPowerBudget();
 
     assertThat(fixture.data.getSkillLines().get("gamma").getAdaptations()).doesNotContainKey("gamma-hidden");
@@ -289,16 +289,16 @@ class AdaptationRequirementsTest {
   }
 
   @Test
-  void powerTrimLowersDependentsBeforeTheirPrerequisite() {
+  void powerTrimRemovesDependentsBeforeTheirPrerequisite() {
     fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 1));
     fixture.setLevel(fixture.base, 1);
     fixture.setLevel(fixture.dependent, 3);
-    fixture.data.setRegionPowerBonus(3);
+    fixture.data.setRegionPowerBonus(1);
 
     fixture.data.pruneAdaptationsForPowerBudget();
 
     assertThat(fixture.level(fixture.base)).isEqualTo(1);
-    assertThat(fixture.level(fixture.dependent)).isEqualTo(2);
+    assertThat(fixture.level(fixture.dependent)).isZero();
     assertThat(handler.messages(Level.INFO)).isEmpty();
   }
 

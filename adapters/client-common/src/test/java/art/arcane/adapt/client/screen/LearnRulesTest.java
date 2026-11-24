@@ -46,11 +46,24 @@ class LearnRulesTest {
         LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation("agility-wall-jump"), 4);
         assertEquals(2, check.from());
         assertEquals(8 + 10, check.knowledgeCost());
-        assertEquals(2, check.powerCost());
+        assertEquals(0, check.powerCost());
         assertTrue(check.allowed());
         LearnRules.LearnCheck tooFar = LearnRules.learn(catalog, player, adaptation("agility-wall-jump"), 5);
         assertEquals(8 + 10 + 12, tooFar.knowledgeCost());
         assertEquals(LearnRules.LearnBlock.NONE, tooFar.block());
+    }
+
+    @Test
+    void aHeldAdaptationLevelsUpWithoutPowerEvenWhenNoneIsFree() {
+        PlayerHeader header = player.header();
+        PlayerView full = new PlayerView(new PlayerHeader(header.masterLevel(), header.masterProgress(), header.powerMax(),
+            header.powerMax(), header.wisdom(), header.effectsEnabled()), player.skills(), player.adaptationLevels(),
+            player.preferences(), player.access());
+        LearnRules.LearnCheck check = LearnRules.learn(catalog, full, adaptation("agility-wall-jump"), 3);
+        assertEquals(0, check.powerCost());
+        assertEquals(LearnRules.LearnBlock.NONE, check.block());
+        LearnRules.LearnCheck fresh = LearnRules.learn(catalog, full, adaptation("agility-super-jump"), 1);
+        assertEquals(LearnRules.LearnBlock.POWER, fresh.block());
     }
 
     @Test
@@ -72,9 +85,9 @@ class LearnRulesTest {
     void powerIsCheckedBeforeKnowledge() {
         LearnRules.LearnCheck check = LearnRules.learn(catalog, player, adaptation("stealth-vision"), 1);
         assertEquals(LearnRules.LearnBlock.POWER, check.block());
-        assertEquals(4, check.freePower());
-        assertEquals(2, check.powerShort());
-        assertEquals("Needs 6 power, 4 free", LearnText.learnBlock(catalog, check));
+        assertEquals(5, check.freePower());
+        assertEquals(1, check.powerShort());
+        assertEquals("Needs 6 power, 5 free", LearnText.learnBlock(catalog, check));
     }
 
     @Test

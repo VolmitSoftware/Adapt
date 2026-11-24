@@ -33,7 +33,7 @@ public final class SnippetsMessages {
   public static final TextKey ADAPT_MENU_NO_KNOWLEDGE = TextKey.of("snippets.adapt_menu.no_knowledge", "(You don't have any Knowledge)");
   public static final TextKey ADAPT_MENU_YOU_ONLY_HAVE = TextKey.of("snippets.adapt_menu.you_only_have", "You only have");
   public static final TextKey ADAPT_MENU_HOW_TO_LEVEL_UP = TextKey.of("snippets.adapt_menu.how_to_level_up", "Level up skills to increase your max power.");
-  public static final TextKey ADAPT_MENU_NOT_ENOUGH_POWER = TextKey.of("snippets.adapt_menu.not_enough_power", "Not enough power! Each Ability Level costs 1 power.");
+  public static final TextKey ADAPT_MENU_NOT_ENOUGH_POWER = TextKey.of("snippets.adapt_menu.not_enough_power", "Not enough power! Each adaptation you hold uses 1 power.");
   public static final TextKey ADAPT_MENU_POWER = TextKey.of("snippets.adapt_menu.power", "power");
   public static final TextKey ADAPT_MENU_POWER_DRAIN = TextKey.of("snippets.adapt_menu.power_drain", "Power Drain");
   public static final TextKey ADAPT_MENU_LEARNED = TextKey.of("snippets.adapt_menu.learned", "Learned ");

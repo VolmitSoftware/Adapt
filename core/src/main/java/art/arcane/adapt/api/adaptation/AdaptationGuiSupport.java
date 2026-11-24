@@ -469,7 +469,7 @@ final class AdaptationGuiSupport {
 
     boolean debugLearningClick = AdaptDebugMode.isActive(player);
     long currentKnowledge = skillLine.getKnowledge();
-    if (debugLearningClick || (currentKnowledge >= c && currentPlayer.getData().hasPowerAvailable(pc))) {
+    if (debugLearningClick || (currentKnowledge >= c && (pc <= 0 || currentPlayer.getData().hasPowerAvailable(pc)))) {
       LearnGate gate = learnGate(adaptation, player, currentPlayer, lvl, debugLearningClick);
       if (gate == LearnGate.REQUIREMENTS_MISSING) {
         playRefused(player, spw);
@@ -857,10 +857,10 @@ final class AdaptationGuiSupport {
       int targetLevel,
       int powerCost
   ) {
-    if (currentLevel >= targetLevel || adaptPlayer.getData().hasPowerAvailable(powerCost)) {
+    if (currentLevel >= targetLevel || powerCost <= 0 || adaptPlayer.getData().hasPowerAvailable(powerCost)) {
       return C.GREEN + AdaptLanguage.text(
           GuiMessages.POWER_DRAIN,
-          trusted("power", targetLevel)
+          trusted("power", 1)
       );
     }
     return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NOT_ENOUGH_POWER) + "\n"

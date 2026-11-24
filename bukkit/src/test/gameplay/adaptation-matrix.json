@@ -4791,10 +4791,11 @@
       },
       "triggers": [
         "PlayerMoveEvent",
+        "PlayerQuitEvent",
         "PlayerToggleSneakEvent",
         "PlayerToggleSprintEvent"
       ],
-      "expectation": "Sprint to cancel a level-scaled percentage of friction on every ground surface; press sneak to brake horizontally.",
+      "expectation": "Sprint to cancel a level-scaled percentage of friction on every ground surface until you stop; press sneak to brake horizontally.",
       "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/KineticsSurfaceSkate.java",
       "sounds": [],
       "particles": [],

@@ -19,7 +19,7 @@ public enum ScreenText {
     SETTINGS("settings", "Settings"),
     REQUIREMENTS("requirements", "Requires"),
     POWER_TITLE("power_title", "Power"),
-    POWER_TIP("power_tip", "Learned adaptation levels use power. %s of %s is free."),
+    POWER_TIP("power_tip", "Each learned adaptation uses 1 power. %s of %s is free."),
     POWER_USED("power_used", "%s power used"),
     KNOWLEDGE("knowledge", "knowledge"),
     KNOWLEDGE_TITLE("knowledge_title", "Knowledge"),

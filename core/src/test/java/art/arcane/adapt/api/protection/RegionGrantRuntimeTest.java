@@ -161,7 +161,7 @@ class RegionGrantRuntimeTest {
     learned.setLevel(2);
     data.getSkillLine(SKILL).getAdaptations().put(OTHER, learned);
 
-    assertThat(data.getUsedPower()).isEqualTo(2);
+    assertThat(data.getUsedPower()).isEqualTo(1);
   }
 
   @Test

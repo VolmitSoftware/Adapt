@@ -180,10 +180,7 @@ public class PlayerSkillLine {
       return 0L;
     }
     if (reached <= 5) {
-      return 5L;
-    }
-    if (reached <= 15) {
-      return 1L;
+      return 3L;
     }
     return reached <= 30 ? 2L : 3L;
   }

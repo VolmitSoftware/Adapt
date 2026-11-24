@@ -3,6 +3,7 @@ package art.arcane.adapt.content;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -23,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,6 +36,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AdaptationCostSheetTest {
   private static final Path DOCS_ROOT = Path.of(System.getProperty("user.dir")).resolve("../../docs").normalize();
   private static final Path SHEET = DOCS_ROOT.resolve("adapt-assets/adaptation-costs.csv");
+  private static final Path TIMES = DOCS_ROOT.resolve("adapt-assets/progression-times.csv");
+  private static final int MAX_SIMULATED_HOURS = 5000;
+  private static final int[] SLOT_TARGETS = {1, 2, 3, 4, 5, 6, 8, 10, 12};
+  private static final int[] SNAPSHOT_HOURS = {7, 20, 50, 100, 200, 500};
+  /** Player profiles for the milestone tables: name, skill XP per hour, and how it splits across skills. */
+  private static final List<Profile> PROFILES = List.of(
+      new Profile("Ordinary", 4500D, new double[]{0.30D, 0.25D, 0.15D, 0.10D, 0.10D, 0.10D}),
+      new Profile("Focused", 7000D, new double[]{0.70D, 0.10D, 0.10D, 0.10D}));
   private static final Path PAGE = DOCS_ROOT.resolve("adapt/38-progression-costs.md");
   private static final String BEGIN = "<!-- generated from the live registry: begin -->";
   private static final String END = "<!-- generated from the live registry: end -->";
@@ -43,7 +53,7 @@ class AdaptationCostSheetTest {
   private static final List<String> MULTI_LEVEL = List.of("1/1/0.5", "2/1/0.5", "3/2/0.6", "5/3/0.6", "7/6/0.7");
   private static final List<String> SINGLE_LEVEL = List.of("1/1/1", "2/2/1", "3/4/1", "5/6/1", "8/8/1");
   private static final int[] KNOWLEDGE_LEVELS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50};
-  private static final int[] MASTER_LEVELS = {1, 5, 10, 20, 30, 40, 50, 75, 100};
+  private static final int[] MASTER_LEVELS = {1, 3, 6, 10, 15, 25, 40, 60, 100};
   private static final int[] ESTIMATE_LEVELS = {5, 10, 25, 50};
 
   /** XP per hour assumptions for the estimate table: skill id, activity, ordinary XP/h, focused XP/h. */
@@ -97,9 +107,16 @@ class AdaptationCostSheetTest {
     int end = page.indexOf(END);
     assertThat(begin).as("generated block start in %s", PAGE).isGreaterThanOrEqualTo(0);
     assertThat(end).as("generated block end in %s", PAGE).isGreaterThan(begin);
-    String generated = BEGIN + "\n\n" + pageTables(rows) + "\n" + END;
+    List<String[]> milestones = milestoneRows(rows);
+    List<String> times = new ArrayList<>();
+    times.add("Table,Milestone,Ordinary,Focused");
+    for (String[] row : milestones) {
+      times.add(quote(row[0]) + "," + quote(row[1]) + "," + quote(row[2]) + "," + quote(row[3]));
+    }
+    String generated = BEGIN + "\n\n" + pageTables(rows, milestones) + "\n" + END;
     if (Boolean.getBoolean("adapt.updateAdaptationCosts")) {
       Files.write(SHEET, sheet, StandardCharsets.UTF_8);
+      Files.write(TIMES, times, StandardCharsets.UTF_8);
       Files.writeString(PAGE, page.substring(0, begin) + generated + page.substring(end + END.length()),
           StandardCharsets.UTF_8);
       page = Files.readString(PAGE, StandardCharsets.UTF_8);
@@ -109,6 +126,9 @@ class AdaptationCostSheetTest {
     assertThat(Files.readAllLines(SHEET, StandardCharsets.UTF_8))
         .as("%s is out of date; run with -PupdateAdaptationCosts to regenerate", SHEET)
         .containsExactlyElementsOf(sheet);
+    assertThat(Files.readAllLines(TIMES, StandardCharsets.UTF_8))
+        .as("%s is out of date; run with -PupdateAdaptationCosts to regenerate", TIMES)
+        .containsExactlyElementsOf(times);
     assertThat(page.substring(begin, end + END.length()))
         .as("%s is out of date; run with -PupdateAdaptationCosts to regenerate", PAGE)
         .isEqualTo(generated);
@@ -154,11 +174,12 @@ class AdaptationCostSheetTest {
     return lines;
   }
 
-  private String pageTables(List<Row> rows) {
+  private String pageTables(List<Row> rows, List<String[]> milestones) {
     StringBuilder out = new StringBuilder();
     tierSection(out, rows);
     knowledgeSection(out);
     powerSection(out);
+    milestoneSection(out, milestones);
     estimateSection(out);
     adaptationSection(out, rows);
     return out.toString();
@@ -217,24 +238,178 @@ class AdaptationCostSheetTest {
   private static void powerSection(StringBuilder out) {
     AdaptConfig config = AdaptConfig.get();
     out.append("## Power\n\n");
-    out.append("Each learned adaptation level uses 1 power. Maximum power is the master level times ")
-        .append(number(config.getPowerPerLevel())).append(", rounded down. Every skill level a player reaches adds ")
-        .append(number(config.getPlayerXpPerSkillLevelUpBase())).append(" master XP plus ")
-        .append(number(config.getPlayerXpPerSkillLevelUpLevelMultiplier()))
+    out.append("Power limits how many adaptations a player holds at once. Every learned adaptation uses 1 power, ")
+        .append("whatever its level; raising a held adaptation further costs knowledge only. Maximum power is ")
+        .append(number(config.getMaxPowerScale())).append(" times the square root of the master level, rounded down. ")
+        .append("Every skill level a player reaches adds ").append(number(config.getPlayerXpPerSkillLevelUpBase()))
+        .append(" master XP plus ").append(number(config.getPlayerXpPerSkillLevelUpLevelMultiplier()))
         .append(" for each level that skill had before. Master levels use the same XP curve as skills.\n\n");
-    out.append("| Master level | Total master XP needed | Maximum power |\n");
+    out.append("| Master level | Total master XP needed | Adaptations held at most |\n");
     out.append("|---|---|---|\n");
     for (int level : MASTER_LEVELS) {
       out.append("| ").append(level).append(" | ").append(number(XP.getXpForLevel(level))).append(" | ")
-          .append((int) Math.floor(level * config.getPowerPerLevel())).append(" |\n");
+          .append(PlayerData.maxPowerFor(level, config.getMaxPowerScale())).append(" |\n");
     }
     out.append('\n');
   }
 
+
+  private static void milestoneSection(StringBuilder out, List<String[]> milestones) {
+    AdaptConfig config = AdaptConfig.get();
+    out.append("## How long milestones take\n\n");
+    out.append("Estimates only, simulated hour by hour with the default XP curve, knowledge, and power rules. ")
+        .append("The same rows are in [progression-times.csv](/adapt-assets/progression-times.csv).\n\n");
+    out.append("### Assumptions\n\n");
+    out.append("| Player | Skill XP per hour | Split across skills | Main skill |\n");
+    out.append("|---|---|---|---|\n");
+    for (Profile profile : PROFILES) {
+      List<String> split = new ArrayList<>();
+      for (double share : profile.shares()) {
+        split.add(Math.round(share * 100D) + "%");
+      }
+      out.append("| ").append(profile.name()).append(" | ").append(number(profile.xpPerHour())).append(" | ")
+          .append(String.join(" / ", split)).append(" | the ").append(Math.round(profile.shares()[0] * 100D))
+          .append("% skill |\n");
+    }
+    out.append("\nEach skill level reached adds ").append(number(config.getPlayerXpPerSkillLevelUpBase()))
+        .append(" master XP plus ").append(number(config.getPlayerXpPerSkillLevelUpLevelMultiplier()))
+        .append(" for each level the skill had before. Knowledge counts only the main skill.\n\n");
+    String table = null;
+    for (String[] row : milestones) {
+      if (!row[0].equals(table)) {
+        if (table != null) {
+          out.append('\n');
+        }
+        table = row[0];
+        out.append("### ").append(table).append("\n\n");
+        out.append("| ").append(table.equals("Snapshot") ? "After" : "Milestone").append(" | Ordinary | Focused |\n");
+        out.append("|---|---|---|\n");
+      }
+      out.append("| ").append(row[1]).append(" | ").append(row[2]).append(" | ").append(row[3]).append(" |\n");
+    }
+    out.append('\n');
+  }
+
+  private static List<String[]> milestoneRows(List<Row> rows) {
+    List<Simulation> simulations = new ArrayList<>();
+    for (Profile profile : PROFILES) {
+      simulations.add(new Simulation(profile));
+    }
+    List<String[]> out = new ArrayList<>();
+    for (int slots : SLOT_TARGETS) {
+      String label = slots == 1 ? "1 adaptation" : slots + " adaptations";
+      List<String> cells = new ArrayList<>();
+      for (Simulation simulation : simulations) {
+        Integer hour = simulation.firstHour(state -> state.maxPower() >= slots);
+        cells.add(hour == null ? "-" : hours(hour));
+      }
+      out.add(new String[]{"Adaptations held", label, cells.get(0), cells.get(1)});
+    }
+    Map<String, Long> goals = new LinkedHashMap<>();
+    for (String tier : TIERS) {
+      Row example = example(rows, tier, false);
+      if (example != null) {
+        goals.put("First level of a " + tier + " adaptation", (long) example.adaptation().getCostFor(1));
+      }
+    }
+    for (String tier : List.of("Core", "Strong", "Keystone")) {
+      Row example = example(rows, tier, false);
+      if (example != null) {
+        goals.put("A " + tier + " adaptation at level 5", fiveLevels(example));
+      }
+    }
+    Row core = example(rows, "Core", false);
+    if (core != null) {
+      goals.put("Three Core adaptations at level 5", 3L * fiveLevels(core));
+    }
+    for (Map.Entry<String, Long> goal : goals.entrySet()) {
+      List<String> cells = new ArrayList<>();
+      for (Simulation simulation : simulations) {
+        Integer hour = simulation.firstHour(state -> state.mainKnowledge() >= goal.getValue());
+        cells.add(hour == null ? "-" : hours(hour) + " (main skill level " + simulation.at(hour).levels()[0] + ")");
+      }
+      out.add(new String[]{"Knowledge in the main skill", goal.getKey() + " (" + goal.getValue() + " knowledge)",
+          cells.get(0), cells.get(1)});
+    }
+    for (int hour : SNAPSHOT_HOURS) {
+      List<String> cells = new ArrayList<>();
+      for (Simulation simulation : simulations) {
+        State state = simulation.at(hour);
+        List<String> levels = new ArrayList<>();
+        for (int level : state.levels()) {
+          levels.add(Integer.toString(level));
+        }
+        cells.add("skills " + String.join(" / ", levels) + "; master level " + state.masterLevel() + "; "
+            + state.maxPower() + " adaptations; " + state.mainKnowledge() + " knowledge");
+      }
+      out.add(new String[]{"Snapshot", hours(hour), cells.get(0), cells.get(1)});
+    }
+    return out;
+  }
+
+  private static long fiveLevels(Row row) {
+    long total = 0L;
+    for (int level = 1; level <= 5; level++) {
+      total += row.adaptation().getCostFor(level);
+    }
+    return total;
+  }
+
+  private static String hours(int hours) {
+    return String.format(Locale.ROOT, "%,d h", hours);
+  }
+
+  private record Profile(String name, double xpPerHour, double[] shares) {
+  }
+
+  private record State(int[] levels, int masterLevel, int maxPower, long mainKnowledge) {
+  }
+
+  private static final class Simulation {
+    private final Profile profile;
+    private final Map<Integer, State> states = new LinkedHashMap<>();
+
+    private Simulation(Profile profile) {
+      this.profile = profile;
+    }
+
+    private State at(int hour) {
+      return states.computeIfAbsent(hour, this::simulate);
+    }
+
+    private Integer firstHour(Predicate<State> condition) {
+      for (int hour = 1; hour <= MAX_SIMULATED_HOURS; hour++) {
+        if (condition.test(at(hour))) {
+          return hour;
+        }
+      }
+      return null;
+    }
+
+    private State simulate(int hour) {
+      AdaptConfig config = AdaptConfig.get();
+      int[] levels = new int[profile.shares().length];
+      double masterXp = 0D;
+      for (int index = 0; index < levels.length; index++) {
+        levels[index] = (int) Math.floor(XP.getLevelForXp(profile.xpPerHour() * profile.shares()[index] * hour));
+        for (int left = 0; left < levels[index]; left++) {
+          masterXp += config.getPlayerXpPerSkillLevelUpBase() + left * config.getPlayerXpPerSkillLevelUpLevelMultiplier();
+        }
+      }
+      double masterLevel = XP.getLevelForXp(masterXp);
+      long knowledge = 0L;
+      for (int left = 0; left < levels[0]; left++) {
+        knowledge += PlayerSkillLine.knowledgeForLevelUp(left);
+      }
+      return new State(levels, (int) Math.floor(masterLevel), PlayerData.maxPowerFor(masterLevel, config.getMaxPowerScale()),
+          knowledge);
+    }
+  }
+
   private void estimateSection(StringBuilder out) {
-    out.append("## Estimated time to level\n\n");
-    out.append("Estimates only. Each row assumes one hour of the activity shown and the default configuration, ")
-        .append("before repeat-location decay, farm limits, XP boosts, and multipliers.\n\n");
+    out.append("## Estimated time to level one skill\n\n");
+    out.append("Estimates only. Each row assumes every hour is spent on that skill's activity as shown, with the default ")
+        .append("configuration, before repeat-location decay, farm limits, XP boosts, and multipliers.\n\n");
     out.append("| Skill | Assumed hour | XP per hour (ordinary / focused) |");
     for (int level : ESTIMATE_LEVELS) {
       out.append(" Level ").append(level).append(" (ordinary / focused) |");

@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 final class AdaptPapiFixtures {
   static final NewtonCurve SQUARE_CURVE = Curves.X2.getCurve();
-  static final double POWER_PER_LEVEL = 1.0D;
+  static final double MAX_POWER_SCALE = 3.2D;
   static final int CONFIGURED_MAX_LEVEL = 1000;
   static final int MAX_POWER = 10;
   static final int BASE_SPENT_POWER = 2;
@@ -40,7 +40,7 @@ final class AdaptPapiFixtures {
         playerData(),
         SQUARE_CURVE,
         CONFIGURED_MAX_LEVEL,
-        POWER_PER_LEVEL
+        MAX_POWER_SCALE
     );
   }
 
@@ -50,7 +50,19 @@ final class AdaptPapiFixtures {
         powerBoundPlayerData(spentPower),
         SQUARE_CURVE,
         CONFIGURED_MAX_LEVEL,
-        POWER_PER_LEVEL
+        MAX_POWER_SCALE
+    );
+  }
+
+  static AdaptPlayerSnapshot unheldVeinPlayer(int spentPower) {
+    PlayerData data = powerBoundPlayerData(spentPower + 1);
+    data.getSkillLines().get("mining").getAdaptations().remove("mining-vein");
+    return AdaptPlayerSnapshotBuilder.build(
+        null,
+        data,
+        SQUARE_CURVE,
+        CONFIGURED_MAX_LEVEL,
+        MAX_POWER_SCALE
     );
   }
 
