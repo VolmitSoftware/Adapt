@@ -166,6 +166,9 @@ public final class ContainerHooks {
             return true;
         }
         Container container = top(menu);
+        if (container == null) {
+            return true;
+        }
         EntityRef holderEntity = null;
         if (menu instanceof MerchantMenu && ((MerchantMenuAccess) menu).adapt$trader() instanceof Entity trader) {
             holderEntity = ModRefs.entity(trader);
@@ -173,12 +176,12 @@ public final class ContainerHooks {
             holderEntity = ModRefs.entity(entity);
         }
         InventoryOpenEvent event = ModEvents.post(new InventoryOpenEvent(ModRefs.player(player), ModEventMaps.kind(menu), inventory(container),
-            container == null ? null : holderBlock(container), holderEntity));
+            holderBlock(container), holderEntity));
         return !event.isCancelled();
     }
 
     public static boolean openingHorse(ServerPlayer player, AbstractHorse horse, Container container) {
-        if (!ModEvents.listening(InventoryOpenEvent.class)) {
+        if (container == null || !ModEvents.listening(InventoryOpenEvent.class)) {
             return true;
         }
         InventoryOpenEvent event = ModEvents.post(new InventoryOpenEvent(ModRefs.player(player), InventoryKind.OTHER, inventory(container), null,
