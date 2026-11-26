@@ -16,57 +16,57 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AxeAdaptationLogicTest {
   @Test
   void meleeBaseDamageMatchesAxeTier() {
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("netherite_axe"))).isEqualTo(10D);
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("diamond_axe"))).isEqualTo(9D);
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("iron_axe"))).isEqualTo(9D);
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("stone_axe"))).isEqualTo(9D);
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("wooden_axe"))).isEqualTo(7D);
-    assertThat(AxeThrowingAxe.meleeBaseDamage(Id.minecraft("golden_axe"))).isEqualTo(7D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("netherite_axe"))).isEqualTo(10D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("diamond_axe"))).isEqualTo(9D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("iron_axe"))).isEqualTo(9D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("stone_axe"))).isEqualTo(9D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("wooden_axe"))).isEqualTo(7D);
+    assertThat(AxeThrow.meleeBaseDamage(Id.minecraft("golden_axe"))).isEqualTo(7D);
   }
 
   @Test
   void shutdownRecoveryKeepsUnavailableOwnersPending() {
-    assertThat(AxeThrowingAxe.recoveryDisposition(true, true))
-        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.OWNER);
-    assertThat(AxeThrowingAxe.recoveryDisposition(true, false))
-        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.PENDING);
-    assertThat(AxeThrowingAxe.recoveryDisposition(false, true))
-        .isEqualTo(AxeThrowingAxe.RecoveryDisposition.DESTROYED);
+    assertThat(AxeThrow.recoveryDisposition(true, true))
+        .isEqualTo(AxeThrow.RecoveryDisposition.OWNER);
+    assertThat(AxeThrow.recoveryDisposition(true, false))
+        .isEqualTo(AxeThrow.RecoveryDisposition.PENDING);
+    assertThat(AxeThrow.recoveryDisposition(false, true))
+        .isEqualTo(AxeThrow.RecoveryDisposition.DESTROYED);
   }
 
   @Test
   void onlyAnActuallyConsumedUnbrokenAxeCanBeRecovered() {
-    assertThat(AxeThrowingAxe.isRecoverableThrow(true, false)).isTrue();
-    assertThat(AxeThrowingAxe.isRecoverableThrow(false, false)).isFalse();
-    assertThat(AxeThrowingAxe.isRecoverableThrow(true, true)).isFalse();
-    assertThat(AxeThrowingAxe.isRecoverableThrow(false, true)).isFalse();
+    assertThat(AxeThrow.isRecoverableThrow(true, false)).isTrue();
+    assertThat(AxeThrow.isRecoverableThrow(false, false)).isFalse();
+    assertThat(AxeThrow.isRecoverableThrow(true, true)).isFalse();
+    assertThat(AxeThrow.isRecoverableThrow(false, true)).isFalse();
   }
 
   @Test
   void durabilityBreaksAtTheExactMaximumThreshold() {
-    assertThat(AxeThrowingAxe.reachesBreakThreshold(98, 1, 100)).isFalse();
-    assertThat(AxeThrowingAxe.reachesBreakThreshold(99, 1, 100)).isTrue();
-    assertThat(AxeThrowingAxe.reachesBreakThreshold(98, 2, 100)).isTrue();
+    assertThat(AxeThrow.reachesBreakThreshold(98, 1, 100)).isFalse();
+    assertThat(AxeThrow.reachesBreakThreshold(99, 1, 100)).isTrue();
+    assertThat(AxeThrow.reachesBreakThreshold(98, 2, 100)).isTrue();
   }
 
   @Test
   void throwingAxeRewardsOnlyAnObservedUncancelledDamageEvent() {
-    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, false, 4D)).isTrue();
-    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(false, false, 4D)).isFalse();
-    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, true, 4D)).isFalse();
-    assertThat(AxeThrowingAxe.isSuccessfulDamageEvent(true, false, 0D)).isFalse();
+    assertThat(AxeThrow.isSuccessfulDamageEvent(true, false, 4D)).isTrue();
+    assertThat(AxeThrow.isSuccessfulDamageEvent(false, false, 4D)).isFalse();
+    assertThat(AxeThrow.isSuccessfulDamageEvent(true, true, 4D)).isFalse();
+    assertThat(AxeThrow.isSuccessfulDamageEvent(true, false, 0D)).isFalse();
   }
 
   @Test
   void throwingAxeAcceptsOnlyMainHandAirClicks() {
-    assertThat(AxeThrowingAxe.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, Hand.MAIN_HAND))
+    assertThat(AxeThrow.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, Hand.MAIN_HAND))
         .isTrue();
-    assertThat(AxeThrowingAxe.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, null)).isTrue();
-    assertThat(AxeThrowingAxe.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, Hand.OFF_HAND))
+    assertThat(AxeThrow.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, null)).isTrue();
+    assertThat(AxeThrow.isThrowInteraction(InteractAction.LEFT_CLICK_AIR, Hand.OFF_HAND))
         .isFalse();
-    assertThat(AxeThrowingAxe.isThrowInteraction(InteractAction.LEFT_CLICK_BLOCK, Hand.MAIN_HAND))
+    assertThat(AxeThrow.isThrowInteraction(InteractAction.LEFT_CLICK_BLOCK, Hand.MAIN_HAND))
         .isFalse();
-    assertThat(AxeThrowingAxe.isThrowInteraction(InteractAction.RIGHT_CLICK_AIR, Hand.MAIN_HAND))
+    assertThat(AxeThrow.isThrowInteraction(InteractAction.RIGHT_CLICK_AIR, Hand.MAIN_HAND))
         .isFalse();
   }
 
@@ -114,5 +114,13 @@ class AxeAdaptationLogicTest {
     AxeShieldSplitter.Config splitter = new AxeShieldSplitter.Config();
     assertThat(splitter.disableTicksBase).isGreaterThan(0D);
     assertThat(splitter.bonusDamagePctBase).isGreaterThan(0D);
+  }
+
+  @Test
+  void aReturningAxeOnlyStrikesWhatItCanPayForWithoutBreaking() {
+    assertThat(AxeThrow.returnHitsBeforeBreaking(false, 248, 250, 1)).isEqualTo(1);
+    assertThat(AxeThrow.returnHitsBeforeBreaking(false, 249, 250, 1)).isZero();
+    assertThat(AxeThrow.returnHitsBeforeBreaking(false, 240, 250, 2)).isEqualTo(4);
+    assertThat(AxeThrow.returnHitsBeforeBreaking(true, 249, 250, 1)).isEqualTo(Integer.MAX_VALUE);
   }
 }

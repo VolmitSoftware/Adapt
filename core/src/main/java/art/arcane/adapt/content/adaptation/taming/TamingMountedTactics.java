@@ -240,7 +240,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   private boolean updateMountedPlayer(PlayerRef p, EntityRef vehicle, Boolean sprintingOverride) {
     UUID id = p.uuid();
-    int level = preferenceEnabled(p, TamingPreferences.HANDLING) ? getActiveLevel(p) : 0;
+    int level = preferenceEnabled(p, TamingPreferences.HANDLING) ? mountedLevel(p, vehicle) : 0;
     if (level <= 0) {
       removeMountBuffs(vehicle);
       return false;
@@ -385,7 +385,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
     if (e.damager() instanceof PlayerRef attacker && isTacticalMount(attacker.vehicle())) {
-      int level = preferenceEnabled(attacker, TamingPreferences.COMBAT) ? getActiveLevel(attacker) : 0;
+      int level = preferenceEnabled(attacker, TamingPreferences.COMBAT) ? mountedLevel(attacker, attacker.vehicle()) : 0;
       if (level > 0) {
         if (!canDamageTarget(attacker, e.entity())) {
           return;
@@ -405,7 +405,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     }
 
     if (e.entity() instanceof PlayerRef defender && isTacticalMount(defender.vehicle())) {
-      int level = preferenceEnabled(defender, TamingPreferences.COMBAT) ? getActiveLevel(defender) : 0;
+      int level = preferenceEnabled(defender, TamingPreferences.COMBAT) ? mountedLevel(defender, defender.vehicle()) : 0;
       if (level > 0) {
         e.setDamage(e.damage() * (1D - getMountedDamageReduction(level)));
         Vec3 face = defender.location().direction().withY(0);
@@ -418,6 +418,11 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
             .sound(Sounds.ITEM_SHIELD_BLOCK, 0.3F, 1.4F);
       }
     }
+  }
+
+  /** The player's own level, or the top level a bonding upgrade lends them on their bonded mount. */
+  private int mountedLevel(PlayerRef p, EntityRef vehicle) {
+    return Math.max(getActiveLevel(p), TameBonds.tacticsLevel(this, p, vehicle));
   }
 
   private double getMountedDamageBonus(int level) {

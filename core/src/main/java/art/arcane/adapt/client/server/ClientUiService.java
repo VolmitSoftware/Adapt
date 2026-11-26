@@ -1,14 +1,24 @@
 package art.arcane.adapt.client.server;
 
+import art.arcane.adapt.content.gui.MutationGui;
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillMutations;
+import art.arcane.adapt.api.mutation.MutationOffers;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationLevelActions;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.client.link.ClientFrameHandler;
 import art.arcane.adapt.client.link.ClientSessions;
@@ -21,11 +31,19 @@ import art.arcane.adapt.client.protocol.ServerInfo;
 import art.arcane.adapt.client.server.panel.PanelFrameHandler;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.CatalogViews;
+import art.arcane.adapt.client.view.GroupLabelView;
+import art.arcane.adapt.client.view.KeptView;
+import art.arcane.adapt.client.view.MutationSpreadViews;
 import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.PlayerViewDiff;
 import art.arcane.adapt.client.view.PlayerViews;
+import art.arcane.adapt.client.view.RecipeViews;
+import art.arcane.adapt.client.view.ToolViews;
+import art.arcane.adapt.client.view.SpendViews;
+import art.arcane.adapt.client.view.XpGuideViews;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.MutatedMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformHost;
@@ -136,7 +154,8 @@ public final class ClientUiService implements ClientFrameHandler {
   /** Lower-case names of the capability bits in {@code mask}, in bit order. */
   public static List<String> capabilityNames(int mask) {
     List<String> names = new ArrayList<>();
-    String[] known = {"screens", "panel", "hud", "toasts", "items", "insight", "jumps"};
+    String[] known = {"screens", "panel", "hud", "toasts", "items", "insight", "jumps", "mutate", "kept", "tools", "mutate_spread", "xp_guide", "spending",
+        "unmutate", "skill_toasts", "group_labels"};
     for (int bit = 0; bit < known.length; bit++) {
       if ((mask & (1 << bit)) != 0) {
         names.add(known[bit]);
@@ -263,15 +282,17 @@ public final class ClientUiService implements ClientFrameHandler {
     }
     if (viewer.view == null || M.ms() >= viewer.accessDueAt
         || viewer.fingerprint != PlayerViews.fingerprint(adaptPlayer.getData())
-        || catalogStale(viewer, registry, player.uuid(), AdaptLanguage.snapshot(player.uuid()))) {
+        || catalogStale(viewer, registry, player.uuid(), AdaptLanguage.snapshot(player.uuid()),
+        adaptPlayer.getData().getMutations())) {
       schedule(player, viewer, 1);
     }
   }
 
   private static boolean catalogStale(Viewer viewer, SkillRegistry registry, UUID playerId,
-                                      LocalizationSnapshot texts) {
+                                      LocalizationSnapshot texts, List<SkillMutation> mutations) {
     return viewer.catalogRevision != registry.getCatalogRevision()
-        || !AdaptLanguage.locale(playerId).equals(viewer.catalogLocale) || viewer.catalogTexts != texts;
+        || !AdaptLanguage.locale(playerId).equals(viewer.catalogLocale) || viewer.catalogTexts != texts
+        || !viewer.catalogMutations.equals(mutations);
   }
 
   private void schedule(PlayerRef player, Viewer viewer, int delayTicks) {
@@ -297,6 +318,9 @@ public final class ClientUiService implements ClientFrameHandler {
       case ClientFrame.SetPreference preference -> preference(player, viewer, preference);
       case ClientFrame.ResetPreference reset -> reset(player, viewer, reset);
       case ClientFrame.Open open -> AdaptScreens.open(player, open.route());
+      case ClientFrame.Mutate mutate -> mutate(player, mutate.skillId());
+      case ClientFrame.MutationRequest request -> mutation(player, viewer, request);
+      case ClientFrame.Unmutate unmutate -> unmutate(player, viewer, unmutate.skillId());
       default -> {
       }
     }
@@ -423,15 +447,20 @@ public final class ClientUiService implements ClientFrameHandler {
     }
     UUID playerId = player.uuid();
     LocalizationSnapshot texts = AdaptLanguage.snapshot(playerId);
-    if (catalogStale(viewer, registry, playerId, texts)) {
-      CatalogView catalog = CatalogViews.build(registry, playerId);
+    List<SkillMutation> mutations = adaptPlayer.getData().getMutations();
+    if (catalogStale(viewer, registry, playerId, texts, mutations)) {
+      CatalogView catalog = CatalogViews.build(registry, playerId, mutations, sessions.has(playerId, ClientProtocol.KEPT));
       if (!sessions.send(playerId, new ServerFrame.Catalog(catalog))) {
         return;
       }
       viewer.catalogRevision = catalog.revision();
       viewer.catalogLocale = catalog.locale();
       viewer.catalogTexts = texts;
+      viewer.catalogMutations = mutations;
       viewer.view = null;
+      viewer.guidesDue = true;
+      viewer.labelsDue = true;
+      viewer.shortNamesDue = true;
     }
     viewer.fingerprint = PlayerViews.fingerprint(adaptPlayer.getData());
     viewer.accessDueAt = M.ms() + ACCESS_REFRESH_MS;
@@ -449,6 +478,220 @@ public final class ClientUiService implements ClientFrameHandler {
       }
     }
     items(playerId, viewer, registry, texts);
+    mutateOffers(playerId, viewer, registry, adaptPlayer);
+    mutationKept(player, adaptPlayer, viewer, registry, mutations);
+    mutationTools(playerId, viewer, registry, texts);
+    recipes(playerId, viewer, registry, texts);
+    xpGuides(playerId, viewer, registry, mutations);
+    groupLabels(playerId, viewer, registry);
+    shortNames(playerId, viewer, registry, mutations);
+    spending(playerId, viewer, registry, adaptPlayer);
+  }
+
+  /** Sends what the player spends knowledge and power on, and the inactive skills policy, when either changed. */
+  private void spending(UUID playerId, Viewer viewer, SkillRegistry registry, AdaptPlayer adaptPlayer) {
+    if (!sessions.has(playerId, ClientProtocol.SPENDING)) {
+      return;
+    }
+    ServerFrame.Spending spending = new ServerFrame.Spending(AdaptConfig.get().getGui().isShowInactiveSkills(),
+        SpendViews.build(registry, adaptPlayer));
+    if (spending.equals(viewer.spending)) {
+      return;
+    }
+    if (sessions.send(playerId, spending)) {
+      viewer.spending = spending;
+    }
+  }
+
+  /** Sends the mutation tools and their recipes when the client negotiated TOOLS and the catalog or language changed. */
+  private void mutationTools(UUID playerId, Viewer viewer, SkillRegistry registry, LocalizationSnapshot texts) {
+    if (!sessions.has(playerId, ClientProtocol.TOOLS)) {
+      return;
+    }
+    long revision = registry.getCatalogRevision();
+    String locale = AdaptLanguage.locale(playerId);
+    if (revision == viewer.toolsRevision && locale.equals(viewer.toolsLocale) && texts == viewer.toolsTexts) {
+      return;
+    }
+    if (sessions.send(playerId, new ServerFrame.MutationTools(ToolViews.build(registry, playerId)))) {
+      viewer.toolsRevision = revision;
+      viewer.toolsLocale = locale;
+      viewer.toolsTexts = texts;
+    }
+  }
+
+  /** Sends the recipes every adaptation unlocks when the client negotiated RECIPES and the catalog or language changed. */
+  private void recipes(UUID playerId, Viewer viewer, SkillRegistry registry, LocalizationSnapshot texts) {
+    if (!sessions.has(playerId, ClientProtocol.RECIPES)) {
+      return;
+    }
+    long revision = registry.getCatalogRevision();
+    String locale = AdaptLanguage.locale(playerId);
+    if (revision == viewer.recipesRevision && locale.equals(viewer.recipesLocale) && texts == viewer.recipesTexts) {
+      return;
+    }
+    if (sessions.send(playerId, new ServerFrame.AdaptationRecipes(RecipeViews.build(registry, playerId)))) {
+      viewer.recipesRevision = revision;
+      viewer.recipesLocale = locale;
+      viewer.recipesTexts = texts;
+    }
+  }
+
+  /** Sends how each skill earns XP with every new catalog, when the client negotiated XP_GUIDE. */
+  private void xpGuides(UUID playerId, Viewer viewer, SkillRegistry registry, List<SkillMutation> mutations) {
+    if (!viewer.guidesDue || !sessions.has(playerId, ClientProtocol.XP_GUIDE)) {
+      return;
+    }
+    String title = LanguageAudience.call(playerId, XpGuideViews::title);
+    if (sessions.send(playerId, new ServerFrame.XpGuides(title, XpGuideViews.build(registry, playerId, mutations)))) {
+      viewer.guidesDue = false;
+    }
+  }
+
+  /**
+   * Sends the names of every grouped skill's adaptation groups with every new catalog, when the client negotiated them
+   * and the server has a grouped skill.
+   */
+  private void groupLabels(UUID playerId, Viewer viewer, SkillRegistry registry) {
+    if (!viewer.labelsDue || !sessions.has(playerId, ClientProtocol.GROUP_LABELS)) {
+      return;
+    }
+    List<GroupLabelView> skills = LanguageAudience.call(playerId, () -> {
+      List<GroupLabelView> named = new ArrayList<>();
+      for (Skill<?> skill : registry.getSkills()) {
+        List<String> labels = new ArrayList<>();
+        for (AdaptationGroup group : skill.getAdaptationGroups()) {
+          labels.add(AdaptLanguage.text(group.label()));
+        }
+        if (!labels.isEmpty()) {
+          named.add(new GroupLabelView(skill.getName(), labels));
+        }
+      }
+      return named;
+    });
+    if (skills.isEmpty() || sessions.send(playerId, new ServerFrame.GroupLabels(skills))) {
+      viewer.labelsDue = false;
+    }
+  }
+
+  /** Sends the names adaptations show on their own skill's pages with every new catalog, when the client negotiated them. */
+  private void shortNames(UUID playerId, Viewer viewer, SkillRegistry registry, List<SkillMutation> mutations) {
+    if (!viewer.shortNamesDue || !sessions.has(playerId, ClientProtocol.SHORT_NAMES)) {
+      return;
+    }
+    if (sessions.send(playerId, new ServerFrame.ShortNames(CatalogViews.shortNames(registry, playerId, mutations)))) {
+      viewer.shortNamesDue = false;
+    }
+  }
+
+  /**
+   * Sends the originals each of the player's mutated skills keeps, and the originals each held upgrade lends a level
+   * while their own code runs, when the client negotiated KEPT and they changed.
+   */
+  private void mutationKept(PlayerRef player, AdaptPlayer adaptPlayer, Viewer viewer, SkillRegistry registry,
+                            List<SkillMutation> mutations) {
+    UUID playerId = player.uuid();
+    if (!sessions.has(playerId, ClientProtocol.KEPT)) {
+      return;
+    }
+    List<KeptView> kept = new ArrayList<>();
+    for (SkillMutation mutation : mutations) {
+      MutatedSkill mutated = registry.getMutatedSkill(mutation.id());
+      if (mutated == null) {
+        continue;
+      }
+      for (Adaptation<?> adaptation : mutated.getKept()) {
+        kept.add(new KeptView(mutated.getName(), adaptation.getName(), SkillUpgrades.keptLevel(adaptation)));
+      }
+      for (UpgradeLoans.Running running : UpgradeLoans.running(player, adaptPlayer, registry, mutation)) {
+        kept.add(new KeptView(running.upgrade().getName(), running.original().getName(), running.level()));
+      }
+    }
+    String title = LanguageAudience.call(playerId, () -> AdaptLanguage.text(MutatedMessages.KEPT));
+    if (kept.equals(viewer.kept) && (kept.isEmpty() || title.equals(viewer.keptTitle))) {
+      return;
+    }
+    if (sessions.send(playerId, new ServerFrame.MutationKept(title, kept))) {
+      viewer.kept = List.copyOf(kept);
+      viewer.keptTitle = title;
+    }
+  }
+
+  /** Sends the skills whose page offers Mutate when the client negotiated MUTATE and the list changed. */
+  private void mutateOffers(UUID playerId, Viewer viewer, SkillRegistry registry, AdaptPlayer adaptPlayer) {
+    if (!sessions.has(playerId, ClientProtocol.MUTATE)) {
+      return;
+    }
+    List<String> offers = new ArrayList<>();
+    for (Skill<?> skill : MutationOffers.leads(adaptPlayer.getData(), registry.getSkills(), AdaptConfig.get().getMutations())) {
+      offers.add(skill.getName());
+    }
+    if (offers.equals(viewer.mutateOffers)) {
+      return;
+    }
+    if (sessions.send(playerId, new ServerFrame.MutateOffers(offers))) {
+      viewer.mutateOffers = List.copyOf(offers);
+    }
+  }
+
+  /** Opens the partner picker for a client's Mutate button, when that skill's page offers it. */
+  private void mutate(PlayerRef player, String skillId) {
+    SkillRegistry registry = registry();
+    AdaptPlayer adaptPlayer = adaptPlayer(player);
+    Skill<?> skill = registry == null ? null : registry.getSkill(skillId);
+    if (!sessions.has(player.uuid(), ClientProtocol.MUTATE) || skill == null || adaptPlayer == null
+        || !MutationOffers.offered(adaptPlayer.getData(), skill, registry.getSkills(), AdaptConfig.get().getMutations())) {
+      feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      return;
+    }
+    MutationGui.openPartners(player, skill);
+  }
+
+  /**
+   * Answers the spread: the preview of the lead with the partner, or on confirm the merge with every rule checked
+   * again, the spread's answer naming the new skill once it went through, and the result as feedback.
+   */
+  private void mutation(PlayerRef player, Viewer viewer, ClientFrame.MutationRequest request) {
+    SkillRegistry registry = registry();
+    AdaptPlayer adaptPlayer = adaptPlayer(player);
+    Skill<?> lead = registry == null ? null : registry.getSkill(request.lead());
+    if (!sessions.has(player.uuid(), ClientProtocol.MUTATE_SPREAD) || lead == null || lead instanceof MutatedSkill
+        || adaptPlayer == null) {
+      feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      return;
+    }
+    Skill<?> partner = request.partner().isEmpty() ? null : registry.getSkill(request.partner());
+    AdaptConfig.Mutations config = AdaptConfig.get().getMutations();
+    PlayerData data = adaptPlayer.getData();
+    if (!request.confirm()) {
+      sessions.send(player.uuid(), new ServerFrame.MutationSpread(
+          MutationSpreadViews.build(registry, data, lead, partner, config, "")));
+      return;
+    }
+    SkillMutations.Result result = MutationGui.merge(player, adaptPlayer, lead, partner);
+    String text = MutationGui.resultText(result, lead, partner);
+    sync(player, viewer);
+    boolean mutated = result == SkillMutations.Result.MUTATED;
+    String mutatedId = mutated ? data.mutationOf(lead.getName()).id() : "";
+    sessions.send(player.uuid(), new ServerFrame.MutationSpread(
+        MutationSpreadViews.build(registry, data, lead, mutated ? null : partner, config, mutatedId)));
+    feedback(player, mutated ? FeedbackKind.SUCCESS : FeedbackKind.FAILURE, text);
+  }
+
+  /**
+   * Undoes the mutation a client's Unmutate names, for a player in debug mode or with the admin permission, then sends
+   * the parents back and the result as feedback.
+   */
+  private void unmutate(PlayerRef player, Viewer viewer, String skillId) {
+    AdaptPlayer adaptPlayer = adaptPlayer(player);
+    SkillMutation mutation = adaptPlayer == null ? null : SkillMutations.mutationNamed(adaptPlayer.getData(), skillId);
+    if (!sessions.has(player.uuid(), ClientProtocol.UNMUTATE) || mutation == null || !MutationGui.mayUnmutate(player)
+        || !MutationGui.unmutate(player, adaptPlayer, mutation)) {
+      feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      return;
+    }
+    sync(player, viewer);
+    feedback(player, FeedbackKind.SUCCESS, MutationGui.unmutatedText(mutation, player.name()));
   }
 
   /** Sends the recipe viewer items when the client negotiated ITEMS and the list changed since its last copy. */
@@ -496,14 +739,7 @@ public final class ClientUiService implements ClientFrameHandler {
   }
 
   static Adaptation<?> adaptation(SkillRegistry registry, String adaptationId) {
-    for (Skill<?> skill : registry.getSkills()) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation.getName().equals(adaptationId)) {
-          return adaptation;
-        }
-      }
-    }
-    return null;
+    return registry.getAdaptation(adaptationId);
   }
 
   private record CachedItems(CustomItemCatalog.Key key, List<ServerFrame.CustomItems> frames) {
@@ -515,6 +751,20 @@ public final class ClientUiService implements ClientFrameHandler {
     private volatile long catalogRevision = Long.MIN_VALUE;
     private volatile String catalogLocale = "";
     private volatile LocalizationSnapshot catalogTexts;
+    private volatile List<SkillMutation> catalogMutations = List.of();
+    private volatile List<String> mutateOffers = List.of();
+    private volatile List<KeptView> kept = List.of();
+    private volatile String keptTitle = "";
+    private volatile long toolsRevision = Long.MIN_VALUE;
+    private volatile String toolsLocale = "";
+    private volatile LocalizationSnapshot toolsTexts;
+    private volatile long recipesRevision = Long.MIN_VALUE;
+    private volatile String recipesLocale = "";
+    private volatile LocalizationSnapshot recipesTexts;
+    private volatile boolean guidesDue;
+    private volatile boolean labelsDue;
+    private volatile boolean shortNamesDue;
+    private volatile ServerFrame.Spending spending;
     private volatile PlayerView view;
     private volatile long fingerprint;
     private volatile long accessDueAt;

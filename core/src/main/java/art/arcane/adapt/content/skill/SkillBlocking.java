@@ -27,6 +27,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
@@ -46,7 +47,17 @@ import art.arcane.adapt.content.adaptation.blocking.BlockingSaddlecrafter;
 import art.arcane.adapt.content.adaptation.blocking.BlockingShieldWall;
 import art.arcane.adapt.content.adaptation.blocking.BlockingShieldbearersResolve;
 import art.arcane.adapt.content.adaptation.blocking.BlockingTemperedGuard;
+import art.arcane.adapt.content.adaptation.blocking.upgraded.LivingWall;
+import art.arcane.adapt.content.adaptation.blocking.upgraded.MirrorGuard;
+import art.arcane.adapt.content.adaptation.blocking.upgraded.TemperedAegis;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingTrigger;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingFightStrike;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingWorkStrike;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingBoon;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingFuel;
+import art.arcane.adapt.content.adaptation.blocking.blocks.BlockingState;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -60,6 +71,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,8 +82,18 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
   private final Map<UUID, Long> recentBlocks = playerState();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.BLOCKING_GUARD, "blocking-bastion-stance", "blocking-shield-wall",
+          "blocking-interpose", "blocking-tempered-guard", "blocking-shieldbearers-resolve", "blocking-perfect-guard"),
+      AdaptationGroup.of(GroupMessages.BLOCKING_COUNTER, "blocking-counter-guard", "blocking-mirror-block",
+          "blocking-bulwark-bash"),
+      AdaptationGroup.of(GroupMessages.BLOCKING_GEAR, "blocking-chainarmorer", "blocking-horsearmorer",
+          "blocking-saddlecrafter", "blocking-phalanx-crafter", "blocking-multiarmor")
+  );
+
   public SkillBlocking() {
-    super("blocking", SkillPresentation.of(SkillMessages.BLOCKING_NAME, SkillMessages.BLOCKING_ICON, SkillMessages.BLOCKING_DESCRIPTION));
+    super("blocking", SkillPresentation.of(SkillMessages.BLOCKING_NAME, SkillMessages.BLOCKING_ICON, SkillMessages.BLOCKING_DESCRIPTION,
+        SkillMessages.BLOCKING_QUIP, SkillMessages.BLOCKING_UNLOCK_QUIP_1, SkillMessages.BLOCKING_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.DARK_GRAY);
     setInterval(5000);
@@ -90,6 +112,9 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     registerAdaptation(new BlockingShieldbearersResolve());
     registerAdaptation(new BlockingPhalanxCrafter());
     registerAdaptation(new BlockingInterpose());
+    registerUpgrades(new MirrorGuard(), new LivingWall(), new TemperedAegis());
+    registerBlocks(new BlockingTrigger(), new BlockingFightStrike(), new BlockingWorkStrike(), new BlockingBoon(),
+        new BlockingFuel(), new BlockingState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("leather_chestplate")).key("challenge_block_1k")
         .model(CustomModel.get(Id.minecraft("leather_chestplate"), "advancement", "blocking", "challenge_block_1k"))
@@ -176,6 +201,11 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
     registerMilestone("challenge_block_heavy_50", "blocked.heavy", 50, () -> getConfig().challengeBlock1kReward);
     registerMilestone("challenge_block_heavy_500", "blocked.heavy", 500, () -> getConfig().challengeBlock1kReward * 3);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseShieldXp);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   private boolean beginCooldown(PlayerRef p) {

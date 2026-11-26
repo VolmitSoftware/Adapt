@@ -1,0 +1,13 @@
+{
+  "skill": "rift",
+  "behaviourTest": "RiftBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "RiftTrigger", "handles": ["PlayerTeleportEvent"], "reuses": ["RiftTeleports"]},
+    {"slot": "STRIKE_FIGHT", "class": "RiftFightStrike", "handles": [], "reuses": ["RiftBlinkPath", "RiftBlink"]},
+    {"slot": "STRIKE_WORK", "class": "RiftWorkStrike", "handles": [], "reuses": ["RiftMagnet", "RiftVoidMagnet", "RangedFetch"]},
+    {"slot": "BOON", "class": "RiftBoon", "handles": [], "reuses": ["RiftResist"]},
+    {"slot": "FUEL", "class": "RiftFuel", "handles": [], "reuses": ["RiftPearls"]},
+    {"slot": "STATE", "class": "RiftState", "handles": ["PlayerTeleportEvent"], "reuses": ["RiftTeleports"]}
+  ],
+  "unavailableOn": {}
+}

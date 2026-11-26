@@ -30,7 +30,7 @@ class CatalogIconsTest {
       platform.host().runGame(game);
       List<String> missing = new ArrayList<>();
       try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
-        CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID());
+        CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID(), List.of(), false);
         for (SkillView skill : catalog.skills()) {
           require(game, "skill " + skill.id(), skill.icon(), missing);
           for (AdaptationView adaptation : skill.adaptations()) {

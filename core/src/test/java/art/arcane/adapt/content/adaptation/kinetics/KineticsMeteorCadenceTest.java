@@ -73,21 +73,21 @@ class KineticsMeteorCadenceTest {
 
   @Test
   void directDiveAccelerationIsLinearAndTerminalBounded() {
-    assertThat(KineticsMeteorCadence.acceleratedDownwardVelocity(-0.5D, 0.5D, 3.5D))
+    assertThat(KineticsDive.acceleratedDownwardVelocity(-0.5D, 0.5D, 3.5D))
         .isCloseTo(-1D, offset(1.0E-9D));
-    assertThat(KineticsMeteorCadence.acceleratedDownwardVelocity(-3.4D, 0.5D, 3.5D))
+    assertThat(KineticsDive.acceleratedDownwardVelocity(-3.4D, 0.5D, 3.5D))
         .isCloseTo(-3.5D, offset(1.0E-9D));
-    assertThat(KineticsMeteorCadence.acceleratedDownwardVelocity(-4D, 0.5D, 3.5D))
+    assertThat(KineticsDive.acceleratedDownwardVelocity(-4D, 0.5D, 3.5D))
         .isCloseTo(-4D, offset(1.0E-9D));
-    assertThat(KineticsMeteorCadence.acceleratedDownwardVelocity(0.2D, 0.5D, 3.5D))
+    assertThat(KineticsDive.acceleratedDownwardVelocity(0.2D, 0.5D, 3.5D))
         .isCloseTo(0.2D, offset(1.0E-9D));
   }
 
   @Test
   void accelerationCanOnlyApplyOncePerPlayerTick() {
-    assertThat(KineticsMeteorCadence.shouldAccelerateAtTick(null, 40)).isTrue();
-    assertThat(KineticsMeteorCadence.shouldAccelerateAtTick(39, 40)).isTrue();
-    assertThat(KineticsMeteorCadence.shouldAccelerateAtTick(40, 40)).isFalse();
+    assertThat(KineticsDive.shouldAccelerateAtTick(null, 40)).isTrue();
+    assertThat(KineticsDive.shouldAccelerateAtTick(39, 40)).isTrue();
+    assertThat(KineticsDive.shouldAccelerateAtTick(40, 40)).isFalse();
   }
 
   @Test

@@ -40,7 +40,7 @@ record GolemView(GolemBody body, Vitals vitals, CoreSlots cores, GolemMode mode,
     return new GolemView(state.body(),
         new Vitals((int) Math.ceil(Math.max(0D, golem.health())), Math.round(Math.max(0D, GolemVitals.maxHealth(golem))), handle.isDormant(), state.mode() == GolemMode.WORK
             ? handle.workStatus().describe(handle.toolNote()) : ""),
-        new CoreSlots(slotted.isEmpty() ? List.of(state.primaryCore()) : slotted, GolemMastery.perks(handle).dualCore()),
+        new CoreSlots(slotted.isEmpty() ? List.of(state.primaryCore()) : slotted, GolemMastery.secondCoreOpen(handle)),
         state.mode(),
         new ChannelSet(effects.channels(state.channels()), effects.channelSlots()),
         new Anchors(state.home(), state.homeChest(), handle.toolNote(), state.held(),

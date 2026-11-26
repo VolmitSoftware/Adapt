@@ -11,10 +11,21 @@ import art.arcane.adapt.client.view.InsightMark;
 import art.arcane.adapt.client.view.InsightStat;
 import art.arcane.adapt.client.view.InsightStatKind;
 import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.client.view.KeptView;
+import art.arcane.adapt.client.view.MutationCandidate;
+import art.arcane.adapt.client.view.MutationEntry;
+import art.arcane.adapt.client.view.MutationSide;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.MutationWords;
+import art.arcane.adapt.client.view.SpendView;
+import art.arcane.adapt.client.view.GroupLabelView;
+import art.arcane.adapt.client.view.ShortNameView;
+import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.client.view.PlayerAccess;
 import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerHeader;
 import art.arcane.adapt.client.view.PlayerView;
+import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.PreferenceChoiceView;
 import art.arcane.adapt.client.view.PreferenceGroupView;
 import art.arcane.adapt.client.view.PreferenceKey;
@@ -24,6 +35,7 @@ import art.arcane.adapt.client.view.PreferenceView;
 import art.arcane.adapt.client.view.RequirementView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;
+import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.platform.menu.ClickKind;
 
 import java.util.LinkedHashMap;
@@ -62,8 +74,10 @@ final class FrameSamples {
         "Blink", 1_700_000_000_000L, 8000L, 2, 5, false));
     frames.put("server-hud-clear-all", new ServerFrame.HudClearAll());
     frames.put("server-xp-earned", new ServerFrame.XpEarned("agility", 12.5D, 1012.5D, 9, 0.75D));
-    frames.put("server-toast", new ServerFrame.Toast(ToastKind.LEVEL_UP, ICON, "Agility 10", "+1 knowledge"));
-    frames.put("server-toast-challenge", new ServerFrame.Toast(ToastKind.CHALLENGE, ICON, "Marathon", "Run 50 km"));
+    frames.put("server-toast", new ServerFrame.Toast(ToastKind.LEVEL_UP, ICON, "Agility 10", "+1 knowledge", ""));
+    frames.put("server-toast-challenge", new ServerFrame.Toast(ToastKind.CHALLENGE, ICON, "Marathon", "Run 50 km", ""));
+    frames.put("server-toast-skill", new ServerFrame.Toast(ToastKind.SIGNATURE, ICON, "Called Shot", "Mark a target",
+        "mutated-ranged-stealth"));
     frames.put("server-custom-items", new ServerFrame.CustomItems(List.of(
         new ItemDescriptor("adapt:bound_ender_pearl", "minecraft:ender_pearl", "Bound Pearl", List.of("Linked"),
             "adapt:bound_ender_pearl", 0, new byte[] {1, 2, 3, (byte) 0xFF}),
@@ -75,6 +89,41 @@ final class FrameSamples {
     frames.put("server-insight-marks", new ServerFrame.InsightMarks(List.of(
         new InsightMark(77, InsightKind.HOSTILE, 0.5D), new InsightMark(-3, InsightKind.PLAYER, 1D))));
     frames.put("server-insight-clear", new ServerFrame.InsightClear());
+    frames.put("server-mutate-offers", new ServerFrame.MutateOffers(List.of("swords", "stealth")));
+    frames.put("server-mutation-kept", new ServerFrame.MutationKept("Kept without learning",
+        List.of(new KeptView("mutated-swords-stealth", "swords-machete", 1), new KeptView("mutated-swords-stealth", "stealth-sight", 2))));
+    frames.put("server-mutation-tools", new ServerFrame.MutationTools(List.of(new ToolView("upgraded-swords-tempest-flow",
+        "tool-swords-whetstone", "Whetstone", new IconRef("minecraft:flint", 4902919, null, "adapt:textures/gui/tool/tool-swords-whetstone.png"),
+        2, List.of(new ToolView.Ingredient("minecraft:flint", 2), new ToolView.Ingredient("#minecraft:stone_crafting_materials", 1))))));
+    frames.put("server-mutation-spread", new ServerFrame.MutationSpread(spread()));
+    frames.put("server-xp-guides", new ServerFrame.XpGuides("Earning XP", List.of(
+        new XpGuideView("swords", List.of(), List.of(new XpGuideView.Section("swords", "Swords", List.of("Hit mobs with a sword", "Kill mobs with a sword")))),
+        new XpGuideView("mutated-swords-stealth", List.of("swords", "stealth"), List.of(
+            new XpGuideView.Section("swords", "Swords", List.of("Hit mobs with a sword")),
+            new XpGuideView.Section("stealth", "Stealth", List.of("Sneak")),
+            new XpGuideView.Section("", "Mutation", List.of("Both parents fill one bar")))))));
+    frames.put("server-spending", new ServerFrame.Spending(true, List.of(
+        new SpendView("mutated-swords-stealth", "upgraded-swords-witherblade", 2, 45, 1, SpendView.Source.LEARNED),
+        new SpendView("mutated-swords-stealth", "swords-machete", 1, 0, 0, SpendView.Source.KEPT))));
+    frames.put("server-group-labels", new ServerFrame.GroupLabels(List.of(
+        new GroupLabelView("hunter", List.of("When Struck", "The Hunt")),
+        new GroupLabelView("kinetics", List.of("Spear", "Mace", "Movement")))));
+    frames.put("server-short-names", new ServerFrame.ShortNames(List.of(
+        new ShortNameView("pickaxe-drop-to-inventory", "Drop to Inventory"),
+        new ShortNameView("hunter-luck", "Luck"))));
+    frames.put("server-adaptation-recipes", new ServerFrame.AdaptationRecipes(List.of(
+        new RecipeView("brewing-haste", RecipeView.Kind.BREWING, 1, "minecraft:haste", 0, List.of(
+            new RecipeView.Item(new IconRef("minecraft:potion", 0, null,
+                "minecraft:textures/item/potion_overlay.png#33ebff|minecraft:textures/item/potion.png"), "",
+                "item.minecraft.potion.effect.swiftness", 1, List.of(new RecipeView.Effect("minecraft:speed", 0, 3600, false))),
+            new RecipeView.Item(IconRef.item("minecraft:amethyst_shard"), "", "", 1, List.of())),
+            new RecipeView.Item(new IconRef("minecraft:potion", 0, null,
+                "minecraft:textures/item/potion_overlay.png#ffff00|minecraft:textures/item/potion.png"), "Bottled Haste", "", 1,
+                List.of(new RecipeView.Effect("minecraft:haste", 1, 600, false)))),
+        new RecipeView("architect-chalk-line", RecipeView.Kind.SHAPED, 2, "minecraft:string", 2, List.of(
+            new RecipeView.Item(IconRef.item("minecraft:string"), "", "", 1, List.of()), RecipeView.Item.NONE, RecipeView.Item.NONE,
+            new RecipeView.Item(IconRef.item("minecraft:stick"), "", "", 1, List.of())),
+            new RecipeView.Item(new IconRef("minecraft:stick", 4902922, null, null), "Chalk Polyline Wand", "", 1, List.of())))));
     return frames;
   }
 
@@ -93,7 +142,26 @@ final class FrameSamples {
     frames.put("client-panel-input", new ClientFrame.PanelInput(300, 4, 22, "über 64"));
     frames.put("client-panel-closed", new ClientFrame.PanelClosed(300));
     frames.put("client-jump-key", new ClientFrame.JumpKey(true));
+    frames.put("client-mutate", new ClientFrame.Mutate("swords"));
+    frames.put("client-mutation-request", new ClientFrame.MutationRequest("swords", "stealth", true));
+    frames.put("client-open-mutate", new ClientFrame.Open(new Route.Mutate("swords")));
+    frames.put("client-unmutate", new ClientFrame.Unmutate("swords"));
     return frames;
+  }
+
+  static MutationSpreadView spread() {
+    MutationEntry upgrade = new MutationEntry("upgraded-swords-witherblade", ICON, "Witherblade", "Wither on hit.\n13 / 13 / 16 knowledge", 0);
+    MutationEntry kept = new MutationEntry("swords-machete", ICON, "Machete I", "Cut through foliage.", 1);
+    MutationEntry tool = new MutationEntry("ledger", IconRef.item("minecraft:book"), "Ledger", "Tool", 0);
+    MutationEntry lost = new MutationEntry("stealth-sight", ICON, "Ghost Sight II", "", 2);
+    MutationSide lead = new MutationSide("swords", 22, List.of(upgrade), List.of(kept), List.of(tool), List.of(lost),
+        "5 Swords levels · 9 Swords knowledge");
+    return new MutationSpreadView("swords", "stealth", "Silent Duelist", "Level 17 · 37 knowledge", List.of(upgrade), lead,
+        MutationSide.NONE, List.of(new MutationCandidate("stealth", 17, MutationCandidate.State.ELIGIBLE, ""),
+        new MutationCandidate("axes", 9, MutationCandidate.State.LEVEL_TOO_LOW, "Needs level 15")),
+        new MutationWords("Mutate", "Lead", "Partner", "Gains", "Loses", "Hold to mutate", "This cannot be undone", "Swap lead",
+            "Level {level}"),
+        "mutated-swords-stealth");
   }
 
   static InsightView insight() {

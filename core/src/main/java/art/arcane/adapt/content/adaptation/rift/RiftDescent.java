@@ -18,8 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -50,7 +51,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.UUID;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -59,9 +59,9 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
       new PlayerPreference.Definition<>("control", RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL, Control.SNEAK, List.of(
           new PlayerPreference.Choice<>(Control.SNEAK, RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL_SNEAK, Id.minecraft("leather_boots"), 1),
           new PlayerPreference.Choice<>(Control.AUTOMATIC, RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL_AUTOMATIC, Id.minecraft("feather"), 1))));
-  private static final Id LEVITATION = Id.minecraft("levitation");
-
-  private final Cooldowns cooldown = cooldowns();
+  public static final Id LEVITATION = Id.minecraft("levitation");
+  private final RiftLevitation levitation = new RiftLevitation(this, cooldowns(),
+      (PlayerRef p) -> addStat(p, "rift.descent.levitation-cancelled", 1));
 
   public RiftDescent() {
     super("rift-descent");
@@ -118,41 +118,31 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
   }
 
   private void cancelLevitation(PlayerRef p) {
-    if (p.effect(LEVITATION) == null) {
-      return;
-    }
-    if (!hasActiveAdaptation(p)) {
-      return;
-    }
-    UUID playerId = p.uuid();
-    long cooldownMs = Math.max(1L, (long) (getConfig().cooldown * 1000D));
-    if (!cooldown.isReady(playerId, cooldownMs)) {
-      return;
-    }
-
-    p.removeEffect(LEVITATION);
-    addStat(p, "rift.descent.levitation-cancelled", 1);
-    cooldown.mark(playerId, cooldownMs);
-    fx(p, FxPriority.TRANSITION)
-        .particle(Particles.REVERSE_PORTAL, 8, 0, 1.2, 0, 0.12, 0.02)
-        .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.5f, 1.7f);
-
-    int protectionTicks = fallProtectionTicks(getConfig().cooldown);
-    if (protectionTicks > 0) {
-      AdaptAttributeService.get().applyTimed(p, getName(), "fall", Attributes.FALL_DAMAGE_MULTIPLIER,
-          -1.0D, AttributeOperation.ADD_VALUE, protectionTicks);
-    }
-
-    Tasks.runEntity(p, () -> FxPresets.readyPing(this, p), Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
-
-    Tasks.runEntity(p, () -> fx(p, FxPriority.TRANSITION)
-        .particle(Particles.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04, new ParticleData.Power(1.0F))
-        .particle(Particles.CLOUD, 6, 0, -0.1, 0, 0.25, 0.02)
-        .chord(Sounds.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f, Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.2f));
+    levitation.cancel(p, getConfig().cooldown);
   }
 
   static int fallProtectionTicks(double cooldownSeconds) {
     return (int) (20D * cooldownSeconds);
+  }
+
+  /** The release effects, then fall protection for {@code cooldownSeconds} and a ready ping when it ends. */
+  public static void release(Adaptation<?> owner, PlayerRef p, double cooldownSeconds) {
+    Fx.now(owner, p, FxPriority.TRANSITION)
+        .particle(Particles.REVERSE_PORTAL, 8, 0, 1.2, 0, 0.12, 0.02)
+        .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.5f, 1.7f);
+
+    int protectionTicks = fallProtectionTicks(cooldownSeconds);
+    if (protectionTicks > 0) {
+      AdaptAttributeService.get().applyTimed(p, owner.getName(), "fall", Attributes.FALL_DAMAGE_MULTIPLIER,
+          -1.0D, AttributeOperation.ADD_VALUE, protectionTicks);
+    }
+
+    Tasks.runEntity(p, () -> FxPresets.readyPing(owner, p), Math.max(1, (int) Math.round(cooldownSeconds * 20D)));
+
+    Tasks.runEntity(p, () -> Fx.now(owner, p, FxPriority.TRANSITION)
+        .particle(Particles.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04, new ParticleData.Power(1.0F))
+        .particle(Particles.CLOUD, 6, 0, -0.1, 0, 0.25, 0.02)
+        .chord(Sounds.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f, Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.2f));
   }
 
   @ConfigDescription("Sneak to descend and negate levitation effects.")

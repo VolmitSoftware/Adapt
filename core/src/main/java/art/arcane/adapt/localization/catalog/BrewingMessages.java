@@ -81,6 +81,30 @@ public final class BrewingMessages {
   public static final TextKey SATURATION_LORE1 = TextKey.of("brewing.saturation.lore1", "Regen Potion + Baked Potato = Potion of Saturation");
   public static final TextKey SATURATION_LORE2 = TextKey.of("brewing.saturation.lore2", "Regen Potion + Hay Bale = Potion of Saturation-2");
   public static final LinesKey SATURATION_LORE = LinesKey.of("brewing.saturation.lore", "Regen Potion + Baked Potato = Potion of Saturation", "Regen Potion + Hay Bale = Potion of Saturation-2");
+  public static final TextKey MASTER_DISTILLER_LORE1 = TextKey.of("upgrade.brewing.master_distiller.lore1", "Faster Brewing");
+  public static final TextKey MASTER_DISTILLER_LORE2 = TextKey.of("upgrade.brewing.master_distiller.lore2", "Faster Brewing per Touching Lava Block");
+  public static final TextKey MASTER_DISTILLER_LORE3 = TextKey.of("upgrade.brewing.master_distiller.lore3", "Brewed Potion Duration");
+  public static final TextKey WITCHS_SHELF_LORE1 = TextKey.of("upgrade.brewing.witchs_shelf.lore1", "Hostile Brews Unlocked");
+  public static final TextKey WITCHS_SHELF_LORE2 = TextKey.of("upgrade.brewing.witchs_shelf.lore2", "Hostile Splash Radius");
+  public static final TextKey APOTHECARY_LORE1 = TextKey.of("upgrade.brewing.apothecary.lore1", "Defensive Brews Unlocked");
+  public static final TextKey APOTHECARY_LORE2 = TextKey.of("upgrade.brewing.apothecary.lore2", "Elixir Duration");
+  public static final TextKey APOTHECARY_ELIXIR_NAME = TextKey.of("upgrade.brewing.apothecary.elixir_name", "Apothecary's Elixir");
+  public static final TextKey MASTER_DISTILLER_LORE4 = TextKey.of("upgrade.brewing.master_distiller.lore4", "Bandolier Slots");
+  public static final TextKey WITCHS_SHELF_LORE3 = TextKey.of("upgrade.brewing.witchs_shelf.lore3", "Effects per Mixed Splash");
+  public static final TextKey WITCHS_SHELF_LORE4 = TextKey.of("upgrade.brewing.witchs_shelf.lore4", "Mixed Effect Duration");
+  public static final TextKey WITCHS_SHELF_MIX_NAME = TextKey.of("upgrade.brewing.witchs_shelf.mix_name", "Mixed Hex");
+  public static final TextKey APOTHECARY_LORE3 = TextKey.of("upgrade.brewing.apothecary.lore3", "Effects per Mixed Potion");
+  public static final TextKey APOTHECARY_LORE4 = TextKey.of("upgrade.brewing.apothecary.lore4", "Mixed Effect Duration");
+  public static final TextKey APOTHECARY_MIX_NAME = TextKey.of("upgrade.brewing.apothecary.mix_name", "Mixed Tonic");
+  public static final TextKey BANDOLIER_NAME = TextKey.of("tool.brewing.bandolier.name", "Alchemist's Bandolier");
+  public static final TextKey BANDOLIER_STORED = TextKey.of("tool.brewing.bandolier.stored", "Potions: {count}");
+  public static final TextKey BANDOLIER_ACTIVE = TextKey.of("tool.brewing.bandolier.active", "Active: {potion} ({slot}/{count})");
+  public static final TextKey BANDOLIER_EMPTY = TextKey.of("tool.brewing.bandolier.empty", "No potions loaded");
+  public static final TextKey BANDOLIER_FULL = TextKey.of("tool.brewing.bandolier.full", "Bandolier full");
+  public static final TextKey BANDOLIER_NOTHING = TextKey.of("tool.brewing.bandolier.nothing", "No potion to load");
+  public static final TextKey BANDOLIER_UNREADABLE = TextKey.of("tool.brewing.bandolier.unreadable", "Bandolier potions unreadable");
+  public static final TextKey BANDOLIER_UNSTORABLE = TextKey.of("tool.brewing.bandolier.unstorable", "This potion cannot be stored");
+  public static final TextKey DOSES_LEFT = TextKey.of("brewing.doses.left", "Opened: {left}/{total} doses left");
 
   private BrewingMessages() {
   }
@@ -162,5 +186,29 @@ public final class BrewingMessages {
     builder.add(SATURATION_LORE1);
     builder.add(SATURATION_LORE2);
     builder.add(SATURATION_LORE);
+    builder.add(MASTER_DISTILLER_LORE1);
+    builder.add(MASTER_DISTILLER_LORE2);
+    builder.add(MASTER_DISTILLER_LORE3);
+    builder.add(WITCHS_SHELF_LORE1);
+    builder.add(WITCHS_SHELF_LORE2);
+    builder.add(APOTHECARY_LORE1);
+    builder.add(APOTHECARY_LORE2);
+    builder.add(APOTHECARY_ELIXIR_NAME);
+    builder.add(MASTER_DISTILLER_LORE4);
+    builder.add(WITCHS_SHELF_LORE3);
+    builder.add(WITCHS_SHELF_LORE4);
+    builder.add(WITCHS_SHELF_MIX_NAME);
+    builder.add(APOTHECARY_LORE3);
+    builder.add(APOTHECARY_LORE4);
+    builder.add(APOTHECARY_MIX_NAME);
+    builder.add(BANDOLIER_NAME);
+    builder.add(BANDOLIER_STORED);
+    builder.add(BANDOLIER_ACTIVE);
+    builder.add(BANDOLIER_EMPTY);
+    builder.add(BANDOLIER_FULL);
+    builder.add(BANDOLIER_NOTHING);
+    builder.add(BANDOLIER_UNREADABLE);
+    builder.add(BANDOLIER_UNSTORABLE);
+    builder.add(DOSES_LEFT);
   }
 }

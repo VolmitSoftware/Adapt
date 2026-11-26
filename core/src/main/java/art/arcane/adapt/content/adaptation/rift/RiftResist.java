@@ -65,7 +65,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
     registerMilestone("challenge_rift_resist_200", "rift.resist.activations", 200, 300);
   }
 
-  static void riftResistStackAdd(Adaptation<?> source, PlayerRef p, int duration, int amplifier) {
+  public static void riftResistStackAdd(Adaptation<?> source, PlayerRef p, int duration, int amplifier) {
     Loc location = p.location();
 
     boolean refresh = p.effect(RESISTANCE) != null;

@@ -151,6 +151,20 @@ public final class KineticsMessages {
   private KineticsMessages() {
   }
 
+  public static final TextKey COMET_LORE1 = TextKey.of("upgrade.kinetics.comet.lore1", "Shockwave Radius");
+  public static final TextKey COMET_LORE2 = TextKey.of("upgrade.kinetics.comet.lore2", "Armor Shredded");
+  public static final TextKey COMET_LORE3 = TextKey.of("upgrade.kinetics.comet.lore3", "Shred Duration");
+  public static final TextKey COMET_LORE4 = TextKey.of("upgrade.kinetics.comet.lore4", "Shockwave Damage");
+  public static final TextKey COMET_LORE5 = TextKey.of("upgrade.kinetics.comet.lore5", "Titan and Pocket Size Change");
+  public static final TextKey COMET_LORE6 = TextKey.of("upgrade.kinetics.comet.lore6", "Titan Shockwave Radius");
+  public static final TextKey COMET_LORE7 = TextKey.of("upgrade.kinetics.comet.lore7", "Pocket Landing Damage Removed");
+  public static final TextKey LANCER_LORE1 = TextKey.of("upgrade.kinetics.lancer.lore1", "Extra Reach");
+  public static final TextKey LANCER_LORE2 = TextKey.of("upgrade.kinetics.lancer.lore2", "Most Bonus Damage from Speed");
+  public static final TextKey LANCER_LORE3 = TextKey.of("upgrade.kinetics.lancer.lore3", "Pin Duration");
+  public static final TextKey FEATHERWEIGHT_LORE1 = TextKey.of("upgrade.kinetics.featherweight.lore1", "Extra Jump Height");
+  public static final TextKey FEATHERWEIGHT_LORE2 = TextKey.of("upgrade.kinetics.featherweight.lore2", "Landing Bounciness");
+  public static final TextKey FEATHERWEIGHT_LORE3 = TextKey.of("upgrade.kinetics.featherweight.lore3", "Fall Damage Prevented");
+
   public static void addTo(MessageCatalog.Builder builder) {
     builder.add(KINETICSWINDBURST_PREFERENCE_SNEAK);
     builder.add(KINETICSWINDBURST_PREFERENCE_HOSTILES);
@@ -283,5 +297,18 @@ public final class KineticsMessages {
     builder.add(DEAD_ZONE_LORE1);
     builder.add(DEAD_ZONE_LORE2);
     builder.add(DEAD_ZONE_LORE);
+    builder.add(COMET_LORE1);
+    builder.add(COMET_LORE2);
+    builder.add(COMET_LORE3);
+    builder.add(COMET_LORE4);
+    builder.add(COMET_LORE5);
+    builder.add(COMET_LORE6);
+    builder.add(COMET_LORE7);
+    builder.add(LANCER_LORE1);
+    builder.add(LANCER_LORE2);
+    builder.add(LANCER_LORE3);
+    builder.add(FEATHERWEIGHT_LORE1);
+    builder.add(FEATHERWEIGHT_LORE2);
+    builder.add(FEATHERWEIGHT_LORE3);
   }
 }

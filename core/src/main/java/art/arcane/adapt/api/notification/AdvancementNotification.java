@@ -23,6 +23,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.ToastKind;
 import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
@@ -38,6 +39,9 @@ public class AdvancementNotification implements Notification {
   private final Id icon = Id.minecraft("diamond");
   @Builder.Default
   private final CustomModel model = null;
+  /** The icon a client with native toasts draws, null for {@link #icon} and {@link #model}. */
+  @Builder.Default
+  private final IconRef clientIcon = null;
   @Builder.Default
   private final String title = " ";
   @Builder.Default
@@ -48,6 +52,9 @@ public class AdvancementNotification implements Notification {
   private final String group = "default";
   @Builder.Default
   private final ToastKind kind = ToastKind.GENERIC;
+  /** The skill whose look a client toast takes, empty for none. */
+  @Builder.Default
+  private final String skill = "";
 
   @Override
   public long getTotalDuration() {
@@ -67,7 +74,8 @@ public class AdvancementNotification implements Notification {
       return;
     }
     if (ClientToasts.capable(player.uuid())
-        && ClientToasts.send(player.uuid(), ClientToasts.toast(kind, ClientToasts.icon(getIcon(), getModel()), title, description))) {
+        && ClientToasts.send(player.uuid(), ClientToasts.toast(kind,
+        clientIcon != null ? clientIcon : ClientToasts.icon(getIcon(), getModel()), title, description, skill))) {
       return;
     }
     AdaptPlatform platform = core.getPlatform();

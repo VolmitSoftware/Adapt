@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.data.WorldDataPort;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -34,31 +35,18 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.BrewEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryClickEvent;
-import art.arcane.adapt.platform.event.inventory.InventoryKind;
 import art.arcane.adapt.platform.event.inventory.InventoryMoveItemEvent;
-import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.BrewingStandRef;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.math.M;
 import art.arcane.volmlib.util.math.RNG;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Config> {
-
-  private static final int MAX_CHECKS_BEFORE_REMOVE = 20;
-  private static final Id LAVA = Id.minecraft("lava");
-  private static final Id FIRE = Id.minecraft("fire");
-  private static final BlockFace[] HEAT_FACES = {BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-  private final Map<BlockRef, Integer> activeStands = new ConcurrentHashMap<>();
+  private final BrewingHeat heat = new BrewingHeat(this, BrewingSuperHeated::heatAmbience);
 
   public BrewingSuperHeated() {
     super("brewing-super-heated");
@@ -97,18 +85,14 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(InventoryMoveItemEvent e) {
-    if (e.destinationKind() != InventoryKind.BREWING || e.destinationBlock() == null) {
-      return;
-    }
-
-    activeStands.put(e.destinationBlock(), MAX_CHECKS_BEFORE_REMOVE);
+    heat.watch(e);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BrewEvent e) {
     BlockRef block = e.block();
-    if (activeStands.containsKey(block)) {
-      UUID owner = worldData().blockOwner(block);
+    if (heat.watches(block)) {
+      UUID owner = AdaptPorts.get(WorldDataPort.class, WorldDataPort.NONE).blockOwner(block);
       if (owner != null && getServer().getOnlineAdaptationLevel(owner, getSkill().getName(), getName()) > 0) {
         getServer().addStat(owner, "brewing.super-heated.brews-accelerated", 1);
         Loc loc = block.location().add(0.5D, 0.6D, 0.5D);
@@ -119,132 +103,39 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
             .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.4F, 1.3F, Sounds.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.6F);
       }
     }
-    Optional<BrewingStandRef> stand = block.brewingStand();
-    if (stand.isPresent() && stand.get().brewingTime() > 0) {
-      activeStands.put(block, MAX_CHECKS_BEFORE_REMOVE);
-    }
+    heat.keepIfBrewing(block);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(InventoryClickEvent e) {
-    if (e.clickedKind() == null) {
-      return;
-    }
-    if (e.viewKind() == InventoryKind.BREWING) {
-      Optional<BlockRef> standBlock = e.player().openContainerBlock();
-      if (standBlock.isEmpty()) {
-        return;
-      }
-      activeStands.put(standBlock.get(), MAX_CHECKS_BEFORE_REMOVE);
-    }
+    heat.watch(e);
   }
 
   @Override
   public boolean hasTickDemand() {
-    return !activeStands.isEmpty();
+    return !heat.isIdle();
   }
 
   @Override
   public void onTick() {
-    if (activeStands.isEmpty()) {
-      return;
-    }
-
-    for (BlockRef block : activeStands.keySet()) {
-      if (block == null) {
-        continue;
-      }
-
-      Tasks.runAt(block.location(), () -> tickStand(block));
-    }
+    heat.tick((UUID owner) -> getServer().getOnlineAdaptationLevel(owner, getSkill().getName(), getName()),
+        (int level, double fire, double lava) -> BrewingHeat.computeWarpTicks(getInterval(),
+            getFireBoost(getLevelPercent(level)), getLavaBoost(getLevelPercent(level)), fire, lava));
   }
 
-  private void tickStand(BlockRef block) {
-    Optional<BrewingStandRef> state = block.brewingStand();
-    if (state.isEmpty()) {
-      activeStands.remove(block);
-      return;
+  /** The crackle a heated stand makes while fire or lava speeds it up. */
+  public static void heatAmbience(SimpleAdaptation<?> owner, Loc location, double fire, double lava) {
+    FxEmitter emitter = Fx.now(owner, location, FxPriority.AMBIENT);
+    emitter.sound(Sounds.BLOCK_FIRE_AMBIENT, 1.0F, 1.0F + RNG.r.f(0.3F, 0.6F));
+    if (fire > 0) {
+      emitter.particle(Particles.SMALL_FLAME, (int) fire, 0, 0.1D, 0, 0.25D, 0.01D)
+          .sound(Sounds.ITEM_FIRECHARGE_USE, 0.2F, 1.4F);
     }
-    BrewingStandRef brewingStand = state.get();
-
-    if (brewingStand.brewingTime() <= 0) {
-      if (brewingStand.brewingTime() <= 0) {
-        Integer remainingChecks = activeStands.get(block);
-        if (remainingChecks == null) {
-          return;
-        }
-
-        if (remainingChecks <= 0) {
-          activeStands.remove(block);
-        } else {
-          activeStands.put(block, remainingChecks - 1);
-        }
-      }
-      return;
+    if (lava > 0) {
+      emitter.particle(Particles.LAVA, (int) lava, 0, 0.1D, 0, 0.25D, 0.0D)
+          .particle(Particles.SMOKE, (int) lava, 0, 0.2D, 0, 0.2D, 0.01D)
+          .sound(Sounds.BLOCK_LAVA_POP, 0.3F, 0.8F);
     }
-
-    UUID owner = worldData().blockOwner(block);
-    if (owner == null) {
-      activeStands.remove(block);
-      return;
-    }
-
-    int level = getServer().getOnlineAdaptationLevel(owner, getSkill().getName(), getName());
-    if (level <= 0) {
-      activeStands.remove(block);
-      return;
-    }
-
-    updateHeat(brewingStand, getLevelPercent(level));
-  }
-
-  static int computeWarpTicks(long intervalMillis, double fireBoost, double lavaBoost, double fireSources, double lavaSources) {
-    double pct = (fireBoost * fireSources) + (lavaBoost * lavaSources);
-    if (pct <= 0D) {
-      return 0;
-    }
-
-    return (int) Math.ceil((intervalMillis / 50D) * pct);
-  }
-
-  private void updateHeat(BrewingStandRef b, double factor) {
-    double l = 0;
-    double f = 0;
-
-    for (BlockFace face : HEAT_FACES) {
-      Id type = b.block().relative(face).type();
-      if (type.equals(LAVA)) {
-        l = l + 1;
-      } else if (type.equals(FIRE)) {
-        f = f + 1;
-      }
-    }
-
-    int warp = computeWarpTicks(getInterval(), getFireBoost(factor), getLavaBoost(factor), f, l);
-    if (warp <= 0) {
-      return;
-    }
-
-    b.setBrewingTime(Math.max(1, b.brewingTime() - warp));
-
-    if (M.r(1D / (333D / getInterval()))) {
-      Loc hl = b.block().location().add(0.5D, 0.9D, 0.5D);
-      FxEmitter emitter = fx(hl, FxPriority.AMBIENT);
-      emitter.sound(Sounds.BLOCK_FIRE_AMBIENT, 1.0F, 1.0F + RNG.r.f(0.3F, 0.6F));
-      if (f > 0) {
-        emitter.particle(Particles.SMALL_FLAME, (int) f, 0, 0.1D, 0, 0.25D, 0.01D)
-            .sound(Sounds.ITEM_FIRECHARGE_USE, 0.2F, 1.4F);
-      }
-      if (l > 0) {
-        emitter.particle(Particles.LAVA, (int) l, 0, 0.1D, 0, 0.25D, 0.0D)
-            .particle(Particles.SMOKE, (int) l, 0, 0.2D, 0, 0.2D, 0.01D)
-            .sound(Sounds.BLOCK_LAVA_POP, 0.3F, 0.8F);
-      }
-    }
-  }
-
-  private static WorldDataPort worldData() {
-    return AdaptPorts.get(WorldDataPort.class, WorldDataPort.NONE);
   }
 
   @ConfigDescription("Brewing stands work faster when surrounded by fire or lava.")

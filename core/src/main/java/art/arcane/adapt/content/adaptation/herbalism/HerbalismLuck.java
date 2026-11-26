@@ -18,34 +18,32 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.platform.value.Rgb;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.fx.Particles;
-import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
   private static final Set<Id> GRASSES = Set.of(Id.minecraft("short_grass"), Id.minecraft("tall_grass"));
@@ -78,6 +76,11 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
       Id.minecraft("peony"),
       Id.minecraft("wither_rose")
   );
+
+  private final HerbalismLuckyDrops drops = new HerbalismLuckyDrops(this, (PlayerRef p) -> {
+    xp(p, 100);
+    addStat(p, "herbalism.luck.lucky-drops", 1);
+  });
 
   public HerbalismLuck() {
     super("herbalism-luck");
@@ -118,47 +121,23 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
       return;
     }
 
-    BlockRef broken = e.block();
     Id brokenType = e.brokenState().type();
     if (GRASSES.contains(brokenType)) {
-      double d = ThreadLocalRandom.current().nextDouble(100D);
-      Id m = random(LUCK_SEEDS);
-      if (d < getEffectiveness(getLevel(p))) {
-        xp(p, 100);
-        addStat(p, "herbalism.luck.lucky-drops", 1);
-        ItemRef luckDrop = AdaptCore.platform().host().items().create(m, 1);
-        e.block().world().dropItem(e.block().location().position(), luckDrop);
-        luckySparkle(broken.location());
-      }
+      drops.roll(p, e.block(), getEffectiveness(getLevel(p)), LUCK_SEEDS);
     }
 
     if (FLOWERS.contains(brokenType)) {
-      double d = ThreadLocalRandom.current().nextDouble(100D);
-      Id m = random(LUCK_FOOD);
-      if (d < getEffectiveness(getLevel(p))) {
-        xp(p, 100);
-        addStat(p, "herbalism.luck.lucky-drops", 1);
-        ItemRef luckDrop = AdaptCore.platform().host().items().create(m, 1);
-        e.block().world().dropItem(e.block().location().position(), luckDrop);
-        luckySparkle(broken.location());
-      }
+      drops.roll(p, e.block(), getEffectiveness(getLevel(p)), LUCK_FOOD);
     }
-
   }
 
-  private static Id random(List<Id> choices) {
-    return choices.get(ThreadLocalRandom.current().nextInt(choices.size()));
-  }
-
-  private void luckySparkle(Loc loc) {
-    fx(loc.add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+  public static void luckySparkle(Adaptation<?> owner, Loc loc) {
+    Fx.now(owner, loc.add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
         .dustRing(new Rgb(120, 230, 120), 0.5D, 12, 1.0F)
         .particle(Particles.VILLAGER_HAPPY, 6, 0, 0.3D, 0, 0.35D, 0.05D)
         .particle(Particles.WAX_ON, 2, 0, 0.3D, 0, 0.3D, 0.02D)
         .chord(Sounds.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6F, 1.4F, Sounds.BLOCK_NOTE_BLOCK_CHIME, 0.4F, 1.8F);
   }
-
-
 
   @ConfigDescription("Breaking Grass or Flowers has a chance to drop random items.")
   protected static class Config extends AdaptationConfig {

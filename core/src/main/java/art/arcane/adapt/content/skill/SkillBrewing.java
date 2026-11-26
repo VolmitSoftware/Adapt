@@ -42,6 +42,15 @@ import art.arcane.adapt.content.adaptation.brewing.BrewingNausea;
 import art.arcane.adapt.content.adaptation.brewing.BrewingResistance;
 import art.arcane.adapt.content.adaptation.brewing.BrewingSaturation;
 import art.arcane.adapt.content.adaptation.brewing.BrewingSuperHeated;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingBoon;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingFightStrike;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingFuel;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingState;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingTrigger;
+import art.arcane.adapt.content.adaptation.brewing.blocks.BrewingWorkStrike;
+import art.arcane.adapt.content.adaptation.brewing.upgraded.Apothecary;
+import art.arcane.adapt.content.adaptation.brewing.upgraded.MasterDistiller;
+import art.arcane.adapt.content.adaptation.brewing.upgraded.WitchsShelf;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -73,7 +82,8 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillBrewing() {
-    super("brewing", SkillPresentation.of(SkillMessages.BREWING_NAME, SkillMessages.BREWING_ICON, SkillMessages.BREWING_DESCRIPTION));
+    super("brewing", SkillPresentation.of(SkillMessages.BREWING_NAME, SkillMessages.BREWING_ICON, SkillMessages.BREWING_DESCRIPTION,
+        SkillMessages.BREWING_QUIP, SkillMessages.BREWING_UNLOCK_QUIP_1, SkillMessages.BREWING_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.LIGHT_PURPLE);
     setInterval(5851);
@@ -91,6 +101,9 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     registerAdaptation(new BrewingNausea());
     registerAdaptation(new BrewingResistance());
     registerAdaptation(new BrewingSaturation());
+    registerUpgrades(new MasterDistiller(), new WitchsShelf(), new Apothecary());
+    registerBlocks(new BrewingTrigger(), new BrewingFightStrike(), new BrewingWorkStrike(), new BrewingBoon(), new BrewingFuel(),
+        new BrewingState());
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("potion")).key("challenge_brew_1k")
@@ -224,7 +237,7 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
           return;
         }
         PotionContents potion = found.get();
-        if (isBasePotionExcluded(potion.potion()) && potion.customEffects().isEmpty()) {
+        if (!isBrewed(potion)) {
           return;
         }
         AdaptPlayer a = getPlayer(p);
@@ -251,7 +264,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
     }
   }
 
-  private boolean isBasePotionExcluded(Id baseType) {
+  /** A potion with an effect: a brewed base type or custom effects, not water, mundane, thick or awkward. */
+  public static boolean isBrewed(PotionContents potion) {
+    return !isBasePotionExcluded(potion.potion()) || !potion.customEffects().isEmpty();
+  }
+
+  private static boolean isBasePotionExcluded(Id baseType) {
     return baseType == null || EXCLUDED_BASE_POTIONS.contains(baseType);
   }
 

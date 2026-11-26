@@ -39,6 +39,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -145,6 +146,16 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
   public void onTick() {
     long now = M.ms();
     repairs.values().removeIf(repair -> now >= repair.until());
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
   }
 
   @Handle(priority = EventPriority.HIGH)
@@ -317,6 +328,7 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
       consumeOne(player.inventory(), e.hand());
     }
     mendFx(target, remedy);
+    UpgradeLoans.landed(this, player);
     if (remedy.body() != null) {
       GolemRepairXp.repaired(player, target, healed);
     }
@@ -469,7 +481,11 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
 
     @Override
     public double regen(GolemHandle handle, GolemMend.RegenSenses senses) {
-      return MendingRules.regen(getConfig(), ownerLevel(handle), senses);
+      double reach = GolemLoans.strength(GolemMending.this, handle.owner());
+      GolemMend.RegenSenses reached = reach > 1D
+          ? new GolemMend.RegenSenses(senses.ownerDistance() / reach, senses.homeDistance(), senses.idle())
+          : senses;
+      return MendingRules.regen(getConfig(), ownerLevel(handle), reached);
     }
 
     @Override

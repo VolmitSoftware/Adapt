@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -34,7 +36,6 @@ import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
@@ -90,23 +91,13 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
       if (p.fireTicks() <= 0 || !preferenceEnabled(p, RETALIATION)) {
         return;
       }
-      if (e.cause() != DamageCause.ENTITY_ATTACK
-          && e.cause() != DamageCause.ENTITY_SWEEP_ATTACK) {
-        return;
-      }
-      if (!(e.damager() instanceof LivingRef attacker) || attacker.uuid().equals(p.uuid())) {
+      int level = getActiveLevel(p);
+      if (!NetherMagmaRetort.ignite(this, p, e, getReflectFireTicks(level))) {
         return;
       }
 
-      int level = getActiveLevel(p);
-      int ticks = getReflectFireTicks(level);
-      Tasks.runEntity(attacker, () -> attacker.setFireTicks(Math.max(attacker.fireTicks(), ticks)));
       addStat(p, "nether.magma-skin.attackers-ignited", 1);
       xp(p, getConfig().xpOnReflect);
-      fx(p.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
-          .burst(Particles.FLAME, 6, 0.35D)
-          .particle(Particles.LAVA, 2, 0D, 0.3D, 0D, 0.2D, 0.0D)
-          .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.4F, 1.3F, Sounds.BLOCK_FIRE_AMBIENT, 0.3F, 1.0F);
     });
   }
 
@@ -120,8 +111,7 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
       if (p.fireTicks() <= 0) {
         return;
       }
-      if (e.cause() != DamageCause.ENTITY_ATTACK
-          && e.cause() != DamageCause.ENTITY_SWEEP_ATTACK) {
+      if (!NetherMagmaRetort.isMelee(e.cause())) {
         return;
       }
       if (!canDamageTarget(p, target)) {
@@ -167,6 +157,13 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
     return base + (levelPercent * factor);
   }
 
+
+  static void retortFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+        .burst(Particles.FLAME, 6, 0.35D)
+        .particle(Particles.LAVA, 2, 0D, 0.3D, 0D, 0.2D, 0.0D)
+        .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.4F, 1.3F, Sounds.BLOCK_FIRE_AMBIENT, 0.3F, 1.0F);
+  }
 
   @ConfigDescription("While burning, melee attackers catch fire and your own strikes deal bonus fire damage.")
   protected static class Config extends AdaptationConfig {

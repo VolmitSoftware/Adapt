@@ -99,4 +99,12 @@ class HerbalismCompostCascadeTest {
     assertThat(HerbalismCompostCascade.matchesCropCommit(
         Id.minecraft("wheat"), Id.minecraft("wheat"), crop, true)).isFalse();
   }
+
+  @Test
+  void aLentCascadeRollsValuablesOnlyForTheShareThatDidNotComeFromForcedCrops() {
+    assertThat(HerbalismCompostCascade.valuableShare(10, 10)).isZero();
+    assertThat(HerbalismCompostCascade.valuableShare(10, 0)).isEqualTo(1D);
+    assertThat(HerbalismCompostCascade.valuableShare(10, 4)).isEqualTo(0.6D);
+    assertThat(HerbalismCompostCascade.valuableShare(0, 0)).isZero();
+  }
 }

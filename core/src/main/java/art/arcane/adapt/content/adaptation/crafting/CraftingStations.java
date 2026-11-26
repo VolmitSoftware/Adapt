@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,9 +27,9 @@ import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
@@ -57,6 +58,18 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
   public static final PlayerPreference<CommonPreferences.Toggle> LOOM = CommonPreferences.toggle("loom", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_LOOM, CommonPreferences.Toggle.ON);
 
   private final Cooldowns blockedCue = cooldowns();
+  private final PortableStations stations = new PortableStations(this);
+  private final PortableStations.Feedback feedback = new PortableStations.Feedback() {
+    @Override
+    public void hungry(Loc handTip) {
+      CraftingStations.this.hungry(handTip);
+    }
+
+    @Override
+    public void opened(Loc handTip) {
+      materializeStation(handTip);
+    }
+  };
 
   public CraftingStations() {
     super("crafting-stations");
@@ -95,6 +108,11 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle
   public void on(PlayerInteractEvent e) {
     if (e.hand() != Hand.MAIN_HAND) {
@@ -107,7 +125,7 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     }
 
     ItemRef hand = p.inventory().mainHand();
-    CraftingStation station = station(hand.type());
+    CraftingStation station = PortableStations.station(hand.type());
 
     if (station == null || preferenceEnabled(p, SNEAK) && !p.isSneaking()
         || station != null && !preferenceEnabled(p, switch (station) {
@@ -135,39 +153,16 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
       return;
     }
 
-    int hungerCost = getConfig().hungerCost;
-    Loc handTip = p.eyeLocation().add(p.location().direction().multiply(0.8D));
-    if (hungerCost > 0 && p.foodLevel() < hungerCost) {
-      fx(handTip, FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 3, 0.15D)
-          .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
-      return;
+    if (stations.open(p, hand.type(), station, getConfig().cooldown, getConfig().hungerCost, feedback)) {
+      addStat(p, "crafting.stations.portable-opens", 1);
+      UpgradeLoans.landed(this, p);
     }
-
-    if (hungerCost > 0) {
-      p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
-    }
-
-    p.setCooldown(hand.type(), getConfig().cooldown);
-    AbilityGlyphs.cooldown(p, this, getConfig().cooldown * 50L);
-    materializeStation(handTip);
-    p.openStation(station);
-    addStat(p, "crafting.stations.portable-opens", 1);
   }
 
-  private static CraftingStation station(Id type) {
-    if (!type.isMinecraft()) {
-      return null;
-    }
-    return switch (type.path()) {
-      case "crafting_table" -> CraftingStation.WORKBENCH;
-      case "grindstone" -> CraftingStation.GRINDSTONE;
-      case "anvil" -> CraftingStation.ANVIL;
-      case "stonecutter" -> CraftingStation.STONECUTTER;
-      case "cartography_table" -> CraftingStation.CARTOGRAPHY;
-      case "loom" -> CraftingStation.LOOM;
-      default -> null;
-    };
+  private void hungry(Loc handTip) {
+    fx(handTip, FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.15D)
+        .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
   }
 
   private void materializeStation(Loc handTip) {

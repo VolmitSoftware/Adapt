@@ -14,7 +14,6 @@ import art.arcane.adapt.platform.world.WorldRef;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +36,7 @@ class AxeChopProtectionTest {
   }
 
   @Test
-  void chopPropagatesTheNativePlayerBreakResult() throws Exception {
+  void chopPropagatesTheNativePlayerBreakResult() {
     previous = AdaptCore.current();
     AdaptPlatform platform = TestCores.mockPlatform();
     TestCores.install(platform);
@@ -78,9 +77,7 @@ class AxeChopProtectionTest {
     assertThat(handler.ignoreCancelled()).isTrue();
   }
 
-  private boolean breakStuff(AxeChop adaptation, BlockRef block, PlayerRef player) throws Exception {
-    Method method = AxeChop.class.getDeclaredMethod("breakStuff", BlockRef.class, int.class, PlayerRef.class);
-    method.setAccessible(true);
-    return (boolean) method.invoke(adaptation, block, 1, player);
+  private boolean breakStuff(AxeChop adaptation, BlockRef block, PlayerRef player) {
+    return AxeFelling.chopTop(adaptation, block, 1, player);
   }
 }

@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -29,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.xp.CraftingXpTransaction;
@@ -50,6 +52,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -102,6 +105,21 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
 
   private int getBatchCap(int level) {
     return batchCap(getConfig().batchCapBase, getConfig().batchCapFactor, getLevelPercent(level));
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  /** Extra crafts a shift-craft of {@code resultAmount} items may add for the player, as at a crafting table. */
+  public int bonusCrafts(PlayerRef p, int resultAmount) {
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return 0;
+    }
+    int cap = (int) Math.floor(getBatchCap(level) * preference(p, BATCH).multiplier());
+    return cap / Math.max(1, resultAmount);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -188,17 +206,20 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
 
     ItemRef[] storage = storageContents(p.inventory());
     CraftingIngredients.BatchPlan plan = CraftingIngredients.plan(pending.choices(), storage, maxCrafts, preference(p, RESERVE).amount());
-    if (plan.crafts() <= 0 || !payItemCost(p, "materials", null, plan.crafts(), () -> consumePlan(p, storage, plan))) {
+    List<ItemRef> handed = new ArrayList<>();
+    if (plan.crafts() <= 0 || !payItemCost(p, "materials", null, plan.crafts(), () -> consumePlan(p, storage, plan, handed))) {
       return;
     }
 
     int produced = plan.crafts() * resultAmount;
     ItemRef give = template.copy();
     give.setAmount(produced);
-    List<ItemRef> leftovers = p.inventory().addItem(give);
-    for (ItemRef leftover : leftovers) {
-      if (leftover != null && !leftover.isEmpty() && !leftover.type().isAir() && leftover.amount() > 0) {
-        p.world().dropItemNaturally(p.location().position(), leftover);
+    handed.addFirst(give);
+    for (ItemRef item : handed) {
+      for (ItemRef leftover : p.inventory().addItem(item)) {
+        if (leftover != null && !leftover.isEmpty() && !leftover.type().isAir() && leftover.amount() > 0) {
+          p.world().dropItemNaturally(p.location().position(), leftover);
+        }
       }
     }
 
@@ -213,10 +234,11 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       return;
     }
     addStat(player, "crafting.bulk-artisan.batch-crafted", produced);
+    UpgradeLoans.landed(this, player);
     xp(player, produced * getConfig().xpPerBatchItem);
   }
 
-  private boolean consumePlan(PlayerRef p, ItemRef[] storage, CraftingIngredients.BatchPlan plan) {
+  private boolean consumePlan(PlayerRef p, ItemRef[] storage, CraftingIngredients.BatchPlan plan, List<ItemRef> remainders) {
     PlayerInventoryRef inventory = p.inventory();
     for (int slot = 0; slot < plan.costs().length; slot++) {
       int cost = plan.costs()[slot];
@@ -228,6 +250,10 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     for (int slot = 0; slot < plan.costs().length; slot++) {
       int cost = plan.costs()[slot];
       if (cost > 0) {
+        ItemRef remainder = CraftingIngredients.remainder(storage[slot].type(), cost);
+        if (remainder != null) {
+          remainders.add(remainder);
+        }
         ItemRef remaining = inventory.item(slot).copy();
         remaining.setAmount(remaining.amount() - cost);
         if (remaining.amount() > 0) {

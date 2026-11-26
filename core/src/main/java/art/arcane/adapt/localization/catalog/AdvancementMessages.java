@@ -217,10 +217,6 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_BEDS_10_DESCRIPTION = TextKey.of("advancement.challenge_beds_10.description", "Sleep in a bed 10 times");
   public static final TextKey CHALLENGE_BEDS_100_TITLE = TextKey.of("advancement.challenge_beds_100.title", "Time Skipper");
   public static final TextKey CHALLENGE_BEDS_100_DESCRIPTION = TextKey.of("advancement.challenge_beds_100.description", "Sleep in a bed 100 times");
-  public static final TextKey CHALLENGE_CHRONOS_TP_50_TITLE = TextKey.of("advancement.challenge_chronos_tp_50.title", "Temporal Shift");
-  public static final TextKey CHALLENGE_CHRONOS_TP_50_DESCRIPTION = TextKey.of("advancement.challenge_chronos_tp_50.description", "Teleport 50 times");
-  public static final TextKey CHALLENGE_CHRONOS_TP_500_TITLE = TextKey.of("advancement.challenge_chronos_tp_500.title", "Time Warp");
-  public static final TextKey CHALLENGE_CHRONOS_TP_500_DESCRIPTION = TextKey.of("advancement.challenge_chronos_tp_500.description", "Teleport 500 times");
   public static final TextKey CHALLENGE_CRAFT_VALUE_10K_TITLE = TextKey.of("advancement.challenge_craft_value_10k.title", "Craft Worth");
   public static final TextKey CHALLENGE_CRAFT_VALUE_10K_DESCRIPTION = TextKey.of("advancement.challenge_craft_value_10k.description", "Craft items worth 10,000 total value");
   public static final TextKey CHALLENGE_CRAFT_VALUE_100K_TITLE = TextKey.of("advancement.challenge_craft_value_100k.title", "Artisan");
@@ -1021,6 +1017,10 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_EXCAVATION_GRAVEDIGGER_300_DESCRIPTION = TextKey.of("advancement.challenge_excavation_gravedigger_300.description", "Unearth 300 bone troves");
   public static final TextKey CHALLENGE_EXCAVATION_MUDLARK_1K_TITLE = TextKey.of("advancement.challenge_excavation_mudlark_1k.title", "Riverbank Forager");
   public static final TextKey CHALLENGE_EXCAVATION_MUDLARK_1K_DESCRIPTION = TextKey.of("advancement.challenge_excavation_mudlark_1k.description", "Collect 1,000 bonus muddy drops");
+  public static final TextKey CHALLENGE_EXCAVATION_CLOD_HURLER_500_TITLE = TextKey.of("advancement.challenge_excavation_clod_hurler_500.title", "Mudslinger");
+  public static final TextKey CHALLENGE_EXCAVATION_CLOD_HURLER_500_DESCRIPTION = TextKey.of("advancement.challenge_excavation_clod_hurler_500.description", "Hit mobs with 500 flung blocks");
+  public static final TextKey CHALLENGE_ARCHITECT_BRICKBAT_500_TITLE = TextKey.of("advancement.challenge_architect_brickbat_500.title", "Brickbat Brawler");
+  public static final TextKey CHALLENGE_ARCHITECT_BRICKBAT_500_DESCRIPTION = TextKey.of("advancement.challenge_architect_brickbat_500.description", "Hit creatures with 500 thrown blocks");
   public static final TextKey CHALLENGE_CHRONOS_STASIS_50_TITLE = TextKey.of("advancement.challenge_chronos_stasis_50.title", "Suspended Animation");
   public static final TextKey CHALLENGE_CHRONOS_STASIS_50_DESCRIPTION = TextKey.of("advancement.challenge_chronos_stasis_50.description", "Deploy 50 stasis fields");
   public static final TextKey CHALLENGE_CHRONOS_STASIS_500_TITLE = TextKey.of("advancement.challenge_chronos_stasis_500.title", "Master of Stillness");
@@ -1704,10 +1704,6 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_BEDS_10_DESCRIPTION);
     builder.add(CHALLENGE_BEDS_100_TITLE);
     builder.add(CHALLENGE_BEDS_100_DESCRIPTION);
-    builder.add(CHALLENGE_CHRONOS_TP_50_TITLE);
-    builder.add(CHALLENGE_CHRONOS_TP_50_DESCRIPTION);
-    builder.add(CHALLENGE_CHRONOS_TP_500_TITLE);
-    builder.add(CHALLENGE_CHRONOS_TP_500_DESCRIPTION);
     builder.add(CHALLENGE_CRAFT_VALUE_10K_TITLE);
     builder.add(CHALLENGE_CRAFT_VALUE_10K_DESCRIPTION);
     builder.add(CHALLENGE_CRAFT_VALUE_100K_TITLE);
@@ -2508,6 +2504,10 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_EXCAVATION_GRAVEDIGGER_300_DESCRIPTION);
     builder.add(CHALLENGE_EXCAVATION_MUDLARK_1K_TITLE);
     builder.add(CHALLENGE_EXCAVATION_MUDLARK_1K_DESCRIPTION);
+    builder.add(CHALLENGE_EXCAVATION_CLOD_HURLER_500_TITLE);
+    builder.add(CHALLENGE_EXCAVATION_CLOD_HURLER_500_DESCRIPTION);
+    builder.add(CHALLENGE_ARCHITECT_BRICKBAT_500_TITLE);
+    builder.add(CHALLENGE_ARCHITECT_BRICKBAT_500_DESCRIPTION);
     builder.add(CHALLENGE_CHRONOS_STASIS_50_TITLE);
     builder.add(CHALLENGE_CHRONOS_STASIS_50_DESCRIPTION);
     builder.add(CHALLENGE_CHRONOS_STASIS_500_TITLE);

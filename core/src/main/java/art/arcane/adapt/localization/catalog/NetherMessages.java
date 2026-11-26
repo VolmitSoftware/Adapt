@@ -106,6 +106,19 @@ public final class NetherMessages {
   public static final TextKey WITHER_HARVEST_LORE1 = TextKey.of("nether.wither_harvest.lore1", "Bonus Bones");
   public static final TextKey WITHER_HARVEST_LORE2 = TextKey.of("nether.wither_harvest.lore2", "Bonus Coal");
   public static final TextKey WITHER_HARVEST_LORE3 = TextKey.of("nether.wither_harvest.lore3", "Improved Skull Chance");
+  public static final TextKey HELLWALKER_LORE1 = TextKey.of("upgrade.nether.hellwalker.lore1", "Lava Stride Strength");
+  public static final TextKey HELLWALKER_LORE2 = TextKey.of("upgrade.nether.hellwalker.lore2", "Speed Bonus on Soul Sand");
+  public static final TextKey HELLWALKER_LORE3 = TextKey.of("upgrade.nether.hellwalker.lore3", "Hunger per Lava Stride");
+  public static final TextKey HELLWALKER_LORE4 = TextKey.of("upgrade.nether.hellwalker.lore4", "Lava Swim Speed, Share of Water Speed");
+  public static final TextKey HELLWALKER_LORE5 = TextKey.of("upgrade.nether.hellwalker.lore5", "Time in Lava per Hunger Point");
+  public static final TextKey HELLWALKER_LORE6 = TextKey.of("upgrade.nether.hellwalker.lore6", "Dropped Items Float in Lava");
+  public static final TextKey WITHER_KING_LORE1 = TextKey.of("upgrade.nether.wither_king.lore1", "Skull Throw Cooldown");
+  public static final TextKey WITHER_KING_LORE2 = TextKey.of("upgrade.nether.wither_king.lore2", "Chance to Shrug Off Wither");
+  public static final TextKey WITHER_KING_LORE3 = TextKey.of("upgrade.nether.wither_king.lore3", "Wither Skeleton Skull Chance");
+  public static final TextKey BRIMSTONE_LORE1 = TextKey.of("upgrade.nether.brimstone.lore1", "Burn on Melee Attackers");
+  public static final TextKey BRIMSTONE_LORE2 = TextKey.of("upgrade.nether.brimstone.lore2", "Hunger Restored by Fire");
+  public static final TextKey BRIMSTONE_LORE3 = TextKey.of("upgrade.nether.brimstone.lore3", "Less Damage from Blasts");
+  public static final TextKey BRIMSTONE_LORE4 = TextKey.of("upgrade.nether.brimstone.lore4", "Extra Barter Roll Chance");
   public static final LinesKey WITHER_HARVEST_LORE = LinesKey.of("nether.wither_harvest.lore", "Bonus Bones", "Bonus Coal", "Improved Skull Chance");
 
   private NetherMessages() {
@@ -207,5 +220,18 @@ public final class NetherMessages {
     builder.add(WITHER_HARVEST_LORE2);
     builder.add(WITHER_HARVEST_LORE3);
     builder.add(WITHER_HARVEST_LORE);
+    builder.add(HELLWALKER_LORE1);
+    builder.add(HELLWALKER_LORE2);
+    builder.add(HELLWALKER_LORE3);
+    builder.add(HELLWALKER_LORE4);
+    builder.add(HELLWALKER_LORE5);
+    builder.add(HELLWALKER_LORE6);
+    builder.add(WITHER_KING_LORE1);
+    builder.add(WITHER_KING_LORE2);
+    builder.add(WITHER_KING_LORE3);
+    builder.add(BRIMSTONE_LORE1);
+    builder.add(BRIMSTONE_LORE2);
+    builder.add(BRIMSTONE_LORE3);
+    builder.add(BRIMSTONE_LORE4);
   }
 }

@@ -19,7 +19,7 @@ class StealthAssassinateDamageTest {
     EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(target, attacker, attacker, DamageCause.ENTITY_ATTACK,
         Id.minecraft("player_attack"), 4D, false, base -> base * 0.25D, base -> base * 0.5D);
 
-    StealthAssassinate.applyExecutionDamage(event, 20D);
+    StealthExecution.applyExecutionDamage(event, 20D);
 
     assertThat(event.damage()).isEqualTo(20D);
     assertThat(event.ignoreReductions()).isTrue();

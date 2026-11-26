@@ -41,6 +41,7 @@ import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -136,6 +137,15 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   private volatile Set<Id> blacklistCache;
   private volatile List<String> blacklistSource;
 
+  public static StealthCore of(Skill<?> skill) {
+    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      if (adaptation instanceof StealthCore found) {
+        return found;
+      }
+    }
+    return null;
+  }
+
   public StealthCore(StealthShadowDecoy shadowDecoy, StealthSmokePellet smokePellet) {
     super("stealth-silent-step");
     needs(PlatformNeed.attribute(Attributes.SAFE_FALL_DISTANCE));
@@ -157,6 +167,12 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_silent_200", "stealth.silent-step.backstabs", 200, 400);
+  }
+
+  /** Every Stealth mutation keeps concealment at its top level, the floor Umbral Form builds on. */
+  @Override
+  public int getKeptLevel() {
+    return getMaxLevel();
   }
 
   @Override
@@ -181,8 +197,12 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   public boolean isUndetected(PlayerRef player, LivingRef observer) {
-    if (player == null || observer == null || player.uuid().equals(observer.uuid())
-        || getActiveLevel(player) <= 0) {
+    return player != null && observer != null && getActiveLevel(player) > 0 && unseenBy(player, observer);
+  }
+
+  /** Whether {@code observer} cannot detect {@code player} right now, by this skill's detection rules. */
+  public boolean unseenBy(PlayerRef player, LivingRef observer) {
+    if (player == null || observer == null || player.uuid().equals(observer.uuid())) {
       return false;
     }
     if (isForcedConcealed(player)) {
@@ -1088,7 +1108,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   /** Living entities in the box around {@code center}; none when a Folia region does not own the whole box. */
-  static List<EntityRef> nearbyEntities(Loc center, double radius, Predicate<EntityRef> filter) {
+  public static List<EntityRef> nearbyEntities(Loc center, double radius, Predicate<EntityRef> filter) {
     if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(center, radius, radius)) {
       return new ArrayList<>();
     }

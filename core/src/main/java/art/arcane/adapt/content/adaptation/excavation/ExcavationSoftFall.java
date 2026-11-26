@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -25,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -111,7 +113,7 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
           .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.6f, pitch, Sounds.BLOCK_SAND_BREAK, 0.4f, 0.8f);
 
       if (fullNegate) {
-        cushionRing(at);
+        cushionRing(this, at);
       }
 
       addStat(p, "excavation.soft-fall.damage-prevented", prevented);
@@ -119,8 +121,9 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
     });
   }
 
-  private void cushionRing(Loc center) {
-    timeline(center)
+  /** The ring of dust and the soft thud of a fully cushioned landing. */
+  public static void cushionRing(Adaptation<?> owner, Loc center) {
+    FxTimeline.at(owner, center)
         .duration(4)
         .priority(FxPriority.TRANSITION)
         .cullRadius(20)

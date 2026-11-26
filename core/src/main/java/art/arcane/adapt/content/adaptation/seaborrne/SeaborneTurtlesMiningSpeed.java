@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
@@ -38,6 +39,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
+import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -49,6 +51,7 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
 import java.util.Map;
@@ -57,8 +60,15 @@ import java.util.UUID;
 public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> FLOATING = CommonPreferences.toggle("floating", SeabornMessages.SEABORNETURTLESMININGSPEED_PREFERENCE_FLOATING, CommonPreferences.Toggle.ON);
 
+  public static final List<PlatformNeed> NEEDS = List.of(
+      PlatformNeed.attribute(Attributes.SUBMERGED_MINING_SPEED), PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
   private static final String SUBMERGED_ATTRIBUTE_SLOT = "submerged-mining";
   private static final String FLOATING_ATTRIBUTE_SLOT = "floating-mining";
+  private static final String FATIGUE_ATTRIBUTE_SLOT = "fatigue";
+  private static final double SUBMERGED_MINING_BASE = 0.2D;
+  private static final double[] FATIGUE_LEVEL_FACTORS = {0.3D, 0.09D, 0.0027D, 8.1E-4D};
+  private static final double FATIGUE_TRIM_HORIZON_TICKS = 20D;
+  private static final Id MINING_FATIGUE = Id.minecraft("mining_fatigue");
   private static final int MIN_REFRESH_INTERVAL_MILLIS = 250;
   private static final int MAX_REFRESH_INTERVAL_MILLIS = 10_000;
   private static final long MAX_ATTRIBUTE_DURATION_TICKS = 20L * 60L;
@@ -66,11 +76,12 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
   private final Map<UUID, Boolean> submerged = playerState();
   private final Map<UUID, Boolean> floating = playerState();
+  private final Map<UUID, Boolean> fatigueCountered = playerState();
   private final Cooldowns breakPulse = cooldowns();
 
   public SeaborneTurtlesMiningSpeed() {
     super("seaborne-turtles-mining-speed");
-    needs(PlatformNeed.attribute(Attributes.SUBMERGED_MINING_SPEED), PlatformNeed.attribute(Attributes.BLOCK_BREAK_SPEED));
+    needs(NEEDS.toArray(new PlatformNeed[0]));
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.haste");
     setIcon(Id.minecraft("prismarine_shard"));
@@ -104,6 +115,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
   @Override
   public void addStats(int level, StatLines v) {
     v.addLore(C.GRAY + AdaptLanguage.text(SeabornMessages.HASTE_LORE1));
+    statLore(v, Form.pc(Math.min(1D, Math.max(0D, getConfig().fatigueTrimChance)), 0), 2);
   }
 
 
@@ -159,6 +171,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     UUID id = e.player().uuid();
     submerged.remove(id);
     floating.remove(id);
+    fatigueCountered.remove(id);
   }
 
   @Override
@@ -186,25 +199,15 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
       return;
     }
 
-    AdaptAttributeService attributes = AdaptAttributeService.get();
     long durationTicks = attributeDurationTicks(getConfig().attributeDurationTicks);
-    double submergedScalar = multiplierScalar(getConfig().underwaterMiningSpeedMultiplier);
-    if (submergedScalar > 0D) {
-      attributes.applyTimed(player, getName(), SUBMERGED_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED,
-          submergedScalar, AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
-    } else {
-      attributes.remove(player, getName(), SUBMERGED_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
-    }
-
+    applySubmerged(this, player, getConfig().underwaterMiningSpeedMultiplier, durationTicks);
     boolean compensateFloating = getConfig().compensateFloatingPenalty && preferenceEnabled(player, FLOATING) && !player.isOnGround();
-    double floatingScalar = multiplierScalar(getConfig().floatingMiningSpeedMultiplier);
-    if (compensateFloating && floatingScalar > 0D) {
-      attributes.applyTimed(player, getName(), FLOATING_ATTRIBUTE_SLOT, Attributes.BLOCK_BREAK_SPEED,
-          floatingScalar, AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
+    if (compensateFloating && applyFloating(this, player, getConfig().floatingMiningSpeedMultiplier, durationTicks)) {
       floating.put(id, true);
     } else {
       clearFloatingModifier(player, id);
     }
+    updateFatigueCounter(player, id);
 
     if (submerged.put(id, true) == null) {
       fx(player.location().add(0D, 1.0D, 0D), FxPriority.TRANSITION)
@@ -217,15 +220,104 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
 
   private void clearMiningState(PlayerRef player, UUID id) {
     if (submerged.remove(id) != null) {
-      AdaptAttributeService.get().remove(player, getName(), SUBMERGED_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
+      removeSubmerged(this, player);
     }
     clearFloatingModifier(player, id);
+    clearFatigueCounter(player, id);
+  }
+
+  private void updateFatigueCounter(PlayerRef player, UUID id) {
+    EffectInstance fatigue = player.effect(MINING_FATIGUE);
+    long durationTicks = fatigue == null ? 0L : counterDurationTicks(fatigue.durationTicks(), getConfig().fatigueCounterDurationTicks);
+    double bonus = fatigue == null ? 0D : fatigueCounterBonus(getConfig().fatigueTrimChance, getConfig().fatigueTrimAmount,
+        fatigue.amplifier());
+    if (durationTicks <= 0L || bonus <= 0D) {
+      clearFatigueCounter(player, id);
+      return;
+    }
+    AdaptAttributeService.get().applyTimed(player, getName(), FATIGUE_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED,
+        bonus, AttributeOperation.ADD_VALUE, durationTicks);
+    if (fatigueCountered.put(id, true) == null) {
+      fx(player.location().add(0D, 1.0D, 0D), FxPriority.AMBIENT)
+          .particle(Particles.CRIT, 4, 0D, 0.3D, 0D, 0.3D, 0.05D)
+          .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F);
+    }
+  }
+
+  private void clearFatigueCounter(PlayerRef player, UUID id) {
+    if (fatigueCountered.remove(id) != null) {
+      AdaptAttributeService.get().remove(player, getName(), FATIGUE_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
+    }
+  }
+
+  static long counterDurationTicks(int fatigueDurationTicks, int configuredCounterTicks) {
+    if (configuredCounterTicks <= 0) {
+      return 0L;
+    }
+    long bounded = Math.min(MAX_ATTRIBUTE_DURATION_TICKS, configuredCounterTicks);
+    if (fatigueDurationTicks < 0) {
+      return Math.max(20L, bounded);
+    }
+    return Math.max(20L, Math.min(fatigueDurationTicks, bounded));
+  }
+
+  /** Underwater mining speed that offsets {@code trimChance} of the slowdown each tick, as a vanilla attribute bonus. */
+  static double fatigueCounterBonus(double trimChance, int trimAmount, int fatigueAmplifier) {
+    double chance = Math.max(0D, Math.min(1D, trimChance));
+    double trimPerSecond = chance * FATIGUE_TRIM_HORIZON_TICKS * Math.max(0, trimAmount);
+    int amplifier = Math.max(0, fatigueAmplifier);
+    double reducedAmplifier = Math.max(0D, amplifier - trimPerSecond);
+    double current = fatigueFactor(amplifier);
+    double target = fatigueFactor(reducedAmplifier);
+    if (target <= current) {
+      return 0D;
+    }
+    return SUBMERGED_MINING_BASE * (target / current - 1D);
+  }
+
+  static double fatigueFactor(double amplifier) {
+    double clamped = Math.max(0D, Math.min(3D, amplifier));
+    int lower = (int) Math.floor(clamped);
+    int upper = (int) Math.ceil(clamped);
+    double lowerLog = Math.log(FATIGUE_LEVEL_FACTORS[lower]);
+    double upperLog = Math.log(FATIGUE_LEVEL_FACTORS[upper]);
+    return Math.exp(lowerLog + (upperLog - lowerLog) * (clamped - lower));
   }
 
   private void clearFloatingModifier(PlayerRef player, UUID id) {
     if (floating.remove(id) != null) {
-      AdaptAttributeService.get().remove(player, getName(), FLOATING_ATTRIBUTE_SLOT, Attributes.BLOCK_BREAK_SPEED);
+      removeFloating(this, player);
     }
+  }
+
+  /** Multiplies {@code player}'s underwater mining speed by {@code multiplier}, owned by {@code owner}; 1 or less removes it. */
+  public static void applySubmerged(Adaptation<?> owner, PlayerRef player, double multiplier, long durationTicks) {
+    double scalar = multiplierScalar(multiplier);
+    if (scalar > 0D) {
+      AdaptAttributeService.get().applyTimed(player, owner.getName(), SUBMERGED_ATTRIBUTE_SLOT,
+          Attributes.SUBMERGED_MINING_SPEED, scalar, AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
+    } else {
+      removeSubmerged(owner, player);
+    }
+  }
+
+  public static void removeSubmerged(Adaptation<?> owner, PlayerRef player) {
+    AdaptAttributeService.get().remove(player, owner.getName(), SUBMERGED_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
+  }
+
+  /** Multiplies {@code player}'s block break speed by {@code multiplier} to cancel the floating penalty; false when nothing was applied. */
+  public static boolean applyFloating(Adaptation<?> owner, PlayerRef player, double multiplier, long durationTicks) {
+    double scalar = multiplierScalar(multiplier);
+    if (scalar <= 0D) {
+      return false;
+    }
+    AdaptAttributeService.get().applyTimed(player, owner.getName(), FLOATING_ATTRIBUTE_SLOT, Attributes.BLOCK_BREAK_SPEED,
+        scalar, AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
+    return true;
+  }
+
+  public static void removeFloating(Adaptation<?> owner, PlayerRef player) {
+    AdaptAttributeService.get().remove(player, owner.getName(), FLOATING_ATTRIBUTE_SLOT, Attributes.BLOCK_BREAK_SPEED);
   }
 
   static double multiplierScalar(double multiplier) {
@@ -249,7 +341,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     setInterval(refreshIntervalMillis(newConfig.refreshIntervalMillis));
   }
 
-  @ConfigDescription("Mine faster while underwater, with optional compensation for the vanilla floating penalty.")
+  @ConfigDescription("Mine faster while underwater, with compensation for the vanilla floating penalty, and shrug off most of a guardian's Mining Fatigue.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Mining speed multiplier applied specifically while submerged.", impact = "1.4 matches the previous 40% underwater boost; 1 disables this part of the bonus.")
     double underwaterMiningSpeedMultiplier = 1.4D;
@@ -261,6 +353,12 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
     long attributeDurationTicks = 160L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between passive underwater-state refreshes.", impact = "Lower values react faster but scan learned players more frequently; block damage still activates the boost immediately.")
     int refreshIntervalMillis = 3000;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Share of Mining Fatigue's slowdown cancelled each tick while you mine underwater.", impact = "Higher values offset more of Mining Fatigue II and above; Mining Fatigue I remains the floor.")
+    double fatigueTrimChance = 0.65;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Mining Fatigue amplifier steps each cancelled tick removes.", impact = "Higher values counter stronger Mining Fatigue more aggressively.")
+    int fatigueTrimAmount = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed counter while Mining Fatigue is present.", impact = "Higher values tolerate refresh delays; zero disables fatigue countering.")
+    int fatigueCounterDurationTicks = 80;
 
     public Config() {
       baseCost = 3;

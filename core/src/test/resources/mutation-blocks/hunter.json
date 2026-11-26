@@ -1,0 +1,13 @@
+{
+  "skill": "hunter",
+  "behaviourTest": "HunterBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "HunterTrigger", "handles": ["EntityDeathEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "HunterFightStrike", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
+    {"slot": "STRIKE_WORK", "class": "HunterWorkStrike", "handles": [], "reuses": ["ViewerGlowPort"]},
+    {"slot": "BOON", "class": "HunterBoon", "handles": [], "reuses": []},
+    {"slot": "FUEL", "class": "HunterFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "HunterState", "handles": [], "reuses": ["HunterWounds"]}
+  ],
+  "unavailableOn": {}
+}

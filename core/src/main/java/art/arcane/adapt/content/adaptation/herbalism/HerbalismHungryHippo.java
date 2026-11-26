@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -111,23 +113,34 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
     }
 
     Id food = e.item().type();
-    if (!FOOD.contains(food)) {
+    if (!isFood(food)) {
       return;
     }
 
     int level = getLevel(p);
     int bonus = 2 + level;
+    feed(p, bonus);
+    addStat(p, "herbalism.hungry-hippo.bonus-saturation", bonus);
+    xp(p, 5);
+    mealFx(this, p, food, level);
+  }
+
+  public static boolean isFood(Id type) {
+    return FOOD.contains(type);
+  }
+
+  public static void feed(PlayerRef p, int bonus) {
     int newFood = Math.min(20, p.foodLevel() + bonus);
     p.setFoodLevel(newFood);
     p.setSaturation(Math.min((float) newFood, p.saturation() + bonus));
-    addStat(p, "herbalism.hungry-hippo.bonus-saturation", bonus);
-    xp(p, 5);
+  }
 
+  public static void mealFx(Adaptation<?> owner, PlayerRef p, Id food, int level) {
     boolean bigMeal = food.equals(GOLDEN_APPLE) || food.equals(ENCHANTED_GOLDEN_APPLE) || food.equals(GOLDEN_CARROT);
     double radius = Math.min(2.5D, 0.9D + (level * 0.18D));
     int ringPoints = Math.min(16, 8 + (level * 2));
     Rgb ringColor = bigMeal ? new Rgb(255, 205, 70) : new Rgb(120, 220, 90);
-    FxEmitter emitter = fx(p.location().add(0, 0.25, 0), FxPriority.TRANSITION)
+    FxEmitter emitter = Fx.now(owner, p.location().add(0, 0.25, 0), FxPriority.TRANSITION)
         .dustRing(ringColor, radius * 0.5D, 12, 1.0F)
         .ring(Particles.VILLAGER_HAPPY, radius, ringPoints, 0.9D)
         .particle(Particles.COMPOSTER, 3, 0, 0.4D, 0, 0.25D, 0.03D)
@@ -137,8 +150,6 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
           .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.6F);
     }
   }
-
-
 
   @ConfigDescription("Consuming food gives you more saturation.")
   protected static class Config extends AdaptationConfig {

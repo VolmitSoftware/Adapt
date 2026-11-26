@@ -31,6 +31,7 @@ import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.content.adaptation.architect.ArchitectBrickbat;
 import art.arcane.adapt.content.adaptation.architect.ArchitectChalkLine;
 import art.arcane.adapt.content.adaptation.architect.ArchitectDemolition;
 import art.arcane.adapt.content.adaptation.architect.ArchitectElevator;
@@ -43,6 +44,15 @@ import art.arcane.adapt.content.adaptation.architect.ArchitectSteadyHands;
 import art.arcane.adapt.content.adaptation.architect.ArchitectStonecutterSavant;
 import art.arcane.adapt.content.adaptation.architect.ArchitectSupplyLine;
 import art.arcane.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectBoon;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectFightStrike;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectFuel;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectState;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectTrigger;
+import art.arcane.adapt.content.adaptation.architect.blocks.ArchitectWorkStrike;
+import art.arcane.adapt.content.adaptation.architect.upgraded.MasterBuilder;
+import art.arcane.adapt.content.adaptation.architect.upgraded.Skyhook;
+import art.arcane.adapt.content.adaptation.architect.upgraded.WreckingHand;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -63,7 +73,8 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   private final Cooldowns highBuildPing = cooldowns();
 
   public SkillArchitect() {
-    super("architect", SkillPresentation.of(SkillMessages.ARCHITECT_NAME, SkillMessages.ARCHITECT_ICON, SkillMessages.ARCHITECT_DESCRIPTION));
+    super("architect", SkillPresentation.of(SkillMessages.ARCHITECT_NAME, SkillMessages.ARCHITECT_ICON, SkillMessages.ARCHITECT_DESCRIPTION,
+        SkillMessages.ARCHITECT_QUIP, SkillMessages.ARCHITECT_UNLOCK_QUIP_1, SkillMessages.ARCHITECT_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
     setInterval(3100);
@@ -167,6 +178,10 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
     registerAdaptation(new ArchitectChalkLine());
     registerAdaptation(new ArchitectDemolition());
     registerAdaptation(new ArchitectStonecutterSavant());
+    registerAdaptation(new ArchitectBrickbat());
+    registerUpgrades(new MasterBuilder(), new Skyhook(), new WreckingHand());
+    registerBlocks(new ArchitectTrigger(), new ArchitectFightStrike(), new ArchitectWorkStrike(), new ArchitectBoon(),
+        new ArchitectFuel(), new ArchitectState());
   }
 
   @Handle(priority = EventPriority.MONITOR)

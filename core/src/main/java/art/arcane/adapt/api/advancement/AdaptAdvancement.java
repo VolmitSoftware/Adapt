@@ -22,6 +22,7 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.protocol.ToastKind;
 import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptMessages;
 import art.arcane.adapt.platform.advancement.AdvancementNode;
@@ -52,10 +53,16 @@ public class AdaptAdvancement {
   private Id icon = Id.minecraft("emerald");
   @Builder.Default
   private CustomModel model = null;
+  /** The icon a client with native toasts draws, null for {@link #icon} and {@link #model}. */
+  @Builder.Default
+  private IconRef clientIcon = null;
   @Builder.Default
   private String title = MISSING_TITLE;
   @Builder.Default
   private String description = MISSING_DESCRIPTION;
+  /** The line under this advancement's client toast, null for its description. */
+  @Builder.Default
+  private String toastBody = null;
   @Builder.Default
   private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
   @Builder.Default
@@ -96,10 +103,14 @@ public class AdaptAdvancement {
         rootBackground, childNodes);
   }
 
-  /** The toast a client with native toasts shows for this advancement instead of the vanilla popup. */
-  ServerFrame.Toast clientToast() {
-    return ClientToasts.toast(toastKind(getKey(), getFrame()), ClientToasts.icon(getIcon(), getModel()),
-        toastTitle(resolveTitle()), resolveDescription());
+  /**
+   * The toast a client with native toasts shows for this advancement instead of the vanilla popup, in the look of
+   * {@code skill} (empty for none).
+   */
+  ServerFrame.Toast clientToast(String skill) {
+    return ClientToasts.toast(toastKind(getKey(), getFrame()),
+        clientIcon != null ? clientIcon : ClientToasts.icon(getIcon(), getModel()),
+        toastTitle(resolveTitle()), toastBody != null ? toastBody : resolveDescription(), skill);
   }
 
   /** Drops the padded bracket frame that centres a title in the vanilla advancement tab; a toast has its own frame. */

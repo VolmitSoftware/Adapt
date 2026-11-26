@@ -1,12 +1,12 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -15,12 +15,12 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerJumpEvent;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -35,19 +35,15 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
           new PlayerPreference.Choice<>(Hop.ALWAYS, KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP_ALWAYS, Id.minecraft("feather"), 1),
           new PlayerPreference.Choice<>(Hop.NEVER, KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP_NEVER, Id.minecraft("red_stained_glass_pane"), 1))));
 
-  private static final String SLOT_BASE_JUMP = "base-jump";
-  private static final String SLOT_HOP = "hop";
-  private static final String SLOT_FLOAT = "float";
   private static final double BASE_JUMP_HEIGHT_PER_LEVEL = 0.5D;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
-  private static final long HOP_DURATION_TICKS = 10L;
 
-  private final Cooldowns fxCooldown = cooldowns();
+  private final KineticsJumpBoost boost = new KineticsJumpBoost(this, cooldowns());
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsMoonJump() {
     super("kinetics-moon-jump");
-    needs(PlatformNeed.attribute(Attributes.JUMP_STRENGTH), PlatformNeed.attribute(Attributes.GRAVITY));
+    needs(KineticsJumpBoost.NEEDS.toArray(new PlatformNeed[0]));
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("rabbit_foot"));
     setInterval(RECONCILE_INTERVAL_MS);
@@ -98,20 +94,11 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
         return;
       }
 
-      AdaptAttributeService attributes = AdaptAttributeService.get();
-      attributes.applyTimed(p, getName(), SLOT_HOP, Attributes.JUMP_STRENGTH, getJumpBonus(level), AttributeOperation.ADD_VALUE, HOP_DURATION_TICKS);
-      attributes.applyTimed(p, getName(), SLOT_FLOAT, Attributes.GRAVITY, -getGravityReduction(level), AttributeOperation.ADD_MULTIPLIED_TOTAL, getFloatWindowTicks(level));
-
-      if (fxCooldown.isReady(p.uuid(), 1000)) {
-        fxCooldown.mark(p.uuid());
-        fx(p.location(), FxPriority.GAMEPLAY)
-            .ring(Particles.CLOUD, 0.6D, 8, 0.05D)
-            .sound(Sounds.ENTITY_RABBIT_JUMP, 0.6F, 0.7F);
-      }
+      boost.hop(p, new KineticsJumpBoost.Hop(getJumpBonus(level), getGravityReduction(level), getFloatWindowTicks(level)));
     });
   }
 
-  static double jumpBonus(double base, double factor, double levelPercent) {
+  public static double jumpBonus(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (Double.isNaN(value)) {
       return 0D;
@@ -119,7 +106,7 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     return Math.max(0D, value);
   }
 
-  static double gravityReduction(double base, double factor, double levelPercent) {
+  public static double gravityReduction(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (Double.isNaN(value)) {
       return 0D;
@@ -127,7 +114,7 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     return Math.min(1D, Math.max(0D, value));
   }
 
-  static long floatWindowTicks(double base, double factor, double levelPercent) {
+  public static long floatWindowTicks(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (Double.isNaN(value)) {
       return 1L;
@@ -135,11 +122,11 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
     return Math.max(1L, Math.round(value));
   }
 
-  static double baseJumpHeight(int level) {
+  public static double baseJumpHeight(int level) {
     return KineticsJumpPhysics.VANILLA_JUMP_HEIGHT + (Math.max(0, level) * BASE_JUMP_HEIGHT_PER_LEVEL);
   }
 
-  static double baseJumpStrengthBonus(int level) {
+  public static double baseJumpStrengthBonus(int level) {
     return KineticsJumpPhysics.bonusForHeight(baseJumpHeight(level));
   }
 
@@ -158,12 +145,11 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
       removeBaseJump(p);
       return;
     }
-    AdaptAttributeService.get().apply(p, getName(), SLOT_BASE_JUMP, Attributes.JUMP_STRENGTH,
-        baseJumpStrengthBonus(level), AttributeOperation.ADD_VALUE);
+    boost.applyBase(p, baseJumpStrengthBonus(level));
   }
 
   private void removeBaseJump(PlayerRef p) {
-    AdaptAttributeService.get().remove(p, getName(), SLOT_BASE_JUMP, Attributes.JUMP_STRENGTH);
+    boost.removeBase(p);
   }
 
   private double getJumpBonus(int level) {
@@ -176,6 +162,12 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
 
   private long getFloatWindowTicks(int level) {
     return floatWindowTicks(getConfig().floatWindowTicksBase, getConfig().floatWindowTicksFactor, getLevelPercent(level));
+  }
+
+  public static void hopFx(Adaptation<?> owner, Loc at) {
+    Fx.now(owner, at, FxPriority.GAMEPLAY)
+        .ring(Particles.CLOUD, 0.6D, 8, 0.05D)
+        .sound(Sounds.ENTITY_RABBIT_JUMP, 0.6F, 0.7F);
   }
 
   @ConfigDescription("Each level raises every jump by 0.5 blocks; sneak-jump for an additional floaty, low-gravity hop.")

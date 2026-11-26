@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.excavation;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -32,8 +33,8 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.content.adaptation.excavation.upgraded.Landshaper;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.Hand;
@@ -122,6 +123,10 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
       return;
     }
 
+    if (action == InteractAction.RIGHT_CLICK_BLOCK && slamTakesOver(e)) {
+      return;
+    }
+
     int hungerCost = getConfig().hungerCost;
     if (p.foodLevel() - hungerCost < (preferenceEnabled(p, FOOD_RESERVE) ? 8 : 0)) {
       return;
@@ -169,6 +174,16 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
       }
     }
     Tasks.runEntity(p, batch::finishTimedOut, BATCH_TIMEOUT_TICKS);
+  }
+
+  /** Landshaper's dig slam answers a ready, payable sneak-right-click on top of a block in place of the wave. */
+  private boolean slamTakesOver(PlayerInteractEvent e) {
+    for (Adaptation<?> upgrade : getSkill().getUpgrades()) {
+      if (upgrade instanceof Landshaper landshaper && landshaper.slams(e)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private List<LivingRef> collectCandidates(PlayerRef player, Loc origin, double radius) {
@@ -231,20 +246,13 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     direction = direction.normalize().multiply(batch.force).withY(batch.liftVelocity);
-    int previousNoDamageTicks = enemy.noDamageTicks();
-    double healthBefore = enemy.health() + enemy.absorption();
-    enemy.setNoDamageTicks(0);
-    enemy.damage(batch.damage, batch.player);
-    double healthAfter = enemy.isDead() ? 0D : enemy.health() + enemy.absorption();
-    if (healthAfter >= healthBefore) {
-      enemy.setNoDamageTicks(previousNoDamageTicks);
+    if (!ExcavationHeave.heave(batch.player, enemy, batch.damage, direction, SLOWNESS, batch.slowTicks,
+        batch.slowAmplifier)) {
       batch.complete();
       return;
     }
 
     batch.markAffected();
-    enemy.setVelocity(direction);
-    enemy.addEffect(new EffectInstance(SLOWNESS, batch.slowTicks, batch.slowAmplifier, false, true, true));
     if (batch.claimTargetFx() && batch.dirtData != null) {
       fx(enemy, FxPriority.COMBAT)
           .particle(Particles.blockCrack(batch.dirtData), 4, 0, 0.1D, 0, 0.2D, 0.05D);
@@ -317,7 +325,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     };
   }
 
-  static boolean isEarthMoverTarget(EntityRef entity) {
+  public static boolean isEarthMoverTarget(EntityRef entity) {
     return entity.has(EntityTrait.ENEMY);
   }
 

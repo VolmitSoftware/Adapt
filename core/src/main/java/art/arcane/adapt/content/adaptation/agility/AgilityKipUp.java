@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,8 +26,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -34,8 +34,6 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -43,7 +41,6 @@ import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -88,7 +85,7 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    AdaptAttributeService.get().remove(player.getPlayer(), getName(), "speed", Attributes.MOVEMENT_SPEED);
+    AgilityKip.clearSpeedBurst(this, player.getPlayer());
   }
 
   @Override
@@ -135,7 +132,7 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
   }
 
   private void attemptKip(PlayerRef p, PlayerMoveEvent e) {
-    if (!isKipEligible(p)) {
+    if (!AgilityKip.eligible(p)) {
       return;
     }
 
@@ -154,7 +151,7 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
       return;
     }
 
-    Vec3 direction = intendedDirection(p, e);
+    Vec3 direction = AgilityKip.intendedDirection(p, e);
     if (direction == null) {
       return;
     }
@@ -162,49 +159,14 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
     kipCooldown.mark(id, cooldownMillis);
     knockbackAt.clear(id);
 
-    Vec3 current = p.velocity();
-    double magnitude = getConfig().recoverySpeed;
-    p.setVelocity(new Vec3(direction.x() * magnitude, current.y(), direction.z() * magnitude));
-
     int speedDurationTicks = getSpeedDurationTicks();
     if (speedDurationTicks > 0 && preferenceEnabled(p, SPEED_BURST)) {
-      AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED,
-          speedBonus(getSpeedAmplifier(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL, speedDurationTicks);
+      AgilityKip.speedBurst(this, p, getSpeedAmplifier(level), speedDurationTicks);
     }
-
-    fx(p.location(), FxPriority.GAMEPLAY)
-        .trail(Particles.CLOUD, direction.x(), 0.1D, direction.z(), 0.8D, 5)
-        .ring(Particles.CRIT, 0.7D, 8, 0.1D)
-        .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.6F, 1.3F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.6F, 1.0F);
+    AgilityKip.push(this, p, direction, getConfig().recoverySpeed);
 
     addStat(p, "agility.kip-up.recoveries", 1);
     xp(p, getConfig().xpPerRecovery);
-  }
-
-  private Vec3 intendedDirection(PlayerRef p, PlayerMoveEvent e) {
-    Loc to = e.to();
-    Vec3 move = to == null ? null : new Vec3(to.x() - e.from().x(), 0D, to.z() - e.from().z());
-    if (move != null) {
-      if (move.lengthSquared() > 1.0E-4D) {
-        return move.normalize();
-      }
-    }
-
-    Vec3 look = p.location().direction().withY(0);
-    if (look.lengthSquared() > 1.0E-4D) {
-      return look.normalize();
-    }
-
-    return null;
-  }
-
-  private boolean isKipEligible(PlayerRef p) {
-    GameMode mode = p.gameMode();
-    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      return false;
-    }
-
-    return !p.isFlying() && !p.isGliding() && !p.isSwimming() && p.vehicle() == null;
   }
 
   private long getRecoveryWindowMillis(int level) {
@@ -226,10 +188,6 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
 
   static int speedDurationTicks(int configuredTicks) {
     return Math.max(10, configuredTicks);
-  }
-
-  static double speedBonus(int amplifier) {
-    return 0.2D * (amplifier + 1);
   }
 
   @ConfigDescription("Jump right after taking a hit to convert knockback into recovered momentum and a speed burst.")
@@ -259,5 +217,13 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
       maxLevel = 4;
       initialCost = 1;
     }
+  }
+
+
+  static void recoveryFx(Adaptation<?> owner, PlayerRef p, Vec3 direction) {
+    Fx.now(owner, p.location(), FxPriority.GAMEPLAY)
+        .trail(Particles.CLOUD, direction.x(), 0.1D, direction.z(), 0.8D, 5)
+        .ring(Particles.CRIT, 0.7D, 8, 0.1D)
+        .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.6F, 1.3F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.6F, 1.0F);
   }
 }

@@ -32,8 +32,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -42,7 +40,6 @@ import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -65,10 +62,9 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
           new PlayerPreference.Choice<>(Priority.HYDRO, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_PRIORITY_HYDRO, Id.minecraft("heart_of_the_sea"), 1),
           new PlayerPreference.Choice<>(Priority.TIDE, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_PRIORITY_TIDE, Id.minecraft("trident"), 1))));
 
-  private static final double MAX_RESULTING_VELOCITY = 2.6;
 
   private final Map<UUID, Long> lastTap = playerState();
-  private final Map<UUID, ChargeState> charges = playerState();
+  private final SeaborneCharges charges = new SeaborneCharges(this, playerState(), () -> getConfig().chargeRegenMillis);
 
   public SeaborneHydroJet() {
     super("seaborne-hydro-jet");
@@ -131,31 +127,7 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
 
   @Handle(priority = EventPriority.NORMAL, ignoreCancelled = false)
   public void on(PlayerQuitEvent e) {
-    charges.remove(e.player().uuid());
-  }
-
-  private void publishCharges(PlayerRef p, ChargeState state, int max, long now) {
-    UUID id = p.uuid();
-    long regenMillis = getConfig().chargeRegenMillis;
-    int lit = (int) Math.floor(state.value);
-    if (lit >= max || regenMillis <= 0L) {
-      AbilityGlyphs.clear(id, this, HudGlyph.CHARGES);
-      return;
-    }
-    long rechargeStartedAt = now - (long) ((state.value - lit) * regenMillis);
-    if (!AbilityGlyphs.charges(id, this, lit, max, rechargeStartedAt, regenMillis) || state.refreshPending) {
-      return;
-    }
-    int waitTicks = (int) Math.max(1L, (rechargeStartedAt + regenMillis - now + 49L) / 50L);
-    state.refreshPending = Tasks.runEntity(p, () -> {
-      state.refreshPending = false;
-      if (charges.get(id) != state) {
-        return;
-      }
-      long at = System.currentTimeMillis();
-      state.refill(max, regenMillis, at);
-      publishCharges(p, state, max, at);
-    }, waitTicks);
+    charges.forget(e.player().uuid());
   }
 
   public boolean reservesSneak(PlayerRef p) {
@@ -172,50 +144,22 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     return true;
   }
 
-  static boolean respectsFoodReserve(int food, float saturation, float exhaustion, double cost, int reserve) {
-    if (food <= 0) {
-      return false;
-    }
-    if (reserve <= 0) {
-      return true;
-    }
-    int exhaustionUnits = (int) Math.ceil(Math.max(0D, exhaustion + cost) / 4D);
-    int saturationUnits = (int) Math.ceil(Math.max(0D, saturation));
-    return food - Math.max(0, exhaustionUnits - saturationUnits) >= reserve;
-  }
-
   private void tryJet(PlayerRef p) {
     int level = getActiveLevel(p);
     if (level <= 0 || !p.isSwimming()) {
       return;
     }
 
-    if (!respectsFoodReserve(p.foodLevel(), p.saturation(), p.exhaustion(), getConfig().hungerCost, preference(p, RESERVE).ordinal() * 4)) {
+    if (!SeaborneJet.respectsFoodReserve(p.foodLevel(), p.saturation(), p.exhaustion(), getConfig().hungerCost, preference(p, RESERVE).ordinal() * 4)) {
       FxPresets.failFizzle(this, p);
       return;
     }
 
-    UUID id = p.uuid();
-    int max = getMaxCharges(level);
-    long now = System.currentTimeMillis();
-    ChargeState state = charges.computeIfAbsent(id, key -> new ChargeState(max, now));
-    state.refill(max, getConfig().chargeRegenMillis, now);
-    if (state.value < 1D) {
-      publishCharges(p, state, max, now);
+    if (!charges.spend(p, getMaxCharges(level))) {
       FxPresets.failFizzle(this, p);
       return;
     }
-
-    state.value -= 1D;
-    publishCharges(p, state, max, now);
-    Vec3 direction = p.eyeLocation().direction().normalize();
-    Vec3 velocity = p.velocity().multiply(0.4D).add(direction.multiply(getBurstForce(level)));
-    if (velocity.lengthSquared() > MAX_RESULTING_VELOCITY * MAX_RESULTING_VELOCITY) {
-      velocity = velocity.normalize().multiply(MAX_RESULTING_VELOCITY);
-    }
-
-    p.setVelocity(velocity);
-    p.setExhaustion(p.exhaustion() + (float) getConfig().hungerCost);
+    Vec3 direction = SeaborneJet.launch(p, getBurstForce(level), getConfig().hungerCost);
     xp(p, getConfig().jetXp);
     addStat(p, "seaborne.hydro-jet.jets", 1);
     fx(p.location().add(0D, 0.5D, 0D), FxPriority.GAMEPLAY)
@@ -230,20 +174,7 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
   }
 
   private int getMaxCharges(int level) {
-    return maxCharges(getConfig().maxChargesBase, getConfig().maxChargesFactor, getLevelPercent(level));
-  }
-
-  static int maxCharges(int base, double factor, double levelPercent) {
-    return Math.max(1, base + (int) Math.round(levelPercent * factor));
-  }
-
-  static double refillCharges(double current, long elapsedMillis, long regenMillis, double max) {
-    if (regenMillis <= 0L) {
-      return max;
-    }
-
-    double refilled = current + ((double) Math.max(0L, elapsedMillis) / regenMillis);
-    return Math.min(max, refilled);
+    return SeaborneCharges.maxCharges(getConfig().maxChargesBase, getConfig().maxChargesFactor, getLevelPercent(level));
   }
 
   @ConfigDescription("Tap sneak while swimming to burst forward on a jet of water. Costs hunger and consumes a charge.")
@@ -268,22 +199,6 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
       costFactor = 0.6;
       maxLevel = 5;
       initialCost = 2;
-    }
-  }
-
-  private static final class ChargeState {
-    private double value;
-    private long lastRefillAt;
-    private boolean refreshPending;
-
-    private ChargeState(double value, long lastRefillAt) {
-      this.value = value;
-      this.lastRefillAt = lastRefillAt;
-    }
-
-    private void refill(double max, long regenMillis, long now) {
-      value = refillCharges(value, now - lastRefillAt, regenMillis, max);
-      lastRefillAt = now;
     }
   }
 

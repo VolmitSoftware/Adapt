@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -11,10 +12,13 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
+import art.arcane.adapt.content.adaptation.kinetics.upgraded.Comet;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -38,23 +42,19 @@ import java.util.Set;
 import java.util.UUID;
 
 public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config> {
+  public static final String ID = "kinetics-mass-shift";
   public static final PlayerPreference<Selection> SELECTION = new PlayerPreference<>(Selection.class,
       new PlayerPreference.Definition<>("selection", KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION, Selection.LOOK, List.of(
           new PlayerPreference.Choice<>(Selection.LOOK, KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION_LOOK, Id.minecraft("spyglass"), 1),
           new PlayerPreference.Choice<>(Selection.CYCLE, KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION_CYCLE, Id.minecraft("compass"), 1))));
 
-  static final int FORM_NORMAL = 0;
-  static final int FORM_TITAN = 1;
-  static final int FORM_POCKET = 2;
+  public static final int FORM_NORMAL = 0;
+  public static final int FORM_TITAN = 1;
+  public static final int FORM_POCKET = 2;
   static final double FORM_COMBAT_SCALAR = 0.2D;
-  static final float LOOK_PITCH_THRESHOLD = 25F;
-  private static final String SLOT_SCALE = "form-scale";
-  private static final String SLOT_STEP = "form-step";
-  private static final String SLOT_CAMERA = "form-camera";
+  public static final float LOOK_PITCH_THRESHOLD = 25F;
   private static final String SLOT_DAMAGE = "form-damage";
   private static final String SLOT_HEALTH = "form-health";
-  private static final double TITAN_STEP_HEIGHT = 1.0D;
-  private static final double TITAN_CAMERA_DISTANCE = 2.0D;
   private static final int FORM_EFFECT_DURATION_TICKS = 60;
   private static final int FORM_EFFECT_REFRESH_TICKS = 30;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
@@ -62,6 +62,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
   private static final Id SPEED = Id.minecraft("speed");
 
   private final Map<UUID, FormState> forms = playerState();
+  private final KineticsFormShape shape = new KineticsFormShape(this);
 
   public KineticsMassShift() {
     super("kinetics-mass-shift");
@@ -128,7 +129,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerSwapHandItemsEvent e) {
     PlayerRef p = e.player();
-    if (!p.isSneaking()) {
+    if (!p.isSneaking() || Comet.covers(this, p)) {
       return;
     }
 
@@ -143,6 +144,33 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     applyForm(p, preference(p, SELECTION) == Selection.CYCLE ? next : formForPitch(p.location().pitch(), LOOK_PITCH_THRESHOLD), level);
   }
 
+  /** Drops the player's form, so a Comet form never stacks on it. */
+  public void release(PlayerRef p) {
+    if (forms.containsKey(p.uuid())) {
+      resetForm(p);
+    }
+  }
+
+  /**
+   * Whether sneak and swap hands shifts this player's form, through Mass Shift or Comet, so another ability on that
+   * gesture must leave it.
+   */
+  public static boolean claimsSwap(PlayerRef player) {
+    AdaptCore core = AdaptCore.current();
+    AdaptServer server = core == null ? null : core.getAdaptServer();
+    Adaptation<?> found = server == null ? null : server.getSkillRegistry().getAdaptation(ID);
+    return found instanceof KineticsMassShift shift && (shift.getActiveLevel(player) > 0 || Comet.covers(shift, player));
+  }
+
+  public static KineticsMassShift of(Skill<?> skill) {
+    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      if (adaptation instanceof KineticsMassShift found) {
+        return found;
+      }
+    }
+    return null;
+  }
+
   @Handle(priority = EventPriority.LOWEST)
   public void on(PlayerQuitEvent e) {
     resetForm(e.player());
@@ -153,7 +181,8 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     resetForm(e.player());
   }
 
-  static int formForPitch(float pitch, float threshold) {
+  /** The form a sneak-swap asks for: Titan looking up, Pocket looking down, normal looking level. */
+  public static int formForPitch(float pitch, float threshold) {
     if (!Float.isFinite(pitch)) {
       return FORM_NORMAL;
     }
@@ -191,13 +220,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     }
 
     applyCombatAttributes(p, attributes, form);
-    if (form == FORM_TITAN) {
-      attributes.apply(p, getName(), SLOT_SCALE, Attributes.SCALE, getTitanScale(level), AttributeOperation.ADD_VALUE);
-      attributes.apply(p, getName(), SLOT_STEP, Attributes.STEP_HEIGHT, TITAN_STEP_HEIGHT, AttributeOperation.ADD_VALUE);
-      attributes.apply(p, getName(), SLOT_CAMERA, Attributes.CAMERA_DISTANCE, TITAN_CAMERA_DISTANCE, AttributeOperation.ADD_VALUE);
-    } else {
-      attributes.apply(p, getName(), SLOT_SCALE, Attributes.SCALE, -getPocketScale(level), AttributeOperation.ADD_VALUE);
-    }
+    shape.shape(p, form, form == FORM_TITAN ? getTitanScale(level) : getPocketScale(level));
 
     FormState initialState = new FormState(form, level, false);
     boolean ownsEffect = ensureFormEffect(p, initialState);
@@ -220,7 +243,7 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || Comet.covers(this, p)) {
       resetForm(p);
       return;
     }

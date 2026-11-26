@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -100,6 +102,11 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(ArchitectMessages.SMART_SHAPE_LORE2));
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     InteractAction action = e.action();
@@ -158,6 +165,7 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
           .chord(Sounds.ITEM_AXE_STRIP, 0.45f, 1.8f, Sounds.BLOCK_WOODEN_BUTTON_CLICK_ON, 0.4f, 1.6f);
       xp(p, Math.max(getConfig().minXpPerRotate, options * getConfig().xpPerOrientationOption));
       addStat(p, "architect.smart-shape.rotations", 1);
+      UpgradeLoans.landed(this, p);
     });
   }
 

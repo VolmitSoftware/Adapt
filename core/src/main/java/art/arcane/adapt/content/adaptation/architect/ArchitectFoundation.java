@@ -18,10 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -34,15 +34,9 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataHolder;
-import art.arcane.adapt.platform.data.DataKey;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -55,8 +49,6 @@ import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.event.world.ChunkEvent;
-import art.arcane.adapt.platform.value.BlockPos;
-import art.arcane.adapt.platform.value.ChunkPos;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
@@ -67,16 +59,11 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
   public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
@@ -86,18 +73,11 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   public static final PlayerPreference<CommonPreferences.Toggle> EMPTY_HAND = CommonPreferences.toggle("empty-hand", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_EMPTY_HAND, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Scale> DURATION = CommonPreferences.scale("duration", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_DURATION);
 
-  private static final DataKey<int[]> JOURNAL_KEY = DataKey.adapt("architect-foundation", DataCodecs.INT_ARRAY);
   private static final Id TINTED_GLASS = Id.minecraft("tinted_glass");
-  private static final Id AIR = Id.minecraft("air");
-  private static final int MAX_JOURNALED_BLOCKS_PER_CHUNK = 4096;
-  private static final int MAX_RECOVERY_CHUNKS_PER_TICK = 32;
   private final Map<UUID, Integer> blockPower;
   private final Map<UUID, Long> cooldowns;
   private final Map<UUID, Boolean> active;
-  private final Set<BlockKey> activeBlocks;
-  private final Queue<ChunkRecovery> recoveryQueue;
-  private final Set<ChunkRecovery> queuedRecoveries;
-  private final AtomicBoolean recoveryScheduled;
+  private final ArchitectTemporaryBlocks temporaryBlocks;
 
   public ArchitectFoundation() {
     super("architect-foundation");
@@ -107,10 +87,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     blockPower = playerState();
     cooldowns = playerState();
     active = playerState();
-    activeBlocks = ConcurrentHashMap.newKeySet();
-    recoveryQueue = new ConcurrentLinkedQueue<>();
-    queuedRecoveries = ConcurrentHashMap.newKeySet();
-    recoveryScheduled = new AtomicBoolean();
+    temporaryBlocks = new ArchitectTemporaryBlocks(this, "architect-foundation", (BlockRef block) ->
+        fx(block.location().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+            .burst(Particles.ASH, 4, 0.2D)
+            .sound(Sounds.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.0f));
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("scaffolding"))
         .key("challenge_architect_foundation_1k")
@@ -139,7 +119,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
   @Override
   protected void onRuntimeActivated() {
-    queueLoadedChunkRecovery();
+    temporaryBlocks.recoverLoadedChunks();
   }
 
   @Override
@@ -147,6 +127,22 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.FOUNDATION_LORE1)
         + (getBlockPower(getLevelPercent(level))) + C.GRAY + " "
         + AdaptLanguage.text(ArchitectMessages.FOUNDATION_LORE2));
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
+  @Override
+  public int getActiveBlockPlaceLevel(PlayerRef p, Loc location) {
+    return UpgradeLoans.level(this, super.getActiveBlockPlaceLevel(p, location),
+        (Adaptation<?> upgrade) -> upgrade.getActiveBlockPlaceLevel(p, location));
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -208,6 +204,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       if (addFoundation(p, b)) {
         power--;
         addStat(p, "architect.foundation.blocks-placed", 1);
+        UpgradeLoans.landed(this, p);
       }
 
       if (power <= 0) {
@@ -238,31 +235,22 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockPistonEvent e) {
-    e.blocks().forEach(b -> {
-      if (activeBlocks.contains(BlockKey.of(b))) {
-        AdaptLog.verbose(e.extending()
-            ? "Cancelled Piston Extend on Adaptation Foundation Block"
-            : "Cancelled Piston Retract on Adaptation Foundation Block");
-        e.setCancelled(true);
-      }
-    });
+    temporaryBlocks.on(e);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockExplodeEvent e) {
-    e.blocks().removeIf(block -> activeBlocks.contains(BlockKey.of(block)));
+    temporaryBlocks.spare(e.blocks());
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
-    if (activeBlocks.contains(BlockKey.of(e.block()))) {
-      e.setCancelled(true);
-    }
+    temporaryBlocks.on(e);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityExplodeEvent e) {
-    e.blocks().removeIf(block -> activeBlocks.contains(BlockKey.of(block)));
+    temporaryBlocks.spare(e.blocks());
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -295,83 +283,10 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     });
   }
 
-  public boolean addFoundation(PlayerRef player, BlockRef block) {
-    Loc location = block.location();
-    if (!Tasks.isOwnedByCurrentRegion(location)
-        || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(player))) {
-      return false;
-    }
-    if (!block.type().isAir()) {
-      return false;
-    }
-
-    Loc center = location.add(0.5D, 0.5D, 0.5D);
-    if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(center, 0.5D, 0.5D))
-        || hasHangingDecoration(block.world().nearbyEntities(center.position(), .5, .5, .5))) {
-      return false;
-    }
-
-    if (!canBlockPlace(player, location)
-        || !ProtectionProbes.attemptBlockPlaceProbe(player, block)) {
-      return false;
-    }
-    if (!Tasks.isOwnedByCurrentRegion(location)
-        || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(player))
-        || !block.type().isAir()
-        || !journalFoundation(block)) {
-      return false;
-    }
-    BlockKey key = BlockKey.of(block);
-    boolean cleanupScheduled = false;
-    try {
-      block.setType(TINTED_GLASS, false);
-      activeBlocks.add(key);
-      int durationTicks = (int) Math.max(1L,
-          Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration * preference(player, DURATION).multiplier() / 50D)));
-      cleanupScheduled = Tasks.runAt(location, () -> removeFoundation(block), durationTicks);
-      return cleanupScheduled;
-    } finally {
-      if (!cleanupScheduled) {
-        activeBlocks.remove(key);
-        if (TINTED_GLASS.equals(block.type())) {
-          block.setType(AIR, false);
-        }
-        unjournalFoundation(block);
-      }
-    }
-  }
-
-  private static boolean hasHangingDecoration(List<EntityRef> entities) {
-    for (EntityRef entity : entities) {
-      if (entity.has(EntityTrait.ITEM_FRAME) || entity.has(EntityTrait.PAINTING)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public void removeFoundation(BlockRef block) {
-    removeFoundation(block, true);
-  }
-
-  private void removeFoundation(BlockRef block, boolean renderEffects) {
-    activeBlocks.remove(BlockKey.of(block));
-    WorldRef world = block.world();
-    int chunkX = block.x() >> 4;
-    int chunkZ = block.z() >> 4;
-    if (!world.isChunkLoaded(chunkX, chunkZ)) {
-      return;
-    }
-    boolean removed = TINTED_GLASS.equals(block.type());
-    if (removed) {
-      block.setType(AIR, false);
-    }
-    unjournalFoundation(block);
-    if (removed && renderEffects) {
-      fx(block.location().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
-          .burst(Particles.ASH, 4, 0.2D)
-          .sound(Sounds.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.0f);
-    }
+  private boolean addFoundation(PlayerRef player, BlockRef block) {
+    int durationTicks = (int) Math.max(1L,
+        Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration * preference(player, DURATION).multiplier() / 50D)));
+    return temporaryBlocks.raise(player, block, durationTicks);
   }
 
   public int getBlockPower(double factor) {
@@ -426,176 +341,15 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
   }
 
-  private boolean journalFoundation(BlockRef block) {
-    DataHolder data = block.world().chunkData(block.x() >> 4, block.z() >> 4);
-    int encoded = encodeBlock(block.x() & 15, block.y(), block.z() & 15, block.world().minHeight());
-    int[] journal = data.get(JOURNAL_KEY);
-    if (journal == null) {
-      data.set(JOURNAL_KEY, new int[]{encoded});
-      return true;
-    }
-    for (int existing : journal) {
-      if (existing == encoded) {
-        return true;
-      }
-    }
-    if (journal.length >= MAX_JOURNALED_BLOCKS_PER_CHUNK) {
-      return false;
-    }
-    int[] expanded = Arrays.copyOf(journal, journal.length + 1);
-    expanded[journal.length] = encoded;
-    data.set(JOURNAL_KEY, expanded);
-    return true;
-  }
-
-  private void unjournalFoundation(BlockRef block) {
-    DataHolder data = block.world().chunkData(block.x() >> 4, block.z() >> 4);
-    int[] journal = data.get(JOURNAL_KEY);
-    if (journal == null || journal.length == 0) {
-      return;
-    }
-
-    int encoded = encodeBlock(block.x() & 15, block.y(), block.z() & 15, block.world().minHeight());
-    int found = -1;
-    for (int index = 0; index < journal.length; index++) {
-      if (journal[index] == encoded) {
-        found = index;
-        break;
-      }
-    }
-    if (found < 0) {
-      return;
-    }
-    if (journal.length == 1) {
-      data.remove(JOURNAL_KEY);
-      return;
-    }
-
-    int[] compacted = new int[journal.length - 1];
-    System.arraycopy(journal, 0, compacted, 0, found);
-    System.arraycopy(journal, found + 1, compacted, found, journal.length - found - 1);
-    data.set(JOURNAL_KEY, compacted);
-  }
-
-  private void queueLoadedChunkRecovery() {
-    for (WorldRef world : AdaptCore.platform().host().worlds()) {
-      for (ChunkPos chunk : world.loadedChunks()) {
-        queueChunkRecovery(world, chunk.x(), chunk.z());
-      }
-    }
-  }
-
   @Handle(priority = EventPriority.MONITOR)
   public void on(ChunkEvent event) {
-    if (event.phase() != ChunkEvent.Phase.LOAD) {
-      return;
-    }
-    queueChunkRecovery(event.world(), event.chunk().x(), event.chunk().z());
-  }
-
-  private void queueChunkRecovery(WorldRef world, int chunkX, int chunkZ) {
-    if (!isRuntimeRegistered()) {
-      return;
-    }
-    ChunkRecovery recovery = new ChunkRecovery(world, chunkX, chunkZ);
-    if (!queuedRecoveries.add(recovery)) {
-      return;
-    }
-    recoveryQueue.add(recovery);
-    if (recoveryScheduled.compareAndSet(false, true)) {
-      Tasks.s(this::drainRecoveryQueue, 1);
-    }
-  }
-
-  private void drainRecoveryQueue() {
-    if (!isRuntimeRegistered()) {
-      recoveryQueue.clear();
-      recoveryScheduled.set(false);
-      return;
-    }
-
-    int dispatched = 0;
-    ChunkRecovery recovery;
-    while (dispatched < MAX_RECOVERY_CHUNKS_PER_TICK && (recovery = recoveryQueue.poll()) != null) {
-      ChunkRecovery current = recovery;
-      queuedRecoveries.remove(current);
-      Loc anchor = new Loc(current.world(), (current.chunkX() << 4) + 8, current.world().minHeight(),
-          (current.chunkZ() << 4) + 8);
-      Tasks.runAt(anchor, () -> recoverChunk(current));
-      dispatched++;
-    }
-
-    recoveryScheduled.set(false);
-    if (!recoveryQueue.isEmpty() && recoveryScheduled.compareAndSet(false, true)) {
-      Tasks.s(this::drainRecoveryQueue, 1);
-    }
-  }
-
-  private void recoverChunk(ChunkRecovery recovery) {
-    WorldRef world = recovery.world();
-    if (!world.isChunkLoaded(recovery.chunkX(), recovery.chunkZ())) {
-      return;
-    }
-
-    DataHolder data = world.chunkData(recovery.chunkX(), recovery.chunkZ());
-    int[] journal = data.get(JOURNAL_KEY);
-    if (journal == null || journal.length == 0) {
-      return;
-    }
-
-    int limit = Math.min(journal.length, MAX_JOURNALED_BLOCKS_PER_CHUNK);
-    for (int index = 0; index < limit; index++) {
-      int encoded = journal[index];
-      int y = decodeY(encoded, world.minHeight());
-      if (y < world.minHeight() || y >= world.maxHeight()) {
-        continue;
-      }
-      BlockRef block = world.blockAt((recovery.chunkX() << 4) + decodeX(encoded), y,
-          (recovery.chunkZ() << 4) + decodeZ(encoded));
-      activeBlocks.remove(BlockKey.of(block));
-      if (TINTED_GLASS.equals(block.type())) {
-        block.setType(AIR, false);
-      }
-    }
-    if (journal.length > limit) {
-      data.set(JOURNAL_KEY, Arrays.copyOfRange(journal, limit, journal.length));
-      queueChunkRecovery(world, recovery.chunkX(), recovery.chunkZ());
-    } else {
-      data.remove(JOURNAL_KEY);
-    }
-  }
-
-  static int encodeBlock(int localX, int y, int localZ, int minHeight) {
-    return ((y - minHeight) << 8) | ((localZ & 15) << 4) | (localX & 15);
-  }
-
-  static int decodeX(int encoded) {
-    return encoded & 15;
-  }
-
-  static int decodeZ(int encoded) {
-    return (encoded >>> 4) & 15;
-  }
-
-  static int decodeY(int encoded, int minHeight) {
-    return minHeight + (encoded >>> 8);
+    temporaryBlocks.on(event);
   }
 
   @Override
   public void unregister() {
     super.unregister();
-    recoveryQueue.clear();
-    queuedRecoveries.clear();
-    recoveryScheduled.set(false);
-    for (BlockKey key : Set.copyOf(activeBlocks)) {
-      WorldRef world = AdaptCore.platform().host().world(key.worldId());
-      if (world == null) {
-        continue;
-      }
-      BlockRef block = world.blockAt(key.pos());
-      Tasks.runAt(block.location(), () -> removeFoundation(block, false));
-    }
-    activeBlocks.clear();
+    temporaryBlocks.clear();
     active.clear();
     blockPower.clear();
     cooldowns.clear();
@@ -617,15 +371,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     blockPower.remove(id);
     cooldowns.remove(id);
     active.remove(id);
-  }
-
-  private record ChunkRecovery(WorldRef world, int chunkX, int chunkZ) {
-  }
-
-  private record BlockKey(UUID worldId, BlockPos pos) {
-    private static BlockKey of(BlockRef block) {
-      return new BlockKey(block.world().uid(), block.pos());
-    }
   }
 
   @ConfigDescription("Sneak to place a temporary foundation beneath you.")

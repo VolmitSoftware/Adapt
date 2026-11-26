@@ -18,4 +18,11 @@ public sealed interface Route {
       Objects.requireNonNull(adaptationId, "adaptationId");
     }
   }
+
+  /** The mutation spread led by {@code skillId}; only under {@link ClientProtocol#MUTATE_SPREAD}. */
+  record Mutate(String skillId) implements Route {
+    public Mutate {
+      Objects.requireNonNull(skillId, "skillId");
+    }
+  }
 }

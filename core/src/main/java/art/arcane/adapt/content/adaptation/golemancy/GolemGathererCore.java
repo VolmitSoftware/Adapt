@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -106,6 +109,21 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     loadedConfig.foreignItemSeconds = GathererRules.seconds(loadedConfig.foreignItemSeconds, GathererRules.MAX_FOREIGN_ITEM_SECONDS);
     loadedConfig.carryBonusFraction = GolemancyRules.nonNegative(loadedConfig.carryBonusFraction);
     loadedConfig.workXpPerStack = GolemancyRules.nonNegative(loadedConfig.workXpPerStack);
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
   }
 
   @Override

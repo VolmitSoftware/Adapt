@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +27,9 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -38,7 +41,6 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.fx.ParticleSpec;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
@@ -50,10 +52,9 @@ import java.util.UUID;
 
 public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Config> {
   private static final Rgb BONE_WHITE = new Rgb(235, 230, 210);
-  private static final Id BONE = Id.minecraft("bone");
   private static final Id BONE_BLOCK = Id.minecraft("bone_block");
   private final Cooldowns cooldowns = cooldowns();
-  private final Cooldowns clickFx = cooldowns();
+  private final TragoulMarrow marrow = new TragoulMarrow(this, cooldowns());
 
   public TragoulMarrowArmor() {
     super("tragoul-marrow-armor");
@@ -110,35 +111,33 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
         return;
       }
 
-      ItemRef bone = AdaptCore.platform().host().items().create(BONE);
-      if (!p.inventory().containsAtLeast(bone, preference(p, TragoulPreferences.BONES).required(1))) {
-        if (clickFx.isReady(id, 1500L)) {
-          clickFx.mark(id);
-          fx(p.location().add(0, 1.0, 0), FxPriority.TRANSITION)
-              .burst(Particles.SMOKE, 1, 0.1)
-              .sound(Sounds.BLOCK_BONE_BLOCK_HIT, 0.3F, 0.6F);
-        }
-        return;
-      }
-
-      if (!payItemCost(p, "absorb", bone, 1, () -> {
-        p.inventory().removeSimilar(bone, 1);
-        return true;
+      if (marrow.absorb(p, e, getAbsorbPercent(level), (double absorbed) -> {
+        addStat(p, "tragoul.marrow-armor.damage-absorbed", absorbed);
+        xp(p, getConfig().xpPerAbsorb);
       })) {
-        return;
+        cooldowns.mark(id, cooldownMillis);
       }
-      cooldowns.mark(id, cooldownMillis);
-      double absorbed = e.damage() * getAbsorbPercent(level);
-      e.setDamage(Math.max(0, e.damage() - absorbed));
-      playMarrowShield(p);
-      addStat(p, "tragoul.marrow-armor.damage-absorbed", absorbed);
-      xp(p, getConfig().xpPerAbsorb);
     });
   }
 
-  private void playMarrowShield(PlayerRef p) {
+  private double getAbsorbPercent(int level) {
+    return Math.min(getConfig().maxAbsorbPercent,
+        Math.max(0, getConfig().absorbPercentBase + (getLevelPercent(level) * getConfig().absorbPercentFactor)));
+  }
+
+  private long getInternalCooldownMillis(int level) {
+    return Math.max(500L, (long) Math.round(getConfig().internalCooldownMillisBase - (getLevelPercent(level) * getConfig().internalCooldownMillisFactor)));
+  }
+
+  static void noBoneFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location().add(0, 1.0, 0), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 1, 0.1)
+        .sound(Sounds.BLOCK_BONE_BLOCK_HIT, 0.3F, 0.6F);
+  }
+
+  static void shieldFx(Adaptation<?> owner, PlayerRef p) {
     ParticleSpec boneCrack = Particles.blockCrack(AdaptCore.platform().host().items().blockState(BONE_BLOCK));
-    timeline(p)
+    FxTimeline.follow(owner, p)
         .duration(4)
         .priority(FxPriority.TRANSITION)
         .cullRadius(24)
@@ -156,15 +155,6 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
           }
         })
         .start();
-  }
-
-  private double getAbsorbPercent(int level) {
-    return Math.min(getConfig().maxAbsorbPercent,
-        Math.max(0, getConfig().absorbPercentBase + (getLevelPercent(level) * getConfig().absorbPercentFactor)));
-  }
-
-  private long getInternalCooldownMillis(int level) {
-    return Math.max(500L, (long) Math.round(getConfig().internalCooldownMillisBase - (getLevelPercent(level) * getConfig().internalCooldownMillisFactor)));
   }
 
 

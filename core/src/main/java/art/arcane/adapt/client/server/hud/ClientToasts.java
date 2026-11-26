@@ -1,16 +1,12 @@
 package art.arcane.adapt.client.server.hud;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.protocol.ToastKind;
-import art.arcane.adapt.client.view.CatalogViews;
 import art.arcane.adapt.client.view.IconRef;
-import art.arcane.adapt.client.view.IconSprites;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.misc.CustomModel;
 
 import java.util.UUID;
@@ -24,29 +20,22 @@ public final class ClientToasts {
     return ClientHud.capable(playerId, ClientProtocol.TOASTS);
   }
 
-  /** Sends a toast to a player with the client toasts; false means the caller keeps its own output. */
+  /**
+   * Sends a toast to a player with the client toasts, without its skill to a client that cannot read one; false means
+   * the caller keeps its own output.
+   */
   public static boolean send(UUID playerId, ServerFrame.Toast toast) {
-    return ClientHud.send(playerId, ClientProtocol.TOASTS, toast);
+    ServerFrame.Toast sent = ClientHud.capable(playerId, ClientProtocol.SKILL_TOASTS) ? toast : toast.plain();
+    return ClientHud.send(playerId, ClientProtocol.TOASTS, sent);
   }
 
-  public static ServerFrame.Toast toast(ToastKind kind, IconRef icon, String titleMarkup, String bodyMarkup) {
-    return new ServerFrame.Toast(kind, icon, legacy(titleMarkup), legacy(bodyMarkup));
+  /** A toast in the look of skill {@code skillId}; null or empty for none. */
+  public static ServerFrame.Toast toast(ToastKind kind, IconRef icon, String titleMarkup, String bodyMarkup, String skillId) {
+    return new ServerFrame.Toast(kind, icon, legacy(titleMarkup), legacy(bodyMarkup), skillId == null ? "" : skillId);
   }
 
   public static IconRef icon(Id item, CustomModel model) {
-    return model != null ? CatalogViews.icon(model) : IconRef.item(item.toString());
-  }
-
-  /** The skill's icon, naming the skill's sprite so a client with that art draws it instead of the item. */
-  public static IconRef skillIcon(Skill<?> skill) {
-    return IconSprites.withSprite(CatalogViews.icon(GuiConfig.skillModel(skill.getName(), skill.getIcon(), skill.getModel())),
-        IconSprites.skill(skill.getName()));
-  }
-
-  /** The adaptation's icon, naming the adaptation's sprite so a client with that art draws it instead of the item. */
-  public static IconRef adaptationIcon(Adaptation<?> adaptation) {
-    return IconSprites.withSprite(CatalogViews.icon(GuiConfig.adaptationModel(adaptation.getName(), adaptation.getIcon(),
-        adaptation.getModel())), IconSprites.adaptation(adaptation.getName()));
+    return model != null ? ViewIcons.model(model) : IconRef.item(item.toString());
   }
 
   private static String legacy(String markup) {

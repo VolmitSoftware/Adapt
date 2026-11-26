@@ -147,6 +147,32 @@ public final class TamingMessages {
   public static final TextKey LAST_BREATH_DESCRIPTION = TextKey.of("taming.last_breath.description", "On a lethal hit a pet drops to 1 HP, is briefly invulnerable, and recalls to your side.");
   public static final TextKey LAST_BREATH_LORE1 = TextKey.of("taming.last_breath.lore1", "Per-Pet Cooldown");
   public static final TextKey LAST_BREATH_LORE2 = TextKey.of("taming.last_breath.lore2", "Invulnerability");
+  public static final TextKey ALPHA_LORE1 = TextKey.of("upgrade.taming.alpha.lore1", "Pet Damage Bonus");
+  public static final TextKey ALPHA_LORE2 = TextKey.of("upgrade.taming.alpha.lore2", "Pet Maximum Health Bonus");
+  public static final TextKey ALPHA_LORE3 = TextKey.of("upgrade.taming.alpha.lore3", "Aura Radius");
+  public static final TextKey ONE_MIND_LORE1 = TextKey.of("upgrade.taming.one_mind.lore1", "Marking Range");
+  public static final TextKey ONE_MIND_LORE2 = TextKey.of("upgrade.taming.one_mind.lore2", "Recall Radius");
+  public static final TextKey ONE_MIND_LORE3 = TextKey.of("upgrade.taming.one_mind.lore3", "Recall Cooldown");
+  public static final TextKey ONE_MIND_LORE4 = TextKey.of("upgrade.taming.one_mind.lore4", "Roles for Named Pets");
+  public static final TextKey ALPHA_LORE4 = TextKey.of("upgrade.taming.alpha.lore4", "Bonded Mount Growth Cap");
+  public static final TextKey ALPHA_LORE5 = TextKey.of("upgrade.taming.alpha.lore5", "Bonded Mount Call Range");
+  public static final TextKey WHISTLE_NAME = TextKey.of("tool.taming.whistle.name", "Beastmaster's Whistle");
+  public static final TextKey WHISTLE_LORE1 = TextKey.of("tool.taming.whistle.lore1", "Right-click: Send Pets");
+  public static final TextKey WHISTLE_LORE2 = TextKey.of("tool.taming.whistle.lore2", "Sneak + Right-click: Recall");
+  public static final TextKey WHISTLE_LORE3 = TextKey.of("tool.taming.whistle.lore3", "Left-click: Menu");
+  public static final TextKey WHISTLE_FETCH_ON = TextKey.of("tool.taming.whistle.fetch_on", "Fetch: On");
+  public static final TextKey WHISTLE_FETCH_OFF = TextKey.of("tool.taming.whistle.fetch_off", "Fetch: Off");
+  public static final TextKey WHISTLE_BOND = TextKey.of("tool.taming.whistle.bond", "Bond This Mount");
+  public static final TextKey WHISTLE_BONDED = TextKey.of("tool.taming.whistle.bonded", "Bonded Mount");
+  public static final TextKey WHISTLE_ROLE = TextKey.of("tool.taming.whistle.role", "Role: {role}");
+  public static final TextKey WHISTLE_ROLE_NONE = TextKey.of("tool.taming.whistle.role_none", "None");
+  public static final TextKey WHISTLE_ROLE_GUARD_OWNER = TextKey.of("tool.taming.whistle.role_guard_owner", "Guard You");
+  public static final TextKey WHISTLE_ROLE_GUARD_SPOT = TextKey.of("tool.taming.whistle.role_guard_spot", "Guard This Spot");
+  public static final TextKey WHISTLE_ROLE_FETCH = TextKey.of("tool.taming.whistle.role_fetch", "Fetch");
+  public static final TextKey WHISTLE_CANNOT_BUILD = TextKey.of("tool.taming.whistle.cannot_build", "You cannot build here");
+  public static final TextKey BLOOD_BOND_LORE1 = TextKey.of("upgrade.taming.blood_bond.lore1", "Damage Shared with Pets");
+  public static final TextKey BLOOD_BOND_LORE2 = TextKey.of("upgrade.taming.blood_bond.lore2", "Shot Intercept Chance");
+  public static final TextKey BLOOD_BOND_LORE3 = TextKey.of("upgrade.taming.blood_bond.lore3", "Per-Pet Save Cooldown");
   public static final LinesKey LAST_BREATH_LORE = LinesKey.of("taming.last_breath.lore", "Per-Pet Cooldown", "Invulnerability");
 
   private TamingMessages() {
@@ -222,5 +248,31 @@ public final class TamingMessages {
     builder.add(LAST_BREATH_LORE1);
     builder.add(LAST_BREATH_LORE2);
     builder.add(LAST_BREATH_LORE);
+    builder.add(ALPHA_LORE1);
+    builder.add(ALPHA_LORE2);
+    builder.add(ALPHA_LORE3);
+    builder.add(ONE_MIND_LORE1);
+    builder.add(ONE_MIND_LORE2);
+    builder.add(ONE_MIND_LORE3);
+    builder.add(ONE_MIND_LORE4);
+    builder.add(ALPHA_LORE4);
+    builder.add(ALPHA_LORE5);
+    builder.add(WHISTLE_NAME);
+    builder.add(WHISTLE_LORE1);
+    builder.add(WHISTLE_LORE2);
+    builder.add(WHISTLE_LORE3);
+    builder.add(WHISTLE_FETCH_ON);
+    builder.add(WHISTLE_FETCH_OFF);
+    builder.add(WHISTLE_BOND);
+    builder.add(WHISTLE_BONDED);
+    builder.add(WHISTLE_ROLE);
+    builder.add(WHISTLE_ROLE_NONE);
+    builder.add(WHISTLE_ROLE_GUARD_OWNER);
+    builder.add(WHISTLE_ROLE_GUARD_SPOT);
+    builder.add(WHISTLE_ROLE_FETCH);
+    builder.add(WHISTLE_CANNOT_BUILD);
+    builder.add(BLOOD_BOND_LORE1);
+    builder.add(BLOOD_BOND_LORE2);
+    builder.add(BLOOD_BOND_LORE3);
   }
 }

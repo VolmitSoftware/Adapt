@@ -19,12 +19,14 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -41,10 +43,15 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Config> {
+  private static final Set<PiglinBarterEvent> BROKERED = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+
   public NetherPiglinBroker() {
     super("nether-piglin-broker");
     registerConfiguration(Config.class);
@@ -74,8 +81,10 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PiglinBarterEvent e) {
-    EntityRef piglin = e.piglin();
-    PlayerRef broker = findBroker(piglin, getConfig().brokerRange);
+    if (BROKERED.remove(e)) {
+      return;
+    }
+    PlayerRef broker = findBroker(this, e.piglin(), getConfig().brokerRange);
     if (broker == null) {
       return;
     }
@@ -85,33 +94,44 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
       return;
     }
 
-    List<ItemRef> outcome = e.outcome();
+    if (improve(this, broker, e.outcome(), getExtraRollChance(level), getRareBonusChance(level), getAmountMultiplier(level))) {
+      xp(broker, getConfig().xpOnBoostedBarter);
+      addStat(broker, "nether.piglin-broker.improved-barters", 1);
+    }
+  }
+
+  /**
+   * Adds the extra roll and the rare bonus to a barter's outcome by chance and plays the broker burst at {@code broker};
+   * returns whether anything was added.
+   */
+  public static boolean improve(Adaptation<?> owner, PlayerRef broker, List<ItemRef> outcome, double extraRollChance,
+                                double rareBonusChance, double amountMultiplier) {
     if (outcome.isEmpty()) {
-      return;
+      return false;
     }
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
     boolean extraRoll = false;
     boolean rareBonus = false;
-    if (random.nextDouble() <= getExtraRollChance(level)) {
+    if (random.nextDouble() <= extraRollChance) {
       ItemRef bonus = outcome.get(random.nextInt(outcome.size())).copy();
-      int amount = Math.max(1, (int) Math.round(bonus.amount() * getAmountMultiplier(level)));
+      int amount = Math.max(1, (int) Math.round(bonus.amount() * amountMultiplier));
       bonus.setAmount(Math.min(bonus.maxStackSize(), amount));
       outcome.add(bonus);
       extraRoll = true;
     }
 
-    if (random.nextDouble() <= getRareBonusChance(level)) {
+    if (random.nextDouble() <= rareBonusChance) {
       outcome.add(getRareBonusRoll());
       rareBonus = true;
     }
 
     if (!extraRoll && !rareBonus) {
-      return;
+      return false;
     }
 
     Loc at = broker.location().add(0D, 1.0D, 0D);
-    FxEmitter emit = fx(at, FxPriority.TRANSITION)
+    FxEmitter emit = Fx.now(owner, at, FxPriority.TRANSITION)
         .particle(Particles.HAPPY_VILLAGER, 10, 0D, 0.5D, 0D, 0.4D, 0.1D)
         .particle(Particles.WAX_ON, 6, 0D, 0.5D, 0D, 0.3D, 0.05D)
         .burst(Particles.CRIT, 4, 0.3D)
@@ -122,11 +142,16 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
           .particle(Particles.FLASH, 1, 0D, 0.5D, 0D, 0D, 0.0D)
           .sound(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.3F);
     }
-    xp(broker, getConfig().xpOnBoostedBarter);
-    addStat(broker, "nether.piglin-broker.improved-barters", 1);
+    return true;
   }
 
-  private PlayerRef findBroker(EntityRef piglin, double range) {
+  /** Marks a barter another adaptation already brokered, so this one does not add its rolls a second time. */
+  public static void markBrokered(PiglinBarterEvent e) {
+    BROKERED.add(e);
+  }
+
+  /** The nearest player within {@code range} of the piglin who holds {@code owner}, or null. */
+  public static PlayerRef findBroker(Adaptation<?> owner, EntityRef piglin, double range) {
     PlayerRef best = null;
     double bestDist = Double.MAX_VALUE;
     double rangeSquared = range * range;
@@ -135,7 +160,7 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
       if (!(nearby instanceof PlayerRef p)) {
         continue;
       }
-      if (!hasActiveAdaptation(p)) {
+      if (!owner.hasActiveAdaptation(p)) {
         continue;
       }
 
@@ -152,7 +177,7 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
     return best;
   }
 
-  private ItemRef getRareBonusRoll() {
+  private static ItemRef getRareBonusRoll() {
     ItemOps items = AdaptCore.platform().host().items();
     return switch (ThreadLocalRandom.current().nextInt(5)) {
       case 0 -> items.create(Id.minecraft("ender_pearl"), 1);

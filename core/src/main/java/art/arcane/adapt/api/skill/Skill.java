@@ -24,6 +24,8 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.mutation.engine.MutationBlock;
+import art.arcane.adapt.api.mutation.signature.Signature;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.tick.Ticked;
 import art.arcane.adapt.api.world.AdaptStatTracker;
@@ -38,6 +40,7 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -140,8 +143,78 @@ public interface Skill<T> extends Ticked, Component {
    */
   KList<Adaptation<?>> getAdaptations();
 
-  default List<List<String>> getAdaptationRowGroups() {
+  /**
+   * Upgraded adaptations this skill owns. They run, load config and register like the skill's own adaptations, but a
+   * player can only learn them on a mutated skill line that contains this skill.
+   */
+  default List<Adaptation<?>> getUpgrades() {
     return List.of();
+  }
+
+  /**
+   * The mutation blocks this skill brings to every mutation it is part of, the ones the running server supports. They
+   * run, load config and register like adaptations, but no player can learn them.
+   */
+  default List<MutationBlock<?>> getBlocks() {
+    return List.of();
+  }
+
+  /** Blocks this skill declares that the running Minecraft version cannot run; they stay inert. */
+  default List<MutationBlock<?>> getUnavailableBlocks() {
+    return List.of();
+  }
+
+  /**
+   * The signatures of the mutations this skill leads, the ones the running server supports. They run, load config and
+   * register like adaptations, but no player learns them: each reads the level of the mutated adaptation it replaces.
+   */
+  default List<Signature<?>> getSignatures() {
+    return List.of();
+  }
+
+  /** Every adaptation {@code skill} owns: its own adaptations, then its upgrades, mutation blocks and signatures. */
+  static List<Adaptation<?>> ownedAdaptations(Skill<?> skill) {
+    List<Adaptation<?>> upgrades = skill.getUpgrades();
+    List<MutationBlock<?>> blocks = skill.getBlocks();
+    List<Signature<?>> signatures = skill.getSignatures();
+    if ((upgrades == null || upgrades.isEmpty()) && (blocks == null || blocks.isEmpty())
+        && (signatures == null || signatures.isEmpty())) {
+      return skill.getAdaptations();
+    }
+    List<Adaptation<?>> owned = new ArrayList<>(skill.getAdaptations().size() + 12);
+    owned.addAll(skill.getAdaptations());
+    if (upgrades != null) {
+      owned.addAll(upgrades);
+    }
+    if (blocks != null) {
+      owned.addAll(blocks);
+    }
+    if (signatures != null) {
+      owned.addAll(signatures);
+    }
+    return owned;
+  }
+
+  /** Whether the adaptation is one of {@code skill}'s own adaptations, upgrades, mutation blocks or signatures. */
+  static boolean owns(Skill<?> skill, Adaptation<?> adaptation) {
+    List<Adaptation<?>> upgrades = skill.getUpgrades();
+    List<MutationBlock<?>> blocks = skill.getBlocks();
+    List<Signature<?>> signatures = skill.getSignatures();
+    return skill.getAdaptations().contains(adaptation) || (upgrades != null && upgrades.contains(adaptation))
+        || (blocks != null && blocks.contains(adaptation)) || (signatures != null && signatures.contains(adaptation));
+  }
+
+  /** The named groups the skill's pages show its adaptations in; empty for one plain list. */
+  default List<AdaptationGroup> getAdaptationGroups() {
+    return List.of();
+  }
+
+  default List<List<String>> getAdaptationRowGroups() {
+    List<List<String>> rows = new ArrayList<>();
+    for (AdaptationGroup group : getAdaptationGroups()) {
+      rows.add(group.adaptations());
+    }
+    return rows;
   }
 
   /**

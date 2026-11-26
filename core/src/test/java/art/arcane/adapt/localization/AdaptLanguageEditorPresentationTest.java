@@ -50,7 +50,8 @@ class AdaptLanguageEditorPresentationTest {
     ItemRef adaptationIcon = model(woodMiner);
     when(axes.getName()).thenReturn("axes");
     when(axes.getPresentation()).thenReturn(SkillPresentation.of(
-        SkillMessages.AXES_NAME, SkillMessages.AXES_ICON, SkillMessages.AXES_DESCRIPTION));
+        SkillMessages.AXES_NAME, SkillMessages.AXES_ICON, SkillMessages.AXES_DESCRIPTION,
+        SkillMessages.AXES_QUIP, SkillMessages.AXES_UNLOCK_QUIP_1, SkillMessages.AXES_UNLOCK_QUIP_2));
     when(woodMiner.getLocalizationKey()).thenReturn("axe.wood_miner");
     when(woodMiner.getName()).thenReturn("axe-woodveinminer");
     doReturn(new KList<Adaptation<?>>(woodMiner)).when(axes).getAdaptations();

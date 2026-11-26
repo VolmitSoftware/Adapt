@@ -19,14 +19,15 @@
 package art.arcane.adapt.content.adaptation.taming;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -145,15 +146,11 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
       return;
     }
 
-    double currentHealth = tameable.health();
-    double maxHealth = tameable.hasAttribute(Attributes.MAX_HEALTH) ? tameable.attributeValue(Attributes.MAX_HEALTH) : currentHealth;
-    double actualHealing = actualHealing(currentHealth, maxHealth, requestedHealing);
+    double actualHealing = TameRegeneration.heal(this, tameable, requestedHealing);
     if (actualHealing <= 0D) {
       return;
     }
 
-    tameable.setHealth(currentHealth + actualHealing);
-    playRegenerationEffect(tameable, actualHealing);
     Tasks.runEntity(owner, () -> recordHealing(owner, ownerId, actualHealing));
   }
 
@@ -162,23 +159,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
       return;
     }
     addStat(owner, "taming.health-regen.health-regened", actualHealing);
-  }
-
-  private void playRegenerationEffect(LivingRef tameable, double actualHealing) {
-    int duration = Math.max(4, Math.min(7, 4 + (int) Math.ceil(actualHealing / 2D)));
-    int heartCount = Math.max(1, Math.min(2, (int) Math.ceil(actualHealing / 3D)));
-    timeline(tameable)
-        .duration(duration)
-        .priority(FxPriority.TRANSITION)
-        .cullRadius(24)
-        .frame((fx, tick, progress) -> {
-          fx.particle(Particles.HEART, heartCount, 0, 0.4D + progress, 0, 0.12D, 0.01D);
-          if (tick == 0) {
-            fx.particle(Particles.VILLAGER_HAPPY, 3, 0, 0.1D, 0, 0.25D, 0)
-                .chord(Sounds.ENTITY_WOLF_PANT, 0.5F, 1.3F, Sounds.BLOCK_NOTE_BLOCK_BELL, 0.3F, 1.8F);
-          }
-        })
-        .start();
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -193,18 +173,6 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
 
   private double getRegenSpeed(int level) {
     return ((getLevelPercent(level) * (getLevelPercent(level)) * getConfig().regenFactor) + getConfig().regenBase);
-  }
-
-  static double actualHealing(double currentHealth, double maxHealth, double requestedHealing) {
-    if (!Double.isFinite(currentHealth)
-        || !Double.isFinite(maxHealth)
-        || !Double.isFinite(requestedHealing)
-        || currentHealth < 0D
-        || maxHealth <= currentHealth
-        || requestedHealing <= 0D) {
-      return 0D;
-    }
-    return Math.min(requestedHealing, maxHealth - currentHealth);
   }
 
   private boolean reserveCooldown(UUID tameableId, long now) {
@@ -289,6 +257,23 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
       nextRegenerationAt.clear();
     }
     super.unregister();
+  }
+
+  static void regenerationFx(Adaptation<?> owner, LivingRef pet, double actualHealing) {
+    int duration = Math.max(4, Math.min(7, 4 + (int) Math.ceil(actualHealing / 2D)));
+    int heartCount = Math.max(1, Math.min(2, (int) Math.ceil(actualHealing / 3D)));
+    FxTimeline.follow(owner, pet)
+        .duration(duration)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particles.HEART, heartCount, 0, 0.4D + progress, 0, 0.12D, 0.01D);
+          if (tick == 0) {
+            fx.particle(Particles.VILLAGER_HAPPY, 3, 0, 0.1D, 0, 0.25D, 0)
+                .chord(Sounds.ENTITY_WOLF_PANT, 0.5F, 1.3F, Sounds.BLOCK_NOTE_BLOCK_BELL, 0.3F, 1.8F);
+          }
+        })
+        .start();
   }
 
   @ConfigDescription("Increase your tamed animal regeneration rate.")

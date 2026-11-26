@@ -15,9 +15,9 @@ class SeaborneFishersFantasyTuningTest {
   void defaultChanceScalesFromTenToThirtyFivePercent() {
     SeaborneFishersFantasy.Config config = new SeaborneFishersFantasy.Config();
 
-    assertThat(SeaborneFishersFantasy.bonusChance(1, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel))
+    assertThat(SeaborneCatches.bonusChance(1, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel))
         .isCloseTo(0.10D, offset(1.0E-9D));
-    assertThat(SeaborneFishersFantasy.bonusChance(7, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel))
+    assertThat(SeaborneCatches.bonusChance(7, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel))
         .isCloseTo(0.35D, offset(1.0E-9D));
   }
 
@@ -25,8 +25,8 @@ class SeaborneFishersFantasyTuningTest {
   void defaultVanillaXpScalesLinearlyAndCaps() {
     SeaborneFishersFantasy.Config config = new SeaborneFishersFantasy.Config();
 
-    assertThat(SeaborneFishersFantasy.rewardXp(1, config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch)).isEqualTo(2);
-    assertThat(SeaborneFishersFantasy.rewardXp(7, config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch)).isEqualTo(8);
+    assertThat(SeaborneCatches.rewardXp(1, config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch)).isEqualTo(2);
+    assertThat(SeaborneCatches.rewardXp(7, config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch)).isEqualTo(8);
     assertThat(config.skillXpOnSuccess).isEqualTo(8D);
     assertThat(config.cooldownMillis).isEqualTo(5000L);
   }

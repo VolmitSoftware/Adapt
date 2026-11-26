@@ -23,6 +23,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.RecipeChoice;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,11 +31,19 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class CraftingIngredients {
+public final class CraftingIngredients {
+  private static final Map<Id, Id> REMAINDERS = Map.of(
+      Id.minecraft("milk_bucket"), Id.minecraft("bucket"),
+      Id.minecraft("water_bucket"), Id.minecraft("bucket"),
+      Id.minecraft("lava_bucket"), Id.minecraft("bucket"),
+      Id.minecraft("powder_snow_bucket"), Id.minecraft("bucket"),
+      Id.minecraft("honey_bottle"), Id.minecraft("glass_bottle"),
+      Id.minecraft("dragon_breath"), Id.minecraft("glass_bottle"));
+
   private CraftingIngredients() {
   }
 
-  static List<RecipeChoice> perCraftChoices(RecipeView recipe) {
+  public static List<RecipeChoice> perCraftChoices(RecipeView recipe) {
     if (recipe.kind() == RecipeView.Kind.SHAPELESS) {
       return List.copyOf(recipe.choices());
     }
@@ -140,6 +149,12 @@ final class CraftingIngredients {
   /** A stack without components of its own, the stacks a type-only ingredient may take. */
   static boolean isPlain(ItemRef item) {
     return item.isSimilar(AdaptCore.platform().host().items().create(item.type(), Math.max(1, item.amount())));
+  }
+
+  /** The containers a table hands back for {@code used} ingredients of {@code type}, or null when it keeps none. */
+  static @Nullable ItemRef remainder(Id type, int used) {
+    Id container = REMAINDERS.get(type);
+    return container == null || used <= 0 ? null : AdaptCore.platform().host().items().create(container, used);
   }
 
   private static final class FlowNetwork {

@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -105,6 +107,11 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
     return new RecipeSpec.Shapeless(Id.adapt(key), ingredients, items().create(Id.minecraft(result), 1));
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle
   public void on(CraftItemEvent e) {
     PlayerRef p = e.player();
@@ -118,6 +125,7 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
     Id result = recipeResult.isEmpty() ? Id.minecraft("air") : recipeResult.type();
     if (result.path().toUpperCase(Locale.ROOT).contains("ORE") || result.equals(ANCIENT_DEBRIS)) {
       addStat(p, "crafting.reconstruction.ores-reconstructed", 1);
+      UpgradeLoans.landed(this, p);
       reforgeImplosion(p.location().add(0, 1, 0), result);
     }
   }

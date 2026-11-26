@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -31,6 +32,7 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -161,6 +163,16 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     }
   }
 
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerInteractEntityEvent e) {
     if (!(e.clicked() instanceof MobRef golem) || !golem.type().equals(IRON_GOLEM) || !IRON_INGOT.equals(SkillGolemancy.heldType(e.player(), e.hand()))) {
@@ -226,6 +238,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     } finally {
       sweeping.remove(golem.uuid());
     }
+    UpgradeLoans.landed(this, owner);
   }
 
   int ownerLevel(GolemHandle handle) {

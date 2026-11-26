@@ -256,7 +256,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
           return;
         }
 
-        if ((getConfig().attackTriggerWaterOnly || preferenceEnabled(p, ATTACK_WATER)) && !isInWaterDashState(p)) {
+        if ((getConfig().attackTriggerWaterOnly || preferenceEnabled(p, ATTACK_WATER)) && !SeaborneSurge.inWater(p)) {
           return;
         }
       }
@@ -288,7 +288,6 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
           .ring(Particles.BUBBLE, 0.6D, 6, 0.0D)
           .dustBurst(6, 0.4D, 1.0F)
           .chord(Sounds.ITEM_TRIDENT_RIPTIDE_2, 0.75F, 1.2F, Sounds.ENTITY_DOLPHIN_SPLASH, 0.5F, 0.9F);
-
       if (getConfig().useVelocityDash) {
         applyVelocityDash(p, direction, level);
         Loc target = p.location()
@@ -402,7 +401,6 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         .cullRadius(32)
         .frame((f, tick, progress) -> f.ring(Particles.BUBBLE, 0.3D + (arrivalRadius * progress), 12, 0.2D))
         .start();
-
     int cooldownTicks = getCooldownTicks(level);
     p.setCooldown(HEART_OF_THE_SEA, cooldownTicks);
     AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
@@ -429,23 +427,10 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   }
 
   private void applyVelocityDash(PlayerRef p, Vec3 direction, int level) {
-    Vec3 velocity = direction.normalize();
-    double scalar = Math.max(0, getConfig().velocityStrengthBase + (getLevelPercent(level) * getConfig().velocityStrengthFactor));
-    velocity = velocity.multiply(scalar);
-
-    double y = getConfig().velocityVerticalBase + (getLevelPercent(level) * getConfig().velocityVerticalFactor);
-    if (getConfig().velocityAdditive) {
-      velocity = p.velocity().add(velocity).add(new Vec3(0, y, 0));
-    } else {
-      velocity = velocity.withY(y);
-    }
-
-    double max = Math.max(0, getConfig().maxResultingVelocity);
-    if (max > 0 && velocity.lengthSquared() > max * max) {
-      velocity = velocity.normalize().multiply(max);
-    }
-
-    p.setVelocity(velocity);
+    double strength = getConfig().velocityStrengthBase + (getLevelPercent(level) * getConfig().velocityStrengthFactor);
+    double vertical = getConfig().velocityVerticalBase + (getLevelPercent(level) * getConfig().velocityVerticalFactor);
+    p.setVelocity(SeaborneSurge.velocity(p.velocity(), direction, strength, vertical, getConfig().velocityAdditive,
+        getConfig().maxResultingVelocity));
   }
 
   private void applyDashMomentum(PlayerRef p, Loc origin, Loc target) {
@@ -471,25 +456,11 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   }
 
   private Vec3 resolveDashDirection(PlayerRef p) {
-    Vec3 direction = p.location().direction();
-    if (getConfig().flattenVelocityDashDirection || preferenceEnabled(p, FLAT)) {
-      direction = direction.withY(0);
-    }
-
-    if (direction.lengthSquared() <= 0.000001) {
-      return Vec3.ZERO;
-    }
-
-    return direction.normalize();
+    return SeaborneSurge.direction(p, getConfig().flattenVelocityDashDirection || preferenceEnabled(p, FLAT));
   }
 
   private boolean isBlockedAhead(PlayerRef p, Vec3 direction) {
-    if (!getConfig().blockDashWhenWallAhead) {
-      return false;
-    }
-
-    double distance = Math.max(0.1, getConfig().wallCheckDistance);
-    return p.world().rayTraceBlock(p.eyeLocation().position(), direction, distance, false) != null;
+    return getConfig().blockDashWhenWallAhead && SeaborneSurge.blockedAhead(p, direction, getConfig().wallCheckDistance);
   }
 
   private void preserveSwimStateAfterDash(PlayerRef p, boolean wasSwimming) {
@@ -497,39 +468,15 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       return;
     }
 
-    if (!isInWaterDashState(p)) {
-      return;
-    }
-
-    p.setSwimming(true);
-    Tasks.runEntity(p, () -> {
-      if (p.isOnline() && isInWaterDashState(p)) {
-        p.setSwimming(true);
-      }
-    }, 1);
+    SeaborneSurge.keepSwimming(p);
   }
 
   private boolean isDashEnvironmentValid(PlayerRef p) {
-    if (getConfig().allowWaterTrigger && preferenceEnabled(p, WATER) && isInWaterDashState(p)) {
+    if (getConfig().allowWaterTrigger && preferenceEnabled(p, WATER) && SeaborneSurge.inWater(p)) {
       return true;
     }
 
-    return getConfig().allowRainTrigger && preferenceEnabled(p, RAIN) && isRainingAt(p);
-  }
-
-  private boolean isInWaterDashState(PlayerRef p) {
-    WorldRef world = p.world();
-    return p.isInWater() || p.isSwimming() || world.blockAt(p.location()).isLiquid() || world.blockAt(p.eyeLocation()).isLiquid();
-  }
-
-  private boolean isRainingAt(PlayerRef p) {
-    if (!p.world().hasStorm()) {
-      return false;
-    }
-
-    Loc location = p.location();
-    int topY = p.world().highestBlockY(location.blockX(), location.blockZ());
-    return location.y() >= topY - 1;
+    return getConfig().allowRainTrigger && preferenceEnabled(p, RAIN) && SeaborneWet.isRainingOn(p);
   }
 
   private Loc findSafeDashTarget(PlayerRef p, double maxDistance) {

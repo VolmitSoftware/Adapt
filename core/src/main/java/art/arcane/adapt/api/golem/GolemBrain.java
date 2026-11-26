@@ -91,6 +91,16 @@ public final class GolemBrain {
     return targetLive && sameWorld && nowMillis < untilMillis;
   }
 
+  /** Has the golem do one more of {@code last}'s job at once; false when it is asleep or finds no such work. */
+  public boolean repeat(GolemTask last) {
+    if (!running) {
+      return false;
+    }
+    PlayerRef owner = context.platform().player(handle.owner());
+    Loc home = homeIn(handle.entity().location().world());
+    return owner != null && home != null && worker.repeat(Objects.requireNonNull(last), context.platform().nowMillis(), owner, home);
+  }
+
   void start() {
     if (running) {
       return;

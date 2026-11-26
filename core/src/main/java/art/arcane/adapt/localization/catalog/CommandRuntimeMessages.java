@@ -6,7 +6,20 @@ import art.arcane.volmlib.util.localization.TextKey;
 public final class CommandRuntimeMessages {
   public static final TextKey CLIENT_UI_ABSENT = TextKey.of("command.runtime.client_ui_absent", "{player} uses the chest and action bar UI (no Adapt client negotiated).");
   public static final TextKey CLIENT_UI_NEGOTIATED = TextKey.of("command.runtime.client_ui_negotiated", "{player} uses the Adapt client UI: protocol {version}, capabilities {capabilities}.");
+  public static final TextKey POWER_USAGE = TextKey.of("command.runtime.power_usage", "{player} uses {used} of {max} power.");
+  public static final TextKey POWER_HELD = TextKey.of("command.runtime.power_held", "{skill}: {adaptation} at level {level} uses 1 power.");
+  public static final TextKey POWER_FREE = TextKey.of("command.runtime.power_free", "{skill}: {adaptation} at level {level} uses no power.");
   public static final TextKey MISSING_PERMISSION = TextKey.of("command.runtime.missing_permission", "You lack the permission '{permission}'.");
+  public static final TextKey MUTATION_CREATED = TextKey.of("command.runtime.mutation_created", "{lead} and {partner} are now {mutation}.");
+  public static final TextKey MUTATION_UNKNOWN_SKILL = TextKey.of("command.runtime.mutation_unknown_skill", "Unknown skill. Use two skill names, such as swords stealth.");
+  public static final TextKey MUTATION_UNAVAILABLE_SKILL = TextKey.of("command.runtime.mutation_unavailable_skill", "That skill cannot be mutated on this server.");
+  public static final TextKey MUTATION_SAME_SKILL = TextKey.of("command.runtime.mutation_same_skill", "Pick two different skills.");
+  public static final TextKey MUTATION_ALREADY_MUTATED = TextKey.of("command.runtime.mutation_already_mutated", "A skill can be part of only one mutation.");
+  public static final TextKey MUTATION_LEVEL_TOO_LOW = TextKey.of("command.runtime.mutation_level_too_low", "Both skills need level {level}.");
+  public static final TextKey MUTATION_LIMIT_REACHED = TextKey.of("command.runtime.mutation_limit_reached", "This server allows at most {limit} mutations.");
+  public static final TextKey MUTATIONS_RESET = TextKey.of("command.runtime.mutations_reset", "Removed {count} mutations from {player}. Both parent skills of each are back.");
+  public static final TextKey MUTATION_UNMUTATED = TextKey.of("command.runtime.mutation_unmutated", "Removed {mutation} from {player}. {lead} and {partner} are back.");
+  public static final TextKey MUTATION_NOT_HELD = TextKey.of("command.runtime.mutation_not_held", "{player} has no mutation with {skill}.");
   public static final TextKey PLAYER_REQUIRED_FROM_CONSOLE = TextKey.of("command.runtime.player_required_from_console", "You must specify a player when using this command from console.");
   public static final TextKey PLAYER_REQUIRED_FROM_CONSOLE_SHORT = TextKey.of("command.runtime.player_required_from_console_short", "You must specify a player from console.");
   public static final TextKey PLAYER_ONLY_OR_REFERENCE = TextKey.of("command.runtime.player_only_or_reference", "You must be a player to use this command, or reference a player.");
@@ -111,8 +124,21 @@ public final class CommandRuntimeMessages {
 
   public static void addTo(MessageCatalog.Builder builder) {
     builder.add(MISSING_PERMISSION);
+    builder.add(MUTATION_CREATED);
+    builder.add(MUTATION_UNKNOWN_SKILL);
+    builder.add(MUTATION_UNAVAILABLE_SKILL);
+    builder.add(MUTATION_SAME_SKILL);
+    builder.add(MUTATION_ALREADY_MUTATED);
+    builder.add(MUTATION_LEVEL_TOO_LOW);
+    builder.add(MUTATION_LIMIT_REACHED);
+    builder.add(MUTATIONS_RESET);
+    builder.add(MUTATION_UNMUTATED);
+    builder.add(MUTATION_NOT_HELD);
     builder.add(CLIENT_UI_ABSENT);
     builder.add(CLIENT_UI_NEGOTIATED);
+    builder.add(POWER_USAGE);
+    builder.add(POWER_HELD);
+    builder.add(POWER_FREE);
     builder.add(PLAYER_REQUIRED_FROM_CONSOLE);
     builder.add(PLAYER_REQUIRED_FROM_CONSOLE_SHORT);
     builder.add(PLAYER_ONLY_OR_REFERENCE);

@@ -15,9 +15,9 @@ class SwordDelayedDamageAttributionTest {
     FakeWorld world = new FakeWorld("world");
     FakePlayer caster = new FakePlayer("Caster", new Loc(world, 0, 64, 0));
     FakeLiving target = new FakeLiving(Id.minecraft("zombie"), new Loc(world, 2, 64, 0));
-    SwordsBloodyBlade.BleedPulse pulse = new SwordsBloodyBlade.BleedPulse(target, caster, 0.5D, 2);
+    SwordBleed.Pulse pulse = new SwordBleed.Pulse(target, caster, 0.5D, 2);
 
-    SwordsBloodyBlade.applyBleedDamage(pulse);
+    SwordBleed.applyDamage(pulse);
 
     assertThat(target.damageTaken()).isEqualTo(0.5D);
     assertThat(target.lastDamageType()).isEqualTo(Id.minecraft("magic"));

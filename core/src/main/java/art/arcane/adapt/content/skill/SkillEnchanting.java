@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -42,7 +43,17 @@ import art.arcane.adapt.content.adaptation.enchanting.EnchantingRuneSight;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingSoulLink;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingTomeRebinding;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingXPReturn;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingBoon;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingFightStrike;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingFuel;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingState;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingTrigger;
+import art.arcane.adapt.content.adaptation.enchanting.blocks.EnchantingWorkStrike;
+import art.arcane.adapt.content.adaptation.enchanting.upgraded.ArcaneHand;
+import art.arcane.adapt.content.adaptation.enchanting.upgraded.FateWeaver;
+import art.arcane.adapt.content.adaptation.enchanting.upgraded.Soulforged;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -54,11 +65,24 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.ENCHANTING_TABLE, "enchanting-lapis-return", "enchanting-rune-sight",
+          "enchanting-bookshelf-attunement", "enchanting-offer-reroll", "enchanting-xp-return"),
+      AdaptationGroup.of(GroupMessages.ENCHANTING_ANVIL, "enchanting-anvil-savant", "enchanting-grindstone-recovery",
+          "enchanting-curse-cleansing", "enchanting-tome-rebinding", "enchanting-infusion-transfer",
+          "enchanting-soul-link"),
+      AdaptationGroup.of(GroupMessages.ENCHANTING_BOOKS, "enchanting-arcane-siphon", "enchanting-echo-of-knowledge",
+          "enchanting-quick-enchant")
+  );
+
   public SkillEnchanting() {
-    super("enchanting", SkillPresentation.of(SkillMessages.ENCHANTING_NAME, SkillMessages.ENCHANTING_ICON, SkillMessages.ENCHANTING_DESCRIPTION));
+    super("enchanting", SkillPresentation.of(SkillMessages.ENCHANTING_NAME, SkillMessages.ENCHANTING_ICON, SkillMessages.ENCHANTING_DESCRIPTION,
+        SkillMessages.ENCHANTING_QUIP, SkillMessages.ENCHANTING_UNLOCK_QUIP_1, SkillMessages.ENCHANTING_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.LIGHT_PURPLE);
     setInterval(3909);
@@ -77,6 +101,9 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
     registerAdaptation(new EnchantingRuneSight());
     registerAdaptation(new EnchantingInfusionTransfer());
     registerAdaptation(new EnchantingEchoOfKnowledge());
+    registerUpgrades(new ArcaneHand(), new FateWeaver(), new Soulforged());
+    registerBlocks(new EnchantingTrigger(), new EnchantingFightStrike(), new EnchantingWorkStrike(), new EnchantingBoon(), new EnchantingFuel(),
+        new EnchantingState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("crafting_table")).key("challenge_enchant_1k")
         .model(CustomModel.get(Id.minecraft("crafting_table"), "advancement", "enchanting", "challenge_enchant_1k"))
@@ -142,6 +169,11 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         .build());
     registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, () -> getConfig().challengeEnchantReward);
     registerMilestone("challenge_enchant_total_5k", "enchanting.total.levels", 5000, () -> getConfig().challengeEnchantReward * 2);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Handle(priority = EventPriority.MONITOR)

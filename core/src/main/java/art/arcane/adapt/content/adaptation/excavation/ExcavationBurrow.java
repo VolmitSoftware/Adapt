@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
@@ -27,12 +27,12 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -47,13 +47,11 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.platform.world.BlockStateRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> {
@@ -61,8 +59,11 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
   public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", ExcavationMessages.PREFERENCE_EXCAVATIONBURROW_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Toggle> DURABILITY_RESERVE = CommonPreferences.toggle("durability-reserve", ExcavationMessages.PREFERENCE_EXCAVATIONBURROW_DURABILITY_RESERVE, CommonPreferences.Toggle.OFF);
 
-  private static final Id LAVA = Id.minecraft("lava");
   private final Cooldowns cooldowns = cooldowns();
+  private final ExcavationShaft shaft = new ExcavationShaft(this, (PlayerRef player, BlockRef dug) -> {
+    addStat(player, "excavation.burrow.blocks-burrowed", 1);
+    xp(player, getConfig().xpPerBlock);
+  });
 
   public ExcavationBurrow() {
     super("excavation-burrow");
@@ -156,13 +157,14 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    List<BlockRef> plan = planDig(p, clicked, Math.max(1, (int) Math.floor(getMaxDepth(level) * preference(p, DEPTH).multiplier())));
+    List<BlockRef> plan = shaft.plan(p, clicked, Math.max(1, (int) Math.floor(getMaxDepth(level) * preference(p, DEPTH).multiplier())),
+        getConfig().safeFloorMargin);
     if (plan.isEmpty()) {
       return;
     }
 
-    if (!canApplyDurability(hand, plan.size() * getConfig().durabilityCostPerBlock
-        + (preferenceEnabled(p, DURABILITY_RESERVE) ? maxDurability(hand) / 4 : 0))) {
+    if (!ExcavationShaft.canApplyDurability(hand, plan.size() * getConfig().durabilityCostPerBlock
+        + (preferenceEnabled(p, DURABILITY_RESERVE) ? ExcavationShaft.maxDurability(hand) / 4 : 0))) {
       fx(p.location(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 4, 0, 1.0D, 0, 0.15D, 0.01D)
           .chord(Sounds.BLOCK_ANVIL_PLACE, 0.5f, 0.65f, Sounds.ITEM_SHIELD_BLOCK, 0.3f, 1.4f);
@@ -172,7 +174,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     int planSize = plan.size();
     BlockStateRef clickedData = clicked.state();
     BlockStateRef floorData = plan.get(planSize - 1).state();
-    if (!digBlock(p, plan.get(0), 1.1F)) {
+    if (!shaft.dig(p, plan.get(0), 1.1F, getConfig().durabilityCostPerBlock)) {
       return;
     }
 
@@ -192,138 +194,22 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
         })
         .start();
 
-    scheduleDig(p, plan, floorData);
+    shaft.schedule(p, plan, floorData, getConfig().ticksPerBlock, getConfig().durabilityCostPerBlock);
     addStat(p, "excavation.burrow.burrows-dug", 1);
   }
 
-  private List<BlockRef> planDig(PlayerRef p, BlockRef start, int maxDepth) {
-    WorldRef world = start.world();
-    int stopY = world.minHeight() + getConfig().safeFloorMargin;
-    List<BlockRef> plan = new ArrayList<>(maxDepth);
-    BlockRef current = start;
-    for (int i = 0; i < maxDepth; i++) {
-      if (current.y() <= stopY
-          || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(current.location()))) {
-        break;
-      }
-
-      if (!isShovelable(current.type())) {
-        break;
-      }
-
-      if (!canBlockBreak(p, current.location())) {
-        break;
-      }
-
-      BlockRef below = current.relative(BlockFace.DOWN);
-      Id belowType = below.type();
-      if (belowType.equals(LAVA)) {
-        break;
-      }
-
-      if (belowType.isAir() && below.relative(BlockFace.DOWN).type().isAir()) {
-        break;
-      }
-
-      plan.add(current);
-      current = below;
-    }
-
-    return plan;
-  }
-
-  private void scheduleDig(PlayerRef player, List<BlockRef> plan, BlockStateRef floorData) {
-    int interval = Math.max(1, getConfig().ticksPerBlock);
-    int size = plan.size();
-    Loc floor = plan.get(size - 1).location().add(0.5, 0.0, 0.5);
-    for (int i = 1; i < size; i++) {
-      BlockRef block = plan.get(i);
-      float pitch = (float) (1.1D + (0.4D * ((double) i / size)));
-      int delay = i * interval;
-      Tasks.runEntity(player, () -> digBlock(player, block, pitch), delay);
-    }
-
-    Tasks.runAt(floor, () -> bottomOut(floor, floorData), (size * interval) + interval);
-  }
-
-  private void bottomOut(Loc floor, BlockStateRef floorData) {
-    fx(floor, FxPriority.GAMEPLAY)
+  static void bottomOutFx(Adaptation<?> owner, Loc floor, BlockStateRef floorData) {
+    Fx.now(owner, floor, FxPriority.GAMEPLAY)
         .dome(Particles.CLOUD, 0.6D, 12)
         .particle(Particles.blockCrack(floorData), 6, 0, 0.2D, 0, 0.15D, 0.15D)
         .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.8f, 0.6f, Sounds.ITEM_SHOVEL_FLATTEN, 0.4f, 0.5f);
   }
 
-  private boolean digBlock(PlayerRef player, BlockRef block, float pitch) {
-    Loc location = block.location();
-    if (!player.isOnline()
-        || !player.world().uid().equals(block.world().uid())
-        || (Tasks.isFoliaThreading()
-        && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(location)))) {
-      return false;
-    }
-
-    if (!isShovelable(block.type())
-        || block.relative(BlockFace.DOWN).type().equals(LAVA)
-        || !canBlockBreak(player, location)) {
-      return false;
-    }
-
-    ItemRef hand = player.inventory().mainHand();
-    if (!isShovel(hand)
-        || !canApplyDurability(hand, getConfig().durabilityCostPerBlock)
-        || !ProtectionProbes.attemptBlockBreakProbe(player, block)) {
-      return false;
-    }
-
-    BlockStateRef data = block.state();
-    if (!block.breakNaturally(hand)) {
-      return false;
-    }
-
-    applyDurability(player, hand, getConfig().durabilityCostPerBlock);
-    addStat(player, "excavation.burrow.blocks-burrowed", 1);
-    xp(player, getConfig().xpPerBlock);
-    fx(block.center(), FxPriority.TRAIL)
+  static void digFx(Adaptation<?> owner, Loc center, BlockStateRef data, float pitch) {
+    Fx.now(owner, center, FxPriority.TRAIL)
         .particle(Particles.blockCrack(data), 4, 0, 0, 0, 0.15D, 0.02D)
         .particle(Particles.CLOUD, 1, 0, 0, 0, 0.05D, 0.01D)
         .sound(Sounds.ITEM_SHOVEL_FLATTEN, 0.45f, pitch);
-    return true;
-  }
-
-  private boolean canApplyDurability(ItemRef hand, int cost) {
-    if (cost <= 0) {
-      return true;
-    }
-
-    if (hand == null || hand.isEmpty()) {
-      return false;
-    }
-
-    return hand.damage() + cost < maxDurability(hand);
-  }
-
-  private boolean applyDurability(PlayerRef p, ItemRef hand, int cost) {
-    if (cost <= 0) {
-      return true;
-    }
-
-    if (hand == null || hand.isEmpty()) {
-      return false;
-    }
-
-    int maxDurability = maxDurability(hand);
-    int currentDamage = hand.damage();
-    if (currentDamage + cost >= maxDurability) {
-      return false;
-    }
-
-    hand.setDamage(currentDamage + cost);
-    p.inventory().setMainHand(hand);
-    return true;
-  }
-
-  private static int maxDurability(ItemRef hand) {
-    return AdaptCore.platform().host().items().maxDurability(hand.type());
   }
 
   private boolean isShovelable(Id type) {

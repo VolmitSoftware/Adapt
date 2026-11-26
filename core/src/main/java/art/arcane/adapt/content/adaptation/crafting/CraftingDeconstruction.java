@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
@@ -279,6 +281,11 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   }
 
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerInteractEvent e) {
     if (e.hand() == Hand.OFF_HAND) {
@@ -363,6 +370,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
           .chord(Sounds.BLOCK_BASALT_BREAK, 1F, 0.2F, Sounds.BLOCK_BEEHIVE_SHEAR, 1F, 0.7F, Sounds.ITEM_SHIELD_BREAK, 0.4F, 1.4F);
       xp(player, salvageValue, "deconstruct");
       addStat(player, "crafting.deconstruction.items-deconstructed", 1);
+      UpgradeLoans.landed(this, player);
 
       int newDamage = mainHandItem.damage() + 8 * forStuff.amount();
       int maxDurability = items().maxDurability(mainHandItem.type());

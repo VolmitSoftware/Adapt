@@ -42,12 +42,10 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.Map;
-import java.util.UUID;
 
 public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Config> {
   private static final Rgb FOCUS_RED = new Rgb(190, 40, 40);
-  private final Map<UUID, RampState> ramps = playerState();
+  private final HunterRamp ramps = new HunterRamp(playerState());
 
   public HunterPredatorFocus() {
     super("hunter-predator-focus");
@@ -77,18 +75,6 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
     statLore(v, C.GREEN, "+ ", Form.pc(getConfig().perStackBonus * Math.max(0, cap - 1), 0), 3);
   }
 
-  static int nextStacks(int previousStacks, boolean sameTarget, boolean withinWindow, int cap) {
-    int safeCap = Math.max(1, cap);
-    if (!sameTarget || !withinWindow || previousStacks < 1) {
-      return 1;
-    }
-    return Math.min(previousStacks + 1, safeCap);
-  }
-
-  static double damageMultiplier(int stacks, double perStackBonus) {
-    return 1.0D + (Math.max(0, stacks - 1) * Math.max(0.0D, perStackBonus));
-  }
-
   int getRampCap(int level) {
     return Math.max(1, getConfig().rampCapBase + (int) Math.round(getLevelPercent(level) * getConfig().rampCapFactor));
   }
@@ -96,7 +82,7 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
     AttackContext attack = resolveAttackContext(e);
-    if (attack == null) {
+    if (attack == null || !HunterRamp.ramps(e)) {
       return;
     }
 
@@ -105,16 +91,10 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
     int cap = getRampCap(attack.level());
     long now = M.ms();
 
-    RampState state = ramps.computeIfAbsent(p.uuid(), key -> new RampState());
-    boolean sameTarget = target.uuid().equals(state.target);
-    boolean withinWindow = now - state.lastHitAt <= getConfig().decayMillis;
-    int stacks = nextStacks(state.stacks, sameTarget, withinWindow, cap);
-    state.target = target.uuid();
-    state.stacks = stacks;
-    state.lastHitAt = now;
+    int stacks = ramps.hit(p.uuid(), target.uuid(), cap, 1, getConfig().decayMillis, now);
     AbilityGlyphs.duration(p.uuid(), this, now, getConfig().decayMillis, stacks, cap);
 
-    double multiplier = damageMultiplier(stacks, getConfig().perStackBonus);
+    double multiplier = HunterRamp.damageMultiplier(stacks, getConfig().perStackBonus);
     if (multiplier <= 1.0D) {
       return;
     }
@@ -150,11 +130,5 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
       costFactor = 0.6;
       initialCost = 2;
     }
-  }
-
-  private static final class RampState {
-    private UUID target;
-    private int stacks;
-    private long lastHitAt;
   }
 }

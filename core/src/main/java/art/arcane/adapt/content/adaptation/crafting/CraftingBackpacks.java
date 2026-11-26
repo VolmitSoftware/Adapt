@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -188,6 +190,11 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
   // -------------------------------------------------------------- interaction
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @ReceiveCancelledEvents
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
@@ -282,6 +289,7 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     fx(p.eyeLocation(), FxPriority.TRANSITION)
         .particle(Particles.CRIT, 4, 0, 0.2D, 0, 0.2D, 0.01D)
         .chord(Sounds.ITEM_BUNDLE_INSERT, 0.5f, 1.2f, Sounds.BLOCK_WOOL_PLACE, 0.4f, 1.1f);
+    UpgradeLoans.landed(this, p);
   }
 
   private BackpackView openSlotView(PlayerRef p, String id, int capacity, ItemRef[] stored) {

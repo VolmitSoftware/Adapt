@@ -31,6 +31,7 @@ import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.misc.ItemLooks;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -84,7 +85,10 @@ public class KnowledgeOrb implements DataBoundItem<KnowledgeOrb.Data> {
 
   @Override
   public ItemRef blank() {
-    return model().toItemStack();
+    CustomModel model = model();
+    ItemRef item = model.toItemStack();
+    ItemLooks.applyUnlessCustom(item, "knowledge-orb", model);
+    return item;
   }
 
   @Override

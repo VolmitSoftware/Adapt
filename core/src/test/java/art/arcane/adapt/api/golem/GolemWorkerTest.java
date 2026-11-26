@@ -1007,7 +1007,7 @@ class GolemWorkerTest extends AdaptTestBase {
     assertThat(seeks).containsExactly("gatherer");
     assertThat(acts).containsExactly("pickup:gatherer");
     assertThat(brain.handle().state().stats().tasks()).isEqualTo(1L);
-    assertThat(stats).containsExactly("completed");
+    assertThat(stats).containsExactly("completed:pickup");
   }
 
   @Test
@@ -1047,7 +1047,7 @@ class GolemWorkerTest extends AdaptTestBase {
     pulse(250L);
     pulse(1_000L);
 
-    assertThat(stats).containsExactly("completed", "moved:20");
+    assertThat(stats).containsExactly("completed:pickup", "moved:20");
   }
 
   @Test
@@ -1074,7 +1074,7 @@ class GolemWorkerTest extends AdaptTestBase {
     pulse(250L);
 
     assertThat(GolemTestItems.count(input, Id.minecraft("wheat"))).isEqualTo(10);
-    assertThat(stats).containsExactly("completed");
+    assertThat(stats).containsExactly("completed:pickup");
     assertThat(brain.handle().state().stats().itemsMoved()).isZero();
     assertThat(brain.handle().state().stats().tasks()).isEqualTo(1L);
   }
@@ -2113,6 +2113,94 @@ class GolemWorkerTest extends AdaptTestBase {
     platform.runDelayed();
   }
 
+  @Test
+  void aBreakerRepeatsItsLastJobAtOnceOnTheNearestOpenTaskOfThatJob() {
+    brain.handle().setCores(List.of(GolemCoreType.BREAKER));
+    List<String> acted = new ArrayList<>();
+    nodeBehavior(NodeType.BREAKER, (golem, task) -> {
+      acted.add(task.type() + "@" + task.target().blockX());
+      return GolemActResult.DONE;
+    });
+    NodeKey breaker = new NodeKey(WORLD, 6, 64, 0, BlockFace.UP);
+    platform.nodes.put(breaker, NodeRecord.builder(OWNER, NodeType.BREAKER, BlockFace.UP).build());
+    GolemTask last = GolemTask.builder(breaker, NodeType.BREAKER, "break", GolemTarget.block(WORLD, 7, 64, 0)).build();
+    GolemTask near = GolemTask.builder(breaker, NodeType.BREAKER, "break", GolemTarget.block(WORLD, 3, 64, 0)).build();
+    GolemTask far = GolemTask.builder(breaker, NodeType.BREAKER, "break", GolemTarget.block(WORLD, 9, 64, 0)).build();
+    GolemTask other = GolemTask.builder(breaker, NodeType.BREAKER, "clear", GolemTarget.block(WORLD, 1, 64, 0)).build();
+    board.offer(near, 16);
+    board.offer(far, 16);
+    board.offer(other, 16);
+    brain.start();
+
+    assertThat(brain.repeat(last)).isTrue();
+
+    assertThat(acted).containsExactly("break@3");
+    assertThat(near.isClosed()).isTrue();
+    assertThat(far.holder(platform.now)).isEmpty();
+    assertThat(other.isClosed()).isFalse();
+  }
+
+  @Test
+  void aRancherRepeatsItsLastJobAndLeavesAnUnfinishedOneOpen() {
+    brain.handle().setCores(List.of(GolemCoreType.RANCHER));
+    List<String> acted = new ArrayList<>();
+    nodeBehavior(NodeType.PASTURE, (golem, task) -> {
+      acted.add(task.type() + ":" + golem.core().id());
+      return GolemActResult.WORKING;
+    });
+    NodeKey pasture = new NodeKey(WORLD, -6, 64, 0, BlockFace.UP);
+    platform.nodes.put(pasture, NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).build());
+    GolemTask last = GolemTask.builder(pasture, NodeType.PASTURE, "shear", GolemTarget.block(WORLD, -7, 64, 0)).build();
+    GolemTask next = GolemTask.builder(pasture, NodeType.PASTURE, "shear", GolemTarget.block(WORLD, -4, 64, 0)).build();
+    board.offer(next, 16);
+    brain.start();
+
+    assertThat(brain.repeat(last)).isTrue();
+
+    assertThat(acted).containsExactly("shear:rancher");
+    assertThat(next.isClosed()).isFalse();
+    assertThat(next.holder(platform.now)).isEmpty();
+  }
+
+  @Test
+  void aCoreJobIsRepeatedThroughTheCoreSourceOnlyWhenItFindsTheSameJob() {
+    List<String> acted = new ArrayList<>();
+    AtomicReference<GolemTask> offered = new AtomicReference<>(gather(4));
+    coreSeeker(golem -> Optional.of(offered.get()), (golem, task) -> {
+      acted.add(task.type() + "@" + task.target().blockX());
+      return GolemActResult.DONE;
+    });
+    brain.start();
+
+    assertThat(brain.repeat(gather(2))).isTrue();
+    offered.set(GolemTask.builder("pickup", GolemTarget.block(WORLD, 5, 64, 0)).build());
+    assertThat(brain.repeat(gather(2))).isFalse();
+
+    assertThat(acted).containsExactly("gather@4");
+    assertThat(board.reservedByOther(gather(4), UUID.randomUUID(), platform.now)).isFalse();
+  }
+
+  @Test
+  void aSleepingGolemRepeatsNothing() {
+    List<GolemTask> acted = new ArrayList<>();
+    collector((golem, task) -> {
+      acted.add(task);
+      return GolemActResult.DONE;
+    });
+    collectionNode(3);
+    board.offer(pickup(2, 64, 0), 16);
+
+    assertThat(brain.repeat(pickup(5, 64, 0))).isFalse();
+
+    assertThat(acted).isEmpty();
+  }
+
+  private void nodeBehavior(NodeType type, BiFunction<GolemContext, GolemTask, GolemActResult> act) {
+    ScriptedBehavior behavior = new ScriptedBehavior(act);
+    NodeBehaviors.register(type, behavior);
+    registered.add(behavior);
+  }
+
   private ScriptedBehavior collector(BiFunction<GolemContext, GolemTask, GolemActResult> act) {
     ScriptedBehavior behavior = new ScriptedBehavior(act);
     NodeBehaviors.register(NodeType.COLLECTION, behavior);
@@ -2381,8 +2469,8 @@ class GolemWorkerTest extends AdaptTestBase {
     }
 
     @Override
-    public void completed(GolemHandle handle) {
-      calls.add("completed");
+    public void completed(GolemHandle handle, GolemTask task) {
+      calls.add("completed:" + task.type());
     }
 
     @Override

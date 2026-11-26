@@ -19,10 +19,10 @@ public final class SwordPreferences {
   private static final Id NETHERITE_SWORD = Id.minecraft("netherite_sword");
   static final PlayerPreference<CommonPreferences.Toggle> AIRBORNE = CommonPreferences.toggle("airborne-only", key("airborne", "Require an airborne sprint attack"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<CommonPreferences.Toggle> VISUALS = CommonPreferences.toggle("bleed-visuals", key("visuals", "Bleed particles"));
+  public static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> VISUALS = CommonPreferences.toggle("bleed-visuals", key("visuals", "Bleed particles"));
   static final PlayerPreference<CommonPreferences.Toggle> GLOW = CommonPreferences.toggle("threat-glow", key("glow", "Mark focused attacker"));
-  static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
       new PlayerPreference.Definition<>("targets", key("targets", "Eligible targets"), Targets.ALL, List.of(
           choice(Targets.ALL, "all", "All permitted", Id.minecraft("diamond_sword")),
           choice(Targets.HOSTILE, "hostile", "Hostile mobs", Id.minecraft("zombie_head")),
@@ -76,10 +76,10 @@ public final class SwordPreferences {
     return new PlayerPreference.Choice<>(value, key(id, label), icon, 1);
   }
 
-  enum Targets {
+  public enum Targets {
     ALL, HOSTILE, NON_PLAYERS;
 
-    boolean accepts(LivingRef target) {
+    public boolean accepts(LivingRef target) {
       return accepts(target instanceof PlayerRef, !(target instanceof PlayerRef) && AdaptationDamageTargets.allows(target, true));
     }
 

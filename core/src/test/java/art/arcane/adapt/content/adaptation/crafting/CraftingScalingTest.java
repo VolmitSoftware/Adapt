@@ -171,16 +171,16 @@ class CraftingScalingTest {
   @Test
   void compactorIsOneLevelAndCoversEveryMaterial() {
     assertThat(new CraftingCompactor.Config().maxLevel).isEqualTo(1);
-    assertThat(CraftingCompactor.materialsCovered()).isEqualTo(13);
-    int glowstoneUnitsPerBlock = CraftingCompactor.unitsPerBlock(Id.minecraft("glowstone_dust"));
+    assertThat(Compaction.materialsCovered()).isEqualTo(13);
+    int glowstoneUnitsPerBlock = Compaction.unitsPerBlock(Id.minecraft("glowstone_dust"));
     assertThat(glowstoneUnitsPerBlock).isEqualTo(4);
-    assertThat(CraftingCompactor.blocksFor(64, glowstoneUnitsPerBlock)).isEqualTo(16);
-    assertThat(CraftingCompactor.unitsConsumed(16, glowstoneUnitsPerBlock)).isEqualTo(64);
+    assertThat(Compaction.blocksFor(64, glowstoneUnitsPerBlock)).isEqualTo(16);
+    assertThat(Compaction.unitsConsumed(16, glowstoneUnitsPerBlock)).isEqualTo(64);
 
-    int coalUnitsPerBlock = CraftingCompactor.unitsPerBlock(Id.minecraft("coal"));
+    int coalUnitsPerBlock = Compaction.unitsPerBlock(Id.minecraft("coal"));
     assertThat(coalUnitsPerBlock).isEqualTo(9);
-    assertThat(CraftingCompactor.blocksFor(64, coalUnitsPerBlock)).isEqualTo(7);
-    assertThat(CraftingCompactor.unitsConsumed(7, coalUnitsPerBlock)).isEqualTo(63);
+    assertThat(Compaction.blocksFor(64, coalUnitsPerBlock)).isEqualTo(7);
+    assertThat(Compaction.unitsConsumed(7, coalUnitsPerBlock)).isEqualTo(63);
   }
 
   @Test

@@ -18,9 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.ComponentPort;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -33,15 +30,12 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
+import art.arcane.adapt.content.adaptation.discovery.upgraded.UnityPrime;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
-import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
@@ -52,7 +46,7 @@ import java.util.List;
 
 public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMending.Config> {
   public static final PlayerPreference<DiscoveryPreferences.Reserve> XP_RESERVE = DiscoveryPreferences.reserve("xp-reserve", DiscoveryMessages.PREFERENCE_DISCOVERYBETTERMENDING_XP_RESERVE);
-  private static final Id MENDING = Id.minecraft("mending");
+  static final Id MENDING = Id.minecraft("mending");
   public static final PlayerPreference<CommonPreferences.Scale> REPAIR_LIMIT = CommonPreferences.scale("repair-limit", DiscoveryMessages.PREFERENCE_DISCOVERYBETTERMENDING_REPAIR_LIMIT);
 
   public DiscoveryBetterMending() {
@@ -91,63 +85,27 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.hand() != Hand.MAIN_HAND) {
-      return;
-    }
-
-    InteractAction action = e.action();
-    if (action != InteractAction.LEFT_CLICK_AIR && action != InteractAction.LEFT_CLICK_BLOCK) {
+    if (!XpMending.isPress(e)) {
       return;
     }
 
     PlayerRef p = e.player();
     int level = getActiveLevel(p, PlayerRef::isSneaking);
-    if (level <= 0) {
+    if (level <= 0 || UnityPrime.covers(this, p)) {
       return;
     }
 
-    ItemRef hand = p.inventory().mainHand();
-    if (!canMend(hand) || p.hasCooldown(hand.type())) {
-      return;
-    }
-
-    if (hand.damage() <= 0) {
-      return;
-    }
-
-    int availableXp = Math.max(0, experience().totalExperiencePoints(p) - preference(p, XP_RESERVE).amount());
-    if (availableXp <= 0) {
+    XpMending.Press press = XpMending.mend(this, p, rates(level), e);
+    if (press.outcome() == XpMending.Outcome.FIZZLED) {
       FxPresets.failFizzle(this, p);
       return;
     }
-
-    double repairPerXp = getRepairPerXp(level);
-    int maxXpSpend = Math.min(getMaxXpSpend(level), availableXp);
-    int currentDamage = hand.damage();
-    int maximumDurability = hand.maxDamage();
-    int minimumDamage = (int) Math.floor(maximumDurability * (1D - preference(p, REPAIR_LIMIT).multiplier()));
-    int repairable = Math.max(0, currentDamage - minimumDamage);
-    int xpNeeded = (int) Math.ceil(repairable / repairPerXp);
-    int xpSpent = Math.min(maxXpSpend, xpNeeded);
-    if (xpSpent <= 0) {
-      FxPresets.failFizzle(this, p);
+    if (press.outcome() != XpMending.Outcome.MENDED) {
       return;
     }
 
-    int repaired = Math.max(1, (int) Math.round(xpSpent * repairPerXp));
-    int newDamage = Math.max(minimumDamage, currentDamage - repaired);
-
-    if (!payExperienceCost(p, "experience", xpSpent, () -> spendExperiencePoints(p, xpSpent))) {
-      return;
-    }
-
-    hand.setDamage(newDamage);
-    p.inventory().setMainHand(hand);
-    int cooldownTicks = getCooldownTicks(level);
-    p.setCooldown(hand.type(), cooldownTicks);
-    AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
-    e.setCancelled(true);
-
+    int currentDamage = press.damageBefore();
+    int newDamage = press.damageAfter();
     timeline(p)
         .duration(8)
         .priority(FxPriority.TRANSITION)
@@ -173,35 +131,9 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     addStat(p, "discovery.better-mending.durability-restored", restoredDurability(currentDamage, currentDamage - newDamage));
   }
 
-  private boolean canMend(ItemRef hand) {
-    if (!isItem(hand) || AdaptCore.platform().host().items().maxDurability(hand.type()) <= 0) {
-      return false;
-    }
-
-    if (hand.enchantmentLevel(MENDING) <= 0) {
-      return false;
-    }
-
-    return hand.damage() > 0;
-  }
-
-  static boolean spendExperiencePoints(PlayerRef player, int amount) {
-    if (player == null || amount <= 0) {
-      return false;
-    }
-
-    ComponentPort experience = experience();
-    int available = experience.totalExperiencePoints(player);
-    if (available < amount) {
-      return false;
-    }
-
-    experience.setExperiencePoints(player, available - amount);
-    return true;
-  }
-
-  private static ComponentPort experience() {
-    return AdaptPorts.get(ComponentPort.class, ComponentPort.NONE);
+  /** The repair rate, XP cap and cooldown of {@code level}. */
+  public XpMending.Rates rates(int level) {
+    return new XpMending.Rates(getRepairPerXp(level), getMaxXpSpend(level), getCooldownTicks(level));
   }
 
   static int restoredDurability(int currentDamage, int requestedRepair) {

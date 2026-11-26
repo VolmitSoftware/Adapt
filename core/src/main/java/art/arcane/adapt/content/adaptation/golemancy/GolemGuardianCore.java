@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -118,6 +120,21 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     loadedConfig.bulwarkRadius = GuardianRules.bulwarkRadius(loadedConfig.bulwarkRadius);
     loadedConfig.bulwarkDamageReduction = GuardianRules.fraction(loadedConfig.bulwarkDamageReduction, 0D);
     loadedConfig.lastStandHealthFraction = GuardianRules.fraction(loadedConfig.lastStandHealthFraction, 0D);
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
   }
 
   @Override

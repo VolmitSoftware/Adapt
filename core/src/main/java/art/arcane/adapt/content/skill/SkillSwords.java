@@ -27,6 +27,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
@@ -45,7 +46,17 @@ import art.arcane.adapt.content.adaptation.sword.SwordsMachete;
 import art.arcane.adapt.content.adaptation.sword.SwordsPoisonedBlade;
 import art.arcane.adapt.content.adaptation.sword.SwordsRiposteWindow;
 import art.arcane.adapt.content.adaptation.sword.SwordsWhetstoneRitual;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsBoon;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsFightStrike;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsFuel;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsState;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsTrigger;
+import art.arcane.adapt.content.adaptation.sword.blocks.SwordsWorkStrike;
+import art.arcane.adapt.content.adaptation.sword.upgraded.DuelistsVerdict;
+import art.arcane.adapt.content.adaptation.sword.upgraded.TempestFlow;
+import art.arcane.adapt.content.adaptation.sword.upgraded.Witherblade;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -58,11 +69,24 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.SWORDS_TECHNIQUE, "sword-lunge-strike", "sword-riposte-window",
+          "sword-blade-flow", "sword-duelists-focus", "sword-hamstring", "sword-executioners-edge",
+          "sword-crescent-guard"),
+      AdaptationGroup.of(GroupMessages.SWORDS_WOUNDS, "sword-bloody-blade", "sword-poison-blade",
+          "sword-crimson-cyclone"),
+      AdaptationGroup.of(GroupMessages.SWORDS_BLADES, "sword-machete", "sword-whetstone-ritual", "sword-dual-wield",
+          "sword-heirloom-edge")
+  );
+
   public SkillSwords() {
-    super("swords", SkillPresentation.of(SkillMessages.SWORDS_NAME, SkillMessages.SWORDS_ICON, SkillMessages.SWORDS_DESCRIPTION));
+    super("swords", SkillPresentation.of(SkillMessages.SWORDS_NAME, SkillMessages.SWORDS_ICON, SkillMessages.SWORDS_DESCRIPTION,
+        SkillMessages.SWORDS_QUIP, SkillMessages.SWORDS_UNLOCK_QUIP_1, SkillMessages.SWORDS_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
     setInterval(2150);
@@ -81,6 +105,9 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
     registerAdaptation(new SwordsCrescentGuard());
     registerAdaptation(new SwordsHamstring());
     registerAdaptation(new SwordsHeirloomEdge());
+    registerUpgrades(new Witherblade(), new TempestFlow(), new DuelistsVerdict());
+    registerBlocks(new SwordsTrigger(), new SwordsFightStrike(), new SwordsWorkStrike(), new SwordsBoon(), new SwordsFuel(),
+        new SwordsState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wooden_sword"))
         .key("challenge_sword_100")
@@ -177,6 +204,11 @@ public class SkillSwords extends SimpleSkill<SkillSwords.Config> {
         .build());
     registerMilestone("challenge_sword_heavy_25", "sword.heavy.hits", 25, () -> getConfig().challengeSwordHeavyReward);
     registerMilestone("challenge_sword_heavy_250", "sword.heavy.hits", 250, () -> getConfig().challengeSwordHeavyReward * 3);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Handle(priority = EventPriority.MONITOR)

@@ -395,7 +395,8 @@ final class GolemWorker {
       case WORKING -> {
         renewBoard(current, nowMillis, settings);
         markWorked(key, nowMillis);
-        nextActAt = nowMillis + intervalMillis(current.actor.actIntervalTicks(golem, task));
+        double speed = GolemMastery.coreSpeed(handle, current.core);
+        nextActAt = nowMillis + Math.round(intervalMillis(current.actor.actIntervalTicks(golem, task)) / speed);
       }
       case DONE -> {
         if (current.source == Source.BOARD) {
@@ -405,7 +406,7 @@ final class GolemWorker {
         markWorked(key, nowMillis);
         if (current.source != Source.ROUTE) {
           handle.addTasks(1L);
-          GolemWorkStats.completed(handle);
+          GolemWorkStats.completed(handle, task);
         } else {
           nextRouteAt = nowMillis;
         }
@@ -424,11 +425,7 @@ final class GolemWorker {
 
   private boolean claim(long nowMillis, Loc here, GolemWorkSettings settings) {
     GolemTaskBoard board = board(home.world().uid());
-    GolemState state = handle.state();
-    List<GolemCoreType> cores = cores();
-    GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores, handle.body(), runes().channels(state.channels()),
-        home.x(), home.y(), home.z(), workRadius(), here.x(), here.y(), here.z());
-    Optional<GolemTask> claimed = board.claim(seeker, candidate -> skips(candidate, nowMillis), nowMillis, settings.leaseMillis());
+    Optional<GolemTask> claimed = board.claim(seeker(here), candidate -> skips(candidate, nowMillis), nowMillis, settings.leaseMillis());
     if (claimed.isEmpty()) {
       return false;
     }
@@ -440,9 +437,97 @@ final class GolemWorker {
       backOff(task, nowMillis);
       return false;
     }
-    GolemCoreType consumer = GolemTaskMatch.consumer(nodeType, cores).orElse(handle.core());
+    GolemCoreType consumer = GolemTaskMatch.consumer(nodeType, cores()).orElse(handle.core());
     start(new Job(task, behavior, Source.BOARD, consumer, new WorkedNode(task.nodeKey(), nodeType)));
     return true;
+  }
+
+  private GolemTaskBoard.Seeker seeker(Loc here) {
+    return new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores(), handle.body(), runes().channels(handle.state().channels()),
+        home.x(), home.y(), home.z(), workRadius(), here.x(), here.y(), here.z());
+  }
+
+  /**
+   * Acts once, where the golem stands, on the next open task of the same job as {@code last}; the task is not counted
+   * as a finished job. A partly done task goes back to the board.
+   */
+  boolean repeat(GolemTask last, long nowMillis, PlayerRef currentOwner, Loc currentHome) {
+    owner = currentOwner;
+    home = currentHome;
+    pulseCapacity = -1;
+    pulseRunes = null;
+    pulseCores = null;
+    GolemTask busy = job == null ? null : job.task;
+    Optional<NodeType> nodeType = last.nodeType();
+    if (nodeType.isPresent()) {
+      return repeatBoard(last, nodeType.get(), busy, nowMillis);
+    }
+    return repeatCore(last, busy, nowMillis);
+  }
+
+  private boolean repeatBoard(GolemTask last, NodeType nodeType, GolemTask busy, long nowMillis) {
+    NodeBehavior behavior = NodeBehaviors.of(nodeType).orElse(null);
+    if (behavior == null) {
+      return false;
+    }
+    GolemTaskBoard board = board(home.world().uid());
+    Optional<GolemTask> claimed = board.claim(seeker(handle.entity().location()),
+        candidate -> candidate == busy || !sameJob(last, candidate) || skips(candidate, nowMillis), nowMillis, context.work().get().leaseMillis());
+    if (claimed.isEmpty()) {
+      return false;
+    }
+    GolemTask task = claimed.get();
+    NodeKey key = task.nodeKey();
+    GolemCoreType consumer = GolemTaskMatch.consumer(nodeType, cores()).orElse(handle.core());
+    GolemActResult result = actOnce(behavior, task, board.node(key).orElse(null), consumer, nowMillis);
+    if (result == GolemActResult.DONE) {
+      board.complete(task, handle.id());
+    } else {
+      board.release(task, handle.id());
+    }
+    if (result == GolemActResult.DONE || result == GolemActResult.WORKING) {
+      markWorked(key, nowMillis);
+      return true;
+    }
+    return false;
+  }
+
+  private boolean repeatCore(GolemTask last, GolemTask busy, long nowMillis) {
+    for (GolemCoreType core : cores()) {
+      GolemCoreBehavior behavior = GolemCoreBehaviors.of(core).orElse(null);
+      if (behavior == null) {
+        continue;
+      }
+      Optional<GolemTask> found;
+      try {
+        found = behavior.seek(new GolemContext(this, new GolemContext.Scope(behavior.policy(), null, null, core, nowMillis)));
+      } catch (RuntimeException failure) {
+        logFailure(null, failure);
+        continue;
+      }
+      GolemTask task = found.orElse(null);
+      if (task == null || task == busy || !sameJob(last, task) || !reserveCoreJob(task, nowMillis)) {
+        continue;
+      }
+      GolemActResult result = actOnce(behavior, task, null, core, nowMillis);
+      board(task.target().world()).releaseReservation(task, handle.id());
+      return result == GolemActResult.DONE || result == GolemActResult.WORKING;
+    }
+    return false;
+  }
+
+  private GolemActResult actOnce(GolemActor actor, GolemTask task, NodeRecord record, GolemCoreType core, long nowMillis) {
+    try {
+      return Objects.requireNonNull(actor.act(new GolemContext(this, new GolemContext.Scope(actor.policy(), task, record, core, nowMillis)), task),
+          "GolemActor.act returned null");
+    } catch (RuntimeException failure) {
+      logFailure(task, failure);
+      return GolemActResult.FAILED;
+    }
+  }
+
+  private static boolean sameJob(GolemTask last, GolemTask candidate) {
+    return last.type().equals(candidate.type()) && last.nodeType().equals(candidate.nodeType());
   }
 
   private boolean seekCores(long nowMillis) {

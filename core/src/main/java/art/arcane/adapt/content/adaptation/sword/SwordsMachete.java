@@ -88,6 +88,11 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
     registerMilestone("challenge_swords_machete_25k", "swords.machete.foliage-cut", 25000, 1000);
   }
 
+  /** Grass, leaves, flowers and the other plants a sword cuts. */
+  public static boolean isFoliage(Id type) {
+    return FOLIAGE.contains(type);
+  }
+
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
     return List.of(CommonPreferences.ENABLED, SwordPreferences.SNEAK, SwordPreferences.FOLIAGE);
@@ -135,7 +140,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
           if (!M.r((getLevelPercent(lvl) * 2.8) / (i.location().distanceSquared(ctr)))) {
             continue;
           }
-          if (!FOLIAGE.contains(i.type()) || !preference(p, SwordPreferences.FOLIAGE).accepts(i.type())) {
+          if (!isFoliage(i.type()) || !preference(p, SwordPreferences.FOLIAGE).accepts(i.type())) {
             continue;
           }
           if (!canBlockBreak(p, i.location())) {

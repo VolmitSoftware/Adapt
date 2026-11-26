@@ -25,12 +25,12 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -45,11 +45,9 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.Map;
-import java.util.UUID;
 
 public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config> {
-  private final Map<UUID, ComboState> combos = playerState();
+  private final UnarmedCombo combo = new UnarmedCombo(this, playerState());
 
   public UnarmedComboChain() {
     super("unarmed-combo-chain");
@@ -94,32 +92,25 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     PlayerRef p = attack.attacker();
     ItemRef hand = p.inventory().mainHand();
     if (isMelee(hand)) {
-      dropCombo(p);
+      combo.drop(p);
       return;
     }
 
     long now = System.currentTimeMillis();
     int level = attack.level();
-    ComboState state = combos.computeIfAbsent(p.uuid(), id -> new ComboState());
-    long windowMillis = getComboWindowMillis(level);
-    if (now - state.lastHitMillis > windowMillis) {
-      state.stacks = 0;
-    }
+    int maxStacks = getMaxStacks(level);
+    int stacks = combo.build(p, maxStacks, getComboWindowMillis(level), now);
 
-    state.lastHitMillis = now;
-    state.stacks = Math.min(getMaxStacks(level), state.stacks + 1);
-    AbilityGlyphs.duration(p.uuid(), this, now, windowMillis, state.stacks, getMaxStacks(level));
-
-    double bonus = state.stacks * getDamagePerStack(level);
+    double bonus = stacks * getDamagePerStack(level);
     e.setDamage(e.damage() + bonus);
-    playComboFeedback(e.entity().location(), state.stacks, getMaxStacks(level));
+    feedback(this, e.entity().location(), stacks, maxStacks);
     xp(p, bonus * getConfig().xpPerBonusDamage);
     addStat(p, "unarmed.combo-chain.total-combo-hits", 1);
 
-    if (state.stacks >= 10) {
+    if (stacks >= 10) {
       grantOnce(p, "challenge_unarmed_combo_10");
     }
-    if (state.stacks >= 25) {
+    if (stacks >= 25) {
       grantOnce(p, "challenge_unarmed_combo_25");
     }
   }
@@ -136,34 +127,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
       return;
     }
 
-    ComboState state = combos.get(p.uuid());
-    if (state == null) {
-      return;
-    }
-
-    long now = System.currentTimeMillis();
-    if (now - state.lastHitMillis > getConfig().missResetGraceMillis) {
-      dropCombo(p);
-    }
-  }
-
-  private void dropCombo(PlayerRef p) {
-    ComboState state = combos.remove(p.uuid());
-    if (state != null) {
-      AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
-    }
-    if (state == null || state.stacks < 3) {
-      return;
-    }
-
-    Loc loc = p.location().add(0, 1, 0);
-    fx(loc, FxPriority.TRANSITION)
-        .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D);
-    timeline(loc)
-        .duration(3)
-        .priority(FxPriority.TRANSITION)
-        .frame((fx, tick, progress) -> fx.sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, (float) (1.2D - (0.5D * progress))))
-        .start();
+    combo.missed(p, getConfig().missResetGraceMillis, System.currentTimeMillis());
   }
 
   private int getMaxStacks(int level) {
@@ -178,11 +142,11 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     return Math.max(250, (long) Math.round(getConfig().comboWindowMillisBase + (getLevelPercent(level) * getConfig().comboWindowMillisFactor)));
   }
 
-  private void playComboFeedback(Loc hitLocation, int stacks, int maxStacks) {
+  public static void feedback(Adaptation<?> owner, Loc hitLocation, int stacks, int maxStacks) {
     if (stacks >= maxStacks) {
       Loc center = hitLocation.add(0, 1, 0);
-      fx(center, FxPriority.COMBAT).sound(Sounds.BLOCK_ANVIL_PLACE, 0.55F, 1.7F);
-      timeline(center)
+      Fx.now(owner, center, FxPriority.COMBAT).sound(Sounds.BLOCK_ANVIL_PLACE, 0.55F, 1.7F);
+      FxTimeline.at(owner, center)
           .duration(8)
           .priority(FxPriority.COMBAT)
           .frame((fx, tick, progress) -> {
@@ -198,7 +162,7 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     float pitch = Math.min(2.0F, 0.85F + (stacks * 0.09F));
     ParticleSpec tier = stacks >= (maxStacks * 0.6D) ? Particles.WAX_ON : Particles.CRIT;
     int count = 4 + Math.min(14, stacks * 2);
-    FxEmitter fx = fx(hitLocation.add(0, 0.9, 0), FxPriority.COMBAT)
+    FxEmitter fx = Fx.now(owner, hitLocation.add(0, 0.9, 0), FxPriority.COMBAT)
         .particle(tier, count, 0, 0, 0, 0.22D, 0.1D)
         .sound(Sounds.ENTITY_EXPERIENCE_ORB_PICKUP, 0.55F, pitch);
     if (stacks >= maxStacks - 1) {
@@ -206,6 +170,15 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
     }
   }
 
+  static void brokenFx(Adaptation<?> owner, Loc loc) {
+    Fx.now(owner, loc, FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D);
+    FxTimeline.at(owner, loc)
+        .duration(3)
+        .priority(FxPriority.TRANSITION)
+        .frame((fx, tick, progress) -> fx.sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, (float) (1.2D - (0.5D * progress))))
+        .start();
+  }
 
   @ConfigDescription("Consecutive unarmed hits build combo stacks for increased punch damage.")
   protected static class Config extends AdaptationConfig {
@@ -232,10 +205,5 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
       maxLevel = 6;
       initialCost = 2;
     }
-  }
-
-  private static class ComboState {
-    private int stacks = 0;
-    private long lastHitMillis = 0L;
   }
 }

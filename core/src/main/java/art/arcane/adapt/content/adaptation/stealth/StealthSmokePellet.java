@@ -34,11 +34,9 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.StealthMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.LivingRef;
-import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -51,18 +49,12 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.RayHit;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Config> {
   public static final PlayerPreference<Hand> HAND = new PlayerPreference<>(Hand.class,
@@ -81,21 +73,11 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
           new PlayerPreference.Choice<>(Reserve.FOUR, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_RESERVE_FOUR, Id.minecraft("tnt"), 1))));
 
   private final Map<UUID, Long> lastPress = playerState();
-  private static final int PULSE_INTERVAL_TICKS = 10;
-  private static final int BLIND_TICKS = PULSE_INTERVAL_TICKS + 30;
-  private static final int INVISIBILITY_TICKS = PULSE_INTERVAL_TICKS + 30;
-  private static final int MAX_TARGET_HANDOFFS_PER_TICK = 24;
-  private static final double AGGRO_CLEAR_RADIUS = 64D;
   private static final Id GUNPOWDER = Id.minecraft("gunpowder");
   private static final Id AIR = Id.minecraft("air");
-  private static final Id BLINDNESS = Id.minecraft("blindness");
-  private static final Id INVISIBILITY = Id.minecraft("invisibility");
-  private static final Id WARDEN = Id.minecraft("warden");
 
   private final Cooldowns cooldowns = cooldowns();
-  private final ConcurrentHashMap<UUID, Long> concealmentLeases = new ConcurrentHashMap<>();
-  private final AtomicBoolean closed = new AtomicBoolean();
-  private final AtomicLong concealmentSequence = new AtomicLong();
+  private final StealthSmoke smoke = new StealthSmoke(this::cloudFx);
 
   public StealthSmokePellet() {
     super("stealth-smoke-pellet");
@@ -139,10 +121,6 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     return GUNPOWDER.equals(offHand) ? EquipmentSlot.OFF_HAND : null;
   }
 
-  static boolean currentConcealmentLease(Long currentLease, long expectedLease) {
-    return currentLease != null && currentLease == expectedLease;
-  }
-
   static boolean isBlindable(EntityRef entity) {
     return entity instanceof LivingRef;
   }
@@ -160,7 +138,7 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
   @Override
   public void addStats(int level, StatLines v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
-    statLore(v, Form.duration(getPulses(level) * PULSE_INTERVAL_TICKS * 50D, 1), 2);
+    statLore(v, Form.duration(getPulses(level) * StealthSmoke.PULSE_INTERVAL_TICKS * 50D, 1), 2);
   }
 
   @Handle(priority = EventPriority.NORMAL)
@@ -202,22 +180,16 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityTargetEvent e) {
-    if (!(e.target() instanceof PlayerRef player) || !isConcealed(player)) {
-      return;
-    }
-    e.setCancelled(true);
-    if (e.entity() instanceof MobRef mob) {
-      clearAggroOwned(mob, player);
-    }
+    smoke.onTarget(e);
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
-    concealmentLeases.remove(e.player().uuid());
+    smoke.forget(e.player());
   }
 
   boolean isConcealed(PlayerRef player) {
-    return concealmentLeases.containsKey(player.uuid());
+    return smoke.isConcealed(player);
   }
 
   private boolean consumeGunpowder(PlayerRef p, PlayerInventoryRef inventory, EquipmentSlot hand) {
@@ -271,165 +243,22 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
         .line(Particles.SMOKE, impact.x(), impact.y(), impact.z(), trailPoints)
         .burst(Particles.SMOKE, 4, 0.15D)
         .sound(Sounds.ENTITY_WITCH_THROW, 0.4F, 1.4F);
-    CloudState cloud = new CloudState(impact, radius, pulses);
-    Tasks.runAt(impact, () -> cloudPulse(cloud));
-    AbilityGlyphs.duration(p.uuid(), this, System.currentTimeMillis(), pulses * PULSE_INTERVAL_TICKS * 50L);
+    smoke.release(impact, radius, pulses);
+    AbilityGlyphs.duration(p.uuid(), this, System.currentTimeMillis(), pulses * StealthSmoke.PULSE_INTERVAL_TICKS * 50L);
   }
 
-  private void cloudPulse(CloudState cloud) {
-    Loc center = cloud.center;
-    if (closed.get() || cloud.pulsesLeft <= 0) {
-      return;
-    }
-
+  private void cloudFx(Loc center, double radius, int pulsesLeft) {
     fx(center, FxPriority.GAMEPLAY)
-        .particle(Particles.SMOKE, (int) Math.max(8, cloud.radius * 6), 0, 0, 0, cloud.radius * 0.55D, 0.01D)
-        .particle(Particles.CAMPFIRE_COSY_SMOKE, (int) Math.max(2, cloud.radius), 0, 0, 0, cloud.radius * 0.5D, 0.005D);
-    if (cloud.pulsesLeft % 2 == 0) {
+        .particle(Particles.SMOKE, (int) Math.max(8, radius * 6), 0, 0, 0, radius * 0.55D, 0.01D)
+        .particle(Particles.CAMPFIRE_COSY_SMOKE, (int) Math.max(2, radius), 0, 0, 0, radius * 0.5D, 0.005D);
+    if (pulsesLeft % 2 == 0) {
       fx(center, FxPriority.AMBIENT).sound(Sounds.BLOCK_FIRE_EXTINGUISH, 0.3F, 0.7F);
-    }
-
-    for (EntityRef nearby : StealthCore.nearbyEntities(center, cloud.radius, entity -> true)) {
-      if (!(nearby instanceof LivingRef target)) {
-        continue;
-      }
-      if (target instanceof PlayerRef player) {
-        renewConcealment(player);
-      }
-      enqueueTarget(cloud, target, true);
-    }
-    double aggroRadius = Math.max(cloud.radius, AGGRO_CLEAR_RADIUS);
-    for (EntityRef nearby : StealthCore.nearbyEntities(center, aggroRadius, entity -> entity instanceof MobRef)) {
-      if (nearby instanceof MobRef mob) {
-        enqueueTarget(cloud, mob, false);
-      }
-    }
-    startTargetDispatch(cloud);
-
-    cloud.pulsesLeft--;
-    if (cloud.pulsesLeft > 0) {
-      Tasks.runAt(center, () -> cloudPulse(cloud), PULSE_INTERVAL_TICKS);
-    }
-  }
-
-  private void enqueueTarget(CloudState cloud, LivingRef target, boolean cloudOccupant) {
-    UUID targetId = target.uuid();
-    if (!cloud.pendingIds.add(targetId)) {
-      return;
-    }
-    cloud.pending.add(new TargetWork(target, cloudOccupant));
-  }
-
-  private void startTargetDispatch(CloudState cloud) {
-    if (cloud.dispatching.compareAndSet(false, true)) {
-      dispatchTargets(cloud);
-    }
-  }
-
-  private void dispatchTargets(CloudState cloud) {
-    if (closed.get()) {
-      cloud.pending.clear();
-      cloud.pendingIds.clear();
-      cloud.dispatching.set(false);
-      return;
-    }
-
-    for (int index = 0; index < MAX_TARGET_HANDOFFS_PER_TICK; index++) {
-      TargetWork work = cloud.pending.poll();
-      if (work == null) {
-        finishTargetDispatch(cloud);
-        return;
-      }
-      LivingRef target = work.target();
-      cloud.pendingIds.remove(target.uuid());
-      Tasks.runEntity(target, () -> processTargetOwned(cloud, work));
-    }
-    if (!cloud.pending.isEmpty()) {
-      Tasks.runAt(cloud.center, () -> dispatchTargets(cloud), 1);
-      return;
-    }
-    finishTargetDispatch(cloud);
-  }
-
-  private void finishTargetDispatch(CloudState cloud) {
-    cloud.dispatching.set(false);
-    if (!cloud.pending.isEmpty() && cloud.dispatching.compareAndSet(false, true)) {
-      Tasks.runAt(cloud.center, () -> dispatchTargets(cloud), 1);
-    }
-  }
-
-  private void processTargetOwned(CloudState cloud, TargetWork work) {
-    LivingRef target = work.target();
-    if (closed.get() || !target.isValid() || target.isDead() || !target.world().equals(cloud.center.world())) {
-      return;
-    }
-    if (work.cloudOccupant()) {
-      Loc targetLocation = target.location();
-      if (targetLocation.distanceSquared(cloud.center) > cloud.radius * cloud.radius) {
-        return;
-      }
-      target.addEffect(new EffectInstance(BLINDNESS, BLIND_TICKS, 0, false, false, false));
-      if (target instanceof PlayerRef player) {
-        renewConcealment(player);
-        applyInvisibilityOwned(player);
-      }
-    }
-    if (target instanceof MobRef mob) {
-      LivingRef currentTarget = mob.target();
-      if (work.cloudOccupant()) {
-        clearAggroOwned(mob, currentTarget);
-      } else if (currentTarget instanceof PlayerRef player && isConcealed(player)) {
-        clearAggroOwned(mob, player);
-      } else if (mob.type().equals(WARDEN)
-          && AdaptCore.platform().host().animals().angryAt(mob) instanceof PlayerRef player
-          && isConcealed(player)) {
-        clearAggroOwned(mob, player);
-      }
-    }
-  }
-
-  private void renewConcealment(PlayerRef player) {
-    UUID playerId = player.uuid();
-    long lease = concealmentSequence.incrementAndGet();
-    concealmentLeases.put(playerId, lease);
-    boolean scheduled = Tasks.runEntity(player, () -> {
-      Long currentLease = concealmentLeases.get(playerId);
-      if (currentConcealmentLease(currentLease, lease)) {
-        concealmentLeases.remove(playerId, currentLease);
-      }
-    }, INVISIBILITY_TICKS);
-    if (!scheduled) {
-      concealmentLeases.remove(playerId, lease);
-    }
-  }
-
-  private void applyInvisibilityOwned(PlayerRef player) {
-    EffectInstance current = player.effect(INVISIBILITY);
-    if (current != null && current.durationTicks() > INVISIBILITY_TICKS + 5) {
-      return;
-    }
-    player.addEffect(new EffectInstance(
-        INVISIBILITY,
-        INVISIBILITY_TICKS,
-        0,
-        false,
-        false,
-        false
-    ));
-  }
-
-  private void clearAggroOwned(MobRef mob, LivingRef currentTarget) {
-    mob.setTarget(null);
-    AdaptCore.platform().host().animals().setAggressive(mob, false);
-    if (mob.type().equals(WARDEN) && currentTarget != null) {
-      AdaptCore.platform().host().animals().clearAnger(mob, currentTarget);
     }
   }
 
   @Override
   public void unregister() {
-    closed.set(true);
-    concealmentLeases.clear();
+    smoke.close();
     super.unregister();
   }
 
@@ -439,24 +268,6 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
 
   private int getPulses(int level) {
     return computePulses(getConfig().pulsesBase, getConfig().pulsesFactor, getLevelPercent(level));
-  }
-
-  private static final class CloudState {
-    private final Loc center;
-    private final double radius;
-    private final ConcurrentLinkedQueue<TargetWork> pending = new ConcurrentLinkedQueue<>();
-    private final Set<UUID> pendingIds = ConcurrentHashMap.newKeySet();
-    private final AtomicBoolean dispatching = new AtomicBoolean();
-    private int pulsesLeft;
-
-    private CloudState(Loc center, double radius, int pulsesLeft) {
-      this.center = center;
-      this.radius = radius;
-      this.pulsesLeft = pulsesLeft;
-    }
-  }
-
-  private record TargetWork(LivingRef target, boolean cloudOccupant) {
   }
 
   @ConfigDescription("Sneak while holding gunpowder in either hand to cast a smoke cloud that conceals players, blinds living entities, and clears mob aggression.")

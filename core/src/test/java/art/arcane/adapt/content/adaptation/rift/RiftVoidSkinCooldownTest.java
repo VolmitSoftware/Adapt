@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -135,14 +133,13 @@ class RiftVoidSkinCooldownTest {
     private final MapData data = new MapData(saved);
     private final DataKey<String> reservationKey = DataKey.adapt("rift_void_skin_reserved_pearl", DataCodecs.STRING);
     private final CompletableFuture<Boolean> teleport = new CompletableFuture<>();
-    private final MockedStatic<RiftPearls> pearls = mockStatic(RiftPearls.class);
+    private final MockedStatic<RiftPearls> pearls = mockStatic(RiftPearls.class, CALLS_REAL_METHODS);
     private final MockedStatic<Tasks> ownership = mockStatic(Tasks.class, CALLS_REAL_METHODS);
     private final EntityDamageEvent damage;
 
     private Fixture() throws Exception {
-      assign("acceptingEscapes", new AtomicBoolean(true));
-      assign("pendingEscapes", new ConcurrentHashMap<>());
-      assign("pearlReservationKey", reservationKey);
+      assign("escape", new RiftVoidEscape(skin, (PlayerRef ignored) -> {
+      }));
       doReturn(new RiftVoidSkin.Config()).when(skin).getConfig();
       doReturn(1).when(skin).getActiveLevel(player);
       doReturn(RiftVoidSkin.Causes.ALL).when(skin).preference(player, RiftVoidSkin.CAUSES);

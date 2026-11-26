@@ -183,6 +183,72 @@ public final class GolemRoster {
     return changed.get();
   }
 
+  /**
+   * Marks the golem a twin when its owner has fewer than {@code maxTwins}. Past {@code freeTwins} the mark needs a
+   * Masterwork Heart: without {@code heart} it is refused, with it the result is {@link TwinMark#PAID}.
+   */
+  public synchronized TwinMark markTwinWithin(UUID id, int maxTwins, int freeTwins, boolean heart) {
+    GolemEntry entry = id == null ? null : golemMap().get(id.toString());
+    if (entry == null || entry.revoked() || entry.status() != Status.ACTIVE) {
+      return TwinMark.UNAVAILABLE;
+    }
+    if (entry.twin) {
+      return TwinMark.MARKED;
+    }
+    int twins = twinCount();
+    if (twins >= maxTwins) {
+      return TwinMark.FULL;
+    }
+    boolean paid = twins >= freeTwins;
+    if (paid && !heart) {
+      return TwinMark.HEART_NEEDED;
+    }
+    if (!markTwin(id, true)) {
+      return TwinMark.UNAVAILABLE;
+    }
+    return paid ? TwinMark.PAID : TwinMark.MARKED;
+  }
+
+  public synchronized boolean markTwin(UUID id, boolean twin) {
+    if (id == null) {
+      return false;
+    }
+    AtomicBoolean changed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (String key, GolemEntry entry) -> {
+      if (entry.revoked() || entry.twin == twin) {
+        return entry;
+      }
+      changed.set(true);
+      return entry.withTwin(twin);
+    });
+    return changed.get();
+  }
+
+  /** The golem's place among its owner's twins, ordered by id, or -1 when it is not a twin. */
+  public int twinRank(UUID id) {
+    GolemEntry own = id == null ? null : golemMap().get(id.toString());
+    if (own == null || own.revoked() || !own.twin) {
+      return -1;
+    }
+    int rank = 0;
+    for (GolemEntry entry : golemMap().values()) {
+      if (!entry.revoked() && entry.twin && entry.id.compareTo(id) < 0) {
+        rank++;
+      }
+    }
+    return rank;
+  }
+
+  public int twinCount() {
+    int count = 0;
+    for (GolemEntry entry : golemMap().values()) {
+      if (!entry.revoked() && entry.twin) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   public int masterworkCount() {
     int count = 0;
     for (GolemEntry entry : golemMap().values()) {
@@ -380,6 +446,14 @@ public final class GolemRoster {
     UNAVAILABLE
   }
 
+  public enum TwinMark {
+    MARKED,
+    PAID,
+    FULL,
+    HEART_NEEDED,
+    UNAVAILABLE
+  }
+
   public enum Status {
     ACTIVE,
     PACKED,
@@ -415,6 +489,7 @@ public final class GolemRoster {
     private String packedState;
     private boolean deliveryPending;
     private boolean masterwork;
+    private boolean twin;
     private long sighting;
     private boolean revoked;
 
@@ -478,6 +553,10 @@ public final class GolemRoster {
       return masterwork;
     }
 
+    public boolean twin() {
+      return twin;
+    }
+
     public long sighting() {
       return sighting;
     }
@@ -515,6 +594,12 @@ public final class GolemRoster {
       return copy;
     }
 
+    private GolemEntry withTwin(boolean next) {
+      GolemEntry copy = copy();
+      copy.twin = next;
+      return copy;
+    }
+
     private GolemEntry withSighting(long next) {
       GolemEntry copy = copy();
       copy.sighting = next;
@@ -544,6 +629,7 @@ public final class GolemRoster {
       copy.packedState = packedState;
       copy.deliveryPending = deliveryPending;
       copy.masterwork = masterwork;
+      copy.twin = twin;
       copy.sighting = sighting;
       copy.revoked = revoked;
       return copy;

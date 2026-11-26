@@ -8,6 +8,7 @@ import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
@@ -80,6 +81,19 @@ public final class AdaptScreens {
         Adaptation<?> target = registry == null ? null : ClientUiService.adaptation(registry, adaptation.adaptationId());
         openAdaptation(player, target, true);
       }
+      case Route.Mutate mutate -> {
+        Skill<?> lead = registry == null ? null : registry.getSkill(mutate.skillId());
+        if (lead != null) {
+          openMutation(player, lead);
+        }
+      }
+    }
+  }
+
+  /** Opens the Mutate flow led by {@code lead}: the client's spread when it has one, otherwise the partner menu. */
+  public static void openMutation(PlayerRef player, Skill<?> lead) {
+    if (!ClientUiService.negotiated(player, ClientProtocol.MUTATE_SPREAD) || !route(player, new Route.Mutate(lead.getName()))) {
+      MutationGui.openPartners(player, lead);
     }
   }
 

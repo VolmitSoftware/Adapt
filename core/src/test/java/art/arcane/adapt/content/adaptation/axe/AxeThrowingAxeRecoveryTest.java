@@ -76,7 +76,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     when(axe.copy()).thenReturn(axe);
     inFlight(adaptation).put(
         projectileId,
-        new AxeThrowingAxe.ThrownAxe(
+        new AxeThrow.ThrownAxe(
             ownerId,
             axe,
             9D,
@@ -84,7 +84,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
             false,
             true,
             recoveryKey,
-            AxeThrowingAxe.flightDeadline(System.nanoTime(), 80L)
+            AxeThrow.flightDeadline(System.nanoTime(), 80L)
         )
     );
 
@@ -112,9 +112,9 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     Id recoveryKey = Id.adapt(
         "throwing_axe_recovery_" + sourceId.toString().replace("-", "")
     );
-    long deadline = AxeThrowingAxe.flightDeadline(System.nanoTime(), 80L);
+    long deadline = AxeThrow.flightDeadline(System.nanoTime(), 80L);
     when(axe.copy()).thenReturn(axe);
-    AxeThrowingAxe.ThrownAxe thrown = new AxeThrowingAxe.ThrownAxe(
+    AxeThrow.ThrownAxe thrown = new AxeThrow.ThrownAxe(
         ownerId,
         axe,
         9D,
@@ -151,7 +151,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     ProjectileRef source = snowball(sourceId);
     ProjectileRef replacement = snowball(replacementId);
     when(axe.copy()).thenReturn(axe);
-    AxeThrowingAxe.ThrownAxe thrown = new AxeThrowingAxe.ThrownAxe(
+    AxeThrow.ThrownAxe thrown = new AxeThrow.ThrownAxe(
         UUID.randomUUID(),
         axe,
         9D,
@@ -159,7 +159,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
         false,
         false,
         Id.adapt("throwing_axe_recovery_" + sourceId),
-        AxeThrowingAxe.flightDeadline(System.nanoTime(), 80L)
+        AxeThrow.flightDeadline(System.nanoTime(), 80L)
     );
     Loc sourceLocation = new Loc(mock(WorldRef.class), 1D, 2D, 3D);
     when(source.location()).thenReturn(sourceLocation);
@@ -180,13 +180,13 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void remainingFlightTimeNeverResetsAcrossBounces() {
-    long deadline = AxeThrowingAxe.flightDeadline(1_000_000_000L, 80L);
+    long deadline = AxeThrow.flightDeadline(1_000_000_000L, 80L);
 
-    assertThat(AxeThrowingAxe.remainingFlightTicks(deadline, 1_000_000_000L))
+    assertThat(AxeThrow.remainingFlightTicks(deadline, 1_000_000_000L))
         .isEqualTo(80L);
-    assertThat(AxeThrowingAxe.remainingFlightTicks(deadline, 2_025_000_000L))
+    assertThat(AxeThrow.remainingFlightTicks(deadline, 2_025_000_000L))
         .isEqualTo(60L);
-    assertThat(AxeThrowingAxe.remainingFlightTicks(deadline, deadline)).isZero();
+    assertThat(AxeThrow.remainingFlightTicks(deadline, deadline)).isZero();
   }
 
   @Test
@@ -219,7 +219,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     when(owner.uuid()).thenReturn(ownerId);
     when(owner.data()).thenReturn(data);
     when(axe.copy()).thenReturn(axe);
-    AxeThrowingAxe.ThrownAxe thrown = new AxeThrowingAxe.ThrownAxe(
+    AxeThrow.ThrownAxe thrown = new AxeThrow.ThrownAxe(
         ownerId,
         axe,
         9D,
@@ -227,7 +227,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
         false,
         true,
         recoveryKey,
-        AxeThrowingAxe.flightDeadline(System.nanoTime(), 80L)
+        AxeThrow.flightDeadline(System.nanoTime(), 80L)
     );
 
     when(scheduler.runAt(same(impact), any(Runnable.class), anyLong()))
@@ -272,7 +272,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     when(owner.uuid()).thenReturn(ownerId);
     when(owner.data()).thenReturn(data);
     when(axe.copy()).thenReturn(axe);
-    AxeThrowingAxe.ThrownAxe thrown = new AxeThrowingAxe.ThrownAxe(
+    AxeThrow.ThrownAxe thrown = new AxeThrow.ThrownAxe(
         ownerId,
         axe,
         9D,
@@ -280,7 +280,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
         false,
         true,
         recoveryKey,
-        AxeThrowingAxe.flightDeadline(System.nanoTime(), 80L)
+        AxeThrow.flightDeadline(System.nanoTime(), 80L)
     );
 
     when(host.player(ownerId)).thenReturn(owner);
@@ -352,6 +352,12 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     assertThat(journal.read(ownerId, recoveryKey.path())).containsExactly(journaled);
   }
 
+  private static AxeThrow throwing(AxeThrowingAxe adaptation) throws Exception {
+    Field field = AxeThrowingAxe.class.getDeclaredField("throwing");
+    field.setAccessible(true);
+    return (AxeThrow) field.get(adaptation);
+  }
+
   private static ProjectileRef snowball(UUID id) {
     ProjectileRef projectile = mock(ProjectileRef.class);
     when(projectile.uuid()).thenReturn(id);
@@ -360,62 +366,62 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<UUID, AxeThrowingAxe.ThrownAxe> inFlight(
+  private static Map<UUID, AxeThrow.ThrownAxe> inFlight(
       AxeThrowingAxe adaptation
   ) throws Exception {
-    Field field = AxeThrowingAxe.class.getDeclaredField("inFlight");
+    Field field = AxeThrow.class.getDeclaredField("inFlight");
     field.setAccessible(true);
-    return (Map<UUID, AxeThrowingAxe.ThrownAxe>) field.get(adaptation);
+    return (Map<UUID, AxeThrow.ThrownAxe>) field.get(throwing(adaptation));
   }
 
   @SuppressWarnings("unchecked")
   private static Set<Object> pendingReplacements(AxeThrowingAxe adaptation) throws Exception {
-    Field field = AxeThrowingAxe.class.getDeclaredField("pendingReplacements");
+    Field field = AxeThrow.class.getDeclaredField("pendingReplacements");
     field.setAccessible(true);
-    return (Set<Object>) field.get(adaptation);
+    return (Set<Object>) field.get(throwing(adaptation));
   }
 
   @SuppressWarnings("unchecked")
   private static Set<Object> pendingDrops(AxeThrowingAxe adaptation) throws Exception {
-    Field field = AxeThrowingAxe.class.getDeclaredField("pendingDrops");
+    Field field = AxeThrow.class.getDeclaredField("pendingDrops");
     field.setAccessible(true);
-    return Set.copyOf(((Map<Id, Object>) field.get(adaptation)).values());
+    return Set.copyOf(((Map<Id, Object>) field.get(throwing(adaptation))).values());
   }
 
   private static AxeRecoveryJournal recoveryJournal(AxeThrowingAxe adaptation) throws Exception {
-    Field field = AxeThrowingAxe.class.getDeclaredField("recoveryJournal");
+    Field field = AxeThrow.class.getDeclaredField("recoveryJournal");
     field.setAccessible(true);
-    return (AxeRecoveryJournal) field.get(adaptation);
+    return (AxeRecoveryJournal) field.get(throwing(adaptation));
   }
 
   private static void registerThrow(
       AxeThrowingAxe adaptation,
       ProjectileRef projectile,
-      AxeThrowingAxe.ThrownAxe thrown
+      AxeThrow.ThrownAxe thrown
   ) throws Exception {
-    Method method = AxeThrowingAxe.class.getDeclaredMethod(
+    Method method = AxeThrow.class.getDeclaredMethod(
         "registerThrow",
         ProjectileRef.class,
-        AxeThrowingAxe.ThrownAxe.class
+        AxeThrow.ThrownAxe.class
     );
     method.setAccessible(true);
-    method.invoke(adaptation, projectile, thrown);
+    method.invoke(throwing(adaptation), projectile, thrown);
   }
 
   private static void invokeDrop(
       AxeThrowingAxe adaptation,
       Loc impact,
-      AxeThrowingAxe.ThrownAxe thrown,
+      AxeThrow.ThrownAxe thrown,
       PlayerRef owner
   ) throws Exception {
-    Method method = AxeThrowingAxe.class.getDeclaredMethod(
+    Method method = AxeThrow.class.getDeclaredMethod(
         "dropAxe",
         Loc.class,
-        AxeThrowingAxe.ThrownAxe.class,
+        AxeThrow.ThrownAxe.class,
         PlayerRef.class
     );
     method.setAccessible(true);
-    method.invoke(adaptation, impact, thrown, owner);
+    method.invoke(throwing(adaptation), impact, thrown, owner);
   }
 
   private static Id invokeJournalStage(
@@ -423,21 +429,21 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
       PlayerRef owner,
       String recoveryKey
   ) throws Exception {
-    Method method = AxeThrowingAxe.class.getDeclaredMethod(
+    Method method = AxeThrow.class.getDeclaredMethod(
         "stageJournaledAxe",
         PlayerRef.class,
         String.class
     );
     method.setAccessible(true);
-    return (Id) method.invoke(adaptation, owner, recoveryKey);
+    return (Id) method.invoke(throwing(adaptation), owner, recoveryKey);
   }
 
   private static void invokeRecoverAll(
       AxeThrowingAxe adaptation,
       PlayerRef owner
   ) throws Exception {
-    Method method = AxeThrowingAxe.class.getDeclaredMethod("recoverStampedAxes", PlayerRef.class);
+    Method method = AxeThrow.class.getDeclaredMethod("recoverStampedAxes", PlayerRef.class);
     method.setAccessible(true);
-    method.invoke(adaptation, owner);
+    method.invoke(throwing(adaptation), owner);
   }
 }

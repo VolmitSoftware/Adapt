@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationTeleportPort;
 import art.arcane.adapt.api.adaptation.ItemCooldowns;
@@ -32,17 +33,20 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.tool.MutationTools;
 import art.arcane.adapt.api.notification.AdaptHud;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
@@ -243,7 +247,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (getConfig().requireCraftedEye) {
       return BoundEyeOfEnder.isBindableItem(stack);
     }
-    return stack.type().equals(ENDER_EYE);
+    return stack.type().equals(ENDER_EYE) && !MutationTools.isTool(stack);
   }
 
   private boolean isProtectedEye(ItemRef stack) {
@@ -374,18 +378,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     fx(destination, FxPriority.TRANSITION)
         .chord(Sounds.BLOCK_LODESTONE_PLACE, 1f, 0.8f, Sounds.BLOCK_BELL_RESONATE, 0.7f, 0.9f);
 
-    timeline(p)
-        .duration(80)
-        .priority(FxPriority.TRANSITION)
-        .cullRadius(32)
-        .frame((fx, tick, progress) -> {
-          fx.dustRing(2.4 - (2.25 * progress), 16, 1.0f);
-          fx.helix(Particles.END_ROD, 0.6, 1.6 * progress, 8, -progress * Math.PI * 2.0);
-          if (tick % 16 == 0) {
-            fx.sound(Sounds.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5f, (float) (0.6 + (progress * 0.8)));
-          }
-        })
-        .start();
+    channelFx(this, p, 80);
 
     if (!Tasks.runEntity(p, () -> authorizeAndTeleport(p, channel), CHANNEL_TICKS)) {
       abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, false);
@@ -530,10 +523,32 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (origin.sameWorld(actualDestination)) {
       addStat(p, "rift.gate.total-distance", (int) origin.distance(actualDestination));
     }
-    fx(origin, FxPriority.TRANSITION)
+    arrivalFx(this, origin, actualDestination);
+  }
+
+  /** The shrinking ring and rising helix around a player channelling a gate for {@code ticks}. */
+  public static FxTimeline channelFx(Adaptation<?> owner, PlayerRef p, int ticks) {
+    FxTimeline timeline = FxTimeline.follow(owner, p)
+        .duration(ticks)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((fx, tick, progress) -> {
+          fx.dustRing(2.4 - (2.25 * progress), 16, 1.0f);
+          fx.helix(Particles.END_ROD, 0.6, 1.6 * progress, 8, -progress * Math.PI * 2.0);
+          if (tick % 16 == 0) {
+            fx.sound(Sounds.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.5f, (float) (0.6 + (progress * 0.8)));
+          }
+        });
+    timeline.start();
+    return timeline;
+  }
+
+  /** The portal burst where a gate trip left and the ring where it arrived. */
+  public static void arrivalFx(Adaptation<?> owner, Loc origin, Loc destination) {
+    Fx.now(owner, origin, FxPriority.TRANSITION)
         .particle(Particles.REVERSE_PORTAL, 16, 0, 1.0, 0, 0.25, 0.05)
         .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.8f);
-    timeline(actualDestination)
+    FxTimeline.at(owner, destination)
         .duration(5)
         .priority(FxPriority.TRANSITION)
         .frame((fx, tick, progress) -> {
@@ -619,7 +634,12 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (!p.isOnline()) {
       return;
     }
-    fx(p.eyeLocation(), FxPriority.TRANSITION)
+    failureFx(this, p);
+  }
+
+  /** The puff and low note of a gate trip that did not happen. */
+  public static void failureFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.eyeLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 3, 0.2)
         .sound(Sounds.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.8f);
   }

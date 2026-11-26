@@ -38,6 +38,7 @@ public final class FakePlayer extends FakeLiving implements PlayerRef {
   private final List<String> actionBars = new ArrayList<>();
   private final List<Double> verticalMotions = new ArrayList<>();
   private final List<Id> climbableTagOverrides = new ArrayList<>();
+  private final List<Id> heardSounds = new ArrayList<>();
   private boolean online = true;
   private boolean fakePlayer;
   private boolean op = true;
@@ -544,7 +545,13 @@ public final class FakePlayer extends FakeLiving implements PlayerRef {
   }
 
   @Override
-  public void playSound(Loc at, Id sound, SoundCategory category, float volume, float pitch) {
+  public synchronized void playSound(Loc at, Id sound, SoundCategory category, float volume, float pitch) {
+    heardSounds.add(sound);
+  }
+
+  /** Every sound played to this player, in order. */
+  public synchronized List<Id> heardSounds() {
+    return List.copyOf(heardSounds);
   }
 
   @Override

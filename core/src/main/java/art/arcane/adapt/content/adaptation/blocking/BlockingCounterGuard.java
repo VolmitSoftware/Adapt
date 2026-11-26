@@ -18,13 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
-import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -42,28 +43,21 @@ import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
   private static final long STACK_DISPLAY_MILLIS = 750L;
   private final Map<UUID, Integer> reservedStackCosts = playerState();
-  private final Set<ReflectionKey> pendingReflections = ConcurrentHashMap.newKeySet();
-  private final AtomicBoolean acceptingReflections = new AtomicBoolean(true);
+  private final BlockingRetaliation retaliation = new BlockingRetaliation(this);
 
   public BlockingCounterGuard() {
     super("blocking-counter-guard");
@@ -87,13 +81,12 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
   @Override
   protected void onRuntimeActivated() {
-    acceptingReflections.set(true);
+    retaliation.activate();
   }
 
   @Override
   public void unregister() {
-    acceptingReflections.set(false);
-    pendingReflections.clear();
+    retaliation.close();
     reservedStackCosts.clear();
     super.unregister();
   }
@@ -112,7 +105,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
-    if (consumeReflection(e.damager(), e.entity())) {
+    if (retaliation.consume(e.damager(), e.entity())) {
       return;
     }
 
@@ -120,7 +113,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
       return;
     }
 
-    if (!acceptingReflections.get() || !hasActiveAdaptation(defender) || !hasShield(defender)) {
+    if (!retaliation.accepting() || !hasActiveAdaptation(defender) || !BlockingShields.held(this, defender)) {
       return;
     }
 
@@ -169,14 +162,14 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     double reflected = getReflectDamage(level) + (availableStacks * getConfig().damagePerStack);
     ReflectionOperation operation = new ReflectionOperation(
         defenderId,
-        attacker.uuid(),
         reflected,
         stackCost,
         availableStacks >= maxStacks,
         maxStacks
     );
-    boolean scheduled = Tasks.runEntity(attacker, () ->
-        applyReflectionOnAttacker(defender, attacker, operation));
+    boolean scheduled = retaliation.strike(defender, attacker, reflected,
+        () -> releaseStackCost(defenderId, stackCost),
+        (Loc attackerLocation) -> completeReflectionOnDefender(defender, attackerLocation, operation));
     if (!scheduled) {
       releaseStackCost(defenderId, stackCost);
     }
@@ -197,50 +190,13 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
         .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, pitch);
   }
 
-  private void applyReflectionOnAttacker(
-      PlayerRef defender,
-      LivingRef attacker,
-      ReflectionOperation operation
-  ) {
-    if (!acceptingReflections.get() || !attacker.isValid() || attacker.isDead()) {
-      releaseStackCost(operation.defenderId(), operation.stackCost());
-      return;
-    }
-
-    if (!canDamageTarget(defender, attacker)) {
-      releaseStackCost(operation.defenderId(), operation.stackCost());
-      return;
-    }
-
-    ReflectionKey key = new ReflectionKey(operation.defenderId(), operation.attackerId());
-    pendingReflections.add(key);
-    try {
-      attacker.damage(operation.reflectedDamage(), defender);
-    } catch (Throwable error) {
-      AdaptLog.error("Counter Guard could not reflect damage from "
-          + operation.defenderId() + " to " + operation.attackerId() + ".");
-      AdaptLog.error(error);
-      releaseStackCost(operation.defenderId(), operation.stackCost());
-      return;
-    } finally {
-      pendingReflections.remove(key);
-    }
-
-    Loc attackerLocation = attacker.location();
-    boolean scheduled = Tasks.runEntity(defender, () ->
-        completeReflectionOnDefender(defender, attackerLocation, operation));
-    if (!scheduled) {
-      releaseStackCost(operation.defenderId(), operation.stackCost());
-    }
-  }
-
   private void completeReflectionOnDefender(
       PlayerRef defender,
       Loc attackerLocation,
       ReflectionOperation operation
   ) {
     releaseStackCost(operation.defenderId(), operation.stackCost());
-    if (!acceptingReflections.get() || !defender.isOnline() || defender.isDead()) {
+    if (!retaliation.accepting() || !defender.isOnline() || defender.isDead()) {
       return;
     }
 
@@ -252,20 +208,13 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     if (operation.maxed()) {
       grantOnce(defender, "challenge_blocking_counter_max");
     }
-    reflectDischarge(defender, attackerLocation);
+    reflectDischarge(this, defender, attackerLocation);
     xp(defender, operation.reflectedDamage() * getConfig().xpPerReflectedDamage);
     addStat(
         defender,
         "blocking.counter-guard.damage-reflected",
         operation.reflectedDamage()
     );
-  }
-
-  private boolean consumeReflection(EntityRef damager, EntityRef damaged) {
-    return pendingReflections.remove(new ReflectionKey(
-        damager.uuid(),
-        damaged.uuid()
-    ));
   }
 
   private void reserveStackCost(UUID defenderId, int cost) {
@@ -314,25 +263,19 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
         .build());
   }
 
-  private void reflectDischarge(PlayerRef defender, Loc attackerLocation) {
+  public static void reflectDischarge(Adaptation<?> owner, PlayerRef defender, Loc attackerLocation) {
     Loc from = defender.eyeLocation();
     Loc to = attackerLocation.add(0, 1.0D, 0);
     if (from.sameWorld(to)) {
       int points = (int) Math.min(8, Math.max(3, from.distance(to) * 2));
-      fx(from, FxPriority.COMBAT)
+      Fx.now(owner, from, FxPriority.COMBAT)
           .line(Particles.CRIT_MAGIC, to.x(), to.y(), to.z(), points);
     } else {
-      fx(from, FxPriority.COMBAT).burst(Particles.CRIT_MAGIC, 3, 0.2D);
+      Fx.now(owner, from, FxPriority.COMBAT).burst(Particles.CRIT_MAGIC, 3, 0.2D);
     }
-    fx(to, FxPriority.COMBAT)
+    Fx.now(owner, to, FxPriority.COMBAT)
         .burst(Particles.END_ROD, 6, 0.2D)
         .chord(Sounds.ITEM_TRIDENT_RETURN, 0.7F, 1.3F, Sounds.ENTITY_ARROW_HIT, 0.5F, 0.9F);
-  }
-
-  private boolean hasShield(PlayerRef p) {
-    ItemRef main = p.inventory().mainHand();
-    ItemRef off = p.inventory().offHand();
-    return (isItem(main) && SHIELD.equals(main.type())) || (isItem(off) && SHIELD.equals(off.type()));
   }
 
   private double getReflectChance(int level) {
@@ -347,12 +290,8 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     return getConfig().baseReflectDamage + (getLevelPercent(level) * getConfig().reflectDamageFactor);
   }
 
-  record ReflectionKey(UUID defenderId, UUID attackerId) {
-  }
-
   private record ReflectionOperation(
       UUID defenderId,
-      UUID attackerId,
       double reflectedDamage,
       int stackCost,
       boolean maxed,

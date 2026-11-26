@@ -88,7 +88,7 @@ public class AgilityMarathoner extends SimpleAdaptation<AgilityMarathoner.Config
     xpSilent(p, saved * getConfig().xpPerSaturationSaved, "agility:marathoner");
   }
 
-  static boolean isSprintExhaustion(EntityExhaustionEvent.Reason reason, boolean sprinting) {
+  public static boolean isSprintExhaustion(EntityExhaustionEvent.Reason reason, boolean sprinting) {
     return reason == EntityExhaustionEvent.Reason.SPRINT
         || reason == EntityExhaustionEvent.Reason.JUMP_SPRINT
         || (reason == EntityExhaustionEvent.Reason.WALK && sprinting);

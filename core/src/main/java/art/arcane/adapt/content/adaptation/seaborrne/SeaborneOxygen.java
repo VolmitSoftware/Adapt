@@ -18,43 +18,46 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.AttributeOperation;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.entity.EntityPotionEffectEvent;
+import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
-  private static final String ATTRIBUTE_SLOT = "oxygen";
-  private static final long EFFECT_DURATION_TICKS = 160L;
-  private static final int TICKS_PER_PULSE = 75;
-  private static final double MAX_OXYGEN_BONUS = 1024D;
+  private static final double MAX_CREDIT_TICKS_PER_SAMPLE = 160D;
 
   private final Map<UUID, Boolean> submerged = playerState();
+  private final Map<UUID, Long> lastUnderwaterSample = playerState();
+  private final SeaborneNightSight sight = new SeaborneNightSight();
 
   public SeaborneOxygen() {
     super("seaborne-oxygen");
-    needs(PlatformNeed.attribute(Attributes.OXYGEN_BONUS));
+    needs(SeaborneBreath.NEED);
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.oxygen");
     setIcon(Id.minecraft("glass_pane"));
-    setInterval(3750);
+    setInterval(3000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("turtle_helmet"))
         .key("challenge_seaborne_oxygen_12k")
@@ -62,25 +65,51 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_oxygen_12k", "seaborne.oxygen.bonus-air-ticks", 12000, 300);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("turtle_helmet"))
+        .key("challenge_seaborne_vision_72k")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerMilestone("challenge_seaborne_vision_72k", "seaborne.turtles-vision.time-underwater", 72000, 400);
   }
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    AdaptAttributeService.get().remove(player.getPlayer(), getName(), ATTRIBUTE_SLOT, Attributes.OXYGEN_BONUS);
+    SeaborneBreath.remove(this, player.getPlayer());
+    sight.clear(player.getPlayer());
   }
 
   @Override
   public void addStats(int level, StatLines v) {
     statLore(v, Form.pc(getAirBoost(level), 0), 1);
+    if (level >= getConfig().nightVisionFromLevel) {
+      unlockLore(v, SeabornMessages.OXYGEN_NIGHT_VISION);
+    }
   }
 
   public double getAirBoost(int level) {
-    return getLevelPercent(level);
+    return SeaborneBreath.savedAirFraction(level, getConfig().airPerLevelTics, SeaborneBreath.TICKS_PER_PULSE);
   }
 
   @Override
   protected boolean usesLearnerBoundTicking() {
     return true;
+  }
+
+  @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityPotionEffectEvent event) {
+    if (event.entity() instanceof PlayerRef player) {
+      sight.changed(player, event.modifiedType());
+    }
+  }
+
+  @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  public void on(PlayerQuitEvent event) {
+    PlayerRef player = event.player();
+    sight.clear(player);
+    submerged.remove(player.uuid());
+    lastUnderwaterSample.remove(player.uuid());
   }
 
   @Override
@@ -92,21 +121,23 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
           return;
         }
 
+        UUID id = player.uuid();
         int level = getActiveLevel(player);
         if (level <= 0) {
+          sight.clear(player);
+          submerged.remove(id);
+          lastUnderwaterSample.remove(id);
           return;
         }
 
-        double savedFraction = savedAirFraction(level, getConfig().airPerLevelTics, TICKS_PER_PULSE);
-        double bonus = oxygenBonus(savedFraction);
-        if (bonus > 0D) {
-          AdaptAttributeService.get().applyTimed(player, getName(), ATTRIBUTE_SLOT, Attributes.OXYGEN_BONUS, bonus, AttributeOperation.ADD_VALUE, EFFECT_DURATION_TICKS);
-        }
+        double savedFraction = getAirBoost(level);
+        SeaborneBreath.apply(this, player, SeaborneBreath.oxygenBonus(savedFraction));
 
-        UUID id = player.uuid();
         boolean inWater = player.isInWater() || player.isSwimming();
         boolean was = submerged.getOrDefault(id, false);
         if (!inWater) {
+          sight.clear(player);
+          lastUnderwaterSample.remove(id);
           if (was) {
             submerged.put(id, false);
             fx(player.eyeLocation(), FxPriority.AMBIENT)
@@ -116,9 +147,20 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
           return;
         }
 
-        int savedAirTicks = expectedSavedAirTicks(savedFraction, TICKS_PER_PULSE);
+        int savedAirTicks = SeaborneBreath.expectedSavedAirTicks(savedFraction, SeaborneBreath.TICKS_PER_PULSE);
         if (savedAirTicks > 0) {
           addStat(player, "seaborne.oxygen.bonus-air-ticks", savedAirTicks);
+        }
+        if (level >= getConfig().nightVisionFromLevel && player.isInWater()) {
+          sight.refresh(player);
+          long now = System.currentTimeMillis();
+          double elapsedTicks = elapsedUnderwaterTicks(lastUnderwaterSample.put(id, now), now);
+          if (elapsedTicks > 0D) {
+            addStat(player, "seaborne.turtles-vision.time-underwater", elapsedTicks);
+          }
+        } else {
+          sight.clear(player);
+          lastUnderwaterSample.remove(id);
         }
 
         if (!was) {
@@ -136,34 +178,34 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
     }
   }
 
-  static double savedAirFraction(int level, int airPerLevelTics, int ticksPerPulse) {
-    if (level <= 0 || airPerLevelTics <= 0 || ticksPerPulse <= 0) {
+  @Override
+  public void unregister() {
+    for (UUID id : sight.holders()) {
+      PlayerRef player = AdaptCore.platform().host().player(id);
+      if (player != null) {
+        Tasks.runEntity(player, () -> sight.clear(player));
+      } else {
+        sight.forget(id);
+      }
+    }
+    submerged.clear();
+    lastUnderwaterSample.clear();
+    super.unregister();
+  }
+
+  static double elapsedUnderwaterTicks(Long previousSample, long now) {
+    if (previousSample == null || now <= previousSample) {
       return 0D;
     }
-    return Math.min(1D, ((double) level * (double) airPerLevelTics) / (double) ticksPerPulse);
+    return Math.min(MAX_CREDIT_TICKS_PER_SAMPLE, (now - previousSample) / 50D);
   }
 
-  static double oxygenBonus(double savedAirFraction) {
-    if (savedAirFraction <= 0D) {
-      return 0D;
-    }
-    if (savedAirFraction >= 1D) {
-      return MAX_OXYGEN_BONUS;
-    }
-    return Math.min(MAX_OXYGEN_BONUS, savedAirFraction / (1D - savedAirFraction));
-  }
-
-  static int expectedSavedAirTicks(double savedAirFraction, int ticksPerPulse) {
-    if (savedAirFraction <= 0D || ticksPerPulse <= 0) {
-      return 0;
-    }
-    return (int) Math.round(savedAirFraction * (double) ticksPerPulse);
-  }
-
-  @ConfigDescription("Hold more oxygen underwater.")
+  @ConfigDescription("Hold more oxygen underwater, and see in the dark while submerged from level 2.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Air Per Level Tics for the Seaborne Oxygen adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int airPerLevelTics = 15;
+    @ConfigDoc(value = "Air ticks saved per level out of every 75 ticks underwater.", impact = "Higher values stretch your breath further; 19 per level never runs out at level 4.")
+    int airPerLevelTics = 19;
+    @ConfigDoc(value = "First level that also gives Night Vision while your head is underwater.", impact = "Higher values make the sight a later reward; 0 gives it at every level.")
+    int nightVisionFromLevel = 2;
 
     public Config() {
       baseCost = 2;

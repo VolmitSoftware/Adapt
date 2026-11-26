@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 class AdvancementClientToastTest {
   private static final UUID PLAYER_ID = UUID.fromString("00000000-0000-0000-0000-0000000000f6");
   private static final ServerFrame.Toast TOAST = new ServerFrame.Toast(ToastKind.UNLOCK,
-      IconRef.item("minecraft:diamond_pickaxe"), "Veinminer", "Break ore veins at once");
+      IconRef.item("minecraft:diamond_pickaxe"), "Veinminer", "Break ore veins at once", "pickaxe");
 
   private final RecordingHudLink link = new RecordingHudLink();
   private final AdvancementHost host = mock(AdvancementHost.class);
@@ -42,7 +42,7 @@ class AdvancementClientToastTest {
 
   @Test
   void capablePlayerGetsTheFrameAndTheGrantWithoutPopup() {
-    link.grant(PLAYER_ID, ClientProtocol.TOASTS);
+    link.grant(PLAYER_ID, ClientProtocol.TOASTS | ClientProtocol.SKILL_TOASTS);
 
     AdvancementManager.renderGrant(host, player, "adaptation_pickaxe-veinminer", true, TOAST);
 

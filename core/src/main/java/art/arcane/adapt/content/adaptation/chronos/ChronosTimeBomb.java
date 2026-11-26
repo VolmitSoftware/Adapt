@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -100,7 +102,6 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       InteractAction.RIGHT_CLICK_BLOCK
   );
   private static final Set<Id> THROWN_POTIONS = Set.of(Id.minecraft("splash_potion"), Id.minecraft("lingering_potion"));
-  private static final long PROJECTILE_TRACK_TTL_MS = 15000L;
   private static final long ACTIVE_TICK_INTERVAL_MILLIS = 50L;
   private static final long IDLE_TICK_INTERVAL_MILLIS = Long.MAX_VALUE;
   private static final long MIN_FIELD_SCAN_INTERVAL_MILLIS = 200L;
@@ -124,7 +125,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private final Map<UUID, Long> cooldowns;
   private final Map<UUID, Boolean> cooldownReadyNotify;
   private final List<TemporalField> fields;
-  private final Map<UUID, ArmedBombProjectile> activeBombProjectiles;
+  private final ChronosArmedThrows activeBombProjectiles;
   private final Map<UUID, FrozenEntityState> frozenEntities;
   private final Map<UUID, FrozenPlayerState> frozenPlayers;
   private final AtomicInteger immediateFieldFxBudget;
@@ -152,7 +153,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     cooldowns = new ConcurrentHashMap<>();
     cooldownReadyNotify = new ConcurrentHashMap<>();
     fields = new CopyOnWriteArrayList<>();
-    activeBombProjectiles = new ConcurrentHashMap<>();
+    activeBombProjectiles = new ChronosArmedThrows();
     frozenEntities = new ConcurrentHashMap<>();
     frozenPlayers = new ConcurrentHashMap<>();
     immediateFieldFxBudget = new AtomicInteger(HARD_MAX_IMMEDIATE_FIELD_FX_PARTICLES);
@@ -224,6 +225,16 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
+  @Override
   public void addStats(int level, StatLines v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
     statLore(v, C.YELLOW, "+ ", (getDurationTicks(level) / 20D) + "s", 2);
@@ -254,7 +265,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     if (state != null) {
       unfreezePlayer(player, state);
     }
-    activeBombProjectiles.entrySet().removeIf(entry -> entry.getValue().owner().equals(id));
+    activeBombProjectiles.forgetOwner(id);
   }
 
   @Handle
@@ -366,7 +377,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
             cooldowns.getOrDefault(p.uuid(), 0L) - M.ms());
       }
     }, 1);
-    activeBombProjectiles.put(potion.uuid(), new ArmedBombProjectile(p.uuid(), level, now));
+    activeBombProjectiles.arm(potion.uuid(), p.uuid(), level, now);
     wakeRuntime();
 
     if (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS)) {
@@ -378,7 +389,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   public void on(LingeringPotionSplashEvent e) {
     ProjectileRef potion = e.potion();
     UUID projectileId = potion.uuid();
-    ArmedBombProjectile armed = activeBombProjectiles.remove(projectileId);
+    ChronosArmedThrows.Armed armed = activeBombProjectiles.land(projectileId);
     boolean bindable = ChronoTimeBombItem.isBindableItem(e.item());
 
     if (!bindable && armed == null) {
@@ -889,9 +900,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     for (long deadline : cooldowns.values()) {
       nextDeadline = Math.min(nextDeadline, deadline);
     }
-    for (ArmedBombProjectile projectile : activeBombProjectiles.values()) {
-      nextDeadline = Math.min(nextDeadline, projectile.launchedAt() + PROJECTILE_TRACK_TTL_MS + 1L);
-    }
+    nextDeadline = Math.min(nextDeadline, activeBombProjectiles.nextExpiry());
 
     boolean unresolvedNotification = !cooldownReadyNotify.isEmpty() && cooldowns.isEmpty();
     setInterval(selectRuntimeInterval(now, continuousWork, nextDeadline, unresolvedNotification));
@@ -1202,8 +1211,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void cleanupBombProjectiles(long now) {
-    activeBombProjectiles.entrySet().removeIf(
-        entry -> now - entry.getValue().launchedAt() > PROJECTILE_TRACK_TTL_MS);
+    activeBombProjectiles.expire(now);
   }
 
   private static PlatformHost host() {
@@ -1578,8 +1586,5 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private boolean recordSlowed() {
       return slowedEntities.incrementAndGet() >= 8 && crowdAwarded.compareAndSet(false, true);
     }
-  }
-
-  private record ArmedBombProjectile(UUID owner, int level, long launchedAt) {
   }
 }

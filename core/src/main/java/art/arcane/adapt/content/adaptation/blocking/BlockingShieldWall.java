@@ -29,13 +29,11 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
@@ -46,12 +44,11 @@ import art.arcane.volmlib.util.format.Form;
 import java.util.List;
 
 public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
 
   public BlockingShieldWall() {
     super("blocking-shield-wall");
     registerConfiguration(Config.class);
-    setIcon(SHIELD);
+    setIcon(BlockingShields.SHIELD);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("shield"))
         .key("challenge_blocking_shieldwall_500")
@@ -98,20 +95,12 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
     double scanRadius = getConfig().rangeBase + getConfig().rangeFactor;
     Loc allyLocation = ally.location();
     PlayerRef bestBlocker = null;
-    int bestLevel = 0;
     double bestReduction = 0;
     double minFacing = getConfig().minFacingAlignment;
 
-    for (EntityRef nearby : allyLocation.world().nearbyEntities(allyLocation.position(), scanRadius, scanRadius, scanRadius)) {
-      if (!(nearby instanceof PlayerRef blocker) || blocker.uuid().equals(ally.uuid()) || !blocker.isBlocking() || !hasShield(blocker)) {
-        continue;
-      }
-
-      int level = getActiveLevel(blocker);
-      if (level <= 0 || !preference(blocker, BlockingPreferences.ALLIES).accepts(blocker, ally)) {
-        continue;
-      }
-
+    for (BlockingCover.Guard guard : BlockingCover.guards(this, ally, scanRadius, false)) {
+      PlayerRef blocker = guard.blocker();
+      int level = guard.level();
       Vec3 blockerToAlly = allyLocation.position().subtract(blocker.location().position());
       double distance = blockerToAlly.length();
       if (distance < 0.01 || distance > getRange(level)) {
@@ -119,7 +108,7 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
       }
       blockerToAlly = blockerToAlly.multiply(1.0D / distance);
 
-      if (inDir.dot(blockerToAlly) < getArcCos(level)) {
+      if (!BlockingCover.shelters(inDir, blockerToAlly, BlockingCover.arcCos(getArcDegrees(level)))) {
         continue;
       }
       if (blocker.eyeLocation().direction().dot(inDir) > -minFacing) {
@@ -130,7 +119,6 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
       if (reduction > bestReduction) {
         bestReduction = reduction;
         bestBlocker = blocker;
-        bestLevel = level;
       }
     }
 
@@ -147,11 +135,10 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
 
     impactCue(ally);
     PlayerRef blocker = bestBlocker;
-    int blockerLevel = bestLevel;
-    Tasks.runEntity(blocker, () -> rewardBlocker(blocker, blockerLevel, shielded));
+    Tasks.runEntity(blocker, () -> rewardBlocker(blocker, shielded));
   }
 
-  private void rewardBlocker(PlayerRef blocker, int level, double shielded) {
+  private void rewardBlocker(PlayerRef blocker, double shielded) {
     if (!blocker.isOnline()) {
       return;
     }
@@ -170,22 +157,12 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
         .sound(Sounds.BLOCK_AMETHYST_BLOCK_HIT, 0.5F, 1.5F);
   }
 
-  private boolean hasShield(PlayerRef p) {
-    ItemRef main = p.inventory().mainHand();
-    ItemRef off = p.inventory().offHand();
-    return (isItem(main) && SHIELD.equals(main.type())) || (isItem(off) && SHIELD.equals(off.type()));
-  }
-
   private double getRange(int level) {
     return getConfig().rangeBase + (getLevelPercent(level) * getConfig().rangeFactor);
   }
 
   private double getArcDegrees(int level) {
     return getConfig().arcDegreesBase + (getLevelPercent(level) * getConfig().arcDegreesFactor);
-  }
-
-  private double getArcCos(int level) {
-    return Math.cos(Math.toRadians(getArcDegrees(level) * 0.5D));
   }
 
   private double getDamageReduction(int level) {

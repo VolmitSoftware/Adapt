@@ -27,7 +27,9 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -44,7 +46,6 @@ import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
@@ -170,15 +171,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     boolean rooted = stacks >= getConfig().rootAtStacks;
     int chargeStacks = stacks;
     if (rooted) {
-      target.addEffect(new EffectInstance(
-          SLOWNESS,
-          getConfig().rootDurationTicks,
-          getConfig().rootAmplifier,
-          true,
-          true,
-          true
-      ));
-      target.setVelocity(Vec3.ZERO);
+      ChronosRoot.root(target, getConfig().rootDurationTicks, getConfig().rootAmplifier);
       stacks = 0;
       if (AdaptConfig.get().isAdvancements() && !getPlayer(attacker).getData().isGranted("challenge_chronos_aberrant_frozen")) {
         getPlayer(attacker).getAdvancementHandler().grant("challenge_chronos_aberrant_frozen");
@@ -194,21 +187,25 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     cooldowns.mark(attacker.uuid());
   }
 
+  /** The flash and collapsing ring of a root. */
+  public static void rootFx(Adaptation<?> owner, LivingRef target) {
+    Fx.now(owner, target.location(), FxPriority.COMBAT).particle(Particles.FLASH, 1, 0, 0.1D, 0, 0, 0);
+    FxTimeline.follow(owner, target)
+        .duration(4)
+        .priority(FxPriority.COMBAT)
+        .cullRadius(40)
+        .frame((f, tick, progress) -> {
+          f.ring(Particles.END_ROD, 1.4D - (1.1D * progress), 12, 0.15D);
+          if (tick == 0) {
+            f.chord(Sounds.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.6F, 0.7F, Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5F, 1.4F);
+          }
+        })
+        .start();
+  }
+
   private void emitTouchFx(LivingRef target, int amplifier, boolean rooted, int stacks) {
     if (rooted) {
-      Loc center = target.location();
-      fx(center, FxPriority.COMBAT).particle(Particles.FLASH, 1, 0, 0.1D, 0, 0, 0);
-      timeline(target)
-          .duration(4)
-          .priority(FxPriority.COMBAT)
-          .cullRadius(40)
-          .frame((f, tick, progress) -> {
-            f.ring(Particles.END_ROD, 1.4D - (1.1D * progress), 12, 0.15D);
-            if (tick == 0) {
-              f.chord(Sounds.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.6F, 0.7F, Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5F, 1.4F);
-            }
-          })
-          .start();
+      rootFx(this, target);
       return;
     }
 

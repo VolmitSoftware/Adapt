@@ -34,44 +34,23 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.catalog.BrewingMessages;
-import art.arcane.adapt.platform.RegistryLookup;
-import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.EffectCategory;
-import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.entity.EffectModifier;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.BrewEvent;
 import art.arcane.adapt.platform.fx.ParticleData;
-import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.item.PotionContents;
-import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> LORE = CommonPreferences.toggle("extended-lore", BrewingMessages.PREFERENCE_BREWINGLINGERING_LORE, CommonPreferences.Toggle.ON);
 
   private static final Id BREWING_STAND = Id.minecraft("brewing_stand");
-  private static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = new DecimalFormat("#.##");
-
-  static {
-    ATTRIBUTE_MODIFIER_FORMAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT));
-  }
 
   public BrewingLingering() {
     super("brewing-lingering");
@@ -130,24 +109,9 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
       return;
     }
 
-    List<ItemRef> results = e.results();
-    int enhancedPotions = 0;
-    for (int i = 0; i < results.size(); i++) {
-      ItemRef is = results.get(i);
-      if (is == null || is.isEmpty()) {
-        continue;
-      }
-      Optional<PotionContents> p = is.potionContents();
-      if (p.isEmpty()) {
-        continue;
-      }
-
-      if (enhance(getLevelPercent(level), is, p.get(), preferenceEnabled(AdaptCore.platform().host().player(owner), LORE))) {
-        enhancedPotions++;
-      }
-      results.set(i, is);
-    }
-
+    int enhancedPotions = BrewingDuration.extendAll(e.results(), getDurationBoost(getLevelPercent(level)),
+        getPercentBoost(getLevelPercent(level)),
+        getConfig().useCustomLore && preferenceEnabled(AdaptCore.platform().host().player(owner), LORE));
     if (enhancedPotions > 0) {
       getServer().addStat(owner, "brewing.lingering.potions-extended", enhancedPotions);
       Loc loc = e.block().location().add(0.5D, 0.6D, 0.5D);
@@ -170,137 +134,6 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
           .start();
     }
   }
-
-  private boolean enhance(double factor, ItemRef is, PotionContents p, boolean customLore) {
-    Id baseType = p.potion();
-    if (baseType == null) {
-      return false;
-    }
-
-    RegistryLookup registries = AdaptCore.platform().host().registries();
-    List<EffectInstance> effects = registries.potionEffects(baseType);
-    if (effects.stream()
-        .map(EffectInstance::type)
-        .allMatch(registries::isInstantEffect))
-      return false;
-
-    List<EffectInstance> customEffects = new ArrayList<>();
-    for (final EffectInstance effect : effects) {
-      if (registries.isInstantEffect(effect.type())) {
-        addCustomEffect(customEffects, effect);
-        continue;
-      }
-
-      addCustomEffect(customEffects, EffectInstance.of(
-          effect.type(),
-          (int) (getDurationBoost(factor) + (effect.durationTicks() * getPercentBoost(factor))),
-          effect.amplifier()
-      ));
-    }
-
-    is.setPotionContents(new PotionContents(p.potion(), p.color(), customEffects, p.name()));
-    is.hideTooltip(TooltipPart.POTION_EFFECTS);
-
-    if (getConfig().useCustomLore && customLore) {
-      List<JsonObject> lore = new ArrayList<>();
-      List<EffectModifier> modifiers = new ArrayList<>();
-      for (EffectInstance effect : customEffects) {
-        Id type = effect.type();
-        JsonObject name = translatable("effect." + type.namespace() + "." + type.path());
-        if (effect.amplifier() > 0) {
-          name = translatable("potion.withAmplifier", name,
-              translatable("potion.potency." + effect.amplifier()));
-        }
-
-        if (effect.durationTicks() > 20) {
-          name = translatable("potion.withDuration", name, formatDuration(effect));
-        }
-
-        lore.add(color(name, registries.effectCategory(type) == EffectCategory.HARMFUL ? "red" : "blue"));
-        for (EffectModifier modifier : registries.effectModifiers(type, effect.amplifier())) {
-          if (modifier.amount() != 0) {
-            modifiers.add(modifier);
-          }
-        }
-      }
-
-      if (!modifiers.isEmpty()) {
-        lore.add(text(""));
-        lore.add(color(translatable("potion.whenDrank"), "dark_purple"));
-
-        for (EffectModifier modifier : modifiers) {
-          double amount = modifier.amount();
-          JsonObject formatted = text(ATTRIBUTE_MODIFIER_FORMAT.format(modifier.operation() == AttributeOperation.ADD_VALUE ? amount : amount * 100d));
-          JsonObject name = translatable("attribute.name." + modifier.attribute().path());
-
-          if (amount > 0) {
-            lore.add(color(translatable("attribute.modifier.plus." + modifier.operation().ordinal(), formatted, name), "blue"));
-          } else {
-            lore.add(color(translatable("attribute.modifier.take." + modifier.operation().ordinal(), formatted, name), "red"));
-          }
-        }
-      }
-
-      List<String> loreJson = new ArrayList<>(lore.size());
-      for (JsonObject line : lore) {
-        line.addProperty("italic", false);
-        loreJson.add(line.toString());
-      }
-      is.setLoreJson(loreJson);
-    }
-
-    return true;
-  }
-
-  private static void addCustomEffect(List<EffectInstance> effects, EffectInstance effect) {
-    for (int i = 0; i < effects.size(); i++) {
-      if (effects.get(i).type().equals(effect.type())) {
-        effects.set(i, effect);
-        return;
-      }
-    }
-    effects.add(effect);
-  }
-
-  private static JsonObject formatDuration(EffectInstance effect) {
-    if (effect.isInfinite()) {
-      return translatable("effect.duration.infinite");
-    } else {
-      int seconds = effect.durationTicks() / 20;
-      int minutes = seconds / 60;
-      seconds %= 60;
-      int hours = minutes / 60;
-      minutes %= 60;
-      return text(hours > 0 ?
-          "%02d:%02d:%02d".formatted(hours, minutes, seconds) :
-          "%02d:%02d".formatted(minutes, seconds));
-    }
-  }
-
-  private static JsonObject text(String text) {
-    JsonObject component = new JsonObject();
-    component.addProperty("text", text);
-    return component;
-  }
-
-  private static JsonObject translatable(String key, JsonElement... args) {
-    JsonObject component = new JsonObject();
-    component.addProperty("translate", key);
-    if (args.length > 0) {
-      JsonArray with = new JsonArray();
-      for (JsonElement arg : args) {
-        with.add(arg);
-      }
-      component.add("with", with);
-    }
-    return component;
-  }
-
-  private static JsonObject color(JsonObject component, String color) {
-    component.addProperty("color", color);
-    return component;
-  }
-
 
   @ConfigDescription("Brewed potions last longer.")
   protected static class Config extends AdaptationConfig {

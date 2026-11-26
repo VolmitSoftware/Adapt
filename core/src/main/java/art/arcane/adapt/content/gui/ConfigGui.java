@@ -788,7 +788,7 @@ public final class ConfigGui {
         continue;
       }
 
-      int adaptationCount = skill.getAdaptations() == null ? 0 : skill.getAdaptations().size();
+      int adaptationCount = Skill.ownedAdaptations(skill) == null ? 0 : Skill.ownedAdaptations(skill).size();
       if (adaptationCount <= 0) {
         continue;
       }
@@ -827,7 +827,7 @@ public final class ConfigGui {
     }
 
     List<SectionIndexEntry> entries = new ArrayList<>();
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
       if (adaptation == null) {
         continue;
       }
@@ -1543,7 +1543,7 @@ public final class ConfigGui {
         continue;
       }
 
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (adaptation == null || adaptation.getName() == null) {
           continue;
         }
@@ -1574,7 +1574,7 @@ public final class ConfigGui {
       if (skill == null) {
         continue;
       }
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (adaptation == null) {
           continue;
         }

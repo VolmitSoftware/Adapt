@@ -30,4 +30,16 @@ import java.util.List;
 public class MaterialRecipe {
   private List<MaterialCount> input;
   private MaterialCount output;
+  private Kind kind;
+
+  public MaterialRecipe(List<MaterialCount> input, MaterialCount output) {
+    this(input, output, Kind.OTHER);
+  }
+
+  /** Where the recipe is made. */
+  public enum Kind {
+    CRAFTING,
+    STONECUTTING,
+    OTHER
+  }
 }

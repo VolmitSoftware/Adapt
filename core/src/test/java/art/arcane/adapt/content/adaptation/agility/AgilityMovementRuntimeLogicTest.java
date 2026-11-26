@@ -25,8 +25,8 @@ class AgilityMovementRuntimeLogicTest {
 
   @Test
   void slipstreamProneWindowIncludesEveryTickBeforeDeadline() {
-    assertThat(AgilitySlipstreamSlide.isProneActive(2_000L, 1_999L)).isTrue();
-    assertThat(AgilitySlipstreamSlide.isProneActive(2_000L, 2_000L)).isFalse();
+    assertThat(AgilitySlide.isProneActive(2_000L, 1_999L)).isTrue();
+    assertThat(AgilitySlide.isProneActive(2_000L, 2_000L)).isFalse();
   }
 
   @Test

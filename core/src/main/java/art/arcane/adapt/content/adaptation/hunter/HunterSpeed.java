@@ -18,8 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,14 +27,13 @@ import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -46,18 +45,15 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   private static final Id HUNGER = Id.minecraft("hunger");
   private static final Id POISON = Id.minecraft("poison");
-  private final VelocityBurstRuntime.Client speedBursts;
-  private final Map<UUID, Long> burstUntil = playerState();
+  private final HunterSpeedBurst speedBursts;
 
   public HunterSpeed() {
     super("hunter-speed");
-    speedBursts = VelocityBurstRuntime.register(this, new BurstFeedback());
+    speedBursts = new HunterSpeedBurst(this, playerState());
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("sugar"));
     registerAdvancement(AdaptAdvancement.builder()
@@ -102,14 +98,8 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   @Handle
   public void on(EntityDamageEvent e) {
     if (e.entity() instanceof PlayerRef p && isAdaptableDamageCause(e)) {
-      if (!preference(p, HunterPreferences.RESERVE).permits(p.foodLevel())) {
-      return;
-    }
-    int level = getActiveLevel(p);
-      if (level <= 0) {
-        return;
-      }
-      if (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied() && p.hasEffect(HUNGER)) {
+      int level = getActiveLevel(p);
+      if (level <= 0 || HunterStruck.suppressed(this, p)) {
         return;
       }
 
@@ -144,29 +134,31 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   }
 
   private boolean grantSpeedBurst(PlayerRef p, int amplifier, int durationTicks, boolean overlap) {
-    VelocityBurstRuntime.BurstRequest request = new VelocityBurstRuntime.BurstRequest(
-        amplifier,
-        durationTicks,
-        overlap,
-        burstProfile()
-    );
-    VelocityBurstRuntime.StartResult result = speedBursts.start(p, request);
-    UUID id = p.uuid();
-    if (result.accepted() && AbilityGlyphs.capable(id)) {
-      long now = System.currentTimeMillis();
-      Long until = burstUntil.get(id);
-      long base = result == VelocityBurstRuntime.StartResult.EXTENDED && until != null && until > now ? until : now;
-      long endsAt = base + (durationTicks * 50L);
-      burstUntil.put(id, endsAt);
-      AbilityGlyphs.duration(id, this, now, endsAt - now);
-    }
-    return result.accepted();
+    return speedBursts.grant(p, amplifier, durationTicks, overlap, burstProfile());
   }
 
-  private void brakeScuff(PlayerRef p) {
-    fx(p.location(), FxPriority.TRAIL)
+  static void startedFx(Adaptation<?> owner, PlayerRef ref) {
+    Vec3 back = ref.location().direction().multiply(-1);
+    Fx.now(owner, ref.location().add(0, 0.5D, 0), FxPriority.TRANSITION)
+        .trail(Particles.CLOUD, back.x(), back.y(), back.z(), 1.4D, 8)
+        .chord(Sounds.ENTITY_ENDER_DRAGON_FLAP, 0.5F, 1.5F, Sounds.BLOCK_NOTE_BLOCK_PLING, 0.4F, 1.4F);
+  }
+
+  static void trailFx(Adaptation<?> owner, PlayerRef ref, Vec3 horizontal) {
+    Fx.now(owner, ref.location().add(0, 0.1D, 0), FxPriority.TRAIL)
+        .trail(Particles.CLOUD, -horizontal.x(), 0, -horizontal.z(), 0.8D, 3);
+  }
+
+  static void brakedFx(Adaptation<?> owner, PlayerRef ref) {
+    Fx.now(owner, ref.location(), FxPriority.TRAIL)
         .burst(Particles.CLOUD, 4, 0.2D)
         .sound(Sounds.BLOCK_SAND_STEP, 0.3F, 0.8F);
+  }
+
+  static void endedFx(Adaptation<?> owner, PlayerRef ref) {
+    Fx.now(owner, ref.location().add(0, 1.0D, 0), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.2D)
+        .sound(Sounds.BLOCK_NOTE_BLOCK_HAT, 0.2F, 0.6F);
   }
 
   private VelocityBurstRuntime.Profile burstProfile() {
@@ -180,38 +172,6 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         config.hardStopOnInvalidState,
         config.fallbackInputVelocityThreshold
     );
-  }
-
-  private final class BurstFeedback implements VelocityBurstRuntime.Feedback {
-    @Override
-    public void onStarted(PlayerRef ref) {
-      Vec3 back = ref.location().direction().multiply(-1);
-      fx(ref.location().add(0, 0.5D, 0), FxPriority.TRANSITION)
-          .trail(Particles.CLOUD, back.x(), back.y(), back.z(), 1.4D, 8)
-          .chord(Sounds.ENTITY_ENDER_DRAGON_FLAP, 0.5F, 1.5F, Sounds.BLOCK_NOTE_BLOCK_PLING, 0.4F, 1.4F);
-    }
-
-    @Override
-    public void onTrail(PlayerRef ref, Vec3 horizontal, int updateIndex) {
-      if ((updateIndex % 3) == 0) {
-        fx(ref.location().add(0, 0.1D, 0), FxPriority.TRAIL)
-            .trail(Particles.CLOUD, -horizontal.x(), 0, -horizontal.z(), 0.8D, 3);
-      }
-    }
-
-    @Override
-    public void onBraked(PlayerRef ref) {
-      brakeScuff(ref);
-    }
-
-    @Override
-    public void onEnded(PlayerRef ref) {
-      burstUntil.remove(ref.uuid());
-      AbilityGlyphs.clear(ref.uuid(), HunterSpeed.this, HudGlyph.DURATION);
-      fx(ref.location().add(0, 1.0D, 0), FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 3, 0.2D)
-          .sound(Sounds.BLOCK_NOTE_BLOCK_HAT, 0.2F, 0.6F);
-    }
   }
 
   @ConfigDescription("Gain speed when struck, at the cost of hunger.")

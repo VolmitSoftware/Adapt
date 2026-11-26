@@ -285,7 +285,9 @@ class CommandDefaultTest extends AdaptTestBase {
       super(name, SkillPresentation.of(
           TextKey.of("test.skill.name", "Test Skill"),
           TextKey.of("test.skill.icon", "Test"),
-          TextKey.of("test.skill.description", "Test skill description")
+          TextKey.of("test.skill.description", "Test skill description"),
+          TextKey.of("test.skill.quip", "Test quip"),
+          TextKey.of("test.skill.unlock_quip", "Test unlock quip")
       ));
       registerConfiguration(TestSkillConfig.class);
     }

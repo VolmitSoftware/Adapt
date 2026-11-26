@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.taming;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.attribute.LegacyModifierKey;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -180,15 +182,20 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
       return;
     }
 
-    fx(animal, FxPriority.TRANSITION)
-        .ring(Particles.VILLAGER_HAPPY, 0.6D, 8, 0.3D)
-        .column(Particles.HEART, 3, 1.0D)
-        .sound(Sounds.ENTITY_HORSE_BREATHE, 0.4F, 1.2F);
+    shapedFx(this, animal);
 
     PlayerRef owner = AdaptCore.platform().host().player(ownerId);
     if (owner != null) {
       Tasks.runEntity(owner, () -> creditShaped(owner));
     }
+  }
+
+  /** The rings, hearts and breath of an animal taking a stable-hand bias. */
+  public static void shapedFx(Adaptation<?> owner, LivingRef animal) {
+    Fx.now(owner, animal, FxPriority.TRANSITION)
+        .ring(Particles.VILLAGER_HAPPY, 0.6D, 8, 0.3D)
+        .column(Particles.HEART, 3, 1.0D)
+        .sound(Sounds.ENTITY_HORSE_BREATHE, 0.4F, 1.2F);
   }
 
   private boolean applyModifier(LivingRef animal, Id attribute, LegacyModifierKey key, double amount, AttributeOperation operation) {

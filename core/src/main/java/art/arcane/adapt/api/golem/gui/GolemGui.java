@@ -5,6 +5,7 @@ import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.ComponentPort;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.platform.entity.MobRef;
+import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.ClickKind;
@@ -50,6 +51,7 @@ import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.TextKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -780,21 +782,56 @@ public final class GolemGui {
       return;
     }
     GolemCoreType core = held.get();
+    ItemRef heart = null;
+    if (needsTwinHeart()) {
+      heart = takeHeart();
+      if (heart == null) {
+        GolemGuiSupport.warn(player, GolemancyMessages.RUNEFORGED_HEART_NEEDED);
+        return;
+      }
+    }
     ItemRef taken = takeOne(cursor);
-    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> addCore(core, taken));
+    ItemRef paid = heart;
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> addCore(core, taken, paid));
   }
 
-  private void addCore(GolemCoreType core, ItemRef taken) {
+  private boolean needsTwinHeart() {
+    GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
+    return registry != null && !GolemMastery.perks(handle).dualCore() && registry.twinOpen(handle)
+        && !registry.twin(handle) && GolemMastery.twinNeedsHeart(registry.twins(handle.owner()));
+  }
+
+  private @Nullable ItemRef takeHeart() {
+    PlayerInventoryRef inventory = player.inventory();
+    for (int slot = 0; slot < inventory.size(); slot++) {
+      ItemRef item = inventory.item(slot);
+      if (item != null && !item.isEmpty() && GolemItems.kindOf(item).orElse(null) == GolemItemKind.MASTERWORK_HEART) {
+        ItemRef heart = item.copyWithAmount(1);
+        item.setAmount(item.amount() - 1);
+        inventory.setItem(slot, item.amount() > 0 ? item : AdaptCore.platform().host().items().empty());
+        return heart;
+      }
+    }
+    return null;
+  }
+
+  private void addCore(GolemCoreType core, ItemRef taken, @Nullable ItemRef heart) {
     GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
     if (registry == null || handle.isRetired() || !handle.entity().isValid()) {
       handBack(taken);
+      if (heart != null) {
+        handBack(heart);
+      }
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
       return;
     }
-    Optional<GolemMastery.CoreRefusal> refusal = registry.addCore(handle, core);
-    if (refusal.isPresent()) {
+    GolemRegistry.CoreSlotting slotting = registry.addCore(handle, core, heart != null);
+    if (heart != null && !slotting.heartSpent()) {
+      handBack(heart);
+    }
+    if (slotting.refusal().isPresent()) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.coreRefusalNotice(refusal.get(), core, handle.body()));
+      GolemGuiSupport.warn(player, GolemGuiActions.coreRefusalNotice(slotting.refusal().get(), core, handle.body()));
       snapshot();
       return;
     }

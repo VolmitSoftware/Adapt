@@ -1,18 +1,16 @@
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.Pose;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
-import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -46,17 +43,17 @@ class AgilityMovementLifecycleTest {
     try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
       scheduling.when(() -> Tasks.runEntity(same(player), any(Runnable.class), eq(1))).thenReturn(true);
 
-      startProne(adaptation, player, 10, 0.9D, null);
+      slide(adaptation).start(player, 10, 0.9D, null);
       adaptation.on(event);
     }
 
     verify(player).setPose(Pose.SNEAKING, true);
-    assertThat(forcedPoses(adaptation)).isEmpty();
+    assertThat(slide(adaptation).sliding(id)).isFalse();
   }
 
   @Test
-  void slipstreamSchedulerRejectionImmediatelyRestoresPose() throws Exception {
-    AgilitySlipstreamSlide adaptation = new AgilitySlipstreamSlide();
+  void slipstreamSchedulerRejectionImmediatelyRestoresPose() {
+    AgilitySlide slide = new AgilitySlide(mock(Adaptation.class));
     PlayerRef player = mock(PlayerRef.class);
     UUID id = UUID.randomUUID();
     when(player.uuid()).thenReturn(id);
@@ -67,13 +64,13 @@ class AgilityMovementLifecycleTest {
     try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
       scheduling.when(() -> Tasks.runEntity(same(player), any(Runnable.class), eq(1))).thenReturn(false);
 
-      startProne(adaptation, player, 10, 0.9D, null);
+      slide.start(player, 10, 0.9D, null);
     }
 
     InOrder poseOrder = inOrder(player);
     poseOrder.verify(player).setPose(Pose.SWIMMING, true);
     poseOrder.verify(player).setPose(Pose.STANDING, false);
-    assertThat(forcedPoses(adaptation)).isEmpty();
+    assertThat(slide.sliding(id)).isFalse();
   }
 
   @Test
@@ -94,17 +91,19 @@ class AgilityMovementLifecycleTest {
         return true;
       });
 
-      startProne(adaptation, player, 10, 0.9D, null);
+      slide(adaptation).start(player, 10, 0.9D, null);
       adaptation.unregister();
     }
 
     verify(player).setPose(Pose.STANDING, false);
-    assertThat(forcedPoses(adaptation)).isEmpty();
+    assertThat(slide(adaptation).sliding(id)).isFalse();
   }
 
   @Test
-  void slipstreamMaintenanceFailureRestoresPoseBeforeRethrowing() throws Exception {
-    AgilitySlipstreamSlide adaptation = spy(new AgilitySlipstreamSlide());
+  @SuppressWarnings("unchecked")
+  void slipstreamMaintenanceFailureRestoresPoseBeforeRethrowing() {
+    Adaptation<Object> adaptation = mock(Adaptation.class);
+    AgilitySlide slide = new AgilitySlide(adaptation);
     PlayerRef player = mock(PlayerRef.class);
     UUID id = UUID.randomUUID();
     AtomicReference<Runnable> maintenance = new AtomicReference<>();
@@ -124,23 +123,17 @@ class AgilityMovementLifecycleTest {
         return true;
       });
 
-      startProne(adaptation, player, 10, 0.9D, null);
+      slide.start(player, 10, 0.9D, null);
       doThrow(new IllegalStateException("pose failed")).when(player).setPose(Pose.SWIMMING, true);
       assertThatThrownBy(maintenance.get()::run).isInstanceOf(IllegalStateException.class);
     }
 
     verify(player).setPose(Pose.STANDING, false);
-    assertThat(forcedPoses(adaptation)).isEmpty();
+    assertThat(slide.sliding(id)).isFalse();
   }
 
-  private static void startProne(AgilitySlipstreamSlide adaptation, PlayerRef player, int ticks, double frictionReduction, Id frictionAttribute) throws Exception {
-    Method method = AgilitySlipstreamSlide.class.getDeclaredMethod("startProne", PlayerRef.class, int.class, double.class, Id.class);
-    method.setAccessible(true);
-    method.invoke(adaptation, player, ticks, frictionReduction, frictionAttribute);
-  }
-
-  private static Map<?, ?> forcedPoses(AgilitySlipstreamSlide adaptation) throws Exception {
-    return field(adaptation, "forcedPoses");
+  private static AgilitySlide slide(AgilitySlipstreamSlide adaptation) throws Exception {
+    return field(adaptation, "slide");
   }
 
   @SuppressWarnings("unchecked")

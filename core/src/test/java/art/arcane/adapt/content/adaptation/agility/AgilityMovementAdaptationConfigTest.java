@@ -88,7 +88,6 @@ class AgilityMovementAdaptationConfigTest {
     assertThat(c.initialCost).isEqualTo(1);
     assertThat(c.costFactor).isEqualTo(1D);
     assertThat(c.jumpHeight).isGreaterThan(1.5D);
-    assertThat(c.xpPerVault).isGreaterThanOrEqualTo(0D);
   }
 
   @Test

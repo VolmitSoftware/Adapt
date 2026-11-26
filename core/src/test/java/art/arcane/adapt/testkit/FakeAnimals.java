@@ -36,6 +36,7 @@ public final class FakeAnimals implements AnimalOps {
   private final Set<UUID> aggressiveMobs = ConcurrentHashMap.newKeySet();
   private final Map<UUID, LivingRef> anger = new ConcurrentHashMap<>();
   private final Map<UUID, DyeColor> collars = new ConcurrentHashMap<>();
+  private final Map<UUID, UUID> leashHolders = new ConcurrentHashMap<>();
 
   public FakeAnimals peaceful(Id type, Id... breedWith) {
     peacefulTypes.add(type);
@@ -65,6 +66,11 @@ public final class FakeAnimals implements AnimalOps {
 
   public void setMobLoot(boolean enabled) {
     mobLoot = enabled;
+  }
+
+  /** The entity holding {@code entity}'s lead, or null when it is not leashed. */
+  public UUID leashHolder(EntityRef entity) {
+    return leashHolders.get(entity.uuid());
   }
 
   public int loveTicks(EntityRef entity) {
@@ -143,7 +149,23 @@ public final class FakeAnimals implements AnimalOps {
 
   @Override
   public boolean isLeashed(EntityRef entity) {
-    return false;
+    return entity != null && leashHolders.containsKey(entity.uuid());
+  }
+
+  @Override
+  public boolean setLeashHolder(EntityRef entity, EntityRef holder) {
+    if (!(entity instanceof LivingRef) || entity instanceof PlayerRef) {
+      return false;
+    }
+    leashHolders.remove(entity.uuid());
+    if (holder == null) {
+      return true;
+    }
+    if (holder.world() == null || !holder.world().equals(entity.world())) {
+      return false;
+    }
+    leashHolders.put(entity.uuid(), holder.uuid());
+    return true;
   }
 
   @Override

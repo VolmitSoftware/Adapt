@@ -10,8 +10,8 @@ import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
 import java.util.Set;
 
 /**
- * Remembers mobs a farm can produce on demand (spawners, eggs, buckets, breeding, portal and golem farms) so kill
- * rewards can skip them.
+ * Remembers mobs a farm can produce on demand (spawners, eggs, buckets, breeding, portal and golem farms, built
+ * withers) so kill rewards can skip them.
  */
 public final class MobOrigin {
   private static final DataKey<Byte> FARMED_KEY = DataKey.adapt("xp-farmed-mob", DataCodecs.BYTE);
@@ -19,8 +19,8 @@ public final class MobOrigin {
       CreatureSpawnEvent.Reason.SPAWNER_EGG, CreatureSpawnEvent.Reason.DISPENSE_EGG, CreatureSpawnEvent.Reason.EGG,
       CreatureSpawnEvent.Reason.BUCKET, CreatureSpawnEvent.Reason.BREEDING, CreatureSpawnEvent.Reason.NETHER_PORTAL,
       CreatureSpawnEvent.Reason.VILLAGE_DEFENSE, CreatureSpawnEvent.Reason.BUILD_IRONGOLEM,
-      CreatureSpawnEvent.Reason.BUILD_SNOWMAN, CreatureSpawnEvent.Reason.ENDER_PEARL, CreatureSpawnEvent.Reason.DUPLICATION,
-      CreatureSpawnEvent.Reason.COMMAND);
+      CreatureSpawnEvent.Reason.BUILD_SNOWMAN, CreatureSpawnEvent.Reason.BUILD_WITHER, CreatureSpawnEvent.Reason.ENDER_PEARL,
+      CreatureSpawnEvent.Reason.DUPLICATION, CreatureSpawnEvent.Reason.COMMAND);
 
   private MobOrigin() {
   }

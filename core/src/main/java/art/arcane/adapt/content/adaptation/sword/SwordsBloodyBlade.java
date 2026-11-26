@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -38,7 +40,6 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -52,10 +53,10 @@ import java.util.UUID;
 public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config> {
   private static final Rgb BLOOD = Rgb.of(0x9E1414);
   private static final long KILL_CREDIT_GRACE_MS = 4000L;
-  private static final int BLEED_PERIOD_TICKS = 5;
-  private static final Id MAGIC = Id.minecraft("magic");
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, BleedMark> bleedSource = playerState();
+  private final SwordBleed bleed = new SwordBleed(this,
+      (PlayerRef source, double dealt) -> addStat(source, "swords.bloody-blade.bleed-damage", dealt));
 
   public SwordsBloodyBlade() {
     super("sword-bloody-blade");
@@ -115,9 +116,8 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
     }
 
     LivingRef target = combat.target();
-    BleedPulse pulse = new BleedPulse(target, player, Math.max(0.01D, getConfig().damagePerBleedProc),
-        bleedProcCount(durationMillis));
-    if (!scheduleBleed(pulse)) {
+    if (!bleed.start(target, player, Math.max(0.01D, getConfig().damagePerBleedProc),
+        SwordBleed.procCount(durationMillis))) {
       return;
     }
 
@@ -152,84 +152,20 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         .sound(Sounds.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F);
   }
 
+  static void pulseFx(Adaptation<?> owner, LivingRef target) {
+    Fx.now(owner, target.location().add(0, 0.8D, 0), FxPriority.COMBAT)
+        .dustBurst(BLOOD, 4, 0.25D, 0.9F)
+        .particle(Particles.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.08D, 0.03D)
+        .sound(Sounds.BLOCK_HONEY_BLOCK_SLIDE, 0.2F, 0.7F);
+  }
+
   private void pruneExpired(long now) {
     bleedSource.values().removeIf(mark -> mark.expiresAt() < now);
-  }
-
-  static int bleedProcCount(long durationMillis) {
-    long durationTicks = Math.max(1L, (Math.max(0L, durationMillis) + 49L) / 50L);
-    return (int) Math.min(Integer.MAX_VALUE, Math.max(1L, (durationTicks + BLEED_PERIOD_TICKS - 1L) / BLEED_PERIOD_TICKS));
-  }
-
-  private boolean scheduleBleed(BleedPulse pulse) {
-    return Tasks.runEntity(pulse.target(), () -> runBleedPulse(pulse), BLEED_PERIOD_TICKS);
-  }
-
-  private void runBleedPulse(BleedPulse pulse) {
-    LivingRef target = pulse.target();
-    if (pulse.remaining() <= 0 || !target.isValid() || target.isDead()) {
-      return;
-    }
-
-    BleedAuthorization authorization = new BleedAuthorization(target.location(), target instanceof PlayerRef,
-        isProtectedFriendly(null, target), target.tameOwner());
-    if (!Tasks.runEntity(pulse.source(), () -> authorizeBleedPulse(pulse, authorization))) {
-      return;
-    }
-  }
-
-  private void authorizeBleedPulse(BleedPulse pulse, BleedAuthorization authorization) {
-    PlayerRef source = pulse.source();
-    if (!source.isOnline() || getActiveLevel(source) <= 0 || authorization.protectedFriendly()
-        || source.uuid().equals(authorization.tameOwnerId())) {
-      return;
-    }
-
-    boolean allowed = authorization.playerTarget()
-        ? canPVP(source, authorization.location())
-        : canPVE(source, authorization.location());
-    if (!allowed) {
-      return;
-    }
-
-    Tasks.runEntity(pulse.target(), () -> applyBleedPulse(pulse));
-  }
-
-  private void applyBleedPulse(BleedPulse pulse) {
-    LivingRef target = pulse.target();
-    if (!target.isValid() || target.isDead()) {
-      return;
-    }
-
-    double before = target.health() + target.absorption();
-    applyBleedDamage(pulse);
-    double dealt = Math.max(0D, before - target.health() - target.absorption());
-    if (dealt > 0D) {
-      Tasks.runEntity(pulse.source(), () -> addStat(pulse.source(), "swords.bloody-blade.bleed-damage", dealt));
-      fx(target.location().add(0, 0.8D, 0), FxPriority.COMBAT)
-          .dustBurst(BLOOD, 4, 0.25D, 0.9F)
-          .particle(Particles.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.08D, 0.03D)
-          .sound(Sounds.BLOCK_HONEY_BLOCK_SLIDE, 0.2F, 0.7F);
-    }
-
-    if (pulse.remaining() > 1 && target.isValid() && !target.isDead()) {
-      scheduleBleed(new BleedPulse(target, pulse.source(), pulse.damage(), pulse.remaining() - 1));
-    }
-  }
-
-  static void applyBleedDamage(BleedPulse pulse) {
-    pulse.target().damage(pulse.damage(), MAGIC, pulse.source());
   }
 
   private record BleedMark(UUID source, long expiresAt) {
   }
 
-  record BleedPulse(LivingRef target, PlayerRef source, double damage, int remaining) {
-  }
-
-  private record BleedAuthorization(Loc location, boolean playerTarget, boolean protectedFriendly,
-                                    UUID tameOwnerId) {
-  }
 
 
 

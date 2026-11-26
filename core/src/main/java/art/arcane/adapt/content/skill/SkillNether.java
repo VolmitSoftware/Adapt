@@ -26,6 +26,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
@@ -45,7 +46,17 @@ import art.arcane.adapt.content.adaptation.nether.NetherSoulStrider;
 import art.arcane.adapt.content.adaptation.nether.NetherStriderBond;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherHarvest;
 import art.arcane.adapt.content.adaptation.nether.NetherWitherResist;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherBoon;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherFightStrike;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherFuel;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherState;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherTrigger;
+import art.arcane.adapt.content.adaptation.nether.blocks.NetherWorkStrike;
+import art.arcane.adapt.content.adaptation.nether.upgraded.Brimstone;
+import art.arcane.adapt.content.adaptation.nether.upgraded.Hellwalker;
+import art.arcane.adapt.content.adaptation.nether.upgraded.WitherKing;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -65,6 +76,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 
 public class SkillNether extends SimpleSkill<SkillNether.Config> {
@@ -72,8 +84,18 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
   private final Cooldowns witherDamageCooldowns = cooldowns();
   private final Cooldowns witherAttackCooldowns = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.NETHER_FIRE, "nether-fire-resist", "nether-ashwalker", "nether-magma-skin",
+          "nether-blaze-leech", "nether-lava-walker", "nether-crimson-feast"),
+      AdaptationGroup.of(GroupMessages.NETHER_WITHER, "nether-wither-resist", "nether-ghast-ward",
+          "nether-wither-harvest", "nether-skull-toss"),
+      AdaptationGroup.of(GroupMessages.NETHER_EXPLORING, "nether-strider-bond", "nether-soul-strider",
+          "nether-netherrack-mason", "nether-piglin-broker")
+  );
+
   public SkillNether() {
-    super("nether", SkillPresentation.of(SkillMessages.NETHER_NAME, SkillMessages.NETHER_ICON, SkillMessages.NETHER_DESCRIPTION));
+    super("nether", SkillPresentation.of(SkillMessages.NETHER_NAME, SkillMessages.NETHER_ICON, SkillMessages.NETHER_DESCRIPTION,
+        SkillMessages.NETHER_QUIP, SkillMessages.NETHER_UNLOCK_QUIP_1, SkillMessages.NETHER_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setInterval(7425);
     setColor(C.DARK_GRAY);
@@ -92,6 +114,9 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
     registerAdaptation(new NetherCrimsonFeast());
     registerAdaptation(new NetherAshwalker());
     registerAdaptation(new NetherWitherHarvest());
+    registerUpgrades(new Hellwalker(), new WitherKing(), new Brimstone());
+    registerBlocks(new NetherTrigger(), new NetherFightStrike(), new NetherWorkStrike(),
+        new NetherBoon(), new NetherFuel(), new NetherState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wither_skeleton_skull"))
         .key("challenge_nether_50")
@@ -180,6 +205,11 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
         .build());
     registerMilestone("challenge_roses_10", "nether.roses.broken", 10, () -> getConfig().getChallengeRosesReward());
     registerMilestone("challenge_roses_100", "nether.roses.broken", 100, () -> getConfig().getChallengeRosesReward() * 3);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   private static final Id WITHER_ROSE = Id.minecraft("wither_rose");

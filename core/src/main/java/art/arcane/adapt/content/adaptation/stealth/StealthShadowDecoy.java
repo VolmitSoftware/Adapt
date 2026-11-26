@@ -34,6 +34,7 @@ import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
@@ -77,6 +78,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
   public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
@@ -98,6 +100,15 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   private final Cooldowns decoyCooldowns = cooldowns();
   private final Map<UUID, DecoySession> activeDecoys = new ConcurrentHashMap<>();
   private final Map<UUID, UUID> anchorOwners = new ConcurrentHashMap<>();
+
+  public static StealthShadowDecoy of(Skill<?> skill) {
+    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      if (adaptation instanceof StealthShadowDecoy found) {
+        return found;
+      }
+    }
+    return null;
+  }
 
   public StealthShadowDecoy() {
     super("stealth-shadow-decoy");
@@ -302,7 +313,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     if (gesture == Gesture.DOUBLE) {
       gestureSpawnEvents.put(id, e.dispatchId());
     }
-    spawnDecoy(p, level);
+    spawnDecoy(this, p, getDecoyTicks(level), getDecoyRadius(level),
+        (PlayerRef owner) -> addStat(owner, "stealth.shadow-decoy.mobs-distracted", 1));
     decoyCooldowns.mark(id, cooldownMillis);
     xp(p, getConfig().xpOnDecoy);
     addStat(p, "stealth.shadow-decoy.decoys-spawned", 1);
@@ -332,7 +344,13 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
   }
 
-  private void spawnDecoy(PlayerRef owner, int level) {
+  /**
+   * Spawns a decoy for {@code owner} that lasts {@code durationTicks} and pulls aggro within {@code radius}, replacing
+   * any decoy they had. {@code source} owns its duration glyph and decides whether the owner still wants it;
+   * {@code onDistract} runs on the owner's thread for each mob it newly distracts. Returns its anchor, or null.
+   */
+  public EntityRef spawnDecoy(Adaptation<?> source, PlayerRef owner, int durationTicks, double radius,
+                              Consumer<PlayerRef> onDistract) {
     DecoySession previous = activeDecoys.get(owner.uuid());
     if (previous != null) {
       terminateDecoy(previous, false);
@@ -344,7 +362,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     boolean legacyVisual = packetDecoy == null && getConfig().legacyFallbackEnabled;
     EntityRef anchor = spawnAnchor(owner, location, legacyVisual);
     if (anchor == null) {
-      return;
+      return null;
     }
     anchorOwners.put(anchor.uuid(), owner.uuid());
 
@@ -353,11 +371,11 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     long now = System.currentTimeMillis();
-    long expiresAt = now + (getDecoyTicks(level) * 50L);
+    long expiresAt = now + (durationTicks * 50L);
     UUID ownerId = owner.uuid();
-    DecoySession state = new DecoySession(owner, anchor, packetDecoy, expiresAt, level);
+    DecoySession state = new DecoySession(source, owner, anchor, packetDecoy, expiresAt, radius, onDistract);
     activeDecoys.put(ownerId, state);
-    AbilityGlyphs.duration(ownerId, this, now, expiresAt - now);
+    AbilityGlyphs.duration(ownerId, source, now, expiresAt - now);
 
     refreshOwner(state);
     fx(owner.location().add(0, 1.0D, 0), FxPriority.TRANSITION)
@@ -368,6 +386,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
           fx.column(Particles.SMOKE, 2, 1.8D);
           fx.particle(Particles.SOUL, 1, 0, 0.2D + (progress * 1.5D), 0, 0.08D, 0.02D);
         }).start();
+    return anchor;
   }
 
   EntityRef spawnAnchor(PlayerRef owner, Loc location, boolean legacyVisual) {
@@ -413,7 +432,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     if (!(target instanceof LivingRef decoy)) {
       return;
     }
-    double radius = getDecoyRadius(state.level);
+    double radius = state.radius;
     Loc decoyLocation = target.location();
     int remaining = Math.max(1, getConfig().maxAggroEntitiesPerScan);
     for (EntityRef entity : target.nearbyEntities(radius, radius, radius)) {
@@ -431,7 +450,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
           boolean newlyDistracted = current == null || !current.uuid().equals(decoy.uuid());
           mob.setTarget(decoy);
           if (newlyDistracted) {
-            Tasks.runEntity(owner, () -> addStat(owner, "stealth.shadow-decoy.mobs-distracted", 1));
+            Tasks.runEntity(owner, () -> state.onDistract.accept(owner));
             fx(mob.eyeLocation(), FxPriority.TRAIL)
                 .line(Particles.SMOKE, decoyLocation.x(), decoyLocation.y() + 1.0D, decoyLocation.z(), 4);
           }
@@ -462,7 +481,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     long now = System.currentTimeMillis();
     if (!state.active.get()
         || activeDecoys.get(owner.uuid()) != state
-        || !owner.isOnline() || !isPlayerEnabled(owner)
+        || !owner.isOnline() || !state.source.isPlayerEnabled(owner)
         || state.expiresAt <= now) {
       terminateDecoy(state, true);
       return;
@@ -584,7 +603,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
 
     activeDecoys.remove(state.ownerId, state);
-    AbilityGlyphs.clear(state.ownerId, this, HudGlyph.DURATION);
+    AbilityGlyphs.clear(state.ownerId, state.source, HudGlyph.DURATION);
     anchorOwners.remove(state.anchor.uuid(), state.ownerId);
     if (state.packetDecoy != null) {
       state.packetDecoy.destroy();
@@ -694,25 +713,30 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   }
 
   private static class DecoySession {
+    private final Adaptation<?> source;
     private final PlayerRef owner;
     private final UUID ownerId;
     private final EntityRef anchor;
     private final PacketPlayerDecoy packetDecoy;
     private final long expiresAt;
-    private final int level;
+    private final double radius;
+    private final Consumer<PlayerRef> onDistract;
     private final AtomicBoolean active = new AtomicBoolean(true);
     private long ownerEquipmentNextAt;
     private long ownerTrailNextAt;
     private long ownerAggroNextAt;
     private boolean ownerInvisibilityApplied;
 
-    private DecoySession(PlayerRef owner, EntityRef anchor, PacketPlayerDecoy packetDecoy, long expiresAt, int level) {
+    private DecoySession(Adaptation<?> source, PlayerRef owner, EntityRef anchor, PacketPlayerDecoy packetDecoy,
+                         long expiresAt, double radius, Consumer<PlayerRef> onDistract) {
+      this.source = source;
       this.owner = owner;
       ownerId = owner.uuid();
       this.anchor = anchor;
       this.packetDecoy = packetDecoy;
       this.expiresAt = expiresAt;
-      this.level = level;
+      this.radius = radius;
+      this.onDistract = onDistract;
     }
   }
 

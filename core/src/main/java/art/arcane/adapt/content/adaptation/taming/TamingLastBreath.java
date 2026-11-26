@@ -18,47 +18,39 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> {
-  private final Cooldowns saveCd = cooldowns();
-  private final Map<UUID, Long> protectedPets = new ConcurrentHashMap<>();
+  private final TameLastStand lastStand = new TameLastStand(this, cooldowns(), (PlayerRef owner) -> {
+    addStat(owner, "taming.last-breath.saves", 1);
+    xp(owner, getConfig().xpPerSave);
+  });
 
-  static long cooldownMillis(double levelPercent, double base, double factor, double min) {
+  public static long cooldownMillis(double levelPercent, double base, double factor, double min) {
     return (long) Math.max(min, base - (levelPercent * factor));
   }
 
@@ -96,152 +88,12 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
 
   @Handle(priority = EventPriority.LOWEST)
   public void onProtectedWindow(EntityDamageEvent e) {
-    UUID entityId = e.entity().uuid();
-    Long until = protectedPets.get(entityId);
-    if (until == null) {
-      return;
-    }
-
-    if (until < System.currentTimeMillis()) {
-      protectedPets.remove(entityId);
-      return;
-    }
-
-    e.setCancelled(true);
+    lastStand.guard(e);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageEvent e) {
-    if (!(e.entity() instanceof LivingRef living) || !living.has(EntityTrait.TAMEABLE)
-        || !AdaptCore.platform().host().animals().isTamed(living)) {
-      return;
-    }
-    UUID petOwner = living.tameOwner();
-    PlayerRef owner = petOwner == null ? null : AdaptCore.platform().host().player(petOwner);
-    if (owner == null) {
-      return;
-    }
-
-    double finalDamage = e.finalDamage();
-    if (living.health() - finalDamage > 0.0) {
-      return;
-    }
-
-    int level = getActiveLevel(owner);
-    if (level <= 0 || !preference(owner, TamingPreferences.PETS).accepts(living.type())) {
-      return;
-    }
-
-    UUID petId = living.uuid();
-    if (!saveCd.isReady(petId, getCooldownMillis(level))) {
-      return;
-    }
-
-    saveCd.mark(petId);
-    e.setDamage(0);
-    e.setCancelled(true);
-    living.setHealth(1.0);
-    living.setFireTicks(0);
-
-    long now = System.currentTimeMillis();
-    protectedPets.values().removeIf(until -> until < now);
-    protectedPets.put(petId, now + (getInvulnTicks() * 50L));
-
-    fx(living.location().add(0, 1, 0), FxPriority.COMBAT)
-        .burst(Particles.TOTEM, 24, 0.4D)
-        .column(Particles.VILLAGER_HAPPY, 6, 1.4D)
-        .chord(Sounds.ITEM_TOTEM_USE, 0.7F, 1.2F, Sounds.ENTITY_WOLF_WHINE, 0.6F, 1.4F);
-
-    UUID ownerId = owner.uuid();
-    Tasks.runEntity(owner, () -> recallPet(owner, ownerId, living));
-  }
-
-  private void recallPet(PlayerRef owner, UUID ownerId, LivingRef pet) {
-    if (!owner.isOnline()) {
-      return;
-    }
-
-    Loc safe = findSafeLocation(owner);
-    if (safe == null) {
-      safe = owner.location();
-    }
-
-    addStat(owner, "taming.last-breath.saves", 1);
-    xp(owner, getConfig().xpPerSave);
-    beginRecallTeleport(ownerId, pet, safe);
-  }
-
-  private void beginRecallTeleport(UUID ownerId, LivingRef pet, Loc destination) {
-    CompletableFuture<Boolean> teleport;
-    try {
-      teleport = pet.teleport(destination, TeleportCause.PLUGIN);
-    } catch (RuntimeException error) {
-      AdaptLog.error("Last Breath could not start pet teleport for owner " + ownerId + ".");
-      AdaptLog.error(error);
-      return;
-    }
-    if (teleport == null) {
-      return;
-    }
-    teleport.whenComplete((success, failure) ->
-        completeRecallTeleport(ownerId, pet, destination, success, failure));
-  }
-
-  private void completeRecallTeleport(UUID ownerId, LivingRef pet, Loc destination,
-                                      Boolean success, Throwable failure) {
-    if (failure != null) {
-      AdaptLog.error("Last Breath pet teleport failed for owner " + ownerId + ".");
-      AdaptLog.error(failure);
-    }
-    if (!successfulRecallTeleport(success, failure)) {
-      return;
-    }
-    if (!Tasks.runEntity(pet, () -> showRecallArrivalOwned(pet, destination))) {
-      AdaptLog.warn("Last Breath completed pet teleport but could not schedule arrival effects for owner "
-          + ownerId + ".");
-    }
-  }
-
-  private void showRecallArrivalOwned(LivingRef pet, Loc destination) {
-    if (!pet.isValid() || pet.isDead()) {
-      return;
-    }
-
-    fx(destination, FxPriority.TRANSITION)
-        .dome(Particles.PORTAL, 0.6D, 8)
-        .particle(Particles.VILLAGER_HAPPY, 4, 0, 0.5D, 0, 0.4D, 0)
-        .chord(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.4F, Sounds.ENTITY_WOLF_PANT, 0.6F, 1.3F);
-  }
-
-  static boolean successfulRecallTeleport(Boolean success, Throwable failure) {
-    return failure == null && Boolean.TRUE.equals(success);
-  }
-
-  private Loc findSafeLocation(PlayerRef p) {
-    Loc base = p.location();
-    int[][] offsets = {
-        {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1},
-        {1, 1}, {1, -1}, {-1, 1}, {-1, -1}
-    };
-
-    for (int y = 0; y <= 2; y++) {
-      for (int[] offset : offsets) {
-        Loc candidate = base.add(offset[0], y, offset[1]);
-        if (isSafeSpot(candidate)) {
-          return candidate;
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private boolean isSafeSpot(Loc location) {
-    WorldRef world = location.world();
-    BlockRef feet = world.blockAt(location);
-    BlockRef head = world.blockAt(location.add(0, 1, 0));
-    BlockRef below = world.blockAt(location.add(0, -1, 0));
-    return feet.isPassable() && head.isPassable() && below.isSolid();
+    lastStand.save(e, this::getCooldownMillis, getInvulnTicks());
   }
 
   private long getCooldownMillis(int level) {
@@ -252,6 +104,20 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
     return Math.max(10, getConfig().invulnTicks);
   }
 
+
+  static void saveFx(Adaptation<?> owner, LivingRef pet) {
+    Fx.now(owner, pet.location().add(0, 1, 0), FxPriority.COMBAT)
+        .burst(Particles.TOTEM, 24, 0.4D)
+        .column(Particles.VILLAGER_HAPPY, 6, 1.4D)
+        .chord(Sounds.ITEM_TOTEM_USE, 0.7F, 1.2F, Sounds.ENTITY_WOLF_WHINE, 0.6F, 1.4F);
+  }
+
+  static void arrivalFx(Adaptation<?> owner, Loc destination) {
+    Fx.now(owner, destination, FxPriority.TRANSITION)
+        .dome(Particles.PORTAL, 0.6D, 8)
+        .particle(Particles.VILLAGER_HAPPY, 4, 0, 0.5D, 0, 0.4D, 0)
+        .chord(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.6F, 1.4F, Sounds.ENTITY_WOLF_PANT, 0.6F, 1.3F);
+  }
 
   @ConfigDescription("On a lethal hit a pet drops to 1 HP, is briefly invulnerable, and recalls to your side.")
   protected static class Config extends AdaptationConfig {

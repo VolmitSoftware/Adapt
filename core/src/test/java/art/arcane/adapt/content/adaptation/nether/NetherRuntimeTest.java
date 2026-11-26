@@ -4,11 +4,13 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.skill.SkillNether;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.event.entity.BlockedDamage;
+import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageByBlockEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
@@ -103,6 +105,18 @@ class NetherRuntimeTest {
   }
 
   @Test
+  void witherHarvestAddsNothingToASpawnerSkeleton() {
+    learn(NetherWitherHarvest.class, 4);
+    FakeLiving skeleton = world.add(new FakeLiving(Id.minecraft("wither_skeleton"), new Loc(world, 3D, 61D, 0D)));
+    MobOrigin.record(skeleton, CreatureSpawnEvent.Reason.SPAWNER);
+
+    EntityDeathEvent death = adapt.post(new EntityDeathEvent(skeleton, player, player, player, DamageCause.ENTITY_ATTACK,
+        new ArrayList<>(), 5));
+
+    assertThat(death.drops()).isEmpty();
+  }
+
+  @Test
   void skullTossThrowsAMarkedWitherSkull() {
     learn(NetherSkullYeet.class, 1);
     player.setGameMode(GameMode.SURVIVAL);
@@ -116,7 +130,7 @@ class NetherRuntimeTest {
     assertThat(click.isCancelled()).isTrue();
     EntityRef skull = world.entities().stream().filter(entity -> entity.type().equals(Id.minecraft("wither_skull")))
         .findFirst().orElseThrow();
-    assertThat(NetherSkullYeet.isThrownSkull(skull)).isTrue();
+    assertThat(NetherSkullToss.isThrownSkull(skull)).isTrue();
     assertThat(player.inventory().mainHand().amount()).isEqualTo(2);
     assertThat(profile.getData().getStat("nether.skull-yeet.skulls-thrown")).isEqualTo(1D);
   }

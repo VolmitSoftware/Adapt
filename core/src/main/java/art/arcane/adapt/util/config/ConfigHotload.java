@@ -351,7 +351,7 @@ public final class ConfigHotload {
     }
 
     for (Skill<?> skill : registry.getAllSkills()) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
           continue;
         }
@@ -727,7 +727,7 @@ public final class ConfigHotload {
     }
 
     String adaptationName = parts[2];
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
       if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
         continue;
       }

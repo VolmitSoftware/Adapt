@@ -4,6 +4,11 @@ import art.arcane.adapt.api.notification.HudSlot;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
+import art.arcane.adapt.client.view.MutationCandidate;
+import art.arcane.adapt.client.view.MutationEntry;
+import art.arcane.adapt.client.view.MutationSide;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.MutationWords;
 import art.arcane.adapt.client.view.InsightBond;
 import art.arcane.adapt.client.view.InsightEffect;
 import art.arcane.adapt.client.view.InsightKind;
@@ -11,6 +16,7 @@ import art.arcane.adapt.client.view.InsightMark;
 import art.arcane.adapt.client.view.InsightStat;
 import art.arcane.adapt.client.view.InsightStatKind;
 import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.PlayerAccess;
 import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerHeader;
@@ -21,9 +27,15 @@ import art.arcane.adapt.client.view.PreferenceKey;
 import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.client.view.PreferenceValue;
 import art.arcane.adapt.client.view.PreferenceView;
+import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.RequirementView;
 import art.arcane.adapt.client.view.SkillLineView;
+import art.arcane.adapt.client.view.ShortNameView;
 import art.arcane.adapt.client.view.SkillView;
+import art.arcane.adapt.client.view.ToolView;
+import art.arcane.adapt.client.view.SpendView;
+import art.arcane.adapt.client.view.GroupLabelView;
+import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.platform.menu.ClickKind;
 
 import java.util.HashMap;
@@ -54,6 +66,16 @@ public final class FrameCodec {
   public static final int S2C_CUSTOM_ITEMS = 14;
   public static final int S2C_FEEDBACK = 15;
   public static final int S2C_HUD_CLEAR_ALL = 16;
+  public static final int S2C_MUTATE_OFFERS = 17;
+  public static final int S2C_MUTATION_KEPT = 18;
+  public static final int S2C_MUTATION_TOOLS = 19;
+  public static final int S2C_MUTATION_SPREAD = 20;
+  public static final int S2C_XP_GUIDES = 21;
+  public static final int S2C_SPENDING = 22;
+  public static final int S2C_SKILL_TOAST = 23;
+  public static final int S2C_GROUP_LABELS = 24;
+  public static final int S2C_SHORT_NAMES = 25;
+  public static final int S2C_ADAPTATION_RECIPES = 26;
   public static final int S2C_INSIGHT_TARGET = 28;
   public static final int S2C_INSIGHT_VITALS = 29;
   public static final int S2C_INSIGHT_MARKS = 30;
@@ -68,9 +90,13 @@ public final class FrameCodec {
   public static final int C2S_PANEL_INPUT = 39;
   public static final int C2S_PANEL_CLOSED = 40;
   public static final int C2S_JUMP_KEY = 41;
+  public static final int C2S_MUTATE = 42;
+  public static final int C2S_MUTATION_REQUEST = 43;
+  public static final int C2S_UNMUTATE = 44;
   private static final int ROUTE_SKILLS = 0;
   private static final int ROUTE_SKILL = 1;
   private static final int ROUTE_ADAPTATION = 2;
+  private static final int ROUTE_MUTATE = 3;
   private static final int ID = FrameLimits.MAX_ID_BYTES;
   private static final int TEXT = FrameLimits.MAX_TEXT_BYTES;
 
@@ -137,6 +163,20 @@ public final class FrameCodec {
           out.u8(C2S_JUMP_KEY);
           out.bool(jump.down());
         }
+        case ClientFrame.Mutate mutate -> {
+          out.u8(C2S_MUTATE);
+          out.string(mutate.skillId(), ID);
+        }
+        case ClientFrame.MutationRequest request -> {
+          out.u8(C2S_MUTATION_REQUEST);
+          out.string(request.lead(), ID);
+          out.string(request.partner(), ID);
+          out.bool(request.confirm());
+        }
+        case ClientFrame.Unmutate unmutate -> {
+          out.u8(C2S_UNMUTATE);
+          out.string(unmutate.skillId(), ID);
+        }
       }
     } catch (IllegalArgumentException exception) {
       throw new ClientProtocolException("cannot encode client frame: " + exception.getMessage(), exception);
@@ -164,6 +204,9 @@ public final class FrameCodec {
             in.string(FrameLimits.MAX_INPUT_BYTES));
         case C2S_PANEL_CLOSED -> new ClientFrame.PanelClosed(in.varInt());
         case C2S_JUMP_KEY -> new ClientFrame.JumpKey(in.bool());
+        case C2S_MUTATE -> new ClientFrame.Mutate(in.string(ID));
+        case C2S_MUTATION_REQUEST -> new ClientFrame.MutationRequest(in.string(ID), in.string(ID), in.bool());
+        case C2S_UNMUTATE -> new ClientFrame.Unmutate(in.string(ID));
         default -> throw new IllegalArgumentException("unknown client opcode " + opcode);
       };
       in.expectEnd();
@@ -248,11 +291,15 @@ public final class FrameCodec {
           out.f64(xp.progress());
         }
         case ServerFrame.Toast toast -> {
-          out.u8(S2C_TOAST);
+          boolean plain = toast.plain() == toast;
+          out.u8(plain ? S2C_TOAST : S2C_SKILL_TOAST);
           out.enumValue(toast.kind());
           writeIcon(out, toast.icon());
           out.string(toast.title(), TEXT);
           out.string(toast.body(), TEXT);
+          if (!plain) {
+            out.string(toast.skillId(), ID);
+          }
         }
         case ServerFrame.CustomItems items -> {
           out.u8(S2C_CUSTOM_ITEMS);
@@ -278,6 +325,45 @@ public final class FrameCodec {
           out.list(marks.marks(), FrameLimits.MAX_INSIGHT_MARKS, FrameCodec::writeMark);
         }
         case ServerFrame.InsightClear ignored -> out.u8(S2C_INSIGHT_CLEAR);
+        case ServerFrame.MutateOffers offers -> {
+          out.u8(S2C_MUTATE_OFFERS);
+          out.list(offers.skillIds(), FrameLimits.MAX_SKILLS, FrameCodec::writeId);
+        }
+        case ServerFrame.MutationKept kept -> {
+          out.u8(S2C_MUTATION_KEPT);
+          out.string(kept.title(), TEXT);
+          out.list(kept.kept(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeKept);
+        }
+        case ServerFrame.MutationTools tools -> {
+          out.u8(S2C_MUTATION_TOOLS);
+          out.list(tools.tools(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeTool);
+        }
+        case ServerFrame.MutationSpread spread -> {
+          out.u8(S2C_MUTATION_SPREAD);
+          writeSpread(out, spread.spread());
+        }
+        case ServerFrame.XpGuides guides -> {
+          out.u8(S2C_XP_GUIDES);
+          out.string(guides.title(), TEXT);
+          out.list(guides.guides(), FrameLimits.MAX_SKILLS, FrameCodec::writeGuide);
+        }
+        case ServerFrame.Spending spending -> {
+          out.u8(S2C_SPENDING);
+          out.bool(spending.inactiveSkills());
+          out.list(spending.spends(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeSpend);
+        }
+        case ServerFrame.GroupLabels labels -> {
+          out.u8(S2C_GROUP_LABELS);
+          out.list(labels.skills(), FrameLimits.MAX_SKILLS, FrameCodec::writeGroupLabels);
+        }
+        case ServerFrame.ShortNames names -> {
+          out.u8(S2C_SHORT_NAMES);
+          out.list(names.names(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeShortName);
+        }
+        case ServerFrame.AdaptationRecipes recipes -> {
+          out.u8(S2C_ADAPTATION_RECIPES);
+          out.list(recipes.recipes(), FrameLimits.MAX_RECIPES, FrameCodec::writeRecipe);
+        }
       }
     } catch (IllegalArgumentException exception) {
       throw new ClientProtocolException("cannot encode server frame: " + exception.getMessage(), exception);
@@ -308,13 +394,25 @@ public final class FrameCodec {
         case S2C_HUD_CLEAR_ALL -> new ServerFrame.HudClearAll();
         case S2C_XP_EARNED -> new ServerFrame.XpEarned(in.string(ID), in.f64(), in.f64(), in.varInt(), in.f64());
         case S2C_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class), readIcon(in), in.string(TEXT),
-            in.string(TEXT));
+            in.string(TEXT), "");
+        case S2C_SKILL_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class), readIcon(in), in.string(TEXT),
+            in.string(TEXT), in.string(ID));
         case S2C_CUSTOM_ITEMS -> new ServerFrame.CustomItems(in.list(FrameLimits.MAX_ITEMS, FrameCodec::readItem));
         case S2C_FEEDBACK -> new ServerFrame.Feedback(in.enumValue(FeedbackKind.class), in.string(TEXT));
         case S2C_INSIGHT_TARGET -> new ServerFrame.InsightTarget(readInsight(in));
         case S2C_INSIGHT_VITALS -> new ServerFrame.InsightVitals(in.i32(), in.f64(), in.f64());
         case S2C_INSIGHT_MARKS -> new ServerFrame.InsightMarks(in.list(FrameLimits.MAX_INSIGHT_MARKS, FrameCodec::readMark));
         case S2C_INSIGHT_CLEAR -> new ServerFrame.InsightClear();
+        case S2C_MUTATE_OFFERS -> new ServerFrame.MutateOffers(in.list(FrameLimits.MAX_SKILLS, FrameCodec::readId));
+        case S2C_MUTATION_KEPT -> new ServerFrame.MutationKept(in.string(TEXT),
+            in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readKept));
+        case S2C_MUTATION_TOOLS -> new ServerFrame.MutationTools(in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readTool));
+        case S2C_MUTATION_SPREAD -> new ServerFrame.MutationSpread(readSpread(in));
+        case S2C_XP_GUIDES -> new ServerFrame.XpGuides(in.string(TEXT), in.list(FrameLimits.MAX_SKILLS, FrameCodec::readGuide));
+        case S2C_SPENDING -> new ServerFrame.Spending(in.bool(), in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readSpend));
+        case S2C_GROUP_LABELS -> new ServerFrame.GroupLabels(in.list(FrameLimits.MAX_SKILLS, FrameCodec::readGroupLabels));
+        case S2C_SHORT_NAMES -> new ServerFrame.ShortNames(in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readShortName));
+        case S2C_ADAPTATION_RECIPES -> new ServerFrame.AdaptationRecipes(in.list(FrameLimits.MAX_RECIPES, FrameCodec::readRecipe));
         default -> throw new IllegalArgumentException("unknown server opcode " + opcode);
       };
       in.expectEnd();
@@ -346,6 +444,10 @@ public final class FrameCodec {
         out.u8(ROUTE_ADAPTATION);
         out.string(adaptation.adaptationId(), ID);
       }
+      case Route.Mutate mutate -> {
+        out.u8(ROUTE_MUTATE);
+        out.string(mutate.skillId(), ID);
+      }
     }
   }
 
@@ -355,6 +457,7 @@ public final class FrameCodec {
       case ROUTE_SKILLS -> new Route.Skills();
       case ROUTE_SKILL -> new Route.Skill(in.string(ID));
       case ROUTE_ADAPTATION -> new Route.Adaptation(in.string(ID));
+      case ROUTE_MUTATE -> new Route.Mutate(in.string(ID));
       default -> throw new IllegalArgumentException("unknown route " + kind);
     };
   }
@@ -392,6 +495,178 @@ public final class FrameCodec {
 
   private static List<String> readLines(FrameReader in) {
     return in.list(FrameLimits.MAX_LINES, FrameCodec::readText);
+  }
+
+  private static void writeSpread(FrameWriter out, MutationSpreadView spread) {
+    out.string(spread.lead(), ID);
+    out.string(spread.partner(), ID);
+    out.string(spread.name(), TEXT);
+    out.string(spread.summary(), TEXT);
+    out.list(spread.mutated(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeEntry);
+    writeSide(out, spread.leadSide());
+    writeSide(out, spread.partnerSide());
+    out.list(spread.candidates(), FrameLimits.MAX_SKILLS, FrameCodec::writeCandidate);
+    MutationWords words = spread.words();
+    for (String word : List.of(words.title(), words.lead(), words.partner(), words.gains(), words.loses(), words.hold(),
+        words.permanent(), words.swap(), words.level())) {
+      out.string(word, TEXT);
+    }
+    out.string(spread.mutatedSkillId(), ID);
+  }
+
+  private static MutationSpreadView readSpread(FrameReader in) {
+    return new MutationSpreadView(in.string(ID), in.string(ID), in.string(TEXT), in.string(TEXT),
+        in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readEntry), readSide(in), readSide(in),
+        in.list(FrameLimits.MAX_SKILLS, FrameCodec::readCandidate),
+        new MutationWords(in.string(TEXT), in.string(TEXT), in.string(TEXT), in.string(TEXT), in.string(TEXT),
+            in.string(TEXT), in.string(TEXT), in.string(TEXT), in.string(TEXT)),
+        in.string(ID));
+  }
+
+  private static void writeSide(FrameWriter out, MutationSide side) {
+    out.string(side.skillId(), ID);
+    out.varInt(side.level());
+    out.list(side.upgrades(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeEntry);
+    out.list(side.kept(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeEntry);
+    out.list(side.tools(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeEntry);
+    out.list(side.lost(), FrameLimits.MAX_ADAPTATIONS, FrameCodec::writeEntry);
+    out.string(side.surplus(), TEXT);
+  }
+
+  private static MutationSide readSide(FrameReader in) {
+    return new MutationSide(in.string(ID), in.varInt(), in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readEntry),
+        in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readEntry), in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readEntry),
+        in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readEntry), in.string(TEXT));
+  }
+
+  private static void writeEntry(FrameWriter out, MutationEntry entry) {
+    out.string(entry.id(), ID);
+    writeIcon(out, entry.icon());
+    out.string(entry.name(), TEXT);
+    out.string(entry.detail(), TEXT);
+    out.varInt(entry.level());
+  }
+
+  private static MutationEntry readEntry(FrameReader in) {
+    return new MutationEntry(in.string(ID), readIcon(in), in.string(TEXT), in.string(TEXT), in.varInt());
+  }
+
+  private static void writeCandidate(FrameWriter out, MutationCandidate candidate) {
+    out.string(candidate.skillId(), ID);
+    out.varInt(candidate.level());
+    out.enumValue(candidate.state());
+    out.string(candidate.reason(), TEXT);
+  }
+
+  private static MutationCandidate readCandidate(FrameReader in) {
+    return new MutationCandidate(in.string(ID), in.varInt(), in.enumValue(MutationCandidate.State.class), in.string(TEXT));
+  }
+
+  private static void writeKept(FrameWriter out, KeptView kept) {
+    out.string(kept.ownerId(), ID);
+    out.string(kept.adaptationId(), ID);
+    out.varInt(kept.level());
+  }
+
+  private static void writeTool(FrameWriter out, ToolView tool) {
+    out.string(tool.adaptationId(), ID);
+    out.string(tool.toolId(), ID);
+    out.string(tool.name(), TEXT);
+    writeIcon(out, tool.icon());
+    out.varInt(tool.requiredLevel());
+    out.list(tool.ingredients(), FrameLimits.MAX_TOOL_INGREDIENTS, (FrameWriter writer, ToolView.Ingredient ingredient) -> {
+      writer.string(ingredient.itemId(), ID);
+      writer.varInt(ingredient.count());
+    });
+  }
+
+  private static ToolView readTool(FrameReader in) {
+    return new ToolView(in.string(ID), in.string(ID), in.string(TEXT), readIcon(in), in.varInt(),
+        in.list(FrameLimits.MAX_TOOL_INGREDIENTS, (FrameReader reader) -> new ToolView.Ingredient(reader.string(ID), reader.varInt())));
+  }
+
+  private static KeptView readKept(FrameReader in) {
+    return new KeptView(in.string(ID), in.string(ID), in.varInt());
+  }
+
+  private static void writeSpend(FrameWriter out, SpendView spend) {
+    out.string(spend.skillId(), ID);
+    out.string(spend.adaptationId(), ID);
+    out.varInt(spend.level());
+    out.varInt(spend.knowledge());
+    out.varInt(spend.power());
+    out.enumValue(spend.source());
+  }
+
+  private static SpendView readSpend(FrameReader in) {
+    return new SpendView(in.string(ID), in.string(ID), in.varInt(), in.varInt(), in.varInt(), in.enumValue(SpendView.Source.class));
+  }
+
+  private static void writeGroupLabels(FrameWriter out, GroupLabelView labels) {
+    out.string(labels.skillId(), ID);
+    out.list(labels.labels(), FrameLimits.MAX_ROW_GROUPS, (FrameWriter writer, String label) -> writer.string(label, TEXT));
+  }
+
+  private static GroupLabelView readGroupLabels(FrameReader in) {
+    return new GroupLabelView(in.string(ID), in.list(FrameLimits.MAX_ROW_GROUPS, (FrameReader reader) -> reader.string(TEXT)));
+  }
+
+  private static void writeShortName(FrameWriter out, ShortNameView name) {
+    out.string(name.adaptationId(), ID);
+    out.string(name.name(), TEXT);
+  }
+
+  private static ShortNameView readShortName(FrameReader in) {
+    return new ShortNameView(in.string(ID), in.string(TEXT));
+  }
+
+  private static void writeRecipe(FrameWriter out, RecipeView recipe) {
+    out.string(recipe.adaptationId(), ID);
+    out.enumValue(recipe.kind());
+    out.varInt(recipe.requiredLevel());
+    out.string(recipe.group(), ID);
+    out.varInt(recipe.width());
+    out.list(recipe.inputs(), FrameLimits.MAX_RECIPE_INPUTS, FrameCodec::writeRecipeItem);
+    writeRecipeItem(out, recipe.result());
+  }
+
+  private static RecipeView readRecipe(FrameReader in) {
+    return new RecipeView(in.string(ID), in.enumValue(RecipeView.Kind.class), in.varInt(), in.string(ID), in.varInt(),
+        in.list(FrameLimits.MAX_RECIPE_INPUTS, FrameCodec::readRecipeItem), readRecipeItem(in));
+  }
+
+  private static void writeRecipeItem(FrameWriter out, RecipeView.Item item) {
+    writeIcon(out, item.icon());
+    out.string(item.name(), TEXT);
+    out.string(item.nameKey(), ID);
+    out.varInt(item.count());
+    out.list(item.effects(), FrameLimits.MAX_RECIPE_EFFECTS, (FrameWriter writer, RecipeView.Effect effect) -> {
+      writer.string(effect.effectId(), ID);
+      writer.varInt(effect.amplifier());
+      writer.varInt(effect.durationTicks());
+      writer.bool(effect.harmful());
+    });
+  }
+
+  private static RecipeView.Item readRecipeItem(FrameReader in) {
+    return new RecipeView.Item(readIcon(in), in.string(TEXT), in.string(ID), in.varInt(), in.list(FrameLimits.MAX_RECIPE_EFFECTS,
+        (FrameReader reader) -> new RecipeView.Effect(reader.string(ID), reader.varInt(), reader.varInt(), reader.bool())));
+  }
+
+  private static void writeGuide(FrameWriter out, XpGuideView guide) {
+    out.string(guide.skillId(), ID);
+    out.list(guide.parents(), FrameLimits.MAX_SKILLS, FrameCodec::writeId);
+    out.list(guide.sections(), FrameLimits.MAX_ROW_GROUPS, (FrameWriter writer, XpGuideView.Section section) -> {
+      writer.string(section.skillId(), ID);
+      writer.string(section.title(), TEXT);
+      writeLines(writer, section.lines());
+    });
+  }
+
+  private static XpGuideView readGuide(FrameReader in) {
+    return new XpGuideView(in.string(ID), in.list(FrameLimits.MAX_SKILLS, FrameCodec::readId),
+        in.list(FrameLimits.MAX_ROW_GROUPS, (FrameReader reader) -> new XpGuideView.Section(reader.string(ID),
+            reader.string(TEXT), readLines(reader))));
   }
 
   private static void writeCatalog(FrameWriter out, CatalogView catalog) {

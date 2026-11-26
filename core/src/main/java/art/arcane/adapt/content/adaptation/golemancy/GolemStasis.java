@@ -41,6 +41,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.DormantGolemPlacement;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.skill.Skill;
@@ -137,6 +138,11 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     }
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityDamageEvent e) {
     PackChannel channel = channelsByGolem.get(e.entity().uuid());
@@ -192,6 +198,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       warn(player, GolemancyMessages.STASIS_BUSY);
       return;
     }
+    UpgradeLoans.landed(this, player);
     int ticks = StasisRules.channelTicks(getConfig().channelSecondsByLevel, level);
     if (ticks > 0) {
       channel(player, handle, ticks);
@@ -389,7 +396,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     return golem.isValid() && !golem.isDead() && !channel.handle().isRetired()
         && owner.isOnline() && owner.isValid() && !owner.isDead()
         && Tasks.isOwnedByCurrentRegion(owner)
-        && channel.withinReach(getConfig().channelAbortDistance)
+        && channel.withinReach(getConfig().channelAbortDistance * UpgradeLoans.strength(this, owner))
         && channel.stillHeld();
   }
 

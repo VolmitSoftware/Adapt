@@ -108,6 +108,22 @@ public final class EnchantingMessages {
   public static final TextKey ECHO_OF_KNOWLEDGE_LORE1 = TextKey.of("enchanting.echo_of_knowledge.lore1", "XP Charge Rate");
   public static final TextKey ECHO_OF_KNOWLEDGE_UPGRADED = TextKey.of("enchanting.echo_of_knowledge.upgraded", "Enchant Upgraded");
   public static final LinesKey ECHO_OF_KNOWLEDGE_LORE = LinesKey.of("enchanting.echo_of_knowledge.lore", "XP Charge Rate");
+  public static final TextKey ARCANE_HAND_LORE1 = TextKey.of("upgrade.enchanting.arcane_hand.lore1", "Enchantment Power Limit");
+  public static final TextKey ARCANE_HAND_LORE2 = TextKey.of("upgrade.enchanting.arcane_hand.lore2", "Levels per Move");
+  public static final TextKey ARCANE_HAND_LORE3 = TextKey.of("upgrade.enchanting.arcane_hand.lore3", "Levels per Split");
+  public static final TextKey ARCANE_HAND_LORE4 = TextKey.of("upgrade.enchanting.arcane_hand.lore4", "Grindstone Book Chance");
+  public static final TextKey ARCANE_HAND_LORE5 = TextKey.of("upgrade.enchanting.arcane_hand.lore5", "Levels per Grindstone Book");
+  public static final TextKey ARCANE_HAND_LIBRARY_NEEDS = TextKey.of("upgrade.enchanting.arcane_hand.library_needs", "Needs a book and {levels} levels");
+  public static final TextKey FATE_WEAVER_LORE1 = TextKey.of("upgrade.enchanting.fate_weaver.lore1", "Virtual Bookshelf Power");
+  public static final TextKey FATE_WEAVER_LORE2 = TextKey.of("upgrade.enchanting.fate_weaver.lore2", "Lapis per Reroll");
+  public static final TextKey FATE_WEAVER_LORE3 = TextKey.of("upgrade.enchanting.fate_weaver.lore3", "Reroll Cooldown");
+  public static final TextKey SOULFORGED_LORE1 = TextKey.of("upgrade.enchanting.soulforged.lore1", "XP Save Cost");
+  public static final TextKey SOULFORGED_LORE2 = TextKey.of("upgrade.enchanting.soulforged.lore2", "XP Charge Rate");
+  public static final TextKey SOULFORGED_LORE3 = TextKey.of("upgrade.enchanting.soulforged.lore3", "Relink Cooldown");
+  public static final TextKey SOULFORGED_LORE4 = TextKey.of("upgrade.enchanting.soulforged.lore4", "Ascensions per Item");
+  public static final TextKey SOULFORGED_LORE5 = TextKey.of("upgrade.enchanting.soulforged.lore5", "Levels per Ascension");
+  public static final TextKey SOULFORGED_ASCENDED = TextKey.of("upgrade.enchanting.soulforged.ascended", "Ascended");
+  public static final TextKey SOULFORGED_ASCEND_LEVELS = TextKey.of("upgrade.enchanting.soulforged.ascend_levels", "Needs {levels} levels");
 
   private EnchantingMessages() {
   }
@@ -216,5 +232,21 @@ public final class EnchantingMessages {
     builder.add(ECHO_OF_KNOWLEDGE_LORE1);
     builder.add(ECHO_OF_KNOWLEDGE_UPGRADED);
     builder.add(ECHO_OF_KNOWLEDGE_LORE);
+    builder.add(ARCANE_HAND_LORE1);
+    builder.add(ARCANE_HAND_LORE2);
+    builder.add(ARCANE_HAND_LORE3);
+    builder.add(ARCANE_HAND_LORE4);
+    builder.add(ARCANE_HAND_LORE5);
+    builder.add(ARCANE_HAND_LIBRARY_NEEDS);
+    builder.add(FATE_WEAVER_LORE1);
+    builder.add(FATE_WEAVER_LORE2);
+    builder.add(FATE_WEAVER_LORE3);
+    builder.add(SOULFORGED_LORE1);
+    builder.add(SOULFORGED_LORE2);
+    builder.add(SOULFORGED_LORE3);
+    builder.add(SOULFORGED_LORE4);
+    builder.add(SOULFORGED_LORE5);
+    builder.add(SOULFORGED_ASCENDED);
+    builder.add(SOULFORGED_ASCEND_LEVELS);
   }
 }

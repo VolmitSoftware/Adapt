@@ -50,18 +50,12 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static art.arcane.adapt.util.data.BlockFlag.VEIN_MINED;
 
 public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> {
-  private static final String DEEPSLATE_PREFIX = "deepslate_";
-
   public PickaxeVeinminer() {
     super("pickaxe-veinminer");
     registerConfiguration(PickaxeVeinminer.Config.class);
@@ -99,20 +93,6 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     return lvl + getConfig().baseRange;
   }
 
-  static Id veinFamily(Id material) {
-    String name = material.path();
-    if (name.startsWith(DEEPSLATE_PREFIX) && name.endsWith("_ore")) {
-      return material.withPath(name.substring(DEEPSLATE_PREFIX.length()));
-    }
-    return material;
-  }
-
-  static boolean isVeinminable(Id material) {
-    return material.path().endsWith("_ore")
-        || material.equals(Id.minecraft("obsidian"))
-        || material.equals(Id.minecraft("ancient_debris"));
-  }
-
   @Handle(priority = EventPriority.HIGH)
   public void on(BlockBreakEvent e) {
     if (VEIN_MINED.get(e.block())) {
@@ -130,7 +110,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
       return;
     }
 
-    if (!isVeinminable(e.block().type())) {
+    if (!PickaxeVein.isVeinminable(e.block().type())) {
       chainHiddenVein(e.block(), p, level);
       return;
     }
@@ -138,106 +118,22 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     if (!preference(p, PickaxePreferences.MATERIALS).accepts(block.type())) {
       return;
     }
-    Id targetFamily = veinFamily(block.type());
-    Set<BlockRef> blockMap = new HashSet<>();
-    Set<BlockRef> queued = new HashSet<>();
-    Deque<BlockRef> queue = new ArrayDeque<>();
-    queue.add(block);
-    queued.add(block);
-    int radius = getRadius(level);
-    int radiusSquared = radius * radius;
-    int maxBlocks = Math.max(1, getConfig().maxBlocks);
-    while (!queue.isEmpty() && blockMap.size() < maxBlocks) {
-      BlockRef current = queue.poll();
-      if (current == null) {
-        continue;
-      }
-
-      if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(current.location()))
-          || !veinFamily(current.type()).equals(targetFamily)
-          || blockMap.contains(current)) {
-        continue;
-      }
-
-      if (distanceSquared(current, block) > radiusSquared || !canBlockBreak(p, current.location())) {
-        continue;
-      }
-
-      blockMap.add(current);
-      for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-          for (int z = -1; z <= 1; z++) {
-            if (x == 0 && y == 0 && z == 0) {
-              continue;
-            }
-
-            BlockRef next = current.relative(x, y, z);
-            if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(next.location()))
-                || !veinFamily(next.type()).equals(targetFamily)) {
-              continue;
-            }
-
-            if (distanceSquared(next, block) > radiusSquared) {
-              continue;
-            }
-
-            if (queued.add(next)) {
-              queue.add(next);
-            }
-          }
-        }
-      }
-    }
-
-    List<BlockRef> siblings = new ArrayList<>(Math.max(0, blockMap.size() - 1));
-    for (BlockRef candidate : blockMap) {
-      if (!candidate.equals(block)) {
-        siblings.add(candidate);
-      }
-    }
+    Id targetFamily = PickaxeVein.veinFamily(block.type());
+    List<BlockRef> siblings = PickaxeVein.siblings(this, p, block, getRadius(level), getConfig().maxBlocks);
     Tasks.runEntity(p, () -> mineConnectedVein(p, block, targetFamily, siblings), 1);
   }
 
   private void mineConnectedVein(PlayerRef player, BlockRef origin, Id targetFamily, List<BlockRef> siblings) {
-    AdaptPlayer adaptPlayer = getPlayer(player);
-    if (adaptPlayer == null
-        || getActiveLevel(player) <= 0
-        || !player.isOnline()
-        || !player.world().uid().equals(origin.world().uid())
-        || !isPickaxe(player.inventory().mainHand())
-        || (Tasks.isFoliaThreading()
-        && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(origin.location())))
-        || veinFamily(origin.type()).equals(targetFamily)) {
-      return;
-    }
-
-    int successful = 1;
-    for (BlockRef sibling : siblings) {
-      Loc location = sibling.location();
-      if (!player.world().uid().equals(sibling.world().uid())
-          || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(location))
-          || !veinFamily(sibling.type()).equals(targetFamily)
-          || !preference(player, PickaxePreferences.MATERIALS).accepts(sibling.type())
-          || !canBlockBreak(player, location)) {
-        continue;
-      }
-
-      VEIN_MINED.add(sibling);
-      try {
-        BlockStateRef blockData = sibling.state();
-        if (ProtectionProbes.attemptBlockBreak(player, sibling)) {
+    int successful = PickaxeVein.breakSiblings(this, player, origin, targetFamily, siblings,
+        (Id type) -> preference(player, PickaxePreferences.MATERIALS).accepts(type),
+        (BlockRef sibling, BlockStateRef blockData, int broken) -> {
           FxEmitter crumble = fx(sibling.center(), FxPriority.TRAIL)
               .particle(Particles.blockCrack(blockData), 3, 0, 0, 0, 0.25, 0.0);
-          if ((successful & 3) == 0) {
+          if ((broken & 3) == 0) {
             crumble.sound(Sounds.BLOCK_STONE_BREAK, 0.5f,
-                (float) (0.8D + Math.min(0.5D, successful * 0.02D)));
+                (float) (0.8D + Math.min(0.5D, broken * 0.02D)));
           }
-          successful++;
-        }
-      } finally {
-        VEIN_MINED.remove(sibling);
-      }
-    }
+        });
     completeVeinFeedback(player, origin, successful);
   }
 
@@ -265,13 +161,6 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         && !adaptPlayer.getData().isGranted("challenge_pickaxe_veinminer_20")) {
       adaptPlayer.getAdvancementHandler().grant("challenge_pickaxe_veinminer_20");
     }
-  }
-
-  private int distanceSquared(BlockRef first, BlockRef second) {
-    int dx = first.x() - second.x();
-    int dy = first.y() - second.y();
-    int dz = first.z() - second.z();
-    return (dx * dx) + (dy * dy) + (dz * dz);
   }
 
   private void chainHiddenVein(BlockRef block, PlayerRef p, int level) {

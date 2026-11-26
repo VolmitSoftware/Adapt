@@ -24,7 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +70,7 @@ class NetherSkullYeetTargetingTest extends AdaptTestBase {
     owner = mock(PlayerRef.class);
     when(owner.uuid()).thenReturn(UUID.randomUUID());
     skull.setShooter(owner);
-    thrownSkulls().add(skull.uuid());
+    thrownSkulls().put(skull.uuid(), adaptation.getName());
     cause = DamageCause.ENTITY_EXPLOSION;
   }
 
@@ -147,9 +147,9 @@ class NetherSkullYeetTargetingTest extends AdaptTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  private static Set<UUID> thrownSkulls() throws ReflectiveOperationException {
-    Field field = NetherSkullYeet.class.getDeclaredField("THROWN_SKULLS");
+  private static Map<UUID, String> thrownSkulls() throws ReflectiveOperationException {
+    Field field = NetherSkullToss.class.getDeclaredField("THROWN_SKULLS");
     field.setAccessible(true);
-    return (Set<UUID>) field.get(null);
+    return (Map<UUID, String>) field.get(null);
   }
 }

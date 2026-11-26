@@ -89,6 +89,8 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
           new PlayerPreference.Choice<>(Targets.PLAYERS, RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS_PLAYERS, Id.minecraft("player_head"), 1))));
   public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirm", RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_CONFIRM, CommonPreferences.Toggle.OFF);
 
+  public static final double LARGE_WIDTH = 1.3;
+  public static final double LARGE_HEIGHT = 2.35;
   private static final double PEARL_TELEPORT_DAMAGE = 5.0;
   private static final int MAX_PENDING_TELEPORTS = 2048;
   private static final int MAX_TARGET_SNAPSHOT_ATTEMPTS = 2;
@@ -694,6 +696,14 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   }
 
   private boolean isTaggable(LivingRef target, int level) {
+    return taggable(target, level, getConfig().largeWidthThreshold, getConfig().largeHeightThreshold);
+  }
+
+  /**
+   * Whether a taglock of {@code level} can tag {@code target}: small mobs at 1, villagers and large mobs from 2,
+   * anything including players at 3. A mob is large from {@code largeWidth} wide or {@code largeHeight} tall.
+   */
+  public static boolean taggable(LivingRef target, int level, double largeWidth, double largeHeight) {
     if (target instanceof PlayerRef) {
       return level >= 3;
     }
@@ -702,14 +712,15 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return true;
     }
 
+    boolean large = isLargeTarget(target, largeWidth, largeHeight);
     if (level == 2) {
-      return isLevel1Taggable(target) || target.type().equals(VILLAGER) || isLargeTarget(target);
+      return isLevel1Taggable(target, large) || target.type().equals(VILLAGER) || large;
     }
 
-    return isLevel1Taggable(target);
+    return isLevel1Taggable(target, large);
   }
 
-  private boolean isLevel1Taggable(LivingRef target) {
+  private static boolean isLevel1Taggable(LivingRef target, boolean large) {
     if (!(target instanceof MobRef)) {
       return false;
     }
@@ -718,7 +729,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return false;
     }
 
-    if (isLargeTarget(target)) {
+    if (large) {
       return false;
     }
 
@@ -729,11 +740,11 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         || target.has(EntityTrait.SLIME);
   }
 
-  private boolean isLargeTarget(LivingRef target) {
+  private static boolean isLargeTarget(LivingRef target, double largeWidth, double largeHeight) {
     Box box = target.boundingBox();
     double width = Math.max(box.widthX(), box.widthZ());
     double height = box.height();
-    return width >= getConfig().largeWidthThreshold || height >= getConfig().largeHeightThreshold;
+    return width >= largeWidth || height >= largeHeight;
   }
 
   private int getThrowCooldownTicks(int level) {
@@ -753,9 +764,9 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     @art.arcane.adapt.util.config.ConfigDoc(value = "How long the thrower's vanilla pearl teleport stays suppressed after a taglocked pearl lands.", impact = "Backstop only; the suppression is armed on impact and consumed by the teleport that follows it in the same tick, so this only needs to survive that hand-off. Clamped to 50-2000ms.")
     long suppressPearlTeleportWindowMillis = 250L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Width Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double largeWidthThreshold = 1.3;
+    double largeWidthThreshold = LARGE_WIDTH;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Height Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double largeHeightThreshold = 2.35;
+    double largeHeightThreshold = LARGE_HEIGHT;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP On Tag for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpOnTag = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP On Throw for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

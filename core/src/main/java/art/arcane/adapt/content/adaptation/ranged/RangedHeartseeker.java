@@ -61,7 +61,6 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.viewer.GlowColor;
-import art.arcane.adapt.platform.world.RayHit;
 import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -190,7 +189,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    LivingRef target = findLockCandidateOwned(player);
+    LivingRef target = HeartseekerGuidance.lockCandidate(player, getLockRange());
     if (target == null || !workBudget.tryTargetSnapshot()) {
       return;
     }
@@ -243,7 +242,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return;
     }
 
-    double speed = HeartseekerFlightMath.seekSpeed(arrow.velocity().length());
+    double speed = HeartseekerGuidance.seekSpeed(arrow);
     int piercingPasses = resolvePiercingPasses(player);
     int ricochetPasses = resolveRicochetPasses(player);
     long lifecycleToken = lifecycle.current();
@@ -622,7 +621,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     arrow.setPickupRule(ArrowPickup.CREATIVE_ONLY);
     arrow.setPierceLevel(0);
     SEEKING.set(arrow, true);
-    applyFlightOwned(arrow, arrow.velocity(), state.speed);
+    HeartseekerGuidance.fly(arrow, arrow.velocity(), state.speed);
     return state;
   }
 
@@ -900,7 +899,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
           endHomingOwned(arrow, state, true, true);
           return;
         }
-        applyFlightOwned(arrow, exitDirection, state.speed);
+        HeartseekerGuidance.fly(arrow, exitDirection, state.speed);
         updateTrailOwned(state, arrowLocation, now);
         return;
       }
@@ -984,17 +983,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
     direction = clearDirection;
 
-    applyFlightOwned(arrow, direction, state.speed);
+    HeartseekerGuidance.fly(arrow, direction, state.speed);
     updateTrailOwned(state, arrowLocation, now);
-  }
-
-  private void applyFlightOwned(ProjectileRef arrow, Vec3 direction, double speed) {
-    Vec3 normalized = direction.lengthSquared() <= 0.000001D
-        ? new Vec3(0D, 0D, 1D)
-        : direction.normalize();
-    HeartseekerFlightMath.Facing facing = HeartseekerFlightMath.facing(normalized);
-    arrow.setRotation(facing.yaw(), facing.pitch());
-    arrow.setVelocity(normalized.multiply(speed));
   }
 
   private void updateTrailOwned(HomingState state, Loc arrowLocation, long now) {
@@ -1293,7 +1283,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
     Vec3 direction = template.exitDirection();
     next.setShooter(owner);
-    applyFlightOwned(next, direction, speed);
+    HeartseekerGuidance.fly(next, direction, speed);
     next.setDamage(template.damage());
     next.setCritical(template.critical());
     next.setFireTicks(template.fireTicks());
@@ -1625,25 +1615,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
   }
 
-  private LivingRef findLockCandidateOwned(PlayerRef player) {
-    Loc eye = player.eyeLocation();
-    double range = getLockRange();
-    Vec3 direction = eye.direction();
-    if (!isRayPathOwned(eye, direction, range)) {
-      return null;
-    }
-    RayHit hit = player.world().rayTrace(
-        eye.position(),
-        direction,
-        range,
-        false,
-        0.6D,
-        (EntityRef entity) -> entity instanceof LivingRef && !entity.uuid().equals(player.uuid())
-            && !entity.has(EntityTrait.ARMOR_STAND)
-    );
-    return hit != null && hit.entity() instanceof LivingRef target ? target : null;
-  }
-
   private TargetSnapshot captureTargetOwned(UUID ownerId, LivingRef target) {
     if (!AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)
         || !target.isValid() || target.isDead()) {
@@ -1697,7 +1668,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private Vec3 resolveClearFlightDirectionOwned(Loc arrowLocation, Vec3 preferred,
                                                 Vec3 desired, double lookahead,
                                                 HomingState state, long now) {
-    if (lookahead <= 0.6D || !isRayPathOwned(arrowLocation, preferred, lookahead)) {
+    if (lookahead <= 0.6D || !HeartseekerGuidance.rayPathOwned(arrowLocation, preferred, lookahead)) {
       return preferred;
     }
     if (!workBudget.tryRayTrace()) {
@@ -1751,7 +1722,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
             getAvoidanceStrength()
         );
       }
-      if (!isRayPathOwned(arrowLocation, option, lookahead) || !workBudget.tryRayTrace()) {
+      if (!HeartseekerGuidance.rayPathOwned(arrowLocation, option, lookahead) || !workBudget.tryRayTrace()) {
         continue;
       }
       if (arrowLocation.world().rayTraceBlock(arrowLocation.position(), option, lookahead, false) == null) {
@@ -1804,25 +1775,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       }
       point = point.add(increment);
     }
-  }
-
-  private boolean isRayPathOwned(Loc origin, Vec3 direction, double distance) {
-    WorldRef world = origin.world();
-    Vec3 unit = direction.lengthSquared() <= 0.000001D
-        ? Vec3.ZERO
-        : direction.normalize();
-    double length = Math.max(0D, distance);
-    double endX = origin.x() + (unit.x() * length);
-    double endZ = origin.z() + (unit.z() * length);
-    boolean regionized = Tasks.isFoliaThreading();
-    return HeartseekerChunkTraversal.allChunks(
-        origin.x(),
-        origin.z(),
-        endX,
-        endZ,
-        (chunkX, chunkZ) -> world.isChunkLoaded(chunkX, chunkZ)
-            && (!regionized || Tasks.isOwnedByCurrentRegion(world, chunkX, chunkZ))
-    );
   }
 
   private boolean isAreaOwned(Loc center, double radius) {

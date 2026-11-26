@@ -15,13 +15,13 @@ import java.util.Set;
 public final class UnarmedPreferences {
   static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", key("player_targets", "Disarm players"));
   static final PlayerPreference<CommonPreferences.Toggle> ARMOR = CommonPreferences.toggle("mob-armor", key("mob_armor", "Disarm mob armor"));
-  static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat", key("combat", "Unarmed damage bonus"));
-  static final PlayerPreference<CommonPreferences.Toggle> BREAKING = CommonPreferences.toggle("soft-blocks", key("soft_blocks", "Faster soft block breaking"));
+  public static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat", key("combat", "Unarmed damage bonus"));
+  public static final PlayerPreference<CommonPreferences.Toggle> BREAKING = CommonPreferences.toggle("soft-blocks", key("soft_blocks", "Faster soft block breaking"));
   static final PlayerPreference<CommonPreferences.Toggle> AIRBORNE = CommonPreferences.toggle("airborne-only", key("airborne_only", "Require airborne clap"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> ARM = CommonPreferences.toggle("require-arming", key("require_arming", "Require sneak-right-click arming"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> MANUAL = CommonPreferences.toggle("manual-meditation", key("manual_meditation", "Require explicit meditation arming"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> ARMED = CommonPreferences.toggle("meditation-armed", key("meditation_armed", "Meditation armed"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
       new PlayerPreference.Definition<>("targets", key("targets", "Eligible targets"), Targets.ALL, List.of(
           choice(Targets.ALL, "all", "All permitted targets", Id.minecraft("diamond_sword")),
           choice(Targets.HOSTILE, "hostile", "Hostile mobs", Id.minecraft("zombie_head")),
@@ -31,7 +31,7 @@ public final class UnarmedPreferences {
           choice(Loadout.BOTH, "both", "Fists or shield", Id.minecraft("shield")),
           choice(Loadout.FISTS, "fists", "Empty hands only", Id.minecraft("leather")),
           choice(Loadout.SHIELD, "shield", "Shield only", Id.minecraft("shield")))));
-  static final PlayerPreference<Release> RELEASE = new PlayerPreference<>(Release.class,
+  public static final PlayerPreference<Release> RELEASE = new PlayerPreference<>(Release.class,
       new PlayerPreference.Definition<>("release", key("release", "Release grabbed target"), Release.SNEAK_OR_HIT, List.of(
           choice(Release.SNEAK_OR_HIT, "sneak_or_hit", "Release sneak or punch again", Id.minecraft("leather_boots")),
           choice(Release.NEXT_HIT, "next_hit", "Punch again only", Id.minecraft("leather")))));
@@ -54,7 +54,7 @@ public final class UnarmedPreferences {
   private static <E extends Enum<E>> PlayerPreference.Choice<E> choice(E value, String id, String text, Id icon) {
     return new PlayerPreference.Choice<>(value, key(id, text), icon, 1);
   }
-  enum Targets {
+  public enum Targets {
     ALL, HOSTILE, NON_PLAYERS;
     boolean accepts(LivingRef target) {
       return this == ALL || (!(target instanceof PlayerRef) && (this == NON_PLAYERS || AdaptationDamageTargets.allows(target, true)));
@@ -64,7 +64,7 @@ public final class UnarmedPreferences {
     BOTH, FISTS, SHIELD;
     boolean accepts(boolean fists, boolean shield) { return (this != SHIELD && fists) || (this != FISTS && shield); }
   }
-  enum Release { SNEAK_OR_HIT, NEXT_HIT }
+  public enum Release { SNEAK_OR_HIT, NEXT_HIT }
   enum Reserve {
     NONE(0), FIVE(5), TEN(10);
     private final int remaining;

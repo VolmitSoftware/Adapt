@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.item;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.item.AdaptItemGuard;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.platform.entity.Hand;
@@ -66,6 +67,7 @@ class GolemItemGuardTest extends AdaptTestBase {
 
   private final ExactIngredientBook book = new ExactIngredientBook();
   private final GolemItemGuard guard = new GolemItemGuard(book);
+  private final AdaptItemGuard items = new AdaptItemGuard();
 
   @BeforeEach
   void installItems() {
@@ -217,13 +219,13 @@ class GolemItemGuardTest extends AdaptTestBase {
     for (Hand hand : new Hand[]{Hand.MAIN_HAND, Hand.OFF_HAND}) {
       PlayerInteractEvent click = interact(InteractAction.RIGHT_CLICK_BLOCK, crook(), hand);
 
-      guard.on(click);
+      items.on(click);
 
       assertThat(click.useItem()).describedAs("%s item use", hand).isEqualTo(UseResult.DENY);
       assertThat(click.useBlock()).describedAs("%s block use", hand).isEqualTo(UseResult.ALLOW);
     }
     PlayerInteractEvent air = interact(InteractAction.RIGHT_CLICK_AIR, crook(), Hand.MAIN_HAND);
-    guard.on(air);
+    items.on(air);
     assertThat(air.useItem()).isEqualTo(UseResult.DENY);
   }
 
@@ -232,8 +234,8 @@ class GolemItemGuardTest extends AdaptTestBase {
     PlayerInteractEvent plainHoe = interact(InteractAction.RIGHT_CLICK_BLOCK, GolemItemStacks.plain(Id.minecraft("iron_hoe")), Hand.MAIN_HAND);
     PlayerInteractEvent leftCrook = interact(InteractAction.LEFT_CLICK_BLOCK, crook(), Hand.MAIN_HAND);
 
-    guard.on(plainHoe);
-    guard.on(leftCrook);
+    items.on(plainHoe);
+    items.on(leftCrook);
 
     assertThat(plainHoe.useItem()).isEqualTo(UseResult.DEFAULT);
     assertThat(leftCrook.useItem()).isEqualTo(UseResult.DEFAULT);
@@ -243,7 +245,7 @@ class GolemItemGuardTest extends AdaptTestBase {
   void dormantGolemClicksReachBlockPlacementSoTheDeployCanHookIt() {
     PlayerInteractEvent click = interact(InteractAction.RIGHT_CLICK_BLOCK, GolemItemStacks.tagged(Id.minecraft("iron_block"), "dormant_golem", null), Hand.MAIN_HAND);
 
-    guard.on(click);
+    items.on(click);
 
     assertThat(click.useItem()).isEqualTo(UseResult.DEFAULT);
   }
@@ -254,9 +256,9 @@ class GolemItemGuardTest extends AdaptTestBase {
     BlockPlaceEvent node = place(GolemItemStacks.tagged(Id.minecraft("brick"), "node", null));
     BlockPlaceEvent plain = place(GolemItemStacks.plain(Id.minecraft("iron_block")));
 
-    guard.on(dormant);
-    guard.on(node);
-    guard.on(plain);
+    items.on(dormant);
+    items.on(node);
+    items.on(plain);
 
     assertThat(dormant.isCancelled()).isFalse();
     assertThat(node.isCancelled()).isTrue();
@@ -288,10 +290,10 @@ class GolemItemGuardTest extends AdaptTestBase {
     PrepareResultEvent plainEvent = new PrepareResultEvent(mock(PlayerRef.class), InventoryKind.GRINDSTONE,
         List.of(GolemItemStacks.plain(Id.minecraft("iron_hoe")), FakeItem.empty(), crook()), plainResult);
 
-    guard.on(smithing);
-    guard.on(anvilEvent);
-    guard.on(grindstoneEvent);
-    guard.on(plainEvent);
+    items.on(smithing);
+    items.on(anvilEvent);
+    items.on(grindstoneEvent);
+    items.on(plainEvent);
 
     assertThat(smithing.result().isEmpty()).isTrue();
     assertThat(anvilEvent.result().isEmpty()).isTrue();
@@ -306,10 +308,10 @@ class GolemItemGuardTest extends AdaptTestBase {
     EnchantItemEvent enchantCrook = enchant(crook());
     EnchantItemEvent enchantHoe = enchant(GolemItemStacks.plain(Id.minecraft("iron_hoe")));
 
-    guard.on(prepareCrook);
-    guard.on(prepareHoe);
-    guard.on(enchantCrook);
-    guard.on(enchantHoe);
+    items.on(prepareCrook);
+    items.on(prepareHoe);
+    items.on(enchantCrook);
+    items.on(enchantHoe);
 
     assertThat(prepareCrook.isCancelled()).isTrue();
     assertThat(prepareHoe.isCancelled()).isFalse();
@@ -322,8 +324,8 @@ class GolemItemGuardTest extends AdaptTestBase {
     BlockCookEvent node = smelt(GolemItemStacks.tagged(Id.minecraft("clay_ball"), "blank_node", null));
     BlockCookEvent clay = smelt(GolemItemStacks.plain(Id.minecraft("clay_ball")));
 
-    guard.on(node);
-    guard.on(clay);
+    items.on(node);
+    items.on(clay);
 
     assertThat(node.isCancelled()).isTrue();
     assertThat(clay.isCancelled()).isFalse();
@@ -336,9 +338,9 @@ class GolemItemGuardTest extends AdaptTestBase {
     InventoryClickEvent taggedResultOnly = resultClick(InventoryKind.STONECUTTER, List.of(GolemItemStacks.plain(Id.minecraft("copper_block")), dormantCopper), List.of());
     InventoryClickEvent workbench = resultClick(InventoryKind.WORKBENCH, List.of(FakeItem.empty(), dormantCopper), List.of());
 
-    guard.on(taggedInput);
-    guard.on(taggedResultOnly);
-    guard.on(workbench);
+    items.on(taggedInput);
+    items.on(taggedResultOnly);
+    items.on(workbench);
 
     assertThat(taggedInput.isCancelled()).isTrue();
     assertThat(taggedResultOnly.isCancelled()).isFalse();
@@ -350,7 +352,7 @@ class GolemItemGuardTest extends AdaptTestBase {
     ItemRef input = GolemItemStacks.tagged(Id.minecraft("iron_block"), "dormant_golem", null);
     InventoryClickEvent click = resultClick(InventoryKind.STONECUTTER, List.of(input, GolemItemStacks.plain(Id.minecraft("iron_bars"))), List.of());
 
-    guard.on(click);
+    items.on(click);
 
     assertThat(click.isCancelled()).isTrue();
     assertThat(click.topItems().getFirst()).isSameAs(input);
@@ -383,9 +385,9 @@ class GolemItemGuardTest extends AdaptTestBase {
     BlockDispenseEvent dropper = new BlockDispenseEvent(block(Id.minecraft("dropper")), crook(), Vec3.ZERO);
     BlockDispenseEvent hoe = new BlockDispenseEvent(block(Id.minecraft("dispenser")), GolemItemStacks.plain(Id.minecraft("iron_hoe")), Vec3.ZERO);
 
-    guard.on(dispenser);
-    guard.on(dropper);
-    guard.on(hoe);
+    items.on(dispenser);
+    items.on(dropper);
+    items.on(hoe);
 
     assertThat(dispenser.isCancelled()).isTrue();
     assertThat(dropper.isCancelled()).isFalse();

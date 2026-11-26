@@ -24,7 +24,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -85,7 +84,7 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
     PlayerRef p = combat.attacker();
     LivingRef target = combat.target();
 
-    double maxHealth = getMaxHealth(target);
+    double maxHealth = SwordDuels.maxHealth(target);
     if (maxHealth <= 0) {
       return;
     }
@@ -139,10 +138,6 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
           .particle(Particles.FLASH, 1, 0, 0, 0, 0, 0)
           .sound(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1F);
     }
-  }
-
-  private double getMaxHealth(LivingRef entity) {
-    return entity.hasAttribute(Attributes.MAX_HEALTH) ? entity.attributeValue(Attributes.MAX_HEALTH) : entity.health();
   }
 
   private double getBonusDamage(int level) {

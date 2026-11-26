@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -135,20 +137,11 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
   }
 
   private void negate(PlayerRef p, EntityDamageEvent e, String flavor) {
-    double before = e.damage();
-    fullyNegateDamage(e);
-    p.setFireTicks(0);
+    double before = NetherAshGuard.negate(this, p, e, flavor.equals("magma"),
+        immunitySoundVolume(getConfig().immunitySoundVolume));
     int prevented = (int) Math.round(Math.max(1D, before));
     addStat(p, "nether.ashwalker.damage-negated", prevented);
     xp(p, Math.max(before, 1D) * getConfig().xpPerNegatedDamage);
-    float pitch = flavor.equals("magma") ? 1.4F : 1.0F;
-    FxEmitter feedback = fx(p.location(), FxPriority.TRANSITION)
-        .particle(Particles.SMOKE, 4, 0.2D, 0.1D, 0.2D, 0.2D, 0.01D)
-        .particle(Particles.ASH, 3, 0.2D, 0.1D, 0.2D, 0.1D, 0.0D);
-    float soundVolume = immunitySoundVolume(getConfig().immunitySoundVolume);
-    if (soundVolume > 0F) {
-      feedback.sound(Sounds.BLOCK_FIRE_EXTINGUISH, soundVolume, pitch);
-    }
   }
 
   static void fullyNegateDamage(EntityDamageEvent event) {
@@ -201,7 +194,7 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     return null;
   }
 
-  static boolean isMagmaDamage(EntityDamageEvent event) {
+  public static boolean isMagmaDamage(EntityDamageEvent event) {
     return HOT_FLOOR.equals(event.damageType());
   }
 
@@ -217,7 +210,7 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     return level >= unlockLevel;
   }
 
-  static boolean isCampfireDamage(DamageCause cause) {
+  public static boolean isCampfireDamage(DamageCause cause) {
     return cause == DamageCause.CAMPFIRE;
   }
 
@@ -225,6 +218,15 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     return level >= maxLevel;
   }
 
+
+  static void ashFx(Adaptation<?> owner, PlayerRef p, boolean magma, float soundVolume) {
+    FxEmitter feedback = Fx.now(owner, p.location(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 4, 0.2D, 0.1D, 0.2D, 0.2D, 0.01D)
+        .particle(Particles.ASH, 3, 0.2D, 0.1D, 0.2D, 0.1D, 0.0D);
+    if (soundVolume > 0F) {
+      feedback.sound(Sounds.BLOCK_FIRE_EXTINGUISH, soundVolume, magma ? 1.4F : 1.0F);
+    }
+  }
 
   @ConfigDescription("Ignore magma-block and campfire burns, and shrug off most soul-fire damage at mastery.")
   protected static class Config extends AdaptationConfig {

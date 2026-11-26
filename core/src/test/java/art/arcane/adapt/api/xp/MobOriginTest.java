@@ -15,4 +15,9 @@ class MobOriginTest {
     assertThat(MobOrigin.isFarmedReason(CreatureSpawnEvent.Reason.NATURAL)).isFalse();
     assertThat(MobOrigin.isFarmedReason(CreatureSpawnEvent.Reason.TRIAL_SPAWNER)).isFalse();
   }
+
+  @Test
+  void playerBuiltWithersAreFarmed() {
+    assertThat(MobOrigin.isFarmedReason(CreatureSpawnEvent.Reason.BUILD_WITHER)).isTrue();
+  }
 }

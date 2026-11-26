@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 public final class HunterPreferences {
-  static final PlayerPreference<CommonPreferences.Toggle> TRAIL = CommonPreferences.toggle("private-trail", key("trail", "Private blood trail"));
+  public static final PlayerPreference<CommonPreferences.Toggle> TRAIL = CommonPreferences.toggle("private-trail", key("trail", "Private blood trail"));
   static final PlayerPreference<CommonPreferences.Toggle> BLOCK_DROPS = CommonPreferences.toggle("block-drops", key("blocks", "Collect block drops"));
   static final PlayerPreference<CommonPreferences.Toggle> MOB_DROPS = CommonPreferences.toggle("mob-drops", key("mobs", "Collect mob drops"));
-  static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("hunger-reserve", key("reserve", "Minimum hunger to activate"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("bowl")),
           choice(Reserve.FIVE, "five", "At least 5 hunger", Id.minecraft("apple")),
@@ -28,7 +28,7 @@ public final class HunterPreferences {
           choice(Items.FOOD, "food", "Food only", Id.minecraft("cooked_beef")),
           choice(Items.BLOCKS, "blocks_only", "Blocks only", Id.minecraft("stone")),
           choice(Items.MATERIALS, "materials", "Crafting drops only", Id.minecraft("leather")))));
-  static final PlayerPreference<Glow> GLOW = new PlayerPreference<>(Glow.class,
+  public static final PlayerPreference<Glow> GLOW = new PlayerPreference<>(Glow.class,
       new PlayerPreference.Definition<>("trail-color", key("glow", "Blood trail color"), Glow.BLOOD, List.of(
           choice(Glow.BLOOD, "blood", "Blood red", Id.minecraft("red_dye")),
           choice(Glow.WHITE, "white", "White", Id.minecraft("white_dye")),
@@ -50,7 +50,7 @@ public final class HunterPreferences {
   private static <E extends Enum<E>> PlayerPreference.Choice<E> choice(E value, String id, String text, Id icon) {
     return new PlayerPreference.Choice<>(value, key(id, text), icon, 1);
   }
-  enum Reserve {
+  public enum Reserve {
     NONE(0), FIVE(5), TEN(10), FIFTEEN(15);
     private final int minimum;
     Reserve(int minimum) { this.minimum = minimum; }
@@ -71,7 +71,7 @@ public final class HunterPreferences {
       };
     }
   }
-  enum Glow {
+  public enum Glow {
     BLOOD, WHITE, CYAN, GOLD;
     Rgb color() {
       return switch (this) {

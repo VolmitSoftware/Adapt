@@ -11,33 +11,37 @@ import java.util.Set;
 
 public final class AxePreferences {
   static final PlayerPreference<CommonPreferences.Toggle> LATCH = CommonPreferences.toggle("latched-run", key("latch", "Latch tree felling; sneak again to cancel"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
-  static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", key("players", "Affect players"));
-  static final PlayerPreference<CommonPreferences.Scale> WORK = CommonPreferences.scale("work-limit", key("work", "Work limit"));
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", key("players", "Affect players"));
+  public static final PlayerPreference<CommonPreferences.Scale> WORK = CommonPreferences.scale("work-limit", key("work", "Work limit"));
   static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("hunger-reserve", key("reserve", "Hunger remaining after use"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("bowl")),
           choice(Reserve.FIVE, "five", "Keep 5 hunger", Id.minecraft("apple")),
           choice(Reserve.TEN, "ten", "Keep 10 hunger", Id.minecraft("bread")),
           choice(Reserve.FIFTEEN, "fifteen", "Keep 15 hunger", Id.minecraft("cooked_beef")))));
-  static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
       new PlayerPreference.Definition<>("items", key("items", "Collected items"), Items.ALL, List.of(
           choice(Items.ALL, "all", "All permitted", Id.minecraft("chest")),
           choice(Items.LOGS, "logs", "Logs and stems", Id.minecraft("oak_log")),
           choice(Items.SAPLINGS, "saplings", "Saplings and propagules", Id.minecraft("oak_sapling")),
           choice(Items.APPLES, "apples", "Apples only", Id.minecraft("apple")))));
-  static final PlayerPreference<Trigger> TRIGGER = new PlayerPreference<>(Trigger.class,
+  public static final PlayerPreference<Trigger> TRIGGER = new PlayerPreference<>(Trigger.class,
       new PlayerPreference.Definition<>("trigger", key("trigger", "Activation gesture"), Trigger.SNEAK, List.of(
           choice(Trigger.SNEAK, "while_sneaking", "While sneaking", Id.minecraft("leather_boots")),
           choice(Trigger.NOT_SNEAKING, "not_sneaking", "While not sneaking", Id.minecraft("iron_boots")),
           choice(Trigger.ALWAYS, "always", "Always", Id.minecraft("diamond_boots")))));
+  public static final PlayerPreference<FelledLogs> FELLED_LOGS = new PlayerPreference<>(FelledLogs.class,
+      new PlayerPreference.Definition<>("felled-logs", key("felled_logs", "Felled logs"), FelledLogs.STRIPPED, List.of(
+          choice(FelledLogs.STRIPPED, "stripped", "Stripped logs", Id.minecraft("stripped_oak_log")),
+          choice(FelledLogs.PLANKS, "planks", "Planks", Id.minecraft("oak_planks")))));
 
   private AxePreferences() {}
 
   public static void addMessages(MessageCatalog.Builder builder) {
     Set<String> added = new HashSet<>();
-    for (PlayerPreference<?> preference : List.of(LATCH, SNEAK, IGNORE_PASSIVE, PLAYERS, WORK, RESERVE, ITEMS, TRIGGER)) {
+    for (PlayerPreference<?> preference : List.of(LATCH, SNEAK, IGNORE_PASSIVE, PLAYERS, WORK, RESERVE, ITEMS, TRIGGER, FELLED_LOGS)) {
       if (added.add(preference.label().id())) { builder.add(preference.label()); }
       for (PlayerPreference.Choice<?> choice : preference.choices()) {
         if (choice.label().id().startsWith("axe.preferences.") && added.add(choice.label().id())) { builder.add(choice.label()); }
@@ -54,9 +58,9 @@ public final class AxePreferences {
     Reserve(int minimum) { this.minimum = minimum; }
     boolean permits(int food) { return food >= minimum; }
   }
-  enum Items {
+  public enum Items {
     ALL, LOGS, SAPLINGS, APPLES;
-    boolean accepts(Id material) {
+    public boolean accepts(Id material) {
       String name = material.path();
       return switch (this) {
         case ALL -> true;
@@ -66,8 +70,11 @@ public final class AxePreferences {
       };
     }
   }
-  enum Trigger {
+  public enum FelledLogs {
+    STRIPPED, PLANKS
+  }
+  public enum Trigger {
     SNEAK, NOT_SNEAKING, ALWAYS;
-    boolean accepts(boolean sneaking) { return this == ALWAYS || (this == SNEAK) == sneaking; }
+    public boolean accepts(boolean sneaking) { return this == ALWAYS || (this == SNEAK) == sneaking; }
   }
 }

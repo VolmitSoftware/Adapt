@@ -33,7 +33,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.StealthMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -65,8 +64,6 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
 
   private final Map<UUID, Long> lastArmPress = playerState();
   private static final Set<UUID> MELDED = ConcurrentHashMap.newKeySet();
-  private static final int INVISIBILITY_REFRESH_TICKS = 40;
-  private static final Id INVISIBILITY = Id.minecraft("invisibility");
   private static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
   static final long CANDIDATE_SCAN_INTERVAL_MILLIS = 250L;
   static final int MAX_CANDIDATE_VISITS_PER_TICK = 256;
@@ -318,20 +315,9 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
   }
 
   private void applyInvisibility(MeldSession session) {
-    PlayerRef player = session.player;
-    EffectInstance current = player.effect(INVISIBILITY);
-    if (current != null && current.durationTicks() > INVISIBILITY_REFRESH_TICKS + 5) {
-      return;
+    if (StealthVeil.veil(session.player)) {
+      session.appliedInvisibility = true;
     }
-    player.addEffect(new EffectInstance(
-        INVISIBILITY,
-        INVISIBILITY_REFRESH_TICKS,
-        0,
-        false,
-        false,
-        false
-    ));
-    session.appliedInvisibility = true;
   }
 
   private void removeInvisibility(MeldSession session) {
@@ -343,11 +329,7 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     if (!player.isOnline() || smokePellet.isConcealed(player)) {
       return;
     }
-    EffectInstance current = player.effect(INVISIBILITY);
-    if (current != null && current.amplifier() == 0
-        && current.durationTicks() <= INVISIBILITY_REFRESH_TICKS + 5) {
-      player.removeEffect(INVISIBILITY);
-    }
+    StealthVeil.unveil(player);
   }
 
   private void endSession(MeldSession session, boolean feedback) {

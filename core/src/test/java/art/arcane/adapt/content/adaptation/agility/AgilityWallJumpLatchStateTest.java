@@ -50,7 +50,7 @@ class AgilityWallJumpLatchStateTest {
   void latchFallProtectionClearsAccumulatedFallDistance() {
     PlayerRef player = mock(PlayerRef.class);
 
-    AgilityWallJump.clearLatchedFallDistance(player);
+    AgilityWallLatch.clearLatchedFallDistance(player);
 
     verify(player).setFallDistance(0F);
   }

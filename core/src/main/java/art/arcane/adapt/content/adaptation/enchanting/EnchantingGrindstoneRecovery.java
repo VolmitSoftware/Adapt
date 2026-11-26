@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -31,34 +31,28 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
+import art.arcane.adapt.content.adaptation.enchanting.upgraded.ArcaneHand;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
-import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.inventory.InventoryAction;
 import art.arcane.adapt.platform.event.inventory.InventoryClickEvent;
-import art.arcane.adapt.platform.event.inventory.InventoryKind;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGrindstoneRecovery.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> BOOKS = CommonPreferences.toggle("books", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BOOKS, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> BONUS_XP = CommonPreferences.toggle("bonus-xp", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BONUS_XP, CommonPreferences.Toggle.ON);
-  private static final Id GRINDSTONE = Id.minecraft("grindstone");
-  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
-  private final Map<UUID, PendingRecovery> pendingRecoveries = playerState();
+  private final EnchantingGrindstones grindstones = new EnchantingGrindstones(this, playerState());
 
   public EnchantingGrindstoneRecovery() {
     super("enchanting-grindstone-recovery");
@@ -107,82 +101,53 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
   @Handle(priority = EventPriority.MONITOR)
   public void on(InventoryClickEvent e) {
     PlayerRef p = e.player();
-    if (e.rawSlot() != 2 || e.viewKind() != InventoryKind.GRINDSTONE) {
-      return;
-    }
-
-    if (!isItem(e.currentItem()) || e.action() == InventoryAction.NOTHING
-        || e.action() == InventoryAction.CLONE_STACK) {
-      return;
-    }
-
     int level = getActiveLevel(p);
-    if (level <= 0 || p.hasCooldown(GRINDSTONE)
-        || !preferenceEnabled(p, BOOKS) && !preferenceEnabled(p, BONUS_XP)) {
+    if (level <= 0 || !preferenceEnabled(p, BOOKS) && !preferenceEnabled(p, BONUS_XP) || libraryRuns(p)) {
       return;
     }
 
-    InventoryRef top = p.openMenuInventory();
-    if (top == null) {
-      return;
-    }
-    ItemRef source = getEnchantedSource(top.item(0), top.item(1));
-    if (source == null) {
+    EnchantingGrindstones.Pull pull = EnchantingGrindstones.pull(e, level);
+    if (pull == null || ThreadLocalRandom.current().nextDouble() >= getRecoverChance(level)) {
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble() >= getRecoverChance(level)) {
-      return;
+    Map<Id, Integer> recoverable = new LinkedHashMap<>(pull.source().enchantments());
+    recoverable.keySet().removeAll(EnchantingGrindstones.libraryEnchants(pull.source()));
+    recoverable.keySet().removeIf(EnchantingCurseCleansing::isCurse);
+    ItemRef recovered = makeBook(recoverable);
+    if (recovered != null) {
+      grindstones.commitNextTick(p, pull, (EnchantingGrindstones.Pull done) -> commitRecovery(p, done, recovered));
     }
-
-    ItemRef recovered = makeBook(source.enchantments());
-    if (recovered == null) {
-      return;
-    }
-
-    PendingRecovery pending = new PendingRecovery(e, top, p.openMenuLocation(), recovered, level);
-    UUID playerId = p.uuid();
-    pendingRecoveries.put(playerId, pending);
-    Tasks.runEntity(p, () -> commitRecovery(p, pending), 1);
   }
 
-  private void commitRecovery(PlayerRef p, PendingRecovery pending) {
-    if (!pendingRecoveries.remove(p.uuid(), pending) || !p.isOnline()
-        || getActiveLevel(p) <= 0 || p.hasCooldown(GRINDSTONE)
-        || !pending.inventory().equals(p.openMenuInventory())
-        || (Tasks.isFoliaThreading() && pending.location() != null
-        && !Tasks.isOwnedByCurrentRegion(pending.location()))
-        || !committedRemoval(pending.event(), pending.inventory())) {
-      return;
+  /** Arcane Hand's grindstone library takes over the grind for its holders. */
+  private boolean libraryRuns(PlayerRef p) {
+    if (getSkill() == null) {
+      return false;
     }
+    for (Adaptation<?> upgrade : getSkill().getUpgrades()) {
+      if (upgrade instanceof ArcaneHand && upgrade.getActiveLevel(p) > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
 
+  private void commitRecovery(PlayerRef p, EnchantingGrindstones.Pull pull, ItemRef book) {
     if (preferenceEnabled(p, BOOKS)) {
-      List<ItemRef> overflow = p.inventory().addItem(pending.book());
-      overflow.forEach(item -> p.world().dropItemNaturally(p.location().position(), item));
+      EnchantingGrindstones.deliver(p, book);
     }
-    int xp = Math.max(0, (int) Math.round(getBonusXp(pending.level())));
+    int xp = Math.max(0, (int) Math.round(getBonusXp(pull.level())));
     if (xp > 0 && preferenceEnabled(p, BONUS_XP)) {
       giveExp(p, xp);
     }
 
-    int cooldownTicks = getCooldownTicks(pending.level());
-    p.setCooldown(GRINDSTONE, cooldownTicks);
+    int cooldownTicks = getCooldownTicks(pull.level());
+    p.setCooldown(EnchantingGrindstones.GRINDSTONE, cooldownTicks);
     AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
-    recoverySuccessFx(p, pending.level());
+    recoverySuccessFx(p, pull.level());
     xp(p, getConfig().skillXpOnRecovery);
     addStat(p, "enchanting.grindstone-recovery.enchants-recovered", 1);
-  }
-
-  static boolean committedRemoval(InventoryClickEvent event, InventoryRef inventory) {
-    return !event.isCancelled() && isEmpty(inventory.item(0))
-        && isEmpty(inventory.item(1)) && isEmpty(inventory.item(2));
-  }
-
-  private static boolean isEmpty(ItemRef item) {
-    if (item == null || item.amount() <= 0) {
-      return true;
-    }
-    return item.type().isAir();
   }
 
   private void recoverySuccessFx(PlayerRef p, int level) {
@@ -209,22 +174,6 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
         .start();
   }
 
-  private ItemRef getEnchantedSource(ItemRef a, ItemRef b) {
-    if (isEnchanted(a)) {
-      return a;
-    }
-
-    if (isEnchanted(b)) {
-      return b;
-    }
-
-    return null;
-  }
-
-  private boolean isEnchanted(ItemRef item) {
-    return isItem(item) && !item.enchantments().isEmpty();
-  }
-
   private ItemRef makeBook(Map<Id, Integer> source) {
     if (source.isEmpty()) {
       return null;
@@ -232,14 +181,7 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
 
     List<Map.Entry<Id, Integer>> entries = new ArrayList<>(source.entrySet());
     Map.Entry<Id, Integer> picked = entries.get(ThreadLocalRandom.current().nextInt(entries.size()));
-    ItemRef book = AdaptCore.platform().host().items().create(ENCHANTED_BOOK);
-    if (book.isEmpty()) {
-      return null;
-    }
-
-    int safeLevel = Math.max(1, Math.min(picked.getValue(), AdaptCore.platform().host().registries().enchantmentMaxLevel(picked.getKey())));
-    book.setStoredEnchantment(picked.getKey(), safeLevel);
-    return book;
+    return EnchantingGrindstones.book(picked.getKey(), picked.getValue());
   }
 
   private double getRecoverChance(int level) {
@@ -267,9 +209,6 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     return Math.max(Math.max(0, minimum), (int) Math.round(Math.max(0D, Math.min(Integer.MAX_VALUE, scaled))));
   }
 
-
-  private record PendingRecovery(InventoryClickEvent event, InventoryRef inventory, Loc location, ItemRef book, int level) {
-  }
 
   @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
   protected static class Config extends AdaptationConfig {

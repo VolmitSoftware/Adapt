@@ -42,10 +42,10 @@ class ExcavationAdaptationLogicTest {
 
   @Test
   void hasteLevelsMapToTwentyPercentBreakSpeedPerLevel() {
-    assertThat(ExcavationHaste.hasteAmount(1)).isCloseTo(0.20D, within(1e-9D));
-    assertThat(ExcavationHaste.hasteAmount(2)).isCloseTo(0.40D, within(1e-9D));
-    assertThat(ExcavationHaste.hasteAmount(3)).isCloseTo(0.60D, within(1e-9D));
-    assertThat(ExcavationHaste.hasteAmount(0)).isCloseTo(0.20D, within(1e-9D));
+    assertThat(ExcavationHasteBoost.hasteAmount(1)).isCloseTo(0.20D, within(1e-9D));
+    assertThat(ExcavationHasteBoost.hasteAmount(2)).isCloseTo(0.40D, within(1e-9D));
+    assertThat(ExcavationHasteBoost.hasteAmount(3)).isCloseTo(0.60D, within(1e-9D));
+    assertThat(ExcavationHasteBoost.hasteAmount(0)).isCloseTo(0.20D, within(1e-9D));
   }
 
   @Test
@@ -201,8 +201,8 @@ class ExcavationAdaptationLogicTest {
       }
     };
 
-    assertThat(ExcavationSeismicPing.nearestVein(port, origin, 16)).isEqualTo(near);
-    assertThat(ExcavationSeismicPing.nearestVein(HiddenOrePort.NONE, origin, 16)).isNull();
+    assertThat(ExcavationOreScan.nearestVein(port, origin, 16)).isEqualTo(near);
+    assertThat(ExcavationOreScan.nearestVein(HiddenOrePort.NONE, origin, 16)).isNull();
   }
 
   @Test

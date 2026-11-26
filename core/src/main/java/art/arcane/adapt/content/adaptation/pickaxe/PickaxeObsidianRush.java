@@ -32,10 +32,8 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -47,18 +45,13 @@ import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.volmlib.util.math.M;
 
-import java.util.Map;
-import java.util.UUID;
 
 public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Config> {
-  private static final String RUSH_SLOT = "rush";
-  private static final long MILLIS_PER_TICK = 50L;
   private static final Id OBSIDIAN = Id.minecraft("obsidian");
   private static final Id CRYING_OBSIDIAN = Id.minecraft("crying_obsidian");
 
-  private final Map<UUID, Long> rushActiveUntil = playerState();
+  private final PickaxeMiningBoost rush = new PickaxeMiningBoost(this, "rush", Attributes.BLOCK_BREAK_SPEED, playerState());
 
   public PickaxeObsidianRush() {
     super("pickaxe-obsidian-rush");
@@ -101,12 +94,12 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
     return rushAmplifier(getConfig().amplifierBase, getConfig().maxAmplifier, level);
   }
 
-  private boolean isRushTarget(Id type) {
+  public static boolean isRushTarget(Id type) {
     return OBSIDIAN.equals(type) || CRYING_OBSIDIAN.equals(type);
   }
 
-  private boolean isRushPickaxe(ItemRef is) {
-    if (!isItem(is) || !is.type().isMinecraft()) {
+  public static boolean isRushPickaxe(ItemRef is) {
+    if (is == null || is.type().isAir() || !is.type().isMinecraft()) {
       return false;
     }
 
@@ -137,13 +130,7 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
       return;
     }
 
-    long now = M.ms();
-    Long previousExpiry = rushActiveUntil.put(p.uuid(), now + (durationTicks * MILLIS_PER_TICK));
-    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * MILLIS_PER_TICK);
-    boolean onset = previousExpiry == null || previousExpiry <= now;
-    AdaptAttributeService.get().applyTimed(p, getName(), RUSH_SLOT, Attributes.BLOCK_BREAK_SPEED,
-        rushSpeedBonus(getAmplifier(context.level())), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
-    if (onset) {
+    if (rush.surge(p, rushSpeedBonus(getAmplifier(context.level())), durationTicks)) {
       Rgb surge = CRYING_OBSIDIAN.equals(e.block().type()) ? Rgb.of(0x8A2BE2) : Rgb.of(0x3B2E5A);
       timeline(p)
           .duration(6)

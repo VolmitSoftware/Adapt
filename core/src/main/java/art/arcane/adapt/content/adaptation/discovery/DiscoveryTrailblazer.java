@@ -32,16 +32,12 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.world.GeneratedStructure;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -127,34 +123,9 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
       return;
     }
 
-    Loc loc = player.location();
-    WorldRef world = loc.world();
-    if (world == null) {
-      return;
-    }
-
-    PlayerData data = getPlayer(player).getData();
-    Id biome = world.blockAt(loc).biome();
-    String biomeKey = "discovery.trailblazer.biome." + biome;
-    if (data.getStat(biomeKey) <= 0) {
-      data.addStat(biomeKey, 1);
-      rewardDiscovery(player, level, false);
-      return;
-    }
-
-    for (GeneratedStructure structure : world.structuresAt(loc.chunkX(), loc.chunkZ())) {
-      if (!DiscoveryStructures.contains(structure.bounds(), loc.x(), loc.y(), loc.z())) {
-        continue;
-      }
-
-      String structureKey = "discovery.trailblazer.structure." + structure.type();
-      if (data.getStat(structureKey) > 0) {
-        continue;
-      }
-
-      data.addStat(structureKey, 1);
-      rewardDiscovery(player, level, true);
-      return;
+    FirstVisits.Visit visit = FirstVisits.record(getPlayer(player).getData(), player);
+    if (visit != FirstVisits.Visit.NONE) {
+      rewardDiscovery(player, level, visit == FirstVisits.Visit.STRUCTURE);
     }
   }
 
@@ -194,7 +165,7 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
     }
   }
 
-  static double firstVisitXp(double levelPercent, double base, double factor) {
+  public static double firstVisitXp(double levelPercent, double base, double factor) {
     return Math.max(0D, base + (levelPercent * factor));
   }
 

@@ -121,7 +121,7 @@ class BrewingRuntimeSkillTest {
     platform.host().potion(SWIFTNESS, EffectInstance.of(SPEED, 3600, 0));
     platform.host().effect(SPEED, EffectCategory.BENEFICIAL, false);
     platform.host().effectModifiers(SPEED,
-        new EffectModifier(Id.minecraft("movement_speed"), AttributeOperation.ADD_MULTIPLIED_TOTAL, 0.2D));
+        new EffectModifier("attribute.name.generic.movement_speed", AttributeOperation.ADD_MULTIPLIED_TOTAL, 0.2D));
     BrewingLingering lingering = learn(BrewingLingering.class, 1);
     owners.put(standBlock, player.uuid());
     ItemRef brewed = PotionBuilder.vanilla(PotionBuilder.Type.REGULAR, SWIFTNESS);
@@ -141,7 +141,7 @@ class BrewingRuntimeSkillTest {
         "\"color\":\"blue\"", "\"italic\":false");
     assertThat(result.loreJson().get(2)).contains("potion.whenDrank", "dark_purple");
     assertThat(result.loreJson().get(3)).contains("attribute.modifier.plus.2", "\"text\":\"20\"",
-        "attribute.name.movement_speed");
+        "\"translate\":\"attribute.name.generic.movement_speed\"");
     assertThat(profile.getData().getStat("brewing.lingering.potions-extended")).isEqualTo(1D);
   }
 

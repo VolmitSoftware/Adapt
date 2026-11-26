@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,41 +27,32 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.RiftMessages;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.InventoryRef;
-import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
-import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
@@ -94,23 +86,53 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   static final double HARD_MAX_RADIUS = 16D;
 
   private final Cooldowns engageThrottle;
-  private final MagnetCoordinator<PlayerRef> coordinator;
-  private final MagnetWorkBudget workBudget;
+  private final RiftMagnet magnet;
 
   public RiftVoidMagnet() {
     super("rift-void-magnet");
     engageThrottle = cooldowns();
-    coordinator = new MagnetCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
-    workBudget = new MagnetWorkBudget(
-        HARD_MAX_SESSION_VISITS_PER_WINDOW,
-        HARD_MAX_SCAN_OWNER_HANDOFFS_PER_WINDOW,
-        HARD_MAX_SCAN_EXECUTIONS_PER_WINDOW,
-        HARD_MAX_CANDIDATE_INSPECTIONS_PER_WINDOW,
-        HARD_MAX_ITEM_HANDOFFS_PER_WINDOW,
-        HARD_MAX_ITEM_EXECUTIONS_PER_WINDOW,
-        WORK_WINDOW_MILLIS,
-        System::currentTimeMillis
-    );
+    magnet = new RiftMagnet(this, new RiftMagnet.Settings() {
+      @Override
+      public boolean armed(PlayerRef player) {
+        return collectionArmed(player);
+      }
+
+      @Override
+      public int level(PlayerRef player) {
+        return getActiveLevel(player, RiftVoidMagnet.this::collectionArmed);
+      }
+
+      @Override
+      public double radius(int level) {
+        return getRadius(level);
+      }
+
+      @Override
+      public int maxItems(int level) {
+        return getMaxItems(level);
+      }
+
+      @Override
+      public int pulseTicks(int level) {
+        return getPulseTicks(level);
+      }
+
+      @Override
+      public boolean accepts(PlayerRef player, Id type) {
+        return acceptsItem(preference(player, ITEMS), type);
+      }
+
+      @Override
+      public Destination destination(PlayerRef player) {
+        return getConfig().allowEnderChestOverflow ? preference(player, DESTINATION) : Destination.CHEST_ONLY;
+      }
+
+      @Override
+      public void pulled(PlayerRef player, int moved) {
+        addStat(player, "rift.void-magnet.items-pulled", moved);
+        xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+      }
+    });
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("hopper_minecart"));
     setInterval(WORK_WINDOW_MILLIS);
@@ -146,7 +168,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     PlayerRef p = player.getPlayer();
-    coordinator.remove(p.uuid());
+    magnet.stop(p.uuid());
     if (collectionArmed(p) && hasActiveAdaptation(p)) {
       startSession(p, getLevel(p));
     }
@@ -162,7 +184,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
     if (!e.isSneaking() && preference(e.player(), CONTROL) == Control.SNEAK) {
-      coordinator.remove(e.player().uuid());
+      magnet.stop(e.player().uuid());
       return;
     }
     PlayerRef p = e.player();
@@ -187,43 +209,23 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     UUID playerId = e.player().uuid();
-    coordinator.remove(playerId);
+    magnet.stop(playerId);
     engageThrottle.clear(playerId);
   }
 
   @Override
   public boolean hasTickDemand() {
-    return coordinator.size() > 0;
+    return magnet.hasDemand();
   }
 
   @Override
   public void onTick() {
-    if (coordinator.size() == 0) {
-      return;
-    }
-
-    int visitLimit = workBudget.takeSessionVisits(HARD_MAX_SESSION_VISITS_PER_WINDOW);
-    int dispatchLimit = workBudget.remainingScanOwnerHandoffs();
-    if (visitLimit <= 0 || dispatchLimit <= 0) {
-      return;
-    }
-
-    List<MagnetDispatch<PlayerRef>> dispatches = coordinator.poll(
-        System.currentTimeMillis(),
-        visitLimit,
-        dispatchLimit
-    );
-    workBudget.takeScanOwnerHandoffs(dispatches.size());
-    for (MagnetDispatch<PlayerRef> dispatch : dispatches) {
-      if (!Tasks.runEntity(dispatch.owner(), () -> scanOwnerOwned(dispatch))) {
-        coordinator.remove(dispatch.ownerId(), dispatch.generation());
-      }
-    }
+    magnet.tick();
   }
 
   @Override
   public void unregister() {
-    coordinator.clear();
+    magnet.clear();
     super.unregister();
   }
 
@@ -243,195 +245,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
   }
 
   private boolean startSession(PlayerRef player, int level) {
-    UUID playerId = player.uuid();
-    long firstPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
-    return coordinator.admit(playerId, player, firstPulseAt);
-  }
-
-  private void scanOwnerOwned(MagnetDispatch<PlayerRef> dispatch) {
-    PlayerRef player = dispatch.owner();
-    boolean keepSession = false;
-    long nextPulseAt = System.currentTimeMillis();
-    try {
-      if (!coordinator.isCurrent(dispatch.ownerId(), dispatch.generation())
-          || !player.isOnline() || !collectionArmed(player)) {
-        return;
-      }
-
-      int level = getActiveLevel(player, this::collectionArmed);
-      if (level <= 0) {
-        return;
-      }
-      if (!workBudget.tryScanExecution()) {
-        keepSession = true;
-        return;
-      }
-
-      double radius = getRadius(level);
-      Loc center = player.location();
-      if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(center, radius, radius)) {
-        keepSession = true;
-        nextPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
-        return;
-      }
-      MagnetPulse pulse = new MagnetPulse(
-          dispatch.ownerId(),
-          dispatch.generation(),
-          player,
-          center,
-          radius * radius,
-          getMaxItems(level)
-      );
-      Collection<EntityRef> nearby = player.world().entitiesIn(
-          Box.around(center.position(), radius, radius, radius),
-          (EntityRef entity) -> entity instanceof ItemEntityRef
-      );
-      int inspected = 0;
-      for (EntityRef entity : nearby) {
-        if (inspected >= HARD_MAX_CANDIDATE_INSPECTIONS_PER_SCAN
-            || !workBudget.tryCandidateInspection()) {
-          break;
-        }
-        inspected++;
-        if (!workBudget.tryItemHandoff()) {
-          break;
-        }
-        ItemEntityRef item = (ItemEntityRef) entity;
-        Tasks.runEntity(item, () -> transferItemOwned(pulse, item));
-      }
-
-      keepSession = true;
-      nextPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
-    } finally {
-      if (keepSession) {
-        coordinator.complete(dispatch.ownerId(), dispatch.generation(), nextPulseAt);
-      } else {
-        coordinator.remove(dispatch.ownerId(), dispatch.generation());
-      }
-    }
-  }
-
-  private void transferItemOwned(MagnetPulse pulse, ItemEntityRef item) {
-    PlayerRef player = pulse.owner;
-    if (!coordinator.isCurrent(pulse.ownerId, pulse.generation)
-        || !Tasks.isOwnedByCurrentRegion(item)
-        || !Tasks.isOwnedByCurrentRegion(player)) {
-      return;
-    }
-    if (!workBudget.tryItemExecution()
-        || !player.isOnline()
-        || !collectionArmed(player)
-        || getActiveLevel(player, this::collectionArmed) <= 0
-        || item.isDead()
-        || !item.isValid()
-        || !canSnatchItem(player, item)) {
-      return;
-    }
-
-    Loc itemLocation = item.location();
-    if (!itemLocation.sameWorld(pulse.center)
-        || itemLocation.distanceSquared(pulse.center) > pulse.radiusSquared) {
-      return;
-    }
-
-    ItemRef original = item.item().copy();
-    if (original == null || original.type().isAir() || original.amount() <= 0
-        || !acceptsItem(preference(player, ITEMS), original.type())) {
-      return;
-    }
-
-    if (!pulse.transfers.reserveDrop()) {
-      return;
-    }
-
-    boolean transferred = false;
-    try {
-      int remaining = remainingAfterMagnetPickup(player, original);
-      if (!ProtectionProbes.attemptItemPickup(player, item, remaining)
-          || !item.isValid()
-          || item.isDead()) {
-        return;
-      }
-
-      ItemRef stack = item.item().copy();
-      if (!stack.isSimilar(original) || stack.amount() <= 0) {
-        return;
-      }
-
-      int moved = depositIntoInventories(player, stack, stack.amount());
-      if (moved <= 0) {
-        return;
-      }
-      transferred = true;
-
-      if (moved >= stack.amount()) {
-        item.remove();
-      } else {
-        item.setItem(stack.copyWithAmount(stack.amount() - moved));
-      }
-
-      if (item.thrower() == null) {
-        addStat(player, "rift.void-magnet.items-pulled", moved);
-        xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
-      }
-      if (pulse.feedback.compareAndSet(false, true)) {
-        fx(player, FxPriority.TRAIL)
-            .particle(Particles.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
-            .sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
-      }
-    } finally {
-      if (!transferred) {
-        pulse.transfers.releaseDrop();
-      }
-    }
-  }
-
-  private Destination pickupDestination(PlayerRef player) {
-    return getConfig().allowEnderChestOverflow ? preference(player, DESTINATION) : Destination.CHEST_ONLY;
-  }
-
-  private InventoryRef primaryInventory(PlayerRef player, Destination destination) {
-    return destination == Destination.INVENTORY_FIRST || destination == Destination.INVENTORY_ONLY
-        ? player.inventory() : player.enderChest();
-  }
-
-  private InventoryRef secondaryInventory(PlayerRef player, Destination destination) {
-    return switch (destination) {
-      case CHEST_FIRST -> player.inventory();
-      case INVENTORY_FIRST -> player.enderChest();
-      case CHEST_ONLY, INVENTORY_ONLY -> null;
-    };
-  }
-
-  private int remainingAfterMagnetPickup(PlayerRef player, ItemRef stack) {
-    Destination destination = pickupDestination(player);
-    int remaining = ProtectionProbes.remainingAfterPickup(primaryInventory(player, destination), stack);
-    InventoryRef secondary = secondaryInventory(player, destination);
-    if (remaining <= 0 || secondary == null) {
-      return Math.max(0, remaining);
-    }
-    return ProtectionProbes.remainingAfterPickup(secondary, stack.copyWithAmount(remaining));
-  }
-
-  private int depositIntoInventories(PlayerRef player, ItemRef stack, int requested) {
-    Destination destination = pickupDestination(player);
-    int remaining = sumItemAmounts(primaryInventory(player, destination).addItem(stack.copyWithAmount(requested)));
-    InventoryRef secondary = secondaryInventory(player, destination);
-    if (remaining > 0 && secondary != null) {
-      remaining = sumItemAmounts(secondary.addItem(stack.copyWithAmount(remaining)));
-    }
-    return Math.max(0, requested - remaining);
-  }
-
-  private int sumItemAmounts(List<ItemRef> overflow) {
-    int sum = 0;
-    for (ItemRef itemStack : overflow) {
-      if (itemStack == null || itemStack.type().isAir()) {
-        continue;
-      }
-      sum += itemStack.amount();
-    }
-    return sum;
+    return magnet.start(player, level);
   }
 
   private double getRadius(int level) {
@@ -446,18 +260,24 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     return Math.max(2, (int) Math.round(getConfig().pulseTicksBase - (getLevelPercent(level) * getConfig().pulseTicksFactor)));
   }
 
-  static double boundedRadius(double radius) {
+  public static double boundedRadius(double radius) {
     if (!Double.isFinite(radius)) {
       return 1D;
     }
     return Math.max(1D, Math.min(HARD_MAX_RADIUS, radius));
   }
 
-  static int boundedItemLimit(double itemLimit) {
+  public static int boundedItemLimit(double itemLimit) {
     if (!Double.isFinite(itemLimit)) {
       return 1;
     }
     return Math.max(1, Math.min(HARD_MAX_ITEMS_PER_PULSE, (int) Math.round(itemLimit)));
+  }
+
+  public static void pullFx(Adaptation<?> owner, PlayerRef player, int moved) {
+    Fx.now(owner, player, FxPriority.TRAIL)
+        .particle(Particles.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
+        .sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
   }
 
   @ConfigDescription("Sneak to periodically pull nearby dropped items into your ender chest first.")
@@ -718,26 +538,6 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
     int reserved() {
       return reserved.get();
-    }
-  }
-
-  private static final class MagnetPulse {
-    private final UUID ownerId;
-    private final long generation;
-    private final PlayerRef owner;
-    private final Loc center;
-    private final double radiusSquared;
-    private final MagnetTransferBudget transfers;
-    private final AtomicBoolean feedback = new AtomicBoolean();
-
-    private MagnetPulse(UUID ownerId, long generation, PlayerRef owner, Loc center,
-                        double radiusSquared, int transferLimit) {
-      this.ownerId = ownerId;
-      this.generation = generation;
-      this.owner = owner;
-      this.center = center;
-      this.radiusSquared = radiusSquared;
-      transfers = new MagnetTransferBudget(transferLimit);
     }
   }
 

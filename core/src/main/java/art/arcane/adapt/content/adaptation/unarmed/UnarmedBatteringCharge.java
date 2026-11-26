@@ -146,7 +146,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
 
     e.setDamage(e.damage() + getDamageBonus(level));
     EntityRef target = e.entity();
-    target.setVelocity(target.velocity().add(p.location().direction().normalize().multiply(getKnockback(level))));
+    shove(p, target, getKnockback(level));
 
     long cooldownMillis = getCooldownTicks(level) * 50L;
     if (cooldownItem != null) {
@@ -208,6 +208,11 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
       return;
     }
     updatePrimedState(e.player());
+  }
+
+  /** The charge impact: {@code target} is pushed the way {@code p} faces with {@code knockback}. */
+  public static void shove(PlayerRef p, EntityRef target, double knockback) {
+    target.setVelocity(target.velocity().add(p.location().direction().normalize().multiply(knockback)));
   }
 
   private boolean isChargeLoadout(PlayerRef p) {

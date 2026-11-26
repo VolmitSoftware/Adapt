@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -116,13 +118,18 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     if (getActiveSiblingLevel(p, "rift-resist") > 0) {
       RiftResist.riftResistStackAdd(this, p, 10, 2);
     }
+    open(this, p);
+    addStat(p, "rift.enderchest.opens", 1);
+  }
+
+  /** Opens the player's ender chest where they stand, with the rift swirl. */
+  public static void open(Adaptation<?> owner, PlayerRef p) {
     Loc origin = p.eyeLocation().add(p.location().direction().multiply(0.5));
-    fx(origin, FxPriority.TRANSITION)
+    Fx.now(owner, origin, FxPriority.TRANSITION)
         .helix(Particles.PORTAL, 0.4, 0.8, 8, 0)
         .particle(Particles.REVERSE_PORTAL, 3, 0, 0, 0, 0.15, 0.02)
         .chord(Sounds.PARTICLE_SOUL_ESCAPE, 1f, 0.8f, Sounds.BLOCK_ENDER_CHEST_OPEN, 1f, 1.0f, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.4f);
     p.openEnderChest();
-    addStat(p, "rift.enderchest.opens", 1);
   }
 
 

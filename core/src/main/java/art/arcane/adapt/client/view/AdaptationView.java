@@ -44,6 +44,12 @@ public record AdaptationView(
     }
   }
 
+  /** This adaptation under {@code shownName}. */
+  public AdaptationView named(String shownName) {
+    return new AdaptationView(id, skillId, shownName, description, icon, enabled, maxLevel, permanent, knowledgeCosts, refunds,
+        powerCosts, requirements, statLines, preferences, preferenceGroups);
+  }
+
   static List<List<String>> copyLines(List<List<String>> lines) {
     return lines.stream().map(List::copyOf).toList();
   }

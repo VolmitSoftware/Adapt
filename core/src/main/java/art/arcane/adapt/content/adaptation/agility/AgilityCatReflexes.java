@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -33,8 +35,6 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -87,21 +87,9 @@ public class AgilityCatReflexes extends SimpleAdaptation<AgilityCatReflexes.Conf
       }
 
       e.setCancelled(true);
-
-      Vec3 look = p.location().direction().withY(0);
-      if (look.lengthSquared() > 1.0E-4D) {
-        look = look.normalize();
-        Vec3 side = new Vec3(-look.z(), 0, look.x()).multiply(M.r(0.5D) ? 0.24D : -0.24D);
-        p.setVelocity(p.velocity().add(side));
-      }
-
-      Loc at = projectile.location();
-      fx(at, FxPriority.COMBAT)
-          .burst(Particles.CRIT, 6, 0.2D)
-          .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.7F, Sounds.ENTITY_ARROW_HIT_PLAYER, 0.3F, 1.9F);
+      AgilityDodge.sidestep(this, p, projectile);
 
       addStat(p, "agility.cat-reflexes.dodges", 1);
-      xp(p, getConfig().xpPerDodge);
     });
   }
 
@@ -118,8 +106,6 @@ public class AgilityCatReflexes extends SimpleAdaptation<AgilityCatReflexes.Conf
     double dodgeChanceFactor = 0.3;
     @ConfigDoc(value = "Hard cap on projectile dodge chance regardless of level.", impact = "Higher values allow a higher maximum dodge rate.")
     double maxDodgeChance = 0.35;
-    @ConfigDoc(value = "Experience granted per dodged projectile.", impact = "Higher values reward dodging with more skill xp.")
-    double xpPerDodge = 4;
 
     public Config() {
       baseCost = 3;
@@ -127,5 +113,12 @@ public class AgilityCatReflexes extends SimpleAdaptation<AgilityCatReflexes.Conf
       maxLevel = 5;
       initialCost = 2;
     }
+  }
+
+
+  static void sidestepFx(Adaptation<?> owner, ProjectileRef projectile) {
+    Fx.now(owner, projectile.location(), FxPriority.COMBAT)
+        .burst(Particles.CRIT, 6, 0.2D)
+        .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.7F, Sounds.ENTITY_ARROW_HIT_PLAYER, 0.3F, 1.9F);
   }
 }

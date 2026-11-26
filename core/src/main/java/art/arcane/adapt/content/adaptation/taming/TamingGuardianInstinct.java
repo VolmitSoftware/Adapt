@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,13 +26,12 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -42,9 +41,7 @@ import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -53,6 +50,7 @@ import java.util.UUID;
 
 public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInstinct.Config> {
   private final Cooldowns interceptCd = cooldowns();
+  private final TameInterceptor interceptor = new TameInterceptor(this);
 
   public TamingGuardianInstinct() {
     super("tame-guardian-instinct");
@@ -111,75 +109,27 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
       return;
     }
 
-    LivingRef pet = findNearestPet(owner, ownerId, getInterceptRadius(level), Math.max(0D, damage * (1D - getPetReduction(level))));
-    if (pet == null) {
+    if (!interceptor.intercept(owner, damage, getInterceptRadius(level), getPetReduction(level), getConfig().leapStrength)) {
       return;
     }
 
     interceptCd.mark(ownerId, getConfig().cooldownMillis);
-    double petDamage = Math.max(0.0, damage * (1.0 - getPetReduction(level)));
     e.setCancelled(true);
-
-    Loc ownerChest = owner.location().add(0, 1, 0);
-    double leapStrength = getConfig().leapStrength;
-    Tasks.runEntity(pet, () -> applyIntercept(pet, ownerChest, petDamage, leapStrength));
-
-    fx(ownerChest, FxPriority.COMBAT)
-        .dustBurst(Rgb.of(0x8FD3FF), 4, 0.3D, 1.0F)
-        .chord(Sounds.ITEM_SHIELD_BLOCK, 0.7F, 1.1F, Sounds.ENTITY_WOLF_HURT, 0.4F, 1.3F);
     addStat(owner, "taming.guardian-instinct.intercepts", 1);
     xp(owner, damage * getConfig().xpPerDamageIntercepted);
   }
 
-  private LivingRef findNearestPet(PlayerRef owner, UUID ownerId, double radius, double petDamage) {
-    LivingRef nearest = null;
-    double nearestSquared = Double.MAX_VALUE;
-    Loc origin = owner.location();
-    for (EntityRef entity : owner.nearbyEntities(radius, radius, radius)) {
-      if (!(entity instanceof LivingRef living) || !entity.has(EntityTrait.TAMEABLE)) {
-        continue;
-      }
-      if (!preference(owner, TamingPreferences.PETS).accepts(living.type())
-          || (preference(owner, TamingPreferences.HEALTH) != TamingPreferences.Health.DEFAULT
-          && living.health() - petDamage < preference(owner, TamingPreferences.HEALTH).floor(living.maxHealth(), 0D))
-          || !AdaptCore.platform().host().animals().isTamed(living) || !living.isValid() || living.isDead() || !isOwnedBy(living, ownerId)) {
-        continue;
-      }
-
-      double distanceSquared = living.location().distanceSquared(origin);
-      if (distanceSquared < nearestSquared) {
-        nearestSquared = distanceSquared;
-        nearest = living;
-      }
-    }
-    return nearest;
+  static void interceptFx(Adaptation<?> owner, Loc ownerChest) {
+    Fx.now(owner, ownerChest, FxPriority.COMBAT)
+        .dustBurst(Rgb.of(0x8FD3FF), 4, 0.3D, 1.0F)
+        .chord(Sounds.ITEM_SHIELD_BLOCK, 0.7F, 1.1F, Sounds.ENTITY_WOLF_HURT, 0.4F, 1.3F);
   }
 
-  private void applyIntercept(LivingRef pet, Loc ownerChest, double petDamage, double leapStrength) {
-    if (!pet.isValid() || pet.isDead()) {
-      return;
-    }
-
-    if (pet.location().sameWorld(ownerChest) && leapStrength > 0) {
-      Vec3 leap = ownerChest.position().subtract(pet.location().position());
-      if (leap.lengthSquared() > 1.0E-4) {
-        Vec3 scaled = leap.normalize().multiply(leapStrength);
-        pet.setVelocity(scaled.withY(Math.max(0.25, scaled.y())));
-      }
-    }
-
-    fx(pet, FxPriority.COMBAT)
+  public static void leapFx(Adaptation<?> owner, LivingRef pet, Loc ownerChest) {
+    Fx.now(owner, pet, FxPriority.COMBAT)
         .burst(Particles.CRIT, 6, 0.25D)
         .line(Particles.CRIT, ownerChest.x(), ownerChest.y(), ownerChest.z(), 6)
         .sound(Sounds.ENTITY_WOLF_GROWL, 0.6F, 1.4F);
-    if (petDamage > 0.01) {
-      pet.damage(petDamage, (EntityRef) null);
-    }
-  }
-
-  private boolean isOwnedBy(LivingRef tameable, UUID ownerId) {
-    UUID owner = tameable.tameOwner();
-    return owner != null && ownerId.equals(owner);
   }
 
   private double getInterceptChance(int level) {

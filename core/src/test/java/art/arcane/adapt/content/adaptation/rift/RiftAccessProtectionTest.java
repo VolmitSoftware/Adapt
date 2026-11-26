@@ -132,7 +132,7 @@ class RiftAccessProtectionTest {
     when(first.location()).thenReturn(firstLocation);
     when(second.location()).thenReturn(secondLocation);
 
-    RiftAccess.ContainerTargets targets = RiftAccess.containerTargets(List.of(first, second));
+    RiftRemoteContainers.ContainerTargets targets = RiftRemoteContainers.containerTargets(List.of(first, second));
 
     RiftAccessViewRegistry.BlockKey firstBlock = new RiftAccessViewRegistry.BlockKey(worldId, 15, 70, 8);
     RiftAccessViewRegistry.BlockKey secondBlock = new RiftAccessViewRegistry.BlockKey(worldId, 16, 70, 8);
@@ -154,7 +154,7 @@ class RiftAccessProtectionTest {
     when(first.location()).thenReturn(new Loc(world, 4, 70, 8));
     when(second.location()).thenReturn(new Loc(world, 5, 70, 8));
 
-    RiftAccess.ContainerTargets targets = RiftAccess.containerTargets(List.of(first, second));
+    RiftRemoteContainers.ContainerTargets targets = RiftRemoteContainers.containerTargets(List.of(first, second));
 
     assertThat(targets.blockKeys()).hasSize(2);
     assertThat(targets.chunkAnchors())
@@ -175,7 +175,7 @@ class RiftAccessProtectionTest {
       scheduling.when(() -> Tasks.isOwnedByCurrentRegion(firstLocation)).thenReturn(true);
       scheduling.when(() -> Tasks.isOwnedByCurrentRegion(secondLocation)).thenReturn(false);
 
-      assertThat(RiftAccess.areContainerRegionsOwned(List.of(first, second))).isFalse();
+      assertThat(RiftRemoteContainers.areContainerRegionsOwned(List.of(first, second))).isFalse();
       scheduling.verify(() -> Tasks.isOwnedByCurrentRegion(firstLocation));
       scheduling.verify(() -> Tasks.isOwnedByCurrentRegion(secondLocation));
     }

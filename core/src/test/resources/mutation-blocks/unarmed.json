@@ -1,0 +1,13 @@
+{
+  "skill": "unarmed",
+  "behaviourTest": "UnarmedBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "UnarmedTrigger", "handles": ["EntityDamageByEntityEvent", "PlayerInteractEvent"], "reuses": ["UnarmedCombo"]},
+    {"slot": "STRIKE_FIGHT", "class": "UnarmedFightStrike", "handles": [], "reuses": ["UnarmedPressure", "BlockingPerfectGuard"]},
+    {"slot": "STRIKE_WORK", "class": "UnarmedWorkStrike", "handles": ["PlayerToggleSneakEvent"], "reuses": ["UnarmedMeditation"]},
+    {"slot": "BOON", "class": "UnarmedBoon", "handles": ["EntityDeathEvent"], "reuses": ["UnarmedSecondWind"]},
+    {"slot": "FUEL", "class": "UnarmedFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "UnarmedState", "handles": ["EntityDamageByEntityEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

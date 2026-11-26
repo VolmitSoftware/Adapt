@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
@@ -996,28 +998,16 @@ public class AdaptPlayer extends TickedObject {
     return Math.floorMod(mixed, interval);
   }
 
+  /**
+   * Whether the player holds the registered adaptation with this id, through its own level or, for an original of a
+   * mutated skill, through the upgrade that fuses it.
+   */
   public boolean hasAdaptation(String id) {
     if (id == null || id.isBlank()) {
       return false;
     }
-
-    int separator = id.indexOf('-');
-    if (separator <= 0) {
-      return false;
-    }
-
-    String skillLine = id.substring(0, separator);
-    if (skillLine.isBlank()) {
-      return false;
-    }
-
-    PlayerSkillLine line = getData().getSkillLineNullable(skillLine);
-    if (line == null) {
-      return false;
-    }
-
-    PlayerAdaptation adaptation = line.getAdaptation(id);
-    return adaptation != null && adaptation.getLevel() > 0;
+    Adaptation<?> adaptation = getServer().getSkillRegistry().getAdaptation(id);
+    return adaptation != null && UpgradeLoans.level(adaptation, (Adaptation<?> held) -> held.getLevel(this)) > 0;
   }
 
   public void giveXPToRecents(AdaptPlayer p, double xpGained, int ms) {

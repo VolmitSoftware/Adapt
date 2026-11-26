@@ -21,7 +21,7 @@ class TragoulSoulSiphonTest {
     PlayerRef owner = mock(PlayerRef.class);
     ProjectileRef projectile = mock(ProjectileRef.class);
 
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(owner, projectile)).isSameAs(owner);
+    assertThat(TragoulSiphon.resolveDamageOwner(owner, projectile)).isSameAs(owner);
   }
 
   @Test
@@ -36,34 +36,34 @@ class TragoulSoulSiphonTest {
     when(cloud.responsibleEntity()).thenReturn(owner);
     when(fangs.responsibleEntity()).thenReturn(owner);
 
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(projectile)).isSameAs(owner);
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(tnt)).isSameAs(owner);
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(cloud)).isSameAs(owner);
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(fangs)).isSameAs(owner);
-    assertThat(TragoulSoulSiphon.resolveDamageOwner(mock(ItemEntityRef.class))).isNull();
+    assertThat(TragoulSiphon.resolveDamageOwner(projectile)).isSameAs(owner);
+    assertThat(TragoulSiphon.resolveDamageOwner(tnt)).isSameAs(owner);
+    assertThat(TragoulSiphon.resolveDamageOwner(cloud)).isSameAs(owner);
+    assertThat(TragoulSiphon.resolveDamageOwner(fangs)).isSameAs(owner);
+    assertThat(TragoulSiphon.resolveDamageOwner(mock(ItemEntityRef.class))).isNull();
   }
 
   @Test
   void healingRespectsDamageFractionPerSecondCapAndMissingHealth() {
-    assertThat(TragoulSoulSiphon.healAmount(10D, 0.25D, 8D, 20D)).isEqualTo(2.5D);
-    assertThat(TragoulSoulSiphon.healAmount(100D, 0.25D, 4D, 20D)).isEqualTo(4D);
-    assertThat(TragoulSoulSiphon.healAmount(100D, 0.25D, 20D, 1D)).isEqualTo(1D);
+    assertThat(TragoulSiphon.healAmount(10D, 0.25D, 8D, 20D)).isEqualTo(2.5D);
+    assertThat(TragoulSiphon.healAmount(100D, 0.25D, 4D, 20D)).isEqualTo(4D);
+    assertThat(TragoulSiphon.healAmount(100D, 0.25D, 20D, 1D)).isEqualTo(1D);
   }
 
   @Test
   void healingRejectsInvalidOrNonPositiveInputs() {
-    assertThat(TragoulSoulSiphon.healAmount(-10D, 0.25D, 8D, 20D)).isZero();
-    assertThat(TragoulSoulSiphon.healAmount(10D, -0.25D, 8D, 20D)).isZero();
-    assertThat(TragoulSoulSiphon.healAmount(Double.NaN, 0.25D, 8D, 20D)).isZero();
-    assertThat(TragoulSoulSiphon.healAmount(10D, 0.25D, 0D, 20D)).isZero();
+    assertThat(TragoulSiphon.healAmount(-10D, 0.25D, 8D, 20D)).isZero();
+    assertThat(TragoulSiphon.healAmount(10D, -0.25D, 8D, 20D)).isZero();
+    assertThat(TragoulSiphon.healAmount(Double.NaN, 0.25D, 8D, 20D)).isZero();
+    assertThat(TragoulSiphon.healAmount(10D, 0.25D, 0D, 20D)).isZero();
   }
 
   @Test
   void acceptedDamageCannotInflateSiphonThroughOverkill() {
-    assertThat(TragoulSoulSiphon.acceptedDamage(100D, 4D, 2D)).isEqualTo(6D);
-    assertThat(TragoulSoulSiphon.acceptedDamage(5D, 20D, 0D)).isEqualTo(5D);
-    assertThat(TragoulSoulSiphon.acceptedDamage(-5D, 20D, 0D)).isZero();
-    assertThat(TragoulSoulSiphon.acceptedDamage(Double.NaN, 20D, 0D)).isZero();
+    assertThat(TragoulSiphon.acceptedDamage(100D, 4D, 2D)).isEqualTo(6D);
+    assertThat(TragoulSiphon.acceptedDamage(5D, 20D, 0D)).isEqualTo(5D);
+    assertThat(TragoulSiphon.acceptedDamage(-5D, 20D, 0D)).isZero();
+    assertThat(TragoulSiphon.acceptedDamage(Double.NaN, 20D, 0D)).isZero();
   }
 
   @Test

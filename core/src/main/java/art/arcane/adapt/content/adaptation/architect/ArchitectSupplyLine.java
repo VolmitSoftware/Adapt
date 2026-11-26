@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.content.item.BackpackItem;
@@ -43,6 +44,7 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockPlaceEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -55,6 +57,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Config> {
+  public static final String ID = "architect-supply-line";
   public static final PlayerPreference<CommonPreferences.Toggle> LOOSE = CommonPreferences.toggle("loose", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_LOOSE, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> BUNDLES = CommonPreferences.toggle("bundles", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_BUNDLES, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> SHULKERS = CommonPreferences.toggle("shulkers", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_SHULKERS, CommonPreferences.Toggle.ON);
@@ -95,6 +98,12 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   public void addStats(int level, StatLines v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.SUPPLY_LINE_LORE1));
     statLore(v, C.GREEN, "", getRefillsPerMinute(getLevelPercent(level)), 2);
+  }
+
+  @Override
+  public BlockActionContext resolveBlockPlaceContext(PlayerRef p, Loc location) {
+    return UpgradeLoans.context(this, super.resolveBlockPlaceContext(p, location),
+        (Adaptation<?> upgrade) -> upgrade.resolveBlockPlaceContext(p, location));
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -169,6 +178,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
         .chord(Sounds.BLOCK_COMPOSTER_FILL, 0.6f, 1.3f, Sounds.ITEM_BUNDLE_REMOVE_ONE, 0.4f, 1.4f);
 
     addStat(p, "architect.supply-line.refills", 1);
+    UpgradeLoans.landed(this, p);
     xp(p, getConfig().xpPerRefill);
   }
 
@@ -197,9 +207,17 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       inventory.clear(loose);
       return pulled;
     }
+    return pullFromContainers(p, template);
+  }
 
-    for (int slot = 0; slot < contents.length; slot++) {
-      ItemRef candidate = contents[slot];
+  /**
+   * One matching stack taken out of a bundle, backpack or shulker box the player carries, following their Supply Line
+   * container choices; null when none holds one. The player does not need Supply Line.
+   */
+  public ItemRef pullFromContainers(PlayerRef p, ItemRef template) {
+    PlayerInventoryRef inventory = p.inventory();
+    for (int slot = 0; slot < STORAGE_SLOTS; slot++) {
+      ItemRef candidate = inventory.item(slot);
       if (candidate == null || candidate.type().isAir()) {
         continue;
       }
@@ -222,6 +240,46 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     }
 
     return null;
+  }
+
+  /** How many items matching {@code template} the player carries loose, in the off hand and in the containers {@link #pullFromContainers} reads. */
+  public int carried(PlayerRef p, ItemRef template) {
+    PlayerInventoryRef inventory = p.inventory();
+    int count = similarAmount(List.of(inventory.offHand()), template);
+    for (int slot = 0; slot < STORAGE_SLOTS; slot++) {
+      ItemRef candidate = inventory.item(slot);
+      if (candidate == null || candidate.type().isAir()) {
+        continue;
+      }
+      count += similarAmount(List.of(candidate), template);
+      if (!preferenceEnabled(p, NAMED) && candidate.hasDisplayName()) {
+        continue;
+      }
+      if (preferenceEnabled(p, BUNDLES)) {
+        count += similarAmount(candidate.bundleContents().orElse(List.of()), template);
+      }
+      if (preferenceEnabled(p, BACKPACKS) && BackpackItem.isBackpack(candidate)) {
+        try {
+          count += similarAmount(List.of(BackpackItem.readContents(candidate)), template);
+        } catch (IllegalStateException unreadable) {
+          continue;
+        }
+      }
+      if (preferenceEnabled(p, SHULKERS) && isShulkerBox(candidate.type())) {
+        count += similarAmount(candidate.containerContents().orElse(List.of()), template);
+      }
+    }
+    return count;
+  }
+
+  private static int similarAmount(List<ItemRef> items, ItemRef template) {
+    int count = 0;
+    for (ItemRef item : items) {
+      if (item != null && !item.isEmpty() && item.isSimilar(template)) {
+        count += item.amount();
+      }
+    }
+    return count;
   }
 
   /**

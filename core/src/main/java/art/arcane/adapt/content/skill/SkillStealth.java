@@ -27,6 +27,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
@@ -48,7 +49,17 @@ import art.arcane.adapt.content.adaptation.stealth.StealthSnatch;
 import art.arcane.adapt.content.adaptation.stealth.StealthSpeed;
 import art.arcane.adapt.content.adaptation.stealth.StealthTrapSense;
 import art.arcane.adapt.content.adaptation.stealth.StealthUmbralRecovery;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthBoon;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthFightStrike;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthFuel;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthState;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthTrigger;
+import art.arcane.adapt.content.adaptation.stealth.blocks.StealthWorkStrike;
+import art.arcane.adapt.content.adaptation.stealth.upgraded.DeathMark;
+import art.arcane.adapt.content.adaptation.stealth.upgraded.PhantomDecoy;
+import art.arcane.adapt.content.adaptation.stealth.upgraded.UmbralForm;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -67,6 +78,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -77,8 +89,18 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   private final SkillOwnerPulse.Registration ownerPulse;
   private final Map<UUID, Loc> lastPassivePositions = playerState();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.STEALTH_CONCEALMENT, "stealth-silent-step", "stealth-speed",
+          "stealth-shadowmeld", "stealth-smoke-pellet", "stealth-enderveil", "stealth-ghost-armor"),
+      AdaptationGroup.of(GroupMessages.STEALTH_TRICKS, "stealth-vision", "stealth-trap-sense", "stealth-snatch",
+          "stealth-shadow-decoy", "stealth-decoy-swap"),
+      AdaptationGroup.of(GroupMessages.STEALTH_AMBUSH, "stealth-cutpurse", "stealth-umbral-recovery",
+          "stealth-assassinate")
+  );
+
   public SkillStealth() {
-    super("stealth", SkillPresentation.of(SkillMessages.STEALTH_NAME, SkillMessages.STEALTH_ICON, SkillMessages.STEALTH_DESCRIPTION));
+    super("stealth", SkillPresentation.of(SkillMessages.STEALTH_NAME, SkillMessages.STEALTH_ICON, SkillMessages.STEALTH_DESCRIPTION,
+        SkillMessages.STEALTH_QUIP, SkillMessages.STEALTH_UNLOCK_QUIP_1, SkillMessages.STEALTH_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.DARK_GRAY);
     setInterval(1412);
@@ -100,6 +122,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     registerAdaptation(new StealthAssassinate(stealth));
     registerAdaptation(new StealthDecoySwap(shadowDecoy));
     registerAdaptation(new StealthUmbralRecovery());
+    registerUpgrades(new UmbralForm(), new DeathMark(), new PhantomDecoy());
+    registerBlocks(new StealthTrigger(), new StealthFightStrike(), new StealthWorkStrike(), new StealthBoon(), new StealthFuel(),
+        new StealthState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("leather_leggings"))
         .key("challenge_sneak_1k")
@@ -180,6 +205,11 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseSneakingXp);
   }
 
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.damager() instanceof PlayerRef p) || !checkValidEntity(e.entity())) {
@@ -222,7 +252,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     return sneakingUnseen ? base + Math.max(0D, unseenBonusXp) : base;
   }
 
-  static boolean isLookingAt(Loc viewer, Loc target) {
+  public static boolean isLookingAt(Loc viewer, Loc target) {
     Vec3 toTarget = target.position().subtract(viewer.position());
     if (toTarget.lengthSquared() < 1.0E-6D) {
       return true;

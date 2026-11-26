@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.OptionalLong;
 import java.util.UUID;
 
-final class AnimusBindingRules {
+public final class AnimusBindingRules {
   static final double MIN_RITUAL_SECONDS = 0.5D;
   static final double MAX_RITUAL_SECONDS = 30D;
   private static final int TICKS_PER_SECOND = 20;
@@ -17,7 +17,7 @@ final class AnimusBindingRules {
   private AnimusBindingRules() {
   }
 
-  static <T> T atLevel(List<T> values, int level, T fallback) {
+  public static <T> T atLevel(List<T> values, int level, T fallback) {
     if (values == null || values.isEmpty() || level < 1) {
       return fallback;
     }

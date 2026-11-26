@@ -57,7 +57,10 @@ public interface ItemRef {
   /** Lore lines as vanilla text-component JSON, one entry per line; empty when the item has no lore. */
   List<String> loreJson();
 
-  /** Replaces the lore with text-component JSON lines; null or empty clears it. Unreadable lines are skipped. */
+  /**
+   * Replaces the lore with text-component JSON lines; null or empty clears it. Throws {@link IllegalArgumentException}
+   * for a line that is not a text component, leaving the lore unchanged.
+   */
   void setLoreJson(List<String> jsonLines);
 
   Map<Id, Integer> enchantments();

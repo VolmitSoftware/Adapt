@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -97,6 +99,11 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
     return materials.size() >= 3 ? materials : Set.of();
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(CraftItemEvent e) {
     PlayerRef p = e.player();
@@ -158,6 +165,23 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
     return pending.material();
   }
 
+  /** Rolls one refund chance per craft made away from a table, for each craft of at least three different materials. */
+  public void refundCrafts(PlayerRef p, List<Set<Id>> craftMaterials) {
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
+    }
+    for (Set<Id> materials : craftMaterials) {
+      if (materials.size() < 3 || ThreadLocalRandom.current().nextDouble() > getRefundChance(level)) {
+        continue;
+      }
+      Id refund = pickRandom(materials);
+      if (refund != null) {
+        giveRefund(p, refund);
+      }
+    }
+  }
+
   private Id pickRandom(Set<Id> materials) {
     if (materials.isEmpty()) {
       return null;
@@ -187,6 +211,7 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
     }
 
     addStat(p, "crafting.thrifty-hands.ingredients-refunded", 1);
+    UpgradeLoans.landed(this, p);
     fx(p.location().add(0, 1, 0), FxPriority.AMBIENT)
         .particle(Particles.CRIT_MAGIC, 3, 0, 0.2D, 0, 0.25D, 0.15D)
         .sound(Sounds.ENTITY_ITEM_PICKUP, 0.4F, 1.6F);

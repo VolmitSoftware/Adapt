@@ -107,7 +107,8 @@ public final class FakeBlock implements BlockRef {
 
   @Override
   public InventoryRef blockInventory() {
-    return world.blockInventory(pos);
+    InventoryRef given = world.blockInventory(pos);
+    return given == null ? world.container(pos) : given;
   }
 
   @Override
@@ -184,7 +185,8 @@ public final class FakeBlock implements BlockRef {
 
   @Override
   public InventoryRef container() {
-    return null;
+    InventoryRef given = world.blockInventory(pos);
+    return given != null ? given : world.container(pos);
   }
 
   @Override

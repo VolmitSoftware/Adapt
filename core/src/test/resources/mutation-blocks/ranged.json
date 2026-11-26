@@ -1,0 +1,13 @@
+{
+  "skill": "ranged",
+  "behaviourTest": "RangedBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "RangedTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "RangedFightStrike", "handles": [], "reuses": ["HeartseekerGuidance", "ProjectileMemo", "RangedProjectiles"]},
+    {"slot": "STRIKE_WORK", "class": "RangedWorkStrike", "handles": [], "reuses": ["RangedFetch"]},
+    {"slot": "BOON", "class": "RangedBoon", "handles": ["EntityShootBowEvent"], "reuses": ["RangedShots"]},
+    {"slot": "FUEL", "class": "RangedFuel", "handles": [], "reuses": ["RangedProjectiles"]},
+    {"slot": "STATE", "class": "RangedState", "handles": ["PlayerInteractEvent", "EntityShootBowEvent"], "reuses": ["RangedTrajectorySight"]}
+  ],
+  "unavailableOn": {}
+}

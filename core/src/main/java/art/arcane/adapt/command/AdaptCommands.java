@@ -44,6 +44,7 @@ public final class AdaptCommands implements DirectorInvocationHook {
   public static final String ROOT_COMMAND = "adapt";
   public static final String ROOT_PERMISSION = "adapt.main";
   private static final String LANGUAGE = "language";
+  private static final String UNMUTATE = "unmutate";
 
   private final ThreadLocal<Deque<LanguageAudience.Scope>> languageScopes = ThreadLocal.withInitial(ArrayDeque::new);
   private volatile DirectorRuntimeEngine engine;
@@ -62,6 +63,8 @@ public final class AdaptCommands implements DirectorInvocationHook {
     permissions.register("adapt.debug", "Allows Adapt debug tools including debug mode and config migration", PermissionDefault.OP);
     permissions.register("adapt.configurator", "Allows using the config editor and resetting configs to defaults", PermissionDefault.OP);
     permissions.register("adapt.effects", "Allows toggling Adapt effect visibility for yourself", PermissionDefault.TRUE);
+    permissions.register("adapt.mutate", "Allows merging two of your own skills into a mutated skill", PermissionDefault.TRUE);
+    permissions.register("adapt.mutate.reset", "Allows removing a player's skill mutations", PermissionDefault.OP);
     permissions.register("adapt.clear", "Allows clearing player progression data", PermissionDefault.OP);
     permissions.register(CommandGolem.ADMIN_PERMISSION, "Allows listing, releasing, and waking other players' golems", PermissionDefault.OP);
   }
@@ -117,9 +120,14 @@ public final class AdaptCommands implements DirectorInvocationHook {
 
   /** Suggestions for the last of {@code args}. */
   public List<String> complete(CommandSource source, String alias, String[] args) {
-    List<String> suggestions = args.length > 0 && args[0].equalsIgnoreCase(LANGUAGE)
-        ? language().complete(source, Arrays.copyOfRange(args, 1, args.length))
-        : runDirectorTab(source, alias, args);
+    List<String> suggestions;
+    if (args.length > 0 && args[0].equalsIgnoreCase(LANGUAGE)) {
+      suggestions = language().complete(source, Arrays.copyOfRange(args, 1, args.length));
+    } else if (args.length == 3 && args[0].equalsIgnoreCase(UNMUTATE)) {
+      suggestions = CommandAdapt.mutationSuggestions(source, args[1], args[2]);
+    } else {
+      suggestions = runDirectorTab(source, alias, args);
+    }
 
     Optional<PlayerRef> player = source.player();
     if (player.isPresent()) {

@@ -73,7 +73,7 @@ class ExcavationRuntimeTest {
 
   @Test
   void skillRegistersEveryAdaptation() {
-    assertThat(SkillRegistry.skills.get("excavation").getAdaptations()).hasSize(12);
+    assertThat(SkillRegistry.skills.get("excavation").getAdaptations()).hasSize(13);
   }
 
   @Test

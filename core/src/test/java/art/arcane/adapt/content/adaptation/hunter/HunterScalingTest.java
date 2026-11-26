@@ -8,33 +8,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 class HunterScalingTest {
   @Test
   void predatorRampBuildsOnSameTargetWithinWindowAndCapsOut() {
-    int stacks = HunterPredatorFocus.nextStacks(0, false, false, 5);
+    int stacks = HunterRamp.nextStacks(0, false, false, 5, 1);
     assertThat(stacks).isEqualTo(1);
 
-    stacks = HunterPredatorFocus.nextStacks(stacks, true, true, 5);
+    stacks = HunterRamp.nextStacks(stacks, true, true, 5, 1);
     assertThat(stacks).isEqualTo(2);
 
-    stacks = HunterPredatorFocus.nextStacks(stacks, true, true, 5);
+    stacks = HunterRamp.nextStacks(stacks, true, true, 5, 1);
     assertThat(stacks).isEqualTo(3);
 
     for (int i = 0; i < 10; i++) {
-      stacks = HunterPredatorFocus.nextStacks(stacks, true, true, 5);
+      stacks = HunterRamp.nextStacks(stacks, true, true, 5, 1);
     }
     assertThat(stacks).isEqualTo(5);
   }
 
   @Test
   void predatorRampResetsOnTargetSwitchOrTimeout() {
-    assertThat(HunterPredatorFocus.nextStacks(4, false, true, 5)).isEqualTo(1);
-    assertThat(HunterPredatorFocus.nextStacks(4, true, false, 5)).isEqualTo(1);
+    assertThat(HunterRamp.nextStacks(4, false, true, 5, 1)).isEqualTo(1);
+    assertThat(HunterRamp.nextStacks(4, true, false, 5, 1)).isEqualTo(1);
   }
 
   @Test
   void predatorMultiplierIsNeutralOnFirstHitAndGrowsWithStacks() {
-    assertThat(HunterPredatorFocus.damageMultiplier(1, 0.07)).isEqualTo(1.0);
-    assertThat(HunterPredatorFocus.damageMultiplier(4, 0.07)).isEqualTo(1.0 + (3 * 0.07));
-    assertThat(HunterPredatorFocus.damageMultiplier(4, 0.07))
-        .isGreaterThan(HunterPredatorFocus.damageMultiplier(2, 0.07));
+    assertThat(HunterRamp.damageMultiplier(1, 0.07)).isEqualTo(1.0);
+    assertThat(HunterRamp.damageMultiplier(4, 0.07)).isEqualTo(1.0 + (3 * 0.07));
+    assertThat(HunterRamp.damageMultiplier(4, 0.07))
+        .isGreaterThan(HunterRamp.damageMultiplier(2, 0.07));
   }
 
   @Test
@@ -60,10 +60,10 @@ class HunterScalingTest {
 
   @Test
   void bloodTrailWoundRequiresSurvivingBelowFraction() {
-    assertThat(HunterBloodTrail.isWounded(9.0, 20.0, 0.5)).isTrue();
-    assertThat(HunterBloodTrail.isWounded(11.0, 20.0, 0.5)).isFalse();
-    assertThat(HunterBloodTrail.isWounded(0.0, 20.0, 0.5)).isFalse();
-    assertThat(HunterBloodTrail.isWounded(-3.0, 20.0, 0.5)).isFalse();
+    assertThat(HunterWounds.isWounded(9.0, 20.0, 0.5)).isTrue();
+    assertThat(HunterWounds.isWounded(11.0, 20.0, 0.5)).isFalse();
+    assertThat(HunterWounds.isWounded(0.0, 20.0, 0.5)).isFalse();
+    assertThat(HunterWounds.isWounded(-3.0, 20.0, 0.5)).isFalse();
   }
 
   @Test

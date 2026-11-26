@@ -70,6 +70,28 @@ public final class ProtectionProbes {
     return port().probePlace(player, block);
   }
 
+  /**
+   * After the caller set {@code block}, tells every protection and logging plugin that the player placed it with
+   * {@code item}; Adapt's own skills ignore it. True when allowed; on false restore {@code replaced}.
+   */
+  public static boolean callPlace(PlayerRef player, BlockRef block, BlockStateRef replaced, BlockRef against, ItemRef item) {
+    if (!canAttemptBlockAction(player, block) || !sameWorld(player, block)) {
+      return false;
+    }
+    return port().callPlace(player, block, replaced, against, item);
+  }
+
+  /**
+   * Tells every protection and logging plugin that the player is removing {@code block}; Adapt's own skills ignore
+   * it. True when allowed; the caller then removes the block without drops.
+   */
+  public static boolean callRemove(PlayerRef player, BlockRef block) {
+    if (!canAttemptBlockAction(player, block) || !sameWorld(player, block)) {
+      return false;
+    }
+    return port().callRemove(player, block);
+  }
+
   /** True when no protection plugin vetoes the player growing the tree feature into exactly these blocks. */
   public static boolean attemptTreeGrow(PlayerRef player, BlockRef origin, Id feature, List<BlockChange> blocks) {
     return port().probeTreeGrow(player, origin, feature, blocks);

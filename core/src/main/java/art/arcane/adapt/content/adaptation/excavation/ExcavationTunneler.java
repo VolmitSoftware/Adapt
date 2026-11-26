@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,7 +26,9 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -41,10 +44,8 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Config> {
@@ -52,9 +53,10 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
   public static final PlayerPreference<ExcavationPreferences.Materials> MATERIALS = ExcavationPreferences.materials("materials", ExcavationMessages.PREFERENCE_EXCAVATIONTUNNELER_MATERIALS);
   public static final PlayerPreference<CommonPreferences.Scale> BLOCKS = CommonPreferences.scale("block-limit", ExcavationMessages.PREFERENCE_EXCAVATIONTUNNELER_BLOCKS);
 
-  private static final int[][] PLANE_OFFSETS = {
-      {0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
-  };
+  private final ExcavationPlane plane = new ExcavationPlane(this, (PlayerRef player, List<BlockRef> carved) -> {
+    addStat(player, "excavation.tunneler.blocks-tunneled", carved.size());
+    xp(player, carved.size() * getConfig().xpPerBonusBlock);
+  });
 
   public ExcavationTunneler() {
     super("excavation-tunneler");
@@ -108,120 +110,28 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
 
     int level = context.level();
     int bonus = Math.max(1, (int) Math.floor(getBonusBlocks(level) * preference(p, BLOCKS).multiplier()));
-    float pitch = p.location().pitch();
-    float yaw = p.location().yaw();
-    boolean horizontal = pitch >= 50 || pitch <= -50;
-    boolean facingX = !horizontal && isFacingX(yaw);
-
-    BlockRef origin = e.block();
-    Id originType = origin.type();
-    List<int[]> targetOffsets = new ArrayList<>(PLANE_OFFSETS.length);
-    for (int[] offset : PLANE_OFFSETS) {
-      int dx;
-      int dy;
-      int dz;
-      if (horizontal) {
-        dx = offset[0];
-        dy = 0;
-        dz = offset[1];
-      } else if (facingX) {
-        dx = 0;
-        dy = offset[1];
-        dz = offset[0];
-      } else {
-        dx = offset[0];
-        dy = offset[1];
-        dz = 0;
-      }
-
-      BlockRef target = origin.relative(dx, dy, dz);
-      Loc targetLocation = target.location();
-      if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(targetLocation))
-          || !isShovelable(target.type())
-          || !preference(p, MATERIALS).allows(target.type())) {
-        continue;
-      }
-
-      if (!canBlockBreak(p, targetLocation)) {
-        continue;
-      }
-
-      targetOffsets.add(new int[]{dx, dy, dz});
-    }
-
-    if (targetOffsets.isEmpty()) {
-      return;
-    }
-
-    Tasks.runEntity(p, () -> breakTunnelPlane(p, origin, originType, bonus, targetOffsets), 1);
+    plane.carve(p, e.block(), bonus, getConfig().durabilityCostPerBonusBlock,
+        (Id type) -> preference(p, MATERIALS).allows(type));
   }
 
-  private void breakTunnelPlane(PlayerRef player, BlockRef origin, Id originType, int bonus,
-                                List<int[]> targetOffsets) {
-    Loc originLocation = origin.location();
-    if (!player.isOnline()
-        || !player.world().uid().equals(origin.world().uid())
-        || (Tasks.isFoliaThreading()
-        && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(originLocation)))
-        || origin.type().equals(originType)) {
-      return;
-    }
-
-    ItemRef hand = player.inventory().mainHand();
-    if (!isShovel(hand)) {
-      return;
-    }
-
-    Loc originCenter = origin.center();
-    List<int[]> sweepCells = new ArrayList<>(targetOffsets.size());
-    List<BlockStateRef> sweepData = new ArrayList<>(targetOffsets.size());
-    int broken = 0;
-    boolean durabilityStop = false;
-    for (int[] offset : targetOffsets) {
-      if (broken >= bonus) {
-        break;
-      }
-
-      BlockRef target = origin.relative(offset[0], offset[1], offset[2]);
-      Loc targetLocation = target.location();
-      if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(targetLocation))
-          || !isShovelable(target.type())
-          || !preference(player, MATERIALS).allows(target.type())
-          || !canBlockBreak(player, targetLocation)) {
-        continue;
-      }
-
-      if (!canApplyDurability(hand, getConfig().durabilityCostPerBonusBlock)) {
-        durabilityStop = true;
-        break;
-      }
-
-      BlockStateRef blockData = target.state();
-      if (BonusBlockBreaks.breakBlock(player, target, getConfig().durabilityCostPerBonusBlock)) {
-        sweepCells.add(offset);
-        sweepData.add(blockData);
-        broken++;
-      }
-    }
-
-    if (durabilityStop) {
-      fx(originCenter, FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 2, 0, 0.2D, 0, 0.1D, 0.01D)
-          .sound(Sounds.ITEM_SHIELD_BLOCK, 0.3f, 1.3f);
-    }
-
-    if (broken <= 0) {
-      return;
-    }
-
-    planeSweep(originCenter, sweepCells, sweepData, broken);
-    addStat(player, "excavation.tunneler.blocks-tunneled", broken);
-    xp(player, broken * getConfig().xpPerBonusBlock);
+  private boolean isShovelable(Id type) {
+    return ExcavationBlocks.isShovelable(type);
   }
 
-  private void planeSweep(Loc origin, List<int[]> cells, List<BlockStateRef> data, int broken) {
+  private int getBonusBlocks(int level) {
+    return Math.max(1, Math.min(8, (int) Math.floor(getLevelPercent(level) * getConfig().bonusBlocksMax)));
+  }
+
+
+  static void durabilityStopFx(Adaptation<?> owner, Loc originCenter) {
+    Fx.now(owner, originCenter, FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 2, 0, 0.2D, 0, 0.1D, 0.01D)
+        .sound(Sounds.ITEM_SHIELD_BLOCK, 0.3f, 1.3f);
+  }
+
+  public static void planeSweepFx(Adaptation<?> owner, Loc origin, List<int[]> cells, List<BlockStateRef> data, int broken) {
     int count = cells.size();
-    timeline(origin)
+    FxTimeline.at(owner, origin)
         .duration(Math.max(4, count))
         .priority(FxPriority.TRAIL)
         .cullRadius(20)
@@ -236,32 +146,6 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
         })
         .start();
   }
-
-  private boolean isFacingX(float yaw) {
-    float normalized = ((yaw % 360) + 360) % 360;
-    return (normalized >= 45 && normalized < 135) || (normalized >= 225 && normalized < 315);
-  }
-
-  private boolean canApplyDurability(ItemRef hand, int cost) {
-    if (cost <= 0) {
-      return true;
-    }
-
-    if (hand == null || hand.isEmpty()) {
-      return false;
-    }
-
-    return hand.isUnbreakable() || hand.damage() + cost < hand.maxDamage();
-  }
-
-  private boolean isShovelable(Id type) {
-    return ExcavationBlocks.isShovelable(type);
-  }
-
-  private int getBonusBlocks(int level) {
-    return Math.max(1, Math.min(8, (int) Math.floor(getLevelPercent(level) * getConfig().bonusBlocksMax)));
-  }
-
 
   @ConfigDescription("Sneak while digging soft blocks to carve a facing-oriented plane of blocks at once.")
   protected static class Config extends AdaptationConfig {

@@ -32,7 +32,6 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -107,21 +106,7 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
   }
 
   private int countEngaged(PlayerRef p) {
-    double radius = getConfig().engageRadius;
-    int count = 0;
-    for (EntityRef entity : p.nearbyEntities(radius, radius, radius)) {
-      if (entity.uuid().equals(p.uuid())) {
-        continue;
-      }
-
-      if (entity.has(EntityTrait.MONSTER) || entity instanceof PlayerRef) {
-        count++;
-        if (count > 1) {
-          return count;
-        }
-      }
-    }
-    return count;
+    return SwordDuels.countEngaged(p, getConfig().engageRadius);
   }
 
   private void focusFx(PlayerRef p, boolean offensive) {

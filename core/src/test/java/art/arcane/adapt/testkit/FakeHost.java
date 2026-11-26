@@ -338,7 +338,7 @@ public final class FakeHost implements PlatformHost {
     public List<EffectModifier> effectModifiers(Id effect, int amplifier) {
       List<EffectModifier> scaled = new ArrayList<>();
       for (EffectModifier modifier : effectModifiers.getOrDefault(effect, List.of())) {
-        scaled.add(new EffectModifier(modifier.attribute(), modifier.operation(), modifier.amount() * (amplifier + 1)));
+        scaled.add(new EffectModifier(modifier.translationKey(), modifier.operation(), modifier.amount() * (amplifier + 1)));
       }
       return scaled;
     }

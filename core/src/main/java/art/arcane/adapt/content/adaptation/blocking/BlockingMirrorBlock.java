@@ -18,50 +18,38 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
-import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
-import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
-  private static final DataKey<Byte> REFLECTED_KEY = DataKey.adapt("mirror-reflected", DataCodecs.BYTE);
-  private static final DataKey<Double> DAMAGE_FACTOR_KEY = DataKey.adapt("mirror-damage-factor", DataCodecs.DOUBLE);
-  private final Set<UUID> pendingDefenders = ConcurrentHashMap.newKeySet();
-  private final AtomicBoolean acceptingReflections = new AtomicBoolean(true);
+  private final BlockingMirror mirror = new BlockingMirror(this, "mirror-damage-factor", this::commitReflection);
 
   public BlockingMirrorBlock() {
     super("blocking-mirror-block");
@@ -85,13 +73,12 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
   @Override
   protected void onRuntimeActivated() {
-    acceptingReflections.set(true);
+    mirror.activate();
   }
 
   @Override
   public void unregister() {
-    acceptingReflections.set(false);
-    pendingDefenders.clear();
+    mirror.close();
     super.unregister();
   }
 
@@ -113,10 +100,10 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
       return;
     }
 
-    applyReflectedDamageModifier(e, projectile);
+    mirror.applyReflectedDamage(e, projectile);
 
-    if (!(e.entity() instanceof PlayerRef defender) || !acceptingReflections.get()
-        || !isMirrorReady(defender) || projectile.data().hasAny(REFLECTED_KEY.id())) {
+    if (!(e.entity() instanceof PlayerRef defender) || !mirror.accepting()
+        || !isMirrorReady(defender) || BlockingMirror.reflected(projectile)) {
       return;
     }
 
@@ -135,28 +122,23 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
       return;
     }
 
-    UUID defenderId = defender.uuid();
-    if (!pendingDefenders.add(defenderId)) {
-      return;
+    BlockingMirror.Shot shot = new BlockingMirror.Shot(getReflectVelocityFactor(level), getReflectedDamageFactor(level),
+        getReflectCooldownMillis(level), getConfig().minReflectedVelocitySquared, getConfig().fallbackReflectedSpeed);
+    if (mirror.reflect(defender, projectile, shot)) {
+      e.setCancelled(true);
     }
-
-    if (!reflectProjectile(defender, projectile, level)) {
-      pendingDefenders.remove(defenderId);
-      return;
-    }
-    e.setCancelled(true);
   }
 
-  private void mirrorFlash(PlayerRef defender) {
+  public static void mirrorFlash(Adaptation<?> owner, PlayerRef defender) {
     Loc chest = defender.location().add(0, 1.0D, 0);
-    fx(chest, FxPriority.COMBAT)
+    Fx.now(owner, chest, FxPriority.COMBAT)
         .ring(Particles.END_ROD, 0.5D, 8, 0)
         .burst(Particles.CRIT_MAGIC, 10, 0.35D)
         .chord(Sounds.ITEM_SHIELD_BLOCK, 1.0F, 1.35F, Sounds.BLOCK_AMETHYST_BLOCK_HIT, 0.8F, 0.8F, Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5F, 1.5F);
   }
 
-  private void reflectTrail(ProjectileRef projectile) {
-    timeline(projectile)
+  public static void reflectTrail(Adaptation<?> owner, ProjectileRef projectile) {
+    FxTimeline.follow(owner, projectile)
         .duration(40)
         .priority(FxPriority.TRAIL)
         .cullRadius(24.0D)
@@ -171,107 +153,11 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05D, 0.01D);
   }
 
-  private void applyReflectedDamageModifier(EntityDamageByEntityEvent e, ProjectileRef projectile) {
-    if (!(projectile.shooter() instanceof PlayerRef shooter) || !projectile.data().hasAny(DAMAGE_FACTOR_KEY.id())) {
-      return;
-    }
-
-    if (!canDamageTarget(shooter, e.entity())) {
-      return;
-    }
-
-    double factor = projectile.data().getOrDefault(DAMAGE_FACTOR_KEY, 1D);
-    e.setDamage(e.damage() * factor);
-  }
-
-  private boolean reflectProjectile(PlayerRef defender, ProjectileRef projectile, int level) {
-    Vec3 incoming = projectile.velocity();
-    Vec3 reflected = incoming.multiply(-Math.max(0.01, getReflectVelocityFactor(level)));
-    if (reflected.lengthSquared() < getConfig().minReflectedVelocitySquared) {
-      reflected = defender.eyeLocation().direction().normalize().multiply(getConfig().fallbackReflectedSpeed);
-    }
-
-    Loc destination = defender.eyeLocation()
-        .add(defender.eyeLocation().direction().multiply(0.55D));
-    MirrorReflection reflection = new MirrorReflection(
-        defender.uuid(),
-        reflected,
-        getReflectedDamageFactor(level),
-        getReflectCooldownMillis(level)
-    );
-    CompletableFuture<Boolean> teleport;
-    try {
-      teleport = projectile.teleport(destination, TeleportCause.PLUGIN);
-    } catch (RuntimeException error) {
-      AdaptLog.error("Mirror Block could not start a projectile teleport for "
-          + defender.uuid() + ".");
-      AdaptLog.error(error);
-      return false;
-    }
-    if (teleport == null) {
-      return false;
-    }
-
-    teleport.whenComplete((success, failure) ->
-        finishProjectileTeleport(defender, projectile, reflection, success, failure));
-    return true;
-  }
-
-  private void finishProjectileTeleport(
-      PlayerRef defender,
-      ProjectileRef projectile,
-      MirrorReflection reflection,
-      Boolean success,
-      Throwable failure
-  ) {
-    if (failure != null) {
-      AdaptLog.error("Mirror Block projectile teleport failed for "
-          + reflection.defenderId() + ".");
-      AdaptLog.error(failure);
-    }
-
-    if (!teleportCompleted(success, failure)) {
-      pendingDefenders.remove(reflection.defenderId());
-      return;
-    }
-
-    Runnable completion = () -> {
-      if (!acceptingReflections.get() || !projectile.isValid()) {
-        pendingDefenders.remove(reflection.defenderId());
-        return;
-      }
-
-      projectile.setShooter(defender);
-      projectile.setVelocity(reflection.velocity());
-      projectile.data().set(REFLECTED_KEY, (byte) 1);
-      projectile.data().set(DAMAGE_FACTOR_KEY, reflection.damageFactor());
-      reflectTrail(projectile);
-      boolean scheduled = Tasks.runEntity(defender, () ->
-          commitReflection(defender, reflection));
-      if (!scheduled) {
-        pendingDefenders.remove(reflection.defenderId());
-      }
-    };
-    boolean scheduled = Tasks.runEntity(projectile, completion);
-    if (!scheduled) {
-      if (Tasks.isOwnedByCurrentRegion(projectile)) {
-        completion.run();
-      } else {
-        pendingDefenders.remove(reflection.defenderId());
-      }
-    }
-  }
-
-  private void commitReflection(PlayerRef defender, MirrorReflection reflection) {
-    if (!pendingDefenders.remove(reflection.defenderId())
-        || !acceptingReflections.get() || !defender.isOnline()) {
-      return;
-    }
-
+  private void commitReflection(PlayerRef defender, BlockingMirror.Reflection reflection) {
     long now = System.currentTimeMillis();
     setStorage(defender, "mirrorBlockNext", now + reflection.cooldownMillis());
     AbilityGlyphs.cooldown(defender.uuid(), this, now, reflection.cooldownMillis());
-    mirrorFlash(defender);
+    mirrorFlash(this, defender);
     xp(defender, getConfig().xpOnReflect);
     addStat(defender, "blocking.mirror-block.projectiles-reflected", 1);
 
@@ -292,18 +178,8 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     }
   }
 
-  static boolean teleportCompleted(Boolean success, Throwable failure) {
-    return failure == null && Boolean.TRUE.equals(success);
-  }
-
   private boolean isMirrorReady(PlayerRef p) {
-    return hasActiveAdaptation(p) && p.isBlocking() && hasShield(p);
-  }
-
-  private boolean hasShield(PlayerRef p) {
-    ItemRef main = p.inventory().mainHand();
-    ItemRef off = p.inventory().offHand();
-    return (isItem(main) && SHIELD.equals(main.type())) || (isItem(off) && SHIELD.equals(off.type()));
+    return hasActiveAdaptation(p) && p.isBlocking() && BlockingShields.held(this, p);
   }
 
   private double getReflectChance(int level) {
@@ -322,15 +198,6 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
   private long getReflectCooldownMillis(int level) {
     return Math.max(100L, Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
-
-  private record MirrorReflection(
-      UUID defenderId,
-      Vec3 velocity,
-      double damageFactor,
-      long cooldownMillis
-  ) {
-  }
-
 
   @ConfigDescription("Blocking with a shield can reflect incoming projectiles at reduced force and damage.")
   protected static class Config extends AdaptationConfig {

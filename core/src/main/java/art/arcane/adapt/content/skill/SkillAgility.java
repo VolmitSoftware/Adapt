@@ -39,6 +39,15 @@ import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityVault;
 import art.arcane.adapt.content.adaptation.agility.AgilityWallJump;
 import art.arcane.adapt.content.adaptation.agility.AgilityWindUp;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityBoon;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityFightStrike;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityFuel;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityState;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityTrigger;
+import art.arcane.adapt.content.adaptation.agility.blocks.AgilityWorkStrike;
+import art.arcane.adapt.content.adaptation.agility.upgraded.Skyrunner;
+import art.arcane.adapt.content.adaptation.agility.upgraded.Slipstream;
+import art.arcane.adapt.content.adaptation.agility.upgraded.Untouchable;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -61,7 +70,8 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
   private final Map<UUID, Double> pendingMoveDistance = playerState();
 
   public SkillAgility() {
-    super("agility", SkillPresentation.of(SkillMessages.AGILITY_NAME, SkillMessages.AGILITY_ICON, SkillMessages.AGILITY_DESCRIPTION));
+    super("agility", SkillPresentation.of(SkillMessages.AGILITY_NAME, SkillMessages.AGILITY_ICON, SkillMessages.AGILITY_DESCRIPTION,
+        SkillMessages.AGILITY_QUIP, SkillMessages.AGILITY_UNLOCK_QUIP_1, SkillMessages.AGILITY_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.GREEN);
     setInterval(975);
@@ -79,6 +89,9 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     registerAdaptation(new AgilityVault());
     registerAdaptation(new AgilityMarathoner());
     registerAdaptation(new AgilityKipUp());
+    registerUpgrades(new Slipstream(), new Skyrunner(), new Untouchable());
+    registerBlocks(new AgilityTrigger(), new AgilityFightStrike(), new AgilityWorkStrike(), new AgilityBoon(),
+        new AgilityFuel(), new AgilityState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("leather_boots"))
         .key("challenge_move_1k")

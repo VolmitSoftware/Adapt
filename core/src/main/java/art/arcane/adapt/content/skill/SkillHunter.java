@@ -26,6 +26,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
@@ -45,7 +46,17 @@ import art.arcane.adapt.content.adaptation.hunter.HunterSnareLine;
 import art.arcane.adapt.content.adaptation.hunter.HunterSpeed;
 import art.arcane.adapt.content.adaptation.hunter.HunterStrength;
 import art.arcane.adapt.content.adaptation.hunter.HunterTrophySkinner;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterBoon;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterFightStrike;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterFuel;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterState;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterTrigger;
+import art.arcane.adapt.content.adaptation.hunter.blocks.HunterWorkStrike;
+import art.arcane.adapt.content.adaptation.hunter.upgraded.ApexPredator;
+import art.arcane.adapt.content.adaptation.hunter.upgraded.BloodFrenzy;
+import art.arcane.adapt.content.adaptation.hunter.upgraded.StalkersTrail;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -60,6 +71,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -70,8 +82,16 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
   private final Cooldowns cooldowns = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.HUNTER_STRUCK, "hunter-adrenaline", "hunter-regen", "hunter-resistance",
+          "hunter-strength", "hunter-speed", "hunter-luck", "hunter-jumpboost", "hunter-invis"),
+      AdaptationGroup.of(GroupMessages.HUNTER_HUNT, "hunter-blood-trail", "hunter-predator-focus", "hunter-big-game",
+          "hunter-snare-line", "hunter-trophy-skinner", "hunter-drop-to-inventory")
+  );
+
   public SkillHunter() {
-    super("hunter", SkillPresentation.of(SkillMessages.HUNTER_NAME, SkillMessages.HUNTER_ICON, SkillMessages.HUNTER_DESCRIPTION));
+    super("hunter", SkillPresentation.of(SkillMessages.HUNTER_NAME, SkillMessages.HUNTER_ICON, SkillMessages.HUNTER_DESCRIPTION,
+        SkillMessages.HUNTER_QUIP, SkillMessages.HUNTER_UNLOCK_QUIP_1, SkillMessages.HUNTER_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.RED);
     setInterval(4150);
@@ -90,6 +110,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     registerAdaptation(new HunterBigGameHunter());
     registerAdaptation(new HunterBloodTrail());
     registerAdaptation(new HunterSnareLine());
+    registerUpgrades(new BloodFrenzy(), new ApexPredator(), new StalkersTrail());
+    registerBlocks(new HunterTrigger(), new HunterFightStrike(), new HunterWorkStrike(), new HunterBoon(), new HunterFuel(),
+        new HunterState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("bone"))
         .key("challenge_novice_hunter")
@@ -164,6 +187,11 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     registerMilestone("challenge_kills_5k", "killed.kills", 5000, () -> getConfig().killsChallengeReward * 3);
     registerMilestone("challenge_boss_1", "hunter.boss.kills", 1, () -> getConfig().bossKillReward);
     registerMilestone("challenge_boss_10", "hunter.boss.kills", 10, () -> getConfig().bossKillReward * 5);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   private void handleCooldownAndXp(PlayerRef p, double xpAmount, String rewardKey) {

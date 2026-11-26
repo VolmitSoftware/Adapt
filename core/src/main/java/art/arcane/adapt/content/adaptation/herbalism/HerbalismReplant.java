@@ -19,6 +19,8 @@
 package art.arcane.adapt.content.adaptation.herbalism;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -26,13 +28,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -50,15 +49,21 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
   private static final Rgb LIME = new Rgb(0, 255, 0);
-  private static final Id AIR = Id.minecraft("air");
+  public static final Id AIR = Id.minecraft("air");
   public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMREPLANT_MATERIALS);
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", HerbalismMessages.PREFERENCE_HERBALISMREPLANT_SNEAK, CommonPreferences.Toggle.OFF);
-
+  private final HerbalismHarvest harvest = new HerbalismHarvest(this, MATERIALS, (BlockRef crop) -> true,
+      (PlayerRef p, boolean replanted) -> {
+        if (replanted) {
+          addStat(p, "harvest.planted", 1);
+          addStat(p, "herbalism.replant.crops-replanted", 1);
+        }
+        addStat(p, "harvest.blocks", 1);
+      });
 
   public HerbalismReplant() {
     super("herbalism-replant");
@@ -145,40 +150,28 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       return;
     }
 
-    ItemRef right = p.inventory().mainHand();
-    ItemRef left = p.inventory().offHand();
-    ItemRef harvestTool;
-    Id cooldownMaterial;
-    boolean offHand;
-
-    if (isTool(left) && isHoe(left) && !p.hasCooldown(left.type())) {
-      harvestTool = left.copy();
-      cooldownMaterial = left.type();
-      offHand = true;
-    } else if (isTool(right) && isHoe(right) && !p.hasCooldown(right.type())) {
-      harvestTool = right.copy();
-      cooldownMaterial = right.type();
-      offHand = false;
-    } else {
+    HerbalismHarvest.Hoe hoe = HerbalismHarvest.readyHoe(this, p);
+    if (hoe == null) {
       return;
     }
+    ItemRef harvestTool = hoe.tool();
 
     double footprint = Math.max(1.0D, getRadius(lvl));
     if (Tasks.isFoliaThreading()
         && !Tasks.isOwnedByCurrentRegion(target.location(), footprint, footprint)) {
       return;
     }
-    if (!hit(p, target, harvestTool)) {
+    if (!harvest.harvest(p, target, harvestTool)) {
       return;
     }
 
-    if (offHand) {
+    if (hoe.offHand()) {
       damageOffHand(p, 1 + ((lvl - 1) * 7));
     } else {
       damageHand(p, 1 + ((lvl - 1) * 7));
     }
     int cooldownTicks = getCooldown(getLevelPercent(p), lvl);
-    p.setCooldown(cooldownMaterial, cooldownTicks);
+    p.setCooldown(hoe.material(), cooldownTicks);
     AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
 
     if (lvl > 1) {
@@ -191,7 +184,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
               continue;
             }
             BlockRef i = target.world().blockAt(x, y, z);
-            Tasks.runAt(i.location(), () -> hit(p, i, harvestTool), M.irand(1, 6));
+            Tasks.runAt(i.location(), () -> harvest.harvest(p, i, harvestTool), M.irand(1, 6));
           }
         }
       }
@@ -202,124 +195,23 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     }
   }
 
-  private boolean hit(PlayerRef p, BlockRef b, ItemRef harvestTool) {
-    if (b == null || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p))) {
-      return false;
-    }
-    BlockStateRef ageable = b.state();
-    if (!preference(p, MATERIALS).allows(b.type()) || ageable.age() < 0
-        || ageable.age() != ageable.maxAge()
-        || getActiveBlockBreakLevel(p, b.location()) <= 0
-        || !canBlockBreak(p, b.location())
-        || !ProtectionProbes.attemptBlockBreakProbe(p, b)) {
-      return false;
-    }
-    BlockStateRef current = b.state();
-    if (current.age() < 0
-        || current.age() != current.maxAge()) {
-      return false;
-    }
-    Id cropType = b.type();
-
-    boolean dropToInventory = getActiveSiblingBlockBreakLevel(
-        p,
-        "herbalism-drop-to-inventory",
-        b.location()
-    ) > 0;
-    List<ItemRef> items = new ArrayList<>(b.drops(harvestTool, p));
-    boolean seedConsumed = consumeSeed(items, current.placementItem());
-    if (seedConsumed && (!canBlockPlace(p, b.location())
-        || !ProtectionProbes.attemptBlockPlaceProbe(p, b))) {
-      return false;
-    }
-    BlockStateRef commitData = b.state();
-    if (!b.type().equals(cropType)
-        || commitData.age() < 0
-        || commitData.age() != commitData.maxAge()) {
-      return false;
-    }
-
-    xp(p, b.center(), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * commitData.age());
-    if (seedConsumed) {
-      xp(p, b.center(), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
-    }
-    if (dropToInventory) {
-      boolean caught = false;
-      for (ItemRef i : items) {
-        if (!isItem(i) || i.amount() <= 0) {
-          continue;
-        }
-        boolean allowedDrop = true;
-        for (Adaptation<?> sibling : getSkill().getAdaptations()) {
-          if (sibling instanceof HerbalismDropToInventory pickup) {
-            allowedDrop = pickup.acceptsDrop(p, i.type());
-            break;
-          }
-        }
-        if (!allowedDrop) {
-          p.world().dropItemNaturally(b.center().position(), i);
-          continue;
-        }
-        List<ItemRef> overflow = p.inventory().addItem(i);
-        if (overflow == null || overflow.isEmpty()) {
-          caught = true;
-        } else {
-          for (ItemRef rest : overflow) {
-            p.world().dropItem(p.location().position(), rest);
-          }
-        }
-      }
-      if (caught) {
-        fx(p.eyeLocation().add(0, -0.4, 0), FxPriority.TRANSITION)
-            .chord(Sounds.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sounds.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
-      }
-    } else {
-      for (ItemRef i : items) {
-        if (!isItem(i) || i.amount() <= 0) {
-          continue;
-        }
-        p.world().dropItemNaturally(b.center().position(), i);
-      }
-    }
-
-    if (seedConsumed) {
-      b.setState(commitData.with("age", "0"), true);
-      addStat(p, "harvest.planted", 1);
-      addStat(p, "herbalism.replant.crops-replanted", 1);
-    } else {
-      b.setType(AIR, true);
-    }
-
-    addStat(p, "harvest.blocks", 1);
-
-    fx(b.location().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
+  /** The puff on a harvested crop; {@code planted} adds the planting sound. */
+  public static void harvestFx(Adaptation<?> owner, BlockRef b, boolean planted) {
+    Fx.now(owner, b.location().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
         .dustRing(LIME, 0.4D, 8, 0.8F)
         .particle(Particles.HAPPY_VILLAGER, 3, 0, 0, 0, 0.15D, 0.02D)
         .particle(Particles.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D);
 
-    if (M.r(1D / (double) getLevel(p))) {
-      fx(b.center(), FxPriority.TRANSITION)
+    if (planted) {
+      Fx.now(owner, b.center(), FxPriority.TRANSITION)
           .sound(Sounds.ITEM_CROP_PLANT, 1F, 0.7F);
     }
-    return true;
   }
 
-  private boolean consumeSeed(List<ItemRef> drops, Id seedType) {
-    if (seedType == null || seedType.isAir()) {
-      return false;
-    }
-
-    for (ItemRef drop : drops) {
-      if (isItem(drop) && drop.type().equals(seedType) && drop.amount() > 0) {
-        drop.setAmount(drop.amount() - 1);
-        return true;
-      }
-    }
-
-    return false;
+  public static void pocketFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.eyeLocation().add(0, -0.4, 0), FxPriority.TRANSITION)
+        .chord(Sounds.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sounds.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
   }
-
-
 
   @ConfigDescription("Right-click a crop with a hoe to harvest and replant it.")
   protected static class Config extends AdaptationConfig {

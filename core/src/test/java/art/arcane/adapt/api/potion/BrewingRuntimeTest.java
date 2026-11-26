@@ -34,11 +34,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class BrewingRuntimeTest {
-  private static final String ADAPTATION = "pickaxe-brewing-test";
 
   @TempDir
   Path data;
@@ -48,6 +45,7 @@ class BrewingRuntimeTest {
   private FakePlayer player;
   private AdaptPlayer profile;
   private BrewingRecipe recipe;
+  private Adaptation<?> required;
   private BlockRef standBlock;
   private FakeBrewingStand stand;
   private final AtomicReference<AdaptBrewCompleteEvent> completed = new AtomicReference<>();
@@ -71,7 +69,8 @@ class BrewingRuntimeTest {
             .addEffect(Id.minecraft("resistance"), 1200, 0, true, true, true)
             .build())
         .build();
-    BrewingManager.registerRecipe(ADAPTATION, recipe);
+    required = adapt.core().getAdaptServer().getSkillRegistry().getSkill("pickaxe").getAdaptations().getFirst();
+    BrewingManager.registerRecipe(required.getName(), recipe);
     standBlock = world.set(0, 60, 0, "brewing_stand").blockAt(0, 60, 0);
     stand = world.brewingStand(standBlock.pos());
     stand.view(player);
@@ -81,16 +80,13 @@ class BrewingRuntimeTest {
 
   @AfterEach
   void stop() {
-    BrewingManager.unregisterRecipe(ADAPTATION, recipe);
+    BrewingManager.unregisterRecipe(required.getName(), recipe);
     adapt.close();
     assertThat(adapt.handlerFailures()).isEmpty();
   }
 
   private void learn() {
-    Adaptation<?> adaptation = mock(Adaptation.class);
-    when(adaptation.getName()).thenReturn(ADAPTATION);
-    when(adaptation.getMaxLevel()).thenReturn(1);
-    profile.getData().getSkillLine("pickaxe").setAdaptation(adaptation, 1);
+    profile.getData().getSkillLine("pickaxe").setAdaptation(required, 1);
   }
 
   private void loadStand(ItemRef ingredient) {

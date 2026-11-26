@@ -5,6 +5,10 @@ import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationLearningTransaction;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.SkillMutations;
+import art.arcane.adapt.api.mutation.SkillWords;
+import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -31,11 +35,15 @@ import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.localization.TextKey;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -43,6 +51,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 @Director(name = "adapt", description = "Adapt skills, adaptations, and admin tools", descriptionKey = "command.help.adapt_skills_adaptations_and_admin_tools")
 public class CommandAdapt {
+  private static final String NO_SKILL = "---";
+
   static final double MINIMUM_XP_BOOST = -0.99D;
   static final double MAXIMUM_XP_BOOST = 999D;
   static final long MAXIMUM_XP_BOOST_SECONDS = Long.MAX_VALUE / 1000L;
@@ -163,7 +173,7 @@ public class CommandAdapt {
     )).send(CommandContext.source());
   }
 
-  @Director(description = "Show whether a player uses the Adapt client UI", descriptionKey = "command.help.show_client_ui_status")
+  @Director(description = "Show a player's Adapt client UI status and power use",descriptionKey = "command.help.show_client_ui_status")
   public void client(
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       PlayerRef player
@@ -185,14 +195,54 @@ public class CommandAdapt {
     if (capability.isEmpty()) {
       FConst.info(AdaptLanguage.text(CommandRuntimeMessages.CLIENT_UI_ABSENT, untrusted("player", targetPlayer.name())))
           .send(sender);
+    } else {
+      FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLIENT_UI_NEGOTIATED,
+          untrusted("player", targetPlayer.name()),
+          trusted("version", capability.get().version()),
+          trusted("capabilities", String.join(", ", ClientUiService.capabilityNames(capability.get().mask())))
+      )).send(sender);
+    }
+    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+    if (adaptPlayer == null) {
       return;
     }
-    FConst.success(AdaptLanguage.text(
-        CommandRuntimeMessages.CLIENT_UI_NEGOTIATED,
-        untrusted("player", targetPlayer.name()),
-        trusted("version", capability.get().version()),
-        trusted("capabilities", String.join(", ", ClientUiService.capabilityNames(capability.get().mask())))
-    )).send(sender);
+    for (String line : powerReport(adaptPlayer.getData(), targetPlayer.name())) {
+      FConst.info(line).send(sender);
+    }
+  }
+
+  /** The player's power use, then every stored adaptation with a level and whether it takes a power slot. */
+  static List<String> powerReport(PlayerData data, String playerName) {
+    Set<String> held = new HashSet<>();
+    for (PlayerData.HeldAdaptation adaptation : data.heldAdaptations()) {
+      held.add(adaptation.line() + ":" + adaptation.adaptation().getName());
+    }
+    List<String> report = new ArrayList<>();
+    report.add(AdaptLanguage.text(
+        CommandRuntimeMessages.POWER_USAGE,
+        untrusted("player", playerName),
+        trusted("used", held.size()),
+        trusted("max", data.getMaxPower())
+    ));
+    for (String lineId : new TreeSet<>(data.getSkillLines().keySet())) {
+      PlayerSkillLine line = data.getSkillLines().get(lineId);
+      if (line == null) {
+        continue;
+      }
+      for (String adaptationId : new TreeSet<>(line.getAdaptations().keySet())) {
+        int level = line.getAdaptationLevel(adaptationId);
+        if (level <= 0) {
+          continue;
+        }
+        TextKey status = held.contains(lineId + ":" + adaptationId)
+            ? CommandRuntimeMessages.POWER_HELD
+            : CommandRuntimeMessages.POWER_FREE;
+        report.add(AdaptLanguage.text(status, untrusted("skill", lineId), untrusted("adaptation", adaptationId),
+            trusted("level", level)));
+      }
+    }
+    return report;
   }
 
   @Director(description = "Open the Adapt GUI", descriptionKey = "command.help.open_the_adapt_gui")
@@ -339,6 +389,142 @@ public class CommandAdapt {
     } else {
       FConst.success(AdaptLanguage.text(SnippetsMessages.EFFECTS_DISABLED)).send(CommandContext.source());
     }
+  }
+
+  @Director(name = "mutate", origin = DirectorOrigin.PLAYER, description = "Merge two of your skills into one mutated skill. This cannot be undone.", descriptionKey = "command.help.merge_two_of_your_skills")
+  public void mutate(
+      @Param(aliases = "lead", description = "Skill that leads the mutation and names it", defaultValue = NO_SKILL, descriptionKey = "command.help.lead_skill")
+      AdaptationListingHandler.SkillProvider lead,
+      @Param(aliases = "partner", description = "Skill merged into the lead", defaultValue = NO_SKILL, descriptionKey = "command.help.partner_skill")
+      AdaptationListingHandler.SkillProvider partner
+  ) {
+    CommandSource sender = CommandContext.source();
+    if (!sender.hasPermission("adapt.mutate")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.mutate")))
+          .send(sender);
+      return;
+    }
+    PlayerRef player = CommandContext.player();
+    CommandTargetExecutor.run(player, () -> mutateTarget(lead.name(), partner.name(), player, sender), sender);
+  }
+
+  private void mutateTarget(String leadName, String partnerName, PlayerRef player, CommandSource sender) {
+    AdaptPlayer adaptPlayer = resolveReadyTarget(player, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
+    if (NO_SKILL.equals(leadName)) {
+      MutationGui.openLeads(player);
+      return;
+    }
+    SkillRegistry registry = AdaptCore.get().getAdaptServer().getSkillRegistry();
+    Skill<?> lead = registry.getSkill(leadName);
+    Skill<?> partner = NO_SKILL.equals(partnerName) ? null : registry.getSkill(partnerName);
+    if (lead != null && NO_SKILL.equals(partnerName)) {
+      AdaptScreens.openMutation(player, lead);
+      return;
+    }
+    if (lead == null || partner == null) {
+      SkillMutations.Result refused = (lead == null && knownElsewhere(registry, leadName))
+          || (partner == null && knownElsewhere(registry, partnerName))
+          ? SkillMutations.Result.UNAVAILABLE_SKILL : SkillMutations.Result.UNKNOWN_SKILL;
+      CommandTargetExecutor.send(sender, FConst.error(MutationGui.resultText(refused, lead, partner)));
+      return;
+    }
+    MutationGui.complete(player, lead, partner);
+  }
+
+  private static boolean knownElsewhere(SkillRegistry registry, String skill) {
+    return registry.getAnySkill(skill) != null || SkillWords.of(skill.toLowerCase(Locale.ROOT)) != null;
+  }
+
+  @Director(name = "mutation-reset", description = "Remove all of a player's skill mutations; both parent skills of each come back", descriptionKey = "command.help.remove_a_player_s_mutations")
+  public void mutationReset(
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      PlayerRef player
+  ) {
+    CommandSource sender = CommandContext.source();
+    PlayerRef targetPlayer = unmutateTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+      if (adaptPlayer == null) {
+        return;
+      }
+      int removed = SkillMutations.unmutateAll(adaptPlayer.getData(), targetPlayer.name()).size();
+      ClientUiService.changed(adaptPlayer);
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.MUTATIONS_RESET,
+          trusted("count", removed), untrusted("player", targetPlayer.name()))));
+    }, sender);
+  }
+
+  @Director(name = "unmutate", description = "Remove one of a player's skill mutations; both parent skills come back", descriptionKey = "command.help.unmutate")
+  public void unmutate(
+      @Param(aliases = "player", description = "The player whose mutation to remove", descriptionKey = "command.help.unmutate_player")
+      PlayerRef player,
+      @Param(aliases = "skill", description = "The mutated skill, its lead or its partner", descriptionKey = "command.help.mutated_skill")
+      String skill
+  ) {
+    CommandSource sender = CommandContext.source();
+    PlayerRef targetPlayer = unmutateTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+      if (adaptPlayer == null) {
+        return;
+      }
+      SkillMutation mutation = SkillMutations.mutationNamed(adaptPlayer.getData(), skill);
+      if (mutation == null || !MutationGui.unmutate(targetPlayer, adaptPlayer, mutation)) {
+        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MUTATION_NOT_HELD,
+            untrusted("player", targetPlayer.name()), untrusted("skill", skill))));
+        return;
+      }
+      CommandTargetExecutor.send(sender, FConst.success(MutationGui.unmutatedText(mutation, targetPlayer.name())));
+    }, sender);
+  }
+
+  /** The player an unmutate command acts on, or null when the sender lacks the permission or names no one. */
+  private PlayerRef unmutateTarget(PlayerRef player, CommandSource sender) {
+    if (!sender.hasPermission(MutationGui.UNMUTATE_PERMISSION)) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", MutationGui.UNMUTATE_PERMISSION)))
+          .send(sender);
+      return null;
+    }
+    return resolveTargetPlayer(player, sender);
+  }
+
+  /**
+   * What {@code /adapt unmutate <player> <skill>} can name for the player {@code playerName}: their mutated skills and
+   * the skills in them, starting with {@code typed}. Empty without the permission.
+   */
+  static List<String> mutationSuggestions(CommandSource source, String playerName, String typed) {
+    AdaptCore core = AdaptCore.current();
+    AdaptServer server = core == null ? null : core.getAdaptServer();
+    if (server == null || !source.hasPermission(MutationGui.UNMUTATE_PERMISSION)) {
+      return List.of();
+    }
+    String name = playerName.regionMatches(true, 0, "player=", 0, 7) ? playerName.substring(7) : playerName;
+    String key = typed.regionMatches(true, 0, "skill=", 0, 6) ? "skill=" : "";
+    String prefix = typed.substring(key.length()).toLowerCase(Locale.ROOT);
+    List<String> suggestions = new ArrayList<>();
+    for (PlayerRef online : server.getOnlinePlayerSnapshot()) {
+      AdaptPlayer adaptPlayer = online.name().equalsIgnoreCase(name) ? server.getOnlineAdaptPlayer(online.uuid()) : null;
+      if (adaptPlayer == null) {
+        continue;
+      }
+      for (SkillMutation mutation : adaptPlayer.getData().getMutations()) {
+        for (String option : List.of(mutation.id(), mutation.lead(), mutation.partner())) {
+          if (option.startsWith(prefix)) {
+            suggestions.add(key + option);
+          }
+        }
+      }
+    }
+    return suggestions;
   }
 
   @Director(name = "configure", aliases = {"config", "cfg"}, origin = DirectorOrigin.PLAYER, description = "Open the in-game Adapt config editor", descriptionKey = "command.help.open_the_in_game_adapt_config_editor")

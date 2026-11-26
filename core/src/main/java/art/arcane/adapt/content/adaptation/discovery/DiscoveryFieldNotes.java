@@ -27,15 +27,12 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
@@ -90,8 +87,8 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
       return;
     }
     LivingRef victim = e.entity();
-    PlayerRef killer = victim.killer();
-    if (killer == null || victim instanceof PlayerRef || GolemKillCredit.isGolemKill(victim)) {
+    PlayerRef killer = SpeciesNotes.notedKiller(victim);
+    if (killer == null) {
       return;
     }
 
@@ -106,7 +103,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
       return;
     }
 
-    PlayerRef attacker = resolveAttacker(e.damager());
+    PlayerRef attacker = SpeciesNotes.attacker(e.damager());
     if (attacker == null || attacker.uuid().equals(victim.uuid())) {
       return;
     }
@@ -117,8 +114,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
     }
 
     double cap = perSpeciesCap(getLevelPercent(level), getConfig().perSpeciesCapBase, getConfig().perSpeciesCapFactor);
-    double banked = getPlayer(attacker).getData().getStat(bonusKey(victim.type()));
-    double bonus = Math.min(cap, banked);
+    double bonus = SpeciesNotes.bankedBonus(getPlayer(attacker).getData(), victim.type(), cap);
     if (bonus <= 0) {
       return;
     }
@@ -133,15 +129,8 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
     }
 
     PlayerData data = getPlayer(killer).getData();
-    String key = bonusKey(species);
-    double current = data.getStat(key);
     double cap = perSpeciesCap(getLevelPercent(level), getConfig().perSpeciesCapBase, getConfig().perSpeciesCapFactor);
-    double target = bankTarget(current, getConfig().bonusPerKill, cap);
-    if (target > current) {
-      data.addStat(key, target - current);
-    }
-
-    if (current > 0) {
+    if (!SpeciesNotes.record(data, species, getConfig().bonusPerKill, cap)) {
       return;
     }
 
@@ -161,23 +150,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
         .start();
   }
 
-  private PlayerRef resolveAttacker(EntityRef damager) {
-    if (damager instanceof PlayerRef direct) {
-      return direct;
-    }
-
-    if (damager instanceof ProjectileRef projectile && projectile.shooter() instanceof PlayerRef shooter) {
-      return shooter;
-    }
-
-    return null;
-  }
-
-  private String bonusKey(Id species) {
-    return "discovery.field-notes.bonus." + DiscoveryNames.enumName(species);
-  }
-
-  static double perSpeciesCap(double levelPercent, double base, double factor) {
+  public static double perSpeciesCap(double levelPercent, double base, double factor) {
     return Math.max(0D, base + (levelPercent * factor));
   }
 
@@ -185,7 +158,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
     return Math.min(cap, current + Math.max(0D, increment));
   }
 
-  static double firstKillXp(double levelPercent, double base, double factor) {
+  public static double firstKillXp(double levelPercent, double base, double factor) {
     return Math.max(0D, base + (levelPercent * factor));
   }
 

@@ -1,12 +1,12 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
-final class TragoulReactiveDamage {
+public final class TragoulReactiveDamage {
   private static final ThreadLocal<Boolean> ACTIVE = new ThreadLocal<>();
 
   private TragoulReactiveDamage() {
   }
 
-  static boolean isActive() {
+  public static boolean isActive() {
     return Boolean.TRUE.equals(ACTIVE.get());
   }
 

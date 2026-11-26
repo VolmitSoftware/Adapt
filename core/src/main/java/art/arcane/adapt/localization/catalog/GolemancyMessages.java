@@ -316,7 +316,7 @@ public final class GolemancyMessages {
   public static final TextKey STASIS_AWAKEN_FAILED = TextKey.of("golemancy.stasis.awaken_failed", "The golem couldn't awaken, so your Dormant Golem was kept");
   public static final TextKey STASIS_RECALL_COOLDOWN = TextKey.of("golemancy.stasis.recall_cooldown", "You can recall another golem in {seconds} seconds");
   public static final TextKey STASIS_RECALL_UNAVAILABLE = TextKey.of("golemancy.stasis.recall_unavailable", "Only golems loaded in your world can be recalled");
-  public static final TextKey MASTERWORK_NAME = TextKey.of("golemancy.masterwork.name", "Masterwork");
+  public static final TextKey MASTERWORK_NAME = TextKey.of("golemancy.masterwork.name", "Golem Masterwork");
   public static final TextKey MASTERWORK_DESCRIPTION = TextKey.of("golemancy.masterwork.description", "Infuse a Masterwork Heart at the Animus Plinth and slot it into a golem for an extra rune slot, more health, a second core and stronger runes.");
   public static final TextKey MASTERWORK_LORE1 = TextKey.of("golemancy.masterwork.lore1", "Masterwork Golems");
   public static final TextKey MASTERWORK_LORE2 = TextKey.of("golemancy.masterwork.lore2", "Extra Rune Slots on a Masterwork");
@@ -575,6 +575,14 @@ public final class GolemancyMessages {
   public static final TextKey PLINTH_INTERRUPTED = TextKey.of("golemancy.plinth.interrupted", "The infusion was interrupted");
   public static final TextKey PLINTH_COMPLETE = TextKey.of("golemancy.plinth.complete", "The infusion is complete");
   public static final TextKey PLINTH_FAILED = TextKey.of("golemancy.plinth.failed", "The infusion failed and your levels were returned");
+  public static final TextKey GRAND_OVERSEER_LORE2 = TextKey.of("upgrade.golemancy.grand_overseer.lore2", "Reach of Signals, Mending and Packing");
+  public static final TextKey RUNEFORGED_LORE2 = TextKey.of("upgrade.golemancy.runeforged.lore2", "Extra Rune Slots on Every Golem");
+  public static final TextKey RUNEFORGED_LORE3 = TextKey.of("upgrade.golemancy.runeforged.lore3", "Bonus to Tier 3 Runes, Acting One Tier Higher");
+  public static final TextKey RUNEFORGED_LORE4 = TextKey.of("upgrade.golemancy.runeforged.lore4", "Twin-Core Golems");
+  public static final TextKey RUNEFORGED_LORE5 = TextKey.of("upgrade.golemancy.runeforged.lore5", "Second Core Work Speed");
+  public static final TextKey RUNEFORGED_LORE6 = TextKey.of("upgrade.golemancy.runeforged.lore6", "Extra Rune Slots on Masterworks");
+  public static final TextKey RUNEFORGED_ALL = TextKey.of("upgrade.golemancy.runeforged.all", "All");
+  public static final TextKey RUNEFORGED_HEART_NEEDED = TextKey.of("upgrade.golemancy.runeforged.heart_needed", "This twin core needs a Masterwork Heart in your inventory");
 
   private GolemancyMessages() {
   }
@@ -1151,5 +1159,13 @@ public final class GolemancyMessages {
     builder.add(PLINTH_INTERRUPTED);
     builder.add(PLINTH_COMPLETE);
     builder.add(PLINTH_FAILED);
+    builder.add(GRAND_OVERSEER_LORE2);
+    builder.add(RUNEFORGED_LORE2);
+    builder.add(RUNEFORGED_LORE3);
+    builder.add(RUNEFORGED_LORE4);
+    builder.add(RUNEFORGED_LORE5);
+    builder.add(RUNEFORGED_LORE6);
+    builder.add(RUNEFORGED_ALL);
+    builder.add(RUNEFORGED_HEART_NEEDED);
   }
 }

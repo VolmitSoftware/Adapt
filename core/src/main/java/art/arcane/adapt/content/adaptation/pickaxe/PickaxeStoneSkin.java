@@ -28,10 +28,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -40,17 +38,14 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> {
-  private static final Id RESISTANCE = Id.minecraft("resistance");
   private static final Set<Id> STONE_BLOCKS = Set.of(
       Id.minecraft("stone"), Id.minecraft("cobblestone"), Id.minecraft("mossy_cobblestone"),
       Id.minecraft("deepslate"), Id.minecraft("cobbled_deepslate"), Id.minecraft("tuff"),
       Id.minecraft("calcite"), Id.minecraft("andesite"), Id.minecraft("diorite"), Id.minecraft("granite"));
-  private final Map<UUID, StackState> stacks = playerState();
+  private final PickaxeHardening hardening = new PickaxeHardening(this, playerState());
 
   public PickaxeStoneSkin() {
     super("pickaxe-stone-skin");
@@ -92,41 +87,22 @@ public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> 
       return;
     }
 
-    long now = System.currentTimeMillis();
-    UUID id = p.uuid();
-    StackState state = stacks.get(id);
-    int current = state == null || now > state.expiresAt() ? 0 : state.stacks();
-    int blocksPerStack = Math.max(1, getConfig().blocksPerStack);
-    int tierCap = getTierCap(context.level());
-    int maxStacks = tierCap * blocksPerStack;
-    int next = Math.min(current + 1, maxStacks);
-    stacks.put(id, new StackState(next, now + getConfig().stackDurationMs));
-    AbilityGlyphs.duration(id, this, now, getConfig().stackDurationMs, next, maxStacks);
-    if (next > current) {
+    PickaxeHardening.Step step = hardening.harden(p, getTierCap(context.level()), getConfig().blocksPerStack,
+        getConfig().stackDurationMs, getConfig().effectDurationTicks);
+    if (step.gained()) {
       addStat(p, "pickaxe.stone-skin.stacks-gained", 1);
     }
-
-    int tier = Math.min(next / blocksPerStack, tierCap);
-    if (tier <= 0) {
-      return;
-    }
-
-    int prevTier = Math.min(current / blocksPerStack, tierCap);
-    if (tier > prevTier) {
+    int tier = step.tier();
+    if (tier > 0 && step.rose()) {
       fx(p.location().add(0, 1, 0), FxPriority.TRANSITION)
           .dome(Particles.CLOUD, 1.2D, Math.min(20, tier * 4))
           .sound(Sounds.BLOCK_STONE_PLACE, 0.5f, 0.8f + ((tier - 1) * 0.2f));
-      if (tier >= tierCap) {
+      if (step.reachedCap()) {
         fx(p.location(), FxPriority.TRANSITION)
             .dustRing(0.9D, 12, 1.0F)
             .sound(Sounds.BLOCK_ANCIENT_DEBRIS_PLACE, 0.4f, 0.9f);
       }
     }
-
-    p.addEffect(new EffectInstance(RESISTANCE, getConfig().effectDurationTicks, tier - 1, false, false, true));
-  }
-
-  private record StackState(int stacks, long expiresAt) {
   }
 
   @ConfigDescription("Breaking stone-type blocks builds short-lived stacking damage resistance.")

@@ -18,19 +18,20 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.fx.Particles;
-import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -38,7 +39,6 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -52,10 +52,11 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
   public static final PlayerPreference<CommonPreferences.Toggle> BURST = CommonPreferences.toggle("burst", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_BURST, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> MAGIC = CommonPreferences.toggle("magic", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_MAGIC, CommonPreferences.Toggle.ON);
 
-  private static final int MIN_FOOD = 6;
-  private final Cooldowns shieldBreakCooldown = cooldowns();
-  private final Cooldowns absorbFxCooldown = cooldowns();
-  private final Cooldowns dotChargeCooldown = cooldowns();
+  private final HerbalismHungerShield shield = new HerbalismHungerShield(this, cooldowns(), cooldowns(), cooldowns(),
+      (PlayerRef p, double absorbed) -> {
+        addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(absorbed));
+        xp(p, absorbed);
+      });
 
   public HerbalismHungryShield() {
     super("herbalism-hungry-shield");
@@ -122,70 +123,8 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
       return;
     }
 
-    boolean overTime = isDamageOverTime(cause);
-    if (overTime && !dotChargeCooldown.isReady(p.uuid(), getConfig().dotChargeIntervalMs)) {
-      return;
-    }
-
-    double available = p.foodLevel() + p.saturation();
-    double absorbed = absorbedDamage(e.damage(), getEffectiveness(getLevelPercent(level)), available, MIN_FOOD);
-    if (absorbed <= 0) {
-      shieldBreak(p, e.damage());
-      return;
-    }
-
-    if (preferenceEnabled(p, FOOD_RESERVE) && available - absorbed < 8) {
-      return;
-    }
-    AdaptPlayer adaptPlayer = getPlayer(p);
-    if (!payHungerCost(p, "hunger", (int) Math.ceil(absorbed), () -> {
-      adaptPlayer.applyFoodCharge(absorbed);
-      return true;
-    })) {
-      shieldBreak(p, e.damage());
-      return;
-    }
-
-    if (overTime) {
-      dotChargeCooldown.mark(p.uuid());
-    }
-
-    e.setDamage(Math.max(0D, e.damage() - absorbed));
-    addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(absorbed));
-    xp(p, absorbed);
-
-    if (absorbFxCooldown.isReady(p.uuid(), 500L)) {
-      absorbFxCooldown.mark(p.uuid());
-      int intensity = (int) Math.max(3, Math.min(12, Math.ceil(absorbed)));
-      double ringRadius = Math.min(1.6D, 0.7D + (absorbed * 0.08D));
-      fx(p.location().add(0, 1, 0), FxPriority.COMBAT)
-          .dustRing(new Rgb(210, 140, 40), ringRadius, 16, 1.0F)
-          .burst(Particles.CRIT_MAGIC, intensity, 0.5D)
-          .chord(Sounds.ITEM_SHIELD_BLOCK, 0.5F, 0.9F, Sounds.BLOCK_GRASS_BREAK, 0.4F, 0.7F);
-    }
-  }
-
-  private void shieldBreak(PlayerRef p, double damage) {
-    if (damage <= 2 || !shieldBreakCooldown.isReady(p.uuid(), 1500L)) {
-      return;
-    }
-
-    shieldBreakCooldown.mark(p.uuid());
-    fx(p.location().add(0, 1, 0), FxPriority.TRANSITION)
-        .burst(Particles.SMOKE, 3, 0.3D)
-        .chord(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.6F, Sounds.ITEM_SHIELD_BLOCK, 0.3F, 0.5F);
-  }
-
-  static double absorbedDamage(double damage, double effectiveness, double availableFood, int minFood) {
-    if (!Double.isFinite(damage)
-        || !Double.isFinite(effectiveness)
-        || !Double.isFinite(availableFood)
-        || damage <= 0D
-        || effectiveness <= 0D) {
-      return 0D;
-    }
-
-    return Math.min(damage * effectiveness, Math.max(0D, availableFood - minFood));
+    shield.absorb(p, e, getEffectiveness(getLevelPercent(level)), preferenceEnabled(p, FOOD_RESERVE),
+        getConfig().dotChargeIntervalMs);
   }
 
   static boolean covers(DamageCause cause, int level, Config cfg) {
@@ -203,15 +142,17 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
     };
   }
 
-  static boolean isDamageOverTime(DamageCause cause) {
-    if (cause == null) {
-      return false;
-    }
+  public static void absorbFx(Adaptation<?> owner, PlayerRef p, double ringRadius, int intensity) {
+    Fx.now(owner, p.location().add(0, 1, 0), FxPriority.COMBAT)
+        .dustRing(new Rgb(210, 140, 40), ringRadius, 16, 1.0F)
+        .burst(Particles.CRIT_MAGIC, intensity, 0.5D)
+        .chord(Sounds.ITEM_SHIELD_BLOCK, 0.5F, 0.9F, Sounds.BLOCK_GRASS_BREAK, 0.4F, 0.7F);
+  }
 
-    return switch (cause) {
-      case FIRE, FIRE_TICK, LAVA, CAMPFIRE, HOT_FLOOR, POISON, WITHER, DROWNING, FREEZE -> true;
-      default -> false;
-    };
+  public static void shieldBreakFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location().add(0, 1, 0), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.3D)
+        .chord(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.6F, Sounds.ITEM_SHIELD_BLOCK, 0.3F, 0.5F);
   }
 
   @ConfigDescription("Take damage to your hunger before your health, covering more damage types as the adaptation levels up.")

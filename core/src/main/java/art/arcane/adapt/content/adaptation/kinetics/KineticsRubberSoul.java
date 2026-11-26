@@ -1,46 +1,38 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
-import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.util.common.scheduling.Tasks;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> BOUNCE = CommonPreferences.toggle("bounce", KineticsMessages.KINETICSRUBBERSOUL_PREFERENCE_BOUNCE, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> SPRINGY = CommonPreferences.toggle("springy", KineticsMessages.KINETICSRUBBERSOUL_PREFERENCE_SPRINGY, CommonPreferences.Toggle.ON);
 
-  private static final String SLOT_SOLE = "sole";
-  private static final String SLOT_SPRINGLOAD = "springload";
-
-  private final Map<UUID, Boolean> airborne = playerState();
-  private final Map<UUID, LandingObservation> pendingLandings = playerState();
+  private final KineticsLandingWatch landings = new KineticsLandingWatch(playerState(), playerState());
+  private final KineticsSprings springs = new KineticsSprings(this);
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsRubberSoul() {
@@ -74,77 +66,24 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   @Override
   public void unregister() {
     ownerMaintenance.unregister();
-    airborne.clear();
-    pendingLandings.clear();
+    landings.clear();
     super.unregister();
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerMoveEvent e) {
-    PlayerRef p = e.player();
-    UUID playerId = p.uuid();
-    if (e.isCancelled() || !hasActiveAdaptation(p)) {
-      airborne.remove(playerId);
-      pendingLandings.remove(playerId);
-      return;
-    }
-    if (!p.isOnGround()) {
-      airborne.put(playerId, true);
-    } else if (!Boolean.TRUE.equals(airborne.get(playerId))) {
-      return;
-    }
-    LandingObservation pending = pendingLandings.get(playerId);
-    if (pending != null) {
-      pending.event = e;
-      return;
-    }
-    LandingObservation observation = new LandingObservation(e);
-    pendingLandings.put(playerId, observation);
-    scheduleObservation(p, observation);
-  }
-
-  private void scheduleObservation(PlayerRef p, LandingObservation observation) {
-    if (!Tasks.runEntity(p, () -> observeLanding(p, observation), 1)) {
-      pendingLandings.remove(p.uuid(), observation);
-      airborne.remove(p.uuid());
-    }
+    landings.observe(this, e, this::applySpringload);
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerTeleportEvent e) {
     if (!e.isCancelled()) {
-      airborne.remove(e.player().uuid());
-      pendingLandings.remove(e.player().uuid());
+      landings.forget(e.player().uuid());
     }
-  }
-
-  private void observeLanding(PlayerRef p, LandingObservation observation) {
-    UUID playerId = p.uuid();
-    if (pendingLandings.get(playerId) != observation) {
-      return;
-    }
-    PlayerMoveEvent event = observation.event;
-    if (!isRuntimeRegistered() || !p.isOnline() || !p.isValid() || p.isDead()
-        || event.isCancelled() || !hasActiveAdaptation(p)) {
-      pendingLandings.remove(playerId, observation);
-      airborne.remove(playerId);
-      return;
-    }
-    boolean onGround = p.isOnGround();
-    Boolean wasAirborne = airborne.put(playerId, !onGround);
-    if (!onGround) {
-      scheduleObservation(p, observation);
-      return;
-    }
-    pendingLandings.remove(playerId, observation);
-    if (!isLanding(onGround, wasAirborne != null && wasAirborne)) {
-      return;
-    }
-    applySpringload(p, event);
   }
 
   void applySpringload(PlayerRef p, PlayerMoveEvent e) {
-    if (!preferenceEnabled(p, SPRINGY) || !p.hasAttribute(Attributes.BOUNCINESS) || !KineticsMotion.isBouncySurface(landingSurface(p))) {
+    if (!preferenceEnabled(p, SPRINGY) || !springs.canSpringload(p)) {
       return;
     }
 
@@ -154,18 +93,15 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
         return;
       }
 
-      AdaptAttributeService.get().applyTimed(p, getName(), SLOT_SPRINGLOAD, Attributes.BOUNCINESS, getSoftBlockBonus(level), AttributeOperation.ADD_VALUE, getConfig().bonusWindowTicks);
-      fx(p.location(), FxPriority.GAMEPLAY)
-          .particle(Particles.ITEM_SLIME, 6, 0, 0.2D, 0, 0.3D, 0.05D)
-          .sound(Sounds.BLOCK_SLIME_BLOCK_FALL, 0.5F, 1.4F);
+      springs.springload(p, getSoftBlockBonus(level), getConfig().bonusWindowTicks);
     });
   }
 
-  static boolean isLanding(boolean onGround, boolean wasAirborne) {
+  public static boolean isLanding(boolean onGround, boolean wasAirborne) {
     return onGround && wasAirborne;
   }
 
-  static double bounciness(double base, double factor, double levelPercent) {
+  public static double bounciness(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (!Double.isFinite(value)) {
       return 0D;
@@ -173,7 +109,7 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
     return Math.max(0D, value);
   }
 
-  static double softBlockBonus(double base, double factor, double levelPercent) {
+  public static double softBlockBonus(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (!Double.isFinite(value)) {
       return 0D;
@@ -182,32 +118,8 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   }
 
   private void maintainOwner(PlayerRef player) {
-    if (player.hasAttribute(Attributes.BOUNCINESS)) {
-      maintainSole(player);
-    }
-  }
-
-  private void maintainSole(PlayerRef player) {
-    if (!player.isOnline() || player.isDead()) {
-      return;
-    }
-
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    if (!hasActiveAdaptation(player) || !preferenceEnabled(player, BOUNCE)) {
-      attributes.remove(player, getName(), SLOT_SOLE, Attributes.BOUNCINESS);
-      return;
-    }
-
-    attributes.apply(player, getName(), SLOT_SOLE, Attributes.BOUNCINESS, getBounciness(getLevel(player)), AttributeOperation.ADD_VALUE);
-  }
-
-  private Id landingSurface(PlayerRef p) {
-    BlockRef feet = p.world().blockAt(p.location());
-    Id feetType = feet.type();
-    if (KineticsMotion.isBouncySurface(feetType)) {
-      return feetType;
-    }
-    return feet.relative(BlockFace.DOWN).type();
+    springs.maintainSole(player, hasActiveAdaptation(player) && preferenceEnabled(player, BOUNCE),
+        getBounciness(getLevel(player)));
   }
 
   private double getBounciness(int level) {
@@ -218,12 +130,10 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
     return softBlockBonus(getConfig().softBlockBonusBase, getConfig().softBlockBonusFactor, getLevelPercent(level));
   }
 
-  private static final class LandingObservation {
-    private PlayerMoveEvent event;
-
-    private LandingObservation(PlayerMoveEvent event) {
-      this.event = event;
-    }
+  static void springloadFx(Adaptation<?> owner, Loc at) {
+    Fx.now(owner, at, FxPriority.GAMEPLAY)
+        .particle(Particles.ITEM_SLIME, 6, 0, 0.2D, 0, 0.3D, 0.05D)
+        .sound(Sounds.BLOCK_SLIME_BLOCK_FALL, 0.5F, 1.4F);
   }
 
   @ConfigDescription("Passive bounciness preserves landing momentum. Slime, honey, and bed landings grant a short springload bonus.")

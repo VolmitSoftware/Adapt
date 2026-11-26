@@ -38,17 +38,14 @@ import art.arcane.adapt.platform.event.player.PlayerItemDamageEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Config> {
-  private final Map<UUID, PendingRepair> pendingRepairs = playerState();
+  private final PickaxeRepair repair = new PickaxeRepair(playerState(), this::completeRepair);
 
   public PickaxeRepairRhythm() {
     super("pickaxe-repair-rhythm");
@@ -99,78 +96,12 @@ public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Co
     int min = Math.max(1, getConfig().restoreMin);
     int max = Math.max(min, getConfig().restoreMax);
     int restore = min == max ? min : min + ThreadLocalRandom.current().nextInt((max - min) + 1);
-    UUID playerId = p.uuid();
-    PendingRepair pending = new PendingRepair(p.inventory().heldSlot(), hand.copy(), restore);
-    pendingRepairs.put(playerId, pending);
-    Tasks.runEntity(p, () -> applyDeferredRepair(p, playerId, pending), 1);
+    repair.queue(p, hand, restore);
   }
 
   @Handle(priority = EventPriority.HIGHEST, ignoreCancelled = false)
   public void on(PlayerItemDamageEvent e) {
-    PlayerRef p = e.player();
-    UUID playerId = p.uuid();
-    PendingRepair pending = pendingRepairs.get(playerId);
-    if (pending == null || !sameRepairTarget(pending.item(), e.item())) {
-      return;
-    }
-
-    pendingRepairs.remove(playerId, pending);
-    int restored = repair(e.item(), pending.restore());
-    if (restored <= 0) {
-      return;
-    }
-
-    e.setCancelled(true);
-    completeRepair(p, restored);
-  }
-
-  static int repairedDamage(int damage, int restore) {
-    return Math.max(0, damage - Math.max(0, restore));
-  }
-
-  static boolean sameRepairTarget(ItemRef expected, ItemRef actual) {
-    if (expected == null || actual == null || !expected.type().equals(actual.type())) {
-      return false;
-    }
-
-    ItemRef expectedCopy = expected.copy();
-    ItemRef actualCopy = actual.copy();
-    expectedCopy.setDamage(0);
-    actualCopy.setDamage(0);
-    return expectedCopy.isSimilar(actualCopy);
-  }
-
-  private void applyDeferredRepair(PlayerRef p, UUID playerId, PendingRepair pending) {
-    if (!pendingRepairs.remove(playerId, pending)) {
-      return;
-    }
-
-    ItemRef item = p.inventory().item(pending.slot());
-    if (!sameRepairTarget(pending.item(), item)) {
-      return;
-    }
-
-    int restored = repair(item, pending.restore());
-    if (restored > 0) {
-      p.inventory().setItem(pending.slot(), item);
-      completeRepair(p, restored);
-    }
-  }
-
-  private int repair(ItemRef item, int requested) {
-    if (item == null || item.isEmpty()) {
-      return 0;
-    }
-
-    int damage = item.damage();
-    int remainingDamage = repairedDamage(damage, requested);
-    int restored = damage - remainingDamage;
-    if (restored <= 0) {
-      return 0;
-    }
-
-    item.setDamage(remainingDamage);
-    return restored;
+    repair.onItemDamage(e);
   }
 
   private void completeRepair(PlayerRef p, int restore) {
@@ -199,8 +130,5 @@ public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Co
       costFactor = 0.6;
       initialCost = 2;
     }
-  }
-
-  private record PendingRepair(int slot, ItemRef item, int restore) {
   }
 }

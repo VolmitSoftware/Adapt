@@ -23,7 +23,11 @@ final class ExcavationPreferences {
   }
 
   static PlayerPreference<Trigger> trigger(String id, TextKey label) {
-    return new PlayerPreference<>(Trigger.class, new PlayerPreference.Definition<>(id, label, Trigger.SNEAK, List.of(
+    return trigger(id, label, Trigger.SNEAK);
+  }
+
+  static PlayerPreference<Trigger> trigger(String id, TextKey label, Trigger fallback) {
+    return new PlayerPreference<>(Trigger.class, new PlayerPreference.Definition<>(id, label, fallback, List.of(
         new PlayerPreference.Choice<>(Trigger.SNEAK, ExcavationMessages.PREFERENCE_TRIGGER_SNEAK, Id.minecraft("leather_boots"), 1),
         new PlayerPreference.Choice<>(Trigger.SUPPRESS, ExcavationMessages.PREFERENCE_TRIGGER_SUPPRESS, Id.minecraft("feather"), 1),
         new PlayerPreference.Choice<>(Trigger.ALWAYS, ExcavationMessages.PREFERENCE_TRIGGER_ALWAYS, Id.minecraft("iron_shovel"), 1))));

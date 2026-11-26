@@ -36,18 +36,13 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,13 +52,9 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
   public static final PlayerPreference<CommonPreferences.Toggle> SPAWNERS = CommonPreferences.toggle("spawners", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_SPAWNERS, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Scale> RANGE = CommonPreferences.scale("range", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_RANGE);
 
-  private static final int HARD_MAX_HIGHLIGHTS = 8;
-  private static final Rgb CHEST_COLOR = new Rgb(255, 205, 70);
-  private static final Rgb SPAWNER_COLOR = new Rgb(120, 220, 255);
-  private static final Id CHEST = Id.minecraft("chest");
-  private static final Id TRAPPED_CHEST = Id.minecraft("trapped_chest");
-  private static final Id SPAWNER = Id.minecraft("spawner");
-  private static final Id TRIAL_SPAWNER = Id.minecraft("trial_spawner");
+  public static final Id TRIAL_SPAWNER = Id.minecraft("trial_spawner");
+  public static final Rgb CHEST_COLOR = new Rgb(255, 205, 70);
+  public static final Rgb SPAWNER_COLOR = new Rgb(120, 220, 255);
 
   private final Cooldowns scanThrottle = cooldowns();
 
@@ -137,95 +128,20 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
 
     double range = range(getLevelPercent(level), getConfig().rangeBase, getConfig().rangeFactor) * preference(player, RANGE).multiplier();
     int glimmerTicks = glimmerDurationTicks(getLevelPercent(level), getConfig().glimmerDurationTicksBase, getConfig().glimmerDurationTicksFactor);
-    Loc eye = player.eyeLocation();
-    Vec3 look = eye.direction();
-    WorldRef world = player.world();
-    double rangeSq = range * range;
-    double cosThreshold = getConfig().viewConeCos;
-    int limit = Math.max(1, Math.min(getConfig().maxHighlightsPerScan, HARD_MAX_HIGHLIGHTS));
-    int chunkRadius = Math.max(1, (int) Math.ceil(range / 16D));
-    int baseCx = eye.blockX() >> 4;
-    int baseCz = eye.blockZ() >> 4;
-
-    int found = 0;
-    for (int cx = -chunkRadius; cx <= chunkRadius && found < limit; cx++) {
-      for (int cz = -chunkRadius; cz <= chunkRadius && found < limit; cz++) {
-        int chunkX = baseCx + cx;
-        int chunkZ = baseCz + cz;
-        if (!world.isChunkLoaded(chunkX, chunkZ)) {
-          continue;
-        }
-
-        Collection<BlockRef> tiles;
-        try {
-          tiles = new ArrayList<>();
-          for (BlockRef block : world.blockEntities(chunkX, chunkZ)) {
-            if (isKeenTarget(block.type()) && preferenceEnabled(player, isSpawner(block.type()) ? SPAWNERS : CHESTS)) {
-              tiles.add(block);
-            }
-          }
-        } catch (Throwable t) {
-          continue;
-        }
-
-        for (BlockRef state : tiles) {
-          if (found >= limit) {
-            break;
-          }
-
-          double dx = (state.x() + 0.5D) - eye.x();
-          double dy = (state.y() + 0.5D) - eye.y();
-          double dz = (state.z() + 0.5D) - eye.z();
-          double distSq = (dx * dx) + (dy * dy) + (dz * dz);
-          if (distSq > rangeSq || distSq < 0.5D) {
-            continue;
-          }
-
-          double dist = Math.sqrt(distSq);
-          double dot = ((dx * look.x()) + (dy * look.y()) + (dz * look.z())) / dist;
-          if (dot < cosThreshold) {
-            continue;
-          }
-
-          if (!hasLineOfSight(world, eye, state, dx, dy, dz, dist)) {
-            continue;
-          }
-
-          glimmer(player, state, glimmerTicks);
-          found++;
-        }
-      }
+    List<BlockRef> seen = KeenEyeScan.scan(player, range, getConfig().viewConeCos, getConfig().maxHighlightsPerScan,
+        (Id type) -> preferenceEnabled(player, KeenEyeScan.isSpawner(type) ? SPAWNERS : CHESTS));
+    for (BlockRef state : seen) {
+      glimmer(player, state, glimmerTicks);
     }
-
+    int found = seen.size();
     if (found > 0) {
       getPlayer(player).getData().addStat("discovery.keen-eye.glimmers", found);
     }
   }
 
-  private boolean hasLineOfSight(WorldRef world, Loc eye, BlockRef state, double dx, double dy, double dz, double dist) {
-    Vec3 direction = new Vec3(dx, dy, dz).normalize();
-    BlockRef hit = world.rayTraceBlock(eye.position(), direction, dist + 1.0D, false);
-    if (hit == null) {
-      return false;
-    }
-
-    return hit.x() == state.x()
-        && hit.y() == state.y()
-        && hit.z() == state.z();
-  }
-
   private void glimmer(PlayerRef player, BlockRef state, int ticks) {
-    Loc at = new Loc(state.world(), state.x(), state.y(), state.z());
-    Rgb color = preference(player, COLOR).color(isSpawner(state.type()) ? SPAWNER_COLOR : CHEST_COLOR);
-    displays().showBlock(
-        getName(),
-        "target-" + state.x() + ":" + state.y() + ":" + state.z(),
-        player,
-        at,
-        state.state(),
-        color,
-        Math.max(6, ticks)
-    );
+    Rgb color = preference(player, COLOR).color(KeenEyeScan.isSpawner(state.type()) ? SPAWNER_COLOR : CHEST_COLOR);
+    KeenEyeScan.glimmer(this, player, state, color, ticks);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -239,17 +155,6 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
   public void unregister() {
     displays().clearChannel(getName());
     super.unregister();
-  }
-
-  private boolean isKeenTarget(Id type) {
-    return CHEST.equals(type)
-        || TRAPPED_CHEST.equals(type)
-        || SPAWNER.equals(type)
-        || TRIAL_SPAWNER.equals(type);
-  }
-
-  private boolean isSpawner(Id type) {
-    return SPAWNER.equals(type) || TRIAL_SPAWNER.equals(type);
   }
 
   private static ViewerDisplayPort displays() {

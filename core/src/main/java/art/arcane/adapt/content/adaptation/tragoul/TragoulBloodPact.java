@@ -225,7 +225,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
     return amplifier + 1.0D;
   }
 
-  static boolean isTriggeringDamage(double settledDamage, double minimumDamage) {
+  public static boolean isTriggeringDamage(double settledDamage, double minimumDamage) {
     return Double.isFinite(settledDamage) && Double.isFinite(minimumDamage)
         && settledDamage >= Math.max(0D, minimumDamage);
   }

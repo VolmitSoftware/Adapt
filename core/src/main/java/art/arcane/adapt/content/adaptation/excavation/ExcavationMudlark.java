@@ -18,7 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -42,7 +43,7 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.block.BlockDamageEvent;
-import art.arcane.adapt.platform.item.ItemOps;
+import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -134,7 +135,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
     Id type = e.block().type();
-    if (!isMudlarkBlock(type) || !preferenceEnabled(e.player(), DROPS)) {
+    if (!ExcavationFinds.isMudlarkBlock(type) || !preferenceEnabled(e.player(), DROPS)) {
       return;
     }
 
@@ -153,14 +154,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
       return;
     }
 
-    Id bonus = getBonusDrop(type);
-    Loc drop = e.block().center();
-    ItemOps items = AdaptCore.platform().host().items();
-    e.block().world().dropItemNaturally(drop.position(), items.create(bonus, 1));
-    fx(drop, FxPriority.TRANSITION)
-        .particle(Particles.SPLASH, 8, 0, 0, 0, 0.25D, 0.01D)
-        .particle(Particles.itemCrack(items.create(bonus)), 3, 0, 0.1D, 0, 0.15D, 0.02D)
-        .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 1.2f, Sounds.ENTITY_ITEM_PICKUP, 0.4f, 1.5f);
+    ExcavationFinds.dropMudlarkBonus(this, e.block().center(), ExcavationFinds.mudlarkBonus(type));
     addStat(p, "excavation.mudlark.bonus-drops", 1);
     xp(p, getConfig().xpPerBonusDrop);
   }
@@ -177,25 +171,6 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
     return p.world().blockAt(p.location()).skyLight() >= 14;
   }
 
-  private boolean isMudlarkBlock(Id type) {
-    if (!type.isMinecraft()) {
-      return false;
-    }
-    return switch (type.path()) {
-      case "clay", "mud", "muddy_mangrove_roots", "soul_sand", "soul_soil" -> true;
-      default -> false;
-    };
-  }
-
-  private Id getBonusDrop(Id type) {
-    return switch (type.path()) {
-      case "clay" -> Id.minecraft("clay_ball");
-      case "mud", "muddy_mangrove_roots" -> Id.minecraft("mud");
-      case "soul_sand" -> Id.minecraft("soul_sand");
-      default -> Id.minecraft("soul_soil");
-    };
-  }
-
   private double getBonusChance(int level) {
     return Math.min(getConfig().maxBonusChance, getConfig().bonusChanceBase + (getLevelPercent(level) * getConfig().bonusChanceFactor));
   }
@@ -210,6 +185,13 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
 
   static double hasteScalar(int amplifier) {
     return 0.20D * (amplifier + 1);
+  }
+
+  static void bonusFx(Adaptation<?> owner, Loc drop, ItemRef bonus) {
+    Fx.now(owner, drop, FxPriority.TRANSITION)
+        .particle(Particles.SPLASH, 8, 0, 0, 0, 0.25D, 0.01D)
+        .particle(Particles.itemCrack(bonus), 3, 0, 0.1D, 0, 0.15D, 0.02D)
+        .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.6f, 1.2f, Sounds.ENTITY_ITEM_PICKUP, 0.4f, 1.5f);
   }
 
   @ConfigDescription("Bonus drops from muddy blocks, plus haste while digging in water or rain.")

@@ -17,13 +17,14 @@
  -----------------------------------------------------------------------------*/
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -31,7 +32,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
@@ -41,13 +41,11 @@ import art.arcane.volmlib.util.format.Form;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> {
   private static final Rgb ORANGE = Rgb.of(0xFFA500);
-
-  private final Cooldowns fizzleCooldowns = cooldowns();
+  private final NetherFireFizzle fizzle = new NetherFireFizzle(this, cooldowns());
 
   public NetherFireResist() {
     super("nether-fire-resist");
@@ -83,27 +81,14 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
     }
 
     withAdaptedPlayer(p, e, () -> {
-      if (e.cause() != DamageCause.FIRE && e.cause() != DamageCause.FIRE_TICK) {
+      if (!NetherFireFizzle.isBurn(e.cause())) {
         return;
       }
-
 
       if (ThreadLocalRandom.current().nextDouble() < getFireResist(getLevel(p))) {
         e.setCancelled(true);
         addStat(p, "nether.fire-resist.negated", 1);
-        UUID id = p.uuid();
-        if (fizzleCooldowns.remaining(id, 900L) > 0) {
-          return;
-        }
-        boolean warded = fizzleCooldowns.isReady(id, 3000L);
-        fizzleCooldowns.mark(id);
-        FxEmitter emit = fx(p.location(), FxPriority.TRANSITION)
-            .particle(Particles.SMOKE, 5, 0D, 0.2D, 0D, 0.3D, 0.02D)
-            .particle(Particles.SPLASH, 3, 0D, 0.1D, 0D, 0.3D, 0.0D)
-            .sound(Sounds.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.5F);
-        if (warded) {
-          emit.dustRing(ORANGE, 0.8D, 10, 1.0F).sound(Sounds.BLOCK_FIRE_AMBIENT, 0.25F, 0.9F);
-        }
+        fizzle.play(p);
       }
     });
   }
@@ -112,6 +97,16 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
     return getConfig().fireResistBase + (getConfig().fireResistFactor * level);
   }
 
+
+  static void fizzleFx(Adaptation<?> owner, PlayerRef p, boolean warded) {
+    FxEmitter emit = Fx.now(owner, p.location(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 5, 0D, 0.2D, 0D, 0.3D, 0.02D)
+        .particle(Particles.SPLASH, 3, 0D, 0.1D, 0D, 0.3D, 0.0D)
+        .sound(Sounds.BLOCK_FIRE_EXTINGUISH, 0.3F, 1.5F);
+    if (warded) {
+      emit.dustRing(ORANGE, 0.8D, 10, 1.0F).sound(Sounds.BLOCK_FIRE_AMBIENT, 0.25F, 0.9F);
+    }
+  }
 
   @Getter
   @Setter

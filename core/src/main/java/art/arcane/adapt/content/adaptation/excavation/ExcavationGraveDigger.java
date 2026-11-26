@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.excavation;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,10 +27,10 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.value.MaterialNames;
 import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
@@ -40,7 +41,6 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
-import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockStateRef;
@@ -50,17 +50,12 @@ import art.arcane.volmlib.util.format.Form;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigger.Config> {
   private static final DataKey<Byte> GRAVE_MOB_KEY = DataKey.adapt("excavation_grave_mob", DataCodecs.BYTE);
-  private static final Set<String> GRAVE_SOIL = Set.of("dirt", "grass_block", "coarse_dirt", "rooted_dirt", "podzol",
-      "mycelium", "dirt_path");
-  private static final Id BONE_BLOCK = Id.minecraft("bone_block");
-  private static final Id SKELETON_SKULL = Id.minecraft("skeleton_skull");
   private final Cooldowns graveCooldowns = cooldowns();
-  private volatile TableCache tableCache;
+  private final ExcavationLoot loot = new ExcavationLoot();
 
   public ExcavationGraveDigger() {
     super("excavation-grave-digger");
@@ -96,7 +91,7 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
-    if (!isGraveSoil(e.block().type())) {
+    if (!ExcavationFinds.isGraveSoil(e.block().type())) {
       return;
     }
 
@@ -126,26 +121,14 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
   }
 
   private void dropLoot(PlayerRef p, Loc center, ThreadLocalRandom random) {
-    TableCache table = getLootTable();
-    if (table.entries().isEmpty()) {
+    ExcavationLoot.Roll roll = loot.roll(getConfig().lootTable, random);
+    if (roll == null) {
       return;
     }
 
-    LootEntry entry = pickWeighted(table, random.nextDouble() * table.totalWeight());
-    int amount = entry.min() >= entry.max() ? entry.min() : random.nextInt(entry.min(), entry.max() + 1);
-    ItemOps items = AdaptCore.platform().host().items();
-    center.world().dropItemNaturally(center.position(), items.create(entry.material(), amount));
-    boolean bony = isBoneLoot(entry.material());
-    fx(center, FxPriority.TRANSITION)
-        .particle(Particles.ASH, 8, 0, 0, 0, 0.25D, 0.01D)
-        .particle(bony ? Particles.SOUL : Particles.ENCHANTMENT_TABLE, bony ? 5 : 3, 0, 0.3D, 0, 0.2D, 0.02D)
-        .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.7f, 0.8f, Sounds.BLOCK_BONE_BLOCK_BREAK, 0.6f, 1.0f);
+    ExcavationFinds.unearthBones(this, center, roll);
     addStat(p, "excavation.grave-digger.bones-unearthed", 1);
     xp(p, getConfig().xpPerLoot);
-  }
-
-  private boolean isBoneLoot(Id material) {
-    return material.equals(BONE_BLOCK) || material.equals(SKELETON_SKULL);
   }
 
   private void disturbGrave(PlayerRef p, Loc blockLocation, ThreadLocalRandom random) {
@@ -182,67 +165,6 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     xp(p, getConfig().xpPerGrave);
   }
 
-  private LootEntry pickWeighted(TableCache table, double roll) {
-    List<LootEntry> entries = table.entries();
-    double remaining = roll;
-    for (LootEntry entry : entries) {
-      remaining -= entry.weight();
-      if (remaining <= 0) {
-        return entry;
-      }
-    }
-
-    return entries.get(entries.size() - 1);
-  }
-
-  private TableCache getLootTable() {
-    List<String> source = getConfig().lootTable;
-    TableCache local = tableCache;
-    if (local != null && local.source() == source) {
-      return local;
-    }
-
-    List<LootEntry> parsed = new ArrayList<>(source.size());
-    double totalWeight = 0;
-    for (String raw : source) {
-      String[] parts = raw.split(":");
-      if (parts.length < 2) {
-        continue;
-      }
-
-      Id material = MaterialNames.match(parts[0].trim());
-      if (material == null || !AdaptCore.platform().host().items().isItem(material)) {
-        continue;
-      }
-
-      double weight = parseDouble(parts[1]);
-      if (weight <= 0) {
-        continue;
-      }
-
-      int min = parts.length > 2 ? Math.max(1, (int) parseDouble(parts[2])) : 1;
-      int max = parts.length > 3 ? Math.max(min, (int) parseDouble(parts[3])) : min;
-      parsed.add(new LootEntry(material, weight, min, max));
-      totalWeight += weight;
-    }
-
-    TableCache built = new TableCache(source, parsed, totalWeight);
-    tableCache = built;
-    return built;
-  }
-
-  private double parseDouble(String raw) {
-    try {
-      return Double.parseDouble(raw.trim());
-    } catch (NumberFormatException ignored) {
-      return 0;
-    }
-  }
-
-  private boolean isGraveSoil(Id type) {
-    return type.isMinecraft() && GRAVE_SOIL.contains(type.path());
-  }
-
   private double getLootChance(int level) {
     return Math.min(getConfig().maxLootChance, getConfig().lootChanceBase + (getLevelPercent(level) * getConfig().lootChanceFactor));
   }
@@ -252,11 +174,11 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
   }
 
 
-  private record LootEntry(Id material, double weight, int min, int max) {
-  }
-
-  private record TableCache(List<String> source, List<LootEntry> entries,
-                            double totalWeight) {
+  static void unearthFx(Adaptation<?> owner, Loc center, boolean bony) {
+    Fx.now(owner, center, FxPriority.TRANSITION)
+        .particle(Particles.ASH, 8, 0, 0, 0, 0.25D, 0.01D)
+        .particle(bony ? Particles.SOUL : Particles.ENCHANTMENT_TABLE, bony ? 5 : 3, 0, 0.3D, 0, 0.2D, 0.02D)
+        .chord(Sounds.BLOCK_ROOTED_DIRT_BREAK, 0.7f, 0.8f, Sounds.BLOCK_BONE_BLOCK_BREAK, 0.6f, 1.0f);
   }
 
   @ConfigDescription("Digging earthen ground can unearth bone loot, and rarely disturbs a hostile grave.")
@@ -276,13 +198,7 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Grave Cooldown Millis for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double graveCooldownMillis = 45000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Weighted loot table entries formatted as MATERIAL:weight:min:max.", impact = "Adding entries or raising weights changes which bone loot drops and how often.")
-    List<String> lootTable = new ArrayList<>(List.of(
-        "BONE:40:1:2",
-        "BONE_MEAL:25:2:4",
-        "ROTTEN_FLESH:20:1:2",
-        "BONE_BLOCK:6:1:1",
-        "SKELETON_SKULL:2:1:1"
-    ));
+    List<String> lootTable = new ArrayList<>(ExcavationFinds.BONE_TABLE);
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Loot for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerLoot = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Grave for the Excavation Grave Digger adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -132,6 +132,18 @@ public final class BlockingMessages {
   public static final TextKey INTERPOSE_LORE3 = TextKey.of("blocking.interpose.lore3", "Ally Low-Health Threshold");
   public static final LinesKey INTERPOSE_LORE = LinesKey.of("blocking.interpose.lore", "Damage Redirect Share", "Interpose Range", "Ally Low-Health Threshold");
 
+  public static final TextKey MIRROR_GUARD_LORE1 = TextKey.of("upgrade.blocking.mirror_guard.lore1", "Timing Window");
+  public static final TextKey MIRROR_GUARD_LORE2 = TextKey.of("upgrade.blocking.mirror_guard.lore2", "Share of the Hit Sent Back");
+  public static final TextKey MIRROR_GUARD_LORE3 = TextKey.of("upgrade.blocking.mirror_guard.lore3", "Cooldown");
+  public static final TextKey LIVING_WALL_LORE1 = TextKey.of("upgrade.blocking.living_wall.lore1", "Less Damage Behind the Wall and While Blocking");
+  public static final TextKey LIVING_WALL_LORE2 = TextKey.of("upgrade.blocking.living_wall.lore2", "Wall Width");
+  public static final TextKey LIVING_WALL_LORE3 = TextKey.of("upgrade.blocking.living_wall.lore3", "Wall Duration");
+  public static final TextKey LIVING_WALL_LORE4 = TextKey.of("upgrade.blocking.living_wall.lore4", "Wall Cooldown");
+  public static final TextKey TEMPERED_AEGIS_LORE1 = TextKey.of("upgrade.blocking.tempered_aegis.lore1", "Shield Durability per Blocked Hit");
+  public static final TextKey TEMPERED_AEGIS_LORE2 = TextKey.of("upgrade.blocking.tempered_aegis.lore2", "Armor Durability per Blocked Hit");
+  public static final TextKey TEMPERED_AEGIS_LORE3 = TextKey.of("upgrade.blocking.tempered_aegis.lore3", "Bash Damage");
+  public static final TextKey TEMPERED_AEGIS_LORE4 = TextKey.of("upgrade.blocking.tempered_aegis.lore4", "Bash Cooldown");
+
   private BlockingMessages() {
   }
 
@@ -216,5 +228,16 @@ public final class BlockingMessages {
     builder.add(INTERPOSE_LORE2);
     builder.add(INTERPOSE_LORE3);
     builder.add(INTERPOSE_LORE);
+    builder.add(MIRROR_GUARD_LORE1);
+    builder.add(MIRROR_GUARD_LORE2);
+    builder.add(MIRROR_GUARD_LORE3);
+    builder.add(LIVING_WALL_LORE1);
+    builder.add(LIVING_WALL_LORE2);
+    builder.add(LIVING_WALL_LORE3);
+    builder.add(LIVING_WALL_LORE4);
+    builder.add(TEMPERED_AEGIS_LORE1);
+    builder.add(TEMPERED_AEGIS_LORE2);
+    builder.add(TEMPERED_AEGIS_LORE3);
+    builder.add(TEMPERED_AEGIS_LORE4);
   }
 }

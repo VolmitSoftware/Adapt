@@ -24,15 +24,12 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.MobRef;
@@ -58,14 +55,8 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   public static final PlayerPreference<CommonPreferences.Toggle> ASSISTANCE = CommonPreferences.toggle("assistance", SeabornMessages.SEABORNEFISHWHISPERER_PREFERENCE_ASSISTANCE, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> LUCK = CommonPreferences.toggle("luck", SeabornMessages.SEABORNEFISHWHISPERER_PREFERENCE_LUCK, CommonPreferences.Toggle.ON);
 
-  private static final String LUCK_SLOT = "luck";
-  private static final long LUCK_DURATION_TICKS = 400L;
   private static final int MAX_FISH = 12;
-  private static final int MAX_ASSIST = 8;
   private static final long CHARM_SESSION_GAP_MILLIS = 12_000L;
-  private static final Id DOLPHIN = Id.minecraft("dolphin");
-  private static final Id AXOLOTL = Id.minecraft("axolotl");
-
   private final Map<UUID, Long> charmedRecently = new ConcurrentHashMap<>();
 
   public SeaborneFishWhisperer() {
@@ -97,12 +88,12 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    AdaptAttributeService.get().remove(player.getPlayer(), getName(), LUCK_SLOT, Attributes.LUCK);
+    SeaborneSeaLife.removeLuck(this, player.getPlayer());
   }
 
   @Override
   public void addStats(int level, StatLines v) {
-    statLore(v, luckAmount(level, getMaxLevel()), 1);
+    statLore(v, SeaborneSeaLife.luckAmount(level, getMaxLevel()), 1);
     statLore(v, Form.f(getSchoolRange(level), 1), 2);
   }
 
@@ -133,7 +124,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   }
 
   private void applyLuck(PlayerRef player, int level) {
-    AdaptAttributeService.get().applyTimed(player, getName(), LUCK_SLOT, Attributes.LUCK, luckAmount(level, getMaxLevel()), AttributeOperation.ADD_VALUE, LUCK_DURATION_TICKS);
+    SeaborneSeaLife.applyLuck(this, player, SeaborneSeaLife.luckAmount(level, getMaxLevel()));
   }
 
   private void schoolFish(PlayerRef player, int level) {
@@ -212,47 +203,7 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
     if (!preferenceEnabled(p, ASSISTANCE)) {
       return;
     }
-    double range = getAssistRange(level);
-    Loc victimLocation = victim.location();
-    int assisted = 0;
-    for (EntityRef nearby : victimLocation.world().entitiesIn(Box.around(victimLocation.position(), range, range, range),
-        (EntityRef entity) -> entity instanceof MobRef)) {
-      if (!(nearby instanceof MobRef entity) || entity.equals(victim)) {
-        continue;
-      }
-
-      if (DOLPHIN.equals(entity.type())) {
-        Tasks.runEntity(entity, () -> chargeDolphin(entity, victimLocation));
-      } else if (AXOLOTL.equals(entity.type())) {
-        Tasks.runEntity(entity, () -> {
-          if (!victim.equals(entity.target())) {
-            entity.setTarget(victim);
-          }
-        });
-      } else {
-        continue;
-      }
-
-      if (++assisted >= MAX_ASSIST) {
-        break;
-      }
-    }
-  }
-
-  private void chargeDolphin(MobRef dolphin, Loc victimLocation) {
-    if (!dolphin.isValid() || !victimLocation.sameWorld(dolphin.location())) {
-      return;
-    }
-
-    Vec3 toVictim = victimLocation.position().subtract(dolphin.location().position());
-    if (toVictim.lengthSquared() <= 0.01D) {
-      return;
-    }
-
-    double strength = Math.max(0D, getConfig().dolphinChargeStrength);
-    dolphin.setVelocity(dolphin.velocity().multiply(0.4D).add(toVictim.normalize().multiply(strength)));
-    fx(dolphin.location(), FxPriority.AMBIENT)
-        .particle(Particles.BUBBLE, 4, 0D, 0.1D, 0D, 0.2D, 0.03D);
+    SeaborneSeaLife.rally(this, victim, getAssistRange(level), getConfig().dolphinChargeStrength);
   }
 
   private double getSchoolRange(int level) {
@@ -265,14 +216,6 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
 
   private double getAssistRange(int level) {
     return getConfig().assistRangeBase + (getLevelPercent(level) * getConfig().assistRangeFactor);
-  }
-
-  static int luckAmplifier(int level, int maxLevel) {
-    return Math.max(0, Math.min(maxLevel - 1, level - 1));
-  }
-
-  static int luckAmount(int level, int maxLevel) {
-    return luckAmplifier(level, maxLevel) + 1;
   }
 
   static double schoolRange(double base, double factor, double levelPercent) {

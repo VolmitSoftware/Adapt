@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -52,48 +51,57 @@ class ChronosBorrowedTimeDamageTest {
 
   @Test
   void paybackDamageCannotDeferItselfAndRestoresNestedState() {
-    ChronosBorrowedTime borrowedTime = new ChronosBorrowedTime();
+    ChronosDebt debt = debt(new ChronosBorrowedTime());
 
-    assertThat(borrowedTime.isApplyingPaybackDamage()).isFalse();
-    borrowedTime.withPaybackDamage(() -> {
-      assertThat(borrowedTime.isApplyingPaybackDamage()).isTrue();
-      borrowedTime.withPaybackDamage(() -> assertThat(borrowedTime.isApplyingPaybackDamage()).isTrue());
-      assertThat(borrowedTime.isApplyingPaybackDamage()).isTrue();
+    assertThat(debt.isPaying()).isFalse();
+    debt.whilePaying(() -> {
+      assertThat(debt.isPaying()).isTrue();
+      debt.whilePaying(() -> assertThat(debt.isPaying()).isTrue());
+      assertThat(debt.isPaying()).isTrue();
     });
-    assertThat(borrowedTime.isApplyingPaybackDamage()).isFalse();
+    assertThat(debt.isPaying()).isFalse();
+  }
+
+  @Test
+  void aPaybackPulseFromOneDebtIsNeverDeferredByAnother() {
+    ChronosDebt borrowed = debt(new ChronosBorrowedTime());
+    ChronosDebt other = debt(new ChronosBorrowedTime());
+
+    borrowed.whilePaying(() -> assertThat(other.isPaying()).isTrue());
+    assertThat(other.isPaying()).isFalse();
   }
 
   @Test
   void deferredDebtRoundTripsAndOnlyAdvancesOnCommit() {
-    Deque<ChronosBorrowedTime.DeferredDamage> debt = new ConcurrentLinkedDeque<>();
-    debt.add(new ChronosBorrowedTime.DeferredDamage(2.5D, 2));
-    debt.add(new ChronosBorrowedTime.DeferredDamage(0.5D, 1));
+    Deque<ChronosDebt.DeferredDamage> debt = new ConcurrentLinkedDeque<>();
+    debt.add(new ChronosDebt.DeferredDamage(2.5D, 2));
+    debt.add(new ChronosDebt.DeferredDamage(0.5D, 1));
 
-    String encoded = ChronosBorrowedTime.encodeDeferredDamage(debt);
-    Deque<ChronosBorrowedTime.DeferredDamage> restored =
-        ChronosBorrowedTime.decodeDeferredDamage(encoded);
+    String encoded = ChronosDebt.encodeDeferredDamage(debt);
+    Deque<ChronosDebt.DeferredDamage> restored =
+        ChronosDebt.decodeDeferredDamage(encoded);
 
-    assertThat(ChronosBorrowedTime.pendingPulseAmount(restored)).isEqualTo(3D);
-    assertThat(restored).extracting(ChronosBorrowedTime.DeferredDamage::pulsesRemaining)
+    assertThat(ChronosDebt.pendingPulseAmount(restored)).isEqualTo(3D);
+    assertThat(restored).extracting(ChronosDebt.DeferredDamage::pulsesRemaining)
         .containsExactly(2, 1);
 
-    ChronosBorrowedTime.commitDebtPulse(restored);
+    ChronosDebt.commitDebtPulse(restored);
 
-    assertThat(ChronosBorrowedTime.pendingPulseAmount(restored)).isEqualTo(2.5D);
-    assertThat(restored).extracting(ChronosBorrowedTime.DeferredDamage::pulsesRemaining)
+    assertThat(ChronosDebt.pendingPulseAmount(restored)).isEqualTo(2.5D);
+    assertThat(restored).extracting(ChronosDebt.DeferredDamage::pulsesRemaining)
         .containsExactly(1);
 
-    ChronosBorrowedTime.commitDebtPulse(restored);
+    ChronosDebt.commitDebtPulse(restored);
     assertThat(restored).isEmpty();
   }
 
   @Test
   void malformedPersistentDebtIsRejected() {
-    assertThatThrownBy(() -> ChronosBorrowedTime.decodeDeferredDamage("NaN,4"))
+    assertThatThrownBy(() -> ChronosDebt.decodeDeferredDamage("NaN,4"))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ChronosBorrowedTime.decodeDeferredDamage("2.0,0"))
+    assertThatThrownBy(() -> ChronosDebt.decodeDeferredDamage("2.0,0"))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> ChronosBorrowedTime.decodeDeferredDamage("broken"))
+    assertThatThrownBy(() -> ChronosDebt.decodeDeferredDamage("broken"))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -124,7 +132,7 @@ class ChronosBorrowedTimeDamageTest {
     borrowedTime.finishDamage(hit);
 
     assertThat(deferred(borrowedTime).get(player.uuid())).hasSize(1);
-    assertThat(ChronosBorrowedTime.pendingPulseAmount(deferred(borrowedTime).get(player.uuid())))
+    assertThat(ChronosDebt.pendingPulseAmount(deferred(borrowedTime).get(player.uuid())))
         .isEqualTo(0.2D);
     assertThat(borrowedTime.damageCredit).isEqualTo(2D);
   }
@@ -200,25 +208,24 @@ class ChronosBorrowedTimeDamageTest {
     when(player.data()).thenReturn(data);
     when(player.maxNoDamageTicks()).thenReturn(20);
     when(player.noDamageTicks()).thenReturn(11);
-    Deque<ChronosBorrowedTime.DeferredDamage> queue = new ConcurrentLinkedDeque<>();
-    queue.add(new ChronosBorrowedTime.DeferredDamage(0.24D, 10));
+    Deque<ChronosDebt.DeferredDamage> queue = new ConcurrentLinkedDeque<>();
+    queue.add(new ChronosDebt.DeferredDamage(0.24D, 10));
     deferred(borrowedTime).put(id, queue);
-    Method settle = ChronosBorrowedTime.class.getDeclaredMethod("settleDeferredDamage", PlayerRef.class, Deque.class);
-    settle.setAccessible(true);
+    ChronosDebt debt = debt(borrowedTime);
 
-    settle.invoke(borrowedTime, player, queue);
+    debt.settle(player, queue);
 
-    assertThat(ChronosBorrowedTime.encodeDeferredDamage(queue)).isEqualTo("0.24,10");
+    assertThat(ChronosDebt.encodeDeferredDamage(queue)).isEqualTo("0.24,10");
     assertThat(deferred(borrowedTime)).containsEntry(id, queue);
     assertThat(borrowedTime.paybacks).isEmpty();
     verify(data, never()).set(any(), any());
     verify(data, never()).remove(any(DataKey.class));
 
     when(player.noDamageTicks()).thenReturn(10);
-    settle.invoke(borrowedTime, player, queue);
+    debt.settle(player, queue);
     verify(data).set(any(), eq("0.24,9"));
     for (int pulse = 1; pulse < 10; pulse++) {
-      settle.invoke(borrowedTime, player, queue);
+      debt.settle(player, queue);
     }
 
     assertThat(borrowedTime.paybacks).hasSize(10).allMatch(amount -> amount == 0.24D);
@@ -239,7 +246,7 @@ class ChronosBorrowedTimeDamageTest {
     deferred(borrowedTime).put(
         playerId,
         new ConcurrentLinkedDeque<>(
-            List.of(new ChronosBorrowedTime.DeferredDamage(1D, 2))
+            List.of(new ChronosDebt.DeferredDamage(1D, 2))
         )
     );
 
@@ -251,12 +258,22 @@ class ChronosBorrowedTimeDamageTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<UUID, Deque<ChronosBorrowedTime.DeferredDamage>> deferred(
+  private static Map<UUID, Deque<ChronosDebt.DeferredDamage>> deferred(
       ChronosBorrowedTime borrowedTime
   ) throws Exception {
     Field field = ChronosBorrowedTime.class.getDeclaredField("deferred");
     field.setAccessible(true);
-    return (Map<UUID, Deque<ChronosBorrowedTime.DeferredDamage>>) field.get(borrowedTime);
+    return (Map<UUID, Deque<ChronosDebt.DeferredDamage>>) field.get(borrowedTime);
+  }
+
+  private static ChronosDebt debt(ChronosBorrowedTime borrowedTime) {
+    try {
+      Field field = ChronosBorrowedTime.class.getDeclaredField("debt");
+      field.setAccessible(true);
+      return (ChronosDebt) field.get(borrowedTime);
+    } catch (ReflectiveOperationException error) {
+      throw new IllegalStateException(error);
+    }
   }
 
   private static final class QuietBorrowedTime extends ChronosBorrowedTime {
@@ -279,7 +296,7 @@ class ChronosBorrowedTimeDamageTest {
 
     @Override
     protected void applyPlayerDamage(PlayerRef player, double amount) {
-      assertThat(isApplyingPaybackDamage()).isTrue();
+      assertThat(debt(this).isPaying()).isTrue();
       paybacks.add(amount);
     }
 

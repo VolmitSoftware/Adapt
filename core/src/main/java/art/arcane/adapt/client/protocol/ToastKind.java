@@ -6,5 +6,6 @@ public enum ToastKind {
   UNLOCK,
   DISCOVERY,
   GENERIC,
-  CHALLENGE
+  CHALLENGE,
+  SIGNATURE
 }

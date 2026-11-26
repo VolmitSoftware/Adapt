@@ -86,9 +86,9 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
   );
 
   private final Map<String, Long> placedCoral = new ConcurrentHashMap<>();
-  private final BlockTagSet coralBlocks = new BlockTagSet(Id.minecraft("coral_blocks"));
-  private final BlockTagSet corals = new BlockTagSet(Id.minecraft("corals"));
-  private final BlockTagSet wallCorals = new BlockTagSet(Id.minecraft("wall_corals"));
+  private static final BlockTagSet CORAL_BLOCK_TAG = new BlockTagSet(Id.minecraft("coral_blocks"));
+  private static final BlockTagSet CORAL_TAG = new BlockTagSet(Id.minecraft("corals"));
+  private static final BlockTagSet WALL_CORAL_TAG = new BlockTagSet(Id.minecraft("wall_corals"));
 
   public SeaborneCoralGardener() {
     super("seaborne-coral-gardener");
@@ -124,9 +124,9 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
 
   @Handle(priority = EventPriority.NORMAL, ignoreCancelled = false)
   public void on(ResourcesReloadedEvent e) {
-    coralBlocks.invalidate();
-    corals.invalidate();
-    wallCorals.invalidate();
+    CORAL_BLOCK_TAG.invalidate();
+    CORAL_TAG.invalidate();
+    WALL_CORAL_TAG.invalidate();
   }
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -317,8 +317,8 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     return location.world().uid() + ":" + location.blockX() + ":" + location.blockY() + ":" + location.blockZ();
   }
 
-  private boolean isFadeableCoral(Id m) {
-    return coralBlocks.contains(m) || corals.contains(m) || wallCorals.contains(m);
+  public static boolean isFadeableCoral(Id m) {
+    return CORAL_BLOCK_TAG.contains(m) || CORAL_TAG.contains(m) || WALL_CORAL_TAG.contains(m);
   }
 
   private long getSurvivalMillis(int level) {

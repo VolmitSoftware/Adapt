@@ -18,18 +18,19 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -45,7 +46,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> {
   private static final Id HOT_FLOOR = Id.minecraft("hot_floor");
-  private static final Id REGENERATION = Id.minecraft("regeneration");
 
   public NetherBlazeLeech() {
     super("nether-blaze-leech");
@@ -121,7 +121,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     });
   }
 
-  static boolean isFireDamage(EntityDamageEvent event) {
+  public static boolean isFireDamage(EntityDamageEvent event) {
     DamageCause cause = event.cause();
     return cause == DamageCause.FIRE
         || cause == DamageCause.FIRE_TICK
@@ -143,23 +143,8 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
   }
 
   private void applyLeech(PlayerRef p, int level, boolean defensive) {
-    int newFood = Math.min(20, p.foodLevel() + (int) Math.round(getFoodRestore(level)));
-    p.setFoodLevel(newFood);
-    float sat = Math.min(20f, p.saturation() + (float) getConfig().saturationRestore);
-    p.setSaturation(sat);
-
-    int amp = Math.max(0, (int) Math.floor(getRegenAmplifier(level)));
-    p.addEffect(new EffectInstance(REGENERATION, getRegenTicks(level), amp, true, false, true));
-
-    float pitch = defensive ? 1.4F : 1.7F;
-    FxEmitter emit = fx(p.location(), FxPriority.COMBAT)
-        .helix(Particles.FLAME, 0.5D, 1.9D, 8, 0D)
-        .helix(Particles.SOUL, 0.5D, 1.9D, 4, Math.PI)
-        .particle(Particles.HAPPY_VILLAGER, 3, 0D, 1.0D, 0D, 0.3D, 0.0D)
-        .chord(Sounds.ENTITY_BLAZE_AMBIENT, 0.45F, pitch, Sounds.BLOCK_FIRE_AMBIENT, 0.2F, 1.0F);
-    if (!defensive) {
-      emit.sound(Sounds.ENTITY_BLAZE_DEATH, 0.25F, 1.8F);
-    }
+    NetherBlazeFeed.feed(this, p, getFoodRestore(level), getConfig().saturationRestore, getRegenTicks(level),
+        Math.max(0, (int) Math.floor(getRegenAmplifier(level))), defensive);
     xp(p, defensive ? getConfig().xpOnDefensiveProc : getConfig().xpOnOffensiveProc);
     addStat(p, "nether.blaze-leech.health-from-fire", 1);
   }
@@ -184,6 +169,18 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     return Math.max(100L, Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
+
+  static void feedFx(Adaptation<?> owner, PlayerRef p, boolean defensive) {
+    float pitch = defensive ? 1.4F : 1.7F;
+    FxEmitter emit = Fx.now(owner, p.location(), FxPriority.COMBAT)
+        .helix(Particles.FLAME, 0.5D, 1.9D, 8, 0D)
+        .helix(Particles.SOUL, 0.5D, 1.9D, 4, Math.PI)
+        .particle(Particles.HAPPY_VILLAGER, 3, 0D, 1.0D, 0D, 0.3D, 0.0D)
+        .chord(Sounds.ENTITY_BLAZE_AMBIENT, 0.45F, pitch, Sounds.BLOCK_FIRE_AMBIENT, 0.2F, 1.0F);
+    if (!defensive) {
+      emit.sound(Sounds.ENTITY_BLAZE_DEATH, 0.25F, 1.8F);
+    }
+  }
 
   @ConfigDescription("Fire interactions can grant hunger and regeneration in short bursts.")
   protected static class Config extends AdaptationConfig {

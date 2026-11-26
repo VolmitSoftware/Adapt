@@ -3,12 +3,17 @@ package art.arcane.adapt.api.advancement;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.signature.Signature;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdvancementHandler;
 import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.client.protocol.ToastKind;
 import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.advancement.AdvancementNode;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -17,6 +22,7 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.scheduling.Tasks;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +45,7 @@ public class AdvancementManager {
   private static final int RESTORE_SETTLE_DELAY_TICKS = 60;
   private static final int RESTORE_STAGGER_TICKS = 20;
   private static final int GRANT_DELAY_TICKS = 5;
+  private static final String ADAPTATION_KEY = "adaptation_";
   private final Map<String, ServerFrame.Toast> registeredToasts = new ConcurrentHashMap<>();
   private final AtomicBoolean enabled = new AtomicBoolean(false);
   private final AtomicBoolean catalogReady = new AtomicBoolean(false);
@@ -57,6 +64,7 @@ public class AdvancementManager {
       return false;
     }
     if (!canRenderGrant(enabled.get(), catalogReady.get(), registeredToasts.containsKey(key))) {
+      unlistedToast(player, key, toast);
       return true;
     }
 
@@ -83,6 +91,38 @@ public class AdvancementManager {
       }
     }, GRANT_DELAY_TICKS);
     return true;
+  }
+
+  /**
+   * The toast a client with native toasts shows the first time a player learns an adaptation that has no advancement:
+   * an upgrade, a signature or a mutated skill's own. Players without those toasts see nothing, as before.
+   */
+  private void unlistedToast(AdaptPlayer player, String key, boolean toast) {
+    PlayerRef target = player.getPlayer();
+    if (target == null || !key.startsWith(ADAPTATION_KEY) || !enabled.get()
+        || !shouldDisplayToast(toast, AdaptConfig.get().isAdvancementUnlockToasts()) || !ClientToasts.capable(target.uuid())) {
+      return;
+    }
+    Adaptation<?> adaptation = server().getSkillRegistry().getAdaptation(key.substring(ADAPTATION_KEY.length()));
+    if (adaptation == null || listed(adaptation)) {
+      return;
+    }
+    ServerFrame.Toast frame = unlockToast(target.uuid(), adaptation);
+    Tasks.runEntity(target, () -> ClientToasts.send(target.uuid(), frame), GRANT_DELAY_TICKS);
+  }
+
+  /** The unlock toast for {@code adaptation} in {@code viewer}'s language, in its skill's look. */
+  public static ServerFrame.Toast unlockToast(UUID viewer, Adaptation<?> adaptation) {
+    ToastKind kind = adaptation instanceof Signature<?> ? ToastKind.SIGNATURE : ToastKind.UNLOCK;
+    String skill = adaptation.getSkill() == null ? "" : adaptation.getSkill().getName();
+    return LanguageAudience.call(viewer, () -> ClientToasts.toast(kind, ViewIcons.adaptation(adaptation),
+        adaptation.getDisplayName(), ToastQuips.unlockLine(adaptation), skill));
+  }
+
+  /** Whether {@code adaptation} has an advancement: an original of a registered skill. */
+  static boolean listed(Adaptation<?> adaptation) {
+    Skill<?> skill = adaptation.getSkill();
+    return skill != null && !(skill instanceof MutatedSkill) && skill.getAdaptations().contains(adaptation);
   }
 
   /** Grants on the host; a player with client toasts gets the toast frame and no vanilla popup. */
@@ -277,7 +317,7 @@ public class AdvancementManager {
           roots.add(rootKey);
         }
         trees.add(advancement.toNode());
-        collectToasts(advancement, toasts);
+        collectToasts(advancement, toasts, skill.getName());
       }
 
       host.setCatalog(trees);
@@ -296,11 +336,11 @@ public class AdvancementManager {
     }
   }
 
-  private static void collectToasts(AdaptAdvancement advancement, Map<String, ServerFrame.Toast> toasts) {
-    toasts.put(advancement.getKey(), advancement.clientToast());
+  private static void collectToasts(AdaptAdvancement advancement, Map<String, ServerFrame.Toast> toasts, String skill) {
+    toasts.put(advancement.getKey(), advancement.clientToast(skill));
     if (advancement.getChildren() != null) {
       for (AdaptAdvancement child : advancement.getChildren()) {
-        collectToasts(child, toasts);
+        collectToasts(child, toasts, skill);
       }
     }
   }

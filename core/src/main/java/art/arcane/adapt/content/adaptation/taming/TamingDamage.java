@@ -26,12 +26,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
-import art.arcane.adapt.api.attribute.LegacyModifierKey;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LastDamage;
@@ -60,14 +58,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
-  private static final LegacyModifierKey MODIFIER_KEY = LegacyModifierKey.of(Id.of("adapt", "tame-damage-boost"));
   private static final String LIFECYCLE_SCOPE = "tame-damage";
   private static final long ATTRIBUTE_REFRESH_MILLIS = 6119L;
   private static final long OWNER_LEVEL_REFRESH_MILLIS = 5000L;
   private static final long STATE_PRUNE_MILLIS = 60000L;
   private final TameableOwnershipIndex ownershipIndex = TameableOwnershipIndex.instance();
   private final TameableOwnershipIndex.Generation generation = ownershipIndex.claimGeneration(LIFECYCLE_SCOPE);
-  private final Map<UUID, Integer> appliedLevels = new ConcurrentHashMap<>();
+  private final TameAttributeBoost boost = new TameAttributeBoost(Id.of("adapt", "tame-damage-boost"), Attributes.ATTACK_DAMAGE, this::showBoost);
   private final Map<UUID, Long> nextUpdateAt = new ConcurrentHashMap<>();
   private final Map<UUID, Integer> ownerLevels = new ConcurrentHashMap<>();
   private final AtomicBoolean lifecycleCleanupStarted = new AtomicBoolean();
@@ -109,10 +106,10 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
   @Override
   public void unregister() {
     if (lifecycleCleanupStarted.compareAndSet(false, true)) {
-      ownershipIndex.cleanupLoaded(generation, this::removeDamageModifier);
+      ownershipIndex.cleanupLoaded(generation, boost::remove);
       ownerLevels.clear();
       nextUpdateAt.clear();
-      appliedLevels.clear();
+      boost.clear();
     }
     super.unregister();
   }
@@ -130,7 +127,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     } else {
       ownerLevels.clear();
     }
-    if (ownerLevels.isEmpty() && appliedLevels.isEmpty()) {
+    if (ownerLevels.isEmpty() && boost.isEmpty()) {
       pruneState(now);
       return;
     }
@@ -158,7 +155,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
       Loc deathLocation = dead.location();
       Tasks.runEntity(owner, () -> recordPetKill(owner, deathLocation));
     }
-    appliedLevels.remove(dead.uuid());
+    boost.forget(dead.uuid());
     nextUpdateAt.remove(dead.uuid());
   }
 
@@ -269,15 +266,16 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     UUID ownerId = ownershipIndex.refreshOwner(tracked);
     LivingRef entity = tracked.entity();
     if (entity == null) {
-      appliedLevels.remove(tracked.entityId());
+      boost.forget(tracked.entityId());
       return;
     }
     if (ownerId == null) {
-      removeDamageModifier(entity);
+      boost.remove(entity);
       return;
     }
 
-    update(entity, ownerLevels.getOrDefault(ownerId, 0));
+    int level = ownerLevels.getOrDefault(ownerId, 0);
+    boost.update(entity, level, getDamageBoost(level));
   }
 
   private void recordPetKill(PlayerRef owner, Loc deathLocation) {
@@ -293,28 +291,7 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
     });
   }
 
-  private void update(LivingRef j, int level) {
-    UUID tameableId = j.uuid();
-    if (!j.hasAttribute(Attributes.ATTACK_DAMAGE)) {
-      appliedLevels.remove(tameableId);
-      return;
-    }
-
-    Integer appliedLevel = appliedLevels.get(tameableId);
-    if (level <= 0) {
-      if (appliedLevel != null || hasModifier(j)) {
-        MODIFIER_KEY.remove(j, Attributes.ATTACK_DAMAGE);
-      }
-      appliedLevels.remove(tameableId);
-      return;
-    }
-
-    if (appliedLevel != null && appliedLevel == level && hasModifier(j)) {
-      return;
-    }
-
-    MODIFIER_KEY.setTransient(j, Attributes.ATTACK_DAMAGE, getDamageBoost(level), AttributeOperation.ADD_MULTIPLIED_BASE);
-    appliedLevels.put(tameableId, level);
+  private void showBoost(LivingRef j) {
     fx(j, FxPriority.TRANSITION)
         .ring(Particles.CRIT_MAGIC, 0.4D, 6, 0.6D)
         .dustBurst(Rgb.of(0xB0202A), 3, 0.3D, 1.0F)
@@ -328,22 +305,6 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
 
     nextUpdateAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
     nextStatePrune = now + STATE_PRUNE_MILLIS;
-  }
-
-  private void removeDamageModifier(LivingRef tameable) {
-    if (!tameable.isValid() || tameable.isDead()) {
-      appliedLevels.remove(tameable.uuid());
-      return;
-    }
-
-    if (tameable.hasAttribute(Attributes.ATTACK_DAMAGE) && hasModifier(tameable)) {
-      MODIFIER_KEY.remove(tameable, Attributes.ATTACK_DAMAGE);
-    }
-    appliedLevels.remove(tameable.uuid());
-  }
-
-  private static boolean hasModifier(LivingRef tameable) {
-    return MODIFIER_KEY.present(tameable, Attributes.ATTACK_DAMAGE);
   }
 
   @ConfigDescription("Increase your tamed animal damage dealt.")

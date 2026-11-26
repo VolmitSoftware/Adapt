@@ -95,7 +95,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
     if (level <= 0 || !preference(player, RangedPreferences.SHOTS).accepts(arrow)) {
       return;
     }
-    arrow.setPierceLevel(arrow.pierceLevel() + level);
+    RangedShots.pierce(arrow, level);
     PIERCE_INITIALIZED.set(arrow, true);
     xp(player, 5);
   }

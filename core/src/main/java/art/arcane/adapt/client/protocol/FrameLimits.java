@@ -16,6 +16,10 @@ public final class FrameLimits {
   public static final int MAX_LINES = 128;
   public static final int MAX_ROW_GROUPS = 64;
   public static final int MAX_REQUIREMENTS = 64;
+  public static final int MAX_TOOL_INGREDIENTS = 9;
+  public static final int MAX_RECIPES = 2048;
+  public static final int MAX_RECIPE_INPUTS = 9;
+  public static final int MAX_RECIPE_EFFECTS = 32;
   public static final int MAX_PREFERENCES = 128;
   public static final int MAX_CHOICES = 64;
   public static final int MAX_PREFERENCE_GROUPS = 32;

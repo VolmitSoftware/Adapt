@@ -282,7 +282,7 @@ class AdaptationRequirementsTest {
     fixture.data.setRegionPowerBonus(2);
     fixture.data.pruneAdaptationsForPowerBudget();
 
-    assertThat(fixture.data.getSkillLines().get("gamma").getAdaptations()).doesNotContainKey("gamma-hidden");
+    assertThat(fixture.data.getSkillLines().get("gamma").getAdaptations()).containsKey("gamma-hidden");
     assertThat(fixture.level(fixture.dependent)).isEqualTo(3);
     assertThat(fixture.level(fixture.cross)).isEqualTo(3);
     assertThat(handler.messages(Level.INFO)).isEmpty();
@@ -374,6 +374,8 @@ class AdaptationRequirementsTest {
     private Skill<?> skill(String name) {
       Skill<?> skill = mock(Skill.class);
       when(skill.getName()).thenReturn(name);
+      when(skill.isEnabled()).thenReturn(true);
+      doReturn(skill).when(registry).getSkill(name);
       return skill;
     }
 
@@ -383,6 +385,7 @@ class AdaptationRequirementsTest {
       when(adaptation.getName()).thenReturn(name);
       when(adaptation.getDisplayName()).thenReturn(C.BOLD + displayName);
       when(adaptation.getMaxLevel()).thenReturn(5);
+      when(adaptation.isEnabled()).thenReturn(true);
       when(adaptation.getPlayer(player)).thenReturn(adaptPlayer);
       return adaptation;
     }

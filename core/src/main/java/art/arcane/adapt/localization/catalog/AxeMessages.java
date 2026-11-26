@@ -26,6 +26,9 @@ public final class AxeMessages {
   public static final TextKey PREFERENCE_WHILE_SNEAKING = TextKey.of("axe.preferences.while_sneaking", "While sneaking");
   public static final TextKey PREFERENCE_NOT_SNEAKING = TextKey.of("axe.preferences.not_sneaking", "While not sneaking");
   public static final TextKey PREFERENCE_ALWAYS = TextKey.of("axe.preferences.always", "Always");
+  public static final TextKey PREFERENCE_FELLED_LOGS = TextKey.of("axe.preferences.felled_logs", "Felled logs");
+  public static final TextKey PREFERENCE_STRIPPED = TextKey.of("axe.preferences.stripped", "Stripped logs");
+  public static final TextKey PREFERENCE_PLANKS = TextKey.of("axe.preferences.planks", "Planks");
   private static final List<TextKey> PREFERENCE_KEYS = List.of(
       PREFERENCE_LATCH,
       PREFERENCE_SNEAK,
@@ -45,7 +48,10 @@ public final class AxeMessages {
       PREFERENCE_TRIGGER,
       PREFERENCE_WHILE_SNEAKING,
       PREFERENCE_NOT_SNEAKING,
-      PREFERENCE_ALWAYS);
+      PREFERENCE_ALWAYS,
+      PREFERENCE_FELLED_LOGS,
+      PREFERENCE_STRIPPED,
+      PREFERENCE_PLANKS);
   public static final TextKey CHOP_NAME = TextKey.of("axe.chop.name", "Axe Chop");
   public static final TextKey CHOP_DESCRIPTION = TextKey.of("axe.chop.description", "Chop down trees by right clicking the base log!");
   public static final TextKey CHOP_LORE1 = TextKey.of("axe.chop.lore1", "Blocks Per Chop");
@@ -56,7 +62,7 @@ public final class AxeMessages {
   public static final TextKey LOG_SWAP_DESCRIPTION = TextKey.of("axe.log_swap.description", "Change the flavor of logs in a Crafting Table!");
   public static final TextKey LOG_SWAP_LORE1 = TextKey.of("axe.log_swap.lore1", "8 Log of any kind + 1 sapling = 8 log of the sapling's type");
   public static final LinesKey LOG_SWAP_LORE = LinesKey.of("axe.log_swap.lore", "8 Log of any kind + 1 sapling = 8 log of the sapling's type");
-  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("axe.drop_to_inventory.name", "Axe Drop-To-Inventory");
+  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("axe.drop_to_inventory.name", "Axe Drop to Inventory");
   public static final TextKey GROUND_SMASH_NAME = TextKey.of("axe.ground_smash.name", "Axe Ground Smash");
   public static final TextKey GROUND_SMASH_DESCRIPTION = TextKey.of("axe.ground_smash.description", "Jump, then crouch and smash all nearby enemies.");
   public static final TextKey GROUND_SMASH_LORE1 = TextKey.of("axe.ground_smash.lore1", "Damage");
@@ -64,13 +70,13 @@ public final class AxeMessages {
   public static final TextKey GROUND_SMASH_LORE3 = TextKey.of("axe.ground_smash.lore3", "Force");
   public static final TextKey GROUND_SMASH_LORE4 = TextKey.of("axe.ground_smash.lore4", "Smash Cooldown");
   public static final LinesKey GROUND_SMASH_LORE = LinesKey.of("axe.ground_smash.lore", "Damage", "Block Radius", "Force", "Smash Cooldown");
-  public static final TextKey LEAF_MINER_NAME = TextKey.of("axe.leaf_miner.name", "Leaf-miner");
+  public static final TextKey LEAF_MINER_NAME = TextKey.of("axe.leaf_miner.name", "Leaf-Miner");
   public static final TextKey LEAF_MINER_DESCRIPTION = TextKey.of("axe.leaf_miner.description", "Allows you to break bulk leaves at once!");
   public static final TextKey LEAF_MINER_LORE1 = TextKey.of("axe.leaf_miner.lore1", "Sneak, and mine LEAVES");
   public static final TextKey LEAF_MINER_LORE2 = TextKey.of("axe.leaf_miner.lore2", "range of Leaf-mining");
   public static final TextKey LEAF_MINER_LORE3 = TextKey.of("axe.leaf_miner.lore3", "You will not get the drops from the leaves (Exploit Prevention)");
   public static final LinesKey LEAF_MINER_LORE = LinesKey.of("axe.leaf_miner.lore", "Sneak, and mine LEAVES", "range of Leaf-mining", "You will not get the drops from the leaves (Exploit Prevention)");
-  public static final TextKey WOOD_MINER_NAME = TextKey.of("axe.wood_miner.name", "Wood-miner");
+  public static final TextKey WOOD_MINER_NAME = TextKey.of("axe.wood_miner.name", "Wood-Miner");
   public static final TextKey WOOD_MINER_DESCRIPTION = TextKey.of("axe.wood_miner.description", "Allows you to break bulk wood at once!");
   public static final TextKey WOOD_MINER_LORE1 = TextKey.of("axe.wood_miner.lore1", "Sneak, and mine WOOD/LOGS ( Not Planks )");
   public static final TextKey WOOD_MINER_LORE2 = TextKey.of("axe.wood_miner.lore2", "range of Wood-mining");
@@ -116,6 +122,18 @@ public final class AxeMessages {
   public static final TextKey SHIELD_SPLITTER_LORE1 = TextKey.of("axe.shield_splitter.lore1", "Shield Disable Duration");
   public static final TextKey SHIELD_SPLITTER_LORE2 = TextKey.of("axe.shield_splitter.lore2", "Bonus Damage vs Blocking");
   public static final LinesKey SHIELD_SPLITTER_LORE = LinesKey.of("axe.shield_splitter.lore", "Shield Disable Duration", "Bonus Damage vs Blocking");
+
+  public static final TextKey TIMBERFALL_LORE1 = TextKey.of("upgrade.axes.timberfall.lore1", "Logs Felled per Swing");
+  public static final TextKey TIMBERFALL_LORE2 = TextKey.of("upgrade.axes.timberfall.lore2", "Leaves Cleared per Swing");
+  public static final TextKey TIMBERFALL_LORE3 = TextKey.of("upgrade.axes.timberfall.lore3", "Log Search Radius");
+  public static final TextKey SUNDERING_CLEAVE_LORE1 = TextKey.of("upgrade.axes.sundering_cleave.lore1", "Arc Width");
+  public static final TextKey SUNDERING_CLEAVE_LORE2 = TextKey.of("upgrade.axes.sundering_cleave.lore2", "Arc Damage Share");
+  public static final TextKey SUNDERING_CLEAVE_LORE3 = TextKey.of("upgrade.axes.sundering_cleave.lore3", "Armor Shred per Stack");
+  public static final TextKey WORLDSPLITTER_LORE1 = TextKey.of("upgrade.axes.worldsplitter.lore1", "Throw Damage Multiplier");
+  public static final TextKey WORLDSPLITTER_LORE2 = TextKey.of("upgrade.axes.worldsplitter.lore2", "Smash Damage");
+  public static final TextKey WORLDSPLITTER_LORE3 = TextKey.of("upgrade.axes.worldsplitter.lore3", "Smash Radius");
+  public static final TextKey WORLDSPLITTER_LORE4 = TextKey.of("upgrade.axes.worldsplitter.lore4", "Cooldown");
+  public static final TextKey WORLDSPLITTER_LORE5 = TextKey.of("upgrade.axes.worldsplitter.lore5", "Return Hits");
 
   private AxeMessages() {
   }
@@ -192,5 +210,16 @@ public final class AxeMessages {
     builder.add(SHIELD_SPLITTER_LORE1);
     builder.add(SHIELD_SPLITTER_LORE2);
     builder.add(SHIELD_SPLITTER_LORE);
+    builder.add(TIMBERFALL_LORE1);
+    builder.add(TIMBERFALL_LORE2);
+    builder.add(TIMBERFALL_LORE3);
+    builder.add(SUNDERING_CLEAVE_LORE1);
+    builder.add(SUNDERING_CLEAVE_LORE2);
+    builder.add(SUNDERING_CLEAVE_LORE3);
+    builder.add(WORLDSPLITTER_LORE1);
+    builder.add(WORLDSPLITTER_LORE2);
+    builder.add(WORLDSPLITTER_LORE3);
+    builder.add(WORLDSPLITTER_LORE4);
+    builder.add(WORLDSPLITTER_LORE5);
   }
 }

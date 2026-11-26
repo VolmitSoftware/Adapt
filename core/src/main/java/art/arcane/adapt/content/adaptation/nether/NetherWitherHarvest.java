@@ -18,35 +18,28 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
-import art.arcane.adapt.platform.item.ItemOps;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherWitherHarvest extends SimpleAdaptation<NetherWitherHarvest.Config> {
-  private static final Id WITHER_SKELETON = Id.minecraft("wither_skeleton");
-  private static final Id WITHER_SKELETON_SKULL = Id.minecraft("wither_skeleton_skull");
-
   public NetherWitherHarvest() {
     super("nether-wither-harvest");
     registerConfiguration(Config.class);
@@ -77,16 +70,8 @@ public class NetherWitherHarvest extends SimpleAdaptation<NetherWitherHarvest.Co
 
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDeathEvent e) {
-    if (e.platformCancelled()) {
-      return;
-    }
-    LivingRef skeleton = e.entity();
-    if (!skeleton.type().equals(WITHER_SKELETON)) {
-      return;
-    }
-
-    PlayerRef p = e.killer();
-    if (p == null || GolemKillCredit.isGolemKill(skeleton)) {
+    PlayerRef p = NetherSkeletonHarvest.harvester(e);
+    if (p == null) {
       return;
     }
 
@@ -96,42 +81,13 @@ public class NetherWitherHarvest extends SimpleAdaptation<NetherWitherHarvest.Co
         return;
       }
 
-      ItemOps items = AdaptCore.platform().host().items();
-      List<ItemRef> drops = e.drops();
-      drops.add(items.create(Id.minecraft("bone"), getBonusBones(level)));
-      drops.add(items.create(Id.minecraft("coal"), getBonusCoal(level)));
-
-      boolean skull = false;
-      if (ThreadLocalRandom.current().nextDouble() <= getSkullChance(level) && !containsSkull(drops)) {
-        drops.add(items.create(WITHER_SKELETON_SKULL, 1));
-        skull = true;
-      }
-
+      boolean skull = NetherSkeletonHarvest.harvest(this, e, getBonusBones(level), getBonusCoal(level), getSkullChance(level));
       addStat(p, "nether.wither-harvest.skeletons-harvested", 1);
       xp(p, getConfig().xpPerHarvest);
       if (skull) {
         xp(p, getConfig().xpOnSkull);
-        fx(skeleton.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
-            .column(Particles.END_ROD, 4, 1.4D)
-            .particle(Particles.SOUL, 4, 0D, 0.3D, 0D, 0.2D, 0.0D)
-            .chord(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.2F, Sounds.ENTITY_WITHER_SKELETON_DEATH, 0.4F, 1.3F);
-      } else {
-        fx(skeleton.location().add(0D, 0.6D, 0D), FxPriority.GAMEPLAY)
-            .particle(Particles.SOUL, 3, 0.2D, 0.2D, 0.2D, 0.15D, 0.0D)
-            .particle(Particles.SMOKE, 2, 0D, 0.1D, 0D, 0.15D, 0.0D)
-            .sound(Sounds.ENTITY_WITHER_SKELETON_HURT, 0.4F, 1.1F);
       }
     });
-  }
-
-  private boolean containsSkull(List<ItemRef> drops) {
-    for (ItemRef drop : drops) {
-      if (drop != null && drop.type().equals(WITHER_SKELETON_SKULL)) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   private int getBonusBones(int level) {
@@ -146,14 +102,28 @@ public class NetherWitherHarvest extends SimpleAdaptation<NetherWitherHarvest.Co
     return skullChance(getLevelPercent(level), getConfig().skullChanceBase, getConfig().skullChanceFactor, getConfig().maxSkullChance);
   }
 
-  static int bonusAmount(double levelPercent, double base, double factor) {
+  public static int bonusAmount(double levelPercent, double base, double factor) {
     return Math.max(1, (int) Math.round(base + (levelPercent * factor)));
   }
 
-  static double skullChance(double levelPercent, double base, double factor, double cap) {
+  public static double skullChance(double levelPercent, double base, double factor, double cap) {
     return Math.min(cap, base + (levelPercent * factor));
   }
 
+
+  static void harvestFx(Adaptation<?> owner, LivingRef skeleton, boolean skull) {
+    if (skull) {
+      Fx.now(owner, skeleton.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+          .column(Particles.END_ROD, 4, 1.4D)
+          .particle(Particles.SOUL, 4, 0D, 0.3D, 0D, 0.2D, 0.0D)
+          .chord(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.5F, 1.2F, Sounds.ENTITY_WITHER_SKELETON_DEATH, 0.4F, 1.3F);
+    } else {
+      Fx.now(owner, skeleton.location().add(0D, 0.6D, 0D), FxPriority.GAMEPLAY)
+          .particle(Particles.SOUL, 3, 0.2D, 0.2D, 0.2D, 0.15D, 0.0D)
+          .particle(Particles.SMOKE, 2, 0D, 0.1D, 0D, 0.15D, 0.0D)
+          .sound(Sounds.ENTITY_WITHER_SKELETON_HURT, 0.4F, 1.1F);
+    }
+  }
 
   @ConfigDescription("Wither skeletons yield extra bones and coal, with slightly improved skull odds.")
   protected static class Config extends AdaptationConfig {

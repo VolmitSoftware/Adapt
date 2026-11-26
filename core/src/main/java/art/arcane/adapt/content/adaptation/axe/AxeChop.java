@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -49,8 +48,6 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-
-import static art.arcane.adapt.util.data.BlockFlag.VEIN_MINED;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -146,7 +143,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
           .start();
       int logsChopped = 0;
       for (int i = 0; i < Math.max(1, (int) Math.floor(getActiveLevel(p) * preference(p, AxePreferences.WORK).multiplier())); i++) {
-        if (breakStuff(target, getRange(getLevel(p)), p)) {
+        if (AxeFelling.chopTop(this, target, getRange(getLevel(p)), p)) {
           logsChopped++;
           p.setCooldown(p.inventory().mainHand().type(), getCooldownTime(getLevelPercent(p)));
           damageHand(p, getDamagePerBlock(getLevelPercent(p)));
@@ -188,36 +185,6 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
   private int getDamagePerBlock(double levelPercent) {
     return (int) (getConfig().damagePerBlockBase + (getConfig().damagePerBlockInverseLevelMultiplier * ((1D - levelPercent))));
-  }
-
-  private boolean breakStuff(BlockRef b, int power, PlayerRef player) {
-    BlockRef last = b;
-    for (int i = b.y(); i < power + b.y(); i++) {
-      BlockRef bb = b.world().blockAt(b.x(), i, b.z());
-      if (isLog(bb.type())) {
-        last = bb;
-      } else {
-        break;
-      }
-    }
-
-    if (!canBlockBreak(player, last.location())) {
-      return false;
-    }
-
-    if (!isLog(last.type())) {
-      return false;
-    }
-
-    if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(last.location())) {
-      return false;
-    }
-    VEIN_MINED.add(last);
-    try {
-      return AdaptCore.platform().protection().attemptBreak(player, last);
-    } finally {
-      VEIN_MINED.remove(last);
-    }
   }
 
   @ConfigDescription("Chop down trees by right-clicking the base log.")

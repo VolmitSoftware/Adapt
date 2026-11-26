@@ -7,9 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SeaborneTridentMasteryTeleportTest {
   @Test
   void releaseContinuesOnlyAfterConfirmedTeleportSuccess() {
-    assertThat(SeaborneTridentMastery.successfulReleaseTeleport(true, null)).isTrue();
-    assertThat(SeaborneTridentMastery.successfulReleaseTeleport(false, null)).isFalse();
-    assertThat(SeaborneTridentMastery.successfulReleaseTeleport(null, null)).isFalse();
-    assertThat(SeaborneTridentMastery.successfulReleaseTeleport(true, new IllegalStateException())).isFalse();
+    assertThat(SeaborneTridents.successfulReleaseTeleport(true, null)).isTrue();
+    assertThat(SeaborneTridents.successfulReleaseTeleport(false, null)).isFalse();
+    assertThat(SeaborneTridents.successfulReleaseTeleport(null, null)).isFalse();
+    assertThat(SeaborneTridents.successfulReleaseTeleport(true, new IllegalStateException())).isFalse();
   }
 }

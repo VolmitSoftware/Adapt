@@ -10,6 +10,8 @@ import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.fx.FxHost;
 import art.arcane.adapt.platform.fx.ParticleSpec;
+import art.arcane.adapt.platform.fx.SoundCategory;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.world.WorldRef;
@@ -74,6 +76,27 @@ public final class Fx {
     FxDispatch.Emission emission = FxDispatch.emission(player -> {
       if (viewerEffectsEnabled(player)) {
         host.particle(player, particle, x, y, z, count, spreadX, spreadY, spreadZ, speed, false);
+      }
+    }, null);
+    if (!FxViewers.dispatch(viewer, emission) && FxViewers.shouldFallback(viewer)) {
+      FxDispatch.dispatch(viewer, emission);
+    }
+  }
+
+  /**
+   * Plays {@code sound} at {@code location} for {@code viewer} alone, wherever the viewer snapshot last placed them; for a
+   * player who has just teleported, whom an emitter at their new location would still miss.
+   */
+  public static void sound(Adaptation<?> adaptation, PlayerRef viewer, Loc location, Id sound, float volume, float pitch) {
+    if (adaptation == null || viewer == null || location == null || sound == null || !adaptation.areSoundsEnabled()) {
+      return;
+    }
+    if (FxBudget.densityScalar(FxPriority.TRANSITION) <= 0) {
+      return;
+    }
+    FxDispatch.Emission emission = FxDispatch.emission(player -> {
+      if (viewerEffectsEnabled(player)) {
+        player.playSound(location, sound, SoundCategory.MASTER, volume, pitch);
       }
     }, null);
     if (!FxViewers.dispatch(viewer, emission) && FxViewers.shouldFallback(viewer)) {

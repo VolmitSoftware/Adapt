@@ -5,16 +5,21 @@ import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
+import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
+import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.permission.PermissionDefault;
 import art.arcane.adapt.platform.permission.PermissionHost;
 import art.arcane.adapt.platform.protection.ProtectedAction;
 import art.arcane.adapt.platform.protection.ProtectionHost;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.platform.world.BlockStateRef;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -196,7 +201,8 @@ public final class TestPlatform {
 
   /**
    * Allows everything unless denied. Breaks post a {@link BlockBreakEvent} on the running core's bus first, like a
-   * real player break, then break the block naturally with the actor's main hand and record it.
+   * real player break, then break the block with the actor's main hand, record it and drop what the
+   * {@link BlockDropItemEvent} handlers left, nothing when they cancelled it.
    */
   public static final class Protection implements ProtectionHost {
     private final List<BlockRef> broken = new ArrayList<>();
@@ -230,7 +236,25 @@ public final class TestPlatform {
         return false;
       }
       broken.add(block);
-      return block.breakNaturally(actor.inventory().mainHand());
+      BlockStateRef state = block.state();
+      List<ItemEntityRef> items = new ArrayList<>();
+      for (ItemRef drop : block.drops(actor.inventory().mainHand(), actor)) {
+        items.add(block.world().createItemEntity(block.center().position(), drop));
+      }
+      block.setType(Id.minecraft("air"), false);
+      BlockDropItemEvent drops = new BlockDropItemEvent(actor, block, state, items);
+      if (core != null && !items.isEmpty()) {
+        core.getBus().post(drops);
+      }
+      if (drops.isCancelled()) {
+        return true;
+      }
+      for (ItemEntityRef item : drops.items()) {
+        if (item.isValid() && !item.item().isEmpty()) {
+          block.world().dropItemNaturally(block.center().position(), item.item());
+        }
+      }
+      return true;
     }
   }
 

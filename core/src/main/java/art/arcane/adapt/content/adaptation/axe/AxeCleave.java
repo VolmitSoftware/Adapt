@@ -20,7 +20,6 @@ package art.arcane.adapt.content.adaptation.axe;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -31,8 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -40,7 +37,6 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -48,13 +44,9 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
-  private static final long CLEAVE_MARK_MS = 250L;
-  private final Map<UUID, Long> cleaving = new ConcurrentHashMap<>();
+  private final AxeCleaveArc arc = new AxeCleaveArc(this, () -> getConfig().ignorePassiveMobs);
 
   public AxeCleave() {
     super("axe-cleave");
@@ -92,8 +84,7 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
     long now = System.currentTimeMillis();
-    Long marked = cleaving.get(e.entity().uuid());
-    if (marked != null && marked > now) {
+    if (arc.isCleaving(e.entity().uuid(), now)) {
       return;
     }
 
@@ -115,77 +106,33 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
       return;
     }
 
-    double radius = getRadius(level);
-    double cosHalf = Math.cos(Math.toRadians(getHalfArcDegrees(level)));
-    int cap = getTargetCap(level);
-    Loc origin = p.eyeLocation();
-    Vec3 look = origin.direction().normalize();
-
-    int hits = 0;
-    for (EntityRef nearby : primary.world().nearbyEntities(primary.location().position(), radius, radius, radius)) {
-      if (hits >= cap) {
-        break;
-      }
-      if (!(nearby instanceof LivingRef target) || target.uuid().equals(p.uuid()) || target.uuid().equals(primary.uuid())
-          || target.has(EntityTrait.ARMOR_STAND)) {
-        continue;
-      }
-      if ((!preferenceEnabled(p, AxePreferences.PLAYERS) && target instanceof PlayerRef)
-          || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs || preferenceEnabled(p, AxePreferences.IGNORE_PASSIVE)) || !canDamageTarget(p, target)) {
-        continue;
-      }
-
-      Vec3 to = target.location().add(0D, target.height() * 0.5D, 0D).position().subtract(origin.position());
-      double distance = to.length();
-      if (distance < 1.0E-4D) {
-        continue;
-      }
-      if (look.dot(to.multiply(1D / distance)) < cosHalf) {
-        continue;
-      }
-
-      hits++;
-      markAndDamage(target, p, secondary, now);
+    List<LivingRef> targets = arc.targets(p, primary, getRadius(level), getHalfArcDegrees(level), getTargetCap(level),
+        preferenceEnabled(p, AxePreferences.PLAYERS),
+        getConfig().ignorePassiveMobs || preferenceEnabled(p, AxePreferences.IGNORE_PASSIVE));
+    for (LivingRef target : targets) {
+      arc.strike(target, p, secondary, now, (LivingRef struck) ->
+          fx(struck.location().add(0D, struck.height() * 0.6D, 0D), FxPriority.COMBAT)
+              .burst(Particles.CRIT_MAGIC, 5, 0.25D));
     }
 
-    if (hits > 0) {
-      int total = hits;
+    if (!targets.isEmpty()) {
+      int total = targets.size();
       Tasks.runEntity(p, () -> {
         damageHand(p, getConfig().durabilityCost);
         addStat(p, "axe.cleave.targets-hit", total);
         xp(p, total * getConfig().xpPerTarget);
       });
-      Loc tip = origin.add(look.multiply(1.6D));
+      Loc origin = p.eyeLocation();
+      Loc tip = origin.add(origin.direction().normalize().multiply(1.6D));
       fx(tip, FxPriority.COMBAT)
           .particle(Particles.CRIT_MAGIC, Math.min(10, total * 3 + 3), 0D, 0D, 0D, 0.35D, 0.08D)
           .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 1.0F, 0.8F, Sounds.ITEM_AXE_STRIP, 0.35F, 1.2F);
     }
   }
 
-  private void markAndDamage(LivingRef target, PlayerRef attacker, double damage, long now) {
-    UUID id = target.uuid();
-    cleaving.put(id, now + CLEAVE_MARK_MS);
-    boolean scheduled = Tasks.runEntity(target, () -> {
-      try {
-        if (target.isValid() && !target.isDead() && !isProtectedFriendly(attacker, target)
-            && AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
-          target.damage(damage, attacker);
-          fx(target.location().add(0D, target.height() * 0.6D, 0D), FxPriority.COMBAT)
-              .burst(Particles.CRIT_MAGIC, 5, 0.25D);
-        }
-      } finally {
-        cleaving.remove(id);
-      }
-    });
-    if (!scheduled) {
-      cleaving.remove(id);
-    }
-  }
-
   @Override
   public void onTick() {
-    long now = System.currentTimeMillis();
-    cleaving.entrySet().removeIf(entry -> entry.getValue() <= now);
+    arc.prune(System.currentTimeMillis());
   }
 
   private double getHalfArcDegrees(int level) {
@@ -206,7 +153,7 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
 
   @Override
   public void unregister() {
-    cleaving.clear();
+    arc.clear();
     super.unregister();
   }
 

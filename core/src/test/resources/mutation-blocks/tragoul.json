@@ -1,0 +1,13 @@
+{
+  "skill": "tragoul",
+  "behaviourTest": "TragOulBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "TragOulTrigger", "handles": ["EntityDamageEvent"], "reuses": ["TragoulBloodPact", "TragoulDrain"]},
+    {"slot": "STRIKE_FIGHT", "class": "TragOulFightStrike", "handles": [], "reuses": ["TragoulDrain"]},
+    {"slot": "STRIKE_WORK", "class": "TragOulWorkStrike", "handles": ["FoodLevelChangeEvent"], "reuses": ["TragoulDrain", "HerbalismBoonFood"]},
+    {"slot": "BOON", "class": "TragOulBoon", "handles": [], "reuses": ["TragoulDrain"]},
+    {"slot": "FUEL", "class": "TragOulFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "TragOulState", "handles": [], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

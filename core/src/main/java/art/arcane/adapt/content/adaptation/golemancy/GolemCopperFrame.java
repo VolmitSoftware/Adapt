@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -29,6 +30,7 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -150,6 +152,16 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     overdrives.values().removeIf(overdrive -> CopperFrameRules.expired(overdrive, now));
   }
 
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(LightningStrikeEvent e) {
     Loc strike = e.lightning() == null ? e.location() : e.lightning().location();
@@ -243,6 +255,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     });
     if (claimed.get()) {
       boost(golem, overdriveSeconds(config) * TICKS_PER_SECOND);
+      GolemLoans.landed(this, handle.owner());
     }
   }
 

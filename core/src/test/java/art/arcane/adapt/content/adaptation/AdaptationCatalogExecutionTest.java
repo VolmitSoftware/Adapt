@@ -181,7 +181,7 @@ class AdaptationCatalogExecutionTest {
       }
     }
     classes.sort(null);
-    assertThat(classes).hasSize(330);
+    assertThat(classes).hasSize(333);
     return classes;
   }
 

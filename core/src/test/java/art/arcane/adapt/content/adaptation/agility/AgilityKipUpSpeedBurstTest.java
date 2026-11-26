@@ -8,9 +8,9 @@ import static org.assertj.core.api.Assertions.within;
 class AgilityKipUpSpeedBurstTest {
   @Test
   void speedBonusMatchesVanillaSpeedPerAmplifierLevel() {
-    assertThat(AgilityKipUp.speedBonus(0)).isCloseTo(0.2D, within(1.0e-9D));
-    assertThat(AgilityKipUp.speedBonus(1)).isCloseTo(0.4D, within(1.0e-9D));
-    assertThat(AgilityKipUp.speedBonus(2)).isCloseTo(0.6D, within(1.0e-9D));
+    assertThat(AgilityKip.speedBonus(0)).isCloseTo(0.2D, within(1.0e-9D));
+    assertThat(AgilityKip.speedBonus(1)).isCloseTo(0.4D, within(1.0e-9D));
+    assertThat(AgilityKip.speedBonus(2)).isCloseTo(0.6D, within(1.0e-9D));
   }
 
   @Test

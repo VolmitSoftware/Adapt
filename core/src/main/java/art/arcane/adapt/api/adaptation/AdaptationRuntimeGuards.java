@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.mutation.engine.MutationBlock;
+import art.arcane.adapt.api.mutation.engine.MutationEngine;
+import art.arcane.adapt.api.mutation.signature.Signature;
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.api.skill.UsePermissions;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
@@ -468,7 +472,7 @@ final class AdaptationRuntimeGuards {
   static Adaptation.AttackContext resolveAttackContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ItemRef> mainHandRequirement) {
     if (event == null || (event.cause() != DamageCause.ENTITY_ATTACK
         && event.cause() != DamageCause.ENTITY_SWEEP_ATTACK)
-        || !(event.damager() instanceof PlayerRef attacker)) {
+        || !(event.damager() instanceof PlayerRef attacker) || AbilityDamage.dealing()) {
       return null;
     }
 
@@ -694,9 +698,18 @@ final class AdaptationRuntimeGuards {
       return 0;
     }
 
+    if (adaptation instanceof MutationBlock<?> block) {
+      return MutationEngine.blockLevel(block, data);
+    }
+    if (adaptation instanceof Signature<?> signature) {
+      return signature.levelIn(data);
+    }
     PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
     if (line == null) {
       return 0;
+    }
+    if (!SkillUpgrades.holdable(adaptation, data)) {
+      return SkillUpgrades.heritageLevel(adaptation, data);
     }
     int storedLevel = line.getAdaptationLevel(adaptation.getName());
     int maxLevel = adaptation.getMaxLevel();

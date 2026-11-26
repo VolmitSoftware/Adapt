@@ -5,6 +5,7 @@ import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.notification.HudStatusSpec;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.HudGlyph;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.Locale;
@@ -30,7 +31,7 @@ public final class AbilityGlyphs {
       return false;
     }
     return AdaptHud.status(playerId, purpose(adaptation, HudGlyph.COOLDOWN), HudStatusSpec.cooldown(skillId(adaptation),
-        ClientToasts.adaptationIcon(adaptation), adaptation.getDisplayName(), startedAtMillis, durationMillis));
+        ViewIcons.adaptation(adaptation), adaptation.getDisplayName(), startedAtMillis, durationMillis));
   }
 
   /** A cooldown of {@code durationMillis} starting now. */
@@ -51,7 +52,7 @@ public final class AbilityGlyphs {
     }
     int cap = Math.max(0, max);
     return AdaptHud.status(playerId, purpose(adaptation, HudGlyph.CHARGES), HudStatusSpec.charges(skillId(adaptation),
-        ClientToasts.adaptationIcon(adaptation), adaptation.getDisplayName(), lit, cap,
+        ViewIcons.adaptation(adaptation), adaptation.getDisplayName(), lit, cap,
         rechargeStartedAtMillis, Math.max(0L, rechargeMillis)));
   }
 
@@ -67,7 +68,7 @@ public final class AbilityGlyphs {
       return false;
     }
     return AdaptHud.status(playerId, purpose(adaptation, HudGlyph.DURATION), HudStatusSpec.duration(skillId(adaptation),
-        ClientToasts.adaptationIcon(adaptation), adaptation.getDisplayName(), startedAtMillis, Math.max(0L, durationMillis),
+        ViewIcons.adaptation(adaptation), adaptation.getDisplayName(), startedAtMillis, Math.max(0L, durationMillis),
         Math.max(0, stacks), Math.max(0, maxStacks)));
   }
 
@@ -76,7 +77,7 @@ public final class AbilityGlyphs {
       return false;
     }
     return AdaptHud.status(playerId, purpose(adaptation, HudGlyph.TOGGLE), HudStatusSpec.toggle(skillId(adaptation),
-        ClientToasts.adaptationIcon(adaptation), adaptation.getDisplayName(), lit));
+        ViewIcons.adaptation(adaptation), adaptation.getDisplayName(), lit));
   }
 
   /** Removes the adaptation's glyph of this kind, for example when a cooldown is reset or the last minion dies. */

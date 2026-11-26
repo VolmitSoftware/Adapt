@@ -43,6 +43,15 @@ import art.arcane.adapt.content.adaptation.unarmed.UnarmedPressurePoint;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSecondWind;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedShockwaveClap;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
+import art.arcane.adapt.content.adaptation.unarmed.upgraded.SeismicThrow;
+import art.arcane.adapt.content.adaptation.unarmed.upgraded.TitanFists;
+import art.arcane.adapt.content.adaptation.unarmed.upgraded.UnbrokenCombo;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedTrigger;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedFightStrike;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedWorkStrike;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedBoon;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedFuel;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedState;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -62,7 +71,8 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillUnarmed() {
-    super("unarmed", SkillPresentation.of(SkillMessages.UNARMED_NAME, SkillMessages.UNARMED_ICON, SkillMessages.UNARMED_DESCRIPTION));
+    super("unarmed", SkillPresentation.of(SkillMessages.UNARMED_NAME, SkillMessages.UNARMED_ICON, SkillMessages.UNARMED_DESCRIPTION,
+        SkillMessages.UNARMED_QUIP, SkillMessages.UNARMED_UNLOCK_QUIP_1, SkillMessages.UNARMED_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
     setInterval(2579);
@@ -78,6 +88,9 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
     registerAdaptation(new UnarmedGrapple());
     registerAdaptation(new UnarmedSecondWind());
     registerAdaptation(new UnarmedMeditation());
+    registerUpgrades(new TitanFists(), new UnbrokenCombo(), new SeismicThrow());
+    registerBlocks(new UnarmedTrigger(), new UnarmedFightStrike(), new UnarmedWorkStrike(), new UnarmedBoon(), new UnarmedFuel(),
+        new UnarmedState());
     setIcon(Id.minecraft("fire_charge"));
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("fire_charge"))

@@ -41,6 +41,7 @@ import art.arcane.adapt.client.server.hud.ClientToasts;
 import art.arcane.adapt.client.server.hud.ToastNotification;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -99,6 +100,26 @@ public class PlayerSkillLine {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile LevelCache levelCache;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient long sameActionTick = Long.MIN_VALUE;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionLead;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionPartner;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionPaid;
 
   private static double diff(long a, long b) {
     return Math.abs(a - b / (double) (a == 0 ? 1 : a));
@@ -203,6 +224,32 @@ public class PlayerSkillLine {
       }
       lastLevel = level;
     }
+  }
+
+  /**
+   * The part of a parent's award a mutated line keeps. Awards from both parents in the same player tick count as one
+   * action, which pays the larger parent total plus {@code smallerShare} of the smaller; each call returns what that
+   * total still owes.
+   */
+  public double sameActionPayment(boolean fromLead, double amount, long tick, double smallerShare) {
+    if (!Double.isFinite(amount) || amount <= 0D) {
+      return 0D;
+    }
+    if (tick != sameActionTick) {
+      sameActionTick = tick;
+      sameActionLead = 0D;
+      sameActionPartner = 0D;
+      sameActionPaid = 0D;
+    }
+    if (fromLead) {
+      sameActionLead += amount;
+    } else {
+      sameActionPartner += amount;
+    }
+    double owed = Math.max(sameActionLead, sameActionPartner) + smallerShare * Math.min(sameActionLead, sameActionPartner);
+    double payment = Math.max(0D, owed - sameActionPaid);
+    sameActionPaid += payment;
+    return payment;
   }
 
   public XpReceipt award(Notifier p, XpAward award, double contextual, XpEarnings earnings) {
@@ -550,7 +597,7 @@ public class PlayerSkillLine {
             .build();
         if (clientToast) {
           notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP,
-              ClientToasts.skillIcon(skill), toastTitle(skill, level), toastKnowledge(skill, knowledge)), group,
+              ViewIcons.skill(skill), toastTitle(skill, level), toastKnowledge(skill, knowledge), skill.getName()), group,
               List.of(title, knowledgeBar)));
         } else if (showPopup) {
           notifications.add(title);
@@ -585,8 +632,8 @@ public class PlayerSkillLine {
           .title(skill.getDisplayName(level))
           .build();
       if (clientToast) {
-        notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP, ClientToasts.skillIcon(skill),
-            toastTitle(skill, level), ""), group, List.of(levelBar)));
+        notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP, ViewIcons.skill(skill),
+            toastTitle(skill, level), "", skill.getName()), group, List.of(levelBar)));
       } else if (showPopup) {
         notifications.add(levelBar);
       }
@@ -667,6 +714,12 @@ public class PlayerSkillLine {
 
   public int getLevel() {
     return (int) Math.floor(getAbsoluteLevel());
+  }
+
+  /** Marks the current XP and level as already rewarded, so the next update pays no knowledge, master XP or notice. */
+  public void settleWithoutRewards() {
+    lastXP = xp;
+    lastLevel = getLevel();
   }
 
   public void boost(double v, long i) {

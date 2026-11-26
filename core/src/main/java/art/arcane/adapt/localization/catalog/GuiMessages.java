@@ -30,6 +30,8 @@ public final class GuiMessages {
   public static final TextKey NO_SKILLS_AVAILABLE = TextKey.of("gui.skills.none_available", "No skills available");
   public static final TextKey NO_ELIGIBLE_SKILLS = TextKey.of("gui.skills.none_eligible", "No eligible skills were found for this player.");
   public static final TextKey NO_ADAPTATIONS_AVAILABLE = TextKey.of("gui.adaptations.none_available", "No adaptations available");
+  public static final TextKey TOOLS = TextKey.of("gui.adaptations.tools", "Tools: {tools}");
+  public static final TextKey RECIPES = TextKey.of("gui.adaptations.recipes", "Recipes: {recipes}");
   public static final TextKey PERMANENT_LEARN_CONFIRM = TextKey.of("gui.adaptations.permanent_learn_confirm", "Click again to confirm permanent learn");
   public static final TextKey PERMANENT_LEARN_CONFIRM_NOW = TextKey.of("gui.adaptations.permanent_learn_confirm_now", "Click again now to confirm permanent learn.");
   public static final TextKey PERMANENT_LEARN_DOUBLE_CLICK = TextKey.of("gui.adaptations.permanent_learn_double_click", "Double-click required to confirm permanent learn.");
@@ -45,6 +47,7 @@ public final class GuiMessages {
   public static final TextKey VAULT_INSUFFICIENT_FUNDS = TextKey.of("gui.adaptations.vault_insufficient_funds", "You do not have enough Vault currency to learn this adaptation.");
   public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("gui.adaptations.vault_transaction_failed", "The Vault economy transaction failed; your progression was not changed.");
   public static final TextKey POWER_DRAIN = TextKey.of("gui.adaptations.power_drain", "{power} Power Drain");
+  public static final TextKey POWER_FREED = TextKey.of("gui.adaptations.power_freed", "Frees {power} Power");
   public static final TextKey REQUIREMENT_LEVEL = TextKey.of("gui.adaptations.requirement_level", "{adaptation} Lv {level}");
   public static final TextKey REQUIRES = TextKey.of("gui.adaptations.requires", "Requires: {requirement}");
   public static final TextKey REQUIREMENTS_MISSING = TextKey.of("gui.adaptations.requirements_missing", "Learn {requirements} before learning {adaptation}.");
@@ -96,6 +99,8 @@ public final class GuiMessages {
     builder.add(LEFT_CLICK_NEXT);
     builder.add(RIGHT_CLICK_JUMP_BACK);
     builder.add(RIGHT_CLICK_JUMP_FORWARD);
+    builder.add(TOOLS);
+    builder.add(RECIPES);
     builder.add(PAGE_OF);
     builder.add(SHOWING_RANGE);
     builder.add(PAGE_SHOWING_RANGE);
@@ -125,6 +130,7 @@ public final class GuiMessages {
     builder.add(VAULT_INSUFFICIENT_FUNDS);
     builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(POWER_DRAIN);
+    builder.add(POWER_FREED);
     builder.add(REQUIREMENT_LEVEL);
     builder.add(REQUIRES);
     builder.add(REQUIREMENTS_MISSING);

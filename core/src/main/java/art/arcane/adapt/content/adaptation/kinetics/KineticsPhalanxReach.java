@@ -3,11 +3,8 @@ package art.arcane.adapt.content.adaptation.kinetics;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -20,8 +17,7 @@ import art.arcane.adapt.platform.event.player.PlayerItemHeldEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 
 public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.Config> {
-  private static final String SLOT_REACH = "reach";
-
+  private final KineticsReach reach = new KineticsReach(this);
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsPhalanxReach() {
@@ -68,23 +64,14 @@ public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.
   }
 
   private void reconcileWith(PlayerRef p, ItemRef mainHand) {
-    if (p == null || !p.isOnline() || !p.hasAttribute(Attributes.ENTITY_INTERACTION_RANGE)) {
-      return;
-    }
-
-    int level = getActiveLevel(p);
-    if (shouldApplyReach(level, isSpear(mainHand))) {
-      AdaptAttributeService.get().apply(p, getName(), SLOT_REACH, Attributes.ENTITY_INTERACTION_RANGE, getReach(level), AttributeOperation.ADD_VALUE);
-    } else {
-      AdaptAttributeService.get().remove(p, getName(), SLOT_REACH, Attributes.ENTITY_INTERACTION_RANGE);
-    }
+    reach.reconcile(p, isSpear(mainHand), getReach(getActiveLevel(p)));
   }
 
   private double getReach(int level) {
     return getConfig().reachBase + (getLevelPercent(level) * getConfig().reachFactor);
   }
 
-  static boolean shouldApplyReach(int activeLevel, boolean holdingSpear) {
+  public static boolean shouldApplyReach(int activeLevel, boolean holdingSpear) {
     return activeLevel > 0 && holdingSpear;
   }
 

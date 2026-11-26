@@ -180,6 +180,7 @@ public final class GolemGuiActions {
       case DUPLICATE -> notice(GolemancyMessages.MASTERWORK_CORE_DUPLICATE, coreArgument(core));
       case NOT_ALLOWED -> notice(GolemancyMessages.BINDING_CORE_NOT_ALLOWED, bodyArgument(body), coreArgument(core));
       case LOCKED -> notice(GolemancyMessages.BINDING_CORE_LOCKED, coreArgument(core));
+      case HEART -> notice(GolemancyMessages.RUNEFORGED_HEART_NEEDED);
     };
   }
 

@@ -56,6 +56,14 @@ public interface WorldRef {
 
   boolean hasStorm();
 
+  boolean isThundering();
+
+  /**
+   * True when rain falls on the block: a storm, nothing above it that stops rain, and a biome where it rains there
+   * rather than snowing or staying dry.
+   */
+  boolean isRainingAt(int x, int y, int z);
+
   /** Every loaded entity of the world. Owning thread only. */
   List<EntityRef> entities();
 

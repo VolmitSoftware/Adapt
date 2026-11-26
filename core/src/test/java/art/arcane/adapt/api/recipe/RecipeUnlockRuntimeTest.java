@@ -125,7 +125,8 @@ class RecipeUnlockRuntimeTest {
 
   public static final class RecipeSkill extends SimpleSkill<RecipeSkill.Config> {
     public RecipeSkill() {
-      super("recipe-test", SkillPresentation.of(SkillMessages.HUNTER_NAME, SkillMessages.HUNTER_ICON, SkillMessages.HUNTER_DESCRIPTION));
+      super("recipe-test", SkillPresentation.of(SkillMessages.HUNTER_NAME, SkillMessages.HUNTER_ICON, SkillMessages.HUNTER_DESCRIPTION,
+          SkillMessages.HUNTER_QUIP, SkillMessages.HUNTER_UNLOCK_QUIP_1));
       registerConfiguration(Config.class);
       setIcon(Id.minecraft("crafting_table"));
       registerAdaptation(new RecipeAdaptation());

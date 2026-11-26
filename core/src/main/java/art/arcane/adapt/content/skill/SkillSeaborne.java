@@ -26,6 +26,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
@@ -41,13 +42,24 @@ import art.arcane.adapt.content.adaptation.seaborrne.SeaborneFishersFantasy;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneHydroJet;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneInkVeil;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneOxygen;
-import art.arcane.adapt.content.adaptation.seaborrne.SeabornePressureDiver;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneRainFed;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneSpeed;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneStormStrike;
+import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidalWard;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidecaller;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTridentMastery;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed;
-import art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneBoon;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneFightStrike;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneFuel;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneState;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneTrigger;
+import art.arcane.adapt.content.adaptation.seaborrne.blocks.SeaborneWorkStrike;
+import art.arcane.adapt.content.adaptation.seaborrne.upgraded.DeepFortune;
+import art.arcane.adapt.content.adaptation.seaborrne.upgraded.Leviathan;
+import art.arcane.adapt.content.adaptation.seaborrne.upgraded.Maelstrom;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -70,6 +82,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -101,8 +114,18 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   private final Map<UUID, Double> swimDistance = playerState();
   private final SkillOwnerPulse.Registration ownerPulse;
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.SEABORNE_SWIMMING, "seaborne-oxygen", "seaborne-speed", "seaborne-hydro-jet",
+          "seaborne-tidecaller", "seaborne-turtles-mining-speed", "seaborne-rain-fed"),
+      AdaptationGroup.of(GroupMessages.SEABORNE_COMBAT, "seaborne-brine-skin", "seaborne-pressure-diver",
+          "seaborne-ink-veil", "seaborne-trident-mastery", "seaborne-storm-strike"),
+      AdaptationGroup.of(GroupMessages.SEABORNE_HARVEST, "seaborne-fish-whisperer", "seaborne-fishers-fantasy",
+          "seaborne-deep-salvager", "seaborne-coral-gardener")
+  );
+
   public SkillSeaborne() {
-    super("seaborne", SkillPresentation.of(SkillMessages.SEABORNE_NAME, SkillMessages.SEABORNE_ICON, SkillMessages.SEABORNE_DESCRIPTION));
+    super("seaborne", SkillPresentation.of(SkillMessages.SEABORNE_NAME, SkillMessages.SEABORNE_ICON, SkillMessages.SEABORNE_DESCRIPTION,
+        SkillMessages.SEABORNE_QUIP, SkillMessages.SEABORNE_UNLOCK_QUIP_1, SkillMessages.SEABORNE_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.BLUE);
     setInterval(2120);
@@ -110,10 +133,9 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     registerAdaptation(new SeaborneOxygen());
     registerAdaptation(new SeaborneSpeed());
     registerAdaptation(new SeaborneFishersFantasy());
-    registerAdaptation(new SeaborneTurtlesVision());
     registerAdaptation(new SeaborneTurtlesMiningSpeed());
     registerAdaptation(new SeaborneTidecaller());
-    registerAdaptation(new SeabornePressureDiver());
+    registerAdaptation(new SeaborneTidalWard());
     registerAdaptation(new SeaborneCoralGardener());
     registerAdaptation(new SeaborneDeepSalvager());
     registerAdaptation(new SeaborneInkVeil());
@@ -121,6 +143,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     registerAdaptation(new SeaborneFishWhisperer());
     registerAdaptation(new SeaborneHydroJet());
     registerAdaptation(new SeaborneBrineSkin());
+    registerAdaptation(new SeaborneStormStrike());
+    registerAdaptation(new SeaborneRainFed());
+    registerUpgrades(new Leviathan(), new Maelstrom(), new DeepFortune());
+    registerBlocks(new SeaborneTrigger(), new SeaborneFightStrike(), new SeaborneWorkStrike(), new SeaborneBoon(),
+        new SeaborneFuel(), new SeaborneState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("turtle_helmet"))
         .key("challenge_swim_1nm")
@@ -210,6 +237,11 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
     registerMilestone("challenge_underwater_blocks_100", "seaborne.underwater.blocks", 100, () -> getConfig().challengeSwim1nmReward);
     registerMilestone("challenge_underwater_blocks_1k", "seaborne.underwater.blocks", 1000, () -> getConfig().challengeSwim1nmReward * 2);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseSwimmingXp);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)

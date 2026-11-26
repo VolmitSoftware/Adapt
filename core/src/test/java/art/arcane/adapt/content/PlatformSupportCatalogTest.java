@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Boots every skill and adaptation against the registries of each supported Minecraft version and writes the
  * per-version catalog (adaptation, works / emulated / partial / disabled, reason) to {@code build/reports/platform-support}.
  * The 1.21.1 and 1.20.1 catalogs are kept under {@code src/test/resources/platform-support}; run with
- * {@code -Dadapt.updatePlatformCatalog=true} to rewrite them after an intended change.
+ * {@code -Dadapt.updatePlatformCatalog=true} to rewrite them after an intended change. Mutation blocks are left out
+ * here and checked per skill by {@code MutationBlockVersionsTest}.
  */
 class PlatformSupportCatalogTest {
   private static final Path REPORTS = Path.of("build/reports/platform-support");
@@ -105,6 +106,9 @@ class PlatformSupportCatalogTest {
         }
       }
       for (PlatformSupport.LeftOut disabled : PlatformSupport.leftOut()) {
+        if (disabled.kind().equals("mutation-block")) {
+          continue;
+        }
         listed.add(disabled.owner() + "\t" + disabled.name() + "\tdisabled\t" + disabled.verdict().missingText());
       }
       rows.addAll(listed);

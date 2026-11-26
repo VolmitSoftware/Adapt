@@ -1,0 +1,13 @@
+{
+  "skill": "pickaxe",
+  "behaviourTest": "PickaxesBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "PickaxesTrigger", "handles": ["BlockBreakEvent"], "reuses": ["PickaxeVein"]},
+    {"slot": "STRIKE_FIGHT", "class": "PickaxesFightStrike", "handles": [], "reuses": ["AdaptAttributeService"]},
+    {"slot": "STRIKE_WORK", "class": "PickaxesWorkStrike", "handles": [], "reuses": ["PickaxeQuarrySense", "PickaxeVein"]},
+    {"slot": "BOON", "class": "PickaxesBoon", "handles": [], "reuses": ["PickaxeMiningBoost"]},
+    {"slot": "FUEL", "class": "PickaxesFuel", "handles": [], "reuses": ["ComponentPort"]},
+    {"slot": "STATE", "class": "PickaxesState", "handles": ["BlockBreakEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

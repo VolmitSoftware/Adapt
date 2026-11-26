@@ -51,6 +51,13 @@ public interface AnimalOps {
 
   boolean isLeashed(EntityRef entity);
 
+  /**
+   * Ties a leashable entity to {@code holder} with a lead, replacing any lead it has, or removes its lead when
+   * {@code holder} is null. Never makes or drops a lead item (Bukkit LivingEntity#setLeashHolder). False when the
+   * entity cannot be leashed or the holder is in another world.
+   */
+  boolean setLeashHolder(EntityRef entity, EntityRef holder);
+
   boolean isTamed(EntityRef entity);
 
   /** True for a donkey, mule or llama that carries a chest. */

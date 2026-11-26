@@ -42,6 +42,15 @@ import art.arcane.adapt.content.adaptation.chronos.ChronosStasisField;
 import art.arcane.adapt.content.adaptation.chronos.ChronosTemporalEcho;
 import art.arcane.adapt.content.adaptation.chronos.ChronosTimeBomb;
 import art.arcane.adapt.content.adaptation.chronos.ChronosTimeInABottle;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosBoon;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosFightStrike;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosFuel;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosState;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosTrigger;
+import art.arcane.adapt.content.adaptation.chronos.blocks.ChronosWorkStrike;
+import art.arcane.adapt.content.adaptation.chronos.upgraded.FrozenMoment;
+import art.arcane.adapt.content.adaptation.chronos.upgraded.SecondChance;
+import art.arcane.adapt.content.adaptation.chronos.upgraded.TimeLord;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
@@ -51,16 +60,12 @@ import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.entity.ProjectileRef;
-import art.arcane.adapt.platform.entity.TeleportCause;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.AreaEffectCloudApplyEvent;
 import art.arcane.adapt.platform.event.entity.PotionSplashEvent;
-import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
-import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
 import art.arcane.adapt.platform.event.world.NightSkipEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
@@ -86,7 +91,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private static final String SLEEP_DAY_KEY = "sleep-day";
   private static final String SLEEP_STREAK_KEY = "sleep-streak";
   private static final Id POTION = Id.minecraft("potion");
-  private static final Id ENDER_PEARL = Id.minecraft("ender_pearl");
   private static final Id SPEED = Id.minecraft("speed");
   private static final Id SWIFTNESS = Id.minecraft("swiftness");
   private static final Id LONG_SWIFTNESS = Id.minecraft("long_swiftness");
@@ -99,14 +103,14 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   private final Map<UUID, Long> actionTypeResetTimestamps = playerState();
   private final Map<UUID, Long> lastActivityTimestamps = playerState();
   private final Map<UUID, SpeedPotionTracker> speedPotionTrackers = playerState();
-  private final Map<UUID, Long> enderPearlCooldowns = playerState();
   private final Map<UUID, Long> survivalStreakStart = playerState();
   private final Map<UUID, Long> lastSurvivalCheck = playerState();
   private final Map<UUID, Integer> survivalStreakHour = playerState();
   private final SkillOwnerPulse.Registration ownerPulse;
 
   public SkillChronos() {
-    super("chronos", SkillPresentation.of(SkillMessages.CHRONOS_NAME, SkillMessages.CHRONOS_ICON, SkillMessages.CHRONOS_DESCRIPTION));
+    super("chronos", SkillPresentation.of(SkillMessages.CHRONOS_NAME, SkillMessages.CHRONOS_ICON, SkillMessages.CHRONOS_DESCRIPTION,
+        SkillMessages.CHRONOS_QUIP, SkillMessages.CHRONOS_UNLOCK_QUIP_1, SkillMessages.CHRONOS_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
     setInterval(getConfig().setInterval);
@@ -124,6 +128,9 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     registerAdaptation(new ChronosHourglassGuard());
     registerAdaptation(new ChronosPocketWatch());
     registerAdaptation(new ChronosDejaVu());
+    registerUpgrades(new SecondChance(), new TimeLord(), new FrozenMoment());
+    registerBlocks(new ChronosTrigger(), new ChronosFightStrike(), new ChronosWorkStrike(), new ChronosBoon(),
+        new ChronosFuel(), new ChronosState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("clock"))
         .key("challenge_chronos_1h")
@@ -181,21 +188,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     registerMilestone("challenge_beds_10", "chronos.beds.used", 10, () -> getConfig().challengeChronosReward);
     registerMilestone("challenge_beds_100", "chronos.beds.used", 100, () -> getConfig().challengeChronosReward * 3);
 
-    registerAdvancement(AdaptAdvancement.builder()
-        .icon(Id.minecraft("ender_pearl")).key("challenge_chronos_tp_50")
-        .model(CustomModel.get(Id.minecraft("ender_pearl"), "advancement", "chronos", "challenge_chronos_tp_50"))
-        .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.VANILLA)
-        .child(AdaptAdvancement.builder()
-            .icon(Id.minecraft("chorus_fruit"))
-            .key("challenge_chronos_tp_500")
-            .model(CustomModel.get(Id.minecraft("chorus_fruit"), "advancement", "chronos", "challenge_chronos_tp_500"))
-            .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.VANILLA)
-            .build())
-        .build());
-    registerMilestone("challenge_chronos_tp_50", "chronos.teleports", 50, () -> getConfig().challengeChronosReward);
-    registerMilestone("challenge_chronos_tp_500", "chronos.teleports", 500, () -> getConfig().challengeChronosReward * 3);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseChronos);
   }
 
@@ -567,48 +559,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     return Double.isFinite(value) && value >= 0D ? value : fallback;
   }
 
-  // --- Ender Pearl XP ---
-
-  @Handle(priority = EventPriority.MONITOR)
-  public void on(ProjectileLaunchEvent e) {
-    ProjectileRef pearl = e.projectile();
-    if (!ENDER_PEARL.equals(pearl.type())) {
-      return;
-    }
-    if (!(pearl.shooter() instanceof PlayerRef p)) {
-      return;
-    }
-    shouldReturnForPlayer(p, e, () -> {
-      UUID uuid = p.uuid();
-      long now = System.currentTimeMillis();
-
-      Long lastThrow = enderPearlCooldowns.get(uuid);
-      if (lastThrow != null && now - lastThrow < getConfig().enderPearlCooldown) {
-        return;
-      }
-
-      trackAction(uuid, "teleport");
-      enderPearlCooldowns.put(uuid, now);
-      xp(p, p.location(), getConfig().enderPearlThrowXP);
-    });
-  }
-
-  @Handle(priority = EventPriority.MONITOR)
-  public void on(PlayerTeleportEvent e) {
-    if (e.cause() != TeleportCause.ENDER_PEARL) {
-      return;
-    }
-    PlayerRef p = e.player();
-    if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
-      return;
-    }
-    shouldReturnForPlayer(p, e, () -> {
-      trackAction(p.uuid(), "teleport");
-      addStat(p, "chronos.teleports", 1);
-      xp(p, e.to(), getConfig().enderPearlTeleportXP);
-    });
-  }
-
   // --- Death / Survival Streak Reset ---
 
   @Handle(priority = EventPriority.MONITOR)
@@ -646,7 +596,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     actionTypeResetTimestamps.clear();
     lastActivityTimestamps.clear();
     speedPotionTrackers.clear();
-    enderPearlCooldowns.clear();
     survivalStreakStart.clear();
     lastSurvivalCheck.clear();
     survivalStreakHour.clear();
@@ -751,14 +700,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
     double speedPotionDiminishingFloor = 0.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Speed Potion Reset Window for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long speedPotionResetWindow = 300000;
-
-    // Ender pearl
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Throw XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double enderPearlThrowXP = 35;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Teleport XP for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double enderPearlTeleportXP = 15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Ender Pearl Cooldown for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    long enderPearlCooldown = 10000;
 
     // Survival streak
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Survival XPPer Minute for the Chronos skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

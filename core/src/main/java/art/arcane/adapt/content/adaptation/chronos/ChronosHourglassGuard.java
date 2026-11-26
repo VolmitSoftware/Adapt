@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.DeathSaveCooldown;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -27,17 +28,16 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.damage.PlayerDeathSave;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -53,28 +53,17 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> implements PlayerDeathSave {
+  public static final Id SLOWNESS = Id.minecraft("slowness");
   public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSHOURGLASSGUARD_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
 
-  private static final double HARD_MAX_ENEMY_SLOW_RADIUS = 12D;
-  private static final int HARD_MAX_CANDIDATES_PER_SAVE = 32;
-  private static final int HARD_MAX_AFFECTED_PER_SAVE = 16;
-  private static final int HARD_MAX_TARGET_CHAINS_PER_WINDOW = 128;
-
-  private final Map<UUID, Long> invulnerableUntil = playerState();
+  private final ChronosHourglass hourglass = new ChronosHourglass(this, playerState());
   private final Map<UUID, Long> cooldownReadyNotify = playerState();
-  private final HourglassWorkBudget slowBudget = new HourglassWorkBudget(
-      HARD_MAX_TARGET_CHAINS_PER_WINDOW,
-      50L,
-      System::currentTimeMillis
-  );
 
   public ChronosHourglassGuard() {
     super("chronos-hourglass-guard");
@@ -109,7 +98,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
   @Override
   public boolean protectsFromDamage(EntityDamageEvent event) {
     return event.entity() instanceof PlayerRef player
-        && invulnerableUntil.getOrDefault(player.uuid(), 0L) > M.ms();
+        && hourglass.isInvulnerable(player.uuid(), M.ms());
   }
 
   @Override
@@ -127,7 +116,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
   @Handle
   public void on(PlayerQuitEvent e) {
     UUID id = e.player().uuid();
-    invulnerableUntil.remove(id);
+    hourglass.forget(id);
     cooldownReadyNotify.remove(id);
   }
 
@@ -144,7 +133,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
 
     UUID id = p.uuid();
     long now = M.ms();
-    if (invulnerableUntil.getOrDefault(id, 0L) > now) {
+    if (hourglass.isInvulnerable(id, now)) {
       e.setCancelled(true);
       return;
     }
@@ -166,30 +155,8 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     if (!DeathSaveCooldown.HOURGLASS_GUARD.activate(p, now, cooldownMillis)) {
       return;
     }
-    e.setCancelled(true);
-    p.setHealth(Math.max(0.5D, getConfig().survivalHealth));
-    invulnerableUntil.put(id, now + getConfig().invulnerabilityMillis);
-    AbilityGlyphs.cooldown(id, this, now, cooldownMillis);
-    AbilityGlyphs.duration(id, this, now, getConfig().invulnerabilityMillis);
-    p.setNoDamageTicks(Math.max(p.noDamageTicks(), (int) (getConfig().invulnerabilityMillis / 50L)));
-
-    slowNearbyEnemies(p);
-
-    Loc saveCenter = p.location();
-    fx(saveCenter, FxPriority.GAMEPLAY)
-        .particle(Particles.FLASH, 1, 0, 1.0D, 0, 0, 0)
-        .sound(Sounds.BLOCK_BELL_USE, 0.7F, 0.5F);
-    timeline(p)
-        .duration(6)
-        .priority(FxPriority.GAMEPLAY)
-        .cullRadius(48)
-        .frame((f, tick, progress) -> {
-          f.dome(Particles.END_ROD, 2.6D - (2.0D * progress), 16);
-          if (tick >= 3) {
-            f.particle(Particles.TOTEM, 6, 0, 1.0D, 0, 0.25D, 0.05D);
-          }
-        })
-        .start();
+    hourglass.save(p, e, new ChronosHourglass.Save(getConfig().survivalHealth, getConfig().invulnerabilityMillis,
+        cooldownMillis, getConfig().enemySlowRadius, getConfig().enemySlowTicks, getConfig().enemySlowAmplifier), now);
 
     if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindFinish(p);
@@ -200,99 +167,33 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     xp(p, p.location(), getConfig().xpOnSave + (level * getConfig().xpPerLevel));
   }
 
-  private void slowNearbyEnemies(PlayerRef p) {
-    int targetBudget = slowBudget.reserve(HARD_MAX_CANDIDATES_PER_SAVE);
-    if (targetBudget <= 0) {
-      return;
-    }
-    Loc center = p.location();
-    double radius = Math.max(1D, Math.min(HARD_MAX_ENEMY_SLOW_RADIUS, getConfig().enemySlowRadius));
-    List<LivingRef> candidates = new ArrayList<>(targetBudget);
-    for (EntityRef entity : center.world().nearbyEntities(center.position(), radius, radius, radius)) {
-      if (!(entity instanceof LivingRef living) || entity.uuid().equals(p.uuid())) {
-        continue;
-      }
-      candidates.add(living);
-      if (candidates.size() >= targetBudget) {
-        break;
-      }
-    }
-
-    SlowBatch batch = new SlowBatch(
-        p,
-        center,
-        radius,
-        Math.max(1, Math.min(1200, getConfig().enemySlowTicks)),
-        Math.max(0, Math.min(4, getConfig().enemySlowAmplifier))
-    );
-    for (LivingRef candidate : candidates) {
-      Tasks.runEntity(candidate, () -> inspectSlowCandidateOwned(batch, candidate));
-    }
+  /** The flash, bell and closing dome of a save. */
+  public static void saveFx(Adaptation<?> owner, PlayerRef p) {
+    Loc saveCenter = p.location();
+    Fx.now(owner, saveCenter, FxPriority.GAMEPLAY)
+        .particle(Particles.FLASH, 1, 0, 1.0D, 0, 0, 0)
+        .sound(Sounds.BLOCK_BELL_USE, 0.7F, 0.5F);
+    FxTimeline.follow(owner, p)
+        .duration(6)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(48)
+        .frame((f, tick, progress) -> {
+          f.dome(Particles.END_ROD, 2.6D - (2.0D * progress), 16);
+          if (tick >= 3) {
+            f.particle(Particles.TOTEM, 6, 0, 1.0D, 0, 0.25D, 0.05D);
+          }
+        })
+        .start();
   }
 
-  private void inspectSlowCandidateOwned(SlowBatch batch, LivingRef target) {
-    SlowTargetSnapshot snapshot = captureSlowTarget(batch, target);
-    if (snapshot == null || !batch.hasCapacity()) {
-      return;
-    }
-    Tasks.runEntity(batch.player, () -> authorizeSlowCandidateOwned(batch, target, snapshot));
-  }
-
-  private SlowTargetSnapshot captureSlowTarget(SlowBatch batch, LivingRef target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
-      return null;
-    }
-    if (target.has(EntityTrait.TAMEABLE)) {
-      UUID owner = target.tameOwner();
-      if (owner != null && batch.playerId.equals(owner)) {
-        return null;
-      }
-    }
-    Loc location = target.location();
-    if (!isInsideSlowArea(batch, location)) {
-      return null;
-    }
-    return new SlowTargetSnapshot(location, target instanceof PlayerRef);
-  }
-
-  private void authorizeSlowCandidateOwned(SlowBatch batch, LivingRef target, SlowTargetSnapshot snapshot) {
-    if (!batch.player.isOnline() || !batch.hasCapacity()) {
-      return;
-    }
-    boolean allowed = snapshot.playerTarget
-        ? canPVP(batch.player, snapshot.location)
-        : canPVE(batch.player, snapshot.location);
-    if (allowed) {
-      Tasks.runEntity(target, () -> applySlowOwned(batch, target));
-    }
-  }
-
-  private void applySlowOwned(SlowBatch batch, LivingRef target) {
-    if (captureSlowTarget(batch, target) == null || !batch.claimAffected()) {
-      return;
-    }
-    target.addEffect(new EffectInstance(
-        Id.minecraft("slowness"),
-        batch.slowTicks,
-        batch.slowAmplifier,
-        true,
-        false,
-        false
-    ));
-    if (batch.claimFx()) {
-      fx(target.location(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.9D, 3, 0.15D);
-    }
-  }
-
-  private boolean isInsideSlowArea(SlowBatch batch, Loc location) {
-    return location.sameWorld(batch.center)
-        && location.distanceSquared(batch.center) <= batch.radiusSquared;
+  public static void slowFx(Adaptation<?> owner, LivingRef target) {
+    Fx.now(owner, target.location(), FxPriority.COMBAT).ring(Particles.END_ROD, 0.9D, 3, 0.15D);
   }
 
   @Override
   public void onTick() {
     long now = M.ms();
-    invulnerableUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+    hourglass.prune(now);
 
     if (!cooldownReadyNotify.isEmpty()) {
       for (UUID id : cooldownReadyNotify.keySet()) {
@@ -350,50 +251,12 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
     }
   }
 
-  private record SlowTargetSnapshot(Loc location, boolean playerTarget) {
-  }
-
-  private static final class SlowBatch {
-    private final PlayerRef player;
-    private final UUID playerId;
-    private final Loc center;
-    private final double radiusSquared;
-    private final int slowTicks;
-    private final int slowAmplifier;
-    private final AtomicInteger affected = new AtomicInteger();
-    private final AtomicInteger renderedFx = new AtomicInteger();
-
-    private SlowBatch(PlayerRef player, Loc center, double radius, int slowTicks, int slowAmplifier) {
-      this.player = player;
-      this.playerId = player.uuid();
-      this.center = center;
-      this.radiusSquared = radius * radius;
-      this.slowTicks = slowTicks;
-      this.slowAmplifier = slowAmplifier;
-    }
-
-    private boolean hasCapacity() {
-      return affected.get() < HARD_MAX_AFFECTED_PER_SAVE;
-    }
-
-    private boolean claimAffected() {
-      return claim(affected, HARD_MAX_AFFECTED_PER_SAVE);
-    }
-
-    private boolean claimFx() {
-      return claim(renderedFx, 8);
-    }
-
-    private boolean claim(AtomicInteger counter, int limit) {
-      int current = counter.get();
-      while (current < limit) {
-        if (counter.compareAndSet(current, current + 1)) {
-          return true;
-        }
-        current = counter.get();
-      }
+  public static boolean isOwnPet(LivingRef target, UUID playerId) {
+    if (!target.has(EntityTrait.TAMEABLE)) {
       return false;
     }
+    UUID tameOwner = target.tameOwner();
+    return tameOwner != null && playerId.equals(tameOwner);
   }
 
   static final class HourglassWorkBudget {

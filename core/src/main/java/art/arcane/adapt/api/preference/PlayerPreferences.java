@@ -98,7 +98,7 @@ public final class PlayerPreferences {
     }
     PreferencePolicy policy = policy(adaptation, preference);
     if (!policy.playerEditable || adaptation.isPlayerPreferenceBlocked(preference)
-        || !available(preference, policy, value, adaptation.getLevel(player))) {
+        || !available(preference, policy, value, editLevel(adaptation, player))) {
       return false;
     }
     player.getData().getPreferences().set(adaptation.getName(), preference.id(), value.name());
@@ -257,7 +257,7 @@ public final class PlayerPreferences {
 
   public static void reconcileSkill(Skill<?> skill, AdaptPlayer player) {
     PreferenceConfirmation.clear(player.getPlayer());
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
       reconcile(adaptation, player);
     }
   }
@@ -282,14 +282,22 @@ public final class PlayerPreferences {
         || !player.isRuntimeReady() || !adaptation.isEnabled()
         || adaptation.getSkill() == null || !adaptation.getSkill().isEnabled()
         || !isCurrentSkill(adaptation.getSkill())
-        || !adaptation.getSkill().getAdaptations().contains(adaptation)) {
+        || !Skill.owns(adaptation.getSkill(), adaptation)) {
       return false;
     }
     PlayerRef owner = player.getPlayer();
     return owner != null && owner.isOnline() && Tasks.isOwnedByCurrentRegion(owner)
         && adaptation.hasUsePermission(owner, adaptation)
         && adaptation.getSkill().hasUsePermission(owner, adaptation.getSkill())
-        && adaptation.getLevel(player) > 0;
+        && editLevel(adaptation, player) > 0;
+  }
+
+  /**
+   * The level the player's settings for {@code adaptation} apply at: the level they learned or keep it at, or the level
+   * a held upgrade lends an original whose own code still runs for them.
+   */
+  public static int editLevel(Adaptation<?> adaptation, AdaptPlayer player) {
+    return Math.max(adaptation.getLevel(player), adaptation.getLevel(player.getPlayer()));
   }
 
   private static AdaptServer server() {

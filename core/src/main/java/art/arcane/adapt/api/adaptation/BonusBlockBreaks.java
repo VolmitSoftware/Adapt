@@ -8,6 +8,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerItemDamageEvent;
+import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.world.BlockRef;
 
 import java.util.UUID;
@@ -20,6 +21,18 @@ public final class BonusBlockBreaks {
     return active != null && player != null && active.equals(player.uuid());
   }
 
+  /** False only when charging {@code cost} would break the held tool; a hand without durability pays nothing. */
+  public static boolean canCharge(ItemRef hand, int cost) {
+    if (cost <= 0 || hand == null || hand.isEmpty() || hand.isUnbreakable() || hand.maxDamage() <= 0) {
+      return true;
+    }
+    return hand.damage() + cost < hand.maxDamage();
+  }
+
+  /**
+   * Breaks the block as the player through the platform break event, so protection, loggers and drops all see a normal
+   * break, then charges {@code durabilityCost} to the main hand. Mutation Triggers ignore the break.
+   */
   public static boolean breakBlock(PlayerRef player, BlockRef block, int durabilityCost) {
     AdaptCore core = AdaptCore.current();
     if (core == null || player == null || block == null) {

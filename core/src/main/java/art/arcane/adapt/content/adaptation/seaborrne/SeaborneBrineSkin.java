@@ -29,13 +29,11 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -43,10 +41,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config> {
-  private static final int REGEN_DURATION_TICKS = 100;
-  private static final int REGEN_REFRESH_THRESHOLD_TICKS = 40;
-  private static final Id REGENERATION = Id.minecraft("regeneration");
-
   private final Map<UUID, Long> wetUntil = playerState();
   private final Cooldowns wetFx = cooldowns();
   private final Cooldowns reductionFx = cooldowns();
@@ -94,12 +88,12 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
           return;
         }
 
-        if (!isWet(player)) {
+        if (!SeaborneWet.isWet(player)) {
           return;
         }
 
         wetUntil.put(id, System.currentTimeMillis() + getLingerMillis(level));
-        applyRegen(player, level);
+        SeaborneWet.refreshRegeneration(player, getRegenAmplifier(level));
         addStat(player, "seaborne.brine-skin.wet-ticks", getInterval() / 50D);
         if (wetFx.isReady(id, 2000L)) {
           wetFx.mark(id);
@@ -108,14 +102,6 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
               .particle(Particles.GLOW, 2, 0D, 0.5D, 0D, 0.2D, 0D);
         }
       });
-    }
-  }
-
-  private void applyRegen(PlayerRef player, int level) {
-    int amplifier = getRegenAmplifier(level);
-    EffectInstance current = player.effect(REGENERATION);
-    if (current == null || current.amplifier() < amplifier || current.durationTicks() <= REGEN_REFRESH_THRESHOLD_TICKS) {
-      player.addEffect(new EffectInstance(REGENERATION, REGEN_DURATION_TICKS, amplifier, false, false, true));
     }
   }
 
@@ -133,7 +119,7 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
 
       Long until = wetUntil.get(p.uuid());
       boolean lingering = until != null && System.currentTimeMillis() < until;
-      if (!isWet(p) && !lingering) {
+      if (!SeaborneWet.isWet(p) && !lingering) {
         return;
       }
 
@@ -145,19 +131,6 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
             .sound(Sounds.ITEM_SHIELD_BLOCK, 0.35F, 1.4F);
       }
     });
-  }
-
-  private boolean isWet(PlayerRef p) {
-    if (p.isInWater() || p.isSwimming()) {
-      return true;
-    }
-
-    if (!p.world().hasStorm()) {
-      return false;
-    }
-
-    Loc location = p.location();
-    return location.y() >= p.world().highestBlockY(location.blockX(), location.blockZ()) - 1;
   }
 
   private int getRegenAmplifier(int level) {

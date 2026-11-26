@@ -1,0 +1,13 @@
+{
+  "skill": "nether",
+  "behaviourTest": "NetherBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "NetherTrigger", "handles": ["EntityDamageEvent"], "reuses": ["NetherBlazeLeech"]},
+    {"slot": "STRIKE_FIGHT", "class": "NetherFightStrike", "handles": [], "reuses": ["NetherMagmaRetort"]},
+    {"slot": "STRIKE_WORK", "class": "NetherWorkStrike", "handles": ["BlockDropItemEvent"], "reuses": ["PickaxeAutosmelt"]},
+    {"slot": "BOON", "class": "NetherBoon", "handles": [], "reuses": []},
+    {"slot": "FUEL", "class": "NetherFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "NetherState", "handles": [], "reuses": ["NetherCrimsonFeast"]}
+  ],
+  "unavailableOn": {}
+}

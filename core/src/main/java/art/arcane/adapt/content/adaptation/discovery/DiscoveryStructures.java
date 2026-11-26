@@ -6,7 +6,7 @@ import art.arcane.adapt.platform.value.Id;
 import java.util.List;
 
 /** Vanilla structure type keys the discovery adaptations search for. */
-final class DiscoveryStructures {
+public final class DiscoveryStructures {
   static final Id BURIED_TREASURE = Id.minecraft("buried_treasure");
   static final Id DESERT_PYRAMID = Id.minecraft("desert_pyramid");
   static final Id IGLOO = Id.minecraft("igloo");
@@ -24,7 +24,7 @@ final class DiscoveryStructures {
   static final Id END_CITY = Id.minecraft("end_city");
   static final Id NETHER_FOSSIL = Id.minecraft("nether_fossil");
 
-  static final List<Id> SENSED = List.of(
+  public static final List<Id> SENSED = List.of(
       BURIED_TREASURE,
       DESERT_PYRAMID,
       IGLOO,
@@ -46,7 +46,7 @@ final class DiscoveryStructures {
   }
 
   /** Bukkit {@code BoundingBox#contains(x, y, z)}: minimum inclusive, maximum exclusive. */
-  static boolean contains(Box box, double x, double y, double z) {
+  public static boolean contains(Box box, double x, double y, double z) {
     return x >= box.minX() && x < box.maxX()
         && y >= box.minY() && y < box.maxY()
         && z >= box.minZ() && z < box.maxZ();

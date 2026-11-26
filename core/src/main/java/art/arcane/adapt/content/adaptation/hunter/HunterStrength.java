@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
@@ -29,8 +28,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -38,11 +35,8 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
@@ -54,17 +48,14 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
   private static final Id HUNGER = Id.minecraft("hunger");
   private static final Id POISON = Id.minecraft("poison");
-  private static final Id STRENGTH = Id.minecraft("strength");
   private static final Rgb RAGE_RED = new Rgb(200, 30, 30);
   private final Cooldowns fxCooldown = cooldowns();
-  private final Map<UUID, Long> strengthUntil = playerState();
+  private final HunterStrengthBuff strength = new HunterStrengthBuff(this, playerState());
 
   public HunterStrength() {
     super("hunter-strength");
@@ -83,7 +74,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     if (getActiveLevel(player.getPlayer()) <= 0) {
-      AdaptAttributeService.get().remove(player.getPlayer(), getName(), "strength", Attributes.ATTACK_DAMAGE);
+      strength.remove(player.getPlayer());
     }
   }
 
@@ -110,13 +101,8 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
       return;
     }
 
-    if (!preference(p, HunterPreferences.RESERVE).permits(p.foodLevel())) {
-      return;
-    }
     int level = getActiveLevel(p);
-    if (level <= 0
-        || (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied()
-        && p.hasEffect(HUNGER))) {
+    if (level <= 0 || HunterStruck.suppressed(this, p)) {
       return;
     }
 
@@ -172,40 +158,16 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
 
   @Handle
   public void on(PlayerDeathEvent e) {
-    strengthUntil.remove(e.player().uuid());
-    AbilityGlyphs.clear(e.player().uuid(), this, HudGlyph.DURATION);
+    strength.forget(e.player().uuid());
   }
 
   private boolean canApplyStrengthBuff(PlayerRef p, int level) {
-    if (p.hasEffect(STRENGTH)) {
-      return false;
-    }
-
-    boolean stackBuff = getConfig().stackBuff;
-    long now = System.currentTimeMillis();
-    Long until = strengthUntil.get(p.uuid());
-    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
-    if (remainingTicks > 0L && !stackBuff) {
-      return false;
-    }
-
-    return buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff) > 0L;
+    return strength.canApply(p, level, getConfig().baseEffectbyLevel, getConfig().stackBuff);
   }
 
   private boolean applyStrengthBuff(PlayerRef p, int level) {
-    if (!canApplyStrengthBuff(p, level)) {
-      return false;
-    }
-
-    boolean stackBuff = getConfig().stackBuff;
-    long now = System.currentTimeMillis();
-    Long until = strengthUntil.get(p.uuid());
-    long remainingTicks = until == null ? 0L : Math.max(0L, (until - now) / 50L);
-    long durationTicks = buffDurationTicks(getConfig().baseEffectbyLevel, level, remainingTicks, stackBuff);
-    AdaptAttributeService.get().applyTimed(p, getName(), "strength", Attributes.ATTACK_DAMAGE, strengthDamageBonus(level), AttributeOperation.ADD_VALUE, durationTicks);
-    strengthUntil.put(p.uuid(), now + (durationTicks * 50L));
-    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * 50L);
-    return true;
+    return strength.apply(p, level, getConfig().baseEffectbyLevel, getConfig().stackBuff,
+        HunterStrengthBuff.strengthDamageBonus(level));
   }
 
   private void recordActivation(PlayerRef p) {
@@ -219,18 +181,6 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
           getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
     }
     starveFx(p);
-  }
-
-  static double strengthDamageBonus(int level) {
-    return 3.0D * (level + 1);
-  }
-
-  static long buffDurationTicks(int baseTicksPerLevel, int level, long remainingTicks, boolean stackBuff) {
-    long base = (long) baseTicksPerLevel * level;
-    if (base <= 0L) {
-      return 0L;
-    }
-    return base + (stackBuff ? Math.max(0L, remainingTicks) : 0L);
   }
 
   private void activateFx(PlayerRef p) {

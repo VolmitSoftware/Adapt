@@ -117,7 +117,7 @@ class PlayerAccessParityTest {
 
   @Test
   void catalogNamesCarryNoSymbolOrColour() {
-    CatalogView catalog = CatalogViews.build(registry, player.uuid());
+    CatalogView catalog = CatalogViews.build(registry, player.uuid(), List.of(), false);
 
     for (SkillView skill : catalog.skills()) {
       assertThat(skill.name()).as(skill.id()).doesNotContain("§").matches("^[\\p{L}\\p{N}].*");

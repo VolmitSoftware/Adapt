@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.api.skill;
 
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
+import art.arcane.adapt.api.mutation.engine.MutationEngine;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.AdaptConfig;
@@ -72,6 +76,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -84,6 +89,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class SkillRegistry extends TickedObject {
   public static final KMap<String, Skill<?>> skills = new KMap<>();
+  private final Map<String, MutatedSkill> mutatedSkills = new ConcurrentHashMap<>();
+  private final MutationEngine mutationEngine = new MutationEngine();
   private static final long SLOW_SKILL_REG_MS = 300L;
   private static final int DEFERRED_SKILLS_PER_TICK = 2;
   private static final int STAT_RECONCILIATION_BATCH_SIZE = 32;
@@ -102,6 +109,7 @@ public class SkillRegistry extends TickedObject {
   private final AtomicLong statReconciliationRevision = new AtomicLong();
   private final AtomicBoolean unregistered = new AtomicBoolean();
   private volatile StatTrackerIndex statTrackerIndex = StatTrackerIndex.empty();
+  private volatile AdaptationIndex adaptationIndex;
   private volatile boolean deferredBootstrapRecipeTaskScheduled;
   private volatile boolean bootstrapLoading = true;
   private volatile boolean foliaRecipeRegistrationWaitWarned;
@@ -125,6 +133,7 @@ public class SkillRegistry extends TickedObject {
       prepareSkillRuntime(skill);
     }
     activateRuntime();
+    mutationEngine.activateRuntime();
     scheduleDeferredBootstrapRecipeRegistration();
   }
 
@@ -282,7 +291,25 @@ public class SkillRegistry extends TickedObject {
       return direct;
     }
 
-    return skills.get(normalizeSkillName(i));
+    Skill<?> normalized = skills.get(normalizeSkillName(i));
+    return normalized != null ? normalized : getMutatedSkill(i);
+  }
+
+  /** The generated skill for a mutation id such as mutated-swords-stealth, built on first use; null for other ids. */
+  public MutatedSkill getMutatedSkill(String id) {
+    MutatedSkill known = id == null ? null : mutatedSkills.get(id);
+    if (known != null) {
+      return known;
+    }
+    SkillMutation mutation = id == null ? null : SkillMutation.parse(id.trim().toLowerCase(Locale.ROOT));
+    if (mutation == null) {
+      return null;
+    }
+    return mutatedSkills.computeIfAbsent(mutation.id(), ignored -> createMutatedSkill(mutation));
+  }
+
+  private MutatedSkill createMutatedSkill(SkillMutation mutation) {
+    return getAnySkill(mutation.lead()) instanceof SimpleSkill<?> lead ? new MutatedSkill(mutation, lead, this::getAnySkill) : null;
   }
 
   public Skill<?> getAnySkill(String i) {
@@ -436,7 +463,7 @@ public class SkillRegistry extends TickedObject {
     }
 
     List<AdaptationConfigState> adaptationStates = new ArrayList<>();
-    for (Adaptation<?> adaptation : loaded.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(loaded)) {
       if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
         continue;
       }
@@ -504,7 +531,7 @@ public class SkillRegistry extends TickedObject {
     }
 
     for (Skill<?> skill : knownSkills.v()) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
           continue;
         }
@@ -535,7 +562,7 @@ public class SkillRegistry extends TickedObject {
     }
 
     for (Skill<?> skill : knownSkills.v()) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
           continue;
         }
@@ -671,7 +698,7 @@ public class SkillRegistry extends TickedObject {
     }
 
     boolean targetAdaptationFound = snapshot.skill();
-    for (Adaptation<?> adaptation : replacement.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(replacement)) {
       if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)
           || adaptation.getConfigurationClass() == null) {
         continue;
@@ -704,7 +731,7 @@ public class SkillRegistry extends TickedObject {
     if (runtimeStarted) {
       skill.activateRuntime();
     }
-    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+    for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
       if (!adaptation.isEnabled()) {
         adaptation.unregister();
       } else if (runtimeStarted) {
@@ -748,6 +775,50 @@ public class SkillRegistry extends TickedObject {
     }
 
     return skillTypes.containsKey(normalizeSkillName(skillName));
+  }
+
+  /** The enabled adaptation, upgrade, mutation block or mutated adaptation with this id, or null. */
+  public Adaptation<?> getAdaptation(String adaptationId) {
+    if (adaptationId == null) {
+      return null;
+    }
+    Adaptation<?> found = adaptationIndex().byId().get(adaptationId);
+    if (found != null && !isActive(found.getSkill())) {
+      adaptationIndex = null;
+      found = adaptationIndex().byId().get(adaptationId);
+    }
+    if (found != null) {
+      return found;
+    }
+    MutationAdaptation.Key key = MutationAdaptation.parse(adaptationId);
+    MutatedSkill mutated = key == null ? null : getMutatedSkill(key.mutation().id());
+    return mutated == null ? null : mutated.getMutationAdaptation(key.recipe());
+  }
+
+  private AdaptationIndex adaptationIndex() {
+    long revision = catalogRevision.get();
+    AdaptationIndex index = adaptationIndex;
+    if (index != null && index.revision() == revision) {
+      return index;
+    }
+    Map<String, Adaptation<?>> byId = new HashMap<>();
+    for (Skill<?> skill : getSkills()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+        byId.putIfAbsent(adaptation.getName(), adaptation);
+      }
+    }
+    index = new AdaptationIndex(revision, Map.copyOf(byId));
+    adaptationIndex = index;
+    return index;
+  }
+
+  private boolean isActive(Skill<?> skill) {
+    return skill != null && skills.get(normalizeSkillName(skill.getName())) == skill;
+  }
+
+  /** Runs every mutation's Graft, Echo, Barter, Attunement and Convergence. */
+  public MutationEngine getMutationEngine() {
+    return mutationEngine;
   }
 
   public Adaptation<?> getRequiredAdaptation(Id recipe) {
@@ -811,7 +882,7 @@ public class SkillRegistry extends TickedObject {
       deferredBootstrapRecipeRegistration.removeIf(candidate -> candidate == s);
     }
     RecipeHostAccess.unregister(s.getRecipes());
-    s.getAdaptations().forEach(this::unregisterAdaptationRecipes);
+    Skill.ownedAdaptations(s).forEach(this::unregisterAdaptationRecipes);
   }
 
   private void registerRecipes(Skill<?> s) {
@@ -832,7 +903,7 @@ public class SkillRegistry extends TickedObject {
       return;
     }
     RecipeHostAccess.register(s.getRecipes());
-    s.getAdaptations().forEach(adaptation -> {
+    Skill.ownedAdaptations(s).forEach(adaptation -> {
       if (!adaptation.isEnabled()) {
         return;
       }
@@ -900,6 +971,7 @@ public class SkillRegistry extends TickedObject {
       return;
     }
     runtimeStarted = false;
+    mutationEngine.unregister();
     deferredBootstrapRecipeTaskScheduled = false;
     deferredBootstrapRecipeRegistration.clear();
     for (DeferredRecipeTransition transition : deferredRecipeTransitions.values()) {
@@ -1141,6 +1213,9 @@ public class SkillRegistry extends TickedObject {
     if (current == replacement) {
       registerRecipesNow(replacement);
     }
+  }
+
+  private record AdaptationIndex(long revision, Map<String, Adaptation<?>> byId) {
   }
 
   private record AdaptationConfigState(SimpleAdaptation<?> adaptation, boolean previouslyEnabled) {

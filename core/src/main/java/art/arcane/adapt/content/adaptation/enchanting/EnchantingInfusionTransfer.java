@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -50,7 +49,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -58,8 +56,6 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfusionTransfer.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGINFUSIONTRANSFER_CONFIRM, CommonPreferences.Toggle.OFF);
 
-  private static final Id BOOK = Id.minecraft("book");
-  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
 
   public EnchantingInfusionTransfer() {
     super("enchanting-infusion-transfer");
@@ -126,7 +122,7 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
     }
     ItemRef base = top.item(0);
     ItemRef source = top.item(1);
-    if (!isTransferBase(base) || !isItem(source)) {
+    if (!EnchantingBooks.isTransferBase(base) || !isItem(source)) {
       return;
     }
 
@@ -139,7 +135,7 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
       e.setCancelled(true);
       return;
     }
-    Id transfer = pickTransferEnchant(base, source);
+    Id transfer = EnchantingBooks.pickTransferEnchant(base, source);
     if (transfer == null) {
       return;
     }
@@ -151,13 +147,13 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
       return;
     }
 
-    int enchantLevel = Math.max(1, Math.min(sourceEnchantLevel(source, transfer), AdaptCore.platform().host().registries().enchantmentMaxLevel(transfer)));
+    int enchantLevel = EnchantingBooks.transferLevel(source, transfer);
     ItemRef newBase = base.copy();
     newBase.setEnchantment(transfer, enchantLevel);
     top.setItem(0, newBase);
 
     boolean survives = ThreadLocalRandom.current().nextDouble() < getSourceSurvival(level);
-    top.setItem(1, survives ? reduceSource(source, transfer) : null);
+    top.setItem(1, survives ? EnchantingBooks.reduceSource(source, transfer) : null);
 
     p.setLevel(Math.max(0, p.level() - cost));
     addStat(p, "enchanting.infusion-transfer.transfers", 1);
@@ -169,57 +165,6 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
     ));
     transferFx(p);
     Tasks.runEntity(p, p::updateInventory, 1);
-  }
-
-  private boolean isTransferBase(ItemRef item) {
-    return isItem(item)
-        && !item.type().equals(ENCHANTED_BOOK)
-        && !item.type().equals(BOOK);
-  }
-
-  private Id pickTransferEnchant(ItemRef base, ItemRef source) {
-    Map<Id, Integer> sourceEnchants = readEnchants(source);
-    Id best = null;
-    int bestLevel = 0;
-    for (Map.Entry<Id, Integer> entry : sourceEnchants.entrySet()) {
-      Id enchant = entry.getKey();
-      if (base.enchantments().containsKey(enchant) || !AdaptCore.platform().host().items().canEnchant(enchant, base)) {
-        continue;
-      }
-
-      if (entry.getValue() > bestLevel) {
-        best = enchant;
-        bestLevel = entry.getValue();
-      }
-    }
-
-    return best;
-  }
-
-  private Map<Id, Integer> readEnchants(ItemRef item) {
-    if (item.type().equals(ENCHANTED_BOOK)) {
-      return item.storedEnchantments();
-    }
-
-    return item.enchantments();
-  }
-
-  private int sourceEnchantLevel(ItemRef source, Id enchant) {
-    return readEnchants(source).getOrDefault(enchant, 1);
-  }
-
-  private ItemRef reduceSource(ItemRef source, Id transfer) {
-    ItemRef reduced = source.copy();
-    if (reduced.type().equals(ENCHANTED_BOOK)) {
-      reduced.removeStoredEnchantment(transfer);
-      if (reduced.storedEnchantments().isEmpty()) {
-        return AdaptCore.platform().host().items().create(BOOK, reduced.amount());
-      }
-      return reduced;
-    }
-
-    reduced.removeEnchantment(transfer);
-    return reduced;
   }
 
   private void transferFx(PlayerRef p) {

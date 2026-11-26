@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -36,7 +35,6 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.EnchantItemEvent;
-import art.arcane.adapt.platform.event.inventory.EnchantOffer;
 import art.arcane.adapt.platform.event.inventory.PrepareItemEnchantEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -94,24 +92,7 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
     }
 
     int power = (int) Math.floor(getVirtualPower(getLevel(p)) * preference(p, POWER).multiplier());
-    List<EnchantOffer> offers = e.offers();
-    if (offers == null) {
-      return;
-    }
-
-    boolean boosted = false;
-    for (EnchantOffer offer : offers) {
-      if (offer == null) {
-        continue;
-      }
-
-      int newCost = Math.min(30, offer.cost() + power);
-      int newLevel = Math.min(AdaptCore.platform().host().registries().enchantmentMaxLevel(offer.enchantment()),
-          offer.level() + Math.max(0, power / 3));
-      offer.setCost(newCost);
-      offer.setLevel(Math.max(1, newLevel));
-      boosted = true;
-    }
+    boolean boosted = EnchantingOffers.boost(e.offers(), power);
     if (boosted) {
       addStat(p, "enchanting.bookshelf-attunement.enchants-boosted", 1);
       if (shimmerCooldown.isReady(p.uuid(), 1000L)) {

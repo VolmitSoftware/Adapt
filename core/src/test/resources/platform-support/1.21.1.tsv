@@ -12,6 +12,7 @@ agility	agility-super-jump	works
 agility	agility-vault	works	
 agility	agility-wall-jump	works	
 agility	agility-wind-up	works	
+architect	architect-brickbat	works	
 architect	architect-chalk-line	works	
 architect	architect-demolition	works	
 architect	architect-elevator	works	
@@ -117,6 +118,7 @@ enchanting	enchanting-soul-link	works
 enchanting	enchanting-tome-rebinding	works	
 enchanting	enchanting-xp-return	works	
 excavation	excavation-burrow	works	
+excavation	excavation-clod-hurler	works	
 excavation	excavation-drop-to-inventory	works	
 excavation	excavation-earth-mover	works	
 excavation	excavation-grave-digger	works	
@@ -255,11 +257,12 @@ seaborne	seaborne-hydro-jet	works
 seaborne	seaborne-ink-veil	works	
 seaborne	seaborne-oxygen	works	
 seaborne	seaborne-pressure-diver	works	
+seaborne	seaborne-rain-fed	works	
 seaborne	seaborne-speed	works	
+seaborne	seaborne-storm-strike	works	
 seaborne	seaborne-tidecaller	works	
 seaborne	seaborne-trident-mastery	works	
 seaborne	seaborne-turtles-mining-speed	works	
-seaborne	seaborne-turtles-vision	works	
 stealth	stealth-assassinate	works	
 stealth	stealth-cutpurse	works	
 stealth	stealth-decoy-swap	works	

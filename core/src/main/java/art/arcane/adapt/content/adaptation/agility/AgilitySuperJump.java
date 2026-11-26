@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -26,8 +27,8 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -37,7 +38,6 @@ import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Cancellable;
@@ -65,7 +65,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
           new PlayerPreference.Choice<>(Control.EVERY_JUMP, AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_CONTROL_EVERY_JUMP, Id.minecraft("feather"), 1))));
   public static final PlayerPreference<CommonPreferences.Scale> HEIGHT = CommonPreferences.scale("height", AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_HEIGHT);
 
-  private static final String SLOT_JUMP = "jump";
   private static final int SUPER_JUMP_LEVELS = 4;
 
   private final Cooldowns cooldowns = cooldowns();
@@ -113,10 +112,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     return lower + ((upper - lower) * progress);
   }
 
-  static double jumpStrengthBonus(double jumpHeight) {
-    return AgilityJumpPhysics.bonusForHeight(jumpHeight);
-  }
-
   private double getJumpHeight(int level) {
     return jumpHeight(getConfig().minimumJumpHeight, getConfig().maximumJumpHeight, level, getMaxLevel());
   }
@@ -135,7 +130,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
     PlayerRef p = player.getPlayer();
-    AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+    AgilityHighJump.remove(this, p);
     if (hasActiveAdaptation(p) && (p.isSneaking() || preference(p, CONTROL) == Control.EVERY_JUMP)) {
       applyBoost(p);
     }
@@ -151,7 +146,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     if (isPlayerEnabled(p) && getActiveLevel(p) > 0 && (p.isSneaking() || preference(p, CONTROL) == Control.EVERY_JUMP)) {
       applyBoost(p);
     } else {
-      AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+      AgilityHighJump.remove(this, p);
     }
   }
 
@@ -161,14 +156,14 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   }
 
   private void applyBoost(PlayerRef p) {
-    AdaptAttributeService.get().apply(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH, jumpStrengthBonus(personalJumpHeight(getJumpHeight(getLevel(p)), preference(p, HEIGHT).multiplier())), AttributeOperation.ADD_VALUE);
+    AgilityHighJump.apply(this, p, personalJumpHeight(getJumpHeight(getLevel(p)), preference(p, HEIGHT).multiplier()));
   }
 
   @Handle(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     PlayerRef p = e.player();
     if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
-      AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+      AgilityHighJump.remove(this, p);
       return;
     }
 
@@ -178,9 +173,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
       }
 
       if (p.isOnGround()) {
-        fx(p.location(), FxPriority.GAMEPLAY)
-            .ring(Particles.CLOUD, 0.5D, 6, 0.05D)
-            .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.35F);
+        AgilityHighJump.crouch(this, p);
       }
     });
   }
@@ -189,7 +182,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   public void on(PlayerGameModeChangeEvent e) {
     GameMode mode = e.newGameMode();
     if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      AdaptAttributeService.get().remove(e.player(), getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+      AgilityHighJump.remove(this, e.player());
     }
   }
 
@@ -197,7 +190,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   public void on(PlayerChangedWorldEvent e) {
     PlayerRef p = e.player();
     if (!hasActiveAdaptation(p)) {
-      AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+      AgilityHighJump.remove(this, p);
     }
   }
 
@@ -214,7 +207,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   private void handleJump(PlayerRef p, Cancellable e) {
     withPlayerThread(p, e, () -> {
       if (!hasActiveAdaptation(p) || !canUse(getPlayer(p))) {
-        AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+        AgilityHighJump.remove(this, p);
         return;
       }
 
@@ -228,14 +221,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
       cooldowns.mark(id, 1000);
       addStat(p, "agility.super-jump.jumps", 1);
 
-      double jumpHeight = getJumpHeight(getLevel(p));
-      float topPitch = (float) Math.min(2.0D, 1.4D + jumpHeight);
-      double shockRadius = Math.max(0.6D, jumpHeight * 1.5D);
-      Loc at = p.location();
-      fx(at, FxPriority.GAMEPLAY)
-          .column(Particles.CLOUD, 8, 1.2D)
-          .ring(Particles.blockCrack(at.world().blockAt(at).relative(BlockFace.DOWN).state()), shockRadius, 10, 0.05D)
-          .chord(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.25F, 0.7F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.25F, topPitch, Sounds.ENTITY_ILLUSIONER_CAST_SPELL, 0.3F, 0.7F);
+      AgilityHighJump.burst(this, p, getJumpHeight(getLevel(p)));
     });
   }
 
@@ -256,4 +242,21 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   }
 
   public enum Control { SNEAK, EVERY_JUMP }
+
+
+  static void crouchFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location(), FxPriority.GAMEPLAY)
+        .ring(Particles.CLOUD, 0.5D, 6, 0.05D)
+        .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.35F);
+  }
+
+  static void burstFx(Adaptation<?> owner, PlayerRef p, double apexHeight) {
+    float topPitch = (float) Math.min(2.0D, 1.4D + apexHeight);
+    double shockRadius = Math.max(0.6D, apexHeight * 1.5D);
+    Loc at = p.location();
+    Fx.now(owner, at, FxPriority.GAMEPLAY)
+        .column(Particles.CLOUD, 8, 1.2D)
+        .ring(Particles.blockCrack(at.world().blockAt(at).relative(BlockFace.DOWN).state()), shockRadius, 10, 0.05D)
+        .chord(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.25F, 0.7F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.25F, topPitch, Sounds.ENTITY_ILLUSIONER_CAST_SPELL, 0.3F, 0.7F);
+  }
 }

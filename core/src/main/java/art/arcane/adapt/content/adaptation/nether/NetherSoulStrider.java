@@ -31,9 +31,7 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
@@ -53,20 +51,14 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
   public static final PlayerPreference<CommonPreferences.Toggle> IMMUNITY = CommonPreferences.toggle("immunity", NetherMessages.NETHERSOULSTRIDER_PREFERENCE_IMMUNITY, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> BURST = CommonPreferences.toggle("burst", NetherMessages.NETHERSOULSTRIDER_PREFERENCE_BURST, CommonPreferences.Toggle.ON);
 
-  private static final String SLOT_SOUL = "soul";
-  private static final String SLOT_STRIDE = "stride";
   private static final String SLOT_BURST = "burst";
-  private static final long HOLD_TICKS = 40L;
-  private static final long HOLD_REFRESH_MILLIS = 1000L;
-  private static final Id SOUL_SAND = Id.minecraft("soul_sand");
-  private static final Id SOUL_SOIL = Id.minecraft("soul_soil");
   private static final Rgb BURST_COLOR = Rgb.of(0x5C4A6B);
 
   public NetherSoulStrider() {
     super("nether-soul-strider");
-    needs(PlatformNeed.attribute(Attributes.MOVEMENT_EFFICIENCY));
+    needs(NetherSoulStride.NEED);
     registerConfiguration(Config.class);
-    setIcon(SOUL_SAND);
+    setIcon(Id.minecraft("soul_sand"));
     setInterval(1000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("soul_sand"))
@@ -91,7 +83,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    releaseStride(player.getPlayer());
+    NetherSoulStride.release(this, player.getPlayer());
     AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
   }
 
@@ -115,10 +107,8 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
         return;
       }
 
-      Id feet = to.world().blockAt(to).type();
-      Id below = to.world().blockAt(to.add(0D, -1D, 0D)).type();
-      if (!isSoul(feet) && !isSoul(below)) {
-        releaseStride(p);
+      if (!NetherSoulStride.onSoul(to)) {
+        NetherSoulStride.release(this, p);
         return;
       }
 
@@ -131,7 +121,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
 
       int level = getActiveLevel(p);
       long now = System.currentTimeMillis();
-      refreshStride(p, level, now);
+      NetherSoulStride.refresh(this, p, preferenceEnabled(p, IMMUNITY), getStrideBonus(level), now);
 
       long lastOn = getStorageLong(p, "soulStriderLastOn", 0L);
       setStorage(p, "soulStriderLastOn", now);
@@ -153,36 +143,6 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     });
   }
 
-  private void refreshStride(PlayerRef p, int level, long now) {
-    long holdUntil = getStorageLong(p, "soulStriderHoldUntil", 0L);
-    if (holdUntil - now > HOLD_REFRESH_MILLIS) {
-      return;
-    }
-
-    setStorage(p, "soulStriderHoldUntil", now + (HOLD_TICKS * 50L));
-    AbilityGlyphs.duration(p.uuid(), this, now, HOLD_TICKS * 50L);
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    if (preferenceEnabled(p, IMMUNITY)) {
-      attributes.applyTimed(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY, 1.0D, AttributeOperation.ADD_VALUE, HOLD_TICKS);
-    }
-    double bonus = getStrideBonus(level);
-    if (bonus > 0D) {
-      attributes.applyTimed(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED, bonus, AttributeOperation.ADD_MULTIPLIED_TOTAL, HOLD_TICKS);
-    }
-  }
-
-  private void releaseStride(PlayerRef p) {
-    if (getStorageLong(p, "soulStriderHoldUntil", 0L) == 0L) {
-      return;
-    }
-
-    setStorage(p, "soulStriderHoldUntil", 0L);
-    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.DURATION);
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.remove(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY);
-    attributes.remove(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED);
-  }
-
   private void applyBurst(PlayerRef p) {
     fx(p.location(), FxPriority.TRANSITION)
         .dustRing(BURST_COLOR, 0.7D, 10, 1.0F)
@@ -194,10 +154,6 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
     }
 
     AdaptAttributeService.get().applyTimed(p, getName(), SLOT_BURST, Attributes.MOVEMENT_SPEED, burstSpeedBonus(getConfig().burstAmplifier), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
-  }
-
-  private boolean isSoul(Id type) {
-    return type.equals(SOUL_SAND) || type.equals(SOUL_SOIL);
   }
 
   private double getStrideSpeed(int level) {

@@ -12,36 +12,36 @@ class PickaxeOreLogicTest {
 
   @Test
   void veinFamilyNormalizesDeepslateVariantsToStoneVariants() {
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate_iron_ore"))).isEqualTo(id("iron_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate_gold_ore"))).isEqualTo(id("gold_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate_copper_ore"))).isEqualTo(id("copper_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate_diamond_ore"))).isEqualTo(id("diamond_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate_redstone_ore"))).isEqualTo(id("redstone_ore"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate_iron_ore"))).isEqualTo(id("iron_ore"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate_gold_ore"))).isEqualTo(id("gold_ore"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate_copper_ore"))).isEqualTo(id("copper_ore"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate_diamond_ore"))).isEqualTo(id("diamond_ore"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate_redstone_ore"))).isEqualTo(id("redstone_ore"));
   }
 
   @Test
   void veinFamilyChainsAcrossStoneDeepslateBoundary() {
-    assertThat(PickaxeVeinminer.veinFamily(id("iron_ore")))
-        .isEqualTo(PickaxeVeinminer.veinFamily(id("deepslate_iron_ore")));
+    assertThat(PickaxeVein.veinFamily(id("iron_ore")))
+        .isEqualTo(PickaxeVein.veinFamily(id("deepslate_iron_ore")));
   }
 
   @Test
   void veinFamilyLeavesNonDeepslateMaterialsUntouched() {
-    assertThat(PickaxeVeinminer.veinFamily(id("iron_ore"))).isEqualTo(id("iron_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("nether_gold_ore"))).isEqualTo(id("nether_gold_ore"));
-    assertThat(PickaxeVeinminer.veinFamily(id("ancient_debris"))).isEqualTo(id("ancient_debris"));
-    assertThat(PickaxeVeinminer.veinFamily(id("obsidian"))).isEqualTo(id("obsidian"));
-    assertThat(PickaxeVeinminer.veinFamily(id("deepslate"))).isEqualTo(id("deepslate"));
+    assertThat(PickaxeVein.veinFamily(id("iron_ore"))).isEqualTo(id("iron_ore"));
+    assertThat(PickaxeVein.veinFamily(id("nether_gold_ore"))).isEqualTo(id("nether_gold_ore"));
+    assertThat(PickaxeVein.veinFamily(id("ancient_debris"))).isEqualTo(id("ancient_debris"));
+    assertThat(PickaxeVein.veinFamily(id("obsidian"))).isEqualTo(id("obsidian"));
+    assertThat(PickaxeVein.veinFamily(id("deepslate"))).isEqualTo(id("deepslate"));
   }
 
   @Test
   void veinminableIncludesOresObsidianAndAncientDebris() {
-    assertThat(PickaxeVeinminer.isVeinminable(id("iron_ore"))).isTrue();
-    assertThat(PickaxeVeinminer.isVeinminable(id("deepslate_iron_ore"))).isTrue();
-    assertThat(PickaxeVeinminer.isVeinminable(id("obsidian"))).isTrue();
-    assertThat(PickaxeVeinminer.isVeinminable(id("ancient_debris"))).isTrue();
-    assertThat(PickaxeVeinminer.isVeinminable(id("stone"))).isFalse();
-    assertThat(PickaxeVeinminer.isVeinminable(id("deepslate"))).isFalse();
+    assertThat(PickaxeVein.isVeinminable(id("iron_ore"))).isTrue();
+    assertThat(PickaxeVein.isVeinminable(id("deepslate_iron_ore"))).isTrue();
+    assertThat(PickaxeVein.isVeinminable(id("obsidian"))).isTrue();
+    assertThat(PickaxeVein.isVeinminable(id("ancient_debris"))).isTrue();
+    assertThat(PickaxeVein.isVeinminable(id("stone"))).isFalse();
+    assertThat(PickaxeVein.isVeinminable(id("deepslate"))).isFalse();
   }
 
   @Test
@@ -71,9 +71,9 @@ class PickaxeOreLogicTest {
 
   @Test
   void repairRhythmRestoresVisibleDamageAndClampsAtPristine() {
-    assertThat(PickaxeRepairRhythm.repairedDamage(100, 1)).isEqualTo(99);
-    assertThat(PickaxeRepairRhythm.repairedDamage(100, 2)).isEqualTo(98);
-    assertThat(PickaxeRepairRhythm.repairedDamage(1, 2)).isZero();
-    assertThat(PickaxeRepairRhythm.repairedDamage(5, -2)).isEqualTo(5);
+    assertThat(PickaxeRepair.repairedDamage(100, 1)).isEqualTo(99);
+    assertThat(PickaxeRepair.repairedDamage(100, 2)).isEqualTo(98);
+    assertThat(PickaxeRepair.repairedDamage(1, 2)).isZero();
+    assertThat(PickaxeRepair.repairedDamage(5, -2)).isEqualTo(5);
   }
 }

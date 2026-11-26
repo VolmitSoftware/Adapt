@@ -12,6 +12,8 @@ agility	agility-super-jump	emulated	attribute minecraft:jump_strength
 agility	agility-vault	emulated	attribute minecraft:jump_strength
 agility	agility-wall-jump	emulated	attribute minecraft:gravity
 agility	agility-wind-up	works	
+agility	signature-agility-kinetics-convergence	disabled	item minecraft:mace
+architect	architect-brickbat	works	
 architect	architect-chalk-line	partial	engine feature item stack limits (chalk wands stack like sticks)
 architect	architect-demolition	works	
 architect	architect-elevator	works	
@@ -117,6 +119,7 @@ enchanting	enchanting-soul-link	works
 enchanting	enchanting-tome-rebinding	works	
 enchanting	enchanting-xp-return	works	
 excavation	excavation-burrow	works	
+excavation	excavation-clod-hurler	works	
 excavation	excavation-drop-to-inventory	works	
 excavation	excavation-earth-mover	works	
 excavation	excavation-grave-digger	works	
@@ -191,6 +194,8 @@ kinetics	kinetics-quake-guard	disabled	item minecraft:mace
 kinetics	kinetics-rebound-anvil	disabled	item minecraft:mace
 kinetics	kinetics-terminal-toggle	disabled	attribute minecraft:gravity
 kinetics	kinetics-windburst	disabled	item minecraft:mace
+kinetics	signature-kinetics-agility-convergence	disabled	item minecraft:mace
+kinetics	upgraded-kinetics-comet	disabled	item minecraft:mace
 nether	nether-ashwalker	works	
 nether	nether-blaze-leech	works	
 nether	nether-crimson-feast	works	
@@ -251,12 +256,13 @@ seaborne	seaborne-fishers-fantasy	works
 seaborne	seaborne-hydro-jet	works	
 seaborne	seaborne-ink-veil	works	
 seaborne	seaborne-oxygen	emulated	attribute minecraft:oxygen_bonus
-seaborne	seaborne-pressure-diver	emulated	attribute minecraft:max_absorption, attribute minecraft:submerged_mining_speed
+seaborne	seaborne-pressure-diver	emulated	attribute minecraft:max_absorption
+seaborne	seaborne-rain-fed	works	
 seaborne	seaborne-speed	emulated	attribute minecraft:water_movement_efficiency
+seaborne	seaborne-storm-strike	works	
 seaborne	seaborne-tidecaller	works	
 seaborne	seaborne-trident-mastery	works	
 seaborne	seaborne-turtles-mining-speed	emulated	attribute minecraft:submerged_mining_speed, attribute minecraft:block_break_speed
-seaborne	seaborne-turtles-vision	works	
 stealth	stealth-assassinate	works	
 stealth	stealth-cutpurse	works	
 stealth	stealth-decoy-swap	works	

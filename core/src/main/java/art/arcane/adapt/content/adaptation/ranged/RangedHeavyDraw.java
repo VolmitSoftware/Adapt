@@ -86,7 +86,7 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
     if (RangedHeartseeker.isSeekingProjectile(projectile)
         || readHeavyLevel(projectile) > 0
         || !(projectile.shooter() instanceof PlayerRef p)
-        || !isHeavyCapable(projectile)) {
+        || !RangedShots.isHeavyCapable(projectile)) {
       return;
     }
 
@@ -121,7 +121,7 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
       multiplier /= Math.max(0.05D, getVelocityFactor(level));
     }
 
-    e.setDamage(e.damage() * multiplier);
+    RangedShots.strikeHeavy(e, multiplier);
     Tasks.runEntity(p, () -> rewardHeavyHitOwned(p));
     fx(e.entity(), FxPriority.COMBAT)
         .burst(Particles.CRIT_MAGIC, 8, 0.3D)
@@ -144,12 +144,6 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
     }
     xp(player, getConfig().xpPerHeavyHit);
     addStat(player, "ranged.heavy-draw.heavy-hits", 1);
-  }
-
-  private boolean isHeavyCapable(ProjectileRef projectile) {
-    return RangedProjectiles.isArrowLike(projectile)
-        || projectile.type().equals(RangedProjectiles.SNOWBALL)
-        || projectile.type().equals(RangedProjectiles.EGG);
   }
 
   private boolean isVelocityScaledDamage(ProjectileRef projectile) {

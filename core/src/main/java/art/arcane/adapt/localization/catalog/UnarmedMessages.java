@@ -123,6 +123,22 @@ public final class UnarmedMessages {
   public static final TextKey MEDITATION_LORE3 = TextKey.of("unarmed.meditation.lore3", "Combat Lockout");
   public static final LinesKey MEDITATION_LORE = LinesKey.of("unarmed.meditation.lore", "Max Absorption", "Absorption Per Pulse", "Combat Lockout");
 
+  public static final TextKey TITAN_FISTS_LORE1 = TextKey.of("upgrade.unarmed.titan_fists.lore1", "Punch Damage at Full Strength");
+  public static final TextKey TITAN_FISTS_LORE2 = TextKey.of("upgrade.unarmed.titan_fists.lore2", "Damage Multiplier without Armor");
+  public static final TextKey TITAN_FISTS_LORE3 = TextKey.of("upgrade.unarmed.titan_fists.lore3", "Bonus Damage per Punch");
+  public static final TextKey TITAN_FISTS_LORE4 = TextKey.of("upgrade.unarmed.titan_fists.lore4", "Sprint Punch Cooldown");
+  public static final TextKey TITAN_FISTS_LORE5 = TextKey.of("upgrade.unarmed.titan_fists.lore5", "Blocks Broken per Sprint Punch");
+  public static final TextKey UNBROKEN_COMBO_LORE1 = TextKey.of("upgrade.unarmed.unbroken_combo.lore1", "Max Combo Stacks");
+  public static final TextKey UNBROKEN_COMBO_LORE2 = TextKey.of("upgrade.unarmed.unbroken_combo.lore2", "Bonus Damage per Stack");
+  public static final TextKey UNBROKEN_COMBO_LORE3 = TextKey.of("upgrade.unarmed.unbroken_combo.lore3", "Max Slowness Level");
+  public static final TextKey UNBROKEN_COMBO_LORE4 = TextKey.of("upgrade.unarmed.unbroken_combo.lore4", "Finisher Damage per Stack");
+  public static final TextKey UNBROKEN_COMBO_LORE5 = TextKey.of("upgrade.unarmed.unbroken_combo.lore5", "Finisher Weakness Level");
+  public static final TextKey UNBROKEN_COMBO_LORE6 = TextKey.of("upgrade.unarmed.unbroken_combo.lore6", "Finisher Cooldown");
+  public static final TextKey SEISMIC_THROW_LORE1 = TextKey.of("upgrade.unarmed.seismic_throw.lore1", "Throw Force");
+  public static final TextKey SEISMIC_THROW_LORE2 = TextKey.of("upgrade.unarmed.seismic_throw.lore2", "Shockwave Radius");
+  public static final TextKey SEISMIC_THROW_LORE3 = TextKey.of("upgrade.unarmed.seismic_throw.lore3", "Cooldown");
+  public static final TextKey SEISMIC_THROW_LORE4 = TextKey.of("upgrade.unarmed.seismic_throw.lore4", "Shockwave Damage");
+
   private UnarmedMessages() {
   }
 
@@ -196,5 +212,20 @@ public final class UnarmedMessages {
     builder.add(MEDITATION_LORE2);
     builder.add(MEDITATION_LORE3);
     builder.add(MEDITATION_LORE);
+    builder.add(TITAN_FISTS_LORE1);
+    builder.add(TITAN_FISTS_LORE2);
+    builder.add(TITAN_FISTS_LORE3);
+    builder.add(TITAN_FISTS_LORE4);
+    builder.add(TITAN_FISTS_LORE5);
+    builder.add(UNBROKEN_COMBO_LORE1);
+    builder.add(UNBROKEN_COMBO_LORE2);
+    builder.add(UNBROKEN_COMBO_LORE3);
+    builder.add(UNBROKEN_COMBO_LORE4);
+    builder.add(UNBROKEN_COMBO_LORE5);
+    builder.add(UNBROKEN_COMBO_LORE6);
+    builder.add(SEISMIC_THROW_LORE1);
+    builder.add(SEISMIC_THROW_LORE2);
+    builder.add(SEISMIC_THROW_LORE3);
+    builder.add(SEISMIC_THROW_LORE4);
   }
 }

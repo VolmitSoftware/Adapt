@@ -33,14 +33,12 @@ import art.arcane.adapt.api.fx.ViewerDisplayPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.integration.hiddenore.HiddenOrePort;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
@@ -52,7 +50,6 @@ import art.arcane.adapt.util.common.world.BlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -68,7 +65,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
   static final int GLOW_DURATION_TICKS = 40;
   private static final int MAX_SCAN_RANGE = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 2048;
-  private static final Id ANCIENT_DEBRIS = Id.minecraft("ancient_debris");
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
   private final Map<UUID, UUID> activeRevealWindows = new ConcurrentHashMap<>();
@@ -117,7 +113,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
     PlayerRef p = e.player();
-    if (!isExcavationTool(p.inventory().mainHand())) {
+    if (!ExcavationOreScan.isDigTool(p.inventory().mainHand())) {
       return;
     }
 
@@ -152,35 +148,10 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     }
 
     ExcavationPreferences.Ores ores = preference(p, ORES);
-    ArrayList<BlockScanScheduler.AdditionalMatch> hiddenMatches = new ArrayList<>(1);
-    HiddenOrePort.VeinTarget hidden = nearestVein(origin, scanRange);
-    if (hidden != null && hidden.location().world() != null && hidden.location().world().uid().equals(world.uid())
-        && ores.allows(hidden.display())) {
-      Loc at = hidden.location();
-      double dx = at.x() - origin.x();
-      double dy = at.y() - origin.y();
-      double dz = at.z() - origin.z();
-      double distanceSquared = (dx * dx) + (dy * dy) + (dz * dz);
-      if (at.blockY() >= world.minHeight()
-          && at.blockY() < world.maxHeight()
-          && distanceSquared <= (double) scanRange * scanRange) {
-        hiddenMatches.add(new BlockScanScheduler.AdditionalMatch(
-            at.blockX(), at.blockY(), at.blockZ(), hidden.display(), distanceSquared
-        ));
-      }
-    }
-
     int checks = Math.min(MAX_BLOCK_CHECKS_PER_ACTIVATION, Math.max(1, getConfig().maxBlockChecks));
-    BlockScanScheduler.ScanRequest request = BlockScanScheduler.ScanRequest.builder(origin)
-        .radius(scanRange)
-        .denseRadius(getConfig().denseScanRadius)
-        .maxSamples(checks)
-        .maxResults(1)
-        .seed(ThreadLocalRandom.current().nextInt())
-        .additionalMatches(hiddenMatches)
-        .matcher((Id type) -> isOre(type) && ores.allows(type))
-        .completion((BlockScanScheduler.ScanResult result) -> completeScan(p, origin, scanRange, result))
-        .build();
+    BlockScanScheduler.ScanRequest request = ExcavationOreScan.request(origin,
+        new ExcavationOreScan.Limits(scanRange, getConfig().denseScanRadius, checks, 1), ores::allows,
+        (BlockScanScheduler.ScanResult result) -> completeScan(p, origin, scanRange, result));
     synchronized (revealLifecycleLock) {
       UUID playerId = p.uuid();
       if (!acceptingReveals.get()
@@ -190,27 +161,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       UUID scanId = BlockScanScheduler.submit(this, playerId, request);
       activeScans.put(playerId, scanId);
     }
-  }
-
-  static HiddenOrePort.VeinTarget nearestVein(HiddenOrePort port, Loc origin, int range) {
-    HiddenOrePort.VeinTarget best = null;
-    double bestDistanceSq = Double.MAX_VALUE;
-    for (HiddenOrePort.VeinTarget vein : port.veins(origin, range)) {
-      Loc at = vein.location();
-      double dx = (at.blockX() + 0.5) - origin.x();
-      double dy = (at.blockY() + 0.5) - origin.y();
-      double dz = (at.blockZ() + 0.5) - origin.z();
-      double distanceSq = (dx * dx) + (dy * dy) + (dz * dz);
-      if (distanceSq < bestDistanceSq) {
-        best = vein;
-        bestDistanceSq = distanceSq;
-      }
-    }
-    return best;
-  }
-
-  private static HiddenOrePort.VeinTarget nearestVein(Loc origin, int range) {
-    return nearestVein(AdaptPorts.get(HiddenOrePort.class, HiddenOrePort.NONE), origin, range);
   }
 
   private void completeScan(PlayerRef p, Loc blockLocation, int scanRange,
@@ -362,19 +312,6 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     float pitch = (float) Math.max(0.45, Math.min(1.95, 1.9 - (normalized * 1.1)));
     fx(p.location(), FxPriority.GAMEPLAY)
         .chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.9f, pitch, Sounds.BLOCK_NOTE_BLOCK_BIT, 0.65f, (float) Math.min(2.0, pitch + 0.2));
-  }
-
-  private boolean isOre(Id type) {
-    return type.equals(ANCIENT_DEBRIS) || type.legacyName().endsWith("_ORE");
-  }
-
-  private boolean isExcavationTool(ItemRef item) {
-    if (!isItem(item)) {
-      return false;
-    }
-
-    String name = item.type().legacyName();
-    return name.endsWith("_SHOVEL") || name.endsWith("_PICKAXE");
   }
 
   @Handle(ignoreCancelled = false)

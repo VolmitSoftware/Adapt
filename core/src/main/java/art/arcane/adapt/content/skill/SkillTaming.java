@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
@@ -45,7 +46,17 @@ import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
 import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.content.adaptation.taming.TamingWildEmpathy;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingBoon;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingFightStrike;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingFuel;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingState;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingTrigger;
+import art.arcane.adapt.content.adaptation.taming.blocks.TamingWorkStrike;
+import art.arcane.adapt.content.adaptation.taming.upgraded.Alpha;
+import art.arcane.adapt.content.adaptation.taming.upgraded.BloodBond;
+import art.arcane.adapt.content.adaptation.taming.upgraded.OneMind;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
@@ -63,6 +74,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,8 +83,16 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   private final Cooldowns xpCooldowns = cooldowns();
   private final Map<String, Long> paidBreedingPairs = new ConcurrentHashMap<>();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.TAMING_CARE, "tame-wild-empathy", "tame-fetch", "tame-stable-hand",
+          "tame-health", "tame-health-regeneration", "tame-pack-leader-aura", "tame-beast-recall"),
+      AdaptationGroup.of(GroupMessages.TAMING_BATTLE, "tame-damage", "tame-battle-bond", "tame-alphas-command",
+          "tame-guardian-instinct", "tame-shared-pain", "tame-mounted-tactics", "tame-last-breath")
+  );
+
   public SkillTaming() {
-    super("taming", SkillPresentation.of(SkillMessages.TAMING_NAME, SkillMessages.TAMING_ICON, SkillMessages.TAMING_DESCRIPTION));
+    super("taming", SkillPresentation.of(SkillMessages.TAMING_NAME, SkillMessages.TAMING_ICON, SkillMessages.TAMING_DESCRIPTION,
+        SkillMessages.TAMING_QUIP, SkillMessages.TAMING_UNLOCK_QUIP_1, SkillMessages.TAMING_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.GOLD);
     setInterval(3480);
@@ -91,6 +111,9 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerAdaptation(new TamingWildEmpathy());
     registerAdaptation(new TamingBattleBond());
     registerAdaptation(new TamingLastBreath());
+    registerUpgrades(new Alpha(), new OneMind(), new BloodBond());
+    registerBlocks(new TamingTrigger(), new TamingFightStrike(), new TamingWorkStrike(),
+        new TamingBoon(), new TamingFuel(), new TamingState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("lead"))
         .key("challenge_taming_10")
@@ -163,6 +186,11 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
     registerMilestone("challenge_tamed_100", "taming.tamed", 100, () -> getConfig().challengeTamedReward * 3);
     registerMilestone("challenge_pet_kills_25", "taming.pet.kills", 25, () -> getConfig().challengePetKillsReward);
     registerMilestone("challenge_pet_kills_250", "taming.pet.kills", 250, () -> getConfig().challengePetKillsReward * 3);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Handle(priority = EventPriority.MONITOR)

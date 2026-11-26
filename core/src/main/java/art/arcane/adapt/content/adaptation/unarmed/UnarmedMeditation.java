@@ -39,6 +39,7 @@ import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
+import art.arcane.adapt.content.adaptation.unarmed.blocks.UnarmedWorkStrike;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -228,15 +229,15 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     if (!activeSessions.contains(id) || !player.isOnline() || player.isDead() || !player.isSneaking()
         || (preferenceEnabled(player, UnarmedPreferences.MANUAL) && !preferenceEnabled(player, UnarmedPreferences.ARMED))
         || isItem(player.inventory().mainHand()) || isItem(player.inventory().offHand())
-        || !combatCooldown.isReady(id, getConfig().combatLockoutMillis)) {
+        || !combatCooldown.isReady(id, getConfig().combatLockoutMillis)
+        || UnarmedWorkStrike.readies(this, player)) {
       stopMeditation(player);
       return;
     }
 
     Loc current = player.location();
     Loc previous = lastPositions.put(id, current);
-    if (previous == null || !previous.sameWorld(current)
-        || previous.distanceSquared(current) > getConfig().stationaryEpsilonSquared) {
+    if (!isStill(previous, current, getConfig().stationaryEpsilonSquared)) {
       breakMeditation(player, id);
       scheduleNextPulse(player);
       return;
@@ -300,6 +301,11 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     }
     capacityPlayers.add(player.uuid());
     return true;
+  }
+
+  /** True when the player stayed within {@code epsilonSquared} of {@code previous} in the same world. */
+  public static boolean isStill(Loc previous, Loc current, double epsilonSquared) {
+    return previous != null && previous.sameWorld(current) && previous.distanceSquared(current) <= epsilonSquared;
   }
 
   static boolean ensureAbsorptionCapacity(LivingRef target, double cap) {

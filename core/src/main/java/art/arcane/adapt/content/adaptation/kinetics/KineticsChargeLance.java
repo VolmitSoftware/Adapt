@@ -12,17 +12,14 @@ import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.Map;
-import java.util.UUID;
 
 public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Config> {
   private final Cooldowns cooldowns = cooldowns();
-  private final Map<UUID, Movement> movement = playerState();
+  private final KineticsStride stride = new KineticsStride(playerState());
 
   public KineticsChargeLance() {
     super("kinetics-charge-lance");
@@ -34,7 +31,7 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
 
   @Override
   public void unregister() {
-    movement.clear();
+    stride.clear();
     super.unregister();
   }
 
@@ -47,36 +44,13 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerMoveEvent event) {
     PlayerRef player = event.player();
-    if (player.vehicle() != null || !hasActiveAdaptation(player)
-        || !isSpear(player.inventory().mainHand())) {
-      movement.remove(player.uuid());
-      return;
-    }
-    if (!event.changedPosition()) {
-      return;
-    }
-    Loc from = event.from();
-    Loc to = event.to();
-    int tick = player.ticksLived();
-    Movement previous = movement.get(player.uuid());
-    double x = to.x() - from.x();
-    double z = to.z() - from.z();
-    if (previous != null && previous.tick == tick) {
-      x += previous.x;
-      z += previous.z;
-    }
-    if (previous == null) {
-      previous = new Movement();
-      movement.put(player.uuid(), previous);
-    }
-    previous.tick = tick;
-    previous.x = x;
-    previous.z = z;
+    stride.track(event, player.vehicle() == null && hasActiveAdaptation(player)
+        && isSpear(player.inventory().mainHand()));
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerTeleportEvent event) {
-    movement.remove(event.player().uuid());
+    stride.forget(event.player().uuid());
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -95,10 +69,7 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
       return;
     }
 
-    Movement sample = movement.get(p.uuid());
-    int age = sample == null ? -1 : p.ticksLived() - sample.tick;
-    double speed = age >= 0 && age <= 1 ? horizontalSpeed(sample.x, sample.z) : 0D;
-    double bonus = chargeBonus(speed, getConfig().minSpeed, getSpeedDamageFactor(combat.level()), getBonusCap(combat.level()));
+    double bonus = chargeBonus(stride.speed(p), getConfig().minSpeed, getSpeedDamageFactor(combat.level()), getBonusCap(combat.level()));
     if (bonus <= 0D) {
       return;
     }
@@ -116,22 +87,16 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
     return getConfig().bonusCapBase + (getLevelPercent(level) * getConfig().bonusCapFactor);
   }
 
-  static double horizontalSpeed(double velocityX, double velocityZ) {
+  public static double horizontalSpeed(double velocityX, double velocityZ) {
     return Math.sqrt((velocityX * velocityX) + (velocityZ * velocityZ));
   }
 
-  static double chargeBonus(double horizontalSpeed, double minSpeed, double factor, double cap) {
+  public static double chargeBonus(double horizontalSpeed, double minSpeed, double factor, double cap) {
     if (!Double.isFinite(horizontalSpeed) || horizontalSpeed < minSpeed) {
       return 0D;
     }
 
     return Math.max(0D, Math.min(cap, horizontalSpeed * factor));
-  }
-
-  private static final class Movement {
-    private int tick;
-    private double x;
-    private double z;
   }
 
   @ConfigDescription("Spear hits scale with your speed. Hit them at a run.")

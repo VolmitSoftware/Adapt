@@ -58,7 +58,7 @@ final class StatTrackerIndex {
       }
 
       indexedBindings += addTrackers(mutableBindings, skill, null, skill.getStatTrackers());
-      List<Adaptation<?>> adaptations = skill.getAdaptations();
+      List<Adaptation<?>> adaptations = Skill.ownedAdaptations(skill);
       if (adaptations == null) {
         continue;
       }

@@ -1,18 +1,14 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.platform.RegistryKind;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -20,14 +16,11 @@ import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadence.Config> {
   public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
@@ -35,12 +28,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
           new PlayerPreference.Choice<>(Control.SNEAK, KineticsMessages.KINETICSMETEORCADENCE_PREFERENCE_CONTROL_SNEAK, Id.minecraft("leather_boots"), 1),
           new PlayerPreference.Choice<>(Control.AUTOMATIC, KineticsMessages.KINETICSMETEORCADENCE_PREFERENCE_CONTROL_AUTOMATIC, Id.minecraft("mace"), 1))));
 
-  private static final String SLOT_GRAVITY = "dive-gravity";
-  private static final String SLOT_DRAG = "dive-drag";
-  private static final int REFRESH_TICKS = 8;
-
-  private final Map<UUID, Boolean> diveMarked = playerState();
-  private final Map<UUID, Integer> acceleratedAtTick = playerState();
+  private final KineticsDive dive = new KineticsDive(this, playerState(), playerState());
 
   public KineticsMeteorCadence() {
     super("kinetics-meteor-cadence");
@@ -57,7 +45,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    endDive(player.getPlayer());
+    dive.end(player.getPlayer());
   }
 
   @Override
@@ -72,7 +60,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
   public void on(PlayerToggleSneakEvent e) {
     PlayerRef p = e.player();
     if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
-      removeDiveModifiers(p);
+      dive.removeModifiers(p);
       return;
     }
 
@@ -88,40 +76,23 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
 
     PlayerRef p = e.player();
     if (p.isOnGround()) {
-      endDive(p);
+      dive.end(p);
       return;
     }
 
     refreshDive(p, to.y() - e.from().y());
   }
 
-  static boolean isDiving(boolean onGround, double deltaY, boolean sneaking, boolean holdingMace) {
+  public static boolean isDiving(boolean onGround, double deltaY, boolean sneaking, boolean holdingMace) {
     return !onGround && deltaY < 0D && sneaking && holdingMace;
   }
 
-  static double scaledDownwardAcceleration(double base, double factor, double levelPercent) {
+  public static double scaledDownwardAcceleration(double base, double factor, double levelPercent) {
     double acceleration = base + (factor * levelPercent);
     if (!Double.isFinite(acceleration)) {
       return 0D;
     }
     return Math.min(2D, Math.max(0D, acceleration));
-  }
-
-  static double acceleratedDownwardVelocity(double currentY, double acceleration, double terminalFallSpeed) {
-    if (!Double.isFinite(currentY) || currentY >= 0D) {
-      return currentY;
-    }
-
-    double safeAcceleration = Double.isFinite(acceleration) ? Math.min(2D, Math.max(0D, acceleration)) : 0D;
-    double safeTerminal = Double.isFinite(terminalFallSpeed) ? Math.min(10D, Math.max(0D, terminalFallSpeed)) : 0D;
-    if (safeAcceleration <= 0D || safeTerminal <= 0D || currentY <= -safeTerminal) {
-      return currentY;
-    }
-    return Math.max(-safeTerminal, currentY - safeAcceleration);
-  }
-
-  static boolean shouldAccelerateAtTick(Integer previousTick, int currentTick) {
-    return previousTick == null || previousTick != currentTick;
   }
 
   private void refreshDive(PlayerRef p, double deltaY) {
@@ -134,62 +105,15 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
       return;
     }
 
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.applyTimed(p, getName(), SLOT_GRAVITY, Attributes.GRAVITY, getGravityBoost(level), AttributeOperation.ADD_MULTIPLIED_TOTAL, REFRESH_TICKS);
-    if (attributeExists(Attributes.AIR_DRAG_MODIFIER)) {
-      attributes.applyTimed(p, getName(), SLOT_DRAG, Attributes.AIR_DRAG_MODIFIER, -getDragCut(level), AttributeOperation.ADD_MULTIPLIED_TOTAL, REFRESH_TICKS);
-    }
-    accelerateDive(p, level);
-
-    if (diveMarked.putIfAbsent(p.uuid(), Boolean.TRUE) == null) {
+    KineticsDive.Pull pull = new KineticsDive.Pull(getGravityBoost(level), getDragCut(level),
+        getDownwardAcceleration(level), getTerminalFallSpeed());
+    if (dive.refresh(p, pull)) {
       addStat(p, "kinetics.meteor.dives", 1);
-    }
-  }
-
-  private void endDive(PlayerRef p) {
-    if (diveMarked.isEmpty() && acceleratedAtTick.isEmpty()) {
-      return;
-    }
-
-    UUID id = p.uuid();
-    boolean hadDiveState = diveMarked.remove(id) != null;
-    if (acceleratedAtTick.remove(id) != null) {
-      hadDiveState = true;
-    }
-    if (hadDiveState) {
-      removeDiveModifiers(p);
-    }
-  }
-
-  private void removeDiveModifiers(PlayerRef p) {
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.remove(p, getName(), SLOT_GRAVITY, Attributes.GRAVITY);
-    if (attributeExists(Attributes.AIR_DRAG_MODIFIER)) {
-      attributes.remove(p, getName(), SLOT_DRAG, Attributes.AIR_DRAG_MODIFIER);
-    }
-  }
-
-  private void accelerateDive(PlayerRef p, int level) {
-    UUID id = p.uuid();
-    int currentTick = p.ticksLived();
-    Integer previousTick = acceleratedAtTick.put(id, currentTick);
-    if (!shouldAccelerateAtTick(previousTick, currentTick)) {
-      return;
-    }
-
-    Vec3 velocity = p.velocity();
-    double acceleratedY = acceleratedDownwardVelocity(velocity.y(), getDownwardAcceleration(level), getTerminalFallSpeed());
-    if (acceleratedY < velocity.y()) {
-      p.setVelocity(new Vec3(velocity.x(), acceleratedY, velocity.z()));
     }
   }
 
   private double verticalDelta(PlayerRef p) {
     return p.velocity().y();
-  }
-
-  private static boolean attributeExists(Id attribute) {
-    return AdaptCore.platform().host().registries().exists(RegistryKind.ATTRIBUTE, attribute);
   }
 
   private double getGravityBoost(int level) {

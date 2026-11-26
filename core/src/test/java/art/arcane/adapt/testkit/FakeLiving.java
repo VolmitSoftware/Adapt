@@ -26,6 +26,7 @@ import java.util.Set;
 /** Living entity with health, effects, attribute modifiers and equipment. */
 public class FakeLiving extends FakeEntity implements LivingRef {
   private final Map<Id, EffectInstance> effects = new LinkedHashMap<>();
+  private boolean sight = true;
   private final Map<Id, Double> attributeBases = new HashMap<>();
   private final Map<Id, Map<Id, AttributeMod>> modifiers = new HashMap<>();
   private final Set<Id> absentAttributes = new HashSet<>();
@@ -427,7 +428,12 @@ public class FakeLiving extends FakeEntity implements LivingRef {
 
   @Override
   public boolean hasLineOfSight(EntityRef other) {
-    return true;
+    return sight;
+  }
+
+  /** Whether this entity sees others; true unless a test hides them behind a wall. */
+  public void setLineOfSight(boolean sees) {
+    sight = sees;
   }
 
   @Override

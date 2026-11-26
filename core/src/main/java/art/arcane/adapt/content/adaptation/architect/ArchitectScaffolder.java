@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.value.MaterialNames;
@@ -125,6 +126,12 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     statLore(v, C.GREEN, "", getDurationSeconds(getLevelPercent(level)), 2);
   }
 
+  @Override
+  public BlockActionContext resolveBlockPlaceContext(PlayerRef p, Loc location, Predicate<PlayerRef> requirement) {
+    return UpgradeLoans.context(this, super.resolveBlockPlaceContext(p, location, requirement),
+        (Adaptation<?> upgrade) -> upgrade.resolveBlockPlaceContext(p, location, requirement));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockPlaceEvent e) {
     PlayerRef p = e.player();
@@ -172,6 +179,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
         .sound(Sounds.BLOCK_DEEPSLATE_PLACE, 0.6f, 1.6f);
 
     addStat(p, "architect.scaffolder.blocks-scaffolded", 1);
+    UpgradeLoans.landed(this, p);
     int delayTicks = getDurationSeconds(getLevelPercent(context.level())) * 20;
     if (delayTicks > 30) {
       Tasks.runAt(block.location(), () -> warnScaffold(block), delayTicks - 20);
@@ -246,7 +254,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     }
   }
 
-  static void restitute(PlayerRef owner, Loc source, List<ItemRef> refunds, Runnable delivered) {
+  public static void restitute(PlayerRef owner, Loc source, List<ItemRef> refunds, Runnable delivered) {
     AtomicBoolean claimed = new AtomicBoolean();
     Runnable fallback = () -> {
       if (claimed.compareAndSet(false, true)) {

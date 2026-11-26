@@ -21,16 +21,24 @@ package art.arcane.adapt.content.gui;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillMutations;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillMenus;
+import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.client.view.SpendView;
+import art.arcane.adapt.client.view.SpendViews;
+import art.arcane.adapt.client.view.XpGuideView;
+import art.arcane.adapt.client.view.XpGuideViews;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.localization.catalog.SeatMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
@@ -53,6 +61,7 @@ import art.arcane.volmlib.util.localization.TextKey;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +74,7 @@ public class SkillsGui {
   private static final Id ARROW = Id.minecraft("arrow");
   private static final Id LECTERN = Id.minecraft("lectern");
   private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
+  private static final Id KNOWLEDGE = Id.minecraft("knowledge_book");
 
   public static void open(PlayerRef player) {
     try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.uuid())) {
@@ -91,13 +101,13 @@ public class SkillsGui {
         return;
       }
 
-      List<SkillPageEntry> entries = entries(adaptPlayer, player);
+      List<Seat> seats = seats(adaptPlayer, player);
 
       int configuredRows = GuiConfig.skillsGuiRows();
-      GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
+      GuiLayout.PagePlan plan = GuiLayout.planFiveWide(seats.size(), configuredRows);
       int currentPage = GuiLayout.clampPage(page, plan.pageCount());
       int start = currentPage * plan.itemsPerPage();
-      int end = Math.min(entries.size(), start + plan.itemsPerPage());
+      int end = Math.min(seats.size(), start + plan.itemsPerPage());
       int viewportRows = GuiLayout.fiveWideRowsForPage(end - start, configuredRows);
       int contentRows = viewportRows - 1;
       int navRow = viewportRows - 1;
@@ -105,9 +115,9 @@ public class SkillsGui {
       GuiWindow w = new GuiWindow(player);
       GuiTheme.apply(w, "/");
       w.setViewportHeight(viewportRows);
-      w.setLayout(MenuLayout.LIST).setPaging(new MenuPaging(currentPage, plan.pageCount(), entries.size()));
+      w.setLayout(MenuLayout.LIST).setPaging(new MenuPaging(currentPage, plan.pageCount(), seats.size()));
 
-      if (entries.isEmpty()) {
+      if (seats.isEmpty()) {
         w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new GuiElement("skills-empty")
             .setMaterial(PAPER)
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
@@ -115,46 +125,22 @@ public class SkillsGui {
             .setRole(MenuRole.HEADER));
       } else {
         List<GuiEffects.Placement> reveal = new ArrayList<>();
-        int pageItems = end - start;
-        int usedRows = Math.max(1, (int) Math.ceil(pageItems / (double) SKILLS_PER_ROW));
-        for (int logicalRow = 0; logicalRow < usedRows; logicalRow++) {
+        int usedRows = Math.max(1, (int) Math.ceil((end - start) / (double) SKILLS_PER_ROW));
+        for (int index = start; index < end; index++) {
+          Seat seat = seats.get(index);
+          if (seat.empty()) {
+            continue;
+          }
+          int logicalRow = (index - start) / SKILLS_PER_ROW;
           int row = GuiLayout.centeredFiveRow(logicalRow, usedRows, contentRows);
-          int rowStart = start + (logicalRow * SKILLS_PER_ROW);
-          if (rowStart >= end) {
-            break;
-          }
-
-          int rowCount = Math.min(SKILLS_PER_ROW, end - rowStart);
-          for (int i = 0; i < rowCount; i++) {
-            SkillPageEntry entry = entries.get(rowStart + i);
-            int pos = GuiLayout.spacedFivePosition(i, rowCount);
-            CustomModel model = GuiConfig.skillModel(
-                entry.skill().getName(),
-                entry.skill().getIcon(),
-                entry.skill().getModel()
-            );
-            GuiElement element = new GuiElement("skill-" + entry.skill().getName())
-                .setMaterial(model.material())
-                .setModel(model)
-                .setName(entry.skill().getDisplayName(entry.line().getLevel()))
-                .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
-                .addLore(C.GRAY + AdaptLanguage.text(
-                    SnippetsMessages.GUI_KNOWLEDGE_VALUE,
-                    trusted("knowledge", C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY)
-                ))
-                .addLore(C.ITALIC + "" + C.GRAY + AdaptLanguage.text(
-                    SnippetsMessages.GUI_POWER_USED_VALUE,
-                    trusted("power", C.DARK_GREEN + String.valueOf(entry.adaptationLevel()))
-                ))
-                .setRole(MenuRole.NAVIGATION)
-                .onLeftClick((MenuClick e) -> entry.skill().openGui(player));
-            reveal.add(new GuiEffects.Placement(pos, row, element));
-          }
+          int pos = GuiLayout.spacedFivePosition((index - start) % SKILLS_PER_ROW, SKILLS_PER_ROW);
+          reveal.add(new GuiEffects.Placement(pos, row, seatElement(seat, player, adaptPlayer.getServer().getSkillRegistry())));
         }
         GuiEffects.applyReveal(w, reveal);
       }
 
-      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
+      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), seats.size(), start, end);
+      w.setElement(1, navRow, knowledgeElement(adaptPlayer, seats));
 
       w.setTitle(AdaptLanguage.text(
           GuiMessages.SKILLS_TITLE,
@@ -164,6 +150,112 @@ public class SkillsGui {
       ));
       w.open();
     }
+  }
+
+  /** A seat's item: the skill as usual, or greyed out when the player has not started it. */
+  private static GuiElement seatElement(Seat seat, PlayerRef player, SkillRegistry registry) {
+    Skill<?> skill = seat.skill();
+    CustomModel model = GuiConfig.skillModel(skill.getName(), skill.getIcon(), skill.getModel());
+    GuiElement element = new GuiElement("skill-" + skill.getName())
+        .setMaterial(model.material())
+        .setModel(model)
+        .setRole(MenuRole.NAVIGATION);
+    if (!seat.started()) {
+      element.setName(C.DARK_GRAY + C.stripColor(skill.getDisplayName()))
+          .addLore(C.GRAY + AdaptLanguage.text(SeatMessages.NOT_STARTED))
+          .addLore(C.ITALIC + "" + C.DARK_GRAY + skill.getDescription());
+    } else {
+      element.setName(skill.getDisplayName(seat.line().getLevel()))
+          .setEnchanted(skill instanceof MutatedSkill)
+          .addLore(C.ITALIC + "" + C.GRAY + skill.getDescription())
+          .addLore(C.GRAY + AdaptLanguage.text(
+              SnippetsMessages.GUI_KNOWLEDGE_VALUE,
+              trusted("knowledge", C.UNDERLINE + "" + C.WHITE + seat.line().getKnowledge() + C.RESET + " " + C.GRAY)
+          ))
+          .addLore(C.ITALIC + "" + C.GRAY + AdaptLanguage.text(
+              SnippetsMessages.GUI_POWER_USED_VALUE,
+              trusted("power", C.DARK_GREEN + String.valueOf(seat.adaptationLevel()))
+          ));
+    }
+    element.onLeftClick((MenuClick e) -> skill.openGui(player));
+    addGuideLore(element, skill, registry);
+    return element;
+  }
+
+  /** Knowledge earned, spent and unspent, then each seat's spent and unspent knowledge in seat order. */
+  private static GuiElement knowledgeElement(AdaptPlayer adaptPlayer, List<Seat> seats) {
+    Map<String, Integer> spent = new HashMap<>();
+    for (SpendView spend : SpendViews.build(adaptPlayer.getServer().getSkillRegistry(), adaptPlayer)) {
+      spent.merge(spend.skillId(), spend.knowledge(), Integer::sum);
+    }
+    long totalSpent = 0L;
+    long unspent = 0L;
+    List<String> lines = new ArrayList<>();
+    for (Seat seat : seats) {
+      if (seat.empty()) {
+        continue;
+      }
+      int skillSpent = spent.getOrDefault(seat.skill().getName(), 0);
+      long available = seat.line() == null ? 0L : seat.line().getKnowledge();
+      totalSpent += skillSpent;
+      unspent += available;
+      if (skillSpent > 0 || available > 0) {
+        lines.add(C.GRAY + AdaptLanguage.text(SeatMessages.SKILL, trusted("skill", C.stripColor(seat.skill().getDisplayName())),
+            trusted("spent", C.WHITE + String.valueOf(skillSpent) + C.GRAY), trusted("available", String.valueOf(available))));
+      }
+    }
+    GuiElement element = GuiTheme.element("skills-knowledge", KNOWLEDGE, "gui", "navigation", "knowledge")
+        .setName(C.AQUA + AdaptLanguage.text(SeatMessages.KNOWLEDGE))
+        .setRole(MenuRole.INFO)
+        .addLore(C.GRAY + AdaptLanguage.text(SeatMessages.EARNED, trusted("value", totalSpent + unspent)))
+        .addLore(C.GRAY + AdaptLanguage.text(SeatMessages.SPENT, trusted("value", totalSpent)))
+        .addLore(C.GRAY + AdaptLanguage.text(SeatMessages.UNSPENT, trusted("value", unspent)))
+        .addLore(" ");
+    for (String line : lines) {
+      element.addLore(line);
+    }
+    return element;
+  }
+
+  /**
+   * Every skill on the server the player may use, one seat each in roster order: a mutation sits in its lead's seat and
+   * its partner's seat stays as an empty slot; a skill the player has not started shows greyed out. With inactive skills
+   * hidden by the server empty and greyed seats are left out and the rest close up in the same order.
+   */
+  static List<Seat> seats(AdaptPlayer adaptPlayer, PlayerRef player) {
+    SkillRegistry registry = adaptPlayer.getServer().getSkillRegistry();
+    PlayerData data = adaptPlayer.getData();
+    boolean debugMode = AdaptDebugMode.isActive(player);
+    boolean inactive = AdaptConfig.get().getGui().isShowInactiveSkills();
+    List<Skill<?>> roster = new ArrayList<>();
+    List<String> knownSkills = new ArrayList<>();
+    for (Skill<?> registered : registry.getSkills()) {
+      if (registered != null && registered.isEnabled() && registered.hasUsePermission(player, registered)) {
+        roster.add(registered);
+        knownSkills.add(registered.getName());
+      }
+    }
+    Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
+    roster.sort(Comparator.comparingInt((Skill<?> skill) -> GuiConfig.rankOf(configuredOrder, skill.getName()))
+        .thenComparing((Skill<?> skill) -> SkillMenus.sortKey(skill.getDisplayName()))
+        .thenComparing(Skill::getName, String.CASE_INSENSITIVE_ORDER));
+    List<Seat> seats = new ArrayList<>();
+    for (Skill<?> registered : roster) {
+      Skill<?> listed = SkillMutations.listedSkill(registry, data, registered);
+      if (listed == null) {
+        if (inactive) {
+          seats.add(Seat.EMPTY);
+        }
+        continue;
+      }
+      PlayerSkillLine line = resolveSkillLine(data, listed.getName(), debugMode, true);
+      int adaptationLevel = line == null ? 0 : sumAdaptationLevels(line);
+      boolean started = line != null && (debugMode || hasVisibleProgress(line, adaptationLevel));
+      if (started || inactive) {
+        seats.add(new Seat(listed, line, adaptationLevel, started));
+      }
+    }
+    return seats;
   }
 
   /** The skills the skills menu lists for {@code player}, in the menu's order. */
@@ -180,11 +272,15 @@ public class SkillsGui {
     boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
     List<SkillPageEntry> entries = new ArrayList<>();
     List<String> knownSkills = new ArrayList<>();
-    for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
+    for (Skill<?> registered : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
+      if (registered == null) {
+        continue;
+      }
+      knownSkills.add(registered.getName());
+      Skill<?> skill = SkillMutations.listedSkill(adaptPlayer.getServer().getSkillRegistry(), adaptPlayer.getData(), registered);
       if (skill == null) {
         continue;
       }
-      knownSkills.add(skill.getName());
       if (!skill.isEnabled()) {
         continue;
       }
@@ -209,6 +305,22 @@ public class SkillsGui {
             .thenComparing((SkillPageEntry entry) -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
     );
     return entries;
+  }
+
+  /** How the skill earns XP, under the guide's heading: a mutated skill's parents each under their name, then its rules. */
+  static void addGuideLore(GuiElement element, Skill<?> skill, SkillRegistry registry) {
+    XpGuideView guide = XpGuideViews.guide(registry, skill);
+    element.addLore(" ");
+    element.addLore(C.GOLD + XpGuideViews.title());
+    for (XpGuideView.Section section : guide.sections()) {
+      if (guide.mutated()) {
+        Skill<?> source = section.skillId().isEmpty() ? null : registry.getSkill(section.skillId());
+        element.addLore((source == null ? C.LIGHT_PURPLE.toString() : source.getColor().toString()) + section.title());
+      }
+      for (String line : section.lines()) {
+        element.addLore(C.GRAY + "- " + line);
+      }
+    }
   }
 
   static PlayerSkillLine resolveSkillLine(PlayerData data, String skillName, boolean debugMode, boolean showAll) {
@@ -322,5 +434,14 @@ public class SkillsGui {
 
   private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line,
                                 int adaptationLevel) {
+  }
+
+  /** One seat of the skills menu: its skill and whether the player started it, or no skill for a partner's empty slot. */
+  record Seat(Skill<?> skill, PlayerSkillLine line, int adaptationLevel, boolean started) {
+    static final Seat EMPTY = new Seat(null, null, 0, false);
+
+    boolean empty() {
+      return skill == null;
+    }
   }
 }

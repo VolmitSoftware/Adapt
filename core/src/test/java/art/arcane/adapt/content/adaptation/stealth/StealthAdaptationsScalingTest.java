@@ -91,8 +91,8 @@ class StealthAdaptationsScalingTest {
     assertThat(StealthAssassinate.computeHealthCap(22.0, 38.0, 1.0)).isEqualTo(60.0);
     assertThat(StealthAssassinate.computeCooldown(40000, 20000, 0.5)).isEqualTo(30000L);
     assertThat(StealthAssassinate.computeCooldown(1000, 20000, 1.0)).isEqualTo(8000L);
-    assertThat(StealthAssassinate.executionDamage(18.5D)).isEqualTo(18.5D);
-    assertThat(StealthAssassinate.executionDamage(-1D)).isZero();
+    assertThat(StealthExecution.executionDamage(18.5D)).isEqualTo(18.5D);
+    assertThat(StealthExecution.executionDamage(-1D)).isZero();
   }
 
   @Test
@@ -126,9 +126,9 @@ class StealthAdaptationsScalingTest {
     assertThat(StealthSmokePellet.gunpowderHand(false, Id.minecraft("gunpowder"), Id.minecraft("air"))).isNull();
     assertThat(StealthSmokePellet.isBlindable(mock(LivingRef.class))).isTrue();
     assertThat(StealthSmokePellet.isBlindable(mock(EntityRef.class))).isFalse();
-    assertThat(StealthSmokePellet.currentConcealmentLease(7L, 7L)).isTrue();
-    assertThat(StealthSmokePellet.currentConcealmentLease(8L, 7L)).isFalse();
-    assertThat(StealthSmokePellet.currentConcealmentLease(null, 7L)).isFalse();
+    assertThat(StealthSmoke.currentConcealmentLease(7L, 7L)).isTrue();
+    assertThat(StealthSmoke.currentConcealmentLease(8L, 7L)).isFalse();
+    assertThat(StealthSmoke.currentConcealmentLease(null, 7L)).isFalse();
   }
 
   @Test
@@ -217,17 +217,17 @@ class StealthAdaptationsScalingTest {
   void decoySwapAcceptsOnlyConfirmedTeleportCompletion() {
     RuntimeException failure = new RuntimeException("failed");
 
-    assertThat(StealthDecoySwap.teleportCompleted(true, null)).isTrue();
-    assertThat(StealthDecoySwap.teleportCompleted(false, null)).isFalse();
-    assertThat(StealthDecoySwap.teleportCompleted(null, null)).isFalse();
-    assertThat(StealthDecoySwap.teleportCompleted(true, failure)).isFalse();
+    assertThat(StealthSwap.teleportCompleted(true, null)).isTrue();
+    assertThat(StealthSwap.teleportCompleted(false, null)).isFalse();
+    assertThat(StealthSwap.teleportCompleted(null, null)).isFalse();
+    assertThat(StealthSwap.teleportCompleted(true, failure)).isFalse();
   }
 
   @Test
   void decoySwapStartsPlayerLegOnlyForCurrentRegisteredOperations() {
-    assertThat(StealthDecoySwap.canStartPlayerLeg(true, true)).isTrue();
-    assertThat(StealthDecoySwap.canStartPlayerLeg(false, true)).isFalse();
-    assertThat(StealthDecoySwap.canStartPlayerLeg(true, false)).isFalse();
+    assertThat(StealthSwap.canStartPlayerLeg(true, true)).isTrue();
+    assertThat(StealthSwap.canStartPlayerLeg(false, true)).isFalse();
+    assertThat(StealthSwap.canStartPlayerLeg(true, false)).isFalse();
   }
 
   @Test

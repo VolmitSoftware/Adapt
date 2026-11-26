@@ -43,7 +43,12 @@ import java.util.function.Predicate;
  */
 public final class FakeWorld implements WorldRef {
   private static final BlockStateRef AIR = FakeBlockState.of("air");
-  private static final Set<Id> THROWN = Set.of(Id.minecraft("ender_pearl"), Id.minecraft("snowball"), Id.minecraft("egg"));
+  private static final Set<Id> THROWN = Set.of(Id.minecraft("ender_pearl"), Id.minecraft("snowball"), Id.minecraft("egg"),
+      Id.minecraft("arrow"), Id.minecraft("spectral_arrow"));
+  private static final Set<String> BLOCK_ENTITY_TYPES = Set.of("chest", "trapped_chest", "ender_chest", "barrel", "spawner",
+      "trial_spawner", "vault", "hopper", "dispenser", "dropper", "furnace", "blast_furnace", "smoker", "brewing_stand",
+      "campfire", "soul_campfire", "beacon", "lectern", "jukebox", "beehive", "bee_nest", "chiseled_bookshelf",
+      "decorated_pot", "crafter", "enchanting_table", "end_portal", "end_gateway", "conduit", "bell");
 
   private final UUID uid = UUID.randomUUID();
   private final String name;
@@ -51,6 +56,7 @@ public final class FakeWorld implements WorldRef {
   private final Map<BlockPos, MemoryData> blockData = new HashMap<>();
   private final Map<BlockPos, MemoryData> blockEntityData = new HashMap<>();
   private final Map<BlockPos, InventoryRef> blockInventories = new HashMap<>();
+  private final Map<BlockPos, FakeContainer> containers = new HashMap<>();
   private final Map<BlockPos, String> blockEntityNames = new HashMap<>();
   private final Map<BlockPos, FakeBrewingStand> brewingStands = new HashMap<>();
   private final Map<BlockPos, FakeFurnace> furnaces = new HashMap<>();
@@ -63,6 +69,9 @@ public final class FakeWorld implements WorldRef {
   private final List<ChunkPos> generatedRequests = new ArrayList<>();
   private final Map<Id, Loc> nearestStructures = new HashMap<>();
   private Environment environment = Environment.NORMAL;
+  private boolean storm;
+  private boolean thundering;
+  private boolean rainFalls = true;
   private long seed;
   private long time;
   private Loc spawnLocation;
@@ -106,6 +115,9 @@ public final class FakeWorld implements WorldRef {
   }
 
   public void set(BlockPos pos, BlockStateRef state) {
+    if (state == null || !state.type().equals(stateAt(pos).type())) {
+      containers.remove(pos);
+    }
     if (state == null || state.isAir()) {
       blocks.remove(pos);
     } else {
@@ -131,6 +143,21 @@ public final class FakeWorld implements WorldRef {
 
   InventoryRef blockInventory(BlockPos pos) {
     return blockInventories.get(pos);
+  }
+
+  /** The slots of the container block at {@code pos}, kept until a different block replaces it; null for other blocks. */
+  FakeContainer container(BlockPos pos) {
+    int size = containerSize(stateAt(pos).type().path());
+    return size <= 0 ? null : containers.computeIfAbsent(pos, (BlockPos ignored) -> new FakeContainer(size));
+  }
+
+  private static int containerSize(String path) {
+    return switch (path) {
+      case "chest", "trapped_chest", "barrel" -> 27;
+      case "dispenser", "dropper", "crafter" -> 9;
+      case "hopper" -> 5;
+      default -> path.endsWith("shulker_box") ? 27 : 0;
+    };
   }
 
   /** Names the block entity at {@code pos}, as a renamed shulker box or chest keeps its custom name. */
@@ -257,7 +284,39 @@ public final class FakeWorld implements WorldRef {
 
   @Override
   public boolean hasStorm() {
-    return false;
+    return storm;
+  }
+
+  @Override
+  public boolean isThundering() {
+    return storm && thundering;
+  }
+
+  /** Starts or stops rain; {@code thunder} also makes it a thunderstorm. */
+  public FakeWorld weather(boolean rain, boolean thunder) {
+    storm = rain;
+    thundering = thunder;
+    return this;
+  }
+
+  /** False makes the whole world a biome where no rain falls (a desert, or snow in a cold biome). */
+  public FakeWorld rainFalls(boolean falls) {
+    rainFalls = falls;
+    return this;
+  }
+
+  @Override
+  public boolean isRainingAt(int x, int y, int z) {
+    if (!storm || !rainFalls) {
+      return false;
+    }
+    for (Map.Entry<BlockPos, BlockStateRef> block : blocks.entrySet()) {
+      BlockPos pos = block.getKey();
+      if (pos.x() == x && pos.z() == z && pos.y() >= y && !AIR.type().equals(block.getValue().type())) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -470,9 +529,27 @@ public final class FakeWorld implements WorldRef {
     return List.of();
   }
 
+  /**
+   * Blocks of a type that always carries a block entity in vanilla (containers, spawners, signs, shulker boxes...),
+   * plus any position given one through {@link #blockEntity} or {@link #blockInventory}.
+   */
   @Override
   public List<BlockRef> blockEntities(int chunkX, int chunkZ) {
-    return List.of();
+    List<BlockRef> found = new ArrayList<>();
+    for (Map.Entry<BlockPos, BlockStateRef> entry : blocks.entrySet()) {
+      BlockPos pos = entry.getKey();
+      if ((pos.x() >> 4) == chunkX && (pos.z() >> 4) == chunkZ
+          && (holdsBlockEntity(entry.getValue().type()) || blockEntityData.containsKey(pos) || blockInventories.containsKey(pos))) {
+        found.add(blockAt(pos.x(), pos.y(), pos.z()));
+      }
+    }
+    return found;
+  }
+
+  private static boolean holdsBlockEntity(Id type) {
+    String path = type.path();
+    return type.isMinecraft() && (BLOCK_ENTITY_TYPES.contains(path) || path.endsWith("shulker_box") || path.endsWith("_sign")
+        || path.endsWith("_banner") || path.endsWith("_bed") || path.endsWith("_head") || path.endsWith("_skull"));
   }
 
   @Override

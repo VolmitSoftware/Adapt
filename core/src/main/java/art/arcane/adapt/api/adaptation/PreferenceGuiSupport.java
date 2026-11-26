@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.fx.Sounds;
@@ -58,7 +59,7 @@ final class PreferenceGuiSupport {
     return viewer.isOnline() && window.isVisible()
         && AdaptCore.get().getAdaptServer().getSkillRegistry().getSkill(adaptation.getSkill().getName()) == adaptation.getSkill()
         && adaptation.isEnabled() && adaptation.getSkill().isEnabled()
-        && adaptation.getSkill().getAdaptations().contains(adaptation)
+        && Skill.owns(adaptation.getSkill(), adaptation)
         && adaptation.getSkill().hasUsePermission(viewer, adaptation.getSkill())
         && adaptation.hasUsePermission(viewer, adaptation);
   }

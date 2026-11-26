@@ -7,6 +7,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.SkillEnchanting;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
+import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.inventory.EnchantItemEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryAction;
@@ -134,6 +135,29 @@ class EnchantingRuntimeTest {
 
     assertEquals(Id.minecraft("diamond_sword"), player.inventory().item(0).type());
     assertNull(soulLink.getStorageString(player, "soul-link-pending", null));
+  }
+
+  @Test
+  void soulLinkStoresNothingWhenAnotherPluginKeepsTheInventoryLater() {
+    learn(EnchantingSoulLink.class, 5);
+    player.setLevel(30);
+    FakeItem marked = FakeItem.tool("diamond_sword", 1561).enchant("sharpness", 5);
+    marked.data().set(DataKey.adapt("soul-link-token", DataCodecs.STRING), "token-1");
+    EnchantingSoulLink soulLink = (EnchantingSoulLink) adaptation(EnchantingSoulLink.class);
+    soulLink.setStorage(player, "soul-link-token", "token-1");
+    player.inventory().setItem(0, marked);
+    adapt.bus().register(this, PlayerDeathEvent.class, EventPriority.HIGHEST,
+        (PlayerDeathEvent keep) -> keep.setKeepInventory(true));
+    List<ItemRef> drops = new ArrayList<>(List.of(marked.copy(), FakeItem.of("dirt")));
+
+    adapt.post(new PlayerDeathEvent(player, null, null, null, DamageCause.VOID, drops, 100, false, false, 0, 0, 0));
+    adapt.post(new PlayerRespawnEvent(player, player.location(), false, false));
+    platform.scheduler().advance(3);
+
+    assertNull(soulLink.getStorageString(player, "soul-link-pending", null));
+    assertEquals(1L, player.inventory().contents().stream()
+        .filter((ItemRef item) -> item.type().equals(Id.minecraft("diamond_sword"))).count());
+    assertEquals(30, player.level());
   }
 
   private Adaptation<?> adaptation(Class<? extends Adaptation<?>> type) {

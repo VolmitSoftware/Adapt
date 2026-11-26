@@ -29,6 +29,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.CombatXp;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationBurrow;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationClodHurler;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationDropToInventory;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationEarthMover;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
@@ -40,6 +41,15 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationSoftFall;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationBoon;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationFightStrike;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationFuel;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationState;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationTrigger;
+import art.arcane.adapt.content.adaptation.excavation.blocks.ExcavationWorkStrike;
+import art.arcane.adapt.content.adaptation.excavation.upgraded.DeepSight;
+import art.arcane.adapt.content.adaptation.excavation.upgraded.Gravekeeper;
+import art.arcane.adapt.content.adaptation.excavation.upgraded.Landshaper;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -61,7 +71,8 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillExcavation() {
-    super("excavation", SkillPresentation.of(SkillMessages.EXCAVATION_NAME, SkillMessages.EXCAVATION_ICON, SkillMessages.EXCAVATION_DESCRIPTION));
+    super("excavation", SkillPresentation.of(SkillMessages.EXCAVATION_NAME, SkillMessages.EXCAVATION_ICON, SkillMessages.EXCAVATION_DESCRIPTION,
+        SkillMessages.EXCAVATION_QUIP, SkillMessages.EXCAVATION_UNLOCK_QUIP_1, SkillMessages.EXCAVATION_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
     setInterval(5953);
@@ -78,6 +89,10 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     registerAdaptation(new ExcavationBurrow());
     registerAdaptation(new ExcavationGraveDigger());
     registerAdaptation(new ExcavationMudlark());
+    registerAdaptation(new ExcavationClodHurler());
+    registerUpgrades(new Landshaper(), new DeepSight(), new Gravekeeper());
+    registerBlocks(new ExcavationTrigger(), new ExcavationFightStrike(), new ExcavationWorkStrike(), new ExcavationBoon(),
+        new ExcavationFuel(), new ExcavationState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wooden_shovel")).key("challenge_excavate_1k")
         .model(CustomModel.get(Id.minecraft("wooden_shovel"), "advancement", "excavation", "challenge_excavate_1k"))

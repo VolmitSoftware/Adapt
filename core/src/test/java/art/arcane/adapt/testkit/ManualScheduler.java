@@ -24,6 +24,7 @@ public final class ManualScheduler implements AdaptScheduler {
   private long tick;
   private long sequence;
   private final Map<UUID, List<Long>> entityTaskDelays = new HashMap<>();
+  private final List<Loc> regionTaskLocations = new ArrayList<>();
   private boolean rejectEntityTasks;
   private volatile boolean regionized;
 
@@ -35,6 +36,11 @@ public final class ManualScheduler implements AdaptScheduler {
   /** Delays of every entity task requested for {@code entity}, in request order, accepted or not. */
   public synchronized List<Long> entityTaskDelays(EntityRef entity) {
     return List.copyOf(entityTaskDelays.getOrDefault(entity.uuid(), List.of()));
+  }
+
+  /** Locations of every region task requested so far, in request order. */
+  public synchronized List<Loc> regionTaskLocations() {
+    return List.copyOf(regionTaskLocations);
   }
 
   public synchronized long tick() {
@@ -164,6 +170,9 @@ public final class ManualScheduler implements AdaptScheduler {
 
   @Override
   public boolean runAt(Loc location, Runnable task, long delayTicks) {
+    synchronized (this) {
+      regionTaskLocations.add(location);
+    }
     return runOrSchedule(task, delayTicks);
   }
 

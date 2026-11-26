@@ -1,7 +1,6 @@
 package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -9,8 +8,6 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.util.common.scheduling.Tasks;
-
-import java.util.UUID;
 
 public final class CombatXp {
   private static final DataKey<Byte> GRAVE_MOB_KEY = DataKey.adapt("excavation_grave_mob", DataCodecs.BYTE);
@@ -22,8 +19,7 @@ public final class CombatXp {
     if (event.isCancelled() || !(event.entity() instanceof LivingRef victim)
         || !Tasks.isOwnedByCurrentRegion(victim) || victim.isDead() || victim.isInvulnerable()
         || victim.uuid().equals(player.uuid())
-        || MinionIdentity.isMinion(victim) || isGraveMob(victim)
-        || ownedBy(victim, player)) {
+        || !MobOrigin.paysKillReward(player, victim)) {
       return 0D;
     }
     return ledger.claim(skill, victim.uuid(), effectiveDamage(event.finalDamage(), victim.health()),
@@ -51,10 +47,5 @@ public final class CombatXp {
 
   public static boolean isGraveMob(EntityRef entity) {
     return entity.data().has(GRAVE_MOB_KEY);
-  }
-
-  private static boolean ownedBy(EntityRef victim, PlayerRef player) {
-    UUID owner = victim.tameOwner();
-    return owner != null && owner.equals(player.uuid());
   }
 }

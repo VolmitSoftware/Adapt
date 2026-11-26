@@ -15,13 +15,13 @@ import static org.mockito.Mockito.when;
 class DiscoveryArmorTest {
   @Test
   void preservesTheExistingArmorSampleVolume() {
-    assertThat(DiscoveryArmor.scanBlockCount()).isEqualTo(1331);
+    assertThat(WorldArmor.scanBlockCount()).isEqualTo(1331);
   }
 
   @Test
   void armorPointCalculationNormalizesInvalidAndNegativeResults() {
-    assertThat(DiscoveryArmor.computeArmorPoints(0D, 0D)).isZero();
-    assertThat(DiscoveryArmor.computeArmorPoints(6D, 1.5D)).isFinite().isPositive();
+    assertThat(WorldArmor.computeArmorPoints(0D, 0D)).isZero();
+    assertThat(WorldArmor.computeArmorPoints(6D, 1.5D)).isFinite().isPositive();
   }
 
   @Test
@@ -30,7 +30,7 @@ class DiscoveryArmorTest {
     Id item = Id.minecraft("stick");
     when(items.isBlock(item)).thenReturn(false);
 
-    assertThat(DiscoveryArmor.computeArmorPoints(item, items)).isZero();
+    assertThat(WorldArmor.computeArmorPoints(item, items)).isZero();
     verify(items, never()).blastResistance(item);
     verify(items, never()).blockHardness(item);
 
@@ -39,18 +39,18 @@ class DiscoveryArmorTest {
     when(items.blastResistance(block)).thenReturn(6F);
     when(items.blockHardness(block)).thenReturn(1.5F);
 
-    assertThat(DiscoveryArmor.computeArmorPoints(block, items))
-        .isEqualTo(DiscoveryArmor.computeArmorPoints(6D, 1.5D));
+    assertThat(WorldArmor.computeArmorPoints(block, items))
+        .isEqualTo(WorldArmor.computeArmorPoints(6D, 1.5D));
   }
 
   @Test
   void emptySamplesProduceNoArmor() {
-    assertThat(DiscoveryArmor.scaleArmor(0D, 0, 3)).isZero();
+    assertThat(WorldArmor.scaleArmor(0D, 0, 3)).isZero();
   }
 
   @Test
   void scaledArmorRetainsTheTenPointCap() {
-    assertThat(DiscoveryArmor.scaleArmor(1000D, 1, 3)).isEqualTo(10D);
+    assertThat(WorldArmor.scaleArmor(1000D, 1, 3)).isEqualTo(10D);
   }
 
   @Test
@@ -65,15 +65,15 @@ class DiscoveryArmorTest {
 
   @Test
   void lerpSeedFallsBackToZeroForMissingOrInvalidHistory() {
-    assertThat(DiscoveryArmor.lerpSeed(null)).isZero();
-    assertThat(DiscoveryArmor.lerpSeed(Double.NaN)).isZero();
-    assertThat(DiscoveryArmor.lerpSeed(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(WorldArmor.lerpSeed(null)).isZero();
+    assertThat(WorldArmor.lerpSeed(Double.NaN)).isZero();
+    assertThat(WorldArmor.lerpSeed(Double.POSITIVE_INFINITY)).isZero();
   }
 
   @Test
   void lerpSeedPreservesFiniteHistory() {
-    assertThat(DiscoveryArmor.lerpSeed(4.5D)).isEqualTo(4.5D);
-    assertThat(DiscoveryArmor.lerpSeed(0D)).isZero();
+    assertThat(WorldArmor.lerpSeed(4.5D)).isEqualTo(4.5D);
+    assertThat(WorldArmor.lerpSeed(0D)).isZero();
   }
 
   @Test

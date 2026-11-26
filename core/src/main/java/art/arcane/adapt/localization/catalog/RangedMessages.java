@@ -122,6 +122,25 @@ public final class RangedMessages {
   public static final TextKey HEARTSEEKER_LORE3 = TextKey.of("ranged.heartseeker.lore3", "Piercing and Ricochet Bolt bounce capacity add seeking passes");
   public static final LinesKey HEARTSEEKER_LORE = LinesKey.of("ranged.heartseeker.lore", "Draw a bow while looking at a creature to lock on", "Bow cooldown after a seeking shot", "Piercing and Ricochet Bolt bounce capacity add seeking passes");
 
+  public static final TextKey STORMSHOT_LORE1 = TextKey.of("upgrade.ranged.stormshot.lore1", "Extra Arrow Speed");
+  public static final TextKey STORMSHOT_LORE2 = TextKey.of("upgrade.ranged.stormshot.lore2", "Extra Arrow Damage");
+  public static final TextKey STORMSHOT_LORE3 = TextKey.of("upgrade.ranged.stormshot.lore3", "Targets Pierced");
+  public static final TextKey HUNTERS_WEB_LORE1 = TextKey.of("upgrade.ranged.hunters_web.lore1", "Cage Duration");
+  public static final TextKey HUNTERS_WEB_LORE2 = TextKey.of("upgrade.ranged.hunters_web.lore2", "Lift Strength");
+  public static final TextKey HUNTERS_WEB_LORE3 = TextKey.of("upgrade.ranged.hunters_web.lore3", "Time Before Recaging a Target");
+  public static final TextKey TRUEFLIGHT_LORE1 = TextKey.of("upgrade.ranged.trueflight.lore1", "Lock Range");
+  public static final TextKey TRUEFLIGHT_LORE2 = TextKey.of("upgrade.ranged.trueflight.lore2", "Bounce Search Radius");
+  public static final TextKey TRUEFLIGHT_LORE3 = TextKey.of("upgrade.ranged.trueflight.lore3", "Bounced Hit Bonus Damage");
+  public static final TextKey STORMSHOT_LORE4 = TextKey.of("upgrade.ranged.stormshot.lore4", "Hits Returned to the Quiver");
+  public static final TextKey STORMSHOT_LORE5 = TextKey.of("upgrade.ranged.stormshot.lore5", "Quiver Capacity");
+  public static final TextKey TRUEFLIGHT_LORE4 = TextKey.of("upgrade.ranged.trueflight.lore4", "Volley Locks");
+  public static final TextKey TRUEFLIGHT_LORE5 = TextKey.of("upgrade.ranged.trueflight.lore5", "Volley Cooldown");
+  public static final TextKey QUIVER_NAME = TextKey.of("tool.ranged.quiver.name", "Quiver");
+  public static final TextKey QUIVER_ARROWS = TextKey.of("tool.ranged.quiver.arrows", "Arrows");
+  public static final TextKey QUIVER_SPECTRAL_ARROWS = TextKey.of("tool.ranged.quiver.spectral_arrows", "Spectral Arrows");
+  public static final TextKey SNARE_ARROW_NAME = TextKey.of("tool.ranged.snare_arrow.name", "Snare Arrow");
+  public static final TextKey RICOCHET_ARROW_NAME = TextKey.of("tool.ranged.ricochet_arrow.name", "Ricochet Arrow");
+
   private RangedMessages() {
   }
 
@@ -190,5 +209,23 @@ public final class RangedMessages {
     builder.add(HEARTSEEKER_LORE2);
     builder.add(HEARTSEEKER_LORE3);
     builder.add(HEARTSEEKER_LORE);
+    builder.add(STORMSHOT_LORE1);
+    builder.add(STORMSHOT_LORE2);
+    builder.add(STORMSHOT_LORE3);
+    builder.add(HUNTERS_WEB_LORE1);
+    builder.add(HUNTERS_WEB_LORE2);
+    builder.add(HUNTERS_WEB_LORE3);
+    builder.add(TRUEFLIGHT_LORE1);
+    builder.add(TRUEFLIGHT_LORE2);
+    builder.add(TRUEFLIGHT_LORE3);
+    builder.add(STORMSHOT_LORE4);
+    builder.add(STORMSHOT_LORE5);
+    builder.add(TRUEFLIGHT_LORE4);
+    builder.add(TRUEFLIGHT_LORE5);
+    builder.add(QUIVER_NAME);
+    builder.add(QUIVER_ARROWS);
+    builder.add(QUIVER_SPECTRAL_ARROWS);
+    builder.add(SNARE_ARROW_NAME);
+    builder.add(RICOCHET_ARROW_NAME);
   }
 }

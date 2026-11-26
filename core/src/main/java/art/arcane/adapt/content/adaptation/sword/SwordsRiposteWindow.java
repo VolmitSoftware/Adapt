@@ -130,13 +130,22 @@ public class SwordsRiposteWindow extends SimpleAdaptation<SwordsRiposteWindow.Co
     }
   }
 
+  /** Whether the defender is blocking with a shield in either hand. */
+  public static boolean shieldBlocking(PlayerRef defender) {
+    return defender.isBlocking() && (SHIELD.equals(defender.inventory().offHand().type())
+        || SHIELD.equals(defender.inventory().mainHand().type()));
+  }
+
+  /** Whether a blocked hit on {@code defender} arms this riposte, so no other riposte arms on the same block. */
+  public boolean arms(PlayerRef defender) {
+    return getActiveLevel(defender) > 0 && shieldBlocking(defender);
+  }
+
   private void armRiposte(PlayerRef defender) {
-    boolean hasShield = SHIELD.equals(defender.inventory().offHand().type())
-        || SHIELD.equals(defender.inventory().mainHand().type());
-    int level = getActiveLevel(defender);
-    if (level <= 0 || !defender.isBlocking() || !hasShield) {
+    if (!arms(defender)) {
       return;
     }
+    int level = getActiveLevel(defender);
 
     long now = System.currentTimeMillis();
     riposteUntil.put(defender.uuid(), now + getWindowMillis(level));

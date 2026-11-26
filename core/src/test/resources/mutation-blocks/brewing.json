@@ -1,0 +1,13 @@
+{
+  "skill": "brewing",
+  "behaviourTest": "BrewingBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "BrewingTrigger", "handles": ["LingeringPotionSplashEvent", "PlayerItemConsumeEvent", "PotionSplashEvent"], "reuses": ["SkillBrewing"]},
+    {"slot": "STRIKE_FIGHT", "class": "BrewingFightStrike", "handles": [], "reuses": ["BrewingDoses"]},
+    {"slot": "STRIKE_WORK", "class": "BrewingWorkStrike", "handles": [], "reuses": ["BrewingDoses"]},
+    {"slot": "BOON", "class": "BrewingBoon", "handles": [], "reuses": []},
+    {"slot": "FUEL", "class": "BrewingFuel", "handles": [], "reuses": ["BrewingDoses"]},
+    {"slot": "STATE", "class": "BrewingState", "handles": ["PlayerItemConsumeEvent"], "reuses": ["SkillBrewing", "BrewingDoses"]}
+  ],
+  "unavailableOn": {}
+}

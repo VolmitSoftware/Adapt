@@ -25,16 +25,13 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.support.PlatformNeed;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -44,14 +41,11 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.volmlib.util.math.M;
 
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
-  private static final Set<Id> DEEPSLATE_BLOCKS = Set.of(
+  public static final Set<Id> DEEPSLATE_BLOCKS = Set.of(
       Id.minecraft("deepslate"), Id.minecraft("cobbled_deepslate"), Id.minecraft("polished_deepslate"),
       Id.minecraft("deepslate_bricks"), Id.minecraft("deepslate_tiles"),
       Id.minecraft("deepslate_coal_ore"), Id.minecraft("deepslate_copper_ore"),
@@ -59,10 +53,7 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
       Id.minecraft("deepslate_redstone_ore"), Id.minecraft("deepslate_lapis_ore"),
       Id.minecraft("deepslate_diamond_ore"), Id.minecraft("deepslate_emerald_ore"));
 
-  private static final String HASTE_SLOT = "haste";
-  private static final long MILLIS_PER_TICK = 50L;
-
-  private final Map<UUID, Long> hasteExpiresAt = playerState();
+  private final PickaxeMiningBoost haste = new PickaxeMiningBoost(this, "haste", Attributes.BLOCK_BREAK_SPEED, playerState());
 
   public PickaxeDeepCore() {
     super("pickaxe-deep-core");
@@ -120,13 +111,7 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
     }
 
     int amplifier = getAmplifier(context.level());
-    long now = M.ms();
-    boolean onset = hasteExpiresAt.getOrDefault(p.uuid(), 0L) <= now;
-    AdaptAttributeService.get().applyTimed(p, getName(), HASTE_SLOT, Attributes.BLOCK_BREAK_SPEED,
-        hasteMultiplier(amplifier), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
-    hasteExpiresAt.put(p.uuid(), now + durationTicks * MILLIS_PER_TICK);
-    AbilityGlyphs.duration(p.uuid(), this, now, durationTicks * MILLIS_PER_TICK);
-    if (onset) {
+    if (haste.surge(p, hasteMultiplier(amplifier), durationTicks)) {
       fx(p.eyeLocation(), FxPriority.TRANSITION)
           .particle(Particles.CRIT, 4, 0, 0.3, 0, 0.2, 0.05)
           .particle(Particles.ELECTRIC_SPARK, 3, 0, 0.3, 0, 0.2, 0.03)

@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -126,8 +125,7 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
     }
 
     BlockRef block = e.block();
-    float hardness = AdaptCore.platform().host().items().blockHardness(block.type());
-    if (hardness < 0 || hardness > getConfig().softBlockMaxHardness) {
+    if (!UnarmedFists.isSoftBlock(block, getConfig().softBlockMaxHardness)) {
       return;
     }
 

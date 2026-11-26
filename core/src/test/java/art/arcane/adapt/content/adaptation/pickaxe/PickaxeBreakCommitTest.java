@@ -19,8 +19,8 @@ class PickaxeBreakCommitTest {
       "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeAutosmelt.java");
   private static final Path SILK_SPAWNER_SOURCE = Path.of(
       "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeSilkSpawner.java");
-  private static final Path REPAIR_RHYTHM_SOURCE = Path.of(
-      "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeRepairRhythm.java");
+  private static final Path REPAIR_SOURCE = Path.of(
+      "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeRepair.java");
 
   @Test
   void autosmeltRunsOnlyFromThePostCommitDropEvent() throws Exception {
@@ -31,7 +31,7 @@ class PickaxeBreakCommitTest {
     assertThat(annotation.priority()).isEqualTo(EventPriority.MONITOR);
 
     String source = Files.readString(AUTOSMELT_SOURCE);
-    int replacementStart = source.indexOf("private static boolean replaceRawDrops");
+    int replacementStart = source.indexOf("public static boolean replaceRawDrops");
     int replacementEnd = source.indexOf("static Id getIngotFor");
     String replacement = source.substring(replacementStart, replacementEnd);
     assertThat(source)
@@ -98,13 +98,13 @@ class PickaxeBreakCommitTest {
     assertThat(commitAnnotation.priority()).isEqualTo(EventPriority.HIGHEST);
     assertThat(commitAnnotation.ignoreCancelled()).isFalse();
 
-    String source = Files.readString(REPAIR_RHYTHM_SOURCE);
+    String source = Files.readString(REPAIR_SOURCE);
     assertThat(source)
         .contains(
             "pendingRepairs.put(playerId, pending);",
             "Tasks.runEntity(p, () -> applyDeferredRepair(p, playerId, pending), 1);",
             "e.setCancelled(true);",
-            "completeRepair(p, restored);"
+            "onRepaired.accept(p, restored);"
         );
   }
 

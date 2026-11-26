@@ -163,6 +163,8 @@ public final class Sounds {
   public static final Id ENTITY_ITEM_FRAME_ROTATE_ITEM = Id.minecraft("entity.item_frame.rotate_item");
   public static final Id ENTITY_ITEM_PICKUP = Id.minecraft("entity.item.pickup");
   public static final Id ENTITY_MOOSHROOM_MILK = Id.minecraft("entity.mooshroom.milk");
+  public static final Id ENTITY_LIGHTNING_BOLT_IMPACT = Id.minecraft("entity.lightning_bolt.impact");
+  public static final Id ENTITY_LIGHTNING_BOLT_THUNDER = Id.minecraft("entity.lightning_bolt.thunder");
   public static final Id ENTITY_PHANTOM_FLAP = Id.minecraft("entity.phantom.flap");
   public static final Id ENTITY_PIGLIN_ADMIRING_ITEM = Id.minecraft("entity.piglin.admiring_item");
   public static final Id ENTITY_PLAYER_ATTACK_CRIT = Id.minecraft("entity.player.attack.crit");
@@ -236,6 +238,7 @@ public final class Sounds {
   public static final Id ITEM_TRIDENT_RIPTIDE_1 = Id.minecraft("item.trident.riptide_1");
   public static final Id ITEM_TRIDENT_RIPTIDE_2 = Id.minecraft("item.trident.riptide_2");
   public static final Id ITEM_TRIDENT_THROW = Id.minecraft("item.trident.throw");
+  public static final Id ITEM_TRIDENT_THUNDER = Id.minecraft("item.trident.thunder");
   public static final Id PARTICLE_SOUL_ESCAPE = Id.minecraft("particle.soul_escape");
   public static final Id UI_BUTTON_CLICK = Id.minecraft("ui.button.click");
   public static final Id UI_TOAST_CHALLENGE_COMPLETE = Id.minecraft("ui.toast.challenge_complete");

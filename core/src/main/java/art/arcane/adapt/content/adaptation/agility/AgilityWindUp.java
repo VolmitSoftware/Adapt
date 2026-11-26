@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
@@ -26,8 +27,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -35,7 +35,6 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
@@ -57,15 +56,13 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
   public static final PlayerPreference<CommonPreferences.Scale> SPEED = CommonPreferences.scale("speed", AgilityMessages.AGILITYWINDUP_PREFERENCE_SPEED);
 
-  private static final String SLOT_WINDUP = "windup";
   private static final double DEFAULT_WALK_SPEED = 0.2D;
-  private final Map<UUID, RuntimeState> states = playerState();
+  private final AgilityRunRamp runRamp = new AgilityRunRamp(this, playerState(),
+      (PlayerRef player, double ticks) -> addStat(player, "agility.wind-up.max-speed-ticks", ticks));
 
   public AgilityWindUp() {
     super("agility-wind-up");
@@ -185,184 +182,36 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       return;
     }
 
-    if (!sprinting && states.isEmpty()) {
+    if (!sprinting && !runRamp.tracking(p.uuid())) {
       return;
     }
-
-    UUID id = p.uuid();
-    RuntimeState state = states.get(id);
-    if (state == null && !sprinting) {
-      return;
-    }
-    if (!sprinting || !isWindupEligible(p) || !hasActiveAdaptation(p)) {
-      if (state != null) {
-        clearBoost(p, state);
-        states.remove(id, state);
-      }
+    if (!sprinting || !AgilityRunRamp.eligible(p, false) || !hasActiveAdaptation(p)) {
+      runRamp.clear(p);
       return;
     }
 
     double factor = getLevelPercent(p);
     if (factor <= 0) {
-      if (state != null) {
-        clearBoost(p, state);
-        states.remove(id, state);
-      }
+      runRamp.clear(p);
       return;
     }
 
-    if (state == null) {
-      state = new RuntimeState();
-      states.put(id, state);
-    }
-    long now = System.currentTimeMillis();
-    double elapsedTicks = elapsedTicks(state.lastUpdateAt, now);
-    state.lastUpdateAt = now;
-    if (elapsedTicks <= 0D) {
-      return;
-    }
-    state.runningTicks += elapsedTicks;
-
-    double ticksToMax = Math.max(1D, getWindupTicks(factor));
-    double progress = Math.min(M.lerpInverse(0, ticksToMax, state.runningTicks), 1);
-    double speedIncrease = M.lerp(0, getWindupSpeed(factor), progress);
-    applyBoost(p, state, speedIncrease, elapsedTicks);
-    emitChargeFeedback(p, state, progress);
-
-    if (progress >= 1.0 && isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
-      addStat(p, "agility.wind-up.max-speed-ticks", elapsedTicks);
-      if (M.r(0.25)) {
-        Vec3 back = p.velocity();
-        fx(p, FxPriority.TRAIL).trail(Particles.SOUL_FIRE_FLAME, -back.x(), 0.05D, -back.z(), 0.8D, 1);
-      }
-    }
-  }
-
-  private void emitChargeFeedback(PlayerRef p, RuntimeState state, double progress) {
-    int bracket = (int) Math.floor(progress / 0.25D);
-    if (bracket <= state.lastBracket) {
-      return;
-    }
-
-    state.lastBracket = bracket;
-    if (progress >= 1.0D) {
-      if (state.ignited) {
-        return;
-      }
-
-      state.ignited = true;
-      Vec3 back = p.velocity();
-      fx(p, FxPriority.GAMEPLAY)
-          .trail(Particles.FLAME, -back.x(), 0.1D, -back.z(), 1.2D, 6)
-          .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.3F, 0.7F, Sounds.BLOCK_FIRE_AMBIENT, 0.4F, 1.4F);
-      return;
-    }
-
-    if (bracket < 1) {
-      return;
-    }
-
-    fx(p.location(), FxPriority.GAMEPLAY)
-        .ring(Particles.CLOUD, 1.1D - (bracket * 0.23D), 8, 0.1D)
-        .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.4F, 0.6F + (bracket * 0.2F));
-  }
-
-  private void applyBoost(PlayerRef p, RuntimeState state, double speedIncrease, double elapsedTicks) {
-    if (!state.boosting) {
-      state.boosting = true;
-      state.currentBonus = 0D;
-    }
-
-    double target = targetBonus(speedIncrease, getConfig().walkSpeedBonusScalar, getConfig().maxWalkSpeed) * preference(p, SPEED).multiplier();
-    float smoothing = elapsedSmoothing(getConfig().walkSpeedLerpPerTick, elapsedTicks);
-    double next = smoothedBonus(state.currentBonus, target, smoothing);
-    if (Math.abs(state.currentBonus - next) > 0.0005D) {
-      state.currentBonus = next;
-      AdaptAttributeService.get().apply(p, getName(), SLOT_WINDUP, Attributes.MOVEMENT_SPEED, next, AttributeOperation.ADD_MULTIPLIED_TOTAL);
-    }
-  }
-
-  private void clearBoost(PlayerRef p, RuntimeState state) {
-    if (!state.boosting) {
-      return;
-    }
-
-    boolean wasCharged = state.lastBracket >= 1;
-    state.boosting = false;
-    state.lastBracket = 0;
-    state.ignited = false;
-    state.currentBonus = 0D;
-    AdaptAttributeService.get().remove(p, getName(), SLOT_WINDUP, Attributes.MOVEMENT_SPEED);
-
-    if (wasCharged) {
-      fx(p.location(), FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 3, 0.1D)
-          .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
-    }
+    double speedMultiplier = preference(p, SPEED).multiplier();
+    double windupSpeed = getWindupSpeed(factor);
+    runRamp.update(p, new AgilityRunRamp.Ramp(getWindupTicks(factor), true,
+        (double progress) -> targetBonus(M.lerp(0, windupSpeed, progress), getConfig().walkSpeedBonusScalar,
+            getConfig().maxWalkSpeed) * speedMultiplier,
+        getConfig().walkSpeedLerpPerTick, getConfig().movementVelocityThreshold), System.currentTimeMillis());
   }
 
   private void clearAndRemoveState(PlayerRef p) {
-    if (p == null) {
-      return;
-    }
-
-    UUID id = p.uuid();
-    RuntimeState state = states.remove(id);
-    if (state != null) {
-      clearBoost(p, state);
-    }
-  }
-
-  private boolean isMovingHorizontally(PlayerRef p, double velocityThreshold) {
-    Vec3 velocity = p.velocity();
-    double threshold = Math.max(0D, velocityThreshold);
-    return (velocity.x() * velocity.x()) + (velocity.z() * velocity.z()) > (threshold * threshold);
-  }
-
-  private boolean isWindupEligible(PlayerRef p) {
-    GameMode mode = p.gameMode();
-    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      return false;
-    }
-
-    return !p.isDead()
-        && !p.isSwimming()
-        && !p.isFlying()
-        && !p.isGliding()
-        && !p.isSneaking()
-        && p.vehicle() == null;
+    runRamp.clear(p);
   }
 
   static double targetBonus(double speedIncrease, double bonusScalar, double maxWalkSpeed) {
     double target = Math.max(0D, speedIncrease) * Math.max(0D, bonusScalar);
     double cap = Math.max(0D, (Math.max(0D, maxWalkSpeed) / DEFAULT_WALK_SPEED) - 1D);
     return Math.min(target, cap);
-  }
-
-  static double smoothedBonus(double currentBonus, double target, float smoothing) {
-    double next = currentBonus + ((target - currentBonus) * smoothing);
-    if (Math.abs(target - next) < 0.0025D) {
-      return target;
-    }
-    return next;
-  }
-
-  static double elapsedTicks(long previousUpdateAt, long now) {
-    if (previousUpdateAt <= 0L) {
-      return 1D;
-    }
-    if (now <= previousUpdateAt) {
-      return 0D;
-    }
-    return Math.min(20D, (now - previousUpdateAt) / 50D);
-  }
-
-  static float elapsedSmoothing(double perTickSmoothing, double elapsedTicks) {
-    double clamped = Math.max(0D, Math.min(1D, perTickSmoothing));
-    if (clamped <= 0D || elapsedTicks <= 0D) {
-      return 0F;
-    }
-    return (float) (1D - Math.pow(1D - clamped, elapsedTicks));
   }
 
 
@@ -392,13 +241,28 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
     }
   }
 
-  private static class RuntimeState {
-    private long lastUpdateAt;
-    private double runningTicks;
-    private boolean boosting;
-    private double currentBonus;
-    private int lastBracket;
-    private boolean ignited;
+
+  static void fullSpeedTrailFx(Adaptation<?> owner, PlayerRef p) {
+    Vec3 back = p.velocity();
+    Fx.now(owner, p, FxPriority.TRAIL).trail(Particles.SOUL_FIRE_FLAME, -back.x(), 0.05D, -back.z(), 0.8D, 1);
   }
 
+  static void igniteFx(Adaptation<?> owner, PlayerRef p) {
+    Vec3 back = p.velocity();
+    Fx.now(owner, p, FxPriority.GAMEPLAY)
+        .trail(Particles.FLAME, -back.x(), 0.1D, -back.z(), 1.2D, 6)
+        .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.3F, 0.7F, Sounds.BLOCK_FIRE_AMBIENT, 0.4F, 1.4F);
+  }
+
+  static void chargeFx(Adaptation<?> owner, PlayerRef p, int bracket) {
+    Fx.now(owner, p.location(), FxPriority.GAMEPLAY)
+        .ring(Particles.CLOUD, 1.1D - (bracket * 0.23D), 8, 0.1D)
+        .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.4F, 0.6F + (bracket * 0.2F));
+  }
+
+  static void winddownFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.1D)
+        .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
+  }
 }

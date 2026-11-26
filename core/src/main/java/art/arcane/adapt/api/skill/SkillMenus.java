@@ -8,18 +8,22 @@ import art.arcane.volmlib.util.format.ColorFormatter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /** What a skill's menu shows a player, shared by the chest menu and the client screens. */
 public final class SkillMenus {
+  private static final Pattern LEADING_SYMBOLS = Pattern.compile("^[^\\p{L}\\p{N}]+");
+
   private SkillMenus() {
   }
 
   /**
    * The adaptations the skill's page shows {@code player}: enabled, permitted ones, row by row in the configured order,
-   * then by plain display name. Display names follow the current language audience.
+   * then by the plain name the page shows. Names follow the current language audience.
    */
   public static List<List<Adaptation<?>>> adaptationRows(Skill<?> skill, PlayerRef player) {
     List<Adaptation<?>> visible = new ArrayList<>();
@@ -34,10 +38,12 @@ public final class SkillMenus {
       }
       visible.add(adaptation);
     }
+    Map<Adaptation<?>, String> sortKeys = new IdentityHashMap<>();
     Map<String, Integer> configuredOrder = GuiConfig.adaptationOrder(skill.getName(), known);
     Comparator<Adaptation<?>> defaultOrder =
         Comparator.comparingInt((Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()))
-            .thenComparing((Adaptation<?> adaptation) -> sortKey(adaptation.getDisplayName()))
+            .thenComparing((Adaptation<?> adaptation) ->
+                sortKeys.computeIfAbsent(adaptation, (Adaptation<?> key) -> sortKey(key.getShortName())))
             .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER);
     return GuiGroupLayout.arrange(
         visible,
@@ -54,6 +60,6 @@ public final class SkillMenus {
       return "";
     }
     String normalized = ColorFormatter.stripColor(value).toLowerCase(Locale.ROOT).trim();
-    return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
+    return LEADING_SYMBOLS.matcher(normalized).replaceFirst("");
   }
 }

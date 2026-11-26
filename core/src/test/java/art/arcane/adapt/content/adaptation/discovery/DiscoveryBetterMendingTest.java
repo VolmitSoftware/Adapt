@@ -31,7 +31,7 @@ class DiscoveryBetterMendingTest {
     when(experience.totalExperiencePoints(player)).thenReturn(25);
     AdaptPorts.install(ComponentPort.class, experience);
 
-    assertThat(DiscoveryBetterMending.spendExperiencePoints(player, 7)).isTrue();
+    assertThat(XpMending.spendExperiencePoints(player, 7)).isTrue();
     verify(experience).setExperiencePoints(player, 18);
   }
 
@@ -42,9 +42,9 @@ class DiscoveryBetterMendingTest {
     when(experience.totalExperiencePoints(player)).thenReturn(6);
     AdaptPorts.install(ComponentPort.class, experience);
 
-    assertThat(DiscoveryBetterMending.spendExperiencePoints(player, 7)).isFalse();
-    assertThat(DiscoveryBetterMending.spendExperiencePoints(player, 0)).isFalse();
-    assertThat(DiscoveryBetterMending.spendExperiencePoints(null, 1)).isFalse();
+    assertThat(XpMending.spendExperiencePoints(player, 7)).isFalse();
+    assertThat(XpMending.spendExperiencePoints(player, 0)).isFalse();
+    assertThat(XpMending.spendExperiencePoints(null, 1)).isFalse();
     verify(experience, never()).setExperiencePoints(any(PlayerRef.class), anyInt());
   }
 
@@ -54,7 +54,7 @@ class DiscoveryBetterMendingTest {
     player.setLevel(2);
     player.setExpProgress(9F / 11F);
 
-    assertThat(DiscoveryBetterMending.spendExperiencePoints(player, 7)).isTrue();
+    assertThat(XpMending.spendExperiencePoints(player, 7)).isTrue();
     assertThat(player.level()).isEqualTo(2);
     assertThat(player.expProgress()).isCloseTo(2F / 11F, within(1.0E-6F));
   }

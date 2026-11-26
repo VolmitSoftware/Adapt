@@ -32,6 +32,7 @@ import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.misc.ItemLooks;
 import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -76,7 +77,10 @@ public class ExperienceOrb implements DataBoundItem<ExperienceOrb.Data> {
 
   @Override
   public ItemRef blank() {
-    return model().toItemStack();
+    CustomModel model = model();
+    ItemRef item = model.toItemStack();
+    ItemLooks.applyUnlessCustom(item, "experience-orb", model);
+    return item;
   }
 
   @Override

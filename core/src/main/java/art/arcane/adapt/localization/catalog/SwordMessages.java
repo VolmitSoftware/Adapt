@@ -140,6 +140,27 @@ public final class SwordMessages {
   public static final TextKey HEIRLOOM_EDGE_LORE3 = TextKey.of("sword.heirloom_edge.lore3", "Banked Damage Cap");
   public static final LinesKey HEIRLOOM_EDGE_LORE = LinesKey.of("sword.heirloom_edge.lore", "Damage Per Bank", "Kills Per Bank", "Banked Damage Cap");
 
+  public static final TextKey WITHERBLADE_LORE1 = TextKey.of("upgrade.swords.witherblade.lore1", "Wither and Bleed Duration");
+  public static final TextKey WITHERBLADE_LORE2 = TextKey.of("upgrade.swords.witherblade.lore2", "Bleed Damage per Pulse");
+  public static final TextKey WITHERBLADE_LORE3 = TextKey.of("upgrade.swords.witherblade.lore3", "Cooldown");
+  public static final TextKey WITHERBLADE_OVERCHARGE = TextKey.of("upgrade.swords.witherblade.overcharge", "Overcharged Wither Duration");
+  public static final TextKey TEMPEST_FLOW_LORE1 = TextKey.of("upgrade.swords.tempest_flow.lore1", "Stacks to Release the Slash");
+  public static final TextKey TEMPEST_FLOW_LORE2 = TextKey.of("upgrade.swords.tempest_flow.lore2", "Slash Damage");
+  public static final TextKey TEMPEST_FLOW_LORE3 = TextKey.of("upgrade.swords.tempest_flow.lore3", "Slash Radius");
+  public static final TextKey DUELISTS_VERDICT_LORE1 = TextKey.of("upgrade.swords.duelists_verdict.lore1", "Bonus Damage in a Duel");
+  public static final TextKey DUELISTS_VERDICT_LORE2 = TextKey.of("upgrade.swords.duelists_verdict.lore2", "Less Damage Taken in a Duel");
+  public static final TextKey DUELISTS_VERDICT_LORE3 = TextKey.of("upgrade.swords.duelists_verdict.lore3", "Finishing Bonus under 30% Health");
+  public static final TextKey DUELISTS_VERDICT_LORE4 = TextKey.of("upgrade.swords.duelists_verdict.lore4", "Awakened Blade Damage Cap");
+  public static final TextKey DUELISTS_VERDICT_LORE5 = TextKey.of("upgrade.swords.duelists_verdict.lore5", "Kills for Riposte, Lunge and Verdict");
+  public static final TextKey DUELISTS_VERDICT_BLADE = TextKey.of("upgrade.swords.duelists_verdict.blade", "Awakened Blade: {kills} kills");
+  public static final TextKey TEMPEST_FLOW_LORE4 = TextKey.of("upgrade.swords.tempest_flow.lore4", "Serrated Bleed per Pulse");
+  public static final TextKey TEMPEST_FLOW_LORE5 = TextKey.of("upgrade.swords.tempest_flow.lore5", "Weighted Stagger");
+  public static final TextKey TEMPEST_FLOW_LORE6 = TextKey.of("upgrade.swords.tempest_flow.lore6", "Keen Critical Bonus");
+  public static final TextKey WHETSTONE_NAME = TextKey.of("tool.swords.whetstone.name", "Whetstone");
+  public static final TextKey WHETSTONE_SERRATED = TextKey.of("tool.swords.whetstone.serrated", "Serrated");
+  public static final TextKey WHETSTONE_WEIGHTED = TextKey.of("tool.swords.whetstone.weighted", "Weighted");
+  public static final TextKey WHETSTONE_KEEN = TextKey.of("tool.swords.whetstone.keen", "Keen");
+
   private SwordMessages() {
   }
 
@@ -220,5 +241,25 @@ public final class SwordMessages {
     builder.add(HEIRLOOM_EDGE_LORE2);
     builder.add(HEIRLOOM_EDGE_LORE3);
     builder.add(HEIRLOOM_EDGE_LORE);
+    builder.add(WITHERBLADE_LORE1);
+    builder.add(WITHERBLADE_LORE2);
+    builder.add(WITHERBLADE_LORE3);
+    builder.add(WITHERBLADE_OVERCHARGE);
+    builder.add(TEMPEST_FLOW_LORE1);
+    builder.add(TEMPEST_FLOW_LORE2);
+    builder.add(TEMPEST_FLOW_LORE3);
+    builder.add(DUELISTS_VERDICT_LORE1);
+    builder.add(DUELISTS_VERDICT_LORE2);
+    builder.add(DUELISTS_VERDICT_LORE3);
+    builder.add(DUELISTS_VERDICT_LORE4);
+    builder.add(DUELISTS_VERDICT_LORE5);
+    builder.add(DUELISTS_VERDICT_BLADE);
+    builder.add(TEMPEST_FLOW_LORE4);
+    builder.add(TEMPEST_FLOW_LORE5);
+    builder.add(TEMPEST_FLOW_LORE6);
+    builder.add(WHETSTONE_NAME);
+    builder.add(WHETSTONE_SERRATED);
+    builder.add(WHETSTONE_WEIGHTED);
+    builder.add(WHETSTONE_KEEN);
   }
 }

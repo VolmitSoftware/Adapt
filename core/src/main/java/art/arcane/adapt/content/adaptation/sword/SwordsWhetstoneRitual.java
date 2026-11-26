@@ -51,6 +51,8 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitual.Config> {
   private static final Rgb SPARK = Rgb.of(0xFFE08A);
@@ -58,6 +60,7 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
   private static final double STRENGTH_DAMAGE_PER_TIER = 3.0D;
   private static final Id GRINDSTONE = Id.minecraft("grindstone");
   private final Cooldowns ritualCooldown = cooldowns();
+  private final Map<UUID, Long> sharpUntil = playerState();
 
   public SwordsWhetstoneRitual() {
     super("sword-whetstone-ritual");
@@ -156,12 +159,18 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     p.giveExpLevels(-xpCost);
     ritualCooldown.mark(p.uuid(), (long) getConfig().cooldownMillis);
 
+    sharpUntil.put(p.uuid(), System.currentTimeMillis() + (duration * 50L));
     AdaptAttributeService.get().applyTimed(p, getName(), SHARP_SLOT, Attributes.ATTACK_DAMAGE, sharpnessDamage(getBuffStrength(level)), AttributeOperation.ADD_VALUE, duration);
     AbilityGlyphs.duration(p.uuid(), this, System.currentTimeMillis(), duration * 50L);
 
     ritualFx(p, level);
     xp(p, getConfig().skillXpOnRitual);
     addStat(p, "swords.whetstone-ritual.rituals", 1);
+  }
+
+  /** Whether the player's ritual sharpness is still running. */
+  public boolean sharpened(PlayerRef p) {
+    return sharpUntil.getOrDefault(p.uuid(), 0L) > System.currentTimeMillis();
   }
 
   private void ritualFx(PlayerRef p, int level) {

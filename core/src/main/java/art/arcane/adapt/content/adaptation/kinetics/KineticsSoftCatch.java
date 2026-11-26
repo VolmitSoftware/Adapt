@@ -1,8 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -14,6 +16,7 @@ import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -26,6 +29,7 @@ import java.util.UUID;
 public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config> {
   private final Map<UUID, Boolean> airborne = playerState();
   private final Map<UUID, Long> lastBounceAtMs = playerState();
+  private final KineticsCushion cushion = new KineticsCushion(this, "kinetics:soft-catch");
 
   public KineticsSoftCatch() {
     super("kinetics-soft-catch");
@@ -76,21 +80,8 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
         return;
       }
 
-      double before = e.damage();
-      double after = reducedDamage(before, getReduction(level));
-      double prevented = before - after;
-      if (prevented <= 0D) {
-        return;
-      }
-
-      e.setDamage(after);
-      fx(p.location(), FxPriority.TRANSITION)
-          .particle(Particles.CLOUD, 6, 0, 0.1D, 0, 0.3D, 0.02D)
-          .sound(Sounds.BLOCK_WOOL_FALL, 0.6F, 1.1F);
-      double reward = rewardXp(prevented, getConfig().xpPerDamagePrevented, getConfig().xpPerEventCap);
-      if (reward > 0D) {
-        xp(p, p.location(), reward, "kinetics:soft-catch");
-      }
+      cushion.soften(p, e, new KineticsCushion.Softening(getReduction(level),
+          getConfig().xpPerDamagePrevented, getConfig().xpPerEventCap));
     });
   }
 
@@ -102,7 +93,7 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
     return graceTicks > 0 && nowMs - lastBounceAtMs <= graceTicks * 50L;
   }
 
-  static double reduction(double base, double factor, double levelPercent) {
+  public static double reduction(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (!Double.isFinite(value)) {
       return 0D;
@@ -110,7 +101,7 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
     return Math.min(1D, Math.max(0D, value));
   }
 
-  static double reducedDamage(double damage, double reduction) {
+  public static double reducedDamage(double damage, double reduction) {
     if (!Double.isFinite(damage) || damage <= 0D) {
       return 0D;
     }
@@ -119,7 +110,7 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
     return Math.max(0D, damage * (1D - clamped));
   }
 
-  static double rewardXp(double preventedDamage, double xpPerDamage, double cap) {
+  public static double rewardXp(double preventedDamage, double xpPerDamage, double cap) {
     if (!Double.isFinite(preventedDamage) || !Double.isFinite(xpPerDamage) || !Double.isFinite(cap)
         || preventedDamage <= 0D || xpPerDamage <= 0D || cap <= 0D) {
       return 0D;
@@ -143,6 +134,12 @@ public class KineticsSoftCatch extends SimpleAdaptation<KineticsSoftCatch.Config
 
   private double getReduction(int level) {
     return reduction(getConfig().reductionBase, getConfig().reductionFactor, getLevelPercent(level));
+  }
+
+  public static void cushionFx(Adaptation<?> owner, Loc at) {
+    Fx.now(owner, at, FxPriority.TRANSITION)
+        .particle(Particles.CLOUD, 6, 0, 0.1D, 0, 0.3D, 0.02D)
+        .sound(Sounds.BLOCK_WOOL_FALL, 0.6F, 1.1F);
   }
 
   @ConfigDescription("Soft and springy blocks break your fall, and a fresh bounce grants a grace window.")

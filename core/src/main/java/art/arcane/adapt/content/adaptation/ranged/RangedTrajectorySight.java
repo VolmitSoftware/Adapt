@@ -615,6 +615,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private EntityRef renderTrajectory(PlayerRef p, int segments, ShotPreview shot) {
+    TrajectoryInk ink = ink(p);
     Loc eye = p.eyeLocation();
     Vec3 launchDirection = eye.direction().normalize();
     Loc current = eye.add(launchDirection.multiply(getConfig().previewStartOffset));
@@ -657,7 +658,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         current = Loc.of(world, entityHit.position());
 
         if (areParticlesEnabled()) {
-          drawImpactMarker(p, eye, current, stepDirection, new Rgb(255, 90, 90), minDistanceSq);
+          ink.impact(eye, current, stepDirection, new Rgb(255, 90, 90), minDistanceSq);
         }
         break;
       }
@@ -665,7 +666,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       if (hit != null) {
         current = Loc.of(world, hit.position());
         if (areParticlesEnabled()) {
-          drawImpactMarker(p, eye, current, stepDirection, new Rgb(255, 236, 128), minDistanceSq);
+          ink.impact(eye, current, stepDirection, new Rgb(255, 236, 128), minDistanceSq);
         }
 
         RicochetPreview ricochet = shot.ricochetPreview();
@@ -688,8 +689,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
           ricochets++;
           if (areParticlesEnabled() && preferenceEnabled(p, RangedPreferences.IMPACT)) {
             if (eye.distanceSquared(current) >= minDistanceSq) {
-              float bounceSize = getScaledParticleSize(eye.distance(current), 1.15D);
-              viewerDust(p, current, new Rgb(170, 200, 255), bounceSize, Math.max(1, getConfig().impactParticleCount), 0.02D);
+              float bounceSize = ink.size(eye.distance(current), 1.15D);
+              ink.dust(current, new Rgb(170, 200, 255), bounceSize, Math.max(1, getConfig().impactParticleCount), 0.02D);
             }
           }
           continue;
@@ -700,7 +701,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
 
       current = current.add(step);
       if (areParticlesEnabled()) {
-        dotCarry = drawDottedSegment(p, eye, from, current, trailColor, minDistanceSq, spacing, dotCarry);
+        dotCarry = ink.dotted(eye, from, current, trailColor, minDistanceSq, spacing, dotCarry);
       }
 
       velocity = velocity.multiply(shot.profile().dragFactor());
@@ -708,72 +709,27 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     if (areParticlesEnabled() && preferenceEnabled(p, RangedPreferences.IMPACT) && eye.distanceSquared(current) >= minDistanceSq) {
-      float tipSize = getScaledParticleSize(eye.distance(current), 1.2D);
-      viewerDust(p, current, new Rgb(255, 236, 128), tipSize, 1, 0.0D);
+      float tipSize = ink.size(eye.distance(current), 1.2D);
+      ink.dust(current, new Rgb(255, 236, 128), tipSize, 1, 0.0D);
     }
     return hitEntity;
   }
 
-  private static void viewerDust(PlayerRef viewer, Loc at, Rgb color, float size, int count, double spread) {
+  static void viewerDust(PlayerRef viewer, Loc at, Rgb color, float size, int count, double spread) {
     FxHost fx = AdaptCore.platform().fx();
     fx.particle(viewer, Particles.dust(color, size), at.x(), at.y(), at.z(), count, spread, spread, spread, 0.0D, false);
   }
 
-  private double drawDottedSegment(PlayerRef p, Loc eye, Loc from, Loc to, Rgb color, double minDistanceSq, double spacing, double carry) {
-    if (!preferenceEnabled(p, RangedPreferences.TRAIL)) {
-      return carry;
-    }
-    Vec3 delta = to.position().subtract(from.position());
-    double length = delta.length();
-    if (length <= EPSILON) {
-      return carry;
-    }
-
-    Vec3 direction = delta.multiply(1D / length);
-    double placed = -1;
-    for (double d = spacing - carry; d <= length; d += spacing) {
-      placed = d;
-      Loc point = from.add(direction.multiply(d));
-      if (eye.distanceSquared(point) < minDistanceSq) {
-        continue;
-      }
-
-      float size = getScaledParticleSize(eye.distance(point), 1D);
-      viewerDust(p, point, color, size, 1, 0.0D);
-    }
-
-    return placed < 0 ? carry + length : length - placed;
+  public TrajectoryInk.Style inkStyle() {
+    Config config = getConfig();
+    return new TrajectoryInk.Style(config.particleSize, config.particleSizePerBlock, config.maxParticleSize,
+        config.impactParticleCount, config.impactRingRadius, config.minPreviewDistanceFromEye,
+        config.previewPointSpacing, config.previewStartOffset);
   }
 
-  private void drawImpactMarker(PlayerRef p, Loc eye, Loc impact, Vec3 incoming, Rgb color, double minDistanceSq) {
-    if (!preferenceEnabled(p, RangedPreferences.IMPACT)) {
-      return;
-    }
-    if (eye.distanceSquared(impact) < minDistanceSq) {
-      return;
-    }
-
-    float size = getScaledParticleSize(eye.distance(impact), 1.2D);
-    viewerDust(p, impact, color, (float) Math.min(getConfig().maxParticleSize, size * 1.25D),
-        Math.max(1, getConfig().impactParticleCount), 0.02D);
-
-    Vec3 normal = incoming.lengthSquared() <= EPSILON ? new Vec3(0, 1, 0) : incoming.normalize();
-    Vec3 seed = Math.abs(normal.y()) > 0.9 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
-    Vec3 u = normal.cross(seed);
-    if (u.lengthSquared() <= EPSILON) {
-      u = new Vec3(1, 0, 0);
-    }
-    u = u.normalize();
-    Vec3 v = normal.cross(u).normalize();
-    double radius = Math.max(0.1, getConfig().impactRingRadius);
-    float ringSize = size * 0.8F;
-    for (int i = 0; i < 8; i++) {
-      double angle = (Math.PI * 2D * i) / 8D;
-      Loc point = impact
-          .add(u.multiply(Math.cos(angle) * radius))
-          .add(v.multiply(Math.sin(angle) * radius));
-      viewerDust(p, point, color, ringSize, 1, 0.0D);
-    }
+  private TrajectoryInk ink(PlayerRef p) {
+    return new TrajectoryInk(p, inkStyle(), preferenceEnabled(p, RangedPreferences.TRAIL),
+        preferenceEnabled(p, RangedPreferences.IMPACT));
   }
 
   private void renderSeekingTrajectory(PlayerRef p, int segments, Vec3 initialVelocity, SeekingTargetSnapshot target) {
@@ -786,82 +742,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return;
     }
 
-    Loc eye = p.eyeLocation();
-    Loc current = eye.add(eye.direction().normalize().multiply(getConfig().previewStartOffset));
-    Vec3 dir = initialVelocity;
-    if (dir.lengthSquared() <= EPSILON) {
-      return;
-    }
-
-    RangedHeartseeker.Config seekerConfig = heartseeker.getConfig();
-    double speed = HeartseekerFlightMath.seekSpeed(dir.length());
-    dir = dir.normalize();
-    Vec3 arcOrigin = current.position();
-    Vec3 arcLaunchDirection = dir;
-    double arcTraveled = 0D;
-    double minDistanceSq = Math.max(0, getConfig().minPreviewDistanceFromEye);
-    minDistanceSq *= minDistanceSq;
-    double spacing = Math.max(0.25, getConfig().previewPointSpacing);
-    double dotCarry = 0;
-    Rgb seekColor = new Rgb(255, 60, 80);
-    int steps = Math.min(80, Math.max(24, segments * 2));
-    WorldRef world = p.world();
-
-    boolean arcActive = true;
-    for (int i = 0; i < steps; i++) {
-      Vec3 toTarget = target.point().position().subtract(current.position());
-      double distance = toTarget.length();
-      if (distance <= Math.max(0.9D, speed * 0.75D)) {
-        drawImpactMarker(p, eye, current.add(toTarget), dir, seekColor, minDistanceSq);
-        return;
-      }
-
-      Vec3 directDesired = toTarget.multiply(1D / distance);
-      boolean initialArcActive = HeartseekerFlightMath.initialArcContinues(arcActive, arcTraveled,
-          Math.max(2D, seekerConfig.initialArcDistance), distance, Math.max(1D, seekerConfig.lungeRadius));
-      arcActive = initialArcActive;
-      Vec3 desired = initialArcActive
-          ? HeartseekerFlightMath.quadraticArcGuidance(
-              arcOrigin,
-              arcLaunchDirection,
-              target.point().position(),
-              arcTraveled,
-              Math.max(1D, seekerConfig.initialArcControlDistance),
-              Math.max(2D, seekerConfig.initialArcDistance)
-          )
-          : directDesired;
-      double turnDegrees = !initialArcActive
-          && distance <= Math.max(1D, seekerConfig.lungeRadius)
-          ? seekerConfig.lungeTurnDegreesPerTick
-          : seekerConfig.turnDegreesPerTick;
-      dir = HeartseekerFlightMath.turnTowards(
-          dir,
-          desired,
-          Math.toRadians(Math.max(1D, Math.min(90D, turnDegrees)))
-      );
-
-      double stepLength = Math.min(speed, distance);
-      if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
-        return;
-      }
-      if (world.rayTraceBlock(current.position(), dir, stepLength, false) != null) {
-        Vec3 lifted = dir.add(new Vec3(0, 0.9, 0)).normalize();
-        if (!RUNTIME_BUDGET.tryAcquireRayTrace()) {
-          return;
-        }
-        if (world.rayTraceBlock(current.position(), lifted, stepLength, false) == null) {
-          dir = lifted;
-        } else {
-          drawImpactMarker(p, eye, current, dir, seekColor, minDistanceSq);
-          return;
-        }
-      }
-
-      Loc from = current;
-      current = current.add(dir.multiply(stepLength));
-      arcTraveled += stepLength;
-      dotCarry = drawDottedSegment(p, eye, from, current, seekColor, minDistanceSq, spacing, dotCarry);
-    }
+    ink(p).seekingPath(segments, initialVelocity, target.point(), HeartseekerGuidance.Arc.of(heartseeker.getConfig()),
+        RUNTIME_BUDGET::tryAcquireRayTrace);
   }
 
   private LivingRef resolveSeekingTarget(PlayerRef p, PreviewContext context) {
@@ -1019,13 +901,6 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         && incomingVelocity.lengthSquared() >= ricochet.minRicochetVelocitySquared();
   }
 
-  private float getScaledParticleSize(double distance, double multiplier) {
-    double size = getConfig().particleSize + (Math.max(0D, distance) * getConfig().particleSizePerBlock);
-    size *= multiplier;
-    size = Math.max(0.05D, Math.min(getConfig().maxParticleSize, size));
-    return (float) size;
-  }
-
   private boolean isEntityFirstHit(Loc from, BlockHit blockHit, RayHit entityHit) {
     if (entityHit == null || entityHit.entity() == null) {
       return false;
@@ -1126,8 +1001,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         || launchType.equals(EGG));
   }
 
-  private boolean isDrawingBow(PlayerRef p, ItemRef main) {
-    if (!isItem(main)) {
+  /** Whether the player is drawing the bow or crossbow in {@code main}. */
+  public static boolean isDrawingBow(PlayerRef p, ItemRef main) {
+    if (main == null || main.type().isAir()) {
       return false;
     }
 
@@ -1141,7 +1017,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     }
 
     ItemRef active = p.activeItem();
-    return active != null && isItem(active) && active.type().equals(type);
+    return active != null && !active.type().isAir() && active.type().equals(type);
   }
 
   private boolean isSneakProjectile(ItemRef item) {

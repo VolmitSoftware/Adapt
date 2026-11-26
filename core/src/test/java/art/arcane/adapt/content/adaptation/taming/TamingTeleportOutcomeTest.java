@@ -7,9 +7,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TamingTeleportOutcomeTest {
   @Test
   void beastRecallCommitsOnlyConfirmedTeleportSuccess() {
-    assertThat(TamingBeastRecall.successfulRecallTeleport(true, null)).isTrue();
-    assertThat(TamingBeastRecall.successfulRecallTeleport(false, null)).isFalse();
-    assertThat(TamingBeastRecall.successfulRecallTeleport(null, null)).isFalse();
-    assertThat(TamingBeastRecall.successfulRecallTeleport(true, new IllegalStateException())).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(true, null)).isTrue();
+    assertThat(TameRecall.successfulRecallTeleport(false, null)).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(null, null)).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(true, new IllegalStateException())).isFalse();
   }
 }

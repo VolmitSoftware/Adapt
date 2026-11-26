@@ -64,6 +64,31 @@ public sealed interface ClientFrame {
   record PanelClosed(int sessionId) implements ClientFrame {
   }
 
+  /** Asks the server to start a mutation led by {@code skillId}; only under {@link ClientProtocol#MUTATE}. */
+  record Mutate(String skillId) implements ClientFrame {
+    public Mutate {
+      Objects.requireNonNull(skillId, "skillId");
+    }
+  }
+
+  /**
+   * Asks for the spread of {@code lead} with {@code partner} (empty for none), or with {@code confirm} to merge them;
+   * the server checks every rule again. Only under {@link ClientProtocol#MUTATE_SPREAD}.
+   */
+  record MutationRequest(String lead, String partner, boolean confirm) implements ClientFrame {
+    public MutationRequest {
+      Objects.requireNonNull(lead, "lead");
+      Objects.requireNonNull(partner, "partner");
+    }
+  }
+
+  /** Asks the server to undo the mutation {@code skillId} names; only under {@link ClientProtocol#UNMUTATE}. */
+  record Unmutate(String skillId) implements ClientFrame {
+    public Unmutate {
+      Objects.requireNonNull(skillId, "skillId");
+    }
+  }
+
   /** The jump key went down or up, for servers before 1.21.2 that receive no player input packet. */
   record JumpKey(boolean down) implements ClientFrame {
   }

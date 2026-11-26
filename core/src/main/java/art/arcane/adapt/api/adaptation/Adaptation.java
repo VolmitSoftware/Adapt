@@ -77,7 +77,7 @@ public interface Adaptation<T> extends Ticked, Component {
   default boolean isPlayerEnabled(PlayerRef player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
     return adaptPlayer != null && adaptPlayer.isRuntimeReady()
-        && PlayerPreferences.isEnabled(this, adaptPlayer.getData(), getLevel(adaptPlayer));
+        && PlayerPreferences.isEnabled(this, adaptPlayer.getData(), PlayerPreferences.editLevel(this, adaptPlayer));
   }
 
   default void onPlayerPreferencesChanged(AdaptPlayer player) {
@@ -109,6 +109,11 @@ public interface Adaptation<T> extends Ticked, Component {
     return List.of();
   }
 
+  /** How much of {@code amount} this adaptation may still pay {@code p}; upgrades cap it, blocks pay none. */
+  default double payableXp(PlayerRef p, double amount) {
+    return amount;
+  }
+
   /**
    * Grants adaptation-attributed xp to a player.
    */
@@ -124,8 +129,12 @@ public interface Adaptation<T> extends Ticked, Component {
     if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
+    double payable = payableXp(p, amount);
+    if (payable <= 0D) {
+      return;
+    }
     double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
-    getSkill().xp(p, amount + baseline, adaptationRewardKey(rewardKey));
+    getSkill().xp(p, payable + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**
@@ -143,8 +152,12 @@ public interface Adaptation<T> extends Ticked, Component {
     if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
+    double payable = payableXp(p, amount);
+    if (payable <= 0D) {
+      return;
+    }
     double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
-    getSkill().xp(p, l, amount + baseline, adaptationRewardKey(rewardKey));
+    getSkill().xp(p, l, payable + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**
@@ -154,8 +167,12 @@ public interface Adaptation<T> extends Ticked, Component {
     if (!isPlayerEnabled(p) || !Double.isFinite(amount) || amount <= 0D) {
       return;
     }
+    double payable = payableXp(p, amount);
+    if (payable <= 0D) {
+      return;
+    }
     double baseline = AdaptationRuntimeGuards.claimUsageBaselineXp(this, p, getLevel(p));
-    getSkill().xpSilent(p, amount + baseline, adaptationRewardKey(rewardKey));
+    getSkill().xpSilent(p, payable + baseline, adaptationRewardKey(rewardKey));
   }
 
   /**
@@ -439,6 +456,11 @@ public interface Adaptation<T> extends Ticked, Component {
    * Adds per-level stat lines to GUI elements.
    */
   void addStats(int level, StatLines v);
+
+  /** Every stat line shown for {@code level}: {@link #addStats} plus anything this kind of adaptation appends. */
+  default void addLevelStats(int level, StatLines v) {
+    addStats(level, v);
+  }
 
   /**
    * @return base upgrade cost.
@@ -836,6 +858,13 @@ public interface Adaptation<T> extends Ticked, Component {
   }
 
   /**
+   * The level a player who mutated this adaptation's skill keeps it at, free, while no upgrade fuses it.
+   */
+  default int getKeptLevel() {
+    return 1;
+  }
+
+  /**
    * Ownership check only (learned level > 0), without runtime gating.
    */
   default boolean hasAdaptation(PlayerRef p) {
@@ -905,8 +934,15 @@ public interface Adaptation<T> extends Ticked, Component {
    * Cost for purchasing exactly this level step.
    */
   default int getCostFor(int level) {
-    double scaledCost = Math.max(1D, getBaseCost() + (getBaseCost() * (level * getCostFactor())));
-    double totalCost = scaledCost + (level == 1 ? getInitialCost() : 0);
+    return costFor(getBaseCost(), getInitialCost(), getCostFactor(), level);
+  }
+
+  /**
+   * Knowledge for exactly this level step of any priced ability, adaptation or not.
+   */
+  static int costFor(int baseCost, int initialCost, double costFactor, int level) {
+    double scaledCost = Math.max(1D, baseCost + (baseCost * (level * costFactor)));
+    double totalCost = scaledCost + (level == 1 ? initialCost : 0);
     if (!Double.isFinite(totalCost) || totalCost >= Integer.MAX_VALUE) {
       return Integer.MAX_VALUE;
     }
@@ -979,6 +1015,21 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   default String getDisplayName(int level) {
     return AdaptationGuiSupport.getDisplayName(this, level);
+  }
+
+  /**
+   * The name on its own skill's pages, where the skill is already named: the display name unless the adaptation has a
+   * short name that leaves out the skill it repeats.
+   */
+  default String getShortName() {
+    return getDisplayName();
+  }
+
+  /**
+   * The short name with level suffix.
+   */
+  default String getShortName(int level) {
+    return AdaptationGuiSupport.getShortName(this, level);
   }
 
   /**

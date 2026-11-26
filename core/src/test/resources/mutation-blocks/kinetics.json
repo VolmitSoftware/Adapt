@@ -1,0 +1,13 @@
+{
+  "skill": "kinetics",
+  "behaviourTest": "KineticsBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "KineticsTrigger", "handles": ["EntityDamageEvent"], "reuses": ["KineticsWindburst"]},
+    {"slot": "STRIKE_FIGHT", "class": "KineticsFightStrike", "handles": [], "reuses": ["KineticsWindburst"]},
+    {"slot": "STRIKE_WORK", "class": "KineticsWorkStrike", "handles": ["PlayerJumpEvent"], "reuses": ["KineticsJumpBoost", "KineticsMoonJump", "AdaptAttributeService"]},
+    {"slot": "BOON", "class": "KineticsBoon", "handles": [], "reuses": []},
+    {"slot": "FUEL", "class": "KineticsFuel", "handles": [], "reuses": ["KineticsSoftCatch"]},
+    {"slot": "STATE", "class": "KineticsState", "handles": ["PlayerMoveEvent"], "reuses": ["KineticsLandingWatch"]}
+  ],
+  "unavailableOn": {}
+}

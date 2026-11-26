@@ -1,0 +1,13 @@
+{
+  "skill": "golemancy",
+  "behaviourTest": "GolemancyBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "GolemancyTrigger", "handles": ["GolemTaskDoneEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "GolemancyFightStrike", "handles": [], "reuses": ["OwnedGolems", "GolemCombat", "GolemancyRuntime"]},
+    {"slot": "STRIKE_WORK", "class": "GolemancyWorkStrike", "handles": [], "reuses": ["OwnedGolems", "HerbalismGrowables", "HerbalismHarvest", "TreeBlocks", "KeenEyeScan"]},
+    {"slot": "BOON", "class": "GolemancyBoon", "handles": [], "reuses": ["GolemWorkSpeed", "OwnedGolems"]},
+    {"slot": "FUEL", "class": "GolemancyFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "GolemancyState", "handles": [], "reuses": ["OwnedGolems"]}
+  ],
+  "unavailableOn": {}
+}

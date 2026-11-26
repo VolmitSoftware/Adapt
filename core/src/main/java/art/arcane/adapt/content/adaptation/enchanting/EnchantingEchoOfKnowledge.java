@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -29,32 +28,24 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerExpChangeEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOfKnowledge.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", EnchantingMessages.PREFERENCE_ENCHANTINGECHOOFKNOWLEDGE_SNEAK, CommonPreferences.Toggle.OFF);
 
-  private static final DataKey<Integer> CHARGE_KEY = DataKey.adapt("echo-charge", DataCodecs.INT);
-  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
   private final Cooldowns chargeThrottle = cooldowns();
 
   public EnchantingEchoOfKnowledge() {
@@ -116,30 +107,20 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
 
     book = book.copy();
     int gain = Math.max(1, (int) Math.round(e.amount() * getChargeRate(level)));
-    int threshold = Math.max(1, getConfig().chargeThreshold);
-    int charge = book.data().getOrDefault(CHARGE_KEY, 0) + gain;
+    EnchantingEchoes.Charge charge = EnchantingEchoes.charge(book, gain, Math.max(1, getConfig().chargeThreshold));
+    if (!charge.changed()) {
+      return;
+    }
 
-    Id upgradeable = findUpgradeable(book.storedEnchantments());
-    if (charge >= threshold && upgradeable != null) {
-      int current = book.storedEnchantments().get(upgradeable);
-      book.removeStoredEnchantment(upgradeable);
-      book.setStoredEnchantment(upgradeable, Math.min(maxLevel(upgradeable), current + 1));
-      book.data().set(CHARGE_KEY, charge - threshold);
-      p.inventory().setMainHand(book);
+    p.inventory().setMainHand(book);
+    if (charge.upgraded() != null) {
       addStat(p, "enchanting.echo-of-knowledge.levels-charged", 1);
       xp(p, getConfig().skillXpOnUpgrade);
-      AdaptHud.actionBar(p, C.LIGHT_PURPLE + "+1 " + upgradeable.path().replace('_', ' ')
-          + C.GRAY + " " + AdaptLanguage.text(EnchantingMessages.ECHO_OF_KNOWLEDGE_UPGRADED));
+      EnchantingEchoes.announce(p, charge.upgraded());
       upgradeFx(p);
       return;
     }
 
-    if (upgradeable == null) {
-      return;
-    }
-
-    book.data().set(CHARGE_KEY, Math.min(charge, threshold));
-    p.inventory().setMainHand(book);
     UUID id = p.uuid();
     if (chargeThrottle.isReady(id, 400L)) {
       chargeThrottle.mark(id);
@@ -151,23 +132,10 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
 
   private boolean isChargeableBook(ItemRef item) {
     return isItem(item)
-        && item.type().equals(ENCHANTED_BOOK)
+        && item.type().equals(EnchantingBooks.ENCHANTED_BOOK)
         && !item.storedEnchantments().isEmpty();
   }
 
-  private Id findUpgradeable(Map<Id, Integer> stored) {
-    for (Map.Entry<Id, Integer> entry : stored.entrySet()) {
-      if (entry.getValue() < maxLevel(entry.getKey())) {
-        return entry.getKey();
-      }
-    }
-
-    return null;
-  }
-
-  private static int maxLevel(Id enchantment) {
-    return AdaptCore.platform().host().registries().enchantmentMaxLevel(enchantment);
-  }
 
   private void upgradeFx(PlayerRef p) {
     timeline(p)
@@ -187,7 +155,6 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
         })
         .start();
   }
-
 
   @ConfigDescription("Hold an enchanted book while collecting XP to charge it and upgrade an enchantment within vanilla caps.")
   protected static class Config extends AdaptationConfig {

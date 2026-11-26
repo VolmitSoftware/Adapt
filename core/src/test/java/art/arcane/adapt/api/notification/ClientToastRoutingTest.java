@@ -65,8 +65,33 @@ class ClientToastRoutingTest {
     knowledgeNotification().play(target);
 
     assertThat(link.frames()).containsExactly(new ServerFrame.Toast(ToastKind.KNOWLEDGE, IconRef.item("minecraft:book"),
-        MarkupPort.current().legacy("§7+3 Mining Knowledge"), ""));
+        MarkupPort.current().legacy("§7+3 Mining Knowledge"), "", ""));
     verify(platform.advancements(), never()).toast(any(), any(), anyString(), any());
+  }
+
+  @Test
+  void onlyAClientThatReadsSkillToastsGetsTheSkill() {
+    link.grant(PLAYER_ID, ClientProtocol.TOASTS | ClientProtocol.SKILL_TOASTS);
+    knowledgeNotification().play(target);
+    link.grant(PLAYER_ID, ClientProtocol.TOASTS);
+    knowledgeNotification().play(target);
+
+    String title = MarkupPort.current().legacy("§7+3 Mining Knowledge");
+    assertThat(link.frames()).containsExactly(
+        new ServerFrame.Toast(ToastKind.KNOWLEDGE, IconRef.item("minecraft:book"), title, "", "pickaxe"),
+        new ServerFrame.Toast(ToastKind.KNOWLEDGE, IconRef.item("minecraft:book"), title, "", ""));
+  }
+
+  @Test
+  void aSignatureReachesAnOlderClientAsAnUnlock() {
+    ServerFrame.Toast signature = ClientToasts.toast(ToastKind.SIGNATURE, IconRef.item("minecraft:bow"), "Called Shot", "",
+        "mutated-ranged-stealth");
+    link.grant(PLAYER_ID, ClientProtocol.TOASTS);
+
+    ClientToasts.send(PLAYER_ID, signature);
+
+    assertThat(link.frames()).containsExactly(new ServerFrame.Toast(ToastKind.UNLOCK, IconRef.item("minecraft:bow"),
+        "Called Shot", "", ""));
   }
 
   @Test
@@ -87,7 +112,7 @@ class ClientToastRoutingTest {
   @Test
   void queuedToastFallsBackToVanillaForPlayersWithoutToasts() {
     ServerFrame.Toast toast = ClientToasts.toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:iron_pickaxe"),
-        "§bMining 12", "");
+        "§bMining 12", "", "");
     List<AdaptPlayer> fallbackPlays = new ArrayList<>();
     Notification fallback = new Notification() {
       @Override
@@ -119,6 +144,7 @@ class ClientToastRoutingTest {
   private static AdvancementNotification knowledgeNotification() {
     return AdvancementNotification.builder()
         .kind(ToastKind.KNOWLEDGE)
+        .skill("pickaxe")
         .icon(Id.minecraft("book"))
         .title("§7+3 Mining Knowledge")
         .build();

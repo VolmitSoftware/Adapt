@@ -30,8 +30,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.entity.EquipmentSlot;
-import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -44,7 +42,6 @@ import art.arcane.volmlib.util.format.Form;
 import java.util.List;
 
 public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShieldbearersResolve.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
   private static final Id RESISTANCE = Id.minecraft("resistance");
 
   public BlockingShieldbearersResolve() {
@@ -80,20 +77,13 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.entity() instanceof PlayerRef p) || !p.isBlocking()) {
+    PlayerRef p = BlockingAxeBlows.defender(this, e);
+    if (p == null) {
       return;
     }
 
     int level = getActiveLevel(p);
     if (level <= 0) {
-      return;
-    }
-
-    if (!(e.damager() instanceof LivingRef attacker)) {
-      return;
-    }
-
-    if (!isAxe(attacker.equipment(EquipmentSlot.MAIN_HAND))) {
       return;
     }
 
@@ -111,7 +101,7 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
       return;
     }
 
-    int cooldown = p.cooldownTicks(SHIELD);
+    int cooldown = BlockingAxeBlows.disabledTicks(p);
     if (cooldown <= 0) {
       return;
     }
@@ -125,7 +115,7 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
     int reduced = (int) Math.round(cooldown * (1.0D - getRecoverySpeed(level)));
     reduced = Math.max(getConfig().minCooldownTicks, reduced);
     if (reduced < cooldown && preferenceEnabled(p, BlockingPreferences.RECOVERY)) {
-      p.setCooldown(SHIELD, reduced);
+      p.setCooldown(BlockingShields.SHIELD, reduced);
     }
 
     int resistanceTicks = Math.max(getConfig().minResistanceTicks, Math.min(cooldown, reduced));

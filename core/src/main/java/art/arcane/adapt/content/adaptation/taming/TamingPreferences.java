@@ -16,47 +16,47 @@ import java.util.List;
 import java.util.Set;
 
 public final class TamingPreferences {
-  static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed", key("speed", "Speed bonus"));
-  static final PlayerPreference<CommonPreferences.Toggle> VISUALS = CommonPreferences.toggle("visuals", key("visuals", "Bond particles and glow"));
-  static final PlayerPreference<CommonPreferences.Toggle> SITTING = CommonPreferences.toggle("sitting", key("sitting", "Include sitting pets"));
-  static final PlayerPreference<CommonPreferences.Toggle> HANDLING = CommonPreferences.toggle("handling", key("handling", "Mount speed and jump"));
-  static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat", key("combat", "Mounted combat bonuses"));
-  static final PlayerPreference<CommonPreferences.Toggle> REGEN = CommonPreferences.toggle("regeneration", key("regeneration", "Pack regeneration"));
-  static final PlayerPreference<CommonPreferences.Toggle> TAMING = CommonPreferences.toggle("taming", key("taming", "Improved taming"));
-  static final PlayerPreference<CommonPreferences.Toggle> PACIFY = CommonPreferences.toggle("pacify", key("pacify", "Pacify neutral mobs"));
-  static final PlayerPreference<Pets> PETS = new PlayerPreference<>(Pets.class,
+  public static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed", key("speed", "Speed bonus"));
+  public static final PlayerPreference<CommonPreferences.Toggle> VISUALS = CommonPreferences.toggle("visuals", key("visuals", "Bond particles and glow"));
+  public static final PlayerPreference<CommonPreferences.Toggle> SITTING = CommonPreferences.toggle("sitting", key("sitting", "Include sitting pets"));
+  public static final PlayerPreference<CommonPreferences.Toggle> HANDLING = CommonPreferences.toggle("handling", key("handling", "Mount speed and jump"));
+  public static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat", key("combat", "Mounted combat bonuses"));
+  public static final PlayerPreference<CommonPreferences.Toggle> REGEN = CommonPreferences.toggle("regeneration", key("regeneration", "Pack regeneration"));
+  public static final PlayerPreference<CommonPreferences.Toggle> TAMING = CommonPreferences.toggle("taming", key("taming", "Improved taming"));
+  public static final PlayerPreference<CommonPreferences.Toggle> PACIFY = CommonPreferences.toggle("pacify", key("pacify", "Pacify neutral mobs"));
+  public static final PlayerPreference<Pets> PETS = new PlayerPreference<>(Pets.class,
       new PlayerPreference.Definition<>("pets", key("pets", "Eligible pet types"), Pets.ALL, List.of(
           choice(Pets.ALL, "all", "All permitted pets", Id.minecraft("lead")),
           choice(Pets.WOLVES, "wolves", "Wolves only", Id.minecraft("bone")),
           choice(Pets.CATS, "cats", "Cats only", Id.minecraft("cod")),
           choice(Pets.HORSES, "horses", "Horses and equines", Id.minecraft("saddle")))));
-  static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
       new PlayerPreference.Definition<>("targets", key("targets", "Command targets"), Targets.ALL, List.of(
           choice(Targets.ALL, "all_targets", "All permitted targets", Id.minecraft("diamond_sword")),
           choice(Targets.HOSTILE, "hostile", "Hostile mobs", Id.minecraft("zombie_head")),
           choice(Targets.NON_PLAYERS, "non_players", "Non-player targets", Id.minecraft("bone")))));
-  static final PlayerPreference<Reserve> BONES = new PlayerPreference<>(Reserve.class,
+  public static final PlayerPreference<Reserve> BONES = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("bone-reserve", key("bones", "Bones remaining after command"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("bone")),
           choice(Reserve.FOUR, "four", "Keep 4", Id.minecraft("bone_block")),
           choice(Reserve.EIGHT, "eight", "Keep 8", Id.minecraft("chest")))));
-  static final PlayerPreference<Reserve> HUNGER = new PlayerPreference<>(Reserve.class,
+  public static final PlayerPreference<Reserve> HUNGER = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("hunger-reserve", key("hunger", "Hunger remaining after recall"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("bowl")),
           choice(Reserve.FOUR, "four", "Keep 4", Id.minecraft("apple")),
           choice(Reserve.EIGHT, "eight", "Keep 8", Id.minecraft("bread")))));
-  static final PlayerPreference<Health> HEALTH = new PlayerPreference<>(Health.class,
+  public static final PlayerPreference<Health> HEALTH = new PlayerPreference<>(Health.class,
       new PlayerPreference.Definition<>("pet-health-reserve", key("health", "Pet health remaining after protection"), Health.DEFAULT, List.of(
           choice(Health.DEFAULT, "server_health", "Server minimum", Id.minecraft("bone")),
           choice(Health.HALF, "half", "At least 50% health", Id.minecraft("apple")),
           choice(Health.THREE_QUARTERS, "three_quarters", "At least 75% health", Id.minecraft("golden_apple")))));
-  static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
       new PlayerPreference.Definition<>("items", key("items", "Items to fetch"), Items.ALL, List.of(
           choice(Items.ALL, "all_items", "All permitted items", Id.minecraft("chest")),
           choice(Items.FOOD, "food", "Food only", Id.minecraft("cooked_beef")),
           choice(Items.BLOCKS, "blocks", "Blocks only", Id.minecraft("stone")),
           choice(Items.VALUABLES, "valuables", "Ores and minerals", Id.minecraft("diamond")))));
-  static final PlayerPreference<Collar> COLLAR = new PlayerPreference<>(Collar.class,
+  public static final PlayerPreference<Collar> COLLAR = new PlayerPreference<>(Collar.class,
       new PlayerPreference.Definition<>("fetch-collar", key("collar", "Wolves allowed to fetch"), Collar.ALL, List.of(
           choice(Collar.ALL, "all_collars", "All collar colors", Id.minecraft("lead")),
           choice(Collar.RED, "red", "Red collars", Id.minecraft("red_dye")),

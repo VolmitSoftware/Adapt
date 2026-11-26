@@ -5,8 +5,16 @@ import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.InsightMark;
 import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.client.view.KeptView;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.SpendView;
+import art.arcane.adapt.client.view.GroupLabelView;
+import art.arcane.adapt.client.view.ShortNameView;
+import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerView;
+import art.arcane.adapt.client.view.RecipeView;
+import art.arcane.adapt.client.view.ToolView;
 
 import java.util.List;
 import java.util.Objects;
@@ -102,12 +110,26 @@ public sealed interface ServerFrame {
     }
   }
 
-  record Toast(ToastKind kind, IconRef icon, String title, String body) implements ServerFrame {
+  /**
+   * A toast card. {@code skillId} names the skill whose look the card takes (a mutated skill's id for its merged look),
+   * empty for none. A toast with a skill or of kind {@link ToastKind#SIGNATURE} needs {@link ClientProtocol#SKILL_TOASTS};
+   * other clients get {@link #plain()}.
+   */
+  record Toast(ToastKind kind, IconRef icon, String title, String body, String skillId) implements ServerFrame {
     public Toast {
       Objects.requireNonNull(kind, "kind");
       Objects.requireNonNull(icon, "icon");
       Objects.requireNonNull(title, "title");
       Objects.requireNonNull(body, "body");
+      Objects.requireNonNull(skillId, "skillId");
+    }
+
+    /** This toast as a client without {@link ClientProtocol#SKILL_TOASTS} reads it: no skill, a signature as an unlock. */
+    public Toast plain() {
+      if (skillId.isEmpty() && kind != ToastKind.SIGNATURE) {
+        return this;
+      }
+      return new Toast(kind == ToastKind.SIGNATURE ? ToastKind.UNLOCK : kind, icon, title, body, "");
     }
   }
 
@@ -142,7 +164,93 @@ public sealed interface ServerFrame {
     }
   }
 
+  /** The skills whose page offers Mutate now; sent whole whenever it changes, only under {@link ClientProtocol#MUTATE}. */
+  record MutateOffers(List<String> skillIds) implements ServerFrame {
+    public MutateOffers {
+      skillIds = List.copyOf(skillIds);
+    }
+  }
+
   /** Drops the focused target and every mark. */
   record InsightClear() implements ServerFrame {
+  }
+
+  /** The answer to a {@link ClientFrame.MutationRequest}; only under {@link ClientProtocol#MUTATE_SPREAD}. */
+  record MutationSpread(MutationSpreadView spread) implements ServerFrame {
+    public MutationSpread {
+      Objects.requireNonNull(spread, "spread");
+    }
+  }
+
+  /**
+   * The originals every mutated skill keeps without learning, under the heading {@code title}; sent whole whenever it
+   * changes, only under {@link ClientProtocol#KEPT}.
+   */
+  record MutationKept(String title, List<KeptView> kept) implements ServerFrame {
+    public MutationKept {
+      Objects.requireNonNull(title, "title");
+      kept = List.copyOf(kept);
+    }
+  }
+
+  /**
+   * The mutation tools every adaptation in the catalog hands out, with their first recipe; sent whole whenever it
+   * changes, only under {@link ClientProtocol#TOOLS}.
+   */
+  record MutationTools(List<ToolView> tools) implements ServerFrame {
+    public MutationTools {
+      tools = List.copyOf(tools);
+    }
+  }
+
+  /**
+   * How each skill in the catalog earns XP, under the heading {@code title}; sent whole with every new catalog, only under
+   * {@link ClientProtocol#XP_GUIDE}.
+   */
+  record XpGuides(String title, List<XpGuideView> guides) implements ServerFrame {
+    public XpGuides {
+      Objects.requireNonNull(title, "title");
+      guides = List.copyOf(guides);
+    }
+  }
+
+  /**
+   * What the player spends knowledge and power on, sent whole whenever it changes, and whether the server lets inactive
+   * skills show on the skills page; only under {@link ClientProtocol#SPENDING}.
+   */
+  record Spending(boolean inactiveSkills, List<SpendView> spends) implements ServerFrame {
+    public Spending {
+      spends = List.copyOf(spends);
+    }
+  }
+
+  /**
+   * The names of each grouped skill's adaptation groups in the viewer's language, sent whole with every new catalog,
+   * only under {@link ClientProtocol#GROUP_LABELS}.
+   */
+  record GroupLabels(List<GroupLabelView> skills) implements ServerFrame {
+    public GroupLabels {
+      skills = List.copyOf(skills);
+    }
+  }
+
+  /**
+   * The names adaptations show on their own skill's pages where they differ from the catalog's, which leave out the
+   * skill they repeat; sent whole with every new catalog, only under {@link ClientProtocol#SHORT_NAMES}.
+   */
+  record ShortNames(List<ShortNameView> names) implements ServerFrame {
+    public ShortNames {
+      names = List.copyOf(names);
+    }
+  }
+
+  /**
+   * The recipes every adaptation in the catalog unlocks, sent whole whenever the catalog or the viewer's language
+   * changes, only under {@link ClientProtocol#RECIPES}.
+   */
+  record AdaptationRecipes(List<RecipeView> recipes) implements ServerFrame {
+    public AdaptationRecipes {
+      recipes = List.copyOf(recipes);
+    }
   }
 }

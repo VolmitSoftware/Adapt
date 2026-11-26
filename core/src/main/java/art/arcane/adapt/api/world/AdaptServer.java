@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.api.mutation.engine.MutationEngine;
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptEnvironment;
@@ -40,6 +43,7 @@ import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.xp.SpatialXP;
 import art.arcane.adapt.client.protocol.ToastKind;
 import art.arcane.adapt.client.server.AdaptScreens;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.api.xp.XP;
@@ -123,6 +127,9 @@ public class AdaptServer extends TickedObject {
   private final Map<UUID, Map<String, Integer>> learnedAdaptationLevelsByPlayer = new ConcurrentHashMap<>();
   private final Map<String, Set<UUID>> playersByLearnedAdaptation = new ConcurrentHashMap<>();
   private final Map<String, List<AdaptPlayer>> learnedAdaptPlayerSnapshots = new ConcurrentHashMap<>();
+  private final Map<UUID, Set<String>> grantedByPlayer = new ConcurrentHashMap<>();
+  private final Map<String, Set<UUID>> playersByGrant = new ConcurrentHashMap<>();
+  private final Set<UUID> mutationHolders = ConcurrentHashMap.newKeySet();
   private final Set<UUID> recipeBookSyncScheduled = ConcurrentHashMap.newKeySet();
   private final Set<UUID> onlineProfileClaims = ConcurrentHashMap.newKeySet();
   private final Set<UUID> unavailableOnlinePlayers = ConcurrentHashMap.newKeySet();
@@ -507,6 +514,9 @@ public class AdaptServer extends TickedObject {
     learnedAdaptationLevelsByPlayer.clear();
     playersByLearnedAdaptation.clear();
     learnedAdaptPlayerSnapshots.clear();
+    grantedByPlayer.clear();
+    playersByGrant.clear();
+    mutationHolders.clear();
     learnerIndexRevision.incrementAndGet();
     recipeBookSyncScheduled.clear();
     onlineProfileClaims.clear();
@@ -636,8 +646,10 @@ public class AdaptServer extends TickedObject {
       }
       adaptPlayer.getNot().queue(AdvancementNotification.builder()
           .kind(ToastKind.KNOWLEDGE)
+          .skill(skill.getName())
           .icon(Id.minecraft("book"))
           .model(CustomModel.get(Id.minecraft("book"), "snippets", "gui", "knowledge"))
+          .clientIcon(ViewIcons.knowledge())
           .title(AdaptLanguage.textStyled(C.GRAY.toString(), RuntimeMessages.KNOWLEDGE_GAIN,
               trusted("amount", C.WHITE + String.valueOf(entry.getValue())),
               trusted("skill", skill.getDisplayName())))
@@ -912,7 +924,8 @@ public class AdaptServer extends TickedObject {
     Id recipe = e.recipeKey();
     if (p != null && recipe != null) {
       Adaptation<?> required = getSkillRegistry().getRequiredAdaptation(recipe);
-      if (required == null || required.getActiveLevel(p) >= getSkillRegistry().getRequiredRecipeLevel(recipe)) {
+      if (required == null || UpgradeLoans.level(required, (Adaptation<?> held) -> held.getActiveLevel(p))
+          >= getSkillRegistry().getRequiredRecipeLevel(recipe)) {
         return;
       }
 
@@ -1022,8 +1035,9 @@ public class AdaptServer extends TickedObject {
       return 0;
     }
     Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.get(playerId);
-    int level = levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
-    if (level <= 0) {
+    int learned = levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
+    Set<String> granted = grantedByPlayer.get(playerId);
+    if (learned <= 0 && (granted == null || !granted.contains(adaptationName))) {
       return 0;
     }
     Skill<?> skill = skillRegistry.getSkill(skillName);
@@ -1032,18 +1046,25 @@ public class AdaptServer extends TickedObject {
     }
     for (Adaptation<?> adaptation : skill.getAdaptations()) {
       if (adaptation.getName().equals(adaptationName)) {
+        int level = learned > 0 ? learned : UpgradeLoans.level(adaptation, (Adaptation<?> held) -> held.getLevel(online));
         return adaptation.isEnabled() && PlayerPreferences.isEnabled(adaptation, online.getData(), level) ? level : 0;
       }
     }
     return 0;
   }
 
+  /**
+   * Whether an online player has learned the adaptation. A mutation block counts as learned by every player holding a
+   * learned mutated adaptation that uses it, and an original by every player its mutated skill keeps it for or whose
+   * learned upgrade fuses it.
+   */
   public boolean hasOnlineLearner(String adaptationName) {
     if (adaptationName == null || adaptationName.isBlank()) {
       return false;
     }
     Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
-    return playerIds != null && !playerIds.isEmpty();
+    Set<UUID> holders = playersByGrant.get(adaptationName);
+    return (playerIds != null && !playerIds.isEmpty()) || (holders != null && !holders.isEmpty());
   }
 
   public boolean hasOnlineLearner(UUID playerId, String adaptationName) {
@@ -1051,7 +1072,16 @@ public class AdaptServer extends TickedObject {
       return false;
     }
     Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
-    return playerIds != null && playerIds.contains(playerId);
+    if (playerIds != null && playerIds.contains(playerId)) {
+      return true;
+    }
+    Set<UUID> holders = playersByGrant.get(adaptationName);
+    return holders != null && holders.contains(playerId);
+  }
+
+  /** Online players holding at least one mutation, as of the last learner index update. */
+  public Set<UUID> getOnlineMutationHolders() {
+    return Collections.unmodifiableSet(mutationHolders);
   }
 
   public List<AdaptPlayer> getLearnedAdaptPlayerSnapshot(String adaptationName) {
@@ -1064,18 +1094,27 @@ public class AdaptServer extends TickedObject {
 
   private List<AdaptPlayer> buildLearnedAdaptPlayerSnapshot(String adaptationName) {
     Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
-    if (playerIds == null || playerIds.isEmpty()) {
+    Set<UUID> granted = playersByGrant.get(adaptationName);
+    if ((playerIds == null || playerIds.isEmpty()) && (granted == null || granted.isEmpty())) {
       return List.of();
     }
 
-    ArrayList<AdaptPlayer> learned = new ArrayList<>(playerIds.size());
+    ArrayList<AdaptPlayer> learned = new ArrayList<>();
+    addOnline(learned, playerIds);
+    addOnline(learned, granted);
+    return Collections.unmodifiableList(learned);
+  }
+
+  private void addOnline(List<AdaptPlayer> into, Set<UUID> playerIds) {
+    if (playerIds == null) {
+      return;
+    }
     for (UUID playerId : playerIds) {
       AdaptPlayer player = getOnlineAdaptPlayer(playerId);
-      if (player != null) {
-        learned.add(player);
+      if (player != null && !into.contains(player)) {
+        into.add(player);
       }
     }
-    return Collections.unmodifiableList(learned);
   }
 
   public void updateLearnedAdaptation(AdaptPlayer player, String adaptationName, int level) {
@@ -1092,6 +1131,7 @@ public class AdaptServer extends TickedObject {
       playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
       learnedAdaptPlayerSnapshots.remove(adaptationName);
       learnerIndexRevision.incrementAndGet();
+      indexHeld(playerId, player.getData());
       synchronizeRecipeBook(playerId, player);
       return;
     }
@@ -1105,6 +1145,7 @@ public class AdaptServer extends TickedObject {
       learnedAdaptationsByPlayer.remove(playerId, learned);
     }
     removeLearnedAdaptationPlayer(adaptationName, playerId);
+    indexHeld(playerId, player.getData());
     synchronizeRecipeBook(playerId, player);
   }
 
@@ -1154,6 +1195,7 @@ public class AdaptServer extends TickedObject {
     if (indexed.isEmpty()) {
       learnedAdaptationsByPlayer.remove(playerId, indexed);
     }
+    indexHeld(playerId, player.getData());
     learnerIndexRevision.incrementAndGet();
     synchronizeRecipeBook(playerId, player);
   }
@@ -1190,8 +1232,8 @@ public class AdaptServer extends TickedObject {
 
       AdaptRecipeBook.Plan plan = AdaptRecipeBook.plan(
           skillRegistry.getRegisteredRecipeUnlocks(),
-          adaptation -> PlayerPreferences.isEnabled(adaptation, adaptPlayer.getData(), adaptation.getLevel(adaptPlayer))
-              ? adaptation.getLevel(adaptPlayer) : 0
+          adaptation -> UpgradeLoans.level(adaptation, (Adaptation<?> held) ->
+              PlayerPreferences.isEnabled(held, adaptPlayer.getData(), held.getLevel(adaptPlayer)) ? held.getLevel(adaptPlayer) : 0)
       );
       AdaptRecipeBook.synchronize(player, plan);
     }, 1);
@@ -1785,6 +1827,8 @@ public class AdaptServer extends TickedObject {
   }
 
   private void removeLearnedPlayer(UUID playerId) {
+    indexGranted(playerId, Set.of());
+    mutationHolders.remove(playerId);
     Set<String> learned = learnedAdaptationsByPlayer.remove(playerId);
     learnedAdaptationLevelsByPlayer.remove(playerId);
     if (learned == null) {
@@ -1793,6 +1837,57 @@ public class AdaptServer extends TickedObject {
     for (String adaptationName : learned) {
       removeLearnedAdaptationPlayer(adaptationName, playerId);
     }
+  }
+
+  /**
+   * What the player runs without having learned it: the mutation blocks and signatures of their learned mutated
+   * adaptations, the originals their mutated skills keep, and the originals their learned upgrades fuse.
+   */
+  private Set<String> granted(PlayerData data) {
+    Set<String> blocks = MutationEngine.heldBlocks(data);
+    Set<String> signatures = MutationEngine.heldSignatures(data);
+    Set<String> originals = SkillUpgrades.granted(data, skillRegistry::getSkill);
+    if (originals.isEmpty() && signatures.isEmpty()) {
+      return blocks;
+    }
+    Set<String> granted = new HashSet<>(blocks);
+    granted.addAll(signatures);
+    granted.addAll(originals);
+    return Set.copyOf(granted);
+  }
+
+  private void indexHeld(UUID playerId, PlayerData data) {
+    indexGranted(playerId, granted(data));
+    if (data.getMutations().isEmpty()) {
+      mutationHolders.remove(playerId);
+    } else {
+      mutationHolders.add(playerId);
+    }
+  }
+
+  /** Replaces the granted adaptations indexed for the player; the learner revision moves only when they changed. */
+  private void indexGranted(UUID playerId, Set<String> held) {
+    Set<String> previous = held.isEmpty() ? grantedByPlayer.remove(playerId) : grantedByPlayer.put(playerId, held);
+    if (previous == null ? held.isEmpty() : previous.equals(held)) {
+      return;
+    }
+    if (previous != null) {
+      for (String name : previous) {
+        if (!held.contains(name)) {
+          playersByGrant.computeIfPresent(name, (String granted, Set<UUID> playerIds) -> {
+            playerIds.remove(playerId);
+            return playerIds.isEmpty() ? null : playerIds;
+          });
+          learnedAdaptPlayerSnapshots.remove(name);
+        }
+      }
+    }
+    for (String name : held) {
+      if (playersByGrant.computeIfAbsent(name, (String granted) -> ConcurrentHashMap.newKeySet()).add(playerId)) {
+        learnedAdaptPlayerSnapshots.remove(name);
+      }
+    }
+    learnerIndexRevision.incrementAndGet();
   }
 
   private void removeLearnedAdaptationPlayer(String adaptationName, UUID playerId) {

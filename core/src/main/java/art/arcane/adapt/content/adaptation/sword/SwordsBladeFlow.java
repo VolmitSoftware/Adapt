@@ -25,14 +25,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -43,15 +39,11 @@ import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
   private static final Rgb FLOW = Rgb.of(0xF4E27A);
-  private static final double ATTACK_SPEED_PER_STACK = 0.10;
-  private static final String FLOW_SLOT = "flow";
-  private final Map<UUID, Integer> flowStacks = playerState();
-  private final Map<UUID, Long> flowExpireAt = playerState();
+  private final SwordFlow flow = new SwordFlow(this, playerState(), playerState());
 
   public SwordsBladeFlow() {
     super("sword-blade-flow");
@@ -89,7 +81,7 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
   @Override
   public void addStats(int level, StatLines v) {
     statLore(v, getStackCap(level), 1);
-    statLore(v, Form.pc(ATTACK_SPEED_PER_STACK, 0), 2);
+    statLore(v, Form.pc(SwordFlow.ATTACK_SPEED_PER_STACK, 0), 2);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -100,21 +92,10 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     }
 
     PlayerRef p = combat.attacker();
-    UUID id = p.uuid();
-    long now = System.currentTimeMillis();
-    int current = flowStacks.getOrDefault(id, 0);
-    if (now > flowExpireAt.getOrDefault(id, 0L)) {
-      current = 0;
-    }
-
     int cap = getStackCap(combat.level());
-    int next = Math.min(cap, current + 1);
-    long windowMillis = (long) getConfig().windowMillis;
-    flowStacks.put(id, next);
-    flowExpireAt.put(id, now + windowMillis);
-    AbilityGlyphs.duration(id, this, now, windowMillis, next, cap);
-    AdaptAttributeService.get().applyTimed(p, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED,
-        attackSpeedBonus(next), AttributeOperation.ADD_MULTIPLIED_BASE, effectDurationTicks(windowMillis));
+    SwordFlow.Step step = flow.build(p, cap, (long) getConfig().windowMillis, System.currentTimeMillis());
+    int current = step.previous();
+    int next = step.stacks();
 
     addStat(p, "swords.blade-flow.stacks-built", 1);
     xp(p, getConfig().xpPerStack);
@@ -139,13 +120,12 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
     }
 
     UUID id = p.uuid();
-    int current = flowStacks.getOrDefault(id, 0);
-    if (current <= 0) {
+    if (!flow.holds(id)) {
       return;
     }
 
-    boolean expired = System.currentTimeMillis() > flowExpireAt.getOrDefault(id, 0L);
-    clearFlow(p);
+    boolean expired = flow.expired(id, System.currentTimeMillis());
+    flow.clear(p);
     if (expired) {
       return;
     }
@@ -157,23 +137,6 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
 
   private int getStackCap(int level) {
     return Math.max(1, (int) Math.round(getConfig().stackCapBase + (getLevelPercent(level) * getConfig().stackCapFactor)));
-  }
-
-  static int effectDurationTicks(long windowMillis) {
-    long durationTicks = Math.max(20L, (Math.max(0L, windowMillis) + 49L) / 50L);
-    return (int) Math.min(Integer.MAX_VALUE, durationTicks);
-  }
-
-  static double attackSpeedBonus(int stacks) {
-    return Math.max(0, stacks) * ATTACK_SPEED_PER_STACK;
-  }
-
-  private void clearFlow(PlayerRef player) {
-    UUID id = player.uuid();
-    flowStacks.remove(id);
-    flowExpireAt.remove(id);
-    AbilityGlyphs.clear(id, this, HudGlyph.DURATION);
-    AdaptAttributeService.get().remove(player, getName(), FLOW_SLOT, Attributes.ATTACK_SPEED);
   }
 
   @ConfigDescription("Consecutive sword hits build attack-speed stacks; taking damage breaks the flow.")

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -28,7 +29,10 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
+import art.arcane.adapt.api.xp.MobOrigin;
+import art.arcane.adapt.platform.entity.AnimalOps;
 import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -42,7 +46,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -82,8 +85,22 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
     statLore(v, C.YELLOW, "+ ", Form.pc(getExtraDropChance(level), 0), 2);
   }
 
-  static boolean isBigGame(Id type) {
+  public static boolean isBigGame(Id type) {
     return BIG_GAME.contains(type);
+  }
+
+  /** A large mob from {@link #isBigGame} or any boss. */
+  public static boolean isLargeQuarry(EntityRef entity) {
+    return isBigGame(entity.type()) || entity.has(EntityTrait.BOSS);
+  }
+
+  /** One more roll of {@code victim}'s own loot table as if {@code killer} had killed it; empty when mobs drop no loot. */
+  public static List<ItemRef> extraRoll(LivingRef victim, PlayerRef killer) {
+    AnimalOps animals = AdaptCore.platform().host().animals();
+    if (victim.world() == null || !animals.mobLoot(victim.world())) {
+      return List.of();
+    }
+    return animals.rollLoot(victim, killer, 0F, ThreadLocalRandom.current());
   }
 
   static double bonusDamage(double levelPercent, double base, double factor) {
@@ -127,7 +144,7 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
     PlayerRef killer = e.killer();
     LivingRef victim = e.entity();
     if (killer == null || !isBigGame(victim.type())
-        || GolemKillCredit.isGolemKill(victim)
+        || GolemKillCredit.isGolemKill(victim) || !MobOrigin.paysKillReward(killer, victim)
         || !hasActiveAdaptation(killer) || !canDamageTarget(killer, victim)) {
       return;
     }
@@ -135,16 +152,16 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
     int level = getActiveLevel(killer);
     double chance = getExtraDropChance(level);
     int cap = Math.max(1, getConfig().maxExtraDropsPerKill);
-    List<ItemRef> bonusDrops = new ArrayList<>();
-    for (ItemRef drop : new ArrayList<>(e.drops())) {
-      if (bonusDrops.size() >= cap) {
+    int added = 0;
+    for (ItemRef drop : extraRoll(victim, killer)) {
+      if (added >= cap) {
         break;
       }
       if (drop != null && !drop.isEmpty() && ThreadLocalRandom.current().nextDouble() <= chance) {
-        bonusDrops.add(drop.copy());
+        e.drops().add(drop.copy());
+        added++;
       }
     }
-    e.drops().addAll(bonusDrops);
 
     addStat(killer, "hunter.big-game.big-game-slain", 1);
     xp(killer, getConfig().xpPerBigGameKill, "hunter:big-game:" + victim.type().path());
@@ -170,13 +187,13 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
     double bonusDamageBase = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus damage fraction gained across levels for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bonusDamageFactor = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base per-drop duplication chance versus big game for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance of one extra loot roll versus big game for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double extraDropChanceBase = 0.15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Per-drop duplication chance gained across levels for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra loot roll chance gained across levels for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double extraDropChanceFactor = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum per-drop duplication chance for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum extra loot roll chance for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxExtraDropChance = 0.75;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum bonus drops duplicated from one big-game kill for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum bonus drops from one big-game kill for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int maxExtraDropsPerKill = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Xp granted per big-game kill for the Hunter Big Game Hunter adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerBigGameKill = 45;

@@ -1,0 +1,13 @@
+{
+  "skill": "herbalism",
+  "behaviourTest": "HerbalismBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "HerbalismTrigger", "handles": ["BlockBreakEvent", "PlayerHarvestBlockEvent"], "reuses": ["HerbalismGrowables", "HerbalismHarvest"]},
+    {"slot": "STRIKE_FIGHT", "class": "HerbalismFightStrike", "handles": [], "reuses": ["AdaptAttributeService"]},
+    {"slot": "STRIKE_WORK", "class": "HerbalismWorkStrike", "handles": [], "reuses": ["HerbalismField", "HerbalismGrowthPulses", "HerbalismGrowthAura"]},
+    {"slot": "BOON", "class": "HerbalismBoon", "handles": [], "reuses": ["HerbalismBoonFood"]},
+    {"slot": "FUEL", "class": "HerbalismFuel", "handles": [], "reuses": ["HerbalismSeedSower", "HerbalismGrowables"]},
+    {"slot": "STATE", "class": "HerbalismState", "handles": [], "reuses": ["HerbalismGrowables", "HerbalismBeeShepherd"]}
+  ],
+  "unavailableOn": {}
+}

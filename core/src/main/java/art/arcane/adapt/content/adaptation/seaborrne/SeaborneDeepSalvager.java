@@ -19,7 +19,6 @@
 package art.arcane.adapt.content.adaptation.seaborrne;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -30,7 +29,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.fx.ViewerDisplayPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -47,20 +45,13 @@ import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.BlockStateRef;
-import art.arcane.adapt.util.common.scheduling.Tasks;
-import art.arcane.adapt.util.common.world.BlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.Config> {
@@ -76,15 +67,8 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
           new PlayerPreference.Choice<>(OutlineColor.GOLD, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_GOLD, Id.minecraft("yellow_stained_glass_pane"), 1),
           new PlayerPreference.Choice<>(OutlineColor.PURPLE, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_PURPLE, Id.minecraft("purple_stained_glass_pane"), 1))));
 
-  private static final int HARD_MAX_RANGE = 9;
-  private static final int VERTICAL_RANGE = 3;
-  private static final int HARD_MAX_BLOCKS = 3200;
-  private static final int MAX_SHIMMER = 6;
   private static final Id WATER = Id.minecraft("water");
-  private static final Id BARREL = Id.minecraft("barrel");
   private static final Id HEART_OF_THE_SEA = Id.minecraft("heart_of_the_sea");
-  private static final Set<Id> CONTAINERS = Set.of(
-      Id.minecraft("chest"), Id.minecraft("trapped_chest"), BARREL);
   private static final BlockFace[] WATER_FACES = {
       BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN
   };
@@ -99,8 +83,10 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   static final DataKey<Byte> SALVAGED_KEY = DataKey.adapt("seaborne_salvaged", DataCodecs.BYTE);
 
   private final Cooldowns shimmerCooldowns = cooldowns();
-  private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
-
+  private final SeaborneShimmer shimmer = new SeaborneShimmer(this,
+      (PlayerRef player) -> player.isInWater() && isPlayerEnabled(player) && preferenceEnabled(player, OUTLINES),
+      (PlayerRef player) -> SeaborneShimmer.color(preference(player, COLOR)),
+      (PlayerRef player) -> fx(player, FxPriority.AMBIENT).sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F));
   public SeaborneDeepSalvager() {
     super("seaborne-deep-salvager");
     registerConfiguration(Config.class);
@@ -130,10 +116,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    UUID id = player.getPlayer().uuid();
-    activeScans.remove(id);
-    BlockScanScheduler.cancel(this, id);
-    displays().clearViewer(getName(), id);
+    shimmer.forget(player.getPlayer().uuid());
   }
 
   @Override
@@ -169,7 +152,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
         if (!shimmerCooldowns.isReady(player.uuid(), getConfig().shimmerScanCooldownMillis)) {
           return;
         }
-        if (activeScans.containsKey(player.uuid())) {
+        if (shimmer.scanning(player.uuid())) {
           return;
         }
 
@@ -180,82 +163,20 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   }
 
   private void scanShimmer(PlayerRef player, int level) {
-    int range = Math.min(HARD_MAX_RANGE, (int) Math.round(getDetectionRange(level)));
-    Loc base = player.location();
-    if (base.world() == null) {
-      return;
-    }
-    int baseY = base.blockY();
-    ContainerTypes selection = preference(player, CONTAINER_TYPES);
-    BlockScanScheduler.ScanRequest request = BlockScanScheduler.ScanRequest.builder(base)
-        .radius(range)
-        .denseRadius(range)
-        .maxSamples(HARD_MAX_BLOCKS)
-        .maxResults(MAX_SHIMMER)
-        .blockMatcher(block -> Math.abs(block.y() - baseY) <= VERTICAL_RANGE
-            && CONTAINERS.contains(block.type())
-            && (selection == ContainerTypes.ALL || (selection == ContainerTypes.BARRELS) == block.type().equals(BARREL)))
-        .completion(result -> completeShimmerScan(player, result))
-        .build();
-    UUID scanId = BlockScanScheduler.submit(this, player.uuid(), request);
-    activeScans.put(player.uuid(), scanId);
-  }
-
-  private void completeShimmerScan(PlayerRef player, BlockScanScheduler.ScanResult result) {
-    UUID playerId = player.uuid();
-    if (!result.scanId().equals(activeScans.get(playerId))) {
-      return;
-    }
-    if (!Tasks.runEntity(player, () -> showShimmersOwned(player, playerId, result))) {
-      activeScans.remove(playerId, result.scanId());
-    }
-  }
-
-  private void showShimmersOwned(PlayerRef player, UUID playerId, BlockScanScheduler.ScanResult result) {
-    if (!activeScans.remove(playerId, result.scanId()) || !player.isOnline() || !player.isInWater() || !isPlayerEnabled(player) || !preferenceEnabled(player, OUTLINES)) {
-      return;
-    }
-    List<BlockScanScheduler.Match> matches = result.matches();
     int durationTicks = Math.max(20, (int) Math.min(200L, (getConfig().shimmerScanCooldownMillis / 50L) + 20L));
-    for (BlockScanScheduler.Match match : matches) {
-      BlockStateRef block = AdaptCore.platform().host().items().blockState(match.material());
-      if (block == null) {
-        continue;
-      }
-      Loc location = new Loc(result.world(), match.x(), match.y(), match.z());
-      displays().showBlock(
-          getName(),
-          "container-" + match.x() + ":" + match.y() + ":" + match.z(),
-          player,
-          location,
-          block,
-          switch (preference(player, COLOR)) {
-            case AQUA -> new Rgb(70, 230, 235);
-            case GOLD -> new Rgb(255, 195, 50);
-            case PURPLE -> new Rgb(180, 90, 235);
-          },
-          durationTicks
-      );
-    }
-    if (!matches.isEmpty()) {
-      fx(player, FxPriority.AMBIENT).sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.25F, 1.8F);
-    }
+    shimmer.scan(player, (int) Math.round(getDetectionRange(level)), preference(player, CONTAINER_TYPES), durationTicks);
   }
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(PlayerQuitEvent event) {
     UUID playerId = event.player().uuid();
     shimmerCooldowns.clear(playerId);
-    activeScans.remove(playerId);
-    BlockScanScheduler.cancel(this, playerId);
-    displays().clearViewer(getName(), playerId);
+    shimmer.forget(playerId);
   }
 
   @Override
   public void unregister() {
-    activeScans.clear();
-    BlockScanScheduler.cancelOwner(this);
-    displays().clearChannel(getName());
+    shimmer.clear();
     super.unregister();
   }
 
@@ -290,7 +211,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     ThreadLocalRandom random = ThreadLocalRandom.current();
     int added = 0;
     for (int i = 0; i < rolls; i++) {
-      ItemRef loot = rollTreasure(random);
+      ItemRef loot = rollTreasure(random, 0);
       if (inventory.addItem(loot).isEmpty()) {
         added++;
       }
@@ -323,14 +244,16 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     return false;
   }
 
-  private ItemRef rollTreasure(ThreadLocalRandom random) {
+  /** One treasure stack; each point of {@code luck} is one more draw at the heart of the sea. */
+  public static ItemRef rollTreasure(Random random, int luck) {
     Id material = TREASURE[random.nextInt(TREASURE.length)];
+    for (int draw = 0; draw < luck && !material.equals(HEART_OF_THE_SEA); draw++) {
+      if (TREASURE[random.nextInt(TREASURE.length)].equals(HEART_OF_THE_SEA)) {
+        material = HEART_OF_THE_SEA;
+      }
+    }
     int amount = material.equals(HEART_OF_THE_SEA) ? 1 : 1 + random.nextInt(3);
     return AdaptCore.platform().host().items().create(material, amount);
-  }
-
-  private static ViewerDisplayPort displays() {
-    return AdaptPorts.get(ViewerDisplayPort.class, ViewerDisplayPort.NONE);
   }
 
   private double getDetectionRange(int level) {

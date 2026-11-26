@@ -25,7 +25,7 @@ public final class UsePermissions {
   public static int registerDefaults(PermissionHost permissions, List<Skill<?>> skills) {
     int registered = 0;
     for (Skill<?> skill : skills) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         permissions.register(useNode(adaptation.getName()),
             "Allows using the " + adaptation.getName() + " adaptation", PermissionDefault.TRUE);
         registered++;

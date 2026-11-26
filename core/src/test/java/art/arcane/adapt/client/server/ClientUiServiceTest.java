@@ -4,7 +4,10 @@ import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.preference.PreferencePolicy;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.SkillMutations;
 import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
@@ -22,14 +25,22 @@ import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.server.panel.PanelFrameHandler;
 import art.arcane.adapt.client.view.CatalogViews;
+import art.arcane.adapt.client.view.MutationCandidate;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.PlayerViews;
+import art.arcane.adapt.client.view.RecipeView;
+import art.arcane.adapt.client.view.SpendView;
+import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.client.view.PreferenceKey;
 import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.client.view.PreferenceValue;
-import art.arcane.adapt.client.view.PlayerViews;
 import art.arcane.adapt.client.view.SkillLineView;
+import art.arcane.adapt.client.view.SkillView;
+import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.content.skill.SkillAgility;
 import art.arcane.adapt.content.skill.SkillRift;
 import art.arcane.adapt.command.PlayerCommandSource;
+import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.catalog.GuiMessages;
@@ -57,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
@@ -106,7 +118,12 @@ class ClientUiServiceTest {
     assertThat(frames.get(0)).isInstanceOf(ServerFrame.Accept.class);
     assertThat(((ServerFrame.Catalog) frames.get(1)).catalog().revision()).isEqualTo(registry.getCatalogRevision());
     assertThat(frames.get(2)).isInstanceOf(ServerFrame.Player.class);
-    assertThat(frames.subList(3, frames.size())).isNotEmpty().allMatch(ServerFrame.CustomItems.class::isInstance);
+    assertThat(frames.subList(3, frames.size() - 5)).isNotEmpty().allMatch(ServerFrame.CustomItems.class::isInstance);
+    assertThat(frames.get(frames.size() - 5)).isInstanceOf(ServerFrame.MutationTools.class);
+    assertThat(frames.get(frames.size() - 4)).isInstanceOf(ServerFrame.AdaptationRecipes.class);
+    assertThat(frames.get(frames.size() - 3)).isInstanceOf(ServerFrame.XpGuides.class);
+    assertThat(frames.get(frames.size() - 2)).isInstanceOf(ServerFrame.ShortNames.class);
+    assertThat(frames.getLast()).isInstanceOf(ServerFrame.Spending.class);
     assertThat(service.has(player.uuid(), ClientProtocol.SCREENS)).isTrue();
   }
 
@@ -123,10 +140,18 @@ class ClientUiServiceTest {
   }
 
   @Test
-  void aClientWithoutTheItemsCapabilityGetsNoItems() throws ClientProtocolException {
-    hello(ClientProtocol.ALL & ~ClientProtocol.ITEMS);
+  void aRecipesClientGetsTheRecipesOnceAndOthersGetNone() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    List<ServerFrame> recipes = link.frames(player.uuid()).stream().filter(ServerFrame.AdaptationRecipes.class::isInstance).toList();
+    assertThat(recipes).hasSize(1);
+    assertThat(((ServerFrame.AdaptationRecipes) recipes.get(0)).recipes()).extracting(RecipeView::adaptationId).contains("rift-gate");
+  }
 
-    assertThat(link.frames(player.uuid())).hasSize(3).noneMatch(ServerFrame.CustomItems.class::isInstance);
+  @Test
+  void aClientWithoutTheItemsCapabilityGetsNoItems() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.ITEMS & ~ClientProtocol.TOOLS & ~ClientProtocol.RECIPES);
+
+    assertThat(link.frames(player.uuid())).hasSize(6).noneMatch(ServerFrame.CustomItems.class::isInstance);
   }
 
   @Test
@@ -352,8 +377,23 @@ class ClientUiServiceTest {
     assertThat(update.delta().adaptationLevels()).containsEntry("rift-blink", 1);
     assertThat(update.delta().skills()).anySatisfy((SkillLineView skill) ->
         assertThat(skill.knowledge()).isEqualTo(7L));
+    ServerFrame.Spending spending = only(ServerFrame.Spending.class);
+    assertThat(spending.spends()).anySatisfy((SpendView spend) -> assertThat(spend.adaptationId()).isEqualTo("rift-blink"));
     platform.scheduler().advance(2);
-    assertThat(link.frames(player.uuid())).hasSize(1);
+    assertThat(link.frames(player.uuid())).hasSize(2);
+  }
+
+  @Test
+  void aSpendingClientIsToldTheInactiveSkillsPolicy() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    assertThat(only(ServerFrame.Spending.class).inactiveSkills()).isTrue();
+  }
+
+  @Test
+  void aClientWithoutSpendingIsNeverSentIt() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.SPENDING);
+    everySecond(2);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.Spending.class::isInstance);
   }
 
   @Test
@@ -457,7 +497,8 @@ class ClientUiServiceTest {
   @Test
   void everyCapabilityBitHasItsOwnName() {
     assertThat(ClientUiService.capabilityNames(ClientProtocol.ALL))
-        .containsExactly("screens", "panel", "hud", "toasts", "items", "insight", "jumps");
+        .containsExactly("screens", "panel", "hud", "toasts", "items", "insight", "jumps", "mutate", "kept", "tools", "mutate_spread", "xp_guide", "spending",
+            "unmutate", "skill_toasts", "group_labels");
     assertThat(ClientUiService.capabilityNames(ClientProtocol.INSIGHT | ClientProtocol.JUMPS))
         .containsExactly("insight", "jumps");
   }
@@ -483,7 +524,7 @@ class ClientUiServiceTest {
       hello(ClientProtocol.ALL);
       everySecond(5);
 
-      builds.verify(() -> CatalogViews.build(any(), any()), times(1));
+      builds.verify(() -> CatalogViews.build(any(), any(), any(), anyBoolean()), times(1));
     }
     assertThat(sendWarnings()).hasSize(1);
     assertThat(service.has(player.uuid(), ClientProtocol.SCREENS)).isFalse();
@@ -496,11 +537,11 @@ class ClientUiServiceTest {
     try (MockedStatic<CatalogViews> builds = mockStatic(CatalogViews.class, CALLS_REAL_METHODS)) {
       hello(ClientProtocol.ALL);
       everySecond(5);
-      builds.verify(() -> CatalogViews.build(any(), any()), never());
+      builds.verify(() -> CatalogViews.build(any(), any(), any(), anyBoolean()), never());
 
       link.open = true;
       everySecond(1);
-      builds.verify(() -> CatalogViews.build(any(), any()), times(1));
+      builds.verify(() -> CatalogViews.build(any(), any(), any(), anyBoolean()), times(1));
     }
     assertThat(sendWarnings()).isEmpty();
     assertThat(link.frames(player.uuid())).anyMatch(ServerFrame.Catalog.class::isInstance);
@@ -514,13 +555,250 @@ class ClientUiServiceTest {
       hello(ClientProtocol.ALL);
       everySecond(5);
 
-      builds.verify(() -> CatalogViews.build(any(), any()), times(1));
+      builds.verify(() -> CatalogViews.build(any(), any(), any(), anyBoolean()), times(1));
     }
     assertThat(link.failures).isEqualTo(1);
     assertThat(sendWarnings()).hasSize(1).allMatch((String warning) -> warning.contains("channel gone"));
     assertThat(platform.log().errors()).isEmpty();
     assertThat(service.has(player.uuid(), ClientProtocol.HUD)).isFalse();
     assertThat(ClientUiService.activeSessions().send(player.uuid(), new ServerFrame.HudClearAll())).isFalse();
+  }
+
+  @Test
+  void aMutateClientIsToldWhichSkillPagesOfferMutate() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutateOffers.class::isInstance);
+
+    qualify("rift", "agility");
+    everySecond(1);
+
+    assertThat(only(ServerFrame.MutateOffers.class).skillIds()).containsExactlyInAnyOrder("rift", "agility");
+    everySecond(2);
+    assertThat(link.frames(player.uuid())).filteredOn(ServerFrame.MutateOffers.class::isInstance).hasSize(1);
+  }
+
+  @Test
+  void aPlayerWithNoMutationIsSentNoKeptList() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    everySecond(2);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutationKept.class::isInstance);
+  }
+
+  @Test
+  void aToolsClientIsSentEveryToolOnceUnderItsPage() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    everySecond(2);
+    ServerFrame.MutationTools tools = only(ServerFrame.MutationTools.class);
+    assertThat(tools.tools()).extracting(ToolView::toolId).containsExactly("tool-rift-anchor", "tool-rift-eye", "tool-agility-grappling-line");
+    assertThat(tools.tools()).extracting(ToolView::adaptationId).allMatch((String page) -> page.startsWith("upgraded-"));
+    assertThat(tools.tools()).allMatch((ToolView tool) -> !tool.ingredients().isEmpty() && tool.icon().customModelData() != 0);
+  }
+
+  @Test
+  void aClientWithoutToolsIsNeverSentThem() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.TOOLS);
+    everySecond(1);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutationTools.class::isInstance);
+  }
+
+  @Test
+  void anXpGuideClientIsSentHowEachSkillEarnsXpOnce() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    everySecond(3);
+
+    ServerFrame.XpGuides guides = only(ServerFrame.XpGuides.class);
+    assertThat(guides.title()).isEqualTo("Earning XP");
+    assertThat(guides.guides()).isNotEmpty().allSatisfy((XpGuideView guide) -> {
+      assertThat(guide.parents()).isEmpty();
+      assertThat(guide.sections()).singleElement().satisfies((XpGuideView.Section section) -> assertThat(section.lines()).isNotEmpty());
+    });
+  }
+
+  @Test
+  void aClientWithoutXpGuideIsNeverSentGuides() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.XP_GUIDE);
+    everySecond(2);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.XpGuides.class::isInstance);
+  }
+
+  @Test
+  void aClientWithoutKeptIsNeverSentTheList() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.KEPT);
+    everySecond(1);
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutationKept.class::isInstance);
+  }
+
+  @Test
+  void aClientWithoutMutateIsNeverToldOrServed() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.MUTATE);
+    qualify("rift", "agility");
+    everySecond(1);
+    client(new ClientFrame.Mutate("rift"));
+
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutateOffers.class::isInstance);
+    verify(menus, never()).open(eq(player), any(ChestMenu.class));
+  }
+
+  @Test
+  void theMutateActionOpensThePartnerPickerOnlyWhenOffered() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    client(new ClientFrame.Mutate("rift"));
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
+    verify(menus, never()).open(eq(player), any(ChestMenu.class));
+
+    qualify("rift", "agility");
+    client(new ClientFrame.Mutate("rift"));
+    platform.scheduler().advance(1);
+
+    verify(menus).open(eq(player), any(ChestMenu.class));
+  }
+
+  @Test
+  void aSpreadClientIsAnsweredWithTheLeadAloneThenWithThePair() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    qualify("rift", "agility");
+
+    client(new ClientFrame.MutationRequest("rift", "", false));
+    MutationSpreadView alone = only(ServerFrame.MutationSpread.class).spread();
+    assertThat(alone.partner()).isEmpty();
+    assertThat(alone.name()).isEmpty();
+    assertThat(alone.leadSide().skillId()).isEqualTo("rift");
+    assertThat(alone.candidate("agility").state()).isEqualTo(MutationCandidate.State.ELIGIBLE);
+
+    link.clear();
+    client(new ClientFrame.MutationRequest("rift", "agility", false));
+    MutationSpreadView paired = only(ServerFrame.MutationSpread.class).spread();
+    assertThat(paired.partner()).isEqualTo("agility");
+    assertThat(paired.name()).isNotEmpty();
+    assertThat(paired.mutatedNow()).isFalse();
+    assertThat(profile.getData().getMutations()).isEmpty();
+  }
+
+  @Test
+  void aPartnerTheRulesRefuseIsShownAsNoPartner() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    qualify("rift");
+
+    client(new ClientFrame.MutationRequest("rift", "agility", false));
+
+    MutationSpreadView spread = only(ServerFrame.MutationSpread.class).spread();
+    assertThat(spread.partner()).isEmpty();
+    assertThat(spread.candidate("agility").state()).isEqualTo(MutationCandidate.State.LEVEL_TOO_LOW);
+    assertThat(spread.candidate("agility").reason()).isEqualTo("Needs level 15");
+  }
+
+  @Test
+  void aClientWithoutTheSpreadIsRefusedIt() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.MUTATE_SPREAD);
+    qualify("rift", "agility");
+
+    client(new ClientFrame.MutationRequest("rift", "agility", true));
+
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.MutationSpread.class::isInstance);
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
+    assertThat(profile.getData().getMutations()).isEmpty();
+  }
+
+  @Test
+  void aConfirmChecksEveryRuleAgainAndNamesTheNewSkillWhenItWentThrough() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    qualify("rift");
+    PlayerSkillLine agility = profile.getData().getSkillLine("agility");
+    agility.setXp(XP.getXpForLevel(14) + 1D);
+    agility.settleWithoutRewards();
+
+    client(new ClientFrame.MutationRequest("rift", "agility", true));
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
+    assertThat(only(ServerFrame.MutationSpread.class).spread().mutatedNow()).isFalse();
+    assertThat(profile.getData().getMutations()).isEmpty();
+
+    link.clear();
+    qualify("agility");
+    client(new ClientFrame.MutationRequest("rift", "agility", true));
+
+    assertThat(profile.getData().getMutations()).extracting(SkillMutation::id).containsExactly("mutated-rift-agility");
+    assertThat(only(ServerFrame.MutationSpread.class).spread().mutatedSkillId()).isEqualTo("mutated-rift-agility");
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
+    List<ServerFrame> frames = link.frames(player.uuid());
+    int catalog = -1;
+    int spread = -1;
+    for (int index = 0; index < frames.size(); index++) {
+      if (frames.get(index) instanceof ServerFrame.Catalog sent
+          && sent.catalog().skills().stream().anyMatch((SkillView skill) -> skill.id().equals("mutated-rift-agility"))) {
+        catalog = index;
+      }
+      if (frames.get(index) instanceof ServerFrame.MutationSpread) {
+        spread = index;
+      }
+    }
+    assertThat(catalog).isNotNegative().isLessThan(spread);
+  }
+
+  @Test
+  void anUnmutateIsRefusedWithoutDebugModeOrThePermission() throws ClientProtocolException {
+    player.setOp(false);
+    hello(ClientProtocol.ALL);
+    mutateRiftAgility();
+    link.clear();
+
+    client(new ClientFrame.Unmutate("mutated-rift-agility"));
+
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
+    assertThat(profile.getData().getMutations()).hasSize(1);
+  }
+
+  @Test
+  void anUnmutateInDebugModeSendsTheParentsBackBeforeItsAnswer() throws ClientProtocolException {
+    player.setOp(false);
+    hello(ClientProtocol.ALL);
+    mutateRiftAgility();
+    AdaptDebugMode.setActive(player.uuid(), true);
+    try {
+      link.clear();
+      client(new ClientFrame.Unmutate("agility"));
+    } finally {
+      AdaptDebugMode.setActive(player.uuid(), false);
+    }
+
+    assertThat(profile.getData().getMutations()).isEmpty();
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
+    List<ServerFrame> frames = link.frames(player.uuid());
+    ServerFrame.Catalog catalog = only(ServerFrame.Catalog.class);
+    assertThat(catalog.catalog().skills()).extracting(SkillView::id).contains("rift", "agility").doesNotContain("mutated-rift-agility");
+    assertThat(frames.indexOf(catalog)).isLessThan(frames.indexOf(only(ServerFrame.Feedback.class)));
+  }
+
+  @Test
+  void anAdminMayUnmutateWithoutDebugModeButAClientWithoutTheCapabilityMayNot() throws ClientProtocolException {
+    player.setOp(false);
+    hello(ClientProtocol.ALL & ~ClientProtocol.UNMUTATE);
+    mutateRiftAgility();
+    player.grant(MutationGui.UNMUTATE_PERMISSION);
+    link.clear();
+    client(new ClientFrame.Unmutate("rift"));
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
+    assertThat(profile.getData().getMutations()).hasSize(1);
+
+    hello(ClientProtocol.ALL);
+    link.clear();
+    client(new ClientFrame.Unmutate("rift"));
+    assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
+    assertThat(profile.getData().getMutations()).isEmpty();
+  }
+
+  private void mutateRiftAgility() {
+    qualify("rift", "agility");
+    assertThat(SkillMutations.mutate(profile.getData(), registry.getSkill("rift"), registry.getSkill("agility"), "Viewer"))
+        .isEqualTo(SkillMutations.Result.MUTATED);
+    everySecond(1);
+  }
+
+  private void qualify(String... skills) {
+    for (String skill : skills) {
+      PlayerSkillLine skillLine = profile.getData().getSkillLine(skill);
+      skillLine.setXp(XP.getXpForLevel(15) + 1D);
+      skillLine.settleWithoutRewards();
+    }
   }
 
   private void everySecond(int seconds) {

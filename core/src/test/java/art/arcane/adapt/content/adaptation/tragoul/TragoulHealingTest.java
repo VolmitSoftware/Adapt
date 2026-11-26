@@ -20,24 +20,24 @@ import static org.mockito.Mockito.when;
 class TragoulHealingTest {
   @Test
   void drainDamageScalesFromHalfAHealthPointToTwoHealth() {
-    assertThat(TragoulHealing.drainDamage(0.5D, 2D, 1, 5)).isEqualTo(0.5D);
-    assertThat(TragoulHealing.drainDamage(0.5D, 2D, 3, 5)).isEqualTo(1.25D);
-    assertThat(TragoulHealing.drainDamage(0.5D, 2D, 5, 5)).isEqualTo(2D);
+    assertThat(TragoulDrain.drainDamage(0.5D, 2D, 1, 5)).isEqualTo(0.5D);
+    assertThat(TragoulDrain.drainDamage(0.5D, 2D, 3, 5)).isEqualTo(1.25D);
+    assertThat(TragoulDrain.drainDamage(0.5D, 2D, 5, 5)).isEqualTo(2D);
   }
 
   @Test
   void drainDamageRejectsInvalidValuesAndNeverGoesNegative() {
-    assertThat(TragoulHealing.drainDamage(Double.NaN, 2D, 1, 5)).isZero();
-    assertThat(TragoulHealing.drainDamage(-2D, -1D, 5, 5)).isZero();
-    assertThat(TragoulHealing.drainDamage(0.5D, 2D, 1, 1)).isEqualTo(2D);
+    assertThat(TragoulDrain.drainDamage(Double.NaN, 2D, 1, 5)).isZero();
+    assertThat(TragoulDrain.drainDamage(-2D, -1D, 5, 5)).isZero();
+    assertThat(TragoulDrain.drainDamage(0.5D, 2D, 1, 1)).isEqualTo(2D);
   }
 
   @Test
   void restoredHealthCannotExceedMaximumOrUseInvalidDrain() {
-    assertThat(TragoulHealing.restoredHealth(10D, 20D, 2D)).isEqualTo(12D);
-    assertThat(TragoulHealing.restoredHealth(19D, 20D, 2D)).isEqualTo(20D);
-    assertThat(TragoulHealing.restoredHealth(10D, 20D, -2D)).isEqualTo(10D);
-    assertThat(TragoulHealing.restoredHealth(10D, 20D, Double.NaN)).isEqualTo(10D);
+    assertThat(TragoulDrain.restoredHealth(10D, 20D, 2D)).isEqualTo(12D);
+    assertThat(TragoulDrain.restoredHealth(19D, 20D, 2D)).isEqualTo(20D);
+    assertThat(TragoulDrain.restoredHealth(10D, 20D, -2D)).isEqualTo(10D);
+    assertThat(TragoulDrain.restoredHealth(10D, 20D, Double.NaN)).isEqualTo(10D);
   }
 
   @Test
@@ -45,7 +45,7 @@ class TragoulHealingTest {
     PlayerRef attacker = mock(PlayerRef.class);
     ProjectileRef projectile = mock(ProjectileRef.class);
 
-    assertThat(TragoulHealing.resolveAttacker(attacker, projectile)).isSameAs(attacker);
+    assertThat(TragoulDrain.resolveAttacker(attacker, projectile)).isSameAs(attacker);
   }
 
   @Test
@@ -54,8 +54,8 @@ class TragoulHealingTest {
     LivingRef shooter = mock(LivingRef.class);
     when(projectile.shooter()).thenReturn(shooter);
 
-    assertThat(TragoulHealing.resolveAttacker(projectile)).isSameAs(shooter);
-    assertThat(TragoulHealing.resolveAttacker(mock(ItemEntityRef.class))).isNull();
+    assertThat(TragoulDrain.resolveAttacker(projectile)).isSameAs(shooter);
+    assertThat(TragoulDrain.resolveAttacker(mock(ItemEntityRef.class))).isNull();
   }
 
   @Test

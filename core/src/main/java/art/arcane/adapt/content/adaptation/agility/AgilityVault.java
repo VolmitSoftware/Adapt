@@ -272,7 +272,6 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
         .chord(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.7F, 1.2F, Sounds.ENTITY_PHANTOM_FLAP, 0.4F, 1.5F);
 
     addStat(p, "agility.vault.vaults", 1);
-    xp(p, getConfig().xpPerVault);
   }
 
   private void arm(PlayerRef p) {
@@ -362,8 +361,6 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Jump apex in blocks when clearing a fence.", impact = "Higher values clear fences with more vertical margin.")
     double jumpHeight = 1.75D;
-    @ConfigDoc(value = "Experience granted per successful vault.", impact = "Higher values reward vaulting with more skill xp.")
-    double xpPerVault = 3D;
 
     public Config() {
       baseCost = 1;

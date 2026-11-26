@@ -884,7 +884,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
     DataHolder sourceData = source.blockEntityData();
     String owner = sourceData == null ? null : sourceData.get(ownerKey);
-    List<ItemRef> moving = extractItems(sourceInventory, throughput, closingPlayerId.toString().equals(owner) ? selection : Items.ALL);
+    Items chosen = closingPlayerId.toString().equals(owner) ? selection : Items.ALL;
+    List<ItemRef> moving = RiftItemMoves.take(sourceInventory, throughput, (Id type) -> acceptsItem(chosen, type));
     if (moving.isEmpty()) {
       return;
     }
@@ -899,7 +900,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }, FLOW_DELIVERY_TIMEOUT_TICKS);
     if (!recoveryScheduled) {
       settled.set(true);
-      dropAt(sourceLoc, addItems(sourceInventory, moving));
+      RiftItemMoves.drop(sourceLoc, RiftItemMoves.put(sourceInventory, moving));
       return;
     }
 
@@ -916,10 +917,10 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       });
     } catch (Throwable error) {
       AdaptLog.error("Rift Conduit transfer " + linkId + " could not start partner loading at "
-          + partnerLoc + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
+          + partnerLoc + "; returning " + RiftItemMoves.total(moving) + " items to " + sourceLoc + ".");
       AdaptLog.error(error);
       if (settled.compareAndSet(false, true)) {
-        dropAt(sourceLoc, addItems(sourceInventory, moving));
+        RiftItemMoves.drop(sourceLoc, RiftItemMoves.put(sourceInventory, moving));
       }
     }
   }
@@ -930,7 +931,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       depositToPartner(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow);
     } catch (Throwable error) {
       AdaptLog.error("Rift Conduit transfer " + linkId + " failed while depositing at " + partnerLoc
-          + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
+          + "; returning " + RiftItemMoves.total(moving) + " items to " + sourceLoc + ".");
       AdaptLog.error(error);
       restoreToSource(sourceLoc, moving);
     }
@@ -947,8 +948,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    List<ItemRef> leftovers = addItems(partnerInventory, moving);
-    int moved = totalAmount(moving) - totalAmount(leftovers);
+    List<ItemRef> leftovers = RiftItemMoves.put(partnerInventory, moving);
+    int moved = RiftItemMoves.total(moving) - RiftItemMoves.total(leftovers);
     if (!leftovers.isEmpty()) {
       restoreToSource(sourceLoc, leftovers);
     }
@@ -979,69 +980,14 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         () -> {
           InventoryRef container = blockAt(sourceLoc).container();
           if (container != null) {
-            dropAt(sourceLoc, addItems(container, items));
+            RiftItemMoves.drop(sourceLoc, RiftItemMoves.put(container, items));
           } else {
-            dropAt(sourceLoc, items);
+            RiftItemMoves.drop(sourceLoc, items);
           }
         },
-        () -> AdaptLog.error("Rift Conduit stranded " + totalAmount(items)
+        () -> AdaptLog.error("Rift Conduit stranded " + RiftItemMoves.total(items)
             + " items because their source transfer recovery could not run at " + sourceLoc + ".")
     );
-  }
-
-  private void dropAt(Loc loc, List<ItemRef> items) {
-    Loc drop = loc.add(0.5, 0.5, 0.5);
-    for (ItemRef item : items) {
-      if (item != null && !item.type().isAir() && item.amount() > 0) {
-        loc.world().dropItem(drop.position(), item);
-      }
-    }
-  }
-
-  private List<ItemRef> extractItems(InventoryRef inventory, int budget, Items selection) {
-    List<ItemRef> removed = new ArrayList<>();
-    int remaining = Math.max(0, budget);
-    int size = inventory.size();
-    for (int slot = 0; slot < size && remaining > 0; slot++) {
-      ItemRef stack = inventory.item(slot);
-      if (stack == null || stack.type().isAir() || stack.amount() <= 0 || !acceptsItem(selection, stack.type())) {
-        continue;
-      }
-      int take = Math.min(remaining, stack.amount());
-      removed.add(stack.copyWithAmount(take));
-      remaining -= take;
-      if (take >= stack.amount()) {
-        inventory.clear(slot);
-      } else {
-        inventory.setItem(slot, stack.copyWithAmount(stack.amount() - take));
-      }
-    }
-    return removed;
-  }
-
-  private List<ItemRef> addItems(InventoryRef inventory, List<ItemRef> items) {
-    List<ItemRef> leftovers = new ArrayList<>();
-    for (ItemRef item : items) {
-      if (item == null || item.type().isAir() || item.amount() <= 0) {
-        continue;
-      }
-      for (ItemRef leftover : inventory.addItem(item.copy())) {
-        if (leftover != null && !leftover.type().isAir() && leftover.amount() > 0) {
-          leftovers.add(leftover);
-        }
-      }
-    }
-    return leftovers;
-  }
-
-  private int totalAmount(List<ItemRef> items) {
-    int sum = 0;
-    for (ItemRef item : items) {
-      if (item != null && !item.type().isAir()) {
-        sum += item.amount();
-      }
-    }
-    return sum;
   }
 
   private boolean isConduitContainer(BlockRef block) {

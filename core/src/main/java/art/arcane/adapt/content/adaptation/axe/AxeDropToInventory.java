@@ -29,22 +29,18 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
-import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Config> {
@@ -90,37 +86,13 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
       return;
     }
 
-    List<ItemEntityRef> items = new ArrayList<>(e.items());
-    int caught = 0;
-    boolean overflow = false;
-    for (ItemEntityRef i : items) {
-      if (!preference(p, AxePreferences.ITEMS).accepts(i.item().type())) {
-        continue;
-      }
-      ItemRef stack = i.item().copy();
-      int remaining = ProtectionProbes.remainingAfterPickup(p.inventory(), stack);
-      if (!ProtectionProbes.attemptBlockDropPickup(p, i, remaining, e.block().location()) || i.isDead()) {
-        continue;
-      }
-      stack = i.item().copy();
-      if (!e.items().remove(i)) {
-        continue;
-      }
-      List<ItemRef> leftovers = p.inventory().addItem(stack);
-      if (leftovers != null && !leftovers.isEmpty()) {
-        for (ItemRef leftover : leftovers) {
-          p.world().dropItem(p.location().position(), leftover);
-        }
-        overflow = true;
-      }
-      caught++;
-    }
-    if (caught <= 0) {
+    AxeDropCatch.Caught caught = AxeDropCatch.transfer(e, p, preference(p, AxePreferences.ITEMS)::accepts);
+    if (caught.count() <= 0) {
       return;
     }
 
-    addStat(p, "axe.drop-to-inv.items-caught", caught);
-    int caughtCount = caught;
+    addStat(p, "axe.drop-to-inv.items-caught", caught.count());
+    int caughtCount = caught.count();
     Loc from = e.block().location().add(0.5D, 0.5D, 0.5D);
     Loc to = p.location().add(0.0D, 1.0D, 0.0D);
     double dx = to.x() - from.x();
@@ -137,7 +109,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
           }
         })
         .start();
-    if (overflow) {
+    if (caught.overflow()) {
       fx(to, FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 3, 0.2D)
           .sound(Sounds.BLOCK_DISPENSER_FAIL, 0.4F, 0.8F);

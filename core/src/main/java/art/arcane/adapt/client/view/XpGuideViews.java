@@ -1,0 +1,80 @@
+package art.arcane.adapt.client.view;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.XpGuideMessages;
+import art.arcane.volmlib.util.localization.LanguageAudience;
+import art.arcane.volmlib.util.localization.TextKey;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+
+/** How each skill a viewer sees earns XP, in the viewer's language, for the client book and the chest menus. */
+public final class XpGuideViews {
+  private XpGuideViews() {
+  }
+
+  /** The guide for every registered skill and each of the viewer's mutated skills, in catalog order. */
+  public static List<XpGuideView> build(SkillRegistry registry, UUID viewer, List<SkillMutation> mutations) {
+    return LanguageAudience.call(viewer, () -> {
+      List<XpGuideView> guides = new ArrayList<>();
+      for (Skill<?> skill : registry.getSkills()) {
+        guides.add(guide(registry, skill));
+      }
+      for (SkillMutation mutation : mutations) {
+        MutatedSkill mutated = registry.getMutatedSkill(mutation.id());
+        if (mutated != null) {
+          guides.add(guide(registry, mutated));
+        }
+      }
+      return guides;
+    });
+  }
+
+  /** The heading guides are shown under, in the current audience's language. */
+  public static String title() {
+    return AdaptLanguage.text(XpGuideMessages.TITLE);
+  }
+
+  /** How {@code skill} earns XP, in the current audience's language. */
+  public static XpGuideView guide(SkillRegistry registry, Skill<?> skill) {
+    if (!(skill instanceof MutatedSkill mutated)) {
+      return new XpGuideView(skill.getName(), List.of(), List.of(section(skill)));
+    }
+    SkillMutation mutation = mutated.getMutation();
+    List<XpGuideView.Section> sections = new ArrayList<>();
+    for (String parent : List.of(mutation.lead(), mutation.partner())) {
+      Skill<?> original = registry.getSkill(parent);
+      if (original != null) {
+        sections.add(section(original));
+      }
+    }
+    sections.add(new XpGuideView.Section("", AdaptLanguage.text(XpGuideMessages.MUTATION), rules()));
+    return new XpGuideView(skill.getName(), List.of(mutation.lead(), mutation.partner()), sections);
+  }
+
+  /** The mutation's rules, the share of the smaller award read from the server's config. */
+  public static List<String> rules() {
+    long share = Math.round(AdaptConfig.get().getMutations().getSameActionSmallerShare() * 100D);
+    List<String> rules = new ArrayList<>();
+    for (TextKey rule : XpGuideMessages.rules()) {
+      rules.add(rule == XpGuideMessages.SAME_ACTION ? AdaptLanguage.text(rule, trusted("share", share)) : AdaptLanguage.text(rule));
+    }
+    return rules;
+  }
+
+  private static XpGuideView.Section section(Skill<?> skill) {
+    List<String> lines = new ArrayList<>();
+    for (TextKey line : XpGuideMessages.lines(skill.getName())) {
+      lines.add(AdaptLanguage.text(line));
+    }
+    return new XpGuideView.Section(skill.getName(), CatalogViews.plain(skill.getLocalizedName()), lines);
+  }
+}

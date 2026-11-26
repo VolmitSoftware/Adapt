@@ -9,7 +9,9 @@ class ArchitectPlacementBudgetTest {
   void ownerBatchAndPreviewSizeHaveHardCeilings() {
     assertThat(ArchitectPlacement.previewBatchEnd(0, 1_000)).isEqualTo(64);
     assertThat(ArchitectPlacement.previewBatchEnd(960, 1_000)).isEqualTo(1_000);
-    assertThat(ArchitectPlacement.clampPreviewBlocks(100)).isEqualTo(9);
+    assertThat(ArchitectPlacement.clampPreviewBlocks(100, 1)).isEqualTo(9);
+    assertThat(ArchitectPlacement.clampPreviewBlocks(20, 2)).isEqualTo(25);
+    assertThat(ArchitectPlacement.clampPreviewBlocks(100, 3)).isEqualTo(49);
     assertThat(ArchitectPlacement.clampDisplayViewRange(100D)).isEqualTo(2D);
   }
 

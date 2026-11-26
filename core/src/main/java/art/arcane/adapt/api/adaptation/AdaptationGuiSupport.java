@@ -18,7 +18,19 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.tool.MutationTool;
+import art.arcane.adapt.api.mutation.tool.MutationTools;
+import art.arcane.adapt.api.potion.BrewingRecipe;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.PotionContents;
+import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.localization.catalog.MutatedMessages;
+import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.fx.FxPresets;
@@ -62,9 +74,12 @@ import art.arcane.volmlib.util.math.M;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -73,6 +88,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 final class AdaptationGuiSupport {
   private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
   private static final long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
+  private static final int RECIPE_NAMES = 3;
   private static final Id PAPER = Id.minecraft("paper");
   private static final Id ARROW = Id.minecraft("arrow");
   private static final Id LECTERN = Id.minecraft("lectern");
@@ -153,17 +169,18 @@ final class AdaptationGuiSupport {
   }
 
   static String getDisplayName(Adaptation<?> adaptation, int level) {
-    if (!adaptation.isEnabled()) {
-      return adaptation.getDisplayName();
-    }
-    if (!adaptation.getSkill().isEnabled()) {
-      return adaptation.getDisplayName();
-    }
-    if (level >= 1) {
-      return adaptation.getDisplayName() + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
-    }
+    return leveled(adaptation, adaptation.getDisplayName(), level);
+  }
 
-    return adaptation.getDisplayName();
+  static String getShortName(Adaptation<?> adaptation, int level) {
+    return leveled(adaptation, adaptation.getShortName(), level);
+  }
+
+  private static String leveled(Adaptation<?> adaptation, String name, int level) {
+    if (level < 1 || !adaptation.isEnabled() || !adaptation.getSkill().isEnabled()) {
+      return name;
+    }
+    return name + C.RESET + " " + C.UNDERLINE + C.WHITE + Form.toRoman(level) + C.RESET;
   }
 
   static String getDisplayNameNoRoman(Adaptation<?> adaptation, int level) {
@@ -302,12 +319,17 @@ final class AdaptationGuiSupport {
     if (line == null) {
       return;
     }
-    int mylevel = paidLevel(line, adaptation.getName());
+    int keptFloor = SkillUpgrades.keptFloor(adaptation, adaptPlayer.getData());
+    int mylevel = Math.max(keptFloor, paidLevel(line, adaptation.getName()));
 
     long k = line.getKnowledge();
     List<String> requirementLore = requirementLore(adaptation, adaptPlayer.getData());
+    String toolLore = MutationTools.lore(adaptation);
 
     boolean debugLearning = AdaptDebugMode.isActive(player);
+    int heldLevel = SkillUpgrades.holdable(adaptation, adaptPlayer.getData()) ? 0
+        : keptFloor > 0 ? keptFloor : PlayerPreferences.editLevel(adaptation, adaptPlayer);
+    String heldState = heldLevel > 0 ? heldState(adaptation, player, adaptPlayer, heldLevel) : null;
 
     GuiWindow w = new GuiWindow(player);
     GuiTheme.apply(w, "skill/" + adaptation.getSkill().getName() + "/" + adaptation.getName());
@@ -327,23 +349,38 @@ final class AdaptationGuiSupport {
         int pos = GuiLayout.centeredPosition(i, rowCount);
         int c = adaptation.getCostFor(lvl, mylevel);
         int rc = adaptation.getRefundCostFor(lvl - 1, mylevel);
-        int pc = adaptation.getPowerCostFor(lvl, mylevel);
+        int pc = adaptation.getPowerCostFor(lvl - keptFloor, mylevel - keptFloor);
         boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, adaptation, lvl);
         CustomModel model = GuiConfig.adaptationModel(
             adaptation.getName(),
             adaptation.getIcon(),
             adaptation.getModel(lvl)
         );
+        if (heldState != null && (keptFloor <= 0 || lvl <= keptFloor)) {
+          GuiElement held = new GuiElement("lp-" + lvl + "g")
+              .setMaterial(model.material())
+              .setModel(model)
+              .setName(adaptation.getShortName(lvl))
+              .setEnchanted(lvl <= heldLevel)
+              .addLore(C.GRAY + adaptation.getDescription())
+              .addLore(lvl <= heldLevel ? C.GREEN + heldState : "")
+              .addLore(" ");
+          StatLines heldStats = new StatLines();
+          adaptation.addLevelStats(lvl, heldStats);
+          held.addLore(heldStats.lines());
+          reveal.add(new GuiEffects.Placement(pos, row, held));
+          continue;
+        }
         GuiElement de = new GuiElement("lp-" + lvl + "g")
             .setMaterial(model.material())
             .setModel(model)
-            .setName(adaptation.getDisplayName(lvl))
+            .setName(adaptation.getShortName(lvl))
             .setEnchanted(ownsLevel(mylevel, lvl))
             .addLore(C.GRAY + adaptation.getDescription())
             .addLore(knowledgeCostLore(mylevel, lvl, c))
             .addLore(vaultCostLore(adaptation, player, mylevel, lvl, c))
             .addLore(learningActionLore(adaptation, mylevel, lvl, rc, k, c, debugLearning))
-            .addLore(powerLore(adaptPlayer, mylevel, lvl, pc))
+            .addLore(powerLore(adaptation, adaptPlayer, mylevel, lvl, debugLearning ? 0 : pc, keptFloor))
             .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN) : ""))
             .addLore(adaptation.isPermanent() && mylevel < lvl
                 ? (pendingPermanentConfirm
@@ -356,8 +393,15 @@ final class AdaptationGuiSupport {
         }
         de.addLore(" ");
         StatLines stats = new StatLines();
-        adaptation.addStats(lvl, stats);
+        adaptation.addLevelStats(lvl, stats);
         de.addLore(stats.lines());
+        if (!toolLore.isEmpty()) {
+          de.addLore(toolLore);
+        }
+        String recipeLore = recipeLore(adaptation, lvl);
+        if (!recipeLore.isEmpty()) {
+          de.addLore(recipeLore);
+        }
         reveal.add(new GuiEffects.Placement(pos, row, de));
       }
     }
@@ -422,7 +466,7 @@ final class AdaptationGuiSupport {
       PreferenceGuiSupport.populate(adaptation, w, plan.rows() - 1, currentPage);
     }
 
-    w.setTitle(adaptation.getDisplayName());
+    w.setTitle(adaptation.getShortName());
     w.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
     w.open();
   }
@@ -439,7 +483,8 @@ final class AdaptationGuiSupport {
     }
 
     int delayTicks = AdaptConfig.get().getLearnUnlearnButtonDelayTicks();
-    int currentLevel = paidLevel(skillLine, adaptation.getName());
+    int currentLevel = Math.max(SkillUpgrades.keptFloor(adaptation, currentPlayer.getData()),
+        paidLevel(skillLine, adaptation.getName()));
     if (ownsLevel(currentLevel, lvl)) {
       AdaptationLearningTransaction.Result unlearnResult = adaptation.unlearn(player, lvl, false);
       int updatedLevel = skillLine.getAdaptationLevel(adaptation.getName());
@@ -448,7 +493,7 @@ final class AdaptationGuiSupport {
         if (delayTicks != 0) {
           AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
               SnippetsMessages.ADAPT_MENU_UNLEARNED_TITLE,
-              trusted("adaptation", adaptation.getDisplayName(currentLevel))
+              trusted("adaptation", adaptation.getShortName(currentLevel))
           ));
         }
         closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
@@ -460,7 +505,7 @@ final class AdaptationGuiSupport {
       if (delayTicks != 0) {
         AdaptHud.guiTitle(player, " ", C.RED + "" + C.BOLD + AdaptLanguage.text(
             SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN_TITLE,
-            trusted("adaptation", adaptation.getDisplayName(currentLevel))
+            trusted("adaptation", adaptation.getShortName(currentLevel))
         ));
       }
       Tasks.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), delayTicks);
@@ -490,7 +535,7 @@ final class AdaptationGuiSupport {
         if (delayTicks != 0) {
           AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
               SnippetsMessages.ADAPT_MENU_LEARNED_TITLE,
-              trusted("adaptation", adaptation.getDisplayName(lvl))
+              trusted("adaptation", adaptation.getShortName(lvl))
           ));
         }
         closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
@@ -661,9 +706,34 @@ final class AdaptationGuiSupport {
     openAdaptationPage(adaptation, player, page);
   }
 
+  /** What a page of an original the player works with without learning says it is: kept, or lent by an upgrade. */
+  private static String heldState(Adaptation<?> adaptation, PlayerRef player, AdaptPlayer adaptPlayer, int level) {
+    SkillMutation mutation = adaptPlayer.getData().mutationOf(adaptation.getSkill().getName());
+    if (mutation != null) {
+      for (UpgradeLoans.Running running : UpgradeLoans.running(player, adaptPlayer, adaptation.getServer().getSkillRegistry(), mutation)) {
+        if (running.original() == adaptation) {
+          return AdaptLanguage.text(MutatedMessages.LENT_STATE, trusted("level", Form.toRoman(level)),
+              trusted("upgrade", C.stripColor(running.upgrade().getDisplayName())));
+        }
+      }
+    }
+    return AdaptLanguage.text(MutatedMessages.KEPT_STATE, trusted("level", Form.toRoman(level)));
+  }
+
+  /** The skill page an adaptation page returns to: the player's mutated skill for an upgrade, else its own skill. */
+  static Skill<?> pageSkill(Adaptation<?> adaptation, PlayerRef player) {
+    AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
+    SkillMutation mutation = adaptPlayer == null ? null : adaptPlayer.getData().mutationOf(adaptation.getSkill().getName());
+    if (mutation == null) {
+      return adaptation.getSkill();
+    }
+    Skill<?> mutated = adaptation.getServer().getSkillRegistry().getMutatedSkill(mutation.id());
+    return mutated == null ? adaptation.getSkill() : mutated;
+  }
+
   private static void navigateBack(Adaptation<?> adaptation, PlayerRef player) {
     playCloseSound(player);
-    adaptation.getSkill().openGui(player);
+    pageSkill(adaptation, player).openGui(player);
   }
 
   private static void onGuiClosed(Adaptation<?> adaptation, PlayerRef player, boolean openPrevGui) {
@@ -682,7 +752,7 @@ final class AdaptationGuiSupport {
 
     Tasks.runEntity(player, () -> {
       if (GuiCloseSuppression.windowFree(player)) {
-        adaptation.getSkill().openGui(player);
+        pageSkill(adaptation, player).openGui(player);
       }
     }, 1);
   }
@@ -692,6 +762,39 @@ final class AdaptationGuiSupport {
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
     spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
+  }
+
+  /**
+   * What the recipes {@code level} unlocks make, at most {@link #RECIPE_NAMES} names and a count of the rest; tools are
+   * left to the tools line.
+   */
+  static String recipeLore(Adaptation<?> adaptation, int level) {
+    Set<Id> tools = new HashSet<>();
+    for (MutationTool<?> tool : MutationTools.handedOut(adaptation)) {
+      for (RecipeSpec recipe : tool.recipes()) {
+        tools.add(recipe.key());
+      }
+    }
+    Set<String> names = new LinkedHashSet<>();
+    for (RecipeSpec recipe : adaptation.getRecipes()) {
+      if (recipe.requiredLevel() == level && !tools.contains(recipe.key())) {
+        names.add(C.stripColor(recipe.result().displayName()).trim());
+      }
+    }
+    if (level == 1) {
+      for (BrewingRecipe brew : adaptation.getBrewingRecipes()) {
+        ItemRef result = brew.getResult();
+        String name = result.potionContents().map(PotionContents::name).orElse(null);
+        names.add(C.stripColor(name == null ? result.displayName() : name).trim());
+      }
+    }
+    names.remove("");
+    if (names.isEmpty()) {
+      return "";
+    }
+    List<String> shown = new ArrayList<>(names).subList(0, Math.min(RECIPE_NAMES, names.size()));
+    String listed = String.join(", ", shown) + (names.size() > shown.size() ? " +" + (names.size() - shown.size()) : "");
+    return C.AQUA + AdaptLanguage.text(GuiMessages.RECIPES, trusted("recipes", listed));
   }
 
   private static String knowledgeCostLore(int currentLevel, int targetLevel, int cost) {
@@ -839,7 +942,7 @@ final class AdaptationGuiSupport {
     if (debugLearning || knowledge >= cost) {
       return C.BLUE + AdaptLanguage.text(
           GuiMessages.CLICK_TO_LEARN,
-          trusted("adaptation", adaptation.getDisplayName(targetLevel))
+          trusted("adaptation", adaptation.getShortName(targetLevel))
       );
     }
     if (knowledge == 0) {
@@ -851,17 +954,30 @@ final class AdaptationGuiSupport {
     );
   }
 
-  private static String powerLore(
+  /**
+   * The power line of a level's entry: what learning it takes when that starts holding the adaptation, or what
+   * unlearning it frees when that drops the last paid level; nothing for levels that change no power.
+   */
+  static String powerLore(
+      Adaptation<?> adaptation,
       AdaptPlayer adaptPlayer,
       int currentLevel,
       int targetLevel,
-      int powerCost
+      int powerCost,
+      int keptFloor
   ) {
-    if (currentLevel >= targetLevel || powerCost <= 0 || adaptPlayer.getData().hasPowerAvailable(powerCost)) {
-      return C.GREEN + AdaptLanguage.text(
-          GuiMessages.POWER_DRAIN,
-          trusted("power", 1)
-      );
+    if (currentLevel >= targetLevel) {
+      int freed = -adaptation.getPowerCostFor(targetLevel - 1 - keptFloor, currentLevel - keptFloor);
+      if (freed <= 0 || adaptation.isPermanent() || AdaptConfig.get().isHardcoreNoRefunds()) {
+        return "";
+      }
+      return C.GREEN + AdaptLanguage.text(GuiMessages.POWER_FREED, trusted("power", freed));
+    }
+    if (powerCost <= 0) {
+      return "";
+    }
+    if (adaptPlayer.getData().hasPowerAvailable(powerCost)) {
+      return C.GREEN + AdaptLanguage.text(GuiMessages.POWER_DRAIN, trusted("power", powerCost));
     }
     return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NOT_ENOUGH_POWER) + "\n"
         + C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_HOW_TO_LEVEL_UP);

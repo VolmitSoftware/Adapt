@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -37,6 +39,7 @@ import art.arcane.adapt.content.adaptation.discovery.DiscoveryArmor;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryBetterMending;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryCartographerPulse;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryFieldNotes;
+import art.arcane.adapt.content.adaptation.discovery.DiscoveryFindEvent;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryInsight;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryKeenEye;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryNames;
@@ -47,7 +50,17 @@ import art.arcane.adapt.content.adaptation.discovery.DiscoveryTrailblazer;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryUnity;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryVillagerAtt;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryXpResist;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryBoon;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryFightStrike;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryFuel;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryState;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryTrigger;
+import art.arcane.adapt.content.adaptation.discovery.blocks.DiscoveryWorkStrike;
+import art.arcane.adapt.content.adaptation.discovery.upgraded.ExplorersLuck;
+import art.arcane.adapt.content.adaptation.discovery.upgraded.Omniscience;
+import art.arcane.adapt.content.adaptation.discovery.upgraded.UnityPrime;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.entity.EffectInstance;
@@ -93,8 +106,18 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   private final Map<UUID, TargetObservation> lastTargetObservations = playerState();
   private int targetCursor;
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.DISCOVERY_EXPLORING, "discovery-insight", "discovery-keen-eye", "discovery-sixth-sense",
+          "discovery-cartographer-pulse", "discovery-trailblazer", "discovery-archaeologist", "discovery-relic-appraiser",
+          "discovery-world-armor"),
+      AdaptationGroup.of(GroupMessages.DISCOVERY_EXPERIENCE, "discovery-field-notes", "discovery-villager-att",
+          "discovery-better-mending", "discovery-xp-resist", "discovery-polymath", "discovery-unity")
+  );
+
+
   public SkillDiscovery() {
-    super("discovery", SkillPresentation.of(SkillMessages.DISCOVERY_NAME, SkillMessages.DISCOVERY_ICON, SkillMessages.DISCOVERY_DESCRIPTION));
+    super("discovery", SkillPresentation.of(SkillMessages.DISCOVERY_NAME, SkillMessages.DISCOVERY_ICON, SkillMessages.DISCOVERY_DESCRIPTION,
+        SkillMessages.DISCOVERY_QUIP, SkillMessages.DISCOVERY_UNLOCK_QUIP_1, SkillMessages.DISCOVERY_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
     setInterval(50);
@@ -113,6 +136,9 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     registerAdaptation(new DiscoveryRelicAppraiser());
     registerAdaptation(new DiscoverySixthSense());
     registerAdaptation(new DiscoveryKeenEye());
+    registerUpgrades(new Omniscience(), new UnityPrime(), new ExplorersLuck());
+    registerBlocks(new DiscoveryTrigger(), new DiscoveryFightStrike(), new DiscoveryWorkStrike(), new DiscoveryBoon(),
+        new DiscoveryFuel(), new DiscoveryState());
 
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("item_frame")).key("challenge_discover_items_50")
@@ -195,6 +221,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     registerMilestone("challenge_discover_foods_30", "discovery.foods", 30, 1500);
   }
 
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerChangedWorldEvent e) {
     shouldReturnForPlayer(e.player(), () -> scheduleSeeWorld(e.player()));
@@ -265,6 +296,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     shouldReturnForPlayer(p, e, () -> {
       if (getPlayer(p).getData().getSeenChunks().isNewDiscovery(to.world().uid(), to.chunkX(), to.chunkZ())) {
         xpSilent(p, getConfig().discoverChunkXP, "discovery:chunk");
+        found(p, to, true);
       }
     });
   }
@@ -315,6 +347,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
       xp(p, getConfig().discoverBlockBaseXP + (value * getConfig().discoverBlockValueXPMultiplier));
       addStat(p, "discovery.blocks", 1);
       celebrateDiscovery(l.add(0.5, 0.5, 0.5), value);
+      found(p, l, false);
     }
 
     seeItem(p, bd.type());
@@ -359,6 +392,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     if (d.isNewDiscovery(DiscoveryNames.enumName(bd))) {
       xp(p, getConfig().discoverItemBaseXP + (getValue(bd) * getConfig().discoverItemValueXPMultiplier));
       addStat(p, "discovery.items", 1);
+      found(p, p.location(), false);
     }
   }
 
@@ -379,6 +413,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenRecipes();
     if (d.isNewDiscovery(key)) {
       xp(p, getConfig().discoverRecipeBaseXP);
+      found(p, p.location(), false);
     }
   }
 
@@ -391,6 +426,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     if (d.isNewDiscovery(DiscoveryNames.enumName(bd))) {
       xp(p, getConfig().discoverFoodTypeXP);
       addStat(p, "discovery.foods", 1);
+      found(p, p.location(), false);
     }
   }
 
@@ -403,6 +439,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     if (d.isNewDiscovery(bd.type() == null ? UNKNOWN_ENTITY_TYPE : DiscoveryNames.enumName(bd.type()))) {
       xp(p, getConfig().discoverEntityTypeXP);
       addStat(p, "discovery.mobs", 1);
+      found(p, p.location(), false);
     }
 
     if (bd instanceof PlayerRef seen) {
@@ -424,6 +461,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenPeople();
     if (d.isNewDiscovery(bd.uuid().toString())) {
       xp(p, getConfig().discoverPlayerXP);
+      found(p, p.location(), false);
     }
   }
 
@@ -435,6 +473,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenEnchants();
     if (d.isNewDiscovery(DiscoveryNames.enchantment(bd) + " " + Form.toRoman(level))) {
       xp(p, getConfig().discoverEnchantBaseXP + Math.min(getConfig().discoverEnchantMaxXP, level * getConfig().discoverEnchantLevelXPMultiplier));
+      found(p, p.location(), false);
     }
   }
 
@@ -446,6 +485,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenWorlds();
     if (d.isNewDiscovery(world.key() + "-" + world.seed())) {
       xp(p, getConfig().discoverWorldXP);
+      found(p, p.location(), false);
     }
 
     seeEnvironment(p, world.environment());
@@ -459,6 +499,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenEnvironments();
     if (d.isNewDiscovery(world.name())) {
       xp(p, getConfig().discoverEnvironmentXP);
+      found(p, p.location(), false);
     }
   }
 
@@ -470,6 +511,7 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     Discovery<String> d = playerData.getSeenPotionEffects();
     if (d.isNewDiscovery(DiscoveryNames.effect(e.type()) + " " + Form.toRoman(e.amplifier()).trim())) {
       xp(p, getConfig().discoverPotionXP);
+      found(p, p.location(), false);
     }
   }
 
@@ -482,10 +524,17 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     if (d.isNewDiscovery(e.toString())) {
       xp(p, getConfig().discoverBiomeXP);
       addStat(p, "discovery.biomes", 1);
+      found(p, p.location(), false);
       return true;
     }
 
     return false;
+  }
+
+  private static void found(PlayerRef p, Loc at, boolean chunk) {
+    if (at != null) {
+      AdaptCore.get().getBus().post(new DiscoveryFindEvent(p, at, chunk));
+    }
   }
 
   private PlayerData runtimeData(PlayerRef player) {

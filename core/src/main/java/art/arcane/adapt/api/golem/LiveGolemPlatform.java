@@ -9,7 +9,6 @@ import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -78,8 +77,7 @@ final class LiveGolemPlatform implements GolemPlatform {
   @Override
   public boolean keepsBoneGolems(UUID owner) {
     AdaptPlayer player = onlinePlayer(owner);
-    PlayerSkillLine tragoul = player == null ? null : player.getData().getSkillLineNullable("tragoul");
-    return tragoul != null && tragoul.getAdaptationLevel("tragoul-skeletal-servant") > 0;
+    return player != null && player.hasAdaptation("tragoul-skeletal-servant");
   }
 
   @Override

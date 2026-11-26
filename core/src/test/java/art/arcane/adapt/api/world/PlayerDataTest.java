@@ -185,7 +185,6 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("axes").getAdaptations())
             .containsOnlyKeys("axe-shield-splitter");
-        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("axes.blocks.broken", 14D);
@@ -213,7 +212,6 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("excavation").getAdaptations())
             .containsOnlyKeys("excavation-burrow");
-        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("excavation.blocks.broken", 14D);
@@ -242,7 +240,6 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("rift").getAdaptations())
             .containsOnlyKeys("rift-blink");
-        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("rift.blink.blinks", 14D);
@@ -270,12 +267,33 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(restored).isNotNull();
         assertThat(restored.getSkillLines().get("agility").getAdaptations())
             .containsOnlyKeys("agility-roll-landing");
-        assertThat(restored.getUsedPower()).isEqualTo(1);
         assertThat(restored.getStats())
             .hasSize(1)
             .containsEntry("agility.roll-landing.damage-prevented", 30D);
         assertThat(restored.getAdvancements())
             .containsOnly("challenge_agility_roll_100");
+    }
+
+    @Test
+    @DisplayName("retired Turtle's Vision is removed and its knowledge returned, but only once")
+    void retiredTurtlesVisionIsRefundedOnce() {
+        PlayerData data = new PlayerData();
+        PlayerSkillLine seaborne = new PlayerSkillLine();
+        seaborne.setLine("seaborne");
+        seaborne.getAdaptations().put("seaborne-turtles-vision", adaptation("seaborne-turtles-vision", 1));
+        seaborne.getAdaptations().put("seaborne-oxygen", adaptation("seaborne-oxygen", 2));
+        seaborne.giveKnowledge(3);
+        data.getSkillLines().put("seaborne", seaborne);
+        data.ensureGranted("adaptation_seaborne-turtles-vision");
+        data.ensureGranted("challenge_seaborne_vision_72k");
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+        PlayerData reloaded = PlayerData.fromJson(restored.toJson(false));
+
+        assertThat(restored.getSkillLines().get("seaborne").getAdaptations()).containsOnlyKeys("seaborne-oxygen");
+        assertThat(restored.getSkillLines().get("seaborne").getKnowledge()).isEqualTo(9L);
+        assertThat(reloaded.getSkillLines().get("seaborne").getKnowledge()).isEqualTo(9L);
+        assertThat(restored.getAdvancements()).containsOnly("challenge_seaborne_vision_72k");
     }
 
     @Test

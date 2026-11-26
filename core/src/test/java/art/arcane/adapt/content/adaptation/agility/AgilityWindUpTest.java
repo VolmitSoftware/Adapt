@@ -35,17 +35,17 @@ class AgilityWindUpTest {
 
   @Test
   void smoothedBonusApproachesTargetByFraction() {
-    assertThat(AgilityWindUp.smoothedBonus(0D, 0.4D, 0.5F)).isCloseTo(0.2D, offset(1.0e-9D));
+    assertThat(AgilityRunRamp.smoothedBonus(0D, 0.4D, 0.5F)).isCloseTo(0.2D, offset(1.0e-9D));
   }
 
   @Test
   void smoothedBonusSnapsWhenNearTarget() {
-    assertThat(AgilityWindUp.smoothedBonus(0.399D, 0.4D, 0.5F)).isEqualTo(0.4D);
+    assertThat(AgilityRunRamp.smoothedBonus(0.399D, 0.4D, 0.5F)).isEqualTo(0.4D);
   }
 
   @Test
   void smoothedBonusHoldsCurrentWithZeroSmoothing() {
-    assertThat(AgilityWindUp.smoothedBonus(0.1D, 0.4D, 0F)).isEqualTo(0.1D);
+    assertThat(AgilityRunRamp.smoothedBonus(0.1D, 0.4D, 0F)).isEqualTo(0.1D);
   }
 
   @Test

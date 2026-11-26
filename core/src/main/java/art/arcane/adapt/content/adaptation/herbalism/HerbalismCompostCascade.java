@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.herbalism;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -30,9 +31,12 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.engine.MutationPayouts;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
@@ -115,6 +119,12 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     registerMilestone("challenge_herbalism_compost_25k", "herbalism.compost-cascade.items-composted", 25000, 1000);
   }
 
+  /** A player who mutated Herbalism runs the cascade at the level Harvest Moon lends it. */
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
     return List.of(CommonPreferences.ENABLED, MATERIALS, LEAVES, DROPS, INVENTORY, RESERVE);
@@ -170,6 +180,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     int level = getActiveLevel(p);
+    boolean lent = super.getActiveLevel(p) <= 0;
     double fillChance = getFillChance(level);
     int maxItems = getMaxItems(level);
     double radius = getRadius(level);
@@ -185,13 +196,13 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
     state.beginPhase(budget.drops());
     if (preferenceEnabled(p, DROPS)) {
-      processDroppedItems(p, world, center, radius, state, fillChance);
+      processDroppedItems(p, world, center, radius, state, fillChance, lent);
     }
     state.beginPhase(budget.growth());
     scanGrowth(p, world, center, radius, level, state, fillChance, immatureCrops);
     state.beginPhase(budget.inventory());
     if (preferenceEnabled(p, INVENTORY)) {
-      processInventoryItems(p, state, fillChance);
+      processInventoryItems(p, state, fillChance, lent);
     }
 
     if (state.consumed <= 0) {
@@ -210,9 +221,13 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
     addStat(p, "harvest.composted", state.consumed);
     addStat(p, "herbalism.compost-cascade.items-composted", state.consumed);
-    xp(p, (state.consumed * getConfig().xpPerItemConsumed)
-        + (state.levelGains * getConfig().xpPerLevelGain)
-        + (matured * getConfig().xpPerCropMatured));
+    if (lent) {
+      UpgradeLoans.landed(this, p);
+    } else {
+      xp(p, (state.consumed * getConfig().xpPerItemConsumed)
+          + (state.levelGains * getConfig().xpPerLevelGain)
+          + (matured * getConfig().xpPerCropMatured));
+    }
 
     double visualRadius = Math.min(8.0D, radius);
     timeline(center)
@@ -240,10 +255,12 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           .chord(Sounds.BLOCK_COMPOSTER_READY, 1.0F, 1.12F, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.6F, 1.2F);
     }
 
-    dropRewards(world, center, level, oldLevel, updatedLevel, state);
+    dropRewards(world, center, level, oldLevel, updatedLevel, state, lent ? valuableShare(state) : 1D);
   }
 
-  private void processDroppedItems(PlayerRef p, WorldRef world, Loc center, double radius, CompostState state, double fillChance) {
+  /** {@code forced} counts everything composted here as forced: a lent cascade cannot tell where loose items grew. */
+  private void processDroppedItems(PlayerRef p, WorldRef world, Loc center, double radius, CompostState state, double fillChance,
+                                   boolean forced) {
     if (state.phaseDone()
         || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(center, radius, radius))) {
       return;
@@ -279,7 +296,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      if (compostStack(p, stack, state, fillChance) <= 0) {
+      if (compostStack(p, stack, state, fillChance, forced) <= 0) {
         continue;
       }
       if (stack.amount() <= 0) {
@@ -292,82 +309,56 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
 
   private void scanGrowth(PlayerRef p, WorldRef world, Loc center, double radius, int level, CompostState state,
                           double fillChance, List<BlockRef> immatureCrops) {
-    int r = Math.max(1, (int) Math.ceil(radius));
-    int span = (2 * r) + 1;
-    int budget = workFor(span * span * span, SCAN_BLOCK_BUDGET);
-    double rs = radius * radius;
     boolean consumeLeaves = getConfig().consumeLeaves && preferenceEnabled(p, LEAVES);
     int bursts = getLeafCompostBursts(level);
     double leafFillChance = getLeafFillChance(level, fillChance);
-    int inspected = 0;
-    int puffs = 0;
+    int[] puffs = {0};
 
-    for (int x = -r; x <= r; x++) {
-      for (int y = -r; y <= r; y++) {
-        for (int z = -r; z <= r; z++) {
-          if (inspected >= budget) {
-            return;
+    HerbalismField.scan(world, center, radius, SCAN_BLOCK_BUDGET, (BlockRef b) -> {
+      if (!preference(p, MATERIALS).allows(b.type())) {
+        return;
+      }
+      BlockStateRef ageable = b.state();
+      if (ageable.age() >= 0 && isCropCandidate(b.type())) {
+        if (ageable.age() < ageable.maxAge()) {
+          if (immatureCrops.size() < MAX_TRACKED_IMMATURE_CROPS && !AdaptConfig.get().isGrowthBlacklisted(b.type())) {
+            immatureCrops.add(b);
           }
+          return;
+        }
 
-          if ((x * x) + (y * y) + (z * z) > rs) {
-            continue;
-          }
+        if (!state.phaseDone()) {
+          harvestMatureCrop(p, world, b, state, fillChance);
+        }
+        return;
+      }
 
-          inspected++;
-          int blockX = center.blockX() + x;
-          int blockY = center.blockY() + y;
-          int blockZ = center.blockZ() + z;
-          if (Tasks.isFoliaThreading()
-              && !Tasks.isOwnedByCurrentRegion(new Loc(world, blockX, blockY, blockZ))) {
-            continue;
-          }
-          BlockRef b = world.blockAt(blockX, blockY, blockZ);
-          if (!preference(p, MATERIALS).allows(b.type())) {
-            continue;
-          }
-          BlockStateRef ageable = b.state();
-          if (ageable.age() >= 0 && isCropCandidate(b.type())) {
-            if (ageable.age() < ageable.maxAge()) {
-              if (immatureCrops.size() < MAX_TRACKED_IMMATURE_CROPS && !AdaptConfig.get().isGrowthBlacklisted(b.type())) {
-                immatureCrops.add(b);
-              }
-              continue;
-            }
+      if (consumeLeaves && !state.phaseDone() && isLeafBlock(b.type())) {
+        Id expectedLeafType = b.type();
+        if (!canBlockBreak(p, b.location())
+            || !ProtectionProbes.attemptBlockBreakProbe(p, b)) {
+          return;
+        }
+        if (!isCurrentLeaf(p, b, expectedLeafType)) {
+          return;
+        }
 
-            if (!state.phaseDone()) {
-              harvestMatureCrop(p, world, b, state, fillChance);
-            }
-            continue;
-          }
+        ItemRef leaves = AdaptCore.platform().host().items().create(Id.minecraft("oak_leaves"), bursts);
+        if (!isCurrentLeaf(p, b, expectedLeafType)
+            || compostStack(p, leaves, state, leafFillChance, false) <= 0
+            || !isCurrentLeaf(p, b, expectedLeafType)) {
+          return;
+        }
+        b.setType(AIR, false);
 
-          if (consumeLeaves && !state.phaseDone() && isLeafBlock(b.type())) {
-            Id expectedLeafType = b.type();
-            if (!canBlockBreak(p, b.location())
-                || !ProtectionProbes.attemptBlockBreakProbe(p, b)) {
-              continue;
-            }
-            if (!isCurrentLeaf(p, b, expectedLeafType)) {
-              continue;
-            }
-
-            ItemRef leaves = AdaptCore.platform().host().items().create(Id.minecraft("oak_leaves"), bursts);
-            if (!isCurrentLeaf(p, b, expectedLeafType)
-                || compostStack(p, leaves, state, leafFillChance) <= 0
-                || !isCurrentLeaf(p, b, expectedLeafType)) {
-              continue;
-            }
-            b.setType(AIR, false);
-
-            if (puffs < 8) {
-              fx(b.center(), FxPriority.AMBIENT)
-                  .particle(Particles.SPORE_BLOSSOM_AIR, 2, 0, 0.1D, 0, 0.15D, 0.01D)
-                  .particle(Particles.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
-              puffs++;
-            }
-          }
+        if (puffs[0] < 8) {
+          fx(b.center(), FxPriority.AMBIENT)
+              .particle(Particles.SPORE_BLOSSOM_AIR, 2, 0, 0.1D, 0, 0.15D, 0.01D)
+              .particle(Particles.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
+          puffs[0]++;
         }
       }
-    }
+    });
   }
 
   private void harvestMatureCrop(PlayerRef p, WorldRef world, BlockRef b, CompostState state, double fillChance) {
@@ -383,6 +374,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     List<ItemRef> drops = b.drops(null, null);
+    boolean forced = MutationPayouts.farmedHarvest(b);
     int composted = 0;
     for (ItemRef drop : drops) {
       if (!isItem(drop)) {
@@ -393,7 +385,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         if (currentCropData(p, b, expectedCropType, true) == null) {
           return;
         }
-        composted += compostStack(p, drop, state, fillChance);
+        composted += compostStack(p, drop, state, fillChance, forced);
       }
     }
     BlockStateRef commitData = currentCropData(p, b, expectedCropType, true);
@@ -409,7 +401,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
   }
 
-  private void processInventoryItems(PlayerRef p, CompostState state, double fillChance) {
+  private void processInventoryItems(PlayerRef p, CompostState state, double fillChance, boolean forced) {
     if (state.phaseDone()) {
       return;
     }
@@ -426,7 +418,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      if (compostStack(p, stack, state, fillChance) <= 0) {
+      if (compostStack(p, stack, state, fillChance, forced) <= 0) {
         continue;
       }
       if (stack.amount() <= 0) {
@@ -462,6 +454,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
       b.setState(commitData.with("age", Integer.toString(commitData.age() + 1)), true);
+      XpProvenance.recordBonemeal(b);
       matured++;
 
       if (sparkles < 6) {
@@ -475,7 +468,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     return matured;
   }
 
-  private int compostStack(PlayerRef p, ItemRef stack, CompostState state, double fillChance) {
+  private int compostStack(PlayerRef p, ItemRef stack, CompostState state, double fillChance, boolean forced) {
     if (!preference(p, MATERIALS).allows(stack.type())) {
       return 0;
     }
@@ -498,6 +491,9 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
       state.processed++;
       state.phaseProcessed++;
       state.consumed++;
+      if (forced) {
+        state.forcedConsumed++;
+      }
 
       if (ThreadLocalRandom.current().nextDouble() <= fillChance) {
         if (state.compostLevel < MAX_COMPOST_LEVEL) {
@@ -515,7 +511,17 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     return Math.min(Math.max(0, stackAmount), Math.max(0, phaseLimit - phaseProcessed));
   }
 
-  private void dropRewards(WorldRef world, Loc center, int level, int oldLevel, int newLevel, CompostState state) {
+  /** The share of what a lent cascade composted straight from naturally ripened crops and leaves in the field. */
+  static double valuableShare(int consumed, int forced) {
+    return consumed <= 0 ? 0D : Math.max(0, consumed - forced) / (double) consumed;
+  }
+
+  private static double valuableShare(CompostState state) {
+    return valuableShare(state.consumed, state.forcedConsumed);
+  }
+
+  private void dropRewards(WorldRef world, Loc center, int level, int oldLevel, int newLevel, CompostState state,
+                           double valuableShare) {
     int boneMeal = getBaseBoneMeal(level)
         + Math.max(0, state.consumed / getItemsPerBoneMeal(level))
         + overflowBoneMeal(state.overflowFills, getOverflowFillsPerBoneMeal());
@@ -534,7 +540,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int rolls = getValuableRolls(level);
     int sparkled = 0;
     for (int i = 0; i < rolls; i++) {
-      if (ThreadLocalRandom.current().nextDouble() <= getValuableChance(level)) {
+      if (valuableShare > 0D && ThreadLocalRandom.current().nextDouble() <= getValuableChance(level) * valuableShare) {
         ItemRef reward = rollValuableReward(level);
         dropReward(world, center, reward);
         if (sparkled < 3) {
@@ -590,10 +596,6 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     return reward("diamond", 1);
-  }
-
-  static int workFor(int candidates, int limit) {
-    return Math.min(Math.max(0, candidates), Math.max(0, limit));
   }
 
   static CompostBudget splitBudget(int maxItems) {
@@ -824,6 +826,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     private int consumed;
     private int levelGains;
     private int overflowFills;
+    private int forcedConsumed;
     private int phaseProcessed;
     private int phaseLimit;
 

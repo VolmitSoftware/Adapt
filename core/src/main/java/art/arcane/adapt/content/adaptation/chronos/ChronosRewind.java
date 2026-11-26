@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -115,6 +116,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     cooldowns.remove(id);
     cooldownReadyNotify.remove(id);
     pendingRewinds.remove(id);
+    ChronosGesture.forget(id);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -131,7 +133,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       return;
     }
 
-    e.setCancelled(true);
+    ChronosGesture.use(e);
     UUID id = p.uuid();
     long now = M.ms();
 
@@ -282,16 +284,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       int hungerCost,
       int level
   ) {
-    Loc departFx = departure.add(0, 1, 0);
-    fx(departFx, FxPriority.TRANSITION)
-        .particle(Particles.REVERSE_PORTAL, 18, 0, 0, 0, 0.35D, 0.04D)
-        .particle(Particles.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
-        .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.65F);
-
-    if (departure.sameWorld(destination)) {
-      fx(departFx, FxPriority.TRAIL)
-          .line(Particles.PORTAL, destination.x(), destination.y() + 1, destination.z(), 10);
-    }
+    departFx(this, departure, destination);
 
     if (p.health() < snapshot.health()) {
       double maxHealth = p.hasAttribute(Attributes.MAX_HEALTH) ? p.attributeValue(Attributes.MAX_HEALTH) : 20D;
@@ -306,13 +299,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
       p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
     }
 
-    p.setFallDistance(0);
-    p.addEffect(new EffectInstance(Id.minecraft("darkness"), 35, 0, true, false, false));
-    fx(p.location().add(0, 1, 0), FxPriority.TRANSITION)
-        .particle(Particles.END_ROD, 10, 0, 0, 0, 0.3D, 0.02D)
-        .particle(Particles.REVERSE_PORTAL, 22, 0, 0, 0, 0.4D, 0.05D)
-        .particle(Particles.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
-        .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
+    arriveFx(this, p);
 
     if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindFinish(p);
@@ -320,6 +307,31 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
 
     addStat(p, "chronos.rewind.rewinds", 1);
     xp(p, destination, getConfig().xpOnRewind + (level * getConfig().xpPerLevel));
+  }
+
+  /** The portal burst where the player left and the trail home. */
+  public static void departFx(Adaptation<?> owner, Loc departure, Loc destination) {
+    Loc departFx = departure.add(0, 1, 0);
+    Fx.now(owner, departFx, FxPriority.TRANSITION)
+        .particle(Particles.REVERSE_PORTAL, 18, 0, 0, 0, 0.35D, 0.04D)
+        .particle(Particles.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
+        .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.65F);
+
+    if (departure.sameWorld(destination)) {
+      Fx.now(owner, departFx, FxPriority.TRAIL)
+          .line(Particles.PORTAL, destination.x(), destination.y() + 1, destination.z(), 10);
+    }
+  }
+
+  /** The darkness and burst on arrival. */
+  public static void arriveFx(Adaptation<?> owner, PlayerRef p) {
+    p.setFallDistance(0);
+    p.addEffect(new EffectInstance(Id.minecraft("darkness"), 35, 0, true, false, false));
+    Fx.now(owner, p.location().add(0, 1, 0), FxPriority.TRANSITION)
+        .particle(Particles.END_ROD, 10, 0, 0, 0, 0.3D, 0.02D)
+        .particle(Particles.REVERSE_PORTAL, 22, 0, 0, 0, 0.4D, 0.05D)
+        .particle(Particles.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
+        .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
   }
 
   static int scheduledRewindLevel(

@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.agility;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -35,6 +36,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.value.MaterialNames;
+import art.arcane.adapt.content.adaptation.agility.upgraded.Slipstream;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.platform.EngineFeature;
@@ -107,6 +109,21 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
     return List.of(CommonPreferences.ENABLED, FARMLAND, PLATES, BERRIES, SNOW);
+  }
+
+  /** Its own level, or the level a held Slipstream runs it at, whichever is higher. */
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    int own = super.getActiveLevel(p);
+    if (own >= getMaxLevel() || getSkill() == null) {
+      return own;
+    }
+    for (Adaptation<?> upgrade : getSkill().getUpgrades()) {
+      if (upgrade instanceof Slipstream slipstream) {
+        return Math.max(own, Math.min(getMaxLevel(), slipstream.featherfootLevel(slipstream.getActiveLevel(p))));
+      }
+    }
+    return own;
   }
 
   @Override

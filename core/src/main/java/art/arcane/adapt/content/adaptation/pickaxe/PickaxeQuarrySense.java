@@ -301,15 +301,20 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     if (!ore.supplied() && !world.blockAt(ore.x(), ore.y(), ore.z()).type().equals(ore.material())) {
       return;
     }
-    BlockStateRef block = items().blockState(ore.material());
-    if (block == null) {
-      return;
-    }
+    showOre(this, p, location, ore.material(), color, durationTicks);
+  }
 
-    displays().showBlock(
-        getName(),
-        "ore-" + ore.x() + ":" + ore.y() + ":" + ore.z(),
-        p,
+  /** Shows {@code material} at {@code location} as a glowing block only {@code viewer} sees, on the owner's channel. */
+  public static boolean showOre(Adaptation<?> owner, PlayerRef viewer, Loc location, Id material, Rgb color,
+                                int durationTicks) {
+    BlockStateRef block = items().blockState(material);
+    if (block == null) {
+      return false;
+    }
+    return displays().showBlock(
+        owner.getName(),
+        "ore-" + location.blockX() + ":" + location.blockY() + ":" + location.blockZ(),
+        viewer,
         location,
         block,
         color,
@@ -343,7 +348,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     super.unregister();
   }
 
-  static Rgb oreColor(Id material) {
+  public static Rgb oreColor(Id material) {
     String name = material.path();
     if (name.contains("redstone")) {
       return new Rgb(255, 60, 60);

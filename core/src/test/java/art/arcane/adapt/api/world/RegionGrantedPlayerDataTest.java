@@ -1,12 +1,17 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.AdaptTestBase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RegionGrantedPlayerDataTest extends AdaptTestBase {
+  @BeforeEach
+  void registerAxes() {
+    RegisteredSkills.register(core, "axes", "axe-shield-splitter", "axe-heavy-hands", "axe-cleave");
+  }
 
   @Test
   @DisplayName("a region granted adaptation contributes no used power")

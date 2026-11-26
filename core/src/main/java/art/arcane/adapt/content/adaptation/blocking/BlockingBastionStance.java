@@ -25,7 +25,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -34,9 +33,6 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.protocol.HudGlyph;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -47,11 +43,9 @@ import art.arcane.adapt.platform.event.player.PlayerGameModeChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.event.player.PlayerVelocityEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
@@ -59,23 +53,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStance.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
   private static final Id IRON_BLOCK = Id.minecraft("iron_block");
-  private static final String SLOT_KNOCKBACK = "knockback";
-  private static final String SLOT_EXPLOSION = "explosion";
-  private static final int STANCE_REFRESH_TICKS = 2;
   private static final double IMPACT_FX_THRESHOLD = 0.4D;
   private final Map<UUID, Boolean> activeSessions = playerState();
-  private final Map<UUID, StanceState> stanceStates = playerState();
+  private final Map<UUID, BlockingBrace.State> stanceStates = playerState();
+  private final BlockingBrace brace = new BlockingBrace(this, stanceStates, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, new BlockingBrace.Stance() {
+    @Override
+    public boolean holds(PlayerRef p, int level) {
+      return p.isSneaking() && level > 0;
+    }
+
+    @Override
+    public double amount(PlayerRef p, int level) {
+      return isBastionStance(p, level) ? braceAmount(getKnockbackReduction(level)) : 0;
+    }
+  });
 
   public BlockingBastionStance() {
     super("blocking-bastion-stance");
     needs(PlatformNeed.partialAttribute(Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, "no explosion knockback resistance"));
     registerConfiguration(Config.class);
-    setIcon(SHIELD);
+    setIcon(BlockingShields.SHIELD);
     setInterval(2000);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("shield"))
@@ -94,8 +94,8 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    endStance(player.getPlayer());
-    if (getActiveLevel(player.getPlayer()) > 0) { startStance(player.getPlayer()); }
+    brace.end(player.getPlayer());
+    if (getActiveLevel(player.getPlayer()) > 0) { brace.start(player.getPlayer()); }
   }
 
   @Override
@@ -193,23 +193,23 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
     PlayerRef p = e.player();
     if (e.isSneaking()) {
       if (hasActiveAdaptation(p)) {
-        startStance(p);
+        brace.start(p);
       }
       return;
     }
 
-    endStance(p);
+    brace.end(p);
   }
 
   @Handle
   public void on(PlayerMoveEvent e) {
     PlayerRef p = e.player();
-    if ((preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) && !p.isSneaking()) || stanceStates.containsKey(p.uuid())) {
+    if ((preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) && !p.isSneaking()) || brace.active(p)) {
       return;
     }
 
     if (hasActiveAdaptation(p)) {
-      startStance(p);
+      brace.start(p);
     }
   }
 
@@ -217,93 +217,14 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
   public void on(PlayerGameModeChangeEvent e) {
     GameMode mode = e.newGameMode();
     if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      endStance(e.player());
+      brace.end(e.player());
     }
   }
 
   @Override
   public void unregister() {
     super.unregister();
-    for (UUID playerId : stanceStates.keySet()) {
-      PlayerRef p = AdaptCore.platform().host().player(playerId);
-      if (p != null) {
-        AdaptAttributeService.get().removeAll(p, getName());
-      }
-    }
-    stanceStates.clear();
-  }
-
-  private void startStance(PlayerRef p) {
-    StanceState state = stanceStates.computeIfAbsent(p.uuid(), key -> new StanceState());
-    if (state.refreshScheduled.compareAndSet(false, true)
-        && !Tasks.runEntity(p, () -> refreshStance(p, state), 1)) {
-      endStance(p);
-    }
-  }
-
-  private void refreshStance(PlayerRef p, StanceState state) {
-    if (stanceStates.get(p.uuid()) != state || !p.isOnline()) {
-      state.refreshScheduled.set(false);
-      return;
-    }
-
-    int level = getActiveLevel(p);
-    if (!p.isSneaking() || level <= 0) {
-      endStance(p);
-      return;
-    }
-
-    if (isBastionStance(p, level)) {
-      applyBrace(p, state, level);
-    } else {
-      clearBrace(p, state);
-    }
-
-    if (!Tasks.runEntity(p, () -> refreshStance(p, state), STANCE_REFRESH_TICKS)) {
-      endStance(p);
-    }
-  }
-
-  private void applyBrace(PlayerRef p, StanceState state, int level) {
-    double amount = braceAmount(getKnockbackReduction(level));
-    if (amount <= 0) {
-      clearBrace(p, state);
-      return;
-    }
-
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.apply(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE, amount, AttributeOperation.ADD_VALUE);
-    attributes.apply(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, amount, AttributeOperation.ADD_VALUE);
-    if (!state.braced) {
-      AbilityGlyphs.toggle(p.uuid(), this, true);
-    }
-    state.braced = true;
-  }
-
-  private void clearBrace(PlayerRef p, StanceState state) {
-    if (!state.braced) {
-      return;
-    }
-
-    state.braced = false;
-    AbilityGlyphs.clear(p.uuid(), this, HudGlyph.TOGGLE);
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.remove(p, getName(), SLOT_KNOCKBACK, Attributes.KNOCKBACK_RESISTANCE);
-    attributes.remove(p, getName(), SLOT_EXPLOSION, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE);
-  }
-
-  private void endStance(PlayerRef p) {
-    if (p == null) {
-      return;
-    }
-
-    StanceState state = stanceStates.remove(p.uuid());
-    if (state == null) {
-      return;
-    }
-
-    state.refreshScheduled.set(false);
-    clearBrace(p, state);
+    brace.clear();
   }
 
   static double braceAmount(double reduction) {
@@ -328,13 +249,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
   }
 
   private boolean isBastionStance(PlayerRef p, int level) {
-    return level > 0 && p.isBlocking() && (!preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) || p.isSneaking()) && hasShield(p);
-  }
-
-  private boolean hasShield(PlayerRef p) {
-    ItemRef main = p.inventory().mainHand();
-    ItemRef off = p.inventory().offHand();
-    return (isItem(main) && SHIELD.equals(main.type())) || (isItem(off) && SHIELD.equals(off.type()));
+    return level > 0 && p.isBlocking() && (!preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) || p.isSneaking()) && BlockingShields.held(this, p);
   }
 
   private double getKnockbackReduction(int level) {
@@ -365,11 +280,6 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         }
       });
     }
-  }
-
-  private static class StanceState {
-    private final AtomicBoolean refreshScheduled = new AtomicBoolean();
-    private boolean braced;
   }
 
   @ConfigDescription("Sneak-block with a shield to brace against knockback and soften projectiles.")

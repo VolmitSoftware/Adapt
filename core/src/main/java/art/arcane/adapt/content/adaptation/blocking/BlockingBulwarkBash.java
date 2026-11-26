@@ -33,7 +33,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -57,7 +56,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Config> {
   private static final Id SHIELD = Id.minecraft("shield");
-  private static final Id SLOWNESS = Id.minecraft("slowness");
   private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
   private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
   private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
@@ -271,17 +269,7 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
   private void applyImpact(LivingRef target, Loc playerOrigin, Vec3 fallbackDirection,
                            double knockback, double upwardKnockback, int stunTicks, int stunAmplifier,
                            boolean visual) {
-    Vec3 kb = target.location().position().subtract(playerOrigin.position()).withY(0);
-    if (kb.lengthSquared() <= 0.0001) {
-      kb = fallbackDirection;
-    }
-    if (kb.lengthSquared() <= 0.0001) {
-      kb = new Vec3(1, 0, 0);
-    }
-
-    kb = kb.normalize();
-    target.setVelocity(target.velocity().multiply(0.25D).add(kb.multiply(knockback).withY(upwardKnockback)));
-    target.addEffect(new EffectInstance(SLOWNESS, stunTicks, stunAmplifier, false, false, true));
+    BlockingBash.impact(target, playerOrigin, fallbackDirection, knockback, upwardKnockback, stunTicks, stunAmplifier);
 
     if (visual) {
       fx(target.location().add(0, 1.0D, 0), FxPriority.COMBAT)

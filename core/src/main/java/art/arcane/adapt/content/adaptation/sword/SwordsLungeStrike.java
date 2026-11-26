@@ -103,17 +103,7 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
 
     lungeCooldown.mark(p.uuid(), (long) getConfig().cooldownMillis);
     LivingRef target = combat.target();
-    double surge = getSurge(combat.level());
-    Vec3 forward = p.location().direction().withY(0);
-    if (forward.lengthSquared() < 1.0E-6D) {
-      forward = new Vec3(0, 0, 1);
-    }
-    Vec3 applied = forward.normalize().multiply(surge).withY(getConfig().verticalBoost);
-    Tasks.runEntity(p, () -> {
-      if (p.isOnline()) {
-        p.setVelocity(p.velocity().add(applied));
-      }
-    });
+    surge(p, getSurge(combat.level()), getConfig().verticalBoost);
     applyBonusReach(p, combat.level());
 
     Loc tip = p.eyeLocation().add(p.location().direction().multiply(1.4D));
@@ -124,6 +114,20 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
         .chord(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.7F, 1.3F, Sounds.ITEM_TRIDENT_RIPTIDE_1, 0.4F, 1.5F);
     xp(p, target.location(), getConfig().xpPerLunge);
     addStat(p, "swords.lunge-strike.lunges", 1);
+  }
+
+  /** Pushes the player along their horizontal facing by {@code surge}, with a small upward hop. */
+  public static void surge(PlayerRef p, double surge, double verticalBoost) {
+    Vec3 forward = p.location().direction().withY(0);
+    if (forward.lengthSquared() < 1.0E-6D) {
+      forward = new Vec3(0, 0, 1);
+    }
+    Vec3 applied = forward.normalize().multiply(surge).withY(verticalBoost);
+    Tasks.runEntity(p, () -> {
+      if (p.isOnline()) {
+        p.setVelocity(p.velocity().add(applied));
+      }
+    });
   }
 
   private double getSurge(int level) {

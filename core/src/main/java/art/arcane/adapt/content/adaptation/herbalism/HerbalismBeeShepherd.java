@@ -34,6 +34,7 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.MobRef;
@@ -351,6 +352,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     }
     int grownAge = Math.min(currentAfterCharge.maxAge(), currentAfterCharge.age() + sample.growthStep);
     block.setState(currentAfterCharge.with("age", Integer.toString(grownAge)), true);
+    XpProvenance.recordBonemeal(block);
     if (sample.showParticles && grownAge >= currentAfterCharge.maxAge()
         && sample.pulse.emittedParticles.getAndIncrement() < 6) {
       fx(block.location().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
@@ -450,9 +452,10 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     int fresh = 0;
     Vec3 target = center.add(0, 0.75, 0).position();
     for (EntityRef entity : p.nearbyEntities(radius, radius, radius)) {
-      if (!(entity instanceof MobRef bee) || !BEE.equals(entity.type())) {
+      if (!isBee(entity)) {
         continue;
       }
+      MobRef bee = (MobRef) entity;
       if (!offerBeePull(new BeePull(bee, target, getBeePullStrength(level), count < 4))) {
         break;
       }
@@ -479,7 +482,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     seen.values().removeIf(expiresAt -> expiresAt == null || expiresAt <= now);
   }
 
-  static int growthAttemptsWithBees(int baseAttempts, int bees, int maxBonusBees, double bonusPerBee) {
+  public static boolean isBee(EntityRef entity) {
+    return entity instanceof MobRef && BEE.equals(entity.type());
+  }
+
+  public static int growthAttemptsWithBees(int baseAttempts, int bees, int maxBonusBees, double bonusPerBee) {
     if (baseAttempts <= 0) {
       return 0;
     }
@@ -546,11 +553,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   }
 
   private boolean isFlower(ItemRef item) {
-    if (!isItem(item)) {
-      return false;
-    }
+    return isItem(item) && isFlower(item.type());
+  }
 
-    Id type = item.type();
+  /** Whether the item or block is a flower bees work. */
+  public static boolean isFlower(Id type) {
     return type.legacyName().endsWith("_TULIP") || FLOWERS.contains(type);
   }
 

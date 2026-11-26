@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.AdaptConfig;
@@ -27,6 +28,10 @@ public final class AdaptationLearningTransaction {
     if (adaptPlayer == null) {
       return Result.SKILL_LINE_UNAVAILABLE;
     }
+    int floor = SkillUpgrades.keptFloor(adaptation, adaptPlayer.getData());
+    if (floor <= 0 && !SkillUpgrades.holdable(adaptation, adaptPlayer.getData())) {
+      return Result.SKILL_LINE_UNAVAILABLE;
+    }
     PlayerSkillLine skillLine = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
     if (skillLine == null) {
       return Result.SKILL_LINE_UNAVAILABLE;
@@ -34,7 +39,7 @@ public final class AdaptationLearningTransaction {
     settlePendingRefund(player, skillLine);
     int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
     boolean regionGranted = isRegionGranted(skillLine, adaptation.getName());
-    int paidLevel = regionGranted ? 0 : currentLevel;
+    int paidLevel = Math.max(floor, regionGranted ? 0 : currentLevel);
     int normalizedTarget = Math.max(0, Math.min(targetLevel, adaptation.getMaxLevel()));
     if (normalizedTarget <= paidLevel) {
       return Result.NO_CHANGE;
@@ -43,7 +48,7 @@ public final class AdaptationLearningTransaction {
       return Result.REQUIREMENTS_MISSING;
     }
     int knowledgeCost = adaptation.getCostFor(normalizedTarget, paidLevel);
-    int powerCost = adaptation.getPowerCostFor(normalizedTarget, paidLevel);
+    int powerCost = adaptation.getPowerCostFor(normalizedTarget - floor, paidLevel - floor);
     if (!bypassCosts && powerCost > 0 && !adaptPlayer.getData().hasPowerAvailable(powerCost)) {
       return Result.INSUFFICIENT_POWER;
     }
@@ -126,8 +131,9 @@ public final class AdaptationLearningTransaction {
       return Result.SKILL_LINE_UNAVAILABLE;
     }
     settlePendingRefund(player, skillLine);
+    int floor = SkillUpgrades.keptFloor(adaptation, adaptPlayer.getData());
     int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
-    int normalizedTarget = Math.max(0, targetLevel);
+    int normalizedTarget = Math.max(floor, targetLevel);
     if (normalizedTarget >= currentLevel) {
       return Result.NO_CHANGE;
     }
@@ -142,7 +148,14 @@ public final class AdaptationLearningTransaction {
     int refundFloor = Math.min(normalizedTarget, paidLevel);
     int knowledgeRefund = adaptation.getRefundCostFor(refundFloor, paidLevel);
     double vaultRefund = refundReceiptAmount(skillLine, adaptation.getName(), refundFloor, paidLevel);
-    skillLine.setAdaptation(adaptation, normalizedTarget);
+    if (normalizedTarget > floor) {
+      skillLine.setAdaptation(adaptation, normalizedTarget);
+    } else {
+      skillLine.setAdaptation(adaptation, 0);
+      if (floor > 0) {
+        adaptation.onLevelChanged(player, floor);
+      }
+    }
     if (!bypassCosts && !AdaptConfig.get().isHardcoreNoRefunds()) {
       skillLine.giveKnowledge(knowledgeRefund);
       refundOrQueue(player, skillLine, vaultRefund, adaptation.getName());

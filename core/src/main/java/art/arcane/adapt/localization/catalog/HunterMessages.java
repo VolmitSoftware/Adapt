@@ -54,7 +54,7 @@ public final class HunterMessages {
   public static final TextKey PENALTY_DESCRIPTION = TextKey.of("hunter.penalty.description", "Hunter boons drain hunger; running out of hunger builds Poison stacks.");
   public static final TextKey PENALTY_LORE1 = TextKey.of("hunter.penalty.lore1", "Poison stacks if you run out of hunger");
   public static final LinesKey PENALTY_LORE = LinesKey.of("hunter.penalty.lore", "Poison stacks if you run out of hunger");
-  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("hunter.drop_to_inventory.name", "Items Drop-To-Inventory");
+  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("hunter.drop_to_inventory.name", "Items Drop to Inventory");
   public static final TextKey DROP_TO_INVENTORY_DESCRIPTION = TextKey.of("hunter.drop_to_inventory.description", "Kills and blocks broken with a sword in hand send their drops straight into your inventory.");
   public static final TextKey DROP_TO_INVENTORY_LORE1 = TextKey.of("hunter.drop_to_inventory.lore1", "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can.");
   public static final LinesKey DROP_TO_INVENTORY_LORE = LinesKey.of("hunter.drop_to_inventory.lore", "Whenever an item is dropped from a mob/block you break it goes into your inventory if it can.");
@@ -143,6 +143,29 @@ public final class HunterMessages {
   public static final TextKey SNARE_LINE_LORE2 = TextKey.of("hunter.snare_line.lore2", "Trigger charges per snare");
   public static final TextKey SNARE_LINE_LORE3 = TextKey.of("hunter.snare_line.lore3", "Craft with string and iron, then right-click the ground to set it");
   public static final LinesKey SNARE_LINE_LORE = LinesKey.of("hunter.snare_line.lore", "Seconds mobs are rooted", "Trigger charges per snare", "Craft with string and iron, then right-click the ground to set it");
+
+  public static final TextKey BLOOD_FRENZY_LORE1 = TextKey.of("upgrade.hunter.blood_frenzy.lore1", "Buff Duration at Full Health");
+  public static final TextKey BLOOD_FRENZY_LORE2 = TextKey.of("upgrade.hunter.blood_frenzy.lore2", "Low Health Boost");
+  public static final TextKey BLOOD_FRENZY_LORE3 = TextKey.of("upgrade.hunter.blood_frenzy.lore3", "Hunger Duration per Frenzy");
+  public static final TextKey APEX_PREDATOR_LORE1 = TextKey.of("upgrade.hunter.apex_predator.lore1", "Bonus Damage per Stack");
+  public static final TextKey APEX_PREDATOR_LORE2 = TextKey.of("upgrade.hunter.apex_predator.lore2", "Stack Cap");
+  public static final TextKey APEX_PREDATOR_LORE3 = TextKey.of("upgrade.hunter.apex_predator.lore3", "Stacks per Hit on Large and Boss Mobs");
+  public static final TextKey STALKERS_TRAIL_LORE1 = TextKey.of("upgrade.hunter.stalkers_trail.lore1", "Blood Trail Duration");
+  public static final TextKey STALKERS_TRAIL_LORE2 = TextKey.of("upgrade.hunter.stalkers_trail.lore2", "Snare Hold");
+  public static final TextKey STALKERS_TRAIL_LORE3 = TextKey.of("upgrade.hunter.stalkers_trail.lore3", "Trophy Chance");
+  public static final TextKey APEX_PREDATOR_LORE4 = TextKey.of("upgrade.hunter.apex_predator.lore4", "Big Game Extra Roll Chance");
+  public static final TextKey APEX_PREDATOR_LORE5 = TextKey.of("upgrade.hunter.apex_predator.lore5", "Compass Range");
+  public static final TextKey APEX_PREDATOR_LORE6 = TextKey.of("upgrade.hunter.apex_predator.lore6", "Kinds Remembered");
+  public static final TextKey STALKERS_TRAIL_LORE4 = TextKey.of("upgrade.hunter.stalkers_trail.lore4", "Capture Hold");
+  public static final TextKey TRACKERS_COMPASS_NAME = TextKey.of("tool.hunter.trackers_compass.name", "Tracker's Compass");
+  public static final TextKey TRACKERS_COMPASS_LORE1 = TextKey.of("tool.hunter.trackers_compass.lore1", "Points to the nearest of a tracked kind");
+  public static final TextKey TRACKERS_COMPASS_TRACKING = TextKey.of("tool.hunter.trackers_compass.tracking", "Tracking {kind}");
+  public static final TextKey TRACKERS_COMPASS_READING = TextKey.of("tool.hunter.trackers_compass.reading", "{kind} {distance} blocks");
+  public static final TextKey TRACKERS_COMPASS_NONE = TextKey.of("tool.hunter.trackers_compass.none", "No {kind} in range");
+  public static final TextKey TRACKERS_COMPASS_UNTRACKABLE = TextKey.of("tool.hunter.trackers_compass.untrackable", "Cannot track that");
+  public static final TextKey TRACKERS_COMPASS_HUNGRY = TextKey.of("tool.hunter.trackers_compass.hungry", "Too hungry");
+  public static final TextKey TRACKERS_COMPASS_EMPTY = TextKey.of("tool.hunter.trackers_compass.empty", "Nothing tracked yet");
+  public static final TextKey TRACKERS_COMPASS_MENU = TextKey.of("tool.hunter.trackers_compass.menu", "Tracked Kinds");
 
   private HunterMessages() {
   }
@@ -246,5 +269,27 @@ public final class HunterMessages {
     builder.add(SNARE_LINE_LORE2);
     builder.add(SNARE_LINE_LORE3);
     builder.add(SNARE_LINE_LORE);
+    builder.add(BLOOD_FRENZY_LORE1);
+    builder.add(BLOOD_FRENZY_LORE2);
+    builder.add(BLOOD_FRENZY_LORE3);
+    builder.add(APEX_PREDATOR_LORE1);
+    builder.add(APEX_PREDATOR_LORE2);
+    builder.add(APEX_PREDATOR_LORE3);
+    builder.add(STALKERS_TRAIL_LORE1);
+    builder.add(STALKERS_TRAIL_LORE2);
+    builder.add(STALKERS_TRAIL_LORE3);
+    builder.add(APEX_PREDATOR_LORE4);
+    builder.add(APEX_PREDATOR_LORE5);
+    builder.add(APEX_PREDATOR_LORE6);
+    builder.add(STALKERS_TRAIL_LORE4);
+    builder.add(TRACKERS_COMPASS_NAME);
+    builder.add(TRACKERS_COMPASS_LORE1);
+    builder.add(TRACKERS_COMPASS_TRACKING);
+    builder.add(TRACKERS_COMPASS_READING);
+    builder.add(TRACKERS_COMPASS_NONE);
+    builder.add(TRACKERS_COMPASS_UNTRACKABLE);
+    builder.add(TRACKERS_COMPASS_HUNGRY);
+    builder.add(TRACKERS_COMPASS_EMPTY);
+    builder.add(TRACKERS_COMPASS_MENU);
   }
 }

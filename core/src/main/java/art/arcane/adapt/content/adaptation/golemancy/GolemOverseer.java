@@ -36,6 +36,7 @@ import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.skill.Skill;
@@ -186,6 +187,11 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     formation.retain(learners);
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     PlayerRef player = e.player();
@@ -233,9 +239,10 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     GolemSignal signal = OverseerRules.current(signals.get(owner), level, config.sicLevel);
     LivingRef target = null;
     if (signal == GolemSignal.SIC) {
-      target = sicTarget(player, config.sicRange);
+      double sicRange = config.sicRange * UpgradeLoans.strength(this, player);
+      target = sicTarget(player, sicRange);
       if (target == null) {
-        GolemGuiSupport.warn(player, GolemancyMessages.OVERSEER_NO_TARGET, trusted("range", (int) config.sicRange));
+        GolemGuiSupport.warn(player, GolemancyMessages.OVERSEER_NO_TARGET, trusted("range", (int) sicRange));
         return;
       }
     }
@@ -250,7 +257,8 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
             () -> AbilityGlyphs.cooldown(owner, this, now, rallyCooldownMillis))
         : null;
     boolean chime = chimes(player);
-    Overseer.dispatch(new OverseerSignal(owner, signal, player.location(), OverseerRules.radius(config.radiusByLevel, level), channel, target,
+    Overseer.dispatch(new OverseerSignal(owner, signal, player.location(), OverseerRules.radius(config.radiusByLevel, level) * UpgradeLoans.strength(this, player), channel,
+        target,
         now + config.sicHoldSeconds * MILLIS_PER_SECOND, rally, chime ? this::pulse : NO_PULSE));
     if (chime) {
       OverseerFeedback.sent(this, player, signal);
@@ -259,6 +267,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
       glow.show(player, target, config.sicGlowSeconds * TICKS_PER_SECOND);
     }
     confirm(player, signal, channel);
+    UpgradeLoans.landed(this, player);
   }
 
   boolean filtersChannels(PlayerRef player) {

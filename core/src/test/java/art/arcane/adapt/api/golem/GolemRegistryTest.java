@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -3008,11 +3009,11 @@ class GolemRegistryTest extends AdaptTestBase {
     mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
     GolemMastery.register(mastery);
     try {
-      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN, false).refusal()).contains(GolemMastery.CoreRefusal.NO_SLOT);
       registry.designate(handle, 1);
 
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
-      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN)).isEmpty();
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
+      assertThat(registry.addCore(handle, GolemCoreType.GUARDIAN, false).refusal()).isEmpty();
 
       assertThat(GolemState.read(bone).orElseThrow().cores()).containsExactly(GolemCoreType.BLANK, GolemCoreType.GUARDIAN);
       assertThat(registry.removeCore(handle, GolemCoreType.GUARDIAN)).isTrue();
@@ -3066,13 +3067,13 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemMastery.register(mastery);
     try {
       registry.designate(handle, 1);
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).isEmpty();
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).isEmpty();
       handle.setMode(GolemMode.WORK);
 
       assertThat(registry.removeCore(handle, GolemCoreType.LUMBER)).isTrue();
       assertThat(handle.state().mode()).isEqualTo(GolemMode.FOLLOW);
 
-      registry.addCore(handle, GolemCoreType.LUMBER);
+      registry.addCore(handle, GolemCoreType.LUMBER, false);
       handle.setMode(GolemMode.WORK);
       registry.undesignate(handle, 0);
       assertThat(handle.state().mode()).isEqualTo(GolemMode.FOLLOW);
@@ -3080,6 +3081,127 @@ class GolemRegistryTest extends AdaptTestBase {
     } finally {
       GolemMastery.unregister(mastery);
     }
+  }
+
+  @Test
+  void anyGolemTakesATwinCoreUpToItsOwnersCountAndRunsItSlower() {
+    onlineOwner();
+    FakeMastery mastery = new FakeMastery();
+    AtomicInteger allowed = new AtomicInteger(1);
+    GolemMastery.Twins twins = new GolemMastery.Twins() {
+      @Override
+      public int maxTwins(UUID owner, GolemHandle handle) {
+        return allowed.get();
+      }
+
+      @Override
+      public int freeTwins() {
+        return 2;
+      }
+
+      @Override
+      public double secondCoreSpeed() {
+        return 0.75D;
+      }
+    };
+    GolemMastery.register(mastery);
+    GolemMastery.registerTwins(twins);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemHandle first = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+      GolemHandle second = registry.bind(owner, golem(new AtomicReference<>(at(4, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+      assertThat(registry.addCore(first, GolemCoreType.LUMBER, false).refusal()).isEmpty();
+      assertThat(GolemMastery.cores(first)).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER);
+      assertThat(GolemMastery.coreSpeed(first, GolemCoreType.LUMBER)).isEqualTo(0.75D);
+      assertThat(GolemMastery.coreSpeed(first, GolemCoreType.GUARDIAN)).isEqualTo(1D);
+      assertThat(registry.addCore(second, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(GolemMastery.twinNeedsHeart(registry.twins(OWNER))).isFalse();
+
+      allowed.set(0);
+      assertThat(GolemMastery.cores(first)).containsExactly(GolemCoreType.GUARDIAN);
+      assertThat(GolemMastery.secondCoreOpen(second)).isFalse();
+
+      allowed.set(Integer.MAX_VALUE);
+      assertThat(registry.addCore(second, GolemCoreType.LUMBER, false).refusal()).isEmpty();
+      assertThat(registry.twins(OWNER)).isEqualTo(2);
+      assertThat(GolemMastery.twinNeedsHeart(registry.twins(OWNER))).isTrue();
+      assertThat(registry.removeCore(first, GolemCoreType.LUMBER)).isTrue();
+      assertThat(registry.twins(OWNER)).isEqualTo(1);
+      assertThat(registry.twin(first)).isFalse();
+    } finally {
+      GolemMastery.unregisterTwins(twins);
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  @Test
+  void aTwinCorePastTheFreeOnesSpendsTheOfferedHeartAndOnlyThen() {
+    onlineOwner();
+    FakeMastery mastery = new FakeMastery();
+    GolemMastery.Twins twins = twins(new AtomicInteger(Integer.MAX_VALUE), 1);
+    GolemMastery.register(mastery);
+    GolemMastery.registerTwins(twins);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemHandle first = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+      GolemHandle second = registry.bind(owner, golem(new AtomicReference<>(at(4, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+      assertThat(registry.addCore(first, GolemCoreType.LUMBER, true)).isEqualTo(new GolemRegistry.CoreSlotting(Optional.empty(), false));
+      assertThat(registry.addCore(second, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.HEART);
+      assertThat(registry.twins(OWNER)).isEqualTo(1);
+      assertThat(registry.addCore(second, GolemCoreType.LUMBER, true)).isEqualTo(new GolemRegistry.CoreSlotting(Optional.empty(), true));
+      assertThat(registry.twins(OWNER)).isEqualTo(2);
+    } finally {
+      GolemMastery.unregisterTwins(twins);
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  @Test
+  void twinsPastALoweredCapIdleTheirSecondCoreButKeepIt() {
+    onlineOwner();
+    FakeMastery mastery = new FakeMastery();
+    AtomicInteger allowed = new AtomicInteger(2);
+    GolemMastery.Twins twins = twins(allowed, 2);
+    GolemMastery.register(mastery);
+    GolemMastery.registerTwins(twins);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemHandle first = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+      GolemHandle second = registry.bind(owner, golem(new AtomicReference<>(at(4, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+      registry.addCore(first, GolemCoreType.LUMBER, false);
+      registry.addCore(second, GolemCoreType.LUMBER, false);
+
+      allowed.set(1);
+
+      assertThat(GolemMastery.cores(first).size() + GolemMastery.cores(second).size()).isEqualTo(3);
+      assertThat(first.state().cores()).hasSize(2);
+      assertThat(second.state().cores()).hasSize(2);
+      assertThat(registry.twins(OWNER)).isEqualTo(2);
+    } finally {
+      GolemMastery.unregisterTwins(twins);
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  private static GolemMastery.Twins twins(AtomicInteger allowed, int free) {
+    return new GolemMastery.Twins() {
+      @Override
+      public int maxTwins(UUID owner, GolemHandle handle) {
+        return allowed.get();
+      }
+
+      @Override
+      public int freeTwins() {
+        return free;
+      }
+
+      @Override
+      public double secondCoreSpeed() {
+        return 0.75D;
+      }
+    };
   }
 
   @Test
@@ -3091,19 +3213,19 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemMastery.register(mastery);
     try {
       mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.NO_SLOT);
       registry.designate(handle, 1);
       mastery.perks = GolemMastery.Perks.NONE;
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.NO_SLOT);
       mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
-      assertThat(registry.addCore(handle, GolemCoreType.SORTER)).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
+      assertThat(registry.addCore(handle, GolemCoreType.SORTER, false).refusal()).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
       mastery.unlockedCores.remove(GolemCoreType.LUMBER);
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.LOCKED);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).contains(GolemMastery.CoreRefusal.LOCKED);
       mastery.unlockedCores.add(GolemCoreType.LUMBER);
 
-      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).isEmpty();
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER, false).refusal()).isEmpty();
       assertThat(GolemState.read(golem).orElseThrow().cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER);
-      assertThat(registry.addCore(handle, GolemCoreType.BREAKER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(registry.addCore(handle, GolemCoreType.BREAKER, false).refusal()).contains(GolemMastery.CoreRefusal.NO_SLOT);
       assertThat(registry.removeCore(handle, GolemCoreType.BREAKER)).isFalse();
       assertThat(registry.removeCore(handle, GolemCoreType.GUARDIAN)).isFalse();
       assertThat(registry.removeCore(handle, GolemCoreType.LUMBER)).isTrue();

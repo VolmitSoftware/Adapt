@@ -30,7 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerPort;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
@@ -47,7 +46,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -55,13 +53,6 @@ import java.util.Set;
 import static art.arcane.adapt.util.data.BlockFlag.VEIN_MINED;
 
 public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> {
-  private static final Set<Id> LOG_LIKE = Set.of(
-      Id.minecraft("mushroom_stem"),
-      Id.minecraft("brown_mushroom_block"),
-      Id.minecraft("red_mushroom_block"),
-      Id.minecraft("mangrove_roots"),
-      Id.minecraft("muddy_mangrove_roots"));
-
   public AxeWoodVeinminer() {
     super("axe-wood-veinminer");
     registerConfiguration(AxeWoodVeinminer.Config.class);
@@ -107,7 +98,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     PlayerRef p = e.player();
     ItemRef tool = p.inventory().mainHand();
-    if (!preference(p, AxePreferences.TRIGGER).accepts(p.isSneaking()) || !isAxe(tool) || !isLogMaterial(e.block().type())) {
+    if (!preference(p, AxePreferences.TRIGGER).accepts(p.isSneaking()) || !isAxe(tool) || !AxeFelling.isWood(e.block().type())) {
       return;
     }
 
@@ -120,32 +111,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     Id blockType = block.type();
     BlockStateRef logData = block.state();
     int maxBlocks = Math.max(1, (int) Math.floor(getConfig().maxBlocks * preference(p, AxePreferences.WORK).multiplier()));
-    Set<BlockRef> blockMap = new HashSet<>(maxBlocks);
-    int radius = getRadius(getLevel(p));
-    int radiusSquared = radius * radius;
-    scan:
-    for (int i = 0; i < radius; i++) {
-      for (int x = -i; x <= i; x++) {
-        for (int y = -i; y <= i; y++) {
-          for (int z = -i; z <= i; z++) {
-            if (blockMap.size() >= maxBlocks) {
-              break scan;
-            }
-            BlockRef b = block.relative(x, y, z);
-            if ((!Tasks.isFoliaThreading() || Tasks.isOwnedByCurrentRegion(b.location()))
-                && b.type().equals(blockType)) {
-              if ((x * x) + (y * y) + (z * z) > radiusSquared) {
-                continue;
-              }
-              if (!canBlockBreak(p, b.location())) {
-                continue;
-              }
-              blockMap.add(b);
-            }
-          }
-        }
-      }
-    }
+    Set<BlockRef> blockMap = AxeFelling.scanWood(this, p, block, getRadius(getLevel(p)), maxBlocks);
 
     Set<BlockRef> siblings = new HashSet<>(blockMap);
     siblings.remove(block);
@@ -188,31 +154,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
           }
         })
         .start();
-    List<BlockRef> brokenBlocks = new ArrayList<>(targets.size() + 1);
-    brokenBlocks.add(origin);
-    try {
-      for (BlockRef target : targets) {
-        Loc location = target.location();
-        if ((Tasks.isFoliaThreading()
-            && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(location)))
-            || !target.type().equals(blockType)
-            || !canBlockBreak(player, location)) {
-          continue;
-        }
-
-        VEIN_MINED.add(target);
-        try {
-          if (ProtectionProbes.attemptBlockBreak(player, target)) {
-            brokenBlocks.add(target);
-          }
-        } finally {
-          VEIN_MINED.remove(target);
-        }
-      }
-    } finally {
-      VEIN_MINED.remove(origin);
-    }
-
+    List<BlockRef> brokenBlocks = AxeFelling.breakAll(this, player, origin, blockType, targets);
     emitWoodFeedback(player, origin, logData, brokenBlocks);
   }
 
@@ -255,13 +197,6 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             .chord(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1.1F, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
       }
     }
-  }
-
-  private static boolean isLogMaterial(Id type) {
-    String name = type.path();
-    return LOG_LIKE.contains(type)
-        || name.endsWith("_log")
-        || name.endsWith("_wood");
   }
 
   @ConfigDescription("Break bulk wood at once while sneaking.")

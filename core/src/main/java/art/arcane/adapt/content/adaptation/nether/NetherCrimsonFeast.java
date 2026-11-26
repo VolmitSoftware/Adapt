@@ -192,7 +192,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
         .sound(Sounds.BLOCK_FIRE_AMBIENT, 0.25F, 1.2F);
   }
 
-  private boolean isNether(PlayerRef p) {
+  public static boolean isNether(PlayerRef p) {
     return p.world().environment() == Environment.NETHER;
   }
 

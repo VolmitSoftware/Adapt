@@ -19,7 +19,6 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -32,7 +31,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.platform.entity.LastDamage;
@@ -59,8 +57,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Config> {
   private static final int MAX_RICOCHETS = 12;
@@ -69,7 +65,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
   private static final ProjectileMemo<Double> BONUS_DAMAGE = ProjectileMemo.create();
   private static final ProjectileMemo<RicochetProfile> RICOCHET_PROFILE = ProjectileMemo.create();
 
-  private final Set<String> reportedTransferFailures = ConcurrentHashMap.newKeySet();
+  private final RicochetHandoff handoff = new RicochetHandoff("Ricochet Bolt");
 
   public RangedRicochetBolt() {
     super("ranged-ricochet-bolt");
@@ -214,27 +210,15 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         || Tasks.isOwnedByCurrentRegion(bounceLocation);
     RicochetCarriedState carried = RicochetCarriedState.capture(projectile);
     if (!RicochetTransferRules.requiresRegionHandoff(foliaThreading, destinationOwned)) {
-      RicochetReplacementTicket replacement = beginReplacement(projectile);
-      if (replacement == null) {
-        return;
-      }
-      ProjectileRef ricochet = spawnLocalRicochetProjectile(
-          projectile,
-          bounceLocation,
-          ricochetVelocity,
-          p,
-          profile,
-          transition.count(),
-          maxRicochets,
-          transition.bonusDamage(),
-          carried
-      );
+      int count = transition.count();
+      double bonusDamage = transition.bonusDamage();
+      ProjectileRef ricochet = handoff.relaunch(projectile, bounceLocation, ricochetVelocity, p,
+          (ProjectileRef target) -> {
+            carried.apply(target);
+            applyRicochetProfile(target, profile);
+            applyRicochetState(target, count, maxRicochets, bonusDamage);
+          });
       if (ricochet == null) {
-        cancelReplacement(replacement);
-        return;
-      }
-      if (!completeReplacement(replacement, ricochet)) {
-        ricochet.remove();
         return;
       }
 
@@ -269,7 +253,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     RicochetProjectileTemplate fallback = fallbackLocation == null
         ? null
         : primary.withSpawnLocation(fallbackLocation);
-    RicochetReplacementTicket replacement = beginReplacement(projectile);
+    RicochetReplacementTicket replacement = handoff.begin(projectile);
     if (replacement == null) {
       return;
     }
@@ -279,7 +263,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         replacement
     );
     if (!Tasks.runAt(bounceLocation, () -> completeTransferOwned(request))) {
-      cancelReplacement(replacement);
+      handoff.cancel(replacement);
       return;
     }
 
@@ -342,80 +326,9 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     Tasks.runEntity(player, () -> rewardRicochetKillOwned(player, deathLocation));
   }
 
-  private ProjectileRef spawnLocalRicochetProjectile(
-      ProjectileRef source,
-      Loc spawnLocation,
-      Vec3 velocity,
-      PlayerRef shooter,
-      RicochetProfile profile,
-      int count,
-      int maximum,
-      double bonusDamage,
-      RicochetCarriedState carried
-  ) {
-    ProjectileSnapshot snapshot = source.snapshot();
-    if (snapshot == null) {
-      return null;
-    }
-
-    try {
-      return snapshot.spawn(spawnLocation, velocity, shooter, (ProjectileRef target) -> {
-        carried.apply(target);
-        applyRicochetProfile(target, profile);
-        applyRicochetState(target, count, maximum, bonusDamage);
-      });
-    } catch (RuntimeException exception) {
-      reportTransferFailure("spawn local projectile", source.world(), spawnLocation, exception);
-      return null;
-    }
-  }
-
-  private RicochetReplacementTicket beginReplacement(ProjectileRef source) {
-    try {
-      return RicochetReplacementTicket.of(ProjectileReplacementRegistry.begin(source));
-    } catch (RuntimeException | Error error) {
-      reportTransferFailure(
-          "begin projectile ownership transfer",
-          source.world(),
-          source.location(),
-          error
-      );
-      return null;
-    }
-  }
-
-  private boolean completeReplacement(
-      RicochetReplacementTicket replacement,
-      ProjectileRef target
-  ) {
-    try {
-      return replacement.complete(target);
-    } catch (RuntimeException | Error error) {
-      reportTransferFailure(
-          "complete projectile ownership transfer",
-          target.world(),
-          target.location(),
-          error
-      );
-      return false;
-    }
-  }
-
-  private void cancelReplacement(RicochetReplacementTicket replacement) {
-    if (replacement == null) {
-      return;
-    }
-    try {
-      replacement.cancel();
-    } catch (RuntimeException | Error error) {
-      AdaptLog.warn("Failed to cancel a Ricochet Bolt projectile ownership transfer.");
-      AdaptLog.error(error);
-    }
-  }
-
   private void completeTransferOwned(RicochetTransferRequest request) {
     if (!isRuntimeRegistered()) {
-      cancelReplacement(request.replacement());
+      handoff.cancel(request.replacement());
       recoverLostProjectileItem(request.primary());
       return;
     }
@@ -431,7 +344,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     }
     RicochetProjectileTemplate fallback = request.fallback();
     if (fallback == null) {
-      cancelReplacement(request.replacement());
+      handoff.cancel(request.replacement());
       recoverLostProjectileItem(request.primary());
       return;
     }
@@ -441,12 +354,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
           request.replacement()
       );
       if (completion == RicochetTransferCompletion.SPAWN_FAILED) {
-        cancelReplacement(request.replacement());
+        handoff.cancel(request.replacement());
         recoverLostProjectileItem(fallback);
       }
     });
     if (!scheduled) {
-      cancelReplacement(request.replacement());
+      handoff.cancel(request.replacement());
       recoverLostProjectileItem(request.primary());
     }
   }
@@ -507,10 +420,10 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         return RicochetTransferCompletion.SPAWN_FAILED;
       }
     } catch (RuntimeException exception) {
-      reportTransferFailure("complete region projectile transfer", world, spawnLocation, exception);
+      handoff.report("complete region projectile transfer", world, spawnLocation, exception);
       return RicochetTransferCompletion.SPAWN_FAILED;
     }
-    if (!completeReplacement(replacement, target)) {
+    if (!handoff.complete(replacement, target)) {
       target.remove();
       return RicochetTransferCompletion.REPLACEMENT_REJECTED;
     }
@@ -526,22 +439,6 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     template.carried().apply(target);
     applyRicochetProfile(target, template.profile());
     applyRicochetState(target, template.count(), template.maximum(), template.bonusDamage());
-  }
-
-  private void reportTransferFailure(
-      String operation,
-      WorldRef world,
-      Loc location,
-      Throwable throwable
-  ) {
-    String failureKey = operation + ":" + world.uid() + ":" + throwable.getClass().getName();
-    if (!reportedTransferFailures.add(failureKey)) {
-      return;
-    }
-    AdaptLog.warn("Failed to " + operation + " for Ricochet Bolt in " + world.name()
-        + " at " + location.blockX() + "," + location.blockY() + ","
-        + location.blockZ() + ".");
-    AdaptLog.error(throwable);
   }
 
   private Loc resolveTransferFallbackOwned(Loc impact, BlockRef block, Vec3 incoming) {

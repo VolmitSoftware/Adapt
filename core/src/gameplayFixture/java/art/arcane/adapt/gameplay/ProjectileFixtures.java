@@ -28,7 +28,8 @@ import java.util.UUID;
 public final class ProjectileFixtures {
     private static final Set<String> STAGES = Set.of("projectile-procs", "projectile-heart", "projectile-bounce",
             "projectile-preview", "projectile-web", "projectile-blood", "projectile-snare", "projectile-speed",
-            "projectile-trophies", "projectile-smash", "projectile-axe", "projectile-logswap");
+            "projectile-trophies", "projectile-smash", "projectile-axe", "projectile-logswap", "projectile-brickbat",
+            "projectile-clod");
     private static final Map<UUID, JsonArray> IMPACTS = new HashMap<>();
     private static final Id COBWEB = Id.minecraft("cobweb");
 
@@ -96,6 +97,16 @@ public final class ProjectileFixtures {
             case "projectile-axe" -> {
                 Fixtures.give(actor, "iron_axe", 1);
                 cow(world, 6.5, 40, false);
+            }
+            case "projectile-brickbat" -> {
+                Fixtures.give(actor, "stone", 8);
+                cow(world, 6.5, 40, false);
+            }
+            case "projectile-clod" -> {
+                Fixtures.give(actor, "diamond_shovel", 1);
+                Fixtures.set(world, 3, 100, 0, "dirt");
+                LivingRef husk = Fixtures.spawnStill(world, "husk", 6.5, 100, 4.5);
+                Fixtures.tag(husk, "adapt-qa-projectile-target");
             }
             case "projectile-logswap" -> {
                 Fixtures.give(actor, "birch_log", 8);

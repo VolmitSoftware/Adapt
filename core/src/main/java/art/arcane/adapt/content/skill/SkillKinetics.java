@@ -7,6 +7,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
@@ -31,12 +32,22 @@ import art.arcane.adapt.content.adaptation.kinetics.KineticsSoftCatch;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsSurfaceSkate;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsTerminalToggle;
 import art.arcane.adapt.content.adaptation.kinetics.KineticsWindburst;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsBoon;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsFightStrike;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsFuel;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsState;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsTrigger;
+import art.arcane.adapt.content.adaptation.kinetics.blocks.KineticsWorkStrike;
+import art.arcane.adapt.content.adaptation.kinetics.upgraded.Comet;
+import art.arcane.adapt.content.adaptation.kinetics.upgraded.Featherweight;
+import art.arcane.adapt.content.adaptation.kinetics.upgraded.Lancer;
 import art.arcane.adapt.content.skill.kinetics.KineticsAnvils;
 import art.arcane.adapt.content.skill.kinetics.KineticsKnockback;
 import art.arcane.adapt.content.skill.kinetics.KineticsLevitation;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
 import art.arcane.adapt.content.skill.kinetics.KineticsWorkstations;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -123,8 +134,18 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     return List.of(PlatformNeed.item("mace"));
   }
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.KINETICS_SPEAR, "kinetics-phalanx-reach", "kinetics-charge-lance",
+          "kinetics-lunge-conductor", "kinetics-impale-pin", "kinetics-mounted-shock", "kinetics-dead-zone"),
+      AdaptationGroup.of(GroupMessages.KINETICS_MACE, "kinetics-meteor-cadence", "kinetics-breachwright",
+          "kinetics-windburst", "kinetics-quake-guard", "kinetics-rebound-anvil", "kinetics-heavy-frame"),
+      AdaptationGroup.of(GroupMessages.KINETICS_MOVEMENT, "kinetics-moon-jump", "kinetics-rubber-soul",
+          "kinetics-soft-catch", "kinetics-surface-skate", "kinetics-terminal-toggle", "kinetics-mass-shift")
+  );
+
   public SkillKinetics() {
-    super("kinetics", SkillPresentation.of(SkillMessages.KINETICS_NAME, SkillMessages.KINETICS_ICON, SkillMessages.KINETICS_DESCRIPTION));
+    super("kinetics", SkillPresentation.of(SkillMessages.KINETICS_NAME, SkillMessages.KINETICS_ICON, SkillMessages.KINETICS_DESCRIPTION,
+        SkillMessages.KINETICS_QUIP, SkillMessages.KINETICS_UNLOCK_QUIP_1, SkillMessages.KINETICS_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.GOLD);
     setInterval(1000);
@@ -149,6 +170,9 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
     registerAdaptation(new KineticsLungeConductor());
     registerAdaptation(new KineticsMountedShock());
     registerAdaptation(new KineticsDeadZone());
+    registerUpgrades(new Comet(), new Lancer(), new Featherweight());
+    registerBlocks(new KineticsTrigger(), new KineticsFightStrike(), new KineticsWorkStrike(), new KineticsBoon(),
+        new KineticsFuel(), new KineticsState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("anvil"))
         .key("challenge_kinetics_anvil_drop")
@@ -157,6 +181,11 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
         .build());
     registerMilestone("challenge_kinetics_anvil_drop", "kinetics.anvil.deep-kills", 1, () -> getConfig().anvilDropReward);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseKinetics);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   static boolean isSuccessfulSmash(UseResult result, boolean originalResult) {

@@ -80,15 +80,13 @@ public class HunterAdrenaline extends SimpleAdaptation<HunterAdrenaline.Config> 
     }
 
     PlayerRef p = attack.attacker();
-    double damageMax = getDamage(attack.level());
     double hpp = p.health() / p.maxHealth();
 
     if (hpp >= 1) {
       return;
     }
 
-    damageMax *= (1D - hpp);
-    e.setDamage(e.damage() * (damageMax + 1D));
+    e.setDamage(e.damage() * (HunterStruck.lowHealthBonus(getDamage(attack.level()), hpp) + 1D));
 
     if (hpp >= 0.35D) {
       return;

@@ -118,6 +118,23 @@ public final class AgilityMessages {
   public static final TextKey KIP_UP_LORE1 = TextKey.of("agility.kip_up.lore1", "Recovery window");
   public static final TextKey KIP_UP_LORE2 = TextKey.of("agility.kip_up.lore2", "Recovery speed boost tier");
   public static final LinesKey KIP_UP_LORE = LinesKey.of("agility.kip_up.lore", "Recovery window", "Recovery speed boost tier");
+  public static final TextKey SLIPSTREAM_LORE1 = TextKey.of("upgrade.agility.slipstream.lore1", "Speed Gained per 5 s of Running");
+  public static final TextKey SLIPSTREAM_LORE2 = TextKey.of("upgrade.agility.slipstream.lore2", "Slide Speed");
+  public static final TextKey SLIPSTREAM_LORE3 = TextKey.of("upgrade.agility.slipstream.lore3", "Slide Cooldown");
+  public static final TextKey SKYRUNNER_LORE1 = TextKey.of("upgrade.agility.skyrunner.lore1", "High Jump Height");
+  public static final TextKey SKYRUNNER_LORE2 = TextKey.of("upgrade.agility.skyrunner.lore2", "Air Dash Speed");
+  public static final TextKey SKYRUNNER_LORE3 = TextKey.of("upgrade.agility.skyrunner.lore3", "Wall Jump Power");
+  public static final TextKey UNTOUCHABLE_LORE1 = TextKey.of("upgrade.agility.untouchable.lore1", "Speed Burst Tier after a Hit");
+  public static final TextKey UNTOUCHABLE_LORE2 = TextKey.of("upgrade.agility.untouchable.lore2", "Speed Burst Duration");
+  public static final TextKey UNTOUCHABLE_LORE3 = TextKey.of("upgrade.agility.untouchable.lore3", "Recovery Jump Window");
+  public static final TextKey SLIPSTREAM_LORE4 = TextKey.of("upgrade.agility.slipstream.lore4", "Top Speed Bonus");
+  public static final TextKey SLIPSTREAM_LORE5 = TextKey.of("upgrade.agility.slipstream.lore5", "Featherfoot Level");
+  public static final TextKey SKYRUNNER_LORE4 = TextKey.of("upgrade.agility.skyrunner.lore4", "Mid-Air Charges");
+  public static final TextKey SKYRUNNER_LORE5 = TextKey.of("upgrade.agility.skyrunner.lore5", "Grappling Line Reach");
+  public static final TextKey UNTOUCHABLE_LORE4 = TextKey.of("upgrade.agility.untouchable.lore4", "Projectile Dodge Chance");
+  public static final TextKey UNTOUCHABLE_LORE5 = TextKey.of("upgrade.agility.untouchable.lore5", "Tallest Fall Rolled Out");
+  public static final TextKey GRAPPLING_LINE_NAME = TextKey.of("tool.agility.grappling_line.name", "Grappling Line");
+  public static final TextKey GRAPPLING_LINE_USAGE = TextKey.of("tool.agility.grappling_line.usage", "Right-click a block to reel in, right-click again to let go");
 
   private AgilityMessages() {
   }
@@ -226,5 +243,22 @@ public final class AgilityMessages {
     builder.add(KIP_UP_LORE1);
     builder.add(KIP_UP_LORE2);
     builder.add(KIP_UP_LORE);
+    builder.add(SLIPSTREAM_LORE1);
+    builder.add(SLIPSTREAM_LORE2);
+    builder.add(SLIPSTREAM_LORE3);
+    builder.add(SKYRUNNER_LORE1);
+    builder.add(SKYRUNNER_LORE2);
+    builder.add(SKYRUNNER_LORE3);
+    builder.add(UNTOUCHABLE_LORE1);
+    builder.add(UNTOUCHABLE_LORE2);
+    builder.add(UNTOUCHABLE_LORE3);
+    builder.add(SLIPSTREAM_LORE4);
+    builder.add(SLIPSTREAM_LORE5);
+    builder.add(SKYRUNNER_LORE4);
+    builder.add(SKYRUNNER_LORE5);
+    builder.add(UNTOUCHABLE_LORE4);
+    builder.add(UNTOUCHABLE_LORE5);
+    builder.add(GRAPPLING_LINE_NAME);
+    builder.add(GRAPPLING_LINE_USAGE);
   }
 }

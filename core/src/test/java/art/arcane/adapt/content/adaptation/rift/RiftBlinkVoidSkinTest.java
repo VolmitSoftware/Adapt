@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 class RiftBlinkVoidSkinTest {
   private static final Path BLINK_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftBlink.java");
   private static final Path REBOUND_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftPearlRebound.java");
+  private static final Path BOUNCE_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftPearlBounce.java");
 
   @Test
   void blinkUsesVanillaPearlDamageThatFallsByLevel() {
@@ -77,7 +78,7 @@ class RiftBlinkVoidSkinTest {
     assertThat(RiftPearlRebound.calculateReducedDamage(5D, 0.3D)).isEqualTo(3.5D);
     assertThat(RiftPearlRebound.calculateReducedDamage(5D, 0.9D)).isCloseTo(0.5D, offset(1.0E-9D));
 
-    String source = Files.readString(REBOUND_SOURCE);
+    String source = Files.readString(REBOUND_SOURCE) + Files.readString(BOUNCE_SOURCE);
     assertThat(source)
         .contains("e.damageType()", "ENDER_PEARL.equals(e.damageType())", "ProjectileLaunchEvent", "Tasks.runEntity")
         .doesNotContain("DamageCause.FALL", "pearlLandedAt", "damageWindowMillis");

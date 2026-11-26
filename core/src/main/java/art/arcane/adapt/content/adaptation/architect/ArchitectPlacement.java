@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
@@ -27,12 +28,16 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.batch.BuildBatch;
+import art.arcane.adapt.api.batch.BuildBatches;
+import art.arcane.adapt.api.batch.BuildResult;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.architect.upgraded.WreckingHand;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -72,8 +77,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
+  public static final String ID = "architect-placement";
   public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
       new PlayerPreference.Definition<>("control", ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_CONTROL, Control.SNEAK, List.of(
           new PlayerPreference.Choice<>(Control.SNEAK, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_CONTROL_SNEAK, Id.minecraft("leather_boots"), 1),
@@ -93,6 +100,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   private static final int MAX_ACTIVE_PREVIEW_DISPLAYS = 2048;
   private static final long PREVIEW_CYCLE_MILLIS = 500L;
   private static final long VIEWPORT_DEBOUNCE_MILLIS = 150L;
+  private static final int MAX_FACE_REACH = 3;
+  private static final int FACE_BATCH_PACE = 64;
   private final Map<UUID, Map<BlockRef, BlockFace>> totalMap = new ConcurrentHashMap<>();
   private final Map<UUID, Map<PreviewKey, BlockDisplayRef>> previewDisplays = new ConcurrentHashMap<>();
   private final Map<UUID, ViewportSignature> viewportSignatures = new ConcurrentHashMap<>();
@@ -188,6 +197,17 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     return blocks.isEmpty() ? null : blocks.getLast();
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p, Predicate<PlayerRef> requirement) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p, requirement),
+        (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p, requirement));
+  }
+
   @Handle
   public void on(PlayerQuitEvent e) {
     clearPlayerPreview(e.player().uuid());
@@ -224,23 +244,6 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return;
       }
 
-      int handAmount = hand.amount();
-      double v = getValue(e.block());
-      BlockRef ignored = null;
-      BlockStateRef ignoredData = null;
-      for (Map.Entry<BlockRef, BlockFace> entry : blocks.entrySet()) {
-        BlockRef source = entry.getKey();
-        BlockFace face = entry.getValue();
-        if (source == null || face == null) {
-          continue;
-        }
-        if (source.relative(face).equals(e.block())) {
-          ignored = source;
-          ignoredData = source.state();
-          break;
-        }
-      }
-
       if (hand.amount() < blocks.size()) {
         p.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + C.RED + AdaptLanguage.text(
             ArchitectMessages.PLACEMENT_REQUIREMENT,
@@ -250,81 +253,50 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return;
       }
 
-      if (ignored != null) {
-        blocks.remove(ignored);
-      }
-      int placedCount = 0;
-      for (Map.Entry<BlockRef, BlockFace> entry : blocks.entrySet()) {
-        BlockRef b = entry.getKey();
-        BlockFace face = entry.getValue();
-        if (b == null || face == null) {
-          continue;
-        }
-
-        BlockRef relative = b.relative(face);
-        if (!relative.type().isAir()) {
-          continue;
-        }
-
-        if (!canBlockPlace(p, relative.location())) {
-          continue;
-        }
-        if (!ProtectionProbes.attemptBlockPlaceProbe(p, relative)) {
-          continue;
-        }
-        if (!ownsBlock(p, relative) || !relative.type().isAir()) {
-          continue;
-        }
-
-        BlockStateRef sourceData = b.state();
-
-        if (!payItemCost(p, "block", items().create(hand.type(), 1), 1, () -> {
-          hand.setAmount(hand.amount() - 1);
-          return true;
-        })) {
-          break;
-        }
-
-        relative.setState(sourceData, true);
-        addStat(p, "blocks.placed", 1);
-        addStat(p, "blocks.placed.value", v);
-        addStat(p, "architect.placement.blocks-placed", 1);
-        xp(p, 2);
-        placedCount++;
-      }
-
-      if (ignored != null && ignoredData != null && ownsBlock(p, e.block())) {
-        if (placedCount > 0) {
-          hand.setAmount(hand.amount() - 1);
-        }
-        e.block().setState(ignoredData, true);
-        addStat(p, "blocks.placed", 1);
-        addStat(p, "blocks.placed.value", v);
-        addStat(p, "architect.placement.blocks-placed", 1);
-        xp(p, 2);
-        placedCount++;
-      } else {
-        e.setCancelled(true);
-      }
-      if (hand.amount() != handAmount && e.hand() != null) {
-        ItemRef slot = p.inventory().hand(e.hand());
-        if (slot.amount() != hand.amount() || !slot.isSimilar(hand)) {
-          p.inventory().setHand(e.hand(), hand);
-        }
-      }
-
-      if (placedCount > 0) {
-        float pitch = 1.2f + Math.min(0.6f, placedCount * 0.05f);
-        fx(e.block().location().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
-            .dustRing(0.8D, 16, 1.0F)
-            .sound(Sounds.BLOCK_AMETHYST_BLOCK_PLACE, 0.5f, pitch);
-      }
-
+      placeFaceBatch(p, e.block(), blocks, hand, getValue(e.block()));
       clearPlayerPreview(id);
-      if (hand.amount() > 0) {
-        runPlayerViewport(getBlockFace(p), targetBlock(p), p.inventory().mainHand().type(), p);
-      }
     });
+  }
+
+  /**
+   * One build batch of real, paid placements of the single-item state beside the block the player placed, which
+   * Wrecking Hand can undo. It pays no skill XP, so placing and undoing farms nothing.
+   */
+  private void placeFaceBatch(PlayerRef p, BlockRef placed, Map<BlockRef, BlockFace> blocks, ItemRef hand, double value) {
+    BuildBatch.Builder batch = BuildBatch.of(this, p)
+        .pace(FACE_BATCH_PACE)
+        .undoable(WreckingHand.kept(p));
+    int planned = 0;
+    for (Map.Entry<BlockRef, BlockFace> entry : blocks.entrySet()) {
+      BlockRef source = entry.getKey();
+      BlockFace face = entry.getValue();
+      if (source == null || face == null) {
+        continue;
+      }
+      BlockRef relative = source.relative(face);
+      if (relative.equals(placed) || !relative.type().isAir()) {
+        continue;
+      }
+      batch.place(relative, ArchitectPattern.single(source.state()), hand.copyWithAmount(1));
+      planned++;
+    }
+    if (planned == 0) {
+      return;
+    }
+    batch.onDone((BuildResult result) -> {
+      if (result.placed() <= 0) {
+        return;
+      }
+      addStat(p, "blocks.placed", result.placed());
+      addStat(p, "blocks.placed.value", value * result.placed());
+      addStat(p, "architect.placement.blocks-placed", result.placed());
+      UpgradeLoans.landed(this, p);
+      WreckingHand.site(p, result.blocks());
+      fx(placed.location().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
+          .dustRing(0.8D, 16, 1.0F)
+          .sound(Sounds.BLOCK_AMETHYST_BLOCK_PLACE, 0.5f, 1.2f + Math.min(0.6f, result.placed() * 0.05f));
+    });
+    BuildBatches.get().start(batch.build());
   }
 
   private boolean ownsPlacementFootprint(PlayerRef player, BlockRef placed,
@@ -443,28 +415,30 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
     Map<BlockRef, BlockFace> map = new HashMap<>();
     WorldRef world = block.world();
+    int reach = faceReach(p);
+    int maxBlocks = clampPreviewBlocks(getConfig().maxBlocks, reach);
 
     if (viewPortBlock == BlockFace.NORTH || viewPortBlock == BlockFace.SOUTH) {
-      for (int x = block.x() - 1; x <= block.x() + 1; x++) {
-        for (int y = block.y() - 1; y <= block.y() + 1; y++) {
-          addViewportEntry(map, world.blockAt(x, y, block.z()), viewPortBlock, handMaterial);
+      for (int x = block.x() - reach; x <= block.x() + reach; x++) {
+        for (int y = block.y() - reach; y <= block.y() + reach; y++) {
+          addViewportEntry(map, maxBlocks, world.blockAt(x, y, block.z()), viewPortBlock, handMaterial);
         }
       }
     } else if (viewPortBlock == BlockFace.EAST || viewPortBlock == BlockFace.WEST) {
-      for (int z = block.z() - 1; z <= block.z() + 1; z++) {
-        for (int y = block.y() - 1; y <= block.y() + 1; y++) {
-          addViewportEntry(map, world.blockAt(block.x(), y, z), viewPortBlock, handMaterial);
+      for (int z = block.z() - reach; z <= block.z() + reach; z++) {
+        for (int y = block.y() - reach; y <= block.y() + reach; y++) {
+          addViewportEntry(map, maxBlocks, world.blockAt(block.x(), y, z), viewPortBlock, handMaterial);
         }
       }
     } else if (viewPortBlock == BlockFace.UP || viewPortBlock == BlockFace.DOWN) {
-      for (int z = block.z() - 1; z <= block.z() + 1; z++) {
-        for (int x = block.x() - 1; x <= block.x() + 1; x++) {
-          addViewportEntry(map, world.blockAt(x, block.y(), z), viewPortBlock, handMaterial);
+      for (int z = block.z() - reach; z <= block.z() + reach; z++) {
+        for (int x = block.x() - reach; x <= block.x() + reach; x++) {
+          addViewportEntry(map, maxBlocks, world.blockAt(x, block.y(), z), viewPortBlock, handMaterial);
         }
       }
     }
 
-    int personalLimit = Math.max(1, (int) (clampPreviewBlocks(getConfig().maxBlocks) * preference(p, LIMIT).multiplier()));
+    int personalLimit = Math.max(1, (int) (maxBlocks * preference(p, LIMIT).multiplier()));
     while (map.size() > personalLimit) {
       map.remove(map.keySet().iterator().next());
     }
@@ -478,12 +452,16 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     renderPreview(p);
   }
 
-  private void addViewportEntry(Map<BlockRef, BlockFace> map, BlockRef target, BlockFace viewPortBlock, Id handMaterial) {
+  private int faceReach(PlayerRef p) {
+    return Math.min(MAX_FACE_REACH, Math.max(1, (int) UpgradeLoans.strength(this, p)));
+  }
+
+  private void addViewportEntry(Map<BlockRef, BlockFace> map, int maxBlocks, BlockRef target, BlockFace viewPortBlock,
+                                Id handMaterial) {
     if (target == null || viewPortBlock == null || handMaterial == null) {
       return;
     }
 
-    int maxBlocks = clampPreviewBlocks(getConfig().maxBlocks);
     if (map.size() >= maxBlocks) {
       return;
     }
@@ -823,8 +801,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     return Math.min(Math.max(0, ownerCount), Math.max(0, startIndex) + MAX_PREVIEW_OWNERS_PER_TICK);
   }
 
-  static int clampPreviewBlocks(int configured) {
-    return Math.max(1, Math.min(9, configured));
+  static int clampPreviewBlocks(int configured, int reach) {
+    int side = (reach * 2) + 1;
+    return Math.max(1, Math.min(side * side, configured * reach * reach));
   }
 
   static double clampDisplayViewRange(double configured) {

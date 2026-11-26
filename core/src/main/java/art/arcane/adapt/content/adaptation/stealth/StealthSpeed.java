@@ -74,7 +74,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   private static final String SLOT_STEP = "step";
   private static final double VANILLA_SNEAK_FRACTION = 0.3D;
   private static final double VANILLA_SNEAK_ATTRIBUTE_MAX = 1.0D;
-  static final double MAX_SNEAK_SCALAR = (VANILLA_SNEAK_ATTRIBUTE_MAX / VANILLA_SNEAK_FRACTION) - 1.0D;
+  public static final double MAX_SNEAK_SCALAR = (VANILLA_SNEAK_ATTRIBUTE_MAX / VANILLA_SNEAK_FRACTION) - 1.0D;
   private final Map<UUID, RuntimeState> states;
 
   public StealthSpeed() {

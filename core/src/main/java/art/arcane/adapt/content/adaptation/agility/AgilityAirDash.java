@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -25,6 +26,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -33,7 +35,6 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
-import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -138,7 +139,7 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
   }
 
   private void attemptDash(PlayerRef p) {
-    if (!isDashEligible(p) || (preference(p, TRIGGER) == Trigger.SNEAK && !p.isSneaking())
+    if (!AgilityDash.eligible(p) || (preference(p, TRIGGER) == Trigger.SNEAK && !p.isSneaking())
         || (preference(p, TRIGGER) == Trigger.EMPTY_HAND && !p.inventory().mainHand().isEmpty())) {
       return;
     }
@@ -166,56 +167,20 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
       return;
     }
 
-    Vec3 direction = p.location().direction().withY(0);
-    if (direction.lengthSquared() <= 1.0E-4D) {
+    Vec3 direction = AgilityDash.direction(p);
+    if (direction == null) {
       return;
     }
 
-    direction = direction.normalize();
     debounce.mark(id);
     int used = chargesUsed.merge(id, 1, Integer::sum);
     AbilityGlyphs.charges(id, this, Math.max(0, maxCharges - used), maxCharges);
-    applyHungerCost(p, getConfig().hungerCost);
+    AgilityStamina.spend(p, getConfig().hungerCost);
 
-    double force = getDashForce(level) * preference(p, SPEED).multiplier();
-    Vec3 current = p.velocity();
-    double liftedY = Math.max(current.y(), -0.15D) + getConfig().upwardLift;
-    p.setVelocity(new Vec3(direction.x() * force, liftedY, direction.z() * force));
-    p.setFallDistance(0F);
-
-    fx(p.location(), FxPriority.GAMEPLAY)
-        .trail(Particles.CLOUD, -direction.x(), 0.05D, -direction.z(), 1.2D, 8)
-        .ring(Particles.CRIT, 0.6D, 8, 0.1D)
-        .chord(Sounds.ENTITY_PHANTOM_FLAP, 0.6F, 1.4F, Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.6F);
+    AgilityDash.launch(this, p, direction, getDashForce(level) * preference(p, SPEED).multiplier(), getConfig().upwardLift);
 
     addStat(p, "agility.air-dash.dashes", 1);
     xp(p, getConfig().xpPerDash);
-  }
-
-  private void applyHungerCost(PlayerRef p, double cost) {
-    double saturation = p.saturation();
-    if (saturation >= cost) {
-      p.setSaturation((float) (saturation - cost));
-      return;
-    }
-
-    p.setSaturation(0F);
-    int foodCost = (int) Math.ceil(cost - saturation);
-    p.setFoodLevel(Math.max(0, p.foodLevel() - foodCost));
-  }
-
-  private boolean isDashEligible(PlayerRef p) {
-    GameMode mode = p.gameMode();
-    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
-      return false;
-    }
-
-    return !p.isOnGround()
-        && !p.isFlying()
-        && !p.isGliding()
-        && !p.isSwimming()
-        && !p.isClimbing()
-        && p.vehicle() == null;
   }
 
   private double getDashForce(int level) {
@@ -252,4 +217,12 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
   }
 
   public enum Trigger { ANY, SNEAK, EMPTY_HAND }
+
+
+  static void dashFx(Adaptation<?> owner, PlayerRef p, Vec3 direction) {
+    Fx.now(owner, p.location(), FxPriority.GAMEPLAY)
+        .trail(Particles.CLOUD, -direction.x(), 0.05D, -direction.z(), 1.2D, 8)
+        .ring(Particles.CRIT, 0.6D, 8, 0.1D)
+        .chord(Sounds.ENTITY_PHANTOM_FLAP, 0.6F, 1.4F, Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.6F);
+  }
 }

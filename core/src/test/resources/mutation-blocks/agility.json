@@ -1,0 +1,13 @@
+{
+  "skill": "agility",
+  "behaviourTest": "AgilityBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "AgilityTrigger", "handles": ["PlayerJumpEvent"], "reuses": ["AgilityRunRamp"]},
+    {"slot": "STRIKE_FIGHT", "class": "AgilityFightStrike", "handles": [], "reuses": ["AgilityDash"]},
+    {"slot": "STRIKE_WORK", "class": "AgilityWorkStrike", "handles": [], "reuses": []},
+    {"slot": "BOON", "class": "AgilityBoon", "handles": ["EntityDamageEvent"], "reuses": ["AgilityRollLanding"]},
+    {"slot": "FUEL", "class": "AgilityFuel", "handles": ["PlayerMoveEvent"], "reuses": ["AgilityRunRamp"]},
+    {"slot": "STATE", "class": "AgilityState", "handles": ["PlayerToggleSprintEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

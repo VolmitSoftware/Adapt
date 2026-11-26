@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -40,6 +41,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -131,6 +133,21 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     }
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.entity() instanceof LivingRef victim)) {
@@ -154,6 +171,9 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     int weaknessTicks = active.count(config.entropyWeaknessSecondsByTier, GolemRuneType.ENTROPY) * TICKS_PER_SECOND;
     if (weakness > 0 && weaknessTicks > 0) {
       weaken(victim, weakness - 1, weaknessTicks);
+    }
+    if (igniteTicks > 0 || (weakness > 0 && weaknessTicks > 0)) {
+      GolemLoans.landed(this, bound.get().owner());
     }
   }
 
@@ -198,7 +218,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
   }
 
   GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
-    return layout(body, ownerLevel(owner), GolemMastery.perks(owner, masterwork).extraRuneSlots());
+    return layout(body, ownerLevel(owner), GolemLoans.runePerks(this, owner, null, masterwork, GolemMastery.perks(owner, masterwork)).extraRuneSlots());
   }
 
   ActiveRunes runes(GolemHandle handle) {
@@ -206,7 +226,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     if (runes.isEmpty()) {
       return ActiveRunes.NONE;
     }
-    GolemMastery.Perks perks = GolemMastery.perks(handle);
+    GolemMastery.Perks perks = GolemLoans.runePerks(this, handle.owner(), handle, handle.state().masterwork(), GolemMastery.perks(handle));
     Map<GolemRuneType, Integer> active = layout(handle.body(), ownerLevel(handle), perks.extraRuneSlots()).active(runes);
     return active.isEmpty() ? ActiveRunes.NONE : new ActiveRunes(active, perks.tierUp(), perks.tierThreeBoost());
   }

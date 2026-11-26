@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.DeathSaveCooldown;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +27,9 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.damage.PlayerDeathSave;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -34,25 +37,18 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
 
 public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> implements PlayerDeathSave {
-  private static final Id INVISIBILITY = Id.minecraft("invisibility");
-  private static final Id RESISTANCE = Id.minecraft("resistance");
-
   public TragoulLastRites() {
     super("tragoul-last-rites");
     registerConfiguration(Config.class);
@@ -124,46 +120,19 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
       }
       AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
 
-      e.setCancelled(true);
-      p.setHealth(1.0);
-
-      int spiritTicks = getConfig().spiritDurationTicks;
-      p.addEffect(new EffectInstance(INVISIBILITY, spiritTicks, 0, true, false, true));
-      p.addEffect(new EffectInstance(RESISTANCE, spiritTicks, getConfig().resistanceAmplifier, true, false, true));
-
-      double radius = getConfig().targetClearRadius;
-      for (EntityRef entity : p.nearbyEntities(radius, radius, radius)) {
-        if (!(entity instanceof MobRef mob) || !isTargeting(mob, p)) {
-          continue;
-        }
-
-        Tasks.runEntity(mob, () -> {
-          if (mob.isValid() && isTargeting(mob, p)) {
-            mob.setTarget(null);
-          }
-        });
-      }
-
-      playSpiritAscension(p);
-      fx(p.location().add(0, 0.2, 0), FxPriority.TRANSITION)
-          .dustRing(radius, 24, 1.0F)
-          .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.25F, 1.8F);
-      Tasks.runEntity(p, () -> fx(p.location().add(0, 1.0, 0), FxPriority.TRANSITION)
-          .particle(Particles.SOUL, 6, 0, 0.5, 0, 0.2, 0.03)
-          .particle(Particles.CRIT, 3, 0, 0.8, 0, 0.3, 0.05)
-          .sound(Sounds.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.4F, 1.2F), spiritTicks);
+      TragoulSpirit.enter(this, p, e, getConfig().spiritDurationTicks, getConfig().resistanceAmplifier,
+          getConfig().targetClearRadius);
       addStat(p, "tragoul.last-rites.deaths-defied", 1);
       xp(p, getConfig().xpPerSave);
     });
   }
 
-  private static boolean isTargeting(MobRef mob, PlayerRef player) {
-    EntityRef target = mob.target();
-    return target != null && target.uuid().equals(player.uuid());
+  private long getCooldownMillis(int level) {
+    return Math.max(30000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
-  private void playSpiritAscension(PlayerRef p) {
-    timeline(p)
+  static void spiritEnterFx(Adaptation<?> owner, PlayerRef p, double clearRadius) {
+    FxTimeline.follow(owner, p)
         .duration(30)
         .priority(FxPriority.GAMEPLAY)
         .cullRadius(40)
@@ -184,10 +153,16 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
           }
         })
         .start();
+    Fx.now(owner, p.location().add(0, 0.2, 0), FxPriority.TRANSITION)
+        .dustRing(clearRadius, 24, 1.0F)
+        .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.25F, 1.8F);
   }
 
-  private long getCooldownMillis(int level) {
-    return Math.max(30000L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
+  static void spiritExitFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.location().add(0, 1.0, 0), FxPriority.TRANSITION)
+        .particle(Particles.SOUL, 6, 0, 0.5, 0, 0.2, 0.03)
+        .particle(Particles.CRIT, 3, 0, 0.8, 0, 0.3, 0.05)
+        .sound(Sounds.BLOCK_RESPAWN_ANCHOR_DEPLETE, 0.4F, 1.2F);
   }
 
 

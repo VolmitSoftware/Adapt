@@ -9,7 +9,10 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.api.fx.FxDirector;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.batch.BuildBatches;
 import art.arcane.adapt.api.golem.item.GolemItemGuard;
+import art.arcane.adapt.api.item.AdaptItemGuard;
+import art.arcane.adapt.api.mutation.tool.MutationToolGuard;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.potion.BrewingManager;
@@ -165,7 +168,10 @@ public final class AdaptCore {
       registerCoreListener(new LanguageEditorGui.Input());
     }
     hotload.start();
+    registerCoreListener(new AdaptItemGuard());
     registerCoreListener(new GolemItemGuard(GolemItems.recipeBook()));
+    registerCoreListener(new MutationToolGuard());
+    registerCoreListener(BuildBatches.startRuntime());
     registerCoreListener(GolemItems.craftCounter());
     MinionBurden burden = MinionBurden.get();
     MinionBurden.startRuntime();
@@ -181,6 +187,7 @@ public final class AdaptCore {
         AdaptLog.warn("Bound golem saving was incomplete at shutdown.");
       }
     });
+    phase("build batches", () -> BuildBatches.get().shutdown());
     phase("config hotload", hotload::stop);
     phase("config input", configInput::stop);
     phase("open menus", GuiSessions::clear);

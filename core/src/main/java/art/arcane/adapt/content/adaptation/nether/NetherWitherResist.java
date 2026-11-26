@@ -19,40 +19,30 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
-import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.NetherMessages;
-import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Config> {
-  private static final long FEEDBACK_INTERVAL_MILLIS = 1000L;
-  private static final Set<Id> NETHERITE_ARMOR = Set.of(Id.minecraft("netherite_helmet"), Id.minecraft("netherite_chestplate"),
-      Id.minecraft("netherite_leggings"), Id.minecraft("netherite_boots"));
-
-  private final Cooldowns feedbackCooldowns = cooldowns();
+  private final NetherWitherWard ward = new NetherWitherWard(this::fx, cooldowns());
 
   public NetherWitherResist() {
     super("nether-wither-resist");
@@ -91,26 +81,13 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         if (winsChanceRoll(chance, roll)) {
           e.setCancelled(true);
           addStat(p, "nether.wither-resist.negated", 1);
-          if (!feedbackCooldowns.isReady(p.uuid(), FEEDBACK_INTERVAL_MILLIS)) {
-            return;
-          }
-          feedbackCooldowns.mark(p.uuid());
-          boolean mastery = chance >= 100D;
-          Loc center = p.location().add(0D, 1.0D, 0D);
-          FxEmitter emit = fx(center, FxPriority.COMBAT)
-              .dome(Particles.SOUL, mastery ? 1.2D : 0.9D, mastery ? 20 : 12)
-              .dome(Particles.SCULK_SOUL, mastery ? 1.2D : 0.9D, 6)
-              .burst(Particles.CRIT, 4, 0.6D)
-              .chord(Sounds.PARTICLE_SOUL_ESCAPE, 0.35F, 0.8F, Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.5F);
-          if (mastery) {
-            emit.column(Particles.END_ROD, 6, 1.4D).sound(Sounds.PARTICLE_SOUL_ESCAPE, 0.35F, 1.1F);
-          }
+          ward.feedback(p, chance >= 100D);
         }
       });
     }
   }
 
-  static boolean winsChanceRoll(double chance, double roll) {
+  public static boolean winsChanceRoll(double chance, double roll) {
     if (!Double.isFinite(chance) || !Double.isFinite(roll) || roll < 0D || roll >= 100D) {
       return false;
     }
@@ -120,14 +97,23 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
   }
 
   private double getTotalChange(PlayerRef p) {
-    return getChance(p, EquipmentSlot.HEAD) + getChance(p, EquipmentSlot.CHEST) + getChance(p, EquipmentSlot.LEGS) + getChance(p, EquipmentSlot.FEET);
+    double perPiece = getConfig().basePieceChance + getConfig().chanceAddition * getLevel(p);
+    int pieces = NetherWitherWard.netheritePieces(p);
+    double total = 0.0D;
+    for (int piece = 0; piece < pieces; piece++) {
+      total += perPiece;
+    }
+    return total;
   }
 
-  private double getChance(PlayerRef p, EquipmentSlot slot) {
-    ItemRef item = p.equipment(slot);
-    if (item != null && NETHERITE_ARMOR.contains(item.type()))
-      return getConfig().basePieceChance + getConfig().chanceAddition * getLevel(p);
-    return 0.0D;
+  static void wardFx(FxEmitter emit, boolean mastery) {
+    emit.dome(Particles.SOUL, mastery ? 1.2D : 0.9D, mastery ? 20 : 12)
+        .dome(Particles.SCULK_SOUL, mastery ? 1.2D : 0.9D, 6)
+        .burst(Particles.CRIT, 4, 0.6D)
+        .chord(Sounds.PARTICLE_SOUL_ESCAPE, 0.35F, 0.8F, Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.5F);
+    if (mastery) {
+      emit.column(Particles.END_ROD, 6, 1.4D).sound(Sounds.PARTICLE_SOUL_ESCAPE, 0.35F, 1.1F);
+    }
   }
 
   @Getter

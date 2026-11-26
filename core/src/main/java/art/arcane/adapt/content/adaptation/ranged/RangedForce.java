@@ -159,8 +159,7 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
       int level = getActiveLevel(p);
       if (level > 0) {
         double factor = getLevelPercent(level);
-        Vec3 velocity = projectile.velocity().multiply(1 + getSpeed(factor));
-        projectile.setVelocity(velocity);
+        Vec3 velocity = RangedShots.quicken(projectile, getSpeed(factor));
         int critCount = Math.min(12, 4 + (int) Math.round(factor * 6));
         fx(projectile.location(), FxPriority.TRAIL)
             .trail(Particles.CRIT_MAGIC, velocity.x(), velocity.y(), velocity.z(), 2.0D, critCount)
@@ -170,7 +169,6 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
       }
     }
   }
-
 
   @ConfigDescription("Shoot projectiles further and faster.")
   protected static class Config extends AdaptationConfig {

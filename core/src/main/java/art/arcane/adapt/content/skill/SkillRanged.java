@@ -43,6 +43,15 @@ import art.arcane.adapt.content.adaptation.ranged.RangedProjectiles;
 import art.arcane.adapt.content.adaptation.ranged.RangedRicochetBolt;
 import art.arcane.adapt.content.adaptation.ranged.RangedTrajectorySight;
 import art.arcane.adapt.content.adaptation.ranged.RangedWebBomb;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedBoon;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedFightStrike;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedFuel;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedState;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedTrigger;
+import art.arcane.adapt.content.adaptation.ranged.blocks.RangedWorkStrike;
+import art.arcane.adapt.content.adaptation.ranged.upgraded.HuntersWeb;
+import art.arcane.adapt.content.adaptation.ranged.upgraded.Stormshot;
+import art.arcane.adapt.content.adaptation.ranged.upgraded.Trueflight;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -70,7 +79,8 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillRanged() {
-    super("ranged", SkillPresentation.of(SkillMessages.RANGED_NAME, SkillMessages.RANGED_ICON, SkillMessages.RANGED_DESCRIPTION));
+    super("ranged", SkillPresentation.of(SkillMessages.RANGED_NAME, SkillMessages.RANGED_ICON, SkillMessages.RANGED_DESCRIPTION,
+        SkillMessages.RANGED_QUIP, SkillMessages.RANGED_UNLOCK_QUIP_1, SkillMessages.RANGED_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.DARK_GREEN);
     setInterval(3044);
@@ -86,6 +96,9 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
     registerAdaptation(new RangedFetchShot());
     registerAdaptation(new RangedHeavyDraw());
     registerAdaptation(new RangedHeartseeker());
+    registerUpgrades(new Stormshot(), new HuntersWeb(), new Trueflight());
+    registerBlocks(new RangedTrigger(), new RangedFightStrike(), new RangedWorkStrike(), new RangedBoon(), new RangedFuel(),
+        new RangedState());
     setIcon(Id.minecraft("crossbow"));
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("arrow"))

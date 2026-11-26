@@ -18,8 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -34,7 +32,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -47,27 +44,34 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Config> implements DamageDeferral {
-  private static final int MAX_PENDING_HITS = 16;
   private static final DataKey<String> DEBT_STAMP = DataKey.adapt("chronos_borrowed_time_debt", DataCodecs.STRING);
 
-  private final Map<UUID, Deque<DeferredDamage>> deferred = playerState();
-  private final Map<UUID, Deque<PendingDamage>> pending = playerState();
-  private final Set<UUID> settling = ConcurrentHashMap.newKeySet();
-  private final ThreadLocal<Boolean> applyingPaybackDamage = new ThreadLocal<>();
-  private final AtomicBoolean acceptingSettlements = new AtomicBoolean(true);
+  private final Map<UUID, Deque<ChronosDebt.DeferredDamage>> deferred = playerState();
+  private final ChronosDebt debt = new ChronosDebt(DEBT_STAMP, deferred, playerState(), new ChronosDebt.Hooks() {
+    @Override
+    public void pay(PlayerRef player, double damage) {
+      applyPlayerDamage(player, damage);
+    }
+
+    @Override
+    public void deferred(PlayerRef player, double amount) {
+      addStat(player, "chronos.borrowed-time.damage-deferred", amount);
+      xpSilent(player, amount * getConfig().xpPerDeferredDamage, "chronos:borrowed-time");
+      emitDeferralFeedback(player);
+    }
+
+    @Override
+    public void paid(PlayerRef player, double damage, boolean cleared) {
+      emitPaybackFeedback(player, damage, cleared);
+    }
+  });
 
   public ChronosBorrowedTime() {
     super("chronos-borrowed-time");
@@ -85,18 +89,12 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
   @Override
   protected void onRuntimeActivated() {
-    acceptingSettlements.set(true);
-    for (PlayerRef player : AdaptCore.platform().host().onlinePlayers()) {
-      Tasks.runEntity(player, () -> restoreDeferredDamage(player));
-    }
+    debt.start();
   }
 
   @Override
   public void unregister() {
-    acceptingSettlements.set(false);
-    settling.clear();
-    deferred.clear();
-    pending.clear();
+    debt.stop();
     super.unregister();
   }
 
@@ -112,108 +110,48 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         getConfig().baseDeferFraction + (Math.max(1, level) * getConfig().deferFractionPerLevel));
   }
 
+  /** The share of each hit this player defers right now, 0 when Borrowed Time is not active for them. */
+  public double deferShare(PlayerRef player) {
+    int level = getActiveLevel(player);
+    return level <= 0 ? 0D : getDeferFraction(level);
+  }
+
+  /** Clears everything the player owes. */
+  public void cancelDebt(PlayerRef player) {
+    debt.cancel(player);
+  }
+
   @Handle
   public void on(PlayerQuitEvent e) {
-    PlayerRef player = e.player();
-    UUID id = player.uuid();
-    pending.remove(id);
-    Deque<DeferredDamage> queue = deferred.remove(id);
-    if (queue != null && !queue.isEmpty()) {
-      persistDeferredDamage(player, queue);
-    }
-    settling.remove(id);
+    debt.quit(e.player());
   }
 
   @Handle
   public void on(PlayerJoinEvent e) {
-    restoreDeferredDamage(e.player());
+    debt.restore(e.player());
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerDeathEvent e) {
-    PlayerRef player = e.player();
-    UUID id = player.uuid();
-    deferred.remove(id);
-    pending.remove(id);
-    settling.remove(id);
-    player.data().remove(DEBT_STAMP);
+    debt.cancel(e.player());
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageEvent e) {
-    if (!(e.entity() instanceof PlayerRef p)) {
+    if (!(e.entity() instanceof PlayerRef p) || e.isCancelled() || debt.isPaying()) {
       return;
     }
-    if (e.isCancelled() || isApplyingPaybackDamage()) {
-      return;
-    }
-
-    UUID id = p.uuid();
-
-    double finalDamage = e.finalDamage();
-    if (finalDamage < getConfig().minimumDeferDamage) {
-      return;
-    }
-
     int level = getActiveLevel(p);
     if (level <= 0) {
       return;
     }
-
-    double fraction = getDeferFraction(level);
-    if (fraction <= 0D) {
-      return;
-    }
-
-    Deque<PendingDamage> hits = pending.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
-    if (hits.size() >= MAX_PENDING_HITS) {
-      return;
-    }
-    e.setDamage(Math.max(0D, e.damage() * (1D - fraction)));
-    double deferredAmount = Math.max(0D, finalDamage - Math.max(0D, e.finalDamage()));
-    if (deferredAmount <= 0D) {
-      if (hits.isEmpty()) {
-        pending.remove(id, hits);
-      }
-      return;
-    }
-    hits.add(new PendingDamage(e.dispatchId(), deferredAmount, Math.max(1, getConfig().paybackPulses)));
+    debt.defer(p, e, getDeferFraction(level), getConfig().minimumDeferDamage, getConfig().paybackPulses);
   }
 
   @ReceiveCancelledEvents
   @Handle(priority = EventPriority.MONITOR)
   public void finishDamage(EntityDamageEvent e) {
-    if (!(e.entity() instanceof PlayerRef player)) {
-      return;
-    }
-    UUID id = player.uuid();
-    Deque<PendingDamage> hits = pending.get(id);
-    if (hits == null) {
-      return;
-    }
-    PendingDamage accepted = null;
-    for (PendingDamage hit : hits) {
-      if (hit.dispatchId() == e.dispatchId()) {
-        hits.remove(hit);
-        accepted = hit;
-        break;
-      }
-    }
-    if (hits.isEmpty()) {
-      pending.remove(id, hits);
-    }
-    if (accepted == null || e.isCancelled()) {
-      return;
-    }
-    double deferredAmount = accepted.amount();
-    int pulses = accepted.pulses();
-    Deque<DeferredDamage> queue = deferred.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
-    DeferredDamage chunk = new DeferredDamage(deferredAmount / pulses, pulses);
-    queue.add(chunk);
-    persistDeferredDamage(player, queue);
-    addStat(player, "chronos.borrowed-time.damage-deferred", deferredAmount);
-    xpSilent(player, deferredAmount * getConfig().xpPerDeferredDamage, "chronos:borrowed-time");
-    emitDeferralFeedback(player);
+    debt.finish(e);
   }
 
   void emitDeferralFeedback(PlayerRef p) {
@@ -226,78 +164,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
 
   @Override
   public void onTick() {
-    if (!acceptingSettlements.get() || deferred.isEmpty()) {
-      return;
-    }
-
-    for (Map.Entry<UUID, Deque<DeferredDamage>> entry : deferred.entrySet()) {
-      UUID id = entry.getKey();
-      PlayerRef p = AdaptCore.platform().host().player(id);
-      if (p == null) {
-        deferred.remove(id, entry.getValue());
-        settling.remove(id);
-        continue;
-      }
-
-      Deque<DeferredDamage> queue = entry.getValue();
-      if (!settling.add(id)) {
-        continue;
-      }
-
-      boolean scheduled = Tasks.runEntity(p, () -> settleDeferredDamage(p, queue));
-      if (!scheduled) {
-        settling.remove(id);
-      }
-    }
-  }
-
-  private void settleDeferredDamage(PlayerRef player, Deque<DeferredDamage> queue) {
-    UUID id = player.uuid();
-    try {
-      if (!acceptingSettlements.get() || deferred.get(id) != queue
-          || !player.isOnline()) {
-        return;
-      }
-
-      if (player.isDead() || player.health() <= 0D) {
-        deferred.remove(id, queue);
-        player.data().remove(DEBT_STAMP);
-        return;
-      }
-
-      double damage = pendingPulseAmount(queue);
-      if (damage <= 0D) {
-        deferred.remove(id, queue);
-        player.data().remove(DEBT_STAMP);
-        return;
-      }
-
-      if (player.noDamageTicks() > player.maxNoDamageTicks() / 2D) {
-        return;
-      }
-
-      try {
-        applyDeferredDamage(player, damage);
-      } catch (Throwable error) {
-        AdaptLog.error("Borrowed Time could not settle deferred damage for " + id + ".");
-        AdaptLog.error(error);
-        return;
-      }
-
-      if (deferred.get(id) != queue) {
-        return;
-      }
-
-      commitDebtPulse(queue);
-      boolean cleared = queue.isEmpty();
-      if (cleared) {
-        deferred.remove(id, queue);
-      }
-      persistDeferredDamage(player, queue);
-      emitPaybackFeedback(player, damage, cleared);
-    } finally {
-      settling.remove(id);
-    }
+    debt.tick();
   }
 
   void emitPaybackFeedback(PlayerRef player, double damage, boolean cleared) {
@@ -311,121 +178,6 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
       fx(player.location().add(0, 1.0, 0), FxPriority.TRANSITION)
           .column(Particles.END_ROD, 6, 1.2D)
           .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
-    }
-  }
-
-  private boolean persistDeferredDamage(PlayerRef player, Deque<DeferredDamage> queue) {
-    try {
-      DataHolder data = player.data();
-      if (queue.isEmpty()) {
-        data.remove(DEBT_STAMP);
-      } else {
-        data.set(DEBT_STAMP, encodeDeferredDamage(queue));
-      }
-      return true;
-    } catch (Throwable error) {
-      AdaptLog.error("Borrowed Time could not persist deferred damage for "
-          + player.uuid() + ".");
-      AdaptLog.error(error);
-      return false;
-    }
-  }
-
-  private void restoreDeferredDamage(PlayerRef player) {
-    UUID id = player.uuid();
-    if (!player.isOnline() || deferred.containsKey(id)) {
-      return;
-    }
-
-    String encoded = player.data().get(DEBT_STAMP);
-    if (encoded == null) {
-      return;
-    }
-
-    try {
-      Deque<DeferredDamage> queue = decodeDeferredDamage(encoded);
-      if (queue.isEmpty()) {
-        player.data().remove(DEBT_STAMP);
-        return;
-      }
-      deferred.putIfAbsent(id, queue);
-    } catch (RuntimeException error) {
-      AdaptLog.error("Borrowed Time could not restore deferred damage for " + id + ".");
-      AdaptLog.error(error);
-      player.data().remove(DEBT_STAMP);
-    }
-  }
-
-  static double pendingPulseAmount(Deque<DeferredDamage> queue) {
-    double amount = 0D;
-    for (DeferredDamage chunk : queue) {
-      amount += chunk.perPulse();
-    }
-    return amount;
-  }
-
-  static void commitDebtPulse(Deque<DeferredDamage> queue) {
-    Iterator<DeferredDamage> iterator = queue.iterator();
-    while (iterator.hasNext()) {
-      DeferredDamage chunk = iterator.next();
-      if (chunk.consumePulse() <= 0) {
-        iterator.remove();
-      }
-    }
-  }
-
-  static String encodeDeferredDamage(Deque<DeferredDamage> queue) {
-    StringBuilder encoded = new StringBuilder();
-    for (DeferredDamage chunk : queue) {
-      if (encoded.length() > 0) {
-        encoded.append(';');
-      }
-      encoded.append(chunk.perPulse()).append(',').append(chunk.pulsesRemaining());
-    }
-    return encoded.toString();
-  }
-
-  static Deque<DeferredDamage> decodeDeferredDamage(String encoded) {
-    Deque<DeferredDamage> queue = new ConcurrentLinkedDeque<>();
-    if (encoded == null || encoded.isBlank()) {
-      return queue;
-    }
-
-    String[] chunks = encoded.split(";");
-    for (String value : chunks) {
-      String[] parts = value.split(",", 2);
-      if (parts.length != 2) {
-        throw new IllegalArgumentException("Invalid deferred damage chunk");
-      }
-      double perPulse = Double.parseDouble(parts[0]);
-      int pulsesRemaining = Integer.parseInt(parts[1]);
-      if (!Double.isFinite(perPulse) || perPulse <= 0D || pulsesRemaining <= 0) {
-        throw new IllegalArgumentException("Invalid deferred damage values");
-      }
-      queue.add(new DeferredDamage(perPulse, pulsesRemaining));
-    }
-    return queue;
-  }
-
-  private void applyDeferredDamage(PlayerRef player, double damage) {
-    withPaybackDamage(() -> applyPlayerDamage(player, damage));
-  }
-
-  boolean isApplyingPaybackDamage() {
-    return Boolean.TRUE.equals(applyingPaybackDamage.get());
-  }
-
-  void withPaybackDamage(Runnable damage) {
-    Boolean previous = applyingPaybackDamage.get();
-    applyingPaybackDamage.set(true);
-    try {
-      damage.run();
-    } finally {
-      if (previous == null) {
-        applyingPaybackDamage.remove();
-      } else {
-        applyingPaybackDamage.set(previous);
-      }
     }
   }
 
@@ -448,32 +200,6 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
       baseCost = 3;
       costFactor = 0.6;
       initialCost = 2;
-    }
-  }
-
-  private record PendingDamage(long dispatchId, double amount, int pulses) {
-  }
-
-  static final class DeferredDamage {
-    private final double perPulse;
-    private int pulsesRemaining;
-
-    DeferredDamage(double perPulse, int pulsesRemaining) {
-      this.perPulse = perPulse;
-      this.pulsesRemaining = pulsesRemaining;
-    }
-
-    double perPulse() {
-      return perPulse;
-    }
-
-    int pulsesRemaining() {
-      return pulsesRemaining;
-    }
-
-    int consumePulse() {
-      pulsesRemaining--;
-      return pulsesRemaining;
     }
   }
 }

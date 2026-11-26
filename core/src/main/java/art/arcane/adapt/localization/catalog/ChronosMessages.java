@@ -63,7 +63,7 @@ public final class ChronosMessages {
   public static final TextKey PREFERENCE_CHRONOSABERRANTTOUCH_PLAYERS = TextKey.of("chronos.preferences.chronosaberranttouch.player-targets", "Player targets");
   public static final TextKey PREFERENCE_CHRONOSABERRANTTOUCH_PASSIVE = TextKey.of("chronos.preferences.chronosaberranttouch.passive-targets", "Passive targets");
   public static final TextKey PREFERENCE_CHRONOSABERRANTTOUCH_CLOCK_SOUNDS = TextKey.of("chronos.preferences.chronosaberranttouch.clock-sounds", "Clock sounds");
-  public static final TextKey TIME_IN_A_BOTTLE_NAME = TextKey.of("chronos.time_in_a_bottle.name", "Time In A Bottle");
+  public static final TextKey TIME_IN_A_BOTTLE_NAME = TextKey.of("chronos.time_in_a_bottle.name", "Time in a Bottle");
   public static final TextKey TIME_IN_A_BOTTLE_DESCRIPTION = TextKey.of("chronos.time_in_a_bottle.description", "Carry a temporal bottle that stores time and spend it to accelerate timed blocks, growables, and Ageable entities such as baby animals. Recipe (Shapeless): Swiftness Potion + Clock + Glass Bottle.");
   public static final TextKey TIME_IN_A_BOTTLE_LORE1 = TextKey.of("chronos.time_in_a_bottle.lore1", "Stored seconds charged each tick");
   public static final TextKey TIME_IN_A_BOTTLE_LORE2 = TextKey.of("chronos.time_in_a_bottle.lore2", "Time acceleration per stored second");
@@ -164,6 +164,26 @@ public final class ChronosMessages {
   public static final TextKey DEJA_VU_LORE2 = TextKey.of("chronos.deja_vu.lore2", "Damage memory window");
   public static final TextKey DEJA_VU_LORE3 = TextKey.of("chronos.deja_vu.lore3", "The memory refreshes on every hit of the same kind");
   public static final LinesKey DEJA_VU_LORE = LinesKey.of("chronos.deja_vu.lore", "Repeat damage absorbed", "Damage memory window", "The memory refreshes on every hit of the same kind");
+  public static final TextKey SECOND_CHANCE_LORE1 = TextKey.of("upgrade.chronos.second_chance.lore1", "Rewinds You by");
+  public static final TextKey SECOND_CHANCE_LORE2 = TextKey.of("upgrade.chronos.second_chance.lore2", "Cooldown");
+  public static final TextKey SECOND_CHANCE_LORE3 = TextKey.of("upgrade.chronos.second_chance.lore3", "Invulnerable after a Killing Blow");
+  public static final TextKey TIME_LORD_LORE1 = TextKey.of("upgrade.chronos.time_lord.lore1", "Bottle Capacity");
+  public static final TextKey TIME_LORD_LORE2 = TextKey.of("upgrade.chronos.time_lord.lore2", "Aura Radius");
+  public static final TextKey TIME_LORD_LORE3 = TextKey.of("upgrade.chronos.time_lord.lore3", "Longer Beneficial Potions");
+  public static final TextKey SECOND_CHANCE_LORE4 = TextKey.of("upgrade.chronos.second_chance.lore4", "Damage Owed Later");
+  public static final TextKey SECOND_CHANCE_LORE5 = TextKey.of("upgrade.chronos.second_chance.lore5", "Most Health after a Save");
+  public static final TextKey TIME_LORD_LORE4 = TextKey.of("upgrade.chronos.time_lord.lore4", "Restoration Radius");
+  public static final TextKey TIME_LORD_LORE5 = TextKey.of("upgrade.chronos.time_lord.lore5", "Restoration Window");
+  public static final TextKey TIME_LORD_LORE6 = TextKey.of("upgrade.chronos.time_lord.lore6", "Blocks Restored per Charge");
+  public static final TextKey TIME_LORD_LORE7 = TextKey.of("upgrade.chronos.time_lord.lore7", "Stored Time per Charge");
+  public static final TextKey TIME_LORD_RESTORED = TextKey.of("upgrade.chronos.time_lord.restored", "{count} blocks restored");
+  public static final TextKey TIME_LORD_RESTORE_NOTHING = TextKey.of("upgrade.chronos.time_lord.restore_nothing", "Nothing to restore here");
+  public static final TextKey TIME_LORD_RESTORE_NO_TIME = TextKey.of("upgrade.chronos.time_lord.restore_no_time", "Not enough stored time");
+  public static final TextKey TIME_LORD_RESTORE_DROPS_MISSING = TextKey.of("upgrade.chronos.time_lord.restore_drops_missing", "Some dropped items are gone");
+  public static final TextKey TIME_LORD_RESTORE_PROTECTED = TextKey.of("upgrade.chronos.time_lord.restore_protected", "You cannot build here");
+  public static final TextKey FROZEN_MOMENT_LORE1 = TextKey.of("upgrade.chronos.frozen_moment.lore1", "Field Radius");
+  public static final TextKey FROZEN_MOMENT_LORE2 = TextKey.of("upgrade.chronos.frozen_moment.lore2", "Field Duration");
+  public static final TextKey FROZEN_MOMENT_LORE3 = TextKey.of("upgrade.chronos.frozen_moment.lore3", "Root Duration");
 
   private ChronosMessages() {
   }
@@ -328,5 +348,25 @@ public final class ChronosMessages {
     builder.add(DEJA_VU_LORE2);
     builder.add(DEJA_VU_LORE3);
     builder.add(DEJA_VU_LORE);
+    builder.add(SECOND_CHANCE_LORE1);
+    builder.add(SECOND_CHANCE_LORE2);
+    builder.add(SECOND_CHANCE_LORE3);
+    builder.add(TIME_LORD_LORE1);
+    builder.add(TIME_LORD_LORE2);
+    builder.add(TIME_LORD_LORE3);
+    builder.add(SECOND_CHANCE_LORE4);
+    builder.add(SECOND_CHANCE_LORE5);
+    builder.add(TIME_LORD_LORE4);
+    builder.add(TIME_LORD_LORE5);
+    builder.add(TIME_LORD_LORE6);
+    builder.add(TIME_LORD_LORE7);
+    builder.add(TIME_LORD_RESTORED);
+    builder.add(TIME_LORD_RESTORE_NOTHING);
+    builder.add(TIME_LORD_RESTORE_NO_TIME);
+    builder.add(TIME_LORD_RESTORE_DROPS_MISSING);
+    builder.add(TIME_LORD_RESTORE_PROTECTED);
+    builder.add(FROZEN_MOMENT_LORE1);
+    builder.add(FROZEN_MOMENT_LORE2);
+    builder.add(FROZEN_MOMENT_LORE3);
   }
 }

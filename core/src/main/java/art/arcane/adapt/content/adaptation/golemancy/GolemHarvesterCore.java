@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -98,6 +101,21 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     loadedConfig.bountifulChance = GolemancyRules.fraction(loadedConfig.bountifulChance);
     loadedConfig.workXpPerCrop = GolemancyRules.nonNegative(loadedConfig.workXpPerCrop);
     loadedConfig.tendingIntervalMillis = HarvesterRules.tendingInterval(loadedConfig.tendingIntervalMillis);
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
   }
 
   @Override

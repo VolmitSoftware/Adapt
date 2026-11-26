@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -31,7 +30,6 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
@@ -42,7 +40,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Config> {
@@ -84,7 +81,7 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     }
 
     int level = getActiveLevel(killer);
-    PrecisionContext precision = readPrecisionContext(e, killer, level);
+    HunterTrophies.Precision precision = HunterTrophies.precision(e, killer, getMinimumRange(level));
     if (!precision.precise()) {
       return;
     }
@@ -103,7 +100,7 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
         })
         .start();
 
-    DropOutcome outcome = decideDrops(
+    HunterTrophies.DropOutcome outcome = HunterTrophies.decideDrops(
         ThreadLocalRandom.current().nextDouble(),
         ThreadLocalRandom.current().nextDouble(),
         getDropChance(level),
@@ -126,7 +123,7 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     }
 
     if (outcome.head()) {
-      ItemRef head = buildHeadDrop(victim.type());
+      ItemRef head = HunterTrophies.headDrop(victim.type());
       if (head != null) {
         e.drops().add(head);
         addStat(killer, "hunter.trophy-skinner.heads-collected", 1);
@@ -146,63 +143,12 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
     }
   }
 
-  static DropOutcome decideDrops(double trophyRoll, double headRoll, double trophyChance, double headChance) {
-    return new DropOutcome(trophyRoll <= trophyChance, headRoll <= headChance);
-  }
-
-  private PrecisionContext readPrecisionContext(EntityDeathEvent e, PlayerRef killer, int level) {
-    boolean projectileKill = false;
-    double range = 0;
-    if (e.directDamager() instanceof ProjectileRef projectile) {
-      UUID shooter = projectile.shooterId();
-      if (shooter != null && shooter.equals(killer.uuid())) {
-        projectileKill = true;
-      }
-    }
-
-    Loc killerLocation = killer.location();
-    Loc victimLocation = e.entity().location();
-    if (killerLocation.sameWorld(victimLocation)) {
-      range = killerLocation.distance(victimLocation);
-    }
-
-    boolean rangedPrecision = projectileKill && range >= getMinimumRange(level);
-    boolean stealthPrecision = killer.isSneaking();
-    return new PrecisionContext(projectileKill, rangedPrecision || stealthPrecision);
-  }
-
   private ItemRef buildTrophyDrop(Id type, int level, boolean projectileKill) {
-    String material = switch (type.isMinecraft() ? type.path() : "") {
-      case "creeper" -> "gunpowder";
-      case "skeleton", "bogged", "wither_skeleton", "stray" -> "bone";
-      case "zombie", "zombified_piglin", "husk", "drowned" -> "rotten_flesh";
-      case "spider", "cave_spider" -> "string";
-      case "blaze" -> "blaze_powder";
-      case "enderman" -> "ender_pearl";
-      case "witch" -> "redstone";
-      case "piglin", "piglin_brute", "hoglin", "zoglin" -> "porkchop";
-      default -> "leather";
-    };
-
     int amount = Math.max(1, (int) Math.round(getConfig().trophyAmountBase + (getLevelPercent(level) * getConfig().trophyAmountFactor)));
     if (projectileKill) {
       amount += 1;
     }
-
-    return AdaptCore.platform().host().items().create(Id.minecraft(material), Math.min(8, amount));
-  }
-
-  private ItemRef buildHeadDrop(Id type) {
-    String material = switch (type.isMinecraft() ? type.path() : "") {
-      case "creeper" -> "creeper_head";
-      case "skeleton", "stray", "bogged" -> "skeleton_skull";
-      case "wither_skeleton" -> "wither_skeleton_skull";
-      case "zombie", "husk", "drowned", "zombified_piglin" -> "zombie_head";
-      case "piglin", "piglin_brute" -> "piglin_head";
-      default -> null;
-    };
-
-    return material == null ? null : AdaptCore.platform().host().items().create(Id.minecraft(material));
+    return HunterTrophies.trophyDrop(type, amount);
   }
 
   private double getDropChance(int level) {
@@ -248,11 +194,5 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
       costFactor = 0.5;
       initialCost = 1;
     }
-  }
-
-  private record PrecisionContext(boolean projectileKill, boolean precise) {
-  }
-
-  record DropOutcome(boolean trophy, boolean head) {
   }
 }

@@ -78,7 +78,7 @@ public final class PickaxeMessages {
   public static final TextKey CHISEL_LORE1 = TextKey.of("pickaxe.chisel.lore1", "Chance to Drop");
   public static final TextKey CHISEL_LORE2 = TextKey.of("pickaxe.chisel.lore2", "Tool Wear");
   public static final LinesKey CHISEL_LORE = LinesKey.of("pickaxe.chisel.lore", "Chance to Drop", "Tool Wear");
-  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("pickaxe.drop_to_inventory.name", "Pickaxe Drop-To-Inventory");
+  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("pickaxe.drop_to_inventory.name", "Pickaxe Drop to Inventory");
   public static final TextKey DROP_TO_INVENTORY_DESCRIPTION = TextKey.of("pickaxe.drop_to_inventory.description", "Blocks you break send their drops straight into your inventory.");
   public static final TextKey DROP_TO_INVENTORY_LORE1 = TextKey.of("pickaxe.drop_to_inventory.lore1", "Whenever an item is dropped from a block you break it goes into your inventory if it can.");
   public static final LinesKey DROP_TO_INVENTORY_LORE = LinesKey.of("pickaxe.drop_to_inventory.lore", "Whenever an item is dropped from a block you break it goes into your inventory if it can.");
@@ -137,6 +137,29 @@ public final class PickaxeMessages {
   public static final TextKey STONE_SKIN_LORE1 = TextKey.of("pickaxe.stone_skin.lore1", "Mine stone to build Stone Skin stacks");
   public static final TextKey STONE_SKIN_LORE2 = TextKey.of("pickaxe.stone_skin.lore2", "maximum Resistance level");
   public static final LinesKey STONE_SKIN_LORE = LinesKey.of("pickaxe.stone_skin.lore", "Mine stone to build Stone Skin stacks", "maximum Resistance level");
+
+  public static final TextKey MOTHERLODE_LORE1 = TextKey.of("upgrade.pickaxe.motherlode.lore1", "Vein Radius");
+  public static final TextKey MOTHERLODE_LORE2 = TextKey.of("upgrade.pickaxe.motherlode.lore2", "Most Blocks per Vein");
+  public static final TextKey MOTHERLODE_LORE3 = TextKey.of("upgrade.pickaxe.motherlode.lore3", "Bonus Ores per Vein");
+  public static final TextKey EARTHSHAKER_LORE1 = TextKey.of("upgrade.pickaxe.earthshaker.lore1", "Bored Face");
+  public static final TextKey EARTHSHAKER_LORE2 = TextKey.of("upgrade.pickaxe.earthshaker.lore2", "Share of Stone Speed on Deepslate and Obsidian");
+  public static final TextKey EARTHSHAKER_LORE3 = TextKey.of("upgrade.pickaxe.earthshaker.lore3", "Durability per Bored Block");
+  public static final TextKey ETERNAL_PICK_LORE1 = TextKey.of("upgrade.pickaxe.eternal_pick.lore1", "Repair Chance per Block");
+  public static final TextKey ETERNAL_PICK_LORE2 = TextKey.of("upgrade.pickaxe.eternal_pick.lore2", "Durability per Repair");
+  public static final TextKey ETERNAL_PICK_LORE3 = TextKey.of("upgrade.pickaxe.eternal_pick.lore3", "Highest Resistance Tier");
+  public static final TextKey MOTHERLODE_LORE4 = TextKey.of("upgrade.pickaxe.motherlode.lore4", "Durability per Kept Spawner");
+  public static final TextKey MOTHERLODE_SPAWNER_MOB = TextKey.of("upgrade.pickaxe.motherlode.spawner_mob", "Mob: {mob}");
+  public static final TextKey MOTHERLODE_SPAWNER_WORN = TextKey.of("upgrade.pickaxe.motherlode.spawner_worn", "Needs {durability} pickaxe durability");
+  public static final TextKey EARTHSHAKER_LORE4 = TextKey.of("upgrade.pickaxe.earthshaker.lore4", "Charge Radius");
+  public static final TextKey PROSPECTORS_CHARGE_NAME = TextKey.of("tool.pickaxe.prospectors_charge.name", "Prospector's Charge");
+  public static final TextKey PROSPECTORS_CHARGE_STONE_DROP = TextKey.of("tool.pickaxe.prospectors_charge.stone_drop", "Stone: Drop");
+  public static final TextKey PROSPECTORS_CHARGE_STONE_DISCARD = TextKey.of("tool.pickaxe.prospectors_charge.stone_discard", "Stone: Discard");
+  public static final TextKey PROSPECTORS_CHARGE_BUSY = TextKey.of("tool.pickaxe.prospectors_charge.busy", "A charge is already set");
+  public static final TextKey PROSPECTORS_CHARGE_NO_PICKAXE = TextKey.of("tool.pickaxe.prospectors_charge.no_pickaxe", "No pickaxe in your hotbar");
+  public static final TextKey PROSPECTORS_CHARGE_STONE_ONLY = TextKey.of("tool.pickaxe.prospectors_charge.stone_only", "Stone only");
+  public static final TextKey PROSPECTORS_CHARGE_OPENED = TextKey.of("tool.pickaxe.prospectors_charge.opened", "{blocks} blocks opened");
+  public static final TextKey PROSPECTORS_CHARGE_WORN = TextKey.of("tool.pickaxe.prospectors_charge.worn", "Pickaxe worn out");
+  public static final TextKey PROSPECTORS_CHARGE_PROTECTED = TextKey.of("tool.pickaxe.prospectors_charge.protected", "Stopped at protected ground");
 
   private PickaxeMessages() {
   }
@@ -212,5 +235,27 @@ public final class PickaxeMessages {
     builder.add(STONE_SKIN_LORE1);
     builder.add(STONE_SKIN_LORE2);
     builder.add(STONE_SKIN_LORE);
+    builder.add(MOTHERLODE_LORE1);
+    builder.add(MOTHERLODE_LORE2);
+    builder.add(MOTHERLODE_LORE3);
+    builder.add(EARTHSHAKER_LORE1);
+    builder.add(EARTHSHAKER_LORE2);
+    builder.add(EARTHSHAKER_LORE3);
+    builder.add(ETERNAL_PICK_LORE1);
+    builder.add(ETERNAL_PICK_LORE2);
+    builder.add(ETERNAL_PICK_LORE3);
+    builder.add(MOTHERLODE_LORE4);
+    builder.add(MOTHERLODE_SPAWNER_MOB);
+    builder.add(MOTHERLODE_SPAWNER_WORN);
+    builder.add(EARTHSHAKER_LORE4);
+    builder.add(PROSPECTORS_CHARGE_NAME);
+    builder.add(PROSPECTORS_CHARGE_STONE_DROP);
+    builder.add(PROSPECTORS_CHARGE_STONE_DISCARD);
+    builder.add(PROSPECTORS_CHARGE_BUSY);
+    builder.add(PROSPECTORS_CHARGE_NO_PICKAXE);
+    builder.add(PROSPECTORS_CHARGE_STONE_ONLY);
+    builder.add(PROSPECTORS_CHARGE_OPENED);
+    builder.add(PROSPECTORS_CHARGE_WORN);
+    builder.add(PROSPECTORS_CHARGE_PROTECTED);
   }
 }

@@ -22,6 +22,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.XpNovelty;
@@ -41,7 +42,17 @@ import art.arcane.adapt.content.adaptation.herbalism.HerbalismRootedFooting;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismSeedSower;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismSporeBloom;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismTerralid;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismBoon;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismFightStrike;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismFuel;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismState;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismTrigger;
+import art.arcane.adapt.content.adaptation.herbalism.blocks.HerbalismWorkStrike;
+import art.arcane.adapt.content.adaptation.herbalism.upgraded.HarvestMoon;
+import art.arcane.adapt.content.adaptation.herbalism.upgraded.IronStomach;
+import art.arcane.adapt.content.adaptation.herbalism.upgraded.Wildgrowth;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -61,6 +72,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
@@ -69,8 +81,19 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
       Id.minecraft("lingering_potion"), Id.minecraft("tipped_arrow"));
   private final Cooldowns cooldown = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.HERBALISM_FARMING, "herbalism-replant", "herbalism-seed-sower",
+          "herbalism-compost-cascade", "herbalism-bee-shepherd", "herbalism-growth-aura", "herbalism-spore-bloom",
+          "herbalism-drop-to-inventory"),
+      AdaptationGroup.of(GroupMessages.HERBALISM_SURVIVAL, "herbalism-hippo", "herbalism-luck",
+          "herbalism-rooted-footing", "herbalism-hungry-shield"),
+      AdaptationGroup.of(GroupMessages.HERBALISM_RECIPES, "herbalism-myconid", "herbalism-terralid",
+          "herbalism-mushroom-blocks", "herbalism-cobweb")
+  );
+
   public SkillHerbalism() {
-    super("herbalism", SkillPresentation.of(SkillMessages.HERBALISM_NAME, SkillMessages.HERBALISM_ICON, SkillMessages.HERBALISM_DESCRIPTION));
+    super("herbalism", SkillPresentation.of(SkillMessages.HERBALISM_NAME, SkillMessages.HERBALISM_ICON, SkillMessages.HERBALISM_DESCRIPTION,
+        SkillMessages.HERBALISM_QUIP, SkillMessages.HERBALISM_UNLOCK_QUIP_1, SkillMessages.HERBALISM_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.GREEN);
     setInterval(3990);
@@ -90,6 +113,9 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
     registerAdaptation(new HerbalismRootedFooting());
     registerAdaptation(new HerbalismBeeShepherd());
     registerAdaptation(new HerbalismSporeBloom());
+    registerUpgrades(new Wildgrowth(), new HarvestMoon(), new IronStomach());
+    registerBlocks(new HerbalismTrigger(), new HerbalismFightStrike(), new HerbalismWorkStrike(), new HerbalismBoon(),
+        new HerbalismFuel(), new HerbalismState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("cooked_beef"))
         .key("challenge_eat_100")
@@ -190,6 +216,11 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
         .build());
     registerMilestone("challenge_shear_50", "herbalism.sheared", 50, () -> getConfig().challengeShear50Reward);
     registerMilestone("challenge_shear_250", "herbalism.sheared", 250, () -> getConfig().challengeShear250Reward);
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
 

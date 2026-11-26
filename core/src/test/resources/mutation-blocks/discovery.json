@@ -1,0 +1,13 @@
+{
+  "skill": "discovery",
+  "behaviourTest": "DiscoveryBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "DiscoveryTrigger", "handles": ["DiscoveryFindEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "DiscoveryFightStrike", "handles": ["EntityDamageByEntityEvent"], "reuses": ["InsightLens"]},
+    {"slot": "STRIKE_WORK", "class": "DiscoveryWorkStrike", "handles": [], "reuses": ["KeenEyeScan", "DiscoverySixthSense", "DiscoveryKeenEye"]},
+    {"slot": "BOON", "class": "DiscoveryBoon", "handles": [], "reuses": ["KeenEyeScan", "DiscoveryKeenEye"]},
+    {"slot": "FUEL", "class": "DiscoveryFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "DiscoveryState", "handles": ["DiscoveryFindEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

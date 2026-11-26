@@ -28,7 +28,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.insight.EntityInsight;
 import art.arcane.adapt.api.insight.GlossInsightPort;
 import art.arcane.adapt.api.insight.InsightReadout;
@@ -40,12 +39,9 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.server.insight.InsightFrames;
 import art.arcane.adapt.client.view.InsightMark;
 import art.arcane.adapt.client.view.InsightView;
-import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.platform.RegistryLookup;
-import art.arcane.adapt.platform.entity.EffectCategory;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -59,8 +55,6 @@ import art.arcane.adapt.platform.event.server.ServiceChangeEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.BlockHit;
-import art.arcane.adapt.platform.world.RayHit;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -73,7 +67,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -363,7 +356,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     }
 
     Loc eye = player.eyeLocation();
-    LivingRef target = findLookTargetCandidate(player, eye, getRange(level));
+    LivingRef target = InsightLens.lookTarget(player, eye, getRange(level));
     if (target == null || target instanceof PlayerRef other && !AdaptCore.platform().viewers().canSee(player, other)
         || target != null && !preferenceEnabled(player, target instanceof PlayerRef ? PLAYERS
             : target.has(EntityTrait.ENEMY) ? HOSTILE : PASSIVE)) {
@@ -400,27 +393,6 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
     return marks;
   }
 
-  private LivingRef findLookTargetCandidate(PlayerRef player, Loc eye, double range) {
-    if (!Double.isFinite(range) || range <= 0D) {
-      return null;
-    }
-
-    Vec3 direction = eye.direction();
-    UUID playerId = player.uuid();
-    RayHit entityHit = player.world().rayTraceEntityHit(eye.position(), direction, range, 0.3D,
-        (EntityRef entity) -> entity instanceof LivingRef && !entity.uuid().equals(playerId) && !entity.has(EntityTrait.ARMOR_STAND));
-    if (entityHit == null || !(entityHit.entity() instanceof LivingRef target)) {
-      return null;
-    }
-
-    double entityDistance = eye.position().distance(entityHit.position());
-    BlockHit blockHit = player.world().rayTraceBlockHit(eye.position(), direction, entityDistance, false);
-    if (blockHit != null && isOccluded(eye.position(), entityHit.position(), blockHit.position())) {
-      return null;
-    }
-    return target;
-  }
-
   static boolean isOccluded(Vec3 origin, Vec3 entityHit, Vec3 blockHit) {
     if (origin == null || entityHit == null || blockHit == null) {
       return false;
@@ -440,11 +412,9 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     UUID targetId = target.uuid();
     List<String> provided = EntityInsight.details(owner, target);
-    InsightStats stats = readStats(target);
+    InsightStats stats = InsightLens.stats(target);
     List<String> details = buildInsightDetails(stats);
-    RegistryLookup registries = AdaptCore.platform().host().registries();
-    InsightView view = InsightReadout.read(target, playerId, tier, stats.stableHandEnhanced(), DiscoveryInsight::onlineName,
-        (Id effect) -> registries.effectCategory(effect) == EffectCategory.HARMFUL);
+    InsightView view = InsightLens.view(target, playerId, tier, stats);
     Inspection inspection = new Inspection(target, targetId, provided, details, view, marks, stats.species());
     if (!Tasks.runEntity(owner, () -> acceptInspectionOwned(owner, inspection, token))) {
       clearHudIfCurrent(playerId, token);
@@ -506,21 +476,6 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
         || Double.compare(from.x(), to.x()) != 0
         || Double.compare(from.y(), to.y()) != 0
         || Double.compare(from.z(), to.z()) != 0;
-  }
-
-  private InsightStats readStats(LivingRef target) {
-    String species = Form.capitalizeWords(DiscoveryNames.enumName(target.type()).toLowerCase(Locale.ROOT).replace('_', ' '));
-    return new InsightStats(species,
-        attributeValue(target, Attributes.MOVEMENT_SPEED),
-        attributeValue(target, Attributes.JUMP_STRENGTH),
-        attributeValue(target, Attributes.ARMOR_TOUGHNESS),
-        attributeValue(target, Attributes.KNOCKBACK_RESISTANCE),
-        attributeValue(target, Attributes.FOLLOW_RANGE),
-        target.has(EntityTrait.TAMEABLE) && TamingStableHand.hasAppliedBias(target));
-  }
-
-  private double attributeValue(LivingRef target, Id attribute) {
-    return target.hasAttribute(attribute) ? target.attributeValue(attribute) : Double.NaN;
   }
 
   static List<String> buildInsightDetails(InsightStats stats) {
@@ -588,11 +543,6 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       case GLOSS -> gloss().clear(playerId);
       case ACTION_BAR -> Tasks.runEntity(hud.owner(), () -> AdaptHud.clearAmbientStatus(hud.owner(), ACTION_BAR_PURPOSE));
     }
-  }
-
-  private static String onlineName(UUID playerId) {
-    PlayerRef player = AdaptCore.platform().host().player(playerId);
-    return player == null ? null : player.name();
   }
 
   private void clearHudIfCurrent(UUID playerId, long token) {

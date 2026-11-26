@@ -41,9 +41,19 @@ import art.arcane.adapt.content.adaptation.rift.RiftGate;
 import art.arcane.adapt.content.adaptation.rift.RiftInflatedPocketDimension;
 import art.arcane.adapt.content.adaptation.rift.RiftPearlRebound;
 import art.arcane.adapt.content.adaptation.rift.RiftResist;
+import art.arcane.adapt.content.adaptation.rift.RiftTeleports;
 import art.arcane.adapt.content.adaptation.rift.RiftVisage;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidMagnet;
 import art.arcane.adapt.content.adaptation.rift.RiftVoidSkin;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftBoon;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftFightStrike;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftFuel;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftState;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftTrigger;
+import art.arcane.adapt.content.adaptation.rift.blocks.RiftWorkStrike;
+import art.arcane.adapt.content.adaptation.rift.upgraded.PhaseStep;
+import art.arcane.adapt.content.adaptation.rift.upgraded.PocketRealm;
+import art.arcane.adapt.content.adaptation.rift.upgraded.Voidborn;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -76,7 +86,8 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
   private final Cooldowns chorusXpCooldown = cooldowns();
 
   public SkillRift() {
-    super("rift", SkillPresentation.of(SkillMessages.RIFT_NAME, SkillMessages.RIFT_ICON, SkillMessages.RIFT_DESCRIPTION));
+    super("rift", SkillPresentation.of(SkillMessages.RIFT_NAME, SkillMessages.RIFT_ICON, SkillMessages.RIFT_DESCRIPTION,
+        SkillMessages.RIFT_QUIP, SkillMessages.RIFT_UNLOCK_QUIP_1, SkillMessages.RIFT_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.DARK_PURPLE);
     setInterval(1154);
@@ -94,6 +105,9 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
     registerAdaptation(new RiftVoidSkin());
     registerAdaptation(new RiftPearlRebound());
     registerAdaptation(new RiftConduit());
+    registerUpgrades(new PhaseStep(), new PocketRealm(), new Voidborn());
+    registerBlocks(new RiftTrigger(), new RiftFightStrike(), new RiftWorkStrike(), new RiftBoon(),
+        new RiftFuel(), new RiftState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("ender_pearl"))
         .key("challenge_rift_50")
@@ -195,7 +209,7 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerTeleportEvent e) {
     PlayerRef p = e.player();
-    if (ChronosInstantRecall.isRecallTeleportSuppressed(p)) {
+    if (ChronosInstantRecall.isRecallTeleportSuppressed(p) || RiftTeleports.paysNoXp(e)) {
       return;
     }
 

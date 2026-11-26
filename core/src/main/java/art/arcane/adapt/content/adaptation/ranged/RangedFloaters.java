@@ -34,7 +34,6 @@ import art.arcane.adapt.api.projectile.ProjectileCooperativeKeys;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.data.DataKey;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -53,7 +52,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
-  private static final Id LEVITATION = Id.minecraft("levitation");
   private final DataKey<Integer> shotLevelKey;
   private final DataKey<String> shotOwnerKey;
   private final DataKey<String> shotTargetsKey;
@@ -129,7 +127,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
       return;
     }
 
-    target.addEffect(new EffectInstance(LEVITATION, getDurationTicks(level), getAmplifier(level), true, true, true));
+    RangedSnares.levitate(target, getDurationTicks(level), getAmplifier(level));
 
     int amp = getAmplifier(level);
     fx(target, FxPriority.COMBAT)

@@ -7,8 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EnchantingRecoveryTransactionTest {
   @Test
   void offerRerollAcceptsEitherASettledProviderOrAConsumedDefaultCost() {
-    assertThat(EnchantingOfferReroll.acceptsDeferredSettlement(true, false)).isTrue();
-    assertThat(EnchantingOfferReroll.acceptsDeferredSettlement(false, true)).isTrue();
-    assertThat(EnchantingOfferReroll.acceptsDeferredSettlement(false, false)).isFalse();
+    assertThat(EnchantingRerolls.acceptsDeferredSettlement(true, false)).isTrue();
+    assertThat(EnchantingRerolls.acceptsDeferredSettlement(false, true)).isTrue();
+    assertThat(EnchantingRerolls.acceptsDeferredSettlement(false, false)).isFalse();
   }
 }

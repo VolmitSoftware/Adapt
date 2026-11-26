@@ -30,6 +30,7 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -55,14 +56,9 @@ import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerTeleportEvent;
-import art.arcane.adapt.platform.value.BlockFace;
-import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.BlockHit;
-import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -75,8 +71,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
+public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> implements RiftManualBlink {
   public static final PlayerPreference<Phasing> PHASING = new PlayerPreference<>(Phasing.class,
       new PlayerPreference.Definition<>("phasing", RiftMessages.BLINK_SETTING_PHASING, Phasing.SNEAK, List.of(
           new PlayerPreference.Choice<>(Phasing.SNEAK, RiftMessages.BLINK_OPTION_SNEAK, Id.minecraft("leather_boots"), 1),
@@ -112,9 +107,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
           new PlayerPreference.Choice<>(Momentum.STOP, RiftMessages.RIFTBLINK_PREFERENCE_MOMENTUM_STOP, Id.minecraft("barrier"), 1))));
   private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, PHASING, TARGETING, ACTIVATION, DIRECTION, REACTIVE_DIRECTION, LANDING, MOMENTUM);
 
-  private static final Id LAVA = Id.minecraft("lava");
-  private static final Id FIRE = Id.minecraft("fire");
-  private static final Id SOUL_FIRE = Id.minecraft("soul_fire");
+  public static final Id LAVA = Id.minecraft("lava");
+  public static final Id FIRE = Id.minecraft("fire");
+  public static final Id SOUL_FIRE = Id.minecraft("soul_fire");
   private static final Id ENDER_PEARL_DAMAGE = Id.minecraft("ender_pearl");
 
   private final Cooldowns lastBlink = cooldowns();
@@ -151,11 +146,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     return PREFERENCES;
   }
 
+  @Override
   public boolean usesManualTrigger(PlayerRef player) {
     return isBlinkEligible(player) && preference(player, ACTIVATION) == Activation.MANUAL;
   }
 
-  /** Whether a registered Rift Blink owns the player's double jump for its manual trigger. */
+  /** Whether a registered rift blink owns the player's double jump for its manual trigger. */
   public static boolean ownsManualTrigger(PlayerRef player) {
     AdaptCore core = AdaptCore.current();
     AdaptServer server = core == null ? null : core.getAdaptServer();
@@ -166,8 +162,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     if (rift == null) {
       return false;
     }
-    for (Adaptation<?> candidate : rift.getAdaptations()) {
-      if (candidate instanceof RiftBlink blink && blink.usesManualTrigger(player)) {
+    return claimsManualTrigger(rift.getAdaptations(), player) || claimsManualTrigger(rift.getUpgrades(), player);
+  }
+
+  private static boolean claimsManualTrigger(List<Adaptation<?>> candidates, PlayerRef player) {
+    for (Adaptation<?> candidate : candidates) {
+      if (candidate instanceof RiftManualBlink blink && blink.usesManualTrigger(player)) {
         return true;
       }
     }
@@ -344,12 +344,13 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   private boolean startBlink(PlayerRef p, Vec3 direction, EntityDamageByEntityEvent incomingAttack, UUID ticket) {
     UUID id = p.uuid();
     Loc origin = p.location();
-    Loc destination = findBlinkDestination(p, direction);
+    Loc destination = RiftBlinkPath.find(p, direction, new RiftBlinkPath.Shape(getBlinkDistance(getLevel(p)),
+        getConfig().minBlinkDistance,
+        (double verticalAim) -> phaseForDirection(getConfig().allowPhasing, preference(p, PHASING), p.isSneaking(), verticalAim),
+        preference(p, TARGETING), preference(p, LANDING), getConfig().groundSnapDepth, getConfig().verticalSearchHeight));
     double minDistance = Math.max(0.5, getConfig().minBlinkDistance);
     if (destination == null || origin.distanceSquared(destination) < minDistance * minDistance) {
-      fx(p, FxPriority.TRANSITION)
-          .burst(Particles.SMOKE, 4, 0.2)
-          .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.4f);
+      fizzleFx(this, p);
       return false;
     }
 
@@ -363,20 +364,17 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     if (destination == null) {
       return false;
     }
-    if (!validCandidate(p, origin, destination, getBlinkDistance(getLevel(p)))
+    if (!RiftBlinkPath.validCandidate(p, origin, destination, getBlinkDistance(getLevel(p)), getConfig().minBlinkDistance)
         || !canInteract(p, destination) || !checkRegion(p, destination)) {
       return false;
     }
 
     BlinkOperation operation = new BlinkOperation(id, ticket, origin, destination, carry, getPearlDamage(getLevel(p)), attack);
-    fx(operation.origin(), FxPriority.TRANSITION)
-        .line(Particles.REVERSE_PORTAL, operation.requestedDestination().x(),
-            operation.requestedDestination().y() + 1, operation.requestedDestination().z(), 24)
-        .particle(Particles.REVERSE_PORTAL, 6, 0, 1.0, 0, 0.25, 0.03)
-        .chord(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.0f, Sounds.BLOCK_AMETHYST_BLOCK_HIT, 0.4f, 1.7f);
+    departFx(this, operation.origin(), operation.requestedDestination());
 
     CompletableFuture<Boolean> teleport;
     try {
+      RiftTeleports.blinking(p, operation.requestedDestination());
       teleport = p.teleport(operation.requestedDestination(), TeleportCause.PLUGIN);
     } catch (RuntimeException exception) {
       AdaptLog.error(exception);
@@ -423,13 +421,8 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         RiftResist.riftResistStackAdd(this, p, 10, 5);
       }
 
-      p.setFallDistance(0);
-      p.setVelocity(operation.carry());
-      applyPearlDamage(p, operation.pearlDamage());
+      arrive(this, p, operation.carry(), operation.pearlDamage());
       Loc actualDestination = p.location();
-      fx(actualDestination, FxPriority.TRANSITION)
-          .ring(Particles.END_ROD, 0.8, 10, 0.1)
-          .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.3f);
       addStat(p, "rift.teleports", 1);
       addStat(p, "rift.blink.blinks", 1);
       if (operation.origin().sameWorld(actualDestination)) {
@@ -455,170 +448,37 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     }
   }
 
-  private void applyPearlDamage(PlayerRef p, double damage) {
-    if (!Double.isFinite(damage) || damage <= 0D || p.isDead()) {
-      return;
-    }
-
-    p.damage(damage, ENDER_PEARL_DAMAGE);
+  public static void fizzleFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p, FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 4, 0.2)
+        .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.4f);
   }
 
-  private Loc findBlinkDestination(PlayerRef player, Vec3 requestedDirection) {
-    Loc eye = player.eyeLocation();
-    if (!Double.isFinite(requestedDirection.lengthSquared()) || requestedDirection.lengthSquared() <= 0.000001) {
-      return null;
-    }
-    Vec3 direction = requestedDirection.normalize();
-    double maxDistance = getBlinkDistance(getLevel(player));
-    double readableDistance = readableReach(eye, direction, maxDistance);
-    if (readableDistance < 1D) {
-      return null;
-    }
-    boolean phase = phaseForDirection(getConfig().allowPhasing, preference(player, PHASING), player.isSneaking(), direction.y());
-    Targeting targeting = preference(player, TARGETING);
-    BlockHit hit = phase ? null : eye.world().rayTraceBlockHit(eye.position(), direction, readableDistance, false);
-    Loc origin = player.location();
-    double eyeHeight = eye.y() - origin.y();
-    Loc best = null;
-    if (hit != null) {
-      BlockRef mantleFeet = hit.block().relative(BlockFace.UP);
-      Loc mantle = mantleFeet.location().add(0.5D, 0D, 0.5D);
-      if (isStandableBlock(mantleFeet) && validCandidate(player, origin, mantle, maxDistance)) {
-        if (targeting == Targeting.DISTANCE) {
-          return mantle;
-        }
-        best = mantle;
-      }
-    }
-    Double hitDistance = hit == null ? null : hit.position().distance(eye.position());
-    double reach = blinkReach(phase, readableDistance, hitDistance);
-    int verticalSearch = targeting == Targeting.VERTICALITY ? Math.max(0, Math.min(16, getConfig().verticalSearchHeight)) : 0;
-    for (double distance = reach; distance >= 1D; distance -= 1D) {
-      Loc feet = eye.add(direction.multiply(distance)).add(0D, -eyeHeight, 0D);
-      Loc resolved = resolveStand(feet, preference(player, LANDING));
-      if (validCandidate(player, origin, resolved, maxDistance)) {
-        if (targeting == Targeting.DISTANCE) {
-          return resolved;
-        }
-        best = betterCandidate(origin, best, resolved, targeting);
-      }
-      for (int rise = 1; rise <= verticalSearch; rise++) {
-        Loc raised = new Loc(feet.world(), feet.x(), feet.blockY() + rise, feet.z());
-        if (!canRead(raised, 0.35D) || !isStandableBlock(raised.world().blockAt(raised))
-            || !validCandidate(player, origin, raised, maxDistance)
-            || (!phase && !hasClearSight(eye, raised.add(0D, eyeHeight, 0D)))) {
-          continue;
-        }
-        best = betterCandidate(origin, best, raised, targeting);
-      }
-    }
-    return best;
+  public static void departFx(Adaptation<?> owner, Loc origin, Loc destination) {
+    Fx.now(owner, origin, FxPriority.TRANSITION)
+        .line(Particles.REVERSE_PORTAL, destination.x(), destination.y() + 1, destination.z(), 24)
+        .particle(Particles.REVERSE_PORTAL, 6, 0, 1.0, 0, 0.25, 0.03)
+        .chord(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.0f, Sounds.BLOCK_AMETHYST_BLOCK_HIT, 0.4f, 1.7f);
   }
 
-  private boolean validCandidate(PlayerRef player, Loc origin, Loc candidate, double maxDistance) {
-    double minimum = Math.max(0.5D, getConfig().minBlinkDistance);
-    return candidate != null && Double.isFinite(candidate.x()) && Double.isFinite(candidate.y())
-        && Double.isFinite(candidate.z()) && origin.sameWorld(candidate)
-        && origin.distanceSquared(candidate) >= minimum * minimum
-        && origin.distanceSquared(candidate) <= maxDistance * maxDistance
-        && isSafeDestination(candidate, player.height());
+  /** Clears the fall, carries momentum and deals the pearl damage after a blink lands. */
+  public static void arrive(Adaptation<?> owner, PlayerRef p, Vec3 carry, double pearlDamage) {
+    land(p, carry, pearlDamage);
+    Loc destination = p.location();
+    Fx.now(owner, destination, FxPriority.TRANSITION)
+        .ring(Particles.END_ROD, 0.8, 10, 0.1)
+        .except(p)
+        .sound(Sounds.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.3f);
+    Fx.sound(owner, p, destination, Sounds.ENTITY_ENDERMAN_TELEPORT, 0.5f, 1.3f);
   }
 
-  private double readableReach(Loc eye, Vec3 direction, double maxDistance) {
-    double reach = 0D;
-    for (double distance = 0D; distance <= maxDistance; distance += 0.5D) {
-      if (!canRead(eye.add(direction.multiply(distance)), 0.4D)) {
-        break;
-      }
-      reach = distance;
+  /** {@link #arrive} without its particles and sound. */
+  public static void land(PlayerRef p, Vec3 carry, double pearlDamage) {
+    p.setFallDistance(0);
+    p.setVelocity(carry);
+    if (Double.isFinite(pearlDamage) && pearlDamage > 0D && !p.isDead()) {
+      p.damage(pearlDamage, ENDER_PEARL_DAMAGE);
     }
-    return reach;
-  }
-
-  private boolean hasClearSight(Loc from, Loc to) {
-    Vec3 direction = to.position().subtract(from.position());
-    double distance = direction.length();
-    if (distance < 0.001D) {
-      return true;
-    }
-    direction = direction.normalize();
-    return readableReach(from, direction, distance + 0.5D) >= distance
-        && from.world().rayTraceBlockHit(from.position(), direction, distance, false) == null;
-  }
-
-  private Loc resolveStand(Loc feet, Landing landing) {
-    if (!canRead(feet, 0.35D)) {
-      return null;
-    }
-    if (landing == Landing.NONE) {
-      return isSafeDestination(feet, 1.8D) ? feet : null;
-    }
-    int snapDepth = landingSnapDepth(getConfig().groundSnapDepth, landing);
-    for (int i = 0; i <= snapDepth; i++) {
-      Loc candidateLocation = feet.add(0D, -i, 0D);
-      if (!canRead(candidateLocation, 0.35D)) {
-        break;
-      }
-      BlockRef candidate = candidateLocation.world().blockAt(candidateLocation);
-      if (isStandableBlock(candidate)) {
-        return new Loc(feet.world(), feet.x(), candidate.y(), feet.z());
-      }
-      if (!candidate.isPassable()) {
-        break;
-      }
-    }
-    return isSafeDestination(feet, 1.8D) ? feet : null;
-  }
-
-  private boolean isStandableBlock(BlockRef feet) {
-    if (!canRead(feet.location(), 0.35D) || !feet.isPassable() || !feet.relative(BlockFace.UP).isPassable()) {
-      return false;
-    }
-    BlockRef floor = feet.relative(BlockFace.DOWN);
-    return !floor.isPassable() && floor.boundingBox().maxY() >= feet.y() - 0.001D;
-  }
-
-  private boolean canRead(Loc location, double radius) {
-    WorldRef world = location.world();
-    if (location.y() < world.minHeight() + 1D || location.y() + 2D >= world.maxHeight()) {
-      return false;
-    }
-    int minChunkX = (int) Math.floor((location.x() - radius) / 16D);
-    int maxChunkX = (int) Math.floor((location.x() + radius) / 16D);
-    int minChunkZ = (int) Math.floor((location.z() - radius) / 16D);
-    int maxChunkZ = (int) Math.floor((location.z() + radius) / 16D);
-    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-      for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-        if (!world.isChunkLoaded(chunkX, chunkZ)) {
-          return false;
-        }
-      }
-    }
-    return !Tasks.isFoliaThreading() || Tasks.isOwnedByCurrentRegion(location, radius, radius);
-  }
-
-  private boolean isSafeDestination(Loc feet, double height) {
-    if (!canRead(feet, 0.35D) || !Double.isFinite(height)
-        || feet.y() + Math.max(1.8D, height) >= feet.world().maxHeight()
-        || !feet.world().isInsideBorder(feet.position().add(-0.3D, 0D, -0.3D))
-        || !feet.world().isInsideBorder(feet.position().add(0.3D, 0D, 0.3D))) {
-      return false;
-    }
-    Box body = new Box(feet.x() - 0.3D, feet.y() + 0.001D, feet.z() - 0.3D,
-        feet.x() + 0.3D, feet.y() + Math.max(1.8D, height), feet.z() + 0.3D);
-    for (int x = (int) Math.floor(body.minX()); x <= (int) Math.floor(body.maxX()); x++) {
-      for (int y = (int) Math.floor(body.minY()); y <= (int) Math.floor(body.maxY()); y++) {
-        for (int z = (int) Math.floor(body.minZ()); z <= (int) Math.floor(body.maxZ()); z++) {
-          BlockRef block = feet.world().blockAt(x, y, z);
-          Id type = block.type();
-          if (type.equals(LAVA) || type.equals(FIRE) || type.equals(SOUL_FIRE)
-              || (!block.isPassable() && block.boundingBox().overlaps(body))) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
   }
 
   static double momentumMultiplier(Momentum momentum) {

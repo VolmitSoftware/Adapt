@@ -131,6 +131,7 @@ public class AdaptConfig {
   private AdaptationXp adaptationXp = new AdaptationXp();
   private XpIntegrity xpIntegrity = new XpIntegrity();
   private XpEarningLimits xpEarningLimits = new XpEarningLimits();
+  private Mutations mutations = new Mutations();
   private RedisConfig redis = new RedisConfig();
   private SqlSettings sql = new SqlSettings();
   private Protector protectorSupport = new Protector();
@@ -363,6 +364,8 @@ public class AdaptConfig {
     actionbarLevelDurationMillis = normalizePopupDuration(actionbarLevelDurationMillis);
     xpEarningLimits = xpEarningLimits == null ? new XpEarningLimits() : xpEarningLimits;
     xpEarningLimits.normalize();
+    mutations = mutations == null ? new Mutations() : mutations;
+    mutations.normalize();
     blacklistedGrowables = blacklistedGrowables == null ? List.of() : blacklistedGrowables;
     blacklistedGrowableBlocks = growthBlacklist(blacklistedGrowables, AdaptEnvironment.configBinding()::blockName, AdaptEnvironment::warn);
   }
@@ -377,6 +380,62 @@ public class AdaptConfig {
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
     return new HashMap<>();
+  }
+
+  @Getter
+  public static class Mutations {
+    @ConfigDoc(value = "Skill level both parents need before they can be merged into a mutation.", impact = "Higher values make mutations a later goal.")
+    private int requiredSkillLevel = 15;
+    @ConfigDoc(value = "Most mutations one player may hold; 0 for no limit.", impact = "A skill is still in one mutation only, so 24 skills allow at most 12.")
+    private int maxMutations = 0;
+    @ConfigDoc(value = "Share of the smaller award a mutated skill keeps when one action pays both of its parents.", impact = "0 pays only the larger award; 1 pays both in full.")
+    private double sameActionSmallerShare = 0.25;
+    @ConfigDoc(value = "Multiplier on the XP rate allowance of a mutated skill compared with a single skill.", impact = "Higher values let a mutated skill earn faster before the rate limit applies.")
+    private double rateAllowanceMultiplier = 1.5;
+    @ConfigDoc(value = "Graft and Echo cooldown at level 1, in milliseconds.", impact = "Lower values let a Trigger set off its Strike more often.")
+    private long triggerCooldownMillisAtFirstLevel = 8_000L;
+    @ConfigDoc(value = "Graft and Echo cooldown at the top level, in milliseconds.", impact = "Lower values let a Trigger set off its Strike more often.")
+    private long triggerCooldownMillisAtTopLevel = 4_000L;
+    @ConfigDoc(value = "Convergence cooldown, in milliseconds.", impact = "Lower values let both Strikes fire more often.")
+    private long convergenceCooldownMillis = 45_000L;
+    @ConfigDoc(value = "Barter cooldown, in milliseconds.", impact = "Lower values let the gesture spend its Fuel more often.")
+    private long barterCooldownMillis = 6_000L;
+    @ConfigDoc(value = "Time between Attunement boons while its State holds, in milliseconds.", impact = "Lower values grant the Boon more often.")
+    private long attunementIntervalMillis = 20_000L;
+    @ConfigDoc(value = "Radius in blocks within which a hostile makes an either Trigger use the fight Strike and becomes its target.", impact = "Higher values pick the fight Strike from farther away.")
+    private double hostileRadius = 6D;
+    @ConfigDoc(value = "Longest gap between the two presses of Barter's double-tap sneak, in milliseconds.", impact = "Higher values make the double-tap easier and accidental casts likelier.")
+    private long doubleSneakWindowMillis = 400L;
+    @ConfigDoc(value = "Most skill XP one upgrade pays a player each minute.", impact = "Lower values limit how fast repeating an upgrade levels a skill.")
+    private double upgradeXpPerMinute = 600D;
+    @ConfigDoc(value = "Multiplier on an upgrade's effect when it spends the partner skill's Fuel as an overcharge.", impact = "Higher values make paying the Fuel worth more; 1 turns overcharges into a cost with no gain.")
+    private double overchargeStrength = 1.5D;
+    @ConfigDoc(value = "Most blocks all build batches together place, break or undo in one server tick.", impact = "Lower values spread large fills over more ticks and keep the server smoother.")
+    private int buildBlocksPerTick = 64;
+
+    /** Whether a player holding {@code held} mutations may make another. */
+    public boolean allowsAnother(int held) {
+      return maxMutations <= 0 || held < maxMutations;
+    }
+
+    private void normalize() {
+      requiredSkillLevel = Math.max(1, requiredSkillLevel);
+      maxMutations = Math.max(0, maxMutations);
+      sameActionSmallerShare = Double.isFinite(sameActionSmallerShare)
+          ? Math.max(0D, Math.min(1D, sameActionSmallerShare)) : 0.25D;
+      rateAllowanceMultiplier = Double.isFinite(rateAllowanceMultiplier) && rateAllowanceMultiplier > 0D
+          ? rateAllowanceMultiplier : 1.5D;
+      triggerCooldownMillisAtFirstLevel = Math.max(0L, triggerCooldownMillisAtFirstLevel);
+      triggerCooldownMillisAtTopLevel = Math.max(0L, triggerCooldownMillisAtTopLevel);
+      convergenceCooldownMillis = Math.max(0L, convergenceCooldownMillis);
+      barterCooldownMillis = Math.max(500L, barterCooldownMillis);
+      attunementIntervalMillis = Math.max(1_000L, attunementIntervalMillis);
+      hostileRadius = Double.isFinite(hostileRadius) && hostileRadius > 0D ? Math.min(64D, hostileRadius) : 6D;
+      doubleSneakWindowMillis = Math.max(50L, doubleSneakWindowMillis);
+      upgradeXpPerMinute = Double.isFinite(upgradeXpPerMinute) ? Math.max(0D, upgradeXpPerMinute) : 600D;
+      overchargeStrength = Double.isFinite(overchargeStrength) ? Math.max(1D, Math.min(4D, overchargeStrength)) : 1.5D;
+      buildBlocksPerTick = Math.max(1, Math.min(4096, buildBlocksPerTick));
+    }
   }
 
   @Getter
@@ -454,6 +513,8 @@ public class AdaptConfig {
     private List<String> skillOrder = new KList<>();
     @ConfigDoc(value = "Skill registry name to the ordered adaptation registry names for that skill.", impact = "Listed adaptations are placed first in this order; every other adaptation follows in the normal alphabetical order and unknown names are ignored.")
     private Map<String, List<String>> adaptationOrder = new KMap<>();
+    @ConfigDoc(value = "Shows skills a player has not started, and the seats of skills merged into a mutation, greyed out on the skills page.", impact = "False hides them on the native client page and in the skills GUI, and the remaining skills close up in the same order.")
+    private boolean showInactiveSkills = true;
   }
 
   @Getter

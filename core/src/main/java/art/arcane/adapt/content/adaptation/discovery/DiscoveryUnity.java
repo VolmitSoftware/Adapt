@@ -30,7 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -100,7 +99,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
     PlayerSkillLine skill = skills.get(random.nextInt(skills.size()));
-    XP.xp(ap, getServer().getSkillRegistry().getSkill(skill.getLine()),
+    DiscoveryXpShare.feed(ap, getServer().getSkillRegistry(), skill,
         getXPGained(getLevelPercent(getLevel(p)), random.nextInt(3) + 1), "adaptation:discovery-unity:distribution");
     double distributed = ap.getData().getStat("discovery.unity.orbs-distributed");
     ap.getData().addStat("discovery.unity.orbs-distributed", 1);
@@ -121,7 +120,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
   }
 
   private double getXPGained(double factor, int amount) {
-    return amount * getConfig().xpGainedMultiplier * factor;
+    return DiscoveryXpShare.orbXp(getConfig().xpGainedMultiplier, factor, amount);
   }
 
 

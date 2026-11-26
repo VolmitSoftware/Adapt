@@ -7,6 +7,9 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemEquipmentSlot;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
+import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
@@ -17,6 +20,7 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemWorkStatus;
+import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.client.protocol.HintKind;
@@ -70,6 +74,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -92,6 +97,23 @@ class GolemGuiLiveTest extends AdaptTestBase {
   private static final int CARRIED_FIRST = -4;
   private static final int HEADER_ROW = 0;
   private static final int FOOTER_ROW = 4;
+
+  private static final GolemMastery.Twins TWINS = new GolemMastery.Twins() {
+    @Override
+    public int maxTwins(UUID owner, GolemHandle handle) {
+      return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public int freeTwins() {
+      return 2;
+    }
+
+    @Override
+    public double secondCoreSpeed() {
+      return 0.75D;
+    }
+  };
 
   private final ManualScheduler scheduler = new ManualScheduler();
   private final AtomicReference<GolemBody> body = new AtomicReference<>(GolemBody.IRON);
@@ -631,6 +653,83 @@ class GolemGuiLiveTest extends AdaptTestBase {
     scheduler.advance(0);
 
     verify(inventory, times(1)).addItem(any(ItemRef.class));
+  }
+
+  @Test
+  void aTwinCorePastTheFreeOnesTakesOneMasterworkHeartFromTheInventory() {
+    ItemRef heart = GolemTestItems.stack(Id.minecraft("heart_of_the_sea"), 2);
+    GolemRegistry registry = twinRegistry(heart);
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemMastery.registerTwins(TWINS);
+      try {
+        openAndDraw();
+        click(placed(onlyWindow(), -2, HEADER_ROW), ClickKind.LEFT);
+        scheduler.advance(0);
+      } finally {
+        GolemMastery.unregisterTwins(TWINS);
+      }
+    }
+
+    verify(registry).addCore(handle, GolemCoreType.LUMBER, true);
+    assertThat(heart.amount()).isEqualTo(1);
+    verify(inventory, never()).addItem(any(ItemRef.class));
+  }
+
+  @Test
+  void aHeartTheRegistryDidNotSpendGoesBackToThePlayer() {
+    ItemRef heart = GolemTestItems.stack(Id.minecraft("heart_of_the_sea"), 2);
+    GolemRegistry registry = twinRegistry(heart);
+    when(registry.addCore(handle, GolemCoreType.LUMBER, true)).thenReturn(new GolemRegistry.CoreSlotting(Optional.empty(), false));
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemMastery.registerTwins(TWINS);
+      try {
+        openAndDraw();
+        click(placed(onlyWindow(), -2, HEADER_ROW), ClickKind.LEFT);
+        scheduler.advance(0);
+      } finally {
+        GolemMastery.unregisterTwins(TWINS);
+      }
+    }
+
+    verify(inventory, times(1)).addItem(any(ItemRef.class));
+  }
+
+  @Test
+  void aTwinCorePastTheFreeOnesWithoutAHeartStaysOnTheCursor() {
+    ItemRef heart = GolemTestItems.stack(Id.minecraft("heart_of_the_sea"), 1);
+    GolemRegistry registry = twinRegistry(heart);
+    items.when(() -> GolemItems.kindOf(heart)).thenReturn(Optional.empty());
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+      GolemMastery.registerTwins(TWINS);
+      try {
+        openAndDraw();
+        click(placed(onlyWindow(), -2, HEADER_ROW), ClickKind.LEFT);
+        scheduler.advance(0);
+      } finally {
+        GolemMastery.unregisterTwins(TWINS);
+      }
+    }
+
+    verify(registry, never()).addCore(any(GolemHandle.class), any(GolemCoreType.class), anyBoolean());
+    assertThat(inventory.cursor().amount()).isEqualTo(1);
+    assertThat(heart.amount()).isEqualTo(1);
+  }
+
+  private GolemRegistry twinRegistry(ItemRef heart) {
+    ItemRef core = GolemTestItems.stack(Id.minecraft("paper"), 1);
+    when(inventory.cursor()).thenReturn(core);
+    items.when(() -> GolemItems.coreOf(core)).thenReturn(Optional.of(GolemCoreType.LUMBER));
+    items.when(() -> GolemItems.kindOf(heart)).thenReturn(Optional.of(GolemItemKind.MASTERWORK_HEART));
+    lenient().when(inventory.size()).thenReturn(9);
+    lenient().when(inventory.item(anyInt())).thenAnswer(invocation -> invocation.<Integer>getArgument(0) == 4 ? heart : FakeItem.empty());
+    GolemRegistry registry = mock(GolemRegistry.class);
+    lenient().when(registry.twinOpen(handle)).thenReturn(true);
+    lenient().when(registry.twins(OWNER)).thenReturn(2);
+    lenient().when(registry.addCore(handle, GolemCoreType.LUMBER, true)).thenReturn(new GolemRegistry.CoreSlotting(Optional.empty(), true));
+    return registry;
   }
 
   @Test

@@ -664,6 +664,34 @@ public final class GolemRegistry extends TickedObject {
     return platform.roster(owner).map(GolemRoster::masterworkCount).orElse(0);
   }
 
+  /** Twin-cored golems of {@code owner}, loaded or not. */
+  public int twins(UUID owner) {
+    return platform.roster(owner).map(GolemRoster::twinCount).orElse(0);
+  }
+
+  /** Whether the golem holds its second core as a twin core. */
+  public boolean twin(GolemHandle handle) {
+    return platform.roster(handle.owner()).flatMap((GolemRoster roster) -> roster.golem(handle.id()))
+        .map(GolemRoster.GolemEntry::twin).orElse(false);
+  }
+
+  /** The golem's place among its owner's twins, or -1 when it holds no twin core. */
+  public int twinRank(GolemHandle handle) {
+    return platform.roster(handle.owner()).map((GolemRoster roster) -> roster.twinRank(handle.id())).orElse(-1);
+  }
+
+  /** Whether a twin core can go into the golem: its owner has a twin left, or it holds one already. */
+  public boolean twinOpen(GolemHandle handle) {
+    int max = GolemMastery.maxTwins(handle.owner(), handle);
+    return max > 0 && (twin(handle) || twins(handle.owner()) < max);
+  }
+
+  private void clearTwin(GolemHandle handle) {
+    if (platform.roster(handle.owner()).map((GolemRoster roster) -> roster.markTwin(handle.id(), false)).orElse(false)) {
+      platform.rosterChanged(handle.owner());
+    }
+  }
+
   public Designation designate(GolemHandle handle, int maxMasterworks) {
     requireOwned(handle.entity(), "designate");
     GolemState state = handle.state();
@@ -722,24 +750,51 @@ public final class GolemRegistry extends TickedObject {
     state.setMasterwork(false);
     state.setMode(GolemMode.keptOrDefault(primary, state.mode()));
     handle.flush();
+    clearTwin(handle);
     GolemStats.recompute(handle);
     return Optional.of(List.copyOf(returned));
   }
 
-  public Optional<GolemMastery.CoreRefusal> addCore(GolemHandle handle, GolemCoreType core) {
+  /** What slotting a core did: its refusal, if any, and whether it spent the Masterwork Heart offered for it. */
+  public record CoreSlotting(Optional<GolemMastery.CoreRefusal> refusal, boolean heartSpent) {
+    private static CoreSlotting refused(GolemMastery.CoreRefusal refusal) {
+      return new CoreSlotting(Optional.of(refusal), false);
+    }
+  }
+
+  /** Slots {@code core} as the golem's second core; {@code heart} offers a Masterwork Heart for a twin past the free ones. */
+  public CoreSlotting addCore(GolemHandle handle, GolemCoreType core, boolean heart) {
     requireOwned(handle.entity(), "addCore");
     if (handle.isRetired() || activeRoster(handle).isEmpty()) {
-      return Optional.of(GolemMastery.CoreRefusal.UNAVAILABLE);
+      return CoreSlotting.refused(GolemMastery.CoreRefusal.UNAVAILABLE);
     }
     GolemState state = handle.state();
     List<GolemCoreType> cores = state.cores();
-    Optional<GolemMastery.CoreRefusal> refusal = GolemMastery.coreRefusal(cores, core, GolemMastery.perks(handle).dualCore(),
+    boolean dualCore = GolemMastery.perks(handle).dualCore();
+    boolean twin = !dualCore && twinOpen(handle);
+    Optional<GolemMastery.CoreRefusal> refusal = GolemMastery.coreRefusal(cores, core, dualCore || twin,
         settings.get().allows(state.body(), core), GolemMastery.coreUnlocked(handle.owner(), core));
     if (refusal.isPresent()) {
-      return refusal;
+      return new CoreSlotting(refusal, false);
+    }
+    boolean heartSpent = false;
+    if (twin) {
+      Optional<GolemRoster> roster = activeRoster(handle);
+      GolemRoster.TwinMark mark = roster.isEmpty() ? GolemRoster.TwinMark.UNAVAILABLE : roster.get().markTwinWithin(handle.id(),
+          GolemMastery.maxTwins(handle.owner(), handle), GolemMastery.freeTwins(), heart);
+      switch (mark) {
+        case FULL, UNAVAILABLE -> {
+          return CoreSlotting.refused(GolemMastery.CoreRefusal.NO_SLOT);
+        }
+        case HEART_NEEDED -> {
+          return CoreSlotting.refused(GolemMastery.CoreRefusal.HEART);
+        }
+        case MARKED, PAID -> heartSpent = mark == GolemRoster.TwinMark.PAID;
+      }
+      platform.rosterChanged(handle.owner());
     }
     handle.setCores(List.of(state.primaryCore(), core));
-    return Optional.empty();
+    return new CoreSlotting(Optional.empty(), heartSpent);
   }
 
   public boolean removeCore(GolemHandle handle, GolemCoreType core) {
@@ -753,6 +808,7 @@ public final class GolemRegistry extends TickedObject {
     state.setCores(primary);
     state.setMode(GolemMode.keptOrDefault(primary, state.mode()));
     handle.flush();
+    clearTwin(handle);
     return true;
   }
 

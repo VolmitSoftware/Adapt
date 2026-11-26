@@ -61,6 +61,10 @@ public final class FakeGameContent {
     return load("26.1.2", EnumSet.allOf(EngineFeature.class));
   }
 
+  public static FakeGameContent v26_2() {
+    return load("26.2", EnumSet.allOf(EngineFeature.class));
+  }
+
   public static FakeGameContent v26_3() {
     return load("26.3", EnumSet.allOf(EngineFeature.class));
   }

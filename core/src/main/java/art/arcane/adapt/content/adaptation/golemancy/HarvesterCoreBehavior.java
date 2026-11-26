@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.GolemAnchor;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.BlockFace;
@@ -160,6 +161,7 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
       refund(chest, chestAt, slot, spent);
       return GolemActResult.FAILED;
     }
+    XpProvenance.recordBonemeal(crop);
     core.tended(golem.handle().id(), golem.nowMillis());
     HarvestFeedback.play(core, actions.center(crop), HarvestFeedback.Kind.TEND);
     return GolemActResult.DONE;

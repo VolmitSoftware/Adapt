@@ -38,7 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link ReceiveCancelledEvents} (the {@code @Handle} cancelled flag is not consulted for them, as the Bukkit
  * registrar never consulted {@code @EventHandler}'s), adaptation handlers count toward the ability telemetry and the
  * event-handler op count, move and jump handlers of an adaptation only run for online learners unless marked
- * {@link RunsWithoutLearnedAdaptation}, and {@link EventPriority#HIGHEST} damage handlers run inside the
+ * {@link RunsWithoutLearnedAdaptation} (a mutation block's learners are the players holding a learned mutated
+ * adaptation that uses it, see {@link AdaptServer#hasOnlineLearner(java.util.UUID, String)}), and {@link EventPriority#HIGHEST} damage handlers run inside the
  * {@link DamageEventDispatcher} so death saves keep their order. Interact handlers receive cancelled interactions
  * (Bukkit reports every air click cancelled) and, unless marked {@link ReceiveCancelledEvents}, skip the ones whose
  * relevant use was denied ({@code PlayerInteractEvent#isUseDenied}).

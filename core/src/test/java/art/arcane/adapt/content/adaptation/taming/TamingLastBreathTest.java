@@ -18,9 +18,9 @@ class TamingLastBreathTest {
 
   @Test
   void recallArrivalRequiresConfirmedTeleportSuccess() {
-    assertThat(TamingLastBreath.successfulRecallTeleport(true, null)).isTrue();
-    assertThat(TamingLastBreath.successfulRecallTeleport(false, null)).isFalse();
-    assertThat(TamingLastBreath.successfulRecallTeleport(null, null)).isFalse();
-    assertThat(TamingLastBreath.successfulRecallTeleport(true, new IllegalStateException())).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(true, null)).isTrue();
+    assertThat(TameRecall.successfulRecallTeleport(false, null)).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(null, null)).isFalse();
+    assertThat(TameRecall.successfulRecallTeleport(true, new IllegalStateException())).isFalse();
   }
 }

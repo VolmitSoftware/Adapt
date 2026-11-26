@@ -1,6 +1,10 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.blocks.Recipe;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,6 +33,38 @@ class IconSpritesTest {
     assertThat(IconSprites.pathSegment("Trag'Oul Blood")).isEqualTo("trag_oul_blood");
     assertThat(IconSprites.pathSegment("a/b:c")).isEqualTo("a_b_c");
     assertThat(IconSprites.pathSegment("")).isEqualTo("_");
+  }
+
+  @Test
+  void stackedSpritesRoundTripTheirLayersAndTints() {
+    String stack = IconSprites.stack(IconSprites.texture("glyph", "graft"),
+        IconSprites.tinted(IconSprites.texture("glyph", "graft-lead"), 0x9cd86a),
+        IconSprites.tinted(IconSprites.texture("glyph", "graft-partner"), 0x04a6b0));
+    assertThat(stack).isEqualTo("adapt:textures/gui/glyph/graft.png|adapt:textures/gui/glyph/graft-lead.png#9cd86a"
+        + "|adapt:textures/gui/glyph/graft-partner.png#04a6b0");
+    assertThat(IconSprites.layers(stack)).containsExactly(
+        new IconSprites.Layer("adapt:textures/gui/glyph/graft.png", IconSprites.NO_TINT),
+        new IconSprites.Layer("adapt:textures/gui/glyph/graft-lead.png", 0x9cd86a),
+        new IconSprites.Layer("adapt:textures/gui/glyph/graft-partner.png", 0x04a6b0));
+    assertThat(IconSprites.layers("adapt:textures/gui/skill/agility.png"))
+        .containsExactly(new IconSprites.Layer("adapt:textures/gui/skill/agility.png", IconSprites.NO_TINT));
+  }
+
+  @Test
+  void mutationArtNamesLeadEmblemPartnerTrimAndTintedGlyphs() {
+    SkillMutation mutation = new SkillMutation("swords", "chronos");
+    assertThat(MutationIcons.tile(mutation)).isEqualTo("adapt:textures/gui/emblem/swords.png|adapt:textures/gui/trim/chronos.png");
+    assertThat(IconSprites.layers(MutationIcons.glyph(mutation, Recipe.ECHO))).containsExactly(
+        new IconSprites.Layer("adapt:textures/gui/glyph/echo-lead.png", MutationIcons.tint("swords")),
+        new IconSprites.Layer("adapt:textures/gui/glyph/echo-partner.png", MutationIcons.tint("chronos")),
+        new IconSprites.Layer("adapt:textures/gui/glyph/echo.png", IconSprites.NO_TINT));
+    for (String skill : List.of("tragoul", "blocking", "swords", "excavation")) {
+      assertThat(MutationIcons.luminance(MutationIcons.tint(skill))).as(skill).isGreaterThanOrEqualTo(MutationIcons.MIN_TINT_LUMINANCE);
+    }
+    assertThat(MutationIcons.tint("excavation")).isEqualTo(0xb07048);
+    assertThat(MutationIcons.tint("blocking")).isEqualTo(0x6b97ff);
+    assertThat(MutationIcons.slug("Shieldbearer's Pack")).isEqualTo("shieldbearers-pack");
+    assertThat(MutationIcons.slug("Cutting on the Fly")).isEqualTo("cutting-on-the-fly");
   }
 
   @Test

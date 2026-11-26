@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,7 +27,9 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -44,12 +47,10 @@ import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Config> {
@@ -62,7 +63,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
   private static final Id HAY_BLOCK = Id.minecraft("hay_block");
 
   private final Cooldowns rollInputs = cooldowns();
-  private final Map<UUID, Long> proneUntilMillis = playerState();
+  private final AgilityRoll roll = new AgilityRoll(this, playerState());
 
   public AgilityRollLanding() {
     super("agility-roll-landing");
@@ -154,13 +155,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
       int cooldownTicks = getCooldownTicks(level);
       p.setCooldown(HAY_BLOCK, cooldownTicks);
       AbilityGlyphs.cooldown(p, this, cooldownTicks * 50L);
-      triggerRollPose(p, level);
-
-      int dust = (int) Math.max(4, Math.min(12, 4 + Math.round(absorbed)));
-      Loc location = p.location();
-      fx(location, FxPriority.COMBAT)
-          .particle(Particles.blockCrack(location.world().blockAt(location).relative(BlockFace.DOWN).state()), dust, 0, 0.1D, 0, 0.3D, 0.05D)
-          .chord(Sounds.ENTITY_PLAYER_SMALL_FALL, 0.8F, 0.7F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.0F, 0.89F, Sounds.BLOCK_WOOL_BREAK, 0.55F, 0.9F);
+      roll.roll(p, getProneTicks(level), absorbed);
       addStat(p, "agility.roll-landing.damage-prevented", absorbed);
       if (p.fallDistance() >= 30) {
         fx(p.location(), FxPriority.COMBAT)
@@ -191,39 +186,6 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
       fx(p.location(), FxPriority.TRANSITION).sound(Sounds.BLOCK_NOTE_BLOCK_HAT, 0.15F, 1.8F);
     }
     rollInputs.mark(id);
-  }
-
-  private void triggerRollPose(PlayerRef p, int level) {
-    int proneTicks = getProneTicks(level);
-    long now = System.currentTimeMillis();
-    long until = now + (proneTicks * 50L);
-    UUID id = p.uuid();
-    proneUntilMillis.put(id, until);
-    AbilityGlyphs.duration(id, this, now, proneTicks * 50L);
-    p.setSwimming(true);
-
-    timeline(p)
-        .duration(Math.max(2, proneTicks))
-        .priority(FxPriority.TRAIL)
-        .frame((fx, tick, progress) -> fx.particle(Particles.CLOUD, 1, 0, 0.15D, 0, 0.05D, 0))
-        .start();
-
-    Tasks.runEntity(p, () -> {
-      if (!p.isOnline() || p.isDead()) {
-        proneUntilMillis.remove(id);
-        return;
-      }
-
-      long expectedUntil = proneUntilMillis.getOrDefault(id, 0L);
-      if (expectedUntil > System.currentTimeMillis()) {
-        return;
-      }
-
-      proneUntilMillis.remove(id);
-      if (!p.isInWater()) {
-        p.setSwimming(false);
-      }
-    }, proneTicks);
   }
 
   private double getFallReduction(int level) {
@@ -319,4 +281,19 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
   }
 
   public enum FoodReserve { NONE, FOUR, EIGHT }
+
+
+  public static void rollFx(Adaptation<?> owner, Loc location, int dust) {
+    Fx.now(owner, location, FxPriority.COMBAT)
+        .particle(Particles.blockCrack(location.world().blockAt(location).relative(BlockFace.DOWN).state()), dust, 0, 0.1D, 0, 0.3D, 0.05D)
+        .chord(Sounds.ENTITY_PLAYER_SMALL_FALL, 0.8F, 0.7F, Sounds.ITEM_ARMOR_EQUIP_LEATHER, 1.0F, 0.89F, Sounds.BLOCK_WOOL_BREAK, 0.55F, 0.9F);
+  }
+
+  static void rollTrailFx(Adaptation<?> owner, PlayerRef p, int proneTicks) {
+    FxTimeline.follow(owner, p)
+        .duration(Math.max(2, proneTicks))
+        .priority(FxPriority.TRAIL)
+        .frame((fx, tick, progress) -> fx.particle(Particles.CLOUD, 1, 0, 0.15D, 0, 0.05D, 0))
+        .start();
+  }
 }

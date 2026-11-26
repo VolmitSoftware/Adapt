@@ -90,14 +90,10 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
     }
 
     PlayerRef p = attack.attacker();
-    if (!p.inventory().mainHand().type().isAir()) {
+    if (!isSuckerPunch(p)) {
       return;
     }
     double factor = getLevelPercent(attack.level());
-
-    if (!p.isSprinting()) {
-      return;
-    }
 
     if (factor <= 0) {
       return;
@@ -146,6 +142,11 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
             .start();
       }
     }
+  }
+
+  /** A sprinting hit with an empty main hand, the punch Sucker Punch and Titan Fists' sprint punch reward. */
+  public static boolean isSuckerPunch(PlayerRef p) {
+    return p.isSprinting() && p.inventory().mainHand().type().isAir();
   }
 
   @ConfigDescription("Sprint punches with an empty main hand deal extra damage.")

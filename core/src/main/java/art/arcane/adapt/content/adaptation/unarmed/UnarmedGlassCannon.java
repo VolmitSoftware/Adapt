@@ -26,9 +26,11 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LastDamage;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -92,16 +94,8 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     int level = attack.level();
     double flatBonus = level * getConfig().perLevelBonusMultiplier;
 
-    if (armor == 0) {
-      e.setDamage(Math.max(damage, (damage * (getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier))) + flatBonus));
-      fx(e.entity(), FxPriority.COMBAT)
-          .particle(glassCrack(), 14, 0, 1.0D, 0, 0.3D, 0.05D)
-          .chord(Sounds.BLOCK_GLASS_BREAK, 0.8F, 1.2F, Sounds.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 1.5F);
-    } else {
-      e.setDamage(Math.max(damage, (damage - (damage * armor)) + flatBonus));
-      fx(e.entity(), FxPriority.COMBAT)
-          .particle(Particles.CRIT, 2, 0, 1.0D, 0, 0.15D, 0.0D);
-    }
+    e.setDamage(hit(this, e.entity(), damage, armor,
+        getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier), flatBonus));
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -126,10 +120,35 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     }
   }
 
+
+  /**
+   * The Glass Cannon hit: with no armor the damage is multiplied by {@code nakedFactor}, otherwise it is cut by the armor
+   * fraction; both add {@code flatBonus} and never drop below the incoming damage. Plays the matching hit effect.
+   */
+  public static double hit(Adaptation<?> owner, EntityRef target, double damage, double armor, double nakedFactor,
+                           double flatBonus) {
+    if (armor == 0) {
+      Fx.now(owner, target, FxPriority.COMBAT)
+          .particle(glassCrack(), 14, 0, 1.0D, 0, 0.3D, 0.05D)
+          .chord(Sounds.BLOCK_GLASS_BREAK, 0.8F, 1.2F, Sounds.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 1.5F);
+    } else {
+      Fx.now(owner, target, FxPriority.COMBAT)
+          .particle(Particles.CRIT, 2, 0, 1.0D, 0, 0.15D, 0.0D);
+    }
+    return damage(damage, armor, nakedFactor, flatBonus);
+  }
+
+  /** The Glass Cannon damage rule of {@link #hit} without its effect. */
+  public static double damage(double damage, double armor, double nakedFactor, double flatBonus) {
+    if (armor == 0) {
+      return Math.max(damage, (damage * nakedFactor) + flatBonus);
+    }
+    return Math.max(damage, (damage - (damage * armor)) + flatBonus);
+  }
+
   private static ParticleSpec glassCrack() {
     return Particles.blockCrack(AdaptCore.platform().host().items().blockState(GLASS));
   }
-
 
   @ConfigDescription("Bonus unarmed damage the lower your armor value is.")
   protected static class Config extends AdaptationConfig {

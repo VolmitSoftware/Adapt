@@ -46,6 +46,7 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -130,15 +131,11 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     }
 
     ItemRef empty = AdaptCore.platform().host().items().empty();
-    ItemRef main = victim.equipment(EquipmentSlot.MAIN_HAND);
-    ItemRef off = victim.equipment(EquipmentSlot.OFF_HAND);
+    EquipmentSlot heldSlot = heldSlot(victim);
     ItemRef knocked = null;
-    if (isItem(main)) {
-      knocked = main.copy();
-      victim.setEquipment(EquipmentSlot.MAIN_HAND, empty);
-    } else if (isItem(off) && off.type().equals(SHIELD)) {
-      knocked = off.copy();
-      victim.setEquipment(EquipmentSlot.OFF_HAND, empty);
+    if (heldSlot != null) {
+      knocked = victim.equipment(heldSlot).copy();
+      victim.setEquipment(heldSlot, empty);
     }
 
     ItemRef armor = null;
@@ -167,6 +164,16 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     playDisarm(victim, knocked, armor);
     xp(p, getConfig().xpPerDisarm, "disarm");
     addStat(p, "unarmed.disarm.disarms", 1);
+  }
+
+  /** The hand a disarm takes from: the main hand when it holds anything, else an off-hand shield; null for neither. */
+  public static @Nullable EquipmentSlot heldSlot(LivingRef victim) {
+    ItemRef main = victim.equipment(EquipmentSlot.MAIN_HAND);
+    if (main != null && !main.type().isAir()) {
+      return EquipmentSlot.MAIN_HAND;
+    }
+    ItemRef off = victim.equipment(EquipmentSlot.OFF_HAND);
+    return off != null && off.type().equals(SHIELD) ? EquipmentSlot.OFF_HAND : null;
   }
 
   private void spinTrail(ItemEntityRef item) {

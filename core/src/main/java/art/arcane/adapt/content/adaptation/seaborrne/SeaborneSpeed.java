@@ -25,19 +25,13 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.EffectInstance;
-import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -56,16 +50,10 @@ import java.util.UUID;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
-  private static final String ATTRIBUTE_SLOT = "swim";
   private static final double MAX_TRACKED_DISTANCE_PER_MOVE = 4D;
   private static final double STAT_FLUSH_DISTANCE = 4D;
   private static final long ELIGIBILITY_CHECK_INTERVAL_MILLIS = 500L;
   private static final long TRAIL_INTERVAL_MILLIS = 500L;
-  private static final int GRACE_AMPLIFIER = 0;
-  private static final int GRACE_BASE_DURATION_TICKS = 20;
-  private static final int GRACE_MAX_LINGER_TICKS = 60;
-  private static final Id DOLPHINS_GRACE = Id.minecraft("dolphins_grace");
-  private static final Id DEPTH_STRIDER = Id.minecraft("depth_strider");
 
   private final Map<UUID, SwimSession> swimSessions = playerState();
   private final Cooldowns swimSound = cooldowns();
@@ -74,7 +62,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
 
   public SeaborneSpeed() {
     super("seaborne-speed");
-    needs(PlatformNeed.attribute(Attributes.WATER_MOVEMENT_EFFICIENCY));
+    needs(SeaborneSwim.NEED);
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.dolphin_grace");
     setIcon(Id.minecraft("prismarine_crystals"));
@@ -201,31 +189,15 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     if (level <= 0) {
       return 0;
     }
-    return player.inventory().armor(EquipmentSlot.FEET).enchantmentLevel(DEPTH_STRIDER) > 0
-        ? 0
-        : level;
+    return SeaborneSwim.wearsDepthStrider(player) ? 0 : level;
   }
 
   private void applySwimBoost(PlayerRef player, int level) {
-    AdaptAttributeService.get().apply(player, getName(), ATTRIBUTE_SLOT, Attributes.WATER_MOVEMENT_EFFICIENCY,
-        waterEfficiencyAmount(level, getMaxLevel()), AttributeOperation.ADD_VALUE);
+    SeaborneSwim.applyBoost(this, player, SeaborneSwim.waterEfficiencyAmount(level, getMaxLevel()));
   }
 
   private void applySwimGrace(PlayerRef player, int level) {
-    if (!player.isSwimming()) {
-      return;
-    }
-    int durationTicks = graceDurationTicks(level, getMaxLevel());
-    if (durationTicks <= 0) {
-      return;
-    }
-    EffectInstance current = player.effect(DOLPHINS_GRACE);
-    boolean hasCurrent = current != null;
-    int currentAmplifier = hasCurrent ? current.amplifier() : 0;
-    int currentDurationTicks = hasCurrent ? current.durationTicks() : 0;
-    if (shouldApplyGrace(hasCurrent, currentAmplifier, currentDurationTicks, durationTicks)) {
-      player.addEffect(new EffectInstance(DOLPHINS_GRACE, durationTicks, GRACE_AMPLIFIER, true, false, true));
-    }
+    SeaborneSwim.applyGrace(player, SeaborneSwim.graceDurationTicks(level, getMaxLevel()));
   }
 
   private void playEntryEffect(PlayerRef player) {
@@ -270,7 +242,7 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     if (session == null) {
       return;
     }
-    AdaptAttributeService.get().remove(player, getName(), ATTRIBUTE_SLOT, Attributes.WATER_MOVEMENT_EFFICIENCY);
+    SeaborneSwim.removeBoost(this, player);
     flushDistance(player, session);
   }
 
@@ -293,31 +265,6 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
       return 0D;
     }
     return Math.min(MAX_TRACKED_DISTANCE_PER_MOVE, Math.sqrt((deltaX * deltaX) + (deltaZ * deltaZ)));
-  }
-
-  static double waterEfficiencyAmount(int level, int maxLevel) {
-    if (level <= 0) {
-      return 0D;
-    }
-    return Math.min(1D, (double) level / Math.max(1, maxLevel));
-  }
-
-  static int graceDurationTicks(int level, int maxLevel) {
-    if (level <= 0) {
-      return 0;
-    }
-    double levelPercent = Math.min(1D, (double) level / Math.max(1, maxLevel));
-    return GRACE_BASE_DURATION_TICKS + (int) Math.round(levelPercent * GRACE_MAX_LINGER_TICKS);
-  }
-
-  static boolean shouldApplyGrace(boolean hasCurrent, int currentAmplifier, int currentDurationTicks, int durationTicks) {
-    if (!hasCurrent) {
-      return true;
-    }
-    if (currentDurationTicks < 0) {
-      return false;
-    }
-    return currentAmplifier < GRACE_AMPLIFIER || currentDurationTicks <= durationTicks;
   }
 
   @ConfigDescription("Swim faster with dolphin-like grace.")

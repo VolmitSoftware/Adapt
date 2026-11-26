@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -84,6 +86,11 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   }
 
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.HIGHEST)
   public void on(BlockBreakEvent e) {
     PlayerRef p = e.player();
@@ -109,6 +116,7 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
               .chord(Sounds.BLOCK_LARGE_AMETHYST_BUD_BREAK, 0.7f, 1.0f, Sounds.BLOCK_GLASS_BREAK, 0.4f, 1.8f, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.3f, 2.0f);
           block.breakNaturally(null);
           addStat(p, "architect.glass.blocks-recovered", 1);
+          UpgradeLoans.landed(this, p);
         }
       }
     });

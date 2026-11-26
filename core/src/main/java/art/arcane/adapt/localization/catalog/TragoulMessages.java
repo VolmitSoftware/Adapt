@@ -140,6 +140,20 @@ public final class TragoulMessages {
   private TragoulMessages() {
   }
 
+  public static final TextKey CRIMSON_TIDE_LORE1 = TextKey.of("upgrade.tragoul.crimson_tide.lore1", "Damage Dealt Returned as Health");
+  public static final TextKey CRIMSON_TIDE_LORE2 = TextKey.of("upgrade.tragoul.crimson_tide.lore2", "Life Drained from Each Attacker");
+  public static final TextKey CRIMSON_TIDE_LORE3 = TextKey.of("upgrade.tragoul.crimson_tide.lore3", "Thorns Damage Reflected");
+  public static final TextKey CRIMSON_TIDE_LORE4 = TextKey.of("upgrade.tragoul.crimson_tide.lore4", "Hearts of Blood Stored Past Full Health");
+  public static final TextKey PLAGUE_NOVA_LORE1 = TextKey.of("upgrade.tragoul.plague_nova.lore1", "Nova Radius");
+  public static final TextKey PLAGUE_NOVA_LORE2 = TextKey.of("upgrade.tragoul.plague_nova.lore2", "Plague Spread Radius");
+  public static final TextKey PLAGUE_NOVA_LORE3 = TextKey.of("upgrade.tragoul.plague_nova.lore3", "Corpse Health Added to Nova Damage");
+  public static final TextKey DEATHLESS_LORE1 = TextKey.of("upgrade.tragoul.deathless.lore1", "Hit Absorbed per Bone");
+  public static final TextKey DEATHLESS_LORE2 = TextKey.of("upgrade.tragoul.deathless.lore2", "Most Servants");
+  public static final TextKey DEATHLESS_LORE3 = TextKey.of("upgrade.tragoul.deathless.lore3", "Death Defiance Cooldown");
+  public static final TextKey DEATHLESS_LORE4 = TextKey.of("upgrade.tragoul.deathless.lore4", "Servant Lifetime");
+  public static final TextKey DEATHLESS_LORE5 = TextKey.of("upgrade.tragoul.deathless.lore5", "Bones per Servant Raised by Hand");
+  public static final TextKey DEATHLESS_LORE6 = TextKey.of("upgrade.tragoul.deathless.lore6", "Health per Servant Raised by Hand, Blood First");
+
   public static void addTo(MessageCatalog.Builder builder) {
     PREFERENCE_KEYS.forEach(builder::add);
     builder.add(THORNS_NAME);
@@ -230,5 +244,18 @@ public final class TragoulMessages {
     builder.add(LAST_RITES_LORE2);
     builder.add(LAST_RITES_LORE3);
     builder.add(LAST_RITES_LORE);
+    builder.add(CRIMSON_TIDE_LORE1);
+    builder.add(CRIMSON_TIDE_LORE2);
+    builder.add(CRIMSON_TIDE_LORE3);
+    builder.add(CRIMSON_TIDE_LORE4);
+    builder.add(PLAGUE_NOVA_LORE1);
+    builder.add(PLAGUE_NOVA_LORE2);
+    builder.add(PLAGUE_NOVA_LORE3);
+    builder.add(DEATHLESS_LORE1);
+    builder.add(DEATHLESS_LORE2);
+    builder.add(DEATHLESS_LORE3);
+    builder.add(DEATHLESS_LORE4);
+    builder.add(DEATHLESS_LORE5);
+    builder.add(DEATHLESS_LORE6);
   }
 }

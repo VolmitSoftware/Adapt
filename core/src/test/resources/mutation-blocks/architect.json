@@ -1,0 +1,13 @@
+{
+  "skill": "architect",
+  "behaviourTest": "ArchitectBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "ArchitectTrigger", "handles": ["BlockPlaceEvent"], "reuses": ["XpProvenance"]},
+    {"slot": "STRIKE_FIGHT", "class": "ArchitectFightStrike", "handles": ["BlockPistonEvent", "BlockExplodeEvent", "BlockBreakEvent", "EntityExplodeEvent", "ChunkEvent"], "reuses": ["ArchitectTemporaryBlocks"]},
+    {"slot": "STRIKE_WORK", "class": "ArchitectWorkStrike", "handles": ["PlayerInteractEvent"], "reuses": ["ArchitectReach", "ArchitectChalkLine", "AdaptAttributeService"]},
+    {"slot": "BOON", "class": "ArchitectBoon", "handles": ["BlockPlaceEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockBurnEvent", "BlockBreakEvent"], "reuses": ["ArchitectBlockMarks"]},
+    {"slot": "FUEL", "class": "ArchitectFuel", "handles": [], "reuses": ["ArchitectDemolition"]},
+    {"slot": "STATE", "class": "ArchitectState", "handles": ["BlockPlaceEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

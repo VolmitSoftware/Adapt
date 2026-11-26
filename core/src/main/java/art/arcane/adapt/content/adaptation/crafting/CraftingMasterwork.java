@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -30,6 +31,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.item.ItemDurability;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -57,14 +59,18 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.DoubleSupplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -76,6 +82,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
   private static final byte MASTERWORK_FLAG = 1;
   private static final byte ATTRIBUTE_FLAG = 2;
   private static final byte ENCHANT_FLAG = 4;
+  private static final byte CONVERTED_FLAG = 8;
   private static final Set<String> BENEFICIAL_ENCHANTMENTS = Set.of(
       "protection",
       "fire_protection",
@@ -99,6 +106,8 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
 
   private static final Id ATTRIBUTE_KEY = Id.adapt("masterwork_bonus");
   private static final DataKey<Byte> MASTERWORK_KEY = DataKey.adapt("masterwork_roll", DataCodecs.BYTE);
+  private static final DataKey<Integer> REFORGES_KEY = DataKey.adapt("masterwork_reforges", DataCodecs.INT);
+  private static final DataKey<Integer> BONUS_KEY = DataKey.adapt("masterwork_durability", DataCodecs.INT);
   private final Map<UUID, ShiftBatch> shiftBatches = new ConcurrentHashMap<>();
   private final Set<UUID> pendingSingleMasterworks = ConcurrentHashMap.newKeySet();
 
@@ -174,6 +183,11 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
 
   private double getBonusPercent(int level) {
     return bonusPercent(getConfig().bonusPercentBase, getConfig().bonusPercentFactor, getLevelPercent(level));
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -275,20 +289,22 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     }
 
     addStat(p, "crafting.masterwork.pieces-forged", 1);
+    UpgradeLoans.landed(this, p);
     if (batch == null || batch.claimEffect()) {
       playForgeEffect(p, (flags & ATTRIBUTE_FLAG) != 0, (flags & ENCHANT_FLAG) != 0);
     }
   }
 
   private ItemRef forge(PlayerRef player, ItemRef result, int level, boolean tool) {
-    if (ThreadLocalRandom.current().nextDouble() >= getRollChance(level)) {
+    double strength = UpgradeLoans.strength(this, player);
+    if (ThreadLocalRandom.current().nextDouble() >= clampChance(getRollChance(level) * strength)) {
       return result;
     }
 
     ItemRef forged = result.copy();
     int baseMax = Math.max(1, items().maxDurability(forged.type()));
     double rolledPercent = rolledBonusPercent(
-        getBonusPercent(level),
+        getBonusPercent(level) * strength,
         getConfig().bonusRollMinimumFraction,
         ThreadLocalRandom.current().nextDouble()
     );
@@ -296,18 +312,15 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     ItemDurability.setMaxDamage(forged, baseMax + bonus);
 
     boolean gotAttribute = level >= getMaxLevel()
-        && ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().attributeChance)
+        && ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().attributeChance * strength)
         && preferenceEnabled(player, ATTRIBUTES) && applyAttribute(forged, tool);
-    boolean gotEnchant = ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().enchantmentChance)
+    boolean gotEnchant = ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().enchantmentChance * strength)
         && preferenceEnabled(player, ENCHANTMENTS) && applyBeneficialEnchant(forged);
 
     List<String> lore = new ArrayList<>(forged.lore());
-    lore.add(C.AQUA + AdaptLanguage.text(
-        CraftingMessages.MASTERWORK_BONUS,
-        trusted("bonus", C.GRAY + String.valueOf(bonus))
-    ));
+    lore.add(bonusLine(bonus));
     if (gotAttribute) {
-      lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(CraftingMessages.MASTERWORK_ATTRIBUTE_TAG));
+      lore.add(edgeLine());
     }
     forged.setLore(lore);
     byte flags = MASTERWORK_FLAG;
@@ -318,7 +331,198 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
       flags |= ENCHANT_FLAG;
     }
     forged.data().set(MASTERWORK_KEY, flags);
+    forged.data().set(BONUS_KEY, bonus);
     return forged;
+  }
+
+  /** Which part of a masterwork piece a reforge keeps. */
+  public enum ReforgeLock {
+    NONE, DURABILITY, EDGE
+  }
+
+  /**
+   * {@code gear} reforged with the player's Masterwork: the bonus durability rerolls and, at full level, the Masterwork
+   * Edge rerolls, unless {@code lock} keeps one of them. Remaining durability is kept, enchantments are never added or
+   * taken. Plain gear reforges once to gain a bonus and never again. Null when Masterwork does not run for the player,
+   * the item is not gear or it was plain gear already reforged.
+   */
+  public ItemRef reforge(PlayerRef player, ItemRef gear, ReforgeLock lock, DoubleSupplier random) {
+    int level = getActiveLevel(player);
+    boolean tool = isTool(gear.type());
+    if (level <= 0 || (!tool && !isArmor(gear.type())) || items().maxDurability(gear.type()) <= 0
+        || (flags(gear) & CONVERTED_FLAG) != 0) {
+      return null;
+    }
+    double strength = UpgradeLoans.strength(this, player);
+    ItemRef reforged = gear.copy();
+    int baseMax = Math.max(1, items().maxDurability(reforged.type()));
+    int oldMax = ItemDurability.maxDamage(reforged);
+    byte flags = flags(reforged);
+    boolean masterwork = (flags & MASTERWORK_FLAG) != 0;
+    int oldBonus = masterwork ? bonusDurabilityOf(reforged) : 0;
+    boolean hadEdge = (flags & ATTRIBUTE_FLAG) != 0;
+
+    double rolledPercent = rolledBonusPercent(getBonusPercent(level) * strength, getConfig().bonusRollMinimumFraction,
+        random.getAsDouble());
+    int bonus = lock == ReforgeLock.DURABILITY && masterwork ? oldBonus
+        : preferenceEnabled(player, DURABILITY) ? bonusDurability(baseMax, rolledPercent) : 0;
+    boolean edgeRoll = random.getAsDouble() < clampChance(getConfig().attributeChance * strength);
+    boolean edge = lock == ReforgeLock.EDGE ? hadEdge
+        : level >= getMaxLevel() && edgeRoll && preferenceEnabled(player, ATTRIBUTES);
+
+    int remaining = Math.max(1, oldMax - reforged.damage());
+    int newMax = Math.max(1, oldMax - oldBonus) + bonus;
+    ItemDurability.setMaxDamage(reforged, newMax);
+    if (ItemDurability.perStack()) {
+      reforged.setDamage(Math.max(0, newMax - Math.min(remaining, newMax)));
+    }
+    if (hadEdge && !edge) {
+      reforged.removeAttributeModifier(tool ? Attributes.ATTACK_DAMAGE : Attributes.ARMOR, ATTRIBUTE_KEY);
+    } else if (edge && !hadEdge) {
+      applyAttribute(reforged, tool);
+    }
+
+    List<String> lore = new ArrayList<>(reforged.lore());
+    if (masterwork) {
+      lore.remove(bonusLine(oldBonus));
+    }
+    if (hadEdge) {
+      lore.remove(edgeLine());
+    }
+    lore.add(bonusLine(bonus));
+    if (edge) {
+      lore.add(edgeLine());
+    }
+    reforged.setLore(lore);
+    byte reforgedFlags = (byte) (MASTERWORK_FLAG | (flags & ENCHANT_FLAG) | (edge ? ATTRIBUTE_FLAG : 0)
+        | (masterwork ? 0 : CONVERTED_FLAG));
+    reforged.data().set(MASTERWORK_KEY, reforgedFlags);
+    reforged.data().set(BONUS_KEY, bonus);
+    reforged.data().set(REFORGES_KEY, reforges(gear) + 1);
+    return reforged;
+  }
+
+  /** A piece's Masterwork bonus: its bonus durability as a share of the base durability, and whether it has the Edge. */
+  public record Bonus(double durabilityShare, boolean edge) {
+  }
+
+  /** The Masterwork bonus of {@code gear}, or null when it has none. */
+  public static @Nullable Bonus bonus(ItemRef gear) {
+    if (gear == null || gear.isEmpty() || (flags(gear) & MASTERWORK_FLAG) == 0) {
+      return null;
+    }
+    int baseMax = items().maxDurability(gear.type());
+    if (baseMax <= 0) {
+      return null;
+    }
+    return new Bonus(bonusDurabilityOf(gear) / (double) baseMax, (flags(gear) & ATTRIBUTE_FLAG) != 0);
+  }
+
+  /**
+   * A copy of {@code gear} without its Masterwork bonus, keeping its enchantments and remaining durability, and marked
+   * so a reforge never rolls it a new one; null when it has no bonus.
+   */
+  public static @Nullable ItemRef strip(ItemRef gear) {
+    if (bonus(gear) == null) {
+      return null;
+    }
+    ItemRef stripped = gear.copy();
+    int oldMax = ItemDurability.maxDamage(stripped);
+    int oldBonus = bonusDurabilityOf(stripped);
+    int newMax = Math.max(1, oldMax - oldBonus);
+    int remaining = Math.max(1, oldMax - stripped.damage());
+    byte flags = flags(stripped);
+    ItemDurability.setMaxDamage(stripped, newMax);
+    if (ItemDurability.perStack()) {
+      stripped.setDamage(Math.max(0, newMax - Math.min(remaining, newMax)));
+    }
+    List<String> lore = new ArrayList<>(stripped.lore());
+    lore.remove(bonusLine(oldBonus));
+    if ((flags & ATTRIBUTE_FLAG) != 0) {
+      stripped.removeAttributeModifier(isTool(stripped.type()) ? Attributes.ATTACK_DAMAGE : Attributes.ARMOR, ATTRIBUTE_KEY);
+      lore.remove(edgeLine());
+    }
+    stripped.setLore(lore);
+    stripped.data().set(MASTERWORK_KEY, (byte) ((flags & ENCHANT_FLAG) | CONVERTED_FLAG));
+    stripped.data().remove(BONUS_KEY);
+    return stripped;
+  }
+
+  /**
+   * A copy of {@code gear} carrying {@code bonus}, scaled to its own base durability; null when it is not tool or armor
+   * gear with durability, or already has a Masterwork bonus.
+   */
+  public @Nullable ItemRef apply(ItemRef gear, Bonus bonus) {
+    if (gear == null || gear.isEmpty() || bonus(gear) != null || (!isTool(gear.type()) && !isArmor(gear.type()))
+        || items().maxDurability(gear.type()) <= 0) {
+      return null;
+    }
+    ItemRef applied = gear.copy();
+    boolean tool = isTool(applied.type());
+    int baseMax = items().maxDurability(applied.type());
+    int oldMax = ItemDurability.maxDamage(applied);
+    int remaining = Math.max(1, oldMax - applied.damage());
+    int extra = (int) Math.round(Math.max(0D, bonus.durabilityShare()) * baseMax);
+    int newMax = oldMax + extra;
+    ItemDurability.setMaxDamage(applied, newMax);
+    if (ItemDurability.perStack()) {
+      applied.setDamage(Math.max(0, newMax - Math.min(remaining, newMax)));
+    }
+    List<String> lore = new ArrayList<>(applied.lore());
+    lore.add(bonusLine(extra));
+    if (bonus.edge()) {
+      applyAttribute(applied, tool);
+      lore.add(edgeLine());
+    }
+    applied.setLore(lore);
+    byte flags = flags(applied);
+    applied.data().set(MASTERWORK_KEY, (byte) (MASTERWORK_FLAG | (flags & (ENCHANT_FLAG | CONVERTED_FLAG))
+        | (bonus.edge() ? ATTRIBUTE_FLAG : 0)));
+    applied.data().set(BONUS_KEY, extra);
+    return applied;
+  }
+
+  /** A seed fixed by the piece and its reforge count, so the same piece always offers the same rolls. */
+  public static long reforgeSeed(ItemRef gear) {
+    return Objects.hash(gear.type().toString(), reforges(gear), flags(gear), ItemDurability.maxDamage(gear),
+        gear.enchantments());
+  }
+
+  /** The Masterwork Edge line and bonus durability of a piece, for a reforge preview. */
+  public static String describe(ItemRef gear) {
+    int bonus = bonusDurabilityOf(gear);
+    return (flags(gear) & ATTRIBUTE_FLAG) != 0 ? bonusLine(bonus) + " " + edgeLine() : bonusLine(bonus);
+  }
+
+  /**
+   * The bonus durability Masterwork rolled onto a piece, as recorded on it; for a piece rolled before that record, all
+   * durability above the base. 0 without a Masterwork roll.
+   */
+  private static int bonusDurabilityOf(ItemRef gear) {
+    if ((flags(gear) & MASTERWORK_FLAG) == 0) {
+      return 0;
+    }
+    Integer recorded = gear.data().get(BONUS_KEY);
+    return recorded != null ? Math.max(0, recorded)
+        : Math.max(0, ItemDurability.maxDamage(gear) - items().maxDurability(gear.type()));
+  }
+
+  private static int reforges(ItemRef gear) {
+    Integer count = gear.data().get(REFORGES_KEY);
+    return count == null ? 0 : count;
+  }
+
+  private static byte flags(ItemRef gear) {
+    Byte flags = gear.data().get(MASTERWORK_KEY);
+    return flags == null ? 0 : flags;
+  }
+
+  private static String bonusLine(int bonus) {
+    return C.AQUA + AdaptLanguage.text(CraftingMessages.MASTERWORK_BONUS, trusted("bonus", C.GRAY + String.valueOf(bonus)));
+  }
+
+  private static String edgeLine() {
+    return C.LIGHT_PURPLE + AdaptLanguage.text(CraftingMessages.MASTERWORK_ATTRIBUTE_TAG);
   }
 
   private boolean applyAttribute(ItemRef item, boolean tool) {
@@ -366,13 +570,13 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         .chord(Sounds.BLOCK_ANVIL_USE, 0.5F, 1.3F, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, chimePitch);
   }
 
-  private static boolean isTool(Id type) {
+  public static boolean isTool(Id type) {
     String name = type.path().toUpperCase(Locale.ROOT);
     return name.endsWith("_PICKAXE") || name.endsWith("_AXE") || name.endsWith("_SHOVEL")
         || name.endsWith("_HOE") || name.endsWith("_SWORD");
   }
 
-  private static boolean isArmor(Id type) {
+  public static boolean isArmor(Id type) {
     String name = type.path().toUpperCase(Locale.ROOT);
     return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
         || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");

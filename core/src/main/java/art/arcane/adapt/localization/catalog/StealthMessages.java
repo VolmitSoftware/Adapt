@@ -95,7 +95,7 @@ public final class StealthMessages {
   public static final TextKey ENDER_VEIL_LORE1 = TextKey.of("stealth.ender_veil.lore1", "Prevent enderman attacks while sneaking");
   public static final TextKey ENDER_VEIL_LORE2 = TextKey.of("stealth.ender_veil.lore2", "Prevent all enderman attacks");
   public static final LinesKey ENDER_VEIL_LORE = LinesKey.of("stealth.ender_veil.lore", "Prevent enderman attacks while sneaking", "Prevent all enderman attacks");
-  public static final TextKey SILENT_STEP_NAME = TextKey.of("stealth.silent_step.name", "Stealth");
+  public static final TextKey SILENT_STEP_NAME = TextKey.of("stealth.silent_step.name", "Silent Step");
   public static final TextKey SILENT_STEP_DESCRIPTION = TextKey.of("stealth.silent_step.description", "Core concealment for backstabs, Cutpurse, and Assassinate. Sneaking uses observer awareness; invisibility or an active Shadow Decoy always counts as undetected.");
   public static final TextKey SILENT_STEP_LORE1 = TextKey.of("stealth.silent_step.lore1", "Bonus Mob Detection Suppression Radius");
   public static final TextKey SILENT_STEP_LORE2 = TextKey.of("stealth.silent_step.lore2", "Mob Backstab Damage Bonus");
@@ -141,6 +141,20 @@ public final class StealthMessages {
   public static final TextKey UMBRAL_RECOVERY_LORE1 = TextKey.of("stealth.umbral_recovery.lore1", "Hunger Refund");
   public static final TextKey UMBRAL_RECOVERY_LORE2 = TextKey.of("stealth.umbral_recovery.lore2", "Invisibility Extension");
   public static final LinesKey UMBRAL_RECOVERY_LORE = LinesKey.of("stealth.umbral_recovery.lore", "Hunger Refund", "Invisibility Extension");
+
+  public static final TextKey UMBRAL_FORM_LORE1 = TextKey.of("upgrade.stealth.umbral_form.lore1", "Largest Armor Layer");
+  public static final TextKey UMBRAL_FORM_LORE2 = TextKey.of("upgrade.stealth.umbral_form.lore2", "Armor Built per Pulse");
+  public static final TextKey UMBRAL_FORM_LORE3 = TextKey.of("upgrade.stealth.umbral_form.lore3", "Watch Radius");
+  public static final TextKey DEATH_MARK_LORE1 = TextKey.of("upgrade.stealth.death_mark.lore1", "Highest Max Health Killed Outright");
+  public static final TextKey DEATH_MARK_LORE2 = TextKey.of("upgrade.stealth.death_mark.lore2", "Time Between Outright Kills");
+  public static final TextKey DEATH_MARK_LORE3 = TextKey.of("upgrade.stealth.death_mark.lore3", "Loot Stacks Stolen");
+  public static final TextKey PHANTOM_DECOY_LORE1 = TextKey.of("upgrade.stealth.phantom_decoy.lore1", "Decoy Lifetime");
+  public static final TextKey PHANTOM_DECOY_LORE2 = TextKey.of("upgrade.stealth.phantom_decoy.lore2", "Smoke Radius");
+  public static final TextKey PHANTOM_DECOY_LORE3 = TextKey.of("upgrade.stealth.phantom_decoy.lore3", "Time Between Decoys");
+  public static final TextKey PHANTOM_DECOY_LORE4 = TextKey.of("upgrade.stealth.phantom_decoy.lore4", "Shadow Step Range");
+  public static final TextKey PHANTOM_DECOY_LORE5 = TextKey.of("upgrade.stealth.phantom_decoy.lore5", "Time Between Shadow Steps");
+  public static final TextKey TOOL_SMOKE_PELLET_NAME = TextKey.of("tool.stealth.smoke_pellet.name", "Smoke Pellet");
+  public static final TextKey TOOL_SMOKE_PELLET_LORE1 = TextKey.of("tool.stealth.smoke_pellet.lore1", "Shadow Step or Decoy");
 
   private StealthMessages() {
   }
@@ -271,5 +285,18 @@ public final class StealthMessages {
     builder.add(UMBRAL_RECOVERY_LORE1);
     builder.add(UMBRAL_RECOVERY_LORE2);
     builder.add(UMBRAL_RECOVERY_LORE);
+    builder.add(UMBRAL_FORM_LORE1);
+    builder.add(UMBRAL_FORM_LORE2);
+    builder.add(UMBRAL_FORM_LORE3);
+    builder.add(DEATH_MARK_LORE1);
+    builder.add(DEATH_MARK_LORE2);
+    builder.add(DEATH_MARK_LORE3);
+    builder.add(PHANTOM_DECOY_LORE1);
+    builder.add(PHANTOM_DECOY_LORE2);
+    builder.add(PHANTOM_DECOY_LORE3);
+    builder.add(PHANTOM_DECOY_LORE4);
+    builder.add(PHANTOM_DECOY_LORE5);
+    builder.add(TOOL_SMOKE_PELLET_NAME);
+    builder.add(TOOL_SMOKE_PELLET_LORE1);
   }
 }

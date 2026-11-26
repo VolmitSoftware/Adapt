@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -50,7 +51,17 @@ import art.arcane.adapt.content.adaptation.tragoul.TragoulPlagueBearer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSoulSiphon;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulThorns;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulBoon;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulFightStrike;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulFuel;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulState;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulTrigger;
+import art.arcane.adapt.content.adaptation.tragoul.blocks.TragOulWorkStrike;
+import art.arcane.adapt.content.adaptation.tragoul.upgraded.CrimsonTide;
+import art.arcane.adapt.content.adaptation.tragoul.upgraded.Deathless;
+import art.arcane.adapt.content.adaptation.tragoul.upgraded.PlagueNova;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -71,8 +82,17 @@ import java.util.Map;
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.TRAGOUL_PAIN, "tragoul-thorns", "tragoul-curse-of-frailty", "tragoul-blood-pact",
+          "tragoul-marrow-armor", "tragoul-healing", "tragoul-last-rites"),
+      AdaptationGroup.of(GroupMessages.TRAGOUL_CORPSES, "tragoul-corpse-explosion", "tragoul-lance",
+          "tragoul-bone-harvest", "tragoul-plague-bearer", "tragoul-skeletal-servant"),
+      AdaptationGroup.of(GroupMessages.TRAGOUL_BLOOD, "tragoul-death-sense", "tragoul-globe", "tragoul-soul-siphon")
+  );
+
   public SkillTragOul() {
-    super("tragoul", SkillPresentation.of(SkillMessages.TRAGOUL_NAME, SkillMessages.TRAGOUL_ICON, SkillMessages.TRAGOUL_DESCRIPTION));
+    super("tragoul", SkillPresentation.of(SkillMessages.TRAGOUL_NAME, SkillMessages.TRAGOUL_ICON, SkillMessages.TRAGOUL_DESCRIPTION,
+        SkillMessages.TRAGOUL_QUIP, SkillMessages.TRAGOUL_UNLOCK_QUIP_1, SkillMessages.TRAGOUL_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.AQUA);
     setInterval(2755);
@@ -91,6 +111,9 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     registerAdaptation(new TragoulDeathSense());
     registerAdaptation(new TragoulPlagueBearer());
     registerAdaptation(new TragoulLastRites());
+    registerUpgrades(new CrimsonTide(), new PlagueNova(), new Deathless());
+    registerBlocks(new TragOulTrigger(), new TragOulFightStrike(), new TragOulWorkStrike(),
+        new TragOulBoon(), new TragOulFuel(), new TragOulState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("crimson_roots"))
         .key("challenge_trag_1k")
@@ -134,6 +157,11 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     registerMilestone("challenge_trag_hits_500", "trag.hitsrecieved", 500, () -> getConfig().challengeTragReward);
     registerMilestone("challenge_trag_hits_5k", "trag.hitsrecieved", 5000, () -> getConfig().challengeTragReward * 3);
 
+  }
+
+  @Override
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Handle(priority = EventPriority.MONITOR)

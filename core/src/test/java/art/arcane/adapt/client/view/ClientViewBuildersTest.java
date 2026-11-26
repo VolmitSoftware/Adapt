@@ -48,7 +48,7 @@ class ClientViewBuildersTest {
 
   @Test
   void catalogDescribesEverySkillAndAdaptation() throws ClientProtocolException {
-    CatalogView catalog = CatalogViews.build(registry, player.uuid());
+    CatalogView catalog = CatalogViews.build(registry, player.uuid(), List.of(), false);
 
     assertThat(catalog.revision()).isEqualTo(registry.getCatalogRevision());
     assertThat(catalog.locale()).isNotBlank();

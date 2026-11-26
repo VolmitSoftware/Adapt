@@ -258,10 +258,10 @@ class PickaxeRuntimeTest {
 
   @Test
   void tunnelBoreFacingMatchesVanillaYaw() {
-    assertThat(PickaxeTunnelBore.facing(0F).dz()).isEqualTo(1);
-    assertThat(PickaxeTunnelBore.facing(90F).dx()).isEqualTo(-1);
-    assertThat(PickaxeTunnelBore.facing(180F).dz()).isEqualTo(-1);
-    assertThat(PickaxeTunnelBore.facing(-90F).dx()).isEqualTo(1);
+    assertThat(PickaxeBore.facing(0F).dz()).isEqualTo(1);
+    assertThat(PickaxeBore.facing(90F).dx()).isEqualTo(-1);
+    assertThat(PickaxeBore.facing(180F).dz()).isEqualTo(-1);
+    assertThat(PickaxeBore.facing(-90F).dx()).isEqualTo(1);
   }
 
   @Test

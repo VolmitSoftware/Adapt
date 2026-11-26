@@ -25,12 +25,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.Attributes;
-import art.arcane.adapt.api.attribute.LegacyModifierKey;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -56,14 +54,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config> {
-  private static final LegacyModifierKey MODIFIER_KEY = LegacyModifierKey.of(Id.of("adapt", "tame-health-boost"));
   private static final String LIFECYCLE_SCOPE = "tame-health";
   private static final long ATTRIBUTE_REFRESH_MILLIS = 4753L;
   private static final long OWNER_LEVEL_REFRESH_MILLIS = 1000L;
   private static final long STATE_PRUNE_MILLIS = 60000L;
   private final TameableOwnershipIndex ownershipIndex = TameableOwnershipIndex.instance();
   private final TameableOwnershipIndex.Generation generation = ownershipIndex.claimGeneration(LIFECYCLE_SCOPE);
-  private final Map<UUID, Integer> appliedLevels = new ConcurrentHashMap<>();
+  private final TameAttributeBoost boost = new TameAttributeBoost(Id.of("adapt", "tame-health-boost"), Attributes.MAX_HEALTH, this::showBoost);
   private final Map<UUID, Long> nextUpdateAt = new ConcurrentHashMap<>();
   private final Map<UUID, Long> activeStatAt = new ConcurrentHashMap<>();
   private final Map<UUID, OwnerState> ownerStates = new ConcurrentHashMap<>();
@@ -107,7 +104,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         if (entity != null) {
           Tasks.runEntity(entity, () -> {
             if (ownerId.equals(ownershipIndex.refreshOwner(tracked))) {
-              removeHealthModifier(entity);
+              boost.remove(entity);
             }
           });
         }
@@ -127,11 +124,11 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
   @Override
   public void unregister() {
     if (lifecycleCleanupStarted.compareAndSet(false, true)) {
-      ownershipIndex.cleanupLoaded(generation, this::removeHealthModifier);
+      ownershipIndex.cleanupLoaded(generation, boost::remove);
       ownerStates.clear();
       nextUpdateAt.clear();
       activeStatAt.clear();
-      appliedLevels.clear();
+      boost.clear();
     }
     super.unregister();
   }
@@ -149,7 +146,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     } else {
       ownerStates.clear();
     }
-    if (ownerStates.isEmpty() && appliedLevels.isEmpty()) {
+    if (ownerStates.isEmpty() && boost.isEmpty()) {
       pruneState(now);
       return;
     }
@@ -257,9 +254,9 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     LivingRef entity = tracked.entity();
     if (ownerId == null || entity == null) {
       if (entity != null) {
-        removeHealthModifier(entity);
+        boost.remove(entity);
       } else {
-        appliedLevels.remove(tracked.entityId());
+        boost.forget(tracked.entityId());
       }
       nextUpdateAt.remove(tracked.entityId());
       activeStatAt.remove(tracked.entityId());
@@ -268,8 +265,8 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
 
     OwnerState state = ownerStates.get(ownerId);
     int level = state == null ? 0 : state.level();
-    update(entity, level);
-    if (state != null && level > 0 && appliedLevels.containsKey(tracked.entityId())) {
+    boost.update(entity, level, getHealthBoost(level));
+    if (state != null && level > 0 && boost.isApplied(tracked.entityId())) {
       double activeTicks = activeTicksSinceLastUpdate(tracked.entityId());
       if (activeTicks > 0D) {
         addActiveTicks(state.ownerData(), activeTicks);
@@ -297,32 +294,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     }
   }
 
-  private void update(LivingRef j, int level) {
-    UUID tameableId = j.uuid();
-    if (!j.hasAttribute(Attributes.MAX_HEALTH)) {
-      appliedLevels.remove(tameableId);
-      return;
-    }
-
-    Integer appliedLevel = appliedLevels.get(tameableId);
-    if (level <= 0) {
-      if (appliedLevel != null || hasModifier(j)) {
-        MODIFIER_KEY.remove(j, Attributes.MAX_HEALTH);
-        double maximum = j.attributeValue(Attributes.MAX_HEALTH);
-        if (!j.isDead() && j.health() > maximum) {
-          j.setHealth(Math.max(0D, maximum));
-        }
-      }
-      appliedLevels.remove(tameableId);
-      return;
-    }
-
-    if (appliedLevel != null && appliedLevel == level && hasModifier(j)) {
-      return;
-    }
-
-    MODIFIER_KEY.setTransient(j, Attributes.MAX_HEALTH, getHealthBoost(level), AttributeOperation.ADD_MULTIPLIED_BASE);
-    appliedLevels.put(tameableId, level);
+  private void showBoost(LivingRef j) {
     fx(j, FxPriority.TRANSITION)
         .ring(Particles.VILLAGER_HAPPY, 0.5D, 6, 0.3D)
         .column(Particles.HEART, 4, 1.2D)
@@ -359,29 +331,9 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
   }
 
   private void clearEntityState(UUID entityId) {
-    appliedLevels.remove(entityId);
+    boost.forget(entityId);
     nextUpdateAt.remove(entityId);
     activeStatAt.remove(entityId);
-  }
-
-  private void removeHealthModifier(LivingRef tameable) {
-    if (!tameable.isValid() || tameable.isDead()) {
-      appliedLevels.remove(tameable.uuid());
-      return;
-    }
-
-    if (tameable.hasAttribute(Attributes.MAX_HEALTH) && hasModifier(tameable)) {
-      MODIFIER_KEY.remove(tameable, Attributes.MAX_HEALTH);
-      double maximum = tameable.attributeValue(Attributes.MAX_HEALTH);
-      if (tameable.health() > maximum) {
-        tameable.setHealth(Math.max(0D, maximum));
-      }
-    }
-    appliedLevels.remove(tameable.uuid());
-  }
-
-  private static boolean hasModifier(LivingRef tameable) {
-    return MODIFIER_KEY.present(tameable, Attributes.MAX_HEALTH);
   }
 
   private record OwnerState(AdaptPlayer ownerData, int level) {

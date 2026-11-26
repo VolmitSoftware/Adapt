@@ -64,7 +64,7 @@ class CatalogFitBudgetTest {
       TestPlatform platform = TestPlatform.builder(data.resolve(game.version().toString())).build();
       platform.host().runGame(game);
       try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
-        CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID());
+        CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID(), List.of(), false);
         Map<String, String> owners = new LinkedHashMap<>();
         Map<String, Integer> measured = measure(catalog, owners);
         List<String> over = new ArrayList<>();

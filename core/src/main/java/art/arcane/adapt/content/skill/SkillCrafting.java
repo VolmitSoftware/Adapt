@@ -41,6 +41,15 @@ import art.arcane.adapt.content.adaptation.crafting.CraftingStations;
 import art.arcane.adapt.content.adaptation.crafting.CraftingThriftyHands;
 import art.arcane.adapt.content.adaptation.crafting.CraftingTinkerer;
 import art.arcane.adapt.content.adaptation.crafting.CraftingXP;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingBoon;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingFightStrike;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingFuel;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingState;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingTrigger;
+import art.arcane.adapt.content.adaptation.crafting.blocks.CraftingWorkStrike;
+import art.arcane.adapt.content.adaptation.crafting.upgraded.FieldWorkshop;
+import art.arcane.adapt.content.adaptation.crafting.upgraded.GrandArtisan;
+import art.arcane.adapt.content.adaptation.crafting.upgraded.Unmaker;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -67,7 +76,8 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   private final Map<String, Long> furnaceXpMarks = new ConcurrentHashMap<>();
 
   public SkillCrafting() {
-    super("crafting", SkillPresentation.of(SkillMessages.CRAFTING_NAME, SkillMessages.CRAFTING_ICON, SkillMessages.CRAFTING_DESCRIPTION));
+    super("crafting", SkillPresentation.of(SkillMessages.CRAFTING_NAME, SkillMessages.CRAFTING_ICON, SkillMessages.CRAFTING_DESCRIPTION,
+        SkillMessages.CRAFTING_QUIP, SkillMessages.CRAFTING_UNLOCK_QUIP_1, SkillMessages.CRAFTING_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
     setInterval(3789);
@@ -85,6 +95,9 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     registerAdaptation(new CraftingCompactor());
     registerAdaptation(new CraftingTinkerer());
     registerAdaptation(new CraftingProvisioner());
+    registerUpgrades(new GrandArtisan(), new Unmaker(), new FieldWorkshop());
+    registerBlocks(new CraftingTrigger(), new CraftingFightStrike(), new CraftingWorkStrike(), new CraftingBoon(), new CraftingFuel(),
+        new CraftingState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("crafting_table")).key("challenge_craft_1k")
         .model(CustomModel.get(Id.minecraft("crafting_table"), "advancement", "crafting", "challenge_craft_1k"))

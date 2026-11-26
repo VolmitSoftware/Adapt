@@ -96,7 +96,7 @@ public final class HerbalismMessages {
   public static final TextKey MUSHROOM_BLOCKS_DESCRIPTION = TextKey.of("herbalism.mushroom_blocks.description", "Gives you the ability to craft Mushroom Blocks in a Crafting Table");
   public static final TextKey MUSHROOM_BLOCKS_LORE1 = TextKey.of("herbalism.mushroom_blocks.lore1", "Four Mushrooms to make a block, or a block to make a stem.");
   public static final LinesKey MUSHROOM_BLOCKS_LORE = LinesKey.of("herbalism.mushroom_blocks.lore", "Four Mushrooms to make a block, or a block to make a stem.");
-  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("herbalism.drop_to_inventory.name", "Hoe Drop-To-Inventory");
+  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("herbalism.drop_to_inventory.name", "Hoe Drop to Inventory");
   public static final TextKey HUNGRY_SHIELD_NAME = TextKey.of("herbalism.hungry_shield.name", "Hungry Shield");
   public static final TextKey HUNGRY_SHIELD_DESCRIPTION = TextKey.of("herbalism.hungry_shield.description", "Take damage to your hunger before your health, covering more damage types as it levels up.");
   public static final TextKey HUNGRY_SHIELD_LORE1 = TextKey.of("herbalism.hungry_shield.lore1", "Resisted by Hunger");
@@ -149,6 +149,19 @@ public final class HerbalismMessages {
   public static final TextKey SPORE_BLOOM_LORE3 = TextKey.of("herbalism.spore_bloom.lore3", "Bloom Cooldown");
   public static final TextKey SPORE_BLOOM_LORE4 = TextKey.of("herbalism.spore_bloom.lore4", "Mushroom Cost");
   public static final LinesKey SPORE_BLOOM_LORE = LinesKey.of("herbalism.spore_bloom.lore", "Bloom Attempts", "Bloom Radius", "Bloom Cooldown", "Mushroom Cost");
+  public static final TextKey WILDGROWTH_LORE1 = TextKey.of("upgrade.herbalism.wildgrowth.lore1", "Growth Radius");
+  public static final TextKey WILDGROWTH_LORE2 = TextKey.of("upgrade.herbalism.wildgrowth.lore2", "Seeds Planted per Pulse");
+  public static final TextKey WILDGROWTH_LORE3 = TextKey.of("upgrade.herbalism.wildgrowth.lore3", "Food Cost per Stage");
+  public static final TextKey HARVEST_MOON_LORE1 = TextKey.of("upgrade.herbalism.harvest_moon.lore1", "Field Radius");
+  public static final TextKey HARVEST_MOON_LORE2 = TextKey.of("upgrade.herbalism.harvest_moon.lore2", "Bonus Yield Chance per Crop");
+  public static final TextKey HARVEST_MOON_LORE3 = TextKey.of("upgrade.herbalism.harvest_moon.lore3", "Cooldown");
+  public static final TextKey HARVEST_MOON_LORE4 = TextKey.of("upgrade.herbalism.harvest_moon.lore4", "Scarecrows");
+  public static final TextKey HARVEST_MOON_LORE5 = TextKey.of("upgrade.herbalism.harvest_moon.lore5", "Scarecrow Square");
+  public static final TextKey IRON_STOMACH_LORE1 = TextKey.of("upgrade.herbalism.iron_stomach.lore1", "Damage Taken by Hunger");
+  public static final TextKey IRON_STOMACH_LORE2 = TextKey.of("upgrade.herbalism.iron_stomach.lore2", "Extra Food from Meals");
+  public static final TextKey SCARECROW_NAME = TextKey.of("tool.herbalism.scarecrow.name", "Scarecrow");
+  public static final TextKey SCARECROW_HARVESTS = TextKey.of("tool.herbalism.scarecrow.harvests", "Harvests Left");
+  public static final TextKey SCARECROW_PLACED = TextKey.of("tool.herbalism.scarecrow.placed", "Scarecrows");
 
   private HerbalismMessages() {
   }
@@ -298,5 +311,18 @@ public final class HerbalismMessages {
     builder.add(SPORE_BLOOM_LORE3);
     builder.add(SPORE_BLOOM_LORE4);
     builder.add(SPORE_BLOOM_LORE);
+    builder.add(WILDGROWTH_LORE1);
+    builder.add(WILDGROWTH_LORE2);
+    builder.add(WILDGROWTH_LORE3);
+    builder.add(HARVEST_MOON_LORE1);
+    builder.add(HARVEST_MOON_LORE2);
+    builder.add(HARVEST_MOON_LORE3);
+    builder.add(HARVEST_MOON_LORE4);
+    builder.add(HARVEST_MOON_LORE5);
+    builder.add(IRON_STOMACH_LORE1);
+    builder.add(IRON_STOMACH_LORE2);
+    builder.add(SCARECROW_NAME);
+    builder.add(SCARECROW_HARVESTS);
+    builder.add(SCARECROW_PLACED);
   }
 }

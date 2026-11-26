@@ -56,12 +56,12 @@ class EnchantingScalingTest {
 
   @Test
   void tomeRebindingDoesNotConsumeStacksAndPreservesStoredLevels() {
-    assertThat(EnchantingTomeRebinding.isSplittableBook(Id.minecraft("enchanted_book"), 1, 2)).isTrue();
-    assertThat(EnchantingTomeRebinding.isSplittableBook(Id.minecraft("enchanted_book"), 2, 2)).isFalse();
-    assertThat(EnchantingTomeRebinding.isSplittableBook(Id.minecraft("book"), 1, 2)).isFalse();
-    assertThat(EnchantingTomeRebinding.isSplittableBook(Id.minecraft("enchanted_book"), 1, 1)).isFalse();
-    assertThat(EnchantingTomeRebinding.normalizedStoredLevel(10)).isEqualTo(10);
-    assertThat(EnchantingTomeRebinding.normalizedStoredLevel(0)).isEqualTo(1);
+    assertThat(EnchantingBooks.isSplittableBook(Id.minecraft("enchanted_book"), 1, 2)).isTrue();
+    assertThat(EnchantingBooks.isSplittableBook(Id.minecraft("enchanted_book"), 2, 2)).isFalse();
+    assertThat(EnchantingBooks.isSplittableBook(Id.minecraft("book"), 1, 2)).isFalse();
+    assertThat(EnchantingBooks.isSplittableBook(Id.minecraft("enchanted_book"), 1, 1)).isFalse();
+    assertThat(EnchantingBooks.normalizedStoredLevel(10)).isEqualTo(10);
+    assertThat(EnchantingBooks.normalizedStoredLevel(0)).isEqualTo(1);
   }
 
   @Test
@@ -69,11 +69,11 @@ class EnchantingScalingTest {
     PlayerRef player = mock(PlayerRef.class);
     when(player.level()).thenReturn(5);
 
-    assertThat(EnchantingTomeRebinding.spendLevels(player, 3)).isTrue();
+    assertThat(EnchantingBooks.spendLevels(player, 3)).isTrue();
     verify(player).giveExpLevels(-3);
-    assertThat(EnchantingTomeRebinding.spendLevels(player, 6)).isFalse();
-    assertThat(EnchantingTomeRebinding.spendLevels(player, 0)).isFalse();
-    assertThat(EnchantingTomeRebinding.spendLevels(null, 1)).isFalse();
+    assertThat(EnchantingBooks.spendLevels(player, 6)).isFalse();
+    assertThat(EnchantingBooks.spendLevels(player, 0)).isFalse();
+    assertThat(EnchantingBooks.spendLevels(null, 1)).isFalse();
     verify(player, never()).setLevel(anyInt());
   }
 

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -27,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -82,6 +84,11 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
     return preserveChance(getConfig().preserveChanceBase, getConfig().preserveChanceFactor, getLevelPercent(level));
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
   @Handle(priority = EventPriority.HIGH)
   public void on(CraftItemEvent e) {
     PlayerRef p = e.player();
@@ -122,6 +129,7 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
     e.setCurrentItem(tinkered);
 
     addStat(p, "crafting.tinkerer.tools-tinkered", 1);
+    UpgradeLoans.landed(this, p);
     fx(p.location().add(0, 1, 0), FxPriority.TRANSITION)
         .particle(Particles.ENCHANTMENT_TABLE, 12, 0, 0.3D, 0, 0.4D, 0.4D)
         .burst(Particles.CRIT_MAGIC, 6, 0.2D)

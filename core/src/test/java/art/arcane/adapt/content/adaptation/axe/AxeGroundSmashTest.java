@@ -48,21 +48,21 @@ class AxeGroundSmashTest {
 
   @Test
   void damageAndForceFallOffFromCenterToRadius() {
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, 0D, 8D))
+    assertThat(AxeSmash.falloffValue(8D, 3D, 0D, 8D))
         .isCloseTo(8D, offset(1.0E-9D));
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, 4D, 8D))
+    assertThat(AxeSmash.falloffValue(8D, 3D, 4D, 8D))
         .isCloseTo(5.5D, offset(1.0E-9D));
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, 8D, 8D))
+    assertThat(AxeSmash.falloffValue(8D, 3D, 8D, 8D))
         .isCloseTo(3D, offset(1.0E-9D));
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, 12D, 8D))
+    assertThat(AxeSmash.falloffValue(8D, 3D, 12D, 8D))
         .isCloseTo(3D, offset(1.0E-9D));
   }
 
   @Test
   void falloffRejectsInvalidRuntimeValues() {
-    assertThat(AxeGroundSmash.falloffValue(Double.NaN, 3D, 0D, 8D)).isZero();
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, Double.NaN, 8D)).isZero();
-    assertThat(AxeGroundSmash.falloffValue(8D, 3D, 0D, 0D)).isZero();
+    assertThat(AxeSmash.falloffValue(Double.NaN, 3D, 0D, 8D)).isZero();
+    assertThat(AxeSmash.falloffValue(8D, 3D, Double.NaN, 8D)).isZero();
+    assertThat(AxeSmash.falloffValue(8D, 3D, 0D, 0D)).isZero();
   }
 
   @Test

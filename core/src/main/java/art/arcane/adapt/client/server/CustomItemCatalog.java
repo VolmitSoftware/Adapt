@@ -90,7 +90,7 @@ public final class CustomItemCatalog {
         continue;
       }
       recipes.addAll(skill.getRecipes());
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (adaptation.isEnabled()) {
           recipes.addAll(adaptation.getRecipes());
         }

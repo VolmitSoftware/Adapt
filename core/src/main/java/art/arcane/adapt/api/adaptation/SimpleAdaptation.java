@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.mutation.upgrade.UpgradeCaches;
 import art.arcane.adapt.api.potion.BrewingRecipe;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
@@ -26,6 +27,7 @@ import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.advancement.ToastQuips;
 import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -37,7 +39,9 @@ import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ShortNameMessages;
 import art.arcane.adapt.localization.AdaptMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
@@ -303,6 +307,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     requirements = currentConfig instanceof AdaptationConfig shared
         ? AdaptationRequirement.parseAll(getName(), shared.requires)
         : List.of();
+    UpgradeCaches.forget();
   }
 
   protected void onConfigReload(T previousConfig, T newConfig) {
@@ -406,6 +411,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
 
   public void registerRecipe(RecipeSpec r) {
     recipes.add(r);
+    UpgradeCaches.forget();
   }
 
   public void registerBrewingRecipe(BrewingRecipe r) {
@@ -434,14 +440,31 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   @Override
   public String getDisplayName() {
     try {
-      String shownName = displayNameKey == null
-          ? resolveLocalized(localizationKey == null ? null : localizationKey + ".name", null)
-          : AdaptLanguage.text(displayNameKey);
+      String shownName = localizedName();
       return shownName == null ? Adaptation.super.getDisplayName() : (C.RESET + "" + C.BOLD + getSkill().getColor().toString() + shownName);
     } catch (Exception ignored) {
       AdaptLog.verbose("Failed to get display name for " + getName());
       return null;
     }
+  }
+
+  /** The name in the viewer's language, or null when it has none. */
+  protected String localizedName() {
+    return displayNameKey == null
+        ? resolveLocalized(localizationKey == null ? null : localizationKey + ".name", null)
+        : AdaptLanguage.text(displayNameKey);
+  }
+
+  @Override
+  public String getShortName() {
+    String shownName = localizedShortName();
+    return shownName == null ? getDisplayName() : C.RESET + "" + C.BOLD + getSkill().getColor().toString() + shownName;
+  }
+
+  /** The short name in the viewer's language, or null when the full name is shown on the skill's pages too. */
+  protected String localizedShortName() {
+    TextKey key = ShortNameMessages.of(getName());
+    return key == null ? null : AdaptLanguage.text(key);
   }
 
   @Override
@@ -568,7 +591,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
             trusted("instruction", AdaptLanguage.text(SnippetsMessages.GUI_UNLOCK_THIS_BY_CLICKING)),
             untrusted("block", AdaptConfig.get().adaptActivatorBlockName)
         ))
+        .toastBody(ToastQuips.unlockLine(this))
         .icon(getIcon())
+        .clientIcon(ViewIcons.adaptation(this))
         .children(a)
         .visibility(AdvancementVisibility.VANILLA)
         .build();

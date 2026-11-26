@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -32,23 +31,17 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.catalog.StealthMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataHolder;
-import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -68,14 +61,13 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
       Id.minecraft("piglin_brute"));
 
   private final StealthCore stealth;
-  private final DataKey<Byte> pickedKey;
+  private final StealthPockets pockets = new StealthPockets(this::rewardSteal);
 
   public StealthCutpurse(StealthCore stealth) {
     super("stealth-cutpurse");
     this.stealth = Objects.requireNonNull(stealth);
     registerConfiguration(Config.class);
     setIcon(Id.minecraft("shears"));
-    pickedKey = DataKey.adapt("cutpurse_picked", DataCodecs.BYTE);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("gold_nugget"))
         .key("challenge_stealth_cutpurse_100")
@@ -130,8 +122,7 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
       return;
     }
 
-    DataHolder pdc = target.data();
-    if (pdc.has(pickedKey)) {
+    if (StealthPockets.picked(mob)) {
       return;
     }
 
@@ -140,65 +131,16 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
       return;
     }
 
-    Loc targetLocation = target.location();
-    List<ItemRef> rolled = AdaptCore.platform().host().animals()
-        .rollLoot(mob, attacker, (float) getLootQuality(level), ThreadLocalRandom.current());
-    List<ItemRef> stolen = new ArrayList<>();
-    int maxStacks = getLootStacks(level);
-    for (ItemRef stack : rolled) {
-      if (stack == null || stack.isEmpty() || stack.type().isAir() || stack.amount() <= 0) {
-        continue;
-      }
-      stolen.add(stack.copy());
-      if (stolen.size() >= maxStacks) {
-        break;
-      }
-    }
-
-    if (stolen.isEmpty()) {
-      return;
-    }
-
-    pdc.set(pickedKey, (byte) 1);
-    Tasks.runEntity(attacker, () -> deliver(attacker, targetLocation, stolen));
+    pockets.steal(attacker, mob, (float) getLootQuality(level), getLootStacks(level));
   }
 
-  private void deliver(PlayerRef p, Loc targetLocation, List<ItemRef> stolen) {
-    if (!p.isOnline()) {
-      dropAll(targetLocation, stolen);
-      return;
-    }
-
-    List<ItemRef> leftovers = new ArrayList<>();
-    for (ItemRef stack : stolen) {
-      List<ItemRef> remaining = p.inventory().addItem(stack);
-      if (remaining != null) {
-        leftovers.addAll(remaining);
-      }
-    }
-    if (!leftovers.isEmpty()) {
-      dropAll(targetLocation, leftovers);
-    }
-
+  private void rewardSteal(PlayerRef p, Loc targetLocation) {
     addStat(p, "stealth.cutpurse.pockets-picked", 1);
     xp(p, getConfig().xpOnSteal);
     Loc eye = p.eyeLocation();
     fx(targetLocation.add(0, 1.0D, 0), FxPriority.TRAIL)
         .line(Particles.ENCHANTMENT_TABLE, eye.x(), eye.y(), eye.z(), 5)
         .chord(Sounds.ENTITY_ITEM_PICKUP, 0.6F, 1.5F, Sounds.ENTITY_VILLAGER_NO, 0.3F, 1.2F);
-  }
-
-  private void dropAll(Loc location, List<ItemRef> stacks) {
-    if (stacks.isEmpty()) {
-      return;
-    }
-    Tasks.runAt(location, () -> {
-      for (ItemRef stack : stacks) {
-        if (stack != null && !stack.isEmpty() && !stack.type().isAir() && stack.amount() > 0) {
-          location.world().dropItem(location.position(), stack);
-        }
-      }
-    });
   }
 
   private double getStealChance(int level) {

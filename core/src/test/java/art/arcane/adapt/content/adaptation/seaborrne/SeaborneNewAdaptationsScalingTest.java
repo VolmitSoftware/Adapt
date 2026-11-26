@@ -51,29 +51,29 @@ class SeaborneNewAdaptationsScalingTest {
 
   @Test
   void tridentDamageAndRecallScaleWithLevel() {
-    assertThat(SeaborneTridentMastery.damageBonus(0.15D, 0.45D, 0D)).isCloseTo(0.15D, offset(1e-9));
-    assertThat(SeaborneTridentMastery.damageBonus(0.15D, 0.45D, 1D)).isCloseTo(0.6D, offset(1e-9));
-    assertThat(SeaborneTridentMastery.recallSpeed(0.8D, 1.2D, 0D)).isEqualTo(0.8D);
-    assertThat(SeaborneTridentMastery.recallSpeed(0.8D, 1.2D, 1D)).isEqualTo(2.0D);
+    assertThat(SeaborneTridents.damageBonus(0.15D, 0.45D, 0D)).isCloseTo(0.15D, offset(1e-9));
+    assertThat(SeaborneTridents.damageBonus(0.15D, 0.45D, 1D)).isCloseTo(0.6D, offset(1e-9));
+    assertThat(SeaborneTridents.recallSpeed(0.8D, 1.2D, 0D)).isEqualTo(0.8D);
+    assertThat(SeaborneTridents.recallSpeed(0.8D, 1.2D, 1D)).isEqualTo(2.0D);
   }
 
   @Test
   void fishWhispererLuckAmplifierStaysWithinTierBounds() {
-    assertThat(SeaborneFishWhisperer.luckAmplifier(1, 5)).isZero();
-    assertThat(SeaborneFishWhisperer.luckAmplifier(5, 5)).isEqualTo(4);
-    assertThat(SeaborneFishWhisperer.luckAmplifier(9, 5)).isEqualTo(4);
-    assertThat(SeaborneFishWhisperer.luckAmplifier(0, 5)).isZero();
+    assertThat(SeaborneSeaLife.luckAmplifier(1, 5)).isZero();
+    assertThat(SeaborneSeaLife.luckAmplifier(5, 5)).isEqualTo(4);
+    assertThat(SeaborneSeaLife.luckAmplifier(9, 5)).isEqualTo(4);
+    assertThat(SeaborneSeaLife.luckAmplifier(0, 5)).isZero();
     assertThat(SeaborneFishWhisperer.schoolRange(6D, 8D, 1D)).isEqualTo(14D);
   }
 
   @Test
   void hydroJetChargesAccumulateAndCap() {
-    assertThat(SeaborneHydroJet.refillCharges(0D, 5000L, 2500L, 5D)).isEqualTo(2D);
-    assertThat(SeaborneHydroJet.refillCharges(4D, 10_000L, 2500L, 5D)).isEqualTo(5D);
-    assertThat(SeaborneHydroJet.refillCharges(1D, 0L, 2500L, 5D)).isEqualTo(1D);
-    assertThat(SeaborneHydroJet.refillCharges(1D, 5000L, 0L, 5D)).isEqualTo(5D);
-    assertThat(SeaborneHydroJet.maxCharges(2, 3D, 0D)).isEqualTo(2);
-    assertThat(SeaborneHydroJet.maxCharges(2, 3D, 1D)).isEqualTo(5);
+    assertThat(SeaborneCharges.refillCharges(0D, 5000L, 2500L, 5D)).isEqualTo(2D);
+    assertThat(SeaborneCharges.refillCharges(4D, 10_000L, 2500L, 5D)).isEqualTo(5D);
+    assertThat(SeaborneCharges.refillCharges(1D, 0L, 2500L, 5D)).isEqualTo(1D);
+    assertThat(SeaborneCharges.refillCharges(1D, 5000L, 0L, 5D)).isEqualTo(5D);
+    assertThat(SeaborneCharges.maxCharges(2, 3D, 0D)).isEqualTo(2);
+    assertThat(SeaborneCharges.maxCharges(2, 3D, 1D)).isEqualTo(5);
   }
 
   @Test

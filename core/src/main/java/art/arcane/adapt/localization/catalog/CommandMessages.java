@@ -36,7 +36,7 @@ public final class CommandMessages {
   public static final TextKey HELP_KNOWLEDGE_PER_ORB = TextKey.of("command.help.knowledge_per_orb", "Knowledge per orb");
   public static final TextKey HELP_LEVEL_BETWEEN_0_AND_100 = TextKey.of("command.help.level_between_0_and_100", "Level between 0 and 100");
   public static final TextKey HELP_LEVEL_BETWEEN_0_AND_100_CLAMPED_TO_THE_ADAPTATION_MAX = TextKey.of("command.help.level_between_0_and_100_clamped_to_the_adaptation_max", "Level between 0 and 100, clamped to the adaptation max");
-  public static final TextKey HELP_SHOW_CLIENT_UI_STATUS = TextKey.of("command.help.show_client_ui_status", "Show whether a player uses the Adapt client UI");
+  public static final TextKey HELP_SHOW_CLIENT_UI_STATUS = TextKey.of("command.help.show_client_ui_status", "Show a player's Adapt client UI status and power use");
   public static final TextKey HELP_OPEN_THE_ADAPT_GUI = TextKey.of("command.help.open_the_adapt_gui", "Open the Adapt GUI");
   public static final TextKey HELP_OPEN_THE_IN_GAME_ADAPT_CONFIG_EDITOR = TextKey.of("command.help.open_the_in_game_adapt_config_editor", "Open the in-game Adapt config editor");
   public static final TextKey HELP_PARTICLE_TYPE_TO_SPAWN = TextKey.of("command.help.particle_type_to_spawn", "Particle type to spawn");
@@ -64,6 +64,13 @@ public final class CommandMessages {
   public static final TextKey HELP_TOP_RESULTS_TO_PRINT = TextKey.of("command.help.top_results_to_print", "Top results to print");
   public static final TextKey HELP_TRUE_TO_LEARN_FALSE_TO_UNLEARN = TextKey.of("command.help.true_to_learn_false_to_unlearn", "true to learn, false to unlearn");
   public static final TextKey HELP_UNLEARN_ALL_ADAPTATIONS_ACROSS_ALL_SKILL_LINES = TextKey.of("command.help.unlearn_all_adaptations_across_all_skill_lines", "Unlearn all adaptations across all skill lines");
+  public static final TextKey HELP_MERGE_TWO_OF_YOUR_SKILLS = TextKey.of("command.help.merge_two_of_your_skills", "Merge two of your skills into one mutated skill. This cannot be undone.");
+  public static final TextKey HELP_LEAD_SKILL = TextKey.of("command.help.lead_skill", "Skill that leads the mutation and names it");
+  public static final TextKey HELP_PARTNER_SKILL = TextKey.of("command.help.partner_skill", "Skill merged into the lead");
+  public static final TextKey HELP_REMOVE_A_PLAYER_S_MUTATIONS = TextKey.of("command.help.remove_a_player_s_mutations", "Remove all of a player's skill mutations; both parent skills of each come back");
+  public static final TextKey HELP_UNMUTATE = TextKey.of("command.help.unmutate", "Remove one of a player's skill mutations; both parent skills come back");
+  public static final TextKey HELP_UNMUTATE_PLAYER = TextKey.of("command.help.unmutate_player", "The player whose mutation to remove");
+  public static final TextKey HELP_MUTATED_SKILL = TextKey.of("command.help.mutated_skill", "The mutated skill, its lead or its partner");
   public static final TextKey HELP_GOLEM_ROSTER_AND_ADMIN_TOOLS = TextKey.of("command.help.golem_roster_and_admin_tools", "Golem roster and admin tools");
   public static final TextKey HELP_OPEN_YOUR_GOLEM_ROSTER = TextKey.of("command.help.open_your_golem_roster", "Open your golem roster");
   public static final TextKey HELP_LIST_A_PLAYER_S_GOLEMS = TextKey.of("command.help.list_a_player_s_golems", "List a player's golems");
@@ -79,6 +86,13 @@ public final class CommandMessages {
 
   public static void addTo(MessageCatalog.Builder builder) {
     builder.add(HELP_VERSION);
+    builder.add(HELP_MERGE_TWO_OF_YOUR_SKILLS);
+    builder.add(HELP_LEAD_SKILL);
+    builder.add(HELP_PARTNER_SKILL);
+    builder.add(HELP_REMOVE_A_PLAYER_S_MUTATIONS);
+    builder.add(HELP_UNMUTATE);
+    builder.add(HELP_UNMUTATE_PLAYER);
+    builder.add(HELP_MUTATED_SKILL);
     builder.add(HELP_SHOW_CLIENT_UI_STATUS);
     builder.add(HELP_DEBUG_DUMP);
     builder.add(HELP_DEBUG_UPLOAD);

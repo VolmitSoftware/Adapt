@@ -35,7 +35,6 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.EnchantOffer;
 import art.arcane.adapt.platform.event.inventory.PrepareItemEnchantEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
@@ -105,35 +104,14 @@ public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Co
     }
 
     int depth = preferenceEnabled(p, FULL) ? getRevealDepth(level) : 1;
-    StringBuilder message = new StringBuilder();
-    int revealed = 0;
-    for (int i = 0; i < offers.size() && revealed < depth; i++) {
-      EnchantOffer offer = offers.get(i);
-      if (offer == null || offer.enchantment() == null) {
-        continue;
-      }
-
-      if (message.length() > 0) {
-        message.append(C.GRAY).append("  |  ");
-      }
-      message.append(C.LIGHT_PURPLE)
-          .append(offer.enchantment().path().replace('_', ' '))
-          .append(' ')
-          .append(offer.level())
-          .append(C.DARK_GRAY)
-          .append(" (")
-          .append(offer.cost())
-          .append(')');
-      revealed++;
-    }
-
-    if (revealed <= 0) {
+    EnchantingOffers.Reveal reveal = EnchantingOffers.reveal(offers, depth);
+    if (reveal.revealed() <= 0) {
       return;
     }
 
     revealThrottle.mark(id);
-    AdaptHud.actionBar(p, message.toString());
-    addStat(p, "enchanting.rune-sight.offers-revealed", revealed);
+    AdaptHud.actionBar(p, reveal.message());
+    addStat(p, "enchanting.rune-sight.offers-revealed", reveal.revealed());
   }
 
 

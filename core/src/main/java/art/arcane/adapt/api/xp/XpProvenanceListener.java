@@ -35,6 +35,7 @@ import art.arcane.adapt.platform.event.block.BlockPlaceEvent;
 import art.arcane.adapt.platform.event.block.StructureGrowEvent;
 import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
 import art.arcane.adapt.platform.event.entity.EntityChangeBlockEvent;
+import art.arcane.adapt.platform.event.player.PlayerBucketEmptyEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockRef;
 
@@ -59,6 +60,11 @@ public class XpProvenanceListener {
     if (e.protectionProbe()) {
       return;
     }
+    XpProvenance.recordPlacement(e.block());
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(PlayerBucketEmptyEvent e) {
     XpProvenance.recordPlacement(e.block());
   }
 

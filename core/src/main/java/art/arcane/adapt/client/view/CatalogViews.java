@@ -1,5 +1,7 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.api.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillMutation;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationRequirement;
@@ -12,14 +14,13 @@ import art.arcane.adapt.api.preference.PreferenceToggleGroup;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.util.common.inventorygui.GuiConfig;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.format.ColorFormatter;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /** Builds the {@link CatalogView} a viewer sees, with every text in the viewer's locale. */
@@ -27,28 +28,58 @@ public final class CatalogViews {
   private CatalogViews() {
   }
 
-  public static CatalogView build(SkillRegistry registry, UUID viewer) {
+  /**
+   * The catalog for {@code viewer}; {@code mutations} adds the viewer's mutated skills after the registered ones. A
+   * mutated skill's description lists the originals it keeps unless {@code keptApart}, for clients that show them on
+   * their own.
+   */
+  public static CatalogView build(SkillRegistry registry, UUID viewer, List<SkillMutation> mutations, boolean keptApart) {
     long revision = registry.getCatalogRevision();
     String locale = AdaptLanguage.locale(viewer);
-    List<SkillView> skills = LanguageAudience.call(viewer, () -> skills(registry));
+    List<SkillView> skills = LanguageAudience.call(viewer, () -> skills(registry, mutations, keptApart));
     return new CatalogView(revision, locale, skills);
   }
 
-  public static IconRef icon(CustomModel model) {
-    Id modelKey = model.modelKey();
-    String itemModel = modelKey == null || CustomModel.EMPTY_KEY.equals(modelKey) ? null : modelKey.toString();
-    return new IconRef(model.material().toString(), model.model(), itemModel, null);
+  /**
+   * The names {@code viewer} sees on each adaptation's own skill pages, for every adaptation of the catalog
+   * {@link #build} gives them whose short name differs from its catalog name.
+   */
+  public static List<ShortNameView> shortNames(SkillRegistry registry, UUID viewer, List<SkillMutation> mutations) {
+    return LanguageAudience.call(viewer, () -> {
+      List<ShortNameView> names = new ArrayList<>();
+      Set<String> listed = new HashSet<>();
+      for (Skill<?> skill : listedSkills(registry, mutations)) {
+        for (Adaptation<?> adaptation : skill.getAdaptations()) {
+          String shortName = plain(adaptation.getShortName());
+          if (!shortName.isEmpty() && !shortName.equals(plain(adaptation.getDisplayName())) && listed.add(adaptation.getName())) {
+            names.add(new ShortNameView(adaptation.getName(), shortName));
+          }
+        }
+      }
+      return names;
+    });
   }
 
-  private static List<SkillView> skills(SkillRegistry registry) {
-    List<SkillView> skills = new ArrayList<>();
-    for (Skill<?> skill : registry.getSkills()) {
-      skills.add(skill(skill));
+  private static List<Skill<?>> listedSkills(SkillRegistry registry, List<SkillMutation> mutations) {
+    List<Skill<?>> skills = new ArrayList<>(registry.getSkills());
+    for (SkillMutation mutation : mutations) {
+      MutatedSkill mutated = registry.getMutatedSkill(mutation.id());
+      if (mutated != null) {
+        skills.add(mutated);
+      }
     }
     return skills;
   }
 
-  private static SkillView skill(Skill<?> skill) {
+  private static List<SkillView> skills(SkillRegistry registry, List<SkillMutation> mutations, boolean keptApart) {
+    List<SkillView> skills = new ArrayList<>();
+    for (Skill<?> skill : listedSkills(registry, mutations)) {
+      skills.add(skill(skill, keptApart));
+    }
+    return skills;
+  }
+
+  private static SkillView skill(Skill<?> skill, boolean keptApart) {
     List<AdaptationView> adaptations = new ArrayList<>();
     for (Adaptation<?> adaptation : skill.getAdaptations()) {
       adaptations.add(adaptation(skill, adaptation));
@@ -58,8 +89,8 @@ public final class CatalogViews {
     return new SkillView(
         skill.getName(),
         plain(skill.getLocalizedName()),
-        skill.getDescription(),
-        icon(GuiConfig.skillModel(skill.getName(), skill.getIcon(), skill.getModel())),
+        skill instanceof MutatedSkill mutated && !keptApart ? mutated.getDescriptionWithKept() : skill.getDescription(),
+        ViewIcons.skill(skill),
         Integer.parseInt(skill.getColor().hex().substring(1), 16),
         skill.isEnabled(),
         skill.getAdaptationRowGroups(),
@@ -79,7 +110,7 @@ public final class CatalogViews {
       refunds.add(adaptation.getRefundCostFor(level - 1, level));
       powerCosts.add(adaptation.getPowerCostFor(level, level - 1));
       StatLines stats = new StatLines();
-      adaptation.addStats(level, stats);
+      adaptation.addLevelStats(level, stats);
       statLines.add(stats.lines());
     }
     List<RequirementView> requirements = new ArrayList<>();
@@ -100,7 +131,7 @@ public final class CatalogViews {
         skill.getName(),
         plain(adaptation.getDisplayName()),
         adaptation.getDescription(),
-        icon(GuiConfig.adaptationModel(adaptation.getName(), adaptation.getIcon(), adaptation.getModel())),
+        ViewIcons.adaptation(adaptation),
         adaptation.isEnabled(),
         maxLevel,
         adaptation.isPermanent(),

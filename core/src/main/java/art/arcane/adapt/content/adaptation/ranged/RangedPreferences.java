@@ -25,10 +25,10 @@ public final class RangedPreferences {
   static final PlayerPreference<CommonPreferences.Toggle> GLOW = CommonPreferences.toggle("target-glow", key("glow", "Private target glow"));
   static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> DAMPEN = CommonPreferences.toggle("dampen-velocity", key("dampen", "Slow target momentum"));
-  static final PlayerPreference<CommonPreferences.Toggle> IMPACT = CommonPreferences.toggle("impact-marker", key("impact", "Impact marker"));
-  static final PlayerPreference<CommonPreferences.Toggle> TRAIL = CommonPreferences.toggle("trajectory-trail", key("trail", "Trajectory trail"));
+  public static final PlayerPreference<CommonPreferences.Toggle> IMPACT = CommonPreferences.toggle("impact-marker", key("impact", "Impact marker"));
+  public static final PlayerPreference<CommonPreferences.Toggle> TRAIL = CommonPreferences.toggle("trajectory-trail", key("trail", "Trajectory trail"));
   static final PlayerPreference<CommonPreferences.Toggle> ALL_PROJECTILES = CommonPreferences.toggle("all-projectiles", key("all_projectiles", "Include permitted thrown projectiles"));
-  static final PlayerPreference<ShotScope> SHOTS = new PlayerPreference<>(ShotScope.class,
+  public static final PlayerPreference<ShotScope> SHOTS = new PlayerPreference<>(ShotScope.class,
       new PlayerPreference.Definition<>("projectiles", key("projectiles", "Eligible projectiles"), ShotScope.ALL, List.of(
           choice(ShotScope.ALL, "all", "All permitted", Id.minecraft("arrow")),
           choice(ShotScope.BOW, "bow", "Bow arrows", Id.minecraft("bow")),
@@ -78,7 +78,7 @@ public final class RangedPreferences {
     return new PlayerPreference.Choice<>(value, key(id, label), icon, 1);
   }
 
-  enum ShotScope {
+  public enum ShotScope {
     ALL, BOW, CROSSBOW, ARROWS, TRIDENTS, THROWN;
 
     boolean accepts(Id weapon) {
@@ -93,7 +93,7 @@ public final class RangedPreferences {
       };
     }
 
-    boolean accepts(ProjectileRef projectile) {
+    public boolean accepts(ProjectileRef projectile) {
       boolean arrow = RangedProjectiles.isArrowLike(projectile);
       boolean trident = projectile.type().equals(RangedPreferences.TRIDENT);
       return switch (this) {

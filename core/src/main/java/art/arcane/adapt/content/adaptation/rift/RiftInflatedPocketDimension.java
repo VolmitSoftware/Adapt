@@ -19,12 +19,14 @@
 package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -48,7 +50,6 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
@@ -62,6 +63,8 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
           new PlayerPreference.Choice<>(Items.ALL, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_ALL, Id.minecraft("hopper"), 1),
           new PlayerPreference.Choice<>(Items.BLOCKS, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_BLOCKS, Id.minecraft("stone"), 1),
           new PlayerPreference.Choice<>(Items.FOOD, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_FOOD, Id.minecraft("bread"), 1))));
+
+  private final RiftPocket pocket = new RiftPocket(this, this::acceptsItem);
 
   public RiftInflatedPocketDimension() {
     super("rift-inflated-pocket-dimension");
@@ -139,7 +142,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
       return;
     }
 
-    int moved = moveFromEnderToPlayer(p, requested, getConfig().rightClickPullAmount, true);
+    int moved = pocket.pull(p, requested, getConfig().rightClickPullAmount, true);
     if (moved <= 0) {
       return;
     }
@@ -163,44 +166,9 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
       return;
     }
 
-    Id placed = e.block().type();
-    if (!items().isItem(placed) || placed.isAir()) {
-      return;
-    }
-
-    BlockRef placedBlock = e.block();
-    Tasks.runEntity(p, () -> {
-      ItemRef hand = p.inventory().mainHand();
-      boolean wasEmptyHand = hand.type().isAir();
-      int maxStackSize = items().maxStackSize(placed);
-      int needed = 0;
-      if (wasEmptyHand) {
-        needed = Math.min(getConfig().buildRefillAmount, maxStackSize);
-      } else if (hand.type().equals(placed) && hand.amount() < maxStackSize) {
-        needed = Math.min(getConfig().buildRefillAmount, maxStackSize - hand.amount());
-      }
-
-      if (needed <= 0) {
-        return;
-      }
-
-      if (!preferenceEnabled(p, REFILL)) {
-        return;
-      }
-      int moved = moveFromEnderToPlayer(p, placed, needed, true);
-      if (moved <= 0) {
-        return;
-      }
-
-      if (wasEmptyHand) {
-        fx(placedBlock.location().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
-            .particle(Particles.REVERSE_PORTAL, 3, 0, 0.3, 0, 0.15, 0.02)
-            .sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
-      } else {
-        fx(p, FxPriority.TRAIL).sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
-      }
-      addStat(p, "rift.inflated-pocket.items-pulled", moved);
-    }, 1);
+    pocket.refillAfterPlace(p, e.block(), getConfig().buildRefillAmount,
+        (PlayerRef player) -> preferenceEnabled(player, REFILL),
+        (PlayerRef player, int moved) -> addStat(player, "rift.inflated-pocket.items-pulled", moved));
   }
 
   @Handle(priority = EventPriority.HIGHEST)
@@ -242,85 +210,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     config.transferXpWindowMillis = Math.max(1000L, Math.min(86400000L, config.transferXpWindowMillis));
   }
 
-  private int moveFromEnderToPlayer(PlayerRef p, Id type, int amount, boolean preferMainHand) {
-    if (!hasActiveAdaptation(p) || !acceptsItem(p, type)) {
-      return 0;
-    }
-    if (amount <= 0) {
-      return 0;
-    }
-
-    int moved = 0;
-    InventoryRef chest = p.enderChest();
-    int size = chest.size();
-    for (int slot = 0; slot < size && moved < amount; slot++) {
-      ItemRef stack = chest.item(slot);
-      if (!isItem(stack) || !stack.type().equals(type)) {
-        continue;
-      }
-
-      int take = Math.min(amount - moved, stack.amount());
-      ItemRef transfer = stack.copyWithAmount(take);
-
-      int inserted = insertIntoPlayerInventory(p, transfer, preferMainHand);
-      if (inserted <= 0) {
-        continue;
-      }
-
-      moved += inserted;
-      if (stack.amount() <= inserted) {
-        chest.clear(slot);
-      } else {
-        chest.setItem(slot, stack.copyWithAmount(stack.amount() - inserted));
-      }
-    }
-
-    return moved;
-  }
-
-  private int insertIntoPlayerInventory(PlayerRef p, ItemRef transfer, boolean preferMainHand) {
-    int requested = transfer.amount();
-    if (requested <= 0) {
-      return 0;
-    }
-
-    ItemRef hand = p.inventory().mainHand();
-    if (preferMainHand && hand.type().isAir()) {
-      p.inventory().setMainHand(transfer);
-      return requested;
-    }
-
-    if (preferMainHand && hand.type().equals(transfer.type()) && hand.amount() < hand.maxStackSize()) {
-      int room = hand.maxStackSize() - hand.amount();
-      int moved = Math.min(room, transfer.amount());
-      hand.setAmount(hand.amount() + moved);
-      p.inventory().setMainHand(hand);
-      if (moved >= requested) {
-        return requested;
-      }
-
-      int remainingRequest = requested - moved;
-      List<ItemRef> overflow = p.inventory().addItem(transfer.copyWithAmount(remainingRequest));
-      int remaining = sumItemAmounts(overflow);
-      return moved + Math.max(0, remainingRequest - remaining);
-    }
-
-    List<ItemRef> overflow = p.inventory().addItem(transfer);
-    int remaining = sumItemAmounts(overflow);
-    return Math.max(0, requested - remaining);
-  }
-
-  private int sumItemAmounts(List<ItemRef> overflow) {
-    int sum = 0;
-    for (ItemRef itemStack : overflow) {
-      if (itemStack == null || itemStack.type().isAir()) {
-        continue;
-      }
-      sum += itemStack.amount();
-    }
-    return sum;
-  }
-
   private boolean canFullyFitInInventory(InventoryRef inventory, ItemRef stack, int inventoryMaxStackSize) {
     if (!isItem(stack)) {
       return false;
@@ -353,6 +242,17 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     return false;
   }
 
+
+  /** The chime of a refill; an empty hand also gets the portal puff at the placed block. */
+  public static void refillFx(Adaptation<?> owner, PlayerRef p, BlockRef placedBlock, boolean wasEmptyHand) {
+    if (wasEmptyHand) {
+      Fx.now(owner, placedBlock.location().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+          .particle(Particles.REVERSE_PORTAL, 3, 0, 0.3, 0, 0.15, 0.02)
+          .sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
+    } else {
+      Fx.now(owner, p, FxPriority.TRAIL).sound(Sounds.BLOCK_ENDER_CHEST_OPEN, 0.3f, 1.9f);
+    }
+  }
 
   @ConfigDescription("Building and empty-hand block targeting can fetch materials from your ender chest, and sneak-drop stores items into it.")
   protected static class Config extends AdaptationConfig {

@@ -26,38 +26,27 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.adaptation.discovery.upgraded.UnityPrime;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.platform.entity.AttributeMod;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
-import art.arcane.adapt.platform.item.ItemOps;
-import art.arcane.adapt.platform.value.BlockPos;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.math.Sphere;
-import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.volmlib.util.math.M;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -68,13 +57,10 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   static final Id LEGACY_MODIFIER_KEY = Id.adapt("discovery-armor");
   private static final Id LEGACY_UUID_MODIFIER_KEY = Id.minecraft(LEGACY_MODIFIER.toString());
   private static final String LEGACY_MODIFIER_NAME = LEGACY_MODIFIER_KEY.namespace() + "-" + LEGACY_MODIFIER_KEY.path();
-  private static final String SLOT_ARMOR = "armor";
   private static final long UPDATE_COOLDOWN = TimeUnit.SECONDS.toMillis(3);
-  private static final List<BlockPos> ARMOR_OFFSETS = createArmorOffsets();
 
-  private final Map<Id, Double> materialArmorPoints = new ConcurrentHashMap<>();
   private final Cooldowns updateThrottle = cooldowns();
-  private final Map<UUID, Double> appliedArmor = playerState();
+  private final WorldArmor armor = new WorldArmor(this, playerState());
   private final Map<UUID, Long> bonusStatAt = playerState();
   private final Map<UUID, Boolean> legacyPurged = playerState();
   private Iterator<UUID> cleanupCursor = Map.<UUID, Double>of().keySet().iterator();
@@ -111,77 +97,12 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     ));
   }
 
-  public double getArmorPoints(Id m) {
-    return materialArmorPoints.computeIfAbsent(m, (Id type) -> computeArmorPoints(type, AdaptCore.platform().host().items()));
-  }
-
   @Override
   public void unregister() {
+    armor.clear();
     bonusStatAt.clear();
-    appliedArmor.clear();
     legacyPurged.clear();
     super.unregister();
-  }
-
-  public double getArmor(Loc l, int level) {
-    WorldRef world = l.world();
-    if (world == null) {
-      return 0D;
-    }
-
-    int centerX = l.blockX();
-    int centerY = l.blockY();
-    int centerZ = l.blockZ();
-    int minY = world.minHeight();
-    int maxY = world.maxHeight() - 1;
-    LoadedChunkAccess chunkAccess = new LoadedChunkAccess(world, 5);
-    double armorValue = 0.0;
-    int count = 0;
-
-    for (BlockPos offset : ARMOR_OFFSETS) {
-      int blockX = centerX + offset.x();
-      int blockY = centerY + offset.y();
-      int blockZ = centerZ + offset.z();
-      if (blockY < minY || blockY > maxY || !chunkAccess.canRead(blockX, blockZ)) {
-        continue;
-      }
-
-      BlockRef block = world.blockAt(blockX, blockY, blockZ);
-      Id material = block.type();
-      if (material.isAir() || block.isLiquid()) {
-        continue;
-      }
-
-      count++;
-      armorValue += getArmorPoints(material);
-    }
-
-    return scaleArmor(armorValue, count, level);
-  }
-
-  static int scanBlockCount() {
-    return ARMOR_OFFSETS.size();
-  }
-
-  static double computeArmorPoints(Id material, ItemOps items) {
-    if (!items.isBlock(material)) {
-      return 0D;
-    }
-    return computeArmorPoints(items.blastResistance(material), items.blockHardness(material));
-  }
-
-  static double computeArmorPoints(double blastResistance, double hardness) {
-    double points = Math.log(Math.min(2000D, blastResistance * blastResistance))
-        + Math.log((hardness < 0D ? 50D : Math.min(50D, hardness + 25D)) * 0.33D);
-    return Double.isFinite(points) && points > 0D ? points : 0D;
-  }
-
-  static double scaleArmor(double armorValue, int count, int level) {
-    if (count <= 0 || armorValue <= 0D || level <= 0) {
-      return 0D;
-    }
-
-    return Math.min((armorValue / count) * (level / 2D) * 0.65D, 10D);
   }
 
   static double elapsedActiveTicks(Long previous, long now) {
@@ -191,13 +112,9 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     return (now - previous) / 50D;
   }
 
-  static double lerpSeed(Double previous) {
-    return previous == null || !Double.isFinite(previous) ? 0D : previous;
-  }
-
   @Override
   public boolean hasTickDemand() {
-    return super.hasTickDemand() || !appliedArmor.isEmpty();
+    return super.hasTickDemand() || !armor.isEmpty();
   }
 
   @Override
@@ -246,18 +163,15 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
   private void updateArmor(AdaptPlayer adaptPlayer, PlayerRef player) {
     purgeLegacyModifier(player);
-    if (!hasActiveAdaptation(player)) {
+    if (!hasActiveAdaptation(player) || UnityPrime.covers(this, player)) {
       removeArmorModifier(player);
       return;
     }
 
     UUID playerId = player.uuid();
-    double oldArmor = lerpSeed(appliedArmor.get(playerId));
-    double armor = getArmor(player.location(), getLevel(player));
-    double lerpedArmor = M.lerp(oldArmor, armor, 0.3D);
-    lerpedArmor = Double.isFinite(lerpedArmor) ? lerpedArmor : 0D;
-    AdaptAttributeService.get().apply(player, getName(), SLOT_ARMOR, Attributes.ARMOR, lerpedArmor, AttributeOperation.ADD_VALUE);
-    appliedArmor.put(playerId, lerpedArmor);
+    WorldArmor.Change change = armor.update(player, getLevel(player));
+    double oldArmor = change.before();
+    double lerpedArmor = change.after();
     if (lerpedArmor > 0D) {
       double activeTicks = activeTicksSinceLastUpdate(playerId);
       if (activeTicks > 0D) {
@@ -279,7 +193,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
 
   private void cleanupInactivePlayers() {
     if (!cleanupCursor.hasNext()) {
-      cleanupCursor = appliedArmor.keySet().iterator();
+      cleanupCursor = armor.players().iterator();
     }
 
     int limit = Math.max(1, getConfig().maxPlayersPerPass);
@@ -289,12 +203,12 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
       examined++;
       PlayerRef player = AdaptCore.platform().host().player(playerId);
       if (player == null || !player.isOnline()) {
-        appliedArmor.remove(playerId);
+        armor.forget(playerId);
         continue;
       }
 
       AdaptPlayer adaptPlayer = getPlayer(player);
-      if (getLevel(adaptPlayer) > 0) {
+      if (getLevel(adaptPlayer) > 0 && !UnityPrime.covers(this, player)) {
         continue;
       }
       withPlayerThread(player, () -> removeInactiveModifier(player));
@@ -302,7 +216,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   private void removeInactiveModifier(PlayerRef player) {
-    if (hasActiveAdaptation(player)) {
+    if (hasActiveAdaptation(player) && !UnityPrime.covers(this, player)) {
       return;
     }
 
@@ -310,8 +224,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   private void removeArmorModifier(PlayerRef player) {
-    AdaptAttributeService.get().remove(player, getName(), SLOT_ARMOR, Attributes.ARMOR);
-    appliedArmor.remove(player.uuid());
+    armor.remove(player);
     bonusStatAt.remove(player.uuid());
   }
 
@@ -338,15 +251,6 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
     long now = System.currentTimeMillis();
     Long previous = bonusStatAt.put(playerId, now);
     return elapsedActiveTicks(previous, now);
-  }
-
-  private static List<BlockPos> createArmorOffsets() {
-    Sphere sphere = new Sphere(5);
-    List<BlockPos> offsets = new ArrayList<>(1331);
-    while (sphere.hasNext()) {
-      offsets.add(sphere.next());
-    }
-    return List.copyOf(offsets);
   }
 
   @ConfigDescription("Gain passive armor based on nearby block hardness.")

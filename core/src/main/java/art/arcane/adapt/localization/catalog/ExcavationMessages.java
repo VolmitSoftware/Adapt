@@ -46,6 +46,7 @@ public final class ExcavationMessages {
   public static final TextKey PREFERENCE_EXCAVATIONOMNITOOL_COMBAT = TextKey.of("excavation.preferences.excavationomnitool.combat-selection", "Automatic combat selection");
   public static final TextKey PREFERENCE_EXCAVATIONMUDLARK_DROPS = TextKey.of("excavation.preferences.excavationmudlark.bonus-drops", "Bonus drops");
   public static final TextKey PREFERENCE_EXCAVATIONMUDLARK_HASTE = TextKey.of("excavation.preferences.excavationmudlark.wet-haste", "Wet-weather Haste");
+  public static final TextKey PREFERENCE_EXCAVATIONCLODHURLER_TRIGGER = TextKey.of("excavation.preferences.excavationclodhurler.trigger", "Throw when");
   public static final TextKey PREFERENCE_EXCAVATIONHASTE_TIER = TextKey.of("excavation.preferences.excavationhaste.tier", "Haste tier");
   public static final TextKey PREFERENCE_EXCAVATIONEARTHMOVER_OFFHAND = TextKey.of("excavation.preferences.excavationearthmover.offhand-empty", "Require empty offhand");
   public static final TextKey PREFERENCE_EXCAVATIONEARTHMOVER_FOOD_RESERVE = TextKey.of("excavation.preferences.excavationearthmover.food-reserve", "Keep eight food points");
@@ -58,7 +59,7 @@ public final class ExcavationMessages {
   public static final TextKey HASTE_LORE1 = TextKey.of("excavation.haste.lore1", "Gain Haste while excavating");
   public static final TextKey HASTE_LORE2 = TextKey.of("excavation.haste.lore2", "x Levels of Haste while actively excavating.");
   public static final LinesKey HASTE_LORE = LinesKey.of("excavation.haste.lore", "Gain Haste while excavating", "x Levels of Haste while actively excavating.");
-  public static final TextKey SPELUNKER_NAME = TextKey.of("excavation.spelunker.name", "Super-Seeing Spelunker!");
+  public static final TextKey SPELUNKER_NAME = TextKey.of("excavation.spelunker.name", "Super-Seeing Spelunker");
   public static final TextKey SPELUNKER_DESCRIPTION = TextKey.of("excavation.spelunker.description", "Hold glow berries in your main hand to reveal glowing ore displays through the ground.");
   public static final TextKey SPELUNKER_LORE1 = TextKey.of("excavation.spelunker.lore1", "Ore in your offhand, Glowberries in your main hand, and Sneak!");
   public static final TextKey SPELUNKER_LORE2 = TextKey.of("excavation.spelunker.lore2", "Block Range: ");
@@ -71,7 +72,7 @@ public final class ExcavationMessages {
   public static final TextKey SEISMIC_PING_LORE2 = TextKey.of("excavation.seismic_ping.lore2", "Ping Chance");
   public static final TextKey SEISMIC_PING_LORE3 = TextKey.of("excavation.seismic_ping.lore3", "Ping Cooldown");
   public static final LinesKey SEISMIC_PING_LORE = LinesKey.of("excavation.seismic_ping.lore", "Scan Range", "Ping Chance", "Ping Cooldown");
-  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("excavation.drop_to_inventory.name", "Shovel Drop-To-Inventory");
+  public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("excavation.drop_to_inventory.name", "Shovel Drop to Inventory");
   public static final TextKey OMNI_TOOL_NAME = TextKey.of("excavation.omni_tool.name", "OMNI - T.O.O.L.");
   public static final TextKey OMNI_TOOL_DESCRIPTION = TextKey.of("excavation.omni_tool.description", "Merge your tools into one omni-tool that swaps to the right tool for the job. Shift-click one tool onto another in your inventory to merge; sneak-drop to disassemble.");
   public static final TextKey OMNI_TOOL_LORE1 = TextKey.of("excavation.omni_tool.lore1", "Merges your tools into a single omni-tool that");
@@ -123,6 +124,35 @@ public final class ExcavationMessages {
   public static final TextKey MUDLARK_LORE1 = TextKey.of("excavation.mudlark.lore1", "Bonus Drop Chance");
   public static final TextKey MUDLARK_LORE2 = TextKey.of("excavation.mudlark.lore2", "x Levels of haste while digging wet");
   public static final LinesKey MUDLARK_LORE = LinesKey.of("excavation.mudlark.lore", "Bonus Drop Chance", "x Levels of haste while digging wet");
+  public static final TextKey CLOD_HURLER_NAME = TextKey.of("excavation.clod_hurler.name", "Clod Hurler");
+  public static final TextKey CLOD_HURLER_DESCRIPTION = TextKey.of("excavation.clod_hurler.description", "Dig soft ground with a shovel while a hostile mob is in sight to fling the dug block at the nearest one. Its drop flies back to you.");
+  public static final TextKey CLOD_HURLER_LORE1 = TextKey.of("excavation.clod_hurler.lore1", "Damage Multiplier");
+  public static final TextKey CLOD_HURLER_LORE2 = TextKey.of("excavation.clod_hurler.lore2", "Throw Range");
+  public static final TextKey CLOD_HURLER_LORE3 = TextKey.of("excavation.clod_hurler.lore3", "Throw Cooldown");
+  public static final LinesKey CLOD_HURLER_LORE = LinesKey.of("excavation.clod_hurler.lore", "Damage Multiplier", "Throw Range", "Throw Cooldown");
+  public static final TextKey LANDSHAPER_LORE1 = TextKey.of("upgrade.excavation.landshaper.lore1", "Blocks Carved Around Each Dig");
+  public static final TextKey LANDSHAPER_LORE2 = TextKey.of("upgrade.excavation.landshaper.lore2", "Shaft Depth While Sneaking");
+  public static final TextKey LANDSHAPER_LORE3 = TextKey.of("upgrade.excavation.landshaper.lore3", "Haste While Digging");
+  public static final TextKey DEEP_SIGHT_LORE1 = TextKey.of("upgrade.excavation.deep_sight.lore1", "Scan Radius");
+  public static final TextKey DEEP_SIGHT_LORE2 = TextKey.of("upgrade.excavation.deep_sight.lore2", "Ores Outlined per Scan");
+  public static final TextKey DEEP_SIGHT_LORE3 = TextKey.of("upgrade.excavation.deep_sight.lore3", "Cooldown");
+  public static final TextKey GRAVEKEEPER_LORE1 = TextKey.of("upgrade.excavation.gravekeeper.lore1", "Treasure Chance");
+  public static final TextKey GRAVEKEEPER_LORE2 = TextKey.of("upgrade.excavation.gravekeeper.lore2", "Bone Loot Chance");
+  public static final TextKey GRAVEKEEPER_LORE3 = TextKey.of("upgrade.excavation.gravekeeper.lore3", "Bonus Drop Chance");
+  public static final TextKey LANDSHAPER_LORE4 = TextKey.of("upgrade.excavation.landshaper.lore4", "Graded Area");
+  public static final TextKey LANDSHAPER_LORE5 = TextKey.of("upgrade.excavation.landshaper.lore5", "Most Height Change");
+  public static final TextKey LANDSHAPER_LORE6 = TextKey.of("upgrade.excavation.landshaper.lore6", "Slam Damage");
+  public static final TextKey LANDSHAPER_LORE7 = TextKey.of("upgrade.excavation.landshaper.lore7", "Slam Cooldown");
+  public static final TextKey GRADING_STAKES_NAME = TextKey.of("tool.excavation.grading_stakes.name", "Grading Stakes");
+  public static final TextKey GRADING_STAKES_STAKE = TextKey.of("tool.excavation.grading_stakes.stake", "Stake: {x}, {y}, {z}");
+  public static final TextKey GRADING_STAKES_PULLED = TextKey.of("tool.excavation.grading_stakes.pulled", "Stakes pulled");
+  public static final TextKey GRADING_STAKES_TOO_WIDE = TextKey.of("tool.excavation.grading_stakes.too_wide", "At most {size} by {size}");
+  public static final TextKey GRADING_STAKES_BUSY = TextKey.of("tool.excavation.grading_stakes.busy", "Already grading");
+  public static final TextKey GRADING_STAKES_NO_SHOVEL = TextKey.of("tool.excavation.grading_stakes.no_shovel", "No shovel in your hotbar");
+  public static final TextKey GRADING_STAKES_DONE = TextKey.of("tool.excavation.grading_stakes.done", "{dug} dug, {filled} filled");
+  public static final TextKey GRADING_STAKES_NO_FILL = TextKey.of("tool.excavation.grading_stakes.no_fill", "Out of dirt, sand or gravel");
+  public static final TextKey GRADING_STAKES_WORN = TextKey.of("tool.excavation.grading_stakes.worn", "Shovel worn out");
+  public static final TextKey GRADING_STAKES_PROTECTED = TextKey.of("tool.excavation.grading_stakes.protected", "Stopped at protected ground");
 
   private ExcavationMessages() {
   }
@@ -169,6 +199,7 @@ public final class ExcavationMessages {
     builder.add(PREFERENCE_EXCAVATIONOMNITOOL_COMBAT);
     builder.add(PREFERENCE_EXCAVATIONMUDLARK_DROPS);
     builder.add(PREFERENCE_EXCAVATIONMUDLARK_HASTE);
+    builder.add(PREFERENCE_EXCAVATIONCLODHURLER_TRIGGER);
     builder.add(PREFERENCE_EXCAVATIONHASTE_TIER);
     builder.add(PREFERENCE_EXCAVATIONEARTHMOVER_OFFHAND);
     builder.add(PREFERENCE_EXCAVATIONEARTHMOVER_FOOD_RESERVE);
@@ -246,5 +277,34 @@ public final class ExcavationMessages {
     builder.add(MUDLARK_LORE1);
     builder.add(MUDLARK_LORE2);
     builder.add(MUDLARK_LORE);
+    builder.add(CLOD_HURLER_NAME);
+    builder.add(CLOD_HURLER_DESCRIPTION);
+    builder.add(CLOD_HURLER_LORE1);
+    builder.add(CLOD_HURLER_LORE2);
+    builder.add(CLOD_HURLER_LORE3);
+    builder.add(CLOD_HURLER_LORE);
+    builder.add(LANDSHAPER_LORE1);
+    builder.add(LANDSHAPER_LORE2);
+    builder.add(LANDSHAPER_LORE3);
+    builder.add(DEEP_SIGHT_LORE1);
+    builder.add(DEEP_SIGHT_LORE2);
+    builder.add(DEEP_SIGHT_LORE3);
+    builder.add(GRAVEKEEPER_LORE1);
+    builder.add(GRAVEKEEPER_LORE2);
+    builder.add(GRAVEKEEPER_LORE3);
+    builder.add(LANDSHAPER_LORE4);
+    builder.add(LANDSHAPER_LORE5);
+    builder.add(LANDSHAPER_LORE6);
+    builder.add(LANDSHAPER_LORE7);
+    builder.add(GRADING_STAKES_NAME);
+    builder.add(GRADING_STAKES_STAKE);
+    builder.add(GRADING_STAKES_PULLED);
+    builder.add(GRADING_STAKES_TOO_WIDE);
+    builder.add(GRADING_STAKES_BUSY);
+    builder.add(GRADING_STAKES_NO_SHOVEL);
+    builder.add(GRADING_STAKES_DONE);
+    builder.add(GRADING_STAKES_NO_FILL);
+    builder.add(GRADING_STAKES_WORN);
+    builder.add(GRADING_STAKES_PROTECTED);
   }
 }

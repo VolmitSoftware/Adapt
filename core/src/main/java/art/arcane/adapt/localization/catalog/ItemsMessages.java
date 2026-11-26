@@ -26,7 +26,7 @@ public final class ItemsMessages {
   public static final TextKey BOUND_REDSTONE_TORCH_USAGE2 = TextKey.of("items.bound_redstone_torch.usage2", "Shift + Left Click a free face on any block to bind");
   public static final TextKey BOUND_SNOWBALL_NAME = TextKey.of("items.bound_snowball.name", "Web Snare!");
   public static final TextKey BOUND_SNOWBALL_USAGE1 = TextKey.of("items.bound_snowball.usage1", "Throw to create a temporary web trap at the location");
-  public static final TextKey CHRONO_TIME_BOTTLE_NAME = TextKey.of("items.chrono_time_bottle.name", "Time In A Bottle");
+  public static final TextKey CHRONO_TIME_BOTTLE_NAME = TextKey.of("items.chrono_time_bottle.name", "Time in a Bottle");
   public static final TextKey CHRONO_TIME_BOTTLE_USAGE1 = TextKey.of("items.chrono_time_bottle.usage1", "Passively stores time while in your inventory");
   public static final TextKey CHRONO_TIME_BOTTLE_USAGE2 = TextKey.of("items.chrono_time_bottle.usage2", "Right-click timed blocks or baby animals to spend stored time");
   public static final TextKey CHRONO_TIME_BOTTLE_STORED = TextKey.of("items.chrono_time_bottle.stored", "Stored Time");

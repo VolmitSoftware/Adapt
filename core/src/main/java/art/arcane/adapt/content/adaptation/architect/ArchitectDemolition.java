@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -117,6 +118,23 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     statLore(v, C.GREEN, "", getWindowMillis(getLevelPercent(level)) / 1000, 2);
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getActiveBlockBreakLevel(PlayerRef p, Loc location) {
+    return UpgradeLoans.level(this, super.getActiveBlockBreakLevel(p, location),
+        (Adaptation<?> upgrade) -> upgrade.getActiveBlockBreakLevel(p, location));
+  }
+
+  @Override
+  public BlockActionContext resolveBlockBreakContext(PlayerRef p, Loc location) {
+    return UpgradeLoans.context(this, super.resolveBlockBreakContext(p, location),
+        (Adaptation<?> upgrade) -> upgrade.resolveBlockBreakContext(p, location));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockPlaceEvent e) {
     PlayerRef p = e.player();
@@ -136,7 +154,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     placed.put(block, new DemolitionMark(id, M.ms(), placedItem));
     fx(e.block().location().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
         .burst(Particles.CRIT_MAGIC, 2, 0.1D);
-    int cap = trackingCap(getConfig().maxTrackedPerPlayer);
+    int cap = trackingCap((int) (getConfig().maxTrackedPerPlayer * UpgradeLoans.strength(this, p)));
     while (deque.size() > cap) {
       BlockKey oldest = deque.pollFirst();
       if (oldest != null) {
@@ -168,7 +186,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
       return;
     }
 
-    if (M.ms() - mark.at() > getWindowMillis(getLevelPercent(context.level()))) {
+    if (M.ms() - mark.at() > getWindowMillis(getLevelPercent(context.level())) * UpgradeLoans.strength(this, p)) {
       placed.remove(key, mark);
       return;
     }
@@ -200,7 +218,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
       return;
     }
 
-    if (M.ms() - mark.at() > getWindowMillis(getLevelPercent(level))) {
+    if (M.ms() - mark.at() > getWindowMillis(getLevelPercent(level)) * UpgradeLoans.strength(this, p)) {
       return;
     }
 
@@ -215,6 +233,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
         .chord(Sounds.BLOCK_STONE_BREAK, 0.6f, 1.0f, Sounds.BLOCK_ANVIL_LAND, 0.15f, 1.6f);
 
     addStat(p, "architect.demolition.blocks-demolished", 1);
+    UpgradeLoans.landed(this, p);
     xp(p, getConfig().xpPerDemolish);
   }
 
@@ -306,7 +325,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
    * Shulker boxes carry their contents inside the dropped item, so their
    * inventory must never be harvested separately.
    */
-  static boolean keepsContentsInItem(Id type) {
+  public static boolean keepsContentsInItem(Id type) {
     return type != null && type.path().endsWith("shulker_box");
   }
 

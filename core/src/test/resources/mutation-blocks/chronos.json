@@ -1,0 +1,13 @@
+{
+  "skill": "chronos",
+  "behaviourTest": "ChronosBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "ChronosTrigger", "handles": ["PlayerSwapHandItemsEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "ChronosFightStrike", "handles": [], "reuses": ["ChronosRoot"]},
+    {"slot": "STRIKE_WORK", "class": "ChronosWorkStrike", "handles": [], "reuses": ["ChronosAura", "ChronosAccelerate"]},
+    {"slot": "BOON", "class": "ChronosBoon", "handles": [], "reuses": ["ChronosEffectStretch", "ChronosOvertime"]},
+    {"slot": "FUEL", "class": "ChronosFuel", "handles": [], "reuses": ["ItemCooldowns"]},
+    {"slot": "STATE", "class": "ChronosState", "handles": [], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

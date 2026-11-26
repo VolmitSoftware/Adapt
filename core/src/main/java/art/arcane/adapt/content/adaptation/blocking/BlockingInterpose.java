@@ -29,13 +29,10 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.PlayerInventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -45,12 +42,11 @@ import art.arcane.volmlib.util.format.Form;
 import java.util.List;
 
 public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config> {
-  private static final Id SHIELD = Id.minecraft("shield");
 
   public BlockingInterpose() {
     super("blocking-interpose");
     registerConfiguration(Config.class);
-    setIcon(SHIELD);
+    setIcon(BlockingShields.SHIELD);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("shield"))
         .key("challenge_blocking_interpose_250")
@@ -96,21 +92,11 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
     int bestLevel = 0;
     double bestDistanceSquared = Double.MAX_VALUE;
 
-    for (EntityRef nearby : allyLocation.world().nearbyEntities(allyLocation.position(), scanRadius, scanRadius, scanRadius)) {
-      if (!(nearby instanceof PlayerRef blocker) || blocker.uuid().equals(ally.uuid())
-          || !blocker.isSneaking() || !blocker.isBlocking() || !hasShield(blocker)) {
-        continue;
-      }
-
-      int level = getActiveLevel(blocker);
-      if (level <= 0 || !preference(blocker, BlockingPreferences.ALLIES).accepts(blocker, ally)) {
-        continue;
-      }
-
-      ItemRef shield = blocker.inventory().offHand();
-      if (!SHIELD.equals(shield.type())) { shield = blocker.inventory().mainHand(); }
+    for (BlockingCover.Guard guard : BlockingCover.guards(this, ally, scanRadius, true)) {
+      PlayerRef blocker = guard.blocker();
+      int level = guard.level();
       int cost = Math.max(1, (int) Math.ceil(e.damage() * getRedirectShare(level) * getConfig().durabilityPerDamage));
-      if (!preference(blocker, BlockingPreferences.RESERVE).permits(shield, cost)) { continue; }
+      if (!preference(blocker, BlockingPreferences.RESERVE).permits(BlockingShields.preferred(blocker), cost)) { continue; }
 
       double range = getRange(level);
       double distanceSquared = blocker.location().distanceSquared(allyLocation);
@@ -148,7 +134,7 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
       return;
     }
 
-    wearShield(blocker, redirected);
+    BlockingShields.wear(this, blocker, Math.max(1, (int) Math.ceil(redirected * getConfig().durabilityPerDamage)));
     blocker.setExhaustion(blocker.exhaustion() + (float) getConfig().exhaustionPerRedirect);
     addStat(blocker, "blocking.interpose.damage-redirected", redirected);
     xp(blocker, redirected * getConfig().xpPerDamageRedirected);
@@ -157,41 +143,6 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
     fx(shield, FxPriority.COMBAT)
         .line(Particles.END_ROD, allyImpact.x(), allyImpact.y(), allyImpact.z(), 6)
         .chord(Sounds.ITEM_SHIELD_BLOCK, 0.8F, 0.9F, Sounds.BLOCK_ANVIL_LAND, 0.3F, 1.3F);
-  }
-
-  private void wearShield(PlayerRef blocker, double redirected) {
-    PlayerInventoryRef inventory = blocker.inventory();
-    ItemRef shield = inventory.offHand();
-    boolean offHand = isItem(shield) && SHIELD.equals(shield.type());
-    if (!offHand) {
-      shield = inventory.mainHand();
-      if (!isItem(shield) || !SHIELD.equals(shield.type())) {
-        return;
-      }
-    }
-
-    int maxDurability = shield.maxDamage();
-    if (maxDurability <= 1) {
-      return;
-    }
-
-    int cost = Math.max(1, (int) Math.ceil(redirected * getConfig().durabilityPerDamage));
-    int newDamage = Math.min(maxDurability - 1, shield.damage() + cost);
-    if (newDamage <= shield.damage()) {
-      return;
-    }
-    shield.setDamage(newDamage);
-    if (offHand) {
-      inventory.setOffHand(shield);
-    } else {
-      inventory.setMainHand(shield);
-    }
-  }
-
-  private boolean hasShield(PlayerRef p) {
-    ItemRef main = p.inventory().mainHand();
-    ItemRef off = p.inventory().offHand();
-    return (isItem(main) && SHIELD.equals(main.type())) || (isItem(off) && SHIELD.equals(off.type()));
   }
 
   private double getRange(int level) {

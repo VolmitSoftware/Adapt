@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-final class TreeBlocks {
+public final class TreeBlocks {
   private static final String STRIPPED = "STRIPPED_";
   private static final List<String> WOOD_SUFFIXES = List.of("_LOG", "_WOOD");
   private static final List<String> SAPLING_SUFFIXES = List.of("_SAPLING", "_PROPAGULE", "_FUNGUS");
@@ -52,7 +52,7 @@ final class TreeBlocks {
   private TreeBlocks() {
   }
 
-  static boolean trunk(Id type, boolean nether) {
+  public static boolean trunk(Id type, boolean nether) {
     return kind(type) == Kind.WOOD || (nether && STEMS.contains(type));
   }
 

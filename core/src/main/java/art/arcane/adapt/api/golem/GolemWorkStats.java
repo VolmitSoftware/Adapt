@@ -12,8 +12,8 @@ public final class GolemWorkStats {
     sink = Objects.requireNonNull(next);
   }
 
-  public static void completed(GolemHandle handle) {
-    sink.completed(Objects.requireNonNull(handle));
+  public static void completed(GolemHandle handle, GolemTask task) {
+    sink.completed(Objects.requireNonNull(handle), Objects.requireNonNull(task));
   }
 
   public static void moved(GolemHandle handle, long items) {
@@ -25,7 +25,7 @@ public final class GolemWorkStats {
   public interface Sink {
     Sink NONE = new Sink() {
       @Override
-      public void completed(GolemHandle handle) {
+      public void completed(GolemHandle handle, GolemTask task) {
       }
 
       @Override
@@ -33,7 +33,7 @@ public final class GolemWorkStats {
       }
     };
 
-    void completed(GolemHandle handle);
+    void completed(GolemHandle handle, GolemTask task);
 
     void moved(GolemHandle handle, long items);
   }

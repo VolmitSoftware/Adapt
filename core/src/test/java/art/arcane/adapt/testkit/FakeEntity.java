@@ -34,6 +34,7 @@ public class FakeEntity implements EntityRef {
   private boolean valid = true;
   private boolean dead;
   private boolean onGround = true;
+  private boolean inWater;
   private float fallDistance;
   private int fireTicks;
   private int freezeTicks;
@@ -144,7 +145,11 @@ public class FakeEntity implements EntityRef {
 
   @Override
   public boolean isInWater() {
-    return false;
+    return inWater;
+  }
+
+  public void setInWater(boolean inWater) {
+    this.inWater = inWater;
   }
 
   @Override

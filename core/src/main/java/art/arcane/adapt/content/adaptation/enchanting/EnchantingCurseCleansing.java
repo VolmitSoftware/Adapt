@@ -169,7 +169,11 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     return secondCursed ? 1 : -1;
   }
 
-  static boolean hasStrippableCurse(ItemRef item) {
+  public static boolean isCurse(Id enchant) {
+    return CurseSet.VALUES.contains(enchant);
+  }
+
+  public static boolean hasStrippableCurse(ItemRef item) {
     if (item == null || item.isEmpty() || item.type().equals(AIR)) {
       return false;
     }
@@ -189,7 +193,7 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     return false;
   }
 
-  static int countCurses(ItemRef item) {
+  public static int countCurses(ItemRef item) {
     int count = 0;
     for (Id curse : CurseSet.VALUES) {
       if (item.enchantments().containsKey(curse)) {
@@ -206,7 +210,7 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
     return count;
   }
 
-  static ItemRef stripCurses(ItemRef item) {
+  public static ItemRef stripCurses(ItemRef item) {
     ItemRef cleaned = item.copy();
     cleaned.setAmount(1);
     Map<Id, Integer> directEnchantments = cleaned.enchantments();

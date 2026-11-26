@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-final class HerbalismGrowables {
+public final class HerbalismGrowables {
   private static final Map<Id, Growable> BY_BLOCK = byBlock();
 
   private HerbalismGrowables() {
@@ -32,6 +32,21 @@ final class HerbalismGrowables {
 
   static Growable of(Id block) {
     return BY_BLOCK.getOrDefault(block, Growable.OTHER);
+  }
+
+  /** Whether the block is a crop or plant the growth adaptations know. */
+  public static boolean isCrop(Id block) {
+    return BY_BLOCK.containsKey(block);
+  }
+
+  /** Whether the item is the produce of a known crop, such as wheat, a carrot or a melon slice. */
+  public static boolean isProduce(Id item) {
+    for (Growable growable : Growable.values()) {
+      if (growable != Growable.OTHER && growable.icon().equals(item)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static boolean blocked(PlayerPreference<?> preference, Predicate<Id> blacklisted) {

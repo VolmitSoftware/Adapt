@@ -18,11 +18,14 @@
 
 package art.arcane.adapt.api.skill;
 
+import art.arcane.adapt.content.gui.KeptGui;
+import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.tool.MutationTools;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.content.gui.SkillsGui;
@@ -143,7 +146,10 @@ final class SkillGuiSupport {
       visibleCount += group.size();
     }
 
-    boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
+    GuiElement mutate = MutationGui.entry(skill, player, adaptPlayer.getData());
+    GuiElement action = mutate != null ? mutate : KeptGui.entry(skill, player);
+    boolean reserveNavigation = AdaptConfig.get().isGuiBackButton() || action != null
+        || MutationGui.offersUnmutate(skill, player);
     boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled();
     GuiGroupLayout.Plan<Adaptation<?>> plan = GuiGroupLayout.plan(groups, reserveNavigation, hasPreferences);
     int currentPage = GuiLayout.clampPage(page, plan.pageCount());
@@ -178,7 +184,7 @@ final class SkillGuiSupport {
           GuiElement element = new GuiElement("ada-" + adaptation.getName())
               .setMaterial(model.material())
               .setModel(model)
-              .setName(adaptation.getDisplayName(level))
+              .setName(adaptation.getShortName(level))
               .addLore(C.GRAY + adaptation.getDescription())
               .addLore(level == 0
                   ? C.DARK_GRAY + AdaptLanguage.text(SnippetsMessages.GUI_NOT_LEARNED)
@@ -188,6 +194,10 @@ final class SkillGuiSupport {
                   ))
               .setRole(MenuRole.NAVIGATION)
               .onLeftClick((MenuClick e) -> openAdaptation(adaptation, player));
+          String tools = MutationTools.lore(adaptation);
+          if (!tools.isEmpty()) {
+            element.addLore(tools);
+          }
           reveal.add(new GuiEffects.Placement(pos, row, element));
         }
       }
@@ -247,6 +257,10 @@ final class SkillGuiSupport {
           trusted("total", visibleCount)
       ));
       window.setElement(0, navRow, center);
+      if (action != null) {
+        window.setElement(2, navRow, action);
+      }
+      MutationGui.placeUnmutate(window, -2, navRow, skill, player);
     }
 
     if (hasPreferences) {

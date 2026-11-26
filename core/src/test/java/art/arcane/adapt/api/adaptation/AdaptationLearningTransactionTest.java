@@ -2,18 +2,23 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.TestCores;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,6 +53,7 @@ class AdaptationLearningTransactionTest {
 
   @AfterEach
   void tearDown() throws Exception {
+    TestCores.clear();
     AdaptPorts.uninstall(LearningEconomyPort.class);
     Field configField = AdaptConfig.class.getDeclaredField("config");
     configField.setAccessible(true);
@@ -355,6 +361,14 @@ class AdaptationLearningTransactionTest {
       when(adaptation.getName()).thenReturn("test-adaptation");
       when(adaptation.getMaxLevel()).thenReturn(5);
       when(skill.getName()).thenReturn("test-skill");
+      when(skill.isEnabled()).thenReturn(true);
+      when(adaptation.isEnabled()).thenReturn(true);
+      doReturn(new KList<>(List.of(adaptation))).when(skill).getAdaptations();
+      SkillRegistry registry = mock(SkillRegistry.class);
+      doReturn(skill).when(registry).getSkill("test-skill");
+      AdaptServer server = mock(AdaptServer.class);
+      when(server.getSkillRegistry()).thenReturn(registry);
+      TestCores.setField(TestCores.install(), "adaptServer", server);
       when(adaptation.getCostFor(1, 0)).thenReturn(10);
       when(adaptation.getCostFor(2, 0)).thenReturn(14);
       when(adaptation.getCostFor(2, 1)).thenReturn(4);

@@ -26,13 +26,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -60,8 +57,6 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
   private static final long OWNER_SNAPSHOT_MAX_AGE_MILLIS = 5000L;
   private static final long PET_REFRESH_MILLIS = 1000L;
   private static final long STATE_PRUNE_MILLIS = 60000L;
-
-  private static final Id REGENERATION = Id.minecraft("regeneration");
 
   private final TameableOwnershipIndex ownershipIndex = TameableOwnershipIndex.instance();
   private final TameableOwnershipIndex.Generation generation = ownershipIndex.claimGeneration(LIFECYCLE_SCOPE);
@@ -283,20 +278,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         return;
       }
 
-      int durationTicks = snapshot.effectTicks();
-      if (durationTicks > 0 && snapshot.speed()) {
-        AdaptAttributeService.get().applyTimed(
-            tameable,
-            getName(),
-            "speed",
-            Attributes.MOVEMENT_SPEED,
-            speedScalar(snapshot.amplifier()),
-            AttributeOperation.ADD_MULTIPLIED_TOTAL,
-            durationTicks);
-      }
-      if (snapshot.regeneration()) {
-        tameable.addEffect(new EffectInstance(REGENERATION, durationTicks, snapshot.amplifier(), false, false, false));
-      }
+      TamePackBuff.apply(this, tameable, snapshot.amplifier(), snapshot.effectTicks(), snapshot.speed(), snapshot.regeneration());
       Long previous = lastPetBuffAt.put(entityId, now);
       double elapsedTicks = PackLeaderCadence.elapsedTicks(previous, now, 250L, snapshot.effectTicks() * 50L);
       pendingBuffedTicks.merge(ownerId, elapsedTicks, Double::sum);
@@ -319,10 +301,6 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
     nextPetRefreshAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
     lastPetBuffAt.keySet().removeIf(entityId -> !ownershipIndex.contains(entityId));
     nextStatePruneAt = now + STATE_PRUNE_MILLIS;
-  }
-
-  static double speedScalar(int amplifier) {
-    return 0.2D * (Math.max(0, amplifier) + 1);
   }
 
   private double getRadius(int level) {

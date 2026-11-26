@@ -34,16 +34,16 @@ class BlockingCounterGuardTransactionTest {
   void reflectionKeysAreDirectionalAndConsumedOnce() {
     UUID defenderId = UUID.randomUUID();
     UUID attackerId = UUID.randomUUID();
-    Set<BlockingCounterGuard.ReflectionKey> pending = ConcurrentHashMap.newKeySet();
-    pending.add(new BlockingCounterGuard.ReflectionKey(defenderId, attackerId));
+    Set<BlockingRetaliation.ReflectionKey> pending = ConcurrentHashMap.newKeySet();
+    pending.add(new BlockingRetaliation.ReflectionKey(defenderId, attackerId));
 
     assertThat(pending.remove(
-        new BlockingCounterGuard.ReflectionKey(defenderId, attackerId)
+        new BlockingRetaliation.ReflectionKey(defenderId, attackerId)
     )).isTrue();
     assertThat(pending.remove(
-        new BlockingCounterGuard.ReflectionKey(defenderId, attackerId)
+        new BlockingRetaliation.ReflectionKey(defenderId, attackerId)
     )).isFalse();
-    assertThat(new BlockingCounterGuard.ReflectionKey(defenderId, attackerId))
-        .isNotEqualTo(new BlockingCounterGuard.ReflectionKey(attackerId, defenderId));
+    assertThat(new BlockingRetaliation.ReflectionKey(defenderId, attackerId))
+        .isNotEqualTo(new BlockingRetaliation.ReflectionKey(attackerId, defenderId));
   }
 }

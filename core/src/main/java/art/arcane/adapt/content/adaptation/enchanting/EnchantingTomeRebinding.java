@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -47,10 +46,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -61,7 +57,6 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
   private static final Id ANVIL = Id.minecraft("anvil");
   private static final Id CHIPPED_ANVIL = Id.minecraft("chipped_anvil");
   private static final Id DAMAGED_ANVIL = Id.minecraft("damaged_anvil");
-  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
 
   public EnchantingTomeRebinding() {
     super("enchanting-tome-rebinding");
@@ -117,7 +112,7 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     PlayerRef p = e.player();
     ItemEntityRef droppedItem = e.itemDrop();
     ItemRef book = droppedItem.item();
-    if (!isMultiEnchantBook(book)) {
+    if (!EnchantingBooks.isMultiEnchantBook(book)) {
       return;
     }
 
@@ -141,27 +136,12 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       e.setCancelled(true);
       return;
     }
-    List<Map.Entry<Id, Integer>> enchants = new ArrayList<>(book.storedEnchantments().entrySet());
-    if (ThreadLocalRandom.current().nextDouble() < getLossChance(level) && enchants.size() > 1) {
-      enchants.remove(ThreadLocalRandom.current().nextInt(enchants.size()));
-    }
-
-    List<ItemRef> books = new ArrayList<>(enchants.size());
-    for (Map.Entry<Id, Integer> entry : enchants) {
-      books.add(singleEnchantBook(entry.getKey(), entry.getValue()));
-    }
-    if (!payExperienceCost(p, "experience-levels", cost, () -> spendLevels(p, cost))) {
+    List<ItemRef> books = EnchantingBooks.splitBook(book, getLossChance(level));
+    if (!payExperienceCost(p, "experience-levels", cost, () -> EnchantingBooks.spendLevels(p, cost))) {
       return;
     }
 
-    droppedItem.setItem(books.getFirst());
-    for (int index = 1; index < books.size(); index++) {
-      ItemEntityRef splitItem = p.world().dropItem(droppedItem.location().position(), books.get(index));
-      splitItem.setVelocity(droppedItem.velocity());
-      splitItem.setPickupDelay(droppedItem.pickupDelay());
-      splitItem.setThrower(p.uuid());
-    }
-
+    EnchantingBooks.dropSplit(p, droppedItem, books);
     addStat(p, "enchanting.tome-rebinding.books-split", 1);
     xp(p, getConfig().skillXpOnSplit * books.size());
     AdaptHud.actionBar(p, C.LIGHT_PURPLE + AdaptLanguage.text(
@@ -175,37 +155,6 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     return material.equals(ANVIL)
         || material.equals(CHIPPED_ANVIL)
         || material.equals(DAMAGED_ANVIL);
-  }
-
-  static boolean spendLevels(PlayerRef player, int amount) {
-    if (player == null || amount <= 0 || player.level() < amount) {
-      return false;
-    }
-
-    player.giveExpLevels(-amount);
-    return true;
-  }
-
-  static boolean isMultiEnchantBook(ItemRef item) {
-    if (item == null || !item.type().equals(ENCHANTED_BOOK) || item.amount() != 1) {
-      return false;
-    }
-    return isSplittableBook(item.type(), item.amount(), item.storedEnchantments().size());
-  }
-
-  static boolean isSplittableBook(Id material, int amount, int storedEnchantCount) {
-    return material.equals(ENCHANTED_BOOK) && amount == 1 && storedEnchantCount >= 2;
-  }
-
-  private ItemRef singleEnchantBook(Id enchant, int storedLevel) {
-    ItemRef book = AdaptCore.platform().host().items().create(ENCHANTED_BOOK);
-    int safeLevel = normalizedStoredLevel(storedLevel);
-    book.setStoredEnchantment(enchant, safeLevel);
-    return book;
-  }
-
-  static int normalizedStoredLevel(int storedLevel) {
-    return Math.max(1, storedLevel);
   }
 
   private void splitFx(PlayerRef p) {

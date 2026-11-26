@@ -4,10 +4,7 @@ import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.support.PlatformNeed;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -21,10 +18,8 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 public class KineticsBreachwright extends SimpleAdaptation<KineticsBreachwright.Config> {
-  private static final String SLOT_SHRED = "shred";
-  private static final String SLOT_SHRED_TOUGHNESS = "shred-toughness";
-
   private final Cooldowns targetCooldowns = cooldowns();
+  private final KineticsShred shred = new KineticsShred(this);
 
   public KineticsBreachwright() {
     super("kinetics-breachwright");
@@ -76,18 +71,8 @@ public class KineticsBreachwright extends SimpleAdaptation<KineticsBreachwright.
     }
 
     targetCooldowns.mark(target.uuid());
-    double armorShred = getArmorShred(level);
-    double toughnessShred = getToughnessShred(level);
-    int shredTicks = getShredTicks(level);
-    Tasks.runEntity(target, () -> {
-      if (!isRuntimeRegistered() || !target.isValid() || target.isDead()) {
-        return;
-      }
-
-      AdaptAttributeService attributes = AdaptAttributeService.get();
-      attributes.applyTimed(target, getName(), SLOT_SHRED, Attributes.ARMOR, -armorShred, AttributeOperation.ADD_VALUE, shredTicks);
-      attributes.applyTimed(target, getName(), SLOT_SHRED_TOUGHNESS, Attributes.ARMOR_TOUGHNESS, -toughnessShred, AttributeOperation.ADD_VALUE, shredTicks);
-    });
+    KineticsShred.Cut cut = new KineticsShred.Cut(getArmorShred(level), getToughnessShred(level), getShredTicks(level));
+    Tasks.runEntity(target, () -> shred.apply(target, cut));
     addStat(p, "kinetics.smash.shreds", 1);
   }
 
@@ -95,7 +80,7 @@ public class KineticsBreachwright extends SimpleAdaptation<KineticsBreachwright.
     return result == UseResult.ALLOW || (result == UseResult.DEFAULT && originalResult);
   }
 
-  static int shredDurationTicks(double base, double factor, double levelPercent) {
+  public static int shredDurationTicks(double base, double factor, double levelPercent) {
     double ticks = base + (levelPercent * factor);
     if (Double.isNaN(ticks)) {
       return 1;

@@ -37,8 +37,6 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
-import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
@@ -46,19 +44,9 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config> {
-  private static final Set<Id> BORE_BLOCKS = Set.of(
-      Id.minecraft("stone"), Id.minecraft("cobblestone"), Id.minecraft("mossy_cobblestone"),
-      Id.minecraft("deepslate"), Id.minecraft("cobbled_deepslate"), Id.minecraft("tuff"),
-      Id.minecraft("calcite"), Id.minecraft("andesite"), Id.minecraft("diorite"), Id.minecraft("granite"));
-  private static final int[] SINGLE = {0};
-  private static final int[] PAIR = {0, 1};
-  private static final int[] TRIPLE = {-1, 0, 1};
-
   public PickaxeTunnelBore() {
     super("pickaxe-tunnel-bore");
     registerConfiguration(PickaxeTunnelBore.Config.class);
@@ -100,7 +88,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     }
     BlockRef block = e.block();
     Id originType = block.type();
-    if (!BORE_BLOCKS.contains(originType)) {
+    if (!PickaxeBore.STONE.contains(originType)) {
       return;
     }
 
@@ -119,7 +107,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     PickaxePreferences.Size size = preference(p, PickaxePreferences.SIZE);
     int boreWidth = size.width(getBoreWidth(context.level()));
     int boreHeight = size.height(getBoreHeight(context.level()));
-    List<BlockRef> targets = collectPlane(p, block, boreWidth, boreHeight);
+    List<BlockRef> targets = PickaxeBore.plane(this, p, block, boreWidth, boreHeight, PickaxeBore.STONE::contains);
     if (targets.isEmpty()) {
       return;
     }
@@ -133,17 +121,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
 
   private void breakBorePlane(PlayerRef player, BlockRef origin, Id originType, int boreWidth,
                               int boreHeight, List<BlockRef> targets) {
-    Loc originLocation = origin.location();
-    if (!player.isOnline()
-        || !player.world().uid().equals(origin.world().uid())
-        || (Tasks.isFoliaThreading()
-        && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(originLocation)))
-        || origin.type().equals(originType)) {
-      return;
-    }
-
-    ItemRef tool = player.inventory().mainHand();
-    if (!isPickaxe(tool) || getActiveLevel(player) <= 0) {
+    if (!PickaxeBore.ready(this, player, origin, originType)) {
       return;
     }
 
@@ -157,85 +135,17 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
           .chord(Sounds.BLOCK_GRAVEL_BREAK, 0.6f, 0.5f, Sounds.ENTITY_RAVAGER_STEP, 0.4f, 0.6f);
     }
 
-    int index = 0;
-    int broken = 0;
-    for (BlockRef target : targets) {
-      if (!isPickaxe(player.inventory().mainHand())) {
-        break;
-      }
-      Loc location = target.location();
-      if ((Tasks.isFoliaThreading()
-          && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(location)))
-          || !BORE_BLOCKS.contains(target.type())
-          || !preference(player, PickaxePreferences.MATERIALS).accepts(target.type())
-          || !canBlockBreak(player, location)) {
-        index++;
-        continue;
-      }
-
-      if ((index & 1) == 0) {
-        fx(target.center(), FxPriority.TRAIL)
-            .particle(Particles.blockCrack(target.state()), 3, 0, 0, 0, 0.2, 0.0);
-      }
-      if (BonusBlockBreaks.breakBlock(player, target, getConfig().durabilityPerBonusBlock)) {
-        broken++;
-      }
-      index++;
-    }
-
+    int broken = PickaxeBore.breakTargets(this, player, targets,
+        (Id type) -> PickaxeBore.STONE.contains(type) && preference(player, PickaxePreferences.MATERIALS).accepts(type),
+        getConfig().durabilityPerBonusBlock, (BlockRef target, int index) -> {
+          if ((index & 1) == 0) {
+            fx(target.center(), FxPriority.TRAIL)
+                .particle(Particles.blockCrack(target.state()), 3, 0, 0, 0, 0.2, 0.0);
+          }
+        });
     if (broken > 0) {
       addStat(player, "pickaxe.tunnel-bore.blocks-bored", broken);
     }
-  }
-
-  private List<BlockRef> collectPlane(PlayerRef p, BlockRef origin, int width, int height) {
-    List<BlockRef> targets = new ArrayList<>(8);
-    int[] wOffsets = width == 1 ? SINGLE : TRIPLE;
-    int[] hOffsets = height == 2 ? PAIR : TRIPLE;
-    Loc location = p.location();
-    BlockFace facing = facing(location.yaw());
-    float pitch = location.pitch();
-    boolean steep = pitch > 60F || pitch < -60F;
-    int fx = facing.dx();
-    int fz = facing.dz();
-    boolean widthOnX = fz != 0;
-    for (int h : hOffsets) {
-      for (int w : wOffsets) {
-        if (h == 0 && w == 0) {
-          continue;
-        }
-
-        BlockRef b;
-        if (steep) {
-          b = origin.relative((h * fx) - (w * fz), 0, (h * fz) + (w * fx));
-        } else {
-          b = origin.relative(widthOnX ? w : 0, h, widthOnX ? 0 : w);
-        }
-
-        Loc blockLocation = b.location();
-        if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(blockLocation))
-            || !BORE_BLOCKS.contains(b.type())) {
-          continue;
-        }
-
-        if (!canBlockBreak(p, blockLocation)) {
-          continue;
-        }
-
-        targets.add(b);
-      }
-    }
-
-    return targets;
-  }
-
-  static BlockFace facing(float yaw) {
-    return switch (((int) Math.floor((yaw / 90.0D) + 0.5D)) & 3) {
-      case 0 -> BlockFace.SOUTH;
-      case 1 -> BlockFace.WEST;
-      case 2 -> BlockFace.NORTH;
-      default -> BlockFace.EAST;
-    };
   }
 
   @ConfigDescription("Sneak-mine stone-type blocks to bore a tunnel plane oriented by your facing.")

@@ -14,7 +14,7 @@ import java.util.Set;
 public final class BlockingPreferences {
   static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", key("require_sneak", "Require sneaking"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> SNEAK_STANCE = CommonPreferences.toggle("sneak-stance", key("sneak_stance", "Require sneak while blocking"));
-  static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", key("player_targets", "Affect players"));
+  public static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", key("player_targets", "Affect players"));
   static final PlayerPreference<CommonPreferences.Toggle> PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> STAGGER = CommonPreferences.toggle("stagger", key("stagger", "Retaliatory stagger"));
   static final PlayerPreference<CommonPreferences.Toggle> GROUND = CommonPreferences.toggle("ground-swap", key("ground_swap", "Swap to chestplate on ground"));
@@ -23,11 +23,11 @@ public final class BlockingPreferences {
   static final PlayerPreference<CommonPreferences.Toggle> RECOVERY = CommonPreferences.toggle("shield-recovery", key("shield_recovery", "Faster shield recovery"));
   static final PlayerPreference<CommonPreferences.Toggle> SHIELD = CommonPreferences.toggle("shield-repair", key("shield_repair", "Repair shield"));
   static final PlayerPreference<CommonPreferences.Toggle> ARMOR = CommonPreferences.toggle("armor-repair", key("armor_repair", "Repair armor"));
-  static final PlayerPreference<Allies> ALLIES = new PlayerPreference<>(Allies.class,
+  public static final PlayerPreference<Allies> ALLIES = new PlayerPreference<>(Allies.class,
       new PlayerPreference.Definition<>("allies", key("allies", "Protected allies"), Allies.ALL, List.of(
           choice(Allies.ALL, "all", "All permitted nearby players", Id.minecraft("shield")),
           choice(Allies.SAME_TEAM, "team", "Same scoreboard team", Id.minecraft("white_banner")))));
-  static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
+  public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("durability-reserve", key("reserve", "Shield durability remaining"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("shield")),
           choice(Reserve.QUARTER, "quarter", "Keep 25%", Id.minecraft("iron_ingot")),
@@ -52,18 +52,18 @@ public final class BlockingPreferences {
   private static <E extends Enum<E>> PlayerPreference.Choice<E> choice(E value, String id, String text, Id icon) {
     return new PlayerPreference.Choice<>(value, key(id, text), icon, 1);
   }
-  enum Allies {
+  public enum Allies {
     ALL, SAME_TEAM;
-    boolean accepts(PlayerRef owner, PlayerRef ally) {
+    public boolean accepts(PlayerRef owner, PlayerRef ally) {
       if (this == ALL) { return true; }
       return owner.isOnTeamWith(ally);
     }
   }
-  enum Reserve {
+  public enum Reserve {
     NONE(0D), QUARTER(0.25D), HALF(0.5D);
     private final double fraction;
     Reserve(double fraction) { this.fraction = fraction; }
-    boolean permits(ItemRef item, int cost) {
+    public boolean permits(ItemRef item, int cost) {
       if (this == NONE) { return true; }
       if (item.isEmpty()) { return false; }
       int maximum = item.maxDamage();

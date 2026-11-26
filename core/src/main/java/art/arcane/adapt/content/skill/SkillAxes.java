@@ -41,6 +41,15 @@ import art.arcane.adapt.content.adaptation.axe.AxeShieldSplitter;
 import art.arcane.adapt.content.adaptation.axe.AxeSunder;
 import art.arcane.adapt.content.adaptation.axe.AxeThrowingAxe;
 import art.arcane.adapt.content.adaptation.axe.AxeWoodVeinminer;
+import art.arcane.adapt.content.adaptation.axe.upgraded.SunderingCleave;
+import art.arcane.adapt.content.adaptation.axe.upgraded.Timberfall;
+import art.arcane.adapt.content.adaptation.axe.upgraded.Worldsplitter;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesTrigger;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesFightStrike;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesWorkStrike;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesBoon;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesFuel;
+import art.arcane.adapt.content.adaptation.axe.blocks.AxesState;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerPort;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
@@ -71,7 +80,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
   }
 
   SkillAxes(boolean irisTreeFellerAvailable) {
-    super("axes", SkillPresentation.of(SkillMessages.AXES_NAME, SkillMessages.AXES_ICON, SkillMessages.AXES_DESCRIPTION));
+    super("axes", SkillPresentation.of(SkillMessages.AXES_NAME, SkillMessages.AXES_ICON, SkillMessages.AXES_DESCRIPTION,
+        SkillMessages.AXES_QUIP, SkillMessages.AXES_UNLOCK_QUIP_1, SkillMessages.AXES_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.YELLOW);
     setInterval(5251);
@@ -90,6 +100,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     registerAdaptation(new AxeCleave());
     registerAdaptation(new AxeBarkHide());
     registerAdaptation(new AxeShieldSplitter());
+    registerUpgrades(new Timberfall(), new SunderingCleave(), new Worldsplitter());
+    registerBlocks(new AxesTrigger(), new AxesFightStrike(), new AxesWorkStrike(), new AxesBoon(), new AxesFuel(),
+        new AxesState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wooden_axe")).key("challenge_chop_1k")
         .model(CustomModel.get(Id.minecraft("wooden_axe"), "advancement", "axes", "challenge_chop_1k"))

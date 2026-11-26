@@ -29,6 +29,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.ItemLooks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public final class ChalkWandItem {
     ));
     item.setMaxStackSize(1);
     item.setGlintOverride(true);
+    ItemLooks.apply(item, "chalk-" + tool.id().replace('_', '-'));
     item.data().set(TOOL_KEY, tool.id());
     return item;
   }

@@ -10,24 +10,24 @@ class HerbalismHungryShieldTest {
 
   @Test
   void absorbedDamageIsPartialWhenHungerCannotCoverTheWholeHit() {
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0.5D, 10D, 6)).isEqualTo(4D);
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0.5D, 20D, 6)).isEqualTo(10D);
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0.5D, 10D, 6)).isEqualTo(4D);
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0.5D, 20D, 6)).isEqualTo(10D);
   }
 
   @Test
   void absorbedDamageIsZeroWithoutSpareHunger() {
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0.5D, 6D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0.5D, 2D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0.5D, 6D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0.5D, 2D, 6)).isZero();
   }
 
   @Test
   void absorbedDamageRejectsInvalidInput() {
-    assertThat(HerbalismHungryShield.absorbedDamage(0D, 0.5D, 20D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(-4D, 0.5D, 20D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0D, 20D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(Double.NaN, 0.5D, 20D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, Double.POSITIVE_INFINITY, 20D, 6)).isZero();
-    assertThat(HerbalismHungryShield.absorbedDamage(20D, 0.5D, Double.NaN, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(0D, 0.5D, 20D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(-4D, 0.5D, 20D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0D, 20D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(Double.NaN, 0.5D, 20D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, Double.POSITIVE_INFINITY, 20D, 6)).isZero();
+    assertThat(HerbalismHungerShield.absorbedDamage(20D, 0.5D, Double.NaN, 6)).isZero();
   }
 
   @Test
@@ -104,18 +104,18 @@ class HerbalismHungryShieldTest {
 
   @Test
   void damageOverTimeCausesAreRateLimited() {
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.FIRE)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.FIRE_TICK)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.LAVA)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.CAMPFIRE)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.HOT_FLOOR)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.POISON)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.WITHER)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.DROWNING)).isTrue();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.FREEZE)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.FIRE)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.FIRE_TICK)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.LAVA)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.CAMPFIRE)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.HOT_FLOOR)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.POISON)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.WITHER)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.DROWNING)).isTrue();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.FREEZE)).isTrue();
 
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.ENTITY_ATTACK)).isFalse();
-    assertThat(HerbalismHungryShield.isDamageOverTime(DamageCause.PROJECTILE)).isFalse();
-    assertThat(HerbalismHungryShield.isDamageOverTime(null)).isFalse();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.ENTITY_ATTACK)).isFalse();
+    assertThat(HerbalismHungerShield.isDamageOverTime(DamageCause.PROJECTILE)).isFalse();
+    assertThat(HerbalismHungerShield.isDamageOverTime(null)).isFalse();
   }
 }

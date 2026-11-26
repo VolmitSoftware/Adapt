@@ -23,10 +23,10 @@ import static org.mockito.Mockito.when;
 class TamingAlphasCommandTest {
   @Test
   void commandGestureRequiresMainHandSneakLeftClickPath() {
-    assertThat(TamingAlphasCommand.isCommandGesture(InteractAction.LEFT_CLICK_AIR, Hand.MAIN_HAND)).isTrue();
-    assertThat(TamingAlphasCommand.isCommandGesture(InteractAction.LEFT_CLICK_BLOCK, Hand.MAIN_HAND)).isTrue();
-    assertThat(TamingAlphasCommand.isCommandGesture(InteractAction.LEFT_CLICK_AIR, Hand.OFF_HAND)).isFalse();
-    assertThat(TamingAlphasCommand.isCommandGesture(InteractAction.RIGHT_CLICK_AIR, Hand.MAIN_HAND)).isFalse();
+    assertThat(TamePackCommand.isCommandGesture(InteractAction.LEFT_CLICK_AIR, Hand.MAIN_HAND)).isTrue();
+    assertThat(TamePackCommand.isCommandGesture(InteractAction.LEFT_CLICK_BLOCK, Hand.MAIN_HAND)).isTrue();
+    assertThat(TamePackCommand.isCommandGesture(InteractAction.LEFT_CLICK_AIR, Hand.OFF_HAND)).isFalse();
+    assertThat(TamePackCommand.isCommandGesture(InteractAction.RIGHT_CLICK_AIR, Hand.MAIN_HAND)).isFalse();
   }
 
   @Test
@@ -44,30 +44,30 @@ class TamingAlphasCommandTest {
 
   @Test
   void onlyCombatCapableTameablesJoinTheCommand() {
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(tameableMob("wolf"))).isTrue();
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(tameableMob("cat"))).isTrue();
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(tameableMob("llama"))).isTrue();
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(tameableMob("parrot"))).isFalse();
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(tameableMob("horse"))).isFalse();
-    assertThat(TamingAlphasCommand.isCombatCapableTameable(mock(PlayerRef.class))).isFalse();
+    assertThat(TamePackCommand.isCombatCapableTameable(tameableMob("wolf"))).isTrue();
+    assertThat(TamePackCommand.isCombatCapableTameable(tameableMob("cat"))).isTrue();
+    assertThat(TamePackCommand.isCombatCapableTameable(tameableMob("llama"))).isTrue();
+    assertThat(TamePackCommand.isCombatCapableTameable(tameableMob("parrot"))).isFalse();
+    assertThat(TamePackCommand.isCombatCapableTameable(tameableMob("horse"))).isFalse();
+    assertThat(TamePackCommand.isCombatCapableTameable(mock(PlayerRef.class))).isFalse();
   }
 
   @Test
   void successfulCommandsConsumeExactlyOneBoneOutsideCreative() {
-    assertThat(TamingAlphasCommand.boneAmountAfterSuccessfulCommand(GameMode.SURVIVAL, 3)).isEqualTo(2);
-    assertThat(TamingAlphasCommand.boneAmountAfterSuccessfulCommand(GameMode.ADVENTURE, 1)).isZero();
-    assertThat(TamingAlphasCommand.boneAmountAfterSuccessfulCommand(GameMode.CREATIVE, 3)).isEqualTo(3);
-    assertThat(TamingAlphasCommand.boneAmountAfterSuccessfulCommand(GameMode.SURVIVAL, 0)).isZero();
+    assertThat(TamePackCommand.boneAmountAfterSuccessfulCommand(GameMode.SURVIVAL, 3)).isEqualTo(2);
+    assertThat(TamePackCommand.boneAmountAfterSuccessfulCommand(GameMode.ADVENTURE, 1)).isZero();
+    assertThat(TamePackCommand.boneAmountAfterSuccessfulCommand(GameMode.CREATIVE, 3)).isEqualTo(3);
+    assertThat(TamePackCommand.boneAmountAfterSuccessfulCommand(GameMode.SURVIVAL, 0)).isZero();
   }
 
   @Test
   void focusBuffAmountsMatchPotionParityPerAmplifierTier() {
-    assertThat(TamingAlphasCommand.focusDamageBonus(0)).isEqualTo(3.0D);
-    assertThat(TamingAlphasCommand.focusDamageBonus(1)).isEqualTo(6.0D);
-    assertThat(TamingAlphasCommand.focusDamageBonus(2)).isEqualTo(9.0D);
-    assertThat(TamingAlphasCommand.focusSpeedScalar(0)).isCloseTo(0.2D, within(1e-9));
-    assertThat(TamingAlphasCommand.focusSpeedScalar(1)).isCloseTo(0.4D, within(1e-9));
-    assertThat(TamingAlphasCommand.focusSpeedScalar(2)).isCloseTo(0.6D, within(1e-9));
+    assertThat(TamePackCommand.focusDamageBonus(0)).isEqualTo(3.0D);
+    assertThat(TamePackCommand.focusDamageBonus(1)).isEqualTo(6.0D);
+    assertThat(TamePackCommand.focusDamageBonus(2)).isEqualTo(9.0D);
+    assertThat(TamePackCommand.focusSpeedScalar(0)).isCloseTo(0.2D, within(1e-9));
+    assertThat(TamePackCommand.focusSpeedScalar(1)).isCloseTo(0.4D, within(1e-9));
+    assertThat(TamePackCommand.focusSpeedScalar(2)).isCloseTo(0.6D, within(1e-9));
   }
 
   private static MobRef tameableMob(String type) {

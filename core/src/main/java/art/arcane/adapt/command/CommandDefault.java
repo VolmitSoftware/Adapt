@@ -91,7 +91,7 @@ public class CommandDefault {
     }
 
     Adaptation<?> adaptation = null;
-    for (Adaptation<?> a : skill.getAdaptations()) {
+    for (Adaptation<?> a : Skill.ownedAdaptations(skill)) {
       if (a.getName().equalsIgnoreCase(split[1])) {
         adaptation = a;
         break;
@@ -167,7 +167,7 @@ public class CommandDefault {
           failed.add(skill.getName());
         }
       }
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
           continue;
         }

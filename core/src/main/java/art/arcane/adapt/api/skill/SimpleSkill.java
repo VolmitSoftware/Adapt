@@ -32,10 +32,16 @@ import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
+import art.arcane.adapt.api.mutation.blocks.MutationOverride;
+import art.arcane.adapt.api.mutation.engine.MutationBlock;
+import art.arcane.adapt.api.mutation.signature.Signature;
+import art.arcane.adapt.api.mutation.signature.Signatures;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeCaches;
 import art.arcane.adapt.api.support.PlatformSupport;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.localization.SkillPresentation;
@@ -58,6 +64,8 @@ import lombok.Setter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -83,6 +91,11 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private double minXp;
   private Id icon;
   private KList<Adaptation<?>> adaptations;
+  private final KList<Adaptation<?>> upgrades = new KList<>();
+  private final List<MutationBlock<?>> blocks = new ArrayList<>();
+  private final List<MutationBlock<?>> unavailableBlocks = new ArrayList<>();
+  private final List<Signature<?>> signatures = new ArrayList<>();
+  private final List<Signature<?>> unavailableSignatures = new ArrayList<>();
   private KList<AdaptStatTracker> statTrackers;
   private KList<AdaptAdvancement> cachedAdvancements;
   private String advancementBackground;
@@ -112,7 +125,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         return;
       }
       Tasks.attempt(this::getConfig);
-      getAdaptations().forEach(i -> Tasks.attempt(i::getConfig));
+      Skill.ownedAdaptations(this).forEach(i -> Tasks.attempt(i::getConfig));
     }, 1);
   }
 
@@ -566,8 +579,10 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         .key("skill_" + getName())
         .title(localizedName())
         .description(getDescription())
+        .toastBody(AdaptLanguage.text(presentation.quip()))
         .icon(getIcon())
         .model(getModel())
+        .clientIcon(ViewIcons.skill(this))
         .children(a)
         .visibility(AdvancementVisibility.HIDDEN)
         .build();
@@ -611,6 +626,85 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return;
     }
     adaptations.add(a);
+    UpgradeCaches.forget();
+  }
+
+  /**
+   * Registers this skill's upgraded adaptations, the ones a mutation containing this skill offers in place of its
+   * originals. Call once from the skill's constructor.
+   */
+  protected void registerUpgrades(Adaptation<?>... upgraded) {
+    for (Adaptation<?> upgrade : upgraded) {
+      upgrade.setSkill(this);
+      PlatformSupport.Verdict verdict = PlatformSupport.check(upgrade.getPlatformNeeds());
+      if (!verdict.usable()) {
+        PlatformSupport.leaveOut("adaptation", getName(), upgrade.getName(), verdict);
+        upgrade.unregister();
+        continue;
+      }
+      upgrades.add(upgrade);
+    }
+    UpgradeCaches.forget();
+  }
+
+  @Override
+  public List<Adaptation<?>> getUpgrades() {
+    return upgrades;
+  }
+
+  /**
+   * Registers this skill's six mutation blocks, then the signature of every mutation this skill leads, built from the
+   * handler class its row in {@link Signatures} names. Call once from the skill's constructor. A block or signature the
+   * running Minecraft version cannot run is logged, kept inert and offered to no mutation.
+   */
+  protected void registerBlocks(MutationBlock<?>... declared) {
+    registerBlockPieces(declared);
+    for (MutationOverride row : Signatures.ledBy(getName())) {
+      Signature<?> signature = Signatures.instantiate(row);
+      signature.setSkill(this);
+      PlatformSupport.Verdict verdict = PlatformSupport.check(signature.getPlatformNeeds());
+      if (!verdict.usable()) {
+        PlatformSupport.leaveOut("signature", getName(), signature.getName(), verdict);
+        signature.unregister();
+        unavailableSignatures.add(signature);
+        continue;
+      }
+      signatures.add(signature);
+    }
+  }
+
+  @Override
+  public List<Signature<?>> getSignatures() {
+    return Collections.unmodifiableList(signatures);
+  }
+
+  /** Signatures this skill leads that the running Minecraft version cannot run; they stay inert. */
+  public List<Signature<?>> getUnavailableSignatures() {
+    return Collections.unmodifiableList(unavailableSignatures);
+  }
+
+  private void registerBlockPieces(MutationBlock<?>... declared) {
+    for (MutationBlock<?> block : declared) {
+      block.setSkill(this);
+      PlatformSupport.Verdict verdict = PlatformSupport.check(block.getPlatformNeeds());
+      if (!verdict.usable()) {
+        PlatformSupport.leaveOut("mutation-block", getName(), block.getName(), verdict);
+        block.unregister();
+        unavailableBlocks.add(block);
+        continue;
+      }
+      blocks.add(block);
+    }
+  }
+
+  @Override
+  public List<MutationBlock<?>> getBlocks() {
+    return Collections.unmodifiableList(blocks);
+  }
+
+  @Override
+  public List<MutationBlock<?>> getUnavailableBlocks() {
+    return Collections.unmodifiableList(unavailableBlocks);
   }
 
   @Override
@@ -620,6 +714,9 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
     super.unregister();
     adaptations.forEach(Adaptation::unregister);
+    upgrades.forEach(Adaptation::unregister);
+    blocks.forEach(Adaptation::unregister);
+    signatures.forEach(Adaptation::unregister);
   }
 
   private AdaptPlayer readyPlayer(PlayerRef player) {

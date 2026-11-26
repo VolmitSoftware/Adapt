@@ -70,7 +70,7 @@ public final class AdaptLanguageEditor {
         String name = simple.getPresentation().name().id();
         icons.put(name.substring(0, name.lastIndexOf('.')), skillIcon);
       }
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
         if (adaptation instanceof SimpleAdaptation<?> simple) {
           String prefix = simple.getLocalizationKey();
           icons.put(prefix, () -> GuiConfig.adaptationModel(

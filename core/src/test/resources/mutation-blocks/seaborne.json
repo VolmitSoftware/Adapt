@@ -1,0 +1,13 @@
+{
+  "skill": "seaborne",
+  "behaviourTest": "SeaborneBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "SeaborneTrigger", "handles": ["EntityDamageByEntityEvent", "PlayerMoveEvent"], "reuses": ["SeaborneWater", "SeaborneWet"]},
+    {"slot": "STRIKE_FIGHT", "class": "SeaborneFightStrike", "handles": [], "reuses": ["SeaborneSurge"]},
+    {"slot": "STRIKE_WORK", "class": "SeaborneWorkStrike", "handles": [], "reuses": []},
+    {"slot": "BOON", "class": "SeaborneBoon", "handles": [], "reuses": ["SeaborneSwim"]},
+    {"slot": "FUEL", "class": "SeaborneFuel", "handles": [], "reuses": ["SeaborneWater"]},
+    {"slot": "STATE", "class": "SeaborneState", "handles": [], "reuses": ["SeaborneWet"]}
+  ],
+  "unavailableOn": {}
+}

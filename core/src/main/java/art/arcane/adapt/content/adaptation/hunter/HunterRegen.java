@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
-import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
@@ -52,7 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
   private static final Id HUNGER = Id.minecraft("hunger");
   private static final Id POISON = Id.minecraft("poison");
-  private static final Id REGENERATION = Id.minecraft("regeneration");
   private static final Rgb REGEN_GREEN = new Rgb(120, 230, 120);
   private final Cooldowns fxCooldown = cooldowns();
 
@@ -93,13 +91,8 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
       return;
     }
 
-    if (!preference(p, HunterPreferences.RESERVE).permits(p.foodLevel())) {
-      return;
-    }
     int level = getActiveLevel(p);
-    if (level <= 0
-        || (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied()
-        && p.hasEffect(HUNGER))) {
+    if (level <= 0 || HunterStruck.suppressed(this, p)) {
       return;
     }
 
@@ -154,15 +147,11 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
   }
 
   private boolean canApplyBuff(PlayerRef p) {
-    return getConfig().stackBuff || !p.hasEffect(REGENERATION);
+    return HunterStruck.canRegenerate(p, getConfig().stackBuff);
   }
 
   private boolean applyBuff(PlayerRef p, int level) {
-    if (!canApplyBuff(p)) {
-      return false;
-    }
-    return addPotionStacksNow(p, REGENERATION, level,
-        getConfig().baseEffectbyLevel * level, getConfig().stackBuff);
+    return HunterStruck.regenerate(this, p, level, getConfig().baseEffectbyLevel * level, getConfig().stackBuff);
   }
 
   private void recordActivation(PlayerRef p) {

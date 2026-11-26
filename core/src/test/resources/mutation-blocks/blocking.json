@@ -1,0 +1,13 @@
+{
+  "skill": "blocking",
+  "behaviourTest": "BlockingBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "BlockingTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": ["BlockingShields", "BlockingParry"]},
+    {"slot": "STRIKE_FIGHT", "class": "BlockingFightStrike", "handles": [], "reuses": ["BlockingPerfectGuard", "BlockingShields"]},
+    {"slot": "STRIKE_WORK", "class": "BlockingWorkStrike", "handles": ["EntityDamageEvent"], "reuses": []},
+    {"slot": "BOON", "class": "BlockingBoon", "handles": ["EntityDamageByEntityEvent"], "reuses": ["AdaptAttributeService"]},
+    {"slot": "FUEL", "class": "BlockingFuel", "handles": [], "reuses": ["BlockingShields"]},
+    {"slot": "STATE", "class": "BlockingState", "handles": ["EntityDamageByEntityEvent"], "reuses": ["BlockingShields"]}
+  ],
+  "unavailableOn": {}
+}

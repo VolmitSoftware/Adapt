@@ -17,13 +17,6 @@ class SeabornePassiveRuntimeTest extends AdaptTestBase {
   }
 
   @Test
-  void turtleEffectsRetainAFullHundredTickRefreshBuffer() {
-    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(501, 0, 0, 500)).isFalse();
-    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(500, 0, 0, 500)).isTrue();
-    assertThat(SeaborneTurtlesVision.shouldRefreshEffect(1, 0, 0, -20)).isFalse();
-  }
-
-  @Test
   void turtleMinerCancelsTheSeparateFloatingPenalty() {
     double underwaterBoost = 1D + SeaborneTurtlesMiningSpeed.multiplierScalar(1.4D);
     double floatingCompensation = 1D + SeaborneTurtlesMiningSpeed.multiplierScalar(5D);
@@ -41,44 +34,29 @@ class SeabornePassiveRuntimeTest extends AdaptTestBase {
   }
 
   @Test
-  void turtleVisionCreditsElapsedUnderwaterTicksWithoutPreCredit() {
-    assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(null, 4000L)).isZero();
-    assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(1000L, 4000L)).isEqualTo(60D);
-    assertThat(SeaborneTurtlesVision.elapsedUnderwaterTicks(1000L, 20_000L)).isEqualTo(160D);
+  void oxygenCreditsElapsedUnderwaterTicksWithoutPreCredit() {
+    assertThat(SeaborneOxygen.elapsedUnderwaterTicks(null, 4000L)).isZero();
+    assertThat(SeaborneOxygen.elapsedUnderwaterTicks(1000L, 4000L)).isEqualTo(60D);
+    assertThat(SeaborneOxygen.elapsedUnderwaterTicks(1000L, 20_000L)).isEqualTo(160D);
   }
 
   @Test
-  void turtleVisionClampsHotloadedTimingKnobs() {
-    assertThat(SeaborneTurtlesVision.effectDurationTicks(-1)).isEqualTo(20);
-    assertThat(SeaborneTurtlesVision.effectDurationTicks(Integer.MAX_VALUE)).isEqualTo(6000);
-    assertThat(SeaborneTurtlesVision.refreshIntervalMillis(-1)).isEqualTo(250);
-    assertThat(SeaborneTurtlesVision.refreshIntervalMillis(Integer.MAX_VALUE)).isEqualTo(10_000);
-  }
-
-  @Test
-  void turtleRefreshIntervalsApplyDuringHotload() {
+  void turtleMinerRefreshIntervalAppliesDuringHotload() {
     SeaborneTurtlesMiningSpeed miner = new SeaborneTurtlesMiningSpeed();
     SeaborneTurtlesMiningSpeed.Config minerConfig = new SeaborneTurtlesMiningSpeed.Config();
     minerConfig.refreshIntervalMillis = 500;
     miner.onConfigReload(null, minerConfig);
 
-    SeaborneTurtlesVision vision = new SeaborneTurtlesVision();
-    SeaborneTurtlesVision.Config visionConfig = new SeaborneTurtlesVision.Config();
-    visionConfig.refreshIntervalMillis = 750;
-    vision.onConfigReload(null, visionConfig);
-
     assertThat(miner.getInterval()).isEqualTo(500L);
-    assertThat(vision.getInterval()).isEqualTo(750L);
   }
 
   @Test
-  void turtleVisionRemovesOnlyItsOwnedManagedEffect() {
+  void nightSightRemovesOnlyItsOwnedManagedEffect() {
     EffectInstance managed = new EffectInstance(Id.minecraft("night_vision"), 0, 0, false, false, false);
     EffectInstance stronger = new EffectInstance(Id.minecraft("night_vision"), 0, 1, false, false, false);
 
-    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(false, managed)).isFalse();
-    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(true, stronger)).isFalse();
-    assertThat(SeaborneTurtlesVision.mayRemoveNightVision(true, managed)).isTrue();
+    assertThat(SeaborneNightSight.mayRemove(false, managed)).isFalse();
+    assertThat(SeaborneNightSight.mayRemove(true, stronger)).isFalse();
+    assertThat(SeaborneNightSight.mayRemove(true, managed)).isTrue();
   }
-
 }

@@ -87,6 +87,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.data.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -313,7 +314,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     return trackedServant || MinionIdentity.sameOwner(servant, target);
   }
 
-  static boolean allowsSummonInteraction(PlayerInteractEvent event) {
+  public static boolean allowsSummonInteraction(PlayerInteractEvent event) {
     if (event.useItem() == UseResult.DENY) {
       return false;
     }
@@ -342,13 +343,12 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         return;
       }
       int level = getActiveLevel(p);
-      if (level <= 0) {
+      if (level <= 0 || raisedByUpgrade(p)) {
         return;
       }
 
       UUID id = p.uuid();
       stances.put(id, preference(p, TragoulPreferences.STANCE));
-      long now = System.currentTimeMillis();
       if (!cooldowns.isReady(id, getCooldownMillis(level))) {
         sfx(p.location(), Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.8F);
         return;
@@ -357,7 +357,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       CopyOnWriteArrayList<MobRef> list = servants.computeIfAbsent(id, k -> new CopyOnWriteArrayList<>());
       int golemancyLevel = golemancyLevel(p);
       int cap = getServantCap(level, golemancyLevel);
-      if (list.size() >= cap && (!getConfig().replaceOldestAtCap || !preferenceEnabled(p, TragoulPreferences.REPLACE))) {
+      int room = cap - ServantFrame.legion(id);
+      if (room <= 0 || (list.size() >= room
+          && (!getConfig().replaceOldestAtCap || !preferenceEnabled(p, TragoulPreferences.REPLACE)))) {
         sfx(p.location(), Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.2F);
         return;
       }
@@ -377,7 +379,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         }
       }
 
-      while (list.size() >= cap) {
+      while (list.size() >= room) {
         MobRef oldest = list.remove(0);
         UUID oldestId = servantIdsByEntity.get(oldest);
         if (oldestId == null) {
@@ -396,33 +398,63 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
       cooldowns.mark(id, getCooldownMillis(level));
       packCaps.put(id, cap);
-      int durationTicks = getDurationTicks(level, golemancyLevel);
-      ThreadLocalRandom random = ThreadLocalRandom.current();
-      EntityRef spawned = p.world().spawn(SKELETON, p.location(), (EntityRef created) -> {
-        StackExclusion.exclude(created);
-        created.data().set(SERVANT_KEY, id.toString());
-        created.setPersistent(false);
-        if (created instanceof MobRef s) {
-          s.setRemoveWhenFarAway(false);
-          s.setBurnsInDaylight(false);
-          equipServant(s, level, random);
-        }
-      });
-      if (!(spawned instanceof MobRef servant)) {
+      if (raise(p, p.location(), level, getDurationTicks(level, golemancyLevel)) == null) {
         return;
       }
-      applyServantAttributes(servant, level);
-      track(p, servant, now + (durationTicks * 50L), durationTicks);
-      ServantFrame.frame().ifPresent(frame -> frame.summoned(p, servant));
-      LivingRef priorityTarget = resolvePriorityTargetOwned(id, p, now);
-      if (priorityTarget != null) {
-        servant.setTarget(priorityTarget);
-      }
-
-      playSummonRitual(servant.location());
       addStat(p, "tragoul.skeletal-servant.servants-summoned", 1);
       xp(p, getConfig().xpPerSummon);
     });
+  }
+
+  /** An upgrade that raises servants by hand in place of this adaptation's own summon. */
+  public interface HandRaiser {
+    boolean raisesByHand(PlayerRef player);
+  }
+
+  private boolean raisedByUpgrade(PlayerRef p) {
+    if (getSkill() == null) {
+      return false;
+    }
+    for (Adaptation<?> upgrade : getSkill().getUpgrades()) {
+      if (upgrade instanceof HandRaiser raiser && raiser.raisesByHand(p)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Raises one servant for {@code owner} at {@code at}, armed and as strong as this adaptation at {@code level}, for
+   * {@code durationTicks}. It joins the owner's pack and counts toward it, follows their stance and drops nothing when
+   * it dies. Null when nothing rose. Call on the owner's thread.
+   */
+  public @Nullable MobRef raise(PlayerRef owner, Loc at, int level, int durationTicks) {
+    UUID id = owner.uuid();
+    stances.put(id, preference(owner, TragoulPreferences.STANCE));
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    EntityRef spawned = at.world().spawn(SKELETON, at, (EntityRef created) -> {
+      StackExclusion.exclude(created);
+      created.data().set(SERVANT_KEY, id.toString());
+      created.setPersistent(false);
+      if (created instanceof MobRef s) {
+        s.setRemoveWhenFarAway(false);
+        s.setBurnsInDaylight(false);
+        equipServant(s, level, random);
+      }
+    });
+    if (!(spawned instanceof MobRef servant)) {
+      return null;
+    }
+    long now = System.currentTimeMillis();
+    applyServantAttributes(servant, level);
+    track(owner, servant, now + (durationTicks * 50L), durationTicks);
+    ServantFrame.frame().ifPresent(frame -> frame.summoned(owner, servant));
+    LivingRef priorityTarget = resolvePriorityTargetOwned(id, owner, now);
+    if (priorityTarget != null) {
+      servant.setTarget(priorityTarget);
+    }
+    playSummonRitual(servant.location());
+    return servant;
   }
 
   @Override

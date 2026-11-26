@@ -18,20 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.fx.ViewerDisplayPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.platform.PlatformHost;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -39,23 +34,15 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.math.M;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> {
-  private static final Id TRAIL_BLOCK = Id.minecraft("red_stained_glass");
-  private final Map<UUID, Wound> wounds = new ConcurrentHashMap<>();
+  private final HunterWounds wounds = new HunterWounds(this,
+      (PlayerRef hunter) -> addStat(hunter, "hunter.blood-trail.trails-followed", 1));
 
   public HunterBloodTrail() {
     super("hunter-blood-trail");
@@ -89,10 +76,6 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
     statLore(v, C.YELLOW, "+ ", Form.f(getTrackingRange(level), 1), 2);
   }
 
-  static boolean isWounded(double healthAfter, double maxHealth, double fraction) {
-    return healthAfter > 0 && maxHealth > 0 && healthAfter <= maxHealth * fraction;
-  }
-
   static double trackingRange(double levelPercent, double base, double factor) {
     return base + (levelPercent * factor);
   }
@@ -118,36 +101,14 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
 
     double maxHealth = victim.maxHealth();
     double healthAfter = victim.health() - e.finalDamage();
-    if (!isWounded(healthAfter, maxHealth, getConfig().woundHealthFraction)) {
+    if (!HunterWounds.isWounded(healthAfter, maxHealth, getConfig().woundHealthFraction)) {
       return;
     }
 
     PlayerRef p = attack.attacker();
     int level = attack.level();
-    long expiresAt = M.ms() + (getTrailDurationTicks(level) * 50L);
-    double range = getTrackingRange(level);
-
-    Wound previous = wounds.put(victim.uuid(),
-        new Wound(p.uuid(), expiresAt, range, victim.world().uid()));
-    if (wounds.size() > Math.max(1, getConfig().maxTrackedWounds)) {
-      pruneOldest();
-    }
-    if (previous == null || !previous.hunterId.equals(p.uuid())) {
+    if (wounds.mark(p, victim, getTrailDurationTicks(level), getTrackingRange(level), getConfig().maxTrackedWounds)) {
       xpSilent(p, getConfig().xpPerWound);
-    }
-  }
-
-  private void pruneOldest() {
-    UUID oldestKey = null;
-    long oldestExpiry = Long.MAX_VALUE;
-    for (Map.Entry<UUID, Wound> entry : wounds.entrySet()) {
-      if (entry.getValue().expiresAt < oldestExpiry) {
-        oldestExpiry = entry.getValue().expiresAt;
-        oldestKey = entry.getKey();
-      }
-    }
-    if (oldestKey != null) {
-      wounds.remove(oldestKey);
     }
   }
 
@@ -158,106 +119,23 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
 
   @Override
   public void onTick() {
-    long now = M.ms();
-    int processed = 0;
-    int limit = Math.max(1, getConfig().maxTrackedWounds);
-    Iterator<Map.Entry<UUID, Wound>> iterator = wounds.entrySet().iterator();
-    while (iterator.hasNext() && processed < limit) {
-      Map.Entry<UUID, Wound> entry = iterator.next();
-      Wound wound = entry.getValue();
-      if (wound.expiresAt <= now) {
-        iterator.remove();
-        continue;
-      }
-      processed++;
-      renderWound(entry.getKey(), wound);
-    }
-  }
-
-  private void renderWound(UUID entityId, Wound wound) {
-    PlatformHost host = AdaptCore.platform().host();
-    EntityRef mob = host.entity(entityId);
-    PlayerRef hunter = host.player(wound.hunterId);
-    if (mob == null || hunter == null) {
-      wounds.remove(entityId);
-      return;
-    }
-
-    Tasks.runEntity(mob, () -> {
-      if (!mob.isValid()) {
-        wounds.remove(entityId);
-        return;
-      }
-      Loc current = mob.location().add(0, mob.height() * 0.35D, 0);
-      Tasks.runEntity(hunter, () -> emitTrail(hunter, entityId, wound, current));
-    });
-  }
-
-  private void emitTrail(PlayerRef hunter, UUID entityId, Wound wound, Loc current) {
-    if (!hunter.isOnline() || wounds.get(entityId) != wound || getActiveLevel(hunter) <= 0
-        || !preferenceEnabled(hunter, HunterPreferences.TRAIL)) {
-      return;
-    }
-
-    WorldRef hunterWorld = hunter.world();
-    if (!hunterWorld.uid().equals(wound.worldId) || current.world() == null || !hunterWorld.equals(current.world())) {
-      wound.lastRender = null;
-      return;
-    }
-
-    Loc hunterLocation = hunter.location();
-    if (hunterLocation.distanceSquared(current) > wound.range * wound.range) {
-      wound.lastRender = null;
-      return;
-    }
-
-    if (!wound.followed) {
-      wound.followed = true;
-      addStat(hunter, "hunter.blood-trail.trails-followed", 1);
-    }
-
-    Loc previous = wound.lastRender;
-    if (previous != null && previous.world() != null && previous.world().equals(current.world())) {
-      if (previous.distanceSquared(current) > 1.0E-5D) {
-        displays().showLine(
-            getName(),
-            "wound-" + entityId,
-            hunter,
-            previous,
-            current,
-            AdaptCore.platform().host().items().blockState(TRAIL_BLOCK),
-            preference(hunter, HunterPreferences.GLOW).color(),
-            getConfig().trailThickness,
-            getConfig().displayDurationTicks
-        );
-      }
-    }
-    wound.lastRender = current;
+    wounds.tick(getConfig().maxTrackedWounds, new HunterWounds.Style(getConfig().trailThickness, getConfig().displayDurationTicks));
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent event) {
-    UUID playerId = event.player().uuid();
-    wounds.entrySet().removeIf(entry -> entry.getValue().hunterId.equals(playerId));
-    displays().clearViewer(getName(), playerId);
+    wounds.forget(event.player().uuid());
   }
 
   @Override
   public void onPlayerPreferencesChanged(AdaptPlayer player) {
-    UUID playerId = player.getPlayer().uuid();
-    wounds.entrySet().removeIf(entry -> entry.getValue().hunterId.equals(playerId));
-    displays().clearViewer(getName(), playerId);
+    wounds.forget(player.getPlayer().uuid());
   }
 
   @Override
   public void unregister() {
     wounds.clear();
-    displays().clearChannel(getName());
     super.unregister();
-  }
-
-  private static ViewerDisplayPort displays() {
-    return AdaptPorts.get(ViewerDisplayPort.class, ViewerDisplayPort.NONE);
   }
 
   @ConfigDescription("Mobs you wound below half health leave a private glowing blood trail only you can see.")
@@ -285,22 +163,6 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
       baseCost = 1;
       costFactor = 0.5;
       initialCost = 1;
-    }
-  }
-
-  private static final class Wound {
-    private final UUID hunterId;
-    private final long expiresAt;
-    private final double range;
-    private final UUID worldId;
-    private volatile Loc lastRender;
-    private volatile boolean followed;
-
-    private Wound(UUID hunterId, long expiresAt, double range, UUID worldId) {
-      this.hunterId = hunterId;
-      this.expiresAt = expiresAt;
-      this.range = range;
-      this.worldId = worldId;
     }
   }
 }

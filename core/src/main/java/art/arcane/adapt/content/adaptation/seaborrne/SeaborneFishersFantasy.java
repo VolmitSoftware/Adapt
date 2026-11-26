@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -35,19 +34,13 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerFishEvent;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFantasy.Config> {
-  private static final List<Id> FISHING_DROPS = fishingDrops();
-
   private final Cooldowns rewardCooldown = cooldowns();
 
   public SeaborneFishersFantasy() {
@@ -99,19 +92,14 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
           return;
         }
 
-        double chance = bonusChance(level, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel);
+        double chance = SeaborneCatches.bonusChance(level, config.maxLevel, config.bonusChanceAtLevelOne, config.bonusChanceAtMaxLevel);
         if (ThreadLocalRandom.current().nextDouble() >= chance) {
           return;
         }
 
         rewardCooldown.mark(p.uuid(), config.cooldownMillis);
-        Id drop = FISHING_DROPS.get(ThreadLocalRandom.current().nextInt(FISHING_DROPS.size()));
-        ItemRef item = AdaptCore.platform().host().items().create(drop, 1);
-        p.world().dropItemNaturally(p.location().position(), item);
-        int vanillaXp = rewardXp(level, config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch);
-        if (vanillaXp > 0) {
-          p.world().spawnExperience(p.location().position(), vanillaXp);
-        }
+        SeaborneCatches.award(p, SeaborneCatches.rewardXp(level, config.vanillaXpAtLevelOne,
+            config.vanillaXpPerAdditionalLevel, config.maximumVanillaXpPerCatch));
         if (config.skillXpOnSuccess > 0D) {
           xp(p, config.skillXpOnSuccess);
         }
@@ -125,35 +113,6 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
             .chord(Sounds.BLOCK_CONDUIT_ACTIVATE, 0.4F, pitch, Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, chimePitch);
       }
     });
-  }
-
-  static double bonusChance(int level, int maxLevel, double atLevelOne, double atMaxLevel) {
-    if (maxLevel <= 1) {
-      return Math.max(0D, Math.min(1D, atMaxLevel));
-    }
-    double progress = (double) Math.max(0, Math.min(level, maxLevel) - 1) / (double) (maxLevel - 1);
-    double chance = atLevelOne + ((atMaxLevel - atLevelOne) * progress);
-    return Math.max(0D, Math.min(1D, chance));
-  }
-
-  static int rewardXp(int level, int atLevelOne, int perAdditionalLevel, int maximum) {
-    long reward = Math.max(0, atLevelOne) + ((long) Math.max(0, level - 1) * Math.max(0, perAdditionalLevel));
-    return (int) Math.min(Math.max(0, maximum), reward);
-  }
-
-  private static List<Id> fishingDrops() {
-    List<Id> drops = new ArrayList<>();
-    for (int i = 0; i < 5; i++) {
-      drops.addAll(Collections.nCopies(6, Id.minecraft("cod")));
-      drops.addAll(Collections.nCopies(4, Id.minecraft("salmon")));
-      drops.add(Id.minecraft("pufferfish"));
-      drops.add(Id.minecraft("tropical_fish"));
-    }
-    for (String path : List.of("bow", "fishing_rod", "name_tag", "nautilus_shell", "saddle",
-        "lily_pad", "bowl", "leather", "stick", "rotten_flesh", "string", "glass_bottle", "bone", "ink_sac", "tripwire_hook")) {
-      drops.add(Id.minecraft(path));
-    }
-    return List.copyOf(drops);
   }
 
   @ConfigDescription("Fishing can grant one bounded bonus item, vanilla XP, and Seaborne XP.")

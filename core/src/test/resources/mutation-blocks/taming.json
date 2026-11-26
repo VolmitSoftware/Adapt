@@ -1,0 +1,13 @@
+{
+  "skill": "taming",
+  "behaviourTest": "TamingBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "TamingTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": ["TamePets"]},
+    {"slot": "STRIKE_FIGHT", "class": "TamingFightStrike", "handles": [], "reuses": ["TamePets", "TamePackCommand", "TamingGuardianInstinct"]},
+    {"slot": "STRIKE_WORK", "class": "TamingWorkStrike", "handles": [], "reuses": ["TamePets", "TameRegeneration", "TamePackBuff"]},
+    {"slot": "BOON", "class": "TamingBoon", "handles": [], "reuses": ["TamePets"]},
+    {"slot": "FUEL", "class": "TamingFuel", "handles": [], "reuses": ["TamePackCommand"]},
+    {"slot": "STATE", "class": "TamingState", "handles": ["EntityDamageByEntityEvent"], "reuses": ["TamingTrigger"]}
+  ],
+  "unavailableOn": {}
+}

@@ -52,7 +52,6 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Config> {
@@ -197,14 +196,14 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
   }
 
   private static void applyHeirloomLore(ItemRef item) {
-    List<String> lore = new ArrayList<>(item.lore());
-    String previous = item.data().get(LORE_KEY);
-    String english = SwordMessages.HEIRLOOM_EDGE_NAME.english();
-    lore.removeIf(line -> line != null && (line.equals(previous) || line.contains(english)));
-    String rendered = C.GOLD + AdaptLanguage.text(SwordMessages.HEIRLOOM_EDGE_NAME);
-    lore.add(rendered);
-    item.data().set(LORE_KEY, rendered);
-    item.setLore(lore);
+    SwordBladeLore.replace(item, LORE_KEY, SwordMessages.HEIRLOOM_EDGE_NAME.english(),
+        C.GOLD + AdaptLanguage.text(SwordMessages.HEIRLOOM_EDGE_NAME));
+  }
+
+  /** The damage an heirloom has banked into this blade, 0 for any other item. */
+  public static double bankedBonus(ItemRef item) {
+    DataHolder data = item.data();
+    return data.has(FLAG_KEY) ? data.getOrDefault(BONUS_KEY, 0D) : 0D;
   }
 
   private double getGrowthPerBank(int level) {

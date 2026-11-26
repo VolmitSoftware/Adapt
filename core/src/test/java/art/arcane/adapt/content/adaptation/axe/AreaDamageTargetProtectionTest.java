@@ -14,11 +14,9 @@ import org.mockito.MockedStatic;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,13 +51,13 @@ class AreaDamageTargetProtectionTest {
     when(player.uuid()).thenReturn(UUID.randomUUID());
 
     for (LivingRef target : List.of(passive, neutral, hostile, player)) {
-      assertThat(AxeThrowingAxe.allowsThrowImpact(target, 0, true)).isTrue();
-      assertThat(AxeThrowingAxe.allowsThrowImpact(target, 2, false)).isTrue();
+      assertThat(AxeThrow.allowsThrowImpact(target, 0, true)).isTrue();
+      assertThat(AxeThrow.allowsThrowImpact(target, 2, false)).isTrue();
     }
-    assertThat(AxeThrowingAxe.allowsThrowImpact(passive, 1, true)).isFalse();
-    assertThat(AxeThrowingAxe.allowsThrowImpact(neutral, 2, true)).isFalse();
-    assertThat(AxeThrowingAxe.allowsThrowImpact(hostile, 1, true)).isTrue();
-    assertThat(AxeThrowingAxe.allowsThrowImpact(player, 1, true)).isTrue();
+    assertThat(AxeThrow.allowsThrowImpact(passive, 1, true)).isFalse();
+    assertThat(AxeThrow.allowsThrowImpact(neutral, 2, true)).isFalse();
+    assertThat(AxeThrow.allowsThrowImpact(hostile, 1, true)).isTrue();
+    assertThat(AxeThrow.allowsThrowImpact(player, 1, true)).isTrue();
   }
 
   @Test
@@ -69,20 +67,15 @@ class AreaDamageTargetProtectionTest {
     LivingRef passive = passive();
     when(passive.isValid()).thenReturn(true);
     doReturn(false).when(adaptation).isProtectedFriendly(owner, passive);
-    Field cleaving = AxeCleave.class.getDeclaredField("cleaving");
-    cleaving.setAccessible(true);
-    cleaving.set(adaptation, new ConcurrentHashMap<UUID, Long>());
+    AxeCleaveArc arc = new AxeCleaveArc(adaptation, () -> adaptation.getConfig().ignorePassiveMobs);
     AtomicReference<Runnable> pending = new AtomicReference<>();
-    Method damage = AxeCleave.class.getDeclaredMethod("markAndDamage", LivingRef.class,
-        PlayerRef.class, double.class, long.class);
-    damage.setAccessible(true);
 
     try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
       scheduling.when(() -> Tasks.runEntity(same(passive), any(Runnable.class))).thenAnswer(invocation -> {
         pending.set(invocation.getArgument(1, Runnable.class));
         return true;
       });
-      damage.invoke(adaptation, passive, owner, 4D, 0L);
+      arc.strike(passive, owner, 4D, 0L, (LivingRef struck) -> { });
       adaptation.getConfig().ignorePassiveMobs = true;
       assertThat(pending.get()).isNotNull();
       pending.get().run();
@@ -101,10 +94,8 @@ class AreaDamageTargetProtectionTest {
     LivingRef hostile = enemy("husk");
     List<EntityRef> candidates = crowdedCandidates(hostile);
     when(world.entitiesIn(any(), any())).thenReturn(candidates);
-    Method collect = AxeGroundSmash.class.getDeclaredMethod("collectCandidates", PlayerRef.class, Loc.class, double.class);
-    collect.setAccessible(true);
-
-    assertThat((List<?>) collect.invoke(adaptation, owner, center, 5D)).isEqualTo(List.of(hostile));
+    assertThat(AxeSmash.collectCandidates(adaptation, owner, center, 5D, adaptation.getConfig().ignorePassiveMobs))
+        .isEqualTo(List.of(hostile));
   }
 
   private static List<EntityRef> crowdedCandidates(LivingRef hostile) {

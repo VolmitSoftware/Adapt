@@ -44,17 +44,16 @@ import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.volmlib.util.math.RNG;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Config> {
-  private static final Id SPAWNER = Id.minecraft("spawner");
+  public static final Id SPAWNER = Id.minecraft("spawner");
   private static final Id SILK_TOUCH = Id.minecraft("silk_touch");
-  private final RNG rng = new RNG();
   private final Map<DropKey, DropPlan> pendingDrops = new ConcurrentHashMap<>();
 
   public PickaxeSilkSpawner() {
@@ -100,18 +99,25 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     }
 
     ItemRef spawner = createSpawnerItem(event.brokenSpawnerType());
+    ItemEntityRef item = dropSpawner(event, player, spawner);
+    pendingDrops.put(DropKey.of(event), new DropPlan(player, item.location(), block.center(), item));
+  }
 
+  /** Replaces the spawner drops of {@code event} with {@code spawner}, dropped near the block and owned by {@code player}. */
+  public static ItemEntityRef dropSpawner(BlockDropItemEvent event, PlayerRef player, ItemRef spawner) {
+    BlockRef block = event.block();
+    ThreadLocalRandom random = ThreadLocalRandom.current();
     Loc loc = block.location().add(
-        rng.d(-0.25D, 0.25D),
-        rng.d(-0.25D, 0.25D) - 0.125D,
-        rng.d(-0.25D, 0.25D)
+        random.nextDouble(-0.25D, 0.25D),
+        random.nextDouble(-0.25D, 0.25D) - 0.125D,
+        random.nextDouble(-0.25D, 0.25D)
     );
     ItemEntityRef item = block.world().createItemEntity(loc.position(), spawner);
     item.setOwner(player.uuid());
 
     event.items().removeIf((ItemEntityRef drop) -> SPAWNER.equals(drop.item().type()));
     event.items().add(item);
-    pendingDrops.put(DropKey.of(event), new DropPlan(player, loc, block.center(), item));
+    return item;
   }
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
@@ -167,7 +173,7 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     ));
   }
 
-  static ItemRef createSpawnerItem(Id spawnedType) {
+  public static ItemRef createSpawnerItem(Id spawnedType) {
     return AdaptCore.platform().host().items().spawner(spawnedType);
   }
 

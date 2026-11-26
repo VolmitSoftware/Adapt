@@ -19,12 +19,14 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -44,16 +46,32 @@ import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
+  public static final Set<Id> BENEFICIAL = Set.of(
+      Id.minecraft("speed"),
+      Id.minecraft("jump_boost"),
+      Id.minecraft("regeneration"),
+      Id.minecraft("resistance"),
+      Id.minecraft("fire_resistance"),
+      Id.minecraft("water_breathing"),
+      Id.minecraft("invisibility"),
+      Id.minecraft("night_vision"),
+      Id.minecraft("health_boost"),
+      Id.minecraft("absorption"),
+      Id.minecraft("saturation"),
+      Id.minecraft("luck"),
+      Id.minecraft("slow_falling"),
+      Id.minecraft("dolphins_grace"),
+      Id.minecraft("hero_of_the_village"),
+      Id.minecraft("haste"),
+      Id.minecraft("strength"));
+
   public static final PlayerPreference<CommonPreferences.Toggle> HARMFUL = CommonPreferences.toggle("shorten-harmful", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HARMFUL, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_SPEED, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> JUMP_BOOST = CommonPreferences.toggle("jump-boost", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_JUMP_BOOST, CommonPreferences.Toggle.ON);
@@ -73,7 +91,10 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> HASTE = CommonPreferences.toggle("haste", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HASTE, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> STRENGTH = CommonPreferences.toggle("strength", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_STRENGTH, CommonPreferences.Toggle.ON);
 
-  private final Map<UUID, Boolean> reapplying = playerState();
+  private final ChronosEffectStretch stretch = new ChronosEffectStretch(this, playerState(), (PlayerRef p, int bonus) -> {
+    addStat(p, "chronos.overtime.seconds-extended", bonus / 20D);
+    xpSilent(p, Math.min(getConfig().maxXpPerExtension, (bonus / 20D) * getConfig().xpPerBonusSecond), "chronos:overtime");
+  });
 
   public ChronosOvertime() {
     super("chronos-overtime");
@@ -88,26 +109,6 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         .build());
     registerMilestone("challenge_chronos_overtime_1k", "chronos.overtime.seconds-extended", 1000, 750);
   }
-
-  private static final Set<Id> BENEFICIAL = Set.of(
-      Id.minecraft("speed"),
-      Id.minecraft("jump_boost"),
-      Id.minecraft("regeneration"),
-      Id.minecraft("resistance"),
-      Id.minecraft("fire_resistance"),
-      Id.minecraft("water_breathing"),
-      Id.minecraft("invisibility"),
-      Id.minecraft("night_vision"),
-      Id.minecraft("health_boost"),
-      Id.minecraft("absorption"),
-      Id.minecraft("saturation"),
-      Id.minecraft("luck"),
-      Id.minecraft("slow_falling"),
-      Id.minecraft("dolphins_grace"),
-      Id.minecraft("hero_of_the_village"),
-      Id.minecraft("haste"),
-      Id.minecraft("strength"));
-
 
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
@@ -159,7 +160,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
 
   @Handle
   public void on(PlayerQuitEvent e) {
-    reapplying.remove(e.player().uuid());
+    stretch.forget(e.player().uuid());
   }
 
   @Handle(priority = EventPriority.HIGH)
@@ -174,8 +175,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
       return;
     }
 
-    UUID id = p.uuid();
-    if (reapplying.containsKey(id)) {
+    if (stretch.isReapplying(p.uuid())) {
       return;
     }
 
@@ -197,12 +197,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     EffectInstance halved = new EffectInstance(incoming.type(), shortened, incoming.amplifier(),
         incoming.ambient(), incoming.particles(), incoming.icon());
 
-    reapplying.put(id, true);
-    try {
-      p.addEffect(halved);
-    } finally {
-      reapplying.remove(id);
-    }
+    stretch.reapply(p, halved);
 
     addStat(p, "chronos.overtime.seconds-shortened", (duration - shortened) / 20D);
     fx(p.location(), FxPriority.TRANSITION)
@@ -212,32 +207,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityPotionEffectEvent e) {
-    EntityPotionEffectEvent.Action action = e.action();
-    if (action != EntityPotionEffectEvent.Action.ADDED && action != EntityPotionEffectEvent.Action.CHANGED) {
-      return;
-    }
-
-    if (!(e.entity() instanceof PlayerRef p)) {
-      return;
-    }
-
-    UUID id = p.uuid();
-    if (reapplying.containsKey(id)) {
-      return;
-    }
-
-    EffectInstance newEffect = e.newEffect();
-    if (newEffect == null) {
-      return;
-    }
-
-    int duration = newEffect.durationTicks();
-    if (duration < getConfig().minimumDurationTicks || duration > getConfig().maximumBaseDurationTicks) {
-      return;
-    }
-
-    Id type = newEffect.type();
-    if (!BENEFICIAL.contains(type) || !preferenceEnabled(p, switch (type.path()) {
+    stretch.stretch(e, (PlayerRef p, Id type) -> preferenceEnabled(p, switch (type.path()) {
       case "speed" -> SPEED;
       case "jump_boost" -> JUMP_BOOST;
       case "regeneration" -> REGENERATION;
@@ -256,63 +226,20 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
       case "haste" -> HASTE;
       case "strength" -> STRENGTH;
       default -> CommonPreferences.ENABLED;
-    })) {
-      return;
-    }
-
-    int level = getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    int bonus = (int) Math.min(getConfig().maxBonusTicks, Math.round(duration * getExtensionPercent(level)));
-    if (bonus <= 0) {
-      return;
-    }
-
-    int amplifier = newEffect.amplifier();
-    int targetDuration = duration + bonus;
-
-    Runnable extend = () -> {
-      if (!p.isOnline() || p.isDead()) {
-        return;
-      }
-
-      EffectInstance current = p.effect(type);
-      if (current == null
-          || current.amplifier() != amplifier
-          || current.durationTicks() <= 0
-          || current.durationTicks() >= targetDuration) {
-        return;
-      }
-
-      reapplying.put(id, true);
-      try {
-        p.addEffect(new EffectInstance(type, targetDuration, amplifier,
-            current.ambient(), current.particles(), current.icon()));
-      } finally {
-        reapplying.remove(id);
-      }
-
-      addStat(p, "chronos.overtime.seconds-extended", bonus / 20D);
-      xpSilent(p, Math.min(getConfig().maxXpPerExtension, (bonus / 20D) * getConfig().xpPerBonusSecond), "chronos:overtime");
-
-      Loc body = p.location();
-      FxEmitter shimmer = fx(body, FxPriority.TRANSITION)
-          .particle(Particles.WAX_ON, 5, 0, 0.6D, 0, 0.25D, 0.03D)
-          .chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F, Sounds.BLOCK_BREWING_STAND_BREW, 0.3F, 1.3F);
-      if (bonus >= getConfig().maxBonusTicks * 0.6D) {
-        shimmer.ring(Particles.ENCHANTMENT_TABLE, 0.9D, 8, 0.1D);
-      }
-    };
-
-    if (Tasks.isFoliaThreading()) {
-      Tasks.runEntity(p, extend, 1);
-    } else {
-      Tasks.s(extend, 1);
-    }
+    }), new ChronosEffectStretch.Stretch(this::getExtensionPercent,
+        getConfig().maxBonusTicks, getConfig().minimumDurationTicks, getConfig().maximumBaseDurationTicks));
   }
 
+  /** The shimmer of a stretched effect; {@code large} adds the ring for big extensions. */
+  public static void stretchFx(Adaptation<?> owner, PlayerRef p, boolean large) {
+    Loc body = p.location();
+    FxEmitter shimmer = Fx.now(owner, body, FxPriority.TRANSITION)
+        .particle(Particles.WAX_ON, 5, 0, 0.6D, 0, 0.25D, 0.03D)
+        .chord(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F, Sounds.BLOCK_BREWING_STAND_BREW, 0.3F, 1.3F);
+    if (large) {
+      shimmer.ring(Particles.ENCHANTMENT_TABLE, 0.9D, 8, 0.1D);
+    }
+  }
 
   @ConfigDescription("Beneficial potion effects applied to you last longer, scaled by adaptation level. At max level, harmful effects applied to you last half as long.")
   protected static class Config extends AdaptationConfig {

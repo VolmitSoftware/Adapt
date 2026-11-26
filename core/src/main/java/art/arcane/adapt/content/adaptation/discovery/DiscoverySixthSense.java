@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.discovery;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
@@ -74,8 +75,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
 
   private final Cooldowns pulseThrottle = cooldowns();
   private final Cooldowns cueThrottle = cooldowns();
-  private final GeneratedStructureSearch structureSearch = new GeneratedStructureSearch();
-  private final Map<UUID, GeneratedStructureSearch.Sweep> searches = playerState();
+  private final StructureSense sense = new StructureSense();
   private final Map<UUID, Box> targetBounds = playerState();
   private long nextPlayerTick;
   private final Map<UUID, StructureTarget> targets = playerState();
@@ -130,13 +130,13 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
 
   @Override
   public boolean hasTickDemand() {
-    return requiresMaintenance(super.hasTickDemand(), !targets.isEmpty() || !searches.isEmpty() || structureSearch.hasWork());
+    return requiresMaintenance(super.hasTickDemand(), !targets.isEmpty() || sense.hasSweeps() || sense.hasWork());
   }
 
   @Override
   public void onTick() {
-    structureSearch.tick();
-    setInterval(structureSearch.hasWork() ? 50 : 2000);
+    sense.tick();
+    setInterval(sense.hasWork() ? 50 : 2000);
     long now = System.currentTimeMillis();
     if (now < nextPlayerTick) {
       return;
@@ -154,7 +154,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   private void cleanupInactiveTargets() {
-    for (UUID playerId : List.copyOf(searches.keySet())) {
+    for (UUID playerId : sense.sweepingPlayers()) {
       if (getServer().hasOnlineLearner(playerId, getName())) {
         continue;
       }
@@ -205,12 +205,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     );
     showCurrentTarget(player, origin, range);
 
-    GeneratedStructureSearch.Sweep pending = searches.get(playerId);
-    if (pending != null && !pending.accepts(origin.world().uid())) {
-      cancelSearch(playerId);
-      pending = null;
-    }
-    if (pending != null && pending.running()) {
+    if (sense.running(playerId, origin.world().uid())) {
       return;
     }
 
@@ -223,22 +218,15 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   private void searchOwned(PlayerRef player, Loc origin, double range) {
-    UUID playerId = player.uuid();
-    cancelSearch(playerId);
     Id selected = preference(player, STRUCTURES).type();
     List<Id> types = selected == null ? DiscoveryStructures.SENSED : List.of(selected);
-    WorldRef world = origin.world();
-    GeneratedStructureSearch.Sweep sweep = structureSearch.begin(new GeneratedStructureSearch.Request(
-        UUID.randomUUID(), world, world.uid(), origin.x(), origin.z(), range, types,
-        candidate -> Tasks.runEntity(player, () -> acceptCandidateOwned(player, candidate))));
-    searches.put(playerId, sweep);
+    sense.begin(player, origin, range, types, (StructureSense.Sensed candidate) -> acceptCandidateOwned(player, candidate));
     setInterval(50);
   }
 
-  private void acceptCandidateOwned(PlayerRef player, GeneratedStructureSearch.Candidate candidate) {
+  private void acceptCandidateOwned(PlayerRef player, StructureSense.Sensed candidate) {
     UUID playerId = player.uuid();
-    GeneratedStructureSearch.Sweep sweep = searches.get(playerId);
-    if (sweep == null || !sweep.owns(candidate) || getActiveLevel(player) <= 0) {
+    if (getActiveLevel(player) <= 0) {
       return;
     }
     Loc origin = player.location();
@@ -271,11 +259,9 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   private void cancelSearch(UUID playerId) {
-    GeneratedStructureSearch.Sweep search = searches.remove(playerId);
-    if (search != null) {
-      search.cancel();
-    }
+    sense.cancel(playerId);
   }
+
 
   private void showCurrentTarget(PlayerRef player, Loc origin, double range) {
     StructureTarget target = targets.get(player.uuid());
@@ -363,24 +349,35 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
       return;
     }
 
+    pointTowards(this, player, ux, uz, horizontal);
+    fx(player, FxPriority.AMBIENT).sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.22F, 1.9F);
+    fx(player.location(), FxPriority.AMBIENT)
+        .ring(Particles.END_ROD, 1.1D, 8, 0.1D);
+  }
+
+  /** A short glowing line only the player sees, from their eyes along the unit direction {@code (ux, uz)}. */
+  public static void pointTowards(Adaptation<?> owner, PlayerRef player, double ux, double uz, double horizontal) {
+    pointTowards(owner, player, "structure-direction", ux, uz, horizontal, 50);
+  }
+
+  /** {@link #pointTowards(Adaptation, PlayerRef, double, double, double)} under its own display key, for {@code ticks}. */
+  public static void pointTowards(Adaptation<?> owner, PlayerRef player, String key, double ux, double uz, double horizontal,
+                                  int ticks) {
     double length = Math.min(6D, horizontal);
     Vec3 direction = new Vec3(ux, 0D, uz);
     Loc start = player.eyeLocation().add(direction.multiply(0.65D));
     Loc end = start.add(direction.multiply(length));
     displays().showLine(
-        getName(),
-        "structure-direction",
+        owner.getName(),
+        key,
         player,
         start,
         end,
         AdaptCore.platform().host().items().blockState(LINE_BLOCK),
         new Rgb(100, 225, 255),
         0.07D,
-        50
+        ticks
     );
-    fx(player, FxPriority.AMBIENT).sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.22F, 1.9F);
-    fx(player.location(), FxPriority.AMBIENT)
-        .ring(Particles.END_ROD, 1.1D, 8, 0.1D);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -416,11 +413,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         });
       }
     }
-    structureSearch.close();
-    for (GeneratedStructureSearch.Sweep search : searches.values()) {
-      search.cancel();
-    }
-    searches.clear();
+    sense.close();
     targetBounds.clear();
     targets.clear();
     displays().clearChannel(getName());
@@ -435,7 +428,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return detectionRange(levelPercent, base, factor, HARD_MAX_RANGE);
   }
 
-  static double detectionRange(double levelPercent, double base, double factor, double configuredMax) {
+  public static double detectionRange(double levelPercent, double base, double factor, double configuredMax) {
     double maximum = Double.isFinite(configuredMax)
         ? Math.max(16.0D, Math.min(HARD_MAX_RANGE, configuredMax))
         : HARD_MAX_RANGE;
@@ -451,7 +444,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return Math.min(maximum, Math.max(16.0D, scaled));
   }
 
-  static String compassDirection(double dx, double dz) {
+  public static String compassDirection(double dx, double dz) {
     if (Math.abs(dx) < 1.0E-9D && Math.abs(dz) < 1.0E-9D) {
       return "•";
     }
@@ -460,12 +453,12 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return directions[Math.floorMod((int) Math.round(normalized), directions.length)];
   }
 
-  static String structureName(Id structureKey, Id fallbackType) {
+  public static String structureName(Id structureKey, Id fallbackType) {
     String key = structureKey == null ? fallbackType.path() : structureKey.path();
     return Form.capitalizeWords(key.toLowerCase(Locale.ROOT).replace('_', ' '));
   }
 
-  static String structureSymbol(Id type) {
+  public static String structureSymbol(Id type) {
     if (DiscoveryStructures.JIGSAW.equals(type)) {
       return "⌂";
     }
@@ -478,7 +471,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return "◇";
   }
 
-  static boolean shouldReplaceTarget(StructureTarget current, StructureTarget candidate, Loc origin) {
+  public static boolean shouldReplaceTarget(StructureTarget current, StructureTarget candidate, Loc origin) {
     if (candidate == null) {
       return false;
     }
@@ -521,12 +514,12 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     }
   }
 
-  record StructureTarget(UUID worldId, double x, double z, String name, String symbol, long foundAtMillis) {
-    boolean matches(WorldRef world) {
+  public record StructureTarget(UUID worldId, double x, double z, String name, String symbol, long foundAtMillis) {
+    public boolean matches(WorldRef world) {
       return world != null && worldId.equals(world.uid());
     }
 
-    double distanceSquared(Loc origin) {
+    public double distanceSquared(Loc origin) {
       if (!matches(origin.world())) {
         return Double.POSITIVE_INFINITY;
       }

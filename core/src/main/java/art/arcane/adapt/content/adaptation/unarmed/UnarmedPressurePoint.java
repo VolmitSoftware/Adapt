@@ -25,12 +25,12 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.UnarmedMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -44,8 +44,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 
 public class UnarmedPressurePoint extends SimpleAdaptation<UnarmedPressurePoint.Config> {
   private static final Rgb PRESSURE_COLOR = Rgb.of(0x3A4B9F);
-  private static final Id SLOWNESS = Id.minecraft("slowness");
-  private static final Id WEAKNESS = Id.minecraft("weakness");
 
   public UnarmedPressurePoint() {
     super("unarmed-pressure-point");
@@ -95,34 +93,31 @@ public class UnarmedPressurePoint extends SimpleAdaptation<UnarmedPressurePoint.
     }
 
     int level = attack.level();
-    int slowAmplifier = applyStack(victim, SLOWNESS, getMaxSlownessAmplifier(level), getConfig().slownessDurationTicks);
+    int slowAmplifier = UnarmedPressure.stack(victim, UnarmedPressure.SLOWNESS, getMaxSlownessAmplifier(level), getConfig().slownessDurationTicks);
     boolean weakened = false;
     if (isWeaknessUnlocked(level)) {
-      applyStack(victim, WEAKNESS, getConfig().maxWeaknessAmplifier, getConfig().weaknessDurationTicks);
+      UnarmedPressure.stack(victim, UnarmedPressure.WEAKNESS, getConfig().maxWeaknessAmplifier, getConfig().weaknessDurationTicks);
       weakened = true;
     }
 
-    Loc hit = victim.location().add(0, 1.2D, 0);
-    fx(hit, FxPriority.COMBAT)
-        .particle(Particles.CRIT, 3, 0, 0, 0, 0.05D, 0.02D)
-        .particle(Particles.WAX_ON, 1, 0, 0, 0, 0.02D, 0.0D)
-        .chord(Sounds.BLOCK_POINTED_DRIPSTONE_LAND, 0.6F, 1.6F, Sounds.ENTITY_PLAYER_HURT, 0.2F, 1.8F);
-    fx(victim.location().add(0, 0.1D, 0), FxPriority.COMBAT)
-        .dustBurst(PRESSURE_COLOR, 3 + Math.min(3, slowAmplifier), 0.25D, 0.9F);
-    if (weakened) {
-      fx(hit, FxPriority.TRANSITION)
-          .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
-          .sound(Sounds.BLOCK_SCULK_SENSOR_CLICKING, 0.4F, 0.7F);
-    }
+    strikeFx(this, victim, slowAmplifier, weakened);
     xp(p, getConfig().xpPerStrike);
     addStat(p, "unarmed.pressure-point.pressure-strikes", 1);
   }
 
-  private int applyStack(LivingRef victim, Id type, int maxAmplifier, int durationTicks) {
-    EffectInstance existing = victim.effect(type);
-    int amplifier = existing == null ? 0 : Math.min(maxAmplifier, existing.amplifier() + 1);
-    victim.addEffect(new EffectInstance(type, durationTicks, amplifier, false, true, true));
-    return amplifier;
+  public static void strikeFx(Adaptation<?> owner, LivingRef victim, int slowAmplifier, boolean weakened) {
+    Loc hit = victim.location().add(0, 1.2D, 0);
+    Fx.now(owner, hit, FxPriority.COMBAT)
+        .particle(Particles.CRIT, 3, 0, 0, 0, 0.05D, 0.02D)
+        .particle(Particles.WAX_ON, 1, 0, 0, 0, 0.02D, 0.0D)
+        .chord(Sounds.BLOCK_POINTED_DRIPSTONE_LAND, 0.6F, 1.6F, Sounds.ENTITY_PLAYER_HURT, 0.2F, 1.8F);
+    Fx.now(owner, victim.location().add(0, 0.1D, 0), FxPriority.COMBAT)
+        .dustBurst(PRESSURE_COLOR, 3 + Math.min(3, slowAmplifier), 0.25D, 0.9F);
+    if (weakened) {
+      Fx.now(owner, hit, FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 4, 0, 0, 0, 0.05D, 0.01D)
+          .sound(Sounds.BLOCK_SCULK_SENSOR_CLICKING, 0.4F, 0.7F);
+    }
   }
 
   private int getMaxSlownessAmplifier(int level) {

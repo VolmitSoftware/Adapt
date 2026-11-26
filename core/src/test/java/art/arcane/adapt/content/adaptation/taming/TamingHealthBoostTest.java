@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,8 +25,10 @@ import static org.mockito.Mockito.when;
 class TamingHealthBoostTest extends AdaptTestBase {
   @ParameterizedTest
   @CsvSource({"true,40", "true,10", "false,40", "false,10"})
-  void removingOwnedHealthBonusClampsOnlyExcessCurrentHealth(boolean cleanup, double health) throws ReflectiveOperationException {
-    TamingHealthBoost boost = new TamingHealthBoost();
+  void removingOwnedHealthBonusClampsOnlyExcessCurrentHealth(boolean cleanup, double health) {
+    TameAttributeBoost boost = new TameAttributeBoost(Id.of("adapt", "tame-health-boost"), Attributes.MAX_HEALTH,
+        (LivingRef applied) -> {
+        });
     LivingRef pet = mock(LivingRef.class);
     when(pet.uuid()).thenReturn(UUID.randomUUID());
     when(pet.isValid()).thenReturn(true);
@@ -37,14 +38,10 @@ class TamingHealthBoostTest extends AdaptTestBase {
         .thenReturn(new AttributeMod(Id.of("adapt", "tame-health-boost"), 1D, AttributeOperation.ADD_MULTIPLIED_BASE));
     when(pet.attributeValue(Attributes.MAX_HEALTH)).thenReturn(20D);
 
-    Method removal = cleanup
-        ? TamingHealthBoost.class.getDeclaredMethod("removeHealthModifier", LivingRef.class)
-        : TamingHealthBoost.class.getDeclaredMethod("update", LivingRef.class, int.class);
-    removal.setAccessible(true);
     if (cleanup) {
-      removal.invoke(boost, pet);
+      boost.remove(pet);
     } else {
-      removal.invoke(boost, pet, 0);
+      boost.update(pet, 0, 0D);
     }
 
     verify(pet).removeModifier(eq(Attributes.MAX_HEALTH), any());

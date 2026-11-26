@@ -18,8 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -35,12 +33,8 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.data.DataKey;
-import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -51,15 +45,12 @@ import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.world.BlockStateRef;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppraiser.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_CONFIRM, CommonPreferences.Toggle.OFF);
@@ -72,8 +63,6 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
   static final double MAX_RANDOM_SKILL_XP = 10_000D;
 
   private final Cooldowns cooldowns = cooldowns();
-  private final DataKey<Byte> appraisedKey = DataKey.adapt("relic_appraised", DataCodecs.BYTE);
-  private final DataKey<byte[]> placedAppraisedItemKey = DataKey.adapt("relic_appraised_item", DataCodecs.BYTE_ARRAY);
 
   public DiscoveryRelicAppraiser() {
     super("discovery-relic-appraiser");
@@ -111,66 +100,21 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
 
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
-    ItemRef placed = e.itemInHand();
-    if (!isAppraisableBlock(placed.type()) || !isAppraised(placed, appraisedKey)) {
-      return;
-    }
-
-    DataHolder tile = e.block().blockEntityData();
-    if (tile == null) {
-      return;
-    }
-
-    ItemRef snapshot = placed.copyWithAmount(1);
-    tile.set(
-        placedAppraisedItemKey,
-        AdaptCore.platform().host().items().serialize(snapshot)
-    );
+    RelicAppraisal.rememberPlaced(e);
   }
 
   @Handle(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
-    BlockStateRef state = e.brokenState();
-    DataHolder tile = e.brokenBlockEntityData();
-    if (!isAppraisableBlock(state.type()) || tile == null) {
-      return;
-    }
-
-    byte[] encoded = tile.get(placedAppraisedItemKey);
-    if (encoded == null || encoded.length == 0) {
-      return;
-    }
-
-    ItemRef snapshot;
-    try {
-      snapshot = AdaptCore.platform().host().items().deserialize(encoded);
-    } catch (IllegalArgumentException ex) {
-      AdaptLog.error("Could not restore an appraised relic broken at " + e.block().location() + ".");
-      AdaptLog.error(ex);
-      return;
-    }
-
-    if (!isAppraisableBlock(snapshot.type()) || !isAppraised(snapshot, appraisedKey)) {
-      return;
-    }
-    restoreAppraisedDrop(e.items(), snapshot);
+    RelicAppraisal.restorePlaced(e);
   }
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
-    if (e.hand() != Hand.MAIN_HAND) {
-      return;
-    }
-
-    InteractAction action = e.action();
-    if (action != InteractAction.RIGHT_CLICK_AIR && action != InteractAction.RIGHT_CLICK_BLOCK) {
+    if (!RelicAppraisal.isAppraisalClick(e)) {
       return;
     }
 
     PlayerRef p = e.player();
-    if (!p.isSneaking()) {
-      return;
-    }
 
     int level = getActiveLevel(p);
     if (level <= 0) {
@@ -191,7 +135,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
       return;
     }
 
-    if (hand.data().has(appraisedKey)) {
+    if (hand.data().has(RelicAppraisal.APPRAISED)) {
       fx(p.eyeLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
           .sound(Sounds.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.7F);
@@ -209,20 +153,17 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
       return;
     }
     cooldowns.mark(id);
-    if (action == InteractAction.RIGHT_CLICK_BLOCK) {
+    if (e.action() == InteractAction.RIGHT_CLICK_BLOCK) {
       e.setCancelled(true);
     }
 
     double reward = appraiseXp(getLevelPercent(level), getConfig().appraiseXpBase, getConfig().appraiseXpFactor)
-        * rarityWeight(hand.type());
-    hand.data().set(appraisedKey, (byte) 1);
-    List<String> lore = new ArrayList<>(hand.lore());
-    lore.add(C.LIGHT_PURPLE + "" + C.ITALIC + AdaptLanguage.text(DiscoveryMessages.RELIC_APPRAISER_LORE_TAG));
-    hand.setLore(lore);
-    p.inventory().setMainHand(hand);
+        * rarityWeight(hand.type(), getConfig().discRarityWeight, getConfig().headRarityWeight,
+        getConfig().trimRarityWeight, getConfig().sherdRarityWeight);
+    RelicAppraisal.stamp(p, hand);
 
     xp(p, reward);
-    grantRandomSkillXp(p);
+    RelicAppraisal.grantRandomSkillXp(p, getSkill(), getConfig().randomSkillXpMin, getConfig().randomSkillXpMax);
     getPlayer(p).getData().addStat("discovery.relic-appraiser.appraised", 1);
 
     timeline(p)
@@ -239,7 +180,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         .start();
   }
 
-  static boolean isAppraisable(ItemRef item) {
+  public static boolean isAppraisable(ItemRef item) {
     String n = DiscoveryNames.enumName(item.type());
     return (n.startsWith("MUSIC_DISC_")
         || n.endsWith("_POTTERY_SHERD")
@@ -249,7 +190,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         && !GolemItems.isGolemItem(item);
   }
 
-  static boolean isAppraisableBlock(Id type) {
+  public static boolean isAppraisableBlock(Id type) {
     String name = DiscoveryNames.enumName(type);
     return name.endsWith("_HEAD") || name.endsWith("_SKULL");
   }
@@ -309,43 +250,21 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
     return Double.isFinite(value) ? Math.max(0D, Math.min(MAX_RANDOM_SKILL_XP, value)) : 0D;
   }
 
-  private void grantRandomSkillXp(PlayerRef player) {
-    List<Skill<?>> eligible = eligibleRandomSkills(
-        AdaptCore.get().getAdaptServer().getSkillRegistry().getSkills(),
-        player,
-        getSkill()
-    );
-    if (eligible.isEmpty()) {
-      return;
-    }
-
-    ThreadLocalRandom random = ThreadLocalRandom.current();
-    double reward = randomSkillXp(getConfig().randomSkillXpMin, getConfig().randomSkillXpMax, random.nextDouble());
-    if (reward <= 0D) {
-      return;
-    }
-    Skill<?> selected = eligible.get(random.nextInt(eligible.size()));
-    selected.xp(player, reward, "relic-appraiser");
-  }
-
-  private double rarityWeight(Id type) {
+  public static double rarityWeight(Id type, double disc, double head, double trim, double sherd) {
     String n = DiscoveryNames.enumName(type);
     if (n.startsWith("MUSIC_DISC_")) {
-      return getConfig().discRarityWeight;
+      return disc;
     }
-
     if (n.endsWith("_HEAD") || n.endsWith("_SKULL")) {
-      return getConfig().headRarityWeight;
+      return head;
     }
-
     if (n.endsWith("_ARMOR_TRIM_SMITHING_TEMPLATE")) {
-      return getConfig().trimRarityWeight;
+      return trim;
     }
-
-    return getConfig().sherdRarityWeight;
+    return sherd;
   }
 
-  static double appraiseXp(double levelPercent, double base, double factor) {
+  public static double appraiseXp(double levelPercent, double base, double factor) {
     return Math.max(0D, base + (levelPercent * factor));
   }
 

@@ -1,0 +1,13 @@
+{
+  "skill": "stealth",
+  "behaviourTest": "StealthBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "StealthTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": ["SkillStealth"]},
+    {"slot": "STRIKE_FIGHT", "class": "StealthFightStrike", "handles": ["EntityTargetEvent"], "reuses": ["StealthCore", "StealthSmoke"]},
+    {"slot": "STRIKE_WORK", "class": "StealthWorkStrike", "handles": ["EntityTargetEvent", "BlockReceiveGameEvent", "PlayerJoinEvent", "PlayerQuitEvent"], "reuses": []},
+    {"slot": "BOON", "class": "StealthBoon", "handles": [], "reuses": []},
+    {"slot": "FUEL", "class": "StealthFuel", "handles": [], "reuses": ["StealthShadowDecoy"]},
+    {"slot": "STATE", "class": "StealthState", "handles": ["PlayerMoveEvent", "PlayerToggleSneakEvent"], "reuses": ["StealthCore"]}
+  ],
+  "unavailableOn": {}
+}

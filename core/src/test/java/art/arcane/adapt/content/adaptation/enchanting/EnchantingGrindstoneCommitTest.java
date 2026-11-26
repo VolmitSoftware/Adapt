@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 class EnchantingGrindstoneCommitTest {
   @Test
   void consumedInputsAndOutputAllowRecovery() {
-    assertThat(EnchantingGrindstoneRecovery.committedRemoval(mock(InventoryClickEvent.class), mock(InventoryRef.class))).isTrue();
+    assertThat(EnchantingGrindstones.committedRemoval(mock(InventoryClickEvent.class), mock(InventoryRef.class))).isTrue();
   }
 
   @Test
@@ -24,16 +24,16 @@ class EnchantingGrindstoneCommitTest {
     when(input.amount()).thenReturn(1);
     when(input.type()).thenReturn(Id.minecraft("diamond_pickaxe"));
     when(inventory.item(0)).thenReturn(input);
-    assertThat(EnchantingGrindstoneRecovery.committedRemoval(event, inventory)).isFalse();
+    assertThat(EnchantingGrindstones.committedRemoval(event, inventory)).isFalse();
     when(inventory.item(0)).thenReturn(null);
     when(inventory.item(2)).thenReturn(input);
-    assertThat(EnchantingGrindstoneRecovery.committedRemoval(event, inventory)).isFalse();
+    assertThat(EnchantingGrindstones.committedRemoval(event, inventory)).isFalse();
   }
 
   @Test
   void cancelledClickCannotRecoverEvenAfterInventoryChanges() {
     InventoryClickEvent event = mock(InventoryClickEvent.class);
     when(event.isCancelled()).thenReturn(true);
-    assertThat(EnchantingGrindstoneRecovery.committedRemoval(event, mock(InventoryRef.class))).isFalse();
+    assertThat(EnchantingGrindstones.committedRemoval(event, mock(InventoryRef.class))).isFalse();
   }
 }

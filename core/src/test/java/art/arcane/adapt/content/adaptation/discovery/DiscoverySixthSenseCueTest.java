@@ -26,8 +26,6 @@ import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -56,7 +54,6 @@ class DiscoverySixthSenseCueTest extends AdaptTestBase {
     WorldRef world = mock(WorldRef.class);
     UUID playerId = UUID.randomUUID();
     UUID worldId = UUID.randomUUID();
-    UUID sweepId = UUID.randomUUID();
     when(player.uuid()).thenReturn(playerId);
     when(world.uid()).thenReturn(worldId);
     when(player.location()).thenAnswer(call -> new Loc(world, 0D, 100D, 0D));
@@ -75,13 +72,8 @@ class DiscoverySixthSenseCueTest extends AdaptTestBase {
     PlayerData data = mock(PlayerData.class);
     doReturn(owner).when(sense).getPlayer(player);
     when(owner.getData()).thenReturn(data);
-    GeneratedStructureSearch search = new GeneratedStructureSearch();
-    GeneratedStructureSearch.Sweep sweep = search.begin(new GeneratedStructureSearch.Request(
-        sweepId, world, worldId, 0D, 0D, 500D, List.of(), candidate -> {
-        }));
-    searches(sense).put(playerId, sweep);
     Method apply = DiscoverySixthSense.class.getDeclaredMethod("acceptCandidateOwned", PlayerRef.class,
-        GeneratedStructureSearch.Candidate.class);
+        StructureSense.Sensed.class);
     apply.setAccessible(true);
 
     try (MockedStatic<M> clock = mockStatic(M.class, CALLS_REAL_METHODS);
@@ -90,34 +82,27 @@ class DiscoverySixthSenseCueTest extends AdaptTestBase {
       clock.when(M::ms).thenAnswer(call -> now.get());
       pulseThrottle(sense).mark(playerId);
 
-      apply.invoke(sense, player, candidate(sweepId, worldId, 200D));
+      apply.invoke(sense, player, candidate(worldId, 200D));
       verify(effects).sound(any(Id.class), anyFloat(), anyFloat());
       verify(data).addStat("discovery.sixth-sense.senses", 1D);
 
       now.set(1200L);
-      apply.invoke(sense, player, candidate(sweepId, worldId, 100D));
+      apply.invoke(sense, player, candidate(worldId, 100D));
       hud.verify(() -> AdaptHud.ambientStatus(player, "discovery-sixth-sense", "E 100"));
       verify(effects, times(1)).sound(any(Id.class), anyFloat(), anyFloat());
       verify(data, times(1)).addStat("discovery.sixth-sense.senses", 1D);
 
       now.set(5000L);
-      apply.invoke(sense, player, candidate(sweepId, worldId, 50D));
+      apply.invoke(sense, player, candidate(worldId, 50D));
       hud.verify(() -> AdaptHud.ambientStatus(player, "discovery-sixth-sense", "E 50"));
       verify(effects, times(2)).sound(any(Id.class), anyFloat(), anyFloat());
       verify(data, times(2)).addStat("discovery.sixth-sense.senses", 1D);
     }
   }
 
-  private GeneratedStructureSearch.Candidate candidate(UUID sweepId, UUID worldId, double x) {
-    return new GeneratedStructureSearch.Candidate(sweepId, worldId, x, 0D, "Synthetic Structure", "",
+  private StructureSense.Sensed candidate(UUID worldId, double x) {
+    return new StructureSense.Sensed(worldId, x, 0D, "Synthetic Structure", "",
         new Box(x - 1D, 0D, -1D, x + 1D, 70D, 1D));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Map<UUID, GeneratedStructureSearch.Sweep> searches(DiscoverySixthSense sense) throws ReflectiveOperationException {
-    Field field = DiscoverySixthSense.class.getDeclaredField("searches");
-    field.setAccessible(true);
-    return (Map<UUID, GeneratedStructureSearch.Sweep>) field.get(sense);
   }
 
   private Cooldowns pulseThrottle(DiscoverySixthSense sense) throws ReflectiveOperationException {

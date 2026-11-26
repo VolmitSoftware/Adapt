@@ -13,6 +13,7 @@ class PlayerDataPowerTest extends AdaptTestBase {
   @Test
   @DisplayName("each held adaptation uses one power whatever its level")
   void heldAdaptationsUseOnePowerEach() {
+    RegisteredSkills.register(core, "axes", "axe-chop", "axe-cleave");
     PlayerData data = new PlayerData();
     PlayerSkillLine line = new PlayerSkillLine();
     line.setLine("axes");

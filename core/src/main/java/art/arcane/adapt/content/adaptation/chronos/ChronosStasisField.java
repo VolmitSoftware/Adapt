@@ -29,19 +29,19 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
-import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.platform.entity.AttributeOperation;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -53,14 +53,10 @@ import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -75,58 +71,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BooleanSupplier;
 import java.util.function.LongSupplier;
 
 public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSSTASISFIELD_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> OFFHAND = CommonPreferences.toggle("offhand-shard", ChronosMessages.PREFERENCE_CHRONOSSTASISFIELD_OFFHAND, CommonPreferences.Toggle.OFF);
 
-  static final int HARD_MAX_ACTIVE_BUBBLES = 256;
-  static final int HARD_MAX_BUBBLES_PER_OWNER = 2;
-  static final int HARD_MAX_FROZEN_PROJECTILES = 1_024;
-  static final int HARD_MAX_BUBBLE_QUEUE_CHECKS_PER_TICK = 256;
-  static final int HARD_MAX_BUBBLE_REGION_DISPATCHES_PER_TICK = 64;
-  static final int HARD_MAX_RESTORES_PER_TICK = 128;
-  static final int HARD_MAX_FROZEN_AUDITS_PER_TICK = 64;
-  static final int HARD_MAX_INSPECTIONS_PER_WINDOW = 1_024;
-  static final int HARD_MAX_ENTITY_HANDOFFS_PER_WINDOW = 512;
-  static final int HARD_MAX_OUTLINE_POINTS_PER_WINDOW = 512;
-  static final int HARD_MAX_FREEZE_FX_PER_WINDOW = 32;
-  static final int HARD_MAX_CAST_FX_PER_WINDOW = 16;
-  static final int HARD_MAX_EXPIRY_FX_PER_WINDOW = 32;
-  static final int HARD_MAX_INSPECTIONS_PER_BUBBLE = 64;
-  static final int HARD_MAX_INITIAL_HANDOFFS_PER_BUBBLE = 32;
-  static final long WORK_WINDOW_NANOS = 50_000_000L;
-  private static final long MAX_BUBBLE_SCHEDULING_DELAY_MILLIS = 200L;
   private static final Id AMETHYST_SHARD = Id.minecraft("amethyst_shard");
 
   private final Map<UUID, Long> cooldowns = new ConcurrentHashMap<>();
-  private final Map<UUID, StasisBubble> bubbles = new ConcurrentHashMap<>();
-  private final Map<UUID, FrozenProjectileState> frozenProjectiles = new ConcurrentHashMap<>();
-  private final Map<UUID, Set<UUID>> frozenByBubble = new ConcurrentHashMap<>();
-  private final ConcurrentLinkedQueue<UUID> restorationQueue = new ConcurrentLinkedQueue<>();
-  private final ConcurrentLinkedQueue<UUID> frozenAuditQueue = new ConcurrentLinkedQueue<>();
-  private final AtomicInteger queuedRestorations = new AtomicInteger();
-  private final AtomicLong lifecycle = new AtomicLong(1L);
-  private final AtomicBoolean acceptingCasts = new AtomicBoolean(true);
-  private final StasisBubbleCoordinator coordinator = new StasisBubbleCoordinator(
-      HARD_MAX_ACTIVE_BUBBLES,
-      HARD_MAX_BUBBLES_PER_OWNER
-  );
-  private final StasisCapacityGate frozenCapacity = new StasisCapacityGate(HARD_MAX_FROZEN_PROJECTILES);
-  private final StasisWindowBudget workBudget = new StasisWindowBudget(
-      HARD_MAX_INSPECTIONS_PER_WINDOW,
-      HARD_MAX_ENTITY_HANDOFFS_PER_WINDOW,
-      HARD_MAX_OUTLINE_POINTS_PER_WINDOW,
-      HARD_MAX_FREEZE_FX_PER_WINDOW,
-      HARD_MAX_CAST_FX_PER_WINDOW,
-      HARD_MAX_EXPIRY_FX_PER_WINDOW,
-      WORK_WINDOW_NANOS
-  );
+  private final ChronosStasis stasis = new ChronosStasis(this, () -> new ChronosStasis.Tuning(
+      getConfig().removeProjectilesOnExpire, getConfig().slownessAmplifier, getConfig().jumpLockAmplifier,
+      getConfig().effectRefreshTicks, getConfig().pulseIntervalMillis, getConfig().outlineParticleCount,
+      getConfig().outlineRefreshMillis));
 
   public ChronosStasisField() {
     super("chronos-stasis-field");
@@ -152,26 +111,10 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   @Override
   public void unregister() {
-    acceptingCasts.set(false);
-    lifecycle.incrementAndGet();
-    coordinator.clear();
-    bubbles.clear();
-    restorationQueue.clear();
-    frozenAuditQueue.clear();
-    queuedRestorations.set(0);
-
-    List<FrozenProjectileState> frozen = new ArrayList<>(frozenProjectiles.values());
-    frozenProjectiles.clear();
-    frozenByBubble.clear();
-    frozenCapacity.reset();
-    boolean remove = getConfig().removeProjectilesOnExpire;
-    for (FrozenProjectileState state : frozen) {
-      Tasks.runEntity(state.projectile, () -> restoreProjectileValuesOwned(state, remove));
-    }
+    stasis.shutdown();
     cooldowns.clear();
     super.unregister();
   }
-
 
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
@@ -191,21 +134,14 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   @Handle
   public void on(PlayerQuitEvent e) {
-    PlayerRef player = e.player();
-    UUID ownerId = player.uuid();
-    cooldowns.remove(ownerId);
-    for (StasisBubbleCoordinator.Lease lease : coordinator.removeOwner(ownerId)) {
-      StasisBubble bubble = bubbles.remove(lease.bubbleId());
-      if (bubble != null && bubble.generation == lease.generation()) {
-        releaseBubbleProjectiles(bubble);
-      }
-    }
+    cooldowns.remove(e.player().uuid());
+    stasis.quit(e.player());
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void on(EntityRemoveEvent e) {
     if (e.entity() instanceof ProjectileRef projectile) {
-      forgetFrozenProjectile(projectile.uuid());
+      stasis.forgetProjectile(projectile.uuid());
     }
   }
 
@@ -238,7 +174,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       return;
     }
     e.setCancelled(true);
-    if (!acceptingCasts.get()) {
+    if (!stasis.isAccepting()) {
       return;
     }
 
@@ -254,35 +190,13 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     }
     cooldowns.remove(ownerId, until);
 
-    UUID bubbleId = UUID.randomUUID();
-    long generation = coordinator.reserve(ownerId, bubbleId);
-    if (generation < 0L) {
-      playReject(player);
-      return;
-    }
-
     Loc center = player.location().add(0D, getCenterYOffset(), 0D);
-    StasisBubble bubble = new StasisBubble(
-        bubbleId,
-        generation,
-        ownerId,
-        player,
-        center,
-        getRadius(context.level()),
-        now + getDurationMillis(context.level()),
-        now,
-        0L,
-        lifecycle.get()
-    );
-    bubbles.put(bubbleId, bubble);
-    if (!coordinator.activate(bubbleId, generation)) {
-      bubbles.remove(bubbleId, bubble);
-      coordinator.remove(bubbleId, generation);
-      playReject(player);
-      return;
-    }
-    if (!acceptingCasts.get()) {
-      retireBubble(bubble, false);
+    ChronosStasis.StasisBubble bubble = stasis.open(player, center, getRadius(context.level()), now,
+        now + getDurationMillis(context.level()));
+    if (bubble == null) {
+      if (stasis.isAccepting()) {
+        playReject(player);
+      }
       return;
     }
 
@@ -292,7 +206,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
           player.inventory().setHand(hand, held);
           return true;
         })) {
-      retireBubble(bubble, false);
+      stasis.retire(bubble);
       return;
     }
     long cooldownMillis = getCooldownMillis();
@@ -304,405 +218,50 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   @Override
   public void onTick() {
-    processRestorationQueue();
-    auditFrozenProjectiles();
-    processBubbles(M.ms());
+    stasis.tick();
   }
 
-  private void processBubbles(long now) {
-    List<StasisBubbleCoordinator.Lease> leases = coordinator.take(
-        HARD_MAX_BUBBLE_QUEUE_CHECKS_PER_TICK
-    );
-    int dispatched = 0;
-    for (StasisBubbleCoordinator.Lease lease : leases) {
-      StasisBubble bubble = bubbles.get(lease.bubbleId());
-      if (bubble == null || bubble.generation != lease.generation()) {
-        coordinator.remove(lease.bubbleId(), lease.generation());
-        continue;
-      }
-      if (now >= bubble.expiresAt) {
-        retireBubble(bubble, true);
-        continue;
-      }
-      if (dispatched >= HARD_MAX_BUBBLE_REGION_DISPATCHES_PER_TICK
-          || now < bubble.nextPulseAt
-          || !bubble.pulsePending.compareAndSet(false, true)) {
-        continue;
-      }
-
-      boolean scheduled = Tasks.runAt(bubble.center, () -> pulseBubbleRegionOwned(bubble));
-      if (scheduled) {
-        dispatched++;
-      } else {
-        bubble.pulsePending.set(false);
-      }
-    }
-  }
-
-  private void pulseBubbleRegionOwned(StasisBubble bubble) {
-    try {
-      long now = M.ms();
-      if (!isBubbleCurrent(bubble)) {
-        return;
-      }
-      if (now >= bubble.expiresAt) {
-        retireBubble(bubble, true);
-        return;
-      }
-
-      bubble.nextPulseAt = now + getPulseIntervalMillis();
-      collectBubbleCandidatesRegionOwned(bubble);
-      if (now >= bubble.nextVisualAt) {
-        spawnOutlineRegionOwned(bubble, now);
-        bubble.nextVisualAt = now + getOutlineRefreshMillis();
-      }
-    } finally {
-      bubble.pulsePending.set(false);
-    }
-  }
-
-  private void collectBubbleCandidatesRegionOwned(StasisBubble bubble) {
-    Loc center = bubble.center;
-    double radius = bubble.radius;
-    if (!isAreaLoaded(center, radius)) {
-      return;
-    }
-
-    WorldRef world = center.world();
-    int inspected = 0;
-    int handoffs = 0;
-    for (EntityRef entity : world.entitiesIn(
-        Box.around(center.position(), radius, radius, radius),
-        candidate -> candidate instanceof ProjectileRef
-            || (candidate instanceof LivingRef && !(candidate instanceof PlayerRef)))) {
-      if (inspected >= HARD_MAX_INSPECTIONS_PER_BUBBLE
-          || handoffs >= HARD_MAX_INITIAL_HANDOFFS_PER_BUBBLE
-          || !workBudget.tryInspection()) {
-        break;
-      }
-      inspected++;
-      if (!workBudget.tryEntityHandoff()) {
-        break;
-      }
-      if (Tasks.runEntity(entity, () -> inspectCandidateOwned(bubble, entity))) {
-        handoffs++;
-      }
-    }
-  }
-
-  private void inspectCandidateOwned(StasisBubble bubble, EntityRef entity) {
-    if (!isBubbleCurrent(bubble) || !entity.isValid() || entity.isDead()) {
-      return;
-    }
-    Loc location = entity.location();
-    if (!insideBubble(bubble, location)) {
-      return;
-    }
-
-    if (entity instanceof ProjectileRef projectile) {
-      freezeProjectileOwned(bubble, projectile);
-      return;
-    }
-    if (!(entity instanceof LivingRef living) || living instanceof PlayerRef
-        || isShieldedTarget(bubble.ownerId, living)) {
-      return;
-    }
-
-    LivingTargetSnapshot snapshot = new LivingTargetSnapshot(living, location);
-    if (!workBudget.tryEntityHandoff()) {
-      return;
-    }
-    Tasks.runEntity(bubble.owner, () -> validateLivingTargetOwnerOwned(bubble, snapshot));
-  }
-
-  private void validateLivingTargetOwnerOwned(StasisBubble bubble, LivingTargetSnapshot target) {
-    if (!isBubbleCurrent(bubble) || !bubble.owner.isOnline()
-        || !canPVE(bubble.owner, target.location)) {
-      return;
-    }
-    if (!workBudget.tryEntityHandoff()) {
-      return;
-    }
-    Tasks.runEntity(target.entity, () -> applyLivingStasisOwned(bubble, target.entity));
-  }
-
-  private void applyLivingStasisOwned(StasisBubble bubble, LivingRef living) {
-    if (!isBubbleCurrent(bubble) || !living.isValid() || living.isDead()
-        || !insideBubble(bubble, living.location())
-        || isShieldedTarget(bubble.ownerId, living)) {
-      return;
-    }
-
-    int refreshTicks = getEffectRefreshTicks();
-    if (refreshTicks <= 0) {
-      return;
-    }
-    AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.applyTimed(
-        living,
-        getName(),
-        "slow",
-        Attributes.MOVEMENT_SPEED,
-        stasisSlowScalar(getSlownessAmplifier()),
-        AttributeOperation.ADD_MULTIPLIED_TOTAL,
-        refreshTicks
-    );
-    double jumpScalar = jumpLockScalar(getJumpLockAmplifier());
-    if (jumpScalar < 0D) {
-      attributes.applyTimed(
-          living,
-          getName(),
-          "jump",
-          Attributes.JUMP_STRENGTH,
-          jumpScalar,
-          AttributeOperation.ADD_MULTIPLIED_TOTAL,
-          refreshTicks
-      );
-    }
-  }
-
-  private void freezeProjectileOwned(StasisBubble bubble, ProjectileRef projectile) {
-    UUID projectileId = projectile.uuid();
-    FrozenProjectileState current = frozenProjectiles.get(projectileId);
-    if (current != null) {
-      if (current.bubbleId.equals(bubble.id) && !current.restorationQueued.get()) {
-        projectile.setGravity(false);
-        projectile.setVelocity(Vec3.ZERO);
-      }
-      return;
-    }
-    if (!frozenCapacity.tryAcquire()) {
-      return;
-    }
-
-    TemporalFreezeRegistry.Lease lease = TemporalFreezeRegistry.acquire(projectile);
-    FrozenProjectileState state = new FrozenProjectileState(
-        projectileId,
-        projectile,
-        bubble.id,
-        bubble.generation,
-        lease
-    );
-    FrozenProjectileState existing = frozenProjectiles.putIfAbsent(projectileId, state);
-    if (existing != null) {
-      TemporalFreezeRegistry.release(projectile, lease, null);
-      frozenCapacity.release();
-      return;
-    }
-
-    frozenByBubble.computeIfAbsent(bubble.id, ignored -> ConcurrentHashMap.newKeySet()).add(projectileId);
-    frozenAuditQueue.add(projectileId);
-    projectile.setPersistent(false);
-    projectile.setGravity(false);
-    projectile.setVelocity(Vec3.ZERO);
-    AdaptCore.current().getAdaptServer().addStat(
-        bubble.ownerId,
-        "chronos.stasis-field.projectiles-frozen",
-        1D
-    );
-    if (workBudget.tryFreezeFx()) {
-      fx(projectile.location(), FxPriority.COMBAT)
-          .particle(Particles.END_ROD, 3, 0D, 0D, 0D, 0.1D, 0D);
-    }
-    if (!isBubbleCurrent(bubble)) {
-      restoreOrphanedProjectileOwned(state);
-    }
-  }
-
-  private boolean isShieldedTarget(UUID ownerId, LivingRef target) {
-    return isProtectedFriendlyOwned(ownerId, target)
-        || MinionIdentity.isMinion(target);
-  }
-
-  private void retireBubble(StasisBubble bubble, boolean showFx) {
-    if (!coordinator.remove(bubble.id, bubble.generation)) {
-      return;
-    }
-    bubbles.remove(bubble.id, bubble);
-    releaseBubbleProjectiles(bubble);
-    if (showFx) {
-      emitExpiry(bubble);
-    }
-  }
-
-  private void releaseBubbleProjectiles(StasisBubble bubble) {
-    Set<UUID> projectileIds = frozenByBubble.remove(bubble.id);
-    if (projectileIds == null) {
-      return;
-    }
-    for (UUID projectileId : projectileIds) {
-      FrozenProjectileState state = frozenProjectiles.get(projectileId);
-      if (state != null && state.bubbleId.equals(bubble.id)
-          && state.bubbleGeneration == bubble.generation) {
-        queueRestoration(state);
-      }
-    }
-  }
-
-  private void queueRestoration(FrozenProjectileState state) {
-    if (!state.restorationQueued.compareAndSet(false, true)) {
-      return;
-    }
-    if (queuedRestorations.incrementAndGet() > HARD_MAX_FROZEN_PROJECTILES) {
-      queuedRestorations.decrementAndGet();
-      state.restorationQueued.set(false);
-      return;
-    }
-    restorationQueue.add(state.projectileId);
-  }
-
-  private void processRestorationQueue() {
-    for (int index = 0; index < HARD_MAX_RESTORES_PER_TICK; index++) {
-      UUID projectileId = restorationQueue.poll();
-      if (projectileId == null) {
-        return;
-      }
-      queuedRestorations.decrementAndGet();
-      FrozenProjectileState state = frozenProjectiles.get(projectileId);
-      if (state == null) {
-        continue;
-      }
-      boolean scheduled = Tasks.runEntity(state.projectile, () -> restoreProjectileOwned(state));
-      if (!scheduled) {
-        state.restorationQueued.set(false);
-        queueRestoration(state);
-      }
-    }
-  }
-
-  private void restoreProjectileOwned(FrozenProjectileState state) {
-    if (!frozenProjectiles.remove(state.projectileId, state)) {
-      return;
-    }
-    removeFrozenIndex(state);
-    frozenCapacity.release();
-    restoreProjectileValuesOwned(state, getConfig().removeProjectilesOnExpire);
-  }
-
-  private void restoreOrphanedProjectileOwned(FrozenProjectileState state) {
-    if (frozenProjectiles.remove(state.projectileId, state)) {
-      removeFrozenIndex(state);
-      frozenCapacity.release();
-    }
-    restoreProjectileValuesOwned(state, getConfig().removeProjectilesOnExpire);
-  }
-
-  private void restoreProjectileValuesOwned(FrozenProjectileState state, boolean remove) {
-    ProjectileRef projectile = state.projectile;
-    if (!projectile.isValid() || projectile.isDead()) {
-      TemporalFreezeRegistry.forget(projectile.uuid());
-      return;
-    }
-    if (remove) {
-      TemporalFreezeRegistry.forget(projectile.uuid());
-      projectile.remove();
-      return;
-    }
-    TemporalFreezeRegistry.release(projectile, state.lease, null);
-  }
-
-  private void forgetFrozenProjectile(UUID projectileId) {
-    TemporalFreezeRegistry.forget(projectileId);
-    FrozenProjectileState state = frozenProjectiles.remove(projectileId);
-    if (state == null) {
-      return;
-    }
-    removeFrozenIndex(state);
-    frozenCapacity.release();
-  }
-
-  private void removeFrozenIndex(FrozenProjectileState state) {
-    Set<UUID> projectileIds = frozenByBubble.get(state.bubbleId);
-    if (projectileIds == null) {
-      return;
-    }
-    projectileIds.remove(state.projectileId);
-    if (projectileIds.isEmpty()) {
-      frozenByBubble.remove(state.bubbleId, projectileIds);
-    }
-  }
-
-  private void auditFrozenProjectiles() {
-    for (int index = 0; index < HARD_MAX_FROZEN_AUDITS_PER_TICK; index++) {
-      UUID projectileId = frozenAuditQueue.poll();
-      if (projectileId == null) {
-        return;
-      }
-      FrozenProjectileState state = frozenProjectiles.get(projectileId);
-      if (state == null) {
-        continue;
-      }
-      if (coordinator.isCurrent(state.bubbleId, state.bubbleGeneration)
-          && !state.restorationQueued.get()) {
-        frozenAuditQueue.add(projectileId);
-      } else {
-        queueRestoration(state);
-      }
-    }
-  }
-
-  private boolean isBubbleCurrent(StasisBubble bubble) {
-    return lifecycle.get() == bubble.lifecycleToken
-        && bubbles.get(bubble.id) == bubble
-        && coordinator.isCurrent(bubble.id, bubble.generation);
-  }
-
-  private boolean insideBubble(StasisBubble bubble, Loc location) {
-    return location.sameWorld(bubble.center)
-        && location.distanceSquared(bubble.center) <= bubble.radiusSquared;
-  }
-
-  private boolean isAreaLoaded(Loc center, double radius) {
-    WorldRef world = center.world();
-    int minChunkX = ((int) Math.floor(center.x() - radius)) >> 4;
-    int maxChunkX = ((int) Math.floor(center.x() + radius)) >> 4;
-    int minChunkZ = ((int) Math.floor(center.z() - radius)) >> 4;
-    int maxChunkZ = ((int) Math.floor(center.z() + radius)) >> 4;
-    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-      for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-        if (!world.isChunkLoaded(chunkX, chunkZ)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  private void emitDeploy(PlayerRef player, StasisBubble bubble, int level) {
+  private void emitDeploy(PlayerRef player, ChronosStasis.StasisBubble bubble, int level) {
+    Loc center = stasis.center(bubble);
     if ((getConfig().playClockSounds && preferenceEnabled(player, CLOCK_SOUNDS))) {
-      ChronosSoundFX.playTimeBombDetonate(bubble.center);
+      ChronosSoundFX.playTimeBombDetonate(center);
     }
-    if (workBudget.tryCastFx()) {
-      double radius = bubble.radius;
-      Loc center = bubble.center;
-      fx(center, FxPriority.GAMEPLAY)
-          .particle(Particles.FLASH, 1, 0D, 0D, 0D, 0D, 0D)
-          .dustRing(new Rgb(120, 200, 255), radius, 24, 1.2F)
-          .chord(Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.6F, 1.5F,
-              Sounds.BLOCK_GLASS_PLACE, 0.5F, 0.7F);
-      timeline(center)
-          .duration(4)
-          .priority(FxPriority.GAMEPLAY)
-          .cullRadius(radius + 16D)
-          .frame((emitter, tick, progress) -> emitter.dome(
-              Particles.END_ROD,
-              radius * (0.4D + (0.6D * progress)),
-              16
-          ))
-          .start();
-    }
+    stasis.castFx(bubble);
     addStat(player, "chronos.stasis-field.casts", 1D);
-    xp(player, bubble.center, getCastXp(level));
+    xp(player, center, getCastXp(level));
   }
 
-  private void spawnOutlineRegionOwned(StasisBubble bubble, long now) {
-    int points = getOutlineParticleCount();
-    double radius = bubble.radius;
+  /** The flash, ring and expanding dome of a fresh bubble. */
+  public static void castFx(Adaptation<?> owner, Loc center, double radius) {
+    Fx.now(owner, center, FxPriority.GAMEPLAY)
+        .particle(Particles.FLASH, 1, 0D, 0D, 0D, 0D, 0D)
+        .dustRing(new Rgb(120, 200, 255), radius, 24, 1.2F)
+        .chord(Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.6F, 1.5F,
+            Sounds.BLOCK_GLASS_PLACE, 0.5F, 0.7F);
+    FxTimeline.at(owner, center)
+        .duration(4)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(radius + 16D)
+        .frame((emitter, tick, progress) -> emitter.dome(
+            Particles.END_ROD,
+            radius * (0.4D + (0.6D * progress)),
+            16
+        ))
+        .start();
+  }
+
+  public static void freezeFx(Adaptation<?> owner, Loc at) {
+    Fx.now(owner, at, FxPriority.COMBAT)
+        .particle(Particles.END_ROD, 3, 0D, 0D, 0D, 0.1D, 0D);
+  }
+
+  /** The spinning shell of a live bubble; each point asks {@code budget} first. */
+  public static void outlineFx(Adaptation<?> owner, Loc center, double radius, int points, long now, BooleanSupplier budget) {
     double spin = ((now % 4_000L) / 4_000D) * Math.PI * 2D;
     double golden = Math.PI * (3D - Math.sqrt(5D));
-    FxEmitter shell = fx(bubble.center, FxPriority.AMBIENT);
+    FxEmitter shell = Fx.now(owner, center, FxPriority.AMBIENT);
     for (int index = 0; index < points; index++) {
-      if (!workBudget.tryOutlinePoint()) {
+      if (!budget.getAsBoolean()) {
         break;
       }
       double vertical = points == 1 ? 0D : (((2D * index) / (points - 1D)) - 1D);
@@ -718,20 +277,16 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
           0D
       );
     }
-    if (workBudget.tryOutlinePoint()) {
+    if (budget.getAsBoolean()) {
       shell.particle(Particles.WAX_ON, 2, 0D, 0D, 0D, radius * 0.35D, 0D);
     }
   }
 
-  private void emitExpiry(StasisBubble bubble) {
-    if (!workBudget.tryExpiryFx()) {
-      return;
-    }
-    Loc center = bubble.center;
-    Tasks.runAt(center, () -> fx(center, FxPriority.TRANSITION)
+  public static void expiryFx(Adaptation<?> owner, Loc center, double radius) {
+    Fx.now(owner, center, FxPriority.TRANSITION)
         .particle(Particles.FLASH, 1, 0D, 0D, 0D, 0D, 0D)
-        .particle(Particles.PORTAL, 20, 0D, 0D, 0D, bubble.radius * 0.4D, 0.5D)
-        .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.5F, 0.9F));
+        .particle(Particles.PORTAL, 20, 0D, 0D, 0D, radius * 0.4D, 0.5D)
+        .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.5F, 0.9F);
   }
 
   private void playReject(PlayerRef player) {
@@ -760,12 +315,31 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     return clamp(getConfig().centerYOffset, -8D, 8D);
   }
 
-  private int getSlownessAmplifier() {
-    return clamp(getConfig().slownessAmplifier, 0, 10);
-  }
-
-  private int getJumpLockAmplifier() {
-    return clamp(getConfig().jumpLockAmplifier, -10, 10);
+  /** The field's hold on {@code living}: slower movement and, for negative amplifiers, lower jumps. */
+  public static void applyStasis(Adaptation<?> owner, LivingRef living, int slownessAmplifier, int jumpLockAmplifier,
+                                 int refreshTicks) {
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(
+        living,
+        owner.getName(),
+        "slow",
+        Attributes.MOVEMENT_SPEED,
+        stasisSlowScalar(slownessAmplifier),
+        AttributeOperation.ADD_MULTIPLIED_TOTAL,
+        refreshTicks
+    );
+    double jumpScalar = jumpLockScalar(jumpLockAmplifier);
+    if (jumpScalar < 0D) {
+      attributes.applyTimed(
+          living,
+          owner.getName(),
+          "jump",
+          Attributes.JUMP_STRENGTH,
+          jumpScalar,
+          AttributeOperation.ADD_MULTIPLIED_TOTAL,
+          refreshTicks
+      );
+    }
   }
 
   static double stasisSlowScalar(int amplifier) {
@@ -774,24 +348,6 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   static double jumpLockScalar(int amplifier) {
     return Math.max(-1.0D, Math.min(0.0D, amplifier / 6.0D));
-  }
-
-  private int getEffectRefreshTicks() {
-    long maximumGap = getPulseIntervalMillis() + MAX_BUBBLE_SCHEDULING_DELAY_MILLIS;
-    int bufferedMinimum = (int) Math.ceil(maximumGap / 50D) + 4;
-    return Math.max(bufferedMinimum, clamp(getConfig().effectRefreshTicks, 5, 100));
-  }
-
-  private long getPulseIntervalMillis() {
-    return clamp(getConfig().pulseIntervalMillis, 200L, 500L);
-  }
-
-  private int getOutlineParticleCount() {
-    return clamp(getConfig().outlineParticleCount, 4, 24);
-  }
-
-  private long getOutlineRefreshMillis() {
-    return clamp(getConfig().outlineRefreshMillis, 100L, 2_000L);
   }
 
   private double getCastXp(int level) {
@@ -809,58 +365,6 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
 
   private double clamp(double value, double minimum, double maximum) {
     return Math.max(minimum, Math.min(maximum, value));
-  }
-
-  private static final class StasisBubble {
-    private final UUID id;
-    private final long generation;
-    private final UUID ownerId;
-    private final PlayerRef owner;
-    private final Loc center;
-    private final double radius;
-    private final double radiusSquared;
-    private final long expiresAt;
-    private final long lifecycleToken;
-    private final AtomicBoolean pulsePending = new AtomicBoolean();
-    private volatile long nextPulseAt;
-    private volatile long nextVisualAt;
-
-    private StasisBubble(UUID id, long generation, UUID ownerId, PlayerRef owner,
-                         Loc center, double radius, long expiresAt,
-                         long nextPulseAt, long nextVisualAt, long lifecycleToken) {
-      this.id = id;
-      this.generation = generation;
-      this.ownerId = ownerId;
-      this.owner = owner;
-      this.center = center;
-      this.radius = radius;
-      this.radiusSquared = radius * radius;
-      this.expiresAt = expiresAt;
-      this.nextPulseAt = nextPulseAt;
-      this.nextVisualAt = nextVisualAt;
-      this.lifecycleToken = lifecycleToken;
-    }
-  }
-
-  private static final class FrozenProjectileState {
-    private final UUID projectileId;
-    private final ProjectileRef projectile;
-    private final UUID bubbleId;
-    private final long bubbleGeneration;
-    private final TemporalFreezeRegistry.Lease lease;
-    private final AtomicBoolean restorationQueued = new AtomicBoolean();
-
-    private FrozenProjectileState(UUID projectileId, ProjectileRef projectile, UUID bubbleId,
-                                  long bubbleGeneration, TemporalFreezeRegistry.Lease lease) {
-      this.projectileId = projectileId;
-      this.projectile = projectile;
-      this.bubbleId = bubbleId;
-      this.bubbleGeneration = bubbleGeneration;
-      this.lease = lease;
-    }
-  }
-
-  private record LivingTargetSnapshot(LivingRef entity, Loc location) {
   }
 
   @ConfigDescription("Sneak and right click with an amethyst shard to deploy a stasis bubble that freezes projectiles and locks down mobs inside.")

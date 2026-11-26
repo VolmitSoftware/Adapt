@@ -1,5 +1,11 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.api.mutation.blocks.BlockSlot;
+import art.arcane.adapt.api.mutation.blocks.SkillBlockCatalog;
+import art.arcane.adapt.api.mutation.blocks.SkillBlocks;
+import art.arcane.adapt.api.mutation.engine.MutationBlocks;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeSpec;
+import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.config.ConfigDocumentation;
 import art.arcane.volmlib.util.localization.LinesKey;
@@ -87,6 +93,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.architect-scaffolder", "adaptation:architect-scaffolder", "art.arcane.adapt.content.adaptation.architect.ArchitectScaffolder");
     addConfiguration(fields, "adaptations.architect-smart-shape", "adaptation:architect-smart-shape", "art.arcane.adapt.content.adaptation.architect.ArchitectSmartShape");
     addConfiguration(fields, "adaptations.architect-steady-hands", "adaptation:architect-steady-hands", "art.arcane.adapt.content.adaptation.architect.ArchitectSteadyHands");
+    addConfiguration(fields, "adaptations.architect-brickbat", "adaptation:architect-brickbat", "art.arcane.adapt.content.adaptation.architect.ArchitectBrickbat");
     addConfiguration(fields, "adaptations.architect-stonecutter-savant", "adaptation:architect-stonecutter-savant", "art.arcane.adapt.content.adaptation.architect.ArchitectStonecutterSavant");
     addConfiguration(fields, "adaptations.architect-supply-line", "adaptation:architect-supply-line", "art.arcane.adapt.content.adaptation.architect.ArchitectSupplyLine");
     addConfiguration(fields, "adaptations.architect-wireless-redstone", "adaptation:architect-wireless-redstone", "art.arcane.adapt.content.adaptation.architect.ArchitectWirelessRedstone");
@@ -187,6 +194,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.excavation-earth-mover", "adaptation:excavation-earth-mover", "art.arcane.adapt.content.adaptation.excavation.ExcavationEarthMover");
     addConfiguration(fields, "adaptations.excavation-grave-digger", "adaptation:excavation-grave-digger", "art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger");
     addConfiguration(fields, "adaptations.excavation-haste", "adaptation:excavation-haste", "art.arcane.adapt.content.adaptation.excavation.ExcavationHaste");
+    addConfiguration(fields, "adaptations.excavation-clod-hurler", "adaptation:excavation-clod-hurler", "art.arcane.adapt.content.adaptation.excavation.ExcavationClodHurler");
     addConfiguration(fields, "adaptations.excavation-mudlark", "adaptation:excavation-mudlark", "art.arcane.adapt.content.adaptation.excavation.ExcavationMudlark");
     addConfiguration(fields, "adaptations.excavation-omnitool", "adaptation:excavation-omnitool", "art.arcane.adapt.content.adaptation.excavation.ExcavationOmniTool");
     addConfiguration(fields, "adaptations.excavation-seismic-ping", "adaptation:excavation-seismic-ping", "art.arcane.adapt.content.adaptation.excavation.ExcavationSeismicPing");
@@ -320,12 +328,13 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.seaborne-hydro-jet", "adaptation:seaborne-hydro-jet", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneHydroJet");
     addConfiguration(fields, "adaptations.seaborne-ink-veil", "adaptation:seaborne-ink-veil", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneInkVeil");
     addConfiguration(fields, "adaptations.seaborne-oxygen", "adaptation:seaborne-oxygen", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneOxygen");
-    addConfiguration(fields, "adaptations.seaborne-pressure-diver", "adaptation:seaborne-pressure-diver", "art.arcane.adapt.content.adaptation.seaborrne.SeabornePressureDiver");
+    addConfiguration(fields, "adaptations.seaborne-pressure-diver", "adaptation:seaborne-pressure-diver", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidalWard");
+    addConfiguration(fields, "adaptations.seaborne-rain-fed", "adaptation:seaborne-rain-fed", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneRainFed");
     addConfiguration(fields, "adaptations.seaborne-speed", "adaptation:seaborne-speed", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneSpeed");
+    addConfiguration(fields, "adaptations.seaborne-storm-strike", "adaptation:seaborne-storm-strike", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneStormStrike");
     addConfiguration(fields, "adaptations.seaborne-tidecaller", "adaptation:seaborne-tidecaller", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneTidecaller");
     addConfiguration(fields, "adaptations.seaborne-trident-mastery", "adaptation:seaborne-trident-mastery", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneTridentMastery");
     addConfiguration(fields, "adaptations.seaborne-turtles-mining-speed", "adaptation:seaborne-turtles-mining-speed", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesMiningSpeed");
-    addConfiguration(fields, "adaptations.seaborne-turtles-vision", "adaptation:seaborne-turtles-vision", "art.arcane.adapt.content.adaptation.seaborrne.SeaborneTurtlesVision");
     addConfiguration(fields, "adaptations.stealth-assassinate", "adaptation:stealth-assassinate", "art.arcane.adapt.content.adaptation.stealth.StealthAssassinate");
     addConfiguration(fields, "adaptations.stealth-silent-step", "adaptation:stealth-silent-step", "art.arcane.adapt.content.adaptation.stealth.StealthCore");
     addConfiguration(fields, "adaptations.stealth-cutpurse", "adaptation:stealth-cutpurse", "art.arcane.adapt.content.adaptation.stealth.StealthCutpurse");
@@ -394,7 +403,24 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.unarmed-second-wind", "adaptation:unarmed-second-wind", "art.arcane.adapt.content.adaptation.unarmed.UnarmedSecondWind");
     addConfiguration(fields, "adaptations.unarmed-shockwave-clap", "adaptation:unarmed-shockwave-clap", "art.arcane.adapt.content.adaptation.unarmed.UnarmedShockwaveClap");
     addConfiguration(fields, "adaptations.unarmed-sucker-punch", "adaptation:unarmed-sucker-punch", "art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch");
+    addUpgradeConfigurations(fields);
+    addBlockConfigurations(fields);
     return Collections.unmodifiableMap(fields);
+  }
+
+  private static void addBlockConfigurations(Map<String, FieldMessages> fields) {
+    for (SkillBlocks skill : SkillBlockCatalog.all()) {
+      for (BlockSlot slot : BlockSlot.values()) {
+        String id = MutationBlocks.id(skill.skillId(), slot);
+        addConfiguration(fields, "adaptations." + id, "adaptation:" + id, MutationBlocks.className(skill.skillId(), slot));
+      }
+    }
+  }
+
+  private static void addUpgradeConfigurations(Map<String, FieldMessages> fields) {
+    for (UpgradeSpec spec : SkillUpgrades.all()) {
+      addConfiguration(fields, "adaptations." + spec.id(), "adaptation:" + spec.id(), spec.className());
+    }
   }
 
   private static void addConfiguration(Map<String, FieldMessages> fields, String path, String source, String ownerClass) {

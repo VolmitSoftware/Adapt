@@ -43,7 +43,7 @@ class AgilitySuperJumpTest {
 
   @Test
   void finalLevelConvertsBlockHeightToTheCorrectJumpStrength() {
-    double bonus = AgilitySuperJump.jumpStrengthBonus(2.5D);
+    double bonus = AgilityJumpPhysics.bonusForHeight(2.5D);
     double resultingStrength = AgilityJumpPhysics.VANILLA_JUMP_STRENGTH + bonus;
 
     assertThat(resultingStrength).isCloseTo(0.6177493682564199D, within(1.0E-12D));

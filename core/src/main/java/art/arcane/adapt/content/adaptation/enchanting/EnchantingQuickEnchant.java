@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
-import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -40,15 +39,12 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.inventory.InventoryAction;
 import art.arcane.adapt.platform.event.inventory.InventoryClickEvent;
 import art.arcane.adapt.platform.event.inventory.SlotKind;
-import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,8 +53,6 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGQUICKENCHANT_CONFIRM, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<CommonPreferences.Toggle> MODIFIED = CommonPreferences.toggle("modified-click", EnchantingMessages.PREFERENCE_ENCHANTINGQUICKENCHANT_MODIFIED, CommonPreferences.Toggle.OFF);
-  private static final Id BOOK = Id.minecraft("book");
-  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
 
   public EnchantingQuickEnchant() {
     super("enchanting-quick-enchant");
@@ -123,59 +117,21 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         && (e.slotKind() == SlotKind.CONTAINER
         || e.slotKind() == SlotKind.ARMOR
         || e.slotKind() == SlotKind.QUICKBAR)
-        && cursor != null
-        && current != null
-        && cursor.type().equals(ENCHANTED_BOOK)
-        && !current.type().equals(BOOK)
-        && !current.type().equals(ENCHANTED_BOOK)
-        && !current.isEmpty()
-        && current.amount() == 1
-        && cursor.amount() == 1) {
+        && EnchantingBooks.isBookApplication(current, cursor)) {
       e.setCancelled(true);
       ItemRef item = current.copy();
       ItemRef book = cursor.copy();
       if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "apply", item, book)) {
         return;
       }
-      ItemOps items = AdaptCore.platform().host().items();
-      Map<Id, Integer> itemEnchants = new LinkedHashMap<>(item.enchantments());
-      Map<Id, Integer> bookEnchants = new LinkedHashMap<>(book.storedEnchantments());
-      Map<Id, Integer> newEnchants = new LinkedHashMap<>(itemEnchants);
-      Map<Id, Integer> addEnchants = new LinkedHashMap<>();
-      int power = itemEnchants.values().stream().mapToInt(i -> i).sum();
-
-      if (bookEnchants.isEmpty()) {
+      if (book.storedEnchantments().isEmpty()) {
         return;
       }
 
-      for (Id i : new ArrayList<>(bookEnchants.keySet())) {
-        if (itemEnchants.containsKey(i)) {
-          continue;
-        }
+      EnchantingBooks.Merge merge = EnchantingBooks.merge(item, book.storedEnchantments());
+      Map<Id, Integer> addEnchants = merge.added();
 
-        if (!items.canEnchant(i, item)) {
-          continue;
-        }
-
-        boolean conflicts = false;
-        for (Id existing : newEnchants.keySet()) {
-          if (items.enchantmentsConflict(existing, i) || items.enchantmentsConflict(i, existing)) {
-            conflicts = true;
-            break;
-          }
-        }
-
-        if (conflicts) {
-          continue;
-        }
-
-        power += bookEnchants.get(i);
-        newEnchants.put(i, bookEnchants.get(i));
-        addEnchants.put(i, bookEnchants.get(i));
-        bookEnchants.remove(i);
-      }
-
-      if (power > getTotalLevelCount(level)) {
+      if (merge.power() > getTotalLevelCount(level)) {
         AdaptHud.actionBar(p, C.RED + AdaptLanguage.text(
             EnchantingMessages.QUICK_ENCHANT_LIMIT,
             trusted("power", getTotalLevelCount(level))
@@ -187,19 +143,13 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         return;
       }
 
-      if (!itemEnchants.equals(newEnchants)) {
-        if (item.type().equals(ENCHANTED_BOOK)) {
-          new ArrayList<>(item.storedEnchantments().keySet()).forEach(item::removeStoredEnchantment);
-          newEnchants.forEach(item::setStoredEnchantment);
-        } else {
-          new ArrayList<>(item.enchantments().keySet()).forEach(item::removeEnchantment);
-          newEnchants.forEach(item::setEnchantment);
-        }
+      if (merge.changed()) {
+        EnchantingBooks.writeEnchantments(item, merge.merged());
 
         xp(p, 50);
         e.setCurrentItem(item);
         addStat(p, "enchanting.quick-enchant.books-applied", 1);
-        actionbarSummary(p, addEnchants);
+        EnchantingBooks.showAdded(p, addEnchants);
         timeline(p)
             .duration(8)
             .priority(FxPriority.TRANSITION)
@@ -216,34 +166,14 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
             .start();
         xp(p, 320 * addEnchants.values().stream().mapToInt((i) -> i).sum(), "quick-apply");
 
-        if (bookEnchants.isEmpty()) {
-          e.setCursor(items.empty());
+        if (EnchantingBooks.settleCursor(e, book, merge.leftover())) {
           fx(p.eyeLocation(), FxPriority.TRANSITION)
               .particle(Particles.CRIT_MAGIC, 4, 0, 0, 0, 0.2D, 0.05D)
               .particle(Particles.END_ROD, 2, 0, 0.3D, 0, 0.1D, 0.02D)
               .sound(Sounds.ITEM_BOOK_PAGE_TURN, 0.8F, 1.4F);
-        } else if (!book.storedEnchantments().equals(bookEnchants)) {
-          new ArrayList<>(book.storedEnchantments().keySet()).forEach(book::removeStoredEnchantment);
-          bookEnchants.forEach(book::setStoredEnchantment);
-          e.setCursor(book);
         }
       }
     }
-  }
-
-  private void actionbarSummary(PlayerRef p, Map<Id, Integer> added) {
-    if (added.isEmpty()) {
-      return;
-    }
-
-    StringBuilder summary = new StringBuilder();
-    added.forEach((ench, lvl) -> {
-      if (summary.length() > 0) {
-        summary.append(C.GRAY).append(", ");
-      }
-      summary.append(C.LIGHT_PURPLE).append("+ ").append(ench.path()).append(' ').append(lvl);
-    });
-    AdaptHud.actionBar(p, summary.toString());
   }
 
   @ConfigDescription("Enchant items by clicking enchant books directly on them.")

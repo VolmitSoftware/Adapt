@@ -19,7 +19,6 @@
 package art.arcane.adapt.content.adaptation.axe;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -31,7 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -39,30 +37,21 @@ import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
-  private static final int BATCH_TIMEOUT_TICKS = 3;
-  private static final int HARD_MAX_CANDIDATES = 128;
-
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, Boolean> armedPlayers = playerState();
+  private final AxeSmash smasher = new AxeSmash(this, this::rewardSmash);
 
   public AxeGroundSmash() {
     super("axe-ground-smash");
@@ -161,135 +150,17 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     double f = getLevelPercent(level);
     double radius = getRadius(f);
     Loc center = p.location();
-    List<LivingRef> candidates = collectCandidates(p, center, radius);
     renderSmash(center, radius);
-    if (candidates.isEmpty()) {
-      return;
-    }
-
-    GroundSmashBatch batch = new GroundSmashBatch(
-        p,
-        center,
-        radius,
-        getDamage(f),
-        getFalloffDamage(f),
-        getForce(f),
-        candidates.size()
-    );
-    for (LivingRef target : candidates) {
-      if (!Tasks.runEntity(target, () -> inspectCandidateOwned(batch, target))) {
-        batch.complete();
-      }
-    }
-    Tasks.runEntity(p, batch::finishTimedOut, BATCH_TIMEOUT_TICKS);
+    smasher.smash(p, center, radius, getDamage(f), getFalloffDamage(f), getForce(f),
+        getConfig().ignorePassiveMobs || preferenceEnabled(p, AxePreferences.IGNORE_PASSIVE));
   }
 
-  private List<LivingRef> collectCandidates(PlayerRef player, Loc center, double radius) {
-    List<LivingRef> candidates = new ArrayList<>(HARD_MAX_CANDIDATES);
-    WorldRef world = center.world();
-    if (world == null || (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(center, radius, radius))) {
-      return candidates;
+  private void rewardSmash(PlayerRef player, List<LivingRef> hits) {
+    int totalHits = hits.size();
+    addStat(player, "axe.ground-smash.mobs-hit", totalHits);
+    if (totalHits >= 5) {
+      grantOnce(player, "challenge_axe_ground_smash_5");
     }
-    for (EntityRef nearby : world.entitiesIn(Box.around(center.position(), radius, radius, radius), entity -> entity instanceof LivingRef)) {
-      if (!(nearby instanceof LivingRef candidate)) {
-        continue;
-      }
-      if (candidate.uuid().equals(player.uuid()) || !AdaptationDamageTargets.allows(candidate, getConfig().ignorePassiveMobs || preferenceEnabled(player, AxePreferences.IGNORE_PASSIVE))) {
-        continue;
-      }
-      candidates.add(candidate);
-      if (candidates.size() >= HARD_MAX_CANDIDATES) {
-        break;
-      }
-    }
-    return candidates;
-  }
-
-  private void inspectCandidateOwned(GroundSmashBatch batch, LivingRef target) {
-    if (batch.isFinalized()) {
-      return;
-    }
-
-    Loc targetLocation = validTargetLocation(batch, target);
-    if (targetLocation == null) {
-      batch.complete();
-      return;
-    }
-
-    boolean playerTarget = target instanceof PlayerRef;
-    if (!Tasks.runEntity(batch.player,
-        () -> authorizeCandidate(batch, target, targetLocation, playerTarget))) {
-      batch.complete();
-    }
-  }
-
-  private void authorizeCandidate(GroundSmashBatch batch, LivingRef target,
-      Loc targetLocation, boolean playerTarget) {
-    if (batch.isFinalized() || !batch.player.isOnline()) {
-      batch.complete();
-      return;
-    }
-
-    boolean allowed = playerTarget
-        ? canPVP(batch.player, targetLocation)
-        : canPVE(batch.player, targetLocation);
-    if (!allowed || !Tasks.runEntity(target, () -> applyImpactOwned(batch, target))) {
-      batch.complete();
-    }
-  }
-
-  private void applyImpactOwned(GroundSmashBatch batch, LivingRef target) {
-    if (batch.isFinalized()) {
-      return;
-    }
-
-    Loc targetLocation = validTargetLocation(batch, target);
-    if (targetLocation == null) {
-      batch.complete();
-      return;
-    }
-
-    Vec3 offset = targetLocation.position().subtract(batch.center.position());
-    double distance = Math.sqrt(offset.lengthSquared());
-    double damage = falloffValue(batch.maximumDamage, batch.minimumDamage, distance, batch.radius);
-    double force = falloffValue(batch.maximumForce, 0D, distance, batch.radius);
-    try {
-      target.damage(damage, batch.player);
-      if (force > 0D && offset.lengthSquared() > 1.0E-8D) {
-        target.setVelocity(target.velocity().add(offset.normalize().multiply(force)));
-      }
-      batch.markHit();
-    } finally {
-      batch.complete();
-    }
-  }
-
-  private Loc validTargetLocation(GroundSmashBatch batch, LivingRef target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)
-        || !AdaptationDamageTargets.allows(target, batch.ignorePassive)) {
-      return null;
-    }
-    UUID owner = target.tameOwner();
-    if (owner != null && batch.playerId.equals(owner)) {
-      return null;
-    }
-
-    Loc location = target.location();
-    if (!location.world().uid().equals(batch.center.world().uid())
-        || location.distanceSquared(batch.center) > batch.radiusSquared) {
-      return null;
-    }
-    return location;
-  }
-
-  static double falloffValue(double maximum, double minimum, double distance, double radius) {
-    if (!Double.isFinite(maximum) || !Double.isFinite(minimum)
-        || !Double.isFinite(distance) || !Double.isFinite(radius) || radius <= 0D) {
-      return 0D;
-    }
-
-    double progress = 1D - Math.min(1D, Math.max(0D, distance / radius));
-    return minimum + ((maximum - minimum) * progress);
   }
 
   private void renderSmash(Loc center, double radius) {
@@ -328,73 +199,6 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
   public double getFalloffDamage(double factor) {
     return getConfig().falloffFactor * factor;
-  }
-
-  private final class GroundSmashBatch {
-    private final PlayerRef player;
-    private final UUID playerId;
-    private final Loc center;
-    private final double radius;
-    private final double radiusSquared;
-    private final double maximumDamage;
-    private final double minimumDamage;
-    private final double maximumForce;
-    private final boolean ignorePassive;
-    private final AtomicInteger remaining;
-    private final AtomicInteger hits = new AtomicInteger();
-    private final AtomicBoolean finalized = new AtomicBoolean();
-
-    private GroundSmashBatch(PlayerRef player, Loc center, double radius,
-        double maximumDamage, double minimumDamage, double maximumForce, int candidateCount) {
-      this.player = player;
-      ignorePassive = getConfig().ignorePassiveMobs || preferenceEnabled(player, AxePreferences.IGNORE_PASSIVE);
-      playerId = player.uuid();
-      this.center = center;
-      this.radius = radius;
-      radiusSquared = radius * radius;
-      this.maximumDamage = maximumDamage;
-      this.minimumDamage = minimumDamage;
-      this.maximumForce = maximumForce;
-      remaining = new AtomicInteger(candidateCount);
-    }
-
-    private boolean isFinalized() {
-      return finalized.get();
-    }
-
-    private void markHit() {
-      hits.incrementAndGet();
-    }
-
-    private void complete() {
-      if (remaining.decrementAndGet() == 0) {
-        finish();
-      }
-    }
-
-    private void finishTimedOut() {
-      finish();
-    }
-
-    private void finish() {
-      if (finalized.compareAndSet(false, true)) {
-        Tasks.runEntity(player, this::finishOwnerOwned);
-      }
-    }
-
-    private void finishOwnerOwned() {
-      if (!player.isOnline()) {
-        return;
-      }
-      int totalHits = hits.get();
-      if (totalHits <= 0) {
-        return;
-      }
-      addStat(player, "axe.ground-smash.mobs-hit", totalHits);
-      if (totalHits >= 5) {
-        grantOnce(player, "challenge_axe_ground_smash_5");
-      }
-    }
   }
 
   @ConfigDescription("Jump then crouch to smash all nearby enemies with your axe.")

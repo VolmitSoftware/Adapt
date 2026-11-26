@@ -25,8 +25,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -36,7 +34,6 @@ import art.arcane.adapt.api.projectile.ProjectileCooperativeKeys;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.data.DataKey;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
@@ -47,7 +44,6 @@ import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -142,14 +138,11 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
     targetProcTimes.put(target.uuid(), now);
     int durationTicks = getDurationTicks(level);
-    if (durationTicks > 0) {
-      AdaptAttributeService.get().applyTimed(target, getName(), "pin", Attributes.MOVEMENT_SPEED, pinSpeedScalar(getAmplifier(level)), AttributeOperation.ADD_MULTIPLIED_TOTAL, durationTicks);
-    }
+    RangedSnares.pin(this, target, getAmplifier(level), durationTicks);
 
     if (getConfig().dampenVelocityOnProc
         && !"false".equals(projectile.data().get(shotDampenKey))) {
-      Vec3 velocity = target.velocity();
-      target.setVelocity(new Vec3(velocity.x() * getConfig().horizontalVelocityFactor, velocity.y(), velocity.z() * getConfig().horizontalVelocityFactor));
+      RangedSnares.dampen(target, getConfig().horizontalVelocityFactor);
       fx(target, FxPriority.COMBAT).dustBurst(new Rgb(140, 120, 100), 6, 0.2D, 1.0F);
     }
 
@@ -219,10 +212,6 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
 
   private int getAmplifier(int level) {
     return Math.max(0, (int) Math.floor(getConfig().amplifierBase + (getLevelPercent(level) * getConfig().amplifierFactor)));
-  }
-
-  static double pinSpeedScalar(int amplifier) {
-    return -Math.min(1.0D, 0.15D * (Math.max(0, amplifier) + 1.0D));
   }
 
   private long getReapplyCooldownMillis(int level) {

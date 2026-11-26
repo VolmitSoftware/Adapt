@@ -20,6 +20,7 @@ package art.arcane.adapt.content.adaptation.architect;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -29,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.fx.ViewerDisplayPort;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -85,6 +87,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Config> {
+  public static final String ID = "architect-chalk-line";
   public static final PlayerPreference<GuideColor> COLOR = new PlayerPreference<>(GuideColor.class,
       new PlayerPreference.Definition<>("color", ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR, GuideColor.SHAPE, List.of(
           new PlayerPreference.Choice<>(GuideColor.SHAPE, ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR_SHAPE, Id.minecraft("white_stained_glass"), 1),
@@ -94,9 +97,11 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   public static final PlayerPreference<CommonPreferences.Scale> DENSITY = CommonPreferences.scale("density", ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_DENSITY);
 
   private static final int CHALK_LEVELS = 4;
+  private static final int HOTBAR_SLOTS = 9;
   private static final int MAX_PLAYERS_PER_TICK = 32;
   private static final int MARKERS_PER_RECONCILIATION = 8;
   private static final int HARD_MAX_GUIDE_BLOCKS = 128;
+  private static final int LENT_MAX_GUIDE_BLOCKS = 512;
   private static final long HELD_WAND_SCAN_MILLIS = 250L;
   private static final long IDLE_SCAN_MILLIS = Long.MAX_VALUE;
   private static final Id AIR = Id.minecraft("air");
@@ -170,6 +175,22 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     }
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
+  }
+
+  @Override
+  public int getActiveInteractLevel(PlayerRef p, Loc location) {
+    return UpgradeLoans.level(this, super.getActiveInteractLevel(p, location),
+        (Adaptation<?> upgrade) -> upgrade.getActiveInteractLevel(p, location));
+  }
+
   @Handle(priority = EventPriority.HIGHEST)
   public void on(CraftItemEvent event) {
     PlayerRef player = event.player();
@@ -220,7 +241,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       event.setUseItem(UseResult.DENY);
       ChalkWandItem.writePlan(hand, Plan.empty());
       player.inventory().setMainHand(hand);
-      replacePreview(player, wand.tool(), Plan.empty(), settings());
+      replacePreview(player, wand.tool(), Plan.empty(), settings(player));
       AdaptHud.actionBar(player, C.GRAY + AdaptLanguage.text(ArchitectMessages.CHALK_LINE_CLEARED));
       fx(player.location(), FxPriority.TRANSITION)
           .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK, 0.4F, 0.9F);
@@ -257,7 +278,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     }
 
     Point point = new Point(target.x(), target.y(), target.z());
-    PreviewSettings previewSettings = settings();
+    PreviewSettings previewSettings = settings(player);
     SelectionResult result = action == InteractAction.LEFT_CLICK_BLOCK
         ? selectStart(wand.tool(), world.uid(), point, Plane.fromFace(face))
         : selectNext(wand.tool(), wand.plan(), world, point, previewSettings);
@@ -280,6 +301,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.45F, result.completed() ? 1.7F : 1.2F);
     if (result.completed()) {
       addStat(player, "architect.chalk-line.guides-drafted", 1);
+      UpgradeLoans.landed(this, player);
       xp(player, getConfig().xpPerGuide);
     }
   }
@@ -421,6 +443,57 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     double value = Double.isFinite(configured) ? configured : 64D;
     double range = Math.max(8D, Math.min(96D, value));
     return range * range;
+  }
+
+  /**
+   * The open spots of the guide drawn with the planned chalk wand the player carries in the off hand or hotbar, in the
+   * player's world; none when they carry no planned wand. The player does not need Chalk Line to use a wand they hold.
+   */
+  public List<BlockRef> openGuideSpots(PlayerRef player) {
+    WandData wand = ChalkWandItem.read(player.inventory().offHand());
+    for (int slot = 0; slot < HOTBAR_SLOTS && (wand == null || wand.plan().isEmpty()); slot++) {
+      wand = ChalkWandItem.read(player.inventory().item(slot));
+    }
+    List<Point> geometry = guide(player, wand);
+    WorldRef world = player.world();
+    List<BlockRef> open = new ArrayList<>(geometry.size());
+    for (Point point : geometry) {
+      if (point.y() >= world.minHeight() && point.y() < world.maxHeight()) {
+        BlockRef spot = world.blockAt(point.x(), point.y(), point.z());
+        if (isGuideSpaceDrawable(spot)) {
+          open.add(spot);
+        }
+      }
+    }
+    return open;
+  }
+
+  /** Every point of the guide the wand holds, center included, when it lies in the player's world and within the player's limits; else none. */
+  public List<Point> guide(PlayerRef player, WandData wand) {
+    if (wand == null || wand.plan() == null || !player.world().uid().equals(wand.plan().worldId())) {
+      return List.of();
+    }
+    PreviewSettings settings = settings(player);
+    List<Point> geometry = buildGeometry(wand.tool(), wand.plan(), settings);
+    WorldRef world = player.world();
+    if (geometry.size() > settings.maxGuideBlocks() || !isWithinBuildHeight(geometry, world.minHeight(), world.maxHeight())) {
+      return List.of();
+    }
+    return geometry;
+  }
+
+  /** The first chalk wand holding a guide in the off hand, then the hotbar; null when none does. */
+  public static WandData plannedWand(PlayerRef player) {
+    WandData wand = ChalkWandItem.read(player.inventory().offHand());
+    for (int slot = 0; slot < HOTBAR_SLOTS && (wand == null || wand.plan().isEmpty()); slot++) {
+      wand = ChalkWandItem.read(player.inventory().item(slot));
+    }
+    return wand == null || wand.plan().isEmpty() ? null : wand;
+  }
+
+  /** The largest radius a three-point arc may have. */
+  public double arcRadiusLimit() {
+    return clampArcRadius(getConfig().maxArcRadius);
   }
 
   /** A guide marker draws wherever a normal placement would land: empty space or a replaceable occupant. */
@@ -565,7 +638,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       return;
     }
 
-    PreviewSettings previewSettings = settings();
+    PreviewSettings previewSettings = settings(player);
     VisiblePreview current = visiblePreviews.get(player.uuid());
     if (current == null || !current.matches(wand, previewSettings)) {
       replacePreview(player, wand.tool(), wand.plan(), previewSettings);
@@ -855,16 +928,23 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     };
   }
 
-  private PreviewSettings settings() {
+  /** The config's limits, with the circle radius a fusing upgrade lends the player and room for its markers. */
+  private PreviewSettings settings(PlayerRef player) {
     Config config = getConfig();
     double selectionDistance = clampSelectionDistance(config.maxSelectionDistance);
     double circleRadius = clampCircleRadius(config.maxCircleRadius);
+    int guideBlocks = clampGuideBlocks(config.maxGuideBlocks);
+    double lentRadius = player == null ? 0D : clampCircleRadius(UpgradeLoans.strength(this, player));
+    if (lentRadius > circleRadius) {
+      circleRadius = lentRadius;
+      guideBlocks = Math.max(guideBlocks, Math.min(LENT_MAX_GUIDE_BLOCKS, (int) Math.ceil(lentRadius * 10D)));
+    }
     return new PreviewSettings(
         selectionDistance * selectionDistance,
         clampPolylineVertices(config.maxPolylineVertices),
         circleRadius * circleRadius,
         clampArcRadius(config.maxArcRadius),
-        clampGuideBlocks(config.maxGuideBlocks),
+        guideBlocks,
         renderRangeSquared(config.renderRangeBlocks)
     );
   }

@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
@@ -31,21 +33,17 @@ import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.Environment;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
-  private static final Id GHAST = Id.minecraft("ghast");
   private static final Id WITHER_SKELETON = Id.minecraft("wither_skeleton");
 
   public NetherGhastWard() {
@@ -82,31 +80,17 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
 
       int level = getActiveLevel(p);
       EntityRef damager = e.damager();
-      if (isGhastFireball(damager)) {
-        double before = e.damage();
-        e.setDamage(Math.max(0, e.damage() * (1D - getGhastProjectileReduction(level))));
-        int fireBefore = p.fireTicks();
-        p.setFireTicks(Math.min(p.fireTicks(), getMaxFireTicks(level)));
-        xp(p, (before - e.damage()) * getConfig().xpPerMitigatedDamage);
-        int reduced = (int) Math.round(before - e.damage());
+      if (NetherBlastWard.isGhastFireball(damager)) {
+        double removed = NetherBlastWard.absorbFireball(this, p, e, getGhastProjectileReduction(level), getMaxFireTicks(level));
+        xp(p, removed * getConfig().xpPerMitigatedDamage);
+        int reduced = (int) Math.round(removed);
         if (reduced > 0) {
           addStat(p, "nether.ghast-ward.damage-reduced", reduced);
-        }
-        Loc center = p.location().add(0D, 1.0D, 0D);
-        Vec3 rel = p.location().position().subtract(damager.location().position());
-        double yaw = Math.atan2(rel.z(), rel.x());
-        int arcPoints = 8 + (int) Math.round(getGhastProjectileReduction(level) * 8D);
-        FxEmitter emit = fx(center, FxPriority.COMBAT)
-            .arc(Particles.SOUL, 1.2D, arcPoints, yaw, Math.PI * 0.6D, 0.0D)
-            .burst(Particles.CRIT, 4, 0.3D)
-            .chord(Sounds.ITEM_SHIELD_BLOCK, 0.6F, 1.1F, Sounds.ENTITY_WITHER_HURT, 0.3F, 1.6F);
-        if (p.fireTicks() < fireBefore) {
-          emit.particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.2D, 0.0D);
         }
         return;
       }
 
-      if (damager.has(EntityTrait.ARROW) && shooterIs(damager, WITHER_SKELETON)) {
+      if (damager.has(EntityTrait.ARROW) && NetherBlastWard.shooterIs(damager, WITHER_SKELETON)) {
         double before = e.damage();
         e.setDamage(Math.max(0, e.damage() * (1D - getWitherSkeletonReduction(level))));
         xp(p, (before - e.damage()) * getConfig().xpPerMitigatedDamage);
@@ -128,7 +112,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
       return;
     }
 
-    if (e instanceof EntityDamageByEntityEvent byEntity && isGhastFireball(byEntity.damager())) {
+    if (e instanceof EntityDamageByEntityEvent byEntity && NetherBlastWard.isGhastFireball(byEntity.damager())) {
       return;
     }
 
@@ -137,34 +121,17 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
         return;
       }
 
-      if (e.cause() != DamageCause.ENTITY_EXPLOSION && e.cause() != DamageCause.BLOCK_EXPLOSION) {
+      if (!NetherBlastWard.isExplosion(e.cause())) {
         return;
       }
 
-      double before = e.damage();
-      e.setDamage(Math.max(0, e.damage() * (1D - getExplosionReduction(getLevel(p)))));
-      xp(p, (before - e.damage()) * getConfig().xpPerMitigatedDamage);
-      int reduced = (int) Math.round(before - e.damage());
+      double removed = NetherBlastWard.absorbBlast(this, p, e, getExplosionReduction(getLevel(p)));
+      xp(p, removed * getConfig().xpPerMitigatedDamage);
+      int reduced = (int) Math.round(removed);
       if (reduced > 0) {
         addStat(p, "nether.ghast-ward.damage-reduced", reduced);
       }
-      double domeRadius = 0.9D + (getExplosionReduction(getLevel(p)) * 0.8D);
-      fx(p.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
-          .dome(Particles.SCULK_SOUL, domeRadius, 14)
-          .chord(Sounds.BLOCK_BEACON_DEACTIVATE, 0.4F, 1.4F, Sounds.ENTITY_GENERIC_EXPLODE, 0.25F, 0.6F);
     });
-  }
-
-  private static boolean isGhastFireball(EntityRef damager) {
-    return damager.has(EntityTrait.FIREBALL) && shooterIs(damager, GHAST);
-  }
-
-  private static boolean shooterIs(EntityRef projectile, Id shooterType) {
-    if (!(projectile instanceof ProjectileRef ref)) {
-      return false;
-    }
-    EntityRef shooter = ref.shooter();
-    return shooter != null && shooter.type().equals(shooterType);
   }
 
   private boolean isNether(PlayerRef p) {
@@ -187,6 +154,26 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
     return Math.max(0, (int) Math.round(getConfig().maxFireTicksBase - (getLevelPercent(level) * getConfig().maxFireTicksFactor)));
   }
 
+
+  static void fireballFx(Adaptation<?> owner, PlayerRef p, EntityRef fireball, double reduction, boolean doused) {
+    Vec3 rel = p.location().position().subtract(fireball.location().position());
+    double yaw = Math.atan2(rel.z(), rel.x());
+    int arcPoints = 8 + (int) Math.round(reduction * 8D);
+    FxEmitter emit = Fx.now(owner, p.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+        .arc(Particles.SOUL, 1.2D, arcPoints, yaw, Math.PI * 0.6D, 0.0D)
+        .burst(Particles.CRIT, 4, 0.3D)
+        .chord(Sounds.ITEM_SHIELD_BLOCK, 0.6F, 1.1F, Sounds.ENTITY_WITHER_HURT, 0.3F, 1.6F);
+    if (doused) {
+      emit.particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.2D, 0.0D);
+    }
+  }
+
+  static void blastFx(Adaptation<?> owner, PlayerRef p, double reduction) {
+    double domeRadius = 0.9D + (reduction * 0.8D);
+    Fx.now(owner, p.location().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+        .dome(Particles.SCULK_SOUL, domeRadius, 14)
+        .chord(Sounds.BLOCK_BEACON_DEACTIVATE, 0.4F, 1.4F, Sounds.ENTITY_GENERIC_EXPLODE, 0.25F, 0.6F);
+  }
 
   @ConfigDescription("Harden against ghast blasts and wither-skeleton pressure in the Nether.")
   protected static class Config extends AdaptationConfig {

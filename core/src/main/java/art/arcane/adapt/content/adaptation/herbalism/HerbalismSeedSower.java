@@ -18,9 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.ability.AbilityCharge;
-import art.arcane.adapt.api.ability.AbilityRefundReason;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -30,14 +30,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
-import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -47,27 +44,25 @@ import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.world.BlockRef;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Config> {
   private static final Rgb LIME = new Rgb(0, 255, 0);
-  private static final Id AIR = Id.minecraft("air");
-  private static final Id NETHER_WART = Id.minecraft("nether_wart");
-  private static final Id SOUL_SAND = Id.minecraft("soul_sand");
-  private static final Id FARMLAND = Id.minecraft("farmland");
+  public static final Id AIR = Id.minecraft("air");
+  public static final Id NETHER_WART = Id.minecraft("nether_wart");
+  public static final Id SOUL_SAND = Id.minecraft("soul_sand");
+  public static final Id FARMLAND = Id.minecraft("farmland");
   public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_MATERIALS);
   public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_RADIUS);
   public static final PlayerPreference<CommonPreferences.Toggle> RESERVE = CommonPreferences.toggle("seed-reserve", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_RESERVE, CommonPreferences.Toggle.OFF);
+  private final HerbalismSowing sowing = new HerbalismSowing(this);
 
   public HerbalismSeedSower() {
     super("herbalism-seed-sower");
@@ -125,7 +120,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     }
 
     Id seedType = hand.type();
-    Id cropType = getCropType(seedType);
+    Id cropType = cropType(seedType);
     if (cropType == null) {
       return;
     }
@@ -152,7 +147,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       origin = p.targetBlock(5);
     }
 
-    if (origin == null || !ownsPlantingTarget(p, origin.location())) {
+    if (origin == null || !HerbalismSowing.ownsPlantingTarget(p, origin.location())) {
       return;
     }
 
@@ -187,171 +182,25 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     if (!preference(p, MATERIALS).allows(cropType)) {
       return 0;
     }
-    int available = p.gameMode() == GameMode.CREATIVE
-        ? maxCrops
-        : Math.max(0, p.inventory().mainHand().amount() - (preferenceEnabled(p, RESERVE) ? 8 : 0));
-    List<BlockRef> targets = findPlantingTargets(p, origin, seedType, radius, Math.min(maxCrops, available));
-    if (targets.isEmpty()) {
-      return 0;
-    }
-
-    if (p.gameMode() == GameMode.CREATIVE) {
-      int planted = plantTargets(p, targets, cropType);
-      emitPlantingFx(targets.subList(0, planted));
-      return planted;
-    }
-
-    int requested = targets.size();
-    AbilityCharge charge = payItemCostDeferred(
-        p,
-        "seeds",
-        AdaptCore.platform().host().items().create(seedType),
-        requested,
-        () -> hasHeldSeeds(p, seedType, requested)
-    );
-    if (!charge.allowed()) {
-      return 0;
-    }
-
-    int planted = plantTargets(p, targets, cropType);
-    if (planted != requested) {
-      rollbackPlanting(targets, planted, cropType);
-      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
-      return 0;
-    }
-
-    boolean defaultConsumed = !charge.defaultCostSuppressed()
-        && consumeHeldSeeds(p, seedType, planted);
-    if (!charge.defaultCostSuppressed() && !defaultConsumed) {
-      rollbackPlanting(targets, planted, cropType);
-      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
-      return 0;
-    }
-
-    boolean settled = settleCost(charge.activationId());
-    if (!acceptsPlantingSettlement(defaultConsumed, charge.defaultCostSuppressed(), settled)) {
-      rollbackPlanting(targets, planted, cropType);
-      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
-      return 0;
-    }
-
-    emitPlantingFx(targets);
-    return planted;
+    return sowing.plant(new HerbalismSowing.Request(p, origin, HerbalismSowing.mainHand(p), seedType, cropType, radius,
+        maxCrops, preferenceEnabled(p, RESERVE) ? 8 : 0));
   }
 
-  private List<BlockRef> findPlantingTargets(PlayerRef p, BlockRef origin, Id seedType, int radius, int limit) {
-    List<BlockRef> targets = new ArrayList<>(Math.max(0, limit));
-    WorldRef world = origin.world();
-    int y = origin.y();
-
-    for (int x = -radius; x <= radius && targets.size() < limit; x++) {
-      for (int z = -radius; z <= radius && targets.size() < limit; z++) {
-        int blockX = origin.x() + x;
-        int blockZ = origin.z() + z;
-        Loc baseLocation = new Loc(world, blockX, y, blockZ, 0F, 0F);
-        if (!ownsPlantingTarget(p, baseLocation)) {
-          continue;
-        }
-
-        BlockRef base = world.blockAt(blockX, y, blockZ);
-        if (!isValidBase(seedType, base.type())) {
-          continue;
-        }
-
-        Loc cropLocation = new Loc(world, blockX, y + 1, blockZ, 0F, 0F);
-        if (!ownsPlantingTarget(p, cropLocation)) {
-          continue;
-        }
-
-        BlockRef crop = world.blockAt(blockX, y + 1, blockZ);
-        if (!crop.isAir()
-            || !canBlockPlace(p, cropLocation)
-            || !ProtectionProbes.attemptBlockPlaceProbe(p, crop)) {
-          continue;
-        }
-        if (!ownsPlantingTarget(p, cropLocation)
-            || !crop.isAir()
-            || !isValidBase(seedType, base.type())) {
-          continue;
-        }
-
-        targets.add(crop);
-      }
-    }
-
-    return targets;
+  private int getRadius(int level) {
+    return Math.max(1, (int) Math.round(getConfig().baseRadius + (getLevelPercent(level) * getConfig().radiusFactor)));
   }
 
-  private int plantTargets(PlayerRef player, List<BlockRef> targets, Id cropType) {
-    int planted = 0;
-    for (BlockRef crop : targets) {
-      if (!ownsPlantingTarget(player, crop.location()) || !crop.isAir()) {
-        break;
-      }
-      crop.setType(cropType, true);
-      planted++;
-    }
-    return planted;
+  private int getMaxCrops(int level) {
+    return Math.max(1, (int) Math.round(getConfig().baseCropCount + (getLevelPercent(level) * getConfig().cropCountFactor)));
   }
 
-  private boolean hasHeldSeeds(PlayerRef p, Id seedType, int amount) {
-    ItemRef hand = p.inventory().mainHand();
-    return hand.type().equals(seedType) && hand.amount() >= amount;
+  private int getCooldownTicks(double factor) {
+    return Math.max(2, (int) Math.round(getConfig().cooldownTicksBase - (factor * getConfig().cooldownTicksReduction)));
   }
 
-  private boolean consumeHeldSeeds(PlayerRef p, Id seedType, int amount) {
-    if (!hasHeldSeeds(p, seedType, amount)) {
-      return false;
-    }
 
-    ItemRef hand = p.inventory().mainHand();
-    int remaining = hand.amount() - amount;
-    if (remaining <= 0) {
-      p.inventory().setMainHand(AdaptCore.platform().host().items().empty());
-    } else {
-      hand.setAmount(remaining);
-      p.inventory().setMainHand(hand);
-    }
-    return true;
-  }
-
-  private void rollbackPlanting(List<BlockRef> targets, int planted, Id cropType) {
-    for (int index = 0; index < planted; index++) {
-      BlockRef crop = targets.get(index);
-      if ((!Tasks.isFoliaThreading() || Tasks.isOwnedByCurrentRegion(crop.location()))
-          && crop.type().equals(cropType)) {
-        crop.setType(AIR, true);
-      }
-    }
-  }
-
-  private boolean ownsPlantingTarget(PlayerRef player, Loc location) {
-    return !Tasks.isFoliaThreading()
-        || (Tasks.isOwnedByCurrentRegion(player) && Tasks.isOwnedByCurrentRegion(location));
-  }
-
-  private void emitPlantingFx(List<BlockRef> targets) {
-    int count = Math.min(12, targets.size());
-    for (int index = 0; index < count; index++) {
-      fx(targets.get(index).location().add(0.5, 0.2, 0.5), FxPriority.AMBIENT)
-          .particle(Particles.COMPOSTER, 1, 0, 0.05D, 0, 0.1D, 0.01D)
-          .particle(Particles.HAPPY_VILLAGER, 1, 0, 0.05D, 0, 0.1D, 0.01D);
-    }
-  }
-
-  static boolean acceptsPlantingSettlement(boolean defaultConsumed, boolean defaultCostSuppressed, boolean settled) {
-    return defaultConsumed || (defaultCostSuppressed && settled);
-  }
-
-  private boolean isValidBase(Id seedType, Id base) {
-    if (seedType.equals(NETHER_WART)) {
-      return base.equals(SOUL_SAND);
-    }
-
-    return base.equals(FARMLAND);
-  }
-
-  private Id getCropType(Id seedType) {
+  /** The crop a seed item plants, or null when it plants nothing. */
+  public static Id cropType(Id seedType) {
     if (!seedType.isMinecraft()) {
       return null;
     }
@@ -368,18 +217,11 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     };
   }
 
-  private int getRadius(int level) {
-    return Math.max(1, (int) Math.round(getConfig().baseRadius + (getLevelPercent(level) * getConfig().radiusFactor)));
+  public static void plantFx(Adaptation<?> owner, BlockRef crop) {
+    Fx.now(owner, crop.location().add(0.5, 0.2, 0.5), FxPriority.AMBIENT)
+        .particle(Particles.COMPOSTER, 1, 0, 0.05D, 0, 0.1D, 0.01D)
+        .particle(Particles.HAPPY_VILLAGER, 1, 0, 0.05D, 0, 0.1D, 0.01D);
   }
-
-  private int getMaxCrops(int level) {
-    return Math.max(1, (int) Math.round(getConfig().baseCropCount + (getLevelPercent(level) * getConfig().cropCountFactor)));
-  }
-
-  private int getCooldownTicks(double factor) {
-    return Math.max(2, (int) Math.round(getConfig().cooldownTicksBase - (factor * getConfig().cooldownTicksReduction)));
-  }
-
 
   @ConfigDescription("Sneak-right-click with seeds to plant nearby farmland and soul-sand plots.")
   protected static class Config extends AdaptationConfig {

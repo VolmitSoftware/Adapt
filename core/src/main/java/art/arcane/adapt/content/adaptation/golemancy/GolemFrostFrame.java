@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -122,6 +124,11 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     long now = M.ms();
     long window = getConfig().frostbiteWindowMillis;
     frostbites.values().removeIf(state -> FrostFrameRules.expired(state, now, window));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
   }
 
   @Handle(priority = EventPriority.HIGH)

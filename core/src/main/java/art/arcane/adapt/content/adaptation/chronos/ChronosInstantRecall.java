@@ -35,6 +35,7 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
+import art.arcane.adapt.content.adaptation.chronos.ChronosRecallHistory.Snapshot;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -66,8 +67,6 @@ import art.arcane.adapt.platform.fx.ParticleSpec;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
-import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.input.DoubleJumpGesture;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -75,7 +74,6 @@ import art.arcane.adapt.util.data.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
@@ -113,8 +111,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   );
   private static final Map<UUID, Long> TELEPORT_XP_SUPPRESS_UNTIL = new ConcurrentHashMap<>();
 
-  private final Map<UUID, Deque<Snapshot>> snapshots = playerState();
-  private final Map<UUID, Long> lastSnapshot = playerState();
+  private final ChronosRecallHistory history = new ChronosRecallHistory(playerState(), playerState());
   private final Map<UUID, Long> cooldowns = playerState();
   private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
   private final Map<UUID, Long> rewindProtection = playerState();
@@ -179,8 +176,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       }
     }
 
-    snapshots.clear();
-    lastSnapshot.clear();
+    history.clear();
     cooldowns.clear();
     cooldownReadyNotify.clear();
     rewindProtection.clear();
@@ -484,98 +480,24 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     return reward;
   }
 
-  private Snapshot snapshotFromPlayer(PlayerRef p, long now) {
-    return new Snapshot(now,
-        worldKey(p.world()),
-        p.location().x(),
-        p.location().y(),
-        p.location().z(),
-        p.location().yaw(),
-        p.location().pitch(),
-        p.health(),
-        p.foodLevel(),
-        p.saturation(),
-        p.exhaustion(),
-        p.fireTicks());
-  }
-
-  private Snapshot snapshotFromLocation(PlayerRef p, Loc location, long now) {
-    WorldRef world = location.world();
-    if (world == null) {
-      world = p.world();
-    }
-
-    return new Snapshot(now,
-        worldKey(world),
-        location.x(),
-        location.y(),
-        location.z(),
-        location.yaw(),
-        location.pitch(),
-        p.health(),
-        p.foodLevel(),
-        p.saturation(),
-        p.exhaustion(),
-        p.fireTicks());
-  }
-
   private void resetSnapshotHistory(PlayerRef p, Loc location) {
-    if (location == null) {
-      return;
-    }
-
-    long now = M.ms();
-    UUID id = p.uuid();
-    Deque<Snapshot> queue = snapshots.computeIfAbsent(id, unused -> new ArrayDeque<>());
-    queue.clear();
-    queue.addLast(snapshotFromLocation(p, location, now));
-    lastSnapshot.put(id, now);
+    history.reset(p, location);
   }
 
   private void captureSnapshot(PlayerRef p) {
-    long now = M.ms();
-    UUID id = p.uuid();
-    long last = lastSnapshot.getOrDefault(id, 0L);
-    if (now - last < getConfig().snapshotIntervalMillis) {
-      return;
-    }
-
-    lastSnapshot.put(id, now);
-    Deque<Snapshot> queue = snapshots.computeIfAbsent(id, k -> new ArrayDeque<>());
-    queue.addLast(snapshotFromPlayer(p, now));
-
-    long maxAge = getMaximumHistoryMillis();
-    while (!queue.isEmpty() && now - queue.getFirst().timestamp() > maxAge) {
-      queue.removeFirst();
-    }
+    history.capture(p, getConfig().snapshotIntervalMillis, getMaximumHistoryMillis());
   }
 
   private Snapshot findSnapshot(PlayerRef p, long rewindMillis) {
-    Deque<Snapshot> queue = snapshots.get(p.uuid());
-    if (queue == null || queue.isEmpty()) {
-      return null;
-    }
-
-    long target = M.ms() - rewindMillis;
-    Snapshot fallback = queue.getFirst();
-
-    for (Snapshot s : queue) {
-      if (s.timestamp() <= target) {
-        fallback = s;
-      } else {
-        break;
-      }
-    }
-
-    return fallback;
+    return history.find(p, rewindMillis);
   }
 
   private List<Snapshot> buildRewindPath(PlayerRef p, long rewindMillis, Snapshot anchor) {
     List<Snapshot> path = new ArrayList<>();
     long now = M.ms();
-    path.add(snapshotFromPlayer(p, now));
+    path.add(ChronosRecallHistory.snapshotFromPlayer(p, now));
 
-    Deque<Snapshot> queue = snapshots.get(p.uuid());
+    Deque<Snapshot> queue = history.trail(p.uuid());
     if (queue == null || queue.isEmpty()) {
       path.add(anchor);
       return path;
@@ -669,27 +591,6 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     return from + (float) (delta * alpha);
-  }
-
-  private Loc toLocation(Snapshot snapshot, WorldRef fallback) {
-    WorldRef resolved = AdaptCore.platform().host().world(Id.parse(snapshot.worldKey()));
-    WorldRef world = resolved == null ? fallback : resolved;
-    return new Loc(world, snapshot.x(), snapshot.y(), snapshot.z(), snapshot.yaw(), snapshot.pitch());
-  }
-
-  private static String worldKey(WorldRef world) {
-    return world.key().toString();
-  }
-
-  private void applySnapshotState(PlayerRef p, Snapshot snapshot) {
-    double maxHealth = p.maxHealth();
-    p.setHealth(Math.max(1, Math.min(maxHealth, snapshot.health())));
-    p.setFoodLevel(Math.max(0, Math.min(20, snapshot.foodLevel())));
-    p.setSaturation(Math.max(0, snapshot.saturation()));
-    p.setExhaustion(Math.max(0, snapshot.exhaustion()));
-    p.setFireTicks(Math.max(0, snapshot.fireTicks()));
-    p.setFallDistance(0);
-    p.setVelocity(Vec3.ZERO);
   }
 
   @Handle
@@ -906,8 +807,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private void clearPlayerState(UUID id) {
-    snapshots.remove(id);
-    lastSnapshot.remove(id);
+    history.forget(id);
     cooldowns.remove(id);
     cooldownReadyNotify.remove(id);
     rewindProtection.remove(id);
@@ -1103,7 +1003,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       float progress = animationTicks <= 1 ? 1f : (float) step[0] / (float) (animationTicks - 1);
       int index = Math.min(animationPath.size() - 1, step[0]);
       Snapshot snapshot = animationPath.get(index);
-      Loc destination = toLocation(snapshot, p.world());
+      Loc destination = ChronosRecallHistory.toLocation(snapshot, p.world());
 
       if (getConfig().showRewindTraceParticles && lastLoc[0].world() != null && lastLoc[0].sameWorld(destination)) {
         Loc traceFrom = lastLoc[0].add(0, 1, 0);
@@ -1137,7 +1037,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       }
 
       if (!temporarySpectator || step[0] >= animationPath.size() - 1) {
-        applySnapshotState(p, snapshot);
+        ChronosRecallHistory.applySnapshotState(p, snapshot);
       }
 
       if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
@@ -1174,7 +1074,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private void beginFinalRecallTeleport(PlayerRef p, FinalRecall recall) {
-    Loc destination = toLocation(recall.snapshot(), p.world());
+    Loc destination = ChronosRecallHistory.toLocation(recall.snapshot(), p.world());
     if (destination.world() == null) {
       abortFinalRecall(recall);
       return;
@@ -1243,7 +1143,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private void completeSuccessfulRecall(PlayerRef p, FinalRecall recall, AdaptPlayer adaptPlayer) {
-    applySnapshotState(p, recall.snapshot());
+    ChronosRecallHistory.applySnapshotState(p, recall.snapshot());
     applyRecallHealthCost(p);
 
     Loc bloomAt = p.location().add(0, 1, 0);

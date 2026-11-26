@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +18,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +31,8 @@ class SwordsCrimsonCycloneTargetProtectionTest {
   }
 
   @Test
-  void cycloneSkipsProtectedMobsBeforeItsCandidateLimit() throws ReflectiveOperationException {
-    SwordsCrimsonCyclone adaptation = configured(true);
+  void cycloneSkipsProtectedMobsBeforeItsCandidateLimit() {
+    SwordCyclone cyclone = new SwordCyclone(mock(SwordsCrimsonCyclone.class));
     PlayerRef owner = mock(PlayerRef.class);
     when(owner.uuid()).thenReturn(UUID.randomUUID());
     LivingRef primary = passive();
@@ -45,11 +42,8 @@ class SwordsCrimsonCycloneTargetProtectionTest {
     List<EntityRef> candidates = crowdedCandidates(hostile);
     candidates.add(0, primary);
     when(world.nearbyEntities(any(), anyDouble(), anyDouble(), anyDouble())).thenReturn(candidates);
-    Method collect = SwordsCrimsonCyclone.class.getDeclaredMethod("collectCandidates", PlayerRef.class,
-        LivingRef.class, Loc.class, double.class);
-    collect.setAccessible(true);
-
-    assertThat((List<?>) collect.invoke(adaptation, owner, primary, center, 5D)).isEqualTo(List.of(hostile));
+    assertThat(cyclone.collectCandidates(owner, primary, center, 5D, SwordCyclone.candidateLimit(16), true))
+        .isEqualTo(List.of(hostile));
   }
 
   private static List<EntityRef> crowdedCandidates(LivingRef hostile) {
@@ -75,16 +69,6 @@ class SwordsCrimsonCycloneTargetProtectionTest {
     when(enemy.type()).thenReturn(Id.minecraft(type));
     when(enemy.has(EntityTrait.ENEMY)).thenReturn(true);
     return enemy;
-  }
-
-  private static SwordsCrimsonCyclone configured(boolean enabled) throws ReflectiveOperationException {
-    Object config = newConfiguration();
-    Field protection = config.getClass().getDeclaredField("ignorePassiveMobs");
-    protection.setAccessible(true);
-    protection.setBoolean(config, enabled);
-    SwordsCrimsonCyclone adaptation = mock(SwordsCrimsonCyclone.class, CALLS_REAL_METHODS);
-    doReturn(config).when(adaptation).getConfig();
-    return adaptation;
   }
 
   private static Object newConfiguration() throws ReflectiveOperationException {

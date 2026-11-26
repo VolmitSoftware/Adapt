@@ -1,0 +1,13 @@
+{
+  "skill": "crafting",
+  "behaviourTest": "CraftingBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "CraftingTrigger", "handles": ["ItemCraftedEvent"], "reuses": ["CraftingMasterwork", "CraftingIngredients"]},
+    {"slot": "STRIKE_FIGHT", "class": "CraftingFightStrike", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
+    {"slot": "STRIKE_WORK", "class": "CraftingWorkStrike", "handles": [], "reuses": ["AdaptAttributeService", "CraftingMasterwork"]},
+    {"slot": "BOON", "class": "CraftingBoon", "handles": [], "reuses": ["CraftingMending"]},
+    {"slot": "FUEL", "class": "CraftingFuel", "handles": [], "reuses": []},
+    {"slot": "STATE", "class": "CraftingState", "handles": ["ItemCraftedEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

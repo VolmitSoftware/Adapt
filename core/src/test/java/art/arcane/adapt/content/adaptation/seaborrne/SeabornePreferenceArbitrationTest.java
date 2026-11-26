@@ -16,10 +16,10 @@ import static org.mockito.Mockito.when;
 class SeabornePreferenceArbitrationTest extends AdaptTestBase {
   @Test
   void foodReserveAccountsForPendingExhaustionAndSaturation() {
-    assertThat(SeaborneHydroJet.respectsFoodReserve(9, 0F, 0F, 12D, 8)).isFalse();
-    assertThat(SeaborneHydroJet.respectsFoodReserve(8, 4F, 0F, 12D, 8)).isTrue();
-    assertThat(SeaborneHydroJet.respectsFoodReserve(4, 0F, 3F, 2D, 4)).isFalse();
-    assertThat(SeaborneHydroJet.respectsFoodReserve(1, 0F, 0F, 12D, 0)).isTrue();
+    assertThat(SeaborneJet.respectsFoodReserve(9, 0F, 0F, 12D, 8)).isFalse();
+    assertThat(SeaborneJet.respectsFoodReserve(8, 4F, 0F, 12D, 8)).isTrue();
+    assertThat(SeaborneJet.respectsFoodReserve(4, 0F, 3F, 2D, 4)).isFalse();
+    assertThat(SeaborneJet.respectsFoodReserve(1, 0F, 0F, 12D, 0)).isTrue();
   }
 
   @Test

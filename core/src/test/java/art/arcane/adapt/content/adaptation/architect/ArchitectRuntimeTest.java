@@ -69,7 +69,7 @@ class ArchitectRuntimeTest {
 
   @Test
   void skillRegistersEveryAdaptation() {
-    assertThat(SkillRegistry.skills.get("architect").getAdaptations()).hasSize(12);
+    assertThat(SkillRegistry.skills.get("architect").getAdaptations()).hasSize(13);
   }
 
   @Test

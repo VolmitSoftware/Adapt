@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
@@ -25,35 +26,32 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.support.PlatformNeed;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
-import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockDamageEvent;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
   public static final PlayerPreference<CommonPreferences.Scale> TIER = CommonPreferences.scale("tier", ExcavationMessages.PREFERENCE_EXCAVATIONHASTE_TIER);
 
-  private final Map<UUID, Long> hasteUntil = playerState();
-  private final Map<UUID, Integer> hasteLevel = playerState();
+  private final ExcavationHasteBoost haste = new ExcavationHasteBoost(this, playerState(), playerState());
 
   public ExcavationHaste() {
     super("excavation-haste");
@@ -103,40 +101,24 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
     }
 
     int level = Math.max(1, (int) Math.floor(context.level() * preference(p, TIER).multiplier()));
-    int durationTicks = getHasteDurationTicks();
-    AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED,
-        hasteAmount(level), AttributeOperation.ADD_MULTIPLIED_BASE, durationTicks);
+    haste.apply(p, e.block(), level, getHasteDurationTicks());
     addStat(p, "excavation.haste.blocks-while-hasted", 1);
-
-    UUID id = p.uuid();
-    long now = System.currentTimeMillis();
-    Long until = hasteUntil.get(id);
-    boolean onset = until == null || now >= until;
-    hasteUntil.put(id, now + (durationTicks * 50L));
-    AbilityGlyphs.duration(id, this, now, durationTicks * 50L);
-    if (onset) {
-      hasteLevel.put(id, level);
-      fx(p.eyeLocation(), FxPriority.AMBIENT)
-          .helix(Particles.ENCHANTMENT_TABLE, 0.5D, 1.4D, 6, 0)
-          .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.6f);
-      return;
-    }
-
-    Integer seen = hasteLevel.get(id);
-    if (seen == null || level > seen) {
-      hasteLevel.put(id, level);
-      fx(e.block().center(), FxPriority.TRANSITION)
-          .ring(Particles.WAX_ON, 0.6D, 8, 0.2D)
-          .chord(Sounds.BLOCK_NOTE_BLOCK_BELL, 0.4f, 1.2f, Sounds.BLOCK_NOTE_BLOCK_BELL, 0.4f, 1.5f);
-    }
   }
 
   private int getHasteDurationTicks() {
     return Math.max(40, Math.min(20 * 30, getConfig().hasteDurationTicks));
   }
 
-  static double hasteAmount(int level) {
-    return 0.20D * Math.max(1, level);
+  static void onsetFx(Adaptation<?> owner, Loc eye) {
+    Fx.now(owner, eye, FxPriority.AMBIENT)
+        .helix(Particles.ENCHANTMENT_TABLE, 0.5D, 1.4D, 6, 0)
+        .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.6f);
+  }
+
+  static void tierUpFx(Adaptation<?> owner, Loc center) {
+    Fx.now(owner, center, FxPriority.TRANSITION)
+        .ring(Particles.WAX_ON, 0.6D, 8, 0.2D)
+        .chord(Sounds.BLOCK_NOTE_BLOCK_BELL, 0.4f, 1.2f, Sounds.BLOCK_NOTE_BLOCK_BELL, 0.4f, 1.5f);
   }
 
   @ConfigDescription("Gain Haste while excavating blocks.")

@@ -13,15 +13,15 @@ import java.util.Set;
 public final class TragoulPreferences {
   static final PlayerPreference<CommonPreferences.Toggle> BLOOD = CommonPreferences.toggle("blood-globes", key("blood_globes", "Collect blood globes"));
   static final PlayerPreference<CommonPreferences.Toggle> BONE = CommonPreferences.toggle("bone-globes", key("bone_globes", "Collect bone globes"));
-  static final PlayerPreference<CommonPreferences.Toggle> PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> PASSIVE = CommonPreferences.toggle("ignore-passive", key("ignore_passive", "Ignore passive mobs"), CommonPreferences.Toggle.OFF);
   static final PlayerPreference<CommonPreferences.Toggle> REPLACE = CommonPreferences.toggle("replace-oldest", key("replace_oldest", "Replace oldest servant at cap"));
-  static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
       new PlayerPreference.Definition<>("targets", key("targets", "Eligible target types"), Targets.ALL, List.of(
           choice(Targets.ALL, "all", "All permitted targets", Id.minecraft("diamond_sword")),
           choice(Targets.UNDEAD, "undead", "Undead only", Id.minecraft("zombie_head")),
           choice(Targets.ARTHROPODS, "arthropods", "Arthropods only", Id.minecraft("spider_eye")),
           choice(Targets.NON_PLAYERS, "non_players", "Non-player targets", Id.minecraft("bone")))));
-  static final PlayerPreference<Reserve> BONES = new PlayerPreference<>(Reserve.class,
+  public static final PlayerPreference<Reserve> BONES = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("bone-reserve", key("bones", "Bones remaining after use"), Reserve.NONE, List.of(
           choice(Reserve.NONE, "none", "No extra reserve", Id.minecraft("bone")),
           choice(Reserve.FOUR, "four", "Keep 4 bones", Id.minecraft("bone_block")),
@@ -49,7 +49,7 @@ public final class TragoulPreferences {
   private static <E extends Enum<E>> PlayerPreference.Choice<E> choice(E value, String id, String text, Id icon) {
     return new PlayerPreference.Choice<>(value, key(id, text), icon, 1);
   }
-  enum Targets {
+  public enum Targets {
     ALL, UNDEAD, ARTHROPODS, NON_PLAYERS;
     private static final Id PLAYER = Id.minecraft("player");
     private static final Set<Id> UNDEAD_TYPES = Set.of(Id.minecraft("zombie"), Id.minecraft("zombie_villager"), Id.minecraft("husk"),
@@ -67,11 +67,11 @@ public final class TragoulPreferences {
       };
     }
   }
-  enum Reserve {
+  public enum Reserve {
     NONE(0), FOUR(4), EIGHT(8);
     private final int remaining;
     Reserve(int remaining) { this.remaining = remaining; }
-    int required(int cost) { return cost + remaining; }
+    public int required(int cost) { return cost + remaining; }
   }
   enum Stance { ASSIST, DEFEND, PASSIVE }
   enum Palette {

@@ -30,7 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerPort;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
@@ -48,9 +47,6 @@ import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,9 +54,6 @@ import java.util.Set;
 import static art.arcane.adapt.util.data.BlockFlag.VEIN_MINED;
 
 public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> {
-  private static final Id MANGROVE_ROOTS = Id.minecraft("mangrove_roots");
-  private static final Id MUDDY_MANGROVE_ROOTS = Id.minecraft("muddy_mangrove_roots");
-
   public AxeLeafVeinminer() {
     super("axe-leaf-veinminer");
     registerConfiguration(AxeLeafVeinminer.Config.class);
@@ -106,7 +99,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     }
 
     Id blockType = e.block().type();
-    if (!isLeavesMaterial(blockType) || !hasActiveAdaptation(p)) {
+    if (!AxeFelling.isFoliage(blockType) || !hasActiveAdaptation(p)) {
       return;
     }
 
@@ -118,42 +111,9 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     BlockRef block = e.block();
     BlockStateRef leafData = block.state();
-    Set<BlockRef> blockMap = new HashSet<>();
-    Deque<BlockRef> stack = new ArrayDeque<>();
-    Set<BlockRef> queued = new HashSet<>();
-    stack.push(block);
-    queued.add(block);
     int radius = getRadius(getLevel(p));
-    int radiusSquared = radius * radius;
     int maxBlocks = Math.max(1, (int) Math.floor(getConfig().maxBlocks * preference(p, AxePreferences.WORK).multiplier()));
-    while (!stack.isEmpty() && blockMap.size() < maxBlocks) {
-      BlockRef currentBlock = stack.pop();
-      if (blockMap.contains(currentBlock)) {
-        continue;
-      }
-      blockMap.add(currentBlock);
-      for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
-          for (int z = -1; z <= 1; z++) {
-            if (x == 0 && y == 0 && z == 0) {
-              continue;
-            }
-            BlockRef b = currentBlock.relative(x, y, z);
-            if ((Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(b.location()))
-                || !b.type().equals(blockType)
-                || blockMap.contains(b)
-                || !queued.add(b)) {
-              continue;
-            }
-            if (distanceSquared(block, b) <= radiusSquared && canBlockBreak(p, b.location())) {
-              stack.push(b);
-            } else {
-              queued.remove(b);
-            }
-          }
-        }
-      }
-    }
+    Set<BlockRef> blockMap = AxeFelling.floodFoliage(this, p, block, radius, maxBlocks);
 
     Set<BlockRef> siblings = new HashSet<>(blockMap);
     siblings.remove(block);
@@ -188,31 +148,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     fx(player.eyeLocation(), FxPriority.TRAIL)
         .line(Particles.VILLAGER_HAPPY, origin.x() + 0.5D, origin.y() + 0.5D, origin.z() + 0.5D, 5)
         .sound(Sounds.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.2F);
-    List<BlockRef> brokenBlocks = new ArrayList<>(targets.size() + 1);
-    brokenBlocks.add(origin);
-    try {
-      for (BlockRef target : targets) {
-        Loc location = target.location();
-        if ((Tasks.isFoliaThreading()
-            && (!Tasks.isOwnedByCurrentRegion(player) || !Tasks.isOwnedByCurrentRegion(location)))
-            || !target.type().equals(blockType)
-            || !canBlockBreak(player, location)) {
-          continue;
-        }
-
-        VEIN_MINED.add(target);
-        try {
-          if (ProtectionProbes.attemptBlockBreak(player, target)) {
-            brokenBlocks.add(target);
-          }
-        } finally {
-          VEIN_MINED.remove(target);
-        }
-      }
-    } finally {
-      VEIN_MINED.remove(origin);
-    }
-
+    List<BlockRef> brokenBlocks = AxeFelling.breakAll(this, player, origin, blockType, targets);
     emitLeafFeedback(player, origin, leafData, brokenBlocks, radius);
   }
 
@@ -254,19 +190,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   }
 
 
-
-  private int distanceSquared(BlockRef first, BlockRef second) {
-    int dx = first.x() - second.x();
-    int dy = first.y() - second.y();
-    int dz = first.z() - second.z();
-    return (dx * dx) + (dy * dy) + (dz * dz);
-  }
-
-  private boolean isLeavesMaterial(Id type) {
-    return type.equals(MANGROVE_ROOTS)
-        || type.equals(MUDDY_MANGROVE_ROOTS)
-        || type.path().endsWith("_leaves");
-  }
 
   @ConfigDescription("Break bulk leaves at once while sneaking.")
   protected static class Config extends AdaptationConfig {

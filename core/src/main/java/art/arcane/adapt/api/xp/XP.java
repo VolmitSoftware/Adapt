@@ -20,6 +20,7 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.mutation.SkillMutation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.runtime.AdaptationGate;
@@ -96,6 +97,11 @@ public class XP {
       if (Double.isFinite(contextual) && contextual > 0D) {
         contextual *= XpNovelty.noveltyMultiplier(online, location, award.source());
         player.getData().noteActivity(skill.getName());
+      }
+      SkillMutation mutation = player.getData().mutationOf(skill.getName());
+      if (mutation != null) {
+        contextual = line.sameActionPayment(mutation.lead().equals(skill.getName()), contextual, online.ticksLived(),
+            AdaptConfig.get().getMutations().getSameActionSmallerShare());
       }
     }
     line.award(award.notifyPlayer() ? player.getNot() : null, award, contextual, player.getData().getXpEarnings());

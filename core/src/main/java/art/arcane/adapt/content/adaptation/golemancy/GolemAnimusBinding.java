@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -118,6 +120,21 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.platform(GolemItems.resolver(), GolemItems.recipeBook());
     GolemancySupport.registerRecipe(this, parser, CROOK_RECIPE, getConfig().crookRecipe, RECIPE_LEVEL);
     GolemancySupport.registerRecipe(this, parser, BLANK_CORE_RECIPE, getConfig().blankCoreRecipe, RECIPE_LEVEL);
+  }
+
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
+  @Override
+  public int getLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getLevel(p), (Adaptation<?> upgrade) -> upgrade.getLevel(p));
   }
 
   @Override
@@ -371,6 +388,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     ritual.takeCore();
     boundFx(golem, target.body());
     notify(owner, GolemancyMessages.BINDING_BOUND, trusted("body", AdaptLanguage.text(target.body().displayName())));
+    UpgradeLoans.landed(this, owner);
     handle.ifPresent(bound -> GolemancyRuntime.bindListener().bound(owner, bound));
   }
 

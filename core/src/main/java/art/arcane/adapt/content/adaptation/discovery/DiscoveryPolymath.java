@@ -30,8 +30,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
@@ -108,19 +106,14 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
     }
 
     PlayerData data = getPlayer(player).getData();
-    int qualifying = 0;
-    for (PlayerSkillLine line : data.getSkillLines().values()) {
-      if (line != null && line.getLevel() >= getConfig().skillThreshold) {
-        qualifying++;
-      }
-    }
+    int qualifying = DiscoveryXpShare.levelledSkills(data, getConfig().skillThreshold);
 
     double bonus = totalBonus(qualifying, perSkillBonus(getLevelPercent(level), getConfig().perSkillBonusBase, getConfig().perSkillBonusFactor), getConfig().maxTotalBonus);
     if (bonus <= 0) {
       return;
     }
 
-    data.globalXPMultiplier(XPMultiplier.owned(getName(), bonus, MULTIPLIER_DURATION_MILLIS));
+    DiscoveryXpShare.boost(data, getName(), bonus, MULTIPLIER_DURATION_MILLIS);
     data.addStat("discovery.polymath.boosts", 1);
 
     UUID id = player.uuid();
@@ -132,11 +125,11 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
     }
   }
 
-  static double perSkillBonus(double levelPercent, double base, double factor) {
+  public static double perSkillBonus(double levelPercent, double base, double factor) {
     return Math.max(0D, base + (levelPercent * factor));
   }
 
-  static double totalBonus(int qualifyingSkills, double perSkill, double maxTotal) {
+  public static double totalBonus(int qualifyingSkills, double perSkill, double maxTotal) {
     return Math.min(Math.max(0D, maxTotal), Math.max(0, qualifyingSkills) * Math.max(0D, perSkill));
   }
 

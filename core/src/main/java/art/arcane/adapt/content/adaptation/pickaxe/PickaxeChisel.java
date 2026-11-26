@@ -147,7 +147,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     }
     BlockStateRef b = target.state();
     if (isOre(b)) {
-      ItemRef is = getDropFor(b);
+      ItemRef is = getDropFor(b.type());
       if (is == null) {
         return;
       }
@@ -248,8 +248,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     return near;
   }
 
-  private ItemRef getDropFor(BlockStateRef b) {
-    Id type = b.type();
+  public static ItemRef getDropFor(Id type) {
     if (!type.isMinecraft()) {
       return null;
     }

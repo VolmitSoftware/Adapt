@@ -56,7 +56,7 @@ public final class CraftingMessages {
   public static final TextKey LEATHER_DESCRIPTION = TextKey.of("crafting.leather.description", "Craft Leather from Rotten Flesh");
   public static final TextKey LEATHER_LORE1 = TextKey.of("crafting.leather.lore1", "Just toss it(rotten flesh) on the campfire!");
   public static final LinesKey LEATHER_LORE = LinesKey.of("crafting.leather.lore", "Just toss it(rotten flesh) on the campfire!");
-  public static final TextKey BACKPACKS_NAME = TextKey.of("crafting.backpacks.name", "A Boutilier's Backpacks!");
+  public static final TextKey BACKPACKS_NAME = TextKey.of("crafting.backpacks.name", "A Boutilier's Backpacks");
   public static final TextKey BACKPACKS_DESCRIPTION = TextKey.of("crafting.backpacks.description", "Craft a Backpack that stores whole stacks and opens as its own container.");
   public static final TextKey BACKPACKS_LORE1 = TextKey.of("crafting.backpacks.lore1", "Right-click the Backpack to open its own container");
   public static final TextKey BACKPACKS_LORE2 = TextKey.of("crafting.backpacks.lore2", "LLL : Leather, Leather, Leather");
@@ -70,13 +70,13 @@ public final class CraftingMessages {
   public static final TextKey BACKPACKS_PREV_PAGE = TextKey.of("crafting.backpacks.prev_page", "Previous page");
   public static final TextKey BACKPACKS_NEXT_PAGE = TextKey.of("crafting.backpacks.next_page", "Next page");
   public static final TextKey BACKPACKS_UNREADABLE = TextKey.of("crafting.backpacks.unreadable", "This Backpack was packed by another server build and cannot be opened here.");
-  public static final TextKey STATIONS_NAME = TextKey.of("crafting.stations.name", "Portable Tables!");
+  public static final TextKey STATIONS_NAME = TextKey.of("crafting.stations.name", "Portable Tables");
   public static final TextKey STATIONS_DESCRIPTION = TextKey.of("crafting.stations.description", "Click the air while holding an anvil, crafting table, grindstone, stonecutter, cartography table, or loom to open it without placing it. Each open costs hunger.");
   public static final TextKey STATIONS_LORE2 = TextKey.of("crafting.stations.lore2", "ANY ITEMS THAT YOU FORGET IN THE TABLE WHEN CLOSED ARE LOST FOREVER!");
   public static final TextKey STATIONS_LORE3 = TextKey.of("crafting.stations.lore3", "Valid tables: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom");
   public static final LinesKey STATIONS_LORE = LinesKey.of("crafting.stations.lore", "ANY ITEMS THAT YOU FORGET IN THE TABLE WHEN CLOSED ARE LOST FOREVER!", "Valid tables: Anvil, Crafting, Grindstone, Cartography, Stone-Cutter, Loom");
   public static final TextKey STATIONS_LORE4 = TextKey.of("crafting.stations.lore4", "Hunger consumed per portable station opened");
-  public static final TextKey SKULLS_NAME = TextKey.of("crafting.skulls.name", "Craftable skulls!");
+  public static final TextKey SKULLS_NAME = TextKey.of("crafting.skulls.name", "Craftable Skulls");
   public static final TextKey SKULLS_DESCRIPTION = TextKey.of("crafting.skulls.description", "Using Materials you can Craft Mob Skulls!");
   public static final TextKey SKULLS_LORE1 = TextKey.of("crafting.skulls.lore1", "Surround a Bone Block with the following to get a skull:");
   public static final TextKey SKULLS_LORE2 = TextKey.of("crafting.skulls.lore2", "Zombie: Rotting Flesh");
@@ -121,6 +121,25 @@ public final class CraftingMessages {
   public static final TextKey PROVISIONER_LORE1 = TextKey.of("crafting.provisioner.lore1", "chance for bonus food portions");
   public static final TextKey PROVISIONER_LORE2 = TextKey.of("crafting.provisioner.lore2", "bonus portions per proc");
   public static final LinesKey PROVISIONER_LORE = LinesKey.of("crafting.provisioner.lore", "chance for bonus food portions", "bonus portions per proc");
+  public static final TextKey GRAND_ARTISAN_LORE2 = TextKey.of("upgrade.crafting.grand_artisan.lore2", "Stronger Masterwork Rolls");
+  public static final TextKey UNMAKER_LORE2 = TextKey.of("upgrade.crafting.unmaker.lore2", "Compact Cooldown");
+  public static final TextKey GRAND_ARTISAN_LORE3 = TextKey.of("upgrade.crafting.grand_artisan.lore3", "Reforge Choices");
+  public static final TextKey GRAND_ARTISAN_LORE4 = TextKey.of("upgrade.crafting.grand_artisan.lore4", "Reforge Cost in Levels");
+  public static final TextKey GRAND_ARTISAN_LORE5 = TextKey.of("upgrade.crafting.grand_artisan.lore5", "Reforge Lock");
+  public static final TextKey GRAND_ARTISAN_LOCK = TextKey.of("upgrade.crafting.grand_artisan.lock", "Reforge lock");
+  public static final TextKey GRAND_ARTISAN_LOCK_NONE = TextKey.of("upgrade.crafting.grand_artisan.lock_none", "None");
+  public static final TextKey GRAND_ARTISAN_LOCK_DURABILITY = TextKey.of("upgrade.crafting.grand_artisan.lock_durability", "Durability");
+  public static final TextKey GRAND_ARTISAN_LOCK_EDGE = TextKey.of("upgrade.crafting.grand_artisan.lock_edge", "Masterwork Edge");
+  public static final TextKey GRAND_ARTISAN_LEVELS = TextKey.of("upgrade.crafting.grand_artisan.levels", "{levels} levels");
+  public static final TextKey FIELD_WORKSHOP_LORE2 = TextKey.of("upgrade.crafting.field_workshop.lore2", "Hunger per Station Page");
+  public static final TextKey FIELD_WORKSHOP_LORE3 = TextKey.of("upgrade.crafting.field_workshop.lore3", "Ledger Pages");
+  public static final TextKey FIELD_WORKSHOP_LORE4 = TextKey.of("upgrade.crafting.field_workshop.lore4", "Ledger Chain Depth");
+  public static final TextKey LEDGER_NAME = TextKey.of("tool.crafting.artisans_ledger.name", "Artisan's Ledger");
+  public static final TextKey LEDGER_FILLED = TextKey.of("tool.crafting.artisans_ledger.filled", "{pages} pages filled");
+  public static final TextKey LEDGER_EMPTY = TextKey.of("tool.crafting.artisans_ledger.empty", "Empty Page");
+  public static final TextKey LEDGER_MISSING = TextKey.of("tool.crafting.artisans_ledger.missing", "Missing {items}");
+  public static final TextKey LEDGER_UNKNOWN = TextKey.of("tool.crafting.artisans_ledger.unknown", "No recipe you can craft");
+  public static final TextKey RUNED_BOOK_NAME = TextKey.of("tool.crafting.runed_book.name", "Runed Book");
 
   private CraftingMessages() {
   }
@@ -222,6 +241,7 @@ public final class CraftingMessages {
     builder.add(MASTERWORK_LORE3);
     builder.add(MASTERWORK_LORE4);
     builder.add(MASTERWORK_TAG);
+    builder.add(RUNED_BOOK_NAME);
     builder.add(MASTERWORK_BONUS);
     builder.add(MASTERWORK_ATTRIBUTE_TAG);
     builder.add(MASTERWORK_LORE);
@@ -242,5 +262,23 @@ public final class CraftingMessages {
     builder.add(PROVISIONER_LORE1);
     builder.add(PROVISIONER_LORE2);
     builder.add(PROVISIONER_LORE);
+    builder.add(GRAND_ARTISAN_LORE2);
+    builder.add(UNMAKER_LORE2);
+    builder.add(GRAND_ARTISAN_LORE3);
+    builder.add(GRAND_ARTISAN_LORE4);
+    builder.add(GRAND_ARTISAN_LORE5);
+    builder.add(GRAND_ARTISAN_LOCK);
+    builder.add(GRAND_ARTISAN_LOCK_NONE);
+    builder.add(GRAND_ARTISAN_LOCK_DURABILITY);
+    builder.add(GRAND_ARTISAN_LOCK_EDGE);
+    builder.add(GRAND_ARTISAN_LEVELS);
+    builder.add(FIELD_WORKSHOP_LORE2);
+    builder.add(FIELD_WORKSHOP_LORE3);
+    builder.add(FIELD_WORKSHOP_LORE4);
+    builder.add(LEDGER_NAME);
+    builder.add(LEDGER_FILLED);
+    builder.add(LEDGER_EMPTY);
+    builder.add(LEDGER_MISSING);
+    builder.add(LEDGER_UNKNOWN);
   }
 }

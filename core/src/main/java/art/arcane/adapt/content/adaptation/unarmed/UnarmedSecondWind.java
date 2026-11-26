@@ -28,6 +28,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.platform.data.DataCodecs;
+import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -41,7 +43,8 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 
 public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config> {
-  private static final Id REGENERATION = Id.minecraft("regeneration");
+  public static final Id REGENERATION = Id.minecraft("regeneration");
+  private static final DataKey<Byte> PAID = DataKey.of(Id.of("adapt", "unarmed_second_wind_paid"), DataCodecs.BYTE);
   private final Cooldowns secondWindCooldown = cooldowns();
 
   public UnarmedSecondWind() {
@@ -96,21 +99,14 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
       return;
     }
 
-    if (!secondWindCooldown.isReady(p.uuid(), getConfig().cooldownMillis)) {
+    if (!secondWindCooldown.isReady(p.uuid(), getConfig().cooldownMillis) || !claim(victim)) {
       return;
     }
 
     secondWindCooldown.mark(p.uuid(), getConfig().cooldownMillis);
     int foodRestore = getFoodRestore(level);
     int regenTicks = getRegenDurationTicks(level);
-    Tasks.runEntity(p, () -> {
-      if (!p.isOnline() || p.isDead()) {
-        return;
-      }
-      p.setFoodLevel(Math.min(20, p.foodLevel() + foodRestore));
-      p.setSaturation((float) Math.min(p.foodLevel(), p.saturation() + getConfig().saturationRestore));
-      p.addEffect(new EffectInstance(REGENERATION, regenTicks, getConfig().regenAmplifier, false, true, true));
-    });
+    restore(p, foodRestore, getConfig().saturationRestore, regenTicks, getConfig().regenAmplifier);
 
     playBloom(p);
     xp(p, getConfig().xpPerSecondWind, "second-wind");
@@ -138,7 +134,28 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
     return Math.max(20, (int) Math.round(getConfig().regenDurationTicksBase + (getLevelPercent(level) * getConfig().regenDurationTicksFactor)));
   }
 
-  static PlayerRef directPlayerKiller(EntityDeathEvent event) {
+  /** The second wind on the player's thread: food and saturation back, then a regeneration burst. */
+  public static void restore(PlayerRef p, int food, double saturation, int regenTicks, int regenAmplifier) {
+    Tasks.runEntity(p, () -> {
+      if (!p.isOnline() || p.isDead()) {
+        return;
+      }
+      p.setFoodLevel(Math.min(20, p.foodLevel() + food));
+      p.setSaturation((float) Math.min(p.foodLevel(), p.saturation() + saturation));
+      p.addEffect(new EffectInstance(REGENERATION, regenTicks, regenAmplifier, false, true, true));
+    });
+  }
+
+  /** Marks {@code victim}'s death as paid by a second wind; false when one already paid for it. */
+  public static boolean claim(LivingRef victim) {
+    if (victim.data().has(PAID)) {
+      return false;
+    }
+    victim.data().set(PAID, (byte) 1);
+    return true;
+  }
+
+  public static PlayerRef directPlayerKiller(EntityDeathEvent event) {
     EntityRef causing = event.causingEntity();
     EntityRef direct = event.directDamager();
     return causing instanceof PlayerRef player && direct != null && direct.uuid().equals(player.uuid()) ? player : null;

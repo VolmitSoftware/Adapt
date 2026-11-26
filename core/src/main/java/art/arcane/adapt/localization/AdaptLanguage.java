@@ -41,6 +41,7 @@ import art.arcane.volmlib.util.localization.PluralSelector;
 import art.arcane.volmlib.util.localization.ResolvedLines;
 import art.arcane.volmlib.util.localization.ResolvedText;
 import art.arcane.volmlib.util.localization.TextKey;
+import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.TomlLanguageEditor;
 import art.arcane.volmlib.util.localization.VolmitLocales;
 import com.google.gson.JsonArray;
@@ -268,6 +269,16 @@ public final class AdaptLanguage {
       return renderTemplate(resolved.template(), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
     throw new IllegalArgumentException("Unsupported message key: " + key.id());
+  }
+
+  /** The raw template of {@code key} in the viewer's language, before placeholders and markup are applied. */
+  public static String template(TextKey key) {
+    return ((TextValue) snapshot().value(key)).template();
+  }
+
+  /** Renders text composed from {@link #template} parts the way {@link #text} renders a single message. */
+  public static String render(String composed) {
+    return renderTemplate(composed, MessageArgs.empty(), AdaptConfig.get().isAutomaticGradients(), "");
   }
 
   public static DirectorTextResolver directorResolver() {

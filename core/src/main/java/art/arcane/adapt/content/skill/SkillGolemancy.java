@@ -38,6 +38,7 @@ import art.arcane.adapt.api.golem.GolemRepairXp;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.golem.GolemWorkStats;
@@ -64,6 +65,7 @@ import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.golem.plinth.PlinthStructure;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.skill.AdaptationGroup;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.CombatXp;
@@ -77,6 +79,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemGathererCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemGuardianCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemHarvesterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
+import art.arcane.adapt.content.adaptation.golemancy.GolemLastJobs;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemMasterwork;
 import art.arcane.adapt.content.adaptation.golemancy.GolemMending;
@@ -86,6 +89,16 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemStasis;
+import art.arcane.adapt.content.adaptation.golemancy.GolemTaskDoneEvent;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyBoon;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyFightStrike;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyFuel;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyState;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyTrigger;
+import art.arcane.adapt.content.adaptation.golemancy.blocks.GolemancyWorkStrike;
+import art.arcane.adapt.content.adaptation.golemancy.upgraded.GrandOverseer;
+import art.arcane.adapt.content.adaptation.golemancy.upgraded.Forgemaster;
+import art.arcane.adapt.content.adaptation.golemancy.upgraded.Runeforged;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -93,6 +106,7 @@ import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
 import art.arcane.adapt.content.skill.golemancy.SpawnerMobTag;
 import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.localization.catalog.GroupMessages;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -139,13 +153,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private static final Id IRON_INGOT = Id.minecraft("iron_ingot");
   private static final Id HONEYCOMB = Id.minecraft("honeycomb");
   private static final Id AXES = Id.minecraft("axes");
-  static final List<List<String>> ROW_GROUPS = List.of(
-      List.of("golem-animus-binding", "golem-node-weaving"),
-      List.of("golem-frost-frame", "golem-copper-frame", "golem-iron-frame", "golem-bone-frame"),
-      List.of("golem-guardian-core", "golem-gatherer-core", "golem-harvester-core", "golem-lumber-core",
-          "golem-breaker-core", "golem-rancher-core", "golem-sorter-core", "golem-angler-core"),
-      List.of("golem-runic-augments", "golem-masterwork", "golem-overseer", "golem-mending", "golem-stasis")
-  );
 
   private final GolemBuildAttribution buildAttribution = new GolemBuildAttribution();
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
@@ -158,8 +165,20 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final GolemXpCooldowns<BindCooldownKey> bindCooldowns = new GolemXpCooldowns<>();
   private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
 
+  static final List<AdaptationGroup> GROUPS = List.of(
+      AdaptationGroup.of(GroupMessages.GOLEMANCY_BINDING, "golem-animus-binding", "golem-node-weaving"),
+      AdaptationGroup.of(GroupMessages.GOLEMANCY_FRAMES, "golem-frost-frame", "golem-copper-frame", "golem-iron-frame",
+          "golem-bone-frame"),
+      AdaptationGroup.of(GroupMessages.GOLEMANCY_CORES, "golem-guardian-core", "golem-gatherer-core",
+          "golem-harvester-core", "golem-lumber-core", "golem-breaker-core", "golem-rancher-core", "golem-sorter-core",
+          "golem-angler-core"),
+      AdaptationGroup.of(GroupMessages.GOLEMANCY_COMMAND, "golem-runic-augments", "golem-masterwork", "golem-overseer",
+          "golem-mending", "golem-stasis")
+  );
+
   public SkillGolemancy() {
-    super("golemancy", SkillPresentation.of(SkillMessages.GOLEMANCY_NAME, SkillMessages.GOLEMANCY_ICON, SkillMessages.GOLEMANCY_DESCRIPTION));
+    super("golemancy", SkillPresentation.of(SkillMessages.GOLEMANCY_NAME, SkillMessages.GOLEMANCY_ICON, SkillMessages.GOLEMANCY_DESCRIPTION,
+        SkillMessages.GOLEMANCY_QUIP, SkillMessages.GOLEMANCY_UNLOCK_QUIP_1, SkillMessages.GOLEMANCY_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.DARK_AQUA);
     setInterval(3620);
@@ -183,6 +202,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemMending());
     registerAdaptation(new GolemStasis());
     registerAdaptation(new GolemMasterwork());
+    registerUpgrades(new GrandOverseer(), new Forgemaster(), new Runeforged());
+    registerBlocks(new GolemancyTrigger(), new GolemancyFightStrike(), new GolemancyWorkStrike(), new GolemancyBoon(),
+        new GolemancyFuel(), new GolemancyState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("carved_pumpkin"))
         .key("challenge_golemancy_built_10")
@@ -317,8 +339,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   @Override
-  public List<List<String>> getAdaptationRowGroups() {
-    return ROW_GROUPS;
+  public List<AdaptationGroup> getAdaptationGroups() {
+    return GROUPS;
   }
 
   @Override
@@ -872,8 +894,13 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   private final class WorkStats implements GolemWorkStats.Sink {
     @Override
-    public void completed(GolemHandle handle) {
-      workerStat(handle, owner -> addStat(owner, "golemancy.tasks", 1));
+    public void completed(GolemHandle handle, GolemTask task) {
+      Loc at = handle.entity().location();
+      GolemLastJobs.finished(handle, task);
+      workerStat(handle, owner -> {
+        addStat(owner, "golemancy.tasks", 1);
+        AdaptCore.get().getBus().post(new GolemTaskDoneEvent(owner, handle, at, task));
+      });
     }
 
     @Override

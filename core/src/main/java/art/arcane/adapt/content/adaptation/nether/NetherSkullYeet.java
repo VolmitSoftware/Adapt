@@ -19,18 +19,18 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
-import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -38,22 +38,16 @@ import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.GameMode;
-import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.LastDamage;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
-import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.event.entity.EntityDeathEvent;
 import art.arcane.adapt.platform.event.entity.EntityRemoveEvent;
-import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
-import art.arcane.adapt.platform.event.player.UseResult;
-import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
@@ -64,33 +58,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", NetherMessages.NETHERSKULLYEET_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
 
-  private static final Id WITHER_SKELETON_SKULL = Id.minecraft("wither_skeleton_skull");
-  private static final Id WITHER_SKULL = Id.minecraft("wither_skull");
-
-  /**
-   * Skulls this adaptation threw, by entity id. Kept like plugin metadata: in memory only, kept across chunk
-   * unloads, dropped once the skull leaves the world for good.
-   */
-  private static final Set<UUID> THROWN_SKULLS = ConcurrentHashMap.newKeySet();
-
-  /**
-   * The skull is both the ability trigger and the ammunition, so the sweep and
-   * the gate share one state on the whole material.
-   */
-  private final ItemCooldowns cooldowns = ItemCooldowns.forMaterial(WITHER_SKELETON_SKULL).ownedBy(this);
+  private final NetherSkullToss toss = new NetherSkullToss(this);
 
   public NetherSkullYeet() {
     super("nether-skull-toss");
     registerConfiguration(Config.class);
-    setIcon(WITHER_SKELETON_SKULL);
+    setIcon(NetherSkullToss.WITHER_SKELETON_SKULL);
     setInterval(2314);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wither_skeleton_skull"))
@@ -126,16 +104,12 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     v.addLore(C.GRAY + AdaptLanguage.text(NetherMessages.SKULL_TOSS_USAGE));
   }
 
-  static int cooldownSeconds(int baseCooldown, int levelCooldown, int level) {
+  public static int cooldownSeconds(int baseCooldown, int levelCooldown, int level) {
     return Math.max(1, baseCooldown - (levelCooldown * level));
   }
 
   private int getCooldownSeconds(PlayerRef p) {
     return cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), getLevel(p));
-  }
-
-  static boolean isThrownSkull(EntityRef entity) {
-    return entity != null && THROWN_SKULLS.contains(entity.uuid());
   }
 
   @ReceiveCancelledEvents
@@ -146,92 +120,22 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       return;
     }
     withAdaptedPlayer(p, () -> {
-      if (e.action() != InteractAction.RIGHT_CLICK_AIR && e.action() != InteractAction.RIGHT_CLICK_BLOCK) {
-        return;
+      if (toss.toss(e, p, getCooldownSeconds(p) * 1000L, 100)) {
+        addStat(p, "nether.skull-yeet.skulls-thrown", 1);
       }
-      ItemRef item = e.item();
-      if (e.hand() != Hand.MAIN_HAND || item == null || item.isEmpty() || !item.type().equals(WITHER_SKELETON_SKULL)) {
-        return;
-      }
-
-      boolean vetoed = e.clickedBlock() != null
-          ? e.useBlock() == UseResult.DENY
-          : e.useItem() == UseResult.DENY;
-      if (vetoed) {
-        e.setCancelled(true);
-        return;
-      }
-
-      long cooldownMillis = getCooldownSeconds(p) * 1000L;
-      if (!cooldowns.isReady(p, cooldownMillis)) {
-        e.setCancelled(true);
-        fx(p.eyeLocation(), FxPriority.TRANSITION)
-            .particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.1D, 0.0D)
-            .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.6F, 0.8F);
-        return;
-      }
-
-      e.setCancelled(true);
-      if (p.gameMode() != GameMode.CREATIVE
-          && !payItemCost(p, "skull", AdaptCore.platform().host().items().create(WITHER_SKELETON_SKULL), 1, () -> {
-            item.setAmount(item.amount() - 1);
-            p.inventory().setMainHand(item);
-            return true;
-          })) {
-        return;
-      }
-
-      cooldowns.mark(p, cooldownMillis);
-
-      Loc eye = p.eyeLocation();
-      Vec3 dir = eye.direction();
-      Loc spawn = eye.add(.5, -.5, .5).add(dir);
-      EntityRef skull = p.world().spawn(WITHER_SKULL, spawn, entity -> {
-        if (entity instanceof ProjectileRef projectile) {
-          projectile.setRotation(eye.yaw(), eye.pitch());
-          projectile.setVelocity(dir.normalize());
-          projectile.setShooter(p);
-        }
-        THROWN_SKULLS.add(entity.uuid());
-        xp(p, 100);
-      });
-      fx(spawn, FxPriority.GAMEPLAY)
-          .trail(Particles.FLAME, dir.x(), dir.y(), dir.z(), 1.4D, 6)
-          .trail(Particles.SMOKE, dir.x(), dir.y(), dir.z(), 1.1D, 6)
-          .particle(Particles.SOUL, 4, 0D, 0D, 0D, 0.1D, 0.02D)
-          .chord(Sounds.ENTITY_WITHER_SHOOT, 1.0F, 1.0F, Sounds.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
-      if (skull != null) {
-        timeline(skull)
-            .duration(60)
-            .priority(FxPriority.TRAIL)
-            .cullRadius(48)
-            .frame((f, tick, progress) -> f.particle(Particles.SOUL, 2, 0D, 0D, 0D, 0.02D, 0.0D)
-                .particle(Particles.FLAME, 1, 0D, 0D, 0D, 0.02D, 0.0D))
-            .start();
-      }
-      addStat(p, "nether.skull-yeet.skulls-thrown", 1);
     });
   }
 
   @Handle(priority = EventPriority.LOWEST)
   public void protectPassiveMobs(EntityDamageByEntityEvent e) {
-    if (e.damager().type().equals(WITHER_SKULL)
-        && e.damager() instanceof ProjectileRef skull
-        && isThrownSkull(skull)
-        && skull.shooter() instanceof PlayerRef owner
-        && (isProtectedFriendly(owner, e.entity())
-        || (e.cause() == DamageCause.ENTITY_EXPLOSION
-        && !AdaptationDamageTargets.allows(e.entity(), getConfig().isIgnorePassiveMobs())))) {
+    if (NetherSkullToss.spares(this, e, getConfig().isIgnorePassiveMobs())) {
       e.setCancelled(true);
     }
   }
 
   @Handle(priority = EventPriority.MONITOR)
   public void forgetSkull(EntityRemoveEvent e) {
-    if (e.cause() != EntityRemoveEvent.Cause.UNLOAD && e.cause() != EntityRemoveEvent.Cause.CHANGED_DIMENSION
-        && !THROWN_SKULLS.isEmpty()) {
-      THROWN_SKULLS.remove(e.entity().uuid());
-    }
+    NetherSkullToss.forget(e);
   }
 
   @Handle(ignoreCancelled = false)
@@ -243,7 +147,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
     LastDamage last = dead.lastDamage();
     if (last != null
         && last.damager() != null
-        && last.damager().type().equals(WITHER_SKULL)
+        && last.damager().type().equals(NetherSkullToss.WITHER_SKULL)
         && last.damager() instanceof ProjectileRef skull
         && skull.shooter() instanceof PlayerRef p) {
       withAdaptedPlayer(p, () -> {
@@ -274,6 +178,29 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   }
 
 
+
+  static void tossDeniedFx(Adaptation<?> owner, PlayerRef p) {
+    Fx.now(owner, p.eyeLocation(), FxPriority.TRANSITION)
+        .particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.1D, 0.0D)
+        .sound(Sounds.BLOCK_CONDUIT_DEACTIVATE, 0.6F, 0.8F);
+  }
+
+  static void tossFx(Adaptation<?> owner, Loc spawn, Vec3 dir, EntityRef skull) {
+    Fx.now(owner, spawn, FxPriority.GAMEPLAY)
+        .trail(Particles.FLAME, dir.x(), dir.y(), dir.z(), 1.4D, 6)
+        .trail(Particles.SMOKE, dir.x(), dir.y(), dir.z(), 1.1D, 6)
+        .particle(Particles.SOUL, 4, 0D, 0D, 0D, 0.1D, 0.02D)
+        .chord(Sounds.ENTITY_WITHER_SHOOT, 1.0F, 1.0F, Sounds.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
+    if (skull != null) {
+      FxTimeline.follow(owner, skull)
+          .duration(60)
+          .priority(FxPriority.TRAIL)
+          .cullRadius(48)
+          .frame((f, tick, progress) -> f.particle(Particles.SOUL, 2, 0D, 0D, 0D, 0.02D, 0.0D)
+              .particle(Particles.FLAME, 1, 0D, 0D, 0D, 0.02D, 0.0D))
+          .start();
+    }
+  }
 
   @Getter
   @Setter

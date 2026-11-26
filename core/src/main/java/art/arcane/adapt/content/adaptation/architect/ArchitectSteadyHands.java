@@ -30,6 +30,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.support.PlatformNeed;
@@ -45,6 +46,7 @@ import art.arcane.adapt.platform.event.block.BlockPlaceEvent;
 import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.platform.value.BlockFace;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -53,6 +55,7 @@ import art.arcane.volmlib.util.math.M;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> KNOCKBACK = CommonPreferences.toggle("knockback", ArchitectMessages.ARCHITECTSTEADYHANDS_PREFERENCE_KNOCKBACK, CommonPreferences.Toggle.ON);
@@ -110,6 +113,17 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     statLore(v, C.GREEN, "", (int) getShieldedHeight(getLevelPercent(level)), 2);
   }
 
+  @Override
+  public int getActiveLevel(PlayerRef p) {
+    return UpgradeLoans.level(this, super.getActiveLevel(p), (Adaptation<?> upgrade) -> upgrade.getActiveLevel(p));
+  }
+
+  @Override
+  public BlockActionContext resolveBlockPlaceContext(PlayerRef p, Loc location, Predicate<PlayerRef> requirement) {
+    return UpgradeLoans.context(this, super.resolveBlockPlaceContext(p, location, requirement),
+        (Adaptation<?> upgrade) -> upgrade.resolveBlockPlaceContext(p, location, requirement));
+  }
+
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockPlaceEvent e) {
     PlayerRef p = e.player();
@@ -142,6 +156,7 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     bridgeGraceUntil.put(p.uuid(), now + (graceTicks * 50L));
     AbilityGlyphs.duration(p.uuid(), this, now, graceTicks * 50L);
     addStat(p, "architect.steady-hands.bridge-blocks", 1);
+    UpgradeLoans.landed(this, p);
     if (auraCd.isReady(p.uuid(), 250)) {
       auraCd.mark(p.uuid());
       fx(p.location(), FxPriority.TRANSITION)

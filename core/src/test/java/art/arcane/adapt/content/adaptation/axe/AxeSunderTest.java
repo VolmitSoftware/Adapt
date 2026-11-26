@@ -38,7 +38,7 @@ class AxeSunderTest {
     AxeSunder adaptation = new AxeSunder();
     LivingRef tracked = mock(LivingRef.class);
     when(tracked.isValid()).thenReturn(true);
-    Map<UUID, Object> targets = field(adaptation, "targets");
+    Map<UUID, Object> targets = field(field(adaptation, "marks"), "targets");
     targets.put(UUID.randomUUID(), sunderState(tracked, true, true));
 
     adaptation.unregister();
@@ -55,7 +55,7 @@ class AxeSunderTest {
     AxeSunder adaptation = new AxeSunder();
     LivingRef unloaded = mock(LivingRef.class);
     when(unloaded.isValid()).thenReturn(false);
-    Map<UUID, Object> targets = field(adaptation, "targets");
+    Map<UUID, Object> targets = field(field(adaptation, "marks"), "targets");
     targets.put(UUID.randomUUID(), sunderState(unloaded, true, true));
     targets.put(UUID.randomUUID(), sunderState(null, false, false));
 
@@ -66,7 +66,7 @@ class AxeSunderTest {
   }
 
   private static Object sunderState(LivingRef target, boolean armor, boolean toughness) throws Exception {
-    Class<?> stateClass = Class.forName("art.arcane.adapt.content.adaptation.axe.AxeSunder$SunderState");
+    Class<?> stateClass = Class.forName("art.arcane.adapt.content.adaptation.axe.AxeSunderMarks$SunderState");
     Constructor<?> constructor = stateClass.getDeclaredConstructor();
     constructor.setAccessible(true);
     Object state = constructor.newInstance();

@@ -1,14 +1,15 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.support.PlatformNeed;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -18,15 +19,15 @@ import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
 public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config> {
-  private static final Id SLOWNESS = Id.minecraft("slowness");
   private static final Rgb PIN = Rgb.of(0xB7D4E8);
+
   private final Cooldowns targetCooldowns = cooldowns();
+  private final KineticsPin pin = new KineticsPin(this);
 
   public KineticsImpalePin() {
     super("kinetics-impale-pin");
@@ -69,15 +70,7 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
     targetCooldowns.mark(target.uuid());
     int duration = getDurationTicks(combat.level());
     int tier = getSlowTier(combat.level());
-    Tasks.runEntity(target, () -> {
-      if (isRuntimeRegistered() && target.isValid()) {
-        target.addEffect(new EffectInstance(SLOWNESS, duration, tier, true, true, true));
-        fx(target.location().add(0D, target.height() * 0.5D, 0D), FxPriority.COMBAT)
-            .ring(Particles.CRIT, 0.45D, 8, 0D)
-            .dustBurst(PIN, 4, 0.3D, 1F)
-            .sound(Sounds.BLOCK_CHAIN_PLACE, 0.45F, 0.65F);
-      }
-    });
+    pin.pin(target, duration, tier);
   }
 
   private double getSweetMax(int level) {
@@ -117,12 +110,19 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
     return 0D;
   }
 
-  static int slowTier(double base, double factor, double levelPercent) {
+  public static int slowTier(double base, double factor, double levelPercent) {
     return Math.max(0, (int) Math.round(base + (levelPercent * factor)));
   }
 
-  static int durationTicks(double base, double factor, double levelPercent) {
+  public static int durationTicks(double base, double factor, double levelPercent) {
     return Math.max(10, (int) Math.round(base + (levelPercent * factor)));
+  }
+
+  static void pinFx(Adaptation<?> owner, Loc at) {
+    Fx.now(owner, at, FxPriority.COMBAT)
+        .ring(Particles.CRIT, 0.45D, 8, 0D)
+        .dustBurst(PIN, 4, 0.3D, 1F)
+        .sound(Sounds.BLOCK_CHAIN_PLACE, 0.45F, 0.65F);
   }
 
   @ConfigDescription("Spear hits at sweet range pin the target with heavy slowness.")

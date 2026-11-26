@@ -8,11 +8,11 @@ import static org.assertj.core.api.Assertions.within;
 class AgilitySlipstreamSlideSlowTest {
   @Test
   void slideFrictionReductionClampsToAttributeRange() {
-    assertThat(AgilitySlipstreamSlide.slideFrictionReduction(-1D)).isZero();
-    assertThat(AgilitySlipstreamSlide.slideFrictionReduction(0.9D)).isCloseTo(0.9D, within(1.0e-9D));
-    assertThat(AgilitySlipstreamSlide.slideFrictionReduction(4D)).isEqualTo(1D);
-    assertThat(AgilitySlipstreamSlide.slideFrictionReduction(Double.NaN)).isZero();
-    assertThat(AgilitySlipstreamSlide.slideFrictionReduction(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(AgilitySlide.slideFrictionReduction(-1D)).isZero();
+    assertThat(AgilitySlide.slideFrictionReduction(0.9D)).isCloseTo(0.9D, within(1.0e-9D));
+    assertThat(AgilitySlide.slideFrictionReduction(4D)).isEqualTo(1D);
+    assertThat(AgilitySlide.slideFrictionReduction(Double.NaN)).isZero();
+    assertThat(AgilitySlide.slideFrictionReduction(Double.POSITIVE_INFINITY)).isZero();
   }
 
   @Test

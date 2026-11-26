@@ -202,6 +202,32 @@ class AdaptConfigTest {
     }
 
     @Test
+    void mutationEngineTimingHasDefaultsAndNormalizes() throws IOException {
+        AdaptConfig.Mutations defaults = new AdaptConfig().getMutations();
+        assertThat(defaults.getTriggerCooldownMillisAtFirstLevel()).isEqualTo(8_000L);
+        assertThat(defaults.getTriggerCooldownMillisAtTopLevel()).isEqualTo(4_000L);
+        assertThat(defaults.getConvergenceCooldownMillis()).isEqualTo(45_000L);
+        assertThat(defaults.getAttunementIntervalMillis()).isEqualTo(20_000L);
+        assertThat(defaults.getHostileRadius()).isEqualTo(6D);
+        assertThat(defaults.getDoubleSneakWindowMillis()).isEqualTo(400L);
+
+        String canonical = TomlCodec.toToml(new AdaptConfig(), "core-config");
+        AdaptConfig loaded = TomlCodec.fromToml(canonical
+            .replace("triggerCooldownMillisAtFirstLevel = 8000", "triggerCooldownMillisAtFirstLevel = 6000")
+            .replace("convergenceCooldownMillis = 45000", "convergenceCooldownMillis = -5")
+            .replace("attunementIntervalMillis = 20000", "attunementIntervalMillis = 10")
+            .replace("hostileRadius = 6.0", "hostileRadius = 0.0")
+            .replace("doubleSneakWindowMillis = 400", "doubleSneakWindowMillis = 0"), AdaptConfig.class);
+        loaded.normalize();
+        AdaptConfig.Mutations configured = loaded.getMutations();
+        assertThat(configured.getTriggerCooldownMillisAtFirstLevel()).isEqualTo(6_000L);
+        assertThat(configured.getConvergenceCooldownMillis()).isZero();
+        assertThat(configured.getAttunementIntervalMillis()).isEqualTo(1_000L);
+        assertThat(configured.getHostileRadius()).isEqualTo(6D);
+        assertThat(configured.getDoubleSneakWindowMillis()).isEqualTo(50L);
+    }
+
+    @Test
     @DisplayName("skills gui only lists progressed skills until the show-all key is enabled")
     void skillsGuiShowAllDefaultsToOff() throws IOException {
         AdaptConfig config = new AdaptConfig();

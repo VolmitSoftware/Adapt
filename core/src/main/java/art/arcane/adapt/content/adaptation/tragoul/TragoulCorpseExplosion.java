@@ -18,29 +18,23 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
-import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
-import art.arcane.adapt.api.adaptation.EntityGuardPort;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
-import art.arcane.adapt.platform.data.DataCodecs;
-import art.arcane.adapt.platform.data.DataKey;
-import art.arcane.adapt.platform.entity.EntityRef;
-import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
@@ -50,30 +44,44 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplosion.Config> {
-  private static final int HARD_MAX_NOVA_TARGETS = 16;
-  private static final int HARD_MAX_NOVA_CANDIDATES = 32;
-  private static final int MAX_NOVAS_PER_TICK = 8;
-  private static final int MAX_PENDING_NOVAS = 256;
-  private static final double HARD_MAX_NOVA_RADIUS = 16D;
-  private static final DataKey<Long> NOVA_KEY = DataKey.adapt("tragoul_nova_stamp", DataCodecs.LONG);
   private static final Rgb NOVA_CRIMSON = new Rgb(150, 12, 12);
   private static final Rgb NOVA_BONE = new Rgb(200, 190, 170);
-  private final ConcurrentLinkedQueue<NovaPlan> pendingNovas = new ConcurrentLinkedQueue<>();
-  private final AtomicInteger pendingNovaCount = new AtomicInteger();
-  private final AtomicBoolean novaDrainScheduled = new AtomicBoolean();
+  private final TragoulNova nova = new TragoulNova(this, new TragoulNova.Settings() {
+    @Override
+    public boolean ignorePassiveMobs() {
+      return getConfig().ignorePassiveMobs;
+    }
+
+    @Override
+    public long chainSuppressionMillis() {
+      return getConfig().chainSuppressionMillis;
+    }
+
+    @Override
+    public int maxTargets() {
+      return getConfig().maxTargets;
+    }
+
+    @Override
+    public double radius(int level) {
+      return getRadius(level);
+    }
+
+    @Override
+    public double damage(int level, double victimMaxHealth) {
+      return getNovaDamage(level, victimMaxHealth);
+    }
+  }, (PlayerRef owner, List<LivingRef> hits) -> {
+    addStat(owner, "tragoul.corpse-explosion.mobs-detonated", hits.size());
+    xp(owner, hits.size() * getConfig().xpPerMobHit);
+  });
 
   public TragoulCorpseExplosion() {
     super("tragoul-corpse-explosion");
@@ -114,235 +122,32 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     if (killer == null || GolemKillCredit.isGolemKill(e.entity())) {
       return;
     }
-    requestDetonation(killer, e.entity(), false);
+    nova.request(killer, e.entity(), false);
   }
 
-  static void detonateServantKill(TragoulCorpseExplosion nova, PlayerRef owner, LivingRef victim) {
-    nova.requestDetonation(owner, victim, true);
+  static void detonateServantKill(TragoulCorpseExplosion explosion, PlayerRef owner, LivingRef victim) {
+    explosion.nova.request(owner, victim, true);
   }
 
-  private void requestDetonation(PlayerRef owner, LivingRef victim, boolean servant) {
-    if (owner == null || victim == null) {
-      return;
-    }
-    NovaSourceSnapshot source = captureSourceOwned(victim);
-    if (source != null) {
-      Tasks.runEntity(owner, () -> prepareNovaOwnerOwned(owner, source, servant));
-    }
+  private double getRadius(int level) {
+    double configured = Math.max(1D, getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
+    return Math.min(TragoulNova.MAX_RADIUS, configured);
   }
 
-  private NovaSourceSnapshot captureSourceOwned(LivingRef victim) {
-    long now = System.currentTimeMillis();
-    Long novaStamp = victim.data().get(NOVA_KEY);
-    if (isSuppressed(novaStamp, now, getConfig().chainSuppressionMillis)) {
-      return null;
-    }
-
-    double attributeMaxHealth = victim.attributeValue(Attributes.MAX_HEALTH);
-    double maxHealth = Double.isNaN(attributeMaxHealth) ? 20D : attributeMaxHealth;
-    ProtectionSnapshot protection = captureProtectionOwned(victim);
-    return new NovaSourceSnapshot(victim.location(), maxHealth,
-        victim instanceof PlayerRef, protection.protectedFriendly(), protection.tameOwnerId());
+  private double getVictimHealthFraction(int level) {
+    return Math.max(0, getConfig().victimHealthFractionBase + (getLevelPercent(level) * getConfig().victimHealthFractionFactor));
   }
 
-  static boolean isSuppressed(Long novaStamp, long now, long suppressionMillis) {
-    return novaStamp != null && now - novaStamp < Math.max(0L, suppressionMillis);
+  private double getNovaDamage(int level, double victimMaxHealth) {
+    double damage = getConfig().baseDamage + (victimMaxHealth * getVictimHealthFraction(level));
+    return Math.min(getConfig().maxDamage, damage);
   }
 
-  static boolean isNovaTarget(EntityRef entity) {
-    return entity instanceof LivingRef && entity.has(EntityTrait.ENEMY);
-  }
-
-  private void prepareNovaOwnerOwned(PlayerRef owner, NovaSourceSnapshot source, boolean servant) {
-    if (!owner.isOnline()) {
-      return;
-    }
-
-    int level = getActiveLevel(owner);
-    if (level <= 0 || !canDamageSnapshotOwned(owner, source.player(), source.protectedFriendly(),
-        source.tameOwnerId(), source.location())) {
-      return;
-    }
-    double radius = getRadius(level);
-    double damage = getNovaDamage(level, source.maxHealth());
-    int maxTargets = Math.min(HARD_MAX_NOVA_TARGETS, Math.max(1, getConfig().maxTargets));
-    int candidateLimit = Math.min(HARD_MAX_NOVA_CANDIDATES, maxTargets * 2);
-    NovaPlan plan = new NovaPlan(owner, source.location(), radius, damage, maxTargets, candidateLimit,
-        getConfig().xpPerMobHit, servant);
-    enqueueNova(plan);
-  }
-
-  private void enqueueNova(NovaPlan plan) {
-    if (pendingNovaCount.incrementAndGet() > MAX_PENDING_NOVAS) {
-      pendingNovaCount.decrementAndGet();
-      return;
-    }
-    pendingNovas.add(plan);
-    scheduleNovaDrain();
-  }
-
-  private void scheduleNovaDrain() {
-    if (novaDrainScheduled.compareAndSet(false, true)) {
-      Tasks.s(this::drainNovas, 1);
-    }
-  }
-
-  private void drainNovas() {
-    int drained = 0;
-    while (drained < MAX_NOVAS_PER_TICK) {
-      NovaPlan plan = pendingNovas.poll();
-      if (plan == null) {
-        break;
-      }
-      pendingNovaCount.decrementAndGet();
-      Tasks.runAt(plan.source(), () -> collectCandidatesOwned(plan));
-      drained++;
-    }
-    novaDrainScheduled.set(false);
-    if (!pendingNovas.isEmpty()) {
-      scheduleNovaDrain();
-    }
-  }
-
-  private void collectCandidatesOwned(NovaPlan plan) {
-    playNova(plan.source(), plan.radius(), plan.servant() ? NOVA_BONE : NOVA_CRIMSON);
-    List<LivingRef> candidates = new ArrayList<>(plan.candidateLimit());
-    Loc source = plan.source();
-    double radius = plan.radius();
-    for (EntityRef entity : source.world().nearbyEntities(source.position(), radius, radius, radius)) {
-      if (!isNovaTarget(entity) || !AdaptationDamageTargets.allows(entity, getConfig().ignorePassiveMobs)) {
-        continue;
-      }
-      candidates.add((LivingRef) entity);
-      if (candidates.size() >= plan.candidateLimit()) {
-        break;
-      }
-    }
-
-    if (candidates.isEmpty()) {
-      return;
-    }
-
-    NovaBatch batch = new NovaBatch(plan, candidates.size());
-    for (LivingRef candidate : candidates) {
-      if (!Tasks.runEntity(candidate, () -> batch.complete(captureTargetOwned(candidate)))) {
-        batch.complete(null);
-      }
-    }
-    batch.armTimeout();
-  }
-
-  private NovaTargetSnapshot captureTargetOwned(LivingRef target) {
-    if (!target.isValid() || target.isDead()
-        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
-      return null;
-    }
-    Loc location = target.location();
-    ProtectionSnapshot protection = captureProtectionOwned(target);
-    return new NovaTargetSnapshot(target, location, protection.protectedFriendly(), protection.tameOwnerId(), target.type(), !AdaptationDamageTargets.allows(target, true));
-  }
-
-  private ProtectionSnapshot captureProtectionOwned(LivingRef target) {
-    if (target.isInvulnerable() || AdaptPorts.get(EntityGuardPort.class, EntityGuardPort.NONE).isShielded(target)
-        || MinionIdentity.isMinion(target)) {
-      return new ProtectionSnapshot(true, null);
-    }
-    if (target.has(EntityTrait.TAMEABLE)) {
-      UUID tamer = target.tameOwner();
-      if (tamer != null) {
-        return new ProtectionSnapshot(false, tamer);
-      }
-    }
-    return new ProtectionSnapshot(false, null);
-  }
-
-  private void completeBatchOwnerOwned(NovaBatch batch) {
-    NovaPlan plan = batch.plan();
-    PlayerRef owner = plan.owner();
-    if (!owner.isOnline() || getActiveLevel(owner) <= 0) {
-      return;
-    }
-
-    List<NovaTargetSnapshot> selected = new ArrayList<>(plan.maxTargets());
-    for (NovaTargetSnapshot target : batch.targets()) {
-      if (preference(owner, TragoulPreferences.TARGETS).accepts(target.type())
-          && (!preferenceEnabled(owner, TragoulPreferences.PASSIVE) || !target.passive())
-          && canDamageSnapshotOwned(owner, false, target.protectedFriendly(), target.tameOwnerId(), target.location())) {
-        selected.add(target);
-        if (selected.size() >= plan.maxTargets()) {
-          break;
-        }
-      }
-    }
-    if (selected.isEmpty()) {
-      return;
-    }
-
-    long now = System.currentTimeMillis();
-    NovaApplicationBatch application = new NovaApplicationBatch(plan, selected.size());
-    for (NovaTargetSnapshot target : selected) {
-      if (!Tasks.runEntity(target.entity(), () -> applyNovaTargetOwned(application, target, now))) {
-        application.complete(false);
-      }
-    }
-    application.armTimeout();
-  }
-
-  private void applyNovaTargetOwned(NovaApplicationBatch application, NovaTargetSnapshot target, long now) {
-    LivingRef enemy = target.entity();
-    if (!enemy.isValid() || enemy.isDead()
-        || !AdaptationDamageTargets.allows(enemy, getConfig().ignorePassiveMobs)) {
-      application.complete(false);
-      return;
-    }
-
-    Long previousStamp = enemy.data().get(NOVA_KEY);
-    int previousNoDamageTicks = enemy.noDamageTicks();
-    double healthBefore = enemy.health() + enemy.absorption();
-    enemy.data().set(NOVA_KEY, now);
-    enemy.setNoDamageTicks(0);
-    enemy.damage(application.plan().damage(), application.plan().owner());
-    double healthAfter = enemy.isDead() ? 0D : enemy.health() + enemy.absorption();
-    boolean successful = healthAfter < healthBefore;
-    if (!successful) {
-      enemy.setNoDamageTicks(previousNoDamageTicks);
-      if (previousStamp == null) {
-        enemy.data().remove(NOVA_KEY);
-      } else {
-        enemy.data().set(NOVA_KEY, previousStamp);
-      }
-      application.complete(false);
-      return;
-    }
-
-    fx(enemy.location().add(0, 1.0D, 0), FxPriority.COMBAT)
-        .particle(Particles.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2D, 0.02D);
-    application.complete(true);
-  }
-
-  private void finishNovaApplicationOwnerOwned(NovaApplicationBatch application) {
-    NovaPlan plan = application.plan();
-    PlayerRef owner = plan.owner();
-    int hits = application.successes();
-    if (!owner.isOnline() || getActiveLevel(owner) <= 0 || hits <= 0) {
-      return;
-    }
-    addStat(owner, "tragoul.corpse-explosion.mobs-detonated", hits);
-    xp(owner, hits * plan.xpPerMobHit());
-  }
-
-  private boolean canDamageSnapshotOwned(PlayerRef owner, boolean player, boolean protectedFriendly,
-                                         UUID tameOwnerId, Loc target) {
-    if (protectedFriendly || owner.uuid().equals(tameOwnerId)) {
-      return false;
-    }
-    return player ? canPVP(owner, target) : canPVE(owner, target);
-  }
-
-  private void playNova(Loc center, double radius, Rgb tint) {
+  static void novaFx(Adaptation<?> owner, Loc center, double radius, boolean servant) {
+    Rgb tint = servant ? NOVA_BONE : NOVA_CRIMSON;
     double inner = radius * 0.3;
     int ringPoints = (int) Math.max(12, Math.min(28, radius * 6));
-    timeline(center)
+    FxTimeline.at(owner, center)
         .duration(3)
         .priority(FxPriority.GAMEPLAY)
         .cullRadius(radius + 8)
@@ -358,113 +163,10 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
         .start();
   }
 
-  private double getRadius(int level) {
-    double configured = Math.max(1D, getConfig().radiusBase + (getLevelPercent(level) * getConfig().radiusFactor));
-    return Math.min(HARD_MAX_NOVA_RADIUS, configured);
+  static void novaHitFx(Adaptation<?> owner, LivingRef enemy) {
+    Fx.now(owner, enemy.location().add(0, 1.0D, 0), FxPriority.COMBAT)
+        .particle(Particles.DAMAGE_INDICATOR, 2, 0, 0, 0, 0.2D, 0.02D);
   }
-
-  private double getVictimHealthFraction(int level) {
-    return Math.max(0, getConfig().victimHealthFractionBase + (getLevelPercent(level) * getConfig().victimHealthFractionFactor));
-  }
-
-  private double getNovaDamage(int level, double victimMaxHealth) {
-    double damage = getConfig().baseDamage + (victimMaxHealth * getVictimHealthFraction(level));
-    return Math.min(getConfig().maxDamage, damage);
-  }
-
-  private record ProtectionSnapshot(boolean protectedFriendly, UUID tameOwnerId) {
-  }
-
-  private record NovaSourceSnapshot(Loc location, double maxHealth, boolean player,
-                                    boolean protectedFriendly, UUID tameOwnerId) {
-  }
-
-  private record NovaTargetSnapshot(LivingRef entity, Loc location, boolean protectedFriendly,
-                                    UUID tameOwnerId, Id type, boolean passive) {
-  }
-
-  private record NovaPlan(PlayerRef owner, Loc source, double radius, double damage,
-                          int maxTargets, int candidateLimit, double xpPerMobHit, boolean servant) {
-  }
-
-  private final class NovaBatch {
-    private final NovaPlan plan;
-    private final ConcurrentLinkedQueue<NovaTargetSnapshot> targets = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger remaining;
-    private final AtomicBoolean dispatched = new AtomicBoolean();
-
-    private NovaBatch(NovaPlan plan, int remaining) {
-      this.plan = plan;
-      this.remaining = new AtomicInteger(remaining);
-    }
-
-    private NovaPlan plan() {
-      return plan;
-    }
-
-    private ConcurrentLinkedQueue<NovaTargetSnapshot> targets() {
-      return targets;
-    }
-
-    private void complete(NovaTargetSnapshot target) {
-      if (target != null) {
-        targets.add(target);
-      }
-      if (remaining.decrementAndGet() == 0) {
-        dispatch();
-      }
-    }
-
-    private void armTimeout() {
-      Tasks.runEntity(plan.owner(), this::dispatch, 10);
-    }
-
-    private void dispatch() {
-      if (dispatched.compareAndSet(false, true)) {
-        Tasks.runEntity(plan.owner(), () -> completeBatchOwnerOwned(this));
-      }
-    }
-  }
-
-  private final class NovaApplicationBatch {
-    private final NovaPlan plan;
-    private final AtomicInteger remaining;
-    private final AtomicInteger successes = new AtomicInteger();
-    private final AtomicBoolean dispatched = new AtomicBoolean();
-
-    private NovaApplicationBatch(NovaPlan plan, int remaining) {
-      this.plan = plan;
-      this.remaining = new AtomicInteger(remaining);
-    }
-
-    private NovaPlan plan() {
-      return plan;
-    }
-
-    private int successes() {
-      return successes.get();
-    }
-
-    private void complete(boolean successful) {
-      if (successful) {
-        successes.incrementAndGet();
-      }
-      if (remaining.decrementAndGet() == 0) {
-        dispatch();
-      }
-    }
-
-    private void armTimeout() {
-      Tasks.runEntity(plan.owner(), this::dispatch, 10);
-    }
-
-    private void dispatch() {
-      if (dispatched.compareAndSet(false, true)) {
-        Tasks.runEntity(plan.owner(), () -> finishNovaApplicationOwnerOwned(this));
-      }
-    }
-  }
-
 
   @ConfigDescription("Mobs you kill detonate in a blood nova that damages nearby hostile mobs.")
   protected static class Config extends AdaptationConfig {

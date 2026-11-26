@@ -1,0 +1,13 @@
+{
+  "skill": "swords",
+  "behaviourTest": "SwordsBlocksRuntimeTest",
+  "pieces": [
+    {"slot": "TRIGGER", "class": "SwordsTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
+    {"slot": "STRIKE_FIGHT", "class": "SwordsFightStrike", "handles": [], "reuses": ["SwordBleed"]},
+    {"slot": "STRIKE_WORK", "class": "SwordsWorkStrike", "handles": ["BlockDropItemEvent"], "reuses": ["SwordsMachete", "BonusBlockBreaks"]},
+    {"slot": "BOON", "class": "SwordsBoon", "handles": [], "reuses": ["AdaptAttributeService"]},
+    {"slot": "FUEL", "class": "SwordsFuel", "handles": [], "reuses": ["ComponentPort"]},
+    {"slot": "STATE", "class": "SwordsState", "handles": ["EntityDamageByEntityEvent"], "reuses": []}
+  ],
+  "unavailableOn": {}
+}

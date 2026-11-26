@@ -14,17 +14,17 @@ import static org.mockito.Mockito.when;
 class SwordRuntimeRepairTest {
   @Test
   void bladeFlowScalesAttackSpeedAndRoundsItsWindowUpToTicks() {
-    assertThat(SwordsBladeFlow.attackSpeedBonus(0)).isZero();
-    assertThat(SwordsBladeFlow.attackSpeedBonus(1)).isEqualTo(0.10D);
-    assertThat(SwordsBladeFlow.attackSpeedBonus(4)).isEqualTo(0.40D);
-    assertThat(SwordsBladeFlow.effectDurationTicks(4_001L)).isEqualTo(81);
+    assertThat(SwordFlow.attackSpeedBonus(0)).isZero();
+    assertThat(SwordFlow.attackSpeedBonus(1)).isEqualTo(0.10D);
+    assertThat(SwordFlow.attackSpeedBonus(4)).isEqualTo(0.40D);
+    assertThat(SwordFlow.effectDurationTicks(4_001L)).isEqualTo(81);
   }
 
   @Test
   void bloodyBladeSchedulesEnoughPulsesToCoverConfiguredDuration() {
-    assertThat(SwordsBloodyBlade.bleedProcCount(1_000L)).isEqualTo(4);
-    assertThat(SwordsBloodyBlade.bleedProcCount(7_000L)).isEqualTo(28);
-    assertThat(SwordsBloodyBlade.bleedProcCount(0L)).isEqualTo(1);
+    assertThat(SwordBleed.procCount(1_000L)).isEqualTo(4);
+    assertThat(SwordBleed.procCount(7_000L)).isEqualTo(28);
+    assertThat(SwordBleed.procCount(0L)).isEqualTo(1);
   }
 
   @Test

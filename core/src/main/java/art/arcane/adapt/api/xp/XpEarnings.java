@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.mutation.SkillMutation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,12 +26,14 @@ public final class XpEarnings {
       return requested;
     }
     double allowanceBoost = Math.max(1D, Math.min(limits.getMaximumAllowanceBoost(), boost));
+    double lineScale = SkillMutation.isMutationId(skill) ? AdaptConfig.get().getMutations().getRateAllowanceMultiplier() : 1D;
+    double lineBurst = limits.getSkillBurstXp() * lineScale;
     Allowance line = skills.computeIfAbsent(skill, ignored -> new Allowance());
-    double lineAvailable = line.available(now, limits.getSkillBurstXp(), limits.getSkillXpPerMinute());
+    double lineAvailable = line.available(now, lineBurst, limits.getSkillXpPerMinute() * lineScale);
     double playerAvailable = player.available(now, limits.getPlayerBurstXp(), limits.getPlayerXpPerMinute());
     double absoluteAvailable = absolute.available(now, limits.getAbsoluteBurstXp(), limits.getAbsoluteXpPerMinute());
     double remaining = Math.min(lineAvailable, playerAvailable) * allowanceBoost;
-    double reduction = Math.min(line.multiplier(limits.getSkillBurstXp()), player.multiplier(limits.getPlayerBurstXp()));
+    double reduction = Math.min(line.multiplier(lineBurst), player.multiplier(limits.getPlayerBurstXp()));
     double credited = Math.max(0D, Math.min(requested * reduction, Math.min(remaining, absoluteAvailable)));
     line.used += credited / allowanceBoost;
     player.used += credited / allowanceBoost;

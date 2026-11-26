@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BlockingMirrorBlockTransactionTest {
   @Test
   void onlyAConfirmedTeleportCanConfigureTheReflection() {
-    assertThat(BlockingMirrorBlock.teleportCompleted(true, null)).isTrue();
-    assertThat(BlockingMirrorBlock.teleportCompleted(false, null)).isFalse();
-    assertThat(BlockingMirrorBlock.teleportCompleted(null, null)).isFalse();
-    assertThat(BlockingMirrorBlock.teleportCompleted(
+    assertThat(BlockingMirror.teleportCompleted(true, null)).isTrue();
+    assertThat(BlockingMirror.teleportCompleted(false, null)).isFalse();
+    assertThat(BlockingMirror.teleportCompleted(null, null)).isFalse();
+    assertThat(BlockingMirror.teleportCompleted(
         true,
         new IllegalStateException("teleport failed")
     )).isFalse();

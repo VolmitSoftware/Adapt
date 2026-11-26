@@ -10,6 +10,8 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.protection.ProtectedAction;
 import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.platform.world.BlockStateRef;
+import art.arcane.adapt.platform.item.ItemRef;
 
 import java.util.List;
 
@@ -48,6 +50,24 @@ public interface ProtectionProbePort {
   /** True when nothing vetoes {@code player} placing at {@code block} with the main hand item. Nothing is placed. */
   default boolean probePlace(PlayerRef player, BlockRef block) {
     return AdaptCore.platform().protection().allows(player, ProtectedAction.PLACE, block.location(), null);
+  }
+
+  /**
+   * Fires an ordinary place event for {@code block}, which the caller has already set, placed by {@code player} with
+   * {@code item} over {@code replaced}: protection and block-logging plugins see a normal placement, while Adapt's own
+   * skills and adaptations skip it. True when nobody cancelled it; on false the caller restores {@code replaced}.
+   */
+  default boolean callPlace(PlayerRef player, BlockRef block, BlockStateRef replaced, BlockRef against, ItemRef item) {
+    return probePlace(player, block);
+  }
+
+  /**
+   * Fires an ordinary break event for {@code player} removing {@code block}, which protection and block-logging plugins
+   * see while Adapt's own skills and adaptations skip it. True when nobody cancelled it. The block stays; the caller
+   * removes it without drops.
+   */
+  default boolean callRemove(PlayerRef player, BlockRef block) {
+    return probeBreak(player, block);
   }
 
   /**

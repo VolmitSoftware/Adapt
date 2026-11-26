@@ -74,7 +74,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     registerMilestone("challenge_pickaxe_autosmelt_25k", "pickaxe.autosmelt.ores-smelted", 25000, 1500);
   }
 
-  private static boolean replaceRawDrops(BlockDropItemEvent event, Id ore, Adaptation<?> source, int level) {
+  public static boolean replaceRawDrops(BlockDropItemEvent event, Id ore, Adaptation<?> source, int level) {
     Id ingot = getIngotFor(ore);
     Loc location = event.block().location();
     if (ingot == null || location.world() == null) {
@@ -107,7 +107,7 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     return true;
   }
 
-  static Id getIngotFor(Id ore) {
+  public static Id getIngotFor(Id ore) {
     return switch (vanillaPath(ore)) {
       case "iron_ore", "deepslate_iron_ore" -> Id.minecraft("iron_ingot");
       case "gold_ore", "deepslate_gold_ore" -> Id.minecraft("gold_ingot");

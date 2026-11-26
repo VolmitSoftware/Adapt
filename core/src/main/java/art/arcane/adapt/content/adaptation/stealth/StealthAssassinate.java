@@ -26,7 +26,6 @@ import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -58,8 +57,8 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
           new PlayerPreference.Choice<>(Targets.HOSTILES, StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS_HOSTILES, Id.minecraft("zombie_head"), 1),
           new PlayerPreference.Choice<>(Targets.ANIMALS, StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS_ANIMALS, Id.minecraft("wheat"), 1))));
 
+
   private static final Rgb ASSASSINATE_PURPLE = Rgb.of(0x2A0A3A);
-  private static final Id WARDEN = Id.minecraft("warden");
 
   private final StealthCore stealth;
   private final Cooldowns cooldowns = cooldowns();
@@ -93,15 +92,6 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return Math.max(8000L, Math.round(base - (percent * factor)));
   }
 
-  static double executionDamage(double currentHealth) {
-    return Math.max(0D, currentHealth);
-  }
-
-  static void applyExecutionDamage(EntityDamageByEntityEvent event, double currentHealth) {
-    event.setDamage(executionDamage(currentHealth));
-    event.setIgnoreReductions(true);
-  }
-
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
     return List.of(CommonPreferences.ENABLED, SNEAK, TARGETS);
@@ -128,8 +118,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
         || (selection == Targets.ANIMALS && !target.has(EntityTrait.ANIMAL))) {
       return;
     }
-    if (target.uuid().equals(attacker.uuid()) || target instanceof PlayerRef || target.has(EntityTrait.BOSS)
-        || target.type().equals(WARDEN)) {
+    if (!StealthExecution.isExecutable(attacker, target)) {
       return;
     }
 
@@ -137,7 +126,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
       return;
     }
 
-    double maxHealth = getMaxHealth(target);
+    double maxHealth = StealthExecution.maxHealth(target);
     if (maxHealth <= 0 || maxHealth > getHealthCap(combat.level())) {
       return;
     }
@@ -149,7 +138,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     }
 
     cooldowns.mark(id, cooldown);
-    applyExecutionDamage(e, target.health());
+    StealthExecution.applyExecutionDamage(e, target.health());
     xp(attacker, getConfig().xpOnExecution);
     addStat(attacker, "stealth.assassinate.executions", 1);
 
@@ -167,10 +156,6 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
             fx.sound(Sounds.ITEM_TRIDENT_RETURN, 0.5F, 0.5F);
           }
         }).start();
-  }
-
-  private double getMaxHealth(LivingRef entity) {
-    return entity.hasAttribute(Attributes.MAX_HEALTH) ? entity.attributeValue(Attributes.MAX_HEALTH) : entity.health();
   }
 
   private double getHealthCap(int level) {

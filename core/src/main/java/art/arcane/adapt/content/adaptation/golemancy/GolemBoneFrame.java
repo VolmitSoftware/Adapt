@@ -33,6 +33,7 @@ import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.ServantPack;
+import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -126,6 +127,11 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     worn.values().removeIf(lattice -> lattice.expiresAt() <= now);
   }
 
+  @Override
+  public int getLevel(AdaptPlayer adaptPlayer) {
+    return UpgradeLoans.level(this, super.getLevel(adaptPlayer), (Adaptation<?> upgrade) -> upgrade.getLevel(adaptPlayer));
+  }
+
   boolean obeysOverseer(UUID owner) {
     return ownerLevel(owner) >= 1 && owners.enabled(owner, GolemancyPreferences.OBEY_OVERSEER);
   }
@@ -210,6 +216,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     Map<GolemRuneType, Integer> active = BoneFrameRules.active(roster(ownerId).map(GolemRoster::lattice).orElse(List.of()), slots, aspects(), maxTier);
     if (!active.isEmpty()) {
       applyLattice(servant, runic.get().lattice(active));
+      UpgradeLoans.landed(this, owner);
     }
   }
 

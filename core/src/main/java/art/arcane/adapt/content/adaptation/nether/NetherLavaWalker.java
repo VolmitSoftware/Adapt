@@ -18,12 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
@@ -31,16 +33,13 @@ import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
 import art.arcane.adapt.localization.catalog.NetherMessages;
-import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.value.Vec3;
-import art.arcane.adapt.platform.world.BlockRef;
 import art.arcane.adapt.platform.world.Environment;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -49,16 +48,13 @@ import art.arcane.volmlib.util.format.Form;
 import java.util.List;
 
 public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> {
+  private static final Rgb ORANGE = Rgb.of(0xFFA500);
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_DROP = CommonPreferences.toggle("sneak-drop", NetherMessages.NETHERLAVAWALKER_PREFERENCE_SNEAK_DROP, CommonPreferences.Toggle.OFF);
   public static final PlayerPreference<FoodReserve> FOOD_RESERVE = new PlayerPreference<>(FoodReserve.class,
       new PlayerPreference.Definition<>("food-reserve", NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE, FoodReserve.NONE, List.of(
           new PlayerPreference.Choice<>(FoodReserve.NONE, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_NONE, Id.minecraft("bowl"), 1),
           new PlayerPreference.Choice<>(FoodReserve.FOUR, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_FOUR, Id.minecraft("bread"), 1),
           new PlayerPreference.Choice<>(FoodReserve.EIGHT, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_EIGHT, Id.minecraft("cooked_beef"), 1))));
-
-  private static final Id LAVA = Id.minecraft("lava");
-  private static final Id FIRE_RESISTANCE = Id.minecraft("fire_resistance");
-  private static final Rgb ORANGE = Rgb.of(0xFFA500);
 
   public NetherLavaWalker() {
     super("nether-lava-walker");
@@ -100,14 +96,7 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
     }
 
     withAdaptedPlayer(p, e, () -> {
-      if (p.isFlying() || p.isGliding() || p.vehicle() != null || p.foodLevel() <= 0) {
-        return;
-      }
-
-      Loc at = p.location();
-      BlockRef feet = p.world().blockAt(at);
-      BlockRef below = p.world().blockAt(at.add(0, -1, 0));
-      if (!(isLava(feet) || isLava(below))) {
+      if (!NetherLavaStride.canStride(p) || !NetherLavaStride.onLava(p)) {
         return;
       }
 
@@ -121,43 +110,14 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
           || (reserve > 0 && p.foodLevel() - getHungerCost(level) < reserve)) {
         return;
       }
-      Vec3 velocity = p.velocity();
-      Vec3 dir = horizontalStride(at.direction(), getStride(level));
-      p.setVelocity(new Vec3(dir.x(), Math.max(0.16, velocity.y()), dir.z()));
-      p.setFallDistance(0);
-      p.setFireTicks(0);
-      boolean hadFireResistance = p.hasEffect(FIRE_RESISTANCE);
-      p.addEffect(new EffectInstance(FIRE_RESISTANCE, getConfig().fireResistTicks, 0, false, false, false));
-
-      int hungerCost = getHungerCost(level);
-      p.setFoodLevel(Math.max(0, p.foodLevel() - hungerCost));
+      NetherLavaStride.stride(this, p, getStride(level), getHungerCost(level), getConfig().fireResistTicks);
       long now = System.currentTimeMillis();
       long cooldownMillis = getCooldownMillis(level);
       setStorage(p, "lavaWalkerCooldown", now + cooldownMillis);
       AbilityGlyphs.cooldown(p.uuid(), this, now, cooldownMillis);
       xp(p, getConfig().xpPerStride);
       addStat(p, "nether.lava-walker.blocks-walked", 1);
-      fx(p.location(), FxPriority.TRAIL)
-          .trail(Particles.LAVA, dir.x(), 0.1D, dir.z(), 1.0D, 6)
-          .trail(Particles.FLAME, dir.x(), 0.1D, dir.z(), 0.8D, 4)
-          .particle(Particles.SMOKE, 2, 0D, 0.1D, 0D, 0.15D, 0.02D)
-          .chord(Sounds.BLOCK_FIRE_EXTINGUISH, 0.25F, 1.4F, Sounds.ENTITY_BLAZE_AMBIENT, 0.2F, 1.6F);
-      if (!hadFireResistance) {
-        fx(p.location(), FxPriority.TRANSITION)
-            .dustRing(ORANGE, 0.7D, 8, 1.0F)
-            .sound(Sounds.BLOCK_FIRE_AMBIENT, 0.2F, 1.2F);
-      }
     });
-  }
-
-  /** The look direction flattened to the ground and scaled to the stride, normalised like a Bukkit vector. */
-  private static Vec3 horizontalStride(Vec3 look, double stride) {
-    double length = Math.sqrt((look.x() * look.x()) + (look.z() * look.z()));
-    return new Vec3((look.x() / length) * stride, 0D, (look.z() / length) * stride);
-  }
-
-  private boolean isLava(BlockRef b) {
-    return b.type().equals(LAVA);
   }
 
   private double getStride(int level) {
@@ -172,6 +132,19 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
     return Math.max(100, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
+
+  static void strideFx(Adaptation<?> owner, PlayerRef p, Vec3 dir, boolean hadFireResistance) {
+    Fx.now(owner, p.location(), FxPriority.TRAIL)
+        .trail(Particles.LAVA, dir.x(), 0.1D, dir.z(), 1.0D, 6)
+        .trail(Particles.FLAME, dir.x(), 0.1D, dir.z(), 0.8D, 4)
+        .particle(Particles.SMOKE, 2, 0D, 0.1D, 0D, 0.15D, 0.02D)
+        .chord(Sounds.BLOCK_FIRE_EXTINGUISH, 0.25F, 1.4F, Sounds.ENTITY_BLAZE_AMBIENT, 0.2F, 1.6F);
+    if (!hadFireResistance) {
+      Fx.now(owner, p.location(), FxPriority.TRANSITION)
+          .dustRing(ORANGE, 0.7D, 8, 1.0F)
+          .sound(Sounds.BLOCK_FIRE_AMBIENT, 0.2F, 1.2F);
+    }
+  }
 
   @ConfigDescription("Stride over lava in the Nether at the cost of hunger.")
   protected static class Config extends AdaptationConfig {

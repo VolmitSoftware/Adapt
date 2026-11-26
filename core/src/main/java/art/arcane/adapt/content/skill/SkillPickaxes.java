@@ -41,6 +41,15 @@ import art.arcane.adapt.content.adaptation.pickaxe.PickaxeStoneSkin;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeTunnelBore;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeUnbreakablePact;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeVeinminer;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesBoon;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesFightStrike;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesFuel;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesState;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesTrigger;
+import art.arcane.adapt.content.adaptation.pickaxe.blocks.PickaxesWorkStrike;
+import art.arcane.adapt.content.adaptation.pickaxe.upgraded.Earthshaker;
+import art.arcane.adapt.content.adaptation.pickaxe.upgraded.EternalPick;
+import art.arcane.adapt.content.adaptation.pickaxe.upgraded.Motherlode;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -61,7 +70,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   private final Cooldowns cooldowns = cooldowns();
 
   public SkillPickaxes() {
-    super("pickaxe", SkillPresentation.of(SkillMessages.PICKAXE_NAME, SkillMessages.PICKAXE_ICON, SkillMessages.PICKAXE_DESCRIPTION));
+    super("pickaxe", SkillPresentation.of(SkillMessages.PICKAXE_NAME, SkillMessages.PICKAXE_ICON, SkillMessages.PICKAXE_DESCRIPTION,
+        SkillMessages.PICKAXE_QUIP, SkillMessages.PICKAXE_UNLOCK_QUIP_1, SkillMessages.PICKAXE_UNLOCK_QUIP_2));
     registerConfiguration(Config.class);
     setColor(C.GOLD);
     setInterval(2750);
@@ -79,6 +89,9 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     registerAdaptation(new PickaxeRepairRhythm());
     registerAdaptation(new PickaxeGemPolish());
     registerAdaptation(new PickaxeStoneSkin());
+    registerUpgrades(new Motherlode(), new Earthshaker(), new EternalPick());
+    registerBlocks(new PickaxesTrigger(), new PickaxesFightStrike(), new PickaxesWorkStrike(), new PickaxesBoon(),
+        new PickaxesFuel(), new PickaxesState());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Id.minecraft("wooden_pickaxe"))
         .key("challenge_pickaxe_1k")

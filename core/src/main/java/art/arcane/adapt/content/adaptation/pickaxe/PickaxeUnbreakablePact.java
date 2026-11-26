@@ -112,19 +112,14 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
       return;
     }
 
-    int maxDurability = item.maxDamage();
-    if (item.damage() + e.damage() < maxDurability) {
-      return;
+    if (PickaxePact.spare(e)) {
+      addStat(p, "pickaxe.unbreakable-pact.saves", 1);
+      fx(p.location().add(0, 1, 0), FxPriority.COMBAT)
+          .particle(Particles.CRIT, 10, 0, 0.2, 0, 0.3, 0.1)
+          .particle(Particles.CRIT_MAGIC, 6, 0, 0.2, 0, 0.3, 0.05)
+          .ring(Particles.WAX_ON, 0.5D, 12, 0.1D)
+          .chord(Sounds.BLOCK_ANVIL_PLACE, 0.4f, 1.8f, Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 0.8f, Sounds.ITEM_TRIDENT_RETURN, 0.3f, 1.0f);
     }
-
-    e.setCancelled(true);
-    item.setDamage(maxDurability - 1);
-    addStat(p, "pickaxe.unbreakable-pact.saves", 1);
-    fx(p.location().add(0, 1, 0), FxPriority.COMBAT)
-        .particle(Particles.CRIT, 10, 0, 0.2, 0, 0.3, 0.1)
-        .particle(Particles.CRIT_MAGIC, 6, 0, 0.2, 0, 0.3, 0.05)
-        .ring(Particles.WAX_ON, 0.5D, 12, 0.1D)
-        .chord(Sounds.BLOCK_ANVIL_PLACE, 0.4f, 1.8f, Sounds.BLOCK_AMETHYST_BLOCK_RESONATE, 0.5f, 0.8f, Sounds.ITEM_TRIDENT_RETURN, 0.3f, 1.0f);
   }
 
   @ConfigDescription("Your pickaxe refuses to break, surviving at 1 durability.")
