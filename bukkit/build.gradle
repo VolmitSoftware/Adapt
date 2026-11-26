@@ -39,7 +39,7 @@ tasks.withType(JavaCompile).configureEach {
     options.debugOptions.debugLevel = 'none'
 }
 
-version = '2.2.7'
+version = '3.0.0'
 base.archivesName.set('Adapt')
 ext.bukkitMinecraftRange = providers.gradleProperty('bukkitMinecraftRange').getOrElse('26.1.2-26.3')
 def apiVersion = '26.1'

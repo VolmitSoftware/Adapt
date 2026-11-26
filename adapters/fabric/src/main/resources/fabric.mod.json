@@ -4,6 +4,7 @@
   "version": "${projectVersion}",
   "name": "${projectName}",
   "description": "Skills and adaptations for survival servers.",
+  "icon": "adapt_icon.png",
   "authors": ["Volmit Software"],
   "license": "GPL-3.0",
   "environment": "*",

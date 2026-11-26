@@ -131,10 +131,12 @@ class ExcavationClodHurlerTest {
   @Test
   void levelsWidenRangeAndShortenTheCooldown() {
     assertThat(hurler.range(hurler.getLevelPercent(1))).isLessThan(hurler.range(hurler.getLevelPercent(5)));
-    assertThat(hurler.cooldownMillis(hurler.getLevelPercent(1))).isGreaterThan(hurler.cooldownMillis(hurler.getLevelPercent(5)));
+    assertThat(hurler.cooldownMillis(1)).isEqualTo(2000L);
+    assertThat(hurler.cooldownMillis(3)).isEqualTo(1250L);
     assertThat(hurler.damageMultiplier(hurler.getLevelPercent(1))).isLessThan(hurler.damageMultiplier(hurler.getLevelPercent(5)));
-    assertThat(hurler.range(hurler.getLevelPercent(5))).isEqualTo(16D);
-    assertThat(hurler.cooldownMillis(hurler.getLevelPercent(5))).isEqualTo(1200L);
+    assertThat(hurler.range(hurler.getLevelPercent(1))).isEqualTo(12D);
+    assertThat(hurler.range(hurler.getLevelPercent(5))).isEqualTo(32D);
+    assertThat(hurler.cooldownMillis(5)).isEqualTo(500L);
   }
 
   @Test
@@ -255,8 +257,8 @@ class ExcavationClodHurlerTest {
   @Test
   void theServerCapsBlocksInTheAir() {
     learn(5);
-    hurler.getConfig().cooldownMillisBase = 0;
-    hurler.getConfig().minCooldownMillis = 0;
+    hurler.getConfig().cooldownMillisAtLevelOne = 0;
+    hurler.getConfig().cooldownMillisAtTopLevel = 0;
     hurler.getConfig().maxInFlight = 1;
     zombie(0.5D, 61D, 6.5D);
 
@@ -406,8 +408,8 @@ class ExcavationClodHurlerTest {
   @Test
   void exploitDiggingForDuplicatesNeverYieldsMoreThanOneDropPerBlock() {
     learn(5);
-    hurler.getConfig().cooldownMillisBase = 0;
-    hurler.getConfig().minCooldownMillis = 0;
+    hurler.getConfig().cooldownMillisAtLevelOne = 0;
+    hurler.getConfig().cooldownMillisAtTopLevel = 0;
     FakeLiving zombie = zombie(0.5D, 61D, 6.5D);
     int dug = 0;
     for (int x = 0; x < 6; x++) {

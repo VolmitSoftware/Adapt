@@ -389,9 +389,9 @@ public class ArchitectBrickbat extends SimpleAdaptation<ArchitectBrickbat.Config
   @ConfigDescription("Punch or swing at a creature with a block in hand to throw one block at it; heavier blocks hit harder.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Throw range in blocks at level 0.", impact = "Higher values let throws reach farther targets.")
-    double rangeBase = 4;
+    double rangeBase = 4.25;
     @ConfigDoc(value = "Range in blocks added at maximum level.", impact = "Higher values grow the range faster with level.")
-    double rangeFactor = 10;
+    double rangeFactor = 23.75;
     @ConfigDoc(value = "Damage per point of block heft at level 0.", impact = "Higher values make every block hit harder.")
     double damageMultiplierBase = 0.9;
     @ConfigDoc(value = "Damage per point of heft added at maximum level.", impact = "Higher values reward leveling with stronger throws.")

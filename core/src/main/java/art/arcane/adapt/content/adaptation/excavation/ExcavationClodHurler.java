@@ -5,6 +5,7 @@ import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -176,7 +177,7 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
     double f = getLevelPercent(level);
     statLore(v, C.RED, "x ", Form.f(damageMultiplier(f), 2), 1);
     statLore(v, C.GREEN, "+ ", Form.f(range(f), 1), 2);
-    statLore(v, C.YELLOW, "* ", Form.duration(cooldownMillis(f), 1), 3);
+    statLore(v, C.YELLOW, "* ", Form.duration(cooldownMillis(level), 1), 3);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -192,7 +193,7 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
       return;
     }
     double f = getLevelPercent(level);
-    if (!cooldowns.isReady(p.uuid(), cooldownMillis(f))) {
+    if (!cooldowns.isReady(p.uuid(), cooldownMillis(level))) {
       return;
     }
     Vec3 from = block.center().position();
@@ -201,7 +202,7 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
       return;
     }
     ItemRef shovel = p.inventory().mainHand();
-    double damage = damage(shovelDamage(shovel.type(), shovel.enchantmentLevel(ENCHANT_SHARPNESS)), heft(block.type()),
+    double damage = damage(heldDamage(p, shovel), heft(block.type()),
         from.distance(BlockFling.aimPoint(target, 0)), f, getConfig());
     aims.put(p.uuid(), new Aim(block, block.state(), target, damage, p.ticksLived()));
   }
@@ -307,6 +308,20 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
         : AdaptCore.platform().host().items().create(placed);
   }
 
+  /**
+   * Attack damage of the shovel in hand: the player's live attack damage, which carries the held item's own modifiers
+   * and so covers shovels from other mods, plus Sharpness. Falls back to the vanilla table when the platform reports
+   * no more than a bare hand.
+   */
+  static double heldDamage(PlayerRef p, ItemRef shovel) {
+    int sharpness = shovel.enchantmentLevel(ENCHANT_SHARPNESS);
+    double live = p.hasAttribute(Attributes.ATTACK_DAMAGE) ? p.attributeValue(Attributes.ATTACK_DAMAGE) : Double.NaN;
+    if (Double.isNaN(live) || live <= 1D) {
+      return shovelDamage(shovel.type(), sharpness);
+    }
+    return live + sharpnessBonus(sharpness);
+  }
+
   /** Vanilla attack damage of a shovel type plus Java Sharpness ({@code 0.5 * level + 0.5}). */
   static double shovelDamage(Id shovel, int sharpness) {
     double base = switch (shovel.isMinecraft() ? shovel.path() : "") {
@@ -316,7 +331,11 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
       case "stone_shovel", "copper_shovel" -> 3.5D;
       default -> 2.5D;
     };
-    return base + (sharpness > 0 ? (0.5D * sharpness) + 0.5D : 0D);
+    return base + sharpnessBonus(sharpness);
+  }
+
+  private static double sharpnessBonus(int sharpness) {
+    return sharpness > 0 ? (0.5D * sharpness) + 0.5D : 0D;
   }
 
   /** How hard a dug block hits: snow and sand soft, dirt middling, gravel and clay heavy. */
@@ -344,18 +363,20 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
     return getConfig().rangeBase + (levelPercent * getConfig().rangeFactor);
   }
 
-  long cooldownMillis(double levelPercent) {
-    return (long) Math.max(getConfig().minCooldownMillis,
-        getConfig().cooldownMillisBase - (levelPercent * getConfig().cooldownMillisLevelReduction));
+  long cooldownMillis(int level) {
+    int top = Math.max(2, getConfig().maxLevel);
+    double progress = Math.max(0D, Math.min(1D, (level - 1D) / (top - 1D)));
+    double first = getConfig().cooldownMillisAtLevelOne;
+    return (long) Math.max(0D, first + ((getConfig().cooldownMillisAtTopLevel - first) * progress));
   }
 
   @ConfigDescription("Digging soft ground with a shovel flings the dug block at the nearest hostile mob in sight; its drop flies back to you.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Throw range in blocks at level 1 before level scaling.", impact = "Higher values let digs reach farther mobs.")
-    double rangeBase = 6;
+    double rangeBase = 7;
     @ConfigDoc(value = "Range in blocks added at maximum level.", impact = "Higher values grow the range faster with level.")
-    double rangeFactor = 10;
-    @ConfigDoc(value = "Damage multiplier at level 0, applied to shovel damage times block heft.", impact = "Higher values make every throw hit harder.")
+    double rangeFactor = 25;
+    @ConfigDoc(value = "Damage multiplier at level 0, applied to the held shovel's attack damage times block heft.", impact = "Higher values make every throw hit harder.")
     double damageMultiplierBase = 0.8;
     @ConfigDoc(value = "Damage multiplier added at maximum level.", impact = "Higher values reward leveling with stronger throws.")
     double damageMultiplierFactor = 0.6;
@@ -365,12 +386,10 @@ public class ExcavationClodHurler extends SimpleAdaptation<ExcavationClodHurler.
     double sweetSpotBlocks = 8;
     @ConfigDoc(value = "Share of full damage a point-blank throw deals.", impact = "Higher values make close throws closer to full damage.")
     double closeFactor = 0.6;
-    @ConfigDoc(value = "Milliseconds between throws at level 0.", impact = "Higher values slow how often digs can throw.")
-    double cooldownMillisBase = 3000;
-    @ConfigDoc(value = "Milliseconds of cooldown removed at maximum level.", impact = "Higher values let high levels throw more often.")
-    double cooldownMillisLevelReduction = 1800;
-    @ConfigDoc(value = "Shortest cooldown in milliseconds at any level.", impact = "Higher values keep throws rare even at high levels.")
-    double minCooldownMillis = 600;
+    @ConfigDoc(value = "Milliseconds between throws at level 1.", impact = "Higher values slow how often digs can throw.")
+    double cooldownMillisAtLevelOne = 2000;
+    @ConfigDoc(value = "Milliseconds between throws at the top level; levels between are linear.", impact = "Lower values let high levels throw more often.")
+    double cooldownMillisAtTopLevel = 500;
     @ConfigDoc(value = "Blocks per tick a flung block travels, before its arc.", impact = "Higher values give flatter, faster throws.")
     double throwSpeed = 1.1;
     @ConfigDoc(value = "Ticks a flung block may fly past its planned arc before it returns on its own.", impact = "Higher values let missed throws fall farther before they come back.")

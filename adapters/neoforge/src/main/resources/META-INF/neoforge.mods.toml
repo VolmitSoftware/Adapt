@@ -8,6 +8,7 @@ version = "${projectVersion}"
 displayName = "${projectName}"
 description = "Skills and adaptations for survival servers."
 authors = "Volmit Software"
+logoFile = "adapt_icon.png"
 displayTest = "IGNORE_SERVER_VERSION"
 
 [features.${projectId}]
