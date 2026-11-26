@@ -1,7 +1,6 @@
 package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
-import art.arcane.adapt.client.ui.kit.KitDraw;
 import art.arcane.adapt.client.ui.kit.UiBreakpoint;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
@@ -21,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * with everything on some leaf; a typical adaptation fits one leaf.
  */
 class CompactFitTest {
-    private static final KitDraw DRAW = new KitDraw();
     private static final int[][] SIZES = {{480, 270, 4}, {640, 360, 3}, {960, 540, 2}, {1920, 1080, 1}, {427, 240, 2}, {320, 180, 4}};
     private static final String TYPICAL_SKILL = "skill01";
     private static final String TYPICAL_ADAPTATION = "skill01-a04";
@@ -110,21 +108,19 @@ class CompactFitTest {
                         : new ScreenFixture(size[0], size[1], size[2], TypicalCatalog.catalog(), TypicalCatalog.player());
                 AdaptScreen screen = fixture.open(new Route.Skills());
                 List<UiNode> row = fixture.find("skills:0").children();
+                UiRect page = fixture.find("sheet:0").bounds();
+                SkillsLayout.Grid grid = SkillsScreen.LAYOUT.grid(screen.breakpoint() != UiBreakpoint.COMPACT, page.width(), page.height());
                 for (UiNode tile : row) {
-                    assertTrue(tile.bounds().width() >= ((RowTile) tile).naturalWidth(DRAW), size[0] + "x" + size[1] + " " + tile.id());
+                    assertEquals(grid.width(), tile.bounds().width(), size[0] + "x" + size[1] + " " + tile.id());
                 }
-                int most = screen.breakpoint() == UiBreakpoint.COMPACT ? SkillsScreen.SINGLE_COLUMNS : SkillsScreen.COLUMNS;
-                assertTrue(row.size() <= most, size[0] + "x" + size[1] + (extreme ? " long names" : ""));
+                assertEquals(Math.min(grid.columns(), row.size()), row.size(), size[0] + "x" + size[1] + (extreme ? " long names" : ""));
             }
         }
     }
 
     static void checkTiles(UiNode node, String where) {
         if (node instanceof SkillTile tile) {
-            int natural = tile.naturalWidth(DRAW);
-            assertTrue(tile.bounds().width() >= Math.max(TileGrid.MIN_WIDTH, natural), where + ": " + tile.id() + " " + tile.bounds()
-                    + " for text " + natural);
-            assertEquals(TileGrid.HEIGHT, tile.bounds().height(), where + ": " + tile.id());
+            assertEquals(SkillsScreen.LAYOUT.tileHeight(), tile.bounds().height(), where + ": " + tile.id());
         }
         for (UiNode child : node.children()) {
             if (child.visible()) {

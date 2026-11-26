@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/hay_block",
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 4902907
+      },
+      "model": "adapt:item/tool-herbalism-scarecrow"
+    }
+  ]
+}

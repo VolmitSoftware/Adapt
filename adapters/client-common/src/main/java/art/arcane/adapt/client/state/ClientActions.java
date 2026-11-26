@@ -46,6 +46,26 @@ public final class ClientActions {
         return send(new ClientFrame.Open(route));
     }
 
+    /** Asks the server to start a mutation led by {@code skillId}; it answers with its partner picker. */
+    public boolean mutate(String skillId) {
+        return send(new ClientFrame.Mutate(skillId));
+    }
+
+    /** Asks for the spread of {@code lead} with {@code partner}, empty for none; the server answers with its preview. */
+    public boolean previewMutation(String lead, String partner) {
+        return send(new ClientFrame.MutationRequest(lead, partner, false));
+    }
+
+    /** Asks the server to merge {@code lead} with {@code partner}; it checks every rule again. */
+    public boolean confirmMutation(String lead, String partner) {
+        return send(new ClientFrame.MutationRequest(lead, partner, true));
+    }
+
+    /** Asks the server to undo the mutation {@code skillId}; it answers only for a player in debug mode or an admin. */
+    public boolean unmutate(String skillId) {
+        return send(new ClientFrame.Unmutate(skillId));
+    }
+
     public boolean panelClick(int sessionId, int revision, int slot, ClickKind click) {
         return send(new ClientFrame.PanelClick(sessionId, revision, slot, click));
     }

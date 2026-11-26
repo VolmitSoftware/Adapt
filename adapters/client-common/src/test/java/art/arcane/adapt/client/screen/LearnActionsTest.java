@@ -77,7 +77,6 @@ class LearnActionsTest {
             Map<String, String> state = describe(screen.levelNode(level));
             String mark = switch (state.get("pip")) {
                 case "LEARNED" -> "#";
-                case "OPEN" -> "o";
                 default -> ".";
             };
             out.append(Boolean.parseBoolean(state.get("offered")) ? "[" + mark + "]" : mark);
@@ -96,7 +95,7 @@ class LearnActionsTest {
         assertFalse(shows("stat:refund"));
         assertFalse(shows("confirm"));
         assertFalse(shows("cancel"));
-        assertEquals("o..", pips(screen, 3));
+        assertEquals("...", pips(screen, 3));
         assertEquals(1, screen.shownLevel());
         assertEquals("", fixture.find("reason").label());
 
@@ -107,14 +106,27 @@ class LearnActionsTest {
     }
 
     @Test
+    void onlyTheLastLevelsUnlearnShowsThePowerItFrees() {
+        open("agility-ladder-slide");
+        assertTrue(shows("unlearn"));
+        assertTrue(shows("stat:power-refund"));
+        assertEquals("+1", value("stat:power-refund"));
+        AdaptationScreen screen = open(WALL_JUMP);
+        fixture.click(screen.levelNode(1));
+        assertFalse(shows("stat:power-cost"), "an offer that keeps a level frees no power");
+    }
+
+    @Test
     void aPartlyLearnedAdaptationLevelsUpAndUnlearnsItsTopLevel() {
         AdaptationScreen screen = open(WALL_JUMP);
         assertEquals("Level up III", fixture.find("learn").label());
         assertEquals("8", value("stat:cost"));
+        assertFalse(shows("stat:power-cost"), "a learned adaptation's next level shows no power");
         assertEquals("Unlearn II", fixture.find("unlearn").label());
         assertTrue(fixture.find("unlearn").enabled());
         assertEquals("+6", value("stat:refund"));
-        assertEquals("##o..", pips(screen, 5));
+        assertFalse(shows("stat:power-refund"), "unlearning a level above the first frees no power");
+        assertEquals("##...", pips(screen, 5));
         assertEquals(3, screen.shownLevel());
 
         fixture.click(fixture.find("learn"));
@@ -128,7 +140,7 @@ class LearnActionsTest {
         assertEquals("Level up IV", fixture.find("learn").label());
         assertEquals("Unlearn III", fixture.find("unlearn").label());
         assertEquals("+8", value("stat:refund"));
-        assertEquals("###o.", pips(screen, 5));
+        assertEquals("###..", pips(screen, 5));
 
         fixture.sent.clear();
         fixture.click(fixture.find("unlearn"));
@@ -204,14 +216,14 @@ class LearnActionsTest {
     @Test
     void aPermanentAdaptationAsksBeforeLearningAndNeverUnlearns() {
         AdaptationScreen screen = open("rift-resistance");
-        assertTrue(shows("stat:permanent"));
+        assertTrue(shows("tag:permanent"));
         assertFalse(shows("unlearn"));
         fixture.click(fixture.find("learn"));
         assertEquals(new AdaptationScreen.Offer(1, true), screen.offer());
         assertEquals("Learn I", fixture.find("confirm").label());
         assertEquals(ScreenText.PERMANENT_TIP.text(), fixture.find("reason").label());
         assertEquals("LOCK", describe(fixture.find("reason")).get("tone"));
-        assertFalse(shows("stat:permanent"));
+        assertFalse(shows("tag:permanent"));
         assertTrue(shows("cancel"));
         assertTrue(fixture.sent.isEmpty());
         fixture.key(UiKey.ENTER);
@@ -238,8 +250,8 @@ class LearnActionsTest {
         level("rift-resistance", 1);
         AdaptationScreen screen = open("rift-resistance");
         assertEquals(ScreenText.FREE_COST.text(), value("stat:cost"));
-        assertTrue(shows("stat:debug"));
-        assertFalse(shows("stat:permanent"));
+        assertTrue(shows("tag:debug"));
+        assertFalse(shows("tag:permanent"));
         assertEquals("Unlearn I", fixture.find("unlearn").label());
         assertFalse(shows("stat:refund"), "debug mode refunds nothing");
         fixture.click(fixture.find("learn"));
@@ -268,8 +280,8 @@ class LearnActionsTest {
         assertEquals("Learn to V", fixture.find("confirm").label());
         assertTrue(fixture.find("confirm").enabled());
         assertEquals("30", value("stat:cost"));
-        assertEquals("0", value("stat:power-cost"));
-        assertEquals("##[o][.][.]", pips(screen, 5));
+        assertFalse(shows("stat:power-cost"), "learning more levels of a held adaptation shows no power");
+        assertEquals("##[.][.][.]", pips(screen, 5));
         assertEquals(5, screen.shownLevel());
         assertFalse(shows("learn"));
         assertFalse(shows("unlearn"));
@@ -289,7 +301,7 @@ class LearnActionsTest {
         level(WALL_JUMP, 4);
         fixture.router.feedback(FeedbackKind.SUCCESS, "Learned Wall Jump IV");
         fixture.render();
-        assertEquals("####o", pips(screen, 5));
+        assertEquals("####.", pips(screen, 5));
         assertEquals("Level up V", fixture.find("learn").label());
         assertEquals("Unlearn IV", fixture.find("unlearn").label());
     }

@@ -11,13 +11,41 @@ import java.util.Locale;
  */
 public enum ScreenText {
     BACK("back", "Back"),
+    SCROLL_MORE("scroll_more", "Scroll for more"),
+    SWITCH_ALL("switch_all", "Toggle all adaptations in this skill"),
+    SWITCH_ON("switch_on", "On"),
+    SWITCH_OFF("switch_off", "Off"),
     SKILLS("skills", "Skills"),
+    EARNING_XP("earning_xp", "Earning XP"),
+    NOT_STARTED("not_started", "Not started"),
+    INACTIVE_SKILLS("inactive_skills", "Inactive skills"),
+    INACTIVE_HIDDEN("inactive_hidden", "Hidden by the server"),
+    EARNED("earned", "Earned %s"),
+    SPENT("spent", "Spent %s"),
+    UNSPENT("unspent", "Unspent %s"),
+    BY_SEAT("by_seat", "By seat"),
+    BY_SPENT("by_spent", "By spent"),
+    KEPT_FREE("kept_free", "Kept"),
+    LENT_FREE("lent_free", "Lent"),
+    POWER_SLOTS("power_slots", "%s of %s used"),
+    KEPT_AT("kept_at", "Kept at level %s"),
+    RAISED_AT("raised_at", "Kept at level %s, raised to %s"),
+    LENT_AT("lent_at", "Lent level %s by %s"),
+    LENDS("lends", "Lends a level to"),
     SEARCH("search", "Search"),
     PREVIOUS_PAGE("previous_page", "Previous page"),
     NEXT_PAGE("next_page", "Next page"),
     ADAPTATIONS("adaptations", "Adaptations"),
     SETTINGS("settings", "Settings"),
+    MUTATE("mutate", "Mutate"),
+    UNMUTATE("unmutate", "Unmutate"),
+    BOOK("book", "Book"),
+    THEMED_PAGES("themed_pages", "Themed pages"),
+    REDUCED_MOTION("reduced_motion", "Reduced motion"),
     REQUIREMENTS("requirements", "Requires"),
+    TOOLS("tools", "Tools"),
+    RECIPES("recipes", "Recipes"),
+    ANY_POTION("any_potion", "Any potion"),
     POWER_TITLE("power_title", "Power"),
     POWER_TIP("power_tip", "Each learned adaptation uses 1 power. %s of %s is free."),
     POWER_USED("power_used", "%s power used"),
@@ -29,6 +57,7 @@ public enum ScreenText {
     LEVEL_SHORT("level_short", "Lv %s"),
     LEVEL_OF("level_of", "Level %s of %s"),
     XP_TO_LEVEL("xp_to_level", "%s XP to level %s"),
+    XP_PROGRESS("xp_progress", "%s XP · %s%%"),
     NO_SKILLS("no_skills", "No skills yet"),
     NO_SKILLS_HINT("no_skills_hint", "Earn experience in any activity to discover skills."),
     NO_MATCH("no_match", "No skills match \"%s\""),
@@ -48,11 +77,13 @@ public enum ScreenText {
     CHOICE_LEVEL("choice_level", "Needs adaptation level %s"),
     GROUP_ON("group_on", "%s of %s on"),
     MASTERED("mastered", "Mastered"),
+    LOCKED("locked", "Locked"),
     NOT_LEARNED("not_learned", "Not learned"),
     LEARN_FOR("learn_for", "Learn %s for %s knowledge"),
     LEARN_FREE("learn_free", "Learn %s for free"),
     FREE_COST("free_cost", "Free"),
     DEBUG("debug", "Debug mode"),
+    DEBUG_TAG("debug_tag", "Debug"),
     DEBUG_TIP("debug_tip", "Learning costs nothing and unlearning refunds nothing while debug mode is on."),
     NEEDS_KNOWLEDGE("needs_knowledge", "Needs %s more knowledge"),
     NO_KNOWLEDGE("no_knowledge", "No knowledge in this skill yet"),
@@ -120,9 +151,52 @@ public enum ScreenText {
         }
     }
 
+    /**
+     * The name of an item, or of a tag written {@code #namespace:path}, in the client's language: the item's or block's
+     * own name, else its path in words.
+     */
+    public static String itemName(String itemId) {
+        boolean tag = itemId.startsWith("#");
+        String id = tag ? itemId.substring(1) : itemId;
+        int colon = id.indexOf(':');
+        String namespace = colon < 0 ? "minecraft" : id.substring(0, colon);
+        String path = id.substring(colon + 1);
+        UiHost current = host;
+        if (!tag && current != null) {
+            for (String kind : new String[] {"item.", "block."}) {
+                String key = kind + namespace + '.' + path.replace('/', '.');
+                String translated = current.translate(key);
+                if (translated != null && !translated.equals(key)) {
+                    return translated;
+                }
+            }
+        }
+        String words = path.substring(path.lastIndexOf('/') + 1).replace('_', ' ');
+        return words.isEmpty() ? id : Character.toUpperCase(words.charAt(0)) + words.substring(1);
+    }
+
+    /** The client's words for the language key {@code key}, or null when its language has none. */
+    public static String translated(String key) {
+        UiHost current = host;
+        String translated = current == null || key.isEmpty() ? null : current.translate(key);
+        return translated == null || translated.equals(key) ? null : translated;
+    }
+
     /** {@code value} with thousands separators. */
     public static String number(long value) {
         return String.format(Locale.ROOT, "%,d", value);
+    }
+
+    /** {@code value} in at most four characters, such as 950, 12k or 3.4M, for a number in a small space. */
+    public static String compact(long value) {
+        if (value < 10_000L) {
+            return Long.toString(value);
+        }
+        if (value < 1_000_000L) {
+            return value / 1_000L + "k";
+        }
+        long tenths = value / 100_000L;
+        return tenths < 100L ? tenths / 10L + "." + tenths % 10L + "M" : value / 1_000_000L + "M";
     }
 
     /** {@code value} as a Roman numeral, as the chest menus name levels; plain digits past 3999. */

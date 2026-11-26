@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** How a flow of whole blocks fills the book's pages. */
@@ -186,6 +185,9 @@ class PaginationTest {
         tall.add(new Box("b", 40));
         tall.nextPage();
         tall.add(new Box("c", 10));
-        assertFalse(pour(tall, 50, 0).pinned(), "a first page that cannot stay on one page runs on instead");
+        Pagination.Poured overflowing = pour(tall, 50, 0);
+        assertTrue(overflowing.pinned(), "a first page too tall for one page stays pinned");
+        assertEquals(List.of("a@0+40", "b@" + (40 + GAP) + "+40"), ids(overflowing.pages().get(0)));
+        assertEquals(List.of("c@0+10"), ids(overflowing.pages().get(1)));
     }
 }

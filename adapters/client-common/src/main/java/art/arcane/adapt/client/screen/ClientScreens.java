@@ -10,6 +10,7 @@ import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.PanelView;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.state.ClientActions;
+import art.arcane.adapt.client.theme.PageThemes;
 import art.arcane.adapt.client.ui.kit.UiMotion;
 import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.platform.menu.ClickKind;
@@ -28,7 +29,7 @@ public final class ClientScreens {
         ClientNet net = client.net();
         ScreenText.install(client.host());
         ScreenRouter router = new ScreenRouter(client.host(), net.state(), net.actions(), UiTheme.DEFAULT, UiMotion.system(),
-                client.hud()::feedback);
+                new PageThemes(() -> net.config().ui(), net.config()::save), client.hud()::feedback);
         PanelScreens panels = new PanelScreens(client.host(), panelActions(net.actions()));
         net.install(net.sinks().withPanels(panelSink(panels)).withRoutes(router).withFeedback(router));
         client.bindKey(AdaptKey.OPEN_SKILLS, () -> openSkills(net));

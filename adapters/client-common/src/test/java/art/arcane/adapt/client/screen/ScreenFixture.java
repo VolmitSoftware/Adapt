@@ -18,6 +18,7 @@ import art.arcane.adapt.client.ui.kit.KitDraw;
 import art.arcane.adapt.client.ui.kit.KitScreen;
 import art.arcane.adapt.client.ui.kit.ManualClock;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.theme.PageThemes;
 import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.PlayerView;
@@ -56,7 +57,7 @@ final class ScreenFixture {
         state.negotiated(ClientProtocol.VERSION, new ServerInfo("test", "26.3", ClientProtocol.SCREENS | ClientProtocol.PANEL));
         state.acceptCatalog(catalog);
         state.acceptPlayer(player);
-        router = new ScreenRouter(host, state, actions, UiTheme.DEFAULT, clock.motion(),
+        router = new ScreenRouter(host, state, actions, UiTheme.DEFAULT, clock.motion(), PageThemes.defaults(),
                 (FeedbackKind kind, String text) -> hudFeedback.add(kind + " " + text));
     }
 

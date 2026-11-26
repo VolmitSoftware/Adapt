@@ -1,0 +1,43 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902920,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-taming-whistle"
+        }
+      },
+      {
+        "threshold": 4902921,
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "minecraft:item/goat_horn"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "minecraft:item/tooting_goat_horn"
+          },
+          "property": "minecraft:using_item"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/goat_horn"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/tooting_goat_horn"
+      },
+      "property": "minecraft:using_item"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "item/firework_star",
+    "layer1": "item/firework_star_overlay"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 4902909
+      },
+      "model": "adapt:item/tool-pickaxe-prospectors-charge"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4902918
+      },
+      "model": "adapt:item/tool-stealth-smoke-pellet"
+    }
+  ]
+}

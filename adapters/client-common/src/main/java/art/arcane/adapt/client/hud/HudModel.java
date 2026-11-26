@@ -236,7 +236,7 @@ public final class HudModel implements HudSink {
     @Override
     public void toast(ServerFrame.Toast frame) {
         active = true;
-        toasts.add(new HudToast(frame.kind(), frame.icon(), frame.title(), frame.body()), clock.millis());
+        toasts.add(new HudToast(frame.kind(), frame.icon(), frame.title(), frame.body(), frame.skillId()), clock.millis());
     }
 
     public void player(PlayerView view) {

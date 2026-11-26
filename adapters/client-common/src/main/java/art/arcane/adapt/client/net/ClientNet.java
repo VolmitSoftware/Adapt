@@ -191,6 +191,15 @@ public final class ClientNet {
             case ServerFrame.InsightVitals vitals -> sinks.insight().vitals(vitals.entityId(), vitals.health(), vitals.absorption());
             case ServerFrame.InsightMarks marks -> sinks.insight().marks(marks.marks());
             case ServerFrame.InsightClear ignored -> sinks.insight().clear();
+            case ServerFrame.MutateOffers offers -> state.acceptMutateOffers(offers.skillIds());
+            case ServerFrame.MutationKept kept -> state.acceptKept(kept.title(), kept.kept());
+            case ServerFrame.MutationTools tools -> state.acceptTools(tools.tools());
+            case ServerFrame.MutationSpread spread -> state.acceptSpread(spread.spread());
+            case ServerFrame.XpGuides guides -> state.acceptXpGuides(guides.title(), guides.guides());
+            case ServerFrame.Spending spending -> state.acceptSpending(spending.inactiveSkills(), spending.spends());
+            case ServerFrame.GroupLabels labels -> state.acceptGroupLabels(labels.skills());
+            case ServerFrame.ShortNames names -> state.acceptShortNames(names.names());
+            case ServerFrame.AdaptationRecipes recipes -> state.acceptRecipes(recipes.recipes());
         }
     }
 

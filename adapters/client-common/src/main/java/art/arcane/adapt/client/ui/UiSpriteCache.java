@@ -17,6 +17,7 @@ public final class UiSpriteCache implements UiSprites {
     private final Map<String, UiSpriteLookup> lookups = new HashMap<>();
     private final Map<String, UiNineSlice> slices = new HashMap<>();
     private final Map<String, Float> luminances = new HashMap<>();
+    private final Map<String, byte[]> files = new HashMap<>();
     private int revision;
 
     public UiSpriteCache(UiResources resources) {
@@ -31,7 +32,23 @@ public final class UiSpriteCache implements UiSprites {
             lookups.clear();
             slices.clear();
             luminances.clear();
+            files.clear();
         }
+    }
+
+    @Override
+    public byte[] data(String id) {
+        if (files.containsKey(id)) {
+            return files.get(id);
+        }
+        byte[] read;
+        try (InputStream stream = resources.open(id)) {
+            read = stream == null ? null : stream.readNBytes(MAX_DATA_BYTES);
+        } catch (IOException | RuntimeException error) {
+            read = null;
+        }
+        files.put(id, read);
+        return read;
     }
 
     @Override

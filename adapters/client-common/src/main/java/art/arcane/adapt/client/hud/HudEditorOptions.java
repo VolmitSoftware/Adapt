@@ -140,13 +140,11 @@ final class HudEditorOptions {
                     () -> options(config, new HudOptions.Notices(wrap(notices.maxLines() - 1, 1, HudOptions.Notices.MAX_LINES)))));
             case HudOptions.Toasts toasts -> {
                 rows.add(stepped("adapt.hud.option.duration", seconds(toasts.durationMillis()),
-                        () -> options(config, new HudOptions.Toasts(wrapMillis(toasts.durationMillis(), 500L, 1500L, 20000L), toasts.maxVisible(), toasts.stackUp())),
-                        () -> options(config, new HudOptions.Toasts(wrapMillis(toasts.durationMillis(), -500L, 1500L, 20000L), toasts.maxVisible(), toasts.stackUp()))));
+                        () -> options(config, new HudOptions.Toasts(wrapMillis(toasts.durationMillis(), 500L, HudOptions.Toasts.MIN_DURATION, HudOptions.Toasts.MAX_DURATION), toasts.maxVisible())),
+                        () -> options(config, new HudOptions.Toasts(wrapMillis(toasts.durationMillis(), -500L, HudOptions.Toasts.MIN_DURATION, HudOptions.Toasts.MAX_DURATION), toasts.maxVisible()))));
                 rows.add(stepped("adapt.hud.option.max_visible", Integer.toString(toasts.maxVisible()),
-                        () -> options(config, new HudOptions.Toasts(toasts.durationMillis(), wrap(toasts.maxVisible() + 1, 1, HudOptions.Toasts.MAX_VISIBLE), toasts.stackUp())),
-                        () -> options(config, new HudOptions.Toasts(toasts.durationMillis(), wrap(toasts.maxVisible() - 1, 1, HudOptions.Toasts.MAX_VISIBLE), toasts.stackUp()))));
-                Runnable stack = () -> options(config, new HudOptions.Toasts(toasts.durationMillis(), toasts.maxVisible(), !toasts.stackUp()));
-                rows.add(new Row(text.get("adapt.hud.option.stack"), text.get(toasts.stackUp() ? "adapt.hud.option.up" : "adapt.hud.option.down"), stack, stack));
+                        () -> options(config, new HudOptions.Toasts(toasts.durationMillis(), wrap(toasts.maxVisible() + 1, 1, HudOptions.Toasts.MAX_VISIBLE))),
+                        () -> options(config, new HudOptions.Toasts(toasts.durationMillis(), wrap(toasts.maxVisible() - 1, 1, HudOptions.Toasts.MAX_VISIBLE)))));
             }
         }
         if (config.kind() == HudWidgetKind.SKILLS) {

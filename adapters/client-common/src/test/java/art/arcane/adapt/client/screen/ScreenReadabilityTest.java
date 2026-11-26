@@ -2,6 +2,7 @@ package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.kit.ProgressBar;
+import art.arcane.adapt.client.ui.kit.ScrollArea;
 import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.UiContrast;
 import art.arcane.adapt.client.ui.kit.UiNode;
@@ -56,13 +57,15 @@ class ScreenReadabilityTest {
                             continue;
                         }
                         checked++;
-                        UiRect lines = tile.textBounds();
-                        if (tile instanceof AdaptationTile && x < lines.x()) {
+                        if (tile instanceof SkillTile || tile instanceof AdaptationTile) {
+                            assertTrue(x >= box.x() && x + fixture.draw.textWidth(text) <= box.right(),
+                                    where + " " + tile.id() + " \"" + text + "\" at " + x + "," + y + " leaves its card " + box);
                             continue;
                         }
+                        UiRect lines = tile.textBounds();
                         String what = where + " " + tile.id() + " \"" + text + "\" at " + x + "," + y;
                         assertTrue(x >= lines.x() && x + fixture.draw.textWidth(text) <= lines.right(), what + " leaves " + lines);
-                        int names = tile instanceof AdaptationTile cell ? cell.look().lines() : 1;
+                        int names = 1;
                         int line = (y - box.y() - tile.nameTop()) / fixture.draw.lineHeight();
                         boolean onName = y >= box.y() + tile.nameTop() && line < names && (y - box.y() - tile.nameTop()) % fixture.draw.lineHeight() == 0;
                         assertTrue(onName || y == box.y() + RowTile.SECOND_LINE, what + " is off its line");
@@ -77,14 +80,20 @@ class ScreenReadabilityTest {
     }
 
     private static void collectTiles(UiNode node, List<RowTile> tiles) {
+        collectTiles(node, tiles, null);
+    }
+
+    /** The tiles under {@code node} wholly inside {@code window}, the window of the scrolling grid that holds them. */
+    private static void collectTiles(UiNode node, List<RowTile> tiles, UiRect window) {
         if (!node.visible()) {
             return;
         }
-        if (node instanceof RowTile tile) {
+        UiRect inside = node instanceof GridScroll ? node.bounds() : window;
+        if (node instanceof RowTile tile && (inside == null || tile.bounds().y() >= inside.y() && tile.bounds().bottom() <= inside.bottom())) {
             tiles.add(tile);
         }
         for (UiNode child : node.children()) {
-            collectTiles(child, tiles);
+            collectTiles(child, tiles, inside);
         }
     }
 
@@ -95,8 +104,6 @@ class ScreenReadabilityTest {
         List<LevelTrack.LevelState> states = List.of(
                 new LevelTrack.LevelState(LevelTrack.Pip.LEARNED, false),
                 new LevelTrack.LevelState(LevelTrack.Pip.LEARNED, true),
-                new LevelTrack.LevelState(LevelTrack.Pip.OPEN, false),
-                new LevelTrack.LevelState(LevelTrack.Pip.OPEN, true),
                 new LevelTrack.LevelState(LevelTrack.Pip.EMPTY, false),
                 new LevelTrack.LevelState(LevelTrack.Pip.EMPTY, true));
         for (int colour : SKILL_COLOURS) {
@@ -133,26 +140,34 @@ class ScreenReadabilityTest {
                 String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
                 UiRect message = screen.snackbar().bounds();
                 assertTrue(message.bottom() <= screen.height() && message.y() >= 0, where + ": message " + message + " leaves the screen");
-                List<UiNode> controls = new ArrayList<>();
-                collectControls(screen.root(), controls);
-                for (UiNode control : controls) {
-                    UiRect shown = control.bounds();
-                    assertFalse(!shown.isEmpty() && shown.intersects(message), where + ": message " + message + " covers " + control.id()
+                List<Visible> controls = new ArrayList<>();
+                collectControls(screen.root(), controls, null);
+                for (Visible control : controls) {
+                    UiRect shown = control.rect();
+                    assertFalse(!shown.isEmpty() && shown.intersects(message), where + ": message " + message + " covers " + control.node().id()
                             + " " + shown);
                 }
             }
         }
     }
 
-    private static void collectControls(UiNode node, List<UiNode> controls) {
+    /** A control and the part of it the player can see. */
+    private record Visible(UiNode node, UiRect rect) {
+    }
+
+    /** The controls the player can see, each cut to the view of the scrolling list that holds it. */
+    private static void collectControls(UiNode node, List<Visible> controls, UiRect view) {
         if (!node.visible() || node instanceof Snackbar) {
             return;
         }
-        if ((node.focusable() || node.hittable()) && !node.bounds().isEmpty()) {
-            controls.add(node);
+        UiRect bounds = node.bounds();
+        if ((node.focusable() || node.hittable()) && !bounds.isEmpty() && (view == null || bounds.intersects(view))) {
+            controls.add(new Visible(node, view == null ? bounds : UiRect.of(Math.max(bounds.x(), view.x()), Math.max(bounds.y(), view.y()),
+                    Math.min(bounds.right(), view.right()), Math.min(bounds.bottom(), view.bottom()))));
         }
+        UiRect inner = node instanceof ScrollArea ? bounds : view;
         for (UiNode child : node.children()) {
-            collectControls(child, controls);
+            collectControls(child, controls, inner);
         }
     }
 }

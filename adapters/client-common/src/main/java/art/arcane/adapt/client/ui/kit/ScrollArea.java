@@ -82,7 +82,12 @@ public class ScrollArea extends UiNode {
     }
 
     public boolean scrollbarShown() {
-        return maxScroll() > 0;
+        return ownsBar() && maxScroll() > 0;
+    }
+
+    /** Whether the area draws and handles its own scrollbar; one that leaves it to another node keeps its full width. */
+    protected boolean ownsBar() {
+        return true;
     }
 
     @Override
@@ -105,7 +110,7 @@ public class ScrollArea extends UiNode {
         UiRect view = bounds();
         int fullHeight = content.preferredHeight(view.width(), metrics);
         int width = view.width();
-        if (fullHeight > view.height()) {
+        if (ownsBar() && fullHeight > view.height()) {
             width = Math.max(0, view.width() - BAR_WIDTH - 1);
             fullHeight = content.preferredHeight(width, metrics);
         }
@@ -190,7 +195,7 @@ public class ScrollArea extends UiNode {
 
     @Override
     protected void paintOver(UiFrame frame) {
-        if (!scrollbarShown()) {
+        if (maxScroll() == 0) {
             return;
         }
         UiDraw draw = frame.draw();
@@ -198,7 +203,7 @@ public class ScrollArea extends UiNode {
         UiRect view = bounds();
         int page = theme.backdrop();
         int clear = page & 0x00FFFFFF;
-        int edge = view.right() - BAR_WIDTH - 1;
+        int edge = ownsBar() ? view.right() - BAR_WIDTH - 1 : view.right();
         draw.pushPose();
         draw.depth(FADE_DEPTH);
         if (scroll > 0) {
@@ -208,6 +213,9 @@ public class ScrollArea extends UiNode {
             draw.gradient(view.x(), view.bottom() - FADE, edge, view.bottom(), clear, page);
         }
         draw.popPose();
+        if (!ownsBar()) {
+            return;
+        }
         int rail = view.right() - BAR_WIDTH / 2 - 1;
         draw.fill(rail, view.y() + 1, rail + 1, view.bottom() - 1, theme.tileBorder());
         UiRect thumb = thumb();

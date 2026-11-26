@@ -4,17 +4,24 @@ import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiKey;
 import art.arcane.adapt.client.ui.UiKeyEvent;
+import art.arcane.adapt.client.ui.kit.Button;
 import art.arcane.adapt.client.ui.kit.Label;
+import art.arcane.adapt.client.ui.kit.Popover;
 import art.arcane.adapt.client.ui.kit.StatChip;
 import art.arcane.adapt.client.ui.kit.LegacyText;
 import art.arcane.adapt.client.ui.kit.TextField;
+import art.arcane.adapt.client.ui.kit.Toggle;
 import art.arcane.adapt.client.ui.kit.Tooltip;
 import art.arcane.adapt.client.ui.kit.UiGroup;
+import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
+import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiOverlay;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.IconSprites;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;
+import art.arcane.adapt.client.view.XpGuideView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,27 +30,32 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * The skills list: skill tiles in the chest menu's order, row by row down the left page and on down the right one, as
- * many columns to a page as its width holds up to {@link #COLUMNS}, or one column on each page when the whole list fits
- * one spread that way, with total knowledge and power used as chips in the right page's header beside the search field
- * that filters them. The columns follow the whole list, so a search never reshapes the tiles. A last spread with room to
- * spare shares its rows evenly between its two pages. A new search starts again from the first leaf.
+ * The skills page: one seat for every skill on the server, in roster order, as cards laid out by {@link #LAYOUT}. A
+ * mutation sits in its lead's seat and its partner's seat is left out; a skill the player has not started shows greyed
+ * out. When inactive skills are hidden (by the server, or by the player where the server allows it) greyed seats are
+ * left out too; the remaining cards always close up in the same order, as the cards a search matches do. The grid
+ * never depends on how many skills the player holds. Knowledge and power sit as chips in the right page's header beside the search field that filters the cards; each chip opens what it
+ * is spent on. A new search starts again from the first leaf.
  */
 public final class SkillsScreen extends AdaptScreen {
-    static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), "adapt:textures/gui/mark/power.png");
-    static final IconRef KNOWLEDGE_ICON = IconRef.item("minecraft:knowledge_book");
-    /** The most columns of tiles on one page. */
-    static final int COLUMNS = 2;
-    /** The most columns when the book shows one page as wide as both. */
-    static final int SINGLE_COLUMNS = 4;
+    static final IconRef POWER_ICON = IconSprites.withSprite(IconRef.item("minecraft:iron_sword"), IconSprites.mark("power"));
+    static final IconRef KNOWLEDGE_ICON = IconSprites.withSprite(IconRef.item("minecraft:knowledge_book"), IconSprites.mark("knowledge"));
+    /** How the page lays out its seats. */
+    static final SkillsLayout LAYOUT = SkillsLayout.SEATS;
+    /** The widest values the header chips keep room for, so a larger total never moves the search field. */
+    static final String WIDEST_KNOWLEDGE = "99,999";
+    static final String WIDEST_POWER = "99/99";
     private static final int SEARCH_WIDTH = 84;
+    private static final int BOOK_OPTIONS_WIDTH = 120;
 
     private final TextField search;
     private final Label empty;
     private final Label emptyHint;
+    private final Button book;
     private final Map<String, SkillTile> tiles = new HashMap<>();
-    private final List<SkillTile> matching = new ArrayList<>();
-    private int total;
+    private final List<UiNode> seated = new ArrayList<>();
+    private final List<UiNode> matching = new ArrayList<>();
+    private final SpendingPopover.Order order = new SpendingPopover.Order();
 
     SkillsScreen(ScreenRouter router) {
         super(ScreenText.SKILLS.text(), new Route.Skills(), router);
@@ -56,7 +68,68 @@ public final class SkillsScreen extends AdaptScreen {
         setTool(search, SEARCH_WIDTH);
         empty = new Label("empty", "").setWrap(true);
         emptyHint = new Label("empty.hint", "").setWrap(true).setColor(Palette.MUTED);
+        book = addToHeader(Button.mark("action:book", ScreenText.BOOK.text(), IconSprites.mark("book"), this::openBookOptions));
+        chip("stat:knowledge").setAction(this::openKnowledge);
+        chip("stat:power").setAction(this::openPower);
         refresh();
+    }
+
+    /** The book's own options: themed pages, reduced motion and inactive skills, the last locked when the server hides them. */
+    private void openBookOptions() {
+        UiGroup options = new UiGroup("book.options", UiLayoutPolicy.column(2));
+        options.add(new Toggle("option:themed-pages", ScreenText.THEMED_PAGES.text(), router().themes().enabled(), (Boolean on) -> {
+            router().themes().setEnabled(on);
+            requestLayout();
+        }).setBoxFirst(true));
+        options.add(new Toggle("option:reduced-motion", ScreenText.REDUCED_MOTION.text(), router().themes().reducedMotion(),
+                router().themes()::setReducedMotion).setBoxFirst(true));
+        boolean allowed = router().state().inactiveSkillsAllowed();
+        Toggle inactive = options.add(new Toggle("option:inactive-skills", ScreenText.INACTIVE_SKILLS.text(),
+                allowed && router().themes().inactiveSkills(), (Boolean on) -> {
+            router().themes().setInactiveSkills(on);
+            refresh();
+            requestLayout();
+        }).setBoxFirst(true));
+        inactive.setEnabled(allowed);
+        if (!allowed) {
+            inactive.setTooltip(Tooltip.of(ScreenText.INACTIVE_HIDDEN.text()));
+        }
+        openOverlay(new Popover("book.popover", ScreenText.BOOK.text(), book.bounds(), BOOK_OPTIONS_WIDTH, options));
+    }
+
+    /** Whether greyed-out seats show: the server allows them and the player has not turned them off. */
+    boolean showsInactive() {
+        return router().state().inactiveSkillsAllowed() && router().themes().inactiveSkills();
+    }
+
+    private void openKnowledge() {
+        closeOverlays(SpendingPopover.KNOWLEDGE_ID);
+        openOverlay(SpendingPopover.knowledge(router(), seatedSkills(), order, chip("stat:knowledge").bounds(), this::openKnowledge));
+    }
+
+    private void openPower() {
+        closeOverlays(SpendingPopover.POWER_ID);
+        openOverlay(SpendingPopover.power(router(), seatedSkills(), chip("stat:power").bounds()));
+    }
+
+    /** Closes the open overlay {@code overlayId}, so reopening it rebuilds it in place. */
+    private void closeOverlays(String overlayId) {
+        for (UiOverlay overlay : List.copyOf(overlays())) {
+            if (overlay.id().equals(overlayId)) {
+                closeOverlay(overlay);
+            }
+        }
+    }
+
+    /** The skills of the cards in seat order. */
+    private List<SkillView> seatedSkills() {
+        List<SkillView> skills = new ArrayList<>();
+        for (UiNode node : seated) {
+            if (node instanceof SkillTile tile) {
+                skills.add(tile.skill());
+            }
+        }
+        return skills;
     }
 
     public TextField search() {
@@ -77,6 +150,7 @@ public final class SkillsScreen extends AdaptScreen {
         super.describe(state);
         state.put("query", search.text());
         state.put("shown", Integer.toString(matching.size()));
+        state.put("inactive", Boolean.toString(showsInactive()));
     }
 
     @Override
@@ -92,18 +166,19 @@ public final class SkillsScreen extends AdaptScreen {
 
     @Override
     protected void compose(Flow flow, UiDraw metrics, int width) {
+        chip("stat:knowledge").setMinWidth(StatChip.width(metrics, WIDEST_KNOWLEDGE, true));
+        chip("stat:power").setMinWidth(StatChip.width(metrics, WIDEST_POWER, true));
+        flow.holdPitch();
         flow.add(empty);
         flow.add(emptyHint);
-        int need = RowTile.need(new ArrayList<>(tiles.values()), metrics);
-        TileGrid.Fit fit = TileGrid.fit(width, need, flow.spread() ? COLUMNS : SINGLE_COLUMNS);
-        int rows = Math.max(1, (flow.height() + TileGrid.ROW_GAP) / TileGrid.PITCH);
-        if (flow.spread() && fit.columns() > 1 && (total + 1) / 2 <= rows) {
-            fit = TileGrid.fit(width, need, 1);
+        SkillsLayout.Grid grid = LAYOUT.grid(flow.spread(), width, flow.height());
+        List<UiGroup> rows = TileGrid.seats("skills", matching, grid);
+        for (int index = 0; index < rows.size(); index++) {
+            if (index > 0 && index % grid.rows() == 0) {
+                flow.nextPage();
+            }
+            flow.row(rows.get(index), index % grid.rows() == 0 ? 0 : grid.gap());
         }
-        for (UiGroup row : TileGrid.rows("skills", matching, fit)) {
-            flow.row(row, TileGrid.ROW_GAP);
-        }
-        flow.balance();
     }
 
     @Override
@@ -111,12 +186,12 @@ public final class SkillsScreen extends AdaptScreen {
         updatePath();
         CatalogIndex catalog = router().index();
         PlayerView player = router().state().player();
+        seated.clear();
+        matching.clear();
         if (catalog == null || player == null) {
             chip("stat:knowledge").setVisible(false);
             chip("stat:power").setVisible(false);
             showEmpty(ScreenText.WAITING.text(), "");
-            matching.clear();
-            total = 0;
             return;
         }
         long knowledge = 0L;
@@ -127,27 +202,44 @@ public final class SkillsScreen extends AdaptScreen {
                 .setTooltip(new Tooltip(ScreenText.KNOWLEDGE_TITLE.text(), List.of("§7" + ScreenText.KNOWLEDGE_TOTAL_TIP.text())));
         chip("stat:knowledge").setVisible(true);
         powerChip(chip("stat:power"), player).setVisible(true);
-        List<SkillView> visible = catalog.visibleSkills(player);
-        total = visible.size();
-        String query = search.text().trim().toLowerCase(Locale.ROOT);
-        matching.clear();
-        for (SkillView skill : visible) {
-            if (!query.isEmpty() && !matches(skill, query)) {
+        boolean inactive = showsInactive();
+        for (Seats.Seat seat : Seats.of(catalog, player, router().state())) {
+            SkillTile tile = tiles.computeIfAbsent(seat.seatId(), (String id) -> {
+                SkillTile created = new SkillTile(seat.skill(), LAYOUT, (String target) -> router().open(new Route.Skill(target)), this::openGuide);
+                created.theme(tileTheming(), seat.shown().id());
+                return created;
+            });
+            tile.theme(tileTheming(), seat.shown().id());
+            SkillView shown = seat.shown();
+            tile.update(shown, CatalogIndex.line(player, shown.id()), LearnRules.affordable(catalog, player, shown),
+                    CatalogIndex.powerUsed(player, shown), player.access().canOpen(shown.id()), seat.started());
+            tile.guide(router().state().xpGuide(shown.id()));
+            if (tile.state() != SkillTile.State.ACTIVE && !inactive) {
                 continue;
             }
-            SkillTile tile = tiles.computeIfAbsent(skill.id(),
-                    (String id) -> new SkillTile(skill, () -> router().open(new Route.Skill(id))));
-            int affordable = LearnRules.affordable(catalog, player, skill);
-            tile.update(skill, CatalogIndex.line(player, skill.id()), affordable, CatalogIndex.powerUsed(player, skill),
-                    player.access().canOpen(skill.id()));
-            matching.add(tile);
+            seated.add(tile);
         }
-        if (visible.isEmpty()) {
+        String query = search.text().trim().toLowerCase(Locale.ROOT);
+        for (UiNode node : seated) {
+            if (query.isEmpty() || node instanceof SkillTile tile && matches(tile.skill(), query)) {
+                matching.add(node);
+            }
+        }
+        if (seatedSkills().isEmpty()) {
             showEmpty(ScreenText.NO_SKILLS.text(), ScreenText.NO_SKILLS_HINT.text());
-        } else if (matching.isEmpty()) {
+        } else if (matching.stream().noneMatch(SkillTile.class::isInstance)) {
             showEmpty(ScreenText.NO_MATCH.text(search.text().trim()), "");
         } else {
             showEmpty("", "");
+        }
+    }
+
+    /** Opens how {@code tile}'s skill earns XP under its (i). */
+    private void openGuide(SkillTile tile) {
+        XpGuideView guide = router().state().xpGuide(tile.skill().id());
+        if (guide != null) {
+            openOverlay(XpGuidePopover.of(tile.skill().name(), router().state().xpGuideTitle(), "", guide, router().index(),
+                    tile.info().bounds()));
         }
     }
 

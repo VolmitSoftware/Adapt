@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/lodestone",
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 4902913
+      },
+      "model": "adapt:item/tool-rift-anchor"
+    }
+  ]
+}

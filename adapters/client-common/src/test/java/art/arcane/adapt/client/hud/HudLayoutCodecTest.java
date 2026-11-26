@@ -26,7 +26,7 @@ class HudLayoutCodecTest {
                         .withOptions(new HudOptions.Skills(List.of("agility", "swords"), 2, 7000L, true, 14)))
                 .with(new HudWidgetConfig("resources_2", HudWidgetKind.RESOURCES, HudDefaults.placement(HudWidgetKind.RESOURCES),
                         new HudOptions.Resources(false, false, true, false)))
-                .with(base.widget("toasts").withOptions(new HudOptions.Toasts(8000L, 2, true)))
+                .with(base.widget("toasts").withOptions(new HudOptions.Toasts(7000L, 2)))
                 .with(base.widget("abilities").withOptions(((HudOptions.Abilities) HudDefaults.options(HudWidgetKind.ABILITIES))
                         .with(GlyphArrangement.BAR).withSizes(20, 12).withLimits(5, 2, 9, 0.4).withSort(GlyphSort.READY)
                         .withKinds(true, false, true, false).withSkills(List.of("rift")).withFlags(true, true)));
@@ -38,6 +38,44 @@ class HudLayoutCodecTest {
         HudLayout layout = customLayout();
         assertEquals(layout, HudLayoutCodec.read(HudLayoutCodec.write(layout)));
         assertEquals(HudDefaults.layout(), HudLayoutCodec.read(HudLayoutCodec.write(HudDefaults.layout())));
+    }
+
+    @Test
+    void toastDurationAndCountRoundTrip() {
+        HudLayout layout = customLayout();
+        HudOptions.Toasts toasts = (HudOptions.Toasts) HudLayoutCodec.read(HudLayoutCodec.write(layout)).activeProfile().widget("toasts").options();
+        assertEquals(7000L, toasts.durationMillis());
+        assertEquals(2, toasts.maxVisible());
+        HudProfile shared = HudLayoutCodec.importCode(HudLayoutCodec.export(layout.activeProfile())).orElseThrow();
+        assertEquals(layout.activeProfile().widget("toasts").options(), shared.widget("toasts").options());
+        HudOptions.Toasts imported = (HudOptions.Toasts) HudLayoutCodec.read(SCHEMA_1_DEFAULTS).activeProfile().widget("toasts").options();
+        assertEquals(HudDefaults.options(HudWidgetKind.TOASTS), imported);
+    }
+
+    @Test
+    void aSchema3ToastAtTheOldDefaultsTakesTheNewOnesAndAChosenValueStays() {
+        HudOptions.Toasts untouched = schema3Toasts(5000L, 1);
+        assertEquals(HudDefaults.options(HudWidgetKind.TOASTS), untouched);
+        HudOptions.Toasts chosen = schema3Toasts(4500L, 2);
+        assertEquals(4500L, chosen.durationMillis());
+        assertEquals(2, chosen.maxVisible());
+        HudOptions.Toasts mixed = schema3Toasts(5000L, 4);
+        assertEquals(3000L, mixed.durationMillis());
+        assertEquals(4, mixed.maxVisible());
+        assertEquals(1, schema3Toasts(5000L, 1).maxVisible());
+        HudOptions.Toasts tooLong = schema3Toasts(15000L, 1);
+        assertEquals(HudOptions.Toasts.MAX_DURATION, tooLong.durationMillis());
+        HudLayout current = HudLayoutCodec.read(HudLayoutCodec.write(customLayout()));
+        assertEquals(customLayout(), current);
+    }
+
+    private static HudOptions.Toasts schema3Toasts(long duration, int shown) {
+        String json = HudLayoutCodec.write(HudDefaults.layout())
+                .replace("\"schema\": " + HudLayout.SCHEMA, "\"schema\": 3")
+                .replace("\"durationMillis\": 3000", "\"durationMillis\": " + duration + ", \"width\": 160")
+                .replace("\"maxVisible\": 1", "\"maxVisible\": " + shown);
+        assertTrue(json.contains("\"schema\": 3") && json.contains("\"durationMillis\": " + duration), json);
+        return (HudOptions.Toasts) HudLayoutCodec.read(json).activeProfile().widget("toasts").options();
     }
 
     @Test

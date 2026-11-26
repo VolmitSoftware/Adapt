@@ -50,13 +50,18 @@ public record ClientSinks(PanelSink panels, HudSink hud, RouteSink routes, ItemS
     public int capabilities() {
         int mask = 0;
         if (routes != RouteSink.NONE) {
-            mask |= ClientProtocol.SCREENS;
+            mask |= ClientProtocol.SCREENS | ClientProtocol.KEPT | ClientProtocol.TOOLS | ClientProtocol.XP_GUIDE
+                    | ClientProtocol.SPENDING | ClientProtocol.UNMUTATE | ClientProtocol.GROUP_LABELS
+                    | ClientProtocol.SHORT_NAMES | ClientProtocol.RECIPES;
         }
         if (panels != PanelSink.NONE) {
             mask |= ClientProtocol.PANEL;
         }
+        if (routes != RouteSink.NONE && panels != PanelSink.NONE) {
+            mask |= ClientProtocol.MUTATE | ClientProtocol.MUTATE_SPREAD;
+        }
         if (hud != HudSink.NONE) {
-            mask |= ClientProtocol.HUD | ClientProtocol.TOASTS;
+            mask |= ClientProtocol.HUD | ClientProtocol.TOASTS | ClientProtocol.SKILL_TOASTS;
         }
         if (items != ItemSink.NONE) {
             mask |= ClientProtocol.ITEMS;

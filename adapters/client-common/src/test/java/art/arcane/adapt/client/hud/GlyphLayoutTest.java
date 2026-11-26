@@ -273,7 +273,7 @@ class GlyphLayoutTest {
     void theEditorShowsTheProtectedZone() {
         HudRenderer renderer = new HudRenderer(HudSamples.editorModel(), TEXT);
         HudFakes.Draw draw = new HudFakes.Draw(640, 360, 2.0, true);
-        renderer.renderEditing(draw, HudDefaults.layout());
+        renderer.renderEditing(draw, HudDefaults.layout(), null);
         assertTrue(draw.texts().contains("Protected view"), draw.texts().toString());
     }
 

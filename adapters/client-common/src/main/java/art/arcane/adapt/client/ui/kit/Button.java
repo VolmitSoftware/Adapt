@@ -4,6 +4,7 @@ import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -13,9 +14,14 @@ import java.util.Objects;
  * underline until hovered. States follow {@link UiControl}.
  */
 public class Button extends UiNode {
+    /** The size of a text button's mark, one texel per pixel at GUI scale 2. */
+    public static final int MARK = 8;
+    private static final int MARK_GAP = 3;
     private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
     private final UiTome.Glyph glyph;
     private String text;
+    private String mark;
+    private boolean markOnly;
     private Style style;
     private Runnable action;
 
@@ -68,6 +74,23 @@ public class Button extends UiNode {
         return this;
     }
 
+    /** Draws the mark {@code spriteId} before the text, or none when null. */
+    public Button setMark(String spriteId) {
+        mark = spriteId;
+        return this;
+    }
+
+    /**
+     * A quiet square button that shows only the mark {@code spriteId}, its text kept as its name and tooltip; the text
+     * shows instead when no resource pack provides the mark.
+     */
+    public static Button mark(String id, String text, String spriteId, Runnable action) {
+        Button button = new Button(id, text, Style.QUIET, action).setMark(spriteId);
+        button.markOnly = true;
+        button.setTooltip(new Tooltip(text, List.of()));
+        return button;
+    }
+
     public Style style() {
         return style;
     }
@@ -98,7 +121,10 @@ public class Button extends UiNode {
         if (glyph != null) {
             return Math.max(theme.controlHeight(), glyph.width() + 8);
         }
-        return width(metrics, text, theme);
+        if (markOnly && metrics.sprites().texture(mark) != null) {
+            return theme.controlHeight();
+        }
+        return width(metrics, text, theme) + markRoom(metrics);
     }
 
     /** The width a button labelled {@code label} asks for. */
@@ -165,8 +191,24 @@ public class Button extends UiNode {
         if (frame.showsFocus(this)) {
             UiControl.focusRing(draw, box, theme);
         }
-        String line = LegacyText.truncate(draw, text, box.width() - 4);
-        draw.centeredText(line, box.centerX(), UiControl.textY(box, state), UiControl.ink(state, theme), false);
+        String line = LegacyText.truncate(draw, text, box.width() - 4 - markRoom(draw));
+        paintText(draw, box, line, UiControl.textY(box, state), UiControl.ink(state, theme));
+    }
+
+    /** The room the mark takes before the text, 0 without one or when no resource pack provides it. */
+    private int markRoom(UiDraw draw) {
+        return mark != null && draw.sprites().texture(mark) != null ? MARK + MARK_GAP : 0;
+    }
+
+    /** Draws {@code line} centred in {@code box} at {@code textY}, after the mark when it has one; returns the text's left. */
+    private int paintText(UiDraw draw, UiRect box, String line, int textY, int color) {
+        int markRoom = markRoom(draw);
+        int left = box.centerX() - (markRoom + draw.textWidth(line)) / 2;
+        if (markRoom > 0) {
+            UiIcons.mark(draw, mark, left, box.y() + (box.height() - MARK) / 2, MARK);
+        }
+        draw.text(line, left + markRoom, textY, color, false);
+        return left + markRoom;
     }
 
     private void paintFlat(UiDraw draw, UiTheme theme, UiRect box, UiControl.State state, float lift) {
@@ -189,6 +231,16 @@ public class Button extends UiNode {
     }
 
     private void paintPlain(UiFrame frame, UiDraw draw, UiTheme theme, UiRect box, UiControl.State state) {
+        if (markOnly && draw.sprites().texture(mark) != null) {
+            if (state == UiControl.State.HOVER || state == UiControl.State.PRESSED) {
+                UiControl.face(draw, box, state, theme);
+            }
+            if (frame.showsFocus(this)) {
+                UiControl.focusRing(draw, box, theme);
+            }
+            UiIcons.mark(draw, mark, box.x() + (box.width() - MARK) / 2, box.y() + (box.height() - MARK) / 2, MARK);
+            return;
+        }
         boolean bare = glyph == null && (state == UiControl.State.REST || state == UiControl.State.DISABLED);
         if (!bare) {
             UiControl.face(draw, box, state, theme);
@@ -200,12 +252,11 @@ public class Button extends UiNode {
             UiControl.glyph(draw, glyph, box, state, theme);
             return;
         }
-        String line = LegacyText.truncate(draw, text, box.width() - 4);
+        String line = LegacyText.truncate(draw, text, box.width() - 4 - markRoom(draw));
         int color = state == UiControl.State.REST ? theme.textMuted() : UiControl.ink(state, theme);
-        draw.centeredText(line, box.centerX(), UiControl.textY(box, state), color, false);
+        int left = paintText(draw, box, line, UiControl.textY(box, state), color);
         if (state == UiControl.State.REST) {
             int width = draw.textWidth(line);
-            int left = box.centerX() - width / 2;
             for (int x = left; x < left + width; x += 2) {
                 draw.fill(x, UiControl.textY(box) + UiControl.CAP_HEIGHT + 1, x + 1, UiControl.textY(box) + UiControl.CAP_HEIGHT + 2, color);
             }

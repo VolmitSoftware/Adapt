@@ -66,11 +66,11 @@ public final class UiTome {
         MAXED("maxed", UiRamp.GOLD[3]),
         LOCKED("locked", UiRamp.PEWTER[2]);
 
-        private final String variant;
+        private final String texture;
         private final int rim;
 
         Token(String variant, int rim) {
-            this.variant = variant;
+            this.texture = UiChrome.textureId(variant == null ? "token" : "token_" + variant);
             this.rim = rim;
         }
     }
@@ -142,7 +142,9 @@ public final class UiTome {
         PLUS("+", "..##..", "..##..", "######", "######", "..##..", "..##.."),
         MORE("...", "##.##.##", "##.##.##"),
         BOOK("book", "##...##", "#.#.#.#", "#..#..#", "#..#..#", "#..#..#", "#..#..#", "#######"),
-        BOOK_CLOSED("book", ".######", "##....#", "##....#", "##....#", "##....#", "#######", ".######");
+        BOOK_CLOSED("book", ".######", "##....#", "##....#", "##....#", "##....#", "#######", ".######"),
+        INFO("i", ".#####.", "###.###", "#######", "###.###", "###.###", "###.###", ".#####."),
+        CHECK("done", "......#", ".....##", "#...##.", "##.##..", ".###...", "..#....", ".......");
 
         private final String text;
         private final String[] rows;
@@ -258,11 +260,11 @@ public final class UiTome {
     }
 
     /**
-     * The fold of the cover where it shows above and below the gutter: a dark crease {@code height} tall from
-     * {@code top}, centred on {@code centerX}, with a lit edge after it.
+     * The fold where it shows above and below the gutter: a dark crease {@code height} tall from {@code top} in the
+     * spine's crease column {@code centerX}, with a lit edge after it.
      */
     public static void hinge(UiDraw draw, int centerX, int top, int height) {
-        draw.fill(centerX - 1, top, centerX + 1, top + height, HINGE);
+        draw.fill(centerX, top, centerX + 1, top + height, HINGE);
         draw.fill(centerX + 1, top, centerX + 2, top + height, HINGE_LIGHT);
     }
 
@@ -304,7 +306,7 @@ public final class UiTome {
      * goes on top, {@link #TOKEN_INSET} in.
      */
     public static void token(UiDraw draw, int x, int y, int tint, Token look) {
-        UiTexture texture = draw.sprites().texture(UiChrome.textureId(look.variant == null ? "token" : "token_" + look.variant));
+        UiTexture texture = draw.sprites().texture(look.texture);
         if (texture == null) {
             disc(draw, x, y, ROUND, TOKEN_EDGE);
             disc(draw, x, y, RIM, look.rim);
@@ -313,6 +315,17 @@ public final class UiTome {
         if (texture != null) {
             draw.blit(texture, x, y, TOKEN, TOKEN);
         }
+    }
+
+    /**
+     * A {@link #TOKEN} square medallion as a themed well, the look of one not yet learned: an outline, a rim, the well
+     * and a highlight on the rim. The icon goes on top, {@link #TOKEN_INSET} in.
+     */
+    public static void well(UiDraw draw, int x, int y, int edge, int rim, int well, int highlight) {
+        disc(draw, x, y, ROUND, edge);
+        disc(draw, x, y, RIM, rim);
+        disc(draw, x, y, DISC, well);
+        draw.fill(x + 6, y + 2, x + 12, y + 3, highlight);
     }
 
     /** The top left corner flourish of {@link #filigree}: a scroll curling in from the corner, gold over an ink shadow. */

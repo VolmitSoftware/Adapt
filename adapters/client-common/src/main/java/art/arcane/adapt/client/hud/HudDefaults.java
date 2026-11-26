@@ -50,7 +50,7 @@ public final class HudDefaults {
             case ABILITIES -> new HudOptions.Abilities(GlyphArrangement.ROW, GlyphGrowth.AUTO, 16, 10, 40, 4, 16,
                     GlyphSort.SKILL, true, true, true, true, List.of(), false, 0.3, false);
             case NOTICES -> new HudOptions.Notices(2);
-            case TOASTS -> new HudOptions.Toasts(5000L, 1, false);
+            case TOASTS -> new HudOptions.Toasts(3000L, 1);
         };
     }
 

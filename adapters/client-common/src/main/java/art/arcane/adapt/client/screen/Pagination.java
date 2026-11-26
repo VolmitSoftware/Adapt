@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Pours an {@link AdaptScreen.Flow} into pages of one size. A flow that pins its first page on a spread keeps that page
- * on the left and runs the rest through the right page; when the pinned blocks do not fit one page the flow runs through
- * both pages instead. A block goes on the current page when it fits beside what is already there and the page's foot,
- * and starts the next page when it does not; a block taller than a whole page still gets one to itself, clipped there.
- * A heading or a rule needs room for the block after it too, and a rule that would open a page is left out. Running
- * text takes its least height while the pages are filled and then shares out the height its page has left, a line at a
- * time. Rows of tiles then spread apart by the same amount everywhere, at most {@code stretch} each, so rows line up
- * across the spine.
+ * Pours an {@link AdaptScreen.Flow} into pages of one size. A flow that pins its first page on a spread keeps that
+ * page on the left and runs the rest through the right page; pinned blocks that do not fit one page stay on it all the
+ * same, their running text shortened and the rest clipped, so the pages never trade places. A block goes on the
+ * current page when it fits beside what is already there and the page's foot, and starts the next page when it does
+ * not; a block taller than a whole page still gets one to itself, clipped there. A heading or a rule needs room for
+ * the block after it too, and a rule that would open a page is left out. Running text takes its least height while the
+ * pages are filled and then shares out the height its page has left, a line at a time. Rows of tiles then spread apart
+ * by the same amount everywhere, at most {@code stretch} each, so rows line up across the spine.
  */
 final class Pagination {
     private Pagination() {
@@ -82,15 +82,14 @@ final class Pagination {
             }
         }
         if (flow.pinned() && perLeaf == 2) {
+            List<List<AdaptScreen.Placed>> pages = new ArrayList<>();
             List<List<AdaptScreen.Placed>> pinned = pour(blocks.subList(0, split), false, width, height, metrics, stretch, 1);
-            if (pinned.size() == 1) {
-                List<List<AdaptScreen.Placed>> pages = new ArrayList<>(pinned);
-                List<List<AdaptScreen.Placed>> rest = pour(blocks.subList(split, blocks.size()), false, width, height, metrics, stretch, 1);
-                if (!rest.get(0).isEmpty()) {
-                    pages.addAll(rest);
-                }
-                return new Poured(pages, true);
+            pages.add(pinned.size() == 1 ? pinned.get(0) : onePage(blocks.subList(0, split), width, height, metrics));
+            List<List<AdaptScreen.Placed>> rest = pour(blocks.subList(split, blocks.size()), false, width, height, metrics, stretch, 1);
+            if (!rest.get(0).isEmpty()) {
+                pages.addAll(rest);
             }
+            return new Poured(pages, true);
         }
         return new Poured(pour(blocks, flow.balanced(), width, height, metrics, stretch, perLeaf), false);
     }
@@ -135,6 +134,32 @@ final class Pagination {
             placed.remove(placed.size() - 1);
         }
         return placed;
+    }
+
+    /**
+     * Blocks too tall for one page kept on it anyway: running text gives up height down to a line, and what still does
+     * not fit is clipped at the page's foot.
+     */
+    private static List<AdaptScreen.Placed> onePage(List<AdaptScreen.Block> blocks, int width, int height, UiDraw metrics) {
+        Page page = new Page();
+        for (AdaptScreen.Block block : blocks) {
+            if (block.kind() == AdaptScreen.Kind.BREAK || block.kind() == AdaptScreen.Kind.RULE && page.items.isEmpty()) {
+                continue;
+            }
+            Entry entry = entry(block, width, metrics);
+            entry.gap = block.kind() == AdaptScreen.Kind.FOOT ? (page.foot.isEmpty() ? 0 : block.gap()) : page.items.isEmpty() ? 0 : block.gap();
+            (block.kind() == AdaptScreen.Kind.FOOT ? page.foot : page.items).add(entry);
+        }
+        for (Entry entry : page.items) {
+            if (page.spare(height) >= 0) {
+                break;
+            }
+            if (entry.block.least() >= 0) {
+                entry.height = Math.max(Math.min(entry.height, metrics.lineHeight()), entry.height + page.spare(height));
+            }
+        }
+        grow(page, height, metrics.lineHeight());
+        return place(page, height, 0);
     }
 
     private static Entry entry(AdaptScreen.Block block, int width, UiDraw metrics) {

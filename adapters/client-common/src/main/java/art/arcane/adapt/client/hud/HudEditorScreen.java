@@ -161,7 +161,7 @@ public final class HudEditorScreen extends UiScreen {
         draw.fill(0, 0, width, height, 0x38000000);
         drawGrid(draw, width, height);
         hintBox = null;
-        renderer.renderEditing(draw, working);
+        renderer.renderEditing(draw, working, selected);
         drawOutlines(draw, mouseX, mouseY);
         for (HudSnap.Guide guide : guides) {
             int position = (int) Math.round(guide.position());

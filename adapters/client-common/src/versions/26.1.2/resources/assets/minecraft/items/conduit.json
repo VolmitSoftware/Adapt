@@ -1,0 +1,81 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902915,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-seaborne-tide-shrine"
+        }
+      },
+      {
+        "threshold": 4902916,
+        "model": {
+          "type": "minecraft:special",
+          "base": "minecraft:item/conduit",
+          "model": {
+            "type": "minecraft:conduit"
+          },
+          "transformation": {
+            "left_rotation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "right_rotation": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "scale": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "translation": [
+              0.5,
+              0.5,
+              0.5
+            ]
+          }
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "minecraft:item/conduit",
+      "model": {
+        "type": "minecraft:conduit"
+      },
+      "transformation": {
+        "left_rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "right_rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    }
+  }
+}

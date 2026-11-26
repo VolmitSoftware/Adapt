@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LearnRulesTest {
-    private final CatalogIndex catalog = new CatalogIndex(PreviewSamples.catalog());
+    private final CatalogIndex catalog = new CatalogIndex(PreviewSamples.catalog(), Map.of());
     private final PlayerView player = PreviewSamples.player();
 
     private AdaptationView adaptation(String id) {
@@ -148,7 +148,7 @@ class LearnRulesTest {
                 List.of(), List.of());
         SkillView skill = new SkillView("big", "Big", "", IconRef.item("minecraft:stone"), 0, true, List.of(), List.of(),
                 List.of(huge));
-        CatalogIndex index = new CatalogIndex(new CatalogView(1L, "en_us", List.of(skill)));
+        CatalogIndex index = new CatalogIndex(new CatalogView(1L, "en_us", List.of(skill)), Map.of());
         assertEquals(Integer.MAX_VALUE, LearnRules.learn(index, player, huge, 2).knowledgeCost());
     }
 }

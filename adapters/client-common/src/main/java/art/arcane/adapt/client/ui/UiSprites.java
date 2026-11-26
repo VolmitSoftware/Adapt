@@ -5,6 +5,8 @@ package art.arcane.adapt.client.ui;
  * are cheap enough to make every frame.
  */
 public interface UiSprites {
+    int MAX_DATA_BYTES = 1 << 20;
+
     UiSprites NONE = new UiSprites() {
         @Override
         public UiSpriteLookup lookup(String id) {
@@ -37,5 +39,13 @@ public interface UiSprites {
     /** The mean luminance of the texture's opaque pixels (see {@link PngLuma}), or {@link PngLuma#UNKNOWN}. */
     default float luminance(String id) {
         return PngLuma.UNKNOWN;
+    }
+
+    /**
+     * The whole file {@code id} (at most {@link #MAX_DATA_BYTES}) from the top-most pack that has it, or null. The same
+     * array is returned until the packs reload, so callers may key parsed data on it.
+     */
+    default byte[] data(String id) {
+        return null;
     }
 }

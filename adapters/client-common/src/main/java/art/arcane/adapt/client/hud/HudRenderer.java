@@ -17,12 +17,16 @@ public final class HudRenderer {
     static final double CROSSHAIR = 16.0;
     static final int ZONE_FILL = 0x26FF7A6E;
     static final int ZONE_EDGE = 0xA0FF9A8E;
+    /** The share of the screen's height a stack of toasts may take. */
+    static final double TOAST_ROOM = 0.55;
     private static final HudOptions.Skills DEFAULT_SKILLS = (HudOptions.Skills) HudDefaults.options(HudWidgetKind.SKILLS);
     private static final HudOptions.Toasts DEFAULT_TOASTS = (HudOptions.Toasts) HudDefaults.options(HudWidgetKind.TOASTS);
 
     private final HudModel model;
     private final HudText text;
     private final Map<HudWidgetKind, HudWidget> widgets = new EnumMap<>(HudWidgetKind.class);
+    /** The config each widget last measured, as widgets keep what render needs from their last measure. */
+    private final Map<HudWidgetKind, HudWidgetConfig> measured = new EnumMap<>(HudWidgetKind.class);
     private final HudWidget.Frame frame = new HudWidget.Frame();
     private final HudWidget.Size size = new HudWidget.Size();
     private final HudFit fit = new HudFit();
@@ -30,6 +34,7 @@ public final class HudRenderer {
     private final HudBox preferred = new HudBox();
     private final List<Placed> placed = new ArrayList<>();
     private int placedCount;
+    private String held;
     private int screenWidth;
     private int screenHeight;
 
@@ -49,6 +54,10 @@ public final class HudRenderer {
         boolean placeholder;
         boolean compact;
         boolean crowded;
+        boolean selfPlaced;
+        boolean yields;
+        int width;
+        int height;
         final double[] cells = new double[(HudOptions.Abilities.MAX_SHOWN + 1) * 4];
         int cellCount;
 
@@ -111,10 +120,13 @@ public final class HudRenderer {
 
     /**
      * Draws every widget for the editor; hidden ones (by the user or by auto-fit) faint, empty ones as a labelled
-     * stand-in; and the protected view zone as a tinted box.
+     * stand-in; and the protected view zone as a tinted box. Widget {@code held} (the one being edited, or null) keeps
+     * its place instead of giving way to toasts.
      */
-    public void renderEditing(UiDraw draw, HudLayout layout) {
+    public void renderEditing(UiDraw draw, HudLayout layout, String held) {
+        this.held = held;
         draw(draw, layout, true);
+        this.held = null;
         HudBox zone = frame.zone;
         if (layout.activeProfile().protect() <= 0.0) {
             return;
@@ -206,50 +218,151 @@ public final class HudRenderer {
             entry.drawn = false;
             entry.placeholder = false;
             entry.crowded = false;
+            entry.selfPlaced = false;
+            entry.yields = false;
             entry.compact = fit.compact() && pill(config.kind());
             entry.cellCount = 0;
-            HudPlacement placement = config.placement();
-            boolean shown = placement.visible() && fit.shows(config.kind());
-            if (!shown && !editing || entry.compact) {
-                entry.box.set(0.0, 0.0, 0.0, 0.0, 0.0);
-                continue;
+            entry.box.set(0.0, 0.0, 0.0, 0.0, 0.0);
+        }
+        for (int index = 0; index < placedCount; index++) {
+            layoutWidget(draw, placed.get(index), profile, editing, guiScale);
+        }
+        for (int index = 0; index < placedCount; index++) {
+            Placed entry = placed.get(index);
+            if (entry.config.kind() == HudWidgetKind.TOASTS && entry.drawn && !entry.placeholder) {
+                settle(entry, profile.autoFit());
             }
-            HudWidget widget = widgets.get(config.kind());
-            frame.anchor = placement.anchor();
-            frame.opacity = placement.opacity() * (shown ? 1.0 : GHOST_OPACITY);
-            frame.unitScale = placement.scale() * profile.scale();
-            widget.measure(draw, frame, config, size);
-            boolean empty = size.empty();
-            if (empty && !editing) {
-                HudGeometry.place(placement, 0.0, 0.0, profile.scale(), screenWidth, screenHeight, guiScale, entry.box);
-                continue;
+        }
+        for (int index = 0; index < placedCount; index++) {
+            Placed entry = placed.get(index);
+            if (entry.drawn) {
+                paint(draw, entry, profile, guiScale);
             }
-            int contentWidth = empty ? PLACEHOLDER_WIDTH : size.width;
-            int contentHeight = empty ? PLACEHOLDER_HEIGHT : size.height;
-            if (empty || !widget.placesItself(frame, config, entry.box)) {
-                HudGeometry.place(placement, contentWidth, contentHeight, profile.scale(), screenWidth, screenHeight, guiScale, entry.box);
-                protect(entry.box);
-            }
-            entry.drawn = true;
-            entry.placeholder = empty;
-            draw.pushPose();
-            draw.translate((float) entry.box.x, (float) entry.box.y);
-            draw.scale((float) entry.box.scale, (float) entry.box.scale);
-            frame.pixelScale = Math.max(1.0, guiScale * entry.box.scale);
-            if (empty) {
-                placeholder(draw, config);
-            } else {
-                widget.render(draw, frame, config, size);
-                if (widget instanceof AbilityWidget glyphs) {
-                    recordCells(entry, glyphs.layout(config));
-                }
-            }
-            draw.popPose();
         }
         if (fit.compact()) {
             drawPills(draw, profile, editing, guiScale, HudWidgetKind.TOASTS);
             drawPills(draw, profile, editing, guiScale, HudWidgetKind.NOTICES);
         }
+    }
+
+    /** Measures and places one widget; false when it draws nothing this frame. */
+    private boolean layoutWidget(UiDraw draw, Placed entry, HudProfile profile, boolean editing, double guiScale) {
+        HudWidgetConfig config = entry.config;
+        HudPlacement placement = config.placement();
+        if (!placement.visible() && !editing || !fit.shows(config.kind()) && !editing || entry.compact) {
+            return false;
+        }
+        HudWidget widget = widgets.get(config.kind());
+        frame(entry, profile);
+        widget.measure(draw, frame, config, size);
+        measured.put(config.kind(), config);
+        boolean empty = size.empty();
+        if (empty && !editing) {
+            HudGeometry.place(placement, 0.0, 0.0, profile.scale(), screenWidth, screenHeight, guiScale, entry.box);
+            return false;
+        }
+        entry.width = empty ? PLACEHOLDER_WIDTH : size.width;
+        entry.height = empty ? PLACEHOLDER_HEIGHT : size.height;
+        entry.selfPlaced = !empty && widget.placesItself(frame, config, entry.box);
+        if (!entry.selfPlaced) {
+            HudGeometry.place(placement, entry.width, entry.height, profile.scale(), screenWidth, screenHeight, guiScale, entry.box);
+            protect(entry.box);
+        }
+        entry.drawn = true;
+        entry.placeholder = empty;
+        return true;
+    }
+
+    private void frame(Placed entry, HudProfile profile) {
+        HudPlacement placement = entry.config.placement();
+        boolean shown = placement.visible() && fit.shows(entry.config.kind());
+        frame.anchor = placement.anchor();
+        frame.opacity = placement.opacity() * (shown ? 1.0 : GHOST_OPACITY);
+        frame.unitScale = placement.scale() * profile.scale();
+    }
+
+    private void paint(UiDraw draw, Placed entry, HudProfile profile, double guiScale) {
+        HudWidgetConfig config = entry.config;
+        HudWidget widget = widgets.get(config.kind());
+        frame(entry, profile);
+        if (!entry.placeholder && measured.get(config.kind()) != config) {
+            widget.measure(draw, frame, config, size);
+            measured.put(config.kind(), config);
+        }
+        size.set(entry.width, entry.height);
+        draw.pushPose();
+        draw.translate((float) entry.box.x, (float) entry.box.y);
+        draw.scale((float) entry.box.scale, (float) entry.box.scale);
+        frame.pixelScale = Math.max(1.0, guiScale * entry.box.scale);
+        if (entry.placeholder) {
+            placeholder(draw, config);
+        } else {
+            widget.render(draw, frame, config, size);
+            if (widget instanceof AbilityWidget glyphs) {
+                recordCells(entry, glyphs.layout(config));
+            }
+        }
+        draw.popPose();
+    }
+
+    /**
+     * Keeps a toast stack and the other widgets apart. A widget that starts further from the stack's screen edge than the
+     * stack (below it for the top and middle rows, above it for the bottom row) gives way: it moves on past the stack, or
+     * when that would leave the screen or enter the protected view zone it is not drawn this frame (with auto-fit on),
+     * so a tall wrapped toast pushes the notices under it down rather than covering them. Glyph widgets and the widget
+     * held in the editor keep their place. The stack itself steps past the widgets nearer its edge, such as skill rows, while it stays on screen and
+     * out of the zone.
+     */
+    private void settle(Placed toasts, boolean autoFit) {
+        HudBox box = toasts.box;
+        boolean up = toasts.config.placement().anchor().bottom();
+        for (int index = 0; index < placedCount; index++) {
+            Placed other = placed.get(index);
+            other.yields = other != toasts && !other.selfPlaced && !other.placeholder && other.config.kind() != HudWidgetKind.ABILITIES
+                    && !other.config.id().equals(held) && (up ? other.box.y + other.box.height < box.y + box.height : other.box.y > box.y);
+        }
+        for (int step = 0; step < placedCount; step++) {
+            Placed blocker = blocker(toasts);
+            if (blocker == null || !moveTo(box, up ? blocker.box.y - box.height : blocker.box.y + blocker.box.height)) {
+                break;
+            }
+        }
+        for (int index = 0; index < placedCount; index++) {
+            Placed other = placed.get(index);
+            if (!other.yields || !other.drawn
+                    || !HudVanilla.hit(other.box.x, other.box.y, other.box.width, other.box.height, box.x, box.y, box.width, box.height)) {
+                continue;
+            }
+            if (!moveTo(other.box, up ? box.y - other.box.height : box.y + box.height) && autoFit) {
+                other.drawn = false;
+            }
+        }
+    }
+
+    /** A drawn widget nearer the stack's edge than the stack that the stack covers, or null. */
+    private Placed blocker(Placed toasts) {
+        HudBox box = toasts.box;
+        for (int index = 0; index < placedCount; index++) {
+            Placed other = placed.get(index);
+            if (other == toasts || other.yields || !other.drawn || other.placeholder || other.compact) {
+                continue;
+            }
+            if (HudVanilla.hit(box.x, box.y, box.width, box.height, other.box.x, other.box.y, other.box.width, other.box.height)) {
+                return other;
+            }
+        }
+        return null;
+    }
+
+    /** Moves {@code box} to {@code y} when it stays on screen and out of the protected view zone there. */
+    private boolean moveTo(HudBox box, double y) {
+        HudBox zone = frame.zone;
+        if (y < 0.0 || y + box.height > screenHeight
+                || HudVanilla.hit(box.x, y, box.width, box.height, zone.x, zone.y, zone.width, zone.height)) {
+            return false;
+        }
+        box.y = y;
+        return true;
     }
 
     /**
@@ -314,6 +427,7 @@ public final class HudRenderer {
             frame.opacity = placement.opacity() * (placement.visible() ? 1.0 : GHOST_OPACITY);
             HudWidget widget = widgets.get(kind);
             widget.measure(draw, frame, config, size);
+            measured.put(kind, config);
             boolean empty = size.empty();
             if (empty && !editing) {
                 continue;
@@ -351,6 +465,7 @@ public final class HudRenderer {
     private void configure(HudProfile profile, boolean reducedMotion) {
         HudOptions.Skills skills = null;
         HudOptions.Toasts toasts = null;
+        double toastScale = profile.scale();
         List<HudWidgetConfig> configs = profile.widgets();
         for (int index = 0; index < configs.size(); index++) {
             HudWidgetConfig config = configs.get(index);
@@ -359,11 +474,13 @@ public final class HudRenderer {
             }
             if (toasts == null && config.options() instanceof HudOptions.Toasts options && config.placement().visible()) {
                 toasts = options;
+                toastScale = config.placement().scale() * profile.scale();
             }
         }
         model.xpWindow(skills == null ? DEFAULT_SKILLS.lingerMillis() : skills.lingerMillis());
         HudOptions.Toasts toastOptions = toasts == null ? DEFAULT_TOASTS : toasts;
-        model.toasts().configure(toastOptions.durationMillis(), fit.toasts(toastOptions.maxVisible()), reducedMotion);
+        model.toasts().configure(toastOptions.durationMillis(), fit.toasts(toastOptions.maxVisible()),
+                screenHeight / toastScale * TOAST_ROOM, reducedMotion);
     }
 
     private Placed next() {

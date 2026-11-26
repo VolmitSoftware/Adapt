@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902907,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-herbalism-scarecrow"
+        }
+      },
+      {
+        "threshold": 4902908,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:block/hay_block"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:block/hay_block"
+    }
+  }
+}

@@ -120,6 +120,20 @@ public final class HudPaint {
         }
     }
 
+    /** Text on parchment as {@link #ink} draws it, broken into lines {@code width} wide by the game's font. */
+    public static void inkWrapped(UiDraw draw, String text, int x, int y, int width, int argb, double opacity) {
+        int color = fade(argb, opacity);
+        if ((color >>> 24) < MIN_TEXT_ALPHA || text.isEmpty()) {
+            return;
+        }
+        draw.legacyPalette(UiTheme.INK);
+        try {
+            draw.wrappedText(text, x, y, width, color, false);
+        } finally {
+            draw.legacyPalette(null);
+        }
+    }
+
     /** A progress bar; {@code rgb} is 0xRRGGBB. */
     public static void bar(UiDraw draw, int x, int y, int width, int height, double fraction, int rgb, double opacity) {
         if (width <= 0 || height <= 0) {

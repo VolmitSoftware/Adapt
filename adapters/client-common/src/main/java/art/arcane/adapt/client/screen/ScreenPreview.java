@@ -11,6 +11,7 @@ import art.arcane.adapt.client.protocol.ServerInfo;
 import art.arcane.adapt.client.state.ClientActions;
 import art.arcane.adapt.client.state.ClientFrameSender;
 import art.arcane.adapt.client.state.ClientState;
+import art.arcane.adapt.client.theme.PageThemes;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.kit.UiMotion;
@@ -50,7 +51,7 @@ public final class ScreenPreview implements ClientFrameSender {
         state.negotiated(ClientProtocol.VERSION, new ServerInfo("preview", "preview", ClientProtocol.SCREENS | ClientProtocol.PANEL));
         state.acceptCatalog(PreviewSamples.catalog());
         state.acceptPlayer(PreviewSamples.player());
-        router = new ScreenRouter(host, state, actions, UiTheme.DEFAULT, motion, fallback);
+        router = new ScreenRouter(host, state, actions, UiTheme.DEFAULT, motion, PageThemes.defaults(), fallback);
     }
 
     /** Binds the preview to the "Open skills" key when {@code adapt.client.preview} is {@value #SCREENS}. */

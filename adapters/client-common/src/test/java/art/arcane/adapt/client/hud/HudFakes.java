@@ -3,6 +3,7 @@ package art.arcane.adapt.client.hud;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.UiScreen;
+import art.arcane.adapt.client.ui.UiSprites;
 import art.arcane.adapt.client.ui.UiTexture;
 
 import com.google.gson.JsonElement;
@@ -101,7 +102,10 @@ final class HudFakes {
         }
     }
 
-    /** Text is 6 units per character (section codes excluded) and 9 tall, like the vanilla font's common glyphs. */
+    /**
+     * Text is 6 units per character (section codes excluded) and 9 tall, like the vanilla font's common glyphs. Wrapping
+     * breaks at spaces like the vanilla splitter, and between characters inside a word wider than a line.
+     */
     static final class Draw implements UiDraw {
         final int width;
         final int height;
@@ -109,6 +113,7 @@ final class HudFakes {
         final boolean recording;
         final List<String> calls = new ArrayList<>();
         int pose;
+        UiSprites sprites = UiSprites.NONE;
 
         Draw(int width, int height, double guiScale, boolean recording) {
             this.width = width;
@@ -140,14 +145,21 @@ final class HudFakes {
             return false;
         }
 
+        /** Text drawn on one line or wrapped, in drawing order. */
         List<String> texts() {
             List<String> texts = new ArrayList<>();
             for (String call : calls) {
-                if (call.startsWith("text ")) {
-                    texts.add(call.substring(call.indexOf(' ', call.indexOf(' ', 5) + 1) + 1));
+                if (call.startsWith("text ") || call.startsWith("wrapped ")) {
+                    int start = call.indexOf(' ') + 1;
+                    texts.add(call.substring(call.indexOf(' ', call.indexOf(' ', start) + 1) + 1));
                 }
             }
             return texts;
+        }
+
+        @Override
+        public UiSprites sprites() {
+            return sprites;
         }
 
         @Override
@@ -214,14 +226,42 @@ final class HudFakes {
         @Override
         public int wrappedText(String text, int x, int y, int maxWidth, int color, boolean shadow) {
             if (recording) {
-                calls.add("wrapped " + text);
+                calls.add("wrapped " + x + "," + y + "," + maxWidth + " " + Integer.toHexString(color) + " " + text);
             }
             return wrappedHeight(text, maxWidth);
         }
 
         @Override
         public int wrappedHeight(String text, int maxWidth) {
-            return Math.max(1, (textWidth(text) + maxWidth - 1) / Math.max(1, maxWidth)) * 9;
+            int perLine = Math.max(1, maxWidth / 6);
+            int lines = 1;
+            int used = 0;
+            int index = 0;
+            while (index <= text.length()) {
+                int end = text.indexOf(' ', index);
+                if (end < 0) {
+                    end = text.length();
+                }
+                int length = 0;
+                for (int at = index; at < end; at++) {
+                    if (text.charAt(at) == '\u00a7') {
+                        at++;
+                    } else {
+                        length++;
+                    }
+                }
+                if (used > 0 && used + 1 + length <= perLine) {
+                    used += 1 + length;
+                } else {
+                    if (used > 0) {
+                        lines++;
+                    }
+                    lines += Math.max(0, length - 1) / perLine;
+                    used = length == 0 ? 0 : (length - 1) % perLine + 1;
+                }
+                index = end + 1;
+            }
+            return lines * 9;
         }
 
         @Override

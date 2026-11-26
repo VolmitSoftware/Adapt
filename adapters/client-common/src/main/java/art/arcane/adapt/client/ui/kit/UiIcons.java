@@ -14,6 +14,7 @@ import art.arcane.adapt.client.view.SkillView;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public final class UiIcons {
     private static final int MEMO_LIMIT = 1024;
     private static final Map<Object, IconRef> MEMO = new IdentityHashMap<>();
     private static final Map<String, String[]> ITEM_TEXTURES = new HashMap<>();
+    private static final Map<String, List<IconSprites.Layer>> LAYERS = new HashMap<>();
 
     private UiIcons() {
     }
@@ -104,9 +106,34 @@ public final class UiIcons {
         return icon == null || icon.spriteId() == null ? null : new UiTexture(icon.spriteId(), SIZE, SIZE);
     }
 
-    /** The sprite texture {@code icon} names when a resource pack provides a usable file, else null. */
+    /**
+     * The bottom texture of the sprite {@code icon} names when resource packs provide every layer of it, else null; see
+     * {@link IconSprites#layers}.
+     */
     public static UiTexture resolve(UiSprites sprites, IconRef icon) {
-        return icon == null || icon.spriteId() == null ? null : sprites.texture(icon.spriteId());
+        if (icon == null || icon.spriteId() == null) {
+            return null;
+        }
+        List<IconSprites.Layer> layers = layers(icon.spriteId());
+        UiTexture bottom = sprites.texture(layers.get(0).spriteId());
+        for (int index = 1; index < layers.size() && bottom != null; index++) {
+            if (sprites.texture(layers.get(index).spriteId()) == null) {
+                return null;
+            }
+        }
+        return bottom;
+    }
+
+    private static List<IconSprites.Layer> layers(String spriteId) {
+        List<IconSprites.Layer> known = LAYERS.get(spriteId);
+        if (known == null) {
+            known = IconSprites.layers(spriteId);
+            if (LAYERS.size() >= MEMO_LIMIT) {
+                LAYERS.clear();
+            }
+            LAYERS.put(spriteId, known);
+        }
+        return known;
     }
 
     /**
@@ -118,7 +145,7 @@ public final class UiIcons {
             return PngLuma.UNKNOWN;
         }
         if (resolve(sprites, icon) != null) {
-            return sprites.luminance(icon.spriteId());
+            return sprites.luminance(layers(icon.spriteId()).get(0).spriteId());
         }
         if (icon.customModelData() != 0 || icon.itemModelId() != null) {
             return PngLuma.UNKNOWN;
@@ -159,14 +186,33 @@ public final class UiIcons {
         paint(draw, icon, x, y, size, glint);
     }
 
+    /**
+     * Draws the mark {@code spriteId}, such as {@link IconSprites#mark}, at (x, y) and {@code size} units square; false
+     * when no resource pack provides it, so the caller draws its own fallback.
+     */
+    public static boolean mark(UiDraw draw, String spriteId, int x, int y, int size) {
+        UiTexture texture = spriteId == null ? null : draw.sprites().texture(spriteId);
+        if (texture == null) {
+            return false;
+        }
+        draw.blit(texture, x, y, size, size);
+        return true;
+    }
+
     /** Draws {@code icon} with its top left at (x, y), {@code size} units square; sizes other than 16 scale the item. */
     public static void paint(UiDraw draw, IconRef icon, int x, int y, int size, boolean glint) {
         if (icon == null || size <= 0) {
             return;
         }
-        UiTexture sprite = resolve(draw.sprites(), icon);
-        if (sprite != null) {
-            draw.blit(sprite, x, y, size, size);
+        if (resolve(draw.sprites(), icon) != null) {
+            for (IconSprites.Layer layer : layers(icon.spriteId())) {
+                UiTexture texture = draw.sprites().texture(layer.spriteId());
+                if (layer.tint() == IconSprites.NO_TINT) {
+                    draw.blit(texture, x, y, size, size);
+                } else {
+                    draw.blit(texture, x, y, size, size, 0, 0, texture.width(), texture.height(), 0xFF000000 | layer.tint());
+                }
+            }
             return;
         }
         if (size == SIZE) {

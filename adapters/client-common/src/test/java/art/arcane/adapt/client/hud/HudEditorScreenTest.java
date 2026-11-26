@@ -124,7 +124,7 @@ class HudEditorScreenTest {
         assertEquals(WIDTH / 2.0, rect("skills").x(), 0.51);
 
         HudRect snapped = rect("skills");
-        drag(snapped.x() + 10, snapped.centerY(), snapped.x() + 10 + 2.5, snapped.centerY(), ALT);
+        drag(snapped.x() + 10, snapped.bottom() - 4, snapped.x() + 10 + 2.5, snapped.bottom() - 4, ALT);
         assertEquals(WIDTH / 2.0 + 2.5, rect("skills").x(), 0.51);
     }
 

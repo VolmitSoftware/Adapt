@@ -7,14 +7,16 @@ import java.util.List;
 /**
  * Older widgets in current terms. Schema 1 had a separate xp feed (dropped: the skills widget now shows activity), a
  * skill tracker that always showed recent skills, resources on by default and abilities above the hotbar. Schema 2
- * glyphs were one fixed row centred 20 units under the crosshair with icon size, count and names only. A widget still
- * at its old default takes the new default; one the player moved or changed keeps their placement.
+ * glyphs were one fixed row centred 20 units under the crosshair with icon size, count and names only. Toasts before
+ * schema 4 stayed 5 seconds by default. A widget or setting still at its old default takes the new default; one the
+ * player moved or changed keeps their choice.
  */
 final class HudLayoutMigration {
     private static final HudPlacement SKILLS_V1 = v1(HudAnchor.TOP_LEFT, 4, 4, HudOrientation.VERTICAL);
     private static final HudPlacement RESOURCES_V1 = v1(HudAnchor.BOTTOM_RIGHT, -4, -4, HudOrientation.VERTICAL);
     private static final HudPlacement ABILITIES_V1 = v1(HudAnchor.BOTTOM_CENTER, 0, -74, HudOrientation.HORIZONTAL);
     private static final HudPlacement ABILITIES_V2 = v1(HudAnchor.MIDDLE_CENTER, 0, 20, HudOrientation.HORIZONTAL);
+    private static final long TOAST_DURATION_V3 = 5000L;
 
     private HudLayoutMigration() {
     }
@@ -26,8 +28,11 @@ final class HudLayoutMigration {
                     : new HudWidgetConfig(id, kind, placement, HudLayoutCodec.options(kind, options));
             case RESOURCES -> schema < 2 ? resources(id, placement, options)
                     : new HudWidgetConfig(id, kind, placement, HudLayoutCodec.options(kind, options));
-            case ABILITIES -> abilities(schema, id, placement, options);
-            case NOTICES, TOASTS -> new HudWidgetConfig(id, kind, placement, HudLayoutCodec.options(kind, options));
+            case ABILITIES -> schema < 3 ? abilities(schema, id, placement, options)
+                    : new HudWidgetConfig(id, kind, placement, HudLayoutCodec.options(kind, options));
+            case NOTICES -> new HudWidgetConfig(id, kind, placement, HudLayoutCodec.options(kind, options));
+            case TOASTS -> new HudWidgetConfig(id, kind, placement, schema < 4 ? toasts(options)
+                    : HudLayoutCodec.options(kind, options));
         };
     }
 
@@ -68,6 +73,14 @@ final class HudLayoutMigration {
                 .withLimits(Math.max(defaults.maxShown(), maxShown), defaults.maxRows(), defaults.maxColumns(), defaults.footprint())
                 .withFlags(defaults.collapseGroups(), names);
         return new HudWidgetConfig(id, HudWidgetKind.ABILITIES, migrated, next);
+    }
+
+    /** A duration still at the old default takes the new one; one the player chose stays, within the new range. */
+    private static HudOptions.Toasts toasts(JsonObject options) {
+        HudOptions.Toasts defaults = (HudOptions.Toasts) HudDefaults.options(HudWidgetKind.TOASTS);
+        HudOptions.Toasts saved = (HudOptions.Toasts) HudLayoutCodec.options(HudWidgetKind.TOASTS, options);
+        long duration = saved.durationMillis() == TOAST_DURATION_V3 ? defaults.durationMillis() : saved.durationMillis();
+        return new HudOptions.Toasts(duration, saved.maxVisible());
     }
 
     /** Same spot, size, opacity and orientation; visibility is judged separately. */

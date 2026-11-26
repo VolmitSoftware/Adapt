@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CatalogIndexTest {
-    private final CatalogIndex catalog = new CatalogIndex(PreviewSamples.catalog());
+    private final CatalogIndex catalog = new CatalogIndex(PreviewSamples.catalog(), Map.of());
 
     static PlayerView withAccess(PlayerAccess access) {
         PlayerView player = PreviewSamples.player();
@@ -75,6 +75,11 @@ class CatalogIndexTest {
         assertEquals(LearnRules.LearnBlock.DENIED, LearnRules.learn(catalog, player, catalog.adaptation("agility-armor-up"), 1).block());
         assertEquals(LearnRules.LearnBlock.NONE, LearnRules.learn(catalog, player, catalog.adaptation("agility-super-jump"), 1).block());
         assertEquals(1, LearnRules.affordable(catalog, player, catalog.skill("agility")));
+    }
+
+    @Test
+    void aSkillUsesOnePowerPerHeldAdaptationWhateverItsLevel() {
+        assertEquals(2, CatalogIndex.powerUsed(PreviewSamples.player(), catalog.skill("agility")));
     }
 
     @Test

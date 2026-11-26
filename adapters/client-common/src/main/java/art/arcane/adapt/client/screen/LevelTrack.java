@@ -23,7 +23,7 @@ import java.util.function.IntConsumer;
 
 /**
  * An adaptation's levels as a row of small pips joined by a line. The pips show state: learned levels filled with the
- * accent, the next level open and edged with the accent while it can be learned now, every other level quiet. A thin
+ * accent, kept levels in green, every other level quiet and neutral, so nothing reads as held that is not. A thin
  * ink ring marks the level whose stats the page shows, and the levels an open offer would add or remove are tinted.
  * A pip fills or empties over {@link #FILL_MILLIS} when its level is learned or unlearned. Clicking or pressing Enter
  * on a pip asks the page to bring the adaptation to that level. Wraps onto more rows when narrow. Node ids are
@@ -138,14 +138,15 @@ final class LevelTrack extends UiNode {
                 continue;
             }
             int y = from.centerY();
-            boolean learned = nodes.get(index + 1).state.pip() == Pip.LEARNED;
+            Pip next = nodes.get(index + 1).state.pip();
+            boolean learned = next == Pip.LEARNED || next == Pip.KEPT;
             draw.fill(from.right(), y, to.x(), y + 1, learned ? frame.theme().accent() : ProgressBar.rail(frame.theme()));
         }
     }
 
     /**
-     * The colours of a pip. Learned pips are filled with the accent and lettered in cream; the open pip is paper washed
-     * and edged with the accent; the rest are quiet. A level an offer would add takes a stronger wash and the accent
+     * The colours of a pip. Learned pips are filled with the accent and lettered in cream, kept pips the same way in the
+     * kit's green; the rest are quiet. A level an offer would add takes a stronger wash and the accent
      * edge, one it would remove pales under a wine edge. Numerals keep WCAG AA contrast on every one of them, whatever
      * the skill's colour.
      */
@@ -155,7 +156,10 @@ final class LevelTrack extends UiNode {
             case LEARNED -> state.offered()
                     ? new Look(UiEase.mix(theme.tile(), Palette.BAD, 0.12F), Palette.BAD, theme.text())
                     : new Look(learned, UiEase.mix(learned, 0xFF000000, 0.3F), theme.textInverse());
-            case OPEN -> new Look(UiEase.mix(theme.panel(), theme.accent(), state.offered() ? 0.3F : 0.12F), theme.accent(), theme.text());
+            case KEPT -> {
+                int kept = UiContrast.darkenFor(Palette.GOOD, theme.textInverse(), UiContrast.TEXT);
+                yield new Look(kept, UiEase.mix(kept, 0xFF000000, 0.3F), theme.textInverse());
+            }
             case EMPTY -> state.offered() ? new Look(UiEase.mix(theme.panel(), theme.accent(), 0.3F), theme.accent(), theme.text())
                     : new Look(theme.tile(), theme.surfaceBorder(), theme.textMuted());
         };
@@ -167,10 +171,12 @@ final class LevelTrack extends UiNode {
         }
     }
 
-    /** What a pip shows: a learned level, the next level while it can be learned now, or any other level. */
+    /**
+     * What a pip shows: a learned level, a level a mutated skill keeps for free, or any other level.
+     */
     enum Pip {
         LEARNED,
-        OPEN,
+        KEPT,
         EMPTY
     }
 

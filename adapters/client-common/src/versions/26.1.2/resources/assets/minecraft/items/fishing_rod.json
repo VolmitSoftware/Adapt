@@ -1,0 +1,43 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902900,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-agility-grappling-line"
+        }
+      },
+      {
+        "threshold": 4902901,
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "minecraft:item/fishing_rod"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "minecraft:item/fishing_rod_cast"
+          },
+          "property": "minecraft:fishing_rod/cast"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/fishing_rod"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "minecraft:item/fishing_rod_cast"
+      },
+      "property": "minecraft:fishing_rod/cast"
+    }
+  }
+}

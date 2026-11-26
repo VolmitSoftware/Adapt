@@ -38,7 +38,7 @@ import java.util.function.Consumer;
  * row of icon checkboxes. Every such row puts its tiles in one column after the same width of names, or every one puts
  * them under its name, whichever takes less height, so names and tiles line up down the page. Reset is the section's action: the owner sets it at the end of the section's heading.
  * Preferences the player cannot change show
- * read-only with a lock, under a note that says why when the whole panel is locked. Nothing changes on screen until the
+ * read-only with a lock, their tooltips saying why. Nothing changes on screen until the
  * server's answer arrives; the owner disables the panel while a request is out. Widget ids: {@code pref:<id>},
  * {@code pref:<id>:<value>}, {@code pref-group:<id>}, {@code pref-reset}.
  */
@@ -64,7 +64,6 @@ final class PreferencePanel {
     private final Actions actions;
     private final List<UiNode> cells = new ArrayList<>();
     private final List<Row> rows = new ArrayList<>();
-    private Label note;
     private RequestToggle primary;
     private UiGroup mainLine;
     private Rule rule;
@@ -93,12 +92,11 @@ final class PreferencePanel {
 
     /**
      * Rebuilds the controls. {@code level} is the owner's learned level (choices with a higher minimum are locked);
-     * {@code locked} disables everything with {@code lockedText} as the reason, such as an unlearned adaptation.
+     * a {@code lockedText} disables everything and names the reason in the tooltips, such as an unlearned adaptation.
      */
     void update(PreferenceOwner owner, String ownerId, List<PreferenceView> preferences, List<PreferenceGroupView> groups, PlayerView player,
                 int level, String lockedText) {
         boolean locked = lockedText != null;
-        note = locked ? new Label(id + ".locked", lockedText).setColor(Palette.LOCK).setWrap(true) : null;
         Set<String> grouped = new HashSet<>();
         for (PreferenceGroupView group : groups) {
             for (PreferenceGroupView.Entry entry : group.entries()) {
@@ -169,7 +167,7 @@ final class PreferencePanel {
 
     private List<UiNode> blocks() {
         List<UiNode> blocks = new ArrayList<>();
-        for (UiNode node : new UiNode[] {note, mainLine, rule, reset}) {
+        for (UiNode node : new UiNode[] {mainLine, rule, reset}) {
             if (node != null) {
                 blocks.add(node);
             }
@@ -196,10 +194,6 @@ final class PreferencePanel {
             primary.cell = cell;
         }
         int gap = AdaptScreen.PAGE_GAP;
-        if (note != null) {
-            flow.add(note, gap);
-            gap = section;
-        }
         Checklist checklist = cells.isEmpty() ? null : new Checklist(cells, width, cell, metrics);
         if (mainLine != null) {
             flow.add(mainLine, gap);

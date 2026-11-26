@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902905,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-discovery-explorers-atlas"
+        }
+      },
+      {
+        "threshold": 4902906,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/book"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/book"
+    }
+  }
+}

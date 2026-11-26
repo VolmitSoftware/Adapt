@@ -23,7 +23,7 @@ class IconSheetTest {
         assertEquals("adapt:textures/gui/skill/" + entries.get(0).id() + ".png", entries.get(0).icon().spriteId());
         List<String> toasts = entries.stream().filter((IconSheet.Entry entry) -> entry.kind().equals("toast"))
                 .map(IconSheet.Entry::id).toList();
-        assertEquals(List.of("level_up", "knowledge", "unlock", "discovery", "generic", "challenge"), toasts);
+        assertEquals(List.of("level_up", "knowledge", "unlock", "discovery", "generic", "challenge", "signature"), toasts);
         assertEquals("toast", entries.get(entries.size() - 1).kind());
         long skills = entries.stream().filter((IconSheet.Entry entry) -> entry.kind().equals("skill")).count();
         assertEquals(PreviewSamples.catalog().skills().size(), skills);

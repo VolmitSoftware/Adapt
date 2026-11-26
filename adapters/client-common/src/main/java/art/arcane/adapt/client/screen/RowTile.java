@@ -1,5 +1,7 @@
 package art.arcane.adapt.client.screen;
 
+import art.arcane.adapt.client.theme.PageTheme;
+import art.arcane.adapt.client.theme.TileFrame;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiMouseButton;
 import art.arcane.adapt.client.ui.UiMouseEvent;
@@ -15,12 +17,11 @@ import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.client.ui.kit.UiTome;
 import art.arcane.adapt.client.view.IconRef;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
- * A tile of the skill and adaptation grids, bare on the page and framed in gold filigree under the pointer or keyboard
- * focus: the icon at the left, then the name with a number at its right, and on the line below a short value led by a
+ * A tile of the skill and adaptation grids, bare on the page and framed under the pointer or keyboard focus, in gold
+ * filigree or, when its skill has a page theme, in that skill's own hover frame: the icon at the left, then the name with a number at its right, and on the line below a short value led by a
  * small ink glyph with a small framed bar after it where the line has room for one. A tile too narrow for the number beside the name puts it at the end
  * of the line below. The grid gives the tile room for all of its text ({@link #naturalWidth}); only a screen too
  * narrow for that cuts it. Clicking or Enter opens its page.
@@ -37,7 +38,11 @@ abstract class RowTile extends UiNode {
     private static final int GLYPH_GAP = 3;
 
     private final UiFade hover = new UiFade(UiControl.HOVER_MILLIS);
+    private final TileFrame themeFrame = new TileFrame();
     private final Runnable open;
+    private TileTheming theming;
+    private String themeSkill;
+    private boolean frameWanted;
 
     RowTile(String id, Runnable open) {
         super(id);
@@ -45,6 +50,30 @@ abstract class RowTile extends UiNode {
     }
 
     abstract IconRef icon();
+
+    /** Frames the tile in {@code skillId}'s theme on hover, as {@code tileTheming} finds it; null keeps the filigree. */
+    void theme(TileTheming tileTheming, String skillId) {
+        theming = tileTheming;
+        themeSkill = skillId;
+    }
+
+    /** The theme the tile is framed in, or null for the plain filigree. */
+    PageTheme theme(UiDraw draw) {
+        return theming == null ? null : theming.theme(draw.sprites(), themeSkill);
+    }
+
+    TileTheming theming() {
+        return theming;
+    }
+
+    /** Draws the tile's themed hover frame, advanced to the themes' clock. */
+    void paintFrame(UiDraw draw) {
+        PageTheme skillTheme = theme(draw);
+        if (skillTheme != null) {
+            long millis = theming.millis();
+            themeFrame.paint(draw, skillTheme, bounds(), frameWanted, millis, millis / 1000.0, theming.still());
+        }
+    }
 
     abstract int nameColor(UiTheme theme);
 
@@ -75,6 +104,11 @@ abstract class RowTile extends UiNode {
     /** The ink glyph before the line under the bar, drawn in the line's colour, or null for none. */
     UiTome.Glyph secondGlyph() {
         return null;
+    }
+
+    /** Room kept clear at the right end of the line below the name, for a control of the tile's own; none by default. */
+    int trailing(UiDraw metrics) {
+        return 0;
     }
 
     private int glyphWidth() {
@@ -118,22 +152,14 @@ abstract class RowTile extends UiNode {
     }
 
     private int secondWidth(UiDraw metrics) {
-        return glyphWidth() + metrics.textWidth(second());
+        int trail = trailing(metrics);
+        return glyphWidth() + metrics.textWidth(second()) + (trail > 0 ? trail + TEXT_GAP : 0);
     }
 
     /** Whether the number shares the name's line in text {@code room} wide, rather than the line below. */
     private boolean numberBesideName(int room, UiDraw metrics) {
         int number = numberRoom(metrics);
         return metrics.textWidth(label()) + number <= room || secondWidth(metrics) + number > room;
-    }
-
-    /** The widest {@link #naturalWidth} of {@code tiles}. */
-    static int need(List<? extends RowTile> tiles, UiDraw metrics) {
-        int need = 0;
-        for (RowTile tile : tiles) {
-            need = Math.max(need, tile.naturalWidth(metrics));
-        }
-        return need;
     }
 
     /** Where the text goes: right of the icon to the tile's right padding. */
@@ -183,9 +209,26 @@ abstract class RowTile extends UiNode {
         UiDraw draw = frame.draw();
         UiTheme theme = frame.theme();
         UiRect box = bounds();
-        float lift = hover.update(frame.motion(), frame.isHovered(this) || frame.showsFocus(this));
-        UiTome.filigree(draw, box, frame.showsFocus(this) ? 1.0F : lift);
+        boolean wanted = frame.isHovered(this) || frame.showsFocus(this) || holdsPointer(frame);
+        float lift = hover.update(frame.motion(), wanted);
+        PageTheme skillTheme = theme(draw);
+        if (skillTheme != null) {
+            frameWanted = wanted;
+            theming.defer(this);
+        } else {
+            UiTome.filigree(draw, box, frame.showsFocus(this) ? 1.0F : lift);
+        }
         paintCell(draw, theme, theme.backdrop());
+    }
+
+    /** Whether the pointer or focus is on one of the tile's own controls, which keeps the tile framed. */
+    private boolean holdsPointer(UiFrame frame) {
+        for (UiNode child : children()) {
+            if (child.visible() && (frame.isHovered(child) || frame.showsFocus(child))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Paints the tile's icon, text and bar; {@code backdrop} is the opaque colour under the icon. */
@@ -197,8 +240,10 @@ abstract class RowTile extends UiNode {
         int numberWidth = draw.textWidth(number);
         int nameY = box.y() + nameTop();
         boolean beside = numberBesideName(text.width(), draw);
+        int trail = trailing(draw);
+        int lineEnd = text.right() - (trail > 0 ? trail + TEXT_GAP : 0);
         if (numberWidth > 0) {
-            draw.text(number, text.right() - numberWidth, beside ? nameY : box.y() + SECOND_LINE, numberColor(theme), false);
+            draw.text(number, (beside ? text.right() : lineEnd) - numberWidth, beside ? nameY : box.y() + SECOND_LINE, numberColor(theme), false);
         }
         int numberRoom = numberWidth > 0 ? numberWidth + TEXT_GAP : 0;
         int nameRoom = Math.max(0, text.width() - (beside ? numberRoom : 0));
@@ -213,9 +258,9 @@ abstract class RowTile extends UiNode {
                 UiTome.glyph(draw, glyph, text.x(), box.y() + SECOND_LINE + UiControl.CAP_HEIGHT - glyph.height(), color);
             }
             draw.text(second, text.x() + lead, box.y() + SECOND_LINE, color, false);
-            barLeft = text.x() + secondWidth(draw) + TEXT_GAP;
+            barLeft = text.x() + lead + draw.textWidth(second) + TEXT_GAP;
         }
-        int barRight = text.right() - (beside ? 0 : numberRoom);
+        int barRight = lineEnd - (beside ? 0 : numberRoom);
         if (barRight - barLeft >= BAR_LEAST / 2) {
             paintBar(draw, theme, barLeft, box.y() + barTop(), barRight);
         }

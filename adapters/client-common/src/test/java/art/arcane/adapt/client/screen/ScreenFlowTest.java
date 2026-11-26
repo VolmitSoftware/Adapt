@@ -260,23 +260,23 @@ class ScreenFlowTest {
     void unlearnedAdaptationsLockTheirPreferences() {
         fixture.state.acceptPlayer(withLevel(fixture.state.player(), "rift-gate", 0));
         fixture.open(new Route.Adaptation("rift-gate"));
-        assertEquals(ScreenText.LEARN_FIRST.text(), fixture.find("preferences.locked").label());
+        assertNull(fixture.find("preferences.locked"), "no sentence explains the lock");
         assertEquals("setting", fixture.find("pref:gate-style").kind());
+        assertFalse(fixture.find("pref:gate-style").enabled());
         assertFalse(fixture.find("pref:gate-particles").enabled());
         assertEquals("Off", describe(fixture.find("pref:gate-particles")).get("value"));
         assertNull(fixture.find("pref-reset"));
         fixture.open(new Route.Adaptation("agility-wall-jump"));
-        assertNull(fixture.find("preferences.locked"));
         assertTrue(fixture.find("pref:jump-sound").enabled());
     }
 
     @Test
     void serverControlledSkillPreferencesAreDisabled() {
         fixture.open(new Route.Skill("stealth"));
-        assertFalse(fixture.find("pref:enabled").enabled());
+        assertFalse(fixture.find("action:switch-all").enabled());
         fixture.open(new Route.Skill("agility"));
-        assertTrue(fixture.find("pref:enabled").enabled());
-        ((Toggle) fixture.find("pref:enabled")).flip();
+        assertTrue(fixture.find("action:switch-all").enabled());
+        ((Toggle) fixture.find("action:switch-all")).flip();
         assertEquals(new ClientFrame.SetPreference(PreferenceOwner.SKILL, "agility", "enabled", "OFF"), fixture.sent.get(0));
     }
 
@@ -367,7 +367,7 @@ class ScreenFlowTest {
                 access(true, true, true)));
         fixture.open(new Route.Adaptation("agility-armor-up"));
         assertEquals(ScreenText.FREE_COST.text(), ((StatChip) fixture.find("stat:cost")).value());
-        assertTrue(fixture.find("stat:debug").visible());
+        assertTrue(fixture.find("tag:debug").visible());
         assertTrue(fixture.find("learn").enabled());
         AdaptationScreen permanent = fixture.open(new Route.Adaptation("rift-resistance"));
         fixture.click(fixture.find("learn"));
@@ -407,7 +407,7 @@ class ScreenFlowTest {
         assertTrue(skills.contains("\"id\":\"search\""));
         big.open(new Route.Skill("rift"));
         assertTrue(probe(big, "adaptation:rift-blink").contains("\"id\":\"adaptation:rift-blink\""));
-        assertTrue(probe(big, "pref:enabled").contains("\"id\":\"pref:enabled\""));
+        assertTrue(probe(big, "action:switch-all").contains("\"id\":\"action:switch-all\""));
         big.open(new Route.Adaptation("agility-wall-jump"));
         String adaptation = probe(big, "level:3");
         assertTrue(adaptation.contains("\"id\":\"level:3\""));

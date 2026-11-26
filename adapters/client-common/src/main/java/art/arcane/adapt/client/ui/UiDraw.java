@@ -66,6 +66,17 @@ public interface UiDraw {
     /** Draws the texture region at (u, v) of size regionWidth x regionHeight stretched to width x height. */
     void blit(UiTexture texture, int x, int y, int width, int height, int u, int v, int regionWidth, int regionHeight);
 
+    /**
+     * Draws the texture region as {@link #blit(UiTexture, int, int, int, int, int, int, int, int)} does with every pixel
+     * multiplied by {@code color} (ARGB): its alpha fades the region and its RGB tints it. Zero alpha draws nothing.
+     */
+    default void blit(UiTexture texture, int x, int y, int width, int height, int u, int v, int regionWidth, int regionHeight,
+                      int color) {
+        if ((color >>> 24) != 0) {
+            blit(texture, x, y, width, height, u, v, regionWidth, regionHeight);
+        }
+    }
+
     void pushScissor(int left, int top, int right, int bottom);
 
     void popScissor();

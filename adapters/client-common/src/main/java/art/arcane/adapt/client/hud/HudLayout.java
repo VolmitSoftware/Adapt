@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /** Every saved profile, which one is in use, and settings shared by all profiles. Never empty. */
 public record HudLayout(String active, boolean reducedMotion, List<HudProfile> profiles) {
-    public static final int SCHEMA = 3;
+    public static final int SCHEMA = 4;
 
     public HudLayout {
         Objects.requireNonNull(active, "active");

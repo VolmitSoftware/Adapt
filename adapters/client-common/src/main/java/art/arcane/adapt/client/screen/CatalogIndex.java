@@ -20,18 +20,25 @@ import java.util.Objects;
 /**
  * Lookups over one {@link CatalogView}, and what the chest menus would show a player as the server reported it in
  * {@link PlayerAccess}: which skills the skills list shows in which order, and a skill page's adaptation rows.
+ * Adaptations carry their catalog name, which names their skill wherever that is not shown, except through
+ * {@link #shown} and {@link #groups}, which serve their own skill's pages under the short names the server sent.
  */
 public final class CatalogIndex {
     private final CatalogView catalog;
+    private final Map<String, String> shortNames;
     private final Map<String, SkillView> skills = new LinkedHashMap<>();
     private final Map<String, AdaptationView> adaptations = new LinkedHashMap<>();
+    private final Map<String, AdaptationView> shown = new LinkedHashMap<>();
 
-    public CatalogIndex(CatalogView catalog) {
+    public CatalogIndex(CatalogView catalog, Map<String, String> shortNames) {
         this.catalog = Objects.requireNonNull(catalog, "catalog");
+        this.shortNames = Objects.requireNonNull(shortNames, "shortNames");
         for (SkillView skill : catalog.skills()) {
             skills.put(skill.id(), skill);
             for (AdaptationView adaptation : skill.adaptations()) {
                 adaptations.put(adaptation.id(), adaptation);
+                String shortName = shortNames.get(adaptation.id());
+                shown.put(adaptation.id(), shortName == null ? adaptation : adaptation.named(shortName));
             }
         }
     }
@@ -40,12 +47,22 @@ public final class CatalogIndex {
         return catalog;
     }
 
+    /** The short names this index was built with, by adaptation id. */
+    public Map<String, String> shortNames() {
+        return shortNames;
+    }
+
     public SkillView skill(String id) {
         return skills.get(id);
     }
 
     public AdaptationView adaptation(String id) {
         return adaptations.get(id);
+    }
+
+    /** The adaptation as its own skill's pages show it: under its short name when the server sent one. */
+    public AdaptationView shown(String id) {
+        return shown.get(id);
     }
 
     public List<AdaptationView> adaptations() {
@@ -71,15 +88,16 @@ public final class CatalogIndex {
     }
 
     /**
-     * The adaptation rows the chest page of {@code skillId} shows the player, in its order; empty when the player may not
-     * open that page. Adaptations the catalog does not know are left out, and so are rows left empty by that.
+     * The adaptation rows the chest page of {@code skillId} shows the player, in its order and as {@link #shown}; empty
+     * when the player may not open that page. Adaptations the catalog does not know are left out, and so are rows left
+     * empty by that.
      */
     public List<List<AdaptationView>> groups(PlayerView player, String skillId) {
         List<List<AdaptationView>> arranged = new ArrayList<>();
         for (List<String> row : access(player).rows(skillId)) {
             List<AdaptationView> views = new ArrayList<>();
             for (String id : row) {
-                AdaptationView adaptation = adaptations.get(id);
+                AdaptationView adaptation = shown.get(id);
                 if (adaptation != null) {
                     views.add(adaptation);
                 }
@@ -118,13 +136,15 @@ public final class CatalogIndex {
         return level == null ? 0 : Math.max(0, level);
     }
 
-    /** Sum of the learned levels of a skill's adaptations: the power that skill uses. */
+    /** How many of a skill's adaptations the player holds: the power that skill uses, one per adaptation. */
     public static int powerUsed(PlayerView player, SkillView skill) {
-        int total = 0;
+        int held = 0;
         for (AdaptationView adaptation : skill.adaptations()) {
-            total += level(player, adaptation.id());
+            if (level(player, adaptation.id()) > 0) {
+                held++;
+            }
         }
-        return total;
+        return held;
     }
 
     /** The value a preference resolves to for the player, or its default when the player view does not list it. */

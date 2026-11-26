@@ -45,6 +45,10 @@ public final class HudSamples {
     private static final long PREVIEW_XP_MILLIS = 1400L;
     private static final long PREVIEW_TOAST_MILLIS = 9000L;
     private static final long PREVIEW_STATUS_MILLIS = 7000L;
+    /** A skill discovery's body as long as real skill descriptions run, so the editor shows a wrapped card. */
+    static final String LONG_TOAST = "Agility is the ability to move quick and fluidly in the face of obstacles. "
+            + "Level up by sprinting, swimming, jumping, and climbing.";
+    static final String DISCOVERY_QUIP = "Walking is for people with time";
 
     private long nextXp;
     private long nextToast;
@@ -80,11 +84,13 @@ public final class HudSamples {
         model.publish(new ServerFrame.HudPublish("adapt:status:sixth_sense", 30, 5000L, List.of(HudSlot.CENTER),
                 "\u00a7bSixth Sense \u00a77- \u00a7fore nearby"));
         HudOptions.Toasts toasts = (HudOptions.Toasts) HudDefaults.options(HudWidgetKind.TOASTS);
-        model.toasts().configure(toasts.durationMillis(), toasts.maxVisible(), false);
+        model.toasts().configure(toasts.durationMillis(), HudOptions.Toasts.MAX_VISIBLE, Double.MAX_VALUE, false);
+        model.toast(new ServerFrame.Toast(ToastKind.DISCOVERY, IconRef.item("minecraft:feather"), "Agility", DISCOVERY_QUIP,
+                "agility"));
         model.toast(new ServerFrame.Toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:feather"), "Agility level 14",
-                "Knowledge +1"));
+                "Knowledge +1", "agility"));
         model.toast(new ServerFrame.Toast(ToastKind.UNLOCK, IconRef.item("minecraft:iron_pickaxe"), "Vein Miner unlocked",
-                "Pickaxes"));
+                "Pickaxes", "pickaxe"));
         model.expire(clock.millis());
         clock.advance(1200L);
         model.expire(clock.millis());
@@ -121,7 +127,8 @@ public final class HudSamples {
             nextToast = now + PREVIEW_TOAST_MILLIS;
             ToastKind kind = ToastKind.values()[step % ToastKind.values().length];
             model.toast(new ServerFrame.Toast(kind, IconRef.item(SKILLS[step % SKILLS.length][2]), kind.name().charAt(0)
-                    + kind.name().substring(1).toLowerCase(Locale.ROOT).replace('_', ' '), "Sample toast"));
+                    + kind.name().substring(1).toLowerCase(Locale.ROOT).replace('_', ' '), step % 2 == 0 ? LONG_TOAST : "Sample toast",
+                    SKILLS[step % SKILLS.length][0]));
         }
         if (glyphs > 0 && now >= nextFlood) {
             nextFlood = now + 4000L;

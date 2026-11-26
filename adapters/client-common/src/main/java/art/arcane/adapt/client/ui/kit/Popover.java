@@ -96,7 +96,7 @@ public class Popover extends UiOverlay {
     @Override
     protected void layout(UiDraw metrics) {
         UiRect screen = bounds();
-        int innerWidth = width - 2 - services().theme().padding() * 2;
+        int innerWidth = Math.min(width, screen.width() - MARGIN * 2) - panel.chromeWidth();
         int height = content.preferredHeight(innerWidth, metrics) + panel.chromeHeight();
         panel.place(place(anchor, width, height, screen.width(), screen.height()), metrics);
     }

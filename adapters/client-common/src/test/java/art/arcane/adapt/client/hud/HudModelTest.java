@@ -78,7 +78,7 @@ class HudModelTest {
         model.xp(xp("agility", 5, 3, 0.5));
         model.status(status("adapt:status:a", clock.epoch, 0L, 0));
         model.publish(notice("adapt:notice", 10, 1000L, "hi"));
-        model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t", "b"));
+        model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t", "b", ""));
         model.player(new PlayerView(new PlayerHeader(1, 0.5, 1, 2, 3, true), List.of(), Map.of(), List.of(), PlayerAccess.NONE));
         assertTrue(model.active());
 
@@ -385,21 +385,20 @@ class HudModelTest {
 
     @Test
     void toastsQueueBehindTheVisibleLimit() {
-        model.toasts().configure(5000L, 2, false);
+        model.toasts().configure(5000L, 2, Double.MAX_VALUE, false);
         for (int index = 0; index < 4; index++) {
-            model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t" + index, ""));
+            model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t" + index, "", ""));
         }
         model.expire(clock.millis);
         assertEquals(2, model.toasts().shown().size());
         assertEquals(2, model.toasts().queuedCount());
         assertEquals("t0", model.toasts().shown().get(0).title());
 
-        for (int frame = 0; frame < 100; frame++) {
-            clock.advance(50L);
-            model.expire(clock.millis);
-        }
+        HudToast first = model.toasts().shown().get(0);
+        clock.advance(model.toasts().duration(first));
+        model.expire(clock.millis);
         assertEquals(2, model.toasts().shown().size());
-        assertTrue(model.toasts().leaving(model.toasts().shown().get(0), clock.millis));
+        assertTrue(model.toasts().leaving(first, clock.millis));
         assertEquals(2, model.toasts().queuedCount());
 
         clock.advance(HudToastQueue.EXIT_MILLIS);
@@ -410,32 +409,33 @@ class HudModelTest {
     }
 
     @Test
-    void toastSlotsEaseTowardTheirIndexOnceTheCardAheadHasGone() {
-        model.toasts().configure(1000L, 3, false);
-        model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "a", ""));
+    void toastOffsetsEaseForwardOnceTheCardAheadHasGone() {
+        model.toasts().configure(2000L, 3, Double.MAX_VALUE, false);
+        model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "a", "", ""));
         model.expire(clock.millis);
-        clock.advance(200L);
-        model.toast(new ServerFrame.Toast(ToastKind.CHALLENGE, IconRef.item("minecraft:stone"), "b", ""));
+        clock.advance(900L);
+        model.toast(new ServerFrame.Toast(ToastKind.CHALLENGE, IconRef.item("minecraft:stone"), "b", "", ""));
         model.expire(clock.millis);
         HudToast second = model.toasts().shown().get(1);
-        assertEquals(1.0, second.slot());
+        double place = ToastWidget.CARD_HEIGHT + HudToastQueue.GAP;
+        assertEquals(place, second.offset());
         clock.advance(1090L);
         model.expire(clock.millis);
-        assertEquals(1.0, second.slot());
+        assertEquals(place, second.offset());
         clock.advance(16L);
         model.expire(clock.millis);
         assertSame(second, model.toasts().shown().get(0));
-        assertTrue(second.slot() < 1.0 && second.slot() > 0.5, Double.toString(second.slot()));
+        assertTrue(second.offset() < place && second.offset() > place * 0.5, Double.toString(second.offset()));
         clock.advance(300L);
         model.expire(clock.millis);
-        assertEquals(0.0, second.slot(), 0.02);
+        assertEquals(0.0, second.offset(), 0.5);
     }
 
     @Test
     void toastQueueDropsTheOldestBeyondItsCap() {
-        model.toasts().configure(5000L, 1, false);
+        model.toasts().configure(5000L, 1, Double.MAX_VALUE, false);
         for (int index = 0; index < HudToastQueue.MAX_QUEUED + 5; index++) {
-            model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t" + index, ""));
+            model.toast(new ServerFrame.Toast(ToastKind.GENERIC, IconRef.item("minecraft:stone"), "t" + index, "", ""));
         }
         assertEquals(HudToastQueue.MAX_QUEUED, model.toasts().queuedCount());
         model.expire(clock.millis);

@@ -146,11 +146,17 @@ public sealed interface HudOptions {
         }
     }
 
-    record Toasts(long durationMillis, int maxVisible, boolean stackUp) implements HudOptions {
+    /**
+     * Toast cards. {@code durationMillis} is the longest a card stays on screen before it slides out; a backlog shortens
+     * it (see {@link HudToastQueue}). At most {@code maxVisible} cards show at once.
+     */
+    record Toasts(long durationMillis, int maxVisible) implements HudOptions {
         public static final int MAX_VISIBLE = 5;
+        public static final long MIN_DURATION = 1000L;
+        public static final long MAX_DURATION = 8000L;
 
         public Toasts {
-            durationMillis = Math.max(1500L, Math.min(20000L, durationMillis));
+            durationMillis = Math.max(MIN_DURATION, Math.min(MAX_DURATION, durationMillis));
             maxVisible = Math.max(1, Math.min(MAX_VISIBLE, maxVisible));
         }
 

@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902914,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-rift-eye"
+        }
+      },
+      {
+        "threshold": 4902915,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/ender_eye"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/ender_eye"
+    }
+  }
+}

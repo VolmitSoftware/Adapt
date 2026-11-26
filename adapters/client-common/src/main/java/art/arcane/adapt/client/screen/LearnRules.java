@@ -1,6 +1,7 @@
 package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.view.AdaptationView;
+import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.PlayerAccess;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.RequirementView;
@@ -59,18 +60,28 @@ public final class LearnRules {
 
     /** Whether learning up to {@code target} would be accepted, and what it costs. */
     public static LearnCheck learn(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int target) {
-        int from = CatalogIndex.level(player, adaptation.id());
+        return learn(catalog, player, adaptation, target, null);
+    }
+
+    /**
+     * {@link #learn(CatalogIndex, PlayerView, AdaptationView, int)} for an original a mutated skill keeps at
+     * {@code keptBy}'s level for free, or null for any other adaptation: the levels above it are paid as usual from the
+     * mutated skill's knowledge, the first of them takes a slot, and the kept page is open whatever the chest rows show.
+     */
+    public static LearnCheck learn(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int target, KeptView keptBy) {
+        int kept = floor(keptBy);
+        int from = Math.max(kept, CatalogIndex.level(player, adaptation.id()));
         int to = Math.max(0, Math.min(target, adaptation.maxLevel()));
         boolean free = CatalogIndex.access(player).debug();
-        long knowledge = knowledge(player, adaptation.skillId());
+        long knowledge = knowledge(player, line(adaptation, keptBy));
         int freePower = freePower(player);
         int cost = free ? 0 : knowledgeCost(adaptation, from, to);
-        int power = powerCost(adaptation, from, to);
+        int power = powerCost(adaptation, from - kept, to - kept);
         List<RequirementView> missing = missing(player, adaptation);
         LearnBlock block;
         if (!enabled(catalog, adaptation)) {
             block = LearnBlock.DISABLED;
-        } else if (!CatalogIndex.access(player).shows(adaptation.skillId(), adaptation.id())) {
+        } else if (kept <= 0 && !CatalogIndex.access(player).shows(adaptation.skillId(), adaptation.id())) {
             block = LearnBlock.DENIED;
         } else if (to <= from) {
             block = LearnBlock.LEARNED;
@@ -88,8 +99,17 @@ public final class LearnRules {
 
     /** Whether going down to {@code target} would be accepted, and what it refunds. */
     public static UnlearnCheck unlearn(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int target) {
-        int from = CatalogIndex.level(player, adaptation.id());
-        int to = Math.max(0, target);
+        return unlearn(catalog, player, adaptation, target, null);
+    }
+
+    /**
+     * {@link #unlearn(CatalogIndex, PlayerView, AdaptationView, int)} for an original kept at {@code keptBy}'s level for
+     * free: it never goes below that level, and only the levels above it refund.
+     */
+    public static UnlearnCheck unlearn(CatalogIndex catalog, PlayerView player, AdaptationView adaptation, int target, KeptView keptBy) {
+        int kept = floor(keptBy);
+        int from = Math.max(kept, CatalogIndex.level(player, adaptation.id()));
+        int to = Math.max(kept, Math.max(0, target));
         PlayerAccess access = CatalogIndex.access(player);
         boolean refunded = access.refunds() && !access.debug();
         int refund = refunded && to < from ? refund(adaptation, to, from) : 0;
@@ -97,7 +117,7 @@ public final class LearnRules {
         UnlearnBlock block;
         if (!enabled(catalog, adaptation)) {
             block = UnlearnBlock.DISABLED;
-        } else if (!access.shows(adaptation.skillId(), adaptation.id())) {
+        } else if (kept <= 0 && !access.shows(adaptation.skillId(), adaptation.id())) {
             block = UnlearnBlock.DENIED;
         } else if (to >= from) {
             block = UnlearnBlock.NOT_LEARNED;
@@ -142,6 +162,16 @@ public final class LearnRules {
     public static boolean nextAffordable(CatalogIndex catalog, PlayerView player, AdaptationView adaptation) {
         int level = CatalogIndex.level(player, adaptation.id());
         return level < adaptation.maxLevel() && learn(catalog, player, adaptation, level + 1).allowed();
+    }
+
+    /** The free level {@code keptBy} keeps an original at; 0 for null. */
+    public static int floor(KeptView keptBy) {
+        return keptBy == null ? 0 : keptBy.level();
+    }
+
+    /** The skill line an adaptation's knowledge comes from: the mutated skill's for a kept original, else its own skill's. */
+    public static String line(AdaptationView adaptation, KeptView keptBy) {
+        return keptBy == null ? adaptation.skillId() : keptBy.ownerId();
     }
 
     private static boolean enabled(CatalogIndex catalog, AdaptationView adaptation) {

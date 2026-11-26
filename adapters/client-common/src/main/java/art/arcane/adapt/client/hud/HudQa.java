@@ -165,8 +165,15 @@ public final class HudQa {
             entry.addProperty("kind", toast.kind().name());
             entry.addProperty("title", toast.title());
             entry.addProperty("body", toast.body());
+            entry.addProperty("skill", toast.skillId());
             entry.addProperty("form", toastForm);
-            entry.addProperty("slot", toast.slot());
+            entry.addProperty("offset", toast.offset());
+            entry.addProperty("width", toast.width());
+            entry.addProperty("height", toast.height());
+            entry.addProperty("lines", toast.lines());
+            entry.addProperty("shownTitle", toast.shownTitle());
+            entry.addProperty("shownBody", toast.shownBody());
+            entry.addProperty("durationMillis", model.toasts().duration(toast));
             entry.addProperty("leaving", model.toasts().leaving(toast, model.clock().millis()));
             toasts.add(entry);
         }

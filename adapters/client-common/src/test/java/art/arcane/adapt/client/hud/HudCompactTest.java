@@ -77,7 +77,7 @@ class HudCompactTest {
                     assertFalse(overlaps(drawn.get(first), drawn.get(second)), where + " " + drawn.get(first) + " vs " + drawn.get(second));
                 }
             }
-            assertTrue(draw.texts().contains("Agility level 14"), where + " " + draw.texts());
+            assertTrue(draw.texts().contains("Agility"), where + " " + draw.texts());
         }
     }
 
@@ -101,8 +101,8 @@ class HudCompactTest {
         double progress = model.getAsJsonArray("skills").get(0).getAsJsonObject().get("progress").getAsDouble();
         assertTrue(progress >= 0.0 && progress <= 1.0);
         JsonObject toast = model.getAsJsonArray("toasts").get(0).getAsJsonObject();
-        assertEquals("LEVEL_UP", toast.get("kind").getAsString());
-        assertEquals("Agility level 14", toast.get("title").getAsString());
+        assertEquals("DISCOVERY", toast.get("kind").getAsString());
+        assertEquals("Agility", toast.get("title").getAsString());
         assertEquals("compact", toast.get("form").getAsString());
         assertTrue(model.get("toastsQueued").getAsInt() >= 0);
         assertEquals("adapt:status:sixth_sense", model.getAsJsonArray("notices").get(0).getAsJsonObject().get("purpose").getAsString());
@@ -115,7 +115,7 @@ class HudCompactTest {
         renderer.render(new HudFakes.Draw(640, 360, 2.0, false), HudDefaults.layout());
         assertFalse(renderer.placed("toasts").compact());
         assertEquals("full", widget(renderer, "toasts").get("form").getAsString());
-        assertEquals(ToastWidget.CARD_HEIGHT, renderer.placed("toasts").box().height(), 1e-6);
+        assertTrue(renderer.placed("toasts").box().height() > ToastWidget.CARD_HEIGHT);
     }
 
     @Test
@@ -123,7 +123,7 @@ class HudCompactTest {
         HudFakes.Clock clock = new HudFakes.Clock();
         HudModel model = new HudModel(clock);
         model.toast(new ServerFrame.Toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:feather"),
-                "Agility reached level 140 after a very long climb up the mountain", "Knowledge +1"));
+                "Agility reached level 140 after a very long climb up the mountain", "Knowledge +1", ""));
         HudRenderer renderer = new HudRenderer(model, TEXT);
         renderer.render(new HudFakes.Draw(320, 180, 4.0, false), HudDefaults.layout());
         clock.advance(HudToastQueue.ENTER_MILLIS);
@@ -141,7 +141,7 @@ class HudCompactTest {
     void aLevelUpIsDrawnEvenWhenNoFreeSpaceIsLeft() {
         HudFakes.Clock clock = new HudFakes.Clock();
         HudModel model = new HudModel(clock);
-        model.toast(new ServerFrame.Toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:feather"), "Agility level 3", ""));
+        model.toast(new ServerFrame.Toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:feather"), "Agility level 3", "", ""));
         HudRenderer renderer = new HudRenderer(model, TEXT);
         for (int[] screen : new int[][] {{214, 160}, {160, 120}}) {
             renderer.render(new HudFakes.Draw(screen[0], screen[1], 4.0, false), HudDefaults.layout());

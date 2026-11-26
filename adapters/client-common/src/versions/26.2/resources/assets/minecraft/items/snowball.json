@@ -1,0 +1,34 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902925,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/knowledge-orb"
+        }
+      },
+      {
+        "threshold": 4902926,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/experience-orb"
+        }
+      },
+      {
+        "threshold": 4902927,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/snowball"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/snowball"
+    }
+  }
+}

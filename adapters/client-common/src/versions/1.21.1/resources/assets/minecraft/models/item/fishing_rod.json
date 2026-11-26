@@ -1,0 +1,20 @@
+{
+  "parent": "item/handheld_rod",
+  "textures": {
+    "layer0": "item/fishing_rod"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "cast": 1
+      },
+      "model": "item/fishing_rod_cast"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4902900
+      },
+      "model": "adapt:item/tool-agility-grappling-line"
+    }
+  ]
+}

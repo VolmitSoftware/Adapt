@@ -1,14 +1,17 @@
 package art.arcane.adapt.client.ui.kit;
 
 import art.arcane.adapt.client.ui.UiDraw;
+import art.arcane.adapt.client.ui.UiMouseButton;
+import art.arcane.adapt.client.ui.UiMouseEvent;
 import art.arcane.adapt.client.view.IconRef;
 
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * A small read-only value on a paper tag: an optional icon, the value and a muted caption, such as "12 knowledge". It takes pointer
- * hits so its tooltip can explain the number, but never keyboard focus. Value colour 0 means the theme's text colour.
+ * A small value on a paper tag: an optional icon, the value and a muted caption, such as "12 knowledge". It takes pointer
+ * hits so its tooltip can explain the number. Given an action it also opens something on a click, Enter or Space and
+ * takes keyboard focus; otherwise it is read-only. Value colour 0 means the theme's text colour.
  * A chip with an icon is at least as tall as the icon, which stands a unit proud of the tag above and below; a lone
  * value is set against the right edge so numbers in a column of chips line up.
  */
@@ -24,6 +27,8 @@ public class StatChip extends UiNode {
     private String value;
     private String caption;
     private int valueColor;
+    private int minWidth;
+    private Runnable action;
 
     public StatChip(String id, IconRef icon, String value, String caption) {
         super(id);
@@ -37,9 +42,13 @@ public class StatChip extends UiNode {
         return "stat";
     }
 
+    /** The caption, or for a chip with none the title of its tooltip, so an actionable chip always has a name. */
     @Override
     public String label() {
-        return LegacyText.strip(caption);
+        if (!caption.isEmpty() || tooltip() == null) {
+            return LegacyText.strip(caption);
+        }
+        return LegacyText.strip(tooltip().title());
     }
 
     @Override
@@ -64,8 +73,40 @@ public class StatChip extends UiNode {
         return this;
     }
 
+    /** Keeps the chip at least {@code width} wide, so a longer value never moves what sits beside it. */
+    public StatChip setMinWidth(int width) {
+        minWidth = width;
+        return this;
+    }
+
+    /** What a click, Enter or Space on the chip opens; null leaves it read-only. */
+    public StatChip setAction(Runnable onActivate) {
+        action = onActivate;
+        return this;
+    }
+
     @Override
     public boolean hittable() {
+        return true;
+    }
+
+    @Override
+    public boolean focusable() {
+        return action != null;
+    }
+
+    @Override
+    public boolean mousePressed(UiMouseEvent event) {
+        return event.button() == UiMouseButton.LEFT && activate();
+    }
+
+    @Override
+    public boolean activate() {
+        if (action == null) {
+            return false;
+        }
+        services().playClick();
+        action.run();
         return true;
     }
 
@@ -79,7 +120,7 @@ public class StatChip extends UiNode {
         if (!caption.isEmpty()) {
             width += CAPTION_GAP + metrics.textWidth(caption);
         }
-        return width;
+        return Math.max(minWidth, width);
     }
 
     /** The width a chip showing {@code value}, with or without an icon, asks for. */
@@ -107,9 +148,12 @@ public class StatChip extends UiNode {
         UiRect box = bounds();
         UiRect tag = tag();
         UiTome.paper(draw, UiTome.CHIP, null, tag, theme.surface(), theme.tileBorder());
-        float lift = hover.update(frame.motion(), frame.isHovered(this));
+        float lift = hover.update(frame.motion(), frame.isHovered(this) || frame.showsFocus(this));
         if (lift > 0.0F) {
             UiTome.softEdge(draw, tag.x(), tag.y(), tag.width(), tag.height(), UiEase.fade(theme.surfaceBorder(), lift));
+        }
+        if (frame.showsFocus(this)) {
+            UiControl.focusRing(draw, tag, theme);
         }
         int x = box.x() + PAD;
         if (icon != null) {

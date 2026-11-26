@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/leather"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 4902902
+      },
+      "model": "adapt:item/tool-brewing-bandolier"
+    }
+  ]
+}

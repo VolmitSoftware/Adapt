@@ -1,0 +1,34 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902916,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-signature-crafting-enchanting-runed-book"
+        }
+      },
+      {
+        "threshold": 4902917,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-signature-enchanting-crafting-runed-book"
+        }
+      },
+      {
+        "threshold": 4902918,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/enchanted_book"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/enchanted_book"
+    }
+  }
+}

@@ -292,7 +292,6 @@ public final class HudLayoutCodec {
             case HudOptions.Toasts toasts -> {
                 object.addProperty("durationMillis", toasts.durationMillis());
                 object.addProperty("maxVisible", toasts.maxVisible());
-                object.addProperty("stackUp", toasts.stackUp());
             }
         }
         return object;
@@ -333,8 +332,7 @@ public final class HudLayoutCodec {
             case HudOptions.Notices notices -> new HudOptions.Notices((int) number(source.get("maxLines"), notices.maxLines()));
             case HudOptions.Toasts toasts -> new HudOptions.Toasts(
                     (long) number(source.get("durationMillis"), toasts.durationMillis()),
-                    (int) number(source.get("maxVisible"), toasts.maxVisible()),
-                    bool(source.get("stackUp"), toasts.stackUp()));
+                    (int) number(source.get("maxVisible"), toasts.maxVisible()));
         };
     }
 

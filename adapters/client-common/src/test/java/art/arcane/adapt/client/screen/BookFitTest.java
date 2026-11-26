@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,7 +81,7 @@ class BookFitTest {
     }
 
     @Test
-    void skillsBalanceAcrossTheSpineInWholeRows() {
+    void skillsTakeTheirSeatsInWholeRowsOfThreeCards() {
         for (int[] size : SIZES) {
             for (int skills : new int[] {24, 23, 22, 21, 17, 13, 5}) {
                 ScreenFixture fixture = typical(size, skills);
@@ -90,33 +91,36 @@ class BookFitTest {
                 assertEquals(1, screen.leaves(), where + " needs a second leaf");
                 UiRect leftPage = fixture.find("sheet:0").bounds();
                 List<UiRect> left = tiles(fixture.find("sheet:0"), new ArrayList<>());
-                List<UiRect> right = tiles(fixture.find("sheet:1"), new ArrayList<>());
+                List<UiRect> right = fixture.find("sheet:1") == null ? List.of() : tiles(fixture.find("sheet:1"), new ArrayList<>());
                 assertEquals(skills, left.size() + right.size(), where);
                 TreeSet<Integer> leftRows = rows(left);
-                TreeSet<Integer> rightRows = rows(right);
-                assertTrue(leftRows.size() - rightRows.size() <= 1 && leftRows.size() >= rightRows.size(),
-                        where + " rows " + leftRows.size() + " and " + rightRows.size());
-                assertTrue(leftRows.containsAll(rightRows), where + ": rows do not line up across the spine " + leftRows + " " + rightRows);
+                assertEquals(Math.min(skills, SkillsScreen.LAYOUT.columns() * SkillsScreen.LAYOUT.rows()), left.size(),
+                        where + ": the left page fills first");
                 assertEquals(leftPage.y(), leftRows.first().intValue(), where + ": the first row leaves the top of the page");
+                int row = 0;
+                for (int y : leftRows) {
+                    assertEquals(leftPage.y() + row++ * SkillsScreen.LAYOUT.pitch(), y, where + ": rows keep their pitch");
+                }
                 TreeSet<Integer> columns = new TreeSet<>();
                 for (UiRect tile : left) {
                     columns.add(tile.x());
+                    assertEquals(SkillsScreen.LAYOUT.tileHeight(), tile.height(), where);
                 }
-                assertEquals(left.size(), leftRows.size() * columns.size(), where + ": the left page has a short row");
-                assertTrue(columns.size() <= SkillsScreen.COLUMNS, where + " columns " + columns);
-                int rowsPerPage = (fixture.find("sheet:0").bounds().height() + TileGrid.ROW_GAP) / TileGrid.PITCH;
-                assertEquals((skills + 1) / 2 <= rowsPerPage ? 1 : 2, columns.size(), where + ": one column when that fits the spread");
+                assertEquals(Math.min(skills, SkillsScreen.LAYOUT.columns()), columns.size(), where + " columns " + columns);
             }
         }
     }
 
     @Test
-    void tilesReachBothMarginsOfTheirPage() {
+    void cardsSitCentredOnTheirPage() {
         for (int[] size : new int[][] {{480, 270, 4}, {640, 352, 4}, {960, 540, 2}}) {
             for (int skills : new int[] {24, 9}) {
                 ScreenFixture fixture = typical(size, skills);
                 fixture.open(new Route.Skills());
                 for (String id : List.of("sheet:0", "sheet:1")) {
+                    if (fixture.find(id) == null) {
+                        continue;
+                    }
                     UiRect page = fixture.find(id).bounds();
                     int left = Integer.MAX_VALUE;
                     int right = Integer.MIN_VALUE;
@@ -125,8 +129,8 @@ class BookFitTest {
                         right = Math.max(right, tile.right());
                     }
                     String where = size[0] + "x" + size[1] + " " + skills + " skills " + id;
-                    assertEquals(page.x(), left, where);
-                    assertTrue(page.right() - right <= UiLayout.UNIT, where + ": tiles stop " + (page.right() - right) + " short of the margin");
+                    assertTrue(Math.abs((left - page.x()) - (page.right() - right)) <= UiLayout.UNIT,
+                            where + ": cards from " + left + " to " + right + " on " + page);
                 }
             }
         }
@@ -202,7 +206,10 @@ class BookFitTest {
         assertTrue(frame.width() * 9 <= frame.height() * 16, frame.toString());
     }
 
-    /** Every block of every page of the budget's catalog shows on the one open spread, with no leaf to turn. */
+    /**
+     * Every block of every page of the budget's catalog shows on the one open spread, with no leaf to turn, but for the
+     * largest skill's adaptations, which turn on further right pages.
+     */
     @Test
     void everythingFitsTheOpenSpread() {
         List<Route> routes = new ArrayList<>(List.of(new Route.Skills(), new Route.Skill("skill01"),
@@ -215,6 +222,10 @@ class BookFitTest {
             for (Route route : routes) {
                 AdaptScreen screen = fixture.open(route);
                 String where = size[0] + "x" + size[1] + " " + AdaptScreen.routeId(route);
+                if (route instanceof Route.Skill) {
+                    ScreenLayoutTest.checkEveryLeaf(fixture, where);
+                    continue;
+                }
                 assertEquals(1, screen.leaves(), where + " needs a second leaf");
                 assertFalse(fixture.shows("leaf:next"), where);
                 ScreenLayoutTest.check(screen, where);
@@ -228,9 +239,12 @@ class BookFitTest {
         }
     }
 
-    /** The adaptations take the right page alone, as an even grid: one column count, every cell the same size. */
+    /**
+     * The adaptations take the right page alone, in one strict grid: up to three cards a row, every card the same width
+     * in the same three columns, the grid centred on the page.
+     */
     @Test
-    void theAdaptationsAreAnEvenGridOnTheRightPage() {
+    void theAdaptationsAreOneStrictGridOnTheRightPage() {
         for (int[] size : new int[][] {{640, 352, 4}, {480, 270, 4}, {960, 540, 2}}) {
             for (boolean max : new boolean[] {false, true}) {
                 ScreenFixture fixture = max ? new ScreenFixture(size[0], size[1], size[2], MaxCatalog.catalog(), MaxCatalog.player(), true)
@@ -238,19 +252,24 @@ class BookFitTest {
                 String skill = max ? "skill01" : TypicalCatalog.SKILL;
                 AdaptScreen screen = fixture.open(new Route.Skill(skill));
                 String where = size[0] + "x" + size[1] + " " + skill;
-                assertEquals(1, screen.leaves(), where);
                 UiRect right = fixture.find("sheet:1").bounds();
-                List<UiRect> cells = tiles(fixture.find("sheet:1"), new ArrayList<>());
-                assertTrue(tiles(fixture.find("sheet:0"), new ArrayList<>()).isEmpty(), where + ": an adaptation on the left page");
-                TreeSet<Integer> columns = new TreeSet<>();
+                List<UiRect> cells = new ArrayList<>();
+                for (int leaf = 0; leaf < screen.leaves(); leaf++) {
+                    screen.turnTo(leaf);
+                    fixture.render();
+                    assertTrue(tiles(fixture.find("sheet:0"), new ArrayList<>()).isEmpty(), where + ": an adaptation on the left page");
+                    cells.addAll(tiles(fixture.find("sheet:" + (leaf + 1)), new ArrayList<>()));
+                }
+                Set<Integer> columns = new TreeSet<>();
                 for (UiRect cell : cells) {
                     assertEquals(cells.get(0).width(), cell.width(), where + " " + cell);
-                    assertEquals(cells.get(0).height(), cell.height(), where + " " + cell);
                     assertTrue(cell.x() >= right.x() && cell.right() <= right.right(), where + " " + cell);
                     columns.add(cell.x());
                 }
-                assertEquals(right.x(), columns.first().intValue(), where);
                 assertEquals(SkillScreen.COLUMNS, columns.size(), where + " columns " + columns);
+                int leftRoom = cells.get(0).x() - right.x();
+                int rightRoom = right.right() - cells.stream().mapToInt(UiRect::right).max().orElse(0);
+                assertTrue(Math.abs(leftRoom - rightRoom) <= 3, where + " the grid is not centred");
                 assertEquals(max ? 15 : TypicalCatalog.ADAPTATIONS, cells.size(), where);
                 assertTrue(fixture.shows("detail"), where + ": no adaptation beside the skill");
             }
@@ -282,11 +301,15 @@ class BookFitTest {
     }
 
     @Test
-    void aLongNameWrapsInsideItsCellAtAHyphen() {
+    void aLongNameWrapsInsideItsCellAtWordsBeforeHyphens() {
         KitDraw draw = KitDraw.vanilla(640, 352, 4);
-        assertEquals(List.of("Shovel Drop-", "To-Inventory"), AdaptationTile.nameLines(draw, "Shovel Drop-To-Inventory", 80));
-        assertEquals(List.of("Inflated Pocket", "Dimension"), AdaptationTile.nameLines(draw, "Inflated Pocket Dimension", 80));
-        assertEquals(List.of("Wall Jump"), AdaptationTile.nameLines(draw, "Wall Jump", 80));
+        int room = AdaptationTile.nameRoom(AdaptationGrid.cardWidth(212, 3));
+        assertEquals(List.of("Infernal", "Attunement"), CardName.fit(draw, "Infernal Attunement", room, 3));
+        assertEquals(List.of("Wall Jump"), CardName.fit(draw, "Wall Jump", room, 3));
+        assertEquals(List.of("Items", "Drop-To-", "Inventory"), CardName.fit(draw, "Items Drop-To-Inventory", room, 3));
+        List<String> broken = CardName.fit(draw, "Chains of Mephistopheles", room, 3);
+        assertEquals("Chains of", broken.get(0), "a word wider than the cell breaks inside at the font's size: " + broken);
+        AdaptationGridTest.assertWholeWordsOrFourLetters("Chains of Mephistopheles", broken);
     }
 
     @Test
@@ -494,7 +517,7 @@ class BookFitTest {
     @Test
     void anOpenSpreadHasNoArrowsNoNumbersAndNothingToTurn() {
         ScreenFixture fixture = new ScreenFixture(640, 352, 4, MaxCatalog.catalog(), MaxCatalog.player());
-        AdaptScreen screen = fixture.open(new Route.Skill("skill01"));
+        AdaptScreen screen = fixture.open(new Route.Adaptation(MaxCatalog.GROUPED_ADAPTATION));
         assertEquals(1, screen.leaves());
         assertFalse(fixture.shows("leaf:previous"));
         assertFalse(fixture.shows("leaf:next"));

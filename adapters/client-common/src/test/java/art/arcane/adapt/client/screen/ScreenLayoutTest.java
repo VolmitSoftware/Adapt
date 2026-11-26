@@ -7,6 +7,7 @@ import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.TextField;
 import art.arcane.adapt.client.ui.kit.UiBreakpoint;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.ui.kit.UiLayout;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import org.junit.jupiter.api.Test;
 
@@ -62,11 +63,11 @@ class ScreenLayoutTest {
             List<Integer> columns = new ArrayList<>();
             for (UiNode node : fixture.find("skills:0").children()) {
                 UiRect tile = node.bounds();
-                assertEquals(TileGrid.HEIGHT, tile.height(), where);
+                assertEquals(SkillsScreen.LAYOUT.tileHeight(), tile.height(), where);
                 columns.add(tile.x());
             }
-            assertEquals(SkillsScreen.COLUMNS, columns.size(), where + " columns " + columns);
-            assertEquals(page.x(), columns.get(0).intValue(), where + ": the first column leaves the page's left edge");
+            assertEquals(SkillsScreen.LAYOUT.columns(), columns.size(), where + " columns " + columns);
+            assertTrue(columns.get(0) - page.x() <= UiLayout.UNIT, where + ": the first column leaves the page's left edge");
             assertEquals(1, screen.leaves(), where);
             UiRect frame = fixture.find("frame").bounds();
             assertTrue(Math.abs(frame.centerX() - screen.width() / 2) <= 1, where + " " + frame);
@@ -109,7 +110,7 @@ class ScreenLayoutTest {
 
     @Test
     void eachPageCarriesItsOwnHeader() {
-        ScreenFixture fixture = new ScreenFixture(960, 540, 2);
+        ScreenFixture fixture = new ScreenFixture(960, 540, 2, TypicalCatalog.catalog(), TypicalCatalog.player());
         fixture.open(new Route.Skills());
         UiRect left = fixture.find("sheet:0").bounds();
         UiRect right = fixture.find("sheet:1").bounds();
@@ -135,7 +136,7 @@ class ScreenLayoutTest {
             UiRect first = tiles.get(0).bounds();
             UiRect second = tiles.get(1).bounds();
             assertEquals(first.y(), second.y());
-            assertEquals(first.right() + TileGrid.GAP, second.x());
+            assertEquals(first.right() + SkillsScreen.LAYOUT.gap(), second.x());
         }
     }
 
@@ -225,7 +226,7 @@ class ScreenLayoutTest {
     }
 
     private static boolean scrolls(UiNode node) {
-        if (node instanceof ScrollArea && !node.id().equals("adaptations.scroll")) {
+        if (node instanceof ScrollArea && !(node instanceof GridScroll)) {
             return true;
         }
         for (UiNode child : node.children()) {

@@ -4,6 +4,11 @@ import art.arcane.adapt.client.protocol.FeedbackKind;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.state.ClientState;
 import art.arcane.adapt.client.state.ClientSubscription;
+import art.arcane.adapt.client.theme.BookGeometry;
+import art.arcane.adapt.client.theme.PageTheme;
+import art.arcane.adapt.client.theme.ThemedBook;
+import art.arcane.adapt.client.theme.TileFrame;
+import art.arcane.adapt.client.ui.UiSprites;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiKey;
 import art.arcane.adapt.client.ui.UiKeyEvent;
@@ -51,14 +56,15 @@ import java.util.function.BooleanSupplier;
  * heading stays with the block after it, a page break starts the right page and blocks at a page's foot keep to its
  * bottom edge. A flow may pin its first page to the left. Running text is the one thing that gives up height: its box
  * shrinks to its least and scrolls the rest by itself ({@link art.arcane.adapt.client.ui.kit.TextBox}); a skill's
- * list of adaptations too long for its page even at its densest is the one other block that may scroll
- * ({@link AdaptationGrid}). Rows of tiles spread a little apart when the book has height to spare.
+ * adaptations too many for its page are the one other block that may scroll ({@link GridScroll}). Rows of tiles
+ * spread a little apart when the book has height to spare.
  *
  * <p>A single page shows the spread's two pages one at a time: its number sits at its foot and arrows at the outer
  * corners turn to the other, as do the wheel, Page Up and Page Down, and the left and right arrows when nothing is
  * focused or focus is already at the edge of the page. Content past two pages, which the catalog's budget never
  * reaches, turns the same way on an open spread by the wheel and the keys. The router remembers the page turned to,
- * and a new layout, such as after a resize, turns to the page holding the first block that was showing.
+ * and a new layout, such as after a resize or the pointer moving onto another card, turns to the page holding the
+ * first block that was showing. A page may stand one node in the outer margin of its last page ({@link #setGutter}).
  *
  * <p>Messages show on a paper slip under the book, which always leaves room for it, so they never cover the page.
  * Escape and Backspace go back one level, E closes. The page follows the client state live while open; requests the
@@ -83,11 +89,15 @@ public abstract class AdaptScreen extends KitScreen {
     private static final int MARGIN = 2;
     private static final int FOOT_GAP = 2;
     private static final int TURN_WIDTH = 16;
+    /** Space between the page's title and the control after it. */
+    private static final int TITLE_MARK_GAP = 4;
     /** The narrowest the tool gets before it gives up its place to the chips. */
     private static final int TOOL_LEAST = 48;
     /** How far the title ribbon reaches past the breadcrumbs on each side. */
     private static final int RIBBON_LEAD = 4;
     private static final int RIBBON_TAIL = 8;
+    /** Height a themed book's foot band takes from the bottom of its pages. */
+    static final int THEME_FOOT = 9;
 
     private final ScreenRouter router;
     private final Route route;
@@ -101,6 +111,8 @@ public abstract class AdaptScreen extends KitScreen {
     private final List<Sheet> sheets = new ArrayList<>();
     private final List<ClientSubscription> subscriptions = new ArrayList<>();
     private UiNode tool;
+    private UiNode gutter;
+    private UiNode titleMark;
     private SectionHeading pageTitle;
     private int toolWidth;
     private List<Route> path = List.of();
@@ -113,6 +125,40 @@ public abstract class AdaptScreen extends KitScreen {
     private int density;
     private Book book;
     private int solved = -1;
+    private PageTheme pageTheme;
+    private ThemedBook themedBook;
+    private int themedLeaf = -1;
+    private final long themeEpoch;
+    private final TileTheming tileTheming = new TileTheming() {
+        @Override
+        public PageTheme theme(UiSprites sprites, String skillId) {
+            return router.themes().theme(sprites, skillId);
+        }
+
+        @Override
+        public int fold() {
+            if (book == null || book.open()) {
+                return frame.fold;
+            }
+            return themeLeaf() == 1 ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+        }
+
+        @Override
+        public long millis() {
+            return motion().now() - themeEpoch;
+        }
+
+        @Override
+        public boolean still() {
+            return router.themes().still(motion());
+        }
+
+        @Override
+        public void defer(RowTile tile) {
+            deferred.add(tile);
+        }
+    };
+    private final List<RowTile> deferred = new ArrayList<>();
 
     protected AdaptScreen(String title, Route route, ScreenRouter router) {
         super(title, router.theme(), router.motion());
@@ -135,6 +181,38 @@ public abstract class AdaptScreen extends KitScreen {
         ClientState state = router.state();
         subscriptions.add(state.onCatalog(ignored -> refreshNow()));
         subscriptions.add(state.onPlayer(ignored -> refreshNow()));
+        subscriptions.add(state.onMutateOffers(ignored -> refreshNow()));
+        subscriptions.add(state.onKept(this::refreshNow));
+        subscriptions.add(state.onTools(this::refreshNow));
+        subscriptions.add(state.onRecipes(this::refreshNow));
+        subscriptions.add(state.onXpGuides(this::refreshNow));
+        subscriptions.add(state.onSpending(this::refreshNow));
+        subscriptions.add(state.onGroupLabels(this::refreshNow));
+        subscriptions.add(state.onShortNames(this::refreshNow));
+        themeEpoch = router.motion().now();
+    }
+
+    /** The skill whose theme dresses this page, or null for the plain book. */
+    protected String themeSkill() {
+        return null;
+    }
+
+    /** How tiles on this page find and animate their skills' themes. */
+    protected final TileTheming tileTheming() {
+        return tileTheming;
+    }
+
+    /** The page's theme as laid out, or null for the plain book. */
+    final PageTheme pageTheme() {
+        return pageTheme;
+    }
+
+    /** The theme's leaf: 0 for an open spread, 1 for a single page on the lead's side, 2 on the partner's. */
+    private int themeLeaf() {
+        if (book == null || book.open()) {
+            return 0;
+        }
+        return leaf == 0 ? 1 : 2;
     }
 
     /**
@@ -232,13 +310,28 @@ public abstract class AdaptScreen extends KitScreen {
         return chip != null ? chip : chips.add(new StatChip(chipId, null, "", ""));
     }
 
+    /** Puts {@code node} in the header after the chips. */
+    protected final <T extends UiNode> T addToHeader(T node) {
+        return chips.add(node);
+    }
+
     /** Puts {@code node} in the header before the chips, at most {@code width} wide. */
     /**
      * Names what the right page holds in its header, before the chips, so the page itself can start at the top; on a
      * single page the screen heads that content itself.
      */
     protected final void setPageTitle(String text) {
-        pageTitle = frame.add(new SectionHeading("page-title", text));
+        pageTitle = frame.add(new SectionHeading("page-title", text).unruled());
+    }
+
+    /** Puts {@code node}, a control of the page's own as small as a checkbox, right after the page's title in the header. */
+    protected final void setTitleMark(UiNode node) {
+        titleMark = frame.add(node);
+    }
+
+    /** Stands {@code node} in the outer margin of the page the content turns on, from the page's top to its foot. */
+    protected final void setGutter(UiNode node) {
+        gutter = frame.add(node);
     }
 
     protected final void setTool(UiNode node, int width) {
@@ -337,6 +430,7 @@ public abstract class AdaptScreen extends KitScreen {
             case Route.Skills ignored -> "skills";
             case Route.Skill skill -> "skill:" + skill.skillId();
             case Route.Adaptation adaptation -> "adaptation:" + adaptation.adaptationId();
+            case Route.Mutate mutate -> "mutate:" + mutate.skillId();
         };
     }
 
@@ -466,18 +560,20 @@ public abstract class AdaptScreen extends KitScreen {
         int headerGap = theme.gap() * 2;
         int messageHeight = snackbar.preferredHeight(area.width(), metrics);
         int messageRoom = messageHeight + 2 - MARGIN;
+        pageTheme = router.themes().theme(metrics.sprites(), themeSkill());
+        int reserve = pageTheme != null ? THEME_FOOT : 0;
         int height = Math.min(BOOK_HEIGHT, Math.max(0, area.height() - messageRoom));
         int widest = Math.max(0, Math.min(Math.min(BOOK_WIDTH, area.width()), UiLayout.widest(height)) - chrome);
         boolean open = room.spreads();
         int side = open ? UiLayout.snap(Math.max(0, widest - SPREAD_GAP) / 2) : UiLayout.snap(widest);
         int inner = open ? side * 2 + SPREAD_GAP : side;
         int header = open || headerFits(metrics, side, headerGap) ? BAR : BAR * 2 + headerGap;
-        int body = Math.max(0, height - chrome - header - theme.padding() - RULE - (open ? 0 : FOOT + FOOT_GAP));
+        int body = Math.max(0, height - chrome - header - theme.padding() - RULE - (open ? 0 : FOOT + FOOT_GAP) - reserve);
         Pagination.Poured poured = null;
         for (int level = 0; level < densities(); level++) {
             Flow flow = new Flow(open, body, level);
             compose(flow, metrics, side);
-            poured = Pagination.pour(flow, side, body, metrics, room.maxPitch() - TileGrid.PITCH, open ? 2 : 1);
+            poured = Pagination.pour(flow, side, body, metrics, flow.pitchHeld() ? 0 : room.maxPitch() - TileGrid.PITCH, open ? 2 : 1);
             density = level;
             if (poured.pages().size() <= 2) {
                 break;
@@ -485,7 +581,7 @@ public abstract class AdaptScreen extends KitScreen {
         }
         pinned = poured.pinned();
         fill(poured.pages());
-        return new Book(inner + chrome, height, room.edge(), side, open, header, body, messageHeight, messageRoom);
+        return new Book(inner + chrome, height, room.edge(), side, open, header, body, messageHeight, messageRoom, reserve);
     }
 
     /** Puts each page's blocks on its sheet, adding sheets as the flow needs them and dropping the rest. */
@@ -508,7 +604,8 @@ public abstract class AdaptScreen extends KitScreen {
      * The book as laid out: its size, the margin inside the cover, a page's width, whether two pages show, the header's
      * height, the pages' height and the message slip.
      */
-    private record Book(int width, int height, int edge, int side, boolean open, int header, int body, int messageHeight, int messageRoom) {
+    private record Book(int width, int height, int edge, int side, boolean open, int header, int body, int messageHeight, int messageRoom,
+                        int reserve) {
     }
 
     private void place(Book shape, UiRect screen, UiDraw metrics) {
@@ -531,13 +628,92 @@ public abstract class AdaptScreen extends KitScreen {
         frame.divider = inner.y() + shape.header() + (pad + RULE - UiTome.DIVIDER) / 2;
         for (int index = 0; index < sheets.size(); index++) {
             UiRect page = shape.open() && (pinned ? index > 0 : index % 2 == 1) ? right : left;
+            sheets.get(index).reach = pageTheme != null;
             sheets.get(index).place(new UiRect(page.x(), bodyTop, page.width(), shape.body()), metrics);
         }
-        int footY = inner.bottom() - FOOT;
+        int footY = inner.bottom() - FOOT - shape.reserve();
         frame.footY = footY;
         previous.place(new UiRect(left.x(), footY, TURN_WIDTH, FOOT), metrics);
         next.place(new UiRect(right.right() - TURN_WIDTH, footY, TURN_WIDTH, FOOT), metrics);
+        if (gutter != null) {
+            gutter.place(new UiRect(right.right(), bodyTop, theme.padding() + shape.edge(), shape.body()), metrics);
+        }
         snackbar.place(new UiRect(box.x(), box.bottom() + 2, box.width(), shape.messageHeight()), metrics);
+        frame.inner = inner;
+        frame.bodyTop = bodyTop;
+        frame.bodyBottom = inner.bottom() - shape.reserve();
+        frame.header = shape.header();
+        themedBook = null;
+    }
+
+    /** The themed book for the leaf showing, laid out once per layout and leaf. */
+    private ThemedBook themedBook() {
+        if (pageTheme == null || book == null || frame.pages.isEmpty()) {
+            return null;
+        }
+        int themeLeaf = themeLeaf();
+        if (themedBook == null || themedLeaf != themeLeaf) {
+            themedLeaf = themeLeaf;
+            themedBook = ThemedBook.of(geometry(themeLeaf), pageTheme);
+        }
+        return themedBook;
+    }
+
+    /** Where this book's parts are for its theme, and what its content keeps clear. */
+    private BookGeometry geometry(int themeLeaf) {
+        UiRect box = frame.bounds();
+        UiRect inner = frame.inner;
+        UiRect first = frame.pages.get(0);
+        BookGeometry.Page left = themeLeaf == 2 ? null : new BookGeometry.Page(first.x(), first.right());
+        BookGeometry.Page right = themeLeaf == 1 ? null
+                : new BookGeometry.Page(frame.pages.get(frame.pages.size() - 1).x(), frame.pages.get(frame.pages.size() - 1).right());
+        int top = inner.y();
+        List<BookGeometry.Box> keep = new ArrayList<>();
+        for (UiRect page : frame.pages) {
+            keep.add(new BookGeometry.Box(page.x() - 1, frame.bodyTop - 1, page.right() + 1, frame.bodyBottom));
+            keep.add(new BookGeometry.Box(page.x(), frame.divider - 2, page.right(), frame.divider + 5));
+        }
+        int ribbonEnd = frame.ribbon.isEmpty() ? first.x() + BAR : frame.ribbon.right();
+        int rightStart = Integer.MAX_VALUE;
+        for (UiNode node : headerRight()) {
+            if (node != null && node.visible() && !node.bounds().isEmpty() && node.bounds().y() < top + BAR) {
+                rightStart = Math.min(rightStart, node.bounds().x());
+            }
+        }
+        int hangTo;
+        if (book.open()) {
+            hangTo = first.right() - 2;
+            UiRect second = frame.pages.get(frame.pages.size() - 1);
+            int from = rightStart == Integer.MAX_VALUE ? second.x() + 8 : Math.min(second.x() + 8, rightStart - 1);
+            keep.add(new BookGeometry.Box(from, top - 1, second.right() + 1, top + BAR + 1));
+        } else {
+            hangTo = Math.min(first.right(), rightStart) - 2;
+            if (rightStart != Integer.MAX_VALUE) {
+                keep.add(new BookGeometry.Box(rightStart - 1, top - 1, first.right() + 1, top + BAR + 1));
+            }
+            if (frame.header > BAR) {
+                keep.add(new BookGeometry.Box(first.x() - 1, top + frame.header - BAR - 1, first.right() + 1, top + frame.header + 1));
+            }
+        }
+        keep.add(new BookGeometry.Box(first.x() - 1, top - 1, ribbonEnd + 1, top + BAR + 1));
+        BookGeometry.Box bookBox = new BookGeometry.Box(box.x(), box.y(), box.right(), box.bottom());
+        return new BookGeometry(themeLeaf, bookBox, top, frame.bodyTop, frame.divider, frame.fold, left, right, theme().frame(),
+                ribbonEnd + 3, hangTo, keep, width(), height());
+    }
+
+    private List<UiNode> headerRight() {
+        List<UiNode> nodes = new ArrayList<>();
+        nodes.add(chips);
+        if (titleMark != null) {
+            nodes.add(titleMark);
+        }
+        if (tool != null) {
+            nodes.add(tool);
+        }
+        if (pageTitle != null) {
+            nodes.add(pageTitle);
+        }
+        return nodes;
     }
 
     /**
@@ -572,7 +748,16 @@ public abstract class AdaptScreen extends KitScreen {
         if (pageTitle != null) {
             boolean shown = !shared && book != null && book.open();
             pageTitle.setVisible(shown);
-            pageTitle.place(shown ? UiRect.of(rightBar.x(), rightBar.y(), Math.max(rightBar.x(), right), rightBar.bottom()) : UiRect.EMPTY, metrics);
+            int titleRight = titleMark == null ? right : Math.min(right, rightBar.x() + metrics.textWidth(pageTitle.label()));
+            pageTitle.place(shown ? UiRect.of(rightBar.x(), rightBar.y(), Math.max(rightBar.x(), titleRight), rightBar.bottom()) : UiRect.EMPTY,
+                    metrics);
+            if (titleMark != null) {
+                int markX = rightBar.x() + metrics.textWidth(pageTitle.label()) + TITLE_MARK_GAP;
+                int markWidth = titleMark.preferredWidth(metrics);
+                int markHeight = Math.min(BAR, titleMark.preferredHeight(markWidth, metrics));
+                boolean room = shown && markX + markWidth <= right;
+                titleMark.place(room ? new UiRect(markX, rightBar.y() + (BAR - markHeight) / 2, markWidth, markHeight) : UiRect.EMPTY, metrics);
+            }
         }
         back.place(new UiRect(leftBar.x(), leftBar.y(), BAR, BAR), metrics);
         int crumbsTo = (shared ? right : leftBar.right()) - RIBBON_TAIL;
@@ -618,6 +803,7 @@ public abstract class AdaptScreen extends KitScreen {
         private final List<Block> blocks = new ArrayList<>();
         private boolean balanced;
         private boolean pinned;
+        private boolean pitchHeld;
 
         Flow(boolean spread, int height, int density) {
             this.spread = spread;
@@ -649,6 +835,15 @@ public abstract class AdaptScreen extends KitScreen {
             return pinned;
         }
 
+        /** Keeps rows at their own gaps: the book never spreads them apart to fill a page. */
+        void holdPitch() {
+            pitchHeld = true;
+        }
+
+        boolean pitchHeld() {
+            return pitchHeld;
+        }
+
         void add(UiNode node) {
             add(node, PAGE_GAP);
         }
@@ -658,7 +853,11 @@ public abstract class AdaptScreen extends KitScreen {
         }
 
         void heading(UiNode node) {
-            blocks.add(new Block(node, Kind.HEADING, SECTION_GAP, -1));
+            heading(node, SECTION_GAP);
+        }
+
+        void heading(UiNode node, int gap) {
+            blocks.add(new Block(node, Kind.HEADING, gap, -1));
         }
 
         /** A rule over what follows it: it never ends a page and is left out where it would open one. */
@@ -675,7 +874,11 @@ public abstract class AdaptScreen extends KitScreen {
         }
 
         void foot(UiNode node) {
-            blocks.add(new Block(node, Kind.FOOT, PAGE_GAP, -1));
+            foot(node, PAGE_GAP);
+        }
+
+        void foot(UiNode node, int gap) {
+            blocks.add(new Block(node, Kind.FOOT, gap, -1));
         }
 
         void nextPage() {
@@ -715,6 +918,8 @@ public abstract class AdaptScreen extends KitScreen {
     /** One page of the book: holds the blocks poured into it, clipped to the page. */
     private static final class Sheet extends UiGroup {
         private final Map<UiNode, Placed> spots = new HashMap<>();
+        /** Whether hover frames may reach past the page, as they do on a themed book. */
+        private boolean reach;
 
         private Sheet(String id) {
             super(id);
@@ -743,6 +948,23 @@ public abstract class AdaptScreen extends KitScreen {
         }
 
         @Override
+        protected void paintChildren(UiFrame frame) {
+            if (!reach) {
+                super.paintChildren(frame);
+                return;
+            }
+            UiRect box = bounds();
+            frame.draw().pushScissor(box.x() - TileFrame.REACH_X, box.y() - TileFrame.REACH_Y, box.right() + TileFrame.REACH_X,
+                    box.bottom() + TileFrame.REACH_Y);
+            for (UiNode child : children()) {
+                if (child.bounds().intersects(box)) {
+                    child.render(frame);
+                }
+            }
+            frame.draw().popScissor();
+        }
+
+        @Override
         protected void layout(UiDraw metrics) {
             UiRect box = bounds();
             for (UiNode child : children()) {
@@ -765,6 +987,10 @@ public abstract class AdaptScreen extends KitScreen {
         private int footY;
         private List<UiRect> pages = List.of();
         private UiRect ribbon = UiRect.EMPTY;
+        private UiRect inner = UiRect.EMPTY;
+        private int bodyTop;
+        private int bodyBottom;
+        private int header;
 
         private Frame() {
             super("frame", null);
@@ -774,6 +1000,11 @@ public abstract class AdaptScreen extends KitScreen {
 
         @Override
         protected void paint(UiFrame frame) {
+            ThemedBook themed = themedBook();
+            if (themed != null) {
+                paintThemed(frame, themed);
+                return;
+            }
             super.paint(frame);
             UiDraw draw = frame.draw();
             UiTheme theme = frame.theme();
@@ -781,8 +1012,8 @@ public abstract class AdaptScreen extends KitScreen {
             int cover = theme.frame();
             if (fold != Integer.MIN_VALUE) {
                 UiTome.spine(draw, fold, box.y() + cover, box.bottom() - cover);
-                UiTome.hinge(draw, fold, box.y() - OVERHANG + 1, cover + OVERHANG - 2);
-                UiTome.hinge(draw, fold, box.bottom() - cover + 1, cover + OVERHANG_FAR - 4);
+                UiTome.hinge(draw, fold, box.y() - OVERHANG + 1, cover + OVERHANG - 1);
+                UiTome.hinge(draw, fold, box.bottom() - cover, cover + OVERHANG_FAR - 1);
             }
             int middle = fold != Integer.MIN_VALUE ? fold : box.centerX();
             UiTome.bookmark(draw, middle + UiTome.SPINE_WIDTH / 2 + 4, box.y() - OVERHANG, cover + OVERHANG);
@@ -794,17 +1025,74 @@ public abstract class AdaptScreen extends KitScreen {
                 if (divider != Integer.MIN_VALUE) {
                     UiTome.divider(draw, page.x(), page.right(), divider);
                 }
-                if (leaves() < 2 || pinned && index == 0 || pages.size() > 1) {
-                    continue;
-                }
-                int sheet = pinned ? leaf + 1 : leaf * pages.size() + index;
-                if (sheet >= sheets.size() || sheets.get(sheet).children().isEmpty()) {
-                    continue;
-                }
-                String text = Integer.toString(pinned ? leaf + 1 : sheet + 1);
-                draw.text(text, page.centerX() - draw.textWidth(text) / 2, footY + (FOOT - draw.lineHeight()) / 2 + 1,
-                        theme.textMuted(), false);
+                paintNumber(draw, theme, page, index);
             }
+        }
+
+        /** The book dressed in its skill's theme: the themed cover, edges and dividers, and the title on its paper slip. */
+        private void paintThemed(UiFrame frame, ThemedBook themed) {
+            UiDraw draw = frame.draw();
+            UiTheme theme = frame.theme();
+            long millis = tileTheming.still() ? 0L : tileTheming.millis();
+            themed.paintBack(draw, millis);
+            if (!ribbon.isEmpty()) {
+                themed.ribbon(draw, ribbon.x(), ribbon.y(), ribbon.width());
+            }
+            if (pageTitle != null && pageTitle.visible() && !pageTitle.bounds().isEmpty()) {
+                themed.slip(draw, pageTitle.bounds().x(), pageTitle.bounds().y(), draw.textWidth(pageTitle.label()));
+            }
+            for (int index = 0; index < pages.size(); index++) {
+                UiRect page = pages.get(index);
+                if (divider != Integer.MIN_VALUE) {
+                    themed.divider(draw, page.x(), page.right(), divider);
+                }
+                paintNumber(draw, theme, page, index);
+            }
+        }
+
+        @Override
+        protected void paintOver(UiFrame frame) {
+            UiDraw draw = frame.draw();
+            for (int index = 0; index < deferred.size(); index++) {
+                RowTile tile = deferred.get(index);
+                UiRect page = sheetOf(tile);
+                if (page.isEmpty()) {
+                    continue;
+                }
+                draw.pushScissor(page.x() - TileFrame.REACH_X, page.y() - TileFrame.REACH_Y, page.right() + TileFrame.REACH_X,
+                        page.bottom() + TileFrame.REACH_Y);
+                tile.paintFrame(draw);
+                draw.popScissor();
+            }
+            deferred.clear();
+            ThemedBook themed = themedBook();
+            if (themed != null) {
+                themed.paintFront(frame.draw(), tileTheming.still() ? 0L : tileTheming.millis());
+            }
+        }
+
+        /** The number of a single page that turns, at its foot. */
+        /** The page {@code node} lies on, or an empty box when it is on none. */
+        private UiRect sheetOf(UiNode node) {
+            for (UiNode current = node; current != null; current = current.parent()) {
+                if (current instanceof Sheet sheet) {
+                    return sheet.bounds();
+                }
+            }
+            return UiRect.EMPTY;
+        }
+
+        private void paintNumber(UiDraw draw, UiTheme theme, UiRect page, int index) {
+            if (leaves() < 2 || pinned && index == 0 || pages.size() > 1) {
+                return;
+            }
+            int sheet = pinned ? leaf + 1 : leaf * pages.size() + index;
+            if (sheet >= sheets.size() || sheets.get(sheet).children().isEmpty()) {
+                return;
+            }
+            String text = Integer.toString(pinned ? leaf + 1 : sheet + 1);
+            draw.text(text, page.centerX() - draw.textWidth(text) / 2, footY + (FOOT - draw.lineHeight()) / 2 + 1,
+                    theme.textMuted(), false);
         }
     }
 }

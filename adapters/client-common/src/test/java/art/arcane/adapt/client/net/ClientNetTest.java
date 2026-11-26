@@ -18,11 +18,13 @@ import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.protocol.ServerInfo;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
-import art.arcane.adapt.client.view.PlayerDelta;
+import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.PlayerAccess;
+import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerHeader;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.SkillLineView;
+import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.platform.menu.ClickKind;
 import org.junit.jupiter.api.Test;
 
@@ -321,10 +323,47 @@ class ClientNetTest {
         net.receive(encode(new ServerFrame.OpenRoute(new Route.Skill("rift"))));
         net.receive(encode(new ServerFrame.Feedback(FeedbackKind.FAILURE, "Not enough knowledge")));
 
-        assertEquals(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.PANEL | ClientProtocol.SCREENS), transport.sent.get(0));
+        assertEquals(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.PANEL | ClientProtocol.SCREENS | ClientProtocol.MUTATE
+                | ClientProtocol.KEPT | ClientProtocol.TOOLS | ClientProtocol.MUTATE_SPREAD
+                | ClientProtocol.XP_GUIDE | ClientProtocol.SPENDING | ClientProtocol.UNMUTATE | ClientProtocol.GROUP_LABELS
+                | ClientProtocol.SHORT_NAMES | ClientProtocol.RECIPES), transport.sent.get(0));
         assertEquals(List.of("reset", "open 7", "update 7", "close 7"), panels.calls);
         assertEquals(List.of(new Route.Skill("rift")), routes);
         assertEquals(List.of("FAILURE Not enough knowledge"), feedback);
+    }
+
+    @Test
+    void keptOriginalsReachTheStateAndASessionResetForgetsThem() {
+        negotiate();
+        net.receive(encode(new ServerFrame.MutationKept("Kept", List.of(new KeptView("mutated-swords-stealth", "swords-machete", 1)))));
+
+        assertEquals(List.of(new KeptView("mutated-swords-stealth", "swords-machete", 1)), net.state().kept("mutated-swords-stealth"));
+        assertEquals("Kept", net.state().keptTitle());
+        net.state().reset();
+        assertEquals(List.of(), net.state().kept("mutated-swords-stealth"));
+    }
+
+    @Test
+    void toolsReachTheStateByPageAndASessionResetForgetsThem() {
+        negotiate();
+        ToolView whetstone = new ToolView("upgraded-swords-tempest-flow", "tool-swords-whetstone", "Whetstone",
+                IconRef.item("minecraft:flint"), 2, List.of(new ToolView.Ingredient("minecraft:flint", 2)));
+        net.receive(encode(new ServerFrame.MutationTools(List.of(whetstone))));
+
+        assertEquals(List.of(whetstone), net.state().tools("upgraded-swords-tempest-flow"));
+        assertEquals(List.of(), net.state().tools("upgraded-swords-witherblade"));
+        net.state().reset();
+        assertEquals(List.of(), net.state().tools("upgraded-swords-tempest-flow"));
+    }
+
+    @Test
+    void mutateOffersReachTheStateAndASessionResetForgetsThem() {
+        negotiate();
+        net.receive(encode(new ServerFrame.MutateOffers(List.of("rift", "agility"))));
+
+        assertEquals(List.of("rift", "agility"), net.state().mutateOffers());
+        net.state().reset();
+        assertEquals(List.of(), net.state().mutateOffers());
     }
 
     @Test

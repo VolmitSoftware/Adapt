@@ -8,6 +8,7 @@ import art.arcane.adapt.client.ui.UiSpriteCache;
 import art.arcane.adapt.client.ui.UiTexture;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
+import art.arcane.adapt.client.view.IconSprites;
 import art.arcane.adapt.client.view.PreferenceChoiceView;
 import art.arcane.adapt.client.view.PreferenceGroupView;
 import art.arcane.adapt.client.view.SkillView;
@@ -61,6 +62,18 @@ class UiIconsTest {
     void explicitSpriteTheClientLacksFallsBackToTheItem() {
         resources.put(AGILITY, FakeResources.png(16, 16));
         assertEquals(List.of("item minecraft:feather cmd=0 glint=false 0,0"), paint(UiIcons.skill(agility(OVERRIDE))));
+    }
+
+    @Test
+    void stackedSpriteDrawsEveryLayerBottomFirstOnlyWhenAllExist() {
+        String emblem = "adapt:textures/gui/emblem/swords.png";
+        String trim = "adapt:textures/gui/trim/chronos.png";
+        IconRef icon = new IconRef("minecraft:iron_sword", 0, null, IconSprites.stack(emblem, IconSprites.tinted(trim, 0x7ae0d0)));
+        resources.put(emblem, FakeResources.png(16, 16));
+        assertEquals(List.of("item minecraft:iron_sword cmd=0 glint=false 0,0"), paint(icon));
+        resources.put(trim, FakeResources.png(16, 16)).reload();
+        sprites.refresh();
+        assertEquals(List.of("blit " + emblem + " 0,0 16x16", "blit " + trim + " 0,0 16x16"), paint(icon));
     }
 
     @Test

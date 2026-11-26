@@ -26,14 +26,14 @@ class HudToastQueueTest {
     private final HudModel model = new HudModel(clock);
 
     private static ServerFrame.Toast toast(ToastKind kind, String icon, String title, String body) {
-        return new ServerFrame.Toast(kind, IconRef.item(icon), title, body);
+        return new ServerFrame.Toast(kind, IconRef.item(icon), title, body, "");
     }
 
     private static String title(int index) {
         return "Card " + (char) ('A' + index);
     }
 
-    private static HudLayout layout(HudAnchor anchor, int maxVisible, boolean stackUp, boolean reducedMotion) {
+    private static HudLayout layout(HudAnchor anchor, int maxVisible, boolean reducedMotion) {
         HudProfile profile = HudDefaults.layout().activeProfile();
         List<HudWidgetConfig> widgets = new ArrayList<>();
         for (HudWidgetConfig config : profile.widgets()) {
@@ -41,7 +41,7 @@ class HudToastQueueTest {
                 double offsetX = anchor.column() == 0 ? 4 : anchor.column() == 2 ? -4 : 0;
                 double offsetY = anchor == HudAnchor.BOTTOM_LEFT ? -40 : 54;
                 widgets.add(new HudWidgetConfig(config.id(), config.kind(), config.placement().withAnchor(anchor, offsetX, offsetY),
-                        new HudOptions.Toasts(5000L, maxVisible, stackUp)));
+                        new HudOptions.Toasts(3000L, maxVisible)));
             } else {
                 widgets.add(config);
             }
@@ -50,36 +50,15 @@ class HudToastQueueTest {
         return new HudLayout(edited.name(), reducedMotion, List.of(edited));
     }
 
-    /** Card or pill rectangles drawn this frame, as x, y, width, height, keyed by the card's title. */
-    private static List<int[]> drawnCards(HudFakes.Draw draw, boolean compact, int toastCount, Set<String> seen) {
-        List<int[]> rects = new ArrayList<>();
-        for (String call : draw.calls) {
-            if (!call.startsWith("text ")) {
-                continue;
-            }
-            int space = call.indexOf(' ', 5);
-            String[] position = call.substring(5, space).split(",");
-            String text = call.substring(call.indexOf(' ', space + 1) + 1);
-            int x = Integer.parseInt(position[0]);
-            int y = Integer.parseInt(position[1]);
+    /** Titles of the cards or pills drawn this frame. */
+    private static void seen(HudFakes.Draw draw, int toastCount, Set<String> seen) {
+        for (String text : draw.texts()) {
             for (int index = 0; index < toastCount; index++) {
-                String title = title(index);
-                if (compact && text.startsWith(title)) {
-                    rects.add(new int[] {x - ToastWidget.PILL_TEXT_LEFT, y - 3, ToastWidget.PILL_MAX_WIDTH, ToastWidget.PILL_HEIGHT});
-                    seen.add(title);
-                } else if (!compact && text.equals(title)) {
-                    int top = index == 1 ? y - 18 : y - 7;
-                    rects.add(new int[] {x - 30, top, ToastWidget.CARD_WIDTH, ToastWidget.CARD_HEIGHT});
-                    seen.add(title);
+                if (text.equals(title(index)) || text.startsWith(title(index) + " ")) {
+                    seen.add(title(index));
                 }
             }
         }
-        return rects;
-    }
-
-    private static boolean overlap(int[] first, int[] second) {
-        return first[0] < second[0] + second[2] && second[0] < first[0] + first[2]
-                && first[1] < second[1] + second[3] && second[1] < first[1] + first[3];
     }
 
     private void burst(HudLayout layout, double[] screen, int count) {
@@ -97,20 +76,21 @@ class HudToastQueueTest {
         for (int frame = 0; frame < 40_000; frame++) {
             if (sent < count && frame % 3 == 0) {
                 ToastKind kind = sent == 1 ? ToastKind.CHALLENGE : ToastKind.UNLOCK;
-                burstModel.toast(toast(kind, "minecraft:item_" + sent, title(sent), "detail"));
+                String body = sent % 3 == 0 ? HudSamples.LONG_TOAST : sent % 3 == 1 ? "" : "detail";
+                burstModel.toast(toast(kind, "minecraft:item_" + sent, title(sent), body));
                 sent++;
             }
             HudFakes.Draw draw = new HudFakes.Draw(width, height, screen[2], true);
             renderer.render(draw, layout);
-            boolean compact = renderer.placed("toasts").compact();
-            List<int[]> rects = drawnCards(draw, compact, count, seen);
+            seen(draw, count, seen);
+            List<int[]> rects = ToastWidgetTest.papers(draw);
             int limit = width >= HudFit.FULL_WIDTH && height >= HudFit.FULL_HEIGHT ? cap : 1;
             assertTrue(rects.size() <= limit, where + " frame " + frame + ": " + rects.size() + " cards");
             for (int first = 0; first < rects.size(); first++) {
                 for (int second = first + 1; second < rects.size(); second++) {
                     int[] a = rects.get(first);
                     int[] b = rects.get(second);
-                    assertFalse(overlap(a, b), where + " frame " + frame + ": " + a[0] + "," + a[1] + " and " + b[0] + "," + b[1]);
+                    assertFalse(ToastWidgetTest.overlap(a, b), where + " frame " + frame + ": " + a[0] + "," + a[1] + " and " + b[0] + "," + b[1]);
                 }
             }
             if (sent == count && burstModel.toasts().shown().isEmpty() && burstModel.toasts().queuedCount() == 0) {
@@ -126,10 +106,8 @@ class HudToastQueueTest {
         for (double[] screen : SCREENS) {
             for (HudAnchor anchor : ANCHORS) {
                 for (int maxVisible : new int[] {1, 3}) {
-                    for (boolean stackUp : new boolean[] {false, true}) {
-                        for (boolean reducedMotion : new boolean[] {false, true}) {
-                            burst(layout(anchor, maxVisible, stackUp, reducedMotion), screen, 5);
-                        }
+                    for (boolean reducedMotion : new boolean[] {false, true}) {
+                        burst(layout(anchor, maxVisible, reducedMotion), screen, 5);
                     }
                 }
             }
@@ -138,8 +116,8 @@ class HudToastQueueTest {
 
     @Test
     void aLongBurstPlaysEveryToastWithoutOverlap() {
-        burst(layout(HudAnchor.TOP_CENTER, 3, false, false), new double[] {960, 540, 2}, 14);
-        burst(layout(HudAnchor.TOP_CENTER, 1, false, false), new double[] {320, 180, 4}, 14);
+        burst(layout(HudAnchor.TOP_CENTER, 3, false), new double[] {960, 540, 2}, 14);
+        burst(layout(HudAnchor.TOP_CENTER, 1, false), new double[] {320, 180, 4}, 14);
     }
 
     @Test
@@ -153,22 +131,32 @@ class HudToastQueueTest {
             long duration = 1000L + random.nextInt(2) * 4000L;
             int sent = 0;
             for (int frame = 0; frame < 20_000; frame++) {
-                runModel.toasts().configure(duration, cap, false);
+                runModel.toasts().configure(duration, cap, 300.0, false);
                 while (sent < count && random.nextInt(4) == 0) {
                     ToastKind kind = random.nextInt(5) == 0 ? ToastKind.CHALLENGE : ToastKind.GENERIC;
                     runModel.toast(toast(kind, "minecraft:item_" + sent, title(sent), ""));
                     sent++;
                 }
+                for (HudToast toast : runModel.toasts().shown()) {
+                    toast.height = 32 + Math.floorMod(toast.title().hashCode(), 5) * 9;
+                }
+                if (runModel.toasts().waiting() != null) {
+                    runModel.toasts().waiting().height = 32 + Math.floorMod(runModel.toasts().waiting().title().hashCode(), 5) * 9;
+                }
                 runModel.expire(runClock.millis);
                 List<HudToast> shown = runModel.toasts().shown();
                 assertTrue(shown.size() <= cap, "run " + run + " frame " + frame);
+                double bottom = 0.0;
                 for (int index = 0; index < shown.size(); index++) {
-                    assertTrue(shown.get(index).slot() >= index - 1e-9, "run " + run + " slot " + shown.get(index).slot());
+                    HudToast card = shown.get(index);
+                    assertTrue(card.offset() >= -1e-9, "run " + run + " offset " + card.offset());
                     if (index > 0) {
-                        assertTrue(shown.get(index).slot() - shown.get(index - 1).slot() >= 1.0 - 1e-9,
-                                "run " + run + " frame " + frame + " slots " + shown.get(index - 1).slot() + ", " + shown.get(index).slot());
+                        assertTrue(card.offset() >= bottom + HudToastQueue.GAP - 1e-9,
+                                "run " + run + " frame " + frame + " offsets " + shown.get(index - 1).offset() + ", " + card.offset());
                     }
+                    bottom = card.offset() + card.height();
                 }
+                assertTrue(shown.size() <= 1 || bottom <= 300.0 + 1e-9, "run " + run + " frame " + frame + " stack " + bottom);
                 if (sent == count && shown.isEmpty() && runModel.toasts().queuedCount() == 0) {
                     break;
                 }
@@ -180,12 +168,12 @@ class HudToastQueueTest {
 
     @Test
     void aLeavingCardHoldsItsSlotUntilItHasSlidOut() {
-        model.toasts().configure(1000L, 1, false);
+        model.toasts().configure(1000L, 1, Double.MAX_VALUE, false);
         model.toast(toast(ToastKind.GENERIC, "minecraft:stone", "a", ""));
         model.toast(toast(ToastKind.GENERIC, "minecraft:dirt", "b", ""));
         model.expire(clock.millis);
         HudToast first = model.toasts().shown().get(0);
-        clock.advance(1000L);
+        clock.advance(model.toasts().duration(first));
         model.expire(clock.millis);
         assertTrue(model.toasts().leaving(first, clock.millis));
         assertEquals(List.of(first), model.toasts().shown());
@@ -193,12 +181,74 @@ class HudToastQueueTest {
         clock.advance(HudToastQueue.EXIT_MILLIS);
         model.expire(clock.millis);
         assertEquals("b", model.toasts().shown().get(0).title());
-        assertEquals(0.0, model.toasts().shown().get(0).slot());
+        assertEquals(0.0, model.toasts().shown().get(0).offset());
+    }
+
+    @Test
+    void aLoneCardIsOnScreenForTheWholeDurationAndNoLonger() {
+        model.toasts().configure(3000L, 3, Double.MAX_VALUE, false);
+        model.toast(toast(ToastKind.CHALLENGE, "minecraft:clock", "Marathon", HudSamples.LONG_TOAST));
+        model.expire(clock.millis);
+        HudToast card = model.toasts().shown().get(0);
+        assertEquals(3000L, model.toasts().duration(card) + HudToastQueue.EXIT_MILLIS);
+        clock.advance(2999L);
+        model.expire(clock.millis);
+        assertEquals(List.of(card), model.toasts().shown());
+        clock.advance(1L);
+        model.expire(clock.millis);
+        assertTrue(model.toasts().shown().isEmpty());
+    }
+
+    @Test
+    void aBacklogShortensEveryCardAndDrainsQuickly() {
+        model.toasts().configure(3000L, 1, Double.MAX_VALUE, false);
+        model.expire(clock.millis);
+        for (int index = 0; index < 5; index++) {
+            model.toast(toast(ToastKind.UNLOCK, "minecraft:item_" + index, title(index), ""));
+        }
+        model.expire(clock.millis);
+        HudToast first = model.toasts().shown().get(0);
+        assertEquals(HudToastQueue.MIN_STAY_MILLIS - HudToastQueue.EXIT_MILLIS, model.toasts().duration(first));
+        long start = clock.millis;
+        List<Long> stays = new ArrayList<>();
+        Set<String> played = new HashSet<>();
+        for (int frame = 0; frame < 2000 && (model.toasts().queuedCount() > 0 || !model.toasts().shown().isEmpty()); frame++) {
+            for (HudToast shown : model.toasts().shown()) {
+                if (played.add(shown.title())) {
+                    stays.add(model.toasts().duration(shown));
+                }
+            }
+            clock.advance(16L);
+            model.expire(clock.millis);
+        }
+        assertEquals(5, played.size());
+        for (int index = 1; index < stays.size(); index++) {
+            assertTrue(stays.get(index) >= stays.get(index - 1), stays.toString());
+        }
+        assertEquals(3000L - HudToastQueue.EXIT_MILLIS, stays.get(stays.size() - 1));
+        assertTrue(clock.millis - start < 5 * 3000L * 2 / 3, Long.toString(clock.millis - start));
+    }
+
+    @Test
+    void aCardAlreadyUpShortensWhenABacklogArrivesButNeverJumpsOut() {
+        model.toasts().configure(3000L, 1, Double.MAX_VALUE, false);
+        model.toast(toast(ToastKind.UNLOCK, "minecraft:bow", "First", ""));
+        model.expire(clock.millis);
+        HudToast first = model.toasts().shown().get(0);
+        assertEquals(3000L - HudToastQueue.EXIT_MILLIS, model.toasts().duration(first));
+        clock.advance(1500L);
+        for (int index = 0; index < 4; index++) {
+            model.toast(toast(ToastKind.UNLOCK, "minecraft:item_" + index, title(index), ""));
+        }
+        model.expire(clock.millis);
+        assertEquals(1500L, model.toasts().duration(first));
+        assertTrue(model.toasts().leaving(first, clock.millis));
+        assertEquals(List.of(first), model.toasts().shown());
     }
 
     @Test
     void aNewerLevelUpForTheSameSkillReplacesTheWaitingOne() {
-        model.toasts().configure(5000L, 1, false);
+        model.toasts().configure(5000L, 1, Double.MAX_VALUE, false);
         model.toast(toast(ToastKind.UNLOCK, "minecraft:bow", "Archery unlocked", ""));
         model.expire(clock.millis);
         for (int level = 3; level <= 6; level++) {
@@ -223,7 +273,7 @@ class HudToastQueueTest {
 
     @Test
     void aNewerLevelUpUpdatesTheCardOnScreenInPlace() {
-        model.toasts().configure(5000L, 3, false);
+        model.toasts().configure(5000L, 3, Double.MAX_VALUE, false);
         model.toast(toast(ToastKind.LEVEL_UP, "minecraft:feather", "Agility 3", ""));
         model.toast(toast(ToastKind.LEVEL_UP, "minecraft:stone", "Master 2", ""));
         model.expire(clock.millis);
@@ -242,7 +292,7 @@ class HudToastQueueTest {
 
     @Test
     void toastsThatWaitedOutAnOpenScreenAreDroppedWhenItCloses() {
-        model.toasts().configure(5000L, 1, false);
+        model.toasts().configure(5000L, 1, Double.MAX_VALUE, false);
         model.toast(toast(ToastKind.UNLOCK, "minecraft:bow", "Before", ""));
         model.expire(clock.millis);
         model.toast(toast(ToastKind.UNLOCK, "minecraft:dirt", "Early", ""));
@@ -269,7 +319,7 @@ class HudToastQueueTest {
 
     @Test
     void toastsWaitingBehindALongBurstAreNotDroppedWhileTheHudKeepsDrawing() {
-        model.toasts().configure(5000L, 1, false);
+        model.toasts().configure(5000L, 1, Double.MAX_VALUE, false);
         model.expire(clock.millis);
         for (int index = 0; index < 6; index++) {
             model.toast(toast(ToastKind.UNLOCK, "minecraft:item_" + index, title(index), ""));
@@ -289,10 +339,12 @@ class HudToastQueueTest {
     void theEditorSampleShowsNoMoreCardsThanTheWidgetAllows() {
         HudModel sample = HudSamples.editorModel();
         HudRenderer renderer = new HudRenderer(sample, TEXT);
-        renderer.renderEditing(new HudFakes.Draw(960, 540, 2.0, false), layout(HudAnchor.TOP_CENTER, 1, false, false));
+        renderer.renderEditing(new HudFakes.Draw(960, 540, 2.0, false), layout(HudAnchor.TOP_CENTER, 1, false), null);
         assertEquals(1, sample.toasts().shown().size());
-        renderer.renderEditing(new HudFakes.Draw(960, 540, 2.0, false), layout(HudAnchor.TOP_CENTER, 3, false, false));
-        assertEquals(2, sample.toasts().shown().size());
-        assertTrue(sample.toasts().shown().get(1).slot() - sample.toasts().shown().get(0).slot() >= 1.0);
+        renderer.renderEditing(new HudFakes.Draw(960, 540, 2.0, false), layout(HudAnchor.TOP_CENTER, 3, false), null);
+        assertEquals(3, sample.toasts().shown().size());
+        renderer.renderEditing(new HudFakes.Draw(960, 540, 2.0, false), layout(HudAnchor.TOP_CENTER, 3, false), null);
+        HudToast first = sample.toasts().shown().get(0);
+        assertTrue(sample.toasts().shown().get(1).offset() >= first.offset() + first.height() + HudToastQueue.GAP);
     }
 }

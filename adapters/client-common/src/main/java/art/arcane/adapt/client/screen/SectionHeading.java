@@ -13,17 +13,25 @@ import java.util.Objects;
 
 /**
  * A section's short name in the page's accent with a rule running from it to the page's right edge, or to the
- * section's one action held against that edge, such as Reset for a section of settings.
+ * section's one action held against that edge, such as Reset for a section of settings. A page's title in the header
+ * has no rule.
  */
 final class SectionHeading extends UiGroup {
     private static final int RULE_GAP = 4;
 
     private String text;
     private Button action;
+    private boolean ruled = true;
 
     SectionHeading(String id, String text) {
         super(id);
         this.text = Objects.requireNonNull(text, "text");
+    }
+
+    /** Leaves out the rule after the name. */
+    SectionHeading unruled() {
+        ruled = false;
+        return this;
     }
 
     void setText(String newText) {
@@ -84,7 +92,7 @@ final class SectionHeading extends UiGroup {
         draw.text(text, box.x(), textY, frame.theme().accent(), false);
         int from = box.x() + draw.textWidth(text) + RULE_GAP;
         int to = action == null ? box.right() : action.bounds().x() - RULE_GAP;
-        if (from < to) {
+        if (ruled && from < to) {
             UiTome.rule(draw, from, to, textY + draw.lineHeight() / 2 - 1);
         }
     }

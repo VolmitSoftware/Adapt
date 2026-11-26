@@ -93,7 +93,7 @@ class PreferenceGridTest {
     @Test
     void resetEndsTheSettingsHeading() {
         for (int[] size : SIZES) {
-            for (Route route : List.of(new Route.Skill(TypicalCatalog.SKILL), new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION))) {
+            for (Route route : List.of(new Route.Adaptation(TypicalCatalog.CHECKLIST_ADAPTATION))) {
                 ScreenFixture fixture = new ScreenFixture(size[0], size[1], size[2], TypicalCatalog.catalog(), TypicalCatalog.player());
                 fixture.open(route);
                 UiNode reset = fixture.find("pref-reset");

@@ -175,6 +175,18 @@ public final class MinecraftUiDraw implements UiDraw {
     }
 
     @Override
+    public void blit(UiTexture texture, int x, int y, int width, int height, int u, int v, int regionWidth, int regionHeight, int color) {
+        if (!visible(color)) {
+            return;
+        }
+        Identifier id = textures.computeIfAbsent(texture.id(), Identifier::tryParse);
+        if (id != null) {
+            graphics.blit(RenderPipelines.GUI_TEXTURED, id, x, y, u, v, width, height, regionWidth, regionHeight, texture.width(),
+                    texture.height(), color);
+        }
+    }
+
+    @Override
     public void pushScissor(int left, int top, int right, int bottom) {
         graphics.enableScissor(left, top, right, bottom);
     }

@@ -192,7 +192,7 @@ class HudRendererTest {
         assertFalse(draw.texts().contains("+12"));
 
         HudFakes.Draw editing = new HudFakes.Draw(480, 270, 2.0, true);
-        renderer.renderEditing(editing, layout);
+        renderer.renderEditing(editing, layout, null);
         assertTrue(renderer.placed("skills").drawn());
         String ghost = editing.calls.stream().filter((String call) -> call.startsWith("text ") && call.endsWith(" +12"))
                 .findFirst().orElseThrow();
@@ -209,7 +209,7 @@ class HudRendererTest {
         renderer.render(draw, HudDefaults.layout());
         assertFalse(renderer.placed("toasts").drawn());
         assertTrue(renderer.placed("notices").drawn());
-        renderer.renderEditing(draw, HudDefaults.layout());
+        renderer.renderEditing(draw, HudDefaults.layout(), null);
         assertTrue(renderer.placed("toasts").placeholder());
         assertEquals(HudRenderer.PLACEHOLDER_WIDTH, renderer.placed("toasts").box().width(), 1e-6);
     }
@@ -336,7 +336,7 @@ class HudRendererTest {
     void glyphsCarryNoTextUnlessNamesAreOn() {
         HudRenderer renderer = sampleRenderer();
         HudFakes.Draw draw = new HudFakes.Draw(640, 360, 2.0, true);
-        renderer.renderEditing(draw, HudDefaults.layout());
+        renderer.renderEditing(draw, HudDefaults.layout(), null);
         assertFalse(draw.texts().contains("Foundation"), draw.texts().toString());
         HudProfile profile = HudDefaults.profile("P");
         HudWidgetConfig glyphs = profile.widget("abilities");
@@ -369,17 +369,18 @@ class HudRendererTest {
     void toastsShowTitleAndBody() {
         HudFakes.Clock clock = new HudFakes.Clock();
         HudModel model = new HudModel(clock);
-        model.toast(new ServerFrame.Toast(ToastKind.UNLOCK, IconRef.item("minecraft:bow"), "Unlocked", "A very long body text that will not fit on the card"));
+        model.toast(new ServerFrame.Toast(ToastKind.UNLOCK, IconRef.item("minecraft:bow"), "Unlocked", "A very long body text that will not fit on the card", ""));
         HudRenderer renderer = new HudRenderer(model, TEXT);
-        HudFakes.Draw draw = new HudFakes.Draw(480, 270, 2.0, false);
+        HudFakes.Draw draw = new HudFakes.Draw(960, 540, 2.0, false);
         renderer.render(draw, HudDefaults.layout());
         clock.advance(HudToastQueue.ENTER_MILLIS);
-        HudFakes.Draw shown = new HudFakes.Draw(480, 270, 2.0, true);
+        HudFakes.Draw shown = new HudFakes.Draw(960, 540, 2.0, true);
         renderer.render(shown, HudDefaults.layout());
         assertTrue(shown.texts().contains("Unlocked"));
-        assertTrue(shown.texts().stream().anyMatch((String text) -> text.startsWith("A very long") && text.endsWith("...")));
+        assertTrue(shown.texts().contains("A very long body text that will not fit on the card"), shown.texts().toString());
         HudRect rect = renderer.placed("toasts").box().rect();
-        assertEquals(ToastWidget.CARD_WIDTH, rect.width(), 1e-6);
+        assertTrue(rect.width() > ToastWidget.MIN_WIDTH && rect.width() <= ToastWidget.MAX_WIDTH, rect.toString());
+        assertTrue(rect.height() > ToastWidget.CARD_HEIGHT);
     }
 
     @Test
@@ -434,24 +435,24 @@ class HudRendererTest {
     }
 
     @Test
-    void challengeToastsReadLikeVanillaAndStayLonger() {
+    void challengeToastsReadLikeVanillaAndKeepTheSetDuration() {
         HudFakes.Clock clock = new HudFakes.Clock();
         HudModel model = new HudModel(clock);
-        model.toast(new ServerFrame.Toast(ToastKind.CHALLENGE, IconRef.item("minecraft:elytra"), "Sky Walker", "Glide a mile"));
+        model.toast(new ServerFrame.Toast(ToastKind.CHALLENGE, IconRef.item("minecraft:elytra"), "Sky Walker", "Glide a mile", ""));
         HudRenderer renderer = new HudRenderer(model, TEXT);
         renderer.render(new HudFakes.Draw(640, 360, 2.0, false), HudDefaults.layout());
         clock.advance(HudToastQueue.ENTER_MILLIS);
         HudFakes.Draw shown = new HudFakes.Draw(640, 360, 2.0, true);
         renderer.render(shown, HudDefaults.layout());
-        assertTrue(shown.calls.stream().anyMatch((String call) -> call.startsWith("text ") && call.contains(" ff763078 Challenge Complete!")));
+        assertTrue(shown.calls.stream().anyMatch((String call) -> call.startsWith("wrapped ") && call.contains(" ff763078 Challenge Complete!")));
         assertTrue(shown.texts().contains("Sky Walker"));
         assertFalse(shown.texts().contains("Glide a mile"));
 
         HudToast toast = model.toasts().shown().get(0);
-        clock.advance(5000L);
+        clock.advance(2000L);
         model.expire(clock.millis);
         assertFalse(model.toasts().leaving(toast, clock.millis));
-        clock.advance(5000L);
+        clock.advance(1000L);
         assertTrue(model.toasts().leaving(toast, clock.millis));
     }
 

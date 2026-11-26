@@ -1,0 +1,27 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902919,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-swords-whetstone"
+        }
+      },
+      {
+        "threshold": 4902920,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/flint"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/flint"
+    }
+  }
+}

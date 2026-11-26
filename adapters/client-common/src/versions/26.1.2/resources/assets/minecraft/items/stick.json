@@ -1,0 +1,62 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "index": 0,
+    "entries": [
+      {
+        "threshold": 4902906,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/tool-excavation-grading-stakes"
+        }
+      },
+      {
+        "threshold": 4902907,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/stick"
+        }
+      },
+      {
+        "threshold": 4902921,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/chalk-straightedge"
+        }
+      },
+      {
+        "threshold": 4902922,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/chalk-polyline"
+        }
+      },
+      {
+        "threshold": 4902923,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/chalk-compass"
+        }
+      },
+      {
+        "threshold": 4902924,
+        "model": {
+          "type": "minecraft:model",
+          "model": "adapt:item/chalk-arc-bow"
+        }
+      },
+      {
+        "threshold": 4902925,
+        "model": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/stick"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "minecraft:item/stick"
+    }
+  }
+}
