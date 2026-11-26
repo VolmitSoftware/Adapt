@@ -15,6 +15,7 @@ import art.arcane.adapt.content.skill.SkillSeaborne;
 import art.arcane.adapt.content.skill.SkillTragOul;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
@@ -173,7 +174,7 @@ class SeaborneStormRuntimeTest {
   }
 
   @Test
-  void farmedMobsPetsAndProtectedPlayersAreNeverStruck() {
+  void farmedMobsAreStruckForNoXpAndPetsAndProtectedPlayersAreNeverStruck() {
     SeaborneStormStrike storm = openStorm(learn(SeaborneStormStrike.class, 5));
     platform.world().weather(true, false);
     FakeLiving spawned = zombie();
@@ -182,7 +183,7 @@ class SeaborneStormRuntimeTest {
     pet.setTameOwner(player.uuid());
     FakePlayer rival = platform.player("Rival", 4.5D, 61D, 0.5D);
 
-    assertThat(melee(spawned)).as("spawner zombie").isEqualTo(HIT);
+    assertThat(melee(spawned)).as("spawner zombie").isGreaterThan(HIT);
     assertThat(melee(pet)).as("own wolf").isEqualTo(HIT);
     AdaptPorts.install(ProtectorPort.class, new NoPvp());
     try {
@@ -190,8 +191,21 @@ class SeaborneStormRuntimeTest {
     } finally {
       AdaptPorts.uninstall(ProtectorPort.class);
     }
+    assertThat(melee(rival)).as("player while player strikes are off").isEqualTo(HIT);
+    storm.getConfig().strikePlayers = true;
     assertThat(melee(rival)).as("player where PvP is on").isGreaterThan(HIT);
     assertThat(XpPaid.by(profile, storm)).as("strikes on a farmed mob, a pet and a player pay nothing").isZero();
+  }
+
+  @Test
+  void passiveMobsAreStruckOnlyWhenTheSettingAllowsIt() {
+    SeaborneStormStrike storm = openStorm(learn(SeaborneStormStrike.class, 5));
+    platform.world().weather(true, false);
+    FakeLiving cow = platform.world().add(new FakeLiving(Id.minecraft("cow"), new Loc(platform.world(), 2.5D, 61D, 0.5D)));
+
+    assertThat(melee(cow)).as("cow by default").isEqualTo(HIT);
+    storm.getConfig().strikePassiveMobs = true;
+    assertThat(melee(cow)).as("cow once allowed").isGreaterThan(HIT);
   }
 
   @Test
@@ -442,7 +456,9 @@ class SeaborneStormRuntimeTest {
   }
 
   private FakeLiving zombie(double x) {
-    return platform.world().add(new FakeLiving(Id.minecraft("zombie"), new Loc(platform.world(), x, 61D, 0.5D)));
+    FakeLiving zombie = platform.world().add(new FakeLiving(Id.minecraft("zombie"), new Loc(platform.world(), x, 61D, 0.5D)));
+    zombie.trait(EntityTrait.ENEMY);
+    return zombie;
   }
 
   private double melee(FakeLiving target) {

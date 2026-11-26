@@ -9,9 +9,11 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
@@ -70,7 +72,8 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
     }
     PlayerRef attacker = strike.attacker();
     LivingRef target = strike.target();
-    if (!SeaborneWet.isWet(attacker) || !MobOrigin.paysKillReward(attacker, target)) {
+    if (!SeaborneWet.isWet(attacker) || attacker.uuid().equals(target.tameOwner()) || MinionIdentity.isMinion(target)
+        || !strikes(target)) {
       return;
     }
 
@@ -85,7 +88,7 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
     e.setDamage(e.damage() + damage);
     bolt(target, thunder);
     addStat(attacker, "seaborne.storm-strike.strikes", 1);
-    if (!(target instanceof PlayerRef)) {
+    if (!(target instanceof PlayerRef) && MobOrigin.paysKillReward(attacker, target)) {
       xp(attacker, target.location(), getConfig().xpPerStrike);
     }
   }
@@ -114,6 +117,13 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
       return null;
     }
     return new Strike(attacker, target, level);
+  }
+
+  private boolean strikes(LivingRef target) {
+    if (target instanceof PlayerRef) {
+      return getConfig().strikePlayers;
+    }
+    return target.has(EntityTrait.ENEMY) || getConfig().strikePassiveMobs;
   }
 
   private void bolt(LivingRef target, boolean thunder) {
@@ -218,6 +228,10 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
     long targetMemoryMillis = 20000;
     @ConfigDoc(value = "Seaborne XP for each strike on a natural mob; strikes on players pay none.", impact = "Higher values level Seaborne faster in storms.")
     double xpPerStrike = 4;
+    @ConfigDoc(value = "Whether strikes land on mobs that are not hostile, such as animals, villagers and mobs that only fight back.", impact = "True lets lightning hit passive and neutral mobs.")
+    boolean strikePassiveMobs = false;
+    @ConfigDoc(value = "Whether strikes land on other players where PvP is allowed.", impact = "True lets lightning hit players.")
+    boolean strikePlayers = false;
 
     public Config() {
       baseCost = 5;

@@ -80,7 +80,7 @@ public class ArchitectBrickbat extends SimpleAdaptation<ArchitectBrickbat.Config
 
     @Override
     public boolean strikes(UUID ownerId, LivingRef target) {
-      return target.tameOwner() == null;
+      return target.tameOwner() == null && hits(target);
     }
 
     @Override
@@ -255,10 +255,14 @@ public class ArchitectBrickbat extends SimpleAdaptation<ArchitectBrickbat.Config
     throwing.quit(event.player());
   }
 
+  private boolean hits(LivingRef target) {
+    return !(target instanceof PlayerRef) || getConfig().hitPlayers;
+  }
+
   /** Throws one block from the main hand at {@code target}; true when it flew. */
   private boolean hurl(PlayerRef p, LivingRef target) {
     ItemRef hand = p.inventory().mainHand();
-    if (!throwable(hand) || target.uuid().equals(p.uuid()) || target.tameOwner() != null
+    if (!throwable(hand) || target.uuid().equals(p.uuid()) || target.tameOwner() != null || !hits(target)
         || !target.world().equals(p.world())) {
       return false;
     }
@@ -410,6 +414,8 @@ public class ArchitectBrickbat extends SimpleAdaptation<ArchitectBrickbat.Config
     double maxKnockback = 0.6;
     @ConfigDoc(value = "Blocks per tick a thrown block travels, before its arc.", impact = "Higher values give flatter, faster throws.")
     double throwSpeed = 1.2;
+    @ConfigDoc(value = "Whether thrown blocks may be aimed at and hit other players where PvP is allowed.", impact = "True lets blocks be thrown at players.")
+    boolean hitPlayers = false;
     @ConfigDoc(value = "Ticks a thrown block may fly past its planned arc before it drops on its own.", impact = "Higher values let missed throws fall farther.")
     int flightGraceTicks = 20;
     @ConfigDoc(value = "Most thrown blocks in the air on the server at once.", impact = "Lower values cap the server cost of many builders fighting at once.")

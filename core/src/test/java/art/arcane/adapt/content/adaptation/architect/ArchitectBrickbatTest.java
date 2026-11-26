@@ -257,8 +257,24 @@ class ArchitectBrickbatTest {
   }
 
   @Test
+  void playersAreNeverTargetsUnlessTheSettingAllowsIt() {
+    learn(5);
+    FakePlayer rival = platform.player("Rival", 0.5D, 61D, 3.5D);
+
+    adapt.post(new EntityDamageByEntityEvent(rival, player, player, DamageCause.ENTITY_ATTACK,
+        Id.minecraft("player_attack"), 1D, false, FinalDamage.IDENTITY));
+    assertThat(balls()).as("player by default").isEmpty();
+
+    brickbat.getConfig().hitPlayers = true;
+    adapt.post(new EntityDamageByEntityEvent(rival, player, player, DamageCause.ENTITY_ATTACK,
+        Id.minecraft("player_attack"), 1D, false, FinalDamage.IDENTITY));
+    assertThat(balls()).as("player once allowed").hasSize(1);
+  }
+
+  @Test
   void playersAreOnlyHitWherePvpIsAllowed() {
     learn(5);
+    brickbat.getConfig().hitPlayers = true;
     FakePlayer rival = platform.player("Rival", 0.5D, 61D, 3.5D);
     AdaptPorts.install(ProtectorPort.class, new NoFighting());
     try {
