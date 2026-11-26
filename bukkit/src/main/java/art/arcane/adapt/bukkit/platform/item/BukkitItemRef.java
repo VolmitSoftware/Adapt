@@ -183,10 +183,10 @@ public final class BukkitItemRef implements ItemRef {
       try {
         lines.add(GsonComponentSerializer.gson().deserialize(line));
       } catch (RuntimeException unreadable) {
-        continue;
+        throw new IllegalArgumentException("Not a text component: " + line, unreadable);
       }
     }
-    edit((ItemMeta meta) -> meta.lore(lines.isEmpty() ? null : lines));
+    edit((ItemMeta meta) -> meta.lore(lines));
   }
 
   @Override

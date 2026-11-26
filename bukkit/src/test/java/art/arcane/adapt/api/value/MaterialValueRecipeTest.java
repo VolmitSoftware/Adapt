@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
@@ -47,8 +46,8 @@ class MaterialValueRecipeTest extends AdaptTestBase {
         config = mockStatic(AdaptConfig.class);
         config.when(AdaptConfig::get).thenReturn(settings);
         bukkit = mockStatic(Bukkit.class);
-        bukkit.when(() -> Bukkit.getRecipesFor(any(ItemStack.class)))
-                .thenAnswer(invocation -> recipes.getOrDefault(invocation.<ItemStack>getArgument(0).getType(), List.of()));
+        bukkit.when(Bukkit::recipeIterator)
+                .thenAnswer(invocation -> recipes.values().stream().flatMap(List::stream).toList().iterator());
         items = mockConstruction(ItemStack.class, (item, construction) -> {
             when(item.getType()).thenReturn((Material) construction.arguments().getFirst());
             when(item.getAmount()).thenReturn(construction.arguments().size() > 1 ? (int) construction.arguments().get(1) : 1);

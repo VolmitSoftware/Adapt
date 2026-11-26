@@ -45,7 +45,7 @@ class AdaptationCatalogIntegrityTest {
     Map<String, Integer> constructions = constructionCounts(skillSource);
     Set<String> registered = registeredClasses(skillSource);
 
-    assertThat(adaptations).hasSize(330);
+    assertThat(adaptations).hasSize(333);
     assertThat(catalog.ids()).hasSize(adaptations.size());
     for (Map.Entry<String, Path> entry : adaptations.entrySet()) {
       assertThat(constructions.getOrDefault(entry.getKey(), 0))

@@ -26,8 +26,9 @@ class IdleTickDemandCoverageTest {
       "seaborrne.SeaborneBrineSkin",
       "seaborrne.SeaborneDeepSalvager",
       "seaborrne.SeaborneOxygen",
+      "seaborrne.SeaborneRainFed",
+      "seaborrne.SeaborneTidalWard",
       "seaborrne.SeaborneTurtlesMiningSpeed",
-      "seaborrne.SeaborneTurtlesVision",
       "taming.TamingFetch",
       "unarmed.UnarmedPower"
   );
@@ -53,7 +54,6 @@ class IdleTickDemandCoverageTest {
       "hunter.HunterSnareLine",
       "kinetics.KineticsMassShift",
       "rift.RiftVoidMagnet",
-      "seaborrne.SeabornePressureDiver",
       "taming.TamingMountedTactics"
   );
 

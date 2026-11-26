@@ -1,0 +1,26 @@
+{
+  "skill": "swords",
+  "upgrades": [
+    {
+      "name": "upgraded-swords-witherblade",
+      "class": "Witherblade",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/Witherblade.java",
+      "fuses": ["sword-poison-blade", "sword-bloody-blade"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityRegainHealthEvent"]
+    },
+    {
+      "name": "upgraded-swords-tempest-flow",
+      "class": "TempestFlow",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/TempestFlow.java",
+      "fuses": ["sword-blade-flow", "sword-crimson-cyclone"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent"]
+    },
+    {
+      "name": "upgraded-swords-duelists-verdict",
+      "class": "DuelistsVerdict",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/DuelistsVerdict.java",
+      "fuses": ["sword-duelists-focus", "sword-executioners-edge"],
+      "triggers": ["PrepareAnvilEvent", "EntityDeathEvent", "EntityDamageByEntityEvent", "PlayerInteractEvent"]
+    }
+  ]
+}

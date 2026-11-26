@@ -1,0 +1,26 @@
+{
+  "skill": "enchanting",
+  "upgrades": [
+    {
+      "name": "upgraded-enchanting-arcane-hand",
+      "class": "ArcaneHand",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/ArcaneHand.java",
+      "fuses": ["enchanting-quick-enchant", "enchanting-infusion-transfer", "enchanting-tome-rebinding"],
+      "triggers": ["InventoryClickEvent", "PrepareResultEvent", "PlayerDropItemEvent"]
+    },
+    {
+      "name": "upgraded-enchanting-fate-weaver",
+      "class": "FateWeaver",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/FateWeaver.java",
+      "fuses": ["enchanting-offer-reroll", "enchanting-rune-sight", "enchanting-bookshelf-attunement"],
+      "triggers": ["PrepareItemEnchantEvent", "PlayerInteractEvent"]
+    },
+    {
+      "name": "upgraded-enchanting-soulforged",
+      "class": "Soulforged",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/Soulforged.java",
+      "fuses": ["enchanting-soul-link", "enchanting-echo-of-knowledge", "enchanting-curse-cleansing"],
+      "triggers": ["PlayerInteractEvent", "PlayerDeathEvent", "PlayerDropItemEvent", "InventoryCloseEvent", "PrepareResultEvent", "PlayerRespawnEvent", "PlayerJoinEvent", "PlayerQuitEvent", "PlayerExpChangeEvent"]
+    }
+  ]
+}

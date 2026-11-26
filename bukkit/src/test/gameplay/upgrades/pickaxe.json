@@ -1,0 +1,26 @@
+{
+  "skill": "pickaxe",
+  "upgrades": [
+    {
+      "name": "upgraded-pickaxe-motherlode",
+      "class": "Motherlode",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Motherlode.java",
+      "fuses": ["pickaxe-veinminer", "pickaxe-autosmelt", "pickaxe-chisel"],
+      "triggers": ["BlockBreakEvent", "BlockDropItemEvent", "BlockPlaceEvent"]
+    },
+    {
+      "name": "upgraded-pickaxe-earthshaker",
+      "class": "Earthshaker",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Earthshaker.java",
+      "fuses": ["pickaxe-tunnel-bore", "pickaxe-deep-core", "pickaxe-obsidian-rush"],
+      "triggers": ["BlockBreakEvent", "BlockDamageEvent", "BlockDropItemEvent"]
+    },
+    {
+      "name": "upgraded-pickaxe-eternal-pick",
+      "class": "EternalPick",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/EternalPick.java",
+      "fuses": ["pickaxe-unbreakable-pact", "pickaxe-repair-rhythm", "pickaxe-stone-skin"],
+      "triggers": ["BlockBreakEvent", "PlayerItemDamageEvent"]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "skill": "discovery",
+  "upgrades": [
+    {
+      "name": "upgraded-discovery-omniscience",
+      "class": "Omniscience",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/Omniscience.java",
+      "fuses": ["discovery-insight", "discovery-keen-eye", "discovery-sixth-sense"],
+      "triggers": ["PlayerQuitEvent", "PlayerLootGenerateEvent", "PlayerChatEvent"]
+    },
+    {
+      "name": "upgraded-discovery-unity-prime",
+      "class": "UnityPrime",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/UnityPrime.java",
+      "fuses": ["discovery-unity", "discovery-polymath"],
+      "triggers": ["PlayerExpChangeEvent", "PlayerInteractEvent"]
+    },
+    {
+      "name": "upgraded-discovery-explorers-luck",
+      "class": "ExplorersLuck",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/ExplorersLuck.java",
+      "fuses": ["discovery-trailblazer", "discovery-field-notes", "discovery-relic-appraiser"],
+      "triggers": ["EntityDeathEvent", "EntityDamageByEntityEvent", "PlayerInteractEvent", "BlockPlaceEvent", "BlockDropItemEvent"]
+    }
+  ]
+}

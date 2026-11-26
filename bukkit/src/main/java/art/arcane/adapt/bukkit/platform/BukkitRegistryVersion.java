@@ -109,7 +109,7 @@ final class BukkitRegistryVersion {
     }
     List<EffectModifier> modifiers = new ArrayList<>();
     for (Map.Entry<Attribute, AttributeModifier> entry : type.getEffectAttributes().entrySet()) {
-      modifiers.add(new EffectModifier(BukkitResolve.id(entry.getKey()), BukkitConversions.operation(entry.getValue().getOperation()),
+      modifiers.add(new EffectModifier(entry.getKey().getTranslationKey(), BukkitConversions.operation(entry.getValue().getOperation()),
           type.getAttributeModifierAmount(entry.getKey(), amplifier)));
     }
     return modifiers;

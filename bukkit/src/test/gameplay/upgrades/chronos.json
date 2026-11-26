@@ -1,0 +1,26 @@
+{
+  "skill": "chronos",
+  "upgrades": [
+    {
+      "name": "upgraded-chronos-second-chance",
+      "class": "SecondChance",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/chronos/upgraded/SecondChance.java",
+      "fuses": ["chronos-rewind", "chronos-instant-recall", "chronos-hourglass-guard"],
+      "triggers": ["PlayerMoveEvent", "PlayerTeleportEvent", "PlayerQuitEvent", "PlayerJoinEvent", "PlayerDeathEvent", "PlayerSwapHandItemsEvent", "EntityDamageEvent"]
+    },
+    {
+      "name": "upgraded-chronos-time-lord",
+      "class": "TimeLord",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/chronos/upgraded/TimeLord.java",
+      "fuses": ["chronos-time-bottle", "chronos-accelerate", "chronos-overtime"],
+      "triggers": ["PlayerQuitEvent", "PlayerInteractEvent", "EntityExplodeEvent", "BlockExplodeEvent", "BlockBurnEvent", "EntityChangeBlockEvent", "ItemSpawnEvent", "PlayerInteractEntityEvent", "EntityPotionEffectEvent"]
+    },
+    {
+      "name": "upgraded-chronos-frozen-moment",
+      "class": "FrozenMoment",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/chronos/upgraded/FrozenMoment.java",
+      "fuses": ["chronos-stasis-field", "chronos-time-bomb", "chronos-aberrant-touch"],
+      "triggers": ["PlayerQuitEvent", "EntityRemoveEvent", "PlayerInteractEvent", "ProjectileHitEvent", "EntityDamageByEntityEvent"]
+    }
+  ]
+}

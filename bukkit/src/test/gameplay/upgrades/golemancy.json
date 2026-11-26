@@ -1,0 +1,28 @@
+{
+  "skill": "golemancy",
+  "upgrades": [
+    {
+      "name": "upgraded-golemancy-grand-overseer",
+      "class": "GrandOverseer",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/GrandOverseer.java",
+      "fuses": ["golem-overseer", "golem-mending", "golem-stasis"],
+      "triggers": []
+    },
+    {
+      "name": "upgraded-golemancy-forgemaster",
+      "class": "Forgemaster",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Forgemaster.java",
+      "fuses": ["golem-animus-binding", "golem-node-weaving", "golem-guardian-core", "golem-gatherer-core",
+        "golem-harvester-core", "golem-lumber-core", "golem-breaker-core", "golem-rancher-core", "golem-sorter-core",
+        "golem-angler-core", "golem-frost-frame", "golem-copper-frame", "golem-iron-frame", "golem-bone-frame"],
+      "triggers": []
+    },
+    {
+      "name": "upgraded-golemancy-runeforged",
+      "class": "Runeforged",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Runeforged.java",
+      "fuses": ["golem-runic-augments", "golem-masterwork"],
+      "triggers": []
+    }
+  ]
+}

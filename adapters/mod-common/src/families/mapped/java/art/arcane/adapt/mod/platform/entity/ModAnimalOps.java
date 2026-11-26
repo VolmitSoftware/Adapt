@@ -163,6 +163,25 @@ public final class ModAnimalOps implements AnimalOps {
     }
 
     @Override
+    public boolean setLeashHolder(EntityRef entity, EntityRef holder) {
+        if (!(handle(entity) instanceof Leashable leashable)) {
+            return false;
+        }
+        if (leashable.isLeashed()) {
+            leashable.dropLeash(true, false);
+        }
+        if (holder == null) {
+            return true;
+        }
+        Entity to = handle(holder);
+        if (to == null || to.level() != ((Entity) leashable).level()) {
+            return false;
+        }
+        leashable.setLeashedTo(to, true);
+        return true;
+    }
+
+    @Override
     public boolean isTamed(EntityRef entity) {
         Entity handle = handle(entity);
         return (handle instanceof TamableAnimal tamable && tamable.isTame())

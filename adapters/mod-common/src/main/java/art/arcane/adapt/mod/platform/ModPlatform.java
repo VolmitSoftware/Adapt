@@ -9,13 +9,7 @@ import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.AdaptEventBus;
-import art.arcane.adapt.platform.event.EventPriority;
-import art.arcane.adapt.platform.event.block.BlockBreakEvent;
-import art.arcane.adapt.platform.event.block.BlockExplodeEvent;
-import art.arcane.adapt.platform.event.entity.EntityExplodeEvent;
 import art.arcane.adapt.platform.permission.PermissionHost;
-import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.platform.world.BlockRef;
 import net.minecraft.server.MinecraftServer;
 
 import java.nio.file.Path;
@@ -32,7 +26,6 @@ public final class ModPlatform {
     private static final ModLog LOG = new ModLog(AdaptModIdentity.NAME);
     private static final AdaptEventBus BUS = new AdaptEventBus((Object owner, AdaptEvent event, Throwable error) ->
             LOG.error("Event handler " + owner + " failed on " + event.getClass().getSimpleName(), error));
-    private static final Object BLOCK_DATA_OWNER = new Object();
     private static final int PLAYER_SYNC_TICKS = 20;
 
     private static volatile MinecraftServer server;
@@ -89,10 +82,6 @@ public final class ModPlatform {
         host = new ModPlatformHost(running, family, platformName, dataDirectory, LOG, modPresent);
         AdaptEnvironment.bindConfig(new RegistryConfigBinding(host.registries()));
         platform = assemble();
-        BUS.unregisterAll(BLOCK_DATA_OWNER);
-        BUS.register(BLOCK_DATA_OWNER, BlockBreakEvent.class, EventPriority.MONITOR, (BlockBreakEvent event) -> clearData(List.of(event.block())));
-        BUS.register(BLOCK_DATA_OWNER, BlockExplodeEvent.class, EventPriority.MONITOR, (BlockExplodeEvent event) -> clearData(event.blocks()));
-        BUS.register(BLOCK_DATA_OWNER, EntityExplodeEvent.class, EventPriority.MONITOR, (EntityExplodeEvent event) -> clearData(event.blocks()));
     }
 
     /** Server thread, once the server finished starting. */
@@ -125,7 +114,6 @@ public final class ModPlatform {
             return;
         }
         notify(ModHosts.stoppingListeners(), running);
-        BUS.unregisterAll(BLOCK_DATA_OWNER);
         ModScheduler current = scheduler;
         if (current != null) {
             current.shutdown();
@@ -172,16 +160,6 @@ public final class ModPlatform {
                 listener.accept(running);
             } catch (RuntimeException failure) {
                 LOG.error("Lifecycle listener failed", failure);
-            }
-        }
-    }
-
-    private static void clearData(List<BlockRef> blocks) {
-        for (BlockRef block : blocks) {
-            if (block.hasData()) {
-                for (Id key : block.data().keys()) {
-                    block.data().remove(key);
-                }
             }
         }
     }

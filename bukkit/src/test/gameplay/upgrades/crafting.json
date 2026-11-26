@@ -1,0 +1,26 @@
+{
+  "skill": "crafting",
+  "upgrades": [
+    {
+      "name": "upgraded-crafting-grand-artisan",
+      "class": "GrandArtisan",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/GrandArtisan.java",
+      "fuses": ["crafting-masterwork", "crafting-tinkerer", "crafting-thrifty-hands"],
+      "triggers": ["PrepareResultEvent", "InventoryClickEvent"]
+    },
+    {
+      "name": "upgraded-crafting-unmaker",
+      "class": "Unmaker",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/Unmaker.java",
+      "fuses": ["crafting-deconstruction", "crafting-reconstruction", "crafting-compactor"],
+      "triggers": ["PlayerSwapHandItemsEvent"]
+    },
+    {
+      "name": "upgraded-crafting-field-workshop",
+      "class": "FieldWorkshop",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/FieldWorkshop.java",
+      "fuses": ["crafting-stations", "crafting-backpacks", "crafting-bulk-artisan"],
+      "triggers": []
+    }
+  ]
+}

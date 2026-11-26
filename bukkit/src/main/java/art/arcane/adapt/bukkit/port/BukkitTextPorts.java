@@ -7,6 +7,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeResolver;
 import art.arcane.adapt.api.fx.TpsPort;
 import art.arcane.adapt.api.notification.HudPort;
 import art.arcane.adapt.api.value.MaterialValuePort;
+import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.util.common.math.PlayerInputPort;
@@ -27,7 +28,7 @@ public final class BukkitTextPorts {
     AdaptPorts.install(ItemCooldownGroupPort.class, new BukkitItemCooldownGroupPort());
     AdaptPorts.install(PlayerInputPort.class, new BukkitPlayerInputPort());
     AdaptPorts.install(CustomModelPort.class, new BukkitCustomModelPort());
-    AdaptPorts.install(MaterialValuePort.class, new BukkitMaterialValuePort());
+    AdaptPorts.install(MaterialValuePort.class, new BukkitMaterialValuePort(BukkitRecipeRegistry.shared()));
     AdaptPorts.install(AdaptAttributeResolver.class, new BukkitAttributeResolver());
   }
 

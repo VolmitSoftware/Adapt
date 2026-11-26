@@ -580,14 +580,6 @@ description = "침대에서 10번 자기"
 title = "시간을 건너뛰는 자"
 description = "침대에서 100번 자기"
 
-[advancement.challenge_chronos_tp_50]
-title = "시공간 이동"
-description = "50번 텔레포트하기"
-
-[advancement.challenge_chronos_tp_500]
-title = "시간의 왜곡"
-description = "500번 텔레포트하기"
-
 [advancement.challenge_craft_value_10k]
 title = "제작의 가치"
 description = "총 10,000 가치의 아이템 제작하기"
@@ -3335,6 +3327,7 @@ lore = ["필요할 때 여는 휴대용 석재 절단기", "인벤토리에 석�
 
 [axe.chop]
 name = "도끼 벌목"
+short_name = "벌목"
 description = "나무 밑동을 우클릭하여 나무를 베세요!"
 lore1 = "벌목당 블록 수"
 lore2 = "벌목 재사용 대기시간"
@@ -3349,9 +3342,11 @@ lore = ["아무 종류의 원목 8개 + 묘목 1개 = 묘목 종류의 원목 8�
 
 [axe.drop_to_inventory]
 name = "도끼 인벤토리 드롭"
+short_name = "인벤토리 드롭"
 
 [axe.ground_smash]
 name = "도끼 지면 강타"
+short_name = "지면 강타"
 description = "점프한 후, 웅크려서 주변의 모든 적을 강타합니다."
 lore1 = "피해량"
 lore2 = "블록 반경"
@@ -3555,6 +3550,9 @@ lore1 = "야간 투시의 물약 + 검은색 콘크리트 = 어둠의 물약 (30
 lore2 = "참고: 어둠은 마신 사람의 질주를 막습니다!"
 lore = ["야간 투시의 물약 + 검은색 콘크리트 = 어둠의 물약 (30초)", "참고: 어둠은 마신 사람의 질주를 막습니다!"]
 
+[brewing.doses]
+left = "개봉됨: {left}/{total}회분 남음"
+
 [brewing.haste]
 name = "병에 담긴 성급함"
 strong_name = "병에 담긴 성급함 2"
@@ -3675,7 +3673,6 @@ surface_air = "공중"
 surface_block = "블록"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
-
 
 blink_priority = "수동 점멸이 더블 점프 회귀보다 우선합니다"
 
@@ -3908,7 +3905,7 @@ lore1 = "모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"
 lore = ["모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"]
 
 [crafting.backpacks]
-name = "부틸리에의 배낭!"
+name = "부틸리에의 배낭"
 description = "묶음을 통째로 담고 그 자체가 상자처럼 열리는 배낭을 만듭니다."
 lore1 = "배낭을 우클릭하면 전용 상자가 열립니다"
 lore2 = "LLL : 가죽, 가죽, 가죽"
@@ -3924,7 +3921,7 @@ next_page = "다음 쪽"
 unreadable = "이 배낭은 다른 서버 판본에서 채워져 여기서는 열 수 없습니다."
 
 [crafting.stations]
-name = "휴대용 작업대!"
+name = "휴대용 작업대"
 description = "모루, 제작대, 숫돌, 석재 절단기, 지도 제작대, 베틀을 든 채 공중을 클릭하면 설치하지 않고 열 수 있습니다. 열 때마다 허기가 소모됩니다."
 lore2 = "작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니다!"
 lore3 = "사용 가능한 작업대: 모루, 제작대, 숫돌, 지도 제작대, 석재 절단기, 베틀"
@@ -3932,7 +3929,7 @@ lore = ["작업대를 닫을 때 남겨둔 아이템은 영원히 사라집니�
 lore4 = "휴대용 작업대를 열 때마다 소모되는 허기"
 
 [crafting.skulls]
-name = "제작 가능한 머리!"
+name = "제작 가능한 머리"
 description = "재료를 사용하여 몹 머리를 제작할 수 있습니다!"
 lore1 = "뼈 블록을 다음 재료로 둘러싸면 머리를 얻습니다:"
 lore2 = "좀비: 썩은 살점"
@@ -4227,7 +4224,7 @@ lore2 = "x 발굴하는 동안의 성급함 레벨"
 lore = ["발굴 중 성급함 획득", "x 발굴하는 동안의 성급함 레벨"]
 
 [excavation.spelunker]
-name = "초감각 탐험가!"
+name = "초감각 탐험가"
 description = "주 손에 발광 열매를 들면 땅속의 광석이 빛나는 모습으로 드러납니다."
 lore1 = "보조 손에 광석, 주 손에 발광 열매를 들고 웅크리세요!"
 lore2 = "블록 범위: "
@@ -4245,6 +4242,7 @@ lore = ["탐지 범위", "핑 확률", "핑 재사용 대기시간"]
 
 [excavation.drop_to_inventory]
 name = "삽 인벤토리 드롭"
+short_name = "인벤토리 드롭"
 
 [excavation.omni_tool]
 name = "OMNI - 도구"
@@ -4857,7 +4855,8 @@ recall_cooldown = "{seconds}초 후에 다른 골렘을 불러올 수 있습니�
 recall_unavailable = "내 세계에 로드된 골렘만 불러올 수 있습니다"
 
 [golemancy.masterwork]
-name = "걸작"
+name = "골렘 걸작"
+short_name = "걸작"
 description = "아니무스 받침대에서 걸작의 심장을 주입하고 골렘에 끼우면 룬 슬롯이 하나 늘고, 체력이 오르고, 두 번째 핵을 갖고, 룬이 강해집니다."
 lore1 = "걸작 골렘 수"
 lore2 = "걸작의 추가 룬 슬롯"
@@ -4991,18 +4990,21 @@ lore = ["블록 반경", "성장 오라 강도", "허기 소모"]
 
 [herbalism.hippo]
 name = "약초학자의 하마"
+short_name = "하마"
 description = "음식을 먹으면 더 많은 포화를 얻습니다"
 lore1 = "음식) 섭취 시 추가 포화 포인트"
 lore = ["음식) 섭취 시 추가 포화 포인트"]
 
 [herbalism.myconid]
 name = "약초학자의 마이코니드"
+short_name = "마이코니드"
 description = "균사체를 제작할 수 있는 능력을 부여합니다"
 lore1 = "아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."
 lore = ["아무 흙 + 갈색 버섯 + 빨간 버섯으로 균사체를 제작합니다."]
 
 [herbalism.terralid]
 name = "약초학자의 대지"
+short_name = "대지"
 description = "잔디 블록을 제작할 수 있는 능력을 부여합니다"
 lore1 = "씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."
 lore = ["씨앗 3개를 흙 3개 위에 놓으면 잔디 블록 3개를 제작합니다."]
@@ -5021,6 +5023,7 @@ lore = ["버섯 4개로 블록을, 블록으로 줄기를 만듭니다."]
 
 [herbalism.drop_to_inventory]
 name = "괭이 인벤토리 드롭"
+short_name = "인벤토리 드롭"
 
 [herbalism.hungry_shield]
 name = "굶주린 방패"
@@ -5035,6 +5038,7 @@ lore = ["배고픔으로 저항", "접촉·압사·날씨 피해 차단", "근�
 
 [herbalism.luck]
 name = "약초학자의 행운"
+short_name = "행운"
 description = "풀/꽃을 부수면 일정 확률로 랜덤 아이템을 얻습니다"
 lore0 = "꽃 = 음식, 풀 = 씨앗"
 lore1 = "꽃을 부수면 아이템을 얻을 확률"
@@ -5104,6 +5108,7 @@ lore = ["배고픔이 바닥나면 독이 중첩됩니다"]
 
 [hunter.drop_to_inventory]
 name = "아이템 인벤토리 드롭"
+short_name = "인벤토리 드롭"
 description = "검을 들고 처치하거나 블록을 부수면 드롭 아이템이 곧바로 인벤토리로 들어갑니다."
 lore1 = "몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
 lore = ["몹/블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
@@ -5128,6 +5133,7 @@ lore = ["피격 시 패시브 투명화 획득", "x 피격 시 3초간 투명화
 
 [hunter.jump_boost]
 name = "사냥꾼의 높이"
+short_name = "높이"
 description = "피격 시 배고픔을 대가로 점프 강화를 얻습니다"
 lore1 = "피격 시 패시브 점프 강화 획득"
 lore2 = "x 피격 시 3초간 점프 강화 중첩"
@@ -5138,6 +5144,7 @@ lore = ["피격 시 패시브 점프 강화 획득", "x 피격 시 3초간 점�
 
 [hunter.luck]
 name = "사냥꾼의 행운"
+short_name = "행운"
 description = "피격 시 배고픔을 대가로 행운을 얻습니다"
 lore1 = "피격 시 패시브 행운 획득"
 lore2 = "x 피격 시 3초간 행운 중첩"
@@ -5148,6 +5155,7 @@ lore = ["피격 시 패시브 행운 획득", "x 피격 시 3초간 행운 중�
 
 [hunter.regen]
 name = "사냥꾼의 재생"
+short_name = "재생"
 description = "피격 시 배고픔을 대가로 재생을 얻습니다"
 lore1 = "피격 시 패시브 재생 획득"
 lore2 = "x 피격 시 3초간 재생 중첩"
@@ -5158,6 +5166,7 @@ lore = ["피격 시 패시브 재생 획득", "x 피격 시 3초간 재생 중�
 
 [hunter.resistance]
 name = "사냥꾼의 저항"
+short_name = "저항"
 description = "피격 시 배고픔을 대가로 저항을 얻습니다"
 lore1 = "피격 시 패시브 저항 획득"
 lore2 = "x 피격 시 3초간 저항 중첩"
@@ -5168,6 +5177,7 @@ lore = ["피격 시 패시브 저항 획득", "x 피격 시 3초간 저항 중�
 
 [hunter.speed]
 name = "사냥꾼의 속도"
+short_name = "속도"
 description = "피격 시 배고픔을 대가로 신속을 얻습니다"
 lore1 = "피격 시 패시브 신속 획득"
 lore2 = "x 피격 시 3초간 신속 중첩"
@@ -5178,6 +5188,7 @@ lore = ["피격 시 패시브 신속 획득", "x 피격 시 3초간 신속 중�
 
 [hunter.strength]
 name = "사냥꾼의 힘"
+short_name = "힘"
 description = "피격 시 배고픔을 대가로 힘을 얻습니다"
 lore1 = "피격 시 패시브 힘 획득"
 lore2 = "x 피격 시 3초간 힘 중첩"
@@ -5248,6 +5259,8 @@ none_eligible = "이 플레이어가 사용할 수 있는 기술이 없습니다
 title = "레벨 {level} (사용한 힘 {used}/{maximum})"
 
 [gui.adaptations]
+tools = "도구: {tools}"
+recipes = "레시피: {recipes}"
 none_available = "사용 가능한 적응 없음"
 permanent_learn_confirm = "다시 클릭하여 영구 습득을 확인하세요"
 permanent_learn_confirm_now = "지금 다시 클릭하여 영구 습득을 확인하세요."
@@ -5264,6 +5277,7 @@ vault_unavailable_fallback = "Vault 경제 기능을 사용할 수 없습니다 
 vault_insufficient_funds = "이 적응을 배우기에는 Vault 화폐가 부족합니다."
 vault_transaction_failed = "Vault 거래에 실패했습니다. 진행도는 변경되지 않았습니다."
 power_drain = "힘 소모 {power}"
+power_freed = "힘 {power} 반환"
 requirement_level = "{adaptation} Lv {level}"
 requires = "필요: {requirement}"
 requirements_missing = "{requirements}을(를) 먼저 배운 뒤 {adaptation}을(를) 배우세요."
@@ -5591,12 +5605,14 @@ lore = ["드롭 확률", "도구 마모"]
 
 [pickaxe.drop_to_inventory]
 name = "곡괭이 인벤토리 드롭"
+short_name = "인벤토리 드롭"
 description = "블록을 깨면 아이템이 인벤토리로 바로 들어갑니다"
 lore1 = "블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."
 lore = ["블록에서 아이템이 드롭될 때마다 가능하면 인벤토리로 직접 들어갑니다."]
 
 [pickaxe.silk_spawner]
 name = "곡괭이 섬세한 생성기"
+short_name = "섬세한 생성기"
 description = "생성기를 부수면 드롭되게 합니다"
 lore1 = "섬세한 손길로 생성기를 부술 수 있게 합니다."
 lore2 = "웅크린 채로 생성기를 부술 수 있게 합니다."
@@ -5770,6 +5786,7 @@ unbind = "보관함이 없는 곳을 향해 웅크린 채 허공을 좌클릭하
 
 [rift.blink]
 name = "균열 점멸"
+short_name = "점멸"
 description = "이단 점프로 바라보는 방향으로 순간이동합니다. 거리 또는 높은 착지 지점을 우선하고, 벽 통과는 웅크리는 동안, 조준에 따라, 또는 사용 안 함으로 선택할 수 있습니다. 레벨 2에서는 반응 모드가 이단 점프를 공격 시 회피로 바꾸며, 바라보는 방향 또는 공격자에게서 멀어지는 방향으로 순간이동합니다. 성공한 순간이동은 진주를 소비하지 않지만, 레벨에 따라 감소하는 엔더 진주 피해를 줍니다. 서버 규칙이 선택 가능한 옵션을 제한합니다."
 lore1 = "점멸 범위"
 lore2 = "자기 피해 (하트)"
@@ -5803,6 +5820,7 @@ lore = ["제작: 에메랄드 + 자수정 조각 + 엔더 진주", "사용 전�
 
 [rift.resist]
 name = "균열 저항"
+short_name = "저항"
 description = "엔더 아이템 및 능력 사용 시 저항을 얻습니다"
 lore1 = "+ 패시브: 균열 능력이나 엔더 아이템 사용 시 저항 제공"
 lore2 = "휴대용 엔더 상자 제외, 소모 가능한 것만 해당"
@@ -5890,9 +5908,10 @@ config_hotload_truncated = "&7[&4Adapt&7]: &a설정을 즉시 다시 불러왔�
 
 [seaborn.oxygen]
 name = "유기 산소 탱크"
-description = "작은 폐에 더 많은 산소를 담으세요!"
+description = "물속에서 훨씬 많은 공기를 유지하고, 레벨 2부터 물속 어둠을 볼 수 있습니다."
 lore1 = "산소 용량 증가"
 lore = ["산소 용량 증가"]
+night_vision = "물속 야간 투시"
 
 [seaborn.fishers_fantasy]
 name = "낚시꾼의 환상"
@@ -5902,15 +5921,10 @@ lore = ["낚시 추가 보상 묶음 하나를 얻을 확률"]
 
 [seaborn.haste]
 name = "거북이 광부"
-description = "수중에서 바닥에 서 있거나 떠 있을 때 더 빠르게 채굴합니다."
+description = "수중에서 바닥에 서 있거나 떠 있을 때 더 빠르게 채굴하고, 가디언의 채굴 피로를 대부분 떨쳐냅니다."
 lore1 = "수중 채굴 속도를 높이고 친수성과 중첩되며, 떠 있을 때의 채굴 페널티를 보정합니다."
-lore = ["수중 채굴 속도를 높이고 친수성과 중첩되며, 떠 있을 때의 채굴 페널티를 보정합니다."]
-
-[seaborn.night_vision]
-name = "거북이의 시야"
-description = "수중에서 야간 투시를 얻습니다."
-lore1 = "수중에서 야간 투시가 계속 갱신됩니다."
-lore = ["수중에서 야간 투시가 계속 갱신됩니다."]
+lore2 = "상쇄되는 채굴 피로"
+lore = ["수중 채굴 속도를 높이고 친수성과 중첩되며, 떠 있을 때의 채굴 페널티를 보정합니다.", "상쇄되는 채굴 피로"]
 
 [seaborn.dolphin_grace]
 name = "돌고래의 우아함"
@@ -5941,14 +5955,14 @@ trigger_line = "발동: {trigger}"
 environment_line = "환경: {environment}"
 trigger_context = "{trigger} ({environment})"
 
-[seaborn.pressure_diver]
-name = "압력 다이버"
-description = "수중에서 흡수 하트와 깊이에 따른 보호를 얻고 채굴 피로를 일부 상쇄합니다."
-lore1 = "최소 깊이 조건"
-lore2 = "깊이 피해 감소"
-lore3 = "채굴 피로 감소 확률"
-lore4 = "깊이 흡수 하트"
-lore = ["최소 깊이 조건", "깊이 피해 감소", "채굴 피로 감소 확률", "깊이 흡수 하트"]
+[seaborn.tidal_ward]
+name = "조수의 보호막"
+description = "물속이나 빗속에 있는 동안 흡수 하트가 쌓입니다. 공격을 받으면 보호막이 멈추고, 몸이 마르면 곧 사라집니다."
+lore1 = "보호막 하트"
+lore2 = "초당 보호막 증가량"
+lore3 = "피격 후 정지 시간"
+lore4 = "마른 뒤 유지 시간"
+lore = ["보호막 하트", "초당 보호막 증가량", "피격 후 정지 시간", "마른 뒤 유지 시간"]
 
 [seaborn.coral_gardener]
 name = "산호 정원사"
@@ -5999,125 +6013,276 @@ lore1 = "염수 재생 단계"
 lore2 = "젖어 있을 때 피해 감소"
 lore = ["염수 재생 단계", "젖어 있을 때 피해 감소"]
 
+[seaborn.storm_strike]
+name = "폭풍의 일격"
+description = "비를 맞고 있거나 물속에 있는 동안 근접 공격과 삼지창 공격이 번개를 부릅니다. 대상마다 첫 타격에, 그 뒤로는 몇 번마다 떨어집니다. 뇌우 속에서는 더 강하고 더 자주 칩니다."
+lore1 = "번개 피해"
+lore2 = "번개 사이 타격 횟수"
+lore3 = "뇌우 속 번개 피해"
+lore4 = "뇌우 속 번개 사이 타격 횟수"
+lore = ["번개 피해", "번개 사이 타격 횟수", "뇌우 속 번개 피해", "뇌우 속 번개 사이 타격 횟수"]
+
+[seaborn.rain_fed]
+name = "비의 양분"
+description = "물속이나 빗속에 있는 동안 이동, 채굴, 전투로 배고픔이 줄지 않으며 허기와 포화도가 천천히 채워집니다."
+lore1 = "분당 허기와 포화도 회복량"
+lore2 = "마른 뒤 배부름 유지 시간"
+lore = ["분당 허기와 포화도 회복량", "마른 뒤 배부름 유지 시간"]
+
 [skill.agility]
 name = "민첩"
 icon = "⇉"
 description = "민첩은 장애물 앞에서 빠르고 유연하게 움직이는 능력입니다. 달리기, 수영, 점프, 오르기로 레벨을 올리세요."
+quip = "걷기는 시간 많은 사람이나 하는 것"
+unlock_quip_1 = "다리가 새 기술을 배웠다"
+unlock_quip_2 = "중력은 이제 제안일 뿐"
 
 [skill.architect]
 name = "건축"
 icon = "⬧"
 description = "구조물은 세계의 기초입니다. 현실은 당신의 손에 달려 있으며, 당신이 지배합니다. 블록을 설치하여 레벨을 올리세요."
+quip = "현실은 이제 건축 자재다"
+unlock_quip_1 = "한 번 재고, 전부 놓기"
+unlock_quip_2 = "설계도는 선택, 야망은 필수"
 
 [skill.axes]
 name = "도끼"
 icon = "🪓"
 description = "나무를 베고 도끼로 싸워 레벨을 올리세요. 나무 대신 &o다른 것&7을 벨 수 있는데 왜 나무를 베나요? 결과는 똑같습니다!"
+quip = "나무들이 네 소문을 들었다"
+unlock_quip_1 = "먼저 찍고, 질문은 없다"
+unlock_quip_2 = "낮에는 나무꾼, 밤에는 골칫거리"
 
 [skill.brewing]
 name = "양조"
 icon = "❦"
 description = "물약을 양조하여 레벨을 올리고, 바닐라에서는 얻을 수 없던 제작법을 해금하세요. 두 배 거품, 세 배 거품- 그래도 물약을 가마솥에 넣을 수는 없습니다."
+quip = "보글보글 두 배, 말썽도 두 배"
+unlock_quip_1 = "맛은 끔찍, 효과는 놀라움"
+unlock_quip_2 = "잘 흔들고, 묻지 말 것"
 
 [skill.blocking]
 name = "방어"
 icon = "🛡"
 description = "막대기와 돌로는 뼈가 부러지지 않지만, 방패라면 가능하죠. 방패로 공격을 막아 레벨을 올리세요."
+quip = "방패가 원래 무기였다"
+unlock_quip_1 = "오늘은 안 돼, 뾰족한 녀석"
+unlock_quip_2 = "다시 쳐 봐, 어디 한번"
+
+[skill.blocking.group]
+guard = "방어"
+counter = "반격"
+gear = "장비"
 
 [skill.crafting]
 name = "제작"
 icon = "⌂"
 description = "더 놓을 조각이 없다면, 하나 더 만들면 되지 않을까요? 아이템을 제작하여 레벨을 올리세요."
+quip = "만들 수 있는데 왜 사"
+unlock_quip_1 = "약간의 조립이 필요합니다"
+unlock_quip_2 = "이번엔 남는 부품이 적다"
 
 [skill.discovery]
 name = "탐험"
 icon = "⚛"
 description = "인식이 확장될수록, 마음이 풀려 알지 못했던 것들을 발견하게 됩니다. 탐험하고 경험치를 모아 레벨을 올리세요."
+quip = "세상은 생각보다 넓다"
+unlock_quip_1 = "호기심이 또 보답했다"
+unlock_quip_2 = "아무도 안 보는 곳을 봤다"
+
+[skill.discovery.group]
+exploring = "탐험"
+experience = "경험"
 
 [skill.enchanting]
 name = "마법부여"
 icon = "♰"
 description = "반짝이는 지식을 뜻대로 다루세요. 마법부여대에서 장비에 마법을 부여하여 레벨을 올리세요."
+quip = "작은 글씨를 읽어라. 빛난다."
+unlock_quip_1 = "청금석 예산이 늘었다"
+unlock_quip_2 = "반짝임은 늘고, 곡괭이는 그대로"
+
+[skill.enchanting.group]
+table = "마법 부여대"
+anvil = "모루와 숫돌"
+books = "책"
 
 [skill.excavation]
 name = "발굴"
 icon = "ᛳ"
 description = "파고 파고 또 파고... 삽으로 흙, 모래, 자갈 등 부드러운 땅을 파서 레벨을 올리세요."
+quip = "파라 파라 구멍을, 공식적으로"
+unlock_quip_1 = "흙은 이걸 예상 못 했다"
+unlock_quip_2 = "더 깊게, 더 빠르게, 더 지저분하게"
 
 [skill.herbalism]
 name = "약초학"
 icon = "⚘"
 description = "푸르게 자라는 것들을 다스리세요. 농사, 작물 수확, 식물 채집으로 레벨을 올리세요."
+quip = "식물에게 말을 걸어라. 이제 듣는다."
+unlock_quip_1 = "당근들이 너를 믿는다"
+unlock_quip_2 = "자라라, 꼬맹이들아"
+
+[skill.herbalism.group]
+farming = "농사"
+survival = "생존"
+recipes = "제작법"
 
 [skill.hunter]
 name = "사냥"
 icon = "☠"
 description = "사냥은 결과가 아닌 여정에 관한 것입니다. 몹을 처치하여 레벨을 올리세요. 사냥의 강화 효과는 피격 시 배고픔을 대가로 발동합니다."
+quip = "중요한 건 여정. 그리고 전리품."
+unlock_quip_1 = "저 밖의 무언가는 걱정해야 한다"
+unlock_quip_2 = "이제 원한을 더해 사냥한다"
+
+[skill.hunter.group]
+struck = "피격 시"
+hunt = "사냥"
 
 [skill.nether]
 name = "네더"
 icon = "₪"
 description = "네더 그 자체의 심연에서 비롯된 힘. 네더와 그곳의 괴물에 맞서 레벨을 올리세요."
+quip = "선크림 챙겨라. 많이."
+unlock_quip_1 = "가스트들도 이 소식을 듣게 될 것"
+unlock_quip_2 = "용암 옆에서 신난 중"
+
+[skill.nether.group]
+fire = "불"
+wither = "위더"
+exploring = "탐험"
 
 [skill.pickaxe]
 name = "곡괭이"
 icon = "⛏"
 description = "드워프가 광부이긴 하지만, 나도 나름 경험을 쌓았다고. 곡괭이로 돌과 광석을 캐서 레벨을 올리세요."
+quip = "드워프들도 자랑스러워할 거다. 아마도."
+unlock_quip_1 = "바위와 돌, 뼛속까지"
+unlock_quip_2 = "계속 파길 잘했다"
 
 [skill.ranged]
 name = "원거리"
 icon = "🏹"
 description = "거리가 승리의 열쇠이자, 생존의 열쇠입니다. 투사체를 명중시켜 레벨을 올리세요."
+quip = "거리는 사랑의 언어"
+unlock_quip_1 = "작게 조준하고, 작게 빗나가라"
+unlock_quip_2 = "적당히 가까우면 충분히 멀다"
 
 [skill.rift]
 name = "균열"
 icon = "❍"
 description = "균열의 부식성 에너지를 다스리세요. 순간이동하고 엔더 아이템을 사용하여 레벨을 올리세요."
+quip = "현실에 실밥이 좀 풀렸다"
+unlock_quip_1 = "여기, 저기, 그리고 어딘가"
+unlock_quip_2 = "엔더맨이 할 말이 있대"
 
 [skill.seaborne]
 name = "해양"
 icon = "🎣"
 description = "이 기술로 물의 경이로움을 다스릴 수 있습니다. 수영과 낚시로 레벨을 올리세요."
+quip = "꼬르륵, 승선을 환영한다"
+unlock_quip_1 = "물고기들이 질투한다"
+unlock_quip_2 = "맑든 비가 오든, 되도록 비"
+
+[skill.seaborne.group]
+swimming = "수영"
+combat = "전투"
+harvest = "바다 수확"
 
 [skill.stealth]
 name = "은신"
 icon = "☯"
 description = "보이지 않는 자의 예술. 그림자 속을 걸으세요. 웅크리기와 숨은 상태에서의 공격으로 레벨을 올리세요."
+quip = "넌 여기 없었다"
+unlock_quip_1 = "쉿. 아무것도 못 봤다."
+unlock_quip_2 = "그림자는 좋은 친구"
+
+[skill.stealth.group]
+concealment = "은신"
+tricks = "속임수"
+ambush = "매복"
 
 [skill.swords]
 name = "검술"
 icon = "⚔"
 description = "그레이스톤의 힘으로! 검으로 피해를 입혀 레벨을 올리세요."
+quip = "GreyStone의 힘으로"
+unlock_quip_1 = "뾰족한 끝은 상대 쪽으로"
+unlock_quip_2 = "어제보다 날카롭게"
+
+[skill.swords.group]
+technique = "기술"
+wounds = "상처"
+blades = "칼날"
 
 [skill.taming]
 name = "조련"
 icon = "♥"
 description = "앵무새와 벌들... 그리고 당신은? 길들이기, 번식, 펫과 함께 싸우기로 레벨을 올리세요."
+quip = "누가 착한 아이? 이제 모두."
+unlock_quip_1 = "펫들이 눈치챘다"
+unlock_quip_2 = "간식이 늘면 이빨도 는다"
+
+[skill.taming.group]
+care = "돌봄"
+battle = "전투"
 
 [skill.tragoul]
 name = "트라굴"
 icon = "🗡"
 description = "피는 우주의 혈관을 타고 흐르며, 당신의 손에 의해 조여집니다. 피해를 받고 낮은 체력으로 살아남아 레벨을 올리세요."
+quip = "조금 피 흘리고, 많이 살아라"
+unlock_quip_1 = "고통은 그저 자원"
+unlock_quip_2 = "잘 쓴 피"
+
+[skill.tragoul.group]
+pain = "고통"
+corpses = "시체"
+blood = "피"
 
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
 description = "우주의 시계를 감고 흐름을 경험하세요. 이동하고, 잠자고, 시간의 흐름을 견디고, 신속을 공유하여 레벨을 올리세요. 시계를 들고 다니면 Chronos 경험치를 더 얻으며, 보조 손에 들 때 보너스가 가장 큽니다."
+quip = "똑딱, 시간이 간다"
+unlock_quip_1 = "5분만 더, 허락됨"
+unlock_quip_2 = "이번만은 시간이 네 편"
 
 [skill.unarmed]
 name = "비무장"
 icon = "»"
 description = "무기가 없다고 힘이 없는 것은 아닙니다. 맨손으로 싸워 레벨을 올리세요."
+quip = "주먹: 원조 무기"
+unlock_quip_1 = "주먹, 이제 업그레이드됨"
+unlock_quip_2 = "칼이 왜 필요해?"
 
 [skill.kinetics]
 name = "운동역학"
 icon = "⚒"
 description = "움직임이 곧 힘입니다. 철퇴로 내리찍고, 창으로 돌격하고, 운동량 자체를 휘어 보세요. 튕기기, 발사, 공중 부양, 잘 겨냥해 떨어뜨린 모루 모두가 숙련도를 높여 줍니다."
+quip = "기세가 곧 삶의 방식"
+unlock_quip_1 = "물리학이 오늘 쉰다"
+unlock_quip_2 = "올라간 건 더 세게 내려친다"
+
+[skill.kinetics.group]
+spear = "창"
+mace = "철퇴"
+movement = "이동"
 
 [skill.golemancy]
 name = "골렘술"
 icon = "⚙"
 description = "골렘을 만들고, 수리하고, 돌보며 레벨을 올린 뒤, 생명을 불어넣어 곁에서 싸우고 일하게 하세요."
+quip = "철의 친구들, 잡담 없음"
+unlock_quip_1 = "골렘들이 조금 똑똑해졌다"
+unlock_quip_2 = "볼트는 단단히, 충성은 더 단단히"
+
+[skill.golemancy.group]
+binding = "결속"
+frames = "프레임"
+cores = "코어"
+command = "지휘와 관리"
 
 [snippets.gui]
 level = "레벨"
@@ -6223,7 +6388,7 @@ lore2 = "모든 엔더맨 공격을 방지"
 lore = ["웅크리는 동안 엔더맨 공격을 방지", "모든 엔더맨 공격을 방지"]
 
 [stealth.silent_step]
-name = "은신"
+name = "조용한 걸음"
 description = "등 뒤 공격, 소매치기, 암살을 위한 핵심 은폐 능력입니다. 웅크리는 동안에는 관찰자의 인지 여부에 따라 판정되며, 투명화 상태이거나 그림자 미끼가 활성화되어 있으면 항상 발각되지 않은 것으로 간주됩니다."
 lore1 = "몹 탐지 억제 반경"
 lore2 = "몹 대상 등 뒤 공격 피해 보너스"
@@ -6694,7 +6859,14 @@ lore3 = "전투 후 잠금"
 lore = ["최대 흡수", "파동당 흡수", "전투 후 잠금"]
 
 [command.help]
-show_client_ui_status = "플레이어가 Adapt 클라이언트 UI를 사용하는지 표시합니다"
+merge_two_of_your_skills = "두 스킬을 하나의 변이 스킬로 합칩니다. 되돌릴 수 없습니다."
+lead_skill = "변이를 이끌고 이름을 정하는 스킬"
+partner_skill = "주도 스킬에 합쳐지는 스킬"
+remove_a_player_s_mutations = "플레이어의 모든 변이를 제거하고 각 변이의 원래 두 스킬을 되돌립니다"
+unmutate = "플레이어의 변이 하나를 제거하고 원래 두 스킬을 되돌립니다"
+unmutate_player = "변이를 제거할 플레이어"
+mutated_skill = "변이 스킬, 그 주도 스킬 또는 파트너 스킬"
+show_client_ui_status = "플레이어의 Adapt 클라이언트 상태와 사용 중인 힘을 표시합니다"
 version = "설치된 플러그인 버전 표시"
 debug_dump = "진단 보고서를 생성하고 선택적으로 업로드"
 debug_upload = "보고서를 mclo.gs에 업로드"
@@ -6765,8 +6937,21 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "1~64 사이의 수량, 기본값 1"
 
 [command.runtime]
+mutation_created = "{lead}와 {partner}이(가) 이제 {mutation}입니다."
+mutation_unknown_skill = "알 수 없는 스킬입니다. swords stealth처럼 스킬 이름 두 개를 입력하세요."
+mutation_unavailable_skill = "이 서버에서는 해당 스킬을 변이시킬 수 없습니다."
+mutation_same_skill = "서로 다른 스킬 두 개를 고르세요."
+mutation_already_mutated = "스킬은 하나의 변이에만 속할 수 있습니다."
+mutation_level_too_low = "두 스킬 모두 레벨 {level}이 필요합니다."
+mutation_limit_reached = "이 서버에서는 변이를 최대 {limit}개까지 가질 수 있습니다."
+mutations_reset = "{player}의 변이 {count}개를 제거했습니다. 각 변이의 원래 두 스킬이 돌아왔습니다."
+mutation_unmutated = "{player}에게서 {mutation}을(를) 제거했습니다. {lead}와(과) {partner}이(가) 돌아왔습니다."
+mutation_not_held = "{player}에게는 {skill}이(가) 포함된 변이가 없습니다."
 client_ui_absent = "{player}님은 상자와 액션 바 UI를 사용합니다(협상된 Adapt 클라이언트 없음)."
 client_ui_negotiated = "{player}님은 Adapt 클라이언트 UI를 사용합니다: 프로토콜 {version}, 기능 {capabilities}."
+power_usage = "{player}: 힘 {max} 중 {used} 사용 중."
+power_held = "{skill}: {adaptation} 레벨 {level}, 힘 1 사용."
+power_free = "{skill}: {adaptation} 레벨 {level}, 힘 사용 안 함."
 missing_permission = "'{permission}' 권한이 없습니다."
 player_required_from_console = "콘솔에서 이 명령어를 사용할 때는 플레이어를 지정해야 합니다."
 player_required_from_console_short = "콘솔에서 플레이어를 지정해야 합니다."
@@ -7175,6 +7360,9 @@ ten = "허기 10 유지"
 trigger = "발동 동작"
 while_sneaking = "웅크리는 동안"
 work = "작업 한도"
+felled_logs = "벌목한 원목"
+stripped = "껍질 벗긴 원목"
+planks = "판자"
 
 [blocking.preferences]
 all = "허용된 근처 모든 플레이어"
@@ -8431,6 +8619,10 @@ description = ["기술 GUI에 표시될 순서대로 나열한 기술 레지스�
 label = "적응 순서"
 description = ["기술 레지스트리 이름과 그 기술의 정렬된 적응 레지스트리 이름의 대응입니다.", "효과: 나열된 적응이 이 순서로 먼저 배치되고, 나머지 적응은 일반 알파벳순으로 뒤따르며 알 수 없는 이름은 무시됩니다."]
 
+[config.fields.core.gui.showInactiveSkills]
+label = "비활성 기술 표시"
+description = ["플레이어가 시작하지 않은 기술과 변이에 합쳐진 기술의 자리를 기술 페이지에 회색으로 표시합니다.", "효과: false이면 클라이언트 기본 페이지와 기술 GUI에서 숨기고, 남은 기술은 같은 순서로 당겨서 배치됩니다."]
+
 [config.fields.core.effects]
 label = "효과"
 description = ["core.effects 섹션의 효과 설정을 제어합니다."]
@@ -9142,18 +9334,6 @@ description = ["chronos 기술의 신속 물약 체감 하한 설정을 제어�
 [config.fields.skills.chronos.speedPotionResetWindow]
 label = "신속 물약 초기화 창"
 description = ["chronos 기술의 신속 물약 초기화 창 설정을 제어합니다."]
-
-[config.fields.skills.chronos.enderPearlThrowXP]
-label = "엔더 진주 투척 경험치"
-description = ["chronos 기술의 경험치 획득 조정값입니다."]
-
-[config.fields.skills.chronos.enderPearlTeleportXP]
-label = "엔더 진주 순간이동 경험치"
-description = ["chronos 기술의 경험치 획득 조정값입니다."]
-
-[config.fields.skills.chronos.enderPearlCooldown]
-label = "엔더 진주 재사용 대기시간"
-description = ["chronos 기술 발동 사이의 재사용 대기시간입니다."]
 
 [config.fields.skills.chronos.survivalXPPerMinute]
 label = "분당 생존 경험치"
@@ -10763,10 +10943,6 @@ description = ["최대 레벨에서 추가로 주어지는 투사체 회피 확�
 label = "최대 회피 확률"
 description = ["레벨과 관계없이 적용되는 투사체 회피 확률의 절대 상한입니다.", "효과: 값을 높이면 최대 회피율이 높아집니다."]
 
-[config.fields.adaptations.agility-cat-reflexes.xpPerDodge]
-label = "회피당 경험치"
-description = ["투사체를 피할 때마다 주어지는 경험치입니다.", "효과: 값을 높이면 회피로 더 많은 기술 경험치를 얻습니다."]
-
 [config.fields.adaptations.agility-featherfoot.playerPreferences]
 label = "플레이어 선호 설정"
 description = ["이 적응의 플레이어 선호 설정에 대한 서버 기본값과 허용된 선택지입니다.", "효과: 등록된 각 컨트롤은 다른 플레이어의 저장된 선택을 바꾸지 않고 잠그거나 제한할 수 있습니다."]
@@ -11334,10 +11510,6 @@ description = ["플레이어가 이미 습득해야 하는 적응으로, 각각 
 [config.fields.adaptations.agility-vault.jumpHeight]
 label = "점프 높이"
 description = ["울타리를 넘을 때의 점프 최고점(블록)입니다.", "효과: 값을 높이면 더 여유 있게 울타리를 넘습니다."]
-
-[config.fields.adaptations.agility-vault.xpPerVault]
-label = "뛰어넘기당 경험치"
-description = ["뛰어넘기에 성공할 때마다 주어지는 경험치입니다.", "효과: 값을 높이면 뛰어넘기로 더 많은 기술 경험치를 얻습니다."]
 
 [config.fields.adaptations.agility-wall-jump.playerPreferences]
 label = "플레이어 선호 설정"
@@ -22041,19 +22213,19 @@ description = ["대형 사냥감 사냥꾼 적응에서 레벨에 따라 늘어�
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceBase]
 label = "추가 드롭 확률 기본값"
-description = ["대형 사냥감 사냥꾼 적응의 대형 사냥감에 대한 드롭별 기본 복제 확률입니다."]
+description = ["대형 사냥감 사냥꾼 적응의 대형 사냥감에 대한 추가 전리품 굴림 1회 기본 확률입니다."]
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceFactor]
 label = "추가 드롭 확률 계수"
-description = ["대형 사냥감 사냥꾼 적응에서 레벨에 따라 늘어나는 드롭별 복제 확률입니다."]
+description = ["대형 사냥감 사냥꾼 적응에서 레벨에 따라 늘어나는 추가 전리품 굴림 확률입니다."]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropChance]
 label = "최대 추가 드롭 확률"
-description = ["대형 사냥감 사냥꾼 적응의 최대 드롭별 복제 확률입니다."]
+description = ["대형 사냥감 사냥꾼 적응의 최대 추가 전리품 굴림 확률입니다."]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropsPerKill]
 label = "처치당 최대 추가 드롭"
-description = ["대형 사냥감 사냥꾼 적응에서 대형 사냥감 처치 한 번으로 복제되는 최대 보너스 드롭 수입니다."]
+description = ["대형 사냥감 사냥꾼 적응에서 대형 사냥감 처치 한 번으로 얻는 최대 보너스 드롭 수입니다."]
 
 [config.fields.adaptations.hunter-big-game.xpPerBigGameKill]
 label = "대형 사냥감 처치당 경험치"
@@ -28139,74 +28311,6 @@ description = ["레벨 1을 구매하는 데 필요한 지식 비용입니다.",
 label = "선행 조건"
 description = ["플레이어가 이미 습득해야 하는 적응으로, 각각 adaptationId:level 형식으로 적습니다.", "효과: 나열된 모든 적응을 해당 레벨로 습득할 때까지 이 적응의 습득이나 레벨 업이 거부되며, 이 적응을 습득한 동안에는 해당 적응을 그 레벨 아래로 습득 해제할 수 없습니다."]
 
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdBase]
-label = "깊이 임계값 기본값"
-description = ["가장 낮은 적응 레벨에서 필요한 해수면 아래 눈 깊이(블록)입니다.", "효과: 값을 높이면 압력 다이버 버프가 활성화되려면 더 깊이 잠수해야 합니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdFactor]
-label = "깊이 임계값 계수"
-description = ["적응 레벨에 따라 발동 깊이 요구치에서 줄어드는 블록 수입니다.", "효과: 값을 높이면 숙련된 다이버가 수면에 더 가까운 곳에서 버프를 활성화할 수 있으며, 임계값은 최소 2블록입니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdBase]
-label = "심해 임계값 기본값"
-description = ["가장 낮은 레벨에서 더 강한 저항 단계에 필요한 해수면 아래 눈 깊이입니다.", "효과: 값을 높이면 저항 II가 더 깊은 물로 제한됩니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdFactor]
-label = "심해 임계값 계수"
-description = ["레벨에 따라 더 강한 저항 단계 요구치에서 줄어드는 블록 수입니다.", "효과: 값을 높이면 심해 단계가 수면에 더 가까운 곳에서 활성화되며, 임계값은 최소 4블록입니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionBase]
-label = "피해 감소 기본값"
-description = ["가장 낮은 레벨에서 압력 다이버가 활성화된 동안 제거되는 받는 피해 비율입니다.", "효과: 0.12는 지속되는 저항 효과를 고려하기 전에 받는 피해의 12%를 제거합니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionFactor]
-label = "피해 감소 계수"
-description = ["적응 레벨에 따라 추가되는 받는 피해 감소량입니다.", "효과: 값을 높이면 최대 레벨로 갈수록 깊이 보호가 더 크게 늘어납니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.maxDamageReduction]
-label = "최대 피해 감소"
-description = ["압력 다이버 자체의 최대 받는 피해 감소 비율입니다.", "효과: 저항 효과와 별도로 직접 감소를 제한합니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthBase]
-label = "흡수 체력 기본값"
-description = ["레벨 1에서 압력 다이버가 활성화될 때 주어지는 흡수 체력 포인트로, 체력 2포인트가 하트 하나로 표시됩니다.", "효과: 값을 높이면 낮은 레벨 다이버에게 임시 보너스 하트를 더 주되, 갱신 중에 소모한 흡수량을 다시 채우지는 않습니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthFactor]
-label = "흡수 체력 계수"
-description = ["최대 적응 레벨까지 추가로 주어지는 흡수 체력 포인트입니다.", "효과: 값을 높이면 레벨이 오를수록 압력 다이버의 눈에 보이는 보너스 하트 용량이 늘어납니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceBase]
-label = "피로 완화 확률 기본값"
-description = ["결정론적 속도 상쇄로 표현되는 가장 낮은 레벨의 틱당 채굴 피로 완화 확률입니다.", "효과: 값을 높이면 채굴 피로 II 이상을 더 많이 상쇄하며, 채굴 피로 I이 하한으로 남습니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceFactor]
-label = "피로 완화 확률 계수"
-description = ["레벨에 따라 추가되는 채굴 피로 완화 확률입니다.", "효과: 값을 높이면 높은 레벨에서 물속 채굴 속도 상쇄가 강해집니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountBase]
-label = "피로 완화량 기본값"
-description = ["가장 낮은 레벨에서 개념상 발동마다 줄어드는 채굴 피로 증폭 단계입니다.", "효과: 값을 높이면 더 강한 채굴 피로를 더 적극적으로 상쇄합니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountFactor]
-label = "피로 완화량 계수"
-description = ["레벨에 따라 추가되는 채굴 피로 증폭 완화량입니다.", "효과: 값을 높이면 높은 레벨의 피로 억제가 늘어납니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.effectTicks]
-label = "효과 틱"
-description = ["갱신되는 각 저항 효과의 지속 시간(틱)입니다.", "효과: 값을 높이면 갱신 여유가 늘어나며, 런타임은 활성화된 동안 최소 15틱마다 확인합니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueCounterDurationTicks]
-label = "피로 상쇄 지속 틱"
-description = ["채굴 피로가 있는 동안 갱신되는 각 물속 채굴 속도 상쇄의 지속 시간(틱)입니다.", "효과: 값을 높이면 갱신 지연을 견디고, 0이면 피로 상쇄가 꺼집니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPerDepthPulse]
-label = "깊이 파동당 경험치"
-description = ["활성 깊이 파동마다 지급되는 해양 경험치입니다.", "효과: 값을 높이면 압력 다이버가 활성화된 동안 해양 기술이 더 빨리 오릅니다."]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPulseCooldownMillis]
-label = "경험치 파동 재사용 대기시간(밀리초)"
-description = ["활성 깊이 경험치 파동 사이의 최소 시간(밀리초)입니다.", "효과: 값을 높이면 방어 버프를 바꾸지 않고 경험치 빈도를 줄입니다."]
-
 [config.fields.adaptations.seaborne-speed.playerPreferences]
 label = "플레이어 선호 설정"
 description = ["이 적응의 플레이어 선호 설정에 대한 서버 기본값과 허용된 선택지입니다.", "효과: 등록된 각 컨트롤은 다른 플레이어의 저장된 선택을 바꾸지 않고 잠그거나 제한할 수 있습니다."]
@@ -28522,58 +28626,6 @@ description = ["갱신되는 각 채굴 속성 수정자의 지속 시간(틱)�
 [config.fields.adaptations.seaborne-turtles-mining-speed.refreshIntervalMillis]
 label = "갱신 간격(밀리초)"
 description = ["패시브 수중 상태 갱신 사이의 시간(밀리초)입니다.", "효과: 값을 낮추면 더 빠르게 반응하지만 습득한 플레이어를 더 자주 검사하며, 블록 피해는 여전히 강화를 즉시 활성화합니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.playerPreferences]
-label = "플레이어 선호 설정"
-description = ["이 적응의 플레이어 선호 설정에 대한 서버 기본값과 허용된 선택지입니다.", "효과: 등록된 각 컨트롤은 다른 플레이어의 저장된 선택을 바꾸지 않고 잠그거나 제한할 수 있습니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.enabled]
-label = "사용"
-description = ["이 기능을 활성화하거나 비활성화합니다.", "효과: false로 설정하면 파일을 제거하지 않고 동작을 비활성화합니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.permanent]
-label = "영구"
-description = ["이 적응을 구매한 뒤 일반적인 플레이어 습득 해제를 막습니다.", "효과: 첫 구매에는 여전히 설정된 비용과 확인 절차가 적용됩니다. 관리자 우회로 환불 없이 레벨을 낮출 수 있습니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.showParticles]
-label = "입자 표시"
-description = ["이 적응의 입자 효과를 표시합니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.showSounds]
-label = "소리 재생"
-description = ["이 적응의 효과음을 재생합니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.baseCost]
-label = "기본 비용"
-description = ["이 적응을 습득할 때 사용되는 기본 지식 비용입니다.", "효과: 값을 높이면 레벨마다 더 많은 지식이 필요합니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.costFactor]
-label = "비용 계수"
-description = ["높은 적응 레벨에 적용되는 배율 계수입니다.", "효과: 값을 높이면 레벨 간 비용 증가 폭이 커집니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.maxLevel]
-label = "최대 레벨"
-description = ["플레이어가 이 적응에서 도달할 수 있는 최대 레벨입니다.", "효과: 값을 높이면 더 많은 레벨이 허용되고, 낮추면 성장이 더 일찍 멈춥니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.initialCost]
-label = "초기 비용"
-description = ["레벨 1을 구매하는 데 필요한 지식 비용입니다.", "효과: 값을 높이면 첫 레벨 해금 비용이 비싸집니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.requires]
-label = "선행 조건"
-description = ["플레이어가 이미 습득해야 하는 적응으로, 각각 adaptationId:level 형식으로 적습니다.", "효과: 나열된 모든 적응을 해당 레벨로 습득할 때까지 이 적응의 습득이나 레벨 업이 거부되며, 이 적응을 습득한 동안에는 해당 적응을 그 레벨 아래로 습득 해제할 수 없습니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionDurationTicks]
-label = "야간 투시 지속 틱"
-description = ["물속에서 적용되는 입자 숨김 야간 투시 효과의 지속 시간(틱)입니다.", "효과: 값을 높이면 남은 지속 시간이 더 길게 표시되며, 플레이어가 수면으로 나오면 효과는 그대로 제거됩니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionRefreshThresholdTicks]
-label = "야간 투시 갱신 임계 틱"
-description = ["거북이의 시야가 야간 투시를 갱신하는 남은 효과 틱입니다.", "효과: 값을 높이면 더 일찍 갱신하며, 이 값은 설정한 지속 시간보다 작게 제한됩니다."]
-
-[config.fields.adaptations.seaborne-turtles-vision.refreshIntervalMillis]
-label = "갱신 간격(밀리초)"
-description = ["수중 상태 확인 사이의 시간(밀리초)입니다.", "효과: 값을 낮추면 야간 투시를 더 빨리 적용하고 제거하지만 습득한 플레이어를 더 자주 검사합니다."]
 
 [config.fields.adaptations.stealth-assassinate.playerPreferences]
 label = "플레이어 선호 설정"
@@ -33390,3 +33442,2890 @@ description = ["unarmed-sucker-punch 적응의 기본 피해 설정을 제어합
 [config.fields.adaptations.unarmed-sucker-punch.damageFactor]
 label = "피해 계수"
 description = ["unarmed-sucker-punch 적응에 적용되는 배율입니다."]
+
+[gui.mutation]
+mutate = "변이"
+pick_partner = "파트너 선택"
+pick_lead = "스킬 선택"
+level = "레벨 {level}"
+knowledge = "지식 {knowledge}"
+lead = "주도: {skill}"
+swap_lead = "주도 교체"
+adaptations = "적응"
+lost = "잃는 것"
+lost_levels = "{skill} {count} 레벨"
+lost_knowledge = "{skill} 지식 {count}"
+lost_adaptation = "{adaptation} {level}"
+lost_permanent_adaptation = "{adaptation} {level} (영구, 아직 잊지 않음)"
+nothing_lost = "없음"
+confirm_again = "확인: 영구적"
+unmutate = "변이 해제"
+unmutate_confirm = "변이 해제 확인"
+lead_role = "주도"
+partner_role = "파트너"
+gains = "얻는 것"
+loses = "잃는 것"
+hold = "길게 눌러 변이"
+permanent = "되돌릴 수 없습니다"
+levels = "{count}레벨"
+tool = "도구"
+needs_level = "레벨 {level} 필요"
+in_mutation = "이미 변이됨"
+available = "변이 가능"
+available_quip = "네 스킬 두 개가 꿍꿍이가 있다"
+upgrade_quip_1 = "같은 기술, 더 큰 이빨"
+upgrade_quip_2 = "오래된 기술이 새 기술을 배웠다"
+mutated_quip_1 = "두 스킬, 하나의 이상한 기술"
+mutated_quip_2 = "자연도 이건 계획하지 않았다"
+signature_quip_1 = "이건 너만 할 수 있다"
+signature_quip_2 = "유일무이, 틀림없는 너의 것"
+
+[mutated]
+kept = "배우지 않고 유지"
+kept_adaptation = "{adaptation} {level}"
+kept_list = "배우지 않고 유지: {adaptations}."
+kept_state = "레벨 {level}로 유지"
+lent_state = "{upgrade}에서 빌린 레벨 {level}"
+raised_state = "레벨 {kept}로 유지, 레벨 {level}로 강화"
+
+[mutated.stat]
+strength = "강도"
+cooldown = "재사용 대기시간"
+interval = "간격"
+
+[mutated.name]
+mutation = "{adjective} {noun}"
+adaptation = "{adjective} {recipe}"
+block = "{skill} {slot}"
+
+[mutated.template]
+triggered = "{trigger} 시 {strike}."
+either = "적대적 몹이 6블록 이내에 있으면 {fight}. 없으면 {work}"
+barter = "{gesture} 시 {fuel} 소모: {boon} 획득."
+attunement = "{condition}에서는 20초마다 {boon} 획득."
+convergence = "{condition}에서 {trigger} 시: {strike}. 또한 {also}. 재사용 대기시간 {seconds}초."
+skill = "{lead}와(과) {partner}이(가) 하나의 기술로: {lead}이(가) 이끌고 {partner}이(가) 결합되며, 둘 다 각자의 강화를 가져옵니다."
+
+[mutated.recipe]
+graft = "접목"
+echo = "메아리"
+barter = "교환"
+attunement = "조율"
+convergence = "수렴"
+
+[mutated.slot]
+trigger = "발동"
+strike_fight = "전투 일격"
+strike_work = "작업 일격"
+boon = "혜택"
+fuel = "대가"
+state = "상태"
+
+[mutated.gesture]
+sneak_swap = "웅크린 채 손 바꾸기"
+double_sneak = "웅크리기 두 번 누르기"
+sneak_left_click = "웅크린 채 허공 좌클릭"
+sneak_scroll = "웅크린 채 휠로 핫바 넘기기"
+
+[mutated.noun]
+swords = "결투자"
+axes = "약탈자"
+unarmed = "싸움꾼"
+ranged = "명사수"
+blocking = "수호벽"
+stealth = "그림자"
+hunter = "포식자"
+tragoul = "피의 결속자"
+agility = "질주자"
+kinetics = "유성"
+rift = "공허 보행자"
+chronos = "시간지기"
+pickaxe = "심층 탐사자"
+excavation = "준설꾼"
+herbalism = "숲지기"
+architect = "석공"
+crafting = "장인"
+enchanting = "룬 대장장이"
+brewing = "연금술사"
+discovery = "탐색자"
+taming = "무리의 주인"
+golemancy = "기공사"
+seaborne = "조류술사"
+nether = "재의 방랑자"
+
+[mutated.adjective]
+swords = "칼날의"
+axes = "쪼개는"
+unarmed = "강철 주먹의"
+ranged = "멀리 보는"
+blocking = "방패를 든"
+stealth = "고요한"
+hunter = "사나운"
+tragoul = "핏빛"
+agility = "날랜"
+kinetics = "약동하는"
+rift = "균열의"
+chronos = "영원한"
+pickaxe = "깊은"
+excavation = "대지의"
+herbalism = "신록의"
+architect = "돌로 빚은"
+crafting = "단조된"
+enchanting = "룬의"
+brewing = "증류된"
+discovery = "방랑하는"
+taming = "야생의"
+golemancy = "태엽의"
+seaborne = "조류의"
+nether = "지옥의"
+
+[mutated.skill]
+swords = "검술"
+axes = "도끼"
+unarmed = "비무장"
+ranged = "원거리"
+blocking = "방어"
+stealth = "은신"
+hunter = "사냥"
+tragoul = "트라굴"
+agility = "민첩"
+kinetics = "운동역학"
+rift = "균열"
+chronos = "Chronos"
+pickaxe = "곡괭이"
+excavation = "발굴"
+herbalism = "약초학"
+architect = "건축"
+crafting = "제작"
+enchanting = "마법부여"
+brewing = "양조"
+discovery = "탐험"
+taming = "조련"
+golemancy = "골렘술"
+seaborne = "해양"
+nether = "네더"
+
+[mutated.block.swords.trigger]
+description = "검 치명타 적중"
+
+[mutated.block.swords.strike_fight]
+description = "대상이 4초 동안 출혈합니다"
+
+[mutated.block.swords.strike_work]
+description = "3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다"
+
+[mutated.block.swords.boon]
+description = "5초 동안 공격 속도 +15%"
+
+[mutated.block.swords.fuel]
+description = "검 내구도 5"
+
+[mutated.block.swords.state]
+description = "최근 4초 안에 검으로 적을 공격한 상태"
+
+[mutated.block.axes.trigger]
+description = "완전히 충전된 도끼 공격 적중"
+
+[mutated.block.axes.strike_fight]
+description = "대상의 방어력이 6초 동안 15% 감소합니다"
+
+[mutated.block.axes.strike_work]
+description = "다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다"
+
+[mutated.block.axes.boon]
+description = "6초 동안 흡수 하트 2개"
+
+[mutated.block.axes.fuel]
+description = "도끼 내구도 5"
+
+[mutated.block.axes.state]
+description = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태"
+
+[mutated.block.unarmed.trigger]
+description = "맨손 공격 3연속 적중"
+
+[mutated.block.unarmed.strike_fight]
+description = "대상이 밀려나고 3초 동안 약해집니다"
+
+[mutated.block.unarmed.strike_work]
+description = "30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다"
+
+[mutated.block.unarmed.boon]
+description = "3초 동안 재생, 그리고 15초 동안 맨손 처치 시 허기 회복"
+
+[mutated.block.unarmed.fuel]
+description = "허기 1"
+
+[mutated.block.unarmed.state]
+description = "맨손으로 전투 중인 상태"
+
+[mutated.block.ranged.trigger]
+description = "15블록 이상 거리에서 투사체 적중"
+
+[mutated.block.ranged.strike_fight]
+description = "대상에게 분광 화살이 발사됩니다"
+
+[mutated.block.ranged.strike_work]
+description = "8블록 이내의 드롭 아이템이 당신에게 날아옵니다"
+
+[mutated.block.ranged.boon]
+description = "다음 사격의 즉시 당기기"
+
+[mutated.block.ranged.fuel]
+description = "화살 1개"
+
+[mutated.block.ranged.state]
+description = "활을 끝까지 당긴 상태"
+
+[mutated.block.blocking.trigger]
+description = "방패로 공격 방어"
+
+[mutated.block.blocking.strike_fight]
+description = "대상이 비틀거려 2초 동안 방어할 수 없습니다"
+
+[mutated.block.blocking.strike_work]
+description = "10초 안에 받는 다음 공격의 피해가 절반이 됩니다"
+
+[mutated.block.blocking.boon]
+description = "5초 동안 넉백 및 투사체 저항 30%"
+
+[mutated.block.blocking.fuel]
+description = "방패 내구도 10"
+
+[mutated.block.blocking.state]
+description = "방패를 들어 올린 상태"
+
+[mutated.block.stealth.trigger]
+description = "당신을 보고 있지 않은 대상 공격"
+
+[mutated.block.stealth.strike_fight]
+description = "8블록 이내의 몹이 3초 동안 당신을 놓칩니다"
+
+[mutated.block.stealth.strike_work]
+description = "5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다"
+
+[mutated.block.stealth.boon]
+description = "3초 동안 투명화"
+
+[mutated.block.stealth.fuel]
+description = "엄폐와 허기 2 (모습이 드러남)"
+
+[mutated.block.stealth.state]
+description = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태"
+
+[mutated.block.hunter.trigger]
+description = "자연 몹 처치"
+
+[mutated.block.hunter.strike_fight]
+description = "대상이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다"
+
+[mutated.block.hunter.strike_work]
+description = "16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다"
+
+[mutated.block.hunter.boon]
+description = "5초 동안 신속"
+
+[mutated.block.hunter.fuel]
+description = "허기 2"
+
+[mutated.block.hunter.state]
+description = "체력이 절반 미만인 상태"
+
+[mutated.block.tragoul.trigger]
+description = "한 번의 공격으로 하트 2개 이상 손실"
+
+[mutated.block.tragoul.strike_fight]
+description = "대상에게서 하트 1개를 흡수합니다"
+
+[mutated.block.tragoul.strike_work]
+description = "허기 1이 하트 반 칸으로 바뀝니다"
+
+[mutated.block.tragoul.boon]
+description = "하트 1.5개만큼의 치유"
+
+[mutated.block.tragoul.fuel]
+description = "자신의 체력 하트 1개"
+
+[mutated.block.tragoul.state]
+description = "체력이 하트 3개 이하인 상태"
+
+[mutated.block.agility.trigger]
+description = "질주 점프"
+
+[mutated.block.agility.strike_fight]
+description = "바라보는 방향으로 3블록 돌진합니다"
+
+[mutated.block.agility.strike_work]
+description = "4초 동안 신속 II를 얻습니다"
+
+[mutated.block.agility.boon]
+description = "4초 동안 점프 강화와 안전한 착지"
+
+[mutated.block.agility.fuel]
+description = "추진력과 허기 2 (멈춰 섬)"
+
+[mutated.block.agility.state]
+description = "멈추지 않고 3초 동안 질주한 상태"
+
+[mutated.block.kinetics.trigger]
+description = "4블록 이상 낙하 후 착지"
+
+[mutated.block.kinetics.strike_fight]
+description = "대상이 위로 튕겨 올라갑니다"
+
+[mutated.block.kinetics.strike_work]
+description = "5초 안에 하는 다음 점프의 높이가 3블록이 됩니다"
+
+[mutated.block.kinetics.boon]
+description = "3초 동안 느린 낙하"
+
+[mutated.block.kinetics.fuel]
+description = "낙하 높이와 허기 2 (착지가 취소됨)"
+
+[mutated.block.kinetics.state]
+description = "공중에 떠 있는 상태"
+
+[mutated.block.rift.trigger]
+description = "엔더 진주, 블링크 또는 후렴과로 순간이동"
+
+[mutated.block.rift.strike_fight]
+description = "대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다"
+
+[mutated.block.rift.strike_work]
+description = "6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다"
+
+[mutated.block.rift.boon]
+description = "3초 동안 저항"
+
+[mutated.block.rift.fuel]
+description = "엔더 진주 1개"
+
+[mutated.block.rift.state]
+description = "최근 5초 안에 순간이동한 상태"
+
+[mutated.block.chronos.trigger]
+description = "시계를 들고 웅크린 채 손 바꾸기"
+
+[mutated.block.chronos.strike_fight]
+description = "대상이 2초 동안 느려집니다"
+
+[mutated.block.chronos.strike_work]
+description = "4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다"
+
+[mutated.block.chronos.boon]
+description = "활성 물약 효과의 지속시간 5초 연장"
+
+[mutated.block.chronos.fuel]
+description = "시계에 걸리는 20초 재사용 대기시간"
+
+[mutated.block.chronos.state]
+description = "보조 손에 시계를 든 상태"
+
+[mutated.block.pickaxe.trigger]
+description = "광석 채굴"
+
+[mutated.block.pickaxe.strike_fight]
+description = "튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다"
+
+[mutated.block.pickaxe.strike_work]
+description = "6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다"
+
+[mutated.block.pickaxe.boon]
+description = "6초 동안 성급함"
+
+[mutated.block.pickaxe.fuel]
+description = "곡괭이 내구도 5"
+
+[mutated.block.pickaxe.state]
+description = "최근 4초 안에 블록을 채굴한 상태"
+
+[mutated.block.excavation.trigger]
+description = "5초 안에 부드러운 블록 8개 파기"
+
+[mutated.block.excavation.strike_fight]
+description = "대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다"
+
+[mutated.block.excavation.strike_work]
+description = "마지막으로 판 곳 주변 3x3의 부드러운 블록이 부서지며 드롭됩니다"
+
+[mutated.block.excavation.boon]
+description = "다음 낙하 시 안전한 착지"
+
+[mutated.block.excavation.fuel]
+description = "흙, 모래 또는 자갈 8개"
+
+[mutated.block.excavation.state]
+description = "최근 4초 안에 부드러운 블록을 판 상태"
+
+[mutated.block.herbalism.trigger]
+description = "다 자란 작물 수확"
+
+[mutated.block.herbalism.strike_fight]
+description = "대상이 2초 동안 덩굴에 묶입니다"
+
+[mutated.block.herbalism.strike_work]
+description = "4블록 이내의 작물과 묘목이 한 단계 자랍니다"
+
+[mutated.block.herbalism.boon]
+description = "허기 2 회복"
+
+[mutated.block.herbalism.fuel]
+description = "씨앗 또는 작물 3개"
+
+[mutated.block.herbalism.state]
+description = "작물, 풀 또는 꽃 위에 서 있는 상태"
+
+[mutated.block.architect.trigger]
+description = "5초 안에 블록 8개 설치"
+
+[mutated.block.architect.strike_fight]
+description = "당신과 대상 사이에 높이 2의 임시 벽이 솟아오릅니다"
+
+[mutated.block.architect.strike_work]
+description = "5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다"
+
+[mutated.block.architect.boon]
+description = "다음에 설치하는 블록 8개에 60초 동안 폭발 및 화염 저항"
+
+[mutated.block.architect.fuel]
+description = "손에 든 블록 4개"
+
+[mutated.block.architect.state]
+description = "최근 4초 안에 블록을 설치한 상태"
+
+[mutated.block.crafting.trigger]
+description = "도구, 무기 또는 방어구 제작"
+
+[mutated.block.crafting.strike_fight]
+description = "5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다"
+
+[mutated.block.crafting.strike_work]
+description = "손에 든 도구가 20초 동안 효율 +1을 얻습니다"
+
+[mutated.block.crafting.boon]
+description = "손에 든 아이템의 내구도 6"
+
+[mutated.block.crafting.fuel]
+description = "철 조각 1개"
+
+[mutated.block.crafting.state]
+description = "최근 10초 안에 무언가를 제작한 상태"
+
+[mutated.block.enchanting.trigger]
+description = "아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득"
+
+[mutated.block.enchanting.strike_fight]
+description = "대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다"
+
+[mutated.block.enchanting.strike_work]
+description = "다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다"
+
+[mutated.block.enchanting.boon]
+description = "8초 동안 행운"
+
+[mutated.block.enchanting.fuel]
+description = "바닐라 경험치 1레벨"
+
+[mutated.block.enchanting.state]
+description = "바닐라 경험치 레벨이 20 이상인 상태"
+
+[mutated.block.brewing.trigger]
+description = "물약 마시기 또는 던지기"
+
+[mutated.block.brewing.strike_fight]
+description = "연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다"
+
+[mutated.block.brewing.strike_work]
+description = "연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다"
+
+[mutated.block.brewing.boon]
+description = "6초 동안 무작위 이로운 물약 효과"
+
+[mutated.block.brewing.fuel]
+description = "연금술사의 탄띠 또는 보조 손 물약의 4분의 1"
+
+[mutated.block.brewing.state]
+description = "마신 물약의 효과가 지속 중인 상태"
+
+[mutated.block.discovery.trigger]
+description = "새로운 것 발견"
+
+[mutated.block.discovery.strike_fight]
+description = "대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다"
+
+[mutated.block.discovery.strike_work]
+description = "24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다"
+
+[mutated.block.discovery.boon]
+description = "8초 동안 야간 투시와 상자 발광"
+
+[mutated.block.discovery.fuel]
+description = "종이 또는 지도 1개"
+
+[mutated.block.discovery.state]
+description = "처음 들어온 청크에 있는 상태"
+
+[mutated.block.taming.trigger]
+description = "펫의 공격 적중"
+
+[mutated.block.taming.strike_fight]
+description = "가장 가까운 펫이 대상에게 달려듭니다"
+
+[mutated.block.taming.strike_work]
+description = "8블록 이내의 펫이 하트 1개를 회복하고 5초 동안 당신과 같은 속도로 움직입니다"
+
+[mutated.block.taming.boon]
+description = "주변 펫 1마리당 하트 2개, 최대 하트 3개만큼의 치유"
+
+[mutated.block.taming.fuel]
+description = "뼈 또는 고기 1개"
+
+[mutated.block.taming.state]
+description = "당신의 펫이 전투 중인 상태"
+
+[mutated.block.golemancy.trigger]
+description = "소유한 골렘의 작업 완료"
+
+[mutated.block.golemancy.strike_fight]
+description = "가장 가까운 골렘이 대상을 공격합니다"
+
+[mutated.block.golemancy.strike_work]
+description = "가장 가까운 골렘이 방금 당신이 한 작업을 다음 일치하는 블록에 반복합니다"
+
+[mutated.block.golemancy.boon]
+description = "10초 동안 골렘 작업 속도 50% 증가"
+
+[mutated.block.golemancy.fuel]
+description = "구리 또는 철 조각 1개"
+
+[mutated.block.golemancy.state]
+description = "당신의 골렘이 16블록 이내에서 작업 중인 상태"
+
+[mutated.block.seaborne.trigger]
+description = "물속으로 다이빙 또는 젖은 상태에서 피격"
+
+[mutated.block.seaborne.strike_fight]
+description = "물줄기가 대상을 밀쳐내고 불을 끕니다"
+
+[mutated.block.seaborne.strike_work]
+description = "4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다"
+
+[mutated.block.seaborne.boon]
+description = "6초 동안 수중 호흡과 빠른 수영"
+
+[mutated.block.seaborne.fuel]
+description = "공기 방울 3개와 허기 2"
+
+[mutated.block.seaborne.state]
+description = "몸이 젖은 상태"
+
+[mutated.block.nether.trigger]
+description = "화염 피해"
+
+[mutated.block.nether.strike_fight]
+description = "대상이 4초 동안 불탑니다"
+
+[mutated.block.nether.strike_work]
+description = "다음에 부수는 블록 3개가 제련됩니다"
+
+[mutated.block.nether.boon]
+description = "6초 동안 화염 저항"
+
+[mutated.block.nether.fuel]
+description = "블레이즈 가루 1개"
+
+[mutated.block.nether.state]
+description = "네더에 있거나 불타는 상태"
+
+[mutated.override.swords.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 검 치명타 적중 시: 대상이 4초 동안 출혈합니다. 또한 대상이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.override.swords.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 검 치명타 적중 시: 대상이 4초 동안 출혈합니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.override.swords.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 검 치명타 적중 시: 대상이 4초 동안 출혈합니다. 또한 대상이 비틀거려 2초 동안 방어할 수 없습니다. 재사용 대기시간 45초."
+
+[mutated.override.swords.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 출혈합니다."
+
+[mutated.override.swords.agility]
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 검 치명타 적중 시: 대상이 4초 동안 출혈합니다. 또한 바라보는 방향으로 3블록 돌진합니다. 재사용 대기시간 45초."
+
+[mutated.override.swords.herbalism]
+echo = "다 자란 작물 수확 시 3블록 호 안의 풀, 나뭇잎, 다 자란 작물이 베어져 수거됩니다."
+
+[mutated.override.swords.taming]
+echo = "펫의 공격 적중 시 대상이 4초 동안 출혈합니다."
+
+[mutated.override.swords.golemancy]
+echo = "소유한 골렘의 작업 완료 시 3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다."
+
+[mutated.signature.swords.chronos.convergence]
+name = "메아리 일격"
+description = "검 공격을 세 번 적중시킬 때마다 1초 뒤 잔상이 다시 공격합니다. 잔상은 치명타가 되지 않으며 다른 효과도 발동하지 않습니다."
+lore1 = "메아리 피해"
+lore2 = "메아리당 검 적중 횟수"
+
+[mutated.signature.swords.stealth.convergence]
+name = "보이지 않는 칼날"
+description = "당신을 볼 수 없는 생물에게 검으로 치명타를 적중시키면 회복을 막고 심한 출혈을 일으킵니다. 3초 안에 죽으면, 다른 몹이 당신을 쫓고 있지 않은 한 2초 동안 사라집니다. 재사용 대기시간 20초."
+lore1 = "회복 불가"
+lore2 = "출혈 피해"
+lore3 = "사라짐"
+
+[mutated.override.axes.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 완전히 충전된 도끼 공격 적중 시: 대상의 방어력이 6초 동안 15% 감소합니다. 또한 대상이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.override.axes.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 완전히 충전된 도끼 공격 적중 시: 대상의 방어력이 6초 동안 15% 감소합니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.override.axes.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 완전히 충전된 도끼 공격 적중 시: 대상의 방어력이 6초 동안 15% 감소합니다. 또한 대상이 비틀거려 2초 동안 방어할 수 없습니다. 재사용 대기시간 45초."
+
+[mutated.override.axes.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹의 방어력이 6초 동안 15% 감소합니다."
+
+[mutated.override.axes.taming]
+echo = "펫의 공격 적중 시 대상의 방어력이 6초 동안 15% 감소합니다."
+
+[mutated.override.axes.golemancy]
+echo = "소유한 골렘의 작업 완료 시 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다."
+
+[mutated.signature.axes.herbalism.convergence]
+name = "숲지기"
+description = "통나무 쓰러뜨리기로 벤 자연 나무는 가지고 있는 묘목으로 다시 심어지고, 주변 묘목이 한 단계 자랍니다."
+lore1 = "나무당 자라는 묘목"
+lore2 = "묘목 탐색 반경"
+
+[mutated.signature.axes.architect.convergence]
+name = "목조 골조"
+description = "통나무 쓰러뜨리기로 벤 원목은 껍질이 벗겨진 채 떨어집니다. 레벨 2부터는 벌목한 원목 설정에 따라 대신 하나당 판자 4개로 켭니다."
+lore1 = "나무당 다듬는 원목"
+lore2 = "원목당 판자"
+
+[mutated.override.unarmed.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 맨손 공격 3연속 적중 시: 대상이 밀려나고 3초 동안 약해집니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.unarmed.blocking.convergence]
+name = "강철 방어"
+description = "공격을 받기 직전에 양손을 비운 채 블록이나 몹을 우클릭하면 방패 없이 막아냅니다. 공격은 무효가 되고 절반이 공격자에게 돌아가며, 공격자는 비틀거리고 3초 안의 다음 맨손 공격이 더 강해집니다."
+lore1 = "패링 시간"
+lore2 = "되돌린 피해"
+lore3 = "반격 피해"
+
+[mutated.override.unarmed.stealth]
+convergence = "최근 4초 안에 들키지 않고 웅크리고 있던 상태에서 맨손 공격 3연속 적중 시: 대상이 밀려나고 3초 동안 약해집니다. 또한 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 재사용 대기시간 45초."
+
+[mutated.override.unarmed.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 밀려나고 3초 동안 약해집니다."
+
+[mutated.override.unarmed.crafting]
+attunement = "맨손으로 전투 중인 상태에서는 20초마다 가장 많이 손상된 방어구의 내구도 6 획득."
+
+[mutated.override.unarmed.taming]
+echo = "펫의 공격 적중 시 대상이 밀려나고 3초 동안 약해집니다."
+
+[mutated.override.unarmed.golemancy]
+echo = "소유한 골렘의 작업 완료 시 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다."
+
+[mutated.signature.unarmed.tragoul.convergence]
+name = "피의 주먹"
+description = "적대적 몹이나 플레이어에게 가하는 연속 맨손 공격마다 중첩당 체력을 회복합니다(핏빛 조류처럼 초당 상한이 있음). 끊기지 않는 연타의 마무리 일격은 피해의 절반만큼 회복시킵니다."
+lore1 = "중첩당 회복"
+lore2 = "초당 최대 회복"
+lore3 = "마무리 피해 회복 비율"
+
+[mutated.override.ranged.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 15블록 이상 거리에서 투사체 적중 시: 대상에게 분광 화살이 발사됩니다. 또한 대상이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.override.ranged.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹에게 분광 화살이 발사됩니다."
+
+[mutated.signature.ranged.agility.convergence]
+name = "공중 당기기"
+description = "공중에서 활을 당기면 낙하가 느려지고, 공중에서 절반 이상 당겨 쏜 화살은 끝까지 당긴 것처럼 날아가며, 공중에 있는 동안 처음 맞힌 화살은 체공마다 한 번 하늘 질주자의 충전을 채웁니다."
+lore1 = "체공당 감속 낙하"
+
+[mutated.override.ranged.taming]
+echo = "펫의 공격 적중 시 대상에게 분광 화살이 발사됩니다."
+
+[mutated.override.ranged.golemancy]
+echo = "소유한 골렘의 작업 완료 시 8블록 이내의 드롭 아이템이 당신에게 날아옵니다."
+
+[mutated.signature.ranged.chronos.convergence]
+name = "되감은 사격"
+description = "끝까지 당긴 활 사격이 1.5초 뒤 발사된 위치에서 같은 궤적으로 다시 발사되며, 화살을 쓰지 않습니다. 다시 쏜 화살은 원거리 효과를 발동하지 않습니다."
+lore1 = "재사격 피해"
+
+[mutated.signature.ranged.hunter.convergence]
+name = "예고된 사격"
+description = "추적자의 나침반의 종 중 가장 가까운 자연 생물이 나침반의 범위를 훨씬 넘어 나에게만 빛나고, 그쪽으로 활을 당기면 고정되어 화살이 추적합니다."
+lore1 = "발광 범위"
+lore2 = "고정 범위"
+
+[mutated.override.blocking.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 방패로 공격 방어 시: 대상이 비틀거려 2초 동안 방어할 수 없습니다. 또한 대상이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.signature.blocking.unarmed.convergence]
+name = "강철 방어"
+description = "공격을 받기 직전에 양손을 비운 채 블록이나 몹을 우클릭하면 방패 없이 막아냅니다. 공격은 무효가 되고 절반이 공격자에게 돌아가며, 공격자는 비틀거리고 3초 안의 다음 맨손 공격이 더 강해집니다."
+lore1 = "패링 시간"
+lore2 = "되돌린 피해"
+lore3 = "반격 피해"
+
+[mutated.override.blocking.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 방패로 공격 방어 시: 대상이 비틀거려 2초 동안 방어할 수 없습니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.override.blocking.stealth]
+convergence = "최근 4초 안에 들키지 않고 웅크리고 있던 상태에서 방패로 공격 방어 시: 대상이 비틀거려 2초 동안 방어할 수 없습니다. 또한 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 재사용 대기시간 45초."
+
+[mutated.override.blocking.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 비틀거려 2초 동안 방어할 수 없습니다."
+
+[mutated.override.blocking.agility]
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 방패로 공격 방어 시: 대상이 비틀거려 2초 동안 방어할 수 없습니다. 또한 바라보는 방향으로 3블록 돌진합니다. 재사용 대기시간 45초."
+
+[mutated.override.blocking.brewing]
+graft = "방패로 공격 방어 시 핫바의 첫 번째 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다."
+convergence = "마신 물약의 효과가 지속 중인 상태에서 방패로 공격 방어 시: 대상이 비틀거려 2초 동안 방어할 수 없습니다. 또한 핫바의 첫 번째 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다. 재사용 대기시간 45초."
+
+[mutated.override.blocking.taming]
+echo = "펫의 공격 적중 시 대상이 비틀거려 2초 동안 방어할 수 없습니다."
+
+[mutated.override.blocking.golemancy]
+echo = "소유한 골렘의 작업 완료 시 10초 안에 받는 다음 공격의 피해가 절반이 됩니다."
+
+[mutated.signature.blocking.taming.convergence]
+name = "방패병의 무리"
+description = "들어 올린 방패나 세워 둔 방패 벽 뒤에 있는 내 펫은 투사체 피해를 받지 않고 천천히 회복합니다."
+lore1 = "엄폐 깊이"
+lore2 = "초당 펫 회복량"
+
+[mutated.override.stealth.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 당신을 보고 있지 않은 대상 공격 시: 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.override.stealth.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 당신을 보고 있지 않은 대상 공격 시: 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 또한 대상이 비틀거려 2초 동안 방어할 수 없습니다. 재사용 대기시간 45초."
+
+[mutated.override.stealth.taming]
+echo = "펫의 공격 적중 시 8블록 이내의 몹이 3초 동안 당신을 놓칩니다."
+
+[mutated.override.stealth.golemancy]
+echo = "소유한 골렘의 작업 완료 시 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다."
+
+[mutated.signature.stealth.swords.convergence]
+name = "그림자 반격"
+description = "웅크리고 있고 다른 몹이 당신을 쫓지 않을 때, 받는 근접 공격이 일부 막히고 무료 그림자 걸음으로 공격자의 뒤로 갑니다. 그 대상에게 가하는 다음 공격은 죽음의 표식 선공이 됩니다. 그림자 걸음이 준비되어 있고 뒤에 공간이 있어야 합니다. 재사용 대기시간 15초."
+lore1 = "막아냄"
+
+[mutated.signature.stealth.rift.convergence]
+name = "공허의 걸음"
+description = "점멸 직후 빈손으로 당신을 볼 수 없는 생물을 우클릭하면 연막탄 없이, 당신의 그림자 걸음 사거리와 재사용 대기시간에 따라 그 뒤로 그림자 걸음을 합니다. 어떤 몹도 당신을 쫓지 않는 동안 위상 걸음의 점멸은 입자도 소리도 남기지 않습니다."
+lore1 = "점멸 후 시간"
+
+[mutated.override.hunter.swords]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 출혈합니다."
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 출혈합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.axes]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹의 방어력이 6초 동안 15% 감소합니다."
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹의 방어력이 6초 동안 15% 감소합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.unarmed]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 밀려나고 3초 동안 약해집니다."
+convergence = "맨손으로 전투 중인 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.ranged]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹에게 분광 화살이 발사됩니다."
+
+[mutated.override.hunter.blocking]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 비틀거려 2초 동안 방어할 수 없습니다."
+convergence = "방패를 들어 올린 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 비틀거려 2초 동안 방어할 수 없습니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.stealth]
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.tragoul]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹에게서 하트 1개를 흡수합니다."
+convergence = "체력이 하트 3개 이하인 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹에게서 하트 1개를 흡수합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.agility]
+convergence = "멈추지 않고 3초 동안 질주한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 바라보는 방향으로 3블록 돌진합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.kinetics]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 위로 튕겨 올라갑니다."
+convergence = "공중에 떠 있는 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 위로 튕겨 올라갑니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.rift]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다."
+convergence = "최근 5초 안에 순간이동한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.chronos]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 느려집니다."
+convergence = "보조 손에 시계를 든 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 느려집니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.pickaxe]
+graft = "자연 몹 처치 시 튀는 암석 파편에 맞은 6블록 이내에서 가장 가까운 다른 적대적 몹이 1초 동안 기절합니다."
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 튀는 암석 파편에 맞은 6블록 이내에서 가장 가까운 다른 적대적 몹이 1초 동안 기절합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.excavation]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹 아래의 땅이 진흙으로 변해 3초 동안 그 몹을 느리게 합니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹 아래의 땅이 진흙으로 변해 3초 동안 그 몹을 느리게 합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.herbalism]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 덩굴에 묶입니다."
+convergence = "작물, 풀 또는 꽃 위에 서 있는 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 덩굴에 묶입니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.architect]
+graft = "자연 몹 처치 시 당신과 6블록 이내에서 가장 가까운 다른 적대적 몹 사이에 높이 2의 임시 벽이 솟아오릅니다."
+convergence = "최근 4초 안에 블록을 설치한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 당신과 6블록 이내에서 가장 가까운 다른 적대적 몹 사이에 높이 2의 임시 벽이 솟아오릅니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.crafting]
+convergence = "최근 10초 안에 무언가를 제작한 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.enchanting]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다."
+convergence = "바닐라 경험치 레벨이 20 이상인 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.brewing]
+graft = "자연 몹 처치 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 6블록 이내에서 가장 가까운 다른 적대적 몹에게 튀깁니다."
+convergence = "마신 물약의 효과가 지속 중인 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 6블록 이내에서 가장 가까운 다른 적대적 몹에게 튀깁니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.discovery]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹의 능력치가 드러나고, 그 몹에 대한 다음 공격의 피해가 20% 증가합니다."
+convergence = "처음 들어온 청크에 있는 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹의 능력치가 드러나고, 그 몹에 대한 다음 공격의 피해가 20% 증가합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.taming]
+graft = "자연 몹 처치 시 가장 가까운 펫이 6블록 이내에서 가장 가까운 다른 적대적 몹에게 달려듭니다."
+echo = "펫의 공격 적중 시 대상이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다."
+
+[mutated.override.hunter.golemancy]
+graft = "자연 몹 처치 시 가장 가까운 골렘이 6블록 이내에서 가장 가까운 다른 적대적 몹을 공격합니다."
+echo = "소유한 골렘의 작업 완료 시 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 가장 가까운 골렘이 6블록 이내에서 가장 가까운 다른 적대적 몹을 공격합니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.seaborne]
+graft = "자연 몹 처치 시 물줄기가 6블록 이내에서 가장 가까운 다른 적대적 몹을 밀쳐내고 불을 끕니다."
+convergence = "몸이 젖은 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 물줄기가 6블록 이내에서 가장 가까운 다른 적대적 몹을 밀쳐내고 불을 끕니다. 재사용 대기시간 45초."
+
+[mutated.override.hunter.nether]
+graft = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 불탑니다."
+convergence = "네더에 있거나 불타는 상태에서 자연 몹 처치 시: 6블록 이내에서 가장 가까운 다른 적대적 몹이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 또한 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 불탑니다. 재사용 대기시간 45초."
+
+[mutated.signature.hunter.ranged.convergence]
+name = "예고된 사격"
+description = "추적자의 나침반의 종 중 가장 가까운 자연 생물이 나침반의 범위를 훨씬 넘어 나에게만 빛나고, 그쪽으로 활을 당기면 고정되어 화살이 추적합니다."
+lore1 = "발광 범위"
+lore2 = "고정 범위"
+
+[mutated.signature.hunter.taming.convergence]
+name = "무리 사냥"
+description = "펫이 스스로 핏자국이나 추적자의 나침반의 종을 쫓습니다. 나에게서 32블록 이상 벗어나지 않으며, 그 사냥감을 무는 공격은 최상위 포식자 중첩을 쌓고 그 효과를 받습니다."
+lore1 = "사냥 범위"
+lore2 = "사냥당 펫 수"
+lore3 = "중첩당 펫 피해"
+
+[mutated.override.tragoul.stealth]
+convergence = "최근 4초 안에 들키지 않고 웅크리고 있던 상태에서 한 번의 공격으로 하트 2개 이상 손실 시: 대상에게서 하트 1개를 흡수합니다. 또한 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 재사용 대기시간 45초."
+
+[mutated.override.tragoul.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹에게서 하트 1개를 흡수합니다."
+
+[mutated.override.tragoul.taming]
+echo = "펫의 공격 적중 시 대상에게서 하트 1개를 흡수합니다."
+
+[mutated.override.tragoul.golemancy]
+echo = "소유한 골렘의 작업 완료 시 허기 1이 하트 반 칸으로 바뀝니다."
+
+[mutated.signature.tragoul.golemancy.convergence]
+name = "뼈의 군단"
+description = "해골 하인에게 골렘 코어를 건네면 뼈 골렘으로 일합니다. 수명은 쉬는 동안에만 줄어들며, 다하면 부서지고 코어를 떨어뜨립니다. 군단병도 하인 한도에 포함됩니다."
+lore1 = "군단병"
+lore2 = "대기 수명"
+
+[mutated.signature.agility.ranged.convergence]
+name = "공중 당기기"
+description = "공중에서 활을 당기면 낙하가 느려지고, 공중에서 절반 이상 당겨 쏜 화살은 끝까지 당긴 것처럼 날아가며, 공중에 있는 동안 처음 맞힌 화살은 체공마다 한 번 하늘 질주자의 충전을 채웁니다."
+lore1 = "체공당 감속 낙하"
+
+[mutated.signature.tragoul.unarmed.convergence]
+name = "피의 주먹"
+description = "적대적 몹이나 플레이어에게 가하는 연속 맨손 공격마다 중첩당 체력을 회복합니다(핏빛 조류처럼 초당 상한이 있음). 끊기지 않는 연타의 마무리 일격은 피해의 절반만큼 회복시킵니다."
+lore1 = "중첩당 회복"
+lore2 = "초당 최대 회복"
+lore3 = "마무리 피해 회복 비율"
+
+[mutated.signature.tragoul.nether.convergence]
+name = "위더의 피"
+description = "처치할 때마다 시체 주변의 적대적 몹에게 위더 I이 퍼지고, 위더 스켈레톤을 처치하면 피 저장고가 채워집니다."
+lore1 = "확산 반경"
+lore2 = "최대 위더 대상"
+lore3 = "위더 스켈레톤당 피"
+
+[mutated.override.agility.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 질주 점프 시: 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상에게 분광 화살이 발사됩니다. 없으면 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.agility.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 질주 점프 시: 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 비틀거려 2초 동안 방어할 수 없습니다. 없으면 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.agility.stealth]
+convergence = "최근 4초 안에 들키지 않고 웅크리고 있던 상태에서 질주 점프 시: 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 또한 적대적 몹이 6블록 이내에 있으면 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 없으면 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.agility.excavation]
+graft = "질주 점프 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 질주 점프 시: 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.agility.taming]
+echo = "펫의 공격 적중 시 바라보는 방향으로 3블록 돌진합니다."
+
+[mutated.override.agility.golemancy]
+graft = "질주 점프 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 4초 동안 신속 II를 얻습니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 질주 점프 시: 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.agility.kinetics.convergence]
+name = "추진력 저장소"
+description = "철퇴 급강하에 가져간 달리기 속도를 저장합니다. 혜성의 충격파가 그만큼 최대 50% 더 강해지고, 착지 후에도 그 속도를 유지합니다."
+lore1 = "최대 충격파 보너스"
+lore2 = "착지 후 유지되는 속도"
+
+[mutated.override.kinetics.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 위로 튕겨 올라갑니다."
+
+[mutated.override.kinetics.excavation]
+graft = "4블록 이상 낙하 후 착지 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 4블록 이상 낙하 후 착지 시: 적대적 몹이 6블록 이내에 있으면 대상이 위로 튕겨 올라갑니다. 없으면 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.kinetics.taming]
+echo = "펫의 공격 적중 시 대상이 위로 튕겨 올라갑니다."
+
+[mutated.override.kinetics.golemancy]
+graft = "4블록 이상 낙하 후 착지 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 4블록 이상 낙하 후 착지 시: 적대적 몹이 6블록 이내에 있으면 대상이 위로 튕겨 올라갑니다. 없으면 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.kinetics.agility.convergence]
+name = "추진력 저장소"
+description = "철퇴 급강하에 가져간 달리기 속도를 저장합니다. 혜성의 충격파가 그만큼 최대 50% 더 강해지고, 착지 후에도 그 속도를 유지합니다."
+lore1 = "최대 충격파 보너스"
+lore2 = "착지 후 유지되는 속도"
+
+[mutated.override.rift.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다."
+
+[mutated.override.rift.excavation]
+graft = "엔더 진주, 블링크 또는 후렴과로 순간이동 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 엔더 진주, 블링크 또는 후렴과로 순간이동 시: 적대적 몹이 6블록 이내에 있으면 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다. 없으면 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.rift.taming]
+echo = "펫의 공격 적중 시 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다."
+
+[mutated.override.rift.golemancy]
+graft = "엔더 진주, 블링크 또는 후렴과로 순간이동 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 엔더 진주, 블링크 또는 후렴과로 순간이동 시: 적대적 몹이 6블록 이내에 있으면 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다. 없으면 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.rift.chronos.convergence]
+name = "순간이동 되돌리기"
+description = "엔더 진주, 후렴과, 순간이동 후 3~5초 안에 시계를 들고 웅크린 채 손을 바꾸면 출발한 곳으로 돌아가며, 체력은 그곳에 있을 때 이상으로 회복됩니다. 들어갈 수 없는 곳으로는 돌아가지 않습니다."
+lore1 = "돌아갈 수 있는 시간"
+
+[mutated.signature.rift.stealth.convergence]
+name = "공허의 걸음"
+description = "점멸 직후 빈손으로 당신을 볼 수 없는 생물을 우클릭하면 연막탄 없이, 당신의 그림자 걸음 사거리와 재사용 대기시간에 따라 그 뒤로 그림자 걸음을 합니다. 어떤 몹도 당신을 쫓지 않는 동안 위상 걸음의 점멸은 입자도 소리도 남기지 않습니다."
+lore1 = "점멸 후 시간"
+
+[mutated.signature.rift.herbalism.convergence]
+name = "후렴 과수원"
+description = "다 자란 작물을 수확할 때마다 근처의 후렴과 꽃이 한 단계 자라며, 강제 성장으로 기록됩니다. 후렴과는 무작위 위치 대신 바라보는 곳으로 보냅니다."
+lore1 = "후렴 사거리"
+lore2 = "수확당 꽃"
+
+[mutated.signature.rift.discovery.convergence]
+name = "길잡이 돌"
+description = "아틀라스의 구조물을 길잡이 돌로 만듭니다. 블록이 없는 균열 닻으로, 닻 한도에 포함되며 닻 메뉴에서 다른 닻처럼 엔더 진주와 집중을 들여 이동합니다."
+lore1 = "길잡이 돌"
+
+[mutated.signature.chronos.swords.convergence]
+name = "메아리 일격"
+description = "검 공격을 세 번 적중시킬 때마다 1초 뒤 잔상이 다시 공격합니다. 잔상은 치명타가 되지 않으며 다른 효과도 발동하지 않습니다."
+lore1 = "메아리 피해"
+lore2 = "메아리당 검 적중 횟수"
+
+[mutated.override.chronos.axes]
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상의 방어력이 6초 동안 15% 감소합니다. 없으면 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 밀려나고 3초 동안 약해집니다. 없으면 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.signature.chronos.ranged.convergence]
+name = "되감은 사격"
+description = "끝까지 당긴 활 사격이 1.5초 뒤 발사된 위치에서 같은 궤적으로 다시 발사되며, 화살을 쓰지 않습니다. 다시 쏜 화살은 원거리 효과를 발동하지 않습니다."
+lore1 = "재사격 피해"
+
+[mutated.override.chronos.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 비틀거려 2초 동안 방어할 수 없습니다. 없으면 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.stealth]
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 없으면 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 느려집니다."
+convergence = "체력이 절반 미만인 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 없으면 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.tragoul]
+convergence = "체력이 하트 3개 이하인 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상에게서 하트 1개를 흡수합니다. 없으면 허기 1이 하트 반 칸으로 바뀝니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.agility]
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.kinetics]
+convergence = "공중에 떠 있는 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 위로 튕겨 올라갑니다. 없으면 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.chronos.rift.convergence]
+name = "순간이동 되돌리기"
+description = "엔더 진주, 후렴과, 순간이동 후 3~5초 안에 시계를 들고 웅크린 채 손을 바꾸면 출발한 곳으로 돌아가며, 체력은 그곳에 있을 때 이상으로 회복됩니다. 들어갈 수 없는 곳으로는 돌아가지 않습니다."
+lore1 = "돌아갈 수 있는 시간"
+
+[mutated.override.chronos.pickaxe]
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다. 없으면 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.excavation]
+graft = "시계를 들고 웅크린 채 손 바꾸기 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.chronos.herbalism.convergence]
+name = "계절 넘기기"
+description = "게임 속 하루에 한 번, 시계를 들고 웅크린 채 손을 바꾸면 주변의 모든 작물이 한 단계 자랍니다. 이 성장은 뼛가루로 간주됩니다."
+lore1 = "밭 반경"
+
+[mutated.signature.chronos.architect.convergence]
+name = "긴 되돌리기"
+description = "시계를 들고 웅크린 채 손을 바꾸면 가장 최근의 분필 채우기, 틀 찍기, 지팡이 면, 교체를 되돌립니다. 파괴의 손보다 열 배 더 이전까지 되돌릴 수 있습니다. 아직 남아 있는 블록은 각각 든 비용을 돌려줍니다. 10분 안에 그 근처에서 시간의 군주의 복원을 쓰면 건축물이 다시 비용을 치르고 되돌아옵니다."
+lore1 = "되돌리기 범위"
+
+[mutated.override.chronos.crafting]
+convergence = "최근 10초 안에 무언가를 제작한 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다. 없으면 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.enchanting]
+convergence = "바닐라 경험치 레벨이 20 이상인 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다. 없으면 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.chronos.brewing.convergence]
+name = "멈춘 물약"
+description = "시계를 들고 웅크린 채 손을 바꾸면 이로운 물약 효과를 멈춥니다. 다시 바꾸거나 멈춤 시간이 끝나면 남은 시간 그대로 돌아옵니다."
+lore1 = "최대 멈춤 시간"
+
+[mutated.override.chronos.discovery]
+convergence = "처음 들어온 청크에 있는 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다. 없으면 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.taming]
+echo = "펫의 공격 적중 시 대상이 2초 동안 느려집니다."
+
+[mutated.signature.chronos.taming.convergence]
+name = "되감긴 동료"
+description = "죽을 위기의 펫은 대신 4초 되감겨 서 있던 자리와 그때의 체력으로 돌아갑니다. 각 펫은 5~10분에 한 번까지만 되감깁니다."
+lore1 = "되감기"
+lore2 = "펫별 대기 시간"
+
+[mutated.override.chronos.golemancy]
+graft = "시계를 들고 웅크린 채 손 바꾸기 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다."
+
+[mutated.signature.chronos.golemancy.convergence]
+name = "오버클럭"
+description = "골렘 근처에서 시계를 들고 웅크린 채 손을 바꾸면 크로노 병에 저장된 시간 60초를 대가로 골렘이 세 배 빠르게 일합니다."
+lore1 = "골렘 속도"
+lore2 = "지속 시간"
+lore3 = "병 시간"
+
+[mutated.override.chronos.seaborne]
+convergence = "몸이 젖은 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 재사용 대기시간 45초."
+
+[mutated.override.chronos.nether]
+convergence = "네더에 있거나 불타는 상태에서 시계를 들고 웅크린 채 손 바꾸기 시: 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 4초 동안 불탑니다. 없으면 다음에 부수는 블록 3개가 제련됩니다. 재사용 대기시간 45초."
+
+[mutated.override.pickaxe.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 광석 채굴 시: 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 또한 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.pickaxe.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 광석 채굴 시: 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.pickaxe.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 광석 채굴 시: 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.pickaxe.hunter]
+echo = "자연 몹 처치 시 튀는 암석 파편에 맞은 6블록 이내에서 가장 가까운 다른 적대적 몹이 1초 동안 기절합니다."
+
+[mutated.override.pickaxe.agility]
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 광석 채굴 시: 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 또한 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.pickaxe.excavation]
+graft = "광석 채굴 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.pickaxe.taming]
+echo = "펫의 공격 적중 시 튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다."
+
+[mutated.override.pickaxe.golemancy]
+echo = "소유한 골렘의 작업 완료 시 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다."
+
+[mutated.signature.pickaxe.excavation.convergence]
+name = "혼합 막장"
+description = "대지 진동이 뚫거나 지형 조형가가 판 뒤, 3x3 면의 나머지가 돌과 무른 흙 구분 없이 핫바의 알맞은 도구로 부서집니다. 레벨마다 한 면 더 깊이 닿습니다."
+lore1 = "면 깊이"
+lore2 = "한 번 휘두를 때 추가 블록"
+
+[mutated.signature.pickaxe.architect.convergence]
+name = "터널 건설자"
+description = "대지 진동이 평평한 터널을 뚫는 동안 주변 돌이 보조 손의 블록으로 바뀝니다. 바닥부터, 그다음 벽, 그다음 천장 순이며 8블록마다 인벤토리의 횃불을 놓습니다."
+lore1 = "굴착당 덧대는 블록"
+lore2 = "횃불 사이 블록"
+
+[mutated.override.excavation.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 5초 안에 부드러운 블록 8개 파기 시: 마지막으로 판 곳 주변 3x3의 부드러운 블록이 부서지며 드롭됩니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.excavation.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 5초 안에 부드러운 블록 8개 파기 시: 마지막으로 판 곳 주변 3x3의 부드러운 블록이 부서지며 드롭됩니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.excavation.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹 아래의 땅이 진흙으로 변해 3초 동안 그 몹을 느리게 합니다."
+
+[mutated.override.excavation.agility]
+echo = "질주 점프 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 5초 안에 부드러운 블록 8개 파기 시: 마지막으로 판 곳 주변 3x3의 부드러운 블록이 부서지며 드롭됩니다. 또한 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.excavation.kinetics]
+echo = "4블록 이상 낙하 후 착지 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 점프나 낙하 후 착지한 상태에서 5초 안에 부드러운 블록 8개 파기 시: 마지막으로 판 곳 주변 3x3의 부드러운 블록이 부서지며 드롭됩니다. 또한 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.excavation.rift]
+echo = "엔더 진주, 블링크 또는 후렴과로 순간이동 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.chronos]
+echo = "시계를 들고 웅크린 채 손 바꾸기 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.pickaxe]
+echo = "광석 채굴 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.herbalism]
+echo = "다 자란 작물 수확 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.architect]
+echo = "5초 안에 블록 8개 설치 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.crafting]
+echo = "도구, 무기 또는 방어구 제작 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.enchanting]
+echo = "아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.brewing]
+echo = "물약 마시기 또는 던지기 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.discovery]
+echo = "새로운 것 발견 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.taming]
+echo = "펫의 공격 적중 시 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다."
+
+[mutated.override.excavation.golemancy]
+echo = "소유한 골렘의 작업 완료 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.seaborne]
+echo = "물속으로 다이빙 또는 젖은 상태에서 피격 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.excavation.nether]
+echo = "화염 피해 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.signature.excavation.pickaxe.convergence]
+name = "혼합 막장"
+description = "대지 진동이 뚫거나 지형 조형가가 판 뒤, 3x3 면의 나머지가 돌과 무른 흙 구분 없이 핫바의 알맞은 도구로 부서집니다. 레벨마다 한 면 더 깊이 닿습니다."
+lore1 = "면 깊이"
+lore2 = "한 번 휘두를 때 추가 블록"
+
+[mutated.signature.excavation.architect.convergence]
+name = "기초 타설"
+description = "정지 말뚝으로 좌클릭하면 분필 안내선의 선이나 원을 파고 보조 손의 블록으로 기초를 채웁니다. 레벨마다 한 블록 더 깊어집니다."
+lore1 = "기초 깊이"
+lore2 = "타설당 블록"
+
+[mutated.override.herbalism.swords]
+graft = "다 자란 작물 수확 시 3블록 호 안의 풀, 나뭇잎, 다 자란 작물이 베어져 수거됩니다."
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 다 자란 작물 수확 시: 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 또한 3블록 호 안의 풀, 나뭇잎, 다 자란 작물이 베어져 수거됩니다. 재사용 대기시간 45초."
+
+[mutated.override.herbalism.unarmed]
+barter = "{gesture} 시 허기 1 소모: 4블록 이내의 작물과 묘목이 한 단계 자랍니다."
+
+[mutated.override.herbalism.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 다 자란 작물 수확 시: 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.herbalism.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 다 자란 작물 수확 시: 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.herbalism.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 2초 동안 덩굴에 묶입니다."
+barter = "{gesture} 시 허기 2 소모: 4블록 이내의 작물과 묘목이 한 단계 자랍니다."
+
+[mutated.override.herbalism.excavation]
+graft = "다 자란 작물 수확 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 다 자란 작물 수확 시: 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.herbalism.taming]
+echo = "펫의 공격 적중 시 대상이 2초 동안 덩굴에 묶입니다."
+
+[mutated.override.herbalism.golemancy]
+echo = "소유한 골렘의 작업 완료 시 4블록 이내의 작물과 묘목이 한 단계 자랍니다."
+
+[mutated.signature.herbalism.chronos.convergence]
+name = "계절 넘기기"
+description = "게임 속 하루에 한 번, 시계를 들고 웅크린 채 손을 바꾸면 주변의 모든 작물이 한 단계 자랍니다. 이 성장은 뼛가루로 간주됩니다."
+lore1 = "밭 반경"
+
+[mutated.signature.herbalism.axes.convergence]
+name = "숲지기"
+description = "통나무 쓰러뜨리기로 벤 자연 나무는 가지고 있는 묘목으로 다시 심어지고, 주변 묘목이 한 단계 자랍니다."
+lore1 = "나무당 자라는 묘목"
+lore2 = "묘목 탐색 반경"
+
+[mutated.signature.herbalism.taming.convergence]
+name = "목자의 밭"
+description = "스스로 자란 작물을 수확하면 야생 성장 범위 안의 펫과 내가 먹이를 준 동물에게 내 수확물을 하나씩 먹입니다. 동물은 회복하고 밭을 짓밟지 않은 채 제자리에서 풀을 뜯으며, 이것으로 번식하지는 않습니다."
+lore1 = "수확당 먹이를 주는 동물 수"
+lore2 = "먹이당 회복량"
+lore3 = "풀을 뜯는 시간"
+
+[mutated.signature.herbalism.seaborne.convergence]
+name = "켈프 정원"
+description = "헤엄치는 동안 주변의 켈프, 바다 피클, 산호 부채가 야생 성장의 작물처럼 자라며, 근처에 있는 내 조수 성소도 밭으로 칩니다. 켈프나 바다 피클에 괭이를 쓰면 주변 해저를 수확하고 뿌리는 남겨 다시 자라게 합니다."
+lore1 = "성장 반경"
+lore2 = "초당 시도 지점"
+lore3 = "수확 반경"
+
+[mutated.signature.herbalism.rift.convergence]
+name = "균열 수확"
+description = "수확의 달로 거둔 작물은 고른 균열 닻 옆의 보관함으로, 닻이 없으면 엔더 상자로 들어갑니다. 씨앗은 당신에게 남습니다. 웅크린 채 괭이로 자신의 닻을 우클릭하면 고를 수 있습니다."
+lore1 = "한 번에 보내는 묶음"
+
+[mutated.override.architect.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 5초 안에 블록 8개 설치 시: 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다. 또한 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.architect.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 5초 안에 블록 8개 설치 시: 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.architect.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 5초 안에 블록 8개 설치 시: 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.architect.hunter]
+echo = "자연 몹 처치 시 당신과 6블록 이내에서 가장 가까운 다른 적대적 몹 사이에 높이 2의 임시 벽이 솟아오릅니다."
+
+[mutated.override.architect.excavation]
+graft = "5초 안에 블록 8개 설치 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+
+[mutated.override.architect.taming]
+echo = "펫의 공격 적중 시 당신과 대상 사이에 높이 2의 임시 벽이 솟아오릅니다."
+
+[mutated.override.architect.golemancy]
+graft = "5초 안에 블록 8개 설치 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다."
+
+[mutated.signature.architect.axes.convergence]
+name = "목조 골조"
+description = "통나무 쓰러뜨리기로 벤 원목은 껍질이 벗겨진 채 떨어집니다. 레벨 2부터는 벌목한 원목 설정에 따라 대신 하나당 판자 4개로 켭니다."
+lore1 = "나무당 다듬는 원목"
+lore2 = "원목당 판자"
+
+[mutated.signature.architect.pickaxe.convergence]
+name = "터널 건설자"
+description = "대지 진동이 평평한 터널을 뚫는 동안 주변 돌이 보조 손의 블록으로 바뀝니다. 바닥부터, 그다음 벽, 그다음 천장 순이며 8블록마다 인벤토리의 횃불을 놓습니다."
+lore1 = "굴착당 덧대는 블록"
+lore2 = "횃불 사이 블록"
+
+[mutated.signature.architect.excavation.convergence]
+name = "기초 타설"
+description = "정지 말뚝으로 좌클릭하면 분필 안내선의 선이나 원을 파고 보조 손의 블록으로 기초를 채웁니다. 레벨마다 한 블록 더 깊어집니다."
+lore1 = "기초 깊이"
+lore2 = "타설당 블록"
+
+[mutated.signature.architect.crafting.convergence]
+name = "즉석 절단"
+description = "분필 채우기나 견본 건축에 계단, 반 블록, 담장 같은 모양이 모자라면 가지고 있는 기본 블록에서 석재 절단기나 작업대의 산출량대로 더 잘라 냅니다."
+lore1 = "건축당 절단 수"
+lore2 = "들고 다니는 보관함의 기본 블록"
+
+[mutated.signature.architect.golemancy.convergence]
+name = "건축 골렘"
+description = "견본 도장을 미리 본 뒤 견본을 들고 자신의 골렘을 우클릭하면, 32블록 안에 있는 동안 가장 가까운 보관 노드에서 블록을 꺼내 도장을 짓습니다."
+lore1 = "주문당 블록"
+lore2 = "초당 블록"
+
+[mutated.signature.architect.chronos.convergence]
+name = "긴 되돌리기"
+description = "시계를 들고 웅크린 채 손을 바꾸면 가장 최근의 분필 채우기, 틀 찍기, 지팡이 면, 교체를 되돌립니다. 파괴의 손보다 열 배 더 이전까지 되돌릴 수 있습니다. 아직 남아 있는 블록은 각각 든 비용을 돌려줍니다. 10분 안에 그 근처에서 시간의 군주의 복원을 쓰면 건축물이 다시 비용을 치르고 되돌아옵니다."
+lore1 = "되돌리기 범위"
+
+[mutated.override.crafting.swords]
+barter = "{gesture} 시 검 내구도 5 소모: 착용한 방어구 각각의 내구도가 6 수리됩니다."
+
+[mutated.override.crafting.axes]
+barter = "{gesture} 시 도끼 내구도 5 소모: 착용한 방어구 각각의 내구도가 6 수리됩니다."
+
+[mutated.override.crafting.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.crafting.blocking]
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.crafting.agility]
+convergence = "최근 4초 안에 3초 이상의 질주를 마친 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.crafting.kinetics]
+convergence = "최근 4초 안에 점프나 낙하 후 착지한 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.crafting.pickaxe]
+barter = "{gesture} 시 곡괭이 내구도 5 소모: 착용한 방어구 각각의 내구도가 6 수리됩니다."
+
+[mutated.override.crafting.excavation]
+graft = "도구, 무기 또는 방어구 제작 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.crafting.taming]
+echo = "펫의 공격 적중 시 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다."
+
+[mutated.override.crafting.golemancy]
+graft = "도구, 무기 또는 방어구 제작 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 손에 든 도구가 20초 동안 효율 +1을 얻습니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 도구, 무기 또는 방어구 제작 시: 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 또한 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.crafting.architect.convergence]
+name = "조립식 상자"
+description = "석공의 견본과 상자를 합치면 사본에 필요한 모든 블록을 담은 상자가 됩니다. 장소를 우클릭하면 건물을 보여 주고, 좌클릭하면 회전하며, 다시 우클릭하면 그곳에 펼칩니다."
+lore1 = "상자당 블록"
+lore2 = "틱당 펼치는 블록"
+
+[mutated.signature.crafting.enchanting.convergence]
+name = "룬 재단련"
+description = "주 손에 룬 책을, 보조 손에 걸작 장비를 들고 우클릭하면 걸작 보너스를 책에 새깁니다. 채워진 책과 보너스가 없는 장비로 우클릭하면 그 장비에 옮깁니다. 아이템마다 보너스 하나."
+lore1 = "유지되는 보너스"
+lore2 = "날이 옮겨지는 단계"
+
+[mutated.override.enchanting.swords]
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.axes]
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.unarmed]
+convergence = "맨손으로 전투 중인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.ranged]
+convergence = "활을 끝까지 당긴 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.blocking]
+convergence = "방패를 들어 올린 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.stealth]
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다."
+convergence = "체력이 절반 미만인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.tragoul]
+convergence = "체력이 하트 3개 이하인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 허기 1이 하트 반 칸으로 바뀝니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.agility]
+convergence = "멈추지 않고 3초 동안 질주한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.kinetics]
+convergence = "공중에 떠 있는 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.rift]
+convergence = "최근 5초 안에 순간이동한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.chronos]
+convergence = "보조 손에 시계를 든 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.pickaxe]
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.excavation]
+graft = "아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.herbalism]
+convergence = "작물, 풀 또는 꽃 위에 서 있는 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.architect]
+convergence = "최근 4초 안에 블록을 설치한 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다. 재사용 대기시간 45초."
+
+[mutated.signature.enchanting.crafting.convergence]
+name = "룬 재단련"
+description = "주 손에 룬 책을, 보조 손에 걸작 장비를 들고 우클릭하면 걸작 보너스를 책에 새깁니다. 채워진 책과 보너스가 없는 장비로 우클릭하면 그 장비에 옮깁니다. 아이템마다 보너스 하나."
+lore1 = "유지되는 보너스"
+lore2 = "날이 옮겨지는 단계"
+
+[mutated.override.enchanting.brewing]
+convergence = "마신 물약의 효과가 지속 중인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.enchanting.discovery.convergence]
+name = "지식의 수호자"
+description = "구조물 상자를 처음 열어 전리품이 생성될 때, 그 전리품의 마법이 부여된 책 한 권의 마법이 각각 한 단계 오릅니다. 바닐라 최대치를 넘지 않습니다."
+lore1 = "오른 마법 수"
+
+[mutated.override.enchanting.taming]
+echo = "펫의 공격 적중 시 대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다."
+convergence = "당신의 펫이 전투 중인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 8블록 이내의 펫이 하트 1개를 회복하고 5초 동안 당신과 같은 속도로 움직입니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.golemancy]
+graft = "아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.seaborne]
+convergence = "몸이 젖은 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 재사용 대기시간 45초."
+
+[mutated.override.enchanting.nether]
+convergence = "네더에 있거나 불타는 상태에서 아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시: 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 또한 다음에 부수는 블록 3개가 제련됩니다. 재사용 대기시간 45초."
+
+[mutated.override.brewing.unarmed]
+convergence = "최근 4초 안에 맨손 공격을 적중시킨 상태에서 물약 마시기 또는 던지기 시: 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 또한 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.brewing.ranged]
+convergence = "최근 4초 안에 끝까지 당긴 화살을 쏜 상태에서 물약 마시기 또는 던지기 시: 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.brewing.blocking]
+echo = "방패로 공격 방어 시 핫바의 첫 번째 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다."
+convergence = "최근 4초 안에 방패로 공격을 막은 상태에서 물약 마시기 또는 던지기 시: 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.brewing.hunter]
+echo = "자연 몹 처치 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 6블록 이내에서 가장 가까운 다른 적대적 몹에게 튀깁니다."
+
+[mutated.signature.brewing.chronos.convergence]
+name = "멈춘 물약"
+description = "시계를 들고 웅크린 채 손을 바꾸면 이로운 물약 효과를 멈춥니다. 다시 바꾸거나 멈춤 시간이 끝나면 남은 시간 그대로 돌아옵니다."
+lore1 = "최대 멈춤 시간"
+
+[mutated.override.brewing.excavation]
+graft = "물약 마시기 또는 던지기 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 물약 마시기 또는 던지기 시: 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.brewing.taming]
+echo = "펫의 공격 적중 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다."
+
+[mutated.override.brewing.golemancy]
+graft = "물약 마시기 또는 던지기 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 물약 마시기 또는 던지기 시: 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 또한 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.brewing.nether.convergence]
+name = "영혼불 증류소"
+description = "영혼 불이나 용암 위에 있는 양조기는 힘, 화염 저항, 신속, 재생을 한 단계 높게(최대 III) 양조하며 지속 시간은 3분의 2가 됩니다."
+lore1 = "양조당 강화 물약"
+lore2 = "유지되는 지속 시간"
+
+[mutated.override.discovery.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹의 능력치가 드러나고, 그 몹에 대한 다음 공격의 피해가 20% 증가합니다."
+
+[mutated.override.discovery.excavation]
+graft = "새로운 것 발견 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 새로운 것 발견 시: 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.discovery.taming]
+echo = "펫의 공격 적중 시 대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다."
+
+[mutated.override.discovery.golemancy]
+graft = "새로운 것 발견 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 새로운 것 발견 시: 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다. 또한 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.discovery.enchanting.convergence]
+name = "지식의 수호자"
+description = "구조물 상자를 처음 열어 전리품이 생성될 때, 그 전리품의 마법이 부여된 책 한 권의 마법이 각각 한 단계 오릅니다. 바닐라 최대치를 넘지 않습니다."
+lore1 = "오른 마법 수"
+
+[mutated.signature.discovery.rift.convergence]
+name = "길잡이 돌"
+description = "아틀라스의 구조물을 길잡이 돌로 만듭니다. 블록이 없는 균열 닻으로, 닻 한도에 포함되며 닻 메뉴에서 다른 닻처럼 엔더 진주와 집중을 들여 이동합니다."
+lore1 = "길잡이 돌"
+
+[mutated.override.taming.swords]
+graft = "펫의 공격 적중 시 대상이 4초 동안 출혈합니다."
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 4초 동안 출혈합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.axes]
+graft = "펫의 공격 적중 시 대상의 방어력이 6초 동안 15% 감소합니다."
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상의 방어력이 6초 동안 15% 감소합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.unarmed]
+graft = "펫의 공격 적중 시 대상이 밀려나고 3초 동안 약해집니다."
+convergence = "맨손으로 전투 중인 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 밀려나고 3초 동안 약해집니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.ranged]
+graft = "펫의 공격 적중 시 대상에게 분광 화살이 발사됩니다."
+convergence = "활을 끝까지 당긴 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상에게 분광 화살이 발사됩니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.blocking]
+graft = "펫의 공격 적중 시 대상이 비틀거려 2초 동안 방어할 수 없습니다."
+
+[mutated.override.taming.stealth]
+graft = "펫의 공격 적중 시 8블록 이내의 몹이 3초 동안 당신을 놓칩니다."
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.hunter]
+graft = "펫의 공격 적중 시 대상이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다."
+echo = "자연 몹 처치 시 가장 가까운 펫이 6블록 이내에서 가장 가까운 다른 적대적 몹에게 달려듭니다."
+
+[mutated.override.taming.tragoul]
+graft = "펫의 공격 적중 시 대상에게서 하트 1개를 흡수합니다."
+convergence = "체력이 하트 3개 이하인 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상에게서 하트 1개를 흡수합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.agility]
+graft = "펫의 공격 적중 시 바라보는 방향으로 3블록 돌진합니다."
+convergence = "멈추지 않고 3초 동안 질주한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 바라보는 방향으로 3블록 돌진합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.kinetics]
+graft = "펫의 공격 적중 시 대상이 위로 튕겨 올라갑니다."
+convergence = "공중에 떠 있는 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 위로 튕겨 올라갑니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.rift]
+graft = "펫의 공격 적중 시 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다."
+convergence = "최근 5초 안에 순간이동한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.chronos]
+graft = "펫의 공격 적중 시 대상이 2초 동안 느려집니다."
+
+[mutated.signature.taming.chronos.convergence]
+name = "되감긴 동료"
+description = "죽을 위기의 펫은 대신 4초 되감겨 서 있던 자리와 그때의 체력으로 돌아갑니다. 각 펫은 5~10분에 한 번까지만 되감깁니다."
+lore1 = "되감기"
+lore2 = "펫별 대기 시간"
+
+[mutated.override.taming.pickaxe]
+graft = "펫의 공격 적중 시 튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다."
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.excavation]
+graft = "펫의 공격 적중 시 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.herbalism]
+graft = "펫의 공격 적중 시 대상이 2초 동안 덩굴에 묶입니다."
+
+[mutated.override.taming.architect]
+graft = "펫의 공격 적중 시 당신과 대상 사이에 높이 2의 임시 벽이 솟아오릅니다."
+convergence = "최근 4초 안에 블록을 설치한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 당신과 대상 사이에 높이 2의 임시 벽이 솟아오릅니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.crafting]
+graft = "펫의 공격 적중 시 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다."
+convergence = "최근 10초 안에 무언가를 제작한 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.enchanting]
+graft = "펫의 공격 적중 시 대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다."
+convergence = "바닐라 경험치 레벨이 20 이상인 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.brewing]
+graft = "펫의 공격 적중 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다."
+convergence = "마신 물약의 효과가 지속 중인 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.discovery]
+graft = "펫의 공격 적중 시 대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다."
+convergence = "처음 들어온 청크에 있는 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.golemancy]
+graft = "펫의 공격 적중 시 가장 가까운 골렘이 대상을 공격합니다."
+echo = "소유한 골렘의 작업 완료 시 8블록 이내의 펫이 하트 1개를 회복하고 5초 동안 당신과 같은 속도로 움직입니다."
+
+[mutated.override.taming.seaborne]
+graft = "펫의 공격 적중 시 물줄기가 대상을 밀쳐내고 불을 끕니다."
+convergence = "몸이 젖은 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 물줄기가 대상을 밀쳐내고 불을 끕니다. 재사용 대기시간 45초."
+
+[mutated.override.taming.nether]
+graft = "펫의 공격 적중 시 대상이 4초 동안 불탑니다."
+convergence = "네더에 있거나 불타는 상태에서 펫의 공격 적중 시: 가장 가까운 펫이 대상에게 달려듭니다. 또한 대상이 4초 동안 불탑니다. 재사용 대기시간 45초."
+
+[mutated.signature.taming.blocking.convergence]
+name = "방패병의 무리"
+description = "들어 올린 방패나 세워 둔 방패 벽 뒤에 있는 내 펫은 투사체 피해를 받지 않고 천천히 회복합니다."
+lore1 = "엄폐 깊이"
+lore2 = "초당 펫 회복량"
+
+[mutated.signature.taming.golemancy.convergence]
+name = "강철 무리"
+description = "골렘이 펫으로 취급됩니다. 알파의 강화가 오라 안의 골렘에게 닿고, 피의 유대로 내가 받는 피해를 나누며, 야수 조련사의 호루라기로 골렘을 대상에게 보내거나 다시 부를 수 있습니다."
+lore1 = "골렘 피해와 체력"
+lore2 = "골렘과 나누는 피해"
+lore3 = "호루라기 범위"
+
+[mutated.signature.taming.herbalism.convergence]
+name = "목자의 밭"
+description = "스스로 자란 작물을 수확하면 야생 성장 범위 안의 펫과 내가 먹이를 준 동물에게 내 수확물을 하나씩 먹입니다. 동물은 회복하고 밭을 짓밟지 않은 채 제자리에서 풀을 뜯으며, 이것으로 번식하지는 않습니다."
+lore1 = "수확당 먹이를 주는 동물 수"
+lore2 = "먹이당 회복량"
+lore3 = "풀을 뜯는 시간"
+
+[mutated.signature.taming.hunter.convergence]
+name = "무리 사냥"
+description = "펫이 스스로 핏자국이나 추적자의 나침반의 종을 쫓습니다. 나에게서 32블록 이상 벗어나지 않으며, 그 사냥감을 무는 공격은 최상위 포식자 중첩을 쌓고 그 효과를 받습니다."
+lore1 = "사냥 범위"
+lore2 = "사냥당 펫 수"
+lore3 = "중첩당 펫 피해"
+
+[mutated.override.golemancy.swords]
+graft = "소유한 골렘의 작업 완료 시 3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다."
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.axes]
+graft = "소유한 골렘의 작업 완료 시 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다."
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.unarmed]
+graft = "소유한 골렘의 작업 완료 시 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다."
+convergence = "맨손으로 전투 중인 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.ranged]
+graft = "소유한 골렘의 작업 완료 시 8블록 이내의 드롭 아이템이 당신에게 날아옵니다."
+convergence = "활을 끝까지 당긴 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.blocking]
+graft = "소유한 골렘의 작업 완료 시 10초 안에 받는 다음 공격의 피해가 절반이 됩니다."
+convergence = "방패를 들어 올린 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.stealth]
+graft = "소유한 골렘의 작업 완료 시 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다."
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.hunter]
+graft = "소유한 골렘의 작업 완료 시 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다."
+echo = "자연 몹 처치 시 가장 가까운 골렘이 6블록 이내에서 가장 가까운 다른 적대적 몹을 공격합니다."
+convergence = "체력이 절반 미만인 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.tragoul]
+graft = "소유한 골렘의 작업 완료 시 허기 1이 하트 반 칸으로 바뀝니다."
+
+[mutated.override.golemancy.agility]
+graft = "소유한 골렘의 작업 완료 시 4초 동안 신속 II를 얻습니다."
+echo = "질주 점프 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "멈추지 않고 3초 동안 질주한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.kinetics]
+graft = "소유한 골렘의 작업 완료 시 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다."
+echo = "4블록 이상 낙하 후 착지 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "공중에 떠 있는 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.rift]
+graft = "소유한 골렘의 작업 완료 시 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다."
+echo = "엔더 진주, 블링크 또는 후렴과로 순간이동 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "최근 5초 안에 순간이동한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.chronos]
+graft = "소유한 골렘의 작업 완료 시 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다."
+echo = "시계를 들고 웅크린 채 손 바꾸기 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+
+[mutated.signature.golemancy.chronos.convergence]
+name = "오버클럭"
+description = "골렘 근처에서 시계를 들고 웅크린 채 손을 바꾸면 크로노 병에 저장된 시간 60초를 대가로 골렘이 세 배 빠르게 일합니다."
+lore1 = "골렘 속도"
+lore2 = "지속 시간"
+lore3 = "병 시간"
+
+[mutated.override.golemancy.pickaxe]
+graft = "소유한 골렘의 작업 완료 시 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다."
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.excavation]
+graft = "소유한 골렘의 작업 완료 시 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.herbalism]
+graft = "소유한 골렘의 작업 완료 시 4블록 이내의 작물과 묘목이 한 단계 자랍니다."
+convergence = "작물, 풀 또는 꽃 위에 서 있는 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 4블록 이내의 작물과 묘목이 한 단계 자랍니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.architect]
+graft = "소유한 골렘의 작업 완료 시 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다."
+echo = "5초 안에 블록 8개 설치 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+
+[mutated.override.golemancy.crafting]
+graft = "소유한 골렘의 작업 완료 시 손에 든 도구가 20초 동안 효율 +1을 얻습니다."
+echo = "도구, 무기 또는 방어구 제작 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "최근 10초 안에 무언가를 제작한 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.enchanting]
+graft = "소유한 골렘의 작업 완료 시 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다."
+echo = "아이템 마법부여 또는 바닐라 경험치 10을 한 번에 획득 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "바닐라 경험치 레벨이 20 이상인 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.brewing]
+graft = "소유한 골렘의 작업 완료 시 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다."
+echo = "물약 마시기 또는 던지기 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "마신 물약의 효과가 지속 중인 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.discovery]
+graft = "소유한 골렘의 작업 완료 시 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다."
+echo = "새로운 것 발견 시 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "처음 들어온 청크에 있는 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.taming]
+graft = "소유한 골렘의 작업 완료 시 8블록 이내의 펫이 하트 1개를 회복하고 5초 동안 당신과 같은 속도로 움직입니다."
+echo = "펫의 공격 적중 시 가장 가까운 골렘이 대상을 공격합니다."
+
+[mutated.override.golemancy.seaborne]
+graft = "소유한 골렘의 작업 완료 시 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다."
+echo = "물속으로 다이빙 또는 젖은 상태에서 피격 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "몸이 젖은 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 재사용 대기시간 45초."
+
+[mutated.override.golemancy.nether]
+graft = "소유한 골렘의 작업 완료 시 다음에 부수는 블록 3개가 제련됩니다."
+echo = "화염 피해 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+convergence = "네더에 있거나 불타는 상태에서 소유한 골렘의 작업 완료 시: 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 또한 다음에 부수는 블록 3개가 제련됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.golemancy.architect.convergence]
+name = "건축 골렘"
+description = "견본 도장을 미리 본 뒤 견본을 들고 자신의 골렘을 우클릭하면, 32블록 안에 있는 동안 가장 가까운 보관 노드에서 블록을 꺼내 도장을 짓습니다."
+lore1 = "주문당 블록"
+lore2 = "초당 블록"
+
+[mutated.signature.golemancy.taming.convergence]
+name = "사육장 코어"
+description = "목장주 골렘이 관리인이 됩니다. 순찰마다 거처 주변의 펫과 내가 먹이를 주거나 번식시킨 동물을 회복시키고 길 잃은 동물을 데려옵니다."
+lore1 = "관리인 범위"
+lore2 = "순찰당 회복량"
+lore3 = "순찰당 동물 수"
+lore4 = "순찰 간격"
+
+[mutated.signature.golemancy.tragoul.convergence]
+name = "뼈의 군단"
+description = "해골 하인에게 골렘 코어를 건네면 뼈 골렘으로 일합니다. 수명은 쉬는 동안에만 줄어들며, 다하면 부서지고 코어를 떨어뜨립니다. 군단병도 하인 한도에 포함됩니다."
+lore1 = "군단병"
+lore2 = "대기 수명"
+
+[mutated.override.seaborne.swords]
+convergence = "최근 4초 안에 검으로 적을 공격한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 4초 동안 출혈합니다. 없으면 3블록 호 안의 풀, 나뭇잎, 작물이 베어져 수거됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.axes]
+convergence = "최근 4초 안에 나무를 베었거나 도끼로 공격한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상의 방어력이 6초 동안 15% 감소합니다. 없으면 다음에 베는 나무가 껍질 벗긴 원목이나 판자를 떨어뜨리고 저절로 다시 심어집니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.unarmed]
+convergence = "맨손으로 전투 중인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 밀려나고 3초 동안 약해집니다. 없으면 30초 안에 3초 동안 가만히 웅크리고 있으면 흡수 하트를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.ranged]
+convergence = "활을 끝까지 당긴 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상에게 분광 화살이 발사됩니다. 없으면 8블록 이내의 드롭 아이템이 당신에게 날아옵니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.blocking]
+convergence = "방패를 들어 올린 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 비틀거려 2초 동안 방어할 수 없습니다. 없으면 10초 안에 받는 다음 공격의 피해가 절반이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.stealth]
+convergence = "웅크리고 있으며 어떤 몹의 표적도 아닌 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 8블록 이내의 몹이 3초 동안 당신을 놓칩니다. 없으면 5초 동안 발소리와 블록 소리가 나지 않고 몹이 당신을 무시합니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.hunter]
+echo = "자연 몹 처치 시 물줄기가 6블록 이내에서 가장 가까운 다른 적대적 몹을 밀쳐내고 불을 끕니다."
+convergence = "체력이 절반 미만인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 표식되어 6초 동안 당신에게서 15% 더 많은 피해를 받습니다. 없으면 16블록 이내의 동물과 몹이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.tragoul]
+convergence = "체력이 하트 3개 이하인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상에게서 하트 1개를 흡수합니다. 없으면 허기 1이 하트 반 칸으로 바뀝니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.agility]
+convergence = "멈추지 않고 3초 동안 질주한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 바라보는 방향으로 3블록 돌진합니다. 없으면 4초 동안 신속 II를 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.kinetics]
+convergence = "공중에 떠 있는 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 위로 튕겨 올라갑니다. 없으면 5초 안에 하는 다음 점프의 높이가 3블록이 됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.rift]
+convergence = "최근 5초 안에 순간이동한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 당신에게서 4블록 떨어진 곳으로 순간이동됩니다. 없으면 6블록 이내의 드롭 아이템이 엔더 상자로 들어갑니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.chronos]
+convergence = "보조 손에 시계를 든 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 2초 동안 느려집니다. 없으면 4블록 이내의 작물, 화로, 양조기의 진행이 10초 앞당겨집니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.pickaxe]
+convergence = "최근 4초 안에 블록을 채굴한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 튀는 암석 파편에 맞은 대상이 1초 동안 기절합니다. 없으면 6블록 이내의 광석이 5초 동안 당신에게만 발광해 보입니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.excavation]
+graft = "물속으로 다이빙 또는 젖은 상태에서 피격 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.signature.seaborne.herbalism.convergence]
+name = "켈프 정원"
+description = "헤엄치는 동안 주변의 켈프, 바다 피클, 산호 부채가 야생 성장의 작물처럼 자라며, 근처에 있는 내 조수 성소도 밭으로 칩니다. 켈프나 바다 피클에 괭이를 쓰면 주변 해저를 수확하고 뿌리는 남겨 다시 자라게 합니다."
+lore1 = "성장 반경"
+lore2 = "초당 시도 지점"
+lore3 = "수확 반경"
+
+[mutated.override.seaborne.architect]
+convergence = "최근 4초 안에 블록을 설치한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 당신과 대상 사이에 높이 2의 임시 벽이 솟아오릅니다. 없으면 5초 동안 블록 설치 거리가 3블록 늘어나고 설치한 블록이 분필 선 안내선에 맞춰집니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.crafting]
+convergence = "최근 10초 안에 무언가를 제작한 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 5초 안에 하는 다음 공격이 대상 방어력의 20%를 무시합니다. 없으면 손에 든 도구가 20초 동안 효율 +1을 얻습니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.enchanting]
+convergence = "바닐라 경험치 레벨이 20 이상인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상이 발광하고, 5초 안에 처치된 자연 몹이 경험치를 절반 더 드롭합니다. 없으면 다음 블록 파괴 시 행운이 한 레벨 높게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.brewing]
+convergence = "마신 물약의 효과가 지속 중인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 대상에게 튀깁니다. 없으면 연금술사의 탄띠 또는 보조 손의 물약이 병의 4분의 1을 소모해 절반 지속시간으로 당신에게 적용됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.discovery]
+convergence = "처음 들어온 청크에 있는 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 대상의 능력치가 드러나고 대상에 대한 다음 공격의 피해가 20% 증가합니다. 없으면 24블록 이내에서 가장 가까운 상자, 스포너 또는 구조물의 위치가 당신에게 표시됩니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.taming]
+echo = "펫의 공격 적중 시 물줄기가 대상을 밀쳐내고 불을 끕니다."
+convergence = "당신의 펫이 전투 중인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 펫이 대상에게 달려듭니다. 없으면 8블록 이내의 펫이 하트 1개를 회복하고 5초 동안 당신과 같은 속도로 움직입니다. 재사용 대기시간 45초."
+
+[mutated.override.seaborne.golemancy]
+graft = "물속으로 다이빙 또는 젖은 상태에서 피격 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 물속으로 다이빙 또는 젖은 상태에서 피격 시: 적대적 몹이 6블록 이내에 있으면 물줄기가 대상을 밀쳐내고 불을 끕니다. 없으면 4블록 이내의 불이 꺼지고 4블록 이내의 경작지가 젖습니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.seaborne.nether.convergence]
+name = "증기 보행자"
+description = "젖은 상태로 용암을 밟으면 발밑이 잠시 식었다가 다시 녹습니다. 네더에서도 물 양동이를 쓸 수 있으며, 그 물은 흐르지 않고 30초 뒤 증발합니다."
+lore1 = "증기 보행"
+lore2 = "길 너비"
+lore3 = "동시 물웅덩이"
+
+[mutated.override.nether.hunter]
+echo = "자연 몹 처치 시 6블록 이내에서 가장 가까운 다른 적대적 몹이 4초 동안 불탑니다."
+
+[mutated.override.nether.excavation]
+graft = "화염 피해 시 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다."
+convergence = "최근 4초 안에 부드러운 블록을 판 상태에서 화염 피해 시: 적대적 몹이 6블록 이내에 있으면 대상이 4초 동안 불탑니다. 없으면 다음에 부수는 블록 3개가 제련됩니다. 또한 적대적 몹이 6블록 이내에 있으면 대상 아래의 땅이 진흙으로 변해 3초 동안 대상을 느리게 합니다. 없으면 10초 안에 다음으로 파는 부드러운 블록이 주변 3x3을 함께 부수고, 모두 드롭됩니다. 재사용 대기시간 45초."
+
+[mutated.override.nether.taming]
+echo = "펫의 공격 적중 시 대상이 4초 동안 불탑니다."
+
+[mutated.override.nether.golemancy]
+graft = "화염 피해 시 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다."
+echo = "소유한 골렘의 작업 완료 시 다음에 부수는 블록 3개가 제련됩니다."
+convergence = "당신의 골렘이 16블록 이내에서 작업 중인 상태에서 화염 피해 시: 적대적 몹이 6블록 이내에 있으면 대상이 4초 동안 불탑니다. 없으면 다음에 부수는 블록 3개가 제련됩니다. 또한 적대적 몹이 6블록 이내에 있으면 가장 가까운 골렘이 대상을 공격합니다. 없으면 가장 가까운 골렘이 자신의 마지막 작업을 다음 일치하는 블록에 반복합니다. 재사용 대기시간 45초."
+
+[mutated.signature.nether.brewing.graft]
+name = "유황 플라스크"
+description = "던진 투척용 물약이 4초 동안 무해한 영혼 불 고리를 남겨, 그 안에 들어온 모든 대상에게 효과를 한 번 더 줍니다. 고리는 한 번에 하나뿐입니다."
+lore1 = "고리 반경"
+lore2 = "두 번째 효과 지속 시간"
+
+[mutated.signature.nether.tragoul.convergence]
+name = "위더의 피"
+description = "처치할 때마다 시체 주변의 적대적 몹에게 위더 I이 퍼지고, 위더 스켈레톤을 처치하면 피 저장고가 채워집니다."
+lore1 = "확산 반경"
+lore2 = "최대 위더 대상"
+lore3 = "위더 스켈레톤당 피"
+
+[mutated.signature.nether.seaborne.convergence]
+name = "증기 보행자"
+description = "젖은 상태로 용암을 밟으면 발밑이 잠시 식었다가 다시 녹습니다. 네더에서도 물 양동이를 쓸 수 있으며, 그 물은 흐르지 않고 30초 뒤 증발합니다."
+lore1 = "증기 보행"
+lore2 = "길 너비"
+lore3 = "동시 물웅덩이"
+
+[upgrade.swords.witherblade]
+name = "시듦의 칼날"
+description = "검 공격이 출혈을 동반한 시듦을 걸며, 지속되는 동안 대상은 체력을 회복할 수 없습니다."
+lore1 = "시듦 및 출혈 지속 시간"
+lore2 = "주기당 출혈 피해"
+lore3 = "재사용 대기시간"
+overcharge = "과충전 시 시듦 지속 시간"
+
+[upgrade.swords.tempest_flow]
+name = "폭풍의 흐름"
+description = "공격할수록 공격 속도가 쌓이고, 최대 중첩 치명타가 범위 베기를 방출하며, 숫돌로 검을 톱날, 무게 또는 예리함으로 연마합니다."
+lore1 = "베기 방출에 필요한 중첩"
+lore2 = "베기 피해"
+lore3 = "베기 반경"
+lore4 = "톱날 출혈 (펄스당)"
+lore5 = "무게 비틀거림"
+lore6 = "예리함 치명타 보너스"
+
+[upgrade.swords.duelists_verdict]
+name = "결투자의 판결"
+description = "교전 중인 적 하나를 상대로 더 큰 피해를 주고 덜 받으며, 체력 30% 미만인 적을 마무리하고, 이름이 붙은 검은 자연 처치로 각성합니다."
+lore1 = "결투 시 추가 피해"
+lore2 = "결투 시 받는 피해 감소"
+lore3 = "체력 30% 미만 마무리 보너스"
+lore4 = "각성한 검 피해 상한"
+lore5 = "반격, 돌진, 심판에 필요한 처치 수"
+blade = "각성한 검: {kills} 처치"
+
+[tool.swords.whetstone]
+name = "숫돌"
+serrated = "톱날"
+weighted = "무게"
+keen = "예리함"
+
+[upgrade.axes.timberfall]
+name = "통나무 쓰러뜨리기"
+description = "한 번 휘둘러 나뭇잎까지 나무 전체를 베어 바로 인벤토리에 넣습니다."
+lore1 = "휘두를 때마다 베는 원목"
+lore2 = "휘두를 때마다 치우는 나뭇잎"
+lore3 = "원목 탐색 반경"
+
+[upgrade.axes.sundering_cleave]
+name = "분쇄 가르기"
+description = "휘두르면 전방 호 안의 모든 대상을 공격하고 모두의 방어구를 깎습니다."
+lore1 = "호 너비"
+lore2 = "호 피해 비율"
+lore3 = "중첩당 방어구 감소"
+
+[upgrade.axes.worldsplitter]
+name = "세계 쪼개기"
+description = "던진 도끼가 떨어진 곳의 땅을 강타한 뒤, 경로에 있는 모든 것을 꿰뚫고 돌아옵니다."
+lore1 = "투척 피해 배율"
+lore2 = "강타 피해"
+lore3 = "강타 반경"
+lore4 = "재사용 대기시간"
+lore5 = "귀환 타격 수"
+
+[upgrade.unarmed.titan_fists]
+name = "거인의 주먹"
+description = "주먹이 최대 레벨 비무장 기본 능력보다 더 강하게 치며, 질주 중 주먹질로 무른 블록을 뚫고 나갑니다."
+lore1 = "최대 힘 주먹 피해"
+lore2 = "방어구 미착용 시 피해 배율"
+lore3 = "주먹당 추가 피해"
+lore4 = "질주 주먹 재사용 대기시간"
+lore5 = "질주 주먹당 부서지는 블록"
+
+[upgrade.unarmed.unbroken_combo]
+name = "끊기지 않는 연타"
+description = "공격받아도 연타 중첩이 유지되고, 중첩마다 대상이 느려지며, 최대 중첩에서 웅크린 채 공격하면 중첩을 모두 소모합니다."
+lore1 = "최대 연타 중첩"
+lore2 = "중첩당 추가 피해"
+lore3 = "최대 구속 레벨"
+lore4 = "마무리 일격 중첩당 피해"
+lore5 = "마무리 일격 나약함 레벨"
+lore6 = "마무리 일격 재사용 대기시간"
+
+[upgrade.unarmed.seismic_throw]
+name = "지진 던지기"
+description = "던져진 적이 충격파와 함께 착지합니다."
+lore1 = "던지기 힘"
+lore2 = "충격파 반경"
+lore3 = "재사용 대기시간"
+lore4 = "충격파 피해"
+
+[upgrade.ranged.stormshot]
+name = "폭풍 사격"
+description = "화살이 더 빠르게 날아가 더 세게 맞히고 관통하며, 화살통이 화살을 보관하고 회수합니다."
+lore1 = "추가 화살 속도"
+lore2 = "추가 화살 피해"
+lore3 = "관통하는 대상 수"
+lore4 = "화살통으로 돌아오는 적중"
+lore5 = "화살통 용량"
+
+[upgrade.ranged.hunters_web]
+name = "사냥꾼의 거미줄"
+description = "올가미 화살이 명중한 대상을 거미줄로 가두고 공중에 띄워 둡니다."
+lore1 = "가두기 지속 시간"
+lore2 = "띄우는 힘"
+lore3 = "같은 대상 재포박 대기 시간"
+
+[upgrade.ranged.trueflight]
+name = "진실의 비행"
+description = "고정된 화살이 대상을 향해 휘어 날아가고, 도탄 화살은 계속 튕기며, 일제 사격으로 여러 대상을 고정합니다."
+lore1 = "고정 거리"
+lore2 = "튕김 탐색 반경"
+lore3 = "튕긴 명중 추가 피해"
+lore4 = "일제 사격 고정 수"
+lore5 = "일제 사격 재사용 대기시간"
+
+[tool.ranged.quiver]
+name = "화살통"
+arrows = "화살"
+spectral_arrows = "분광 화살"
+
+[tool.ranged.snare_arrow]
+name = "올가미 화살"
+
+[tool.ranged.ricochet_arrow]
+name = "도탄 화살"
+
+[upgrade.blocking.mirror_guard]
+name = "거울 방어"
+description = "정확한 타이밍의 막기가 근접이든 투사체든 공격을 무효화하고 반사합니다."
+lore1 = "타이밍 허용 시간"
+lore2 = "되돌려 보내는 피해 비율"
+lore3 = "재사용 대기시간"
+
+[upgrade.blocking.living_wall]
+name = "살아있는 벽"
+description = "방패를 일정 시간 유지되는 벽으로 세워 뒤에 있는 모두를 보호하고 적대적 몹을 느리게 합니다."
+lore1 = "벽 뒤와 막는 중 피해 감소"
+lore2 = "벽 너비"
+lore3 = "벽 지속 시간"
+lore4 = "벽 재사용 대기시간"
+
+[upgrade.blocking.tempered_aegis]
+name = "단련된 방패"
+description = "실제 적의 공격을 막으면 방패와 방어구가 수리되고, 도끼로 방패가 무력화되지 않으며, 질주 점프 방패 강타로 적을 내리칩니다."
+lore1 = "막을 때마다 방패 내구도"
+lore2 = "막을 때마다 방어구 내구도"
+lore3 = "방패 강타 피해"
+lore4 = "방패 강타 재사용 대기시간"
+
+[upgrade.stealth.umbral_form]
+name = "그림자 형상"
+description = "들키지 않고 웅크리면 걷는 속도 그대로 투명해지고, 다음 공격을 줄여 주고 깨지는 방어구 층이 쌓입니다."
+lore1 = "최대 방어 보호막"
+lore2 = "주기당 쌓이는 방어"
+lore3 = "감시 반경"
+
+[upgrade.stealth.death_mark]
+name = "죽음의 표식"
+description = "은신 중 첫 공격이 조건에 맞는 보스가 아닌 몹을 즉사시키고, 죽이지 못한 대상에게서는 훔칩니다."
+lore1 = "즉사 가능한 최대 체력"
+lore2 = "즉사 간격"
+lore3 = "훔치는 전리품 묶음"
+
+[upgrade.stealth.phantom_decoy]
+name = "환영 미끼"
+description = "연막탄이 미끼를 남겨 미끼와 위치를 바꾸거나, 들키지 않고 생물의 뒤로 돌아갈 수 있습니다."
+lore1 = "미끼 지속 시간"
+lore2 = "연기 반경"
+lore3 = "미끼 간격"
+lore4 = "그림자 걸음 사거리"
+lore5 = "그림자 걸음 간격"
+
+[tool.stealth.smoke_pellet]
+name = "연막탄"
+lore1 = "그림자 걸음 또는 미끼"
+
+[upgrade.hunter.blood_frenzy]
+name = "피의 광란"
+description = "공격받으면 힘, 신속, 재생을 함께 얻으며, 체력이 낮을수록 강해지고 허기 비용은 한 번만 듭니다."
+lore1 = "최대 체력 시 효과 지속 시간"
+lore2 = "저체력 강화"
+lore3 = "광란당 허기 지속 시간"
+
+[upgrade.hunter.apex_predator]
+name = "최상위 포식자"
+description = "한 대상에게 피해가 점점 늘어나고, 큰 사냥감은 더 많이 떨어뜨리며, 나침반이 사냥감을 추적합니다."
+lore1 = "중첩당 추가 피해"
+lore2 = "중첩 상한"
+lore3 = "대형 및 보스 몹 공격당 중첩"
+lore4 = "대형 사냥감 추가 드롭 판정 확률"
+lore5 = "나침반 범위"
+lore6 = "기억하는 종류"
+
+[upgrade.hunter.stalkers_trail]
+name = "추적자의 흔적"
+description = "상처 입은 사냥감이 흔적을 남기고, 올가미로 잡은 동물을 집으로 데려갈 수 있으며, 전리품 처치 시 더 많이 떨어뜨립니다."
+lore1 = "핏자국 지속 시간"
+lore2 = "올가미 유지 시간"
+lore3 = "전리품 확률"
+lore4 = "포획 유지 시간"
+
+[tool.hunter.trackers_compass]
+name = "추적자의 나침반"
+lore1 = "추적 중인 종류 중 가장 가까운 대상을 가리킵니다"
+tracking = "{kind} 추적 중"
+reading = "{kind} {distance}블록"
+none = "범위 안에 {kind} 없음"
+untrackable = "추적할 수 없음"
+hungry = "너무 배고픔"
+empty = "아직 추적한 대상 없음"
+menu = "추적한 종류"
+
+[upgrade.tragoul.crimson_tide]
+name = "핏빛 조류"
+description = "입히는 모든 피해가 당신을 치유하고, 넘친 양은 피 저장고에 쌓이며, 공격자의 생명력을 흡수합니다."
+lore1 = "체력으로 돌려받는 피해 비율"
+lore2 = "공격자마다 흡수하는 생명력"
+lore3 = "반사하는 가시 피해"
+lore4 = "최대 체력을 넘어 저장된 피의 하트"
+
+[upgrade.tragoul.plague_nova]
+name = "역병 폭발"
+description = "처치 시 폭발하여 상태 이상을 퍼뜨리고 창을 발사합니다."
+lore1 = "폭발 반경"
+lore2 = "역병 확산 반경"
+lore3 = "폭발 피해에 더해지는 시체 체력"
+
+[upgrade.tragoul.deathless]
+name = "불사"
+description = "뼈가 공격을 흡수하고, 죽음 저항이 체력 1로 버티게 하며, 해골 하수인이 당신을 위해 일어납니다."
+lore1 = "뼈당 흡수 피해"
+lore2 = "최대 하수인 수"
+lore3 = "죽음 저항 재사용 대기시간"
+lore4 = "하수인 수명"
+lore5 = "손으로 일으킨 하수인당 뼈"
+lore6 = "손으로 일으킨 하수인당 체력, 피 먼저"
+
+[upgrade.agility.slipstream]
+name = "슬립스트림"
+description = "달리면 상한까지 속도가 쌓이고, 미끄러져도 유지되며, 달리기에 허기가 들지 않습니다."
+lore1 = "5초 달릴 때마다 얻는 속도"
+lore2 = "미끄러지기 속도"
+lore3 = "미끄러지기 재사용 대기시간"
+lore4 = "최고 속도 보너스"
+lore5 = "깃털발 레벨"
+
+[upgrade.agility.skyrunner]
+name = "하늘 질주자"
+description = "벽 붙기, 높이 뛰기, 에어 대시, 갈고리 줄이 공중 충전을 공유하며 벽에 닿으면 충전됩니다."
+lore1 = "높이 뛰기 높이"
+lore2 = "에어 대시 속도"
+lore3 = "벽 점프 힘"
+lore4 = "공중 충전 횟수"
+lore5 = "갈고리 줄 사거리"
+
+[upgrade.agility.untouchable]
+name = "닿을 수 없는 자"
+description = "달리는 중 투사체를 피하고, 정해진 높이까지의 낙하는 굴러서 착지하며, 피격을 속도로 바꿉니다."
+lore1 = "피격 후 속도 폭발 단계"
+lore2 = "속도 폭발 지속 시간"
+lore3 = "회복 점프 허용 시간"
+lore4 = "투사체 회피 확률"
+lore5 = "구르기로 버티는 최대 낙하"
+
+[tool.agility.grappling_line]
+name = "갈고리 줄"
+usage = "블록을 우클릭해 끌려가고, 다시 우클릭해 놓기"
+
+[upgrade.kinetics.comet]
+name = "혜성"
+description = "급강하 강타가 넓은 반경을 공격하고 방어구를 깎으며, 타이탄으로 커지거나 포켓 형태로 작아질 수 있습니다."
+lore1 = "충격파 반경"
+lore2 = "깎는 방어구"
+lore3 = "방어구 감소 지속 시간"
+lore4 = "충격파 피해"
+lore5 = "타이탄과 포켓 크기 변화"
+lore6 = "타이탄 충격파 반경"
+lore7 = "포켓 착지 피해 제거량"
+
+[upgrade.kinetics.lancer]
+name = "창기병"
+description = "창이나 삼지창 공격이 더 멀리 닿고, 속도에 비례해 강해지며, 대상을 고정합니다."
+lore1 = "추가 사거리"
+lore2 = "속도로 얻는 최대 추가 피해"
+lore3 = "고정 지속 시간"
+
+[upgrade.kinetics.featherweight]
+name = "깃털처럼 가볍게"
+description = "더 높이 뛰고, 착지가 더 탄력 있으며, 어떤 블록에서도 낙하 피해가 없습니다."
+lore1 = "추가 점프 높이"
+lore2 = "착지 탄성"
+lore3 = "막는 낙하 피해"
+
+[upgrade.rift.phase_step]
+name = "위상 이동"
+description = "엔더 진주 하나나 하트 반 칸으로 벽을 통과해 점멸하고, 표시한 대상과 자리를 바꾸며, 진주가 한 번 튕깁니다."
+lore1 = "점멸 거리"
+lore2 = "도착 시 저항"
+lore3 = "재사용 대기시간"
+lore4 = "점멸마다 엔더 진주 1개 또는 하트 반 칸"
+lore5 = "웅크린 채 생물을 때리면 다음 점멸에서 그 생물과 자리를 바꾼다"
+lore6 = "PvP가 허용된 곳에서는 플레이어와도 자리를 바꾼다"
+
+[upgrade.rift.pocket_realm]
+name = "주머니 차원"
+description = "엔더 상자가 어디서든 열리고, 떨어진 아이템을 끌어와 손을 채워 주며, 균열 닻이 기지들을 연결합니다."
+lore1 = "아이템 끌어오기 반경"
+lore2 = "주기당 끌어오는 아이템"
+lore3 = "설치당 보충되는 블록"
+lore4 = "균열 닻"
+lore5 = "닻 정신 집중"
+lore6 = "닻 이동당 엔더 진주"
+lore7 = "엔더 진주당 보내는 묶음"
+lore8 = "닻이 차원을 넘어 작동한다"
+
+[upgrade.rift.voidborn]
+name = "공허에서 태어난 자"
+description = "치명적인 피해를 받으면 안전한 곳으로 점멸하고, 엔더맨이 당신을 무시하며, 공중 부양을 마음대로 다룹니다."
+lore1 = "탈출 재사용 대기시간"
+lore2 = "탈출 후 저항"
+lore3 = "공중 부양 해제 재사용 대기시간"
+
+[tool.rift.anchor]
+name = "균열 닻"
+usage = "블록을 우클릭해 설치"
+title = "균열 닻"
+entry = "닻 {number}"
+here = "현재 위치"
+travel = "이동"
+open = "보관함 열기"
+send = "여기로 아이템 보내기"
+other_dimension = "다른 차원: 주머니 차원 {level}"
+empty = "설치한 닻이 없습니다"
+placed = "닻 설치 ({count}/{max})"
+full = "닻 {max}개를 모두 설치했습니다"
+broken = "균열 닻 {count}개가 부서졌습니다"
+no_pearl = "엔더 진주 {count}개가 필요합니다"
+channel_broken = "정신 집중이 끊겼습니다"
+blocked = "그 닻이 막혔거나 사라졌습니다"
+no_container = "그 닻 옆에 보관함이 없습니다"
+sent = "아이템 {count}개를 보냈습니다"
+nothing = "보낼 것이 없습니다"
+waystone_set = "길잡이 돌 설정 ({count}/{max})"
+waystones_full = "길잡이 돌 {max}개를 모두 설정했습니다"
+remove = "제거"
+harvests_here = "수확물이 여기로 옵니다"
+harvests_ender = "수확물이 엔더 상자로 갑니다"
+
+[tool.rift.eye]
+name = "균열의 눈"
+usage = "우클릭해 닻으로 이동"
+
+[upgrade.chronos.second_chance]
+name = "두 번째 기회"
+description = "직접 발동하거나 치명타를 받을 때 발동하는 되감기이며, 받는 피해의 일부는 나중에 치릅니다."
+lore1 = "되감는 시간"
+lore2 = "재사용 대기시간"
+lore3 = "치명타 후 무적"
+lore4 = "나중에 받는 피해"
+lore5 = "구원 후 최대 체력"
+
+[upgrade.chronos.time_lord]
+name = "시간의 군주"
+description = "병에 더 많이 저장하고, 오라가 작물과 작업대를 빠르게 하며, 버프가 더 오래 가고, 시계가 폭발 피해를 복원합니다."
+lore1 = "병 용량"
+lore2 = "오라 반경"
+lore3 = "이로운 물약 지속 시간 증가"
+lore4 = "복원 반경"
+lore5 = "복원 가능 시간"
+lore6 = "충전당 블록 수"
+lore7 = "충전당 저장 시간"
+restored = "블록 {count}개 복원됨"
+restore_nothing = "여기에는 복원할 것이 없습니다"
+restore_no_time = "저장된 시간이 부족합니다"
+restore_drops_missing = "떨어진 아이템 일부가 없습니다"
+restore_protected = "여기에는 건설할 수 없습니다"
+
+[upgrade.chronos.frozen_moment]
+name = "얼어붙은 순간"
+description = "던질 수 있는 정지장이며, 그 안에서 공격한 대상은 묶입니다."
+lore1 = "정지장 반경"
+lore2 = "정지장 지속 시간"
+lore3 = "속박 지속 시간"
+
+[upgrade.pickaxe.motherlode]
+name = "대광맥"
+description = "광맥 전체가 한 번에 제련된 채로 부서지고 추가 광석이 나오며, 스포너는 몹과 함께 떨어집니다."
+lore1 = "광맥 반경"
+lore2 = "광맥당 최대 블록"
+lore3 = "광맥당 추가 광석"
+lore4 = "보존한 스포너당 내구도"
+spawner_mob = "몹: {mob}"
+spawner_worn = "곡괭이 내구도 {durability} 필요"
+
+[upgrade.pickaxe.earthshaker]
+name = "대지 진동"
+description = "돌, 심층암, 흑요석을 돌 채굴 속도로 3x3 면씩 뚫고, 탐광꾼의 폭약으로 광석을 폭파합니다."
+lore1 = "뚫는 면"
+lore2 = "심층암과 흑요석에서의 돌 속도 비율"
+lore3 = "뚫은 블록당 내구도"
+lore4 = "폭약 반경"
+
+[upgrade.pickaxe.eternal_pick]
+name = "영원한 곡괭이"
+description = "곡괭이가 절대 부서지지 않고, 채굴하며 수리되며, 채굴할수록 단단해집니다."
+lore1 = "블록당 수리 확률"
+lore2 = "수리당 내구도"
+lore3 = "최대 저항 단계"
+
+[tool.pickaxe.prospectors_charge]
+name = "탐광꾼의 폭약"
+stone_drop = "돌: 떨어뜨리기"
+stone_discard = "돌: 버리기"
+busy = "이미 폭약이 설치됨"
+no_pickaxe = "핫바에 곡괭이 없음"
+stone_only = "돌만 가능"
+opened = "블록 {blocks}개 개방"
+worn = "곡괭이 마모됨"
+protected = "보호된 땅에서 멈춤"
+
+[upgrade.excavation.landshaper]
+name = "지형 조형가"
+description = "부드러운 땅에 평면이나 수직 갱도를 파고, 흙을 한 줄로 내리치며, 정지 말뚝으로 땅을 고릅니다."
+lore1 = "한 번 팔 때 주변에서 파는 블록"
+lore2 = "웅크릴 때 갱도 깊이"
+lore3 = "파는 동안 성급함"
+lore4 = "정지 면적"
+lore5 = "최대 높이 변화"
+lore6 = "내려찍기 피해"
+lore7 = "내려찍기 재사용 대기시간"
+
+[upgrade.excavation.deep_sight]
+name = "심층 시야"
+description = "파는 동안 광석이 땅 너머로 보이며, 발광 열매가 필요 없습니다."
+lore1 = "탐지 반경"
+lore2 = "탐지당 표시되는 광석"
+lore3 = "재사용 대기시간"
+
+[upgrade.excavation.gravekeeper]
+name = "무덤지기"
+description = "땅을 파면 보물, 뼈, 추가 드롭이 나옵니다."
+lore1 = "보물 확률"
+lore2 = "뼈 전리품 확률"
+lore3 = "추가 드롭 확률"
+
+[tool.excavation.grading_stakes]
+name = "정지 말뚝"
+stake = "말뚝: {x}, {y}, {z}"
+pulled = "말뚝 뽑음"
+too_wide = "최대 {size} x {size}"
+busy = "이미 정지 중"
+no_shovel = "핫바에 삽 없음"
+done = "{dug}개 파냄, {filled}개 메움"
+no_fill = "흙, 모래, 자갈 없음"
+worn = "삽 마모됨"
+protected = "보호된 땅에서 멈춤"
+
+[upgrade.herbalism.wildgrowth]
+name = "야생 성장"
+description = "넓은 성장 오라가 빈 경작지에 씨앗도 심어 줍니다."
+lore1 = "성장 반경"
+lore2 = "주기당 심는 씨앗"
+lore3 = "단계당 음식 비용"
+
+[upgrade.herbalism.harvest_moon]
+name = "수확의 달"
+description = "우클릭 한 번으로 밭 전체를 수확하고 다시 심으며, 근처에 있는 동안 허수아비가 작물을 돌봅니다."
+lore1 = "밭 반경"
+lore2 = "작물당 추가 수확 확률"
+lore3 = "재사용 대기시간"
+lore4 = "허수아비"
+lore5 = "허수아비 구역"
+
+[upgrade.herbalism.iron_stomach]
+name = "강철 위장"
+description = "허기가 모든 종류의 피해 중 50~80%를 먼저 흡수하고, 음식이 두 배로 배를 채웁니다."
+lore1 = "허기가 받는 피해"
+lore2 = "식사로 얻는 추가 음식"
+
+[tool.herbalism.scarecrow]
+name = "허수아비"
+harvests = "남은 수확"
+placed = "허수아비"
+
+[upgrade.architect.master_builder]
+name = "건축의 대가"
+description = "지팡이로 넓은 면을 설치하고, 들고 다니는 보관함에서 재료를 채우며, 분필 안내선을 블록으로 채웁니다."
+lore1 = "건축가의 지팡이 면"
+lore2 = "분필 채우기당 블록"
+lore3 = "분필 원 반지름"
+lore4 = "분필 벽 높이"
+lore5 = "속이 찬 원판 채우기"
+overcharge = "채우기당 블록"
+shape = "분필 채우기 모양"
+shape_outline = "윤곽"
+shape_disc = "속이 찬 원판"
+shape_wall = "벽"
+built = "{placed}개 설치"
+stopped_protected = "{placed}개 설치, 보호된 블록에서 멈춤"
+stopped_items = "{placed}개 설치, 블록이 떨어짐"
+stopped_limit = "{placed}개 설치, 블록 한도 도달"
+stopped_tool = "{placed}개 설치, 도구가 거의 부서짐"
+stopped = "{placed}개 설치, 멈춤"
+busy = "이미 건설이 진행 중"
+wait = "다음 채우기까지 {time}"
+nothing = "채울 곳이 없음"
+
+[upgrade.architect.skyhook]
+name = "하늘 갈고리"
+description = "넉백과 낙하 없는 임시 발판을 만들고, 석공의 견본으로 건축물을 복사해 찍어 냅니다."
+lore1 = "한 변당 견본 크기"
+lore2 = "찍기당 블록"
+lore3 = "분필 안내선을 따라 찍는 수"
+lore4 = "좌우 반전 찍기"
+overcharge = "안내선을 따라 찍는 수"
+gap = "반복 찍기 사이 간격"
+gap_none = "없음"
+gap_one = "1블록"
+gap_two = "2블록"
+gap_four = "4블록"
+
+[upgrade.architect.wrecking_hand]
+name = "파괴의 손"
+description = "직접 설치한 블록을 지우고, 최근 건축을 되돌리며, 건축물 전체의 블록을 교체합니다."
+lore2 = "되돌리기 가능 시간"
+lore3 = "되돌릴 수 있는 건설 수"
+lore4 = "교체당 블록"
+overcharge = "교체당 블록"
+undone = "{count}개 돌려받음"
+nothing_to_undo = "되돌릴 것이 없음"
+nothing_to_replace = "교체할 것이 없음"
+
+[tool.architect.masons_template]
+name = "석공의 견본"
+usage_copy = "마주 보는 두 모서리를 클릭해 복사"
+usage_stamp = "우클릭으로 미리보기, 한 번 더 누르면 건설"
+usage_turn = "좌클릭으로 회전, 웅크리고 블록 좌클릭으로 반전"
+usage_repeat = "웅크리고 블록 우클릭으로 분필 안내선을 따라 반복"
+usage_undo = "웅크리고 허공 우클릭으로 되돌리기"
+usage_mode = "손 바꾸기로 찍기와 교체 전환"
+usage_wipe = "단독으로 제작하면 지워짐"
+pattern = "{width} x {height} x {depth}, 블록 {count}개"
+mode_stamp = "찍기"
+mode_replace = "교체 붓"
+corner = "첫 모서리 지정됨"
+copied = "블록 {count}개 복사함"
+too_large = "한 변은 최대 {size}블록"
+empty = "복사할 것이 없음"
+turned = "{degrees}도 회전함"
+mirrored = "반전됨"
+unmirrored = "반전 안 됨"
+mirror_locked = "반전에는 레벨 {level} 필요"
+ready = "블록 {count}개, 한 번 더 우클릭하면 건설"
+short = "부족: {items}"
+no_guide = "먼저 분필 안내선을 그리세요"
+replace_locked = "교체에는 {upgrade} 필요"
+
+[upgrade.crafting.grand_artisan]
+name = "위대한 장인"
+description = "제작한 장비가 더 좋은 보너스를 얻고, 마법 부여를 합치며, 재료 하나를 돌려주고, 대장장이 작업대에서 재단조됩니다."
+lore2 = "더 강한 걸작 굴림"
+lore3 = "재단조 선택지"
+lore4 = "재단조 레벨 비용"
+lore5 = "재단조 고정"
+lock = "재단조 고정"
+lock_none = "없음"
+lock_durability = "내구도"
+lock_edge = "걸작의 날"
+levels = "{levels} 레벨"
+
+[upgrade.crafting.unmaker]
+name = "해체자"
+description = "무엇이든 부품으로 분해하고, 광석을 재구성하며, 어디서든 묶음을 압축합니다."
+lore2 = "압축 재사용 대기시간"
+
+[upgrade.crafting.field_workshop]
+name = "야전 작업장"
+description = "장인의 장부에서 저장한 제작법을 제작하고 작업대를 열며, 한 번에 묶음 전체를 제작합니다."
+lore2 = "작업대 페이지당 허기"
+lore3 = "장부 페이지"
+lore4 = "장부 연쇄 깊이"
+
+[tool.crafting.runed_book]
+name = "룬 책"
+
+[tool.crafting.artisans_ledger]
+name = "장인의 장부"
+filled = "{pages}쪽 기록됨"
+empty = "빈 페이지"
+missing = "부족: {items}"
+unknown = "만들 수 있는 레시피가 없습니다"
+
+[upgrade.enchanting.arcane_hand]
+name = "비전의 손"
+description = "모루 없이 손으로 마법 부여를 옮기고, 나누고, 적용하며, 숫돌에서 마법 부여 하나를 책으로 뽑아냅니다."
+lore1 = "마법 부여 힘 한도"
+lore2 = "이동당 레벨"
+lore3 = "분할당 레벨"
+lore4 = "숫돌 책 확률"
+lore5 = "숫돌 책당 레벨"
+library_needs = "책 한 권과 {levels} 레벨이 필요합니다"
+
+[upgrade.enchanting.fate_weaver]
+name = "운명을 엮는 자"
+description = "모든 제안을 보고 더 높은 책장 힘으로 다시 굴립니다."
+lore1 = "가상 책장 힘"
+lore2 = "다시 굴릴 때마다 청금석"
+lore3 = "다시 굴리기 재사용 대기시간"
+
+[upgrade.enchanting.soulforged]
+name = "영혼 단조"
+description = "연결된 장비는 죽어도 남고, 경험치를 얻을수록 강해지며, 저주를 떨쳐 내고, 최대치를 넘어 승급합니다."
+lore1 = "경험치 보존 비용"
+lore2 = "경험치 충전 속도"
+lore3 = "재연결 재사용 대기시간"
+lore4 = "아이템당 승천 수"
+lore5 = "승천당 레벨"
+ascended = "승천"
+ascend_levels = "{levels} 레벨이 필요합니다"
+
+[upgrade.brewing.master_distiller]
+name = "증류의 대가"
+description = "물약이 더 빨리 양조되고 두 배 오래 지속되며, 연금술사의 탄띠가 복용에 쓰이는 물약을 담아 둡니다."
+lore1 = "양조 속도 증가"
+lore2 = "맞닿은 용암 블록당 양조 속도 증가"
+lore3 = "양조한 물약 지속 시간"
+lore4 = "탄띠 칸"
+
+[upgrade.brewing.witchs_shelf]
+name = "마녀의 선반"
+description = "적대 물약 여섯 가지를 한 번에 해금하며, 투척 범위가 더 넓어지고 적대 투척 물약을 섞을 수 있습니다."
+lore1 = "해금되는 적대 물약"
+lore2 = "적대 투척 반경"
+lore3 = "혼합 투척 물약당 효과 수"
+lore4 = "혼합 효과 지속 시간"
+mix_name = "혼합 저주"
+
+[upgrade.brewing.apothecary]
+name = "약제사"
+description = "방어 물약 네 가지와 성급함을 한 번에 해금하고, 영약과 혼합 물약도 얻습니다."
+lore1 = "해금되는 방어 물약"
+lore2 = "영약 지속 시간"
+elixir_name = "약제사의 영약"
+lore3 = "혼합 물약당 효과 수"
+lore4 = "혼합 효과 지속 시간"
+mix_name = "혼합 토닉"
+
+[tool.brewing.bandolier]
+name = "연금술사의 탄띠"
+stored = "물약: {count}"
+active = "사용 중: {potion} ({slot}/{count})"
+empty = "넣은 물약 없음"
+full = "탄띠가 가득 참"
+nothing = "넣을 물약 없음"
+unreadable = "탄띠의 물약을 읽을 수 없음"
+unstorable = "이 물약은 넣을 수 없음"
+
+[upgrade.discovery.omniscience]
+name = "전지"
+description = "생물 정보, 주변 상자, 스포너, 구조물을 한 화면에 표시하고, 탐험가의 지도책에 발견을 기록합니다."
+lore1 = "표시 거리"
+lore2 = "구조물 거리"
+chests = "상자 {count}"
+spawners = "스포너 {count}"
+lore3 = "고정"
+lore4 = "웨이포인트"
+lore5 = "미발견 구조물 탐색 반경"
+
+[upgrade.discovery.unity_prime]
+name = "근원의 합일"
+description = "바닐라 경험치가 가장 낮은 스킬에 들어가고, 레벨이 오른 스킬마다 모든 획득량이 늘며, 세계의 갑옷과 향상된 수선이 작동합니다."
+lore1 = "바닐라 구슬당 경험치"
+lore2 = "경험치를 받는 최하위 스킬 수"
+lore3 = "레벨 오른 스킬당 경험치 획득량"
+lore4 = "세계의 갑옷 레벨"
+lore5 = "향상된 수선 레벨"
+
+[upgrade.discovery.explorers_luck]
+name = "탐험가의 행운"
+description = "첫 방문, 첫 처치, 유물이 더 많은 보상을 주고 영구 보너스로 쌓입니다."
+lore1 = "발견 보상"
+lore2 = "발견당 쌓이는 보상"
+lore3 = "종당 쌓이는 피해"
+
+[tool.discovery.explorers_atlas]
+name = "탐험가의 지도책"
+biomes = "생물 군계 {count}"
+structures = "구조물 {count}"
+pins = "고정 {count}/{max}"
+waypoints = "웨이포인트 {count}/{max}"
+empty = "아직 찾은 것이 없습니다"
+looted = "약탈됨"
+not_looted = "약탈 안 됨"
+pinned = "고정됨"
+pin = "고정"
+unpin = "고정 해제"
+delete = "삭제"
+elsewhere = "{world}에 있음"
+lead = "탐색 결과"
+search = "탐색: {structure}"
+search_action = "탐색"
+next_type = "다음 종류"
+search_cost = "종이 {paper}장과 허기 {hunger} 소모"
+search_cooldown = "{time} 후 준비"
+searching = "{structure} 탐색 중"
+search_found = "{structure} 발견: {direction}, {distance}블록"
+search_none = "{range}블록 이내에 미발견 {structure} 없음"
+new_waypoint = "새 웨이포인트"
+name_prompt = "지금 서 있는 곳의 웨이포인트 이름을 입력하세요."
+waypoint_added = "웨이포인트 {name} 설정됨"
+waypoints_full = "웨이포인트 가득 참 ({max})"
+pins_full = "고정 가득 참 ({max})"
+make_waystone = "길잡이 돌 만들기"
+remove_waystone = "길잡이 돌 제거"
+
+[upgrade.taming.alpha]
+name = "알파"
+description = "애완동물이 더 강하고 튼튼해지며 재생하고 당신 근처에서는 더욱 그렇고, 유대를 맺은 탈것은 탈수록 성장합니다."
+lore1 = "애완동물 피해 보너스"
+lore2 = "애완동물 최대 체력 보너스"
+lore3 = "오라 반경"
+lore4 = "유대 탈것 성장 한도"
+lore5 = "유대 탈것 부르기 범위"
+
+[upgrade.taming.one_mind]
+name = "하나의 정신"
+description = "호루라기로 애완동물을 보내고, 불러들이고, 물건을 가져오게 하며, 이름 있는 펫은 경비 역할을 맡습니다."
+lore1 = "표시 거리"
+lore2 = "불러들이기 반경"
+lore3 = "불러들이기 재사용 대기시간"
+lore4 = "이름 있는 펫의 역할"
+
+[upgrade.taming.blood_bond]
+name = "피의 유대"
+description = "당신과 애완동물이 피해를 나누고, 애완동물이 투사체를 막아 주며, 죽을 뻔한 애완동물은 체력 1로 당신에게 돌아옵니다."
+lore1 = "애완동물과 나누는 피해"
+lore2 = "투사체 차단 확률"
+lore3 = "애완동물별 구조 재사용 대기시간"
+
+[tool.taming.whistle]
+name = "야수 조련사의 호루라기"
+lore1 = "우클릭: 펫 보내기"
+lore2 = "웅크리기 + 우클릭: 불러오기"
+lore3 = "좌클릭: 메뉴"
+fetch_on = "물어오기: 켜짐"
+fetch_off = "물어오기: 꺼짐"
+bond = "이 탈것과 유대 맺기"
+bonded = "유대 탈것"
+role = "역할: {role}"
+role_none = "없음"
+role_guard_owner = "당신을 지킴"
+role_guard_spot = "이 자리를 지킴"
+role_fetch = "물어오기"
+cannot_build = "여기에는 건설할 수 없습니다"
+
+[upgrade.golemancy.grand_overseer]
+name = "위대한 감독관"
+description = "멀리서 골렘에게 명령하고, 치유하고, 회수합니다."
+lore2 = "신호, 수리, 회수 범위"
+
+[upgrade.golemancy.forgemaster]
+name = "단조의 대가"
+description = "골렘을 결속하고, 노드를 엮고, 모든 핵을 최대 위력으로 가동합니다. 골격은 레벨이 오르며 레벨 3에서 최고 단계에 도달합니다."
+
+[upgrade.golemancy.runeforged]
+name = "룬 단조"
+description = "룬 슬롯이 하나 늘고, 룬이 강해지며, 어떤 골렘에도 쌍둥이 코어를 넣을 수 있습니다."
+lore2 = "모든 골렘의 추가 룬 슬롯"
+lore3 = "3단계 룬 보너스, 한 단계 높게 작동"
+lore4 = "쌍둥이 코어 골렘"
+lore5 = "두 번째 코어 작업 속도"
+lore6 = "걸작의 추가 룬 슬롯"
+all = "전부"
+heart_needed = "이 쌍둥이 코어에는 인벤토리의 걸작 심장이 필요합니다"
+
+[upgrade.seaborne.leviathan]
+name = "리바이어던"
+description = "숨 쉬고, 빠르게 헤엄치고, 조수의 보호막을 두르며, 젖어 있는 동안 재생하고 배부름을 유지하고, 조수 성소를 세웁니다."
+lore1 = "수중 산소 절약"
+lore2 = "수영 효율"
+lore4 = "젖어 있을 때 재생 단계"
+lore5 = "조수 성소 반경"
+lore6 = "조수 성소"
+
+[upgrade.seaborne.maelstrom]
+name = "대소용돌이"
+description = "쇄도와 제트가 충전을 공유하고, 삼지창이 더 세게 맞히며 즉시 돌아오고, 폭풍이 공격에 응답합니다."
+lore1 = "공유되는 쇄도 및 제트 충전"
+lore2 = "삼지창 추가 피해"
+lore3 = "삼지창 귀환 속도"
+
+[upgrade.seaborne.deep_fortune]
+name = "심해의 행운"
+description = "더 좋은 것을 낚고, 바다 생물이 돕고, 가라앉은 상자가 빛나며, 난파선과 폐허를 인양할 수 있습니다."
+lore1 = "추가 낚시 확률"
+lore2 = "행운"
+lore3 = "보관함 발광 반경"
+lore4 = "인양 행운"
+
+[tool.seaborne.tide_shrine]
+name = "조수 성소"
+lore1 = "설치 시 앵무조개 껍데기 1개 소모"
+full = "모든 조수 성소가 설치됨"
+water = "트인 물이 필요함"
+shell = "앵무조개 껍데기가 필요함"
+protected = "여기에는 건축할 수 없음"
+
+[upgrade.nether.hellwalker]
+name = "지옥 보행자"
+description = "네더 용암 위를 성큼성큼 건너고, 어떤 용암이든 시야를 유지한 채 헤엄치며, 불을 무시하고, 떨어뜨린 아이템을 지킵니다."
+lore1 = "용암 걷기 강도"
+lore2 = "영혼 모래 속도 보너스"
+lore3 = "용암 걷기당 허기"
+lore4 = "용암 수영 속도, 물속 속도 대비"
+lore5 = "허기 1포인트당 용암 체류 시간"
+lore6 = "떨어뜨린 아이템이 용암에 뜸"
+
+[upgrade.nether.wither_king]
+name = "위더의 왕"
+description = "위더 해골을 던지고, 시듦을 떨쳐 내며, 위더 스켈레톤에게서 더 많이 얻습니다."
+lore1 = "해골 던지기 재사용 대기시간"
+lore2 = "시듦 떨쳐 내기 확률"
+lore3 = "위더 스켈레톤 해골 확률"
+
+[upgrade.nether.brimstone]
+name = "유황"
+description = "공격자가 불타고, 불이 배를 채우며, 폭발 피해를 거의 받지 않고, 피글린이 물물교환하며 휴전합니다."
+lore1 = "근접 공격자 점화"
+lore2 = "불로 회복하는 허기"
+lore3 = "폭발 피해 감소"
+lore4 = "물물교환 추가 획득 확률"
+
+[upgrade]
+granted_level = "{adaptation}: 레벨 {level}로 작동"
+overcharge = "과충전"
+
+[xp_guide]
+title = "경험치 획득"
+mutation_title = "변이"
+adaptations = "이 기술의 적응 사용 및 도전 과제 완료"
+farmed_mobs = "스포너, 알, 양동이, 번식, 차원문에서 나온 몹은 보상 없음"
+placed_blocks = "직접 설치한 블록은 보상 없음"
+
+[xp_guide.mutation]
+one_bar = "두 부모 기술의 행동이 이 막대 하나를 채웁니다."
+same_action = "두 부모 모두에게 보상을 주는 행동은 큰 보상에 작은 보상의 {share}%를 더해 줍니다."
+farmed = "파밍한 출처는 보상을 주지 않습니다."
+
+[xp_guide.agility]
+move = "걷기, 달리기, 수영, 점프, 오르기"
+riding = "탑승, 비행, 활공은 보상 없음"
+
+[xp_guide.architect]
+place = "블록 설치, 귀한 블록일수록 더 많이"
+storage = "보관 블록과 블록 파괴는 보상 없음"
+throw = "던진 블록으로 몹 맞히기"
+
+[xp_guide.axes]
+combat = "도끼로 몹 공격"
+chop = "도끼로 원목, 나무, 줄기, 버섯 블록 베기"
+
+[xp_guide.blocking]
+blocked_hit = "방패로 공격 막기, 강한 공격일수록 더 많이"
+shield_hold = "막은 뒤 방패 들고 있기 (서버가 허용하는 경우)"
+
+[xp_guide.brewing]
+drink = "양조한 물약 마시기, 강한 물약일수록 더 많이"
+splash = "양조한 투척용 물약 던지기"
+plain = "물병, 평범한 물약, 진한 물약, 어색한 물약은 보상 없음"
+
+[xp_guide.chronos]
+movement = "돌아다니기, 시계를 손이나 가방에 두면 더 많이"
+active = "활동하기, 밤에는 더 많이"
+survival = "살아남기, 마지막 사망 후 한 시간마다 더 많이"
+sleep = "잠을 자서 밤 넘기기"
+speed = "신속의 물약 마시기 또는 던지기"
+idle = "가만히 서 있으면 거의 없음"
+
+[xp_guide.crafting]
+craft = "아이템 제작, 귀한 결과물일수록 더 많이"
+smelt = "제련 중인 화로 근처에 있기"
+convert = "조각, 주괴, 블록 간 변환은 보상 없음"
+
+[xp_guide.discovery]
+new = "새 블록, 아이템, 몹, 생물 군계, 음식, 제작법, 마법 부여 발견"
+chunk = "처음 보는 청크 탐험"
+loot = "전리품 상자 열기"
+advancement = "발전 과제 달성"
+world = "새 월드와 차원 방문"
+orbs = "바닐라 경험치 획득"
+once = "각 발견은 한 번만 보상"
+
+[xp_guide.enchanting]
+enchant = "마법 부여대에서 마법 부여, 높은 레벨일수록 더 많이"
+
+[xp_guide.excavation]
+combat = "삽으로 몹 공격"
+dig = "삽으로 파기, 단단한 블록일수록 더 많이"
+throw = "날린 블록으로 몹 맞히기"
+
+[xp_guide.golemancy]
+build = "골렘 만들기와 결속"
+craft = "지팡이, 핵, 노드, 룬 제작 및 받침대에서 주입"
+fight = "내 골렘이 근처에서 싸우고 공격받기"
+work = "내 골렘이 근처에서 일하기"
+care = "골렘 수리, 긁어내기, 밀랍칠"
+witness = "미결속 골렘이 적대적 몹을 처치하는 것 지켜보기"
+
+[xp_guide.herbalism]
+harvest = "작물 수확, 잘 익을수록 더 많이"
+eat = "음식 먹기"
+shear = "동물 털 깎기"
+compost = "퇴비통 채우기와 비우기"
+bonemeal = "뼛가루를 준 작물은 절반, 같은 자리는 몇 분간 더 적게"
+
+[xp_guide.hunter]
+kill = "몹 처치, 강한 몹과 크리퍼는 더 많이"
+farmed = "스포너, 알, 양동이, 번식, 차원문에서 나온 몹은 훨씬 적게"
+
+[xp_guide.kinetics]
+mace = "철퇴로 내려찍기와 공격"
+spear = "창 돌진, 찌르기, 탑승 돌진"
+knockback = "몹 밀쳐내기와 밀려나기"
+fall = "낙하, 낙하 완화, 튕기기, 발사"
+levitation = "공중 부양하거나 다른 대상 띄우기"
+anvil = "몹에게 모루 떨어뜨리기, 모루와 숫돌 사용"
+
+[xp_guide.nether]
+ore = "네더 석영, 네더 금, 고대 잔해 채굴"
+kill = "네더 몹, 위더 스켈레톤, 위더 처치"
+wither = "위더 공격과 위더 피해 받기"
+rose = "위더 장미 부수기"
+
+[xp_guide.pickaxe]
+combat = "곡괭이로 몹 공격"
+mine = "곡괭이로 채굴, 광석과 심층암 광석이 가장 많이"
+silk = "섬세한 손길은 조금만"
+
+[xp_guide.ranged]
+shoot = "화살 쏘기"
+hit = "화살로 맞히기, 멀수록 더 많이"
+kill = "활이나 쇠뇌를 들고 몹 처치"
+
+[xp_guide.rift]
+portal = "차원문으로 이동"
+teleport = "후렴과, 엔더 진주 등으로 순간이동"
+throw = "엔더 진주와 엔더의 눈 던지기"
+ender = "엔더맨, 엔더마이트, 엔더 드래곤에게 피해 주기"
+kill = "엔드 수정 파괴, 셜커와 엔더마이트 처치"
+
+[xp_guide.seaborne]
+swim = "수영, 수중 호흡 중이면 더 많이"
+fish = "낚시, 보물이 가장 많이"
+underwater = "물속에서 블록 부수기"
+kill = "바다 생물 처치"
+hit = "드라운드 공격, 삼지창으로 공격"
+
+[xp_guide.stealth]
+opener = "눈치채지 못한 몹 기습, 웅크린 채 뒤에서 치면 더 많이"
+combat = "웅크린 채 공격"
+kill = "웅크린 채 처치"
+sneak = "웅크린 채 이동"
+
+[xp_guide.swords]
+combat = "검으로 몹 공격"
+kill = "검으로 몹 처치"
+
+[xp_guide.taming]
+tame = "동물 길들이기"
+breed = "동물 번식, 한 쌍당 몇 분에 한 번"
+pet_combat = "펫이 몹 공격"
+pet_kill = "펫이 몹 처치"
+
+[xp_guide.tragoul]
+damage = "몹과 플레이어에게 피해 받기"
+low_health = "체력이 낮을 때 공격 버티기"
+
+[xp_guide.unarmed]
+combat = "맨손이나 도구가 아닌 것으로 공격"
+kill = "그렇게 몹 처치"
+
+[gui.seats]
+not_started = "시작 안 함"
+
+[gui.knowledge]
+title = "지식"
+earned = "획득: {value}"
+spent = "사용: {value}"
+unspent = "미사용: {value}"
+skill = "{skill}: {spent} 사용, {available} 미사용"
+
+[advancement.challenge_excavation_clod_hurler_500]
+title = "진흙 투척꾼"
+description = "던진 블록으로 적대 몹을 500번 맞히기"
+
+[advancement.challenge_architect_brickbat_500]
+title = "벽돌 싸움꾼"
+description = "던진 블록으로 생물을 500번 맞히기"
+
+[architectbrickbat.preferences]
+air-throws = "조준한 대상에게 던지기"
+
+[architect.brickbat]
+name = "벽돌 던지기"
+description = "블록을 손에 든 채 생물을 때리거나 사거리 안의 생물에게 휘두르면 블록 하나를 던집니다. 무거운 블록일수록 세게 맞고, 블록은 떨어진 자리에 떨어집니다."
+lore1 = "무게당 피해"
+lore2 = "투척 사거리"
+lore3 = "돌 투척 재사용 대기시간"
+lore = ["무게당 피해", "투척 사거리", "돌 투척 재사용 대기시간"]
+
+[excavation.preferences.excavationclodhurler]
+trigger = "던지는 조건"
+
+[excavation.clod_hurler]
+name = "흙덩이 투척"
+description = "적대 몹이 보일 때 삽으로 부드러운 땅을 파면 파낸 블록을 가장 가까운 몹에게 던집니다. 드롭은 다시 날아서 돌아옵니다."
+lore1 = "피해 배율"
+lore2 = "투척 사거리"
+lore3 = "투척 재사용 대기시간"
+lore = ["피해 배율", "투척 사거리", "투척 재사용 대기시간"]

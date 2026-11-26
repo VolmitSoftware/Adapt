@@ -291,6 +291,11 @@ public final class UiBridge {
                 Gameplay.hold(client, Json.string(input, "action", ""), down, Json.integer(input, "ticks", 0));
                 request.result().complete(state(client));
             }
+            case "press-action" -> {
+                requirePlayer(client);
+                Gameplay.click(client, Json.string(input, "action", ""));
+                request.result().complete(ok());
+            }
             case "jump-sequence" -> {
                 requirePlayer(client);
                 JsonArray offsets = input.getAsJsonArray("presses");

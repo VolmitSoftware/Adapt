@@ -1,0 +1,26 @@
+{
+  "skill": "agility",
+  "upgrades": [
+    {
+      "name": "upgraded-agility-slipstream",
+      "class": "Slipstream",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Slipstream.java",
+      "fuses": ["agility-wind-up", "agility-slipstream-slide", "agility-marathoner"],
+      "triggers": ["PlayerMoveEvent", "PlayerToggleSprintEvent", "PlayerToggleSneakEvent", "EntityExhaustionEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerTeleportEvent"]
+    },
+    {
+      "name": "upgraded-agility-skyrunner",
+      "class": "Skyrunner",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Skyrunner.java",
+      "fuses": ["agility-wall-jump", "agility-super-jump", "agility-air-dash"],
+      "triggers": ["PlayerMoveEvent", "PlayerToggleSneakEvent", "PlayerJumpEvent", "PlayerInteractEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerGameModeChangeEvent"]
+    },
+    {
+      "name": "upgraded-agility-untouchable",
+      "class": "Untouchable",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Untouchable.java",
+      "fuses": ["agility-cat-reflexes", "agility-roll-landing", "agility-kip-up"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent", "PlayerMoveEvent", "PlayerQuitEvent"]
+    }
+  ]
+}

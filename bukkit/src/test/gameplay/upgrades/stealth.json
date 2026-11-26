@@ -1,0 +1,26 @@
+{
+  "skill": "stealth",
+  "upgrades": [
+    {
+      "name": "upgraded-stealth-umbral-form",
+      "class": "UmbralForm",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/stealth/upgraded/UmbralForm.java",
+      "fuses": ["stealth-shadowmeld", "stealth-ghost-armor", "stealth-speed"],
+      "triggers": ["PlayerToggleSneakEvent", "EntityDamageByEntityEvent", "EntityDamageEvent", "PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-stealth-death-mark",
+      "class": "DeathMark",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/stealth/upgraded/DeathMark.java",
+      "fuses": ["stealth-assassinate", "stealth-cutpurse"],
+      "triggers": ["EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-stealth-phantom-decoy",
+      "class": "PhantomDecoy",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/stealth/upgraded/PhantomDecoy.java",
+      "fuses": ["stealth-shadow-decoy", "stealth-decoy-swap", "stealth-smoke-pellet"],
+      "triggers": ["PlayerToggleSneakEvent", "PlayerSwapHandItemsEvent", "EntityTargetEvent", "PlayerQuitEvent"]
+    }
+  ]
+}

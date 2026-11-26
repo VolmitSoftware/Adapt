@@ -353,6 +353,33 @@
     },
     {
       "skill": "architect",
+      "name": "architect-brickbat",
+      "class": "ArchitectBrickbat",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/ArchitectBrickbat.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "BlockBreakEvent",
+        "ChunkEntitiesEvent",
+        "EntityDamageByEntityEvent",
+        "EntityDeathEvent",
+        "EntityRemoveEvent",
+        "PlayerInteractEvent",
+        "PlayerJoinEvent",
+        "PlayerQuitEvent",
+        "ProjectileHitEvent"
+      ],
+      "expectation": "Punch or swing at a creature with a block in hand to throw one block at it; heavier blocks hit harder.",
+      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/ArchitectBrickbat.java",
+      "sounds": [],
+      "particles": [
+        "BLOCK_CRACK"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "architect",
       "name": "architect-chalk-line",
       "class": "ArchitectChalkLine",
       "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/ArchitectChalkLine.java",
@@ -3051,6 +3078,31 @@
         "CLOUD",
         "SMOKE"
       ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "excavation",
+      "name": "excavation-clod-hurler",
+      "class": "ExcavationClodHurler",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/ExcavationClodHurler.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "BlockBreakEvent",
+        "BlockDropItemEvent",
+        "ChunkEntitiesEvent",
+        "EntityDamageByEntityEvent",
+        "EntityDeathEvent",
+        "EntityRemoveEvent",
+        "PlayerJoinEvent",
+        "PlayerQuitEvent",
+        "ProjectileHitEvent"
+      ],
+      "expectation": "Digging soft ground with a shovel flings the dug block at the nearest hostile mob in sight; its drop flies back to you.",
+      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/ExcavationClodHurler.java",
+      "sounds": [],
+      "particles": [],
       "feedbackPresets": []
     },
     {
@@ -6410,9 +6462,11 @@
         "kind": "always"
       },
       "triggers": [
+        "EntityPotionEffectEvent",
+        "PlayerQuitEvent",
         "tick"
       ],
-      "expectation": "Hold more oxygen underwater.",
+      "expectation": "Hold more oxygen underwater, and see in the dark while submerged from level 2.",
       "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneOxygen.java",
       "sounds": [
         "BLOCK_AMETHYST_BLOCK_CHIME",
@@ -6428,32 +6482,48 @@
     {
       "skill": "seaborne",
       "name": "seaborne-pressure-diver",
-      "class": "SeabornePressureDiver",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeabornePressureDiver.java",
+      "class": "SeaborneTidalWard",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTidalWard.java",
       "availability": {
         "kind": "always"
       },
       "triggers": [
-        "BlockBreakEvent",
         "EntityDamageEvent",
         "PlayerQuitEvent",
         "tick"
       ],
-      "expectation": "Gain absorption hearts and depth-scaling protection underwater while partially countering mining fatigue.",
-      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeabornePressureDiver.java",
+      "expectation": "Absorption hearts build while you are in water or rain, up to a cap; any hit pauses the ward and it drains away soon after you dry off.",
+      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTidalWard.java",
       "sounds": [
-        "BLOCK_AMETHYST_BLOCK_CHIME",
         "BLOCK_CONDUIT_ACTIVATE",
-        "BLOCK_CONDUIT_AMBIENT_SHORT",
-        "BLOCK_CONDUIT_DEACTIVATE",
-        "ENTITY_EXPERIENCE_ORB_PICKUP",
-        "ITEM_SHIELD_BLOCK"
+        "BLOCK_CONDUIT_DEACTIVATE"
       ],
       "particles": [
         "BUBBLE",
-        "CRIT",
-        "GLOW",
-        "SOUL"
+        "SPLASH"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "seaborne",
+      "name": "seaborne-rain-fed",
+      "class": "SeaborneRainFed",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneRainFed.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityExhaustionEvent",
+        "PlayerQuitEvent",
+        "tick"
+      ],
+      "expectation": "While you are in water or rain, moving, mining and fighting cost no hunger and your food and saturation are topped up from an allowance each minute; at higher levels it lasts a short while after you dry off.",
+      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneRainFed.java",
+      "sounds": [
+        "ENTITY_GENERIC_EAT"
+      ],
+      "particles": [
+        "SPLASH"
       ],
       "feedbackPresets": []
     },
@@ -6479,6 +6549,30 @@
       "particles": [
         "BUBBLE",
         "GLOW"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "seaborne",
+      "name": "seaborne-storm-strike",
+      "class": "SeaborneStormStrike",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneStormStrike.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "PlayerQuitEvent"
+      ],
+      "expectation": "While rain falls on you or you are in water, your melee and trident hits call lightning on the first hit against each target and every few hits after it; thunderstorms strike harder and more often.",
+      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneStormStrike.java",
+      "sounds": [
+        "ENTITY_LIGHTNING_BOLT_IMPACT",
+        "ITEM_TRIDENT_THUNDER"
+      ],
+      "particles": [
+        "ELECTRIC_SPARK",
+        "FLASH"
       ],
       "feedbackPresets": []
     },
@@ -6549,41 +6643,16 @@
         "PlayerQuitEvent",
         "tick"
       ],
-      "expectation": "Mine faster while underwater, with optional compensation for the vanilla floating penalty.",
+      "expectation": "Mine faster while underwater, with compensation for the vanilla floating penalty, and shrug off most of a guardian's Mining Fatigue.",
       "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTurtlesMiningSpeed.java",
       "sounds": [
+        "BLOCK_AMETHYST_BLOCK_CHIME",
         "BLOCK_AMETHYST_BLOCK_HIT",
         "BLOCK_CONDUIT_AMBIENT_SHORT"
       ],
       "particles": [
         "BUBBLE",
         "CRIT"
-      ],
-      "feedbackPresets": []
-    },
-    {
-      "skill": "seaborne",
-      "name": "seaborne-turtles-vision",
-      "class": "SeaborneTurtlesVision",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTurtlesVision.java",
-      "availability": {
-        "kind": "always"
-      },
-      "triggers": [
-        "EntityPotionEffectEvent",
-        "PlayerQuitEvent",
-        "tick"
-      ],
-      "expectation": "Gain night vision while underwater.",
-      "expectationSource": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTurtlesVision.java",
-      "sounds": [
-        "BLOCK_AMETHYST_BLOCK_CHIME",
-        "BLOCK_CONDUIT_ACTIVATE",
-        "BLOCK_CONDUIT_DEACTIVATE"
-      ],
-      "particles": [
-        "END_ROD",
-        "GLOW"
       ],
       "feedbackPresets": []
     },

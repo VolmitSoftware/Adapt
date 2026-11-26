@@ -159,6 +159,14 @@ class ViewerGlowCoordinatorTest {
         .isEqualTo(ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER);
   }
 
+  @Test
+  void everyPortLayerMapsToACoordinatorLayerOfTheSamePriority() {
+    for (ViewerGlowPort.Layer layer : ViewerGlowPort.Layer.values()) {
+      assertThat(ViewerGlowCoordinator.Layer.valueOf(layer.name()).priority()).isEqualTo(layer.priority());
+    }
+    assertThat(ViewerGlowCoordinator.Layer.values()).hasSameSizeAs(ViewerGlowPort.Layer.values());
+  }
+
   private static Player player(UUID id) {
     Player player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(id);

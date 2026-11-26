@@ -1,16 +1,10 @@
 package art.arcane.adapt.mod.platform.text;
 
 import art.arcane.adapt.localization.MarkupPort;
-import art.arcane.adapt.mod.platform.ModPlatform;
 import art.arcane.adapt.mod.platform.ModText;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JsonOps;
 import art.arcane.adapt.util.common.format.C;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.chat.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.Locale;
@@ -71,15 +65,8 @@ public final class ModMarkup implements MarkupPort {
         if (componentJson == null || componentJson.isBlank()) {
             return "";
         }
-        try {
-            MinecraftServer server = ModPlatform.server();
-            DynamicOps<JsonElement> ops = server == null ? JsonOps.INSTANCE : server.registryAccess().createSerializationContext(JsonOps.INSTANCE);
-            return ComponentSerialization.CODEC.parse(ops, JsonParser.parseString(componentJson)).result()
-                    .map(ModText::markup)
-                    .orElse("");
-        } catch (RuntimeException unreadable) {
-            return "";
-        }
+        Component component = ComponentJson.component(componentJson);
+        return component == null ? "" : ModText.markup(component);
     }
 
     @Override

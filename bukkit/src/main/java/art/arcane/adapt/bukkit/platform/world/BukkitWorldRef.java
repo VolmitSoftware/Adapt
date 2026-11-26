@@ -69,6 +69,7 @@ import java.util.function.Predicate;
 
 /** World handle. Equality is by Bukkit world UID; the handle goes stale when Bukkit unloads the world. */
 public final class BukkitWorldRef implements WorldRef {
+  private static final double RAIN_TEMPERATURE = 0.15D;
   private static volatile boolean unsnapshotTileScan = true;
   private static volatile Optional<GeneratedChunkStructures> structureMetadata;
   private final World world;
@@ -155,6 +156,24 @@ public final class BukkitWorldRef implements WorldRef {
   @Override
   public boolean hasStorm() {
     return world.hasStorm();
+  }
+
+  @Override
+  public boolean isThundering() {
+    return world.isThundering();
+  }
+
+  /**
+   * Vanilla's rain test from what Bukkit exposes on every version: an open column above the block, a biome with
+   * precipitation (every dry biome has no downfall) and a temperature warm enough for rain instead of snow.
+   */
+  @Override
+  public boolean isRainingAt(int x, int y, int z) {
+    if (!world.hasStorm() || world.getEnvironment() != World.Environment.NORMAL || y <= world.getHighestBlockYAt(x, z)) {
+      return false;
+    }
+    Block block = world.getBlockAt(x, y, z);
+    return block.getHumidity() > 0D && block.getTemperature() >= RAIN_TEMPERATURE;
   }
 
   @Override

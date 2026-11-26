@@ -1,0 +1,26 @@
+{
+  "skill": "kinetics",
+  "upgrades": [
+    {
+      "name": "upgraded-kinetics-comet",
+      "class": "Comet",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Comet.java",
+      "fuses": ["kinetics-meteor-cadence", "kinetics-windburst", "kinetics-breachwright"],
+      "triggers": ["PlayerSwapHandItemsEvent", "EntityDamageEvent", "PlayerToggleSneakEvent", "PlayerMoveEvent", "EntityAttemptSmashAttackEvent"]
+    },
+    {
+      "name": "upgraded-kinetics-lancer",
+      "class": "Lancer",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Lancer.java",
+      "fuses": ["kinetics-charge-lance", "kinetics-phalanx-reach", "kinetics-impale-pin"],
+      "triggers": ["PlayerItemHeldEvent", "PlayerMoveEvent", "PlayerTeleportEvent", "EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-kinetics-featherweight",
+      "class": "Featherweight",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Featherweight.java",
+      "fuses": ["kinetics-moon-jump", "kinetics-rubber-soul", "kinetics-soft-catch"],
+      "triggers": ["PlayerJumpEvent", "PlayerMoveEvent", "PlayerTeleportEvent", "EntityDamageEvent"]
+    }
+  ]
+}

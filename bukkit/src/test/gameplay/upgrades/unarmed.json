@@ -1,0 +1,26 @@
+{
+  "skill": "unarmed",
+  "upgrades": [
+    {
+      "name": "upgraded-unarmed-titan-fists",
+      "class": "TitanFists",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/TitanFists.java",
+      "fuses": ["unarmed-power", "unarmed-iron-fists", "unarmed-glass-cannon"],
+      "triggers": ["EntityDamageByEntityEvent", "BlockDamageEvent"]
+    },
+    {
+      "name": "upgraded-unarmed-unbroken-combo",
+      "class": "UnbrokenCombo",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/UnbrokenCombo.java",
+      "fuses": ["unarmed-combo-chain", "unarmed-pressure-point"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent", "PlayerInteractEvent"]
+    },
+    {
+      "name": "upgraded-unarmed-seismic-throw",
+      "class": "SeismicThrow",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/SeismicThrow.java",
+      "fuses": ["unarmed-grapple", "unarmed-shockwave-clap"],
+      "triggers": ["EntityDamageByEntityEvent", "PlayerToggleSneakEvent"]
+    }
+  ]
+}

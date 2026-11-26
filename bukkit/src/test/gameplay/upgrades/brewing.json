@@ -1,0 +1,26 @@
+{
+  "skill": "brewing",
+  "upgrades": [
+    {
+      "name": "upgraded-brewing-master-distiller",
+      "class": "MasterDistiller",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/MasterDistiller.java",
+      "fuses": ["brewing-lingering", "brewing-super-heated"],
+      "triggers": ["InventoryMoveItemEvent", "InventoryClickEvent", "BrewEvent", "PlayerItemHeldEvent", "PrepareItemCraftEvent"]
+    },
+    {
+      "name": "upgraded-brewing-witchs-shelf",
+      "class": "WitchsShelf",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/WitchsShelf.java",
+      "fuses": ["brewing-blindness", "brewing-darkness", "brewing-decay", "brewing-fatigue", "brewing-hunger", "brewing-nausea"],
+      "triggers": ["AdaptBrewCompleteEvent", "PotionSplashEvent", "InventoryClickEvent", "BrewEvent"]
+    },
+    {
+      "name": "upgraded-brewing-apothecary",
+      "class": "Apothecary",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/Apothecary.java",
+      "fuses": ["brewing-absorption", "brewing-healthboost", "brewing-resistance", "brewing-saturation"],
+      "triggers": ["AdaptBrewCompleteEvent", "InventoryClickEvent", "BrewEvent"]
+    }
+  ]
+}

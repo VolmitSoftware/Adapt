@@ -580,14 +580,6 @@ description = "ベッドで10回眠る"
 title = "時間飛ばし"
 description = "ベッドで100回眠る"
 
-[advancement.challenge_chronos_tp_50]
-title = "時空転移"
-description = "50回テレポートする"
-
-[advancement.challenge_chronos_tp_500]
-title = "時間の歪み"
-description = "500回テレポートする"
-
 [advancement.challenge_craft_value_10k]
 title = "製作の価値"
 description = "合計10,000の価値のアイテムをクラフトする"
@@ -3335,6 +3327,7 @@ lore = ["必要時に携帯石切台を使用", "インベントリに石切台�
 
 [axe.chop]
 name = "斧で伐採"
+short_name = "伐採"
 description = "木の根元を右クリックして一気に伐採！"
 lore1 = "1回の伐採ブロック数"
 lore2 = "伐採クールダウン"
@@ -3349,9 +3342,11 @@ lore = ["任意の丸太8本 + 苗木1本 = 苗木の種類の丸太8本"]
 
 [axe.drop_to_inventory]
 name = "斧ドロップ→インベントリ"
+short_name = "ドロップ→インベントリ"
 
 [axe.ground_smash]
 name = "斧グラウンドスマッシュ"
+short_name = "グラウンドスマッシュ"
 description = "ジャンプしてからスニークで周囲の敵を叩き潰す。"
 lore1 = "ダメージ"
 lore2 = "ブロック半径"
@@ -3555,6 +3550,9 @@ lore1 = "暗視ポーション + 黒コンクリート = 暗闇のポーショ�
 lore2 = "注意：このポーションを使うとダッシュできなくなる！"
 lore = ["暗視ポーション + 黒コンクリート = 暗闇のポーション（30秒）", "注意：このポーションを使うとダッシュできなくなる！"]
 
+[brewing.doses]
+left = "開封済み: 残り {left}/{total} 回分"
+
 [brewing.haste]
 name = "瓶詰めの採掘速度上昇"
 strong_name = "瓶詰めの採掘速度上昇 2"
@@ -3675,7 +3673,6 @@ surface_air = "空中"
 surface_block = "ブロック"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
-
 
 blink_priority = "手動のブリンクは2段ジャンプのリコールより優先されます"
 
@@ -3908,7 +3905,7 @@ lore1 = "腐った肉を焚き火に乗せるだけ！"
 lore = ["腐った肉を焚き火に乗せるだけ！"]
 
 [crafting.backpacks]
-name = "ブティリエのバックパック！"
+name = "ブティリエのバックパック"
 description = "スタックごとしまえて、それ自体が容器として開くバックパックを作れます。"
 lore1 = "バックパックを右クリックすると専用の容器が開きます"
 lore2 = "LLL：革、革、革"
@@ -3924,7 +3921,7 @@ next_page = "次のページ"
 unreadable = "このバックパックは別の版のサーバーで詰められたため、ここでは開けません。"
 
 [crafting.stations]
-name = "ポータブルテーブル！"
+name = "ポータブルテーブル"
 description = "金床、作業台、砥石、石切台、製図台、機織り機を持って空中をクリックすると、設置せずに開ける。開くたびに満腹度を消費する。"
 lore2 = "テーブルを閉じた時に残したアイテムは永遠に失われます！"
 lore3 = "対応テーブル：金床、作業台、砥石、製図台、石切台、機織り機"
@@ -3932,7 +3929,7 @@ lore = ["テーブルを閉じた時に残したアイテムは永遠に失わ�
 lore4 = "携帯作業台を開くごとの満腹度消費"
 
 [crafting.skulls]
-name = "クラフト可能な頭蓋骨！"
+name = "クラフト可能な頭蓋骨"
 description = "素材を使ってモブの頭蓋骨をクラフト！"
 lore1 = "骨ブロックを以下の素材で囲んで頭蓋骨を作成："
 lore2 = "ゾンビ：腐った肉"
@@ -4227,7 +4224,7 @@ lore2 = "発掘中にxレベルの採掘速度上昇"
 lore = ["発掘中に採掘速度上昇を獲得", "発掘中にxレベルの採掘速度上昇"]
 
 [excavation.spelunker]
-name = "超視力スペランカー！"
+name = "超視力スペランカー"
 description = "メインハンドにグロウベリーを持つと、地面越しに光る鉱石の表示が見える。"
 lore1 = "オフハンドに鉱石、メインハンドにグロウベリーを持ってスニーク！"
 lore2 = "ブロック範囲："
@@ -4245,6 +4242,7 @@ lore = ["走査範囲", "探知波確率", "探知波クールダウン"]
 
 [excavation.drop_to_inventory]
 name = "シャベルドロップ→インベントリ"
+short_name = "ドロップ→インベントリ"
 
 [excavation.omni_tool]
 name = "OMNI - T.O.O.L."
@@ -4857,7 +4855,8 @@ recall_cooldown = "次のゴーレムを呼び戻せるまであと{seconds}秒�
 recall_unavailable = "呼び戻せるのは自分のワールドで読み込まれているゴーレムだけです"
 
 [golemancy.masterwork]
-name = "傑作"
+name = "ゴーレムの傑作"
+short_name = "傑作"
 description = "アニムスの台座で傑作の心臓を注入してゴーレムにはめ込むと、ルーンスロットが1つ増え、体力が上がり、2つ目のコアを持てて、ルーンが強くなります。"
 lore1 = "傑作ゴーレムの数"
 lore2 = "傑作の追加ルーンスロット"
@@ -4991,18 +4990,21 @@ lore = ["ブロック半径", "成長オーラの強さ", "食料コスト"]
 
 [herbalism.hippo]
 name = "薬草師のカバ"
+short_name = "カバ"
 description = "食べ物を消費すると満腹度が追加回復する"
 lore1 = "食べ物消費時に追加の満腹度ポイント"
 lore = ["食べ物消費時に追加の満腹度ポイント"]
 
 [herbalism.myconid]
 name = "薬草師のマイコニッド"
+short_name = "マイコニッド"
 description = "菌糸ブロックをクラフトする能力を得る"
 lore1 = "任意の土と茶色&赤キノコで菌糸をクラフトできる。"
 lore = ["任意の土と茶色&赤キノコで菌糸をクラフトできる。"]
 
 [herbalism.terralid]
 name = "薬草師のテラリッド"
+short_name = "テラリッド"
 description = "草ブロックをクラフトする能力を得る"
 lore1 = "3つの種を3つの土の上に配置すると、草ブロック3個をクラフトできる。"
 lore = ["3つの種を3つの土の上に配置すると、草ブロック3個をクラフトできる。"]
@@ -5021,6 +5023,7 @@ lore = ["キノコ4個でブロックを作成、またはブロックから茎�
 
 [herbalism.drop_to_inventory]
 name = "クワドロップ→インベントリ"
+short_name = "ドロップ→インベントリ"
 
 [herbalism.hungry_shield]
 name = "ハングリーシールド"
@@ -5035,6 +5038,7 @@ lore = ["空腹による軽減", "接触・圧迫・天候ダメージを軽減"
 
 [herbalism.luck]
 name = "薬草師の幸運"
+short_name = "幸運"
 description = "草や花を壊すとランダムなアイテムを得るチャンスがある"
 lore0 = "花=食べ物、草=種"
 lore1 = "花を壊した時のアイテム獲得チャンス"
@@ -5104,6 +5108,7 @@ lore = ["空腹が尽きると毒スタックが付与される"]
 
 [hunter.drop_to_inventory]
 name = "アイテムドロップ→インベントリ"
+short_name = "ドロップ→インベントリ"
 description = "何かを倒したり剣でブロックを壊すとドロップがインベントリに転送される"
 lore1 = "モブやブロックからのドロップアイテムが可能な限りインベントリに入る。"
 lore = ["モブやブロックからのドロップアイテムが可能な限りインベントリに入る。"]
@@ -5128,6 +5133,7 @@ lore = ["攻撃を受けるとパッシブ透明化を獲得", "攻撃を受け�
 
 [hunter.jump_boost]
 name = "ハンターの高み"
+short_name = "高み"
 description = "攻撃を受けると空腹を代償にジャンプ力上昇を得る"
 lore1 = "攻撃を受けるとパッシブジャンプ力上昇を獲得"
 lore2 = "攻撃を受けてx回3秒間ジャンプ力上昇がスタック"
@@ -5138,6 +5144,7 @@ lore = ["攻撃を受けるとパッシブジャンプ力上昇を獲得", "攻�
 
 [hunter.luck]
 name = "ハンターの幸運"
+short_name = "幸運"
 description = "攻撃を受けると空腹を代償に幸運を得る"
 lore1 = "攻撃を受けるとパッシブ幸運を獲得"
 lore2 = "攻撃を受けてx回3秒間幸運がスタック"
@@ -5148,6 +5155,7 @@ lore = ["攻撃を受けるとパッシブ幸運を獲得", "攻撃を受けてx
 
 [hunter.regen]
 name = "ハンターの再生"
+short_name = "再生"
 description = "攻撃を受けると空腹を代償に再生を得る"
 lore1 = "攻撃を受けるとパッシブ再生を獲得"
 lore2 = "攻撃を受けてx回3秒間再生がスタック"
@@ -5158,6 +5166,7 @@ lore = ["攻撃を受けるとパッシブ再生を獲得", "攻撃を受けてx
 
 [hunter.resistance]
 name = "ハンターの耐性"
+short_name = "耐性"
 description = "攻撃を受けると空腹を代償に耐性を得る"
 lore1 = "攻撃を受けるとパッシブ耐性を獲得"
 lore2 = "攻撃を受けてx回3秒間耐性がスタック"
@@ -5168,6 +5177,7 @@ lore = ["攻撃を受けるとパッシブ耐性を獲得", "攻撃を受けてx
 
 [hunter.speed]
 name = "ハンターの俊足"
+short_name = "俊足"
 description = "攻撃を受けると空腹を代償にスピードを得る"
 lore1 = "攻撃を受けるとパッシブスピードを獲得"
 lore2 = "攻撃を受けてx回3秒間スピードがスタック"
@@ -5178,6 +5188,7 @@ lore = ["攻撃を受けるとパッシブスピードを獲得", "攻撃を受�
 
 [hunter.strength]
 name = "ハンターの剛力"
+short_name = "剛力"
 description = "攻撃を受けると空腹を代償に攻撃力を得る"
 lore1 = "攻撃を受けるとパッシブ攻撃力を獲得"
 lore2 = "攻撃を受けてx回3秒間攻撃力がスタック"
@@ -5248,6 +5259,8 @@ none_eligible = "このプレイヤーの対象スキルが見つかりません
 title = "レベル {level}（パワー使用量 {used}/{maximum}）"
 
 [gui.adaptations]
+tools = "道具: {tools}"
+recipes = "レシピ: {recipes}"
 none_available = "利用できる適応はありません"
 permanent_learn_confirm = "もう一度クリックして永続習得を確定"
 permanent_learn_confirm_now = "今すぐもう一度クリックして永続習得を確定してください。"
@@ -5264,6 +5277,7 @@ vault_unavailable_fallback = "Vaultの経済機能を利用できません — �
 vault_insufficient_funds = "この適応を習得するためのVault通貨が足りません。"
 vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 power_drain = "パワー消費 {power}"
+power_freed = "パワーを {power} 解放"
 requirement_level = "{adaptation} Lv {level}"
 requires = "必要: {requirement}"
 requirements_missing = "{requirements} を習得してから {adaptation} を習得してください。"
@@ -5591,12 +5605,14 @@ lore = ["ドロップ確率", "ツール消耗"]
 
 [pickaxe.drop_to_inventory]
 name = "ツルハシのインベントリ直送"
+short_name = "インベントリ直送"
 description = "ブロックを壊すとアイテムがインベントリに直接入る"
 lore1 = "ブロックからのドロップアイテムが可能な限りインベントリに入る。"
 lore = ["ブロックからのドロップアイテムが可能な限りインベントリに入る。"]
 
 [pickaxe.silk_spawner]
 name = "ツルハシのシルクスポナー"
+short_name = "シルクスポナー"
 description = "スポナーが破壊時にドロップするようになる"
 lore1 = "シルクタッチでスポナーを破壊可能にする。"
 lore2 = "スニーク中にスポナーを破壊可能にする。"
@@ -5770,6 +5786,7 @@ unbind = "コンテナから視線を外し、スニーク中に空中を左ク�
 
 [rift.blink]
 name = "リフトブリンク"
+short_name = "ブリンク"
 description = "二段ジャンプで視線の方向へ瞬間移動します。距離か高い着地点を優先し、壁の通り抜けをスニーク中、照準に従う、または無効から選べます。レベル2では反応モードにより二段ジャンプの代わりに攻撃時の回避が発動し、視線の方向か攻撃者から離れる方向へ移動します。成功した瞬間移動はパールを消費しませんが、レベルに応じて軽減されるエンダーパールのダメージを受けます。選択肢はサーバーの規則によって制限されます。"
 lore1 = "ブリンク範囲"
 lore2 = "自傷ダメージ（ハート）"
@@ -5803,6 +5820,7 @@ lore = ["クラフト：エメラルド + アメジストの欠片 + エンダ�
 
 [rift.resist]
 name = "リフト耐性"
+short_name = "耐性"
 description = "エンダーアイテムやアビリティ使用時に耐性を獲得"
 lore1 = "+ パッシブ：リフトアビリティやエンダーアイテム使用時に耐性を付与"
 lore2 = "ポータブルエンダーチェストは対象外、消費可能なアイテムのみ"
@@ -5890,9 +5908,10 @@ config_hotload_truncated = "&7[&4Adapt&7]: &a設定をホットリロードし�
 
 [seaborn.oxygen]
 name = "有機酸素タンク"
-description = "小さな肺でもっと多くの酸素を蓄えろ！"
+description = "水中でずっと多くの空気を保ち、レベル2からは水中で暗闇を見通せる。"
 lore1 = "酸素容量増加"
 lore = ["酸素容量増加"]
+night_vision = "水中での暗視"
 
 [seaborn.fishers_fantasy]
 name = "釣り人の幻想"
@@ -5902,15 +5921,10 @@ lore = ["釣りの追加報酬一式を1回得る確率"]
 
 [seaborn.haste]
 name = "タートルマイナー"
-description = "水中で、足場の有無にかかわらず採掘速度が上昇する。"
+description = "水中で、足場の有無にかかわらず採掘速度が上昇し、ガーディアンの採掘速度低下をほとんど打ち消す。"
 lore1 = "水中での採掘速度を上げ、水中採掘と重複し、浮遊中の採掘ペナルティを補正する。"
-lore = ["水中での採掘速度を上げ、水中採掘と重複し、浮遊中の採掘ペナルティを補正する。"]
-
-[seaborn.night_vision]
-name = "タートルビジョン"
-description = "水中で暗視を得る。"
-lore1 = "水中では暗視が継続的に更新される。"
-lore = ["水中では暗視が継続的に更新される。"]
+lore2 = "打ち消す採掘速度低下"
+lore = ["水中での採掘速度を上げ、水中採掘と重複し、浮遊中の採掘ペナルティを補正する。", "打ち消す採掘速度低下"]
 
 [seaborn.dolphin_grace]
 name = "イルカの好意"
@@ -5941,14 +5955,14 @@ trigger_line = "トリガー: {trigger}"
 environment_line = "環境: {environment}"
 trigger_context = "{trigger} ({environment})"
 
-[seaborn.pressure_diver]
-name = "深圧潜水"
-description = "水中で吸収ハートと深さに応じた防護を得て、採掘速度低下を一部相殺します。"
-lore1 = "最低深度条件"
-lore2 = "深度ダメージ軽減"
-lore3 = "採掘速度低下の軽減確率"
-lore4 = "深度吸収ハート"
-lore = ["最低深度条件", "深度ダメージ軽減", "採掘速度低下の軽減確率", "深度吸収ハート"]
+[seaborn.tidal_ward]
+name = "潮の守り"
+description = "水中や雨の中にいる間、衝撃吸収のハートが少しずつ溜まる。攻撃を受けると蓄積が止まり、体が乾くとすぐに消えていく。"
+lore1 = "守りのハート"
+lore2 = "毎秒の蓄積量"
+lore3 = "被弾後の停止時間"
+lore4 = "乾いた後の持続時間"
+lore = ["守りのハート", "毎秒の蓄積量", "被弾後の停止時間", "乾いた後の持続時間"]
 
 [seaborn.coral_gardener]
 name = "サンゴ園芸"
@@ -5999,125 +6013,276 @@ lore1 = "塩水再生レベル"
 lore2 = "濡れている間のダメージ軽減"
 lore = ["塩水再生レベル", "濡れている間のダメージ軽減"]
 
+[seaborn.storm_strike]
+name = "嵐の一撃"
+description = "雨に打たれているか水中にいる間、近接攻撃とトライデントの命中が雷を呼ぶ。各標的への最初の一撃と、その後数回ごとに落ちる。雷雨ではより強く、より頻繁に落ちる。"
+lore1 = "雷のダメージ"
+lore2 = "落雷までの命中回数"
+lore3 = "雷雨中の雷のダメージ"
+lore4 = "雷雨中の落雷までの命中回数"
+lore = ["雷のダメージ", "落雷までの命中回数", "雷雨中の雷のダメージ", "雷雨中の落雷までの命中回数"]
+
+[seaborn.rain_fed]
+name = "雨の恵み"
+description = "水中や雨の中にいる間、移動・採掘・戦闘で空腹にならず、満腹度と隠し満腹度が少しずつ回復する。"
+lore1 = "毎分の満腹度と隠し満腹度の回復量"
+lore2 = "乾いた後も満腹が続く時間"
+lore = ["毎分の満腹度と隠し満腹度の回復量", "乾いた後も満腹が続く時間"]
+
 [skill.agility]
 name = "敏捷性"
 icon = "⇉"
 description = "敏捷性とは、障害物に直面しても素早くしなやかに動く能力である。ダッシュ、水泳、ジャンプ、登攀でレベルが上がる。"
+quip = "歩くのは暇な人だけ"
+unlock_quip_1 = "足が新しい技を覚えた"
+unlock_quip_2 = "重力はもはや提案程度"
 
 [skill.architect]
 name = "建築家"
 icon = "⬧"
 description = "構造は世界の基盤である。現実はあなたの手の中にあり、あなたがコントロールする。ブロックを設置するとレベルが上がる。"
+quip = "現実はもう建材だ"
+unlock_quip_1 = "一度測って全部置く"
+unlock_quip_2 = "設計図は任意、野心は必須"
 
 [skill.axes]
 name = "斧"
 icon = "🪓"
 description = "木を伐採し、斧で戦うとレベルが上がる。なぜ木を切り倒すのか、&oモノ&7を切っても結果は同じだろう！"
+quip = "木々は君の噂を聞いている"
+unlock_quip_1 = "まず切る、質問はしない"
+unlock_quip_2 = "昼は木こり、夜は脅威"
 
 [skill.brewing]
 name = "醸造"
 icon = "❦"
 description = "ポーションを醸造するとレベルが上がり、バニラにはないレシピを解放できる。ダブルバブル、トリプルバブル――それでもポーションは大釜に入れられない。"
+quip = "ぶくぶく倍増、トラブルも倍増"
+unlock_quip_1 = "味は最悪、効果は最高"
+unlock_quip_2 = "よく振って、中身は聞かない"
 
 [skill.blocking]
 name = "防御"
 icon = "🛡"
 description = "棒や石では骨は折れない、だが盾なら折れる。盾で攻撃を防ぐとレベルが上がる。"
+quip = "盾こそが武器だった"
+unlock_quip_1 = "今日は無理だよ、とがったやつ"
+unlock_quip_2 = "もう一発どうぞ、受けて立つ"
+
+[skill.blocking.group]
+guard = "防御"
+counter = "反撃"
+gear = "装備"
 
 [skill.crafting]
 name = "クラフト"
 icon = "⌂"
 description = "置くピースがもう無いなら、新しく作ればいいじゃない？アイテムをクラフトするとレベルが上がる。"
+quip = "作れるなら買う必要はない"
+unlock_quip_1 = "多少の組み立てが必要です"
+unlock_quip_2 = "今回は余る部品が少ない"
 
 [skill.discovery]
 name = "発見"
 icon = "⚛"
 description = "知覚が広がるにつれ、あなたの心は解き放たれ、見えなかったものが見えてくる。探索し、経験値を集めるとレベルが上がる。"
+quip = "世界は思ったより広い"
+unlock_quip_1 = "好奇心がまた報われた"
+unlock_quip_2 = "誰も見ない所を見た"
+
+[skill.discovery.group]
+exploring = "探索"
+experience = "経験"
 
 [skill.enchanting]
 name = "エンチャント"
 icon = "♰"
 description = "きらめく知識を意のままに操れ。エンチャントテーブルで装備にエンチャントするとレベルが上がる。"
+quip = "細則を読め。光っている。"
+unlock_quip_1 = "ラピスの予算が増えた"
+unlock_quip_2 = "輝きは増えた、ツルハシは同じ"
+
+[skill.enchanting.group]
+table = "エンチャント台"
+anvil = "金床と砥石"
+books = "本"
 
 [skill.excavation]
 name = "発掘"
 icon = "ᛳ"
 description = "掘って掘って穴を掘る…シャベルで土、砂、砂利などの柔らかい地面を掘るとレベルが上がる。"
+quip = "掘れ掘れ穴を、正式に"
+unlock_quip_1 = "土は不意を突かれた"
+unlock_quip_2 = "もっと深く、速く、泥まみれに"
 
 [skill.herbalism]
 name = "薬草学"
 icon = "⚘"
 description = "緑あふれる生命を極めよ。農作業、作物の収穫、植物の採集でレベルが上がる。"
+quip = "植物に話しかけよう。聞いてるよ。"
+unlock_quip_1 = "ニンジンは君を信じている"
+unlock_quip_2 = "育て、小さな仲間たち"
+
+[skill.herbalism.group]
+farming = "農業"
+survival = "生存"
+recipes = "レシピ"
 
 [skill.hunter]
 name = "ハンター"
 icon = "☠"
 description = "狩りとは結果ではなく、その道のりにある。モブを倒すとレベルが上がり、その恩恵は攻撃を受けたときに満腹度と引き換えに発動する。"
+quip = "大事なのは旅路。あと戦利品。"
+unlock_quip_1 = "外の何者かは心配すべきだ"
+unlock_quip_2 = "執念増し増しで狩りへ"
+
+[skill.hunter.group]
+struck = "被弾時"
+hunt = "狩り"
 
 [skill.nether]
 name = "ネザー"
 icon = "₪"
 description = "ネザーの深淵そのものより。ネザーとそのモンスターに立ち向かうとレベルが上がる。"
+quip = "日焼け止めを持っていけ。大量に。"
+unlock_quip_1 = "ガストたちの耳にも入るだろう"
+unlock_quip_2 = "溶岩のそばで上機嫌"
+
+[skill.nether.group]
+fire = "炎"
+wither = "ウィザー"
+exploring = "探索"
 
 [skill.pickaxe]
 name = "ツルハシ"
 icon = "⛏"
 description = "鉱夫といえばドワーフだが、私も長年でそれなりに学んできた。ツルハシで石や鉱石を採掘するとレベルが上がる。"
+quip = "ドワーフも誇りに思う。たぶん。"
+unlock_quip_1 = "岩と石、骨の髄まで"
+unlock_quip_2 = "掘り続けてよかったね"
 
 [skill.ranged]
 name = "遠距離"
 icon = "🏹"
 description = "距離こそが勝利の鍵であり、生存の鍵である。飛び道具を命中させるとレベルが上がる。"
+quip = "距離は愛の言語"
+unlock_quip_1 = "小さく狙い、小さく外す"
+unlock_quip_2 = "近すぎないのがちょうどいい"
 
 [skill.rift]
 name = "リフト"
 icon = "❍"
 description = "リフトの腐食性のエネルギーを使いこなせ。テレポートやエンダーアイテムの使用でレベルが上がる。"
+quip = "現実の縫い目が少しほつれている"
+unlock_quip_1 = "ここ、あそこ、どこか別の場所"
+unlock_quip_2 = "エンダーマンが話をしたいそうだ"
 
 [skill.seaborne]
 name = "海の民"
 icon = "🎣"
 description = "このスキルで、水の奇跡を自在に操ることができる。泳いだり釣りをしたりするとレベルが上がる。"
+quip = "ぶくぶく、ようこそ船へ"
+unlock_quip_1 = "魚たちがうらやんでいる"
+unlock_quip_2 = "晴れでも雨でも、できれば雨"
+
+[skill.seaborne.group]
+swimming = "水泳"
+combat = "戦闘"
+harvest = "海の収穫"
 
 [skill.stealth]
 name = "隠密"
 icon = "☯"
 description = "見えざる者の技。影の中を歩け。スニークし、隠れた状態で攻撃するとレベルが上がる。"
+quip = "君はここにいなかった"
+unlock_quip_1 = "しーっ。何も見なかった。"
+unlock_quip_2 = "影は良き友"
+
+[skill.stealth.group]
+concealment = "隠密"
+tricks = "小技"
+ambush = "奇襲"
 
 [skill.swords]
 name = "剣術"
 icon = "⚔"
 description = "グレイストーンの力をもって！剣でダメージを与えるとレベルが上がる。"
+quip = "GreyStoneの力にかけて"
+unlock_quip_1 = "とがった方を相手に向けろ"
+unlock_quip_2 = "昨日より鋭く"
+
+[skill.swords.group]
+technique = "技"
+wounds = "傷"
+blades = "刃"
 
 [skill.taming]
 name = "飼育"
 icon = "♥"
 description = "オウムとミツバチ…それと、あなたは？動物を飼いならし、繁殖させ、ペットと共に戦うとレベルが上がる。"
+quip = "いい子は誰？今は全員。"
+unlock_quip_1 = "ペットたちは理解した"
+unlock_quip_2 = "おやつが増えれば牙も増える"
+
+[skill.taming.group]
+care = "世話"
+battle = "戦闘"
 
 [skill.tragoul]
 name = "TragOul"
 icon = "🗡"
 description = "血は宇宙の血管を流れる。あなたの手で締め付けられながら。ダメージを受け、低い体力で生き延びるとレベルが上がる。"
+quip = "少し血を流し、大いに生きる"
+unlock_quip_1 = "痛みはただの資源"
+unlock_quip_2 = "有意義に使った血"
+
+[skill.tragoul.group]
+pain = "苦痛"
+corpses = "死体"
+blood = "血"
 
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
 description = "宇宙の時計を巻き、時の流れを体感せよ。移動、睡眠、時の経過を生き延びること、移動速度上昇の共有でレベルが上がる。時計を持ち歩くとChronosの経験値が増え、オフハンドに持つとボーナスが最大になる。"
+quip = "チクタク、時間は進む"
+unlock_quip_1 = "あと五分、許可された"
+unlock_quip_2 = "今回は時間が味方だ"
 
 [skill.unarmed]
 name = "素手"
 icon = "»"
 description = "武器が無くとも、力が無いわけではない。"
+quip = "拳こそ元祖の武器"
+unlock_quip_1 = "拳、アップグレード済み"
+unlock_quip_2 = "剣なんて要る？"
 
 [skill.kinetics]
 name = "キネティックス"
 icon = "⚒"
 description = "動きは力だ。メイスで叩きつけ、槍で突進し、勢いそのものを操れ。跳ね返り、打ち上げ、浮遊、狙い澄ました金床の落下、そのすべてが熟練につながる。"
+quip = "勢いこそ生き方"
+unlock_quip_1 = "物理法則は今日お休み"
+unlock_quip_2 = "上がったものは強く当たる"
+
+[skill.kinetics.group]
+spear = "槍"
+mace = "メイス"
+movement = "移動"
 
 [skill.golemancy]
 name = "ゴーレム術"
 icon = "⚙"
 description = "ゴーレムを作り、修理し、世話をしてレベルを上げ、やがて命を吹き込んで共に戦い、働かせましょう。"
+quip = "鉄の友、雑談なし"
+unlock_quip_1 = "ゴーレムが少し賢くなった"
+unlock_quip_2 = "ボルトは固く、忠誠はもっと固く"
+
+[skill.golemancy.group]
+binding = "結束"
+frames = "フレーム"
+cores = "コア"
+command = "指揮と手入れ"
 
 [snippets.gui]
 level = "レベル"
@@ -6223,7 +6388,7 @@ lore2 = "エンダーマンの攻撃をすべて防ぐ"
 lore = ["スニーク中にエンダーマンの攻撃を防ぐ", "エンダーマンの攻撃をすべて防ぐ"]
 
 [stealth.silent_step]
-name = "隠密"
+name = "忍び足"
 description = "背後攻撃、スリ、暗殺に使う中核の隠密能力です。スニーク中は観察者の認識状態を判定し、透明化中または影の囮が有効なら常に未発見として扱います。"
 lore1 = "モブ検知抑制半径"
 lore2 = "モブへの背後攻撃ボーナス"
@@ -6694,7 +6859,14 @@ lore3 = "戦闘後の使用不可時間"
 lore = ["最大衝撃吸収", "波動ごとの衝撃吸収", "戦闘後の使用不可時間"]
 
 [command.help]
-show_client_ui_status = "プレイヤーが Adapt クライアント UI を使っているか表示します"
+merge_two_of_your_skills = "2つのスキルを1つの変異スキルに融合します。元に戻せません。"
+lead_skill = "変異を主導し名前を決めるスキル"
+partner_skill = "主導スキルに融合されるスキル"
+remove_a_player_s_mutations = "プレイヤーの変異をすべて削除し、各変異の元の2スキルを戻す"
+unmutate = "プレイヤーの変異を1つ削除し、元の2スキルを戻す"
+unmutate_player = "変異を削除するプレイヤー"
+mutated_skill = "変異スキル、その主導スキルまたは相方スキル"
+show_client_ui_status = "プレイヤーの Adapt クライアント状態と使用中のパワーを表示します"
 version = "インストールされているプラグインのバージョンを表示"
 debug_dump = "診断レポートを作成し、必要に応じてアップロードする"
 debug_upload = "レポートを mclo.gs にアップロードする"
@@ -6765,8 +6937,21 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "1～64の数量、デフォルトは1"
 
 [command.runtime]
+mutation_created = "{lead}と{partner}は{mutation}になりました。"
+mutation_unknown_skill = "不明なスキルです。swords stealth のように2つのスキル名を指定してください。"
+mutation_unavailable_skill = "このサーバーではそのスキルを変異させられません。"
+mutation_same_skill = "異なる2つのスキルを選んでください。"
+mutation_already_mutated = "スキルは1つの変異にしか加われません。"
+mutation_level_too_low = "両方のスキルがレベル{level}に達している必要があります。"
+mutation_limit_reached = "このサーバーで持てる変異は最大{limit}個です。"
+mutations_reset = "{player}の変異を{count}件削除しました。各変異の元の2スキルが戻りました。"
+mutation_unmutated = "{player}から{mutation}を削除しました。{lead}と{partner}が戻りました。"
+mutation_not_held = "{player}には{skill}を含む変異がありません。"
 client_ui_absent = "{player} はチェストとアクションバーの UI を使っています（Adapt クライアントは未接続）。"
 client_ui_negotiated = "{player} は Adapt クライアント UI を使っています: プロトコル {version}、機能 {capabilities}。"
+power_usage = "{player} はパワーを {max} 中 {used} 使用しています。"
+power_held = "{skill}: {adaptation} レベル {level} はパワーを 1 使用します。"
+power_free = "{skill}: {adaptation} レベル {level} はパワーを使用しません。"
 missing_permission = "権限 '{permission}' がありません。"
 player_required_from_console = "コンソールからこのコマンドを使用する場合は、プレイヤーを指定する必要があります。"
 player_required_from_console_short = "コンソールからはプレイヤーを指定する必要があります。"
@@ -7175,6 +7360,9 @@ ten = "満腹度を10残す"
 trigger = "発動操作"
 while_sneaking = "スニーク中"
 work = "作業上限"
+felled_logs = "伐採した原木"
+stripped = "樹皮を剥いだ原木"
+planks = "板材"
 
 [blocking.preferences]
 all = "近くの許可されたすべてのプレイヤー"
@@ -8431,6 +8619,10 @@ description = ["スキル画面に表示する順番に並べたスキルの登�
 label = "適応能力の並び順"
 description = ["スキルの登録名と、そのスキルの適応能力の登録名を並べた一覧の対応。", "効果: 一覧の適応能力がこの順番で先頭に置かれる。その他の適応能力は通常のアルファベット順で続き、不明な名前は無視される。"]
 
+[config.fields.core.gui.showInactiveSkills]
+label = "非アクティブなスキルを表示"
+description = ["プレイヤーがまだ始めていないスキルと、変異に統合されたスキルの枠を、スキルページにグレー表示する。", "効果: false にすると、クライアントのネイティブページとスキルGUIで非表示になり、残りのスキルは同じ順番のまま詰めて表示される。"]
+
 [config.fields.core.effects]
 label = "エフェクト"
 description = ["「core.effects」セクションの「エフェクト」を制御する。"]
@@ -9142,18 +9334,6 @@ description = ["Chronosスキルの「移動速度上昇のポーションの逓
 [config.fields.skills.chronos.speedPotionResetWindow]
 label = "移動速度上昇のポーションのリセット期間"
 description = ["Chronosスキルの「移動速度上昇のポーションのリセット期間」を制御する。"]
-
-[config.fields.skills.chronos.enderPearlThrowXP]
-label = "エンダーパール投擲XP"
-description = ["ChronosスキルのXP獲得量の調整。"]
-
-[config.fields.skills.chronos.enderPearlTeleportXP]
-label = "エンダーパールテレポートXP"
-description = ["ChronosスキルのXP獲得量の調整。"]
-
-[config.fields.skills.chronos.enderPearlCooldown]
-label = "エンダーパールのクールダウン"
-description = ["Chronosスキルの発動間のクールダウン。"]
 
 [config.fields.skills.chronos.survivalXPPerMinute]
 label = "毎分の生存XP"
@@ -10763,10 +10943,6 @@ description = ["最大レベルで追加される飛び道具の回避確率。"
 label = "最大回避確率"
 description = ["レベルにかかわらない、飛び道具の回避確率の絶対上限。", "効果: 値を大きくすると、回避率の最大値が上がる。"]
 
-[config.fields.adaptations.agility-cat-reflexes.xpPerDodge]
-label = "回避ごとのXP"
-description = ["飛び道具を回避するごとに付与される経験値。", "効果: 値を大きくすると、回避で得られるスキルXPが増える。"]
-
 [config.fields.adaptations.agility-featherfoot.playerPreferences]
 label = "プレイヤー設定"
 description = ["この適応能力のプレイヤー設定に対するサーバーの既定値と許可する選択肢。", "効果: 登録された各項目は、他のプレイヤーの保存済みの選択を変えずにロックまたは制限できる。"]
@@ -11334,10 +11510,6 @@ description = ["プレイヤーがすでに習得している必要がある適�
 [config.fields.adaptations.agility-vault.jumpHeight]
 label = "ジャンプ高さ"
 description = ["フェンスを越えるときのジャンプの最高到達点（ブロック）。", "効果: 値を大きくすると、より余裕を持ってフェンスを越える。"]
-
-[config.fields.adaptations.agility-vault.xpPerVault]
-label = "飛び越えごとのXP"
-description = ["飛び越えに成功するごとに付与される経験値。", "効果: 値を大きくすると、飛び越えで得られるスキルXPが増える。"]
 
 [config.fields.adaptations.agility-wall-jump.playerPreferences]
 label = "プレイヤー設定"
@@ -22041,19 +22213,19 @@ description = ["適応能力「大物狩り」の、レベル全体で得られ�
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceBase]
 label = "追加ドロップ確率（基本）"
-description = ["適応能力「大物狩り」の、大物に対するドロップごとの基本複製確率。"]
+description = ["適応能力「大物狩り」の、大物に対する追加ドロップ抽選1回の基本確率。"]
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceFactor]
 label = "追加ドロップ確率（係数）"
-description = ["適応能力「大物狩り」の、レベル全体で得られるドロップごとの複製確率。"]
+description = ["適応能力「大物狩り」の、レベル全体で得られる追加ドロップ抽選の確率。"]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropChance]
 label = "最大追加ドロップ確率"
-description = ["適応能力「大物狩り」の、ドロップごとの最大複製確率。"]
+description = ["適応能力「大物狩り」の、追加ドロップ抽選の最大確率。"]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropsPerKill]
 label = "撃破ごとの最大追加ドロップ数"
-description = ["適応能力「大物狩り」の、大物1体の撃破で複製される追加ドロップの最大数。"]
+description = ["適応能力「大物狩り」の、大物1体の撃破で得られる追加ドロップの最大数。"]
 
 [config.fields.adaptations.hunter-big-game.xpPerBigGameKill]
 label = "大物撃破ごとのXP"
@@ -28139,74 +28311,6 @@ description = ["レベル1の購入に必要な知識コスト。", "効果: 値
 label = "前提条件"
 description = ["プレイヤーがすでに習得している必要がある適応能力。それぞれadaptationId:levelの形式で書く。", "効果: 一覧のすべての適応能力がそのレベルで習得されるまで、この適応能力の習得とレベルアップは拒否される。また、この適応能力を習得している間、それらの適応能力はそのレベル未満に習得解除できない。"]
 
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdBase]
-label = "深度しきい値（基本）"
-description = ["適応能力の最低レベルで必要な、海面より下の目の深さ（ブロック）。", "効果: 値を大きくすると、深圧潜水のバフが有効になるまでにより深く潜る必要がある。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdFactor]
-label = "深度しきい値（係数）"
-description = ["適応能力のレベル全体で、発動に必要な深さから差し引かれるブロック数。", "効果: 値を大きくすると、熟練した潜水者が海面により近い場所でバフを発動できる。しきい値の下限は2ブロック。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdBase]
-label = "深海しきい値（基本）"
-description = ["最低レベルで、より強い耐性のティアに必要な海面より下の目の深さ。", "効果: 値を大きくすると、耐性IIをより深い水中に限る。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdFactor]
-label = "深海しきい値（係数）"
-description = ["レベル全体で、より強い耐性のティアの条件から差し引かれるブロック数。", "効果: 値を大きくすると、深いティアが海面により近い場所で発動する。しきい値の下限は4ブロック。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionBase]
-label = "ダメージ軽減（基本）"
-description = ["最低レベルで深圧潜水が有効な間に取り除かれる、受けるダメージの割合。", "効果: 0.12では、継続的に更新される耐性効果を考慮する前に、受けるダメージの12%を取り除く。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionFactor]
-label = "ダメージ軽減（係数）"
-description = ["適応能力のレベル全体で得られる、受けるダメージの追加の軽減。", "効果: 値を大きくすると、最大レベルに向けて深さによる保護がより強く増える。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.maxDamageReduction]
-label = "最大ダメージ軽減"
-description = ["深圧潜水そのものによる、受けるダメージの軽減の割合の最大値。", "効果: 耐性効果とは別に、直接の軽減に上限を設ける。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthBase]
-label = "衝撃吸収の体力（基本）"
-description = ["レベル1で深圧潜水が発動したときに付与される衝撃吸収の体力ポイント。体力2ポイントでハート1つとして表示される。", "効果: 値を大きくすると、低レベルの潜水者が一時的な追加のハートを多く得る。更新時に消費した衝撃吸収は補充されない。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthFactor]
-label = "衝撃吸収の体力（係数）"
-description = ["適応能力の最大レベルで付与される追加の衝撃吸収の体力ポイント。", "効果: 値を大きくすると、レベルが上がるにつれて深圧潜水の目に見える追加のハートの容量が増える。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceBase]
-label = "採掘速度低下の軽減確率（基本）"
-description = ["確定的な速度の打ち消しで表す、最低レベルでのティックごとの採掘速度低下の軽減確率。", "効果: 値を大きくすると採掘速度低下II以上をより多く相殺する。採掘速度低下Iが下限として残る。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceFactor]
-label = "採掘速度低下の軽減確率（係数）"
-description = ["レベル全体で得られる追加の採掘速度低下の軽減確率。", "効果: 値を大きくすると、高レベルで水中の採掘速度の打ち消しが強くなる。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountBase]
-label = "採掘速度低下の軽減量（基本）"
-description = ["概念上の発動ごとに軽減される、最低レベルでの採掘速度低下の増幅の段階数。", "効果: 値を大きくすると、強い採掘速度低下をより積極的に打ち消す。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountFactor]
-label = "採掘速度低下の軽減量（係数）"
-description = ["レベル全体で得られる追加の採掘速度低下の増幅の軽減。", "効果: 値を大きくすると、高レベルでの採掘速度低下の抑制が強まる。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.effectTicks]
-label = "効果時間（ティック）"
-description = ["更新される耐性効果ごとの持続時間（ティック）。", "効果: 値を大きくすると更新の遅れに強くなる。有効な間、実行環境は少なくとも15ティックごとに確認する。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueCounterDurationTicks]
-label = "採掘速度低下への対抗時間（ティック）"
-description = ["採掘速度低下がある間に更新される、水中の採掘速度の打ち消しごとの持続時間（ティック）。", "効果: 値を大きくすると更新の遅れに強くなる。0では採掘速度低下の打ち消しを無効にする。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPerDepthPulse]
-label = "深度パルスごとのXP"
-description = ["有効な深さのパルスごとに付与される海の民のXP。", "効果: 値を大きくすると、深圧潜水が有効な間に海の民のレベルが速く上がる。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPulseCooldownMillis]
-label = "XPパルスのクールダウン（ミリ秒）"
-description = ["有効な深さのXPパルスとパルスの間の最小のミリ秒数。", "効果: 値を大きくすると、防御のバフを変えずにXPの頻度を下げる。"]
-
 [config.fields.adaptations.seaborne-speed.playerPreferences]
 label = "プレイヤー設定"
 description = ["この適応能力のプレイヤー設定に対するサーバーの既定値と許可する選択肢。", "効果: 登録された各項目は、他のプレイヤーの保存済みの選択を変えずにロックまたは制限できる。"]
@@ -28522,58 +28626,6 @@ description = ["更新される採掘の属性修飾子ごとの持続時間（�
 [config.fields.adaptations.seaborne-turtles-mining-speed.refreshIntervalMillis]
 label = "更新間隔（ミリ秒）"
 description = ["常時の水中状態の更新の間隔（ミリ秒）。", "効果: 値を小さくすると反応が速くなるが、習得したプレイヤーをより頻繁に走査する。ブロックを削ったときは引き続き即座にブーストが有効になる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.playerPreferences]
-label = "プレイヤー設定"
-description = ["この適応能力のプレイヤー設定に対するサーバーの既定値と許可する選択肢。", "効果: 登録された各項目は、他のプレイヤーの保存済みの選択を変えずにロックまたは制限できる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.enabled]
-label = "有効"
-description = ["この機能を有効または無効にする。", "効果: falseにすると、ファイルを削除せずに動作を無効にする。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.permanent]
-label = "永続"
-description = ["この適応能力の購入後、プレイヤーが通常の方法で習得を解除できないようにする。", "効果: 最初の購入には設定したコストと確認が引き続き使われる。管理者による例外扱いでは返金なしでレベルを下げられる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.showParticles]
-label = "パーティクルを表示"
-description = ["この適応能力のパーティクル効果を表示する。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.showSounds]
-label = "効果音を再生"
-description = ["この適応能力の効果音を再生する。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.baseCost]
-label = "基本コスト"
-description = ["この適応能力の習得時に使用する基本の知識コスト。", "効果: 値を大きくすると、各レベルに必要な知識が増える。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.costFactor]
-label = "コスト係数"
-description = ["高い適応能力レベルに適用する倍率係数。", "効果: 値を大きくすると、レベルごとのコストの増え方が大きくなる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.maxLevel]
-label = "最大レベル"
-description = ["この適応能力でプレイヤーが到達できる最大レベル。", "効果: 値を大きくするとより多くのレベルを許可し、小さくすると進行の上限が早くなる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.initialCost]
-label = "初期コスト"
-description = ["レベル1の購入に必要な知識コスト。", "効果: 値を大きくすると、最初のレベルの解放が高くなる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.requires]
-label = "前提条件"
-description = ["プレイヤーがすでに習得している必要がある適応能力。それぞれadaptationId:levelの形式で書く。", "効果: 一覧のすべての適応能力がそのレベルで習得されるまで、この適応能力の習得とレベルアップは拒否される。また、この適応能力を習得している間、それらの適応能力はそのレベル未満に習得解除できない。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionDurationTicks]
-label = "暗視の持続時間（ティック）"
-description = ["水中で適用される、パーティクルを隠した暗視効果の持続時間（ティック）。", "効果: 値を大きくすると残り時間が長く表示される。プレイヤーが水面に出ると効果は引き続き取り除かれる。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionRefreshThresholdTicks]
-label = "暗視の更新しきい値（ティック）"
-description = ["タートルビジョンが暗視を更新する、効果の残りティック数。", "効果: 値を大きくすると早く更新する。この値は設定した持続時間より小さくなるように制限される。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.refreshIntervalMillis]
-label = "更新間隔（ミリ秒）"
-description = ["水中状態の確認の間隔（ミリ秒）。", "効果: 値を小さくすると暗視の適用と解除が早くなるが、習得したプレイヤーをより頻繁に走査する。"]
 
 [config.fields.adaptations.stealth-assassinate.playerPreferences]
 label = "プレイヤー設定"
@@ -33390,3 +33442,2890 @@ description = ["適応能力「unarmed-sucker-punch」の「基本ダメージ�
 [config.fields.adaptations.unarmed-sucker-punch.damageFactor]
 label = "ダメージ（係数）"
 description = ["適応能力「unarmed-sucker-punch」に適用する倍率。"]
+
+[gui.mutation]
+mutate = "変異"
+pick_partner = "パートナーを選択"
+pick_lead = "スキルを選択"
+level = "レベル {level}"
+knowledge = "知識 {knowledge}"
+lead = "主導: {skill}"
+swap_lead = "主導を入れ替え"
+adaptations = "適応"
+lost = "失うもの"
+lost_levels = "{skill} {count} レベル"
+lost_knowledge = "{skill} の知識 {count}"
+lost_adaptation = "{adaptation} {level}"
+lost_permanent_adaptation = "{adaptation} {level}（永続、まだ忘却していない）"
+nothing_lost = "なし"
+confirm_again = "確認: 元に戻せません"
+unmutate = "変異を解除"
+unmutate_confirm = "変異の解除を確定"
+lead_role = "主"
+partner_role = "相方"
+gains = "得るもの"
+loses = "失うもの"
+hold = "長押しで変異"
+permanent = "元に戻せません"
+levels = "{count}レベル"
+tool = "道具"
+needs_level = "レベル{level}が必要"
+in_mutation = "変異済み"
+available = "変異が可能です"
+available_quip = "君のスキル二つが何か企んでいる"
+upgrade_quip_1 = "同じ技、より鋭い牙"
+upgrade_quip_2 = "古い技が新しい技を覚えた"
+mutated_quip_1 = "二つのスキル、一つの奇妙な技"
+mutated_quip_2 = "自然はこれを想定していなかった"
+signature_quip_1 = "これは君にしかできない"
+signature_quip_2 = "唯一無二、紛れもなく君のもの"
+
+[mutated]
+kept = "習得せずに保持"
+kept_adaptation = "{adaptation} {level}"
+kept_list = "習得せずに保持：{adaptations}。"
+kept_state = "レベル{level}で保持"
+lent_state = "{upgrade}からレベル{level}を借用中"
+raised_state = "レベル{kept}で保持、レベル{level}に強化"
+
+[mutated.stat]
+strength = "効果量"
+cooldown = "クールダウン"
+interval = "間隔"
+
+[mutated.name]
+mutation = "{adjective}の{noun}"
+adaptation = "{adjective}の{recipe}"
+block = "{skill}の{slot}"
+
+[mutated.template]
+triggered = "{trigger}と、{strike}。"
+either = "6ブロック以内に敵対モブがいれば{fight}。いなければ{work}"
+barter = "{gesture}と{fuel}を代償に{boon}を得る。"
+attunement = "{condition}場合、20秒ごとに{boon}を得る。"
+convergence = "{condition}ときに{trigger}と：{strike}。さらに、{also}。クールダウン{seconds}秒。"
+skill = "{lead}と{partner}をひとつのスキルに：{lead}が主導し、{partner}がそれに結びつき、両方がそれぞれの強化を持ち込みます。"
+
+[mutated.recipe]
+graft = "接ぎ木"
+echo = "残響"
+barter = "取引"
+attunement = "調律"
+convergence = "収束"
+
+[mutated.slot]
+trigger = "発動条件"
+strike_fight = "戦闘効果"
+strike_work = "作業効果"
+boon = "恩恵"
+fuel = "代償"
+state = "状態"
+
+[mutated.gesture]
+sneak_swap = "スニークして持ち替える"
+double_sneak = "スニークを二度押しする"
+sneak_left_click = "スニークしながら空中を左クリックする"
+sneak_scroll = "スニークしながらホットバーをスクロールする"
+
+[mutated.noun]
+swords = "決闘者"
+axes = "略奪者"
+unarmed = "拳闘士"
+ranged = "名射手"
+blocking = "防壁"
+stealth = "影"
+hunter = "捕食者"
+tragoul = "血縛り"
+agility = "走者"
+kinetics = "流星"
+rift = "虚空渡り"
+chronos = "時守"
+pickaxe = "探坑者"
+excavation = "掘削者"
+herbalism = "森番"
+architect = "石工"
+crafting = "職人"
+enchanting = "ルーン鍛冶"
+brewing = "錬金術師"
+discovery = "探求者"
+taming = "群れ使い"
+golemancy = "工匠"
+seaborne = "潮呼び"
+nether = "灰渡り"
+
+[mutated.adjective]
+swords = "刃"
+axes = "両断"
+unarmed = "鉄拳"
+ranged = "遠見"
+blocking = "盾"
+stealth = "静寂"
+hunter = "野性"
+tragoul = "血潮"
+agility = "疾風"
+kinetics = "躍動"
+rift = "亀裂"
+chronos = "悠久"
+pickaxe = "深層"
+excavation = "大地"
+herbalism = "新緑"
+architect = "石造"
+crafting = "鍛造"
+enchanting = "ルーン"
+brewing = "蒸留"
+discovery = "旅路"
+taming = "野生"
+golemancy = "歯車仕掛け"
+seaborne = "潮汐"
+nether = "業火"
+
+[mutated.skill]
+swords = "剣術"
+axes = "斧"
+unarmed = "素手"
+ranged = "遠距離"
+blocking = "防御"
+stealth = "隠密"
+hunter = "ハンター"
+tragoul = "TragOul"
+agility = "敏捷性"
+kinetics = "キネティックス"
+rift = "リフト"
+chronos = "Chronos"
+pickaxe = "ツルハシ"
+excavation = "発掘"
+herbalism = "薬草学"
+architect = "建築家"
+crafting = "クラフト"
+enchanting = "エンチャント"
+brewing = "醸造"
+discovery = "発見"
+taming = "飼育"
+golemancy = "ゴーレム術"
+seaborne = "海の民"
+nether = "ネザー"
+
+[mutated.block.swords.trigger]
+description = "剣でクリティカルヒットを当てる"
+
+[mutated.block.swords.strike_fight]
+description = "対象が4秒間出血する"
+
+[mutated.block.swords.strike_work]
+description = "3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される"
+
+[mutated.block.swords.boon]
+description = "5秒間の攻撃速度+15%"
+
+[mutated.block.swords.fuel]
+description = "剣の耐久値5"
+
+[mutated.block.swords.state]
+description = "直近4秒以内に剣で敵を攻撃している"
+
+[mutated.block.axes.trigger]
+description = "最大まで溜めた斧の一撃を当てる"
+
+[mutated.block.axes.strike_fight]
+description = "対象の防具が6秒間15%削られる"
+
+[mutated.block.axes.strike_work]
+description = "次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される"
+
+[mutated.block.axes.boon]
+description = "6秒間の衝撃吸収2ハート"
+
+[mutated.block.axes.fuel]
+description = "斧の耐久値5"
+
+[mutated.block.axes.state]
+description = "直近4秒以内に木を切るか斧で攻撃している"
+
+[mutated.block.unarmed.trigger]
+description = "素手の攻撃を3回連続で当てる"
+
+[mutated.block.unarmed.strike_fight]
+description = "対象がノックバックし、3秒間弱体化する"
+
+[mutated.block.unarmed.strike_work]
+description = "30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る"
+
+[mutated.block.unarmed.boon]
+description = "3秒間の再生能力と、15秒間の素手での討伐による満腹度回復"
+
+[mutated.block.unarmed.fuel]
+description = "満腹度1"
+
+[mutated.block.unarmed.state]
+description = "両手が空で戦闘中である"
+
+[mutated.block.ranged.trigger]
+description = "15ブロック以上離れた位置から飛び道具を当てる"
+
+[mutated.block.ranged.strike_fight]
+description = "対象に光の矢が放たれる"
+
+[mutated.block.ranged.strike_work]
+description = "8ブロック以内のドロップアイテムが自分のもとへ飛んでくる"
+
+[mutated.block.ranged.boon]
+description = "次の射撃での即時の引き絞り"
+
+[mutated.block.ranged.fuel]
+description = "矢1本"
+
+[mutated.block.ranged.state]
+description = "弓を最大まで引き絞っている"
+
+[mutated.block.blocking.trigger]
+description = "盾で攻撃を防ぐ"
+
+[mutated.block.blocking.strike_fight]
+description = "対象がよろめき、2秒間防御できなくなる"
+
+[mutated.block.blocking.strike_work]
+description = "10秒以内に次に受ける攻撃のダメージが半減する"
+
+[mutated.block.blocking.boon]
+description = "5秒間のノックバックと飛び道具に対する30%の耐性"
+
+[mutated.block.blocking.fuel]
+description = "盾の耐久値10"
+
+[mutated.block.blocking.state]
+description = "盾を構えている"
+
+[mutated.block.stealth.trigger]
+description = "自分を見ていない相手を攻撃する"
+
+[mutated.block.stealth.strike_fight]
+description = "8ブロック以内のモブが3秒間自分を見失う"
+
+[mutated.block.stealth.strike_work]
+description = "5秒間、足音とブロックの音が消え、モブに無視される"
+
+[mutated.block.stealth.boon]
+description = "3秒間の透明化"
+
+[mutated.block.stealth.fuel]
+description = "潜伏状態と満腹度2ポイント（姿が露わになる）"
+
+[mutated.block.stealth.state]
+description = "スニーク中で、どのモブにも狙われていない"
+
+[mutated.block.hunter.trigger]
+description = "自然スポーンのモブを倒す"
+
+[mutated.block.hunter.strike_fight]
+description = "対象にマークが付き、6秒間自分から受けるダメージが15%増える"
+
+[mutated.block.hunter.strike_work]
+description = "16ブロック以内の動物とモブが5秒間自分にだけ発光して見える"
+
+[mutated.block.hunter.boon]
+description = "5秒間の移動速度上昇"
+
+[mutated.block.hunter.fuel]
+description = "満腹度2"
+
+[mutated.block.hunter.state]
+description = "体力が半分未満である"
+
+[mutated.block.tragoul.trigger]
+description = "一撃で2ハート以上を失う"
+
+[mutated.block.tragoul.strike_fight]
+description = "対象から1ハートを吸い取る"
+
+[mutated.block.tragoul.strike_work]
+description = "満腹度1が半ハートの体力に変わる"
+
+[mutated.block.tragoul.boon]
+description = "1.5ハートの回復"
+
+[mutated.block.tragoul.fuel]
+description = "自分の体力1ハート"
+
+[mutated.block.tragoul.state]
+description = "体力が3ハート以下である"
+
+[mutated.block.agility.trigger]
+description = "ダッシュジャンプする"
+
+[mutated.block.agility.strike_fight]
+description = "視線の方向へ3ブロック突進する"
+
+[mutated.block.agility.strike_work]
+description = "4秒間、移動速度上昇IIを得る"
+
+[mutated.block.agility.boon]
+description = "4秒間の跳躍力上昇と安全な着地"
+
+[mutated.block.agility.fuel]
+description = "勢いと満腹度2ポイント（立ち止まる）"
+
+[mutated.block.agility.state]
+description = "3秒間止まらずにダッシュしている"
+
+[mutated.block.kinetics.trigger]
+description = "4ブロック以上の高さから落下して着地する"
+
+[mutated.block.kinetics.strike_fight]
+description = "対象が上空へ打ち上げられる"
+
+[mutated.block.kinetics.strike_work]
+description = "5秒以内の次のジャンプが3ブロックの高さになる"
+
+[mutated.block.kinetics.boon]
+description = "3秒間の低速落下"
+
+[mutated.block.kinetics.fuel]
+description = "落下の高さと満腹度2ポイント（着地が取り消される）"
+
+[mutated.block.kinetics.state]
+description = "空中にいる"
+
+[mutated.block.rift.trigger]
+description = "エンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートする"
+
+[mutated.block.rift.strike_fight]
+description = "対象が自分から4ブロック離れた位置へ飛ばされる"
+
+[mutated.block.rift.strike_work]
+description = "6ブロック以内のドロップアイテムがエンダーチェストへ送られる"
+
+[mutated.block.rift.boon]
+description = "3秒間の耐性"
+
+[mutated.block.rift.fuel]
+description = "エンダーパール1個"
+
+[mutated.block.rift.state]
+description = "直近5秒以内にテレポートしている"
+
+[mutated.block.chronos.trigger]
+description = "時計を持った状態でスニークして持ち替える"
+
+[mutated.block.chronos.strike_fight]
+description = "対象の動きが2秒間遅くなる"
+
+[mutated.block.chronos.strike_work]
+description = "4ブロック以内の作物、かまど、醸造台の進行が10秒進む"
+
+[mutated.block.chronos.boon]
+description = "発動中のポーション効果の5秒延長"
+
+[mutated.block.chronos.fuel]
+description = "時計の20秒のクールダウン"
+
+[mutated.block.chronos.state]
+description = "オフハンドに時計を持っている"
+
+[mutated.block.pickaxe.trigger]
+description = "鉱石を採掘する"
+
+[mutated.block.pickaxe.strike_fight]
+description = "岩の破片が炸裂し、対象が1秒間スタンする"
+
+[mutated.block.pickaxe.strike_work]
+description = "6ブロック以内の鉱石が5秒間自分にだけ発光して見える"
+
+[mutated.block.pickaxe.boon]
+description = "6秒間の採掘速度上昇"
+
+[mutated.block.pickaxe.fuel]
+description = "ツルハシの耐久値5"
+
+[mutated.block.pickaxe.state]
+description = "直近4秒以内にブロックを採掘している"
+
+[mutated.block.excavation.trigger]
+description = "5秒以内に柔らかいブロックを8個掘る"
+
+[mutated.block.excavation.strike_fight]
+description = "対象の足元が泥に変わり、3秒間動きが遅くなる"
+
+[mutated.block.excavation.strike_work]
+description = "最後に掘った位置の周囲3×3の柔らかいブロックが壊れてドロップする"
+
+[mutated.block.excavation.boon]
+description = "次の落下時の安全な着地"
+
+[mutated.block.excavation.fuel]
+description = "土、砂、砂利のいずれか8個"
+
+[mutated.block.excavation.state]
+description = "直近4秒以内に柔らかいブロックを掘っている"
+
+[mutated.block.herbalism.trigger]
+description = "成熟した作物を収穫する"
+
+[mutated.block.herbalism.strike_fight]
+description = "対象がつるに絡まれ、2秒間動けなくなる"
+
+[mutated.block.herbalism.strike_work]
+description = "4ブロック以内の作物と苗木が一段階成長する"
+
+[mutated.block.herbalism.boon]
+description = "満腹度2の回復"
+
+[mutated.block.herbalism.fuel]
+description = "種か作物3個"
+
+[mutated.block.herbalism.state]
+description = "作物、草、花の中に立っている"
+
+[mutated.block.architect.trigger]
+description = "5秒以内にブロックを8個設置する"
+
+[mutated.block.architect.strike_fight]
+description = "自分と対象の間に高さ2の一時的な壁がせり上がる"
+
+[mutated.block.architect.strike_work]
+description = "5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う"
+
+[mutated.block.architect.boon]
+description = "次に設置するブロック8個に60秒間付く爆発耐性と耐火性"
+
+[mutated.block.architect.fuel]
+description = "手に持ったブロック4個"
+
+[mutated.block.architect.state]
+description = "直近4秒以内にブロックを設置している"
+
+[mutated.block.crafting.trigger]
+description = "道具、武器、防具のいずれかをクラフトする"
+
+[mutated.block.crafting.strike_fight]
+description = "5秒以内の次の攻撃が対象の防具の20%を無視する"
+
+[mutated.block.crafting.strike_work]
+description = "手に持った道具に20秒間、効率強化+1が付く"
+
+[mutated.block.crafting.boon]
+description = "手に持ったアイテムへの耐久値6の回復"
+
+[mutated.block.crafting.fuel]
+description = "鉄塊1個"
+
+[mutated.block.crafting.state]
+description = "直近10秒以内に何かをクラフトしている"
+
+[mutated.block.enchanting.trigger]
+description = "アイテムにエンチャントするか、バニラの経験値を一度に10集める"
+
+[mutated.block.enchanting.strike_fight]
+description = "対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える"
+
+[mutated.block.enchanting.strike_work]
+description = "次のブロック破壊で幸運のレベルが一段階高く扱われる"
+
+[mutated.block.enchanting.boon]
+description = "8秒間の幸運"
+
+[mutated.block.enchanting.fuel]
+description = "バニラの経験値レベル1"
+
+[mutated.block.enchanting.state]
+description = "バニラの経験値レベルを20以上持っている"
+
+[mutated.block.brewing.trigger]
+description = "ポーションを飲むか投げる"
+
+[mutated.block.brewing.strike_fight]
+description = "錬金術師の弾帯かオフハンドのポーションが対象に飛び散り、四分の一本を消費する"
+
+[mutated.block.brewing.strike_work]
+description = "錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する"
+
+[mutated.block.brewing.boon]
+description = "6秒間のランダムな有益ポーション効果"
+
+[mutated.block.brewing.fuel]
+description = "錬金術師の弾帯かオフハンドのポーションの四分の一"
+
+[mutated.block.brewing.state]
+description = "飲んだポーションの効果が続いている"
+
+[mutated.block.discovery.trigger]
+description = "新しいものを発見する"
+
+[mutated.block.discovery.strike_fight]
+description = "対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える"
+
+[mutated.block.discovery.strike_work]
+description = "24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる"
+
+[mutated.block.discovery.boon]
+description = "8秒間の暗視とチェストの発光"
+
+[mutated.block.discovery.fuel]
+description = "紙か地図1枚"
+
+[mutated.block.discovery.state]
+description = "一度も入ったことのないチャンクにいる"
+
+[mutated.block.taming.trigger]
+description = "ペットが攻撃を当てる"
+
+[mutated.block.taming.strike_fight]
+description = "最も近いペットが対象に飛びかかる"
+
+[mutated.block.taming.strike_work]
+description = "8ブロック以内のペットが1ハート回復し、5秒間自分と同じ速さで付いてくる"
+
+[mutated.block.taming.boon]
+description = "近くのペット一匹ごとに2ハート、最大3ハートの回復"
+
+[mutated.block.taming.fuel]
+description = "骨か肉1個"
+
+[mutated.block.taming.state]
+description = "自分のペットが戦っている"
+
+[mutated.block.golemancy.trigger]
+description = "自分のゴーレムが作業を終える"
+
+[mutated.block.golemancy.strike_fight]
+description = "最も近いゴーレムが対象を攻撃する"
+
+[mutated.block.golemancy.strike_work]
+description = "最も近いゴーレムが、自分が直前に行った作業を次の該当ブロックで繰り返す"
+
+[mutated.block.golemancy.boon]
+description = "10秒間のゴーレム作業速度50%上昇"
+
+[mutated.block.golemancy.fuel]
+description = "銅塊か鉄塊1個"
+
+[mutated.block.golemancy.state]
+description = "自分のゴーレムが16ブロック以内で作業している"
+
+[mutated.block.seaborne.trigger]
+description = "水に飛び込むか、濡れた状態で攻撃を受ける"
+
+[mutated.block.seaborne.strike_fight]
+description = "水流が対象を押し返し、火を消す"
+
+[mutated.block.seaborne.strike_work]
+description = "4ブロック以内の火が消え、4ブロック以内の耕地が湿る"
+
+[mutated.block.seaborne.boon]
+description = "6秒間の水中呼吸と高速遊泳"
+
+[mutated.block.seaborne.fuel]
+description = "空気の泡3つと満腹度2ポイント"
+
+[mutated.block.seaborne.state]
+description = "濡れている"
+
+[mutated.block.nether.trigger]
+description = "火のダメージを受ける"
+
+[mutated.block.nether.strike_fight]
+description = "対象が4秒間燃える"
+
+[mutated.block.nether.strike_work]
+description = "次に壊す3ブロックが製錬される"
+
+[mutated.block.nether.boon]
+description = "6秒間の火炎耐性"
+
+[mutated.block.nether.fuel]
+description = "ブレイズパウダー1個"
+
+[mutated.block.nether.state]
+description = "ネザーにいるか燃えている"
+
+[mutated.override.swords.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに剣でクリティカルヒットを当てると：対象が4秒間出血する。さらに、対象がノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.override.swords.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに剣でクリティカルヒットを当てると：対象が4秒間出血する。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.override.swords.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに剣でクリティカルヒットを当てると：対象が4秒間出血する。さらに、対象がよろめき、2秒間防御できなくなる。クールダウン45秒。"
+
+[mutated.override.swords.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが4秒間出血する。"
+
+[mutated.override.swords.agility]
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに剣でクリティカルヒットを当てると：対象が4秒間出血する。さらに、視線の方向へ3ブロック突進する。クールダウン45秒。"
+
+[mutated.override.swords.herbalism]
+echo = "成熟した作物を収穫すると、3ブロックの弧の範囲にある草、葉、成熟した作物が刈り取られて回収される。"
+
+[mutated.override.swords.taming]
+echo = "ペットが攻撃を当てると、対象が4秒間出血する。"
+
+[mutated.override.swords.golemancy]
+echo = "自分のゴーレムが作業を終えると、3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される。"
+
+[mutated.signature.swords.chronos.convergence]
+name = "エコーストライク"
+description = "剣で3回攻撃を当てるごとに、1秒後に残像がもう一度攻撃する。残像はクリティカルにならず、他の効果も発動しない。"
+lore1 = "エコーのダメージ"
+lore2 = "エコーに必要な剣の攻撃回数"
+
+[mutated.signature.swords.stealth.convergence]
+name = "見えざる刃"
+description = "自分が見えていない生き物に剣でクリティカルを当てると、回復を止めて激しく出血させる。3秒以内に倒すと、他のモブに狙われていなければ2秒間姿を消す。クールダウン20秒。"
+lore1 = "回復不可"
+lore2 = "出血ダメージ"
+lore3 = "消失"
+
+[mutated.override.axes.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに最大まで溜めた斧の一撃を当てると：対象の防具が6秒間15%削られる。さらに、対象がノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.override.axes.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに最大まで溜めた斧の一撃を当てると：対象の防具が6秒間15%削られる。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.override.axes.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに最大まで溜めた斧の一撃を当てると：対象の防具が6秒間15%削られる。さらに、対象がよろめき、2秒間防御できなくなる。クールダウン45秒。"
+
+[mutated.override.axes.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの防具が6秒間15%削られる。"
+
+[mutated.override.axes.taming]
+echo = "ペットが攻撃を当てると、対象の防具が6秒間15%削られる。"
+
+[mutated.override.axes.golemancy]
+echo = "自分のゴーレムが作業を終えると、次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。"
+
+[mutated.signature.axes.herbalism.convergence]
+name = "森の守り手"
+description = "大木倒しで倒した自然の木は、持っている苗木で植え直され、周りの苗木が1段階成長する。"
+lore1 = "木1本あたり成長する苗木"
+lore2 = "苗木の探索半径"
+
+[mutated.signature.axes.architect.convergence]
+name = "木組み"
+description = "大木倒しで倒した原木は樹皮を剥いだ状態で落ちる。レベル2からは伐採した原木の設定で、代わりに1本につき板材4枚に切り分けられる。"
+lore1 = "1本の木で加工する原木"
+lore2 = "原木1本あたりの板材"
+
+[mutated.override.unarmed.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに素手の攻撃を3回連続で当てると：対象がノックバックし、3秒間弱体化する。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.signature.unarmed.blocking.convergence]
+name = "アイアンガード"
+description = "攻撃を受ける直前に両手を空にしてブロックかモブを右クリックすると、盾なしで受け流す。攻撃は無効になり、半分が攻撃者に返り、攻撃者はよろめき、3秒以内の次の素手攻撃が強くなる。"
+lore1 = "受け流し猶予"
+lore2 = "返すダメージ"
+lore3 = "反撃ダメージ"
+
+[mutated.override.unarmed.stealth]
+convergence = "直近4秒以内に見つからずにスニークしているときに素手の攻撃を3回連続で当てると：対象がノックバックし、3秒間弱体化する。さらに、8ブロック以内のモブが3秒間自分を見失う。クールダウン45秒。"
+
+[mutated.override.unarmed.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがノックバックし、3秒間弱体化する。"
+
+[mutated.override.unarmed.crafting]
+attunement = "両手が空で戦闘中である場合、20秒ごとに最も傷んだ防具への耐久値6の回復を得る。"
+
+[mutated.override.unarmed.taming]
+echo = "ペットが攻撃を当てると、対象がノックバックし、3秒間弱体化する。"
+
+[mutated.override.unarmed.golemancy]
+echo = "自分のゴーレムが作業を終えると、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。"
+
+[mutated.signature.unarmed.tragoul.convergence]
+name = "ブラッドナックル"
+description = "敵対モブかプレイヤーへの連続した素手攻撃のたびにスタックごとに回復する（真紅の潮と同じく毎秒の上限あり）。途切れぬコンボのフィニッシャーはそのダメージの半分を回復する。"
+lore1 = "スタックごとの回復"
+lore2 = "毎秒の最大回復"
+lore3 = "フィニッシャー回復割合"
+
+[mutated.override.ranged.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに15ブロック以上離れた位置から飛び道具を当てると：対象に光の矢が放たれる。さらに、対象がノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.override.ranged.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブに光の矢が放たれる。"
+
+[mutated.signature.ranged.agility.convergence]
+name = "空中引き"
+description = "空中で弓を引くと落下が遅くなり、空中で半分以上引いて放った矢は最大まで引いたように飛ぶ。空中にいる間に最初に矢を当てると、滞空ごとに1回、空駆けのチャージが回復する。"
+lore1 = "滞空ごとの減速落下"
+
+[mutated.override.ranged.taming]
+echo = "ペットが攻撃を当てると、対象に光の矢が放たれる。"
+
+[mutated.override.ranged.golemancy]
+echo = "自分のゴーレムが作業を終えると、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。"
+
+[mutated.signature.ranged.chronos.convergence]
+name = "リプレイショット"
+description = "最大まで引き絞った弓の一撃が、1.5秒後に放った位置から同じ軌道でもう一度放たれる。矢は消費しない。再射撃は遠距離の効果を発動しない。"
+lore1 = "再射撃のダメージ"
+
+[mutated.signature.ranged.hunter.convergence]
+name = "宣言射撃"
+description = "追跡者のコンパスの種族で最も近い自然の生き物が、コンパスの範囲をはるかに超えてあなたにだけ光って見える。そこへ弓を引くとロックオンし、矢が追尾する。"
+lore1 = "発光の範囲"
+lore2 = "ロックオンの範囲"
+
+[mutated.override.blocking.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに盾で攻撃を防ぐと：対象がよろめき、2秒間防御できなくなる。さらに、対象がノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.signature.blocking.unarmed.convergence]
+name = "アイアンガード"
+description = "攻撃を受ける直前に両手を空にしてブロックかモブを右クリックすると、盾なしで受け流す。攻撃は無効になり、半分が攻撃者に返り、攻撃者はよろめき、3秒以内の次の素手攻撃が強くなる。"
+lore1 = "受け流し猶予"
+lore2 = "返すダメージ"
+lore3 = "反撃ダメージ"
+
+[mutated.override.blocking.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに盾で攻撃を防ぐと：対象がよろめき、2秒間防御できなくなる。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.override.blocking.stealth]
+convergence = "直近4秒以内に見つからずにスニークしているときに盾で攻撃を防ぐと：対象がよろめき、2秒間防御できなくなる。さらに、8ブロック以内のモブが3秒間自分を見失う。クールダウン45秒。"
+
+[mutated.override.blocking.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがよろめき、2秒間防御できなくなる。"
+
+[mutated.override.blocking.agility]
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに盾で攻撃を防ぐと：対象がよろめき、2秒間防御できなくなる。さらに、視線の方向へ3ブロック突進する。クールダウン45秒。"
+
+[mutated.override.blocking.brewing]
+graft = "盾で攻撃を防ぐと、ホットバーの最初のポーションが対象に飛び散り、四分の一本を消費する。"
+convergence = "飲んだポーションの効果が続いているときに盾で攻撃を防ぐと：対象がよろめき、2秒間防御できなくなる。さらに、ホットバーの最初のポーションが対象に飛び散り、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.override.blocking.taming]
+echo = "ペットが攻撃を当てると、対象がよろめき、2秒間防御できなくなる。"
+
+[mutated.override.blocking.golemancy]
+echo = "自分のゴーレムが作業を終えると、10秒以内に次に受ける攻撃のダメージが半減する。"
+
+[mutated.signature.blocking.taming.convergence]
+name = "盾持ちの群れ"
+description = "構えた盾や設置した盾の壁の後ろにいる自分のペットは、飛び道具のダメージを受けず、ゆっくり回復する。"
+lore1 = "防護の奥行き"
+lore2 = "ペットの毎秒回復量"
+
+[mutated.override.stealth.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに自分を見ていない相手を攻撃すると：8ブロック以内のモブが3秒間自分を見失う。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.override.stealth.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに自分を見ていない相手を攻撃すると：8ブロック以内のモブが3秒間自分を見失う。さらに、対象がよろめき、2秒間防御できなくなる。クールダウン45秒。"
+
+[mutated.override.stealth.taming]
+echo = "ペットが攻撃を当てると、8ブロック以内のモブが3秒間自分を見失う。"
+
+[mutated.override.stealth.golemancy]
+echo = "自分のゴーレムが作業を終えると、5秒間、足音とブロックの音が消え、モブに無視される。"
+
+[mutated.signature.stealth.swords.convergence]
+name = "影の反撃"
+description = "スニーク中で他のモブに狙われていないとき、受けた近接攻撃を一部受け流し、無償の影歩きで攻撃者の背後へ回る。その相手への次の一撃は死の刻印の先制になる。影歩きの準備と背後の空間が必要。クールダウン15秒。"
+lore1 = "受け流し"
+
+[mutated.signature.stealth.rift.convergence]
+name = "虚空の歩み"
+description = "ブリンクの直後に、自分が見えていない生き物を素手で右クリックすると、煙玉なしで、自分の影歩きの射程とクールダウンのもとその背後へ影歩きする。どのモブにも狙われていない間、フェイズステップのブリンクは粒子も音も残さない。"
+lore1 = "ブリンク後の猶予"
+
+[mutated.override.hunter.swords]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが4秒間出血する。"
+convergence = "直近4秒以内に剣で敵を攻撃しているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブが4秒間出血する。クールダウン45秒。"
+
+[mutated.override.hunter.axes]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの防具が6秒間15%削られる。"
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブの防具が6秒間15%削られる。クールダウン45秒。"
+
+[mutated.override.hunter.unarmed]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがノックバックし、3秒間弱体化する。"
+convergence = "両手が空で戦闘中であるときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブがノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.override.hunter.ranged]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブに光の矢が放たれる。"
+
+[mutated.override.hunter.blocking]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがよろめき、2秒間防御できなくなる。"
+convergence = "盾を構えているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブがよろめき、2秒間防御できなくなる。クールダウン45秒。"
+
+[mutated.override.hunter.stealth]
+convergence = "スニーク中で、どのモブにも狙われていないときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、8ブロック以内のモブが3秒間自分を見失う。クールダウン45秒。"
+
+[mutated.override.hunter.tragoul]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブから1ハートを吸い取る。"
+convergence = "体力が3ハート以下であるときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブから1ハートを吸い取る。クールダウン45秒。"
+
+[mutated.override.hunter.agility]
+convergence = "3秒間止まらずにダッシュしているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、視線の方向へ3ブロック突進する。クールダウン45秒。"
+
+[mutated.override.hunter.kinetics]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが上空へ打ち上げられる。"
+convergence = "空中にいるときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブが上空へ打ち上げられる。クールダウン45秒。"
+
+[mutated.override.hunter.rift]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが自分から4ブロック離れた位置へ飛ばされる。"
+convergence = "直近5秒以内にテレポートしているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブが自分から4ブロック離れた位置へ飛ばされる。クールダウン45秒。"
+
+[mutated.override.hunter.chronos]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの動きが2秒間遅くなる。"
+convergence = "オフハンドに時計を持っているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブの動きが2秒間遅くなる。クールダウン45秒。"
+
+[mutated.override.hunter.pickaxe]
+graft = "自然スポーンのモブを倒すと、岩の破片が炸裂し、6ブロック以内で最も近い別の敵対モブが1秒間スタンする。"
+convergence = "直近4秒以内にブロックを採掘しているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、岩の破片が炸裂し、6ブロック以内で最も近い別の敵対モブが1秒間スタンする。クールダウン45秒。"
+
+[mutated.override.hunter.excavation]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの足元が泥に変わり、3秒間動きが遅くなる。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブの足元が泥に変わり、3秒間動きが遅くなる。クールダウン45秒。"
+
+[mutated.override.hunter.herbalism]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがつるに絡まれ、2秒間動けなくなる。"
+convergence = "作物、草、花の中に立っているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブがつるに絡まれ、2秒間動けなくなる。クールダウン45秒。"
+
+[mutated.override.hunter.architect]
+graft = "自然スポーンのモブを倒すと、自分と6ブロック以内で最も近い別の敵対モブの間に高さ2の一時的な壁がせり上がる。"
+convergence = "直近4秒以内にブロックを設置しているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、自分と6ブロック以内で最も近い別の敵対モブの間に高さ2の一時的な壁がせり上がる。クールダウン45秒。"
+
+[mutated.override.hunter.crafting]
+convergence = "直近10秒以内に何かをクラフトしているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、5秒以内の次の攻撃が対象の防具の20%を無視する。クールダウン45秒。"
+
+[mutated.override.hunter.enchanting]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。"
+convergence = "バニラの経験値レベルを20以上持っているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブが発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。クールダウン45秒。"
+
+[mutated.override.hunter.brewing]
+graft = "自然スポーンのモブを倒すと、錬金術師の弾帯かオフハンドのポーションが6ブロック以内で最も近い別の敵対モブに飛び散り、四分の一本を消費する。"
+convergence = "飲んだポーションの効果が続いているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、錬金術師の弾帯かオフハンドのポーションが6ブロック以内で最も近い別の敵対モブに飛び散り、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.override.hunter.discovery]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブのステータスが明らかになり、そのモブへの次の攻撃のダメージが20%増える。"
+convergence = "一度も入ったことのないチャンクにいるときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブのステータスが明らかになり、そのモブへの次の攻撃のダメージが20%増える。クールダウン45秒。"
+
+[mutated.override.hunter.taming]
+graft = "自然スポーンのモブを倒すと、最も近いペットが6ブロック以内で最も近い別の敵対モブに飛びかかる。"
+echo = "ペットが攻撃を当てると、対象にマークが付き、6秒間自分から受けるダメージが15%増える。"
+
+[mutated.override.hunter.golemancy]
+graft = "自然スポーンのモブを倒すと、最も近いゴーレムが6ブロック以内で最も近い別の敵対モブを攻撃する。"
+echo = "自分のゴーレムが作業を終えると、16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、最も近いゴーレムが6ブロック以内で最も近い別の敵対モブを攻撃する。クールダウン45秒。"
+
+[mutated.override.hunter.seaborne]
+graft = "自然スポーンのモブを倒すと、水流が6ブロック以内で最も近い別の敵対モブを押し返し、火を消す。"
+convergence = "濡れているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、水流が6ブロック以内で最も近い別の敵対モブを押し返し、火を消す。クールダウン45秒。"
+
+[mutated.override.hunter.nether]
+graft = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが4秒間燃える。"
+convergence = "ネザーにいるか燃えているときに自然スポーンのモブを倒すと：6ブロック以内で最も近い別の敵対モブにマークが付き、6秒間自分から受けるダメージが15%増える。さらに、6ブロック以内で最も近い別の敵対モブが4秒間燃える。クールダウン45秒。"
+
+[mutated.signature.hunter.ranged.convergence]
+name = "宣言射撃"
+description = "追跡者のコンパスの種族で最も近い自然の生き物が、コンパスの範囲をはるかに超えてあなたにだけ光って見える。そこへ弓を引くとロックオンし、矢が追尾する。"
+lore1 = "発光の範囲"
+lore2 = "ロックオンの範囲"
+
+[mutated.signature.hunter.taming.convergence]
+name = "群れの狩り"
+description = "ペットが自ら血の痕跡や追跡者のコンパスの種族を追う。あなたから32ブロック以上は離れず、その獲物への噛みつきは頂点捕食者の蓄積を積み上げ、その効果を受ける。"
+lore1 = "狩りの範囲"
+lore2 = "狩りに加わるペット数"
+lore3 = "蓄積ごとのペットのダメージ"
+
+[mutated.override.tragoul.stealth]
+convergence = "直近4秒以内に見つからずにスニークしているときに一撃で2ハート以上を失うと：対象から1ハートを吸い取る。さらに、8ブロック以内のモブが3秒間自分を見失う。クールダウン45秒。"
+
+[mutated.override.tragoul.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブから1ハートを吸い取る。"
+
+[mutated.override.tragoul.taming]
+echo = "ペットが攻撃を当てると、対象から1ハートを吸い取る。"
+
+[mutated.override.tragoul.golemancy]
+echo = "自分のゴーレムが作業を終えると、満腹度1が半ハートの体力に変わる。"
+
+[mutated.signature.tragoul.golemancy.convergence]
+name = "骨の軍団"
+description = "スケルトンの従者にゴーレムのコアを渡すと、骨のゴーレムとして働く。寿命は何もしていない間だけ減り、尽きると崩れてコアを落とす。軍団兵も従者の上限に数えられる。"
+lore1 = "軍団兵"
+lore2 = "待機中の寿命"
+
+[mutated.signature.agility.ranged.convergence]
+name = "空中引き"
+description = "空中で弓を引くと落下が遅くなり、空中で半分以上引いて放った矢は最大まで引いたように飛ぶ。空中にいる間に最初に矢を当てると、滞空ごとに1回、空駆けのチャージが回復する。"
+lore1 = "滞空ごとの減速落下"
+
+[mutated.signature.tragoul.unarmed.convergence]
+name = "ブラッドナックル"
+description = "敵対モブかプレイヤーへの連続した素手攻撃のたびにスタックごとに回復する（真紅の潮と同じく毎秒の上限あり）。途切れぬコンボのフィニッシャーはそのダメージの半分を回復する。"
+lore1 = "スタックごとの回復"
+lore2 = "毎秒の最大回復"
+lore3 = "フィニッシャー回復割合"
+
+[mutated.signature.tragoul.nether.convergence]
+name = "ウィザーブラッド"
+description = "倒すたびに死体の周りの敵対モブへウィザーIが広がり、ウィザースケルトンを倒すと血の貯えが満ちる。"
+lore1 = "拡散範囲"
+lore2 = "最大衰弱対象数"
+lore3 = "ウィザースケルトンからの血"
+
+[mutated.override.agility.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときにダッシュジャンプすると：6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。さらに、6ブロック以内に敵対モブがいれば対象に光の矢が放たれる。いなければ8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.agility.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときにダッシュジャンプすると：6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。さらに、6ブロック以内に敵対モブがいれば対象がよろめき、2秒間防御できなくなる。いなければ10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.agility.stealth]
+convergence = "直近4秒以内に見つからずにスニークしているときにダッシュジャンプすると：6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。さらに、6ブロック以内に敵対モブがいれば8ブロック以内のモブが3秒間自分を見失う。いなければ5秒間、足音とブロックの音が消え、モブに無視される。クールダウン45秒。"
+
+[mutated.override.agility.excavation]
+graft = "ダッシュジャンプすると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときにダッシュジャンプすると：6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.agility.taming]
+echo = "ペットが攻撃を当てると、視線の方向へ3ブロック突進する。"
+
+[mutated.override.agility.golemancy]
+graft = "ダッシュジャンプすると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、4秒間、移動速度上昇IIを得る。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときにダッシュジャンプすると：6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。さらに、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.agility.kinetics.convergence]
+name = "モメンタムバンク"
+description = "メイスの急降下に持ち込んだ走りの速さを蓄え、彗星の衝撃波を最大50%強め、着地後もその速さを保つ。"
+lore1 = "衝撃波の最大ボーナス"
+lore2 = "着地後に保つ速さ"
+
+[mutated.override.kinetics.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが上空へ打ち上げられる。"
+
+[mutated.override.kinetics.excavation]
+graft = "4ブロック以上の高さから落下して着地すると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに4ブロック以上の高さから落下して着地すると：6ブロック以内に敵対モブがいれば対象が上空へ打ち上げられる。いなければ5秒以内の次のジャンプが3ブロックの高さになる。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.kinetics.taming]
+echo = "ペットが攻撃を当てると、対象が上空へ打ち上げられる。"
+
+[mutated.override.kinetics.golemancy]
+graft = "4ブロック以上の高さから落下して着地すると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、5秒以内の次のジャンプが3ブロックの高さになる。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに4ブロック以上の高さから落下して着地すると：6ブロック以内に敵対モブがいれば対象が上空へ打ち上げられる。いなければ5秒以内の次のジャンプが3ブロックの高さになる。さらに、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.kinetics.agility.convergence]
+name = "モメンタムバンク"
+description = "メイスの急降下に持ち込んだ走りの速さを蓄え、彗星の衝撃波を最大50%強め、着地後もその速さを保つ。"
+lore1 = "衝撃波の最大ボーナス"
+lore2 = "着地後に保つ速さ"
+
+[mutated.override.rift.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが自分から4ブロック離れた位置へ飛ばされる。"
+
+[mutated.override.rift.excavation]
+graft = "エンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときにエンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると：6ブロック以内に敵対モブがいれば対象が自分から4ブロック離れた位置へ飛ばされる。いなければ6ブロック以内のドロップアイテムがエンダーチェストへ送られる。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.rift.taming]
+echo = "ペットが攻撃を当てると、対象が自分から4ブロック離れた位置へ飛ばされる。"
+
+[mutated.override.rift.golemancy]
+graft = "エンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、6ブロック以内のドロップアイテムがエンダーチェストへ送られる。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときにエンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると：6ブロック以内に敵対モブがいれば対象が自分から4ブロック離れた位置へ飛ばされる。いなければ6ブロック以内のドロップアイテムがエンダーチェストへ送られる。さらに、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.rift.chronos.convergence]
+name = "ブリンクの呼び戻し"
+description = "エンダーパール、コーラスフルーツ、ブリンクの後3〜5秒以内に、時計を持ってスニークしながら持ち手を入れ替えると、出発した場所へ戻る。体力は少なくともそこにいた時の値になる。入れない場所には戻らない。"
+lore1 = "戻れる時間"
+
+[mutated.signature.rift.stealth.convergence]
+name = "虚空の歩み"
+description = "ブリンクの直後に、自分が見えていない生き物を素手で右クリックすると、煙玉なしで、自分の影歩きの射程とクールダウンのもとその背後へ影歩きする。どのモブにも狙われていない間、フェイズステップのブリンクは粒子も音も残さない。"
+lore1 = "ブリンク後の猶予"
+
+[mutated.signature.rift.herbalism.convergence]
+name = "コーラスの果樹園"
+description = "成熟した作物を収穫するたびに、近くのコーラスフラワーが1段階成長する(強制成長として記録)。コーラスフルーツは、ランダムな場所ではなく見ている場所へ送る。"
+lore1 = "コーラス射程"
+lore2 = "収穫ごとの花"
+
+[mutated.signature.rift.discovery.convergence]
+name = "ウェイストーン"
+description = "アトラスの構造物をウェイストーンにする。ブロックのないリフトアンカーで、アンカーの上限に数えられ、アンカーメニューから他のアンカーと同じくエンダーパールと詠唱で移動できる。"
+lore1 = "ウェイストーン"
+
+[mutated.signature.chronos.swords.convergence]
+name = "エコーストライク"
+description = "剣で3回攻撃を当てるごとに、1秒後に残像がもう一度攻撃する。残像はクリティカルにならず、他の効果も発動しない。"
+lore1 = "エコーのダメージ"
+lore2 = "エコーに必要な剣の攻撃回数"
+
+[mutated.override.chronos.axes]
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象の防具が6秒間15%削られる。いなければ次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。クールダウン45秒。"
+
+[mutated.override.chronos.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象がノックバックし、3秒間弱体化する。いなければ30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.signature.chronos.ranged.convergence]
+name = "リプレイショット"
+description = "最大まで引き絞った弓の一撃が、1.5秒後に放った位置から同じ軌道でもう一度放たれる。矢は消費しない。再射撃は遠距離の効果を発動しない。"
+lore1 = "再射撃のダメージ"
+
+[mutated.override.chronos.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象がよろめき、2秒間防御できなくなる。いなければ10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.chronos.stealth]
+convergence = "スニーク中で、どのモブにも狙われていないときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば8ブロック以内のモブが3秒間自分を見失う。いなければ5秒間、足音とブロックの音が消え、モブに無視される。クールダウン45秒。"
+
+[mutated.override.chronos.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの動きが2秒間遅くなる。"
+convergence = "体力が半分未満であるときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象にマークが付き、6秒間自分から受けるダメージが15%増える。いなければ16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.chronos.tragoul]
+convergence = "体力が3ハート以下であるときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象から1ハートを吸い取る。いなければ満腹度1が半ハートの体力に変わる。クールダウン45秒。"
+
+[mutated.override.chronos.agility]
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.chronos.kinetics]
+convergence = "空中にいるときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象が上空へ打ち上げられる。いなければ5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.signature.chronos.rift.convergence]
+name = "ブリンクの呼び戻し"
+description = "エンダーパール、コーラスフルーツ、ブリンクの後3〜5秒以内に、時計を持ってスニークしながら持ち手を入れ替えると、出発した場所へ戻る。体力は少なくともそこにいた時の値になる。入れない場所には戻らない。"
+lore1 = "戻れる時間"
+
+[mutated.override.chronos.pickaxe]
+convergence = "直近4秒以内にブロックを採掘しているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば岩の破片が炸裂し、対象が1秒間スタンする。いなければ6ブロック以内の鉱石が5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.chronos.excavation]
+graft = "時計を持った状態でスニークして持ち替えると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.signature.chronos.herbalism.convergence]
+name = "季節めぐり"
+description = "ゲーム内の1日に1回、時計を持ってスニークしながら持ち手を入れ替えると、周囲の作物がすべて1段階育つ。この成長は骨粉として扱われる。"
+lore1 = "畑の半径"
+
+[mutated.signature.chronos.architect.convergence]
+name = "ロングアンドゥ"
+description = "時計を持ってスニークしながら持ち手を入れ替えると、最新のチョーク塗り、型押し、杖の面、置き換えを取り消す。解体の手の10倍前まで遡れる。まだ残っているブロックはそれぞれ費やしたものを返す。10分以内なら、その場所の近くで時の支配者の復元を使うと、建築を再び支払って元に戻す。"
+lore1 = "取り消せる範囲"
+
+[mutated.override.chronos.crafting]
+convergence = "直近10秒以内に何かをクラフトしているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば5秒以内の次の攻撃が対象の防具の20%を無視する。いなければ手に持った道具に20秒間、効率強化+1が付く。クールダウン45秒。"
+
+[mutated.override.chronos.enchanting]
+convergence = "バニラの経験値レベルを20以上持っているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。いなければ次のブロック破壊で幸運のレベルが一段階高く扱われる。クールダウン45秒。"
+
+[mutated.signature.chronos.brewing.convergence]
+name = "一時停止ポーション"
+description = "時計を持ってスニークしながら持ち手を入れ替えると、有益なポーション効果を一時停止する。もう一度入れ替えるか停止時間が尽きると、残り時間のまま戻る。"
+lore1 = "最長の停止時間"
+
+[mutated.override.chronos.discovery]
+convergence = "一度も入ったことのないチャンクにいるときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える。いなければ24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。クールダウン45秒。"
+
+[mutated.override.chronos.taming]
+echo = "ペットが攻撃を当てると、対象の動きが2秒間遅くなる。"
+
+[mutated.signature.chronos.taming.convergence]
+name = "巻き戻る相棒"
+description = "死にそうなペットは代わりに4秒巻き戻り、その時いた場所と体力に戻る。各ペットが巻き戻るのは5〜10分に1回まで。"
+lore1 = "巻き戻し"
+lore2 = "ペットごとの待ち時間"
+
+[mutated.override.chronos.golemancy]
+graft = "時計を持った状態でスニークして持ち替えると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、4ブロック以内の作物、かまど、醸造台の進行が10秒進む。"
+
+[mutated.signature.chronos.golemancy.convergence]
+name = "オーバークロック"
+description = "ゴーレムの近くで時計を持ってスニークしながら持ち手を入れ替えると、クロノボトルに貯めた60秒分の時間と引き換えに、ゴーレムが3倍の速さで働く。"
+lore1 = "ゴーレムの速さ"
+lore2 = "持続時間"
+lore3 = "ボトルの時間"
+
+[mutated.override.chronos.seaborne]
+convergence = "濡れているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。クールダウン45秒。"
+
+[mutated.override.chronos.nether]
+convergence = "ネザーにいるか燃えているときに時計を持った状態でスニークして持ち替えると：6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。さらに、6ブロック以内に敵対モブがいれば対象が4秒間燃える。いなければ次に壊す3ブロックが製錬される。クールダウン45秒。"
+
+[mutated.override.pickaxe.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに鉱石を採掘すると：6ブロック以内の鉱石が5秒間自分にだけ発光して見える。さらに、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.pickaxe.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに鉱石を採掘すると：6ブロック以内の鉱石が5秒間自分にだけ発光して見える。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.pickaxe.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに鉱石を採掘すると：6ブロック以内の鉱石が5秒間自分にだけ発光して見える。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.pickaxe.hunter]
+echo = "自然スポーンのモブを倒すと、岩の破片が炸裂し、6ブロック以内で最も近い別の敵対モブが1秒間スタンする。"
+
+[mutated.override.pickaxe.agility]
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに鉱石を採掘すると：6ブロック以内の鉱石が5秒間自分にだけ発光して見える。さらに、4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.pickaxe.excavation]
+graft = "鉱石を採掘すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.pickaxe.taming]
+echo = "ペットが攻撃を当てると、岩の破片が炸裂し、対象が1秒間スタンする。"
+
+[mutated.override.pickaxe.golemancy]
+echo = "自分のゴーレムが作業を終えると、6ブロック以内の鉱石が5秒間自分にだけ発光して見える。"
+
+[mutated.signature.pickaxe.excavation.convergence]
+name = "混合切羽"
+description = "大地揺るがしが掘るか地形造りが掘った後、3×3の面の残りが石も柔らかい土もホットバーの適した道具で壊れる。レベルごとに1面深くまで届く。"
+lore1 = "面の深さ"
+lore2 = "1振りで増えるブロック"
+
+[mutated.signature.pickaxe.architect.convergence]
+name = "トンネル職人"
+description = "大地揺るがしが水平なトンネルを掘る間、周りの石がオフハンドのブロックに置き換わる。床から始まり、次に壁、次に天井。8ブロックごとにインベントリの松明を置く。"
+lore1 = "1回の掘削で張るブロック"
+lore2 = "松明の間隔のブロック数"
+
+[mutated.override.excavation.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに5秒以内に柔らかいブロックを8個掘ると：最後に掘った位置の周囲3×3の柔らかいブロックが壊れてドロップする。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.excavation.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに5秒以内に柔らかいブロックを8個掘ると：最後に掘った位置の周囲3×3の柔らかいブロックが壊れてドロップする。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.excavation.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブの足元が泥に変わり、3秒間動きが遅くなる。"
+
+[mutated.override.excavation.agility]
+echo = "ダッシュジャンプすると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに5秒以内に柔らかいブロックを8個掘ると：最後に掘った位置の周囲3×3の柔らかいブロックが壊れてドロップする。さらに、4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.excavation.kinetics]
+echo = "4ブロック以上の高さから落下して着地すると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内にジャンプか落下から着地しているときに5秒以内に柔らかいブロックを8個掘ると：最後に掘った位置の周囲3×3の柔らかいブロックが壊れてドロップする。さらに、5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.override.excavation.rift]
+echo = "エンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.chronos]
+echo = "時計を持った状態でスニークして持ち替えると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.pickaxe]
+echo = "鉱石を採掘すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.herbalism]
+echo = "成熟した作物を収穫すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.architect]
+echo = "5秒以内にブロックを8個設置すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.crafting]
+echo = "道具、武器、防具のいずれかをクラフトすると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.enchanting]
+echo = "アイテムにエンチャントするか、バニラの経験値を一度に10集めると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.brewing]
+echo = "ポーションを飲むか投げると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.discovery]
+echo = "新しいものを発見すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.taming]
+echo = "ペットが攻撃を当てると、対象の足元が泥に変わり、3秒間動きが遅くなる。"
+
+[mutated.override.excavation.golemancy]
+echo = "自分のゴーレムが作業を終えると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.seaborne]
+echo = "水に飛び込むか、濡れた状態で攻撃を受けると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.excavation.nether]
+echo = "火のダメージを受けると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.signature.excavation.pickaxe.convergence]
+name = "混合切羽"
+description = "大地揺るがしが掘るか地形造りが掘った後、3×3の面の残りが石も柔らかい土もホットバーの適した道具で壊れる。レベルごとに1面深くまで届く。"
+lore1 = "面の深さ"
+lore2 = "1振りで増えるブロック"
+
+[mutated.signature.excavation.architect.convergence]
+name = "基礎打ち"
+description = "整地杭で左クリックすると、チョークのガイドの線や円を掘り、オフハンドのブロックで基礎として埋める。レベルごとに1ブロック深くなる。"
+lore1 = "基礎の深さ"
+lore2 = "1回で打つブロック"
+
+[mutated.override.herbalism.swords]
+graft = "成熟した作物を収穫すると、3ブロックの弧の範囲にある草、葉、成熟した作物が刈り取られて回収される。"
+convergence = "直近4秒以内に剣で敵を攻撃しているときに成熟した作物を収穫すると：4ブロック以内の作物と苗木が一段階成長する。さらに、3ブロックの弧の範囲にある草、葉、成熟した作物が刈り取られて回収される。クールダウン45秒。"
+
+[mutated.override.herbalism.unarmed]
+barter = "{gesture}と満腹度1を代償に、4ブロック以内の作物と苗木が一段階成長する。"
+
+[mutated.override.herbalism.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに成熟した作物を収穫すると：4ブロック以内の作物と苗木が一段階成長する。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.herbalism.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに成熟した作物を収穫すると：4ブロック以内の作物と苗木が一段階成長する。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.herbalism.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブがつるに絡まれ、2秒間動けなくなる。"
+barter = "{gesture}と満腹度2を代償に、4ブロック以内の作物と苗木が一段階成長する。"
+
+[mutated.override.herbalism.excavation]
+graft = "成熟した作物を収穫すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに成熟した作物を収穫すると：4ブロック以内の作物と苗木が一段階成長する。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.herbalism.taming]
+echo = "ペットが攻撃を当てると、対象がつるに絡まれ、2秒間動けなくなる。"
+
+[mutated.override.herbalism.golemancy]
+echo = "自分のゴーレムが作業を終えると、4ブロック以内の作物と苗木が一段階成長する。"
+
+[mutated.signature.herbalism.chronos.convergence]
+name = "季節めぐり"
+description = "ゲーム内の1日に1回、時計を持ってスニークしながら持ち手を入れ替えると、周囲の作物がすべて1段階育つ。この成長は骨粉として扱われる。"
+lore1 = "畑の半径"
+
+[mutated.signature.herbalism.axes.convergence]
+name = "森の守り手"
+description = "大木倒しで倒した自然の木は、持っている苗木で植え直され、周りの苗木が1段階成長する。"
+lore1 = "木1本あたり成長する苗木"
+lore2 = "苗木の探索半径"
+
+[mutated.signature.herbalism.taming.convergence]
+name = "羊飼いの畑"
+description = "自然に育った作物を収穫すると、野生の繁茂の範囲内のペットと自分が餌をやった動物に、自分の収穫物を1つずつ与える。動物は回復し、畑を踏み荒らさずにその場で草を食む。これで繁殖することはない。"
+lore1 = "収穫ごとに餌をやる動物数"
+lore2 = "餌ごとの回復量"
+lore3 = "草を食む時間"
+
+[mutated.signature.herbalism.seaborne.convergence]
+name = "ケルプガーデン"
+description = "泳いでいる間、周囲のコンブ、シーピクルス、サンゴのウチワは野生の繁茂で作物が育つように成長し、近くにある自分の潮の祠も畑として扱われる。コンブかシーピクルスにクワを使うと周りの海底を収穫し、根は残って再び育つ。"
+lore1 = "成長範囲"
+lore2 = "毎秒試す地点"
+lore3 = "収穫範囲"
+
+[mutated.signature.herbalism.rift.convergence]
+name = "裂け目の収穫"
+description = "収穫の月で刈り取った作物は、選んだリフトアンカーの横の容器へ、アンカーがなければエンダーチェストへ送られる。種は手元に残る。スニークしてクワで自分のアンカーを右クリックすると選べる。"
+lore1 = "1回で送るスタック数"
+
+[mutated.override.architect.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときに5秒以内にブロックを8個設置すると：5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。さらに、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.architect.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに5秒以内にブロックを8個設置すると：5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.architect.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに5秒以内にブロックを8個設置すると：5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.architect.hunter]
+echo = "自然スポーンのモブを倒すと、自分と6ブロック以内で最も近い別の敵対モブの間に高さ2の一時的な壁がせり上がる。"
+
+[mutated.override.architect.excavation]
+graft = "5秒以内にブロックを8個設置すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+
+[mutated.override.architect.taming]
+echo = "ペットが攻撃を当てると、自分と対象の間に高さ2の一時的な壁がせり上がる。"
+
+[mutated.override.architect.golemancy]
+graft = "5秒以内にブロックを8個設置すると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。"
+
+[mutated.signature.architect.axes.convergence]
+name = "木組み"
+description = "大木倒しで倒した原木は樹皮を剥いだ状態で落ちる。レベル2からは伐採した原木の設定で、代わりに1本につき板材4枚に切り分けられる。"
+lore1 = "1本の木で加工する原木"
+lore2 = "原木1本あたりの板材"
+
+[mutated.signature.architect.pickaxe.convergence]
+name = "トンネル職人"
+description = "大地揺るがしが水平なトンネルを掘る間、周りの石がオフハンドのブロックに置き換わる。床から始まり、次に壁、次に天井。8ブロックごとにインベントリの松明を置く。"
+lore1 = "1回の掘削で張るブロック"
+lore2 = "松明の間隔のブロック数"
+
+[mutated.signature.architect.excavation.convergence]
+name = "基礎打ち"
+description = "整地杭で左クリックすると、チョークのガイドの線や円を掘り、オフハンドのブロックで基礎として埋める。レベルごとに1ブロック深くなる。"
+lore1 = "基礎の深さ"
+lore2 = "1回で打つブロック"
+
+[mutated.signature.architect.crafting.convergence]
+name = "その場で切り出し"
+description = "チョーク埋めや型板の建築で階段、ハーフブロック、塀などの形が足りなくなると、持っている素材ブロックから石切台または作業台の収量で追加を切り出す。"
+lore1 = "1回の建築で切り出す数"
+lore2 = "持ち歩く容器の素材ブロック"
+
+[mutated.signature.architect.golemancy.convergence]
+name = "建築ゴーレム"
+description = "型板のスタンプをプレビューしてから、型板を持って自分のゴーレムを右クリックすると、32ブロック以内にいる間、最寄りの預け入れノードからスタンプを建てる。"
+lore1 = "1回の依頼のブロック数"
+lore2 = "1秒あたりのブロック"
+
+[mutated.signature.architect.chronos.convergence]
+name = "ロングアンドゥ"
+description = "時計を持ってスニークしながら持ち手を入れ替えると、最新のチョーク塗り、型押し、杖の面、置き換えを取り消す。解体の手の10倍前まで遡れる。まだ残っているブロックはそれぞれ費やしたものを返す。10分以内なら、その場所の近くで時の支配者の復元を使うと、建築を再び支払って元に戻す。"
+lore1 = "取り消せる範囲"
+
+[mutated.override.crafting.swords]
+barter = "{gesture}と剣の耐久値5を代償に、身に着けている防具それぞれの耐久値が6回復する。"
+
+[mutated.override.crafting.axes]
+barter = "{gesture}と斧の耐久値5を代償に、身に着けている防具それぞれの耐久値が6回復する。"
+
+[mutated.override.crafting.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.crafting.blocking]
+convergence = "直近4秒以内に盾で攻撃を防いでいるときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.crafting.agility]
+convergence = "直近4秒以内に3秒以上のダッシュを終えているときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.crafting.kinetics]
+convergence = "直近4秒以内にジャンプか落下から着地しているときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.override.crafting.pickaxe]
+barter = "{gesture}とツルハシの耐久値5を代償に、身に着けている防具それぞれの耐久値が6回復する。"
+
+[mutated.override.crafting.excavation]
+graft = "道具、武器、防具のいずれかをクラフトすると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.crafting.taming]
+echo = "ペットが攻撃を当てると、5秒以内の次の攻撃が対象の防具の20%を無視する。"
+
+[mutated.override.crafting.golemancy]
+graft = "道具、武器、防具のいずれかをクラフトすると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、手に持った道具に20秒間、効率強化+1が付く。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに道具、武器、防具のいずれかをクラフトすると：手に持った道具に20秒間、効率強化+1が付く。さらに、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.crafting.architect.convergence]
+name = "プレハブ箱"
+description = "石工の型板とチェストを合わせると、写しに必要なすべてのブロックを詰めた箱になる。場所を右クリックで建物を表示、左クリックで回転、もう一度右クリックでそこに展開する。"
+lore1 = "1箱のブロック数"
+lore2 = "1ティックで展開するブロック"
+
+[mutated.signature.crafting.enchanting.convergence]
+name = "ルーンの鍛え直し"
+description = "メインハンドにルーンの本、オフハンドに傑作の装備を持って右クリックすると、その傑作ボーナスを本に刻む。満ちた本とボーナスのない装備で右クリックすると、そこに移す。ボーナスは1アイテムに1つ。"
+lore1 = "保たれるボーナス"
+lore2 = "刃が移るレベル"
+
+[mutated.override.enchanting.swords]
+convergence = "直近4秒以内に剣で敵を攻撃しているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される。クールダウン45秒。"
+
+[mutated.override.enchanting.axes]
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。クールダウン45秒。"
+
+[mutated.override.enchanting.unarmed]
+convergence = "両手が空で戦闘中であるときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.enchanting.ranged]
+convergence = "弓を最大まで引き絞っているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.enchanting.blocking]
+convergence = "盾を構えているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.enchanting.stealth]
+convergence = "スニーク中で、どのモブにも狙われていないときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、5秒間、足音とブロックの音が消え、モブに無視される。クールダウン45秒。"
+
+[mutated.override.enchanting.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。"
+convergence = "体力が半分未満であるときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.enchanting.tragoul]
+convergence = "体力が3ハート以下であるときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、満腹度1が半ハートの体力に変わる。クールダウン45秒。"
+
+[mutated.override.enchanting.agility]
+convergence = "3秒間止まらずにダッシュしているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.enchanting.kinetics]
+convergence = "空中にいるときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.override.enchanting.rift]
+convergence = "直近5秒以内にテレポートしているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、6ブロック以内のドロップアイテムがエンダーチェストへ送られる。クールダウン45秒。"
+
+[mutated.override.enchanting.chronos]
+convergence = "オフハンドに時計を持っているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、4ブロック以内の作物、かまど、醸造台の進行が10秒進む。クールダウン45秒。"
+
+[mutated.override.enchanting.pickaxe]
+convergence = "直近4秒以内にブロックを採掘しているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、6ブロック以内の鉱石が5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.enchanting.excavation]
+graft = "アイテムにエンチャントするか、バニラの経験値を一度に10集めると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.enchanting.herbalism]
+convergence = "作物、草、花の中に立っているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、4ブロック以内の作物と苗木が一段階成長する。クールダウン45秒。"
+
+[mutated.override.enchanting.architect]
+convergence = "直近4秒以内にブロックを設置しているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。クールダウン45秒。"
+
+[mutated.signature.enchanting.crafting.convergence]
+name = "ルーンの鍛え直し"
+description = "メインハンドにルーンの本、オフハンドに傑作の装備を持って右クリックすると、その傑作ボーナスを本に刻む。満ちた本とボーナスのない装備で右クリックすると、そこに移す。ボーナスは1アイテムに1つ。"
+lore1 = "保たれるボーナス"
+lore2 = "刃が移るレベル"
+
+[mutated.override.enchanting.brewing]
+convergence = "飲んだポーションの効果が続いているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.signature.enchanting.discovery.convergence]
+name = "知識の番人"
+description = "構造物のチェストを初めて開けて中身が生成されたとき、そこで出たエンチャントの本1冊のエンチャントがそれぞれ1レベル上がる。バニラの最大値は超えない。"
+lore1 = "上昇するエンチャント数"
+
+[mutated.override.enchanting.taming]
+echo = "ペットが攻撃を当てると、対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。"
+convergence = "自分のペットが戦っているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、8ブロック以内のペットが1ハート回復し、5秒間自分と同じ速さで付いてくる。クールダウン45秒。"
+
+[mutated.override.enchanting.golemancy]
+graft = "アイテムにエンチャントするか、バニラの経験値を一度に10集めると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、次のブロック破壊で幸運のレベルが一段階高く扱われる。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.override.enchanting.seaborne]
+convergence = "濡れているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、4ブロック以内の火が消え、4ブロック以内の耕地が湿る。クールダウン45秒。"
+
+[mutated.override.enchanting.nether]
+convergence = "ネザーにいるか燃えているときにアイテムにエンチャントするか、バニラの経験値を一度に10集めると：次のブロック破壊で幸運のレベルが一段階高く扱われる。さらに、次に壊す3ブロックが製錬される。クールダウン45秒。"
+
+[mutated.override.brewing.unarmed]
+convergence = "直近4秒以内に素手で攻撃を当てているときにポーションを飲むか投げると：錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。さらに、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.brewing.ranged]
+convergence = "直近4秒以内に最大まで引き絞った矢を放っているときにポーションを飲むか投げると：錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.brewing.blocking]
+echo = "盾で攻撃を防ぐと、ホットバーの最初のポーションが対象に飛び散り、四分の一本を消費する。"
+convergence = "直近4秒以内に盾で攻撃を防いでいるときにポーションを飲むか投げると：錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.brewing.hunter]
+echo = "自然スポーンのモブを倒すと、錬金術師の弾帯かオフハンドのポーションが6ブロック以内で最も近い別の敵対モブに飛び散り、四分の一本を消費する。"
+
+[mutated.signature.brewing.chronos.convergence]
+name = "一時停止ポーション"
+description = "時計を持ってスニークしながら持ち手を入れ替えると、有益なポーション効果を一時停止する。もう一度入れ替えるか停止時間が尽きると、残り時間のまま戻る。"
+lore1 = "最長の停止時間"
+
+[mutated.override.brewing.excavation]
+graft = "ポーションを飲むか投げると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときにポーションを飲むか投げると：錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.brewing.taming]
+echo = "ペットが攻撃を当てると、錬金術師の弾帯かオフハンドのポーションが対象に飛び散り、四分の一本を消費する。"
+
+[mutated.override.brewing.golemancy]
+graft = "ポーションを飲むか投げると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときにポーションを飲むか投げると：錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。さらに、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.brewing.nether.convergence]
+name = "ソウルファイア蒸留所"
+description = "ソウルファイアか溶岩の上にある醸造台は、力・耐火・俊敏・再生を1段階高く（最大III）、効果時間3分の2で醸造する。"
+lore1 = "醸造ごとの強化ポーション"
+lore2 = "残る効果時間"
+
+[mutated.override.discovery.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブのステータスが明らかになり、そのモブへの次の攻撃のダメージが20%増える。"
+
+[mutated.override.discovery.excavation]
+graft = "新しいものを発見すると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに新しいものを発見すると：24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.discovery.taming]
+echo = "ペットが攻撃を当てると、対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える。"
+
+[mutated.override.discovery.golemancy]
+graft = "新しいものを発見すると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに新しいものを発見すると：24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。さらに、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.discovery.enchanting.convergence]
+name = "知識の番人"
+description = "構造物のチェストを初めて開けて中身が生成されたとき、そこで出たエンチャントの本1冊のエンチャントがそれぞれ1レベル上がる。バニラの最大値は超えない。"
+lore1 = "上昇するエンチャント数"
+
+[mutated.signature.discovery.rift.convergence]
+name = "ウェイストーン"
+description = "アトラスの構造物をウェイストーンにする。ブロックのないリフトアンカーで、アンカーの上限に数えられ、アンカーメニューから他のアンカーと同じくエンダーパールと詠唱で移動できる。"
+lore1 = "ウェイストーン"
+
+[mutated.override.taming.swords]
+graft = "ペットが攻撃を当てると、対象が4秒間出血する。"
+convergence = "直近4秒以内に剣で敵を攻撃しているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象が4秒間出血する。クールダウン45秒。"
+
+[mutated.override.taming.axes]
+graft = "ペットが攻撃を当てると、対象の防具が6秒間15%削られる。"
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象の防具が6秒間15%削られる。クールダウン45秒。"
+
+[mutated.override.taming.unarmed]
+graft = "ペットが攻撃を当てると、対象がノックバックし、3秒間弱体化する。"
+convergence = "両手が空で戦闘中であるときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象がノックバックし、3秒間弱体化する。クールダウン45秒。"
+
+[mutated.override.taming.ranged]
+graft = "ペットが攻撃を当てると、対象に光の矢が放たれる。"
+convergence = "弓を最大まで引き絞っているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象に光の矢が放たれる。クールダウン45秒。"
+
+[mutated.override.taming.blocking]
+graft = "ペットが攻撃を当てると、対象がよろめき、2秒間防御できなくなる。"
+
+[mutated.override.taming.stealth]
+graft = "ペットが攻撃を当てると、8ブロック以内のモブが3秒間自分を見失う。"
+convergence = "スニーク中で、どのモブにも狙われていないときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、8ブロック以内のモブが3秒間自分を見失う。クールダウン45秒。"
+
+[mutated.override.taming.hunter]
+graft = "ペットが攻撃を当てると、対象にマークが付き、6秒間自分から受けるダメージが15%増える。"
+echo = "自然スポーンのモブを倒すと、最も近いペットが6ブロック以内で最も近い別の敵対モブに飛びかかる。"
+
+[mutated.override.taming.tragoul]
+graft = "ペットが攻撃を当てると、対象から1ハートを吸い取る。"
+convergence = "体力が3ハート以下であるときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象から1ハートを吸い取る。クールダウン45秒。"
+
+[mutated.override.taming.agility]
+graft = "ペットが攻撃を当てると、視線の方向へ3ブロック突進する。"
+convergence = "3秒間止まらずにダッシュしているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、視線の方向へ3ブロック突進する。クールダウン45秒。"
+
+[mutated.override.taming.kinetics]
+graft = "ペットが攻撃を当てると、対象が上空へ打ち上げられる。"
+convergence = "空中にいるときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象が上空へ打ち上げられる。クールダウン45秒。"
+
+[mutated.override.taming.rift]
+graft = "ペットが攻撃を当てると、対象が自分から4ブロック離れた位置へ飛ばされる。"
+convergence = "直近5秒以内にテレポートしているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象が自分から4ブロック離れた位置へ飛ばされる。クールダウン45秒。"
+
+[mutated.override.taming.chronos]
+graft = "ペットが攻撃を当てると、対象の動きが2秒間遅くなる。"
+
+[mutated.signature.taming.chronos.convergence]
+name = "巻き戻る相棒"
+description = "死にそうなペットは代わりに4秒巻き戻り、その時いた場所と体力に戻る。各ペットが巻き戻るのは5〜10分に1回まで。"
+lore1 = "巻き戻し"
+lore2 = "ペットごとの待ち時間"
+
+[mutated.override.taming.pickaxe]
+graft = "ペットが攻撃を当てると、岩の破片が炸裂し、対象が1秒間スタンする。"
+convergence = "直近4秒以内にブロックを採掘しているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、岩の破片が炸裂し、対象が1秒間スタンする。クールダウン45秒。"
+
+[mutated.override.taming.excavation]
+graft = "ペットが攻撃を当てると、対象の足元が泥に変わり、3秒間動きが遅くなる。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象の足元が泥に変わり、3秒間動きが遅くなる。クールダウン45秒。"
+
+[mutated.override.taming.herbalism]
+graft = "ペットが攻撃を当てると、対象がつるに絡まれ、2秒間動けなくなる。"
+
+[mutated.override.taming.architect]
+graft = "ペットが攻撃を当てると、自分と対象の間に高さ2の一時的な壁がせり上がる。"
+convergence = "直近4秒以内にブロックを設置しているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、自分と対象の間に高さ2の一時的な壁がせり上がる。クールダウン45秒。"
+
+[mutated.override.taming.crafting]
+graft = "ペットが攻撃を当てると、5秒以内の次の攻撃が対象の防具の20%を無視する。"
+convergence = "直近10秒以内に何かをクラフトしているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、5秒以内の次の攻撃が対象の防具の20%を無視する。クールダウン45秒。"
+
+[mutated.override.taming.enchanting]
+graft = "ペットが攻撃を当てると、対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。"
+convergence = "バニラの経験値レベルを20以上持っているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。クールダウン45秒。"
+
+[mutated.override.taming.brewing]
+graft = "ペットが攻撃を当てると、錬金術師の弾帯かオフハンドのポーションが対象に飛び散り、四分の一本を消費する。"
+convergence = "飲んだポーションの効果が続いているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、錬金術師の弾帯かオフハンドのポーションが対象に飛び散り、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.override.taming.discovery]
+graft = "ペットが攻撃を当てると、対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える。"
+convergence = "一度も入ったことのないチャンクにいるときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える。クールダウン45秒。"
+
+[mutated.override.taming.golemancy]
+graft = "ペットが攻撃を当てると、最も近いゴーレムが対象を攻撃する。"
+echo = "自分のゴーレムが作業を終えると、8ブロック以内のペットが1ハート回復し、5秒間自分と同じ速さで付いてくる。"
+
+[mutated.override.taming.seaborne]
+graft = "ペットが攻撃を当てると、水流が対象を押し返し、火を消す。"
+convergence = "濡れているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、水流が対象を押し返し、火を消す。クールダウン45秒。"
+
+[mutated.override.taming.nether]
+graft = "ペットが攻撃を当てると、対象が4秒間燃える。"
+convergence = "ネザーにいるか燃えているときにペットが攻撃を当てると：最も近いペットが対象に飛びかかる。さらに、対象が4秒間燃える。クールダウン45秒。"
+
+[mutated.signature.taming.blocking.convergence]
+name = "盾持ちの群れ"
+description = "構えた盾や設置した盾の壁の後ろにいる自分のペットは、飛び道具のダメージを受けず、ゆっくり回復する。"
+lore1 = "防護の奥行き"
+lore2 = "ペットの毎秒回復量"
+
+[mutated.signature.taming.golemancy.convergence]
+name = "鉄の群れ"
+description = "ゴーレムがペットとして扱われる。アルファの強化はオーラ内のゴーレムに届き、血の絆ではあなたの被ダメージを分かち合い、獣使いの笛でゴーレムを標的に向かわせたり呼び戻したりできる。"
+lore1 = "ゴーレムの攻撃力と体力"
+lore2 = "ゴーレムと分け合うダメージ"
+lore3 = "笛の範囲"
+
+[mutated.signature.taming.herbalism.convergence]
+name = "羊飼いの畑"
+description = "自然に育った作物を収穫すると、野生の繁茂の範囲内のペットと自分が餌をやった動物に、自分の収穫物を1つずつ与える。動物は回復し、畑を踏み荒らさずにその場で草を食む。これで繁殖することはない。"
+lore1 = "収穫ごとに餌をやる動物数"
+lore2 = "餌ごとの回復量"
+lore3 = "草を食む時間"
+
+[mutated.signature.taming.hunter.convergence]
+name = "群れの狩り"
+description = "ペットが自ら血の痕跡や追跡者のコンパスの種族を追う。あなたから32ブロック以上は離れず、その獲物への噛みつきは頂点捕食者の蓄積を積み上げ、その効果を受ける。"
+lore1 = "狩りの範囲"
+lore2 = "狩りに加わるペット数"
+lore3 = "蓄積ごとのペットのダメージ"
+
+[mutated.override.golemancy.swords]
+graft = "自分のゴーレムが作業を終えると、3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される。"
+convergence = "直近4秒以内に剣で敵を攻撃しているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される。クールダウン45秒。"
+
+[mutated.override.golemancy.axes]
+graft = "自分のゴーレムが作業を終えると、次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。"
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。クールダウン45秒。"
+
+[mutated.override.golemancy.unarmed]
+graft = "自分のゴーレムが作業を終えると、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。"
+convergence = "両手が空で戦闘中であるときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.golemancy.ranged]
+graft = "自分のゴーレムが作業を終えると、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。"
+convergence = "弓を最大まで引き絞っているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.golemancy.blocking]
+graft = "自分のゴーレムが作業を終えると、10秒以内に次に受ける攻撃のダメージが半減する。"
+convergence = "盾を構えているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.golemancy.stealth]
+graft = "自分のゴーレムが作業を終えると、5秒間、足音とブロックの音が消え、モブに無視される。"
+convergence = "スニーク中で、どのモブにも狙われていないときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、5秒間、足音とブロックの音が消え、モブに無視される。クールダウン45秒。"
+
+[mutated.override.golemancy.hunter]
+graft = "自分のゴーレムが作業を終えると、16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。"
+echo = "自然スポーンのモブを倒すと、最も近いゴーレムが6ブロック以内で最も近い別の敵対モブを攻撃する。"
+convergence = "体力が半分未満であるときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.golemancy.tragoul]
+graft = "自分のゴーレムが作業を終えると、満腹度1が半ハートの体力に変わる。"
+
+[mutated.override.golemancy.agility]
+graft = "自分のゴーレムが作業を終えると、4秒間、移動速度上昇IIを得る。"
+echo = "ダッシュジャンプすると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "3秒間止まらずにダッシュしているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.golemancy.kinetics]
+graft = "自分のゴーレムが作業を終えると、5秒以内の次のジャンプが3ブロックの高さになる。"
+echo = "4ブロック以上の高さから落下して着地すると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "空中にいるときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.override.golemancy.rift]
+graft = "自分のゴーレムが作業を終えると、6ブロック以内のドロップアイテムがエンダーチェストへ送られる。"
+echo = "エンダーパール、ブリンク、コーラスフルーツのいずれかでテレポートすると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "直近5秒以内にテレポートしているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、6ブロック以内のドロップアイテムがエンダーチェストへ送られる。クールダウン45秒。"
+
+[mutated.override.golemancy.chronos]
+graft = "自分のゴーレムが作業を終えると、4ブロック以内の作物、かまど、醸造台の進行が10秒進む。"
+echo = "時計を持った状態でスニークして持ち替えると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+
+[mutated.signature.golemancy.chronos.convergence]
+name = "オーバークロック"
+description = "ゴーレムの近くで時計を持ってスニークしながら持ち手を入れ替えると、クロノボトルに貯めた60秒分の時間と引き換えに、ゴーレムが3倍の速さで働く。"
+lore1 = "ゴーレムの速さ"
+lore2 = "持続時間"
+lore3 = "ボトルの時間"
+
+[mutated.override.golemancy.pickaxe]
+graft = "自分のゴーレムが作業を終えると、6ブロック以内の鉱石が5秒間自分にだけ発光して見える。"
+convergence = "直近4秒以内にブロックを採掘しているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、6ブロック以内の鉱石が5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.golemancy.excavation]
+graft = "自分のゴーレムが作業を終えると、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.golemancy.herbalism]
+graft = "自分のゴーレムが作業を終えると、4ブロック以内の作物と苗木が一段階成長する。"
+convergence = "作物、草、花の中に立っているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、4ブロック以内の作物と苗木が一段階成長する。クールダウン45秒。"
+
+[mutated.override.golemancy.architect]
+graft = "自分のゴーレムが作業を終えると、5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。"
+echo = "5秒以内にブロックを8個設置すると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+
+[mutated.override.golemancy.crafting]
+graft = "自分のゴーレムが作業を終えると、手に持った道具に20秒間、効率強化+1が付く。"
+echo = "道具、武器、防具のいずれかをクラフトすると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "直近10秒以内に何かをクラフトしているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、手に持った道具に20秒間、効率強化+1が付く。クールダウン45秒。"
+
+[mutated.override.golemancy.enchanting]
+graft = "自分のゴーレムが作業を終えると、次のブロック破壊で幸運のレベルが一段階高く扱われる。"
+echo = "アイテムにエンチャントするか、バニラの経験値を一度に10集めると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "バニラの経験値レベルを20以上持っているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、次のブロック破壊で幸運のレベルが一段階高く扱われる。クールダウン45秒。"
+
+[mutated.override.golemancy.brewing]
+graft = "自分のゴーレムが作業を終えると、錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。"
+echo = "ポーションを飲むか投げると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "飲んだポーションの効果が続いているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.override.golemancy.discovery]
+graft = "自分のゴーレムが作業を終えると、24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。"
+echo = "新しいものを発見すると、最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "一度も入ったことのないチャンクにいるときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。クールダウン45秒。"
+
+[mutated.override.golemancy.taming]
+graft = "自分のゴーレムが作業を終えると、8ブロック以内のペットが1ハート回復し、5秒間自分と同じ速さで付いてくる。"
+echo = "ペットが攻撃を当てると、最も近いゴーレムが対象を攻撃する。"
+
+[mutated.override.golemancy.seaborne]
+graft = "自分のゴーレムが作業を終えると、4ブロック以内の火が消え、4ブロック以内の耕地が湿る。"
+echo = "水に飛び込むか、濡れた状態で攻撃を受けると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "濡れているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、4ブロック以内の火が消え、4ブロック以内の耕地が湿る。クールダウン45秒。"
+
+[mutated.override.golemancy.nether]
+graft = "自分のゴーレムが作業を終えると、次に壊す3ブロックが製錬される。"
+echo = "火のダメージを受けると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+convergence = "ネザーにいるか燃えているときに自分のゴーレムが作業を終えると：最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。さらに、次に壊す3ブロックが製錬される。クールダウン45秒。"
+
+[mutated.signature.golemancy.architect.convergence]
+name = "建築ゴーレム"
+description = "型板のスタンプをプレビューしてから、型板を持って自分のゴーレムを右クリックすると、32ブロック以内にいる間、最寄りの預け入れノードからスタンプを建てる。"
+lore1 = "1回の依頼のブロック数"
+lore2 = "1秒あたりのブロック"
+
+[mutated.signature.golemancy.taming.convergence]
+name = "犬舎のコア"
+description = "牧場主ゴーレムが世話係になる。巡回のたびに、拠点周辺のペットと自分が餌をやったか繁殖させた動物を回復させ、はぐれた動物を連れ戻す。"
+lore1 = "世話係の範囲"
+lore2 = "巡回ごとの回復量"
+lore3 = "巡回ごとの動物数"
+lore4 = "巡回の間隔"
+
+[mutated.signature.golemancy.tragoul.convergence]
+name = "骨の軍団"
+description = "スケルトンの従者にゴーレムのコアを渡すと、骨のゴーレムとして働く。寿命は何もしていない間だけ減り、尽きると崩れてコアを落とす。軍団兵も従者の上限に数えられる。"
+lore1 = "軍団兵"
+lore2 = "待機中の寿命"
+
+[mutated.override.seaborne.swords]
+convergence = "直近4秒以内に剣で敵を攻撃しているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象が4秒間出血する。いなければ3ブロックの弧の範囲にある草、葉、作物が刈り取られて回収される。クールダウン45秒。"
+
+[mutated.override.seaborne.axes]
+convergence = "直近4秒以内に木を切るか斧で攻撃しているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象の防具が6秒間15%削られる。いなければ次に切り倒す木が樹皮を剥いだ原木か板材をドロップし、自動で植え直される。クールダウン45秒。"
+
+[mutated.override.seaborne.unarmed]
+convergence = "両手が空で戦闘中であるときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象がノックバックし、3秒間弱体化する。いなければ30秒以内に3秒間動かずにスニークすると衝撃吸収体力を得る。クールダウン45秒。"
+
+[mutated.override.seaborne.ranged]
+convergence = "弓を最大まで引き絞っているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象に光の矢が放たれる。いなければ8ブロック以内のドロップアイテムが自分のもとへ飛んでくる。クールダウン45秒。"
+
+[mutated.override.seaborne.blocking]
+convergence = "盾を構えているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象がよろめき、2秒間防御できなくなる。いなければ10秒以内に次に受ける攻撃のダメージが半減する。クールダウン45秒。"
+
+[mutated.override.seaborne.stealth]
+convergence = "スニーク中で、どのモブにも狙われていないときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば8ブロック以内のモブが3秒間自分を見失う。いなければ5秒間、足音とブロックの音が消え、モブに無視される。クールダウン45秒。"
+
+[mutated.override.seaborne.hunter]
+echo = "自然スポーンのモブを倒すと、水流が6ブロック以内で最も近い別の敵対モブを押し返し、火を消す。"
+convergence = "体力が半分未満であるときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象にマークが付き、6秒間自分から受けるダメージが15%増える。いなければ16ブロック以内の動物とモブが5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.seaborne.tragoul]
+convergence = "体力が3ハート以下であるときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象から1ハートを吸い取る。いなければ満腹度1が半ハートの体力に変わる。クールダウン45秒。"
+
+[mutated.override.seaborne.agility]
+convergence = "3秒間止まらずにダッシュしているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば視線の方向へ3ブロック突進する。いなければ4秒間、移動速度上昇IIを得る。クールダウン45秒。"
+
+[mutated.override.seaborne.kinetics]
+convergence = "空中にいるときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象が上空へ打ち上げられる。いなければ5秒以内の次のジャンプが3ブロックの高さになる。クールダウン45秒。"
+
+[mutated.override.seaborne.rift]
+convergence = "直近5秒以内にテレポートしているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象が自分から4ブロック離れた位置へ飛ばされる。いなければ6ブロック以内のドロップアイテムがエンダーチェストへ送られる。クールダウン45秒。"
+
+[mutated.override.seaborne.chronos]
+convergence = "オフハンドに時計を持っているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象の動きが2秒間遅くなる。いなければ4ブロック以内の作物、かまど、醸造台の進行が10秒進む。クールダウン45秒。"
+
+[mutated.override.seaborne.pickaxe]
+convergence = "直近4秒以内にブロックを採掘しているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば岩の破片が炸裂し、対象が1秒間スタンする。いなければ6ブロック以内の鉱石が5秒間自分にだけ発光して見える。クールダウン45秒。"
+
+[mutated.override.seaborne.excavation]
+graft = "水に飛び込むか、濡れた状態で攻撃を受けると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.signature.seaborne.herbalism.convergence]
+name = "ケルプガーデン"
+description = "泳いでいる間、周囲のコンブ、シーピクルス、サンゴのウチワは野生の繁茂で作物が育つように成長し、近くにある自分の潮の祠も畑として扱われる。コンブかシーピクルスにクワを使うと周りの海底を収穫し、根は残って再び育つ。"
+lore1 = "成長範囲"
+lore2 = "毎秒試す地点"
+lore3 = "収穫範囲"
+
+[mutated.override.seaborne.architect]
+convergence = "直近4秒以内にブロックを設置しているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば自分と対象の間に高さ2の一時的な壁がせり上がる。いなければ5秒間、ブロック設置の届く距離が3ブロック伸び、設置がチョーク線の案内に揃う。クールダウン45秒。"
+
+[mutated.override.seaborne.crafting]
+convergence = "直近10秒以内に何かをクラフトしているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば5秒以内の次の攻撃が対象の防具の20%を無視する。いなければ手に持った道具に20秒間、効率強化+1が付く。クールダウン45秒。"
+
+[mutated.override.seaborne.enchanting]
+convergence = "バニラの経験値レベルを20以上持っているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象が発光し、5秒以内に倒された自然スポーンのモブが落とす経験値が半分増える。いなければ次のブロック破壊で幸運のレベルが一段階高く扱われる。クールダウン45秒。"
+
+[mutated.override.seaborne.brewing]
+convergence = "飲んだポーションの効果が続いているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば錬金術師の弾帯かオフハンドのポーションが対象に飛び散り、四分の一本を消費する。いなければ錬金術師の弾帯かオフハンドのポーションが半分の効果時間で自分にかかり、四分の一本を消費する。クールダウン45秒。"
+
+[mutated.override.seaborne.discovery]
+convergence = "一度も入ったことのないチャンクにいるときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば対象のステータスが明らかになり、その対象への次の攻撃のダメージが20%増える。いなければ24ブロック以内で最も近いチェスト、スポナー、構造物の位置が自分に知らされる。クールダウン45秒。"
+
+[mutated.override.seaborne.taming]
+echo = "ペットが攻撃を当てると、水流が対象を押し返し、火を消す。"
+convergence = "自分のペットが戦っているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば最も近いペットが対象に飛びかかる。いなければ8ブロック以内のペットが1ハート回復し、5秒間自分と同じ速さで付いてくる。クールダウン45秒。"
+
+[mutated.override.seaborne.golemancy]
+graft = "水に飛び込むか、濡れた状態で攻撃を受けると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、4ブロック以内の火が消え、4ブロック以内の耕地が湿る。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに水に飛び込むか、濡れた状態で攻撃を受けると：6ブロック以内に敵対モブがいれば水流が対象を押し返し、火を消す。いなければ4ブロック以内の火が消え、4ブロック以内の耕地が湿る。さらに、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.seaborne.nether.convergence]
+name = "スチームウォーカー"
+description = "濡れた状態で溶岩に乗ると、足元が少しの間冷え固まり、その後また溶ける。ネザーでも水バケツが使え、その水は流れずに30秒後に蒸発する。"
+lore1 = "蒸気歩行"
+lore2 = "道の幅"
+lore3 = "同時に置ける水"
+
+[mutated.override.nether.hunter]
+echo = "自然スポーンのモブを倒すと、6ブロック以内で最も近い別の敵対モブが4秒間燃える。"
+
+[mutated.override.nether.excavation]
+graft = "火のダメージを受けると、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。"
+convergence = "直近4秒以内に柔らかいブロックを掘っているときに火のダメージを受けると：6ブロック以内に敵対モブがいれば対象が4秒間燃える。いなければ次に壊す3ブロックが製錬される。さらに、6ブロック以内に敵対モブがいれば対象の足元が泥に変わり、3秒間動きが遅くなる。いなければ10秒以内に次に掘る柔らかいブロックの周囲3×3も壊れ、すべてドロップする。クールダウン45秒。"
+
+[mutated.override.nether.taming]
+echo = "ペットが攻撃を当てると、対象が4秒間燃える。"
+
+[mutated.override.nether.golemancy]
+graft = "火のダメージを受けると、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。"
+echo = "自分のゴーレムが作業を終えると、次に壊す3ブロックが製錬される。"
+convergence = "自分のゴーレムが16ブロック以内で作業しているときに火のダメージを受けると：6ブロック以内に敵対モブがいれば対象が4秒間燃える。いなければ次に壊す3ブロックが製錬される。さらに、6ブロック以内に敵対モブがいれば最も近いゴーレムが対象を攻撃する。いなければ最も近いゴーレムが、自身の直前の作業を次の該当ブロックで繰り返す。クールダウン45秒。"
+
+[mutated.signature.nether.brewing.graft]
+name = "ブリムストーンフラスコ"
+description = "投げたスプラッシュポーションは4秒間、無害なソウルファイアの輪を残し、そこへ入ったものにもう一度効果を与える。輪は同時に1つまで。"
+lore1 = "輪の半径"
+lore2 = "2回目の効果時間"
+
+[mutated.signature.nether.tragoul.convergence]
+name = "ウィザーブラッド"
+description = "倒すたびに死体の周りの敵対モブへウィザーIが広がり、ウィザースケルトンを倒すと血の貯えが満ちる。"
+lore1 = "拡散範囲"
+lore2 = "最大衰弱対象数"
+lore3 = "ウィザースケルトンからの血"
+
+[mutated.signature.nether.seaborne.convergence]
+name = "スチームウォーカー"
+description = "濡れた状態で溶岩に乗ると、足元が少しの間冷え固まり、その後また溶ける。ネザーでも水バケツが使え、その水は流れずに30秒後に蒸発する。"
+lore1 = "蒸気歩行"
+lore2 = "道の幅"
+lore3 = "同時に置ける水"
+
+[upgrade.swords.witherblade]
+name = "ウィザーブレード"
+description = "剣の攻撃が出血も伴う衰弱を与え、効果中の対象は再生できない。"
+lore1 = "衰弱と出血の持続時間"
+lore2 = "出血ダメージ（1回あたり）"
+lore3 = "クールダウン"
+overcharge = "オーバーチャージ時の衰弱の持続時間"
+
+[upgrade.swords.tempest_flow]
+name = "嵐の流れ"
+description = "攻撃するたびに攻撃速度が上がり、最大スタックのクリティカルで範囲斬撃を放ち、砥石で剣を鋸刃、重量、鋭利のいずれかに研ぎ上げる。"
+lore1 = "斬撃発動に必要なスタック"
+lore2 = "斬撃ダメージ"
+lore3 = "斬撃の半径"
+lore4 = "鋸刃の出血(1回あたり)"
+lore5 = "重刃のよろめき"
+lore6 = "鋭刃のクリティカルボーナス"
+
+[upgrade.swords.duelists_verdict]
+name = "決闘者の裁き"
+description = "交戦中の敵が1体だけなら与ダメージが増えて被ダメージが減り、体力30%未満の敵にはとどめを刺し、名前付きの剣は自然スポーンのモブを倒すことで覚醒する。"
+lore1 = "決闘中の追加ダメージ"
+lore2 = "決闘中の被ダメージ軽減"
+lore3 = "体力30%未満へのとどめボーナス"
+lore4 = "覚醒した剣のダメージ上限"
+lore5 = "反撃・突進・裁きに必要なキル数"
+blade = "覚醒した剣: {kills} キル"
+
+[tool.swords.whetstone]
+name = "砥石"
+serrated = "鋸刃"
+weighted = "重刃"
+keen = "鋭刃"
+
+[upgrade.axes.timberfall]
+name = "大木倒し"
+description = "一振りで木を葉ごと丸ごと伐り倒し、そのままインベントリに入れる。"
+lore1 = "一振りで伐る原木数"
+lore2 = "一振りで消す葉の数"
+lore3 = "原木の探索半径"
+
+[upgrade.axes.sundering_cleave]
+name = "破砕の薙ぎ払い"
+description = "振りが前方の扇状範囲すべてに当たり、全員の防具を削る。"
+lore1 = "扇の幅"
+lore2 = "扇状範囲のダメージ割合"
+lore3 = "スタックごとの防具削り"
+
+[upgrade.axes.worldsplitter]
+name = "世界割り"
+description = "投げた斧が着地点の地面を叩き割り、進路上のすべてを貫きながら手元に戻ってくる。"
+lore1 = "投擲ダメージ倍率"
+lore2 = "叩きつけダメージ"
+lore3 = "叩きつけの半径"
+lore4 = "クールダウン"
+lore5 = "帰還時の命中数"
+
+[upgrade.unarmed.titan_fists]
+name = "巨人の拳"
+description = "拳が最大まで強化した素手の元の能力以上の威力になり、ダッシュパンチで柔らかいブロックを突き破る。"
+lore1 = "最大威力時のパンチダメージ"
+lore2 = "防具なし時のダメージ倍率"
+lore3 = "パンチごとの追加ダメージ"
+lore4 = "ダッシュパンチのクールダウン"
+lore5 = "ダッシュパンチで壊すブロック数"
+
+[upgrade.unarmed.unbroken_combo]
+name = "途切れぬコンボ"
+description = "被弾してもコンボのスタックが消えず、スタックごとに対象を鈍化させ、最大スタックでスニーク攻撃するとスタックをすべて消費する。"
+lore1 = "最大コンボスタック"
+lore2 = "スタックごとの追加ダメージ"
+lore3 = "最大鈍化レベル"
+lore4 = "フィニッシャーのスタックごとのダメージ"
+lore5 = "フィニッシャーの弱体化レベル"
+lore6 = "フィニッシャーのクールダウン"
+
+[upgrade.unarmed.seismic_throw]
+name = "地震投げ"
+description = "投げ飛ばした敵が着地すると衝撃波が起こる。"
+lore1 = "投げの力"
+lore2 = "衝撃波の半径"
+lore3 = "クールダウン"
+lore4 = "衝撃波のダメージ"
+
+[upgrade.ranged.stormshot]
+name = "嵐の矢"
+description = "矢がより速く飛び、より強く当たって貫通し、矢筒が矢を収納して回収する。"
+lore1 = "矢の追加速度"
+lore2 = "矢の追加ダメージ"
+lore3 = "貫通する対象数"
+lore4 = "矢筒に戻る命中矢"
+lore5 = "矢筒の容量"
+
+[upgrade.ranged.hunters_web]
+name = "狩人の網"
+description = "捕縛の矢が命中した対象をクモの巣の檻に閉じ込め、宙に浮かせて拘束する。"
+lore1 = "檻の持続時間"
+lore2 = "持ち上げる力"
+lore3 = "同じ対象を再び捕らえるまでの時間"
+
+[upgrade.ranged.trueflight]
+name = "必中の飛翔"
+description = "ロックオンした矢が対象へ曲がって飛び、跳弾の矢は次々と跳ね返り、一斉射撃で複数をロックする。"
+lore1 = "ロックオン距離"
+lore2 = "跳弾の探索半径"
+lore3 = "跳弾命中の追加ダメージ"
+lore4 = "一斉射撃のロック数"
+lore5 = "一斉射撃のクールダウン"
+
+[tool.ranged.quiver]
+name = "矢筒"
+arrows = "矢"
+spectral_arrows = "光の矢"
+
+[tool.ranged.snare_arrow]
+name = "捕縛の矢"
+
+[tool.ranged.ricochet_arrow]
+name = "跳弾の矢"
+
+[upgrade.blocking.mirror_guard]
+name = "鏡の守り"
+description = "タイミングよく防御すると、近接でも飛び道具でも攻撃を無効化して跳ね返す。"
+lore1 = "受付時間"
+lore2 = "跳ね返すダメージの割合"
+lore3 = "クールダウン"
+
+[upgrade.blocking.living_wall]
+name = "生ける壁"
+description = "盾を時間制限付きの壁として設置し、背後の全員を守り、敵対モブを鈍化させる。"
+lore1 = "壁の後ろと防御中の被ダメージ軽減"
+lore2 = "壁の幅"
+lore3 = "壁の持続時間"
+lore4 = "壁のクールダウン"
+
+[upgrade.blocking.tempered_aegis]
+name = "鍛えられた神盾"
+description = "本物の敵の攻撃を防ぐと盾と防具が修復され、斧で盾を無効化されなくなり、ダッシュジャンプからの盾攻撃で敵を叩きつける。"
+lore1 = "防御1回あたりの盾の耐久値"
+lore2 = "防御1回あたりの防具の耐久値"
+lore3 = "シールドバッシュのダメージ"
+lore4 = "シールドバッシュのクールダウン"
+
+[upgrade.stealth.umbral_form]
+name = "影の姿"
+description = "見られずにスニークすると通常の歩行速度のまま透明になり、次の一撃を和らげて砕ける防具の層を蓄える。"
+lore1 = "防護層の最大値"
+lore2 = "1回ごとに蓄える防護"
+lore3 = "監視半径"
+
+[upgrade.stealth.death_mark]
+name = "死の刻印"
+description = "隠密からの初撃で対象となるボス以外のモブを即死させ、倒せない相手からは盗む。"
+lore1 = "即死させられる最大体力の上限"
+lore2 = "即死の間隔"
+lore3 = "盗むアイテムのスタック数"
+
+[upgrade.stealth.phantom_decoy]
+name = "幻影の囮"
+description = "煙玉が囮を残し、囮と位置を入れ替えたり、気づかれずに生き物の背後へ回り込んだりできる。"
+lore1 = "囮の持続時間"
+lore2 = "煙の半径"
+lore3 = "囮の間隔"
+lore4 = "影歩きの射程"
+lore5 = "影歩きの間隔"
+
+[tool.stealth.smoke_pellet]
+name = "煙玉"
+lore1 = "影歩きか囮"
+
+[upgrade.hunter.blood_frenzy]
+name = "血の狂乱"
+description = "攻撃を受けると空腹1回分の代償で攻撃力上昇、移動速度上昇、再生をまとめて得る。体力が低いほど強力。"
+lore1 = "体力満タン時の効果時間"
+lore2 = "低体力時の強化"
+lore3 = "狂乱ごとの空腹の持続時間"
+
+[upgrade.hunter.apex_predator]
+name = "頂点捕食者"
+description = "同じ対象へのダメージが積み上がり、大物はドロップが増え、コンパスが獲物を追跡する。"
+lore1 = "スタックごとの追加ダメージ"
+lore2 = "スタック上限"
+lore3 = "大型モブとボスへの命中ごとのスタック"
+lore4 = "大物の追加ドロップ抽選確率"
+lore5 = "コンパスの範囲"
+lore6 = "記憶する種類"
+
+[upgrade.hunter.stalkers_trail]
+name = "追跡者の足跡"
+description = "傷ついた獲物は跡を残し、罠で捕らえた動物は連れ帰ることができ、戦利品のドロップが増える。"
+lore1 = "血の跡の持続時間"
+lore2 = "罠の拘束時間"
+lore3 = "戦利品の確率"
+lore4 = "捕獲の保持時間"
+
+[tool.hunter.trackers_compass]
+name = "追跡者のコンパス"
+lore1 = "追跡中の種類で最も近いものを指す"
+tracking = "{kind}を追跡中"
+reading = "{kind} {distance}ブロック"
+none = "範囲内に{kind}はいない"
+untrackable = "追跡できない"
+hungry = "空腹すぎる"
+empty = "まだ追跡していない"
+menu = "追跡する種類"
+
+[upgrade.tragoul.crimson_tide]
+name = "真紅の潮"
+description = "与えたダメージすべてで回復し、あふれた分は血の貯蔵に溜まり、攻撃してきた相手から生命力を奪う。"
+lore1 = "与ダメージの体力への還元"
+lore2 = "攻撃者ごとに奪う生命力"
+lore3 = "反射する棘ダメージ"
+lore4 = "最大体力を超えて蓄えた血のハート"
+
+[upgrade.tragoul.plague_nova]
+name = "疫病の新星"
+description = "倒した敵が爆発し、状態異常を広げ、屍槍を放つ。"
+lore1 = "新星の半径"
+lore2 = "疫病の拡散半径"
+lore3 = "新星ダメージに加わる死体の体力"
+
+[upgrade.tragoul.deathless]
+name = "不死者"
+description = "骨が攻撃を吸収し、死の回避で体力1で踏みとどまり、骸骨のサーヴァントが仕えるために蘇る。"
+lore1 = "骨1本あたりの吸収量"
+lore2 = "サーヴァントの最大数"
+lore3 = "死の回避のクールダウン"
+lore4 = "サーヴァントの寿命"
+lore5 = "手で呼び出すサーヴァント1体あたりの骨"
+lore6 = "手で呼び出すサーヴァント1体あたりの体力、血を優先"
+
+[upgrade.agility.slipstream]
+name = "スリップストリーム"
+description = "ダッシュで速度が上限まで上がり、滑走しても維持され、ダッシュで空腹にならない。"
+lore1 = "5秒走るごとの速度上昇"
+lore2 = "滑走速度"
+lore3 = "滑走のクールダウン"
+lore4 = "最高速度ボーナス"
+lore5 = "羽の足取りのレベル"
+
+[upgrade.agility.skyrunner]
+name = "空駆け"
+description = "壁張り付き、ハイジャンプ、空中ダッシュ、グラップリングラインが空中チャージを共有し、壁に触れると回復する。"
+lore1 = "ハイジャンプの高さ"
+lore2 = "空中ダッシュの速度"
+lore3 = "壁ジャンプの力"
+lore4 = "空中チャージ数"
+lore5 = "グラップルの射程"
+
+[upgrade.agility.untouchable]
+name = "触れられぬ者"
+description = "ダッシュ中は飛び道具を回避し、一定の高さまでの落下を受け身で着地し、被弾を速度に変える。"
+lore1 = "被弾後の加速ティア"
+lore2 = "加速の持続時間"
+lore3 = "立て直しジャンプの受付時間"
+lore4 = "飛び道具の回避確率"
+lore5 = "受け身できる最大落下"
+
+[tool.agility.grappling_line]
+name = "グラップリングライン"
+usage = "ブロックを右クリックで引き寄せ、もう一度右クリックで離す"
+
+[upgrade.kinetics.comet]
+name = "彗星"
+description = "急降下の叩きつけが広い範囲に当たって防具を削り、タイタンに巨大化したりポケットに縮んだりできる。"
+lore1 = "衝撃波の半径"
+lore2 = "防具削り量"
+lore3 = "防具削りの持続時間"
+lore4 = "衝撃波のダメージ"
+lore5 = "タイタンとポケットのサイズ変化"
+lore6 = "タイタンの衝撃波の半径"
+lore7 = "ポケットで消える着地ダメージ"
+
+[upgrade.kinetics.lancer]
+name = "槍騎兵"
+description = "槍やトライデントの攻撃が遠くまで届き、速度に応じて強くなり、対象を拘束する。"
+lore1 = "追加リーチ"
+lore2 = "速度による最大追加ダメージ"
+lore3 = "拘束の持続時間"
+
+[upgrade.kinetics.featherweight]
+name = "羽のような軽さ"
+description = "より高く跳び、着地で弾み、どのブロックでも落下ダメージを受けない。"
+lore1 = "追加ジャンプの高さ"
+lore2 = "着地の弾み"
+lore3 = "防ぐ落下ダメージ"
+
+[upgrade.rift.phase_step]
+name = "位相歩法"
+description = "エンダーパール1個かハート半分で壁越しにブリンクし、マークした対象と位置を入れ替え、パールは1回跳ね返る。"
+lore1 = "ブリンク距離"
+lore2 = "到着時の耐性"
+lore3 = "クールダウン"
+lore4 = "ブリンクごとにエンダーパール1個またはハート半分"
+lore5 = "スニーク中に生き物を殴ると、次のブリンクでその生き物と位置を入れ替える"
+lore6 = "PvPが許可された場所ではプレイヤーとも入れ替わる"
+
+[upgrade.rift.pocket_realm]
+name = "ポケット領域"
+description = "どこでもエンダーチェストを開け、ドロップを引き寄せて手持ちを補充し、リフトアンカーが拠点同士をつなぐ。"
+lore1 = "ドロップを引き寄せる半径"
+lore2 = "1回ごとに引き寄せるドロップ数"
+lore3 = "設置ごとに補充するブロック数"
+lore4 = "リフトアンカー"
+lore5 = "アンカーの詠唱"
+lore6 = "アンカー移動ごとのエンダーパール"
+lore7 = "エンダーパール1個で送れるスタック"
+lore8 = "アンカーは次元を越えて使える"
+
+[upgrade.rift.voidborn]
+name = "虚空生まれ"
+description = "致死ダメージを受けると安全な場所へブリンクし、エンダーマンに無視され、浮遊を自在に操る。"
+lore1 = "脱出のクールダウン"
+lore2 = "脱出後の耐性"
+lore3 = "浮遊解除のクールダウン"
+
+[tool.rift.anchor]
+name = "リフトアンカー"
+usage = "ブロックを右クリックして設置"
+title = "リフトアンカー"
+entry = "アンカー {number}"
+here = "現在地"
+travel = "移動"
+open = "コンテナを開く"
+send = "ここにアイテムを送る"
+other_dimension = "別の次元: ポケット領域 {level}"
+empty = "設置済みのアンカーはありません"
+placed = "アンカーを設置しました ({count}/{max})"
+full = "{max} 個のアンカーをすべて設置済みです"
+broken = "リフトアンカーが {count} 個壊されました"
+no_pearl = "エンダーパールが {count} 個必要です"
+channel_broken = "詠唱が途切れました"
+blocked = "そのアンカーはふさがれているか、なくなっています"
+no_container = "そのアンカーの隣にコンテナがありません"
+sent = "{count} 個のアイテムを送りました"
+nothing = "送るものがありません"
+waystone_set = "ウェイストーンを設定 ({count}/{max})"
+waystones_full = "{max} 個のウェイストーンをすべて設定済みです"
+remove = "削除"
+harvests_here = "収穫はここに届く"
+harvests_ender = "収穫はエンダーチェストへ"
+
+[tool.rift.eye]
+name = "リフトアイ"
+usage = "右クリックでアンカーへ移動"
+
+[upgrade.chronos.second_chance]
+name = "セカンドチャンス"
+description = "自分で発動するか致命の一撃で発動する巻き戻し。受けたダメージの一部は後払いになる。"
+lore1 = "巻き戻す時間"
+lore2 = "クールダウン"
+lore3 = "致命の一撃後の無敵時間"
+lore4 = "後払いのダメージ"
+lore5 = "救済後の最大体力"
+
+[upgrade.chronos.time_lord]
+name = "時の支配者"
+description = "ボトルの容量が増え、オーラが作物と作業台を加速し、効果が長く続き、時計が爆発の被害を復元する。"
+lore1 = "ボトルの容量"
+lore2 = "オーラの半径"
+lore3 = "有益なポーションの延長"
+lore4 = "復元半径"
+lore5 = "復元できる時間"
+lore6 = "チャージごとのブロック数"
+lore7 = "チャージごとの蓄えた時間"
+restored = "{count}個のブロックを復元しました"
+restore_nothing = "ここには復元するものがありません"
+restore_no_time = "蓄えた時間が足りません"
+restore_drops_missing = "落ちたアイテムの一部がありません"
+restore_protected = "ここでは建築できません"
+
+[upgrade.chronos.frozen_moment]
+name = "凍てつく瞬間"
+description = "投げられる停滞領域。領域内での攻撃は対象をその場に縛りつける。"
+lore1 = "領域の半径"
+lore2 = "領域の持続時間"
+lore3 = "束縛の持続時間"
+
+[upgrade.pickaxe.motherlode]
+name = "大鉱脈"
+description = "鉱脈全体が一度に精錬済みで掘れてボーナスの鉱石も得られ、スポナーはモブごとドロップする。"
+lore1 = "鉱脈の半径"
+lore2 = "鉱脈あたりの最大ブロック数"
+lore3 = "鉱脈あたりのボーナス鉱石"
+lore4 = "回収したスポナーごとの耐久値"
+spawner_mob = "モブ: {mob}"
+spawner_worn = "ツルハシの耐久値が{durability}必要"
+
+[upgrade.pickaxe.earthshaker]
+name = "大地揺るがし"
+description = "石、深層岩、黒曜石を石と同じ速さで3×3の面ごと掘り進み、探鉱者の爆薬で鉱石を爆破する。"
+lore1 = "掘削面"
+lore2 = "深層岩と黒曜石での石の速度の割合"
+lore3 = "掘ったブロックごとの耐久値消費"
+lore4 = "爆薬の半径"
+
+[upgrade.pickaxe.eternal_pick]
+name = "永遠のツルハシ"
+description = "ツルハシが壊れなくなり、掘るたびに修復され、採掘で体が硬くなる。"
+lore1 = "ブロックごとの修復確率"
+lore2 = "修復ごとの耐久値"
+lore3 = "耐性の最大ティア"
+
+[tool.pickaxe.prospectors_charge]
+name = "探鉱者の爆薬"
+stone_drop = "石: ドロップ"
+stone_discard = "石: 破棄"
+busy = "爆薬はすでに設置済み"
+no_pickaxe = "ホットバーにツルハシがない"
+stone_only = "石のみ"
+opened = "{blocks}ブロックを開いた"
+worn = "ツルハシが摩耗した"
+protected = "保護された地面で停止"
+
+[upgrade.excavation.landshaper]
+name = "地形造り"
+description = "柔らかい地面を平面や縦穴の形に掘り、土の列を叩きつけ、整地杭で地面を平らにする。"
+lore1 = "掘るたびに周囲で削るブロック数"
+lore2 = "スニーク中の縦穴の深さ"
+lore3 = "掘削中の採掘速度上昇"
+lore4 = "整地範囲"
+lore5 = "最大の高さ変更"
+lore6 = "叩きつけのダメージ"
+lore7 = "叩きつけのクールダウン"
+
+[upgrade.excavation.deep_sight]
+name = "深淵の視界"
+description = "掘っている間は地面越しに鉱石が見える。グロウベリーは不要。"
+lore1 = "探知半径"
+lore2 = "探知ごとに表示する鉱石数"
+lore3 = "クールダウン"
+
+[upgrade.excavation.gravekeeper]
+name = "墓守"
+description = "掘ると財宝、骨、ボーナスドロップが見つかる。"
+lore1 = "財宝の確率"
+lore2 = "骨の戦利品の確率"
+lore3 = "ボーナスドロップの確率"
+
+[tool.excavation.grading_stakes]
+name = "整地杭"
+stake = "杭: {x}, {y}, {z}"
+pulled = "杭を抜いた"
+too_wide = "最大{size}×{size}"
+busy = "すでに整地中"
+no_shovel = "ホットバーにシャベルがない"
+done = "{dug}個掘削、{filled}個埋め立て"
+no_fill = "土、砂、砂利がない"
+worn = "シャベルが摩耗した"
+protected = "保護された地面で停止"
+
+[upgrade.herbalism.wildgrowth]
+name = "野生の繁茂"
+description = "広い成長のオーラが空いた耕地に種も植える。"
+lore1 = "成長の半径"
+lore2 = "1回ごとに植える種の数"
+lore3 = "段階ごとの食料消費"
+
+[upgrade.herbalism.harvest_moon]
+name = "収穫の月"
+description = "右クリック一回で畑全体を収穫して植え直し、近くにいる間はかかしが作物の世話をする。"
+lore1 = "畑の半径"
+lore2 = "作物ごとの収穫量ボーナス確率"
+lore3 = "クールダウン"
+lore4 = "かかし"
+lore5 = "かかしの範囲"
+
+[upgrade.herbalism.iron_stomach]
+name = "鉄の胃袋"
+description = "空腹があらゆる種類のダメージの50〜80%を先に吸収し、食べ物の回復量が2倍になる。"
+lore1 = "満腹度が肩代わりするダメージ"
+lore2 = "食事の追加回復量"
+
+[tool.herbalism.scarecrow]
+name = "かかし"
+harvests = "残り収穫回数"
+placed = "かかし"
+
+[upgrade.architect.master_builder]
+name = "名工"
+description = "杖で広い面を設置し、持ち歩く容器から資材を補充し、チョークのガイドをブロックで埋める。"
+lore1 = "ビルダーワンドの面"
+lore2 = "チョーク充填1回のブロック数"
+lore3 = "チョーク円の半径"
+lore4 = "チョーク壁の高さ"
+lore5 = "円盤の塗りつぶし"
+overcharge = "充填1回のブロック数"
+shape = "チョーク充填の形"
+shape_outline = "輪郭"
+shape_disc = "円盤"
+shape_wall = "壁"
+built = "{placed} 個設置"
+stopped_protected = "{placed} 個設置、保護されたブロックで停止"
+stopped_items = "{placed} 個設置、ブロック切れ"
+stopped_limit = "{placed} 個設置、ブロック上限に到達"
+stopped_tool = "{placed} 個設置、道具が壊れかけ"
+stopped = "{placed} 個設置、停止"
+busy = "建築がすでに進行中"
+wait = "次の充填まで {time}"
+nothing = "充填できる場所がない"
+
+[upgrade.architect.skyhook]
+name = "スカイフック"
+description = "ノックバックも落下もない仮の足場を作り、石工の型板で建築をコピーしてスタンプする。"
+lore1 = "型板の一辺の大きさ"
+lore2 = "スタンプ1回のブロック数"
+lore3 = "チョークのガイドに沿ったスタンプ数"
+lore4 = "反転スタンプ"
+overcharge = "ガイド沿いのスタンプ数"
+gap = "繰り返しスタンプの間隔"
+gap_none = "なし"
+gap_one = "1ブロック"
+gap_two = "2ブロック"
+gap_four = "4ブロック"
+
+[upgrade.architect.wrecking_hand]
+name = "解体の手"
+description = "自分の設置物を消し、最近の建築を取り消し、建築全体のブロックを置き換える。"
+lore2 = "取り消せる時間"
+lore3 = "取り消せる建築数"
+lore4 = "置き換え1回のブロック数"
+overcharge = "置き換え1回のブロック数"
+undone = "{count} 個返却"
+nothing_to_undo = "取り消すものがない"
+nothing_to_replace = "置き換えるものがない"
+
+[tool.architect.masons_template]
+name = "石工の型板"
+usage_copy = "向かい合う2つの角をクリックしてコピー"
+usage_stamp = "右クリックでプレビュー、もう一度で建築"
+usage_turn = "左クリックで回転、スニークして左クリックで反転"
+usage_repeat = "スニークしてブロックを右クリックでチョークのガイドに沿って繰り返す"
+usage_undo = "スニークして空中を右クリックで取り消し"
+usage_mode = "持ち替えでスタンプと置き換えを切り替え"
+usage_wipe = "単体でクラフトすると消去"
+pattern = "{width} x {height} x {depth}、{count} ブロック"
+mode_stamp = "スタンプ"
+mode_replace = "置き換えブラシ"
+corner = "最初の角を設定"
+copied = "{count} ブロックをコピー"
+too_large = "一辺は最大 {size} ブロック"
+empty = "コピーできるものがない"
+turned = "{degrees} 度回転"
+mirrored = "反転"
+unmirrored = "反転なし"
+mirror_locked = "反転にはレベル {level} が必要"
+ready = "{count} ブロック、もう一度右クリックで建築"
+short = "不足: {items}"
+no_guide = "先にチョークのガイドを引く"
+replace_locked = "置き換えには {upgrade} が必要"
+
+[upgrade.crafting.grand_artisan]
+name = "大職人"
+description = "クラフトした装備のボーナスが良くなり、エンチャントを統合し、材料を1つ返し、鍛冶台で鍛え直せる。"
+lore2 = "傑作の抽選強化"
+lore3 = "打ち直しの選択肢"
+lore4 = "打ち直しのレベル消費"
+lore5 = "打ち直しの固定"
+lock = "打ち直しの固定"
+lock_none = "なし"
+lock_durability = "耐久値"
+lock_edge = "傑作の冴え"
+levels = "{levels} レベル"
+
+[upgrade.crafting.unmaker]
+name = "解体者"
+description = "何でも部品に分解し、鉱石を再構築し、どこでもスタックを圧縮する。"
+lore2 = "圧縮のクールダウン"
+
+[upgrade.crafting.field_workshop]
+name = "野外工房"
+description = "職人の台帳から記録したレシピをクラフトし、作業台類を開き、スタック単位でまとめてクラフトする。"
+lore2 = "作業台ページごとの空腹"
+lore3 = "台帳のページ数"
+lore4 = "台帳の連鎖の深さ"
+
+[tool.crafting.runed_book]
+name = "ルーンの本"
+
+[tool.crafting.artisans_ledger]
+name = "職人の台帳"
+filled = "{pages} ページ記入済み"
+empty = "空のページ"
+missing = "不足: {items}"
+unknown = "作れるレシピがありません"
+
+[upgrade.enchanting.arcane_hand]
+name = "秘術の手"
+description = "金床なしでエンチャントを手で移し、分け、付与し、砥石で1つを本へ抜き出せる。"
+lore1 = "エンチャント強度の上限"
+lore2 = "移動ごとのレベル"
+lore3 = "分割ごとのレベル"
+lore4 = "砥石の本の確率"
+lore5 = "砥石の本ごとのレベル"
+library_needs = "本1冊と{levels}レベルが必要"
+
+[upgrade.enchanting.fate_weaver]
+name = "運命を織る者"
+description = "すべての候補が見え、より高い本棚の強さで再抽選できる。"
+lore1 = "仮想本棚の強さ"
+lore2 = "再抽選ごとのラピスラズリ"
+lore3 = "再抽選のクールダウン"
+
+[upgrade.enchanting.soulforged]
+name = "魂鍛え"
+description = "絆を結んだ装備は死んでも失われず、XPを得るほど成長し、呪いが外れ、最大値を超えて昇華する。"
+lore1 = "XP保存コスト"
+lore2 = "XPチャージ速度"
+lore3 = "再リンクのクールダウン"
+lore4 = "アイテムごとの昇華数"
+lore5 = "昇華ごとのレベル"
+ascended = "昇華"
+ascend_levels = "{levels}レベルが必要"
+
+[upgrade.brewing.master_distiller]
+name = "醸造の達人"
+description = "ポーションの醸造が速くなって効果が2倍長く続き、服用に使うポーションを錬金術師の弾帯に入れて持ち歩ける。"
+lore1 = "醸造の高速化"
+lore2 = "接する溶岩ブロックごとの醸造の高速化"
+lore3 = "醸造したポーションの持続時間"
+lore4 = "弾帯のスロット"
+
+[upgrade.brewing.witchs_shelf]
+name = "魔女の棚"
+description = "敵対的な醸造6種を一度に解放し、スプラッシュ範囲が広がり、敵対的なスプラッシュを混合できる。"
+lore1 = "解放される敵対的な醸造"
+lore2 = "敵対的スプラッシュの半径"
+lore3 = "混合スプラッシュ1本あたりの効果数"
+lore4 = "混合効果の持続時間"
+mix_name = "混合の呪い"
+
+[upgrade.brewing.apothecary]
+name = "薬剤師"
+description = "防御的な醸造4種と採掘速度上昇を一度に解放し、エリクサーと混合ポーションも作れる。"
+lore1 = "解放される防御的な醸造"
+lore2 = "エリクサーの持続時間"
+elixir_name = "薬剤師のエリクサー"
+lore3 = "混合ポーション1本あたりの効果数"
+lore4 = "混合効果の持続時間"
+mix_name = "混合トニック"
+
+[tool.brewing.bandolier]
+name = "錬金術師の弾帯"
+stored = "ポーション: {count}"
+active = "使用中: {potion} ({slot}/{count})"
+empty = "ポーションが入っていません"
+full = "弾帯がいっぱいです"
+nothing = "入れるポーションがありません"
+unreadable = "弾帯のポーションを読み取れません"
+unstorable = "このポーションは入れられません"
+
+[upgrade.discovery.omniscience]
+name = "全知"
+description = "生き物の情報、近くのチェスト、スポナー、構造物を一つの表示にまとめ、探検家の地図帳に発見を記録する。"
+lore1 = "表示範囲"
+lore2 = "構造物の範囲"
+chests = "チェスト {count}"
+spawners = "スポナー {count}"
+lore3 = "ピン"
+lore4 = "ウェイポイント"
+lore5 = "未発見構造物の探索半径"
+
+[upgrade.discovery.unity_prime]
+name = "究極のユニティ"
+description = "バニラXPが最も低いスキルに流れ、レベルを上げたスキルごとにすべての獲得量が増え、ワールドアーマーと強化修繕が働く。"
+lore1 = "バニラのオーブごとのXP"
+lore2 = "XPを受け取る低いスキルの数"
+lore3 = "レベルを上げたスキルごとのXP獲得量"
+lore4 = "ワールドアーマーのレベル"
+lore5 = "強化修繕のレベル"
+
+[upgrade.discovery.explorers_luck]
+name = "探検家の幸運"
+description = "初訪問、初討伐、遺物の報酬が増え、永続ボーナスとして蓄積される。"
+lore1 = "発見の報酬"
+lore2 = "発見ごとに蓄積される報酬"
+lore3 = "種族ごとに蓄積されるダメージ"
+
+[tool.discovery.explorers_atlas]
+name = "探検家の地図帳"
+biomes = "バイオーム {count}"
+structures = "構造物 {count}"
+pins = "ピン {count}/{max}"
+waypoints = "ウェイポイント {count}/{max}"
+empty = "まだ何も見つかっていません"
+looted = "略奪済み"
+not_looted = "未略奪"
+pinned = "ピン留め中"
+pin = "ピン留め"
+unpin = "ピンを外す"
+delete = "削除"
+elsewhere = "{world} にあります"
+lead = "探索の発見"
+search = "探索: {structure}"
+search_action = "探索"
+next_type = "次の種類"
+search_cost = "紙 {paper} 枚と空腹度 {hunger} を消費"
+search_cooldown = "{time} 後に使用可能"
+searching = "{structure} を探索中"
+search_found = "{structure} を発見: {direction}、{distance} ブロック"
+search_none = "{range} ブロック以内に未発見の {structure} はありません"
+new_waypoint = "新しいウェイポイント"
+name_prompt = "今いる場所のウェイポイント名を入力してください。"
+waypoint_added = "ウェイポイント {name} を設定しました"
+waypoints_full = "ウェイポイントが上限です ({max})"
+pins_full = "ピンが上限です ({max})"
+make_waystone = "ウェイストーンにする"
+remove_waystone = "ウェイストーンを削除"
+
+[upgrade.taming.alpha]
+name = "アルファ"
+description = "ペットが強く頑丈になって再生し、近くにいるほど効果が高まり、絆を結んだ乗り物は乗るほど成長する。"
+lore1 = "ペットのダメージボーナス"
+lore2 = "ペットの最大体力ボーナス"
+lore3 = "オーラの半径"
+lore4 = "絆を結んだ乗り物の成長上限"
+lore5 = "絆を結んだ乗り物の呼び出し範囲"
+
+[upgrade.taming.one_mind]
+name = "一心同体"
+description = "笛でペットを送り出し、呼び戻し、回収させ、名前付きペットは護衛の役割を担う。"
+lore1 = "マーク距離"
+lore2 = "呼び戻しの半径"
+lore3 = "呼び戻しのクールダウン"
+lore4 = "名前付きペットの役割"
+
+[upgrade.taming.blood_bond]
+name = "血の絆"
+description = "自分とペットがダメージを分け合い、ペットが射撃をかばい、死にかけたペットは体力1で手元に戻る。"
+lore1 = "ペットと分け合うダメージ"
+lore2 = "射撃をかばう確率"
+lore3 = "ペットごとの救出クールダウン"
+
+[tool.taming.whistle]
+name = "獣使いの笛"
+lore1 = "右クリック: ペットを送る"
+lore2 = "スニーク + 右クリック: 呼び戻す"
+lore3 = "左クリック: メニュー"
+fetch_on = "回収: オン"
+fetch_off = "回収: オフ"
+bond = "この乗り物と絆を結ぶ"
+bonded = "絆を結んだ乗り物"
+role = "役割: {role}"
+role_none = "なし"
+role_guard_owner = "あなたを守る"
+role_guard_spot = "この場所を守る"
+role_fetch = "回収"
+cannot_build = "ここには建築できない"
+
+[upgrade.golemancy.grand_overseer]
+name = "大監督者"
+description = "離れた場所からゴーレムに命令し、修繕し、収納する。"
+lore2 = "信号、修繕、収納の届く距離"
+
+[upgrade.golemancy.forgemaster]
+name = "鍛冶の匠"
+description = "ゴーレムを結びつけ、ノードを織り、すべてのコアを最大の力で稼働させる。フレームはレベルが上がり、レベル3で最大に達する。"
+
+[upgrade.golemancy.runeforged]
+name = "ルーン鍛え"
+description = "ルーンスロットが1つ増え、ルーンが強化され、どのゴーレムにもツインコアを入れられる。"
+lore2 = "全ゴーレムの追加ルーンスロット"
+lore3 = "ティア3ルーンへのボーナス（1ティア上として機能）"
+lore4 = "ツインコアのゴーレム"
+lore5 = "2つ目のコアの作業速度"
+lore6 = "傑作の追加ルーンスロット"
+all = "すべて"
+heart_needed = "このツインコアにはインベントリに傑作の心臓が必要"
+
+[upgrade.seaborne.leviathan]
+name = "リヴァイアサン"
+description = "水中で呼吸し、速く泳ぎ、潮の守りをまとい、濡れている間は再生して空腹にならず、潮の祠を建てられる。"
+lore1 = "水中で節約する空気"
+lore2 = "泳ぎの効率"
+lore4 = "濡れている間の再生ティア"
+lore5 = "潮の祠の半径"
+lore6 = "潮の祠"
+
+[upgrade.seaborne.maelstrom]
+name = "大渦"
+description = "サージとジェットがチャージを共有し、トライデントの威力が上がってすぐに戻り、嵐が一撃に応える。"
+lore1 = "サージとジェットの共有チャージ"
+lore2 = "トライデントの追加ダメージ"
+lore3 = "トライデントの帰還速度"
+
+[upgrade.seaborne.deep_fortune]
+name = "深海の幸運"
+description = "釣果が良くなり、海の生き物が味方し、沈んだチェストが光り、難破船や遺跡を引き揚げられる。"
+lore1 = "釣果ボーナスの確率"
+lore2 = "幸運"
+lore3 = "コンテナが光る半径"
+lore4 = "引き揚げの幸運"
+
+[tool.seaborne.tide_shrine]
+name = "潮の祠"
+lore1 = "設置にオウムガイの殻1個"
+full = "潮の祠はすべて設置済み"
+water = "開けた水中が必要"
+shell = "オウムガイの殻が必要"
+protected = "ここには建築できません"
+
+[upgrade.nether.hellwalker]
+name = "地獄歩き"
+description = "ネザーの溶岩の上を踏み進み、どんな溶岩も視界良好で泳ぎ、炎を無視し、落としたアイテムを守る。"
+lore1 = "溶岩歩行の強さ"
+lore2 = "ソウルサンド上の速度ボーナス"
+lore3 = "溶岩歩行ごとの空腹"
+lore4 = "溶岩での泳ぐ速さ（水中速度に対する割合）"
+lore5 = "空腹度1ポイントあたりの溶岩滞在時間"
+lore6 = "落としたアイテムが溶岩に浮く"
+
+[upgrade.nether.wither_king]
+name = "ウィザーの王"
+description = "ウィザーの頭蓋骨を投げ、衰弱をはね除け、ウィザースケルトンからより多く得る。"
+lore1 = "頭蓋骨投げのクールダウン"
+lore2 = "衰弱をはね除ける確率"
+lore3 = "ウィザースケルトンの頭蓋骨の確率"
+
+[upgrade.nether.brimstone]
+name = "硫黄の業火"
+description = "攻撃してきた相手が燃え上がり、炎で満腹度が回復し、爆発がほとんど効かず、ピグリンが物々交換に応じて休戦する。"
+lore1 = "近接攻撃者への炎上"
+lore2 = "炎で回復する満腹度"
+lore3 = "爆発ダメージの軽減"
+lore4 = "物々交換の追加抽選確率"
+
+[upgrade]
+granted_level = "{adaptation} はレベル {level} で働く"
+overcharge = "オーバーチャージ"
+
+[xp_guide]
+title = "XPの獲得"
+mutation_title = "変異"
+adaptations = "このスキルの適応を使い、チャレンジを達成する"
+farmed_mobs = "スポナー、卵、バケツ、繁殖、ポータル由来のモブは対象外"
+placed_blocks = "自分で置いたブロックは対象外"
+
+[xp_guide.mutation]
+one_bar = "両方の親スキルの行動がこの1本のバーを満たす。"
+same_action = "両方の親に支払われる行動は、大きい方の報酬に小さい方の{share}%を加えて支払う。"
+farmed = "養殖由来のものは一切支払われない。"
+
+[xp_guide.agility]
+move = "歩く、走る、泳ぐ、跳ぶ、登る"
+riding = "乗る、飛ぶ、滑空するのは対象外"
+
+[xp_guide.architect]
+place = "ブロックを置く、貴重なものほど多い"
+storage = "収納ブロックとブロックの破壊は対象外"
+throw = "投げたブロックでモブに当てる"
+
+[xp_guide.axes]
+combat = "斧でモブを攻撃する"
+chop = "斧で原木、木、幹、キノコブロックを切る"
+
+[xp_guide.blocking]
+blocked_hit = "盾で攻撃を防ぐ、強い攻撃ほど多い"
+shield_hold = "防御後も盾を構え続ける（サーバーが許可する場合）"
+
+[xp_guide.brewing]
+drink = "醸造したポーションを飲む、強いものほど多い"
+splash = "醸造したスプラッシュポーションを投げる"
+plain = "水、ありきたりな、濃厚な、奇妙なポーションは対象外"
+
+[xp_guide.chronos]
+movement = "動き回る、時計を手かインベントリに持つと多い"
+active = "活動を続ける、夜は多い"
+survival = "生き延びる、前回の死から1時間ごとに多い"
+sleep = "夜を眠って過ごす"
+speed = "移動速度上昇のポーションを飲むか投げる"
+idle = "立ち止まっているとほぼ何も得られない"
+
+[xp_guide.crafting]
+craft = "アイテムをクラフトする、貴重な成果物ほど多い"
+smelt = "精錬中のかまどの近くにいる"
+convert = "塊、インゴット、ブロックの相互変換は対象外"
+
+[xp_guide.discovery]
+new = "新しいブロック、アイテム、モブ、バイオーム、食べ物、レシピ、エンチャントを見つける"
+chunk = "未踏のチャンクを探索する"
+loot = "戦利品チェストを開ける"
+advancement = "進捗を達成する"
+world = "新しいワールドやディメンションを訪れる"
+orbs = "通常の経験値を得る"
+once = "各発見は1回だけ支払われる"
+
+[xp_guide.enchanting]
+enchant = "エンチャントテーブルでエンチャントする、高レベルほど多い"
+
+[xp_guide.excavation]
+combat = "シャベルでモブを攻撃する"
+dig = "シャベルで掘る、硬いブロックほど多い"
+throw = "放り投げたブロックでモブに当てる"
+
+[xp_guide.golemancy]
+build = "ゴーレムを作り、結び付ける"
+craft = "杖、コア、ノード、ルーンをクラフトし、台座で注入する"
+fight = "近くで自分のゴーレムが戦い、攻撃を受ける"
+work = "近くで自分のゴーレムが働く"
+care = "自分のゴーレムを修理、錆落とし、蝋引きする"
+witness = "未結合のゴーレムが敵対モブを倒すのを見届ける"
+
+[xp_guide.herbalism]
+harvest = "作物を収穫する、熟しているほど多い"
+eat = "食べ物を食べる"
+shear = "動物の毛を刈る"
+compost = "コンポスターに入れる、取り出す"
+bonemeal = "骨粉を使った作物は半分、同じ場所は数分間少なくなる"
+
+[xp_guide.hunter]
+kill = "モブを倒す、強いモブとクリーパーほど多い"
+farmed = "スポナー、卵、バケツ、繁殖、ポータル由来のモブは大幅に少ない"
+
+[xp_guide.kinetics]
+mace = "メイスで叩きつける、攻撃する"
+spear = "槍の突進、突き、騎乗突進"
+knockback = "モブをノックバックする、ノックバックされる"
+fall = "落下、落下の緩和、跳ね返り、打ち上げ"
+levitation = "浮遊する、または他者を浮遊させる"
+anvil = "モブに金床を落とす、金床と砥石を使う"
+
+[xp_guide.nether]
+ore = "ネザークォーツ、ネザー金、古代の残骸を採掘する"
+kill = "ネザーのモブ、ウィザースケルトン、ウィザーを倒す"
+wither = "ウィザーを攻撃し、衰弱のダメージを受ける"
+rose = "ウィザーローズを壊す"
+
+[xp_guide.pickaxe]
+combat = "ツルハシでモブを攻撃する"
+mine = "ツルハシで採掘する、鉱石と深層岩の鉱石が最も多い"
+silk = "シルクタッチは少しだけ"
+
+[xp_guide.ranged]
+shoot = "矢を射る"
+hit = "矢を当てる、遠いほど多い"
+kill = "弓かクロスボウを持ってモブを倒す"
+
+[xp_guide.rift]
+portal = "ポータルを通って移動する"
+teleport = "コーラスフルーツ、エンダーパールなどでテレポートする"
+throw = "エンダーパールとエンダーアイを投げる"
+ender = "エンダーマン、エンダーマイト、エンダードラゴンを傷つける"
+kill = "エンドクリスタルを壊し、シュルカーとエンダーマイトを倒す"
+
+[xp_guide.seaborne]
+swim = "泳ぐ、水中呼吸があると多い"
+fish = "釣りをする、お宝が最も多い"
+underwater = "水中でブロックを壊す"
+kill = "海の生き物を倒す"
+hit = "ドラウンドを攻撃する、トライデントで攻撃する"
+
+[xp_guide.stealth]
+opener = "気付いていないモブを攻撃する、スニークで背後からだと多い"
+combat = "スニーク中に攻撃する"
+kill = "スニーク中に倒す"
+sneak = "スニーク中に移動する"
+
+[xp_guide.swords]
+combat = "剣でモブを攻撃する"
+kill = "剣でモブを倒す"
+
+[xp_guide.taming]
+tame = "動物を手なずける"
+breed = "動物を繁殖させる、1組につき数分に1回"
+pet_combat = "自分のペットがモブを攻撃する"
+pet_kill = "自分のペットがモブを倒す"
+
+[xp_guide.tragoul]
+damage = "モブやプレイヤーからダメージを受ける"
+low_health = "体力が少ない時に攻撃を耐える"
+
+[xp_guide.unarmed]
+combat = "素手かツール以外の物で攻撃する"
+kill = "その方法でモブを倒す"
+
+[gui.seats]
+not_started = "未開始"
+
+[gui.knowledge]
+title = "知識"
+earned = "獲得: {value}"
+spent = "使用済み: {value}"
+unspent = "未使用: {value}"
+skill = "{skill}: {spent} 使用済み、{available} 未使用"
+
+[advancement.challenge_excavation_clod_hurler_500]
+title = "泥投げ名人"
+description = "投げたブロックで敵対モブに500回命中させる"
+
+[advancement.challenge_architect_brickbat_500]
+title = "レンガの喧嘩屋"
+description = "投げたブロックで生き物に500回命中させる"
+
+[architectbrickbat.preferences]
+air-throws = "狙った対象に投げる"
+
+[architect.brickbat]
+name = "レンガ投げ"
+description = "ブロックを手に持って生き物を殴るか、届く範囲の生き物に向けて振ると、ブロックを1つ投げつけます。重いブロックほど強く当たり、ブロックは着地した場所に落ちます。"
+lore1 = "重さあたりのダメージ"
+lore2 = "投てき距離"
+lore3 = "石を投げるクールダウン"
+lore = ["重さあたりのダメージ", "投てき距離", "石を投げるクールダウン"]
+
+[excavation.preferences.excavationclodhurler]
+trigger = "投げる条件"
+
+[excavation.clod_hurler]
+name = "土くれ投げ"
+description = "敵対モブが見えている間にシャベルで柔らかい地面を掘ると、掘ったブロックを一番近い敵に投げつけます。ドロップは飛んで戻ってきます。"
+lore1 = "ダメージ倍率"
+lore2 = "投てき距離"
+lore3 = "投てきクールダウン"
+lore = ["ダメージ倍率", "投てき距離", "投てきクールダウン"]

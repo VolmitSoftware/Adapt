@@ -1,0 +1,26 @@
+{
+  "skill": "ranged",
+  "upgrades": [
+    {
+      "name": "upgraded-ranged-stormshot",
+      "class": "Stormshot",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Stormshot.java",
+      "fuses": ["ranged-force", "ranged-heavy-draw", "ranged-piercing"],
+      "triggers": ["ProjectileLaunchEvent", "EntityDamageByEntityEvent", "EntityShootBowEvent"]
+    },
+    {
+      "name": "upgraded-ranged-hunters-web",
+      "class": "HuntersWeb",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/HuntersWeb.java",
+      "fuses": ["ranged-webshot", "ranged-pinning-shot", "ranged-floaters"],
+      "triggers": ["EntityShootBowEvent", "EntityDamageByEntityEvent", "ChunkEvent", "BlockPistonEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockBreakEvent"]
+    },
+    {
+      "name": "upgraded-ranged-trueflight",
+      "class": "Trueflight",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Trueflight.java",
+      "fuses": ["ranged-heartseeker", "ranged-ricochet-bolt", "ranged-trajectory-sight"],
+      "triggers": ["PlayerInteractEvent", "EntityShootBowEvent", "EntityDamageByEntityEvent", "EntityRemoveEvent", "PlayerQuitEvent"]
+    }
+  ]
+}

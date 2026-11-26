@@ -274,6 +274,7 @@ public final class ViewerGlowCoordinator {
 
   public enum Layer {
     GOLEMANCY(50),
+    HUNTER(75),
     STEALTH_SIGHT(100),
     TRAGOUL_DEATH_SENSE(200),
     RANGED_TRAJECTORY_SIGHT(300),

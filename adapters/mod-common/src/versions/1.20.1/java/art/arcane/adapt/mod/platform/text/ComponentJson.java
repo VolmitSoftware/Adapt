@@ -8,14 +8,7 @@ public final class ComponentJson {
     }
 
     public static String json(Component component) {
-        if (component == null) {
-            return null;
-        }
-        try {
-            return Component.Serializer.toJson(component);
-        } catch (RuntimeException unwritable) {
-            return null;
-        }
+        return component == null ? null : Component.Serializer.toJson(component);
     }
 
     /** Parsed component, or null for null, blank or unreadable JSON. */
@@ -24,9 +17,23 @@ public final class ComponentJson {
             return null;
         }
         try {
-            return Component.Serializer.fromJson(json);
-        } catch (RuntimeException unreadable) {
+            return line(json);
+        } catch (IllegalArgumentException unreadable) {
             return null;
         }
+    }
+
+    /** Parsed component; throws {@link IllegalArgumentException} naming the JSON when it is not a text component. */
+    public static Component line(String json) {
+        Component parsed;
+        try {
+            parsed = Component.Serializer.fromJson(json);
+        } catch (RuntimeException unreadable) {
+            throw new IllegalArgumentException("Not a text component: " + json, unreadable);
+        }
+        if (parsed == null) {
+            throw new IllegalArgumentException("Not a text component: " + json);
+        }
+        return parsed;
     }
 }

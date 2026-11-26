@@ -1,0 +1,26 @@
+{
+  "skill": "axes",
+  "upgrades": [
+    {
+      "name": "upgraded-axes-timberfall",
+      "class": "Timberfall",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Timberfall.java",
+      "fuses": ["axe-chop", "axe-wood-veinminer", "axe-leaf-veinminer"],
+      "triggers": ["BlockBreakEvent", "BlockDropItemEvent"]
+    },
+    {
+      "name": "upgraded-axes-sundering-cleave",
+      "class": "SunderingCleave",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/SunderingCleave.java",
+      "fuses": ["axe-sunder", "axe-cleave"],
+      "triggers": ["EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-axes-worldsplitter",
+      "class": "Worldsplitter",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Worldsplitter.java",
+      "fuses": ["axe-ground-smash", "axe-throwing-axe"],
+      "triggers": ["PlayerInteractEvent", "BlockBreakEvent", "ProjectileHitEvent", "EntityRemoveEvent", "EntityDamageByEntityEvent", "EntityDeathEvent", "PlayerJoinEvent", "PlayerQuitEvent"]
+    }
+  ]
+}

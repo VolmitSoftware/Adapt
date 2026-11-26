@@ -1,0 +1,26 @@
+{
+  "skill": "tragoul",
+  "upgrades": [
+    {
+      "name": "upgraded-tragoul-crimson-tide",
+      "class": "CrimsonTide",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/CrimsonTide.java",
+      "fuses": ["tragoul-soul-siphon", "tragoul-healing", "tragoul-thorns"],
+      "triggers": ["EntityDamageEvent", "EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-tragoul-plague-nova",
+      "class": "PlagueNova",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/PlagueNova.java",
+      "fuses": ["tragoul-corpse-explosion", "tragoul-plague-bearer", "tragoul-lance"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityDeathEvent", "PlayerQuitEvent", "PlayerDeathEvent"]
+    },
+    {
+      "name": "upgraded-tragoul-deathless",
+      "class": "Deathless",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/Deathless.java",
+      "fuses": ["tragoul-marrow-armor", "tragoul-last-rites"],
+      "triggers": ["EntityDamageEvent", "PlayerInteractEvent"]
+    }
+  ]
+}

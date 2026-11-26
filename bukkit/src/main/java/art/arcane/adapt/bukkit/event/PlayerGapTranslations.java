@@ -1,10 +1,12 @@
 package art.arcane.adapt.bukkit.event;
 
+import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.player.EntityExhaustionEvent;
 import art.arcane.adapt.platform.event.player.PlayerAnimationEvent;
 import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
+import art.arcane.adapt.platform.event.player.PlayerBucketEmptyEvent;
 import art.arcane.adapt.platform.event.player.PlayerChatEvent;
 import art.arcane.adapt.platform.event.player.PlayerInventorySlotChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemBreakEvent;
@@ -33,7 +35,7 @@ final class PlayerGapTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(CHAT, PRE_LOGIN, PRE_ATTACK, ANIMATION, BED_ENTER, SHEAR, VELOCITY, ITEM_BREAK, STOP_USING,
+    return List.of(CHAT, PRE_LOGIN, PRE_ATTACK, ANIMATION, BED_ENTER, BUCKET_EMPTY, SHEAR, VELOCITY, ITEM_BREAK, STOP_USING,
         SLOT_CHANGE, RECIPE_BOOK, TRADE, EXHAUSTION);
   }
 
@@ -77,6 +79,16 @@ final class PlayerGapTranslations {
         boolean cancelled = event.isCancelled();
         PlayerBedEnterEvent core = new PlayerBedEnterEvent(player(event.getPlayer()), block(event.getBed()),
             GapEventMaps.bedResult(event.getBedEnterResult()));
+        core.setCancelled(cancelled);
+        poster.post(core);
+        cancel(event, cancelled, core);
+      });
+
+  static final Translation<org.bukkit.event.player.PlayerBucketEmptyEvent> BUCKET_EMPTY = BukkitTranslations.simple(
+      org.bukkit.event.player.PlayerBucketEmptyEvent.class, PlayerBucketEmptyEvent.class, (event, poster) -> {
+        boolean cancelled = event.isCancelled();
+        PlayerBucketEmptyEvent core = new PlayerBucketEmptyEvent(player(event.getPlayer()), block(event.getBlock()),
+            BukkitRefs.id(event.getBucket()));
         core.setCancelled(cancelled);
         poster.post(core);
         cancel(event, cancelled, core);

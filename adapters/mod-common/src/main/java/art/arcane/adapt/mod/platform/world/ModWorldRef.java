@@ -187,6 +187,16 @@ public final class ModWorldRef implements WorldRef {
     }
 
     @Override
+    public boolean isThundering() {
+        return level.isThundering();
+    }
+
+    @Override
+    public boolean isRainingAt(int x, int y, int z) {
+        return level.isRainingAt(new net.minecraft.core.BlockPos(x, y, z));
+    }
+
+    @Override
     public List<EntityRef> entities() {
         List<EntityRef> out = new ArrayList<>();
         for (Entity entity : level.getAllEntities()) {

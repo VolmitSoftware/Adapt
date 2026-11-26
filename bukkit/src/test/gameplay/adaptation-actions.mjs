@@ -90,13 +90,6 @@ export const behaviorCases = new Map([
         soundVolume: 0.4, soundPitch: 1.5,
         trigger: underwater,
     }],
-    ['seaborne-turtles-vision', {
-        stage: 'seaborne',
-        effect: 'minecraft:night_vision',
-        sound: 'minecraft:block.conduit.activate', particle: 'glow',
-        soundVolume: 0.35, soundPitch: 1.2,
-        trigger: underwater,
-    }],
     ['kinetics-moon-jump', {
         stage: 'agility',
         attribute: 'minecraft:jump_strength',

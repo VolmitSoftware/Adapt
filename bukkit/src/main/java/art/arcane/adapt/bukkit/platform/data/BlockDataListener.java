@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.platform.data;
 
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -37,7 +38,9 @@ public final class BlockDataListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent event) {
-    BlockDataStore.clear(plugin, event.getBlock());
+    if (!ProtectionEventProbe.isActive(event)) {
+      BlockDataStore.clear(plugin, event.getBlock());
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

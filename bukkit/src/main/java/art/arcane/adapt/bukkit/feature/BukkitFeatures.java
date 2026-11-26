@@ -14,6 +14,7 @@ import art.arcane.adapt.bukkit.feature.fx.BukkitFxHost;
 import art.arcane.adapt.bukkit.feature.menu.BukkitMenuHost;
 import art.arcane.adapt.bukkit.feature.protection.BukkitProtectionHost;
 import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeHost;
+import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
 import art.arcane.adapt.bukkit.feature.viewer.BukkitViewerHost;
 import art.arcane.adapt.bukkit.platform.BukkitHosts;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
@@ -43,7 +44,8 @@ public final class BukkitFeatures {
     PlatformLog log = new BukkitLog();
     BukkitHosts.fx(new BukkitFxHost());
     BukkitHosts.menus(new ClientAwareMenuHost(new BukkitMenuHost(plugin), PanelLink.of(ClientUiService::activeSessions)));
-    BukkitHosts.recipes(new BukkitRecipeHost(plugin.getServer()));
+    BukkitRecipeRegistry.shared().listen(plugin);
+    BukkitHosts.recipes(new BukkitRecipeHost(plugin.getServer(), BukkitRecipeRegistry.shared()));
     BukkitAdvancementHost advancements = BukkitAdvancementHost.create(plugin,
         (Player player, Runnable task, int delayTicks) -> J.runEntity(player, task, delayTicks), log);
     BukkitHosts.advancements(advancements);

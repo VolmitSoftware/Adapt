@@ -1,0 +1,26 @@
+{
+  "skill": "blocking",
+  "upgrades": [
+    {
+      "name": "upgraded-blocking-mirror-guard",
+      "class": "MirrorGuard",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/MirrorGuard.java",
+      "fuses": ["blocking-perfect-guard", "blocking-mirror-block", "blocking-counter-guard"],
+      "triggers": ["PlayerInteractEvent", "EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-blocking-living-wall",
+      "class": "LivingWall",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/LivingWall.java",
+      "fuses": ["blocking-shield-wall", "blocking-interpose", "blocking-bastion-stance"],
+      "triggers": ["PlayerMoveEvent", "PlayerGameModeChangeEvent", "PlayerToggleSneakEvent", "PlayerInteractEvent", "BlockPlaceEvent", "BlockPistonEvent", "BlockBreakEvent", "BlockExplodeEvent", "EntityExplodeEvent", "ChunkEvent", "PlayerJoinEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerRespawnEvent", "EntityDamageEvent"]
+    },
+    {
+      "name": "upgraded-blocking-tempered-aegis",
+      "class": "TemperedAegis",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/TemperedAegis.java",
+      "fuses": ["blocking-tempered-guard", "blocking-shieldbearers-resolve"],
+      "triggers": ["PlayerItemDamageEvent", "EntityDamageByEntityEvent", "PlayerToggleSprintEvent", "PlayerMoveEvent"]
+    }
+  ]
+}

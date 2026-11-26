@@ -65,6 +65,7 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                 'net/minecraft/', 'com/mojang/', 'net/minecraftforge/', 'net/neoforged/', 'net/fabricmc/']
             Set<String> classes = new HashSet<>()
             Pattern clientReference = Pattern.compile('art/arcane/adapt/client/(?!protocol/|view/|link/|server/)')
+            List<String> minecraftGson = ['com/mojang/serialization/JsonOps', 'net/minecraft/util/GsonHelper']
             archive.entries().each { JarEntry entry ->
                 if (!entry.name.endsWith('.class')) {
                     return
@@ -84,6 +85,9 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                         require(dormantBukkitReferences.contains(classPath) || !constants.contains('org/bukkit/'), "Bukkit reference in ${entry.name}")
                         // A dedicated server must never load client code: only client packages may name it. The protocol, view, link and server packages are shared with the server.
                         require(classPath.contains('/client/') || !clientReference.matcher(constants).find(), "${entry.name} references client code")
+                        // Minecraft's JSON codecs work on its own Gson types, and the bundled relocated Gson is a different set of classes.
+                        require(!constants.contains('art/arcane/adapt/shadow/gson/') || !minecraftGson.any { String type -> constants.contains(type) },
+                            "${entry.name} hands relocated Gson to Minecraft")
                     }
                 }
             }

@@ -580,14 +580,6 @@ description = "在床上睡覺 10 次"
 title = "時間跳躍者"
 description = "在床上睡覺 100 次"
 
-[advancement.challenge_chronos_tp_50]
-title = "時空轉移"
-description = "傳送 50 次"
-
-[advancement.challenge_chronos_tp_500]
-title = "時間扭曲"
-description = "傳送 500 次"
-
 [advancement.challenge_craft_value_10k]
 title = "匠心獨運"
 description = "製作總價值 10,000 的物品"
@@ -3335,6 +3327,7 @@ lore = ["隨時可用的攜帶式切石機", "物品欄中需要有切石機", "
 
 [axe.chop]
 name = "斧頭砍伐"
+short_name = "砍伐"
 description = "右鍵點擊原木底部以砍倒整棵樹！"
 lore1 = "每次砍伐方塊數"
 lore2 = "砍伐冷卻時間"
@@ -3349,9 +3342,11 @@ lore = ["8 根任意種類原木 + 1 株樹苗 = 8 根樹苗對應種類的原�
 
 [axe.drop_to_inventory]
 name = "斧頭掉落物自動入包"
+short_name = "掉落物自動入包"
 
 [axe.ground_smash]
 name = "山崩地裂"
+short_name = "山崩地裂"
 description = "跳起後蹲下以猛擊附近所有敵人。"
 lore1 = "傷害"
 lore2 = "方塊半徑"
@@ -3555,6 +3550,9 @@ lore1 = "夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）"
 lore2 = "注意：效果期間無法疾跑！"
 lore = ["夜視藥水 + 黑色混凝土 = 黑暗藥水（30 秒）", "注意：效果期間無法疾跑！"]
 
+[brewing.doses]
+left = "已開封：剩餘 {left}/{total} 份"
+
 [brewing.haste]
 name = "瓶裝挖掘加速"
 strong_name = "瓶裝挖掘加速 2"
@@ -3675,7 +3673,6 @@ surface_air = "空中"
 surface_block = "方塊"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
-
 
 blink_priority = "手動閃現優先於二段跳回溯"
 
@@ -3908,7 +3905,7 @@ lore1 = "只需要把腐肉丟到營火上！"
 lore = ["只需要把腐肉丟到營火上！"]
 
 [crafting.backpacks]
-name = "布蒂利埃的背包！"
+name = "布蒂利埃的背包"
 description = "合成一個能整組存放、並且本身可作為容器開啟的背包。"
 lore1 = "右鍵背包即可開啟它自己的容器"
 lore2 = "LLL：皮革、皮革、皮革"
@@ -3924,7 +3921,7 @@ next_page = "下一頁"
 unreadable = "這個背包由另一版本的伺服器裝填，無法在此開啟。"
 
 [crafting.stations]
-name = "攜帶式工作站！"
+name = "攜帶式工作站"
 description = "手持鐵砧、工作台、砂輪、切石機、製圖台或織布機並點擊空中，即可直接開啟而無需放置。每次開啟都會消耗飢餓值。"
 lore2 = "關閉時遺忘在工作台裡的任何物品都會永遠丟失！"
 lore3 = "有效工作台：鐵砧、工作台、砂輪、製圖台、切石機、織布機"
@@ -3932,7 +3929,7 @@ lore = ["關閉時遺忘在工作台裡的任何物品都會永遠丟失！", "�
 lore4 = "每次開啟攜帶式工作站消耗的飢餓值"
 
 [crafting.skulls]
-name = "可合成頭顱！"
+name = "可合成頭顱"
 description = "用材料可以合成生物頭顱！"
 lore1 = "用以下物品圍繞骨塊以獲得對應頭顱："
 lore2 = "殭屍：腐肉"
@@ -4227,7 +4224,7 @@ lore2 = "x 級挖掘加速（主動挖掘時）"
 lore = ["挖掘時獲得挖掘加速效果", "x 級挖掘加速（主動挖掘時）"]
 
 [excavation.spelunker]
-name = "超級透視洞穴探險家！"
+name = "超級透視洞穴探險家"
 description = "主手持螢光莓即可透過地面看見發光的礦石標示。"
 lore1 = "副手持礦石，主手持螢光莓，然後潛行！"
 lore2 = "方塊範圍："
@@ -4245,6 +4242,7 @@ lore = ["掃描範圍", "探測機率", "探測冷卻時間"]
 
 [excavation.drop_to_inventory]
 name = "鏟子掉落物自動入包"
+short_name = "掉落物自動入包"
 
 [excavation.omni_tool]
 name = "OMNI - T.O.O.L."
@@ -4857,7 +4855,8 @@ recall_cooldown = "{seconds}秒後你可以召回下一個魔像"
 recall_unavailable = "只能召回在你所在世界中已載入的魔像"
 
 [golemancy.masterwork]
-name = "傑作"
+name = "魔像傑作"
+short_name = "傑作"
 description = "在靈魂基座上灌注傑作之心並將其鑲入魔像，以獲得額外的符文槽、更多生命值、第二個核心和更強的符文。"
 lore1 = "傑作魔像數量"
 lore2 = "傑作的額外符文槽"
@@ -4991,18 +4990,21 @@ lore = ["方塊半徑", "生長光環強度", "食物消耗"]
 
 [herbalism.hippo]
 name = "草藥師的河馬"
+short_name = "河馬"
 description = "食用食物時獲得更多飽食度"
 lore1 = "食物）食用時額外獲得的飽食度點數"
 lore = ["食物）食用時額外獲得的飽食度點數"]
 
 [herbalism.myconid]
 name = "草藥師的菌絲體"
+short_name = "菌絲體"
 description = "賦予你合成菌絲土的能力"
 lore1 = "任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲土。"
 lore = ["任意泥土 + 棕色蘑菇 + 紅色蘑菇即可合成菌絲土。"]
 
 [herbalism.terralid]
 name = "草藥師的地衣"
+short_name = "地衣"
 description = "賦予你合成草地的能力"
 lore1 = "3 個種子放在 3 塊泥土上方，即可合成 3 塊草地。"
 lore = ["3 個種子放在 3 塊泥土上方，即可合成 3 塊草地。"]
@@ -5021,6 +5023,7 @@ lore = ["4 個蘑菇合成一個蘑菇塊，或一個蘑菇塊合成蘑菇柄。
 
 [herbalism.drop_to_inventory]
 name = "鋤頭掉落物自動入包"
+short_name = "掉落物自動入包"
 
 [herbalism.hungry_shield]
 name = "飢餓護盾"
@@ -5035,6 +5038,7 @@ lore = ["飢餓抵抗傷害", "抵禦接觸、擠壓與天氣傷害", "抵禦近
 
 [herbalism.luck]
 name = "草藥師的幸運"
+short_name = "幸運"
 description = "破壞草/花時有機率獲得隨機物品"
 lore0 = "花 = 食物，草 = 種子"
 lore1 = "破壞花時獲得物品的機率"
@@ -5104,6 +5108,7 @@ lore = ["飢餓值耗盡時會獲得中毒效果"]
 
 [hunter.drop_to_inventory]
 name = "物品自動入包"
+short_name = "物品自動入包"
 description = "擊殺生物或用劍破壞方塊時，掉落物傳送到你的物品欄"
 lore1 = "生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
 lore = ["生物/方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
@@ -5128,6 +5133,7 @@ lore = ["受擊時獲得被動隱形效果", "x 隱形效果疊加，受擊後�
 
 [hunter.jump_boost]
 name = "獵人之巔"
+short_name = "巔峰"
 description = "受到攻擊時獲得跳躍提升效果，以飢餓為代價"
 lore1 = "受擊時獲得被動跳躍提升效果"
 lore2 = "x 跳躍提升效果疊加，受擊後持續 3 秒"
@@ -5138,6 +5144,7 @@ lore = ["受擊時獲得被動跳躍提升效果", "x 跳躍提升效果疊加�
 
 [hunter.luck]
 name = "獵人的幸運"
+short_name = "幸運"
 description = "受到攻擊時獲得幸運效果，以飢餓為代價"
 lore1 = "受擊時獲得被動幸運效果"
 lore2 = "x 幸運效果疊加，受擊後持續 3 秒"
@@ -5148,6 +5155,7 @@ lore = ["受擊時獲得被動幸運效果", "x 幸運效果疊加，受擊後�
 
 [hunter.regen]
 name = "獵人的回復"
+short_name = "回復"
 description = "受到攻擊時獲得回復效果，以飢餓為代價"
 lore1 = "受擊時獲得被動回復效果"
 lore2 = "x 回復效果疊加，受擊後持續 3 秒"
@@ -5158,6 +5166,7 @@ lore = ["受擊時獲得被動回復效果", "x 回復效果疊加，受擊後�
 
 [hunter.resistance]
 name = "獵人的抗性"
+short_name = "抗性"
 description = "受到攻擊時獲得抗性效果，以飢餓為代價"
 lore1 = "受擊時獲得被動抗性效果"
 lore2 = "x 抗性效果疊加，受擊後持續 3 秒"
@@ -5168,6 +5177,7 @@ lore = ["受擊時獲得被動抗性效果", "x 抗性效果疊加，受擊後�
 
 [hunter.speed]
 name = "獵人的速度"
+short_name = "速度"
 description = "受到攻擊時獲得速度效果，以飢餓為代價"
 lore1 = "受擊時獲得被動速度效果"
 lore2 = "x 速度效果疊加，受擊後持續 3 秒"
@@ -5178,6 +5188,7 @@ lore = ["受擊時獲得被動速度效果", "x 速度效果疊加，受擊後�
 
 [hunter.strength]
 name = "獵人的力量"
+short_name = "力量"
 description = "受到攻擊時獲得力量效果，以飢餓為代價"
 lore1 = "受擊時獲得被動力量效果"
 lore2 = "x 力量效果疊加，受擊後持續 3 秒"
@@ -5248,6 +5259,8 @@ none_eligible = "找不到此玩家的合格技能."
 title = "等級 {level}（已使用能力 {used}/{maximum}）"
 
 [gui.adaptations]
+tools = "工具：{tools}"
+recipes = "配方：{recipes}"
 none_available = "沒有可用的適應項"
 permanent_learn_confirm = "再次點擊以確認永久學習"
 permanent_learn_confirm_now = "現在再次點擊以確認永久學習。"
@@ -5264,6 +5277,7 @@ vault_unavailable_fallback = "Vault 經濟功能無法使用 — 仍可僅使用
 vault_insufficient_funds = "你的 Vault 貨幣不足，無法學習此適應項。"
 vault_transaction_failed = "Vault 經濟交易失敗；你的進度未變更。"
 power_drain = "能力消耗：{power}"
+power_freed = "釋放 {power} 能力"
 requirement_level = "{adaptation} {level} 級"
 requires = "需要：{requirement}"
 requirements_missing = "請先學習 {requirements}，再學習 {adaptation}。"
@@ -5591,12 +5605,14 @@ lore = ["掉落機率", "工具磨損"]
 
 [pickaxe.drop_to_inventory]
 name = "鎬掉落物直入物品欄"
+short_name = "掉落物直入物品欄"
 description = "破壞方塊時掉落物自動傳送到你的物品欄"
 lore1 = "方塊掉落的物品會自動進入你的物品欄（如果有空間）。"
 lore = ["方塊掉落的物品會自動進入你的物品欄（如果有空間）。"]
 
 [pickaxe.silk_spawner]
 name = "鎬絲綢生怪磚"
+short_name = "絲綢生怪磚"
 description = "使生怪磚被破壞時會掉落"
 lore1 = "可用絲綢之觸破壞並取得生怪磚。"
 lore2 = "潛行時可破壞並取得生怪磚。"
@@ -5770,6 +5786,7 @@ unbind = "看向沒有容器的方向，潛行並左鍵點擊空氣以解除綁�
 
 [rift.blink]
 name = "裂痕閃現"
+short_name = "閃現"
 description = "二段跳可向視線方向閃現。可優先選擇距離或較高的落點，並選擇按住潛行時穿牆、沿瞄準方向穿牆或從不穿牆。達到2級後，反應模式會將二段跳替換為受攻擊時的閃避：向視線方向或遠離攻擊者的方向閃現。成功閃現不消耗終界珍珠，但會造成隨等級提升而降低的終界珍珠傷害。可用選項受伺服器規則限制。"
 lore1 = "閃現距離"
 lore2 = "自身傷害（心）"
@@ -5803,6 +5820,7 @@ lore = ["合成：綠寶石 + 紫水晶碎片 + 終界珍珠", "使用前請仔�
 
 [rift.resist]
 name = "裂痕抗性"
+short_name = "抗性"
 description = "使用終界物品或技能時獲得抗性"
 lore1 = "+ 被動：使用裂痕技能或終界物品時獲得抗性"
 lore2 = "不包括攜帶式終界箱，僅限可消耗的物品"
@@ -5890,9 +5908,10 @@ config_hotload_truncated = "&7[&4Adapt&7]: &a已熱重載設定：&f[{file}] &7[
 
 [seaborn.oxygen]
 name = "有機氧氣罐"
-description = "小肺也能容納更多氧氣！"
+description = "在水下保留多得多的氧氣，並從 2 級起在水下看清黑暗。"
 lore1 = "氧氣容量增加"
 lore = ["氧氣容量增加"]
+night_vision = "水下夜視"
 
 [seaborn.fishers_fantasy]
 name = "漁夫奇想"
@@ -5902,15 +5921,10 @@ lore = ["獲得一份釣魚額外獎勵的機率"]
 
 [seaborn.haste]
 name = "海龜礦工"
-description = "在水下無論站立或懸浮都能更快挖掘。"
+description = "在水下無論站立或懸浮都能更快挖掘，並能抵銷守衛者施加的大部分挖掘疲勞。"
 lore1 = "提升水下挖掘速度，可與親水性疊加，並抵銷懸浮時的挖掘懲罰。"
-lore = ["提升水下挖掘速度，可與親水性疊加，並抵銷懸浮時的挖掘懲罰。"]
-
-[seaborn.night_vision]
-name = "海龜視覺"
-description = "在水下時獲得夜視效果。"
-lore1 = "在水下時持續刷新夜視效果。"
-lore = ["在水下時持續刷新夜視效果。"]
+lore2 = "抵銷的挖掘疲勞"
+lore = ["提升水下挖掘速度，可與親水性疊加，並抵銷懸浮時的挖掘懲罰。", "抵銷的挖掘疲勞"]
 
 [seaborn.dolphin_grace]
 name = "海豚恩惠"
@@ -5941,14 +5955,14 @@ trigger_line = "觸發：{trigger}"
 environment_line = "環境：{environment}"
 trigger_context = "{trigger} ({environment})"
 
-[seaborn.pressure_diver]
-name = "深壓潛水員"
-description = "在水下獲得吸收生命和隨深度增強的保護，並部分抵消挖掘疲勞。"
-lore1 = "最低深度要求"
-lore2 = "深度傷害減免"
-lore3 = "減輕挖掘疲勞的機率"
-lore4 = "深度吸收生命"
-lore = ["最低深度要求", "深度傷害減免", "減輕挖掘疲勞的機率", "深度吸收生命"]
+[seaborn.tidal_ward]
+name = "潮汐護盾"
+description = "在水中或雨中時會逐漸累積傷害吸收之心。受到任何攻擊都會暫停護盾累積，身體變乾後不久護盾便會消散。"
+lore1 = "護盾之心"
+lore2 = "每秒護盾增長"
+lore3 = "受擊後暫停時間"
+lore4 = "變乾後保留時間"
+lore = ["護盾之心", "每秒護盾增長", "受擊後暫停時間", "變乾後保留時間"]
 
 [seaborn.coral_gardener]
 name = "珊瑚園丁"
@@ -5999,125 +6013,276 @@ lore1 = "鹽水回復等級"
 lore2 = "潮濕時的傷害減免"
 lore = ["鹽水回復等級", "潮濕時的傷害減免"]
 
+[seaborn.storm_strike]
+name = "風暴之擊"
+description = "當雨落在你身上或你身處水中時，你的近戰與三叉戟命中會召來閃電：對每個目標的第一擊觸發，之後每隔幾擊觸發一次。雷雨中閃電更強、更頻繁。"
+lore1 = "閃電傷害"
+lore2 = "兩次閃電間的命中數"
+lore3 = "雷雨中的閃電傷害"
+lore4 = "雷雨中兩次閃電間的命中數"
+lore = ["閃電傷害", "兩次閃電間的命中數", "雷雨中的閃電傷害", "雷雨中兩次閃電間的命中數"]
+
+[seaborn.rain_fed]
+name = "雨露滋養"
+description = "在水中或雨中時，移動、挖掘和戰鬥都不消耗飢餓值，飽食度與飽和度會緩慢回滿。"
+lore1 = "每分鐘恢復的飽食度與飽和度"
+lore2 = "變乾後保持飽足的時間"
+lore = ["每分鐘恢復的飽食度與飽和度", "變乾後保持飽足的時間"]
+
 [skill.agility]
 name = "敏捷"
 icon = "⇉"
 description = "敏捷是面對障礙時快速且流暢移動的能力。透過疾跑、游泳、跳躍和攀爬來升級。"
+quip = "走路是給閒人準備的"
+unlock_quip_1 = "你的腿學會了新花樣"
+unlock_quip_2 = "重力現在只是個建議"
 
 [skill.architect]
 name = "建築師"
 icon = "⬧"
 description = "結構是世界的基石。現實掌握在你手中，由你掌控。透過放置方塊來升級。"
+quip = "現實如今是建築材料"
+unlock_quip_1 = "量一次，全放下"
+unlock_quip_2 = "藍圖可選，野心必備"
 
 [skill.axes]
 name = "斧技"
 icon = "🪓"
 description = "砍伐木材並用斧頭戰鬥可提升等級。既然可以砍&o別的東西&7，為什麼還要砍樹？結果都一樣！"
+quip = "樹木都聽說過你"
+unlock_quip_1 = "先砍再說，從不多問"
+unlock_quip_2 = "白天是樵夫，夜裡是禍害"
 
 [skill.brewing]
 name = "釀造"
 icon = "❦"
 description = "透過釀造藥水來升級，並解鎖原版從未提供的配方。咕嘟咕嘟，再咕嘟——還是沒辦法把藥水倒進煉藥鍋裡。"
+quip = "泡泡加倍，麻煩加倍"
+unlock_quip_1 = "味道可怕，效果驚人"
+unlock_quip_2 = "搖勻，別問"
 
 [skill.blocking]
 name = "格擋"
 icon = "🛡"
 description = "棍棒和石頭不會折斷你的骨頭，但是盾牌會。透過用盾牌格擋攻擊來升級。"
+quip = "盾牌一直都是武器"
+unlock_quip_1 = "今天不行，尖東西"
+unlock_quip_2 = "再打一下試試"
+
+[skill.blocking.group]
+guard = "防禦"
+counter = "反擊"
+gear = "裝備"
 
 [skill.crafting]
 name = "合成"
 icon = "⌂"
 description = "當沒有東西可以放了，何不再做一個呢？透過合成物品來升級。"
+quip = "能自己做何必去買"
+unlock_quip_1 = "需要稍加組裝"
+unlock_quip_2 = "這次剩下的零件更少了"
 
 [skill.discovery]
 name = "探索"
 icon = "⚛"
 description = "隨著感知力的擴展，你的心智逐漸解開，發現那些你未曾察覺的事物。透過探索和收集經驗值來升級。"
+quip = "世界比你想的更大"
+unlock_quip_1 = "好奇心又有了回報"
+unlock_quip_2 = "你看了沒人看的地方"
+
+[skill.discovery.group]
+exploring = "探索"
+experience = "經驗"
 
 [skill.enchanting]
 name = "附魔"
 icon = "♰"
 description = "讓閃爍的知識臣服於你的意志。透過在附魔台附魔裝備來升級。"
+quip = "細讀條款。它在發光。"
+unlock_quip_1 = "青金石預算剛剛漲了"
+unlock_quip_2 = "更閃亮，還是那把鎬"
+
+[skill.enchanting.group]
+table = "附魔台"
+anvil = "鐵砧與砂輪"
+books = "書"
 
 [skill.excavation]
 name = "挖掘"
 icon = "ᛳ"
 description = "挖呀挖呀挖……透過用鏟子挖掘泥土、沙子、礫石和其他柔軟地面來升級。"
+quip = "挖呀挖呀挖，正式開挖"
+unlock_quip_1 = "泥土完全沒料到"
+unlock_quip_2 = "更深，更快，更髒"
 
 [skill.herbalism]
 name = "草藥學"
 icon = "⚘"
 description = "掌握一切翠綠與生長之物。透過耕作、收割作物和採集植物來升級。"
+quip = "和你的植物說說話。它們在聽。"
+unlock_quip_1 = "你的胡蘿蔔相信你"
+unlock_quip_2 = "長吧，小傢伙們"
+
+[skill.herbalism.group]
+farming = "耕作"
+survival = "生存"
+recipes = "配方"
 
 [skill.hunter]
 name = "狩獵"
 icon = "☠"
 description = "狩獵重在過程，而非結果。透過擊殺生物來升級；它的增益會在你受到攻擊時觸發，代價是飢餓值。"
+quip = "重要的是旅程。還有戰利品。"
+unlock_quip_1 = "外面有些東西該擔心了"
+unlock_quip_2 = "現在帶著額外的怨氣狩獵"
+
+[skill.hunter.group]
+struck = "受擊時"
+hunt = "狩獵"
 
 [skill.nether]
 name = "地獄"
 icon = "₪"
 description = "來自地獄的最深處。透過勇闖地獄並對抗其中的怪物來升級。"
+quip = "帶上防曬乳。多帶點。"
+unlock_quip_1 = "地獄幽靈們會聽說這件事"
+unlock_quip_2 = "挨著岩漿，心情很好"
+
+[skill.nether.group]
+fire = "火焰"
+wither = "凋零怪"
+exploring = "探索"
 
 [skill.pickaxe]
 name = "鎬技"
 icon = "⛏"
 description = "矮人才是礦工，但我這些年來也學到了一些東西。透過用鎬挖掘石頭和礦石來升級。"
+quip = "矮人會驕傲的。大概。"
+unlock_quip_1 = "岩與石，深入骨髓"
+unlock_quip_2 = "幸好你一直在挖"
 
 [skill.ranged]
 name = "箭術"
 icon = "🏹"
 description = "距離是勝利的關鍵，也是生存的關鍵。透過以投射物命中目標來升級。"
+quip = "距離是一種愛的語言"
+unlock_quip_1 = "瞄得準，偏得少"
+unlock_quip_2 = "夠近就是夠遠"
 
 [skill.rift]
 name = "裂痕"
 icon = "❍"
 description = "駕馭裂痕的灼熱能量。透過傳送和使用終界物品來升級。"
+quip = "現實有幾處縫線鬆了"
+unlock_quip_1 = "這裡，那裡，還有別處"
+unlock_quip_2 = "終界使者想和你談談"
 
 [skill.seaborne]
 name = "航海"
 icon = "🎣"
 description = "擁有此技能，你將能駕馭水中的奇蹟。透過游泳和釣魚來升級。"
+quip = "咕嚕咕嚕，歡迎登船"
+unlock_quip_1 = "魚兒們都羨慕了"
+unlock_quip_2 = "晴天雨天，最好雨天"
+
+[skill.seaborne.group]
+swimming = "游泳"
+combat = "戰鬥"
+harvest = "海洋收穫"
 
 [skill.stealth]
 name = "隱匿"
 icon = "☯"
 description = "隱於無形的藝術。行走於陰影之中。透過潛行和在隱藏時發動攻擊來升級。"
+quip = "你從未來過這裡"
+unlock_quip_1 = "噓。你什麼都沒看見。"
+unlock_quip_2 = "影子是好朋友"
+
+[skill.stealth.group]
+concealment = "隱匿"
+tricks = "詭計"
+ambush = "伏擊"
 
 [skill.swords]
 name = "劍術"
 icon = "⚔"
 description = "以灰岩石之力！透過用劍造成傷害來升級。"
+quip = "以GreyStone之力"
+unlock_quip_1 = "尖的那頭朝向對方"
+unlock_quip_2 = "比昨天更鋒利"
+
+[skill.swords.group]
+technique = "技巧"
+wounds = "傷口"
+blades = "刀刃"
 
 [skill.taming]
 name = "馴獸"
 icon = "♥"
 description = "鸚鵡和蜜蜂……還有你？透過馴服、繁殖寵物並與牠們並肩作戰來升級。"
+quip = "誰是好孩子？現在都是。"
+unlock_quip_1 = "你的寵物們明白了"
+unlock_quip_2 = "零食越多，牙齒越多"
+
+[skill.taming.group]
+care = "照料"
+battle = "戰鬥"
 
 [skill.tragoul]
 name = "TragOul"
 icon = "🗡"
 description = "血液在宇宙的血管中流淌，受你雙手所束縛。透過承受傷害並在低生命值下存活來升級。"
+quip = "流點血，活得久"
+unlock_quip_1 = "痛苦只是一種資源"
+unlock_quip_2 = "這血流得值"
+
+[skill.tragoul.group]
+pain = "痛苦"
+corpses = "屍體"
+blood = "鮮血"
 
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
 description = "上緊宇宙的發條，感受時間的流動。透過移動、睡覺、度過時間的流逝以及分享速度效果來升級。攜帶時鐘可獲得更多 Chronos 經驗，放在副手時加成最強。"
+quip = "滴答滴答，時間在走"
+unlock_quip_1 = "再給五分鐘，准了"
+unlock_quip_2 = "這次時間站在你這邊"
 
 [skill.unarmed]
 name = "搏擊"
 icon = "»"
 description = "沒有武器並不意味著沒有力量。透過徒手戰鬥來升級。"
+quip = "拳頭：最原始的武器"
+unlock_quip_1 = "指節，現已升級"
+unlock_quip_2 = "誰還需要劍？"
 
 [skill.kinetics]
 name = "動力學"
 icon = "⚒"
 description = "運動就是力量。用重錘猛擊、持長矛衝鋒，並駕馭動量本身：彈跳、彈射、漂浮，以及精準墜落的鐵砧，都能提升你的精通。"
+quip = "動量是一種生活方式"
+unlock_quip_1 = "物理學今天休假"
+unlock_quip_2 = "飛得越高，砸得越狠"
+
+[skill.kinetics.group]
+spear = "矛"
+mace = "重錘"
+movement = "移動"
 
 [skill.golemancy]
 name = "魔像術"
 icon = "⚙"
 description = "透過建造、修理和照料魔像來升級，然後賦予它們生命，讓它們在你身邊戰鬥和勞作。"
+quip = "鋼鐵朋友，不閒聊"
+unlock_quip_1 = "你的魔像變聰明了點"
+unlock_quip_2 = "螺栓擰緊，忠誠更緊"
+
+[skill.golemancy.group]
+binding = "綁定"
+frames = "框架"
+cores = "核心"
+command = "指揮與照料"
 
 [snippets.gui]
 level = "等級"
@@ -6694,7 +6859,14 @@ lore3 = "戰鬥鎖定"
 lore = ["最大吸收量", "每次脈衝的吸收量", "戰鬥鎖定"]
 
 [command.help]
-show_client_ui_status = "顯示玩家是否使用 Adapt 用戶端介面"
+merge_two_of_your_skills = "將你的兩項技能融合為一項變異技能。無法復原。"
+lead_skill = "主導變異並決定其名稱的技能"
+partner_skill = "融入主導技能的技能"
+remove_a_player_s_mutations = "移除玩家的所有變異；每個變異的兩項原技能都會恢復"
+unmutate = "移除玩家的一個變異；兩項原技能都會恢復"
+unmutate_player = "要移除其變異的玩家"
+mutated_skill = "變異技能、其主導技能或搭檔技能"
+show_client_ui_status = "顯示玩家的 Adapt 用戶端狀態與已用能力"
 version = "顯示已安裝的插件版本"
 debug_dump = "建立診斷報告並選擇是否上傳"
 debug_upload = "將報告上傳至 mclo.gs"
@@ -6765,8 +6937,21 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "數量，範圍 1 到 64，預設為 1"
 
 [command.runtime]
+mutation_created = "{lead}和{partner}現在是{mutation}。"
+mutation_unknown_skill = "未知技能。請輸入兩個技能名稱，例如 swords stealth。"
+mutation_unavailable_skill = "此伺服器上該技能無法變異。"
+mutation_same_skill = "請選擇兩項不同的技能。"
+mutation_already_mutated = "一項技能只能屬於一個變異。"
+mutation_level_too_low = "兩項技能都需要達到 {level} 級。"
+mutation_limit_reached = "本伺服器最多允許 {limit} 個變異。"
+mutations_reset = "已移除 {player} 的 {count} 個變異。每個變異的兩項原技能均已恢復。"
+mutation_unmutated = "已從 {player} 移除 {mutation}。{lead} 與 {partner} 已恢復。"
+mutation_not_held = "{player} 沒有包含 {skill} 的變異。"
 client_ui_absent = "{player} 使用箱子與動作列介面（未協商 Adapt 用戶端）。"
 client_ui_negotiated = "{player} 使用 Adapt 用戶端介面：協定 {version}，功能 {capabilities}。"
+power_usage = "{player} 已用 {used}/{max} 能力。"
+power_held = "{skill}：{adaptation} 等級 {level}，佔用 1 能力。"
+power_free = "{skill}：{adaptation} 等級 {level}，不佔用能力。"
 missing_permission = "你沒有權限 '{permission}'。"
 player_required_from_console = "從主控台使用此指令時必須指定一名玩家。"
 player_required_from_console_short = "從主控台使用時必須指定一名玩家。"
@@ -7175,6 +7360,9 @@ ten = "保留 10 點飢餓值"
 trigger = "啟動手勢"
 while_sneaking = "潛行時"
 work = "工作量上限"
+felled_logs = "砍伐的原木"
+stripped = "剝皮原木"
+planks = "材板"
 
 [blocking.preferences]
 all = "附近所有允許的玩家"
@@ -8431,6 +8619,10 @@ description = ["技能註冊名稱，依它們在技能介面中應出現的順�
 label = "適應項排序"
 description = ["技能註冊名稱對應至該技能依序排列的適應項註冊名稱。", "效果：列出的適應項會依此順序排在最前面；其他適應項依一般字母順序接在後面，未知名稱會被忽略。"]
 
+[config.fields.core.gui.showInactiveSkills]
+label = "顯示未啟用的技能"
+description = ["在技能頁面以灰色顯示玩家尚未開始的技能，以及已併入突變的技能欄位。", "效果：設為 false 時，會在用戶端原生頁面和技能 GUI 中隱藏它們，其餘技能依相同順序補齊空位。"]
+
 [config.fields.core.effects]
 label = "效果"
 description = ["控制 core.effects 區段中的效果。"]
@@ -9142,18 +9334,6 @@ description = ["控制Chronos技能的迅捷藥水遞減下限。"]
 [config.fields.skills.chronos.speedPotionResetWindow]
 label = "迅捷藥水重置窗口"
 description = ["控制Chronos技能的迅捷藥水重置窗口。"]
-
-[config.fields.skills.chronos.enderPearlThrowXP]
-label = "投擲終界珍珠經驗"
-description = ["Chronos技能的經驗獲取調整。"]
-
-[config.fields.skills.chronos.enderPearlTeleportXP]
-label = "終界珍珠傳送經驗"
-description = ["Chronos技能的經驗獲取調整。"]
-
-[config.fields.skills.chronos.enderPearlCooldown]
-label = "終界珍珠冷卻時間"
-description = ["Chronos技能兩次觸發之間的冷卻時間。"]
 
 [config.fields.skills.chronos.survivalXPPerMinute]
 label = "每分鐘生存經驗"
@@ -10763,10 +10943,6 @@ description = ["最高等級時給予的額外投射物閃避機率。", "效果
 label = "最大閃避機率"
 description = ["無論等級為何，投射物閃避機率的硬性上限。", "效果：數值越高，允許的最高閃避率越高。"]
 
-[config.fields.adaptations.agility-cat-reflexes.xpPerDodge]
-label = "每次閃避經驗"
-description = ["每閃避一個投射物給予的經驗。", "效果：數值越高，閃避給予越多技能經驗。"]
-
 [config.fields.adaptations.agility-featherfoot.playerPreferences]
 label = "玩家偏好"
 description = ["此適應項玩家偏好的伺服器預設值與允許的選項。", "效果：每個已註冊的控制項都可鎖定或限制，而不會改變其他玩家已儲存的選擇。"]
@@ -11334,10 +11510,6 @@ description = ["玩家必須已學會的適應項，每項寫成 adaptationId:le
 [config.fields.adaptations.agility-vault.jumpHeight]
 label = "跳躍高度"
 description = ["翻越柵欄時的跳躍最高點（方塊）。", "效果：數值越高，翻越柵欄時的垂直餘裕越大。"]
-
-[config.fields.adaptations.agility-vault.xpPerVault]
-label = "每次翻越經驗"
-description = ["每次成功翻越給予的經驗。", "效果：數值越高，翻越給予越多技能經驗。"]
 
 [config.fields.adaptations.agility-wall-jump.playerPreferences]
 label = "玩家偏好"
@@ -22041,19 +22213,19 @@ description = ["狩獵技能大型獵物獵人適應項隨等級增加的額外�
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceBase]
 label = "額外掉落機率基礎值"
-description = ["狩獵技能大型獵物獵人適應項對大型獵物每份掉落物的基礎複製機率。"]
+description = ["狩獵技能大型獵物獵人適應項對大型獵物額外進行一次戰利品擲骰的基礎機率。"]
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceFactor]
 label = "額外掉落機率係數"
-description = ["狩獵技能大型獵物獵人適應項隨等級增加的每份掉落物複製機率。"]
+description = ["狩獵技能大型獵物獵人適應項隨等級增加的額外戰利品擲骰機率。"]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropChance]
 label = "最大額外掉落機率"
-description = ["狩獵技能大型獵物獵人適應項每份掉落物的最大複製機率。"]
+description = ["狩獵技能大型獵物獵人適應項額外戰利品擲骰的最大機率。"]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropsPerKill]
 label = "每次擊殺最大額外掉落數"
-description = ["狩獵技能大型獵物獵人適應項單次擊殺大型獵物可複製的額外掉落上限。"]
+description = ["狩獵技能大型獵物獵人適應項單次擊殺大型獵物可獲得的額外掉落上限。"]
 
 [config.fields.adaptations.hunter-big-game.xpPerBigGameKill]
 label = "每次擊殺大型獵物經驗"
@@ -28139,74 +28311,6 @@ description = ["購買等級 1 所需的知識費用。", "效果：數值越高
 label = "前置需求"
 description = ["玩家必須已學會的適應項，每項寫成 adaptationId:level。", "效果：在每個列出的適應項都學到該等級之前，會拒絕學習或升級此適應項；學會此適應項期間，這些適應項也無法取消學習至低於該等級。"]
 
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdBase]
-label = "深度門檻基礎值"
-description = ["最低適應項等級時所需的眼睛低於海平面深度（方塊）。", "效果：數值越高，需要潛得越深才會啟動深壓潛水員的增益。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdFactor]
-label = "深度門檻係數"
-description = ["隨適應項等級從啟動深度需求中移除的方塊數。", "效果：數值越高，經驗豐富的潛水者可在越接近水面處啟動增益；門檻下限為 2 格。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdBase]
-label = "深層門檻基礎值"
-description = ["最低等級時較強抗性階段所需的眼睛低於海平面深度。", "效果：數值越高，抗性 II 保留給越深的水域。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdFactor]
-label = "深層門檻係數"
-description = ["隨等級從較強抗性階段需求中移除的方塊數。", "效果：數值越高，深層階段在越接近水面處啟動；門檻下限為 4 格。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionBase]
-label = "傷害減免基礎值"
-description = ["最低等級時深壓潛水員啟動期間移除的受到傷害比例。", "效果：0.12 會在計算持續刷新的抗性效果前移除 12% 的受到傷害。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionFactor]
-label = "傷害減免係數"
-description = ["隨適應項等級增加的額外受到傷害減免。", "效果：數值越高，深度保護朝最高等級成長越強。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.maxDamageReduction]
-label = "最大傷害減免"
-description = ["深壓潛水員本身的最大受到傷害減免比例。", "效果：限制直接減免，與抗性效果分開計算。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthBase]
-label = "吸收生命值基礎值"
-description = ["深壓潛水員在等級 1 啟動時給予的吸收生命值；兩點生命值顯示為一顆心。", "效果：數值越高，低等級潛水者獲得越多暫時額外心，刷新時不會補回已消耗的吸收量。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthFactor]
-label = "吸收生命值係數"
-description = ["最高適應項等級額外給予的吸收生命值。", "效果：數值越高，深壓潛水員隨升級可見的額外心容量越大。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceBase]
-label = "疲勞削減機率基礎值"
-description = ["最低等級時以確定性速度抵銷表示的每刻挖掘疲勞削減機率。", "效果：數值越高，越能抵銷挖掘疲勞 II 以上的效果；挖掘疲勞 I 為下限。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceFactor]
-label = "疲勞削減機率係數"
-description = ["隨等級增加的額外挖掘疲勞削減機率。", "效果：數值越高，高等級時水下挖掘速度抵銷越強。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountBase]
-label = "疲勞削減量基礎值"
-description = ["最低等級時每次概念性觸發削減的挖掘疲勞增幅階數。", "效果：數值越高，越積極抵銷較強的挖掘疲勞。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountFactor]
-label = "疲勞削減量係數"
-description = ["隨等級增加的額外挖掘疲勞增幅削減量。", "效果：數值越高，高等級的疲勞抑制越強。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.effectTicks]
-label = "效果刻數"
-description = ["每次刷新的抗性效果持續時間（刻）。", "效果：數值越高刷新容許度越大；啟用期間執行環境至少每 15 刻檢查一次。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueCounterDurationTicks]
-label = "疲勞抵銷持續刻數"
-description = ["存在挖掘疲勞時每次刷新的水下挖掘速度抵銷持續時間（刻）。", "效果：數值越高越能容忍刷新延遲；0 會停用疲勞抵銷。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPerDepthPulse]
-label = "每次深度脈衝經驗"
-description = ["每次有效深度脈衝給予的航海經驗。", "效果：數值越高，深壓潛水員維持啟動期間航海升級越快。"]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPulseCooldownMillis]
-label = "經驗脈衝冷卻時間毫秒數"
-description = ["兩次有效深度經驗脈衝之間的最少毫秒數。", "效果：數值越高，經驗給予頻率越低，防禦增益不受影響。"]
-
 [config.fields.adaptations.seaborne-speed.playerPreferences]
 label = "玩家偏好"
 description = ["此適應項玩家偏好的伺服器預設值與允許的選項。", "效果：每個已註冊的控制項都可鎖定或限制，而不會改變其他玩家已儲存的選擇。"]
@@ -28522,58 +28626,6 @@ description = ["每次刷新的挖掘屬性修飾器持續時間（刻）。", "
 [config.fields.adaptations.seaborne-turtles-mining-speed.refreshIntervalMillis]
 label = "刷新間隔毫秒數"
 description = ["兩次被動水下狀態刷新之間的毫秒數。", "效果：數值越低反應越快，但會越頻繁掃描已學習的玩家；破壞方塊仍會立即啟動加成。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.playerPreferences]
-label = "玩家偏好"
-description = ["此適應項玩家偏好的伺服器預設值與允許的選項。", "效果：每個已註冊的控制項都可鎖定或限制，而不會改變其他玩家已儲存的選擇。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.enabled]
-label = "啟用"
-description = ["啟用或停用此功能。", "效果：設為 false 可停用此行為而無須移除檔案。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.permanent]
-label = "永久"
-description = ["購買此適應項後禁止玩家以一般方式取消學習。", "效果：首次購買仍使用已設定的費用與確認；管理員略過可降低等級且不退款。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.showParticles]
-label = "顯示粒子"
-description = ["顯示此適應項的粒子效果。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.showSounds]
-label = "播放音效"
-description = ["播放此適應項的音效。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.baseCost]
-label = "基礎費用"
-description = ["學習此適應項時使用的基礎知識費用。", "效果：數值越高，每個等級需要的知識越多。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.costFactor]
-label = "費用係數"
-description = ["套用於較高適應項等級的倍率係數。", "效果：數值越高，等級之間的費用成長越快。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.maxLevel]
-label = "最高等級"
-description = ["玩家在此適應項可達到的最高等級。", "效果：數值越高可升越多級；數值越低越早封頂。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.initialCost]
-label = "初始費用"
-description = ["購買等級 1 所需的知識費用。", "效果：數值越高，解鎖第一級越昂貴。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.requires]
-label = "前置需求"
-description = ["玩家必須已學會的適應項，每項寫成 adaptationId:level。", "效果：在每個列出的適應項都學到該等級之前，會拒絕學習或升級此適應項；學會此適應項期間，這些適應項也無法取消學習至低於該等級。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionDurationTicks]
-label = "夜視持續刻數"
-description = ["在水下施加、隱藏粒子的夜視效果持續時間（刻）。", "效果：數值越高，顯示的剩餘時間越長；玩家浮出水面時效果仍會移除。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionRefreshThresholdTicks]
-label = "夜視刷新門檻刻數"
-description = ["海龜視覺刷新夜視時的剩餘效果刻數。", "效果：數值越高越早刷新；此值會限制在所設定的持續時間以下。"]
-
-[config.fields.adaptations.seaborne-turtles-vision.refreshIntervalMillis]
-label = "刷新間隔毫秒數"
-description = ["兩次水下狀態檢查之間的毫秒數。", "效果：數值越低，越快套用與清除夜視，但會越頻繁掃描已學習的玩家。"]
 
 [config.fields.adaptations.stealth-assassinate.playerPreferences]
 label = "玩家偏好"
@@ -33390,3 +33442,2890 @@ description = ["控制 unarmed-sucker-punch 適應項的基礎傷害。"]
 [config.fields.adaptations.unarmed-sucker-punch.damageFactor]
 label = "傷害係數"
 description = ["套用於 unarmed-sucker-punch 適應項的倍率。"]
+
+[gui.mutation]
+mutate = "變異"
+pick_partner = "選擇搭檔"
+pick_lead = "選擇技能"
+level = "等級 {level}"
+knowledge = "{knowledge} 知識"
+lead = "主導：{skill}"
+swap_lead = "交換主導"
+adaptations = "適應"
+lost = "失去"
+lost_levels = "{skill} {count} 級"
+lost_knowledge = "{skill} {count} 知識"
+lost_adaptation = "{adaptation} {level}"
+lost_permanent_adaptation = "{adaptation} {level}（永久，尚未遺忘）"
+nothing_lost = "無"
+confirm_again = "確認：永久"
+unmutate = "解除變異"
+unmutate_confirm = "確認解除變異"
+lead_role = "主導"
+partner_role = "夥伴"
+gains = "獲得"
+loses = "失去"
+hold = "按住以變異"
+permanent = "此操作無法復原"
+levels = "{count} 級"
+tool = "工具"
+needs_level = "需要等級 {level}"
+in_mutation = "已變異"
+available = "可以變異"
+available_quip = "你的兩個技能有了想法"
+upgrade_quip_1 = "同樣的招，更利的牙"
+upgrade_quip_2 = "老招學會了新招"
+mutated_quip_1 = "兩個技能，一個怪招"
+mutated_quip_2 = "大自然可沒計劃這個"
+signature_quip_1 = "別人都做不到"
+signature_quip_2 = "獨一無二，確定是你的"
+
+[mutated]
+kept = "無需學習即保留"
+kept_adaptation = "{adaptation} {level}"
+kept_list = "無需學習即保留：{adaptations}。"
+kept_state = "保留在等級 {level}"
+lent_state = "由 {upgrade} 借予等級 {level}"
+raised_state = "保留於等級 {kept}，提升至等級 {level}"
+
+[mutated.stat]
+strength = "強度"
+cooldown = "冷卻時間"
+interval = "間隔"
+
+[mutated.name]
+mutation = "{adjective}{noun}"
+adaptation = "{adjective}{recipe}"
+block = "{skill} {slot}"
+
+[mutated.template]
+triggered = "當{trigger}時，{strike}。"
+either = "若 6 格內有敵對生物，{fight}；否則{work}"
+barter = "{gesture}，消耗{fuel}，即可獲得{boon}。"
+attunement = "當{condition}時，每 20 秒獲得{boon}。"
+convergence = "當{trigger}，且{condition}時：{strike}。此外，{also}。冷卻時間 {seconds} 秒。"
+skill = "{lead}與{partner}合為一項技能：由{lead}主導，{partner}與之結合，兩者都帶來各自的升級。"
+
+[mutated.recipe]
+graft = "嫁接"
+echo = "迴響"
+barter = "交易"
+attunement = "調和"
+convergence = "匯聚"
+
+[mutated.slot]
+trigger = "觸發"
+strike_fight = "戰鬥效果"
+strike_work = "工作效果"
+boon = "增益"
+fuel = "消耗"
+state = "狀態"
+
+[mutated.gesture]
+sneak_swap = "潛行並切換主副手"
+double_sneak = "連按兩次潛行"
+sneak_left_click = "潛行並對空中按左鍵"
+sneak_scroll = "潛行並捲動快捷欄"
+
+[mutated.noun]
+swords = "決鬥者"
+axes = "掠奪者"
+unarmed = "拳鬥士"
+ranged = "神射手"
+blocking = "壁壘"
+stealth = "幽影"
+hunter = "掠食者"
+tragoul = "縛血者"
+agility = "疾行者"
+kinetics = "流星"
+rift = "虛空行者"
+chronos = "守時者"
+pickaxe = "深掘者"
+excavation = "掘土者"
+herbalism = "守園人"
+architect = "石匠"
+crafting = "工匠"
+enchanting = "符文匠"
+brewing = "煉金術士"
+discovery = "尋覓者"
+taming = "獸群統領"
+golemancy = "機巧師"
+seaborne = "喚潮者"
+nether = "燼行者"
+
+[mutated.adjective]
+swords = "利刃"
+axes = "劈裂"
+unarmed = "鐵拳"
+ranged = "鷹眼"
+blocking = "堅盾"
+stealth = "無聲"
+hunter = "野性"
+tragoul = "嗜血"
+agility = "迅捷"
+kinetics = "動能"
+rift = "裂空"
+chronos = "永恆"
+pickaxe = "深層"
+excavation = "大地"
+herbalism = "翠綠"
+architect = "石砌"
+crafting = "鍛造"
+enchanting = "符文"
+brewing = "蒸餾"
+discovery = "遊歷"
+taming = "荒野"
+golemancy = "發條"
+seaborne = "潮汐"
+nether = "煉獄"
+
+[mutated.skill]
+swords = "劍術"
+axes = "斧技"
+unarmed = "搏擊"
+ranged = "箭術"
+blocking = "格擋"
+stealth = "隱匿"
+hunter = "狩獵"
+tragoul = "TragOul"
+agility = "敏捷"
+kinetics = "動力學"
+rift = "裂痕"
+chronos = "Chronos"
+pickaxe = "鎬技"
+excavation = "挖掘"
+herbalism = "草藥學"
+architect = "建築師"
+crafting = "合成"
+enchanting = "附魔"
+brewing = "釀造"
+discovery = "探索"
+taming = "馴獸"
+golemancy = "魔像術"
+seaborne = "航海"
+nether = "地獄"
+
+[mutated.block.swords.trigger]
+description = "你用劍打出暴擊"
+
+[mutated.block.swords.strike_fight]
+description = "目標流血 4 秒"
+
+[mutated.block.swords.strike_work]
+description = "弧形 3 格範圍內的草、樹葉與作物會被割下並收集"
+
+[mutated.block.swords.boon]
+description = "攻擊速度 +15%，持續 5 秒"
+
+[mutated.block.swords.fuel]
+description = "劍的 5 點耐久度"
+
+[mutated.block.swords.state]
+description = "你在過去 4 秒內用劍擊中過敵人"
+
+[mutated.block.axes.trigger]
+description = "你用斧頭打出完全蓄力的一擊"
+
+[mutated.block.axes.strike_fight]
+description = "目標的護甲降低 15%，持續 6 秒"
+
+[mutated.block.axes.strike_work]
+description = "你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種"
+
+[mutated.block.axes.boon]
+description = "吸收效果 2 顆心，持續 6 秒"
+
+[mutated.block.axes.fuel]
+description = "斧頭的 5 點耐久度"
+
+[mutated.block.axes.state]
+description = "你在過去 4 秒內砍過木頭或用斧頭攻擊過"
+
+[mutated.block.unarmed.trigger]
+description = "你連續第三次空手命中"
+
+[mutated.block.unarmed.strike_fight]
+description = "目標被擊退並虛弱 3 秒"
+
+[mutated.block.unarmed.strike_work]
+description = "你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值"
+
+[mutated.block.unarmed.boon]
+description = "回復效果，持續 3 秒，且空手擊殺會在 15 秒內回復飢餓值"
+
+[mutated.block.unarmed.fuel]
+description = "飢餓值 1 點"
+
+[mutated.block.unarmed.state]
+description = "你雙手空空且處於戰鬥中"
+
+[mutated.block.ranged.trigger]
+description = "你在 15 格或更遠處以投射物命中目標"
+
+[mutated.block.ranged.strike_fight]
+description = "一支光靈箭射向目標"
+
+[mutated.block.ranged.strike_work]
+description = "周圍 8 格內的掉落物飛向你"
+
+[mutated.block.ranged.boon]
+description = "下一次射擊的瞬間滿弓"
+
+[mutated.block.ranged.fuel]
+description = "箭矢 1 支"
+
+[mutated.block.ranged.state]
+description = "你正將弓拉滿"
+
+[mutated.block.blocking.trigger]
+description = "你用盾牌格擋一次攻擊"
+
+[mutated.block.blocking.strike_fight]
+description = "目標陷入踉蹌，2 秒內無法格擋"
+
+[mutated.block.blocking.strike_work]
+description = "你在 10 秒內受到的下一次攻擊傷害減半"
+
+[mutated.block.blocking.boon]
+description = "擊退與投射物抗性 30%，持續 5 秒"
+
+[mutated.block.blocking.fuel]
+description = "盾牌的 10 點耐久度"
+
+[mutated.block.blocking.state]
+description = "你正舉起盾牌"
+
+[mutated.block.stealth.trigger]
+description = "你攻擊沒有看著你的目標"
+
+[mutated.block.stealth.strike_fight]
+description = "周圍 8 格內的生物失去你的蹤跡 3 秒"
+
+[mutated.block.stealth.strike_work]
+description = "你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你"
+
+[mutated.block.stealth.boon]
+description = "隱形效果，持續 3 秒"
+
+[mutated.block.stealth.fuel]
+description = "你的掩護和 2 點飢餓值（你會現身）"
+
+[mutated.block.stealth.state]
+description = "你正在潛行且沒有生物鎖定你"
+
+[mutated.block.hunter.trigger]
+description = "你擊殺一隻自然生成的生物"
+
+[mutated.block.hunter.strike_fight]
+description = "目標被標記，6 秒內受到你的傷害提高 15%"
+
+[mutated.block.hunter.strike_work]
+description = "周圍 16 格內的動物與生物在你眼中發光 5 秒"
+
+[mutated.block.hunter.boon]
+description = "速度效果，持續 5 秒"
+
+[mutated.block.hunter.fuel]
+description = "飢餓值 2 點"
+
+[mutated.block.hunter.state]
+description = "你的生命值低於一半"
+
+[mutated.block.tragoul.trigger]
+description = "你單次受擊失去 2 顆心或更多"
+
+[mutated.block.tragoul.strike_fight]
+description = "你從目標身上吸取 1 顆心"
+
+[mutated.block.tragoul.strike_work]
+description = "飢餓值中的 1 點轉化為半顆心"
+
+[mutated.block.tragoul.boon]
+description = "治療 1.5 顆心"
+
+[mutated.block.tragoul.fuel]
+description = "你自身 1 顆心的生命值"
+
+[mutated.block.tragoul.state]
+description = "你的生命值只剩 3 顆心或更少"
+
+[mutated.block.agility.trigger]
+description = "你疾跑跳躍"
+
+[mutated.block.agility.strike_fight]
+description = "你朝視線方向衝刺 3 格"
+
+[mutated.block.agility.strike_work]
+description = "你獲得速度 II，持續 4 秒"
+
+[mutated.block.agility.boon]
+description = "跳躍提升與安全落地，持續 4 秒"
+
+[mutated.block.agility.fuel]
+description = "你的衝勁和 2 點飢餓值（你會停下）"
+
+[mutated.block.agility.state]
+description = "你已連續疾跑 3 秒沒有停下"
+
+[mutated.block.kinetics.trigger]
+description = "你從 4 格或更高處落地"
+
+[mutated.block.kinetics.strike_fight]
+description = "目標被擊飛到空中"
+
+[mutated.block.kinetics.strike_work]
+description = "你在 5 秒內的下一次跳躍高達 3 格"
+
+[mutated.block.kinetics.boon]
+description = "緩降效果，持續 3 秒"
+
+[mutated.block.kinetics.fuel]
+description = "你的墜落高度和 2 點飢餓值（此次落地會被取消）"
+
+[mutated.block.kinetics.state]
+description = "你正在空中"
+
+[mutated.block.rift.trigger]
+description = "你透過終界珍珠、閃現或歌萊果傳送"
+
+[mutated.block.rift.strike_fight]
+description = "目標被閃現到離你 4 格遠的地方"
+
+[mutated.block.rift.strike_work]
+description = "周圍 6 格內的掉落物被送進你的終界箱"
+
+[mutated.block.rift.boon]
+description = "抗性效果，持續 3 秒"
+
+[mutated.block.rift.fuel]
+description = "終界珍珠 1 顆"
+
+[mutated.block.rift.state]
+description = "你在過去 5 秒內傳送過"
+
+[mutated.block.chronos.trigger]
+description = "你攜帶時鐘並潛行切換主副手"
+
+[mutated.block.chronos.strike_fight]
+description = "目標緩速 2 秒"
+
+[mutated.block.chronos.strike_work]
+description = "周圍 4 格內的作物、熔爐與釀造台快轉 10 秒"
+
+[mutated.block.chronos.boon]
+description = "生效中藥水效果的 5 秒延長"
+
+[mutated.block.chronos.fuel]
+description = "時鐘 20 秒的冷卻時間"
+
+[mutated.block.chronos.state]
+description = "你的副手持有時鐘"
+
+[mutated.block.pickaxe.trigger]
+description = "你開採一塊礦石"
+
+[mutated.block.pickaxe.strike_fight]
+description = "一陣碎石使目標暈眩 1 秒"
+
+[mutated.block.pickaxe.strike_work]
+description = "周圍 6 格內的礦石在你眼中發光 5 秒"
+
+[mutated.block.pickaxe.boon]
+description = "挖掘加速效果，持續 6 秒"
+
+[mutated.block.pickaxe.fuel]
+description = "鎬的 5 點耐久度"
+
+[mutated.block.pickaxe.state]
+description = "你在過去 4 秒內挖掘過方塊"
+
+[mutated.block.excavation.trigger]
+description = "你在 5 秒內挖掘 8 個軟質方塊"
+
+[mutated.block.excavation.strike_fight]
+description = "目標腳下的地面化為泥巴，使其緩速 3 秒"
+
+[mutated.block.excavation.strike_work]
+description = "你最後挖掘處周圍 3×3 的軟質方塊會被破壞並掉落"
+
+[mutated.block.excavation.boon]
+description = "下一次墜落的安全落地"
+
+[mutated.block.excavation.fuel]
+description = "泥土、沙子或礫石共 8 個"
+
+[mutated.block.excavation.state]
+description = "你在過去 4 秒內挖過軟質方塊"
+
+[mutated.block.herbalism.trigger]
+description = "你收成一株成熟作物"
+
+[mutated.block.herbalism.strike_fight]
+description = "藤蔓纏住目標，使其定身 2 秒"
+
+[mutated.block.herbalism.strike_work]
+description = "周圍 4 格內的作物與樹苗成長一個階段"
+
+[mutated.block.herbalism.boon]
+description = "飢餓值恢復 2 點"
+
+[mutated.block.herbalism.fuel]
+description = "種子或作物共 3 個"
+
+[mutated.block.herbalism.state]
+description = "你站在作物、草或花叢中"
+
+[mutated.block.architect.trigger]
+description = "你在 5 秒內放置 8 個方塊"
+
+[mutated.block.architect.strike_fight]
+description = "你與目標之間升起一道 2 格高的臨時牆"
+
+[mutated.block.architect.strike_work]
+description = "5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線"
+
+[mutated.block.architect.boon]
+description = "接下來放置的 8 個方塊持續 60 秒的防爆與防火效果"
+
+[mutated.block.architect.fuel]
+description = "你手中的 4 個方塊"
+
+[mutated.block.architect.state]
+description = "你在過去 4 秒內放置過方塊"
+
+[mutated.block.crafting.trigger]
+description = "你合成一件工具、武器或護甲"
+
+[mutated.block.crafting.strike_fight]
+description = "你在 5 秒內的下一次攻擊無視目標 20% 的護甲"
+
+[mutated.block.crafting.strike_work]
+description = "你手中的工具獲得效率 +1，持續 20 秒"
+
+[mutated.block.crafting.boon]
+description = "手中物品 6 點耐久度的修復"
+
+[mutated.block.crafting.fuel]
+description = "鐵粒 1 個"
+
+[mutated.block.crafting.state]
+description = "你在過去 10 秒內合成過物品"
+
+[mutated.block.enchanting.trigger]
+description = "你為物品附魔，或一次獲得 10 點原版經驗"
+
+[mutated.block.enchanting.strike_fight]
+description = "目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗"
+
+[mutated.block.enchanting.strike_work]
+description = "你下一次破壞方塊時，幸運附魔視為高一級"
+
+[mutated.block.enchanting.boon]
+description = "幸運效果，持續 8 秒"
+
+[mutated.block.enchanting.fuel]
+description = "原版經驗等級 1 級"
+
+[mutated.block.enchanting.state]
+description = "你擁有 20 級或更多原版經驗等級"
+
+[mutated.block.brewing.trigger]
+description = "你喝下或投擲藥水"
+
+[mutated.block.brewing.strike_fight]
+description = "藥劑帶或副手中的藥水噴濺到目標身上，消耗四分之一瓶"
+
+[mutated.block.brewing.strike_work]
+description = "藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶"
+
+[mutated.block.brewing.boon]
+description = "隨機一種有益藥水效果，持續 6 秒"
+
+[mutated.block.brewing.fuel]
+description = "藥劑帶或副手藥水的四分之一"
+
+[mutated.block.brewing.state]
+description = "你喝下的藥水仍在生效"
+
+[mutated.block.discovery.trigger]
+description = "你發現新事物"
+
+[mutated.block.discovery.strike_fight]
+description = "目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害"
+
+[mutated.block.discovery.strike_work]
+description = "周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示"
+
+[mutated.block.discovery.boon]
+description = "夜視與箱子發光，持續 8 秒"
+
+[mutated.block.discovery.fuel]
+description = "紙或地圖 1 張"
+
+[mutated.block.discovery.state]
+description = "你身處從未進入過的區塊"
+
+[mutated.block.taming.trigger]
+description = "你的寵物命中攻擊"
+
+[mutated.block.taming.strike_fight]
+description = "你最近的寵物撲向目標"
+
+[mutated.block.taming.strike_work]
+description = "周圍 8 格內的寵物回復 1 顆心，並在 5 秒內跟上你的步伐"
+
+[mutated.block.taming.boon]
+description = "附近每隻寵物各提供 2 顆心的治療，最多 3 顆心"
+
+[mutated.block.taming.fuel]
+description = "骨頭或肉 1 份"
+
+[mutated.block.taming.state]
+description = "你的一隻寵物正在戰鬥"
+
+[mutated.block.golemancy.trigger]
+description = "你擁有的魔像完成一項任務"
+
+[mutated.block.golemancy.strike_fight]
+description = "你最近的魔像轉而攻擊目標"
+
+[mutated.block.golemancy.strike_work]
+description = "你最近的魔像在下一個相符的方塊上重複你剛做的工作"
+
+[mutated.block.golemancy.boon]
+description = "魔像工作速度提高 50%，持續 10 秒"
+
+[mutated.block.golemancy.fuel]
+description = "銅粒或鐵粒 1 個"
+
+[mutated.block.golemancy.state]
+description = "你的一隻魔像正在 16 格內工作"
+
+[mutated.block.seaborne.trigger]
+description = "你潛入水中，或在身體潮濕時受到攻擊"
+
+[mutated.block.seaborne.strike_fight]
+description = "一股水流將目標推開並撲滅火焰"
+
+[mutated.block.seaborne.strike_work]
+description = "周圍 4 格內的火焰熄滅，耕地也獲得灌溉"
+
+[mutated.block.seaborne.boon]
+description = "水下呼吸與快速游泳，持續 6 秒"
+
+[mutated.block.seaborne.fuel]
+description = "氧氣 3 格和 2 點飢餓值"
+
+[mutated.block.seaborne.state]
+description = "你身上潮濕"
+
+[mutated.block.nether.trigger]
+description = "你受到火焰傷害"
+
+[mutated.block.nether.strike_fight]
+description = "目標燃燒 4 秒"
+
+[mutated.block.nether.strike_work]
+description = "你接下來破壞的 3 個方塊會被熔煉"
+
+[mutated.block.nether.boon]
+description = "抗火效果，持續 6 秒"
+
+[mutated.block.nether.fuel]
+description = "烈焰粉 1 份"
+
+[mutated.block.nether.state]
+description = "你身處地獄或正在燃燒"
+
+[mutated.override.swords.unarmed]
+convergence = "當你用劍打出暴擊，且你在過去 4 秒內空手命中過時：目標流血 4 秒。此外，目標被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.swords.ranged]
+convergence = "當你用劍打出暴擊，且你在過去 4 秒內射出過滿弓的一箭時：目標流血 4 秒。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.override.swords.blocking]
+convergence = "當你用劍打出暴擊，且你在過去 4 秒內用盾牌格擋過攻擊時：目標流血 4 秒。此外，目標陷入踉蹌，2 秒內無法格擋。冷卻時間 45 秒。"
+
+[mutated.override.swords.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物流血 4 秒。"
+
+[mutated.override.swords.agility]
+convergence = "當你用劍打出暴擊，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：目標流血 4 秒。此外，你朝視線方向衝刺 3 格。冷卻時間 45 秒。"
+
+[mutated.override.swords.herbalism]
+echo = "當你收成一株成熟作物時，弧形 3 格範圍內的草、樹葉與成熟作物會被割下並收集。"
+
+[mutated.override.swords.taming]
+echo = "當你的寵物命中攻擊時，目標流血 4 秒。"
+
+[mutated.override.swords.golemancy]
+echo = "當你擁有的魔像完成一項任務時，弧形 3 格範圍內的草、樹葉與作物會被割下並收集。"
+
+[mutated.signature.swords.chronos.convergence]
+name = "迴響斬"
+description = "每第三次劍擊命中後 1 秒，殘影會再次攻擊；殘影不會暴擊，也不會觸發其他效果。"
+lore1 = "迴響傷害"
+lore2 = "每次迴響所需劍擊次數"
+
+[mutated.signature.swords.stealth.convergence]
+name = "無影之刃"
+description = "對看不見你的生物打出劍暴擊時，會使其無法回復生命並大量流血。若它在 3 秒內死亡，只要沒有其他生物在追獵你，你就會隱身 2 秒。冷卻時間 20 秒。"
+lore1 = "無法回復"
+lore2 = "流血傷害"
+lore3 = "隱身"
+
+[mutated.override.axes.unarmed]
+convergence = "當你用斧頭打出完全蓄力的一擊，且你在過去 4 秒內空手命中過時：目標的護甲降低 15%，持續 6 秒。此外，目標被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.axes.ranged]
+convergence = "當你用斧頭打出完全蓄力的一擊，且你在過去 4 秒內射出過滿弓的一箭時：目標的護甲降低 15%，持續 6 秒。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.override.axes.blocking]
+convergence = "當你用斧頭打出完全蓄力的一擊，且你在過去 4 秒內用盾牌格擋過攻擊時：目標的護甲降低 15%，持續 6 秒。此外，目標陷入踉蹌，2 秒內無法格擋。冷卻時間 45 秒。"
+
+[mutated.override.axes.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物的護甲降低 15%，持續 6 秒。"
+
+[mutated.override.axes.taming]
+echo = "當你的寵物命中攻擊時，目標的護甲降低 15%，持續 6 秒。"
+
+[mutated.override.axes.golemancy]
+echo = "當你擁有的魔像完成一項任務時，你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。"
+
+[mutated.signature.axes.herbalism.convergence]
+name = "護林人"
+description = "伐木倒林砍倒的每棵天然樹都會用你攜帶的樹苗重新種下，周圍的樹苗生長一個階段。"
+lore1 = "每棵樹催長的樹苗"
+lore2 = "樹苗搜尋半徑"
+
+[mutated.signature.axes.architect.convergence]
+name = "木構架"
+description = "伐木倒林砍下的原木會以剝皮原木掉落；從2級起，你的砍伐原木選項可改為把每根切成4塊木材。"
+lore1 = "每棵樹加工的原木"
+lore2 = "每根原木的木材"
+
+[mutated.override.unarmed.ranged]
+convergence = "當你連續第三次空手命中，且你在過去 4 秒內射出過滿弓的一箭時：目標被擊退並虛弱 3 秒。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.signature.unarmed.blocking.convergence]
+name = "鐵衛"
+description = "在受擊前一刻空著雙手右鍵方塊或生物即可不用盾牌招架：此次傷害被抵消，一半返還給攻擊者，攻擊者踉蹌，且你在 3 秒內的下一次空手攻擊傷害更高。"
+lore1 = "招架窗口"
+lore2 = "返還傷害"
+lore3 = "反擊傷害"
+
+[mutated.override.unarmed.stealth]
+convergence = "當你連續第三次空手命中，且你在過去 4 秒內曾未被察覺地潛行時：目標被擊退並虛弱 3 秒。此外，周圍 8 格內的生物失去你的蹤跡 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.unarmed.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被擊退並虛弱 3 秒。"
+
+[mutated.override.unarmed.crafting]
+attunement = "當你雙手空空且處於戰鬥中時，每 20 秒為你損耗最嚴重的護甲修復 6 點耐久度。"
+
+[mutated.override.unarmed.taming]
+echo = "當你的寵物命中攻擊時，目標被擊退並虛弱 3 秒。"
+
+[mutated.override.unarmed.golemancy]
+echo = "當你擁有的魔像完成一項任務時，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。"
+
+[mutated.signature.unarmed.tragoul.convergence]
+name = "血拳"
+description = "連擊中對敵對生物或玩家的每次空手攻擊按層數為你回復生命，每秒上限與赤紅浪潮相同；不斷連擊的終結技回復其傷害的一半。"
+lore1 = "每層回復"
+lore2 = "每秒最多回復"
+lore3 = "終結技傷害回復"
+
+[mutated.override.ranged.unarmed]
+convergence = "當你在 15 格或更遠處以投射物命中目標，且你在過去 4 秒內空手命中過時：一支光靈箭射向目標。此外，目標被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.ranged.hunter]
+echo = "當你擊殺一隻自然生成的生物時，一支光靈箭射向周圍 6 格內最近的另一個敵對生物。"
+
+[mutated.signature.ranged.agility.convergence]
+name = "空中拉弓"
+description = "在空中拉弓會減緩你的下落，在空中至少拉開一半射出的箭會像拉滿一樣飛行，你在空中的第一次箭矢命中會補滿天空行者的充能，每次騰空一次。"
+lore1 = "每次騰空的緩降時間"
+
+[mutated.override.ranged.taming]
+echo = "當你的寵物命中攻擊時，一支光靈箭射向目標。"
+
+[mutated.override.ranged.golemancy]
+echo = "當你擁有的魔像完成一項任務時，周圍 8 格內的掉落物飛向你。"
+
+[mutated.signature.ranged.chronos.convergence]
+name = "重播之箭"
+description = "滿弦的弓箭射擊會在 1.5 秒後從射出的位置沿同一路徑再射一次，不消耗箭矢。重播不會觸發箭術效果。"
+lore1 = "重播傷害"
+
+[mutated.signature.ranged.hunter.convergence]
+name = "點名射擊"
+description = "追蹤者羅盤物種中最近的自然生物會遠超羅盤範圍地只為你發光，朝牠拉弓即可鎖定，箭矢會追蹤牠。"
+lore1 = "發光範圍"
+lore2 = "鎖定範圍"
+
+[mutated.override.blocking.unarmed]
+convergence = "當你用盾牌格擋一次攻擊，且你在過去 4 秒內空手命中過時：目標陷入踉蹌，2 秒內無法格擋。此外，目標被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.signature.blocking.unarmed.convergence]
+name = "鐵衛"
+description = "在受擊前一刻空著雙手右鍵方塊或生物即可不用盾牌招架：此次傷害被抵消，一半返還給攻擊者，攻擊者踉蹌，且你在 3 秒內的下一次空手攻擊傷害更高。"
+lore1 = "招架窗口"
+lore2 = "返還傷害"
+lore3 = "反擊傷害"
+
+[mutated.override.blocking.ranged]
+convergence = "當你用盾牌格擋一次攻擊，且你在過去 4 秒內射出過滿弓的一箭時：目標陷入踉蹌，2 秒內無法格擋。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.override.blocking.stealth]
+convergence = "當你用盾牌格擋一次攻擊，且你在過去 4 秒內曾未被察覺地潛行時：目標陷入踉蹌，2 秒內無法格擋。此外，周圍 8 格內的生物失去你的蹤跡 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.blocking.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物陷入踉蹌，2 秒內無法格擋。"
+
+[mutated.override.blocking.agility]
+convergence = "當你用盾牌格擋一次攻擊，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：目標陷入踉蹌，2 秒內無法格擋。此外，你朝視線方向衝刺 3 格。冷卻時間 45 秒。"
+
+[mutated.override.blocking.brewing]
+graft = "當你用盾牌格擋一次攻擊時，快捷欄中的第一瓶藥水噴濺到目標身上，消耗四分之一瓶。"
+convergence = "當你用盾牌格擋一次攻擊，且你喝下的藥水仍在生效時：目標陷入踉蹌，2 秒內無法格擋。此外，快捷欄中的第一瓶藥水噴濺到目標身上，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.override.blocking.taming]
+echo = "當你的寵物命中攻擊時，目標陷入踉蹌，2 秒內無法格擋。"
+
+[mutated.override.blocking.golemancy]
+echo = "當你擁有的魔像完成一項任務時，你在 10 秒內受到的下一次攻擊傷害減半。"
+
+[mutated.signature.blocking.taming.convergence]
+name = "持盾者之群"
+description = "站在你舉起的盾牌或你插下的盾牆後方的自有寵物不會受到投射物傷害，並會緩慢恢復生命。"
+lore1 = "掩護深度"
+lore2 = "寵物每秒恢復"
+
+[mutated.override.stealth.ranged]
+convergence = "當你攻擊沒有看著你的目標，且你在過去 4 秒內射出過滿弓的一箭時：周圍 8 格內的生物失去你的蹤跡 3 秒。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.override.stealth.blocking]
+convergence = "當你攻擊沒有看著你的目標，且你在過去 4 秒內用盾牌格擋過攻擊時：周圍 8 格內的生物失去你的蹤跡 3 秒。此外，目標陷入踉蹌，2 秒內無法格擋。冷卻時間 45 秒。"
+
+[mutated.override.stealth.taming]
+echo = "當你的寵物命中攻擊時，周圍 8 格內的生物失去你的蹤跡 3 秒。"
+
+[mutated.override.stealth.golemancy]
+echo = "當你擁有的魔像完成一項任務時，你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。"
+
+[mutated.signature.stealth.swords.convergence]
+name = "暗影反擊"
+description = "潛行且沒有其他生物追獵你時，你受到的近戰攻擊會被部分格擋，並免費以暗影步移到攻擊者身後；你對它的下一擊會成為死亡印記的先手。需要暗影步就緒且身後有空間。冷卻時間 15 秒。"
+lore1 = "格擋"
+
+[mutated.signature.stealth.rift.convergence]
+name = "虛空步"
+description = "閃現後不久，空手右鍵點擊看不見你的生物，即可不消耗煙霧彈、按你暗影步的距離和冷卻時間以暗影步移到它身後。沒有生物追獵你時，相位步的閃現不會留下粒子或聲音。"
+lore1 = "閃現後時限"
+
+[mutated.override.hunter.swords]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物流血 4 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 4 秒內用劍擊中過敵人時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物流血 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.axes]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物的護甲降低 15%，持續 6 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物的護甲降低 15%，持續 6 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.unarmed]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被擊退並虛弱 3 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你雙手空空且處於戰鬥中時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.ranged]
+graft = "當你擊殺一隻自然生成的生物時，一支光靈箭射向周圍 6 格內最近的另一個敵對生物。"
+
+[mutated.override.hunter.blocking]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物陷入踉蹌，2 秒內無法格擋。"
+convergence = "當你擊殺一隻自然生成的生物，且你正舉起盾牌時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物陷入踉蹌，2 秒內無法格擋。冷卻時間 45 秒。"
+
+[mutated.override.hunter.stealth]
+convergence = "當你擊殺一隻自然生成的生物，且你正在潛行且沒有生物鎖定你時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 8 格內的生物失去你的蹤跡 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.tragoul]
+graft = "當你擊殺一隻自然生成的生物時，你從周圍 6 格內最近的另一個敵對生物身上吸取 1 顆心。"
+convergence = "當你擊殺一隻自然生成的生物，且你的生命值只剩 3 顆心或更少時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，你從周圍 6 格內最近的另一個敵對生物身上吸取 1 顆心。冷卻時間 45 秒。"
+
+[mutated.override.hunter.agility]
+convergence = "當你擊殺一隻自然生成的生物，且你已連續疾跑 3 秒沒有停下時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，你朝視線方向衝刺 3 格。冷卻時間 45 秒。"
+
+[mutated.override.hunter.kinetics]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被擊飛到空中。"
+convergence = "當你擊殺一隻自然生成的生物，且你正在空中時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物被擊飛到空中。冷卻時間 45 秒。"
+
+[mutated.override.hunter.rift]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被閃現到離你 4 格遠的地方。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 5 秒內傳送過時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物被閃現到離你 4 格遠的地方。冷卻時間 45 秒。"
+
+[mutated.override.hunter.chronos]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物緩速 2 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你的副手持有時鐘時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物緩速 2 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.pickaxe]
+graft = "當你擊殺一隻自然生成的生物時，一陣碎石使周圍 6 格內最近的另一個敵對生物暈眩 1 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 4 秒內挖掘過方塊時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，一陣碎石使周圍 6 格內最近的另一個敵對生物暈眩 1 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.excavation]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物腳下的地面化為泥巴，使其緩速 3 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 4 秒內挖過軟質方塊時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物腳下的地面化為泥巴，使其緩速 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.herbalism]
+graft = "當你擊殺一隻自然生成的生物時，藤蔓纏住周圍 6 格內最近的另一個敵對生物，使其定身 2 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你站在作物、草或花叢中時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，藤蔓纏住周圍 6 格內最近的另一個敵對生物，使其定身 2 秒。冷卻時間 45 秒。"
+
+[mutated.override.hunter.architect]
+graft = "當你擊殺一隻自然生成的生物時，你與周圍 6 格內最近的另一個敵對生物之間升起一道 2 格高的臨時牆。"
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 4 秒內放置過方塊時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，你與周圍 6 格內最近的另一個敵對生物之間升起一道 2 格高的臨時牆。冷卻時間 45 秒。"
+
+[mutated.override.hunter.crafting]
+convergence = "當你擊殺一隻自然生成的生物，且你在過去 10 秒內合成過物品時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，你在 5 秒內的下一次攻擊無視目標 20% 的護甲。冷卻時間 45 秒。"
+
+[mutated.override.hunter.enchanting]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。"
+convergence = "當你擊殺一隻自然生成的生物，且你擁有 20 級或更多原版經驗等級時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。冷卻時間 45 秒。"
+
+[mutated.override.hunter.brewing]
+graft = "當你擊殺一隻自然生成的生物時，藥劑帶或副手中的藥水噴濺到周圍 6 格內最近的另一個敵對生物身上，消耗四分之一瓶。"
+convergence = "當你擊殺一隻自然生成的生物，且你喝下的藥水仍在生效時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，藥劑帶或副手中的藥水噴濺到周圍 6 格內最近的另一個敵對生物身上，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.override.hunter.discovery]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物的屬性被揭露，且你對它的下一擊多造成 20% 傷害。"
+convergence = "當你擊殺一隻自然生成的生物，且你身處從未進入過的區塊時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物的屬性被揭露，且你對它的下一擊多造成 20% 傷害。冷卻時間 45 秒。"
+
+[mutated.override.hunter.taming]
+graft = "當你擊殺一隻自然生成的生物時，你最近的寵物撲向周圍 6 格內最近的另一個敵對生物。"
+echo = "當你的寵物命中攻擊時，目標被標記，6 秒內受到你的傷害提高 15%。"
+
+[mutated.override.hunter.golemancy]
+graft = "當你擊殺一隻自然生成的生物時，你最近的魔像轉而攻擊周圍 6 格內最近的另一個敵對生物。"
+echo = "當你擁有的魔像完成一項任務時，周圍 16 格內的動物與生物在你眼中發光 5 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你的一隻魔像正在 16 格內工作時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，你最近的魔像轉而攻擊周圍 6 格內最近的另一個敵對生物。冷卻時間 45 秒。"
+
+[mutated.override.hunter.seaborne]
+graft = "當你擊殺一隻自然生成的生物時，一股水流將周圍 6 格內最近的另一個敵對生物推開並撲滅火焰。"
+convergence = "當你擊殺一隻自然生成的生物，且你身上潮濕時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，一股水流將周圍 6 格內最近的另一個敵對生物推開並撲滅火焰。冷卻時間 45 秒。"
+
+[mutated.override.hunter.nether]
+graft = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物燃燒 4 秒。"
+convergence = "當你擊殺一隻自然生成的生物，且你身處地獄或正在燃燒時：周圍 6 格內最近的另一個敵對生物被標記，6 秒內受到你的傷害提高 15%。此外，周圍 6 格內最近的另一個敵對生物燃燒 4 秒。冷卻時間 45 秒。"
+
+[mutated.signature.hunter.ranged.convergence]
+name = "點名射擊"
+description = "追蹤者羅盤物種中最近的自然生物會遠超羅盤範圍地只為你發光，朝牠拉弓即可鎖定，箭矢會追蹤牠。"
+lore1 = "發光範圍"
+lore2 = "鎖定範圍"
+
+[mutated.signature.hunter.taming.convergence]
+name = "群狩"
+description = "你的寵物會自行追蹤你的血跡或追蹤者羅盤的物種，絕不離開你超過32格，牠們對該獵物的撕咬會累積並使用你的頂級掠食者疊層。"
+lore1 = "狩獵範圍"
+lore2 = "每次狩獵的寵物數"
+lore3 = "每層疊加的寵物傷害"
+
+[mutated.override.tragoul.stealth]
+convergence = "當你單次受擊失去 2 顆心或更多，且你在過去 4 秒內曾未被察覺地潛行時：你從目標身上吸取 1 顆心。此外，周圍 8 格內的生物失去你的蹤跡 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.tragoul.hunter]
+echo = "當你擊殺一隻自然生成的生物時，你從周圍 6 格內最近的另一個敵對生物身上吸取 1 顆心。"
+
+[mutated.override.tragoul.taming]
+echo = "當你的寵物命中攻擊時，你從目標身上吸取 1 顆心。"
+
+[mutated.override.tragoul.golemancy]
+echo = "當你擁有的魔像完成一項任務時，飢餓值中的 1 點轉化為半顆心。"
+
+[mutated.signature.tragoul.golemancy.convergence]
+name = "白骨軍團"
+description = "把魔像核心交給你的一名骷髏僕從，它就會作為骨魔像工作。它的壽命只在閒置時流逝；耗盡後它會碎裂並掉落核心。軍團兵仍計入你的僕從上限。"
+lore1 = "軍團兵"
+lore2 = "閒置壽命"
+
+[mutated.signature.agility.ranged.convergence]
+name = "空中拉弓"
+description = "在空中拉弓會減緩你的下落，在空中至少拉開一半射出的箭會像拉滿一樣飛行，你在空中的第一次箭矢命中會補滿天空行者的充能，每次騰空一次。"
+lore1 = "每次騰空的緩降時間"
+
+[mutated.signature.tragoul.unarmed.convergence]
+name = "血拳"
+description = "連擊中對敵對生物或玩家的每次空手攻擊按層數為你回復生命，每秒上限與赤紅浪潮相同；不斷連擊的終結技回復其傷害的一半。"
+lore1 = "每層回復"
+lore2 = "每秒最多回復"
+lore3 = "終結技傷害回復"
+
+[mutated.signature.tragoul.nether.convergence]
+name = "凋零之血"
+description = "每次擊殺都會讓屍體周圍的敵對生物獲得凋零 I，擊殺凋零骷髏會填充你的血之儲備。"
+lore1 = "擴散半徑"
+lore2 = "最多凋零目標"
+lore3 = "凋零骷髏提供的血"
+
+[mutated.override.agility.ranged]
+convergence = "當你疾跑跳躍，且你在過去 4 秒內射出過滿弓的一箭時：若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。此外，若 6 格內有敵對生物，一支光靈箭射向目標；否則周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.agility.blocking]
+convergence = "當你疾跑跳躍，且你在過去 4 秒內用盾牌格擋過攻擊時：若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。此外，若 6 格內有敵對生物，目標陷入踉蹌，2 秒內無法格擋；否則你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.agility.stealth]
+convergence = "當你疾跑跳躍，且你在過去 4 秒內曾未被察覺地潛行時：若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。此外，若 6 格內有敵對生物，周圍 8 格內的生物失去你的蹤跡 3 秒；否則你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。冷卻時間 45 秒。"
+
+[mutated.override.agility.excavation]
+graft = "當你疾跑跳躍時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你疾跑跳躍，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.agility.taming]
+echo = "當你的寵物命中攻擊時，你朝視線方向衝刺 3 格。"
+
+[mutated.override.agility.golemancy]
+graft = "當你疾跑跳躍時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，你獲得速度 II，持續 4 秒。"
+convergence = "當你疾跑跳躍，且你的一隻魔像正在 16 格內工作時：若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。此外，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.agility.kinetics.convergence]
+name = "動量儲備"
+description = "你帶入重錘俯衝的奔跑速度會被儲存：彗星的衝擊波藉此最多增強 50%，落地後你仍保有這份速度。"
+lore1 = "衝擊波最大加成"
+lore2 = "落地後保留的速度"
+
+[mutated.override.kinetics.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被擊飛到空中。"
+
+[mutated.override.kinetics.excavation]
+graft = "當你從 4 格或更高處落地時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你從 4 格或更高處落地，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，目標被擊飛到空中；否則你在 5 秒內的下一次跳躍高達 3 格。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.kinetics.taming]
+echo = "當你的寵物命中攻擊時，目標被擊飛到空中。"
+
+[mutated.override.kinetics.golemancy]
+graft = "當你從 4 格或更高處落地時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，你在 5 秒內的下一次跳躍高達 3 格。"
+convergence = "當你從 4 格或更高處落地，且你的一隻魔像正在 16 格內工作時：若 6 格內有敵對生物，目標被擊飛到空中；否則你在 5 秒內的下一次跳躍高達 3 格。此外，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.kinetics.agility.convergence]
+name = "動量儲備"
+description = "你帶入重錘俯衝的奔跑速度會被儲存：彗星的衝擊波藉此最多增強 50%，落地後你仍保有這份速度。"
+lore1 = "衝擊波最大加成"
+lore2 = "落地後保留的速度"
+
+[mutated.override.rift.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物被閃現到離你 4 格遠的地方。"
+
+[mutated.override.rift.excavation]
+graft = "當你透過終界珍珠、閃現或歌萊果傳送時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你透過終界珍珠、閃現或歌萊果傳送，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，目標被閃現到離你 4 格遠的地方；否則周圍 6 格內的掉落物被送進你的終界箱。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.rift.taming]
+echo = "當你的寵物命中攻擊時，目標被閃現到離你 4 格遠的地方。"
+
+[mutated.override.rift.golemancy]
+graft = "當你透過終界珍珠、閃現或歌萊果傳送時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，周圍 6 格內的掉落物被送進你的終界箱。"
+convergence = "當你透過終界珍珠、閃現或歌萊果傳送，且你的一隻魔像正在 16 格內工作時：若 6 格內有敵對生物，目標被閃現到離你 4 格遠的地方；否則周圍 6 格內的掉落物被送進你的終界箱。此外，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.rift.chronos.convergence]
+name = "召回閃現"
+description = "在終界珍珠、歌萊果或閃現後的 3 到 5 秒內，手持時鐘潛行並交換雙手，即可回到出發的位置，生命值至少恢復為當時的數值。絕不會進入你無權進入的地方。"
+lore1 = "可返回時間"
+
+[mutated.signature.rift.stealth.convergence]
+name = "虛空步"
+description = "閃現後不久，空手右鍵點擊看不見你的生物，即可不消耗煙霧彈、按你暗影步的距離和冷卻時間以暗影步移到它身後。沒有生物追獵你時，相位步的閃現不會留下粒子或聲音。"
+lore1 = "閃現後時限"
+
+[mutated.signature.rift.herbalism.convergence]
+name = "歌萊果園"
+description = "你每收穫一株成熟作物，附近的歌萊花就會生長一步，記為強制生長。歌萊果會把你送到你注視的位置，而不是隨機位置。"
+lore1 = "歌萊距離"
+lore2 = "每次收穫的花數"
+
+[mutated.signature.rift.discovery.convergence]
+name = "路石"
+description = "把地圖集中的一處結構設為路石：一個沒有方塊的裂隙錨點，計入你的錨點上限，可像其他錨點一樣從錨點選單前往，消耗終界珍珠並需引導。"
+lore1 = "路石"
+
+[mutated.signature.chronos.swords.convergence]
+name = "迴響斬"
+description = "每第三次劍擊命中後 1 秒，殘影會再次攻擊；殘影不會暴擊，也不會觸發其他效果。"
+lore1 = "迴響傷害"
+lore2 = "每次迴響所需劍擊次數"
+
+[mutated.override.chronos.axes]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標的護甲降低 15%，持續 6 秒；否則你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。冷卻時間 45 秒。"
+
+[mutated.override.chronos.unarmed]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內空手命中過時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標被擊退並虛弱 3 秒；否則你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.signature.chronos.ranged.convergence]
+name = "重播之箭"
+description = "滿弦的弓箭射擊會在 1.5 秒後從射出的位置沿同一路徑再射一次，不消耗箭矢。重播不會觸發箭術效果。"
+lore1 = "重播傷害"
+
+[mutated.override.chronos.blocking]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內用盾牌格擋過攻擊時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標陷入踉蹌，2 秒內無法格擋；否則你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.chronos.stealth]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你正在潛行且沒有生物鎖定你時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，周圍 8 格內的生物失去你的蹤跡 3 秒；否則你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。冷卻時間 45 秒。"
+
+[mutated.override.chronos.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物緩速 2 秒。"
+convergence = "當你攜帶時鐘並潛行切換主副手，且你的生命值低於一半時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標被標記，6 秒內受到你的傷害提高 15%；否則周圍 16 格內的動物與生物在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.chronos.tragoul]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你的生命值只剩 3 顆心或更少時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，你從目標身上吸取 1 顆心；否則飢餓值中的 1 點轉化為半顆心。冷卻時間 45 秒。"
+
+[mutated.override.chronos.agility]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.chronos.kinetics]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你正在空中時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標被擊飛到空中；否則你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.signature.chronos.rift.convergence]
+name = "召回閃現"
+description = "在終界珍珠、歌萊果或閃現後的 3 到 5 秒內，手持時鐘潛行並交換雙手，即可回到出發的位置，生命值至少恢復為當時的數值。絕不會進入你無權進入的地方。"
+lore1 = "可返回時間"
+
+[mutated.override.chronos.pickaxe]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內挖掘過方塊時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，一陣碎石使目標暈眩 1 秒；否則周圍 6 格內的礦石在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.chronos.excavation]
+graft = "當你攜帶時鐘並潛行切換主副手時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.signature.chronos.herbalism.convergence]
+name = "季節輪轉"
+description = "每個遊戲日一次，手持時鐘潛行並交換雙手，使你周圍的每株作物生長一個階段。此生長視為骨粉催熟。"
+lore1 = "田地半徑"
+
+[mutated.signature.chronos.architect.convergence]
+name = "長久復原"
+description = "手持時鐘潛行並交換雙手，復原你最新的粉筆填充、模板蓋印、魔杖面或替換，可追溯到拆除之手所及的十倍之前。每個仍然存在的方塊都會返還其花費。10 分鐘內，在附近使用時間領主的復原會重新放回該建築，並再次付費。"
+lore1 = "復原範圍"
+
+[mutated.override.chronos.crafting]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你在過去 10 秒內合成過物品時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，你在 5 秒內的下一次攻擊無視目標 20% 的護甲；否則你手中的工具獲得效率 +1，持續 20 秒。冷卻時間 45 秒。"
+
+[mutated.override.chronos.enchanting]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你擁有 20 級或更多原版經驗等級時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗；否則你下一次破壞方塊時，幸運附魔視為高一級。冷卻時間 45 秒。"
+
+[mutated.signature.chronos.brewing.convergence]
+name = "暫停藥水"
+description = "手持時鐘潛行並交換雙手，暫停你身上的有益藥水效果。再次交換或暫停時間結束時，它們會帶著剩餘時間回來。"
+lore1 = "最長暫停"
+
+[mutated.override.chronos.discovery]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你身處從未進入過的區塊時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害；否則周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。冷卻時間 45 秒。"
+
+[mutated.override.chronos.taming]
+echo = "當你的寵物命中攻擊時，目標緩速 2 秒。"
+
+[mutated.signature.chronos.taming.convergence]
+name = "回溯夥伴"
+description = "將要死亡的寵物會改為回溯 4 秒，回到當時所在的位置並恢復當時的生命值。每隻寵物每 5 到 10 分鐘最多回溯一次。"
+lore1 = "回溯"
+lore2 = "每隻寵物的等待"
+
+[mutated.override.chronos.golemancy]
+graft = "當你攜帶時鐘並潛行切換主副手時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。"
+
+[mutated.signature.chronos.golemancy.convergence]
+name = "超頻"
+description = "在你的魔像附近手持時鐘潛行並交換雙手，消耗時間之瓶中儲存的 60 秒，讓它們以三倍速度工作。"
+lore1 = "魔像速度"
+lore2 = "持續時間"
+lore3 = "瓶中時間"
+
+[mutated.override.chronos.seaborne]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你身上潮濕時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。冷卻時間 45 秒。"
+
+[mutated.override.chronos.nether]
+convergence = "當你攜帶時鐘並潛行切換主副手，且你身處地獄或正在燃燒時：若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。此外，若 6 格內有敵對生物，目標燃燒 4 秒；否則你接下來破壞的 3 個方塊會被熔煉。冷卻時間 45 秒。"
+
+[mutated.override.pickaxe.unarmed]
+convergence = "當你開採一塊礦石，且你在過去 4 秒內空手命中過時：周圍 6 格內的礦石在你眼中發光 5 秒。此外，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.pickaxe.ranged]
+convergence = "當你開採一塊礦石，且你在過去 4 秒內射出過滿弓的一箭時：周圍 6 格內的礦石在你眼中發光 5 秒。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.pickaxe.blocking]
+convergence = "當你開採一塊礦石，且你在過去 4 秒內用盾牌格擋過攻擊時：周圍 6 格內的礦石在你眼中發光 5 秒。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.pickaxe.hunter]
+echo = "當你擊殺一隻自然生成的生物時，一陣碎石使周圍 6 格內最近的另一個敵對生物暈眩 1 秒。"
+
+[mutated.override.pickaxe.agility]
+convergence = "當你開採一塊礦石，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：周圍 6 格內的礦石在你眼中發光 5 秒。此外，你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.pickaxe.excavation]
+graft = "當你開採一塊礦石時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.pickaxe.taming]
+echo = "當你的寵物命中攻擊時，一陣碎石使目標暈眩 1 秒。"
+
+[mutated.override.pickaxe.golemancy]
+echo = "當你擁有的魔像完成一項任務時，周圍 6 格內的礦石在你眼中發光 5 秒。"
+
+[mutated.signature.pickaxe.excavation.convergence]
+name = "混合開挖面"
+description = "撼地者鑽掘或塑地者挖掘後，3×3面剩下的部分，無論石頭還是鬆軟土地，都會用快捷欄中合適的工具破壞；每級多深入一層。"
+lore1 = "開挖面深度"
+lore2 = "每次揮擊額外方塊"
+
+[mutated.signature.pickaxe.architect.convergence]
+name = "隧道工匠"
+description = "撼地者挖掘水平隧道時，周圍的石頭會換成你副手的方塊，先是地面，然後是牆壁，再是頂部，每隔8格放一支背包裡的火把。"
+lore1 = "每次鑽掘鋪設的方塊"
+lore2 = "火把間隔方塊"
+
+[mutated.override.excavation.ranged]
+convergence = "當你在 5 秒內挖掘 8 個軟質方塊，且你在過去 4 秒內射出過滿弓的一箭時：你最後挖掘處周圍 3×3 的軟質方塊會被破壞並掉落。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.excavation.blocking]
+convergence = "當你在 5 秒內挖掘 8 個軟質方塊，且你在過去 4 秒內用盾牌格擋過攻擊時：你最後挖掘處周圍 3×3 的軟質方塊會被破壞並掉落。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.excavation.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物腳下的地面化為泥巴，使其緩速 3 秒。"
+
+[mutated.override.excavation.agility]
+echo = "當你疾跑跳躍時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你在 5 秒內挖掘 8 個軟質方塊，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：你最後挖掘處周圍 3×3 的軟質方塊會被破壞並掉落。此外，你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.excavation.kinetics]
+echo = "當你從 4 格或更高處落地時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你在 5 秒內挖掘 8 個軟質方塊，且你在過去 4 秒內從跳躍或墜落中落地過時：你最後挖掘處周圍 3×3 的軟質方塊會被破壞並掉落。此外，你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.override.excavation.rift]
+echo = "當你透過終界珍珠、閃現或歌萊果傳送時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.chronos]
+echo = "當你攜帶時鐘並潛行切換主副手時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.pickaxe]
+echo = "當你開採一塊礦石時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.herbalism]
+echo = "當你收成一株成熟作物時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.architect]
+echo = "當你在 5 秒內放置 8 個方塊時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.crafting]
+echo = "當你合成一件工具、武器或護甲時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.enchanting]
+echo = "當你為物品附魔，或一次獲得 10 點原版經驗時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.brewing]
+echo = "當你喝下或投擲藥水時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.discovery]
+echo = "當你發現新事物時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.taming]
+echo = "當你的寵物命中攻擊時，目標腳下的地面化為泥巴，使其緩速 3 秒。"
+
+[mutated.override.excavation.golemancy]
+echo = "當你擁有的魔像完成一項任務時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.seaborne]
+echo = "當你潛入水中，或在身體潮濕時受到攻擊時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.excavation.nether]
+echo = "當你受到火焰傷害時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.signature.excavation.pickaxe.convergence]
+name = "混合開挖面"
+description = "撼地者鑽掘或塑地者挖掘後，3×3面剩下的部分，無論石頭還是鬆軟土地，都會用快捷欄中合適的工具破壞；每級多深入一層。"
+lore1 = "開挖面深度"
+lore2 = "每次揮擊額外方塊"
+
+[mutated.signature.excavation.architect.convergence]
+name = "澆築地基"
+description = "手持整地樁左鍵，挖開粉筆參考線的直線或圓，並用副手方塊填滿作為地基，每級加深一格。"
+lore1 = "地基深度"
+lore2 = "每次澆築的方塊"
+
+[mutated.override.herbalism.swords]
+graft = "當你收成一株成熟作物時，弧形 3 格範圍內的草、樹葉與成熟作物會被割下並收集。"
+convergence = "當你收成一株成熟作物，且你在過去 4 秒內用劍擊中過敵人時：周圍 4 格內的作物與樹苗成長一個階段。此外，弧形 3 格範圍內的草、樹葉與成熟作物會被割下並收集。冷卻時間 45 秒。"
+
+[mutated.override.herbalism.unarmed]
+barter = "{gesture}，消耗 1 點飢餓值，即可使周圍 4 格內的作物與樹苗成長一個階段。"
+
+[mutated.override.herbalism.ranged]
+convergence = "當你收成一株成熟作物，且你在過去 4 秒內射出過滿弓的一箭時：周圍 4 格內的作物與樹苗成長一個階段。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.herbalism.blocking]
+convergence = "當你收成一株成熟作物，且你在過去 4 秒內用盾牌格擋過攻擊時：周圍 4 格內的作物與樹苗成長一個階段。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.herbalism.hunter]
+echo = "當你擊殺一隻自然生成的生物時，藤蔓纏住周圍 6 格內最近的另一個敵對生物，使其定身 2 秒。"
+barter = "{gesture}，消耗 2 點飢餓值，即可使周圍 4 格內的作物與樹苗成長一個階段。"
+
+[mutated.override.herbalism.excavation]
+graft = "當你收成一株成熟作物時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你收成一株成熟作物，且你在過去 4 秒內挖過軟質方塊時：周圍 4 格內的作物與樹苗成長一個階段。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.herbalism.taming]
+echo = "當你的寵物命中攻擊時，藤蔓纏住目標，使其定身 2 秒。"
+
+[mutated.override.herbalism.golemancy]
+echo = "當你擁有的魔像完成一項任務時，周圍 4 格內的作物與樹苗成長一個階段。"
+
+[mutated.signature.herbalism.chronos.convergence]
+name = "季節輪轉"
+description = "每個遊戲日一次，手持時鐘潛行並交換雙手，使你周圍的每株作物生長一個階段。此生長視為骨粉催熟。"
+lore1 = "田地半徑"
+
+[mutated.signature.herbalism.axes.convergence]
+name = "護林人"
+description = "伐木倒林砍倒的每棵天然樹都會用你攜帶的樹苗重新種下，周圍的樹苗生長一個階段。"
+lore1 = "每棵樹催長的樹苗"
+lore2 = "樹苗搜尋半徑"
+
+[mutated.signature.herbalism.taming.convergence]
+name = "牧人之田"
+description = "收成自然長成的作物時，會用你自己的一份收成餵食野性生長範圍內的寵物和你餵過的動物：牠們恢復生命，並在原地吃草而不踩壞農田，且絕不會因此繁殖。"
+lore1 = "每次收成餵食的動物數"
+lore2 = "每次餵食恢復"
+lore3 = "吃草時間"
+
+[mutated.signature.herbalism.seaborne.convergence]
+name = "海帶園"
+description = "游泳時，你周圍的海帶、海鞘和珊瑚扇會像野性生長中的作物一樣生長，你附近的潮汐神龕也算作田地。用鋤頭點擊海帶或海鞘會收割周圍的海床，並留下每個根部重新生長。"
+lore1 = "生長半徑"
+lore2 = "每秒嘗試的位置"
+lore3 = "收割半徑"
+
+[mutated.signature.herbalism.rift.convergence]
+name = "裂隙收穫"
+description = "每次豐收之月橫掃收穫的作物會送進你所選裂隙錨點旁的容器，沒有錨點時送進終界箱；種子留在你身上。潛行時用鋤右鍵點擊你的一個錨點即可選擇它。"
+lore1 = "每次橫掃的組數"
+
+[mutated.override.architect.unarmed]
+convergence = "當你在 5 秒內放置 8 個方塊，且你在過去 4 秒內空手命中過時：5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。此外，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.architect.ranged]
+convergence = "當你在 5 秒內放置 8 個方塊，且你在過去 4 秒內射出過滿弓的一箭時：5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.architect.blocking]
+convergence = "當你在 5 秒內放置 8 個方塊，且你在過去 4 秒內用盾牌格擋過攻擊時：5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.architect.hunter]
+echo = "當你擊殺一隻自然生成的生物時，你與周圍 6 格內最近的另一個敵對生物之間升起一道 2 格高的臨時牆。"
+
+[mutated.override.architect.excavation]
+graft = "當你在 5 秒內放置 8 個方塊時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+
+[mutated.override.architect.taming]
+echo = "當你的寵物命中攻擊時，你與目標之間升起一道 2 格高的臨時牆。"
+
+[mutated.override.architect.golemancy]
+graft = "當你在 5 秒內放置 8 個方塊時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。"
+
+[mutated.signature.architect.axes.convergence]
+name = "木構架"
+description = "伐木倒林砍下的原木會以剝皮原木掉落；從2級起，你的砍伐原木選項可改為把每根切成4塊木材。"
+lore1 = "每棵樹加工的原木"
+lore2 = "每根原木的木材"
+
+[mutated.signature.architect.pickaxe.convergence]
+name = "隧道工匠"
+description = "撼地者挖掘水平隧道時，周圍的石頭會換成你副手的方塊，先是地面，然後是牆壁，再是頂部，每隔8格放一支背包裡的火把。"
+lore1 = "每次鑽掘鋪設的方塊"
+lore2 = "火把間隔方塊"
+
+[mutated.signature.architect.excavation.convergence]
+name = "澆築地基"
+description = "手持整地樁左鍵，挖開粉筆參考線的直線或圓，並用副手方塊填滿作為地基，每級加深一格。"
+lore1 = "地基深度"
+lore2 = "每次澆築的方塊"
+
+[mutated.signature.architect.crafting.convergence]
+name = "隨手切割"
+description = "粉筆填充或模板建造缺少階梯、半磚、牆或其他形狀時，會從你攜帶的基礎方塊依切石機或工作台的產量切出更多。"
+lore1 = "每次建造切割件數"
+lore2 = "攜帶容器中的基礎方塊"
+
+[mutated.signature.architect.golemancy.convergence]
+name = "建築魔像"
+description = "預覽模板印記後，手持模板右鍵你的一個魔像：只要你留在32格內，它就會從你最近的存放節點取方塊建造該印記。"
+lore1 = "每單方塊"
+lore2 = "每秒方塊"
+
+[mutated.signature.architect.chronos.convergence]
+name = "長久復原"
+description = "手持時鐘潛行並交換雙手，復原你最新的粉筆填充、模板蓋印、魔杖面或替換，可追溯到拆除之手所及的十倍之前。每個仍然存在的方塊都會返還其花費。10 分鐘內，在附近使用時間領主的復原會重新放回該建築，並再次付費。"
+lore1 = "復原範圍"
+
+[mutated.override.crafting.swords]
+barter = "{gesture}，消耗劍的 5 點耐久度，即可讓你身上的每件護甲修復 6 點耐久度。"
+
+[mutated.override.crafting.axes]
+barter = "{gesture}，消耗斧頭的 5 點耐久度，即可讓你身上的每件護甲修復 6 點耐久度。"
+
+[mutated.override.crafting.ranged]
+convergence = "當你合成一件工具、武器或護甲，且你在過去 4 秒內射出過滿弓的一箭時：你手中的工具獲得效率 +1，持續 20 秒。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.crafting.blocking]
+convergence = "當你合成一件工具、武器或護甲，且你在過去 4 秒內用盾牌格擋過攻擊時：你手中的工具獲得效率 +1，持續 20 秒。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.crafting.agility]
+convergence = "當你合成一件工具、武器或護甲，且你在過去 4 秒內結束了一段 3 秒以上的疾跑時：你手中的工具獲得效率 +1，持續 20 秒。此外，你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.crafting.kinetics]
+convergence = "當你合成一件工具、武器或護甲，且你在過去 4 秒內從跳躍或墜落中落地過時：你手中的工具獲得效率 +1，持續 20 秒。此外，你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.override.crafting.pickaxe]
+barter = "{gesture}，消耗鎬的 5 點耐久度，即可讓你身上的每件護甲修復 6 點耐久度。"
+
+[mutated.override.crafting.excavation]
+graft = "當你合成一件工具、武器或護甲時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你合成一件工具、武器或護甲，且你在過去 4 秒內挖過軟質方塊時：你手中的工具獲得效率 +1，持續 20 秒。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.crafting.taming]
+echo = "當你的寵物命中攻擊時，你在 5 秒內的下一次攻擊無視目標 20% 的護甲。"
+
+[mutated.override.crafting.golemancy]
+graft = "當你合成一件工具、武器或護甲時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，你手中的工具獲得效率 +1，持續 20 秒。"
+convergence = "當你合成一件工具、武器或護甲，且你的一隻魔像正在 16 格內工作時：你手中的工具獲得效率 +1，持續 20 秒。此外，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.crafting.architect.convergence]
+name = "預製箱"
+description = "石匠模板和儲物箱合成一個裝有複本所需全部方塊的預製箱。右鍵一個位置查看建築，左鍵旋轉，再次右鍵即在該處展開。"
+lore1 = "每箱方塊"
+lore2 = "每刻展開方塊"
+
+[mutated.signature.crafting.enchanting.convergence]
+name = "符文重鑄"
+description = "主手拿符文書、副手拿大師之作裝備時右鍵，把其大師之作加成壓入書中；拿著滿的書、副手是沒有加成的裝備時右鍵，把加成放上去。每件物品一個加成。"
+lore1 = "保留的加成"
+lore2 = "鋒刃所需等級"
+
+[mutated.override.enchanting.swords]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 4 秒內用劍擊中過敵人時：你下一次破壞方塊時，幸運附魔視為高一級。此外，弧形 3 格範圍內的草、樹葉與作物會被割下並收集。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.axes]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.unarmed]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你雙手空空且處於戰鬥中時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.ranged]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你正將弓拉滿時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.blocking]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你正舉起盾牌時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.stealth]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你正在潛行且沒有生物鎖定你時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。"
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你的生命值低於一半時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 16 格內的動物與生物在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.tragoul]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你的生命值只剩 3 顆心或更少時：你下一次破壞方塊時，幸運附魔視為高一級。此外，飢餓值中的 1 點轉化為半顆心。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.agility]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你已連續疾跑 3 秒沒有停下時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.kinetics]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你正在空中時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.rift]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 5 秒內傳送過時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 6 格內的掉落物被送進你的終界箱。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.chronos]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你的副手持有時鐘時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.pickaxe]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 4 秒內挖掘過方塊時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 6 格內的礦石在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.excavation]
+graft = "當你為物品附魔，或一次獲得 10 點原版經驗時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 4 秒內挖過軟質方塊時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.herbalism]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你站在作物、草或花叢中時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 4 格內的作物與樹苗成長一個階段。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.architect]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你在過去 4 秒內放置過方塊時：你下一次破壞方塊時，幸運附魔視為高一級。此外，5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。冷卻時間 45 秒。"
+
+[mutated.signature.enchanting.crafting.convergence]
+name = "符文重鑄"
+description = "主手拿符文書、副手拿大師之作裝備時右鍵，把其大師之作加成壓入書中；拿著滿的書、副手是沒有加成的裝備時右鍵，把加成放上去。每件物品一個加成。"
+lore1 = "保留的加成"
+lore2 = "鋒刃所需等級"
+
+[mutated.override.enchanting.brewing]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你喝下的藥水仍在生效時：你下一次破壞方塊時，幸運附魔視為高一級。此外，藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.signature.enchanting.discovery.convergence]
+name = "知識守護者"
+description = "當你首次打開結構箱子並生成戰利品時，其中一本附魔書上的每項附魔提升一級，但不會超過原版上限。"
+lore1 = "提升的附魔數"
+
+[mutated.override.enchanting.taming]
+echo = "當你的寵物命中攻擊時，目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。"
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你的一隻寵物正在戰鬥時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 8 格內的寵物回復 1 顆心，並在 5 秒內跟上你的步伐。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.golemancy]
+graft = "當你為物品附魔，或一次獲得 10 點原版經驗時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，你下一次破壞方塊時，幸運附魔視為高一級。"
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你的一隻魔像正在 16 格內工作時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.seaborne]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你身上潮濕時：你下一次破壞方塊時，幸運附魔視為高一級。此外，周圍 4 格內的火焰熄滅，耕地也獲得灌溉。冷卻時間 45 秒。"
+
+[mutated.override.enchanting.nether]
+convergence = "當你為物品附魔，或一次獲得 10 點原版經驗，且你身處地獄或正在燃燒時：你下一次破壞方塊時，幸運附魔視為高一級。此外，你接下來破壞的 3 個方塊會被熔煉。冷卻時間 45 秒。"
+
+[mutated.override.brewing.unarmed]
+convergence = "當你喝下或投擲藥水，且你在過去 4 秒內空手命中過時：藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。此外，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.brewing.ranged]
+convergence = "當你喝下或投擲藥水，且你在過去 4 秒內射出過滿弓的一箭時：藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.brewing.blocking]
+echo = "當你用盾牌格擋一次攻擊時，快捷欄中的第一瓶藥水噴濺到目標身上，消耗四分之一瓶。"
+convergence = "當你喝下或投擲藥水，且你在過去 4 秒內用盾牌格擋過攻擊時：藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.brewing.hunter]
+echo = "當你擊殺一隻自然生成的生物時，藥劑帶或副手中的藥水噴濺到周圍 6 格內最近的另一個敵對生物身上，消耗四分之一瓶。"
+
+[mutated.signature.brewing.chronos.convergence]
+name = "暫停藥水"
+description = "手持時鐘潛行並交換雙手，暫停你身上的有益藥水效果。再次交換或暫停時間結束時，它們會帶著剩餘時間回來。"
+lore1 = "最長暫停"
+
+[mutated.override.brewing.excavation]
+graft = "當你喝下或投擲藥水時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你喝下或投擲藥水，且你在過去 4 秒內挖過軟質方塊時：藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.brewing.taming]
+echo = "當你的寵物命中攻擊時，藥劑帶或副手中的藥水噴濺到目標身上，消耗四分之一瓶。"
+
+[mutated.override.brewing.golemancy]
+graft = "當你喝下或投擲藥水時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。"
+convergence = "當你喝下或投擲藥水，且你的一隻魔像正在 16 格內工作時：藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。此外，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.brewing.nether.convergence]
+name = "靈魂火蒸餾坊"
+description = "位於靈魂火或熔岩上方的釀造台釀出的力量、抗火、迅捷與再生藥水提升一級，最高 III，持續時間為三分之二。"
+lore1 = "每次釀造強化的藥水"
+lore2 = "保留的持續時間"
+
+[mutated.override.discovery.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物的屬性被揭露，且你對它的下一擊多造成 20% 傷害。"
+
+[mutated.override.discovery.excavation]
+graft = "當你發現新事物時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你發現新事物，且你在過去 4 秒內挖過軟質方塊時：周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.discovery.taming]
+echo = "當你的寵物命中攻擊時，目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害。"
+
+[mutated.override.discovery.golemancy]
+graft = "當你發現新事物時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。"
+convergence = "當你發現新事物，且你的一隻魔像正在 16 格內工作時：周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。此外，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.discovery.enchanting.convergence]
+name = "知識守護者"
+description = "當你首次打開結構箱子並生成戰利品時，其中一本附魔書上的每項附魔提升一級，但不會超過原版上限。"
+lore1 = "提升的附魔數"
+
+[mutated.signature.discovery.rift.convergence]
+name = "路石"
+description = "把地圖集中的一處結構設為路石：一個沒有方塊的裂隙錨點，計入你的錨點上限，可像其他錨點一樣從錨點選單前往，消耗終界珍珠並需引導。"
+lore1 = "路石"
+
+[mutated.override.taming.swords]
+graft = "當你的寵物命中攻擊時，目標流血 4 秒。"
+convergence = "當你的寵物命中攻擊，且你在過去 4 秒內用劍擊中過敵人時：你最近的寵物撲向目標。此外，目標流血 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.axes]
+graft = "當你的寵物命中攻擊時，目標的護甲降低 15%，持續 6 秒。"
+convergence = "當你的寵物命中攻擊，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：你最近的寵物撲向目標。此外，目標的護甲降低 15%，持續 6 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.unarmed]
+graft = "當你的寵物命中攻擊時，目標被擊退並虛弱 3 秒。"
+convergence = "當你的寵物命中攻擊，且你雙手空空且處於戰鬥中時：你最近的寵物撲向目標。此外，目標被擊退並虛弱 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.ranged]
+graft = "當你的寵物命中攻擊時，一支光靈箭射向目標。"
+convergence = "當你的寵物命中攻擊，且你正將弓拉滿時：你最近的寵物撲向目標。此外，一支光靈箭射向目標。冷卻時間 45 秒。"
+
+[mutated.override.taming.blocking]
+graft = "當你的寵物命中攻擊時，目標陷入踉蹌，2 秒內無法格擋。"
+
+[mutated.override.taming.stealth]
+graft = "當你的寵物命中攻擊時，周圍 8 格內的生物失去你的蹤跡 3 秒。"
+convergence = "當你的寵物命中攻擊，且你正在潛行且沒有生物鎖定你時：你最近的寵物撲向目標。此外，周圍 8 格內的生物失去你的蹤跡 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.hunter]
+graft = "當你的寵物命中攻擊時，目標被標記，6 秒內受到你的傷害提高 15%。"
+echo = "當你擊殺一隻自然生成的生物時，你最近的寵物撲向周圍 6 格內最近的另一個敵對生物。"
+
+[mutated.override.taming.tragoul]
+graft = "當你的寵物命中攻擊時，你從目標身上吸取 1 顆心。"
+convergence = "當你的寵物命中攻擊，且你的生命值只剩 3 顆心或更少時：你最近的寵物撲向目標。此外，你從目標身上吸取 1 顆心。冷卻時間 45 秒。"
+
+[mutated.override.taming.agility]
+graft = "當你的寵物命中攻擊時，你朝視線方向衝刺 3 格。"
+convergence = "當你的寵物命中攻擊，且你已連續疾跑 3 秒沒有停下時：你最近的寵物撲向目標。此外，你朝視線方向衝刺 3 格。冷卻時間 45 秒。"
+
+[mutated.override.taming.kinetics]
+graft = "當你的寵物命中攻擊時，目標被擊飛到空中。"
+convergence = "當你的寵物命中攻擊，且你正在空中時：你最近的寵物撲向目標。此外，目標被擊飛到空中。冷卻時間 45 秒。"
+
+[mutated.override.taming.rift]
+graft = "當你的寵物命中攻擊時，目標被閃現到離你 4 格遠的地方。"
+convergence = "當你的寵物命中攻擊，且你在過去 5 秒內傳送過時：你最近的寵物撲向目標。此外，目標被閃現到離你 4 格遠的地方。冷卻時間 45 秒。"
+
+[mutated.override.taming.chronos]
+graft = "當你的寵物命中攻擊時，目標緩速 2 秒。"
+
+[mutated.signature.taming.chronos.convergence]
+name = "回溯夥伴"
+description = "將要死亡的寵物會改為回溯 4 秒，回到當時所在的位置並恢復當時的生命值。每隻寵物每 5 到 10 分鐘最多回溯一次。"
+lore1 = "回溯"
+lore2 = "每隻寵物的等待"
+
+[mutated.override.taming.pickaxe]
+graft = "當你的寵物命中攻擊時，一陣碎石使目標暈眩 1 秒。"
+convergence = "當你的寵物命中攻擊，且你在過去 4 秒內挖掘過方塊時：你最近的寵物撲向目標。此外，一陣碎石使目標暈眩 1 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.excavation]
+graft = "當你的寵物命中攻擊時，目標腳下的地面化為泥巴，使其緩速 3 秒。"
+convergence = "當你的寵物命中攻擊，且你在過去 4 秒內挖過軟質方塊時：你最近的寵物撲向目標。此外，目標腳下的地面化為泥巴，使其緩速 3 秒。冷卻時間 45 秒。"
+
+[mutated.override.taming.herbalism]
+graft = "當你的寵物命中攻擊時，藤蔓纏住目標，使其定身 2 秒。"
+
+[mutated.override.taming.architect]
+graft = "當你的寵物命中攻擊時，你與目標之間升起一道 2 格高的臨時牆。"
+convergence = "當你的寵物命中攻擊，且你在過去 4 秒內放置過方塊時：你最近的寵物撲向目標。此外，你與目標之間升起一道 2 格高的臨時牆。冷卻時間 45 秒。"
+
+[mutated.override.taming.crafting]
+graft = "當你的寵物命中攻擊時，你在 5 秒內的下一次攻擊無視目標 20% 的護甲。"
+convergence = "當你的寵物命中攻擊，且你在過去 10 秒內合成過物品時：你最近的寵物撲向目標。此外，你在 5 秒內的下一次攻擊無視目標 20% 的護甲。冷卻時間 45 秒。"
+
+[mutated.override.taming.enchanting]
+graft = "當你的寵物命中攻擊時，目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。"
+convergence = "當你的寵物命中攻擊，且你擁有 20 級或更多原版經驗等級時：你最近的寵物撲向目標。此外，目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗。冷卻時間 45 秒。"
+
+[mutated.override.taming.brewing]
+graft = "當你的寵物命中攻擊時，藥劑帶或副手中的藥水噴濺到目標身上，消耗四分之一瓶。"
+convergence = "當你的寵物命中攻擊，且你喝下的藥水仍在生效時：你最近的寵物撲向目標。此外，藥劑帶或副手中的藥水噴濺到目標身上，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.override.taming.discovery]
+graft = "當你的寵物命中攻擊時，目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害。"
+convergence = "當你的寵物命中攻擊，且你身處從未進入過的區塊時：你最近的寵物撲向目標。此外，目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害。冷卻時間 45 秒。"
+
+[mutated.override.taming.golemancy]
+graft = "當你的寵物命中攻擊時，你最近的魔像轉而攻擊目標。"
+echo = "當你擁有的魔像完成一項任務時，周圍 8 格內的寵物回復 1 顆心，並在 5 秒內跟上你的步伐。"
+
+[mutated.override.taming.seaborne]
+graft = "當你的寵物命中攻擊時，一股水流將目標推開並撲滅火焰。"
+convergence = "當你的寵物命中攻擊，且你身上潮濕時：你最近的寵物撲向目標。此外，一股水流將目標推開並撲滅火焰。冷卻時間 45 秒。"
+
+[mutated.override.taming.nether]
+graft = "當你的寵物命中攻擊時，目標燃燒 4 秒。"
+convergence = "當你的寵物命中攻擊，且你身處地獄或正在燃燒時：你最近的寵物撲向目標。此外，目標燃燒 4 秒。冷卻時間 45 秒。"
+
+[mutated.signature.taming.blocking.convergence]
+name = "持盾者之群"
+description = "站在你舉起的盾牌或你插下的盾牆後方的自有寵物不會受到投射物傷害，並會緩慢恢復生命。"
+lore1 = "掩護深度"
+lore2 = "寵物每秒恢復"
+
+[mutated.signature.taming.golemancy.convergence]
+name = "鋼鐵之群"
+description = "你的魔像視為寵物：頭領的增益在其光環內作用於它們，藉由血之羈絆它們分擔你受到的傷害，馴獸大師之哨可派它們攻擊目標或召回它們。"
+lore1 = "魔像傷害與生命"
+lore2 = "與魔像分擔的傷害"
+lore3 = "哨子範圍"
+
+[mutated.signature.taming.herbalism.convergence]
+name = "牧人之田"
+description = "收成自然長成的作物時，會用你自己的一份收成餵食野性生長範圍內的寵物和你餵過的動物：牠們恢復生命，並在原地吃草而不踩壞農田，且絕不會因此繁殖。"
+lore1 = "每次收成餵食的動物數"
+lore2 = "每次餵食恢復"
+lore3 = "吃草時間"
+
+[mutated.signature.taming.hunter.convergence]
+name = "群狩"
+description = "你的寵物會自行追蹤你的血跡或追蹤者羅盤的物種，絕不離開你超過32格，牠們對該獵物的撕咬會累積並使用你的頂級掠食者疊層。"
+lore1 = "狩獵範圍"
+lore2 = "每次狩獵的寵物數"
+lore3 = "每層疊加的寵物傷害"
+
+[mutated.override.golemancy.swords]
+graft = "當你擁有的魔像完成一項任務時，弧形 3 格範圍內的草、樹葉與作物會被割下並收集。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 4 秒內用劍擊中過敵人時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，弧形 3 格範圍內的草、樹葉與作物會被割下並收集。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.axes]
+graft = "當你擁有的魔像完成一項任務時，你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.unarmed]
+graft = "當你擁有的魔像完成一項任務時，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。"
+convergence = "當你擁有的魔像完成一項任務，且你雙手空空且處於戰鬥中時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.ranged]
+graft = "當你擁有的魔像完成一項任務時，周圍 8 格內的掉落物飛向你。"
+convergence = "當你擁有的魔像完成一項任務，且你正將弓拉滿時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.blocking]
+graft = "當你擁有的魔像完成一項任務時，你在 10 秒內受到的下一次攻擊傷害減半。"
+convergence = "當你擁有的魔像完成一項任務，且你正舉起盾牌時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.stealth]
+graft = "當你擁有的魔像完成一項任務時，你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。"
+convergence = "當你擁有的魔像完成一項任務，且你正在潛行且沒有生物鎖定你時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.hunter]
+graft = "當你擁有的魔像完成一項任務時，周圍 16 格內的動物與生物在你眼中發光 5 秒。"
+echo = "當你擊殺一隻自然生成的生物時，你最近的魔像轉而攻擊周圍 6 格內最近的另一個敵對生物。"
+convergence = "當你擁有的魔像完成一項任務，且你的生命值低於一半時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 16 格內的動物與生物在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.tragoul]
+graft = "當你擁有的魔像完成一項任務時，飢餓值中的 1 點轉化為半顆心。"
+
+[mutated.override.golemancy.agility]
+graft = "當你擁有的魔像完成一項任務時，你獲得速度 II，持續 4 秒。"
+echo = "當你疾跑跳躍時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你已連續疾跑 3 秒沒有停下時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.kinetics]
+graft = "當你擁有的魔像完成一項任務時，你在 5 秒內的下一次跳躍高達 3 格。"
+echo = "當你從 4 格或更高處落地時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你正在空中時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.rift]
+graft = "當你擁有的魔像完成一項任務時，周圍 6 格內的掉落物被送進你的終界箱。"
+echo = "當你透過終界珍珠、閃現或歌萊果傳送時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 5 秒內傳送過時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 6 格內的掉落物被送進你的終界箱。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.chronos]
+graft = "當你擁有的魔像完成一項任務時，周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。"
+echo = "當你攜帶時鐘並潛行切換主副手時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+
+[mutated.signature.golemancy.chronos.convergence]
+name = "超頻"
+description = "在你的魔像附近手持時鐘潛行並交換雙手，消耗時間之瓶中儲存的 60 秒，讓它們以三倍速度工作。"
+lore1 = "魔像速度"
+lore2 = "持續時間"
+lore3 = "瓶中時間"
+
+[mutated.override.golemancy.pickaxe]
+graft = "當你擁有的魔像完成一項任務時，周圍 6 格內的礦石在你眼中發光 5 秒。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 4 秒內挖掘過方塊時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 6 格內的礦石在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.excavation]
+graft = "當你擁有的魔像完成一項任務時，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 4 秒內挖過軟質方塊時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.herbalism]
+graft = "當你擁有的魔像完成一項任務時，周圍 4 格內的作物與樹苗成長一個階段。"
+convergence = "當你擁有的魔像完成一項任務，且你站在作物、草或花叢中時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 4 格內的作物與樹苗成長一個階段。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.architect]
+graft = "當你擁有的魔像完成一項任務時，5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。"
+echo = "當你在 5 秒內放置 8 個方塊時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+
+[mutated.override.golemancy.crafting]
+graft = "當你擁有的魔像完成一項任務時，你手中的工具獲得效率 +1，持續 20 秒。"
+echo = "當你合成一件工具、武器或護甲時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你在過去 10 秒內合成過物品時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你手中的工具獲得效率 +1，持續 20 秒。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.enchanting]
+graft = "當你擁有的魔像完成一項任務時，你下一次破壞方塊時，幸運附魔視為高一級。"
+echo = "當你為物品附魔，或一次獲得 10 點原版經驗時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你擁有 20 級或更多原版經驗等級時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你下一次破壞方塊時，幸運附魔視為高一級。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.brewing]
+graft = "當你擁有的魔像完成一項任務時，藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。"
+echo = "當你喝下或投擲藥水時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你喝下的藥水仍在生效時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.discovery]
+graft = "當你擁有的魔像完成一項任務時，周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。"
+echo = "當你發現新事物時，你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你身處從未進入過的區塊時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.taming]
+graft = "當你擁有的魔像完成一項任務時，周圍 8 格內的寵物回復 1 顆心，並在 5 秒內跟上你的步伐。"
+echo = "當你的寵物命中攻擊時，你最近的魔像轉而攻擊目標。"
+
+[mutated.override.golemancy.seaborne]
+graft = "當你擁有的魔像完成一項任務時，周圍 4 格內的火焰熄滅，耕地也獲得灌溉。"
+echo = "當你潛入水中，或在身體潮濕時受到攻擊時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你身上潮濕時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，周圍 4 格內的火焰熄滅，耕地也獲得灌溉。冷卻時間 45 秒。"
+
+[mutated.override.golemancy.nether]
+graft = "當你擁有的魔像完成一項任務時，你接下來破壞的 3 個方塊會被熔煉。"
+echo = "當你受到火焰傷害時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+convergence = "當你擁有的魔像完成一項任務，且你身處地獄或正在燃燒時：你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。此外，你接下來破壞的 3 個方塊會被熔煉。冷卻時間 45 秒。"
+
+[mutated.signature.golemancy.architect.convergence]
+name = "建築魔像"
+description = "預覽模板印記後，手持模板右鍵你的一個魔像：只要你留在32格內，它就會從你最近的存放節點取方塊建造該印記。"
+lore1 = "每單方塊"
+lore2 = "每秒方塊"
+
+[mutated.signature.golemancy.taming.convergence]
+name = "犬舍核心"
+description = "你的牧場主魔像成為看護者：每一輪牠們會治療住所周圍的寵物和你餵過或繁殖的動物，並把走失的動物帶回。"
+lore1 = "看護範圍"
+lore2 = "每輪治療"
+lore3 = "每輪動物數"
+lore4 = "每輪間隔"
+
+[mutated.signature.golemancy.tragoul.convergence]
+name = "白骨軍團"
+description = "把魔像核心交給你的一名骷髏僕從，它就會作為骨魔像工作。它的壽命只在閒置時流逝；耗盡後它會碎裂並掉落核心。軍團兵仍計入你的僕從上限。"
+lore1 = "軍團兵"
+lore2 = "閒置壽命"
+
+[mutated.override.seaborne.swords]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 4 秒內用劍擊中過敵人時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標流血 4 秒；否則弧形 3 格範圍內的草、樹葉與作物會被割下並收集。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.axes]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 4 秒內砍過木頭或用斧頭攻擊過時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標的護甲降低 15%，持續 6 秒；否則你砍倒的下一棵樹會掉落剝皮原木或木材並自行補種。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.unarmed]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你雙手空空且處於戰鬥中時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標被擊退並虛弱 3 秒；否則你在 30 秒內潛行靜止滿 3 秒即可獲得吸收生命值。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.ranged]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你正將弓拉滿時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，一支光靈箭射向目標；否則周圍 8 格內的掉落物飛向你。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.blocking]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你正舉起盾牌時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標陷入踉蹌，2 秒內無法格擋；否則你在 10 秒內受到的下一次攻擊傷害減半。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.stealth]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你正在潛行且沒有生物鎖定你時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，周圍 8 格內的生物失去你的蹤跡 3 秒；否則你的腳步聲與方塊聲響在 5 秒內消失，且生物會無視你。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.hunter]
+echo = "當你擊殺一隻自然生成的生物時，一股水流將周圍 6 格內最近的另一個敵對生物推開並撲滅火焰。"
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你的生命值低於一半時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標被標記，6 秒內受到你的傷害提高 15%；否則周圍 16 格內的動物與生物在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.tragoul]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你的生命值只剩 3 顆心或更少時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你從目標身上吸取 1 顆心；否則飢餓值中的 1 點轉化為半顆心。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.agility]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你已連續疾跑 3 秒沒有停下時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你朝視線方向衝刺 3 格；否則你獲得速度 II，持續 4 秒。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.kinetics]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你正在空中時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標被擊飛到空中；否則你在 5 秒內的下一次跳躍高達 3 格。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.rift]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 5 秒內傳送過時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標被閃現到離你 4 格遠的地方；否則周圍 6 格內的掉落物被送進你的終界箱。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.chronos]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你的副手持有時鐘時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標緩速 2 秒；否則周圍 4 格內的作物、熔爐與釀造台快轉 10 秒。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.pickaxe]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 4 秒內挖掘過方塊時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，一陣碎石使目標暈眩 1 秒；否則周圍 6 格內的礦石在你眼中發光 5 秒。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.excavation]
+graft = "當你潛入水中，或在身體潮濕時受到攻擊時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.signature.seaborne.herbalism.convergence]
+name = "海帶園"
+description = "游泳時，你周圍的海帶、海鞘和珊瑚扇會像野性生長中的作物一樣生長，你附近的潮汐神龕也算作田地。用鋤頭點擊海帶或海鞘會收割周圍的海床，並留下每個根部重新生長。"
+lore1 = "生長半徑"
+lore2 = "每秒嘗試的位置"
+lore3 = "收割半徑"
+
+[mutated.override.seaborne.architect]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 4 秒內放置過方塊時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你與目標之間升起一道 2 格高的臨時牆；否則5 秒內你的放置距離增加 3 格，並會對齊你的粉筆輔助線。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.crafting]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你在過去 10 秒內合成過物品時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你在 5 秒內的下一次攻擊無視目標 20% 的護甲；否則你手中的工具獲得效率 +1，持續 20 秒。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.enchanting]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你擁有 20 級或更多原版經驗等級時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標發光，且 5 秒內被擊殺的自然生物會多掉落一半的經驗；否則你下一次破壞方塊時，幸運附魔視為高一級。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.brewing]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你喝下的藥水仍在生效時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，藥劑帶或副手中的藥水噴濺到目標身上，消耗四分之一瓶；否則藥劑帶或副手中的藥水以一半持續時間作用於你，消耗四分之一瓶。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.discovery]
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你身處從未進入過的區塊時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，目標的屬性被揭露，且你對它的下一擊多造成 20% 傷害；否則周圍 24 格內最近的箱子、生怪磚或結構會向你發出提示。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.taming]
+echo = "當你的寵物命中攻擊時，一股水流將目標推開並撲滅火焰。"
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你的一隻寵物正在戰鬥時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你最近的寵物撲向目標；否則周圍 8 格內的寵物回復 1 顆心，並在 5 秒內跟上你的步伐。冷卻時間 45 秒。"
+
+[mutated.override.seaborne.golemancy]
+graft = "當你潛入水中，或在身體潮濕時受到攻擊時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，周圍 4 格內的火焰熄滅，耕地也獲得灌溉。"
+convergence = "當你潛入水中，或在身體潮濕時受到攻擊，且你的一隻魔像正在 16 格內工作時：若 6 格內有敵對生物，一股水流將目標推開並撲滅火焰；否則周圍 4 格內的火焰熄滅，耕地也獲得灌溉。此外，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.seaborne.nether.convergence]
+name = "蒸汽行者"
+description = "身體潮濕時踏上熔岩，腳下的熔岩會短暫冷卻凝固，隨後重新熔化。你可以在地獄使用水桶，倒出的水不會流動，並在 30 秒後蒸發。"
+lore1 = "蒸汽行走"
+lore2 = "路徑寬度"
+lore3 = "同時存在的水源"
+
+[mutated.override.nether.hunter]
+echo = "當你擊殺一隻自然生成的生物時，周圍 6 格內最近的另一個敵對生物燃燒 4 秒。"
+
+[mutated.override.nether.excavation]
+graft = "當你受到火焰傷害時，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。"
+convergence = "當你受到火焰傷害，且你在過去 4 秒內挖過軟質方塊時：若 6 格內有敵對生物，目標燃燒 4 秒；否則你接下來破壞的 3 個方塊會被熔煉。此外，若 6 格內有敵對生物，目標腳下的地面化為泥巴，使其緩速 3 秒；否則你在 10 秒內挖掘的下一個軟質方塊會連同周圍 3×3 範圍一起破壞，並全部掉落。冷卻時間 45 秒。"
+
+[mutated.override.nether.taming]
+echo = "當你的寵物命中攻擊時，目標燃燒 4 秒。"
+
+[mutated.override.nether.golemancy]
+graft = "當你受到火焰傷害時，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。"
+echo = "當你擁有的魔像完成一項任務時，你接下來破壞的 3 個方塊會被熔煉。"
+convergence = "當你受到火焰傷害，且你的一隻魔像正在 16 格內工作時：若 6 格內有敵對生物，目標燃燒 4 秒；否則你接下來破壞的 3 個方塊會被熔煉。此外，若 6 格內有敵對生物，你最近的魔像轉而攻擊目標；否則你最近的魔像在下一個相符的方塊上重複它自己的上一項工作。冷卻時間 45 秒。"
+
+[mutated.signature.nether.brewing.graft]
+name = "硫磺藥瓶"
+description = "你投擲的噴濺藥水會留下一圈持續 4 秒的無害靈魂火，再次給予踏入其中的一切藥水效果。同一時間只有一圈。"
+lore1 = "火圈半徑"
+lore2 = "第二劑持續時間"
+
+[mutated.signature.nether.tragoul.convergence]
+name = "凋零之血"
+description = "每次擊殺都會讓屍體周圍的敵對生物獲得凋零 I，擊殺凋零骷髏會填充你的血之儲備。"
+lore1 = "擴散半徑"
+lore2 = "最多凋零目標"
+lore3 = "凋零骷髏提供的血"
+
+[mutated.signature.nether.seaborne.convergence]
+name = "蒸汽行者"
+description = "身體潮濕時踏上熔岩，腳下的熔岩會短暫冷卻凝固，隨後重新熔化。你可以在地獄使用水桶，倒出的水不會流動，並在 30 秒後蒸發。"
+lore1 = "蒸汽行走"
+lore2 = "路徑寬度"
+lore3 = "同時存在的水源"
+
+[upgrade.swords.witherblade]
+name = "凋零之刃"
+description = "劍擊施加凋零並同時流血，期間目標無法回復生命。"
+lore1 = "凋零與流血持續時間"
+lore2 = "每次脈衝的流血傷害"
+lore3 = "冷卻時間"
+overcharge = "超載凋零持續時間"
+
+[upgrade.swords.tempest_flow]
+name = "暴風之流"
+description = "命中會累積攻擊速度，疊滿時的爆擊會釋放範圍斬擊，磨刀石可將劍磨成鋸齒、重刃或鋒銳。"
+lore1 = "釋放斬擊所需層數"
+lore2 = "斬擊傷害"
+lore3 = "斬擊半徑"
+lore4 = "鋸齒流血每跳傷害"
+lore5 = "重刃踉蹌"
+lore6 = "鋒銳暴擊加成"
+
+[upgrade.swords.duelists_verdict]
+name = "決鬥者裁決"
+description = "與單一敵人交戰時造成更多傷害、承受更少傷害，可處決生命低於 30% 的目標，命名過的劍也會透過自然擊殺覺醒。"
+lore1 = "決鬥中的額外傷害"
+lore2 = "決鬥中承受傷害降低"
+lore3 = "生命低於 30% 時的處決加成"
+lore4 = "覺醒之刃傷害上限"
+lore5 = "解鎖反擊、突刺與裁決的擊殺數"
+blade = "覺醒之刃：{kills} 次擊殺"
+
+[tool.swords.whetstone]
+name = "磨刀石"
+serrated = "鋸齒"
+weighted = "重刃"
+keen = "鋒銳"
+
+[upgrade.axes.timberfall]
+name = "伐木倒林"
+description = "一揮就能砍倒整棵樹，連樹葉一起，直接收進背包。"
+lore1 = "每次揮砍伐倒的原木"
+lore2 = "每次揮砍清除的樹葉"
+lore3 = "原木搜尋半徑"
+
+[upgrade.axes.sundering_cleave]
+name = "裂甲劈砍"
+description = "揮擊會命中前方弧形範圍內的所有目標，並削減它們的護甲。"
+lore1 = "弧形寬度"
+lore2 = "弧形傷害比例"
+lore3 = "每層削減護甲"
+
+[upgrade.axes.worldsplitter]
+name = "裂地者"
+description = "擲出的斧頭在落點重擊地面，然後貫穿沿途的一切飛回。"
+lore1 = "投擲傷害倍率"
+lore2 = "重擊傷害"
+lore3 = "重擊半徑"
+lore4 = "冷卻時間"
+lore5 = "回程命中數"
+
+[upgrade.unarmed.titan_fists]
+name = "泰坦之拳"
+description = "拳頭具備滿級搏擊原有能力的威力並更進一步，疾跑出拳能打穿軟質方塊。"
+lore1 = "滿力時拳擊傷害"
+lore2 = "無護甲時傷害倍率"
+lore3 = "每拳額外傷害"
+lore4 = "衝刺拳冷卻時間"
+lore5 = "每次衝刺拳破壞的方塊"
+
+[upgrade.unarmed.unbroken_combo]
+name = "不斷連擊"
+description = "受到攻擊時連擊層數不會消失，每層都會使目標緩速，層數疊滿時潛行攻擊會一次消耗所有層數。"
+lore1 = "最大連擊層數"
+lore2 = "每層額外傷害"
+lore3 = "最高緩速等級"
+lore4 = "終結技每層傷害"
+lore5 = "終結技虛弱等級"
+lore6 = "終結技冷卻時間"
+
+[upgrade.unarmed.seismic_throw]
+name = "震地投擲"
+description = "被拋出的敵人落地時會引發衝擊波。"
+lore1 = "投擲力道"
+lore2 = "衝擊波半徑"
+lore3 = "冷卻時間"
+lore4 = "衝擊波傷害"
+
+[upgrade.ranged.stormshot]
+name = "風暴射擊"
+description = "箭矢飛得更快、打得更重且能穿透，箭袋可儲存並回收箭矢。"
+lore1 = "額外箭矢速度"
+lore2 = "額外箭矢傷害"
+lore3 = "穿透目標數"
+lore4 = "回到箭袋的命中箭矢"
+lore5 = "箭袋容量"
+
+[upgrade.ranged.hunters_web]
+name = "獵人之網"
+description = "縛網箭命中後用蜘蛛網困住目標，並使其懸空。"
+lore1 = "困縛持續時間"
+lore2 = "抬升力道"
+lore3 = "再次困住同一目標的間隔"
+
+[upgrade.ranged.trueflight]
+name = "精準飛矢"
+description = "鎖定的箭矢會彎向目標，彈射箭會持續彈射，齊射可鎖定多個目標。"
+lore1 = "鎖定距離"
+lore2 = "彈射搜尋半徑"
+lore3 = "彈射命中額外傷害"
+lore4 = "齊射鎖定數"
+lore5 = "齊射冷卻時間"
+
+[tool.ranged.quiver]
+name = "箭袋"
+arrows = "箭矢"
+spectral_arrows = "光靈箭"
+
+[tool.ranged.snare_arrow]
+name = "縛網箭"
+
+[tool.ranged.ricochet_arrow]
+name = "彈射箭"
+
+[upgrade.blocking.mirror_guard]
+name = "鏡面守衛"
+description = "抓準時機格擋可抵銷攻擊並將其反彈，近戰或投射物皆可。"
+lore1 = "時機判定窗口"
+lore2 = "反彈的傷害比例"
+lore3 = "冷卻時間"
+
+[upgrade.blocking.living_wall]
+name = "人牆"
+description = "將盾牌插在地上化為限時屏障，庇護身後所有人並使敵對生物緩速。"
+lore1 = "牆後與格擋時傷害降低"
+lore2 = "牆體寬度"
+lore3 = "牆體持續時間"
+lore4 = "牆體冷卻時間"
+
+[upgrade.blocking.tempered_aegis]
+name = "淬鍊神盾"
+description = "格擋真正敵人的攻擊會修復盾牌與護甲，斧頭無法使你的盾牌失效，疾跑跳躍盾擊還能重擊敵人。"
+lore1 = "每次格擋回復的盾牌耐久度"
+lore2 = "每次格擋回復的護甲耐久度"
+lore3 = "盾擊傷害"
+lore4 = "盾擊冷卻時間"
+
+[upgrade.stealth.umbral_form]
+name = "幽影形態"
+description = "未被發現時潛行會讓你隱形並保持全速行走，同時累積一層護甲，削弱下一次攻擊後碎裂。"
+lore1 = "最大護甲層"
+lore2 = "每次脈衝累積的護甲"
+lore3 = "偵測半徑"
+
+[upgrade.stealth.death_mark]
+name = "死亡印記"
+description = "從隱匿狀態發動的首擊可直接擊殺符合條件的非首領生物，殺不死的則會被你偷取物品。"
+lore1 = "可直接擊殺的最高生命上限"
+lore2 = "直接擊殺的間隔"
+lore3 = "偷取的戰利品堆數"
+
+[upgrade.stealth.phantom_decoy]
+name = "幻影誘餌"
+description = "煙霧彈會留下誘餌，你可以與它交換位置，或悄悄繞到生物身後。"
+lore1 = "誘餌存在時間"
+lore2 = "煙霧半徑"
+lore3 = "誘餌間隔"
+lore4 = "暗影步距離"
+lore5 = "暗影步間隔"
+
+[tool.stealth.smoke_pellet]
+name = "煙霧彈"
+lore1 = "暗影步或誘餌"
+
+[upgrade.hunter.blood_frenzy]
+name = "嗜血狂熱"
+description = "受到攻擊時同時獲得力量、速度與回復，生命越低越強，只需消耗一次飢餓。"
+lore1 = "滿血時增益持續時間"
+lore2 = "低生命加成"
+lore3 = "每次狂熱的飢餓持續時間"
+
+[upgrade.hunter.apex_predator]
+name = "頂級掠食者"
+description = "對同一目標的傷害持續提升，大型獵物掉落更多，羅盤會追蹤你的獵物。"
+lore1 = "每層額外傷害"
+lore2 = "層數上限"
+lore3 = "命中大型與首領生物時每次獲得層數"
+lore4 = "大型獵物額外掉落判定機率"
+lore5 = "羅盤範圍"
+lore6 = "記住的種類"
+
+[upgrade.hunter.stalkers_trail]
+name = "追獵者足跡"
+description = "受傷的獵物會留下痕跡，陷阱捕獲的動物可以牽回家，戰利品擊殺掉落更多。"
+lore1 = "血跡持續時間"
+lore2 = "陷阱困縛時間"
+lore3 = "戰利品機率"
+lore4 = "捕獲保持時間"
+
+[tool.hunter.trackers_compass]
+name = "追蹤者羅盤"
+lore1 = "指向最近的已追蹤種類"
+tracking = "正在追蹤{kind}"
+reading = "{kind} {distance} 格"
+none = "範圍內沒有{kind}"
+untrackable = "無法追蹤"
+hungry = "太餓了"
+empty = "尚未追蹤"
+menu = "追蹤的種類"
+
+[upgrade.tragoul.crimson_tide]
+name = "赤紅浪潮"
+description = "你造成的所有傷害都會治療你，溢出的部分存入血液儲備，攻擊者的生命會被你吸取。"
+lore1 = "造成傷害轉為生命的比例"
+lore2 = "從每名攻擊者吸取的生命"
+lore3 = "反彈的荊棘傷害"
+lore4 = "滿血之外儲存的血之心數"
+
+[upgrade.tragoul.plague_nova]
+name = "瘟疫新星"
+description = "擊殺時爆發，擴散目標身上的負面效果並發射骨矛。"
+lore1 = "新星半徑"
+lore2 = "瘟疫擴散半徑"
+lore3 = "計入新星傷害的屍體生命"
+
+[upgrade.tragoul.deathless]
+name = "不死者"
+description = "骨頭會吸收攻擊，抗拒死亡讓你以 1 點生命存活，骷髏僕從會為你而起。"
+lore1 = "每根骨頭吸收的傷害"
+lore2 = "僕從上限"
+lore3 = "抗拒死亡冷卻時間"
+lore4 = "僕從持續時間"
+lore5 = "手動喚起每個僕從所需骨頭"
+lore6 = "手動喚起每個僕從所需生命，優先消耗血液"
+
+[upgrade.agility.slipstream]
+name = "滑流"
+description = "疾跑時速度會不斷累積至上限，滑行時保持速度，疾跑不消耗飢餓。"
+lore1 = "每奔跑 5 秒獲得的速度"
+lore2 = "滑行速度"
+lore3 = "滑行冷卻時間"
+lore4 = "最高速度加成"
+lore5 = "羽足等級"
+
+[upgrade.agility.skyrunner]
+name = "天空行者"
+description = "攀牆、高跳、空中衝刺與鉤索共用空中充能，碰到牆壁即可恢復。"
+lore1 = "高跳高度"
+lore2 = "空中衝刺速度"
+lore3 = "蹬牆跳力道"
+lore4 = "空中充能"
+lore5 = "鉤索射程"
+
+[upgrade.agility.untouchable]
+name = "無可觸及"
+description = "疾跑時閃避投射物，一定高度內的墜落都能翻滾化解，並將受到的攻擊化為速度。"
+lore1 = "受擊後的爆發速度等級"
+lore2 = "爆發速度持續時間"
+lore3 = "恢復跳躍判定窗口"
+lore4 = "閃避投射物機率"
+lore5 = "可翻滾化解的最高墜落"
+
+[tool.agility.grappling_line]
+name = "鉤索"
+usage = "右鍵方塊將自己拉過去，再次右鍵放開"
+
+[upgrade.kinetics.comet]
+name = "彗星"
+description = "俯衝重擊命中大範圍並削減護甲，你還能變大為泰坦或縮小為口袋形態。"
+lore1 = "衝擊波半徑"
+lore2 = "削減的護甲"
+lore3 = "削甲持續時間"
+lore4 = "衝擊波傷害"
+lore5 = "泰坦與口袋形態體型變化"
+lore6 = "泰坦衝擊波半徑"
+lore7 = "口袋形態免除的落地傷害"
+
+[upgrade.kinetics.lancer]
+name = "槍騎兵"
+description = "長矛或三叉戟攻擊距離更遠，傷害隨你的速度提升，並能釘住目標。"
+lore1 = "額外觸及距離"
+lore2 = "速度帶來的最高額外傷害"
+lore3 = "釘住持續時間"
+
+[upgrade.kinetics.featherweight]
+name = "輕如鴻毛"
+description = "跳得更高，落地更有彈性，在任何方塊上都不受摔落傷害。"
+lore1 = "額外跳躍高度"
+lore2 = "落地彈力"
+lore3 = "免除的摔落傷害"
+
+[upgrade.rift.phase_step]
+name = "相位步"
+description = "消耗一顆終界珍珠或半顆心穿牆閃現，與標記的目標交換位置，終界珍珠會彈跳一次。"
+lore1 = "閃現距離"
+lore2 = "抵達時的抗性"
+lore3 = "冷卻時間"
+lore4 = "每次閃現消耗一顆終界珍珠或半顆心"
+lore5 = "潛行時擊中生物，下一次閃現與牠交換位置"
+lore6 = "在允許 PvP 的地方也會與玩家交換位置"
+
+[upgrade.rift.pocket_realm]
+name = "口袋領域"
+description = "隨處開啟終界箱，吸取掉落物並補充你手上的物品，裂痕錨點可連接你的各個基地。"
+lore1 = "掉落物吸取半徑"
+lore2 = "每次脈衝吸取的掉落物"
+lore3 = "每次放置補充的方塊"
+lore4 = "裂痕錨點"
+lore5 = "錨點引導"
+lore6 = "每次錨點傳送消耗的終界珍珠"
+lore7 = "每顆終界珍珠可傳送的組數"
+lore8 = "錨點可跨維度使用"
+
+[upgrade.rift.voidborn]
+name = "虛空之子"
+description = "致命傷害會將你閃現到安全處，終界使者無視你，漂浮效果聽你指揮。"
+lore1 = "脫逃冷卻時間"
+lore2 = "脫逃後的抗性"
+lore3 = "解除漂浮冷卻時間"
+
+[tool.rift.anchor]
+name = "裂痕錨點"
+usage = "右鍵方塊放置"
+title = "裂痕錨點"
+entry = "錨點 {number}"
+here = "你在這裡"
+travel = "傳送"
+open = "開啟容器"
+send = "傳送物品到這裡"
+other_dimension = "其他維度：口袋領域 {level}"
+empty = "尚未放置錨點"
+placed = "已放置錨點（{count}/{max}）"
+full = "已放滿 {max} 個錨點"
+broken = "你有 {count} 個裂痕錨點被破壞"
+no_pearl = "需要 {count} 顆終界珍珠"
+channel_broken = "引導被打斷"
+blocked = "該錨點被阻擋或已消失"
+no_container = "該錨點旁沒有容器"
+sent = "已傳送 {count} 個物品"
+nothing = "沒有可傳送的物品"
+waystone_set = "已設置路石（{count}/{max}）"
+waystones_full = "已設滿 {max} 個路石"
+remove = "移除"
+harvests_here = "收穫送到這裡"
+harvests_ender = "收穫送進你的終界箱"
+
+[tool.rift.eye]
+name = "裂痕之眼"
+usage = "右鍵傳送到錨點"
+
+[upgrade.chronos.second_chance]
+name = "第二次機會"
+description = "一次可自行觸發或在受到致命一擊時觸發的回溯，每次受到的傷害有一部分會延後支付。"
+lore1 = "回溯時間"
+lore2 = "冷卻時間"
+lore3 = "致命一擊後無敵時間"
+lore4 = "延後承受的傷害"
+lore5 = "救援後最高生命值"
+
+[upgrade.chronos.time_lord]
+name = "時間領主"
+description = "時間瓶可儲存更多，光環加速作物與工作站，增益持續更久，時鐘可復原爆炸破壞。"
+lore1 = "時間瓶容量"
+lore2 = "光環半徑"
+lore3 = "正面藥水延長"
+lore4 = "復原半徑"
+lore5 = "復原時限"
+lore6 = "每次充能的方塊數"
+lore7 = "每次充能消耗的儲存時間"
+restored = "已復原 {count} 個方塊"
+restore_nothing = "這裡沒有可復原的東西"
+restore_no_time = "儲存的時間不足"
+restore_drops_missing = "部分掉落物已不見"
+restore_protected = "你不能在這裡建造"
+
+[upgrade.chronos.frozen_moment]
+name = "凝結瞬間"
+description = "可投擲的停滯力場；你在場內的攻擊會定身目標。"
+lore1 = "力場半徑"
+lore2 = "力場持續時間"
+lore3 = "定身持續時間"
+
+[upgrade.pickaxe.motherlode]
+name = "主礦脈"
+description = "整條礦脈一次挖下並自動熔煉，額外獲得一個礦物，生怪磚會連同其中的生物一起掉落。"
+lore1 = "礦脈半徑"
+lore2 = "每條礦脈最多方塊數"
+lore3 = "每條礦脈額外礦物"
+lore4 = "每個保留生怪磚消耗的耐久度"
+spawner_mob = "生物：{mob}"
+spawner_worn = "需要 {durability} 點鎬耐久度"
+
+[upgrade.pickaxe.earthshaker]
+name = "撼地者"
+description = "以石頭的速度在石頭、深板岩與黑曜石中鑿出 3x3 的通道，並用探礦炸藥炸出礦物。"
+lore1 = "鑿掘範圍"
+lore2 = "深板岩與黑曜石上的石頭速度比例"
+lore3 = "每個鑿掘方塊的耐久度消耗"
+lore4 = "炸藥半徑"
+
+[upgrade.pickaxe.eternal_pick]
+name = "永恆之鎬"
+description = "鎬子永不損壞，挖掘時自動修復，挖礦還會讓你更堅韌。"
+lore1 = "每個方塊的修復機率"
+lore2 = "每次修復的耐久度"
+lore3 = "最高抗性等級"
+
+[tool.pickaxe.prospectors_charge]
+name = "探礦炸藥"
+stone_drop = "石頭：掉落"
+stone_discard = "石頭：丟棄"
+busy = "已經放置了一個炸藥"
+no_pickaxe = "快捷欄裡沒有鎬"
+stone_only = "僅限石頭"
+opened = "已炸開 {blocks} 個方塊"
+worn = "鎬已磨損"
+protected = "在受保護的地面停止"
+
+[upgrade.excavation.landshaper]
+name = "塑地者"
+description = "在軟質地面上挖出平面或豎井，砸出一排土地，並用整地樁整平地面。"
+lore1 = "每次挖掘周圍挖開的方塊"
+lore2 = "潛行時的豎井深度"
+lore3 = "挖掘時的挖掘加速"
+lore4 = "整平面積"
+lore5 = "最大高度變化"
+lore6 = "震地傷害"
+lore7 = "震地冷卻時間"
+
+[upgrade.excavation.deep_sight]
+name = "深層視野"
+description = "挖掘時能透過地面看見礦物，不需要發光漿果。"
+lore1 = "掃描半徑"
+lore2 = "每次掃描標示的礦物"
+lore3 = "冷卻時間"
+
+[upgrade.excavation.gravekeeper]
+name = "守墓人"
+description = "挖掘時會翻出寶藏、骨頭與額外掉落物。"
+lore1 = "寶藏機率"
+lore2 = "骨頭戰利品機率"
+lore3 = "額外掉落機率"
+
+[tool.excavation.grading_stakes]
+name = "整地樁"
+stake = "樁：{x}, {y}, {z}"
+pulled = "已拔起樁"
+too_wide = "最多 {size} x {size}"
+busy = "正在整地"
+no_shovel = "快捷欄裡沒有鏟子"
+done = "挖掉 {dug} 個，填平 {filled} 個"
+no_fill = "泥土、沙子和礫石用完了"
+worn = "鏟子已磨損"
+protected = "在受保護的地面停止"
+
+[upgrade.herbalism.wildgrowth]
+name = "野性生長"
+description = "大範圍的生長光環，還會在空的耕地上種下你的種子。"
+lore1 = "生長半徑"
+lore2 = "每次脈衝種下的種子"
+lore3 = "每階段的食物消耗"
+
+[upgrade.herbalism.harvest_moon]
+name = "豐收之月"
+description = "右鍵一次即可收成並重新種植整片農田，你在附近時稻草人會照料作物。"
+lore1 = "田地半徑"
+lore2 = "每株作物的額外產量機率"
+lore3 = "冷卻時間"
+lore4 = "稻草人"
+lore5 = "稻草人範圍"
+
+[upgrade.herbalism.iron_stomach]
+name = "鐵胃"
+description = "飢餓值會先吸收各類傷害的 50 至 80%，食物的飽食效果加倍。"
+lore1 = "由飢餓值承受的傷害"
+lore2 = "餐點額外的飽食度"
+
+[tool.herbalism.scarecrow]
+name = "稻草人"
+harvests = "剩餘收穫次數"
+placed = "稻草人"
+
+[upgrade.architect.master_builder]
+name = "建築大師"
+description = "法杖可放置大面積方塊，從隨身容器補充材料，並用方塊填滿粉筆引導線。"
+lore1 = "建築師之杖平面"
+lore2 = "每次粉筆填充方塊數"
+lore3 = "粉筆圓半徑"
+lore4 = "粉筆牆高度"
+lore5 = "實心圓盤填充"
+overcharge = "每次填充方塊數"
+shape = "粉筆填充形狀"
+shape_outline = "輪廓"
+shape_disc = "實心圓盤"
+shape_wall = "牆"
+built = "已放置 {placed}"
+stopped_protected = "已放置 {placed}，在受保護方塊處停止"
+stopped_items = "已放置 {placed}，方塊用完了"
+stopped_limit = "已放置 {placed}，達到方塊上限"
+stopped_tool = "已放置 {placed}，你的工具快壞了"
+stopped = "已放置 {placed}，已停止"
+busy = "已有建造在進行"
+wait = "下次填充還需 {time}"
+nothing = "沒有可填充的地方"
+
+[upgrade.architect.skyhook]
+name = "天鉤"
+description = "生成不會被擊退或摔落的臨時踏腳處，石匠模板可複製並蓋印建築。"
+lore1 = "模板每邊尺寸"
+lore2 = "每次蓋印方塊數"
+lore3 = "沿粉筆參考線蓋印次數"
+lore4 = "鏡像蓋印"
+overcharge = "沿參考線蓋印次數"
+gap = "重複蓋印之間的間隔"
+gap_none = "無"
+gap_one = "1 格"
+gap_two = "2 格"
+gap_four = "4 格"
+
+[upgrade.architect.wrecking_hand]
+name = "拆除之手"
+description = "抹除你放置的方塊，復原最近的建造，並替換整座建築中的方塊。"
+lore2 = "復原時限"
+lore3 = "可復原的建造次數"
+lore4 = "每次替換方塊數"
+overcharge = "每次替換方塊數"
+undone = "已退回 {count}"
+nothing_to_undo = "沒有可復原的內容"
+nothing_to_replace = "沒有可替換的方塊"
+
+[tool.architect.masons_template]
+name = "石匠模板"
+usage_copy = "點擊兩個對角來複製"
+usage_stamp = "右鍵預覽，再按一次建造"
+usage_turn = "左鍵旋轉，潛行時左鍵方塊鏡像"
+usage_repeat = "潛行時右鍵方塊沿粉筆參考線重複"
+usage_undo = "潛行時對空氣右鍵復原"
+usage_mode = "交換雙手切換蓋印和替換"
+usage_wipe = "單獨合成即可清空"
+pattern = "{width} x {height} x {depth}，{count} 個方塊"
+mode_stamp = "蓋印"
+mode_replace = "替換刷"
+corner = "已設定第一個角"
+copied = "已複製 {count} 個方塊"
+too_large = "每邊最多 {size} 格"
+empty = "沒有可複製的內容"
+turned = "已旋轉 {degrees} 度"
+mirrored = "已鏡像"
+unmirrored = "未鏡像"
+mirror_locked = "鏡像需要等級 {level}"
+ready = "{count} 個方塊，再次右鍵建造"
+short = "缺少：{items}"
+no_guide = "先畫一條粉筆參考線"
+replace_locked = "替換需要 {upgrade}"
+
+[upgrade.crafting.grand_artisan]
+name = "工藝大師"
+description = "合成的裝備能擲出更好的加成、合併附魔、退還一份材料，並可在鍛造台重鑄。"
+lore2 = "更強的傑作擲骰"
+lore3 = "重鑄選項"
+lore4 = "重鑄等級消耗"
+lore5 = "重鑄鎖定"
+lock = "重鑄鎖定"
+lock_none = "無"
+lock_durability = "耐久"
+lock_edge = "傑作之鋒"
+levels = "{levels} 級"
+
+[upgrade.crafting.unmaker]
+name = "拆解者"
+description = "將任何物品拆成零件、重組礦物，並隨處壓縮物品堆。"
+lore2 = "壓縮冷卻時間"
+
+[upgrade.crafting.field_workshop]
+name = "野外工坊"
+description = "從工匠帳冊合成已儲存的配方並開啟工作站，還能一次合成整組物品。"
+lore2 = "每個工作站頁面的飢餓消耗"
+lore3 = "帳冊頁數"
+lore4 = "帳冊連鎖深度"
+
+[tool.crafting.runed_book]
+name = "符文書"
+
+[tool.crafting.artisans_ledger]
+name = "工匠帳冊"
+filled = "已寫 {pages} 頁"
+empty = "空白頁"
+missing = "缺少：{items}"
+unknown = "沒有你能製作的配方"
+
+[upgrade.enchanting.arcane_hand]
+name = "奧術之手"
+description = "不需鐵砧，徒手移動、拆分與套用附魔，並可在砂輪將一項附魔抽到書上。"
+lore1 = "附魔強度上限"
+lore2 = "每次移動的等級"
+lore3 = "每次拆分的等級"
+lore4 = "砂輪附魔書機率"
+lore5 = "每本砂輪附魔書的等級"
+library_needs = "需要一本書和 {levels} 級"
+
+[upgrade.enchanting.fate_weaver]
+name = "命運編織者"
+description = "看見所有選項，並以更高的書架強度重新擲選。"
+lore1 = "虛擬書架強度"
+lore2 = "每次重擲的青金石"
+lore3 = "重擲冷卻時間"
+
+[upgrade.enchanting.soulforged]
+name = "魂鑄"
+description = "連結的裝備死亡後不會遺失，會隨你獲得經驗而成長、擺脫詛咒，並突破其最高等級。"
+lore1 = "經驗保存消耗"
+lore2 = "經驗充能速率"
+lore3 = "重新連結冷卻時間"
+lore4 = "每件物品的昇華數"
+lore5 = "每次昇華的等級"
+ascended = "已昇華"
+ascend_levels = "需要 {levels} 級"
+
+[upgrade.brewing.master_distiller]
+name = "釀造大師"
+description = "藥水釀造更快、持續時間加倍，鍊金術士的藥劑帶可攜帶各劑量所消耗的藥水。"
+lore1 = "釀造加速"
+lore2 = "每接觸一個熔岩方塊的釀造加速"
+lore3 = "釀造藥水持續時間"
+lore4 = "藥劑帶格數"
+
+[upgrade.brewing.witchs_shelf]
+name = "女巫藥櫃"
+description = "一次解鎖全部六種有害藥水，噴濺範圍更廣，還能調配混合的有害飛濺藥水。"
+lore1 = "已解鎖的攻擊型藥水"
+lore2 = "攻擊型噴濺半徑"
+lore3 = "每瓶混合飛濺藥水的效果數"
+lore4 = "混合效果持續時間"
+mix_name = "混合咒藥"
+
+[upgrade.brewing.apothecary]
+name = "藥劑師"
+description = "一次解鎖四種防禦藥水與挖掘加速，另含一種靈藥與混合藥水。"
+lore1 = "已解鎖的防禦型藥水"
+lore2 = "靈藥持續時間"
+elixir_name = "藥劑師靈藥"
+lore3 = "每瓶混合藥水的效果數"
+lore4 = "混合效果持續時間"
+mix_name = "混合補劑"
+
+[tool.brewing.bandolier]
+name = "鍊金術士的藥劑帶"
+stored = "藥水：{count}"
+active = "目前：{potion}（{slot}/{count}）"
+empty = "未裝入藥水"
+full = "藥劑帶已滿"
+nothing = "沒有可裝入的藥水"
+unreadable = "無法讀取藥劑帶中的藥水"
+unstorable = "這瓶藥水無法裝入"
+
+[upgrade.discovery.omniscience]
+name = "全知"
+description = "生物資料、附近的箱子、生怪磚與結構都顯示在同一讀數中，探險家地圖冊會記錄你的發現。"
+lore1 = "顯示範圍"
+lore2 = "結構範圍"
+chests = "箱子 {count}"
+spawners = "生怪磚 {count}"
+lore3 = "標記"
+lore4 = "路徑點"
+lore5 = "未發現結構搜尋半徑"
+
+[upgrade.discovery.unity_prime]
+name = "至高統合"
+description = "原版經驗會灌注到你最低的技能，每升級一項技能都會提升所有經驗獲取，世界之甲與強化修補也會生效。"
+lore1 = "每顆原版經驗球的經驗"
+lore2 = "灌注的最低技能數"
+lore3 = "每項已升級技能的經驗獲取加成"
+lore4 = "世界之甲等級"
+lore5 = "強化修補等級"
+
+[upgrade.discovery.explorers_luck]
+name = "探險家的幸運"
+description = "首次造訪、首次擊殺與遺物的報酬更高，並累積永久加成。"
+lore1 = "發現報酬"
+lore2 = "每次發現累積的報酬"
+lore3 = "每個物種累積的傷害"
+
+[tool.discovery.explorers_atlas]
+name = "探險家地圖冊"
+biomes = "生態域 {count}"
+structures = "結構 {count}"
+pins = "標記 {count}/{max}"
+waypoints = "路徑點 {count}/{max}"
+empty = "尚未發現任何東西"
+looted = "已搜刮"
+not_looted = "未搜刮"
+pinned = "已標記"
+pin = "標記"
+unpin = "取消標記"
+delete = "刪除"
+elsewhere = "位於 {world}"
+lead = "搜尋發現"
+search = "搜尋：{structure}"
+search_action = "搜尋"
+next_type = "下一類型"
+search_cost = "消耗 {paper} 張紙和 {hunger} 點飢餓值"
+search_cooldown = "{time} 後就緒"
+searching = "正在搜尋 {structure}"
+search_found = "發現 {structure}：{direction}，{distance} 格"
+search_none = "{range} 格內沒有未發現的 {structure}"
+new_waypoint = "新路徑點"
+name_prompt = "為你所站的位置輸入一個路徑點名稱。"
+waypoint_added = "已設定路徑點 {name}"
+waypoints_full = "路徑點已滿（{max}）"
+pins_full = "標記已滿（{max}）"
+make_waystone = "設為路石"
+remove_waystone = "移除路石"
+
+[upgrade.taming.alpha]
+name = "頭領"
+description = "寵物更強壯、更耐打且會回復生命，靠近你時效果更強，締結羈絆的坐騎會隨你騎乘而成長。"
+lore1 = "寵物傷害加成"
+lore2 = "寵物最大生命加成"
+lore3 = "光環半徑"
+lore4 = "羈絆坐騎成長上限"
+lore5 = "羈絆坐騎召喚範圍"
+
+[upgrade.taming.one_mind]
+name = "心靈相通"
+description = "用哨子派出、召回寵物並讓牠們撿回物品，已命名的寵物可擔任守衛職責。"
+lore1 = "標記距離"
+lore2 = "召回半徑"
+lore3 = "召回冷卻時間"
+lore4 = "已命名寵物的職責"
+
+[upgrade.taming.blood_bond]
+name = "血之羈絆"
+description = "你與寵物分擔傷害，牠們會替你擋下射擊，瀕死的寵物會以 1 點生命回到你身邊。"
+lore1 = "與寵物分擔的傷害"
+lore2 = "攔截射擊機率"
+lore3 = "每隻寵物的救援冷卻時間"
+
+[tool.taming.whistle]
+name = "馴獸大師之哨"
+lore1 = "右鍵：派出寵物"
+lore2 = "潛行 + 右鍵：召回"
+lore3 = "左鍵：選單"
+fetch_on = "撿拾：開"
+fetch_off = "撿拾：關"
+bond = "與此坐騎結成羈絆"
+bonded = "羈絆坐騎"
+role = "職責：{role}"
+role_none = "無"
+role_guard_owner = "守護你"
+role_guard_spot = "守護此處"
+role_fetch = "撿拾"
+cannot_build = "你不能在這裡建造"
+
+[upgrade.golemancy.grand_overseer]
+name = "大監工"
+description = "從遠處指揮、治療與收納你的魔像。"
+lore2 = "信號、修補與收納的距離"
+
+[upgrade.golemancy.forgemaster]
+name = "鍛造大師"
+description = "縛約魔像、編織節點，並讓每個核心以全力運作；骨架等級隨之提升，於等級 3 時達到上限。"
+
+[upgrade.golemancy.runeforged]
+name = "符文鍛造"
+description = "多一個符文欄位，符文更強，任何魔像都能裝入雙核心。"
+lore2 = "每個魔像的額外符文欄位"
+lore3 = "三階符文加成，效果視為高一階"
+lore4 = "雙核心魔像"
+lore5 = "第二核心工作速度"
+lore6 = "傑作的額外符文槽"
+all = "全部"
+heart_needed = "這個雙核心需要背包中有一顆傑作之心"
+
+[upgrade.seaborne.leviathan]
+name = "利維坦"
+description = "在水下呼吸、快速游泳、凝聚潮汐護盾，身體濕潤時回復生命且不會飢餓，還能建起潮汐神龕。"
+lore1 = "水下節省的氧氣"
+lore2 = "游泳效率"
+lore4 = "濕潤時的回復等級"
+lore5 = "潮汐神龕半徑"
+lore6 = "潮汐神龕"
+
+[upgrade.seaborne.maelstrom]
+name = "大漩渦"
+description = "湧動與噴射共用充能；三叉戟傷害更高且立即返回，風暴會回應你的攻擊。"
+lore1 = "湧動與噴射共用充能"
+lore2 = "三叉戟額外傷害"
+lore3 = "三叉戟返回速度"
+
+[upgrade.seaborne.deep_fortune]
+name = "深海財富"
+description = "漁獲更好，海洋生物會幫助你，沉沒的箱子會發光，沉船與遺跡可以打撈。"
+lore1 = "額外漁獲機率"
+lore2 = "幸運"
+lore3 = "容器發光半徑"
+lore4 = "打撈幸運"
+
+[tool.seaborne.tide_shrine]
+name = "潮汐神龕"
+lore1 = "放置消耗 1 個鸚鵡螺殼"
+full = "你的潮汐神龕已全部放置"
+water = "需要開闊水域"
+shell = "需要一個鸚鵡螺殼"
+protected = "你不能在這裡建造"
+
+[upgrade.nether.hellwalker]
+name = "煉獄行者"
+description = "在地獄熔岩上大步跨行，在任何熔岩中都能清楚視物地游泳，無視火焰，並保護掉落的物品。"
+lore1 = "熔岩行走強度"
+lore2 = "靈魂沙上的速度加成"
+lore3 = "每次熔岩行走的飢餓消耗"
+lore4 = "熔岩游泳速度（占水中速度比例）"
+lore5 = "每點飢餓值可在熔岩中停留的時間"
+lore6 = "丟棄的物品在熔岩中漂浮"
+
+[upgrade.nether.wither_king]
+name = "凋零之王"
+description = "投擲凋零頭顱，無視凋零效果，並從凋零骷髏身上獲得更多。"
+lore1 = "投擲頭顱冷卻時間"
+lore2 = "抵抗凋零的機率"
+lore3 = "凋零骷髏頭顱機率"
+
+[upgrade.nether.brimstone]
+name = "硫磺"
+description = "攻擊者會著火，火焰能餵飽你，爆炸幾乎傷不了你，豬布林會與你交易並保持休戰。"
+lore1 = "近戰攻擊者的燃燒時間"
+lore2 = "火焰回復的飢餓值"
+lore3 = "爆炸傷害降低"
+lore4 = "以物易物額外抽取機率"
+
+[upgrade]
+granted_level = "{adaptation} 以 {level} 級生效"
+overcharge = "超載"
+
+[xp_guide]
+title = "獲取經驗"
+mutation_title = "變異"
+adaptations = "使用其適應並完成其挑戰"
+farmed_mobs = "來自生怪磚、生怪蛋、桶、繁殖或傳送門的生物不給經驗"
+placed_blocks = "你放置的方塊不給經驗"
+
+[xp_guide.mutation]
+one_bar = "兩個親本技能的行動都填充這一條經驗條。"
+same_action = "同時獎勵兩個親本的行動，給予較大獎勵加上較小獎勵的 {share}%。"
+farmed = "刷取來源從不給經驗。"
+
+[xp_guide.agility]
+move = "行走、衝刺、游泳、跳躍和攀爬"
+riding = "騎乘、飛行和滑翔不給經驗"
+
+[xp_guide.architect]
+place = "放置方塊，貴重方塊更多"
+storage = "儲存方塊和破壞方塊不給經驗"
+throw = "用投出的方塊擊中生物"
+
+[xp_guide.axes]
+combat = "用斧頭攻擊生物"
+chop = "用斧頭砍原木、木塊、蕈柄和蘑菇方塊"
+
+[xp_guide.blocking]
+blocked_hit = "用盾牌格擋攻擊，攻擊越重越多"
+shield_hold = "格擋後保持舉盾（伺服器允許時）"
+
+[xp_guide.brewing]
+drink = "飲用釀造的藥水，越強越多"
+splash = "投擲釀造的飛濺藥水"
+plain = "水瓶、平凡、濃稠和粗劣藥水不給經驗"
+
+[xp_guide.chronos]
+movement = "四處移動，手持或背包裡有時鐘時更多"
+active = "保持活躍，夜間更多"
+survival = "保持存活，距上次死亡每過一小時更多"
+sleep = "睡過夜晚"
+speed = "飲用或投擲迅捷藥水"
+idle = "站立不動幾乎沒有經驗"
+
+[xp_guide.crafting]
+craft = "合成物品，產物越貴重越多"
+smelt = "待在正在冶煉的熔爐附近"
+convert = "碎塊、錠和方塊之間互相轉換不給經驗"
+
+[xp_guide.discovery]
+new = "發現新的方塊、物品、生物、生態域、食物、配方和附魔"
+chunk = "探索從未見過的區塊"
+loot = "打開戰利品箱"
+advancement = "完成進度"
+world = "造訪新世界和維度"
+orbs = "獲得原版經驗"
+once = "每項發現只給一次"
+
+[xp_guide.enchanting]
+enchant = "在附魔台附魔，等級越高越多"
+
+[xp_guide.excavation]
+combat = "用鏟子攻擊生物"
+dig = "用鏟子挖掘，方塊越硬越多"
+throw = "用拋出的方塊擊中生物"
+
+[xp_guide.golemancy]
+build = "建造並縛約魔像"
+craft = "合成手杖、核心、節點和符文，並在基座上灌注"
+fight = "你的魔像在你附近戰鬥和受擊"
+work = "你的魔像在你附近工作"
+care = "修復、刮除和上蠟你的魔像"
+witness = "目睹未縛約的魔像擊殺敵對生物"
+
+[xp_guide.herbalism]
+harvest = "收穫作物，越成熟越多"
+eat = "吃食物"
+shear = "剪動物的毛"
+compost = "填充和清空堆肥桶"
+bonemeal = "施過骨粉的作物給一半，同一位置幾分鐘內給得更少"
+
+[xp_guide.hunter]
+kill = "擊殺生物，越強的生物和苦力怕越多"
+farmed = "來自生怪磚、生怪蛋、桶、繁殖或傳送門的生物給得少得多"
+
+[xp_guide.kinetics]
+mace = "用重錘猛擊和攻擊"
+spear = "長矛衝鋒、戳刺和騎乘衝鋒"
+knockback = "擊退生物和被擊退"
+fall = "下落、緩衝墜落、彈跳和發射"
+levitation = "漂浮，或讓其他生物漂浮"
+anvil = "向生物投下鐵砧，以及使用鐵砧和砂輪"
+
+[xp_guide.nether]
+ore = "開採地獄石英、地獄金礦和遠古遺骸"
+kill = "擊殺地獄生物、凋零骷髏和凋零怪"
+wither = "攻擊凋零怪和受到凋零傷害"
+rose = "破壞凋零玫瑰"
+
+[xp_guide.pickaxe]
+combat = "用鎬攻擊生物"
+mine = "用鎬挖掘，礦石和深板岩礦石最多"
+silk = "絲綢之觸給得很少"
+
+[xp_guide.ranged]
+shoot = "射出箭矢"
+hit = "用箭命中，距離越遠越多"
+kill = "手持弓或弩擊殺生物"
+
+[xp_guide.rift]
+portal = "穿過傳送門"
+teleport = "用歌萊果、終界珍珠等方式傳送"
+throw = "投擲終界珍珠和終界之眼"
+ender = "傷害終界使者、終界蟎和終界龍"
+kill = "摧毀終界水晶，擊殺界伏蚌和終界蟎"
+
+[xp_guide.seaborne]
+swim = "游泳，有水中呼吸時更多"
+fish = "釣魚，寶藏最多"
+underwater = "在水下破壞方塊"
+kill = "擊殺海洋生物"
+hit = "攻擊溺屍，以及用三叉戟攻擊"
+
+[xp_guide.stealth]
+opener = "偷襲未察覺你的生物，潛行時從背後更多"
+combat = "潛行時攻擊"
+kill = "潛行時擊殺"
+sneak = "潛行時移動"
+
+[xp_guide.swords]
+combat = "用劍攻擊生物"
+kill = "用劍擊殺生物"
+
+[xp_guide.taming]
+tame = "馴服動物"
+breed = "繁殖動物，每對每隔幾分鐘一次"
+pet_combat = "你的寵物攻擊生物"
+pet_kill = "你的寵物擊殺生物"
+
+[xp_guide.tragoul]
+damage = "受到生物和玩家的傷害"
+low_health = "低生命值時撐過一擊"
+
+[xp_guide.unarmed]
+combat = "空手或用非工具物品攻擊"
+kill = "以此方式擊殺生物"
+
+[gui.seats]
+not_started = "未開始"
+
+[gui.knowledge]
+title = "知識"
+earned = "已獲得 {value}"
+spent = "已花費 {value}"
+unspent = "未花費 {value}"
+skill = "{skill}：已花費 {spent}，未花費 {available}"
+
+[advancement.challenge_excavation_clod_hurler_500]
+title = "擲泥高手"
+description = "用拋出的方塊擊中敵對生物 500 次"
+
+[advancement.challenge_architect_brickbat_500]
+title = "磚塊鬥士"
+description = "用投出的方塊擊中生物 500 次"
+
+[architectbrickbat.preferences]
+air-throws = "向瞄準的目標投擲"
+
+[architect.brickbat]
+name = "飛磚"
+description = "手持方塊攻擊生物，或朝攻擊範圍內的生物揮手，即可向其投出一個方塊。方塊越重傷害越高，方塊會掉落在落點處。"
+lore1 = "每單位重量傷害"
+lore2 = "投擲距離"
+lore3 = "投擲石頭冷卻時間"
+lore = ["每單位重量傷害", "投擲距離", "投擲石頭冷卻時間"]
+
+[excavation.preferences.excavationclodhurler]
+trigger = "投擲條件"
+
+[excavation.clod_hurler]
+name = "擲土塊"
+description = "有敵對生物在視野內時用鏟子挖掘鬆軟地面，挖出的方塊會被拋向最近的敵人。掉落物會飛回你身邊。"
+lore1 = "傷害倍率"
+lore2 = "投擲距離"
+lore3 = "投擲冷卻時間"
+lore = ["傷害倍率", "投擲距離", "投擲冷卻時間"]

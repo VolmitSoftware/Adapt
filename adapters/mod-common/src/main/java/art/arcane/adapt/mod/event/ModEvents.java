@@ -3,6 +3,7 @@ package art.arcane.adapt.mod.event;
 import art.arcane.adapt.mod.feature.protection.LoaderProbes;
 import art.arcane.adapt.mod.platform.ModPlatform;
 import art.arcane.adapt.mod.platform.ModRefs;
+import art.arcane.adapt.mod.platform.data.BlockDataCleanup;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.event.AdaptEvent;
@@ -41,6 +42,7 @@ public final class ModEvents {
         AdaptEventBus bus = ModPlatform.bus();
         if (bus != null) {
             bus.post(event);
+            BlockDataCleanup.settled(event);
         }
         return event;
     }

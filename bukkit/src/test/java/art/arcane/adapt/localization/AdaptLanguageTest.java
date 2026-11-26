@@ -66,6 +66,8 @@ class AdaptLanguageTest extends AdaptTestBase {
           + "|TOML|YAML)(?![\\p{IsLatin}\\p{N}])"
   );
   private static final Pattern ADAPTATION_ID_TOKEN = adaptationIdToken();
+  private static final Pattern TOAST_QUIP = Pattern.compile("skill\\.[a-z]+\\.(?:quip|unlock_quip_\\d)|gui\\.mutation\\.[a-z]+_quip(?:_\\d)?");
+  private static final int LOCALE_QUIP_LIMIT = 64;
   private static final Pattern WORD_TOKEN = Pattern.compile("[\\p{L}\\p{N}_]+");
   private static final Pattern FRENCH_FALSE_OCCURRENCE_TERM = Pattern.compile("(?iu)\\bheures?\\b");
   private static final Pattern SPANISH_FALSE_PROJECTILE_TERM = Pattern.compile("(?iu)\\bproyectores?\\b");
@@ -320,7 +322,7 @@ class AdaptLanguageTest extends AdaptTestBase {
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
       assertThat(entry.getValue().values().keySet())
           .describedAs("catalog coverage in %s", entry.getKey())
-          .containsAll(catalog.ids().stream().filter(id -> !id.startsWith("config.fields.")).toList())
+          .containsAll(catalog.ids().stream().filter(id -> !translatedLater(id)).toList())
           .isSubsetOf(catalog.ids());
     }
   }
@@ -334,7 +336,7 @@ class AdaptLanguageTest extends AdaptTestBase {
       String locale = entry.getKey();
       LocaleOverlay overlay = entry.getValue();
       for (MessageKey key : catalog.keys()) {
-        if (key.id().startsWith("config.fields.") && overlay.value(key.id()) == null) {
+        if (translatedLater(key.id()) && overlay.value(key.id()) == null) {
           continue;
         }
         try {
@@ -351,6 +353,27 @@ class AdaptLanguageTest extends AdaptTestBase {
       failures.add((failureCount - failures.size()) + " additional integrity failures were omitted");
     }
 
+    assertThat(failures).isEmpty();
+  }
+
+  /** Config field labels may stay English. */
+  private static boolean translatedLater(String id) {
+    return id.startsWith("config.fields.");
+  }
+
+  @Test
+  void everyToastQuipStaysOneShortLineInEveryLocale() {
+    List<String> quips = AdaptMessages.catalog().ids().stream().filter(id -> TOAST_QUIP.matcher(id).matches()).toList();
+    assertThat(quips).hasSize(3 * 24 + 7);
+    List<String> failures = new ArrayList<>();
+    for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
+      for (String id : quips) {
+        String text = ((TextValue) entry.getValue().value(id)).template();
+        if (text.length() > LOCALE_QUIP_LIMIT || text.contains("\u2014") || text.contains("\n") || text.contains("!")) {
+          failures.add(entry.getKey() + ":" + id + " " + text);
+        }
+      }
+    }
     assertThat(failures).isEmpty();
   }
 

@@ -1,5 +1,6 @@
 package art.arcane.adapt.mod.platform.item;
 
+import art.arcane.adapt.mod.platform.text.ComponentJson;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.AttributeMod;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -42,6 +44,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * has no server for.
  */
 class ModItemRefComponentTest {
+    private static final String DURATION_LINE = "{\"translate\":\"potion.withDuration\",\"with\":[{\"translate\":\"effect.minecraft.speed\"},"
+            + "{\"text\":\"03:00\"}],\"color\":\"blue\",\"italic\":false}";
+    private static final String MULTI_ITEM_LINE = "{\"text\":\"\",\"extra\":[{\"text\":\"Iron Pickaxe\",\"color\":\"gray\",\"italic\":true}]}";
     private static final Id ATTACK_DAMAGE = Id.minecraft("attack_damage");
     private static final DataKey<Integer> LEVEL = DataKey.adapt("level", DataCodecs.INT);
     private static HolderLookup.Provider registries;
@@ -250,5 +255,18 @@ class ModItemRefComponentTest {
         assertEquals(Id.minecraft("golden_sword"), copy.type());
         assertNotNull(copy.displayName());
         assertTrue(copy.displayName().contains("Blade"));
+    }
+
+    @Test
+    void loreJsonLinesRoundTripAndAnUnreadableLineChangesNothing() {
+        ModItemRef potion = item(Items.POTION);
+        List<String> written = List.of(DURATION_LINE, MULTI_ITEM_LINE);
+        potion.setLoreJson(written);
+        assertEquals(2, potion.lore().size());
+        assertEquals(ComponentJson.line(DURATION_LINE), ComponentJson.line(potion.loreJson().get(0)));
+        assertEquals(ComponentJson.line(MULTI_ITEM_LINE), ComponentJson.line(potion.loreJson().get(1)));
+
+        assertThrows(IllegalArgumentException.class, () -> potion.setLoreJson(List.of(MULTI_ITEM_LINE, "{\"color\":\"blue\"}")));
+        assertEquals(2, potion.lore().size());
     }
 }

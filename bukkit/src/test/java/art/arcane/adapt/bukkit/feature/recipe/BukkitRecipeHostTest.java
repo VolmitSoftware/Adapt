@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -23,12 +24,15 @@ import org.mockito.InOrder;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
@@ -158,7 +162,7 @@ class BukkitRecipeHostTest {
     NamespacedKey key = new NamespacedKey("adapt", "elevator");
     when(translator.translate(spec)).thenReturn(recipe);
     when(server.addRecipe(recipe)).thenReturn(true);
-    BukkitRecipeHost host = new BukkitRecipeHost(server, translator);
+    BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry());
 
     assertThat(host.register(spec)).isTrue();
     verify(server, never()).removeRecipe(key);
@@ -178,7 +182,7 @@ class BukkitRecipeHostTest {
     Server server = mock(Server.class);
     RecipeTranslator translator = mock(RecipeTranslator.class);
     RecipeSpec spec = new RecipeSpec.Shapeless(Id.adapt("broken"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
-    BukkitRecipeHost host = new BukkitRecipeHost(server, translator);
+    BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry());
 
     assertThat(host.register(spec)).isFalse();
     assertThat(host.registered()).isEmpty();
@@ -187,7 +191,7 @@ class BukkitRecipeHostTest {
   @Test
   void discoveryUsesTheRecipeKey() {
     Server server = mock(Server.class);
-    BukkitRecipeHost host = new BukkitRecipeHost(server, mock(RecipeTranslator.class));
+    BukkitRecipeHost host = new BukkitRecipeHost(server, mock(RecipeTranslator.class), registry());
     PlayerRef player = mock(PlayerRef.class);
     Player bukkit = mock(Player.class);
     when(bukkit.isOnline()).thenReturn(true);
@@ -229,6 +233,91 @@ class BukkitRecipeHostTest {
     assertThat(slot.exact().getFirst().unwrap()).isSameAs(example);
     assertThat(slot.test(acceptedRef)).isTrue();
     assertThat(slot.test(refusedRef)).isFalse();
+  }
+
+  @Test
+  void recipesForReadsTheIndexAndRebuildsOnlyAfterInvalidation() {
+    List<Recipe> all = new ArrayList<>(List.of(recipe(Material.IRON_SWORD, (short) 0), recipe(Material.IRON_SWORD, (short) 5),
+        recipe(Material.STONE, (short) 0), recipe(Material.IRON_SWORD, (short) 0)));
+    AtomicInteger scans = new AtomicInteger();
+    BukkitRecipeRegistry registry = new BukkitRecipeRegistry(() -> {
+      scans.incrementAndGet();
+      return List.copyOf(all).iterator();
+    }, Event.class, () -> 0L);
+    BukkitRecipeHost host = new BukkitRecipeHost(mock(Server.class), mock(RecipeTranslator.class), registry);
+    ItemRef sword = stack(Material.IRON_SWORD, (short) 0);
+    ItemRef anySword = stack(Material.IRON_SWORD, (short) -1);
+    ItemRef dirt = stack(Material.DIRT, (short) 0);
+
+    try (MockedStatic<BukkitRefs> refs = mockStatic(BukkitRefs.class)) {
+      refs.when(() -> BukkitRefs.item(any(ItemRef.class))).thenAnswer(invocation -> invocation.<ItemRef>getArgument(0).unwrap());
+      refs.when(() -> BukkitRefs.item(any(ItemStack.class))).thenReturn(resultRef);
+
+      assertThat(host.recipesFor(sword)).hasSize(scan(all, Material.IRON_SWORD, (short) 0)).hasSize(2);
+      assertThat(host.recipesFor(anySword)).hasSize(scan(all, Material.IRON_SWORD, (short) -1)).hasSize(3);
+      assertThat(host.recipesFor(dirt)).isEmpty();
+      assertThat(scans).hasValue(1);
+
+      all.add(recipe(Material.IRON_SWORD, (short) 0));
+      assertThat(host.recipesFor(sword)).hasSize(2);
+      registry.invalidate();
+      assertThat(host.recipesFor(sword)).hasSize(scan(all, Material.IRON_SWORD, (short) 0)).hasSize(3);
+      assertThat(scans).hasValue(2);
+    }
+  }
+
+  @Test
+  void registeringInvalidatesTheIndex() {
+    Server server = mock(Server.class);
+    RecipeTranslator translator = mock(RecipeTranslator.class);
+    RecipeSpec spec = new RecipeSpec.Shapeless(Id.adapt("elevator"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
+    Recipe recipe = mock(Recipe.class);
+    when(translator.translate(spec)).thenReturn(recipe);
+    when(server.addRecipe(recipe)).thenReturn(true);
+    BukkitRecipeRegistry registry = registry();
+    BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry);
+    Object before = registry.generation();
+
+    host.register(spec);
+    Object registered = registry.generation();
+    host.unregister(Id.adapt("elevator"));
+
+    assertThat(registered).isNotSameAs(before);
+    assertThat(registry.generation()).isNotSameAs(registered);
+  }
+
+  private static int scan(List<Recipe> recipes, Material type, short damage) {
+    int matches = 0;
+    for (Recipe recipe : recipes) {
+      ItemStack result = recipe.getResult();
+      if (result.getType() == type && (damage == -1 || result.getDurability() == damage)) {
+        matches++;
+      }
+    }
+    return matches;
+  }
+
+  private static Recipe recipe(Material type, short damage) {
+    Recipe recipe = mock(Recipe.class);
+    ItemStack result = mock(ItemStack.class);
+    when(result.getType()).thenReturn(type);
+    when(result.getDurability()).thenReturn(damage);
+    when(recipe.getResult()).thenReturn(result);
+    return recipe;
+  }
+
+  private static ItemRef stack(Material type, short damage) {
+    ItemStack handle = mock(ItemStack.class);
+    when(handle.getType()).thenReturn(type);
+    when(handle.getDurability()).thenReturn(damage);
+    ItemRef ref = mock(ItemRef.class);
+    when(ref.isEmpty()).thenReturn(false);
+    when(ref.unwrap()).thenReturn(handle);
+    return ref;
+  }
+
+  private static BukkitRecipeRegistry registry() {
+    return new BukkitRecipeRegistry(() -> List.<Recipe>of().iterator(), Event.class, () -> 0L);
   }
 
   private RecipeTranslator translator() {

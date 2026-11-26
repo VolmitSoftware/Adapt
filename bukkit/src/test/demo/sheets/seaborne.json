@@ -167,6 +167,23 @@
     ],
     "expect": {"sound": "minecraft:block.conduit.activate", "particle": "bubble"}, "maxTicks": 260
   },
+  "seaborne-rain-fed": {
+    "povCapture": true,
+    "set": "seaborne-pool", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.0, "yaw": 90, "pitch": 42},
+    "pre": [
+      "effect give {actor} minecraft:hunger 3 4 true",
+      "xp set {actor} 0 levels",
+      "xp set {actor} 0 points"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
+    "beats": [
+      {"verb": "wait", "ticks": 70},
+      {"verb": "keys", "hold": ["forward"], "ticks": 40},
+      {"verb": "wait", "ticks": 120}
+    ],
+    "expect": {"sound": "minecraft:entity.generic.eat", "particle": "splash"}, "maxTicks": 260
+  },
   "seaborne-speed": {
     "povCapture": true,
     "set": "seaborne-pool",
@@ -230,6 +247,35 @@
     },
     "maxTicks": 226
   },
+  "seaborne-storm-strike": {
+    "set": "seaborne-duel", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
+    "pre": [
+      "weather thunder 600",
+      "give {actor} minecraft:trident 1",
+      "execute at {actor} run data merge entity @e[type=minecraft:drowned,distance=..8,limit=1,sort=nearest] {NoAI:1b,DeathLootTable:\"minecraft:empty\"}",
+      "xp set {actor} 0 levels",
+      "xp set {actor} 0 points",
+      "execute at {actor} run tp {actor} ~ ~3 ~2"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -3.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "command", "text": "weather clear"}
+    ],
+    "expect": {"sound": "minecraft:entity.lightning_bolt.impact", "particle": "electric_spark"}, "maxTicks": 220
+  },
   "seaborne-tidecaller": {
     "set": "seaborne-swim", "level": 5,
     "camera": {"x": 3.0, "y": 4.0, "z": 2.5, "yaw": -50.2, "pitch": 45.7, "follow": true},
@@ -289,60 +335,5 @@
       {"verb": "wait", "ticks": 30}
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.hit", "particle": "crit"}, "maxTicks": 340
-  },
-  "seaborne-turtles-vision": {
-    "povCapture": true,
-    "set": "seaborne-pool",
-    "level": 1,
-    "camera": {
-      "x": 6.0,
-      "y": 6.5,
-      "z": -2.0,
-      "yaw": 90,
-      "pitch": 42
-    },
-    "pre": [
-      "xp set {actor} 0 levels",
-      "xp set {actor} 0 points"
-    ],
-    "prelude": [
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 45
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "forward"
-        ],
-        "ticks": 8
-      },
-      {
-        "verb": "wait",
-        "ticks": 90
-      },
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 5,
-        "ticks": 6
-      },
-      {
-        "verb": "wait",
-        "ticks": 60
-      }
-    ],
-    "expect": {
-      "sound": "minecraft:block.conduit.activate",
-      "particle": "glow"
-    },
-    "maxTicks": 286
   }
 }

@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.feature.recipe;
 
+import art.arcane.adapt.api.value.MaterialRecipeIndex;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
@@ -31,16 +32,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BukkitRecipeHost implements RecipeHost {
   private final Server server;
   private final RecipeTranslator translator;
+  private final BukkitRecipeRegistry registry;
   private final Set<Id> registered = ConcurrentHashMap.newKeySet();
+  private final MaterialRecipeIndex<Material, Recipe> index = new MaterialRecipeIndex<>(BukkitRecipeHost::output);
 
-  public BukkitRecipeHost(Server server) {
+  public BukkitRecipeHost(Server server, BukkitRecipeRegistry registry) {
     this(server, new RecipeTranslator(BukkitRefs::material, BukkitRefs::item,
-        (Id tag) -> server.getTag(Tag.REGISTRY_ITEMS, RecipeTranslator.key(tag), Material.class)));
+        (Id tag) -> server.getTag(Tag.REGISTRY_ITEMS, RecipeTranslator.key(tag), Material.class)), registry);
   }
 
-  BukkitRecipeHost(Server server, RecipeTranslator translator) {
+  BukkitRecipeHost(Server server, RecipeTranslator translator, BukkitRecipeRegistry registry) {
     this.server = server;
     this.translator = translator;
+    this.registry = registry;
   }
 
   @Override
@@ -68,6 +72,7 @@ public final class BukkitRecipeHost implements RecipeHost {
     } else {
       registered.remove(recipe.key());
     }
+    registry.invalidate();
     return added;
   }
 
@@ -75,6 +80,7 @@ public final class BukkitRecipeHost implements RecipeHost {
   public void unregister(Id key) {
     registered.remove(key);
     BukkitRecipeVersion.remove(server, RecipeTranslator.key(key));
+    registry.invalidate();
   }
 
   @Override
@@ -109,11 +115,20 @@ public final class BukkitRecipeHost implements RecipeHost {
     if (stack == null || stack.isEmpty()) {
       return List.of();
     }
+    ItemStack wanted = BukkitRefs.item(stack);
+    short damage = wanted.getDurability();
     List<RecipeView> views = new ArrayList<>();
-    for (Recipe recipe : server.getRecipesFor(BukkitRefs.item(stack))) {
-      views.add(view(recipe));
+    for (Recipe recipe : index.recipes(registry.generation(), registry::recipes, wanted.getType())) {
+      if (damage == -1 || recipe.getResult().getDurability() == damage) {
+        views.add(view(recipe));
+      }
     }
     return views;
+  }
+
+  private static Material output(Recipe recipe) {
+    ItemStack result = recipe.getResult();
+    return result == null ? null : result.getType();
   }
 
   public static RecipeView view(Recipe recipe) {

@@ -2,6 +2,7 @@ package art.arcane.adapt.mod.feature.recipe;
 
 import art.arcane.adapt.api.value.MaterialCount;
 import art.arcane.adapt.api.value.MaterialRecipe;
+import art.arcane.adapt.api.value.MaterialRecipeIndex;
 import art.arcane.adapt.api.value.MaterialValuePort;
 import art.arcane.adapt.mod.feature.mixin.ShapedRecipeAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapelessRecipeAccess;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.SingleItemRecipe;
@@ -29,6 +31,9 @@ import net.minecraft.world.level.block.Block;
 
 public final class ModMaterialValuePort implements MaterialValuePort {
     private static final String ADAPT_NAMESPACE = "adapt";
+
+    private final MaterialRecipeIndex<Item, RecipeHolder<?>> index =
+        new MaterialRecipeIndex<>(ModMaterialValuePort::output, ModMaterialValuePort::convert);
 
     @Override
     public List<MaterialRecipe> recipesFor(Id material) {
@@ -40,17 +45,8 @@ public final class ModMaterialValuePort implements MaterialValuePort {
         if (wanted.isEmpty()) {
             return List.of();
         }
-        List<MaterialRecipe> recipes = new ArrayList<>();
-        for (RecipeHolder<?> holder : ModRecipeHost.ordered(server.getRecipeManager())) {
-            if (ADAPT_NAMESPACE.equals(holder.id().getNamespace())) {
-                continue;
-            }
-            MaterialRecipe converted = convert(holder.value(), wanted.get());
-            if (converted != null) {
-                recipes.add(converted);
-            }
-        }
-        return recipes;
+        RecipeManager manager = server.getRecipeManager();
+        return index.recipesFor(manager.getOrderedRecipes(), () -> ModRecipeHost.ordered(manager), wanted.get());
     }
 
     @Override
@@ -62,11 +58,18 @@ public final class ModMaterialValuePort implements MaterialValuePort {
         return block.isPresent() && block.get().defaultDestroyTime() == 0F;
     }
 
-    private static MaterialRecipe convert(Recipe<?> recipe, Item wanted) {
-        ItemStack result = result(recipe);
-        if (result == null || result.getItem() != wanted) {
+    private static Item output(RecipeHolder<?> holder) {
+        if (ADAPT_NAMESPACE.equals(holder.id().getNamespace())) {
             return null;
         }
+        ItemStack result = result(holder.value());
+        return result == null ? null : result.getItem();
+    }
+
+    private static MaterialRecipe convert(RecipeHolder<?> holder) {
+        Recipe<?> recipe = holder.value();
+        ItemStack result = result(recipe);
+        Item wanted = result.getItem();
         List<Ingredient> ingredients = ingredients(recipe);
         Map<Id, Integer> counts = new LinkedHashMap<>();
         for (Ingredient ingredient : ingredients) {
@@ -80,7 +83,15 @@ public final class ModMaterialValuePort implements MaterialValuePort {
         }
         List<MaterialCount> input = new ArrayList<>(counts.size());
         counts.forEach((Id id, Integer amount) -> input.add(new MaterialCount(id, amount)));
-        return new MaterialRecipe(input, new MaterialCount(ModRefs.id(BuiltInRegistries.ITEM.getKey(wanted)), result.getCount()));
+        return new MaterialRecipe(input, new MaterialCount(ModRefs.id(BuiltInRegistries.ITEM.getKey(wanted)), result.getCount()),
+            kind(recipe));
+    }
+
+    private static MaterialRecipe.Kind kind(Recipe<?> recipe) {
+        if (recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) {
+            return MaterialRecipe.Kind.CRAFTING;
+        }
+        return recipe instanceof SingleItemRecipe ? MaterialRecipe.Kind.STONECUTTING : MaterialRecipe.Kind.OTHER;
     }
 
     private static ItemStack result(Recipe<?> recipe) {

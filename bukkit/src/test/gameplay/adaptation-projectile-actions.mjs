@@ -296,6 +296,29 @@ async function throwingAxe(input) {
     return { before, after: await input.snapshot(), axes: count(input.actor, 'iron_axe') }
 }
 
+async function brickbat(input) {
+    const victim = await target(input)
+    const before = await input.snapshot()
+    input.context.expect(input.actor.bot.entity.position.distanceTo(victim.position) > 5, 'Block target is outside ordinary melee reach')
+    await input.actor.bot.lookAt(victim.position.offset(0, 0.8, 0), true)
+    input.actor.bot.swingArm('right')
+    await input.actor.bot.waitForTicks(80)
+    return { before, after: await input.snapshot(), stone: count(input.actor, 'stone') }
+}
+
+async function clod(input) {
+    const { actor, context } = input
+    const block = actor.bot.blockAt(point(actor, 3, 100, 0))
+    context.expect(block?.name === 'dirt', 'Dirt fixture exists in front of the actor')
+    const before = await input.snapshot()
+    await actor.bot.dig(block)
+    await context.waitUntil(() => actor.bot.blockAt(block.position)?.name === 'air', {
+        label: 'natural dig removes the dirt', timeoutMs: 5000,
+    })
+    await actor.bot.waitForTicks(80)
+    return { before, after: await input.snapshot(), dirt: count(actor, 'dirt') }
+}
+
 async function logswap(input) {
     const { actor, context } = input
     const table = actor.bot.blockAt(point(actor, 2, 100, 2))
@@ -459,6 +482,28 @@ export const projectileBehaviorCases = new Map([
             context.expect(active.after.projectile.target.health < active.before.projectile.target.health, 'Learned thrown axe removes actual distant target health')
             context.expect(active.axes === 1 && active.after.projectile.heldDamage === 3, 'Maximum-level throw returns the actual axe with its configured durability cost')
             return report(['unlearned air swing cannot strike beyond melee range', 'learned throw damages the distant cow and returns one axe after paying durability'], unlearned, active)
+        },
+    }],
+    ['architect-brickbat', {
+        stage: 'projectile-brickbat', prepare: prepare('stone'), trigger: brickbat, negativeWindowTicks: 10,
+        description: 'an air swing with stone in hand throws one block into a distant cow and drops it there',
+        sound: 'minecraft:entity.snowball.throw', soundVolume: 0.7, soundPitch: 0.6, particle: 'block',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.after.projectile.target.health === unlearned.before.projectile.target.health && unlearned.stone === 8, 'Unlearned air swing keeps every block and leaves the cow unharmed')
+            context.expect(active.after.projectile.target.health < active.before.projectile.target.health, 'Learned thrown block removes actual distant target health')
+            context.expect(active.stone === 7 && (active.after.projectile.drops.STONE ?? 0) === 1, 'One block leaves the stack and drops once where it landed')
+            return report(['unlearned air swing throws nothing', 'learned throw damages the distant cow, spends one block from the stack and drops it at the impact'], unlearned, active)
+        },
+    }],
+    ['excavation-clod-hurler', {
+        stage: 'projectile-clod', prepare: prepare('diamond_shovel'), trigger: clod, negativeWindowTicks: 10,
+        description: 'digging dirt with a husk in sight flings the block at the husk and the dirt flies back into the inventory',
+        sound: 'minecraft:entity.snowball.throw', soundVolume: 0.7, soundPitch: 0.6, particle: 'block',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.after.projectile.target.health === unlearned.before.projectile.target.health && unlearned.dirt === 0, 'Unlearned dig leaves the husk unharmed and drops the dirt on the ground')
+            context.expect(active.after.projectile.target.health < active.before.projectile.target.health, 'Learned dig damages the husk with the flung block')
+            context.expect(active.dirt === 1 && (active.after.projectile.drops.DIRT ?? 0) === 0, 'The dirt returns into the inventory exactly once')
+            return report(['unlearned dig is an ordinary dig', 'learned dig flings the block at the husk and returns one dirt to the inventory'], unlearned, active)
         },
     }],
     ['axe-logswap', {

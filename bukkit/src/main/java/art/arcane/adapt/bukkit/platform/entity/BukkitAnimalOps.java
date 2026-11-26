@@ -137,6 +137,18 @@ public final class BukkitAnimalOps implements AnimalOps {
   }
 
   @Override
+  public boolean setLeashHolder(EntityRef entity, EntityRef holder) {
+    if (!(handle(entity) instanceof LivingEntity living)) {
+      return false;
+    }
+    if (holder == null) {
+      return !living.isLeashed() || living.setLeashHolder(null);
+    }
+    Entity to = handle(holder);
+    return to != null && to.isValid() && to.getWorld().equals(living.getWorld()) && living.setLeashHolder(to);
+  }
+
+  @Override
   public boolean isTamed(EntityRef entity) {
     return handle(entity) instanceof Tameable tameable && tameable.isTamed();
   }

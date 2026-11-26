@@ -8,6 +8,7 @@ import art.arcane.adapt.platform.event.block.BlockDamageEvent;
 import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
 import art.arcane.adapt.platform.event.block.BlockPlaceEvent;
 import art.arcane.adapt.platform.event.player.InteractAction;
+import art.arcane.adapt.platform.event.player.PlayerBucketEmptyEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
@@ -23,9 +24,11 @@ import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.ClipContext;
@@ -121,11 +124,10 @@ public final class InteractHooks {
         state.hand = hand;
         state.pos = pos.immutable();
         state.stack = stack.copy();
-        if (state.useBlock == UseResult.DENY && state.useItem == UseResult.DENY) {
+        if (state.useItem == UseResult.DENY) {
             player.containerMenu.sendAllDataToRemote();
-            return true;
         }
-        return false;
+        return state.useBlock == UseResult.DENY && state.useItem == UseResult.DENY;
     }
 
     /**
@@ -176,6 +178,21 @@ public final class InteractHooks {
         PlayerInteractEvent event = ModEvents.post(new PlayerInteractEvent(ModRefs.player(player), InteractAction.PHYSICAL, null,
             ModRefs.item(ItemStack.EMPTY), ModRefs.block(serverLevel, pos), null, null, UseResult.DEFAULT, UseResult.DEFAULT));
         return event.useBlock() == UseResult.DENY;
+    }
+
+    /** A player empties {@code bucket} into {@code pos}. True when a handler cancelled; the player is resent the block. */
+    public static boolean emptyingBucket(LivingEntity user, Level level, BlockPos pos, Item bucket) {
+        if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)
+            || !ModEvents.listening(PlayerBucketEmptyEvent.class)) {
+            return false;
+        }
+        PlayerBucketEmptyEvent event = ModEvents.post(new PlayerBucketEmptyEvent(ModRefs.player(player),
+            ModRefs.block(serverLevel, pos), ModRefs.item(new ItemStack(bucket)).type()));
+        if (!event.isCancelled()) {
+            return false;
+        }
+        resendBlock(player, serverLevel, pos);
+        return true;
     }
 
     /** Right click on an entity. True when a handler cancelled. */

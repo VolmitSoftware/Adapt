@@ -26,10 +26,6 @@ import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JsonOps;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -39,7 +35,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.resources.Identifier;
@@ -199,12 +194,9 @@ public final class ModItemRef implements ItemRef {
         if (lore == null || lore.lines().isEmpty()) {
             return List.of();
         }
-        DynamicOps<JsonElement> ops = jsonOps();
         List<String> out = new ArrayList<>(lore.lines().size());
         for (Component line : lore.lines()) {
-            out.add(ComponentSerialization.CODEC.encodeStart(ops, line).result()
-                .map(JsonElement::toString)
-                .orElse("\"\""));
+            out.add(ComponentJson.json(line));
         }
         return out;
     }
@@ -218,25 +210,11 @@ public final class ModItemRef implements ItemRef {
             restoreDefault(DataComponents.LORE);
             return;
         }
-        DynamicOps<JsonElement> ops = jsonOps();
         List<Component> lines = new ArrayList<>(jsonLines.size());
         for (String line : jsonLines) {
-            try {
-                ComponentSerialization.CODEC.parse(ops, JsonParser.parseString(line)).result().ifPresent(lines::add);
-            } catch (RuntimeException unreadable) {
-                continue;
-            }
-        }
-        if (lines.isEmpty()) {
-            restoreDefault(DataComponents.LORE);
-            return;
+            lines.add(ComponentJson.line(line));
         }
         stack.set(DataComponents.LORE, new ItemLore(lines));
-    }
-
-    private static DynamicOps<JsonElement> jsonOps() {
-        MinecraftServer server = ModPlatform.server();
-        return server == null ? JsonOps.INSTANCE : server.registryAccess().createSerializationContext(JsonOps.INSTANCE);
     }
 
     @Override

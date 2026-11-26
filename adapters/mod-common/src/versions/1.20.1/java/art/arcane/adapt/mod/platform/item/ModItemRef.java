@@ -198,8 +198,7 @@ public final class ModItemRef implements ItemRef {
     public List<String> loreJson() {
         List<String> out = new ArrayList<>();
         for (Component line : loreLines()) {
-            String json = ComponentJson.json(line);
-            out.add(json == null ? "\"\"" : json);
+            out.add(ComponentJson.json(line));
         }
         return out;
     }
@@ -212,10 +211,7 @@ public final class ModItemRef implements ItemRef {
         List<Component> lines = new ArrayList<>(jsonLines == null ? 0 : jsonLines.size());
         if (jsonLines != null) {
             for (String line : jsonLines) {
-                Component parsed = ComponentJson.component(line);
-                if (parsed != null) {
-                    lines.add(parsed);
-                }
+                lines.add(ComponentJson.line(line));
             }
         }
         writeLore(lines);

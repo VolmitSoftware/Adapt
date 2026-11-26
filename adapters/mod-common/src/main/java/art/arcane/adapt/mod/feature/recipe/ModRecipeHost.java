@@ -1,5 +1,6 @@
 package art.arcane.adapt.mod.feature.recipe;
 
+import art.arcane.adapt.api.value.MaterialRecipeIndex;
 import art.arcane.adapt.mod.feature.loader.LoaderRecipeSync;
 import art.arcane.adapt.mod.feature.mixin.RecipeManagerAccess;
 import art.arcane.adapt.mod.feature.mixin.RecipeMapAccess;
@@ -52,6 +53,7 @@ public final class ModRecipeHost implements RecipeHost {
     private static volatile ModRecipeHost active;
 
     private final Map<Id, RecipeSpec> specs = new LinkedHashMap<>();
+    private final MaterialRecipeIndex<Item, RecipeHolder<?>> index = new MaterialRecipeIndex<>(ModRecipeHost::output);
     private final Set<ResourceKey<Recipe<?>>> injected = new HashSet<>();
     private volatile boolean dirty;
 
@@ -163,14 +165,19 @@ public final class ModRecipeHost implements RecipeHost {
             return List.of();
         }
         flushIfPending();
+        RecipeManager manager = server.getRecipeManager();
         List<RecipeView> views = new ArrayList<>();
-        for (RecipeHolder<?> holder : ordered(server.getRecipeManager())) {
-            ItemStack result = result(holder.value());
-            if (!result.isEmpty() && result.is(wanted.getItem()) && result.getDamageValue() == wanted.getDamageValue()) {
+        for (RecipeHolder<?> holder : index.recipes(((RecipeManagerAccess) manager).adapt$recipes(), () -> ordered(manager), wanted.getItem())) {
+            if (result(holder.value()).getDamageValue() == wanted.getDamageValue()) {
                 views.add(view(holder));
             }
         }
         return views;
+    }
+
+    private static Item output(RecipeHolder<?> holder) {
+        ItemStack result = result(holder.value());
+        return result.isEmpty() ? null : result.getItem();
     }
 
     /** Every recipe grouped by recipe type, the order Paper's recipe iterator walks. */

@@ -117,6 +117,7 @@ recipeViewers.each { String viewer, List<String> coordinates ->
 }
 sourceSets.test.java.srcDir('../mod-common/src/test/java')
 sourceSets.test.java.srcDir('../client-common/src/test/java')
+sourceSets.test.resources.srcDir('../client-common/src/test/resources')
 // Same overlay order and `.removed` markers as the main source set, under <overlay>/test/java.
 List<File> testOverlays = []
 for (String module : ['mod-common', 'client-common']) {

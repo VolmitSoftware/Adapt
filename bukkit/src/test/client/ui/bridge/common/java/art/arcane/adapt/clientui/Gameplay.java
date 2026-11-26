@@ -1,5 +1,6 @@
 package art.arcane.adapt.clientui;
 
+import art.arcane.adapt.clientui.mixin.KeyMappingClicks;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.client.KeyMapping;
@@ -8,7 +9,6 @@ import net.minecraft.client.Options;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -72,6 +72,12 @@ public final class Gameplay {
             HELD.remove(action);
             mapping.setDown(false);
         }
+    }
+
+    /** Queues one press of the mapping, as a real click would: attack swings at the crosshair entity or the air. */
+    static void click(Minecraft client, String name) {
+        KeyMappingClicks clicks = (KeyMappingClicks) Action.of(name).mapping(client.options);
+        clicks.adaptUiSetClicks(clicks.adaptUiClicks() + 1);
     }
 
     static void releaseAll(Minecraft client) {
@@ -181,7 +187,7 @@ public final class Gameplay {
         }
         double limit = entityTraceRadius * entityTraceRadius;
         for (Entity entity : client.level.entitiesForRendering()) {
-            boolean arrow = entity.getType() == EntityType.ARROW;
+            boolean arrow = "entity.minecraft.arrow".equals(entity.getType().getDescriptionId());
             if ((!arrow && !(entity instanceof LivingEntity)) || entity == player || entity.distanceToSqr(player) > limit) {
                 continue;
             }

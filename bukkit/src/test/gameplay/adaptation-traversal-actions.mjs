@@ -235,6 +235,31 @@ async function trident(input) {
     return { damage: before.health - (await input.snapshot(input.opponent)).health }
 }
 
+async function storm(input) {
+    const before = await input.snapshot(input.opponent)
+    const actor = await input.snapshot()
+    input.context.expect(actor.inWater, 'Storm Strike trial starts in water')
+    const target = input.actor.bot.entities[input.opponent.bot.entity.id]
+    input.context.expect(Boolean(target), 'Storm Strike trial has a visible melee target')
+    await input.actor.bot.lookAt(target.position.offset(0, 1, 0), true)
+    input.actor.bot.attack(target)
+    await input.actor.bot.waitForTicks(8)
+    return { damage: before.health - (await input.snapshot(input.opponent)).health }
+}
+
+async function rainFed(input) {
+    const before = await input.snapshot()
+    input.context.expect(before.inWater, 'Rain-fed trial starts in water')
+    input.actor.bot.setControlState('forward', true)
+    input.actor.bot.setControlState('sprint', true)
+    await input.actor.bot.waitForTicks(60)
+    input.actor.bot.clearControlStates()
+    const after = await input.snapshot()
+    const moving = ['SWIM', 'WALK_UNDERWATER', 'WALK_ON_WATER', 'SPRINT', 'WALK', 'JUMP', 'JUMP_SPRINT']
+    const totals = phase => moving.reduce((sum, reason) => sum + (after.traversal.exhaustionEvents[reason]?.[phase] ?? 0), 0)
+    return { offered: totals('before'), kept: totals('after'), food: after.food - before.food }
+}
+
 async function assassinate(input) {
     input.actor.bot.setControlState('sneak', true)
     await input.actor.bot.waitForTicks(12)
@@ -399,6 +424,26 @@ export const traversalBehaviorCases = new Map([
         verify: ({ context, unlearned, active }) => {
             context.expect(unlearned.damage > 0 && active.damage > unlearned.damage, 'Learned trident melee deals more actual health damage')
             return { assertions: ['unlearned trident hit deals ordinary damage', 'learned trident hit deals additional damage'], measurements: { unlearned, active } }
+        },
+    }],
+    ['seaborne-storm-strike', {
+        stage: 'traverse-qa-storm', negativeWindowTicks: 1, prepare: input => prepare(input, 'trident'), trigger: storm,
+        sound: 'minecraft:entity.lightning_bolt.impact', soundVolume: 0.7, soundPitch: 1.4, particle: 'electric_spark',
+        verify: ({ context, unlearned, active }) => {
+            context.expect(unlearned.damage > 0 && active.damage > unlearned.damage + 2,
+                'The learned first hit from the water calls lightning for at least two more health damage')
+            return { assertions: ['unlearned hit from the water deals ordinary damage', 'learned first hit from the water adds lightning damage'],
+                measurements: { unlearned, active } }
+        },
+    }],
+    ['seaborne-rain-fed', {
+        stage: 'traverse-qa-rainfed', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: rainFed,
+        sound: 'minecraft:entity.generic.eat', soundVolume: 0.25, soundPitch: 1.6, particle: 'splash',
+        verify: ({ context, unlearned, active }) => {
+            context.expect(unlearned.offered > 0 && unlearned.kept > 0, 'Unlearned swimming costs real hunger exhaustion')
+            context.expect(active.offered > 0 && active.kept === 0, 'Learned swimming in water costs no hunger exhaustion')
+            return { assertions: ['unlearned swimming exhausts', 'learned swimming in water holds every movement exhaustion'],
+                measurements: { unlearned, active } }
         },
     }],
     ['stealth-assassinate', {

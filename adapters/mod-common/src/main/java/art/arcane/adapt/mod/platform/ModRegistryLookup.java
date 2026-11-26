@@ -135,13 +135,8 @@ public final class ModRegistryLookup implements RegistryLookup {
             return List.of();
         }
         List<EffectModifier> modifiers = new ArrayList<>();
-        type.get().value().createModifiers(amplifier, (Holder<Attribute> attribute, AttributeModifier modifier) -> {
-            Optional<ResourceKey<Attribute>> key = attribute.unwrapKey();
-            if (key.isPresent()) {
-                modifiers.add(new EffectModifier(ModConversions.id(key.get().identifier()), operation(modifier.operation()),
-                    modifier.amount()));
-            }
-        });
+        type.get().value().createModifiers(amplifier, (Holder<Attribute> attribute, AttributeModifier modifier) ->
+            modifiers.add(new EffectModifier(attribute.value().getDescriptionId(), operation(modifier.operation()), modifier.amount())));
         return modifiers;
     }
 

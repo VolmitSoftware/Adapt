@@ -124,11 +124,8 @@ public final class ModRegistryLookup implements RegistryLookup {
         List<EffectModifier> modifiers = new ArrayList<>();
         MobEffect value = type.value();
         for (Map.Entry<Attribute, AttributeModifier> entry : value.getAttributeModifiers().entrySet()) {
-            ResourceLocation key = BuiltInRegistries.ATTRIBUTE.getKey(entry.getKey());
-            if (key != null) {
-                modifiers.add(new EffectModifier(ModContentAliases.modern(RegistryKind.ATTRIBUTE, key),
-                    operation(entry.getValue().getOperation()), value.getAttributeModifierValue(amplifier, entry.getValue())));
-            }
+            modifiers.add(new EffectModifier(entry.getKey().getDescriptionId(), operation(entry.getValue().getOperation()),
+                value.getAttributeModifierValue(amplifier, entry.getValue())));
         }
         return modifiers;
     }

@@ -13,6 +13,7 @@
     "BlockExplosionEvents",
     "BlockItemEvents",
     "BrainEvents",
+    "BucketEmptyEvents",
     "ChorusFruitEvents",
     "CommandEffectEvents",
     "ConduitEffectEvents",

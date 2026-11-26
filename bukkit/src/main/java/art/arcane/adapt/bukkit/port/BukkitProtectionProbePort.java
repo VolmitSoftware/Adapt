@@ -10,6 +10,8 @@ import art.arcane.adapt.platform.event.block.BlockChange;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.platform.world.BlockStateRef;
+import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.TreeType;
@@ -19,6 +21,8 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.event.world.StructureGrowEvent;
 
 import java.util.ArrayList;
@@ -88,6 +92,36 @@ final class BukkitProtectionProbePort implements ProtectionProbePort {
     Player bukkitPlayer = BukkitRefs.player(player);
     Block bukkitBlock = BukkitRefs.block(block);
     return bukkitPlayer != null && bukkitBlock != null && ProtectionEventProbe.attemptBlockPlaceProbe(bukkitPlayer, bukkitBlock);
+  }
+
+  @Override
+  public boolean callPlace(PlayerRef player, BlockRef block, BlockStateRef replaced, BlockRef against, ItemRef item) {
+    Player bukkitPlayer = BukkitRefs.player(player);
+    Block bukkitBlock = BukkitRefs.block(block);
+    if (bukkitPlayer == null || bukkitBlock == null) {
+      return false;
+    }
+    BlockState replacedState = bukkitBlock.getState();
+    replacedState.setBlockData(BukkitRefs.blockData(replaced));
+    Block placedAgainst = against == null ? null : BukkitRefs.block(against);
+    BlockPlaceEvent event = new BlockPlaceEvent(bukkitBlock, replacedState, placedAgainst == null ? bukkitBlock : placedAgainst,
+        BukkitRefs.item(item), bukkitPlayer, true, EquipmentSlot.HAND);
+    ProtectionEventProbe.dispatch(event);
+    return !event.isCancelled() && event.canBuild();
+  }
+
+  @Override
+  public boolean callRemove(PlayerRef player, BlockRef block) {
+    Player bukkitPlayer = BukkitRefs.player(player);
+    Block bukkitBlock = BukkitRefs.block(block);
+    if (bukkitPlayer == null || bukkitBlock == null) {
+      return false;
+    }
+    BlockBreakEvent event = new BlockBreakEvent(bukkitBlock, bukkitPlayer);
+    event.setDropItems(false);
+    event.setExpToDrop(0);
+    ProtectionEventProbe.dispatch(event);
+    return !event.isCancelled();
   }
 
   @Override

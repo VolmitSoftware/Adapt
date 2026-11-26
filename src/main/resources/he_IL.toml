@@ -580,14 +580,6 @@ description = "לך לישון במיטה 10 פעמים"
 title = "מדלג על הזמן"
 description = "לך לישון במיטה 100 פעמים"
 
-[advancement.challenge_chronos_tp_50]
-title = "הסטה זמנית"
-description = "השתגר 50 פעמים"
-
-[advancement.challenge_chronos_tp_500]
-title = "עיוות זמן"
-description = "השתגר 500 פעמים"
-
 [advancement.challenge_craft_value_10k]
 title = "יצירה בעלת ערך"
 description = "צור פריטים בשווי כולל של 10,000"
@@ -3335,6 +3327,7 @@ lore = ["מסור אבן נייד לפי דרישה", "דורש פריט מסו�
 
 [axe.chop]
 name = "חיתוך גרזן"
+short_name = "חיתוך"
 description = "חטוב עצים על ידי לחיצה ימנית על בול הבסיס!"
 lore1 = "בלוקים לכל חיתוך"
 lore2 = "זמן המתנה לחיתוך"
@@ -3348,10 +3341,12 @@ lore1 = "8 בולים מכל סוג + 1 שתיל = 8 בולים מסוג השת�
 lore = ["8 בולים מכל סוג + 1 שתיל = 8 בולים מסוג השתיל"]
 
 [axe.drop_to_inventory]
-name = "גרזן-ישר-למלאי"
+name = "גרזן ישר למלאי"
+short_name = "ישר למלאי"
 
 [axe.ground_smash]
 name = "מעיכת קרקע בגרזן"
+short_name = "מעיכת קרקע"
 description = "קפוץ, ואז התגנב ומעך את כל האויבים הקרובים."
 lore1 = "נזק"
 lore2 = "רדיוס בלוקים"
@@ -3555,6 +3550,9 @@ lore1 = "שיקוי ראיית לילה + בטון שחור = שיקוי חוש�
 lore2 = "שים לב: החושך מונע מהשותה לרוץ!"
 lore = ["שיקוי ראיית לילה + בטון שחור = שיקוי חושך (30 שניות)", "שים לב: החושך מונע מהשותה לרוץ!"]
 
+[brewing.doses]
+left = "נפתח: נותרו {left}/{total} מנות"
+
 [brewing.haste]
 name = "חיפזון בבקבוק"
 strong_name = "חיפזון בבקבוק 2"
@@ -3675,7 +3673,6 @@ surface_air = "אוויר"
 surface_block = "בלוק"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
-
 
 blink_priority = "הבזק ידני מקבל עדיפות על פני החזרה בקפיצה כפולה"
 
@@ -3908,7 +3905,7 @@ lore1 = "פשוט זרוק אותו (בשר רקוב) על המדורה!"
 lore = ["פשוט זרוק אותו (בשר רקוב) על המדורה!"]
 
 [crafting.backpacks]
-name = "התרמילים של בוטילייה!"
+name = "התרמילים של בוטילייה"
 description = "צור תרמיל שמאחסן ערימות שלמות ונפתח כמכל משלו."
 lore1 = "לחץ לחיצה ימנית על התרמיל כדי לפתוח את המכל שלו"
 lore2 = "LLL : עור, עור, עור"
@@ -3924,7 +3921,7 @@ next_page = "העמוד הבא"
 unreadable = "התרמיל הזה נארז בגרסת שרת אחרת ואי אפשר לפתוח אותו כאן."
 
 [crafting.stations]
-name = "שולחנות ניידים!"
+name = "שולחנות ניידים"
 description = "לחץ באוויר כשאתה מחזיק סדן, שולחן יצירה, אבן משחזת, מסור אבן, שולחן קרטוגרפיה או נול כדי לפתוח אותו בלי להניח אותו. כל פתיחה עולה רעב."
 lore2 = "כל פריט שתשכח בשולחן כשהוא נסגר אבוד לנצח!"
 lore3 = "שולחנות תקפים: סדן, שולחן יצירה, אבן משחזת, שולחן קרטוגרפיה, מסור אבן, נול"
@@ -3932,7 +3929,7 @@ lore = ["כל פריט שתשכח בשולחן כשהוא נסגר אבוד לנ
 lore4 = "רעב שנצרך בכל פתיחה של תחנה ניידת"
 
 [crafting.skulls]
-name = "גולגלות ברות-יצירה!"
+name = "גולגלות ברות-יצירה"
 description = "באמצעות חומרים תוכל ליצור גולגלות של מובים!"
 lore1 = "הקף בלוק עצם עם הדברים הבאים כדי לקבל גולגולת:"
 lore2 = "זומבי: בשר רקוב"
@@ -4227,7 +4224,7 @@ lore2 = "x רמות חיפזון בזמן חפירה פעילה."
 lore = ["קבל חיפזון בזמן חפירה", "x רמות חיפזון בזמן חפירה פעילה."]
 
 [excavation.spelunker]
-name = "חוקר מערות על-חושי!"
+name = "חוקר מערות על-חושי"
 description = "החזק גרגרי זוהר ביד הראשית כדי לחשוף תצוגות זוהרות של עפרות דרך האדמה."
 lore1 = "עפרה ביד המשנית, גרגרי זוהר ביד הראשית, והתגנב!"
 lore2 = "טווח בלוקים: "
@@ -4244,7 +4241,8 @@ lore3 = "זמן המתנה לפינג"
 lore = ["טווח סריקה", "סיכוי לפינג", "זמן המתנה לפינג"]
 
 [excavation.drop_to_inventory]
-name = "את-ישר-למלאי"
+name = "את ישר למלאי"
+short_name = "ישר למלאי"
 
 [excavation.omni_tool]
 name = "OMNI - T.O.O.L."
@@ -4857,7 +4855,8 @@ recall_cooldown = "תוכל להחזיר גולם נוסף בעוד {seconds} ש
 recall_unavailable = "אפשר להחזיר רק גולמים שטעונים בעולם שלך"
 
 [golemancy.masterwork]
-name = "יצירת מופת"
+name = "יצירת מופת של גולם"
+short_name = "יצירת מופת"
 description = "החדר לב יצירת מופת על כן האנימוס ושבץ אותו בגולם לקבלת משבצת רונה נוספת, יותר בריאות, ליבה שנייה ורונות חזקות יותר."
 lore1 = "גולמי יצירת מופת"
 lore2 = "משבצות רונה נוספות ביצירת מופת"
@@ -4991,18 +4990,21 @@ lore = ["רדיוס בלוקים", "עוצמת הילת צמיחה", "עלות �
 
 [herbalism.hippo]
 name = "היפו של הצמחאי"
+short_name = "היפו"
 description = "צריכת אוכל נותנת לך יותר רוויה"
 lore1 = "אוכל) נקודות רוויה נוספות בצריכה"
 lore = ["אוכל) נקודות רוויה נוספות בצריכה"]
 
 [herbalism.myconid]
 name = "מיקוניד של הצמחאי"
+short_name = "מיקוניד"
 description = "נותן לך את היכולת ליצור מיצליום"
 lore1 = "כל אדמה, ופטריה חומה ואדומה ייצרו מיצליום."
 lore = ["כל אדמה, ופטריה חומה ואדומה ייצרו מיצליום."]
 
 [herbalism.terralid]
 name = "טראליד של הצמחאי"
+short_name = "טראליד"
 description = "נותן לך את היכולת ליצור בלוקי דשא"
 lore1 = "שלושה זרעים, מעל 3 אדמה, ייצרו 3 בלוקי דשא."
 lore = ["שלושה זרעים, מעל 3 אדמה, ייצרו 3 בלוקי דשא."]
@@ -5020,7 +5022,8 @@ lore1 = "ארבע פטריות ליצירת בלוק, או בלוק ליצירת
 lore = ["ארבע פטריות ליצירת בלוק, או בלוק ליצירת גזע."]
 
 [herbalism.drop_to_inventory]
-name = "מעדר-ישר-למלאי"
+name = "מעדר ישר למלאי"
+short_name = "ישר למלאי"
 
 [herbalism.hungry_shield]
 name = "מגן רעב"
@@ -5035,6 +5038,7 @@ lore = ["מופחת על ידי רעב", "נזק ממגע, מעיכה ומזג �
 
 [herbalism.luck]
 name = "מזל הצמחאי"
+short_name = "מזל"
 description = "כשאתה שובר דשא/פרחים, יש סיכוי לקבל פריט אקראי"
 lore0 = "פרחים = אוכל, ודשא = זרעים"
 lore1 = "סיכוי לקבל פריט משבירת פרחים"
@@ -5103,7 +5107,8 @@ lore1 = "תקבל ערימות רעל אם נגמר לך הרעב"
 lore = ["תקבל ערימות רעל אם נגמר לך הרעב"]
 
 [hunter.drop_to_inventory]
-name = "פריטים-ישר-למלאי"
+name = "פריטים ישר למלאי"
+short_name = "ישר למלאי"
 description = "הריגות ובלוקים שנשברים עם חרב ביד שולחים את השלל ישירות למלאי שלך."
 lore1 = "בכל פעם שנופל פריט ממוב/בלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."
 lore = ["בכל פעם שנופל פריט ממוב/בלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."]
@@ -5128,6 +5133,7 @@ lore = ["קבל אי-נראות פסיבית כשנפגע", "x ערימות אי
 
 [hunter.jump_boost]
 name = "גבהים של הצייד"
+short_name = "גבהים"
 description = "כשנפגע אתה מקבל חיזוק קפיצה, על חשבון רעב"
 lore1 = "קבל חיזוק קפיצה פסיבי כשנפגע"
 lore2 = "x ערימות חיזוק קפיצה למשך 3 שניות בפגיעה"
@@ -5138,6 +5144,7 @@ lore = ["קבל חיזוק קפיצה פסיבי כשנפגע", "x ערימות 
 
 [hunter.luck]
 name = "מזל הצייד"
+short_name = "מזל"
 description = "כשנפגע אתה מקבל מזל, על חשבון רעב"
 lore1 = "קבל מזל פסיבי כשנפגע"
 lore2 = "x ערימות מזל למשך 3 שניות בפגיעה"
@@ -5148,6 +5155,7 @@ lore = ["קבל מזל פסיבי כשנפגע", "x ערימות מזל למשך
 
 [hunter.regen]
 name = "התחדשות הצייד"
+short_name = "התחדשות"
 description = "כשנפגע אתה מקבל התחדשות, על חשבון רעב"
 lore1 = "קבל התחדשות פסיבית כשנפגע"
 lore2 = "x ערימות התחדשות למשך 3 שניות בפגיעה"
@@ -5158,6 +5166,7 @@ lore = ["קבל התחדשות פסיבית כשנפגע", "x ערימות הת�
 
 [hunter.resistance]
 name = "התנגדות הצייד"
+short_name = "התנגדות"
 description = "כשנפגע אתה מקבל התנגדות, על חשבון רעב"
 lore1 = "קבל התנגדות פסיבית כשנפגע"
 lore2 = "x ערימות התנגדות למשך 3 שניות בפגיעה"
@@ -5168,6 +5177,7 @@ lore = ["קבל התנגדות פסיבית כשנפגע", "x ערימות הת�
 
 [hunter.speed]
 name = "מהירות הצייד"
+short_name = "מהירות"
 description = "כשנפגע אתה מקבל מהירות, על חשבון רעב"
 lore1 = "קבל מהירות פסיבית כשנפגע"
 lore2 = "x ערימות מהירות למשך 3 שניות בפגיעה"
@@ -5178,6 +5188,7 @@ lore = ["קבל מהירות פסיבית כשנפגע", "x ערימות מהי�
 
 [hunter.strength]
 name = "עוצמת הצייד"
+short_name = "עוצמה"
 description = "כשנפגע אתה מקבל עוצמה, על חשבון רעב"
 lore1 = "קבל עוצמה פסיבית כשנפגע"
 lore2 = "x ערימות עוצמה למשך 3 שניות בפגיעה"
@@ -5248,6 +5259,8 @@ none_eligible = "לא נמצאו מיומנויות מתאימות לשחקן ה
 title = "רמה {level} ({used}/{maximum} כוח בשימוש)"
 
 [gui.adaptations]
+tools = "כלים: {tools}"
+recipes = "מתכונים: {recipes}"
 none_available = "אין הסתגלויות זמינות"
 permanent_learn_confirm = "לחץ שוב על מנת לאשר את הלמידה הקבועה"
 permanent_learn_confirm_now = "לחץ שוב עכשיו כדי לאשר את הלמידה הקבועה."
@@ -5264,6 +5277,7 @@ vault_unavailable_fallback = "כלכלת Vault אינה זמינה — עדיי�
 vault_insufficient_funds = "אין לך מספיק מטבע Vault כדי ללמוד הסתגלות זו."
 vault_transaction_failed = "עסקת Vault נכשלה; ההתקדמות לא השתנתה."
 power_drain = "צריכת כוח: {power}"
+power_freed = "משחרר {power} כוח"
 requirement_level = "{adaptation} רמה {level}"
 requires = "דורש: {requirement}"
 requirements_missing = "למד את {requirements} לפני שתלמד את {adaptation}."
@@ -5591,12 +5605,14 @@ lore = ["סיכוי להפלה", "בלאי כלי"]
 
 [pickaxe.drop_to_inventory]
 name = "מכוש ישר למלאי"
+short_name = "ישר למלאי"
 description = "השלל מבלוקים שאתה שובר נשלח ישירות למלאי שלך."
 lore1 = "בכל פעם שנופל פריט מבלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."
 lore = ["בכל פעם שנופל פריט מבלוק שאתה שובר, הוא נכנס למלאי שלך אם אפשר."]
 
 [pickaxe.silk_spawner]
 name = "מכוש משי למזמנים"
+short_name = "משי למזמנים"
 description = "גורם למזמנים להישמט כשהם נשברים"
 lore1 = "הופך מזמנים לשבירים עם מגע משי."
 lore2 = "הופך מזמנים לשבירים בזמן התגנבות."
@@ -5770,6 +5786,7 @@ unbind = "התגנב ולחץ לחיצה שמאלית על האוויר הרחק
 
 [rift.blink]
 name = "הבזק קרע"
+short_name = "הבזק"
 description = "בצע קפיצה כפולה כדי להשתגר בכיוון המבט. העדף מרחק או מקומות נחיתה גבוהים, ועבור דרך קירות בזמן התגנבות, לפי הכוונת או לעולם לא. ברמה 2, המצב התגובתי מחליף את הקפיצה הכפולה בהתחמקות בעת התקפה: השתגר בכיוון המבט או הרחק מהתוקף. שיגורים מוצלחים אינם צורכים פנינה, אך גורמים לנזק של פנינת אנדר שיורד עם הרמה. כללי השרת מגבילים את האפשרויות הזמינות."
 lore1 = "טווח ההבזק"
 lore2 = "נזק עצמי (לבבות)"
@@ -5803,6 +5820,7 @@ lore = ["יצירה: אזמרגד + רסיס אמטיסט + פנינת אנדר"
 
 [rift.resist]
 name = "התנגדות קרע"
+short_name = "התנגדות"
 description = "קבל התנגדות בעת שימוש בפריטי ויכולות אנדר"
 lore1 = "+ פסיבי: מעניק התנגדות כשאתה משתמש ביכולות קרע או בפריטי אנדר"
 lore2 = "לא כולל תיבת אנדר ניידת, רק דברים שאפשר לצרוך"
@@ -5890,9 +5908,10 @@ config_hotload_truncated = "&7[&4Adapt&7]: &aההגדרות נטענו מחדש 
 
 [seaborn.oxygen]
 name = "מיכל חמצן אורגני"
-description = "החזק יותר חמצן בריאות הזעירות שלך!"
+description = "החזק הרבה יותר אוויר מתחת למים, וראה שם בחושך מדרגה 2."
 lore1 = "הגדלת קיבולת חמצן"
 lore = ["הגדלת קיבולת חמצן"]
+night_vision = "ראיית לילה מתחת למים"
 
 [seaborn.fishers_fantasy]
 name = "פנטזיית הדייג"
@@ -5902,15 +5921,10 @@ lore = ["סיכוי לחבילת פרס דיג בונוס אחת"]
 
 [seaborn.haste]
 name = "כורה צבים"
-description = "בכרייה מתחת למים אתה מהיר יותר, בין אם אתה עומד או צף."
+description = "בכרייה מתחת למים אתה מהיר יותר, בין אם אתה עומד או צף, ומתנער מרוב עייפות הכרייה של שומר."
 lore1 = "מגביר את מהירות הכרייה מתחת למים, מצטבר עם זיקת מים ומפצה על עונש הכרייה בזמן ציפה."
-lore = ["מגביר את מהירות הכרייה מתחת למים, מצטבר עם זיקת מים ומפצה על עונש הכרייה בזמן ציפה."]
-
-[seaborn.night_vision]
-name = "חזון הצב"
-description = "מתחת למים אתה מקבל ראיית לילה"
-lore1 = "קבל ראיית לילה שמתחדשת ללא הפסקה מתחת למים."
-lore = ["קבל ראיית לילה שמתחדשת ללא הפסקה מתחת למים."]
+lore2 = "עייפות כרייה שבוטלה"
+lore = ["מגביר את מהירות הכרייה מתחת למים, מצטבר עם זיקת מים ומפצה על עונש הכרייה בזמן ציפה.", "עייפות כרייה שבוטלה"]
 
 [seaborn.dolphin_grace]
 name = "חסד הדולפין"
@@ -5941,14 +5955,14 @@ trigger_line = "הפעלה: {trigger}"
 environment_line = "הסביבה: {environment}"
 trigger_context = "{trigger} ({environment})"
 
-[seaborn.pressure_diver]
-name = "צולל לחץ"
-description = "קבל לבבות ספיגה והגנה מבוססת עומק מתחת למים תוך צמצום חלקי של עייפות כרייה."
-lore1 = "דרישת עומק מינימלית"
-lore2 = "הפחתת נזק בעומק"
-lore3 = "סיכוי להפחתת עייפות כרייה"
-lore4 = "לבבות ספיגה בעומק"
-lore = ["דרישת עומק מינימלית", "הפחתת נזק בעומק", "סיכוי להפחתת עייפות כרייה", "לבבות ספיגה בעומק"]
+[seaborn.tidal_ward]
+name = "מגן הגאות"
+description = "לבבות ספיגה נבנים בזמן שאתה במים או בגשם. כל פגיעה עוצרת את המגן, והוא מתפוגג זמן קצר אחרי שאתה מתייבש."
+lore1 = "לבבות המגן"
+lore2 = "צבירת המגן בשנייה"
+lore3 = "השהיה אחרי פגיעה"
+lore4 = "נשמר אחרי ההתייבשות"
+lore = ["לבבות המגן", "צבירת המגן בשנייה", "השהיה אחרי פגיעה", "נשמר אחרי ההתייבשות"]
 
 [seaborn.coral_gardener]
 name = "גנן האלמוגים"
@@ -5999,125 +6013,276 @@ lore1 = "דרגת התחדשות מלוחה"
 lore2 = "הפחתת נזק בזמן רטיבות"
 lore = ["דרגת התחדשות מלוחה", "הפחתת נזק בזמן רטיבות"]
 
+[seaborn.storm_strike]
+name = "מכת סערה"
+description = "כשגשם יורד עליך או כשאתה במים, מכות התגרה והקלשון שלך מזמנות ברק: במכה הראשונה בכל מטרה, ואחר כך כל כמה מכות. סופות רעמים מכות חזק יותר ולעיתים קרובות יותר."
+lore1 = "נזק הברק"
+lore2 = "מכות בין ברקים"
+lore3 = "נזק הברק בסופת רעמים"
+lore4 = "מכות בין ברקים בסופת רעמים"
+lore = ["נזק הברק", "מכות בין ברקים", "נזק הברק בסופת רעמים", "מכות בין ברקים בסופת רעמים"]
+
+[seaborn.rain_fed]
+name = "ניזון מגשם"
+description = "בזמן שאתה במים או בגשם, תנועה, כרייה ולחימה לא עולות רעב, והמזון והשובע שלך מתמלאים לאט."
+lore1 = "מזון ושובע לדקה"
+lore2 = "נשאר שבע אחרי ההתייבשות"
+lore = ["מזון ושובע לדקה", "נשאר שבע אחרי ההתייבשות"]
+
 [skill.agility]
 name = "זריזות"
 icon = "⇉"
 description = "זריזות היא היכולת לנוע במהירות ובגמישות מול מכשולים. עלה ברמה על ידי ריצה, שחייה, קפיצה וטיפוס."
+quip = "הליכה זה לאנשים עם זמן"
+unlock_quip_1 = "הרגליים שלך למדו טריק חדש"
+unlock_quip_2 = "כוח המשיכה הוא עכשיו רק הצעה"
 
 [skill.architect]
 name = "אדריכלות"
 icon = "⬧"
 description = "מבנים הם אבני הבניין של העולם. המציאות בידיים שלך, ואתה שולט בה. עלה ברמה על ידי הנחת בלוקים."
+quip = "המציאות היא עכשיו חומר בנייה"
+unlock_quip_1 = "למדוד פעם אחת, להניח הכול"
+unlock_quip_2 = "תוכניות לא חובה, שאפתנות חובה"
 
 [skill.axes]
 name = "גרזנים"
 icon = "🪓"
 description = "עלה ברמה על ידי כריתת עצים ולחימה עם גרזנים. למה לכרות עצים כשאפשר לכרות &oדברים&7 במקום? אותה תוצאה סופית!"
+quip = "העצים כבר שמעו עליך"
+unlock_quip_1 = "קודם לחטוב, לא לשאול אף פעם"
+unlock_quip_2 = "חוטב עצים ביום, מטרד בלילה"
 
 [skill.brewing]
 name = "בישול שיקויים"
 icon = "❦"
 description = "עלה ברמה על ידי רקיחת שיקויים, ופתח מתכונים שהמשחק הרגיל מעולם לא נתן לך. בועה כפולה, בועה משולשת - ועדיין אי אפשר לשים שיקוי בקדרה."
+quip = "בועה כפולה, צרה כפולה"
+unlock_quip_1 = "טעם נורא, עובד נפלא"
+unlock_quip_2 = "לנער היטב ולא לשאול"
 
 [skill.blocking]
 name = "חסימה"
 icon = "🛡"
 description = "מקלות ואבנים לא ישברו לך עצמות, אבל מגן כן. עלה ברמה על ידי חסימת מכות עם מגן."
+quip = "המגן היה הנשק כל הזמן"
+unlock_quip_1 = "לא היום, דבר מחודד"
+unlock_quip_2 = "תכה שוב, אם אתה מעז"
+
+[skill.blocking.group]
+guard = "הגנה"
+counter = "התקפות נגד"
+gear = "ציוד"
 
 [skill.crafting]
 name = "יצירה"
 icon = "⌂"
 description = "כשלא נותרו עוד חלקים להניח, למה לא ליצור עוד אחד? עלה ברמה על ידי יצירת פריטים."
+quip = "למה לקנות כשאפשר להכין"
+unlock_quip_1 = "נדרשת מעט הרכבה"
+unlock_quip_2 = "הפעם נשארו פחות חלקים"
 
 [skill.discovery]
 name = "גילוי"
 icon = "⚛"
 description = "ככל שהתפיסה שלך מתרחבת, מוחך נפתח לגלות את מה שלא גילית. עלה ברמה על ידי חקירה ואיסוף ניסיון."
+quip = "העולם גדול ממה שחשבת"
+unlock_quip_1 = "הסקרנות השתלמה שוב"
+unlock_quip_2 = "הסתכלת איפה שאף אחד לא מסתכל"
+
+[skill.discovery.group]
+exploring = "חקירה"
+experience = "ניסיון"
 
 [skill.enchanting]
 name = "כישוף"
 icon = "♰"
 description = "כופף את הידע הנוצץ לרצונך. עלה ברמה על ידי כישוף ציוד בשולחן הכישוף."
+quip = "קרא את האותיות הקטנות. הן זוהרות."
+unlock_quip_1 = "תקציב הלאפיס עלה"
+unlock_quip_2 = "יותר נצנוץ, אותו מכוש"
+
+[skill.enchanting.group]
+table = "שולחן"
+anvil = "סדן ומשחזה"
+books = "ספרים"
 
 [skill.excavation]
 name = "חפירה"
 icon = "ᛳ"
 description = "חפור חפור חור... עלה ברמה על ידי חפירת אדמה, חול, חצץ וקרקע רכה אחרת עם אתים."
+quip = "חפור חפור בור, רשמית"
+unlock_quip_1 = "האדמה לא ראתה את זה בא"
+unlock_quip_2 = "עמוק יותר, מהר יותר, מלוכלך יותר"
 
 [skill.herbalism]
 name = "צמחי מרפא"
 icon = "⚘"
 description = "שלוט בכל מה שירוק וצומח. עלה ברמה על ידי חקלאות, קציר יבולים ואיסוף צמחים."
+quip = "דבר עם הצמחים שלך. הם מקשיבים."
+unlock_quip_1 = "הגזרים שלך מאמינים בך"
+unlock_quip_2 = "לגדול, קטנים, לגדול"
+
+[skill.herbalism.group]
+farming = "חקלאות"
+survival = "הישרדות"
+recipes = "מתכונים"
 
 [skill.hunter]
 name = "צייד"
 icon = "☠"
 description = "ציד זה המסע ולא התוצאה. עלה ברמה על ידי הריגת מובים; היתרונות שלה מופעלים כשפוגעים בך, במחיר של רעב."
+quip = "העיקר הדרך. וגם השלל."
+unlock_quip_1 = "משהו שם בחוץ צריך לדאוג"
+unlock_quip_2 = "עכשיו צדים עם עוד קצת טינה"
+
+[skill.hunter.group]
+struck = "כשנפגעים"
+hunt = "הציד"
 
 [skill.nether]
 name = "נתר"
 icon = "₪"
 description = "ממעמקי הנתר עצמו. עלה ברמה על ידי התמודדות עם הנתר והמפלצות שלו."
+quip = "קח קרם הגנה. הרבה."
+unlock_quip_1 = "הגאסטים עוד ישמעו על זה"
+unlock_quip_2 = "ליד הלבה ונהנה מזה"
+
+[skill.nether.group]
+fire = "אש"
+wither = "ווית'ר"
+exploring = "חקירה"
 
 [skill.pickaxe]
 name = "מכוש"
 icon = "⛏"
 description = "גמדים הם הכורים, אבל למדתי דבר או שניים בזמני. עלה ברמה על ידי כריית אבן ועפרות עם מכושים."
+quip = "הגמדים היו גאים. בערך."
+unlock_quip_1 = "סלע ואבן, עד העצם"
+unlock_quip_2 = "טוב שהמשכת לחפור"
 
 [skill.ranged]
 name = "טווח"
 icon = "🏹"
 description = "מרחק הוא המפתח לניצחון, והמפתח להישרדות. עלה ברמה על ידי פגיעות בקליעים."
+quip = "מרחק הוא שפת אהבה"
+unlock_quip_1 = "לכוון קטן, להחטיא קטן"
+unlock_quip_2 = "קרוב מספיק זה רחוק מספיק"
 
 [skill.rift]
 name = "קרע"
 icon = "❍"
 description = "רתום את האנרגיה הצורבת של הקרע. עלה ברמה על ידי שיגור ושימוש בפריטי אנדר."
+quip = "למציאות יש כמה תפרים רופפים"
+unlock_quip_1 = "כאן, שם ובמקום אחר"
+unlock_quip_2 = "האנדרמנים רוצים מילה איתך"
 
 [skill.seaborne]
 name = "ימי"
 icon = "🎣"
 description = "עם מיומנות זו, תוכל לשלוט בפלאות המים. עלה ברמה על ידי שחייה ודיג."
+quip = "בלוב בלוב, ברוכים הבאים לסיפון"
+unlock_quip_1 = "הדגים מקנאים"
+unlock_quip_2 = "גשם או שמש, עדיף גשם"
+
+[skill.seaborne.group]
+swimming = "שחייה"
+combat = "קרב"
+harvest = "קציר ימי"
 
 [skill.stealth]
 name = "התגנבות"
 icon = "☯"
 description = "אומנות הבלתי נראה. לך בצללים. עלה ברמה על ידי התגנבות ותקיפה כשאתה מוסתר."
+quip = "אף פעם לא היית כאן"
+unlock_quip_1 = "ששש. לא ראית את זה."
+unlock_quip_2 = "צללים הם חברים טובים"
+
+[skill.stealth.group]
+concealment = "הסתתרות"
+tricks = "תעלולים"
+ambush = "מארב"
 
 [skill.swords]
 name = "חרבות"
 icon = "⚔"
 description = "בכוחו של גריי-סטון! עלה ברמה על ידי גרימת נזק עם חרבות."
+quip = "בכוחו של GreyStone"
+unlock_quip_1 = "הקצה החד הולך לצד השני"
+unlock_quip_2 = "חד יותר מאתמול"
+
+[skill.swords.group]
+technique = "טכניקה"
+wounds = "פצעים"
+blades = "להבים"
 
 [skill.taming]
 name = "אילוף"
 icon = "♥"
 description = "התוכים והדבורים... ואתה? עלה ברמה על ידי אילוף, הרבעה ולחימה לצד חיות המחמד שלך."
+quip = "מי כלב טוב? עכשיו כולם."
+unlock_quip_1 = "חיות המחמד שלך הבינו"
+unlock_quip_2 = "יותר חטיפים, יותר שיניים"
+
+[skill.taming.group]
+care = "טיפול"
+battle = "קרב"
 
 [skill.tragoul]
 name = "TragOul"
 icon = "🗡"
 description = "הדם זורם בעורקי היקום, מכווץ בידיך. עלה ברמה על ידי ספיגת נזק והישרדות בבריאות נמוכה."
+quip = "לדמם קצת, לחיות הרבה"
+unlock_quip_1 = "כאב הוא רק משאב"
+unlock_quip_2 = "דם שהושקע היטב"
+
+[skill.tragoul.group]
+pain = "כאב"
+corpses = "גוויות"
+blood = "דם"
 
 [skill.chronos]
 name = "Chronos"
 icon = "🕒"
 description = "כוון את שעון היקום, חווה את הזרימה. עלה ברמה על ידי תנועה, שינה, הישרדות לאורך הזמן ושיתוף מהירות. שא שעון כדי לקבל יותר ניסיון Chronos, עם הבונוס החזק ביותר ביד המשנית."
+quip = "טיק טק, השעון רץ"
+unlock_quip_1 = "עוד חמש דקות, אושר"
+unlock_quip_2 = "הפעם הזמן לצידך"
 
 [skill.unarmed]
 name = "לא חמוש"
 icon = "»"
 description = "בלי נשק לא אומר בלי כוח. עלה ברמה על ידי לחימה בידיים חשופות."
+quip = "אגרופים: הנשק המקורי"
+unlock_quip_1 = "פרקי אצבעות, עכשיו משודרגים"
+unlock_quip_2 = "מי צריך חרב בכלל?"
 
 [skill.kinetics]
 name = "קינטיקה"
 icon = "⚒"
 description = "תנועה היא כוח. הלום עם אלות, הסתער עם חניתות וכופף את התנופה עצמה: קפיצות, שיגורים, ריחוף וסדנים נופלים מכוונים היטב מזינים את השליטה שלך."
+quip = "תנופה היא דרך חיים"
+unlock_quip_1 = "הפיזיקה לקחה יום חופש"
+unlock_quip_2 = "מה שעולה מכה חזק יותר"
+
+[skill.kinetics.group]
+spear = "חנית"
+mace = "אלה"
+movement = "תנועה"
 
 [skill.golemancy]
 name = "כישוף גולמים"
 icon = "⚙"
 description = "עלה ברמה על ידי בנייה, תיקון וטיפול בגולמים, ואז הפח בהם חיים כדי שילחמו ויעבדו לצדך."
+quip = "חברים מברזל, בלי שיחות חולין"
+unlock_quip_1 = "הגולמים שלך החכימו קצת"
+unlock_quip_2 = "ברגים הדוקים, נאמנות הדוקה יותר"
+
+[skill.golemancy.group]
+binding = "קשירה"
+frames = "שלדות"
+cores = "ליבות"
+command = "פיקוד וטיפול"
 
 [snippets.gui]
 level = "רמה"
@@ -6223,7 +6388,7 @@ lore2 = "מנע את כל התקפות האנדרמנים"
 lore = ["מנע התקפות אנדרמנים תוך כדי התגנבות", "מנע את כל התקפות האנדרמנים"]
 
 [stealth.silent_step]
-name = "התגנבות"
+name = "צעד שקט"
 description = "הסתרת הליבה לדקירות בגב, לכייס ולהתנקשות. התגנבות מתבססת על מודעות הצופים; היעלמות או פיתיון צל פעיל תמיד נחשבים כבלתי מזוהים."
 lore1 = "רדיוס דיכוי זיהוי מובים"
 lore2 = "בונוס נזק לדקירה בגב של מובים"
@@ -6694,7 +6859,14 @@ lore3 = "נעילה בזמן קרב"
 lore = ["ספיגה מרבית", "ספיגה בכל פעימה", "נעילה בזמן קרב"]
 
 [command.help]
-show_client_ui_status = "מציג אם שחקן משתמש בממשק הלקוח של Adapt"
+merge_two_of_your_skills = "מיזוג שתיים מהמיומנויות שלך למיומנות מוטנטית אחת. לא ניתן לבטל."
+lead_skill = "המיומנות שמובילה את המוטציה ונותנת לה את שמה"
+partner_skill = "המיומנות שמתמזגת אל המובילה"
+remove_a_player_s_mutations = "הסרת כל המוטציות של שחקן; שתי מיומנויות המקור של כל אחת חוזרות"
+unmutate = "הסרת מוטציה אחת של שחקן; שתי מיומנויות המקור שלה חוזרות"
+unmutate_player = "השחקן שהמוטציה שלו מוסרת"
+mutated_skill = "המיומנות המוטנטית, המובילה שלה או השותפה שלה"
+show_client_ui_status = "מציג את מצב לקוח Adapt של שחקן ואת ניצול הכוח שלו"
 version = "הצגת גרסת התוסף המותקן"
 debug_dump = "יצירת דוח אבחון והעלאתו לפי בחירה"
 debug_upload = "העלאת הדוח אל mclo.gs"
@@ -6765,8 +6937,21 @@ item_id_such_as_crook_core_guardian_node_deposit_rune_might_2_or_masterwork_hear
 amount_from_1_to_64_defaults_to_1 = "כמות בין 1 ל-64, ברירת מחדל 1"
 
 [command.runtime]
+mutation_created = "{lead} ו-{partner} הן עכשיו {mutation}."
+mutation_unknown_skill = "מיומנות לא מוכרת. יש לציין שני שמות מיומנויות, למשל swords stealth."
+mutation_unavailable_skill = "לא ניתן לבצע מוטציה למיומנות הזו בשרת הזה."
+mutation_same_skill = "יש לבחור שתי מיומנויות שונות."
+mutation_already_mutated = "מיומנות יכולה להיות חלק ממוטציה אחת בלבד."
+mutation_level_too_low = "שתי המיומנויות צריכות רמה {level}."
+mutation_limit_reached = "שרת זה מתיר עד {limit} מוטציות."
+mutations_reset = "הוסרו {count} מוטציות מ-{player}. שתי מיומנויות המקור של כל אחת חזרו."
+mutation_unmutated = "{mutation} הוסרה מ-{player}. {lead} ו-{partner} חזרו."
+mutation_not_held = "ל-{player} אין מוטציה עם {skill}."
 client_ui_absent = "{player} משתמש בממשק התיבות ושורת הפעולה (לא סוכם לקוח Adapt)."
 client_ui_negotiated = "{player} משתמש בממשק הלקוח של Adapt: פרוטוקול {version}, יכולות {capabilities}."
+power_usage = "{player} משתמש ב-{used} מתוך {max} כוח."
+power_held = "{skill}: {adaptation} ברמה {level} משתמש ב-1 כוח."
+power_free = "{skill}: {adaptation} ברמה {level} לא משתמש בכוח."
 missing_permission = "אין לך את ההרשאה '{permission}'."
 player_required_from_console = "עליך לציין שחקן כשאתה משתמש בפקודה זו מהקונסולה."
 player_required_from_console_short = "עליך לציין שחקן מהקונסולה."
@@ -7175,6 +7360,9 @@ ten = "שמור 10 רעב"
 trigger = "תנועת הפעלה"
 while_sneaking = "בזמן התגנבות"
 work = "מגבלת עבודה"
+felled_logs = "בולי עץ כרותים"
+stripped = "בולי עץ מקולפים"
+planks = "קרשים"
 
 [blocking.preferences]
 all = "כל השחקנים המותרים בסביבה"
@@ -8431,6 +8619,10 @@ description = ["שמות המיומנויות ברישום לפי הסדר שב�
 label = "סדר הסתגלויות"
 description = ["שם המיומנות ברישום אל שמות ההסתגלויות הממוינים ברישום עבור אותה מיומנות.", "השפעה: ההסתגלויות ברשימה ממוקמות ראשונות בסדר זה; כל שאר ההסתגלויות באות אחריהן בסדר האלפביתי הרגיל ושמות לא ידועים מתעלמים מהם."]
 
+[config.fields.core.gui.showInactiveSkills]
+label = "הצג מיומנויות לא פעילות"
+description = ["מציג באפור בעמוד המיומנויות מיומנויות שהשחקן עוד לא התחיל, ואת המקומות של מיומנויות שמוזגו למוטציה.", "השפעה: false מסתיר אותן בעמוד הלקוח המקורי ובממשק המיומנויות, והמיומנויות הנותרות מצטופפות באותו סדר."]
+
 [config.fields.core.effects]
 label = "אפקטים"
 description = ["קובע את האפקטים במקטע core.effects."]
@@ -9142,18 +9334,6 @@ description = ["קובע את הרצפה הפוחתת של שיקוי המהיר
 [config.fields.skills.chronos.speedPotionResetWindow]
 label = "חלון איפוס שיקוי מהירות"
 description = ["קובע את חלון האיפוס של שיקוי המהירות עבור מיומנות Chronos."]
-
-[config.fields.skills.chronos.enderPearlThrowXP]
-label = "XP זריקת פנינת אנדר"
-description = ["כוונון צבירת XP עבור מיומנות Chronos."]
-
-[config.fields.skills.chronos.enderPearlTeleportXP]
-label = "XP שיגור בפנינת אנדר"
-description = ["כוונון צבירת XP עבור מיומנות Chronos."]
-
-[config.fields.skills.chronos.enderPearlCooldown]
-label = "זמן המתנה לפנינת אנדר"
-description = ["זמן המתנה בין הפעלות מיומנות Chronos."]
 
 [config.fields.skills.chronos.survivalXPPerMinute]
 label = "XP הישרדות לדקה"
@@ -10763,10 +10943,6 @@ description = ["סיכוי התחמקות נוסף מקליעים הניתן ב�
 label = "סיכוי התחמקות מרבי"
 description = ["תקרה קשיחה לסיכוי ההתחמקות מקליעים ללא קשר לרמה.", "השפעה: ערכים גבוהים יותר מאפשרים שיעור התחמקות מרבי גבוה יותר."]
 
-[config.fields.adaptations.agility-cat-reflexes.xpPerDodge]
-label = "XP לכל התחמקות"
-description = ["ניסיון הניתן לכל קליע שהתחמקו ממנו.", "השפעה: ערכים גבוהים יותר מתגמלים התחמקות ביותר XP מיומנות."]
-
 [config.fields.adaptations.agility-featherfoot.playerPreferences]
 label = "העדפות שחקן"
 description = ["ברירות המחדל של השרת והבחירות המותרות עבור העדפות השחקן של הסתגלות זו.", "השפעה: ניתן לנעול או להגביל כל פקד רשום בלי לשנות את הבחירות השמורות של שחקן אחר."]
@@ -11334,10 +11510,6 @@ description = ["הסתגלויות שהשחקן חייב כבר ללמוד, כל
 [config.fields.adaptations.agility-vault.jumpHeight]
 label = "גובה קפיצה"
 description = ["שיא הקפיצה בבלוקים בעת מעבר מעל גדר.", "השפעה: ערכים גבוהים יותר עוברים גדרות עם מרווח אנכי גדול יותר."]
-
-[config.fields.adaptations.agility-vault.xpPerVault]
-label = "XP לכל דילוג"
-description = ["ניסיון הניתן לכל דילוג מוצלח.", "השפעה: ערכים גבוהים יותר מתגמלים דילוג ביותר XP מיומנות."]
 
 [config.fields.adaptations.agility-wall-jump.playerPreferences]
 label = "העדפות שחקן"
@@ -22041,19 +22213,19 @@ description = ["חלק נזק הבונוס הנצבר לאורך הרמות עב
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceBase]
 label = "בסיס סיכוי פריט נופל נוסף"
-description = ["סיכוי השכפול הבסיסי לכל פריט נופל מול ציד גדול עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
+description = ["הסיכוי הבסיסי להגרלת שלל נוספת אחת מול ציד גדול עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
 
 [config.fields.adaptations.hunter-big-game.extraDropChanceFactor]
 label = "מקדם סיכוי פריט נופל נוסף"
-description = ["סיכוי השכפול לכל פריט נופל הנצבר לאורך הרמות עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
+description = ["הסיכוי להגרלת שלל נוספת הנצבר לאורך הרמות עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropChance]
 label = "סיכוי מרבי לפריט נופל נוסף"
-description = ["סיכוי השכפול המרבי לכל פריט נופל עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
+description = ["הסיכוי המרבי להגרלת שלל נוספת עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
 
 [config.fields.adaptations.hunter-big-game.maxExtraDropsPerKill]
 label = "מקסימום פריטים נופלים נוספים לכל הריגה"
-description = ["המספר המרבי של פריטים נופלים כבונוס המשוכפלים מהריגה אחת של ציד גדול עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
+description = ["המספר המרבי של פריטים נופלים כבונוס מהריגה אחת של ציד גדול עבור ההסתגלות צייד ציד גדול של מיומנות הצייד."]
 
 [config.fields.adaptations.hunter-big-game.xpPerBigGameKill]
 label = "XP לכל הריגת ציד גדול"
@@ -28139,74 +28311,6 @@ description = ["עלות הידע הנדרשת לרכישת רמה 1.", "השפ�
 label = "דורש"
 description = ["הסתגלויות שהשחקן חייב כבר ללמוד, כל אחת נכתבת כ-adaptationId:level.", "השפעה: למידה או העלאת רמה של הסתגלות זו נדחית עד שכל הסתגלות ברשימה נלמדה ברמה זו, ולא ניתן לבטל את למידת ההסתגלויות האלה מתחת לרמה זו כל עוד הסתגלות זו נלמדת."]
 
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdBase]
-label = "בסיס סף עומק"
-description = ["עומק העין הנדרש מתחת לגובה פני הים בבלוקים ברמת ההסתגלות הנמוכה ביותר.", "השפעה: ערכים גבוהים יותר דורשים צלילה עמוקה יותר לפני שחיזוק כלשהו של צולל הלחץ מופעל."]
-
-[config.fields.adaptations.seaborne-pressure-diver.depthThresholdFactor]
-label = "מקדם סף עומק"
-description = ["בלוקים שמוסרים מדרישת עומק ההפעלה לאורך רמות ההסתגלות.", "השפעה: ערכים גבוהים יותר מאפשרים לצוללים מנוסים להפעיל את החיזוק קרוב יותר לפני השטח; הסף מוגבל מלמטה ל-2 בלוקים."]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdBase]
-label = "בסיס סף עמוק"
-description = ["עומק העין הנדרש מתחת לגובה פני הים לדרגת ההתנגדות החזקה יותר ברמה הנמוכה ביותר.", "השפעה: ערכים גבוהים יותר שומרים את התנגדות II למים עמוקים יותר."]
-
-[config.fields.adaptations.seaborne-pressure-diver.deepThresholdFactor]
-label = "מקדם סף עמוק"
-description = ["בלוקים שמוסרים מדרישת דרגת ההתנגדות החזקה יותר לאורך הרמות.", "השפעה: ערכים גבוהים יותר גורמים לדרגה העמוקה להיות מופעלת קרוב יותר לפני השטח; הסף מוגבל מלמטה ל-4 בלוקים."]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionBase]
-label = "בסיס הפחתת נזק"
-description = ["חלק הנזק הנכנס שמוסר בזמן שצולל הלחץ פעיל ברמה הנמוכה ביותר.", "השפעה: 0.12 מסיר 12% מהנזק הנכנס לפני שהשפעת ההתנגדות המתחדשת נלקחת בחשבון."]
-
-[config.fields.adaptations.seaborne-pressure-diver.damageReductionFactor]
-label = "מקדם הפחתת נזק"
-description = ["הפחתת נזק נכנס נוספת הנצברת לאורך רמות ההסתגלות.", "השפעה: ערכים גבוהים יותר מגדילים חזק יותר את הגנת העומק לקראת הרמה המרבית."]
-
-[config.fields.adaptations.seaborne-pressure-diver.maxDamageReduction]
-label = "הפחתת נזק מרבית"
-description = ["חלק הפחתת הנזק הנכנס המרבי מצולל הלחץ עצמו.", "השפעה: מגביל את ההפחתה הישירה ללא תלות בהשפעת ההתנגדות."]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthBase]
-label = "בסיס חיי ספיגה"
-description = ["נקודות חיי ספיגה הניתנות כשצולל הלחץ מופעל ברמה 1; שתי נקודות חיים מוצגות כלב אחד.", "השפעה: ערכים גבוהים יותר נותנים לצוללים ברמה נמוכה יותר לבבות בונוס זמניים בלי למלא מחדש ספיגה שנצרכה במהלך רענונים."]
-
-[config.fields.adaptations.seaborne-pressure-diver.absorptionHealthFactor]
-label = "מקדם חיי ספיגה"
-description = ["נקודות חיי ספיגה נוספות הניתנות ברמת ההסתגלות המרבית.", "השפעה: ערכים גבוהים יותר מגדילים את קיבולת לבבות הבונוס הנראית של צולל הלחץ ככל שהוא עולה ברמה."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceBase]
-label = "בסיס סיכוי קיצוץ עייפות"
-description = ["סיכוי קיצוץ עייפות הכרייה לכל טיק ברמה הנמוכה ביותר, המיוצג על ידי מונה המהירות הדטרמיניסטי.", "השפעה: ערכים גבוהים יותר מקזזים יותר מעייפות כרייה II ומעלה; עייפות כרייה I נשארת הרצפה."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimChanceFactor]
-label = "מקדם סיכוי קיצוץ עייפות"
-description = ["סיכוי קיצוץ עייפות כרייה נוסף הנצבר לאורך הרמות.", "השפעה: ערכים גבוהים יותר הופכים את מונה מהירות הכרייה מתחת למים לחזק יותר ברמות גבוהות יותר."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountBase]
-label = "בסיס כמות קיצוץ עייפות"
-description = ["שלבי מגבר עייפות הכרייה ברמה הנמוכה ביותר שמקוצצים בכל הפעלה רעיונית.", "השפעה: ערכים גבוהים יותר מתמודדים באגרסיביות רבה יותר עם עייפות כרייה חזקה יותר."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueTrimAmountFactor]
-label = "מקדם כמות קיצוץ עייפות"
-description = ["קיצוץ מגבר עייפות כרייה נוסף הנצבר לאורך הרמות.", "השפעה: ערכים גבוהים יותר מגדילים את דיכוי העייפות ברמות גבוהות."]
-
-[config.fields.adaptations.seaborne-pressure-diver.effectTicks]
-label = "טיקי השפעה"
-description = ["המשך בטיקים של כל השפעת התנגדות שמתרעננת.", "השפעה: ערכים גבוהים יותר נותנים יותר סובלנות לרענון; סביבת הריצה בודקת לפחות כל 15 טיקים בזמן פעילות."]
-
-[config.fields.adaptations.seaborne-pressure-diver.fatigueCounterDurationTicks]
-label = "טיקי משך מונה עייפות"
-description = ["המשך בטיקים של כל מונה מהירות כרייה מתחת למים שמתרענן בזמן שעייפות כרייה קיימת.", "השפעה: ערכים גבוהים יותר סובלים עיכובי רענון; אפס מכבה את ההתמודדות עם עייפות."]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPerDepthPulse]
-label = "XP לכל פעימת עומק"
-description = ["XP של מיומנות ימי הניתן בכל פעימת עומק פעילה.", "השפעה: ערכים גבוהים יותר מעלים את מיומנות ימי ברמה מהר יותר בזמן שצולל הלחץ נשאר פעיל."]
-
-[config.fields.adaptations.seaborne-pressure-diver.xpPulseCooldownMillis]
-label = "מילישניות זמן המתנה לפעימת XP"
-description = ["המילישניות המינימליות בין פעימות XP של עומק פעיל.", "השפעה: ערכים גבוהים יותר מפחיתים את תדירות ה-XP בלי לשנות את החיזוקים ההגנתיים."]
-
 [config.fields.adaptations.seaborne-speed.playerPreferences]
 label = "העדפות שחקן"
 description = ["ברירות המחדל של השרת והבחירות המותרות עבור העדפות השחקן של הסתגלות זו.", "השפעה: ניתן לנעול או להגביל כל פקד רשום בלי לשנות את הבחירות השמורות של שחקן אחר."]
@@ -28522,58 +28626,6 @@ description = ["המשך בטיקים של כל משנה מאפיין כרייה
 [config.fields.adaptations.seaborne-turtles-mining-speed.refreshIntervalMillis]
 label = "מילישניות מרווח רענון"
 description = ["מילישניות בין רענוני מצב פסיביים מתחת למים.", "השפעה: ערכים נמוכים יותר מגיבים מהר יותר אך סורקים שחקנים שלמדו לעתים קרובות יותר; נזק לבלוק עדיין מפעיל את ההגברה מיד."]
-
-[config.fields.adaptations.seaborne-turtles-vision.playerPreferences]
-label = "העדפות שחקן"
-description = ["ברירות המחדל של השרת והבחירות המותרות עבור העדפות השחקן של הסתגלות זו.", "השפעה: ניתן לנעול או להגביל כל פקד רשום בלי לשנות את הבחירות השמורות של שחקן אחר."]
-
-[config.fields.adaptations.seaborne-turtles-vision.enabled]
-label = "מופעל"
-description = ["מפעיל או משבית תכונה זו.", "השפעה: הגדר ל-false כדי להשבית את ההתנהגות בלי להסיר קבצים."]
-
-[config.fields.adaptations.seaborne-turtles-vision.permanent]
-label = "קבוע"
-description = ["מונע ביטול למידה רגיל על ידי השחקן לאחר שהסתגלות זו נרכשה.", "השפעה: הרכישה הראשונה עדיין משתמשת בעלות ובאישור שהוגדרו; עקיפה מנהלית יכולה להוריד אותה ללא החזר."]
-
-[config.fields.adaptations.seaborne-turtles-vision.showParticles]
-label = "הצג חלקיקים"
-description = ["מציג את אפקטי החלקיקים של הסתגלות זו."]
-
-[config.fields.adaptations.seaborne-turtles-vision.showSounds]
-label = "הצג צלילים"
-description = ["משמיע את אפקטי הקול של הסתגלות זו."]
-
-[config.fields.adaptations.seaborne-turtles-vision.baseCost]
-label = "עלות בסיס"
-description = ["עלות הידע הבסיסית המשמשת בעת למידת הסתגלות זו.", "השפעה: ערכים גבוהים יותר הופכים כל רמה ליקרה יותר בידע."]
-
-[config.fields.adaptations.seaborne-turtles-vision.costFactor]
-label = "מקדם עלות"
-description = ["מקדם קנה המידה המוחל על רמות הסתגלות גבוהות יותר.", "השפעה: ערכים גבוהים יותר מגדילים את צמיחת העלות מרמה לרמה."]
-
-[config.fields.adaptations.seaborne-turtles-vision.maxLevel]
-label = "רמה מרבית"
-description = ["הרמה המרבית ששחקן יכול להגיע אליה בהסתגלות זו.", "השפעה: ערכים גבוהים יותר מאפשרים יותר רמות; ערכים נמוכים יותר מגבילים את ההתקדמות מוקדם יותר."]
-
-[config.fields.adaptations.seaborne-turtles-vision.initialCost]
-label = "עלות התחלתית"
-description = ["עלות הידע הנדרשת לרכישת רמה 1.", "השפעה: ערכים גבוהים יותר הופכים את פתיחת הרמה הראשונה ליקרה יותר."]
-
-[config.fields.adaptations.seaborne-turtles-vision.requires]
-label = "דורש"
-description = ["הסתגלויות שהשחקן חייב כבר ללמוד, כל אחת נכתבת כ-adaptationId:level.", "השפעה: למידה או העלאת רמה של הסתגלות זו נדחית עד שכל הסתגלות ברשימה נלמדה ברמה זו, ולא ניתן לבטל את למידת ההסתגלויות האלה מתחת לרמה זו כל עוד הסתגלות זו נלמדת."]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionDurationTicks]
-label = "טיקי משך ראיית לילה"
-description = ["המשך בטיקים של השפעת ראיית הלילה עם חלקיקים מוסתרים המוחלת מתחת למים.", "השפעה: ערכים גבוהים יותר מציגים משך נותר ארוך יותר; ההשפעה עדיין מוסרת כשהשחקן עולה לפני השטח."]
-
-[config.fields.adaptations.seaborne-turtles-vision.nightVisionRefreshThresholdTicks]
-label = "טיקי סף רענון ראיית לילה"
-description = ["טיקי ההשפעה הנותרים שבהם ראיית הצב מרעננת את ראיית הלילה שלה.", "השפעה: ערכים גבוהים יותר מרעננים מוקדם יותר; ערך זה מוגבל מתחת למשך שהוגדר."]
-
-[config.fields.adaptations.seaborne-turtles-vision.refreshIntervalMillis]
-label = "מילישניות מרווח רענון"
-description = ["מילישניות בין בדיקות מצב מתחת למים.", "השפעה: ערכים נמוכים יותר מחילים ומסירים את ראיית הלילה מוקדם יותר אך סורקים שחקנים שלמדו לעתים קרובות יותר."]
 
 [config.fields.adaptations.stealth-assassinate.playerPreferences]
 label = "העדפות שחקן"
@@ -33390,3 +33442,2890 @@ description = ["קובע את הנזק הבסיסי עבור ההסתגלות un
 [config.fields.adaptations.unarmed-sucker-punch.damageFactor]
 label = "מקדם נזק"
 description = ["קנה מידה המוחל על ההסתגלות unarmed-sucker-punch."]
+
+[gui.mutation]
+mutate = "מוטציה"
+pick_partner = "בחירת שותף"
+pick_lead = "בחירת מיומנות"
+level = "רמה {level}"
+knowledge = "{knowledge} ידע"
+lead = "מובילה: {skill}"
+swap_lead = "החלפת מובילה"
+adaptations = "התאמות"
+lost = "אבד"
+lost_levels = "{count} רמות {skill}"
+lost_knowledge = "{count} ידע {skill}"
+lost_adaptation = "{adaptation} {level}"
+lost_permanent_adaptation = "{adaptation} {level} (קבועה, עדיין לא נשכחה)"
+nothing_lost = "כלום"
+confirm_again = "אישור: לצמיתות"
+unmutate = "ביטול מוטציה"
+unmutate_confirm = "אישור ביטול המוטציה"
+lead_role = "מובילה"
+partner_role = "שותפה"
+gains = "מקבלת"
+loses = "מאבדת"
+hold = "החזק כדי למטט"
+permanent = "אי אפשר לבטל את זה"
+levels = "{count} רמות"
+tool = "כלי"
+needs_level = "נדרשת רמה {level}"
+in_mutation = "כבר עברה מוטציה"
+available = "מוטציה זמינה"
+available_quip = "לשתיים מהמיומנויות שלך יש רעיונות"
+upgrade_quip_1 = "אותו טריק, שיניים גדולות יותר"
+upgrade_quip_2 = "טריק ישן לומד טריק חדש"
+mutated_quip_1 = "שתי מיומנויות, טריק מוזר אחד"
+mutated_quip_2 = "הטבע לא תכנן את זה"
+signature_quip_1 = "אף אחד אחר לא יכול את זה"
+signature_quip_2 = "ייחודי ובלי ספק שלך"
+
+[mutated]
+kept = "נשמרות ללא למידה"
+kept_adaptation = "{adaptation} {level}"
+kept_list = "נשמרות ללא למידה: {adaptations}."
+kept_state = "נשמרת ברמה {level}"
+lent_state = "רמה {level} מושאלת מ-{upgrade}"
+raised_state = "נשמר ברמה {kept}, הועלה לרמה {level}"
+
+[mutated.stat]
+strength = "עוצמה"
+cooldown = "זמן המתנה"
+interval = "מרווח"
+
+[mutated.name]
+mutation = "{noun} {adjective}"
+adaptation = "{recipe} {adjective}"
+block = "{slot} של {skill}"
+
+[mutated.template]
+triggered = "בעת {trigger}, {strike}."
+either = "{fight} אם יש עוין בטווח 6 בלוקים; אחרת {work}"
+barter = "{gesture} כדי לשלם {fuel}: אתה מקבל {boon}."
+attunement = "כל עוד {condition}, כל 20 שניות אתה מקבל {boon}."
+convergence = "בעת {trigger}, אם {condition}: {strike}. בנוסף, {also}. זמן המתנה {seconds} שניות."
+skill = "{lead} ו־{partner} במיומנות אחת: {lead} מובילה, {partner} קשורה אליה, ושתיהן מביאות את השדרוגים שלהן."
+
+[mutated.recipe]
+graft = "שתל"
+echo = "הד"
+barter = "סחר"
+attunement = "כוונון"
+convergence = "התכנסות"
+
+[mutated.slot]
+trigger = "הפעלה"
+strike_fight = "מכת קרב"
+strike_work = "מכת עבודה"
+boon = "ברכה"
+fuel = "דלק"
+state = "מצב"
+
+[mutated.gesture]
+sneak_swap = "התגנב והחלף ידיים"
+double_sneak = "הקש פעמיים על התגנבות"
+sneak_left_click = "התגנב ולחץ לחיצה שמאלית באוויר"
+sneak_scroll = "התגנב וגלול בסרגל הפעולות"
+
+[mutated.noun]
+swords = "סייף"
+axes = "בוזז"
+unarmed = "מתאגרף"
+ranged = "צלף"
+blocking = "מגונן"
+stealth = "צל"
+hunter = "טורף"
+tragoul = "כוהן"
+agility = "רץ"
+kinetics = "מטאור"
+rift = "מהלך"
+chronos = "שען"
+pickaxe = "כורה"
+excavation = "חופר"
+herbalism = "שומר"
+architect = "בנאי"
+crafting = "אומן"
+enchanting = "חורט"
+brewing = "אלכימאי"
+discovery = "מחפש"
+taming = "מאלף"
+golemancy = "מכונאי"
+seaborne = "ימאי"
+nether = "נודד"
+
+[mutated.adjective]
+swords = "הלהב"
+axes = "הביקוע"
+unarmed = "האגרוף"
+ranged = "המרחקים"
+blocking = "המגן"
+stealth = "הדממה"
+hunter = "הפרא"
+tragoul = "הדם"
+agility = "הרוח"
+kinetics = "התנופה"
+rift = "הקרע"
+chronos = "הנצח"
+pickaxe = "המעמקים"
+excavation = "האדמה"
+herbalism = "הצמחייה"
+architect = "האבן"
+crafting = "החישול"
+enchanting = "הרונות"
+brewing = "הזיקוק"
+discovery = "הדרכים"
+taming = "הלהקה"
+golemancy = "המנגנון"
+seaborne = "הגאות"
+nether = "התופת"
+
+[mutated.skill]
+swords = "חרבות"
+axes = "גרזנים"
+unarmed = "לא חמוש"
+ranged = "טווח"
+blocking = "חסימה"
+stealth = "התגנבות"
+hunter = "צייד"
+tragoul = "TragOul"
+agility = "זריזות"
+kinetics = "קינטיקה"
+rift = "קרע"
+chronos = "Chronos"
+pickaxe = "מכוש"
+excavation = "חפירה"
+herbalism = "צמחי מרפא"
+architect = "אדריכלות"
+crafting = "יצירה"
+enchanting = "כישוף"
+brewing = "בישול שיקויים"
+discovery = "גילוי"
+taming = "אילוף"
+golemancy = "כישוף גולמים"
+seaborne = "ימי"
+nether = "נתר"
+
+[mutated.block.swords.trigger]
+description = "הנחתת מכה קריטית בחרב"
+
+[mutated.block.swords.strike_fight]
+description = "המטרה מדממת למשך 4 שניות"
+
+[mutated.block.swords.strike_work]
+description = "עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים"
+
+[mutated.block.swords.boon]
+description = "+15% מהירות התקפה למשך 5 שניות"
+
+[mutated.block.swords.fuel]
+description = "5 עמידות מהחרב שלך"
+
+[mutated.block.swords.state]
+description = "פגעת באויב בחרב ב־4 השניות האחרונות"
+
+[mutated.block.axes.trigger]
+description = "הנחתת מכת גרזן טעונה במלואה"
+
+[mutated.block.axes.strike_fight]
+description = "השריון של המטרה נחתך ב־15% למשך 6 שניות"
+
+[mutated.block.axes.strike_work]
+description = "העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו"
+
+[mutated.block.axes.boon]
+description = "2 לבבות ספיגה למשך 6 שניות"
+
+[mutated.block.axes.fuel]
+description = "5 עמידות מהגרזן שלך"
+
+[mutated.block.axes.state]
+description = "כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות"
+
+[mutated.block.unarmed.trigger]
+description = "הנחתת מכה שלישית ברציפות ביד חשופה"
+
+[mutated.block.unarmed.strike_fight]
+description = "המטרה נהדפת לאחור ונחלשת למשך 3 שניות"
+
+[mutated.block.unarmed.strike_work]
+description = "התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה"
+
+[mutated.block.unarmed.boon]
+description = "התחדשות למשך 3 שניות, והריגות ביד חשופה משיבות מזון למשך 15 שניות"
+
+[mutated.block.unarmed.fuel]
+description = "1 נקודת רעב"
+
+[mutated.block.unarmed.state]
+description = "הידיים שלך ריקות ואתה בקרב"
+
+[mutated.block.ranged.trigger]
+description = "פגיעה בקליע ממרחק 15 בלוקים או יותר"
+
+[mutated.block.ranged.strike_fight]
+description = "חץ רפאים נורה אל המטרה"
+
+[mutated.block.ranged.strike_work]
+description = "פריטים שנפלו בטווח 8 בלוקים עפים אליך"
+
+[mutated.block.ranged.boon]
+description = "דריכה מיידית ביריה הבאה שלך"
+
+[mutated.block.ranged.fuel]
+description = "1 חץ"
+
+[mutated.block.ranged.state]
+description = "הקשת שלך דרוכה במלואה"
+
+[mutated.block.blocking.trigger]
+description = "חסימת מכה במגן שלך"
+
+[mutated.block.blocking.strike_fight]
+description = "המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות"
+
+[mutated.block.blocking.strike_work]
+description = "המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי"
+
+[mutated.block.blocking.boon]
+description = "30% עמידות להדיפה ולקליעים למשך 5 שניות"
+
+[mutated.block.blocking.fuel]
+description = "10 עמידות מגן"
+
+[mutated.block.blocking.state]
+description = "המגן שלך מורם"
+
+[mutated.block.stealth.trigger]
+description = "מכה במטרה שאינה מביטה בך"
+
+[mutated.block.stealth.strike_fight]
+description = "מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות"
+
+[mutated.block.stealth.strike_work]
+description = "הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות"
+
+[mutated.block.stealth.boon]
+description = "היעלמות למשך 3 שניות"
+
+[mutated.block.stealth.fuel]
+description = "המחסה שלך ו־2 נקודות רעב (אתה נחשף)"
+
+[mutated.block.stealth.state]
+description = "אתה מתגנב ואף מוב אינו מכוון אליך"
+
+[mutated.block.hunter.trigger]
+description = "הריגת מוב טבעי"
+
+[mutated.block.hunter.strike_fight]
+description = "המטרה מסומנת וסופגת ממך 15% יותר נזק למשך 6 שניות"
+
+[mutated.block.hunter.strike_work]
+description = "חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות"
+
+[mutated.block.hunter.boon]
+description = "מהירות למשך 5 שניות"
+
+[mutated.block.hunter.fuel]
+description = "2 נקודות רעב"
+
+[mutated.block.hunter.state]
+description = "הבריאות שלך מתחת לחצי"
+
+[mutated.block.tragoul.trigger]
+description = "איבוד 2 לבבות או יותר במכה אחת"
+
+[mutated.block.tragoul.strike_fight]
+description = "אתה שואב 1 לב מהמטרה"
+
+[mutated.block.tragoul.strike_work]
+description = "1 נקודת רעב הופכת לחצי לב"
+
+[mutated.block.tragoul.boon]
+description = "1.5 לבבות של ריפוי"
+
+[mutated.block.tragoul.fuel]
+description = "1 לב מהבריאות שלך"
+
+[mutated.block.tragoul.state]
+description = "נותרו לך 3 לבבות או פחות"
+
+[mutated.block.agility.trigger]
+description = "קפיצה תוך ריצה מהירה"
+
+[mutated.block.agility.strike_fight]
+description = "אתה מזנק 3 בלוקים לכיוון המבט שלך"
+
+[mutated.block.agility.strike_work]
+description = "אתה מקבל מהירות II למשך 4 שניות"
+
+[mutated.block.agility.boon]
+description = "הגברת קפיצה ונחיתה בטוחה למשך 4 שניות"
+
+[mutated.block.agility.fuel]
+description = "התנופה שלך ו־2 נקודות רעב (אתה נעצר)"
+
+[mutated.block.agility.state]
+description = "רצת ריצה מהירה במשך 3 שניות ללא עצירה"
+
+[mutated.block.kinetics.trigger]
+description = "נחיתה מנפילה של 4 בלוקים או יותר"
+
+[mutated.block.kinetics.strike_fight]
+description = "המטרה מועפת כלפי מעלה"
+
+[mutated.block.kinetics.strike_work]
+description = "הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים"
+
+[mutated.block.kinetics.boon]
+description = "נפילה איטית למשך 3 שניות"
+
+[mutated.block.kinetics.fuel]
+description = "גובה הנפילה שלך ו־2 נקודות רעב (הנחיתה מבוטלת)"
+
+[mutated.block.kinetics.state]
+description = "אתה באוויר"
+
+[mutated.block.rift.trigger]
+description = "השתגרות באמצעות פנינה, הבזק או פרי כורוס"
+
+[mutated.block.rift.strike_fight]
+description = "המטרה משוגרת 4 בלוקים הרחק ממך"
+
+[mutated.block.rift.strike_work]
+description = "פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך"
+
+[mutated.block.rift.boon]
+description = "התנגדות למשך 3 שניות"
+
+[mutated.block.rift.fuel]
+description = "1 פנינת אנדר"
+
+[mutated.block.rift.state]
+description = "השתגרת ב־5 השניות האחרונות"
+
+[mutated.block.chronos.trigger]
+description = "התגנבות והחלפת ידיים תוך כדי נשיאת שעון"
+
+[mutated.block.chronos.strike_fight]
+description = "המטרה מואטת למשך 2 שניות"
+
+[mutated.block.chronos.strike_work]
+description = "יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות"
+
+[mutated.block.chronos.boon]
+description = "5 שניות נוספות לאפקטי השיקוי הפעילים שלך"
+
+[mutated.block.chronos.fuel]
+description = "זמן המתנה של 20 שניות על השעון שלך"
+
+[mutated.block.chronos.state]
+description = "יש שעון ביד המשנית שלך"
+
+[mutated.block.pickaxe.trigger]
+description = "כריית עפרה"
+
+[mutated.block.pickaxe.strike_fight]
+description = "פרץ סלעים מהמם את המטרה למשך 1 שנייה"
+
+[mutated.block.pickaxe.strike_work]
+description = "עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות"
+
+[mutated.block.pickaxe.boon]
+description = "חיפזון למשך 6 שניות"
+
+[mutated.block.pickaxe.fuel]
+description = "5 עמידות מהמכוש שלך"
+
+[mutated.block.pickaxe.state]
+description = "כרית בלוק ב־4 השניות האחרונות"
+
+[mutated.block.excavation.trigger]
+description = "חפירת 8 בלוקים רכים בתוך 5 שניות"
+
+[mutated.block.excavation.strike_fight]
+description = "האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות"
+
+[mutated.block.excavation.strike_work]
+description = "ריבוע 3 על 3 של בלוקים רכים סביב החפירה האחרונה שלך נשבר ונופל"
+
+[mutated.block.excavation.boon]
+description = "נחיתה בטוחה בנפילה הבאה שלך"
+
+[mutated.block.excavation.fuel]
+description = "8 עפר, חול או חצץ"
+
+[mutated.block.excavation.state]
+description = "חפרת בלוק רך ב־4 השניות האחרונות"
+
+[mutated.block.herbalism.trigger]
+description = "קציר יבול בשל"
+
+[mutated.block.herbalism.strike_fight]
+description = "גפנים מרתקים את המטרה למקומה למשך 2 שניות"
+
+[mutated.block.herbalism.strike_work]
+description = "יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד"
+
+[mutated.block.herbalism.boon]
+description = "2 נקודות רעב משוחזרות"
+
+[mutated.block.herbalism.fuel]
+description = "3 זרעים או יבולים"
+
+[mutated.block.herbalism.state]
+description = "אתה עומד בתוך יבולים, עשב או פרחים"
+
+[mutated.block.architect.trigger]
+description = "הנחת 8 בלוקים בתוך 5 שניות"
+
+[mutated.block.architect.strike_fight]
+description = "חומה זמנית בגובה 2 עולה בינך לבין המטרה"
+
+[mutated.block.architect.strike_work]
+description = "למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך"
+
+[mutated.block.architect.boon]
+description = "חסינות לפיצוצים ולאש ל־8 ההנחות הבאות שלך למשך 60 שניות"
+
+[mutated.block.architect.fuel]
+description = "4 בלוקים מהיד שלך"
+
+[mutated.block.architect.state]
+description = "הנחת בלוק ב־4 השניות האחרונות"
+
+[mutated.block.crafting.trigger]
+description = "יצירת כלי, נשק או פריט שריון"
+
+[mutated.block.crafting.strike_fight]
+description = "המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה"
+
+[mutated.block.crafting.strike_work]
+description = "הכלי שבידך מקבל יעילות +1 למשך 20 שניות"
+
+[mutated.block.crafting.boon]
+description = "6 עמידות לפריט שבידך"
+
+[mutated.block.crafting.fuel]
+description = "1 גרגר ברזל"
+
+[mutated.block.crafting.state]
+description = "יצרת משהו ב־10 השניות האחרונות"
+
+[mutated.block.enchanting.trigger]
+description = "כישוף חפץ, או איסוף 10 XP רגיל בבת אחת"
+
+[mutated.block.enchanting.strike_fight]
+description = "המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת"
+
+[mutated.block.enchanting.strike_work]
+description = "שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר"
+
+[mutated.block.enchanting.boon]
+description = "מזל למשך 8 שניות"
+
+[mutated.block.enchanting.fuel]
+description = "1 רמת XP רגיל"
+
+[mutated.block.enchanting.state]
+description = "יש לך 20 רמות XP רגיל או יותר"
+
+[mutated.block.brewing.trigger]
+description = "שתייה או זריקה של שיקוי"
+
+[mutated.block.brewing.strike_fight]
+description = "השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על המטרה ומנצל רבע בקבוק"
+
+[mutated.block.brewing.strike_work]
+description = "השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק"
+
+[mutated.block.brewing.boon]
+description = "אפקט שיקוי מועיל אקראי למשך 6 שניות"
+
+[mutated.block.brewing.fuel]
+description = "רבע מהשיקוי שבבנדוליר שלך או ביד המשנית שלך"
+
+[mutated.block.brewing.state]
+description = "שיקוי ששתית פעיל"
+
+[mutated.block.discovery.trigger]
+description = "גילוי של משהו חדש"
+
+[mutated.block.discovery.strike_fight]
+description = "הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר"
+
+[mutated.block.discovery.strike_work]
+description = "התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך"
+
+[mutated.block.discovery.boon]
+description = "ראיית לילה ותיבות זוהרות למשך 8 שניות"
+
+[mutated.block.discovery.fuel]
+description = "1 נייר או מפה"
+
+[mutated.block.discovery.state]
+description = "אתה בצ׳אנק שמעולם לא נכנסת אליו"
+
+[mutated.block.taming.trigger]
+description = "פגיעה של חיית מחמד שלך"
+
+[mutated.block.taming.strike_fight]
+description = "חיית המחמד הקרובה ביותר שלך מזנקת על המטרה"
+
+[mutated.block.taming.strike_work]
+description = "חיות מחמד בטווח 8 בלוקים מחלימות 1 לב ושומרות על הקצב שלך למשך 5 שניות"
+
+[mutated.block.taming.boon]
+description = "2 לבבות של ריפוי לכל חיית מחמד בקרבת מקום, לכל היותר 3 לבבות"
+
+[mutated.block.taming.fuel]
+description = "1 עצם או נתח בשר"
+
+[mutated.block.taming.state]
+description = "חיית מחמד שלך נלחמת"
+
+[mutated.block.golemancy.trigger]
+description = "סיום משימה של גולם בבעלותך"
+
+[mutated.block.golemancy.strike_fight]
+description = "הגולם הקרוב ביותר שלך תוקף את המטרה"
+
+[mutated.block.golemancy.strike_work]
+description = "הגולם הקרוב ביותר שלך חוזר על העבודה שעשית זה עתה בבלוק התואם הבא"
+
+[mutated.block.golemancy.boon]
+description = "עבודת גולמים מהירה ב־50% למשך 10 שניות"
+
+[mutated.block.golemancy.fuel]
+description = "1 גרגר נחושת או ברזל"
+
+[mutated.block.golemancy.state]
+description = "גולם שלך עובד בטווח 16 בלוקים"
+
+[mutated.block.seaborne.trigger]
+description = "צלילה למים, או ספיגת מכה בזמן שאתה רטוב"
+
+[mutated.block.seaborne.strike_fight]
+description = "פרץ מים הודף את המטרה לאחור ומכבה אש"
+
+[mutated.block.seaborne.strike_work]
+description = "אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית"
+
+[mutated.block.seaborne.boon]
+description = "נשימה מתחת למים ושחייה מהירה למשך 6 שניות"
+
+[mutated.block.seaborne.fuel]
+description = "3 בועות אוויר ו־2 נקודות רעב"
+
+[mutated.block.seaborne.state]
+description = "אתה רטוב"
+
+[mutated.block.nether.trigger]
+description = "ספיגת נזק אש"
+
+[mutated.block.nether.strike_fight]
+description = "המטרה בוערת למשך 4 שניות"
+
+[mutated.block.nether.strike_work]
+description = "3 הבלוקים הבאים שתשבור מותכים"
+
+[mutated.block.nether.boon]
+description = "עמידות לאש למשך 6 שניות"
+
+[mutated.block.nether.fuel]
+description = "1 אבקת להבה"
+
+[mutated.block.nether.state]
+description = "אתה בנתר או בוער"
+
+[mutated.override.swords.unarmed]
+convergence = "בעת הנחתת מכה קריטית בחרב, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: המטרה מדממת למשך 4 שניות. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.swords.ranged]
+convergence = "בעת הנחתת מכה קריטית בחרב, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: המטרה מדממת למשך 4 שניות. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.swords.blocking]
+convergence = "בעת הנחתת מכה קריטית בחרב, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: המטרה מדממת למשך 4 שניות. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.swords.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מדמם למשך 4 שניות."
+
+[mutated.override.swords.agility]
+convergence = "בעת הנחתת מכה קריטית בחרב, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: המטרה מדממת למשך 4 שניות. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך. זמן המתנה 45 שניות."
+
+[mutated.override.swords.herbalism]
+echo = "בעת קציר יבול בשל, עשב, עלים ויבולים בשלים בקשת של 3 בלוקים נקצרים ונאספים."
+
+[mutated.override.swords.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה מדממת למשך 4 שניות."
+
+[mutated.override.swords.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים."
+
+[mutated.signature.swords.chronos.convergence]
+name = "מכת הד"
+description = "כל פגיעת חרב שלישית מכה שוב כעבור שנייה כבבואה, שאינה יכולה להיות קריטית ואינה מפעילה השפעות אחרות."
+lore1 = "נזק ההד"
+lore2 = "פגיעות חרב לכל הד"
+
+[mutated.signature.swords.stealth.convergence]
+name = "להב בלתי נראה"
+description = "פגיעה קריטית בחרב ביצור שאינו יכול לראות אותך מונעת ממנו להחלים וגורמת לו לדמם בחוזקה. אם הוא מת תוך 3 שניות, אתה נעלם ל־2 שניות, אלא אם מוב אחר צד אותך. זמן המתנה 20 שניות."
+lore1 = "ללא החלמה"
+lore2 = "נזק דימום"
+lore3 = "היעלמות"
+
+[mutated.override.axes.unarmed]
+convergence = "בעת הנחתת מכת גרזן טעונה במלואה, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: השריון של המטרה נחתך ב־15% למשך 6 שניות. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.axes.ranged]
+convergence = "בעת הנחתת מכת גרזן טעונה במלואה, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: השריון של המטרה נחתך ב־15% למשך 6 שניות. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.axes.blocking]
+convergence = "בעת הנחתת מכת גרזן טעונה במלואה, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: השריון של המטרה נחתך ב־15% למשך 6 שניות. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.axes.hunter]
+echo = "בעת הריגת מוב טבעי, השריון של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחתך ב־15% למשך 6 שניות."
+
+[mutated.override.axes.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, השריון של המטרה נחתך ב־15% למשך 6 שניות."
+
+[mutated.override.axes.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו."
+
+[mutated.signature.axes.herbalism.convergence]
+name = "שומר היער"
+description = "כל עץ טבעי שמפולת עצים כורתת נשתל מחדש משתיל שאתה נושא, והשתילים סביבו גדלים בשלב אחד."
+lore1 = "שתילים שגדלו לעץ"
+lore2 = "רדיוס חיפוש שתילים"
+
+[mutated.signature.axes.architect.convergence]
+name = "שלד עץ"
+description = "בולי עץ שנכרתים במפולת עצים נופלים מקולפים; מרמה 2 הבחירה שלך לבולי עץ כרותים מנסרת אותם במקום זאת ל־4 קרשים כל אחד."
+lore1 = "בולי עץ מעובדים לעץ"
+lore2 = "קרשים לבול עץ"
+
+[mutated.override.unarmed.ranged]
+convergence = "בעת הנחתת מכה שלישית ברציפות ביד חשופה, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: המטרה נהדפת לאחור ונחלשת למשך 3 שניות. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.signature.unarmed.blocking.convergence]
+name = "משמר ברזל"
+description = "לחץ קליק ימני על בלוק או יצור כששתי הידיים ריקות רגע לפני פגיעה כדי להדוף אותה בלי מגן: הפגיעה מבוטלת, מחציתה חוזרת אל התוקף, התוקף מתנודד, והמכה הבאה שלך ביד חשופה בתוך 3 שניות חזקה יותר."
+lore1 = "חלון הדיפה"
+lore2 = "נזק מוחזר"
+lore3 = "נזק מכת נגד"
+
+[mutated.override.unarmed.stealth]
+convergence = "בעת הנחתת מכה שלישית ברציפות ביד חשופה, אם התגנבת מבלי להיראות ב־4 השניות האחרונות: המטרה נהדפת לאחור ונחלשת למשך 3 שניות. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.unarmed.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים נהדף לאחור ונחלש למשך 3 שניות."
+
+[mutated.override.unarmed.crafting]
+attunement = "כל עוד הידיים שלך ריקות ואתה בקרב, כל 20 שניות אתה מקבל 6 עמידות לפריט השריון השחוק ביותר שלך."
+
+[mutated.override.unarmed.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה נהדפת לאחור ונחלשת למשך 3 שניות."
+
+[mutated.override.unarmed.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה."
+
+[mutated.signature.unarmed.tragoul.convergence]
+name = "אגרופי דם"
+description = "כל מכה ביד חשופה ברצף ביצור עוין או בשחקן מרפאת אותך לכל ערימה, עם תקרה לשנייה כמו בגאות ארגמן, ומכת הגמר של קומבו בלתי שבור מרפאת אותך במחצית הנזק שלה."
+lore1 = "חיים לכל ערימה"
+lore2 = "מרב חיים לשנייה"
+lore3 = "נזק מכת גמר שהוחזר"
+
+[mutated.override.ranged.unarmed]
+convergence = "בעת פגיעה בקליע ממרחק 15 בלוקים או יותר, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: חץ רפאים נורה אל המטרה. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.ranged.hunter]
+echo = "בעת הריגת מוב טבעי, חץ רפאים נורה אל העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+
+[mutated.signature.ranged.agility.convergence]
+name = "דריכה באוויר"
+description = "דריכת קשת באוויר מאטה את נפילתך, חץ שנורה באוויר לאחר דריכה של חצי לפחות עף כאילו נדרך עד הסוף, והפגיעה הראשונה שלך בחץ בזמן שאתה באוויר ממלאת את המטענים של רץ השמיים, פעם אחת לכל קפיצה."
+lore1 = "נפילה מואטת לכל קפיצה"
+
+[mutated.override.ranged.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, חץ רפאים נורה אל המטרה."
+
+[mutated.override.ranged.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, פריטים שנפלו בטווח 8 בלוקים עפים אליך."
+
+[mutated.signature.ranged.chronos.convergence]
+name = "ירייה חוזרת"
+description = "ירייה בקשת מתוחה עד הסוף נורית שוב כעבור 1.5 שניות מהמקום שממנו יצאה, באותו מסלול, בלי להשתמש בחץ. הירייה החוזרת אינה מפעילה השפעות של טווח."
+lore1 = "נזק הירייה החוזרת"
+
+[mutated.signature.ranged.hunter.convergence]
+name = "ירייה מוכרזת"
+description = "היצור הטבעי הקרוב ביותר מהמין של מצפן הגשש זוהר עבורך הרבה מעבר לטווח המצפן, וקשת שנדרכת אליו ננעלת עליו כך שהחץ רודף אחריו."
+lore1 = "טווח זוהר"
+lore2 = "טווח נעילה"
+
+[mutated.override.blocking.unarmed]
+convergence = "בעת חסימת מכה במגן שלך, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.signature.blocking.unarmed.convergence]
+name = "משמר ברזל"
+description = "לחץ קליק ימני על בלוק או יצור כששתי הידיים ריקות רגע לפני פגיעה כדי להדוף אותה בלי מגן: הפגיעה מבוטלת, מחציתה חוזרת אל התוקף, התוקף מתנודד, והמכה הבאה שלך ביד חשופה בתוך 3 שניות חזקה יותר."
+lore1 = "חלון הדיפה"
+lore2 = "נזק מוחזר"
+lore3 = "נזק מכת נגד"
+
+[mutated.override.blocking.ranged]
+convergence = "בעת חסימת מכה במגן שלך, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.blocking.stealth]
+convergence = "בעת חסימת מכה במגן שלך, אם התגנבת מבלי להיראות ב־4 השניות האחרונות: המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.blocking.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מתנודד ואינו יכול לחסום למשך 2 שניות."
+
+[mutated.override.blocking.agility]
+convergence = "בעת חסימת מכה במגן שלך, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך. זמן המתנה 45 שניות."
+
+[mutated.override.blocking.brewing]
+graft = "בעת חסימת מכה במגן שלך, השיקוי הראשון בסרגל הפעולות שלך ניתז על המטרה ומנצל רבע בקבוק."
+convergence = "בעת חסימת מכה במגן שלך, אם שיקוי ששתית פעיל: המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. בנוסף, השיקוי הראשון בסרגל הפעולות שלך ניתז על המטרה ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.override.blocking.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות."
+
+[mutated.override.blocking.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי."
+
+[mutated.signature.blocking.taming.convergence]
+name = "להקת נושא המגן"
+description = "חיות המחמד שלך שמאחורי המגן המורם שלך או מאחורי חומת המגן הנטועה שלך אינן סופגות נזק מקליעים ומחלימות לאט."
+lore1 = "עומק החיפוי"
+lore2 = "ריפוי חיית מחמד לשנייה"
+
+[mutated.override.stealth.ranged]
+convergence = "בעת מכה במטרה שאינה מביטה בך, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.stealth.blocking]
+convergence = "בעת מכה במטרה שאינה מביטה בך, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.stealth.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות."
+
+[mutated.override.stealth.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות."
+
+[mutated.signature.stealth.swords.convergence]
+name = "תגובת צל"
+description = "בזמן שאתה מתגנב ואף מוב אחר אינו צד אותך, פגיעת תגרה שאתה סופג נהדפת בחלקה וצעד צל חינם מעביר אותך אל מאחורי התוקף, ושם הפגיעה הבאה שלך בו היא פתיחה של אות המוות. דורש צעד צל מוכן ומקום מאחוריו. זמן המתנה 15 שניות."
+lore1 = "נהדף"
+
+[mutated.signature.stealth.rift.convergence]
+name = "צעד הריק"
+description = "זמן קצר אחרי שיגור, לחיצה ימנית ביד ריקה על יצור שאינו יכול לראות אותך עושה צעד צל אל מאחוריו, בלי רימון עשן, בטווח ובזמן ההמתנה של צעד הצל שלך. כל עוד אף מוב אינו צד אותך, שיגורי צעד הפאזה אינם משאירים חלקיקים או צליל."
+lore1 = "זמן אחרי שיגור"
+
+[mutated.override.hunter.swords]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מדמם למשך 4 שניות."
+convergence = "בעת הריגת מוב טבעי, אם פגעת באויב בחרב ב־4 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים מדמם למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.axes]
+graft = "בעת הריגת מוב טבעי, השריון של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחתך ב־15% למשך 6 שניות."
+convergence = "בעת הריגת מוב טבעי, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, השריון של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחתך ב־15% למשך 6 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.unarmed]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים נהדף לאחור ונחלש למשך 3 שניות."
+convergence = "בעת הריגת מוב טבעי, אם הידיים שלך ריקות ואתה בקרב: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים נהדף לאחור ונחלש למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.ranged]
+graft = "בעת הריגת מוב טבעי, חץ רפאים נורה אל העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+
+[mutated.override.hunter.blocking]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מתנודד ואינו יכול לחסום למשך 2 שניות."
+convergence = "בעת הריגת מוב טבעי, אם המגן שלך מורם: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים מתנודד ואינו יכול לחסום למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.stealth]
+convergence = "בעת הריגת מוב טבעי, אם אתה מתגנב ואף מוב אינו מכוון אליך: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.tragoul]
+graft = "בעת הריגת מוב טבעי, אתה שואב 1 לב מהעוין האחר הקרוב ביותר בטווח 6 בלוקים."
+convergence = "בעת הריגת מוב טבעי, אם נותרו לך 3 לבבות או פחות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, אתה שואב 1 לב מהעוין האחר הקרוב ביותר בטווח 6 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.agility]
+convergence = "בעת הריגת מוב טבעי, אם רצת ריצה מהירה במשך 3 שניות ללא עצירה: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.kinetics]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מועף כלפי מעלה."
+convergence = "בעת הריגת מוב טבעי, אם אתה באוויר: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים מועף כלפי מעלה. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.rift]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים משוגר 4 בלוקים הרחק ממך."
+convergence = "בעת הריגת מוב טבעי, אם השתגרת ב־5 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים משוגר 4 בלוקים הרחק ממך. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.chronos]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מואט למשך 2 שניות."
+convergence = "בעת הריגת מוב טבעי, אם יש שעון ביד המשנית שלך: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים מואט למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.pickaxe]
+graft = "בעת הריגת מוב טבעי, פרץ סלעים מהמם את העוין האחר הקרוב ביותר בטווח 6 בלוקים למשך 1 שנייה."
+convergence = "בעת הריגת מוב טבעי, אם כרית בלוק ב־4 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, פרץ סלעים מהמם את העוין האחר הקרוב ביותר בטווח 6 בלוקים למשך 1 שנייה. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.excavation]
+graft = "בעת הריגת מוב טבעי, האדמה מתחת לעוין האחר הקרוב ביותר בטווח 6 בלוקים הופכת לבוץ ומאטה אותו למשך 3 שניות."
+convergence = "בעת הריגת מוב טבעי, אם חפרת בלוק רך ב־4 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, האדמה מתחת לעוין האחר הקרוב ביותר בטווח 6 בלוקים הופכת לבוץ ומאטה אותו למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.herbalism]
+graft = "בעת הריגת מוב טבעי, גפנים מרתקים את העוין האחר הקרוב ביותר בטווח 6 בלוקים למקומו למשך 2 שניות."
+convergence = "בעת הריגת מוב טבעי, אם אתה עומד בתוך יבולים, עשב או פרחים: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, גפנים מרתקים את העוין האחר הקרוב ביותר בטווח 6 בלוקים למקומו למשך 2 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.architect]
+graft = "בעת הריגת מוב טבעי, חומה זמנית בגובה 2 עולה בינך לבין העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+convergence = "בעת הריגת מוב טבעי, אם הנחת בלוק ב־4 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, חומה זמנית בגובה 2 עולה בינך לבין העוין האחר הקרוב ביותר בטווח 6 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.crafting]
+convergence = "בעת הריגת מוב טבעי, אם יצרת משהו ב־10 השניות האחרונות: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.enchanting]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים זוהר, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת."
+convergence = "בעת הריגת מוב טבעי, אם יש לך 20 רמות XP רגיל או יותר: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים זוהר, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.brewing]
+graft = "בעת הריגת מוב טבעי, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על העוין האחר הקרוב ביותר בטווח 6 בלוקים ומנצל רבע בקבוק."
+convergence = "בעת הריגת מוב טבעי, אם שיקוי ששתית פעיל: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על העוין האחר הקרוב ביותר בטווח 6 בלוקים ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.discovery]
+graft = "בעת הריגת מוב טבעי, הנתונים של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחשפים, והמכה הבאה שלך בו גורמת 20% יותר."
+convergence = "בעת הריגת מוב טבעי, אם אתה בצ׳אנק שמעולם לא נכנסת אליו: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, הנתונים של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחשפים, והמכה הבאה שלך בו גורמת 20% יותר. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.taming]
+graft = "בעת הריגת מוב טבעי, חיית המחמד הקרובה ביותר שלך מזנקת על העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה מסומנת וסופגת ממך 15% יותר נזק למשך 6 שניות."
+
+[mutated.override.hunter.golemancy]
+graft = "בעת הריגת מוב טבעי, הגולם הקרוב ביותר שלך תוקף את העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+echo = "בעת סיום משימה של גולם בבעלותך, חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות."
+convergence = "בעת הריגת מוב טבעי, אם גולם שלך עובד בטווח 16 בלוקים: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, הגולם הקרוב ביותר שלך תוקף את העוין האחר הקרוב ביותר בטווח 6 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.seaborne]
+graft = "בעת הריגת מוב טבעי, פרץ מים הודף את העוין האחר הקרוב ביותר בטווח 6 בלוקים לאחור ומכבה אש."
+convergence = "בעת הריגת מוב טבעי, אם אתה רטוב: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, פרץ מים הודף את העוין האחר הקרוב ביותר בטווח 6 בלוקים לאחור ומכבה אש. זמן המתנה 45 שניות."
+
+[mutated.override.hunter.nether]
+graft = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים בוער למשך 4 שניות."
+convergence = "בעת הריגת מוב טבעי, אם אתה בנתר או בוער: העוין האחר הקרוב ביותר בטווח 6 בלוקים מסומן וסופג ממך 15% יותר נזק למשך 6 שניות. בנוסף, העוין האחר הקרוב ביותר בטווח 6 בלוקים בוער למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.signature.hunter.ranged.convergence]
+name = "ירייה מוכרזת"
+description = "היצור הטבעי הקרוב ביותר מהמין של מצפן הגשש זוהר עבורך הרבה מעבר לטווח המצפן, וקשת שנדרכת אליו ננעלת עליו כך שהחץ רודף אחריו."
+lore1 = "טווח זוהר"
+lore2 = "טווח נעילה"
+
+[mutated.signature.hunter.taming.convergence]
+name = "ציד להקה"
+description = "חיות המחמד שלך עוקבות מעצמן אחר שובל הדם שלך או אחר המין של מצפן הגשש, לעולם לא יותר מ־32 בלוקים ממך, ונשיכותיהן בטרף בונות את הצבירה של טורף עליון שלך ומשתמשות בה."
+lore1 = "טווח ציד"
+lore2 = "חיות מחמד לכל ציד"
+lore3 = "נזק חיית מחמד לכל שלב צבירה"
+
+[mutated.override.tragoul.stealth]
+convergence = "בעת איבוד 2 לבבות או יותר במכה אחת, אם התגנבת מבלי להיראות ב־4 השניות האחרונות: אתה שואב 1 לב מהמטרה. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.tragoul.hunter]
+echo = "בעת הריגת מוב טבעי, אתה שואב 1 לב מהעוין האחר הקרוב ביותר בטווח 6 בלוקים."
+
+[mutated.override.tragoul.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, אתה שואב 1 לב מהמטרה."
+
+[mutated.override.tragoul.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, 1 נקודת רעב הופכת לחצי לב."
+
+[mutated.signature.tragoul.golemancy.convergence]
+name = "לגיון העצמות"
+description = "תן ליבת גולם לאחד ממשרתי השלד שלך והוא יעבוד כגולם עצם. זמן החיים שלו רץ רק כשהוא בטל; אחר כך הוא מתפורר ומפיל את הליבה. לגיונרים עדיין נספרים במגבלת המשרתים שלך."
+lore1 = "לגיונרים"
+lore2 = "זמן חיים בבטלה"
+
+[mutated.signature.agility.ranged.convergence]
+name = "דריכה באוויר"
+description = "דריכת קשת באוויר מאטה את נפילתך, חץ שנורה באוויר לאחר דריכה של חצי לפחות עף כאילו נדרך עד הסוף, והפגיעה הראשונה שלך בחץ בזמן שאתה באוויר ממלאת את המטענים של רץ השמיים, פעם אחת לכל קפיצה."
+lore1 = "נפילה מואטת לכל קפיצה"
+
+[mutated.signature.tragoul.unarmed.convergence]
+name = "אגרופי דם"
+description = "כל מכה ביד חשופה ברצף ביצור עוין או בשחקן מרפאת אותך לכל ערימה, עם תקרה לשנייה כמו בגאות ארגמן, ומכת הגמר של קומבו בלתי שבור מרפאת אותך במחצית הנזק שלה."
+lore1 = "חיים לכל ערימה"
+lore2 = "מרב חיים לשנייה"
+lore3 = "נזק מכת גמר שהוחזר"
+
+[mutated.signature.tragoul.nether.convergence]
+name = "דם וית'ר"
+description = "כל הריגה מפיצה וית'ר I ליצורים העוינים סביב הגופה, והריגת שלד וית'ר ממלאת את מאגר הדם שלך."
+lore1 = "רדיוס התפשטות"
+lore2 = "מרב עוינים שנבלו"
+lore3 = "דם משלד וית'ר"
+
+[mutated.override.agility.ranged]
+convergence = "בעת קפיצה תוך ריצה מהירה, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. בנוסף, חץ רפאים נורה אל המטרה אם יש עוין בטווח 6 בלוקים; אחרת פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.agility.blocking]
+convergence = "בעת קפיצה תוך ריצה מהירה, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.agility.stealth]
+convergence = "בעת קפיצה תוך ריצה מהירה, אם התגנבת מבלי להיראות ב־4 השניות האחרונות: אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.agility.excavation]
+graft = "בעת קפיצה תוך ריצה מהירה, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת קפיצה תוך ריצה מהירה, אם חפרת בלוק רך ב־4 השניות האחרונות: אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.agility.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, אתה מזנק 3 בלוקים לכיוון המבט שלך."
+
+[mutated.override.agility.golemancy]
+graft = "בעת קפיצה תוך ריצה מהירה, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, אתה מקבל מהירות II למשך 4 שניות."
+convergence = "בעת קפיצה תוך ריצה מהירה, אם גולם שלך עובד בטווח 16 בלוקים: אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. בנוסף, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.agility.kinetics.convergence]
+name = "בנק תנופה"
+description = "מהירות הריצה שאתה לוקח לצלילה עם מקבת נשמרת: גל ההלם של שביט מתחזק בעזרתה עד 50% יותר, ואתה נוחת ושומר על המהירות."
+lore1 = "תוספת מרבית לגל ההלם"
+lore2 = "מהירות שנשמרת בנחיתה"
+
+[mutated.override.kinetics.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מועף כלפי מעלה."
+
+[mutated.override.kinetics.excavation]
+graft = "בעת נחיתה מנפילה של 4 בלוקים או יותר, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת נחיתה מנפילה של 4 בלוקים או יותר, אם חפרת בלוק רך ב־4 השניות האחרונות: המטרה מועפת כלפי מעלה אם יש עוין בטווח 6 בלוקים; אחרת הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.kinetics.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה מועפת כלפי מעלה."
+
+[mutated.override.kinetics.golemancy]
+graft = "בעת נחיתה מנפילה של 4 בלוקים או יותר, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים."
+convergence = "בעת נחיתה מנפילה של 4 בלוקים או יותר, אם גולם שלך עובד בטווח 16 בלוקים: המטרה מועפת כלפי מעלה אם יש עוין בטווח 6 בלוקים; אחרת הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. בנוסף, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.kinetics.agility.convergence]
+name = "בנק תנופה"
+description = "מהירות הריצה שאתה לוקח לצלילה עם מקבת נשמרת: גל ההלם של שביט מתחזק בעזרתה עד 50% יותר, ואתה נוחת ושומר על המהירות."
+lore1 = "תוספת מרבית לגל ההלם"
+lore2 = "מהירות שנשמרת בנחיתה"
+
+[mutated.override.rift.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים משוגר 4 בלוקים הרחק ממך."
+
+[mutated.override.rift.excavation]
+graft = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, אם חפרת בלוק רך ב־4 השניות האחרונות: המטרה משוגרת 4 בלוקים הרחק ממך אם יש עוין בטווח 6 בלוקים; אחרת פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.rift.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה משוגרת 4 בלוקים הרחק ממך."
+
+[mutated.override.rift.golemancy]
+graft = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך."
+convergence = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, אם גולם שלך עובד בטווח 16 בלוקים: המטרה משוגרת 4 בלוקים הרחק ממך אם יש עוין בטווח 6 בלוקים; אחרת פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך. בנוסף, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.rift.chronos.convergence]
+name = "החזרת הקפיצה"
+description = "תוך 3 עד 5 שניות מפנינה, פרי כוריוס או קפיצה, התגנב והחלף ידיים עם שעון כדי לחזור למקום שממנו יצאת, עם לפחות הבריאות שהייתה לך שם. לעולם לא למקום שאסור לך להיכנס אליו."
+lore1 = "זמן לחזרה"
+
+[mutated.signature.rift.stealth.convergence]
+name = "צעד הריק"
+description = "זמן קצר אחרי שיגור, לחיצה ימנית ביד ריקה על יצור שאינו יכול לראות אותך עושה צעד צל אל מאחוריו, בלי רימון עשן, בטווח ובזמן ההמתנה של צעד הצל שלך. כל עוד אף מוב אינו צד אותך, שיגורי צעד הפאזה אינם משאירים חלקיקים או צליל."
+lore1 = "זמן אחרי שיגור"
+
+[mutated.signature.rift.herbalism.convergence]
+name = "מטע כוראל"
+description = "כל יבול בשל שאתה קוצר מגדל את פרחי הכוראל הסמוכים אליו בשלב אחד, כצמיחה מאולצת. פרי כוראל שולח אותך למקום שאליו אתה מביט במקום למקום אקראי."
+lore1 = "טווח כוראל"
+lore2 = "פרחים לכל קציר"
+
+[mutated.signature.rift.discovery.convergence]
+name = "אבני דרך"
+description = "הפוך מבנה מהאטלס שלך לאבן דרך: עוגן שבר בלי בלוק, שנספר במגבלת העוגנים שלך, ואליו אתה נוסע מתפריט העוגנים כמו לכל עוגן אחר, תמורת פנינת האנדר והתיעול שלו."
+lore1 = "אבני דרך"
+
+[mutated.signature.chronos.swords.convergence]
+name = "מכת הד"
+description = "כל פגיעת חרב שלישית מכה שוב כעבור שנייה כבבואה, שאינה יכולה להיות קריטית ואינה מפעילה השפעות אחרות."
+lore1 = "נזק ההד"
+lore2 = "פגיעות חרב לכל הד"
+
+[mutated.override.chronos.axes]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, השריון של המטרה נחתך ב־15% למשך 6 שניות אם יש עוין בטווח 6 בלוקים; אחרת העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.unarmed]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.signature.chronos.ranged.convergence]
+name = "ירייה חוזרת"
+description = "ירייה בקשת מתוחה עד הסוף נורית שוב כעבור 1.5 שניות מהמקום שממנו יצאה, באותו מסלול, בלי להשתמש בחץ. הירייה החוזרת אינה מפעילה השפעות של טווח."
+lore1 = "נזק הירייה החוזרת"
+
+[mutated.override.chronos.blocking]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.stealth]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם אתה מתגנב ואף מוב אינו מכוון אליך: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים מואט למשך 2 שניות."
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם הבריאות שלך מתחת לחצי: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה מסומנת וסופגת ממך 15% יותר נזק למשך 6 שניות אם יש עוין בטווח 6 בלוקים; אחרת חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.tragoul]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם נותרו לך 3 לבבות או פחות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, אתה שואב 1 לב מהמטרה אם יש עוין בטווח 6 בלוקים; אחרת 1 נקודת רעב הופכת לחצי לב. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.agility]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.kinetics]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם אתה באוויר: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה מועפת כלפי מעלה אם יש עוין בטווח 6 בלוקים; אחרת הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.signature.chronos.rift.convergence]
+name = "החזרת הקפיצה"
+description = "תוך 3 עד 5 שניות מפנינה, פרי כוריוס או קפיצה, התגנב והחלף ידיים עם שעון כדי לחזור למקום שממנו יצאת, עם לפחות הבריאות שהייתה לך שם. לעולם לא למקום שאסור לך להיכנס אליו."
+lore1 = "זמן לחזרה"
+
+[mutated.override.chronos.pickaxe]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם כרית בלוק ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, פרץ סלעים מהמם את המטרה למשך 1 שנייה אם יש עוין בטווח 6 בלוקים; אחרת עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.excavation]
+graft = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם חפרת בלוק רך ב־4 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.signature.chronos.herbalism.convergence]
+name = "סיבוב עונה"
+description = "פעם ביום משחק, התגנב והחלף ידיים עם שעון כדי שכל יבול סביבך יגדל בשלב אחד. הגדילה נחשבת כקמח עצמות."
+lore1 = "רדיוס השדה"
+
+[mutated.signature.chronos.architect.convergence]
+name = "ביטול ארוך"
+description = "התגנב והחלף ידיים עם שעון כדי לבטל את מילוי הגיר, החותמת, משטח השרביט או ההחלפה האחרונים שלך, מטווח רחוק פי עשרה ממה שיד ההריסה מגיעה. כל בלוק שעדיין עומד מחזיר את מה שעלה. במשך 10 דקות, השחזור של אדון הזמן ליד המקום מחזיר את המבנה, בתשלום מחדש."
+lore1 = "טווח הביטול"
+
+[mutated.override.chronos.crafting]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם יצרת משהו ב־10 השניות האחרונות: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה אם יש עוין בטווח 6 בלוקים; אחרת הכלי שבידך מקבל יעילות +1 למשך 20 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.enchanting]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם יש לך 20 רמות XP רגיל או יותר: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת אם יש עוין בטווח 6 בלוקים; אחרת שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. זמן המתנה 45 שניות."
+
+[mutated.signature.chronos.brewing.convergence]
+name = "שיקויים מושהים"
+description = "התגנב והחלף ידיים עם שעון כדי להשהות את השפעות השיקוי המועילות שלך. הן חוזרות עם הזמן שנותר להן כשאתה מחליף שוב או כשההשהיה נגמרת."
+lore1 = "ההשהיה הארוכה ביותר"
+
+[mutated.override.chronos.discovery]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם אתה בצ׳אנק שמעולם לא נכנסת אליו: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר אם יש עוין בטווח 6 בלוקים; אחרת התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה מואטת למשך 2 שניות."
+
+[mutated.signature.chronos.taming.convergence]
+name = "בן לוויה מוחזר"
+description = "חיית מחמד שעומדת למות חוזרת במקום זאת 4 שניות אחורה, למקום שבו עמדה ועם הבריאות שהייתה לה. כל חיית מחמד חוזרת לכל היותר פעם אחת בכל 5 עד 10 דקות."
+lore1 = "חזרה לאחור"
+lore2 = "המתנה לכל חיה"
+
+[mutated.override.chronos.golemancy]
+graft = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות."
+
+[mutated.signature.chronos.golemancy.convergence]
+name = "האצת שעון"
+description = "התגנב והחלף ידיים עם שעון ליד הגולמים שלך כדי שיעבדו במהירות משולשת, תמורת 60 שניות של זמן שמור בבקבוק כרונו."
+lore1 = "מהירות הגולמים"
+lore2 = "משך"
+lore3 = "זמן בקבוק"
+
+[mutated.override.chronos.seaborne]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם אתה רטוב: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. זמן המתנה 45 שניות."
+
+[mutated.override.chronos.nether]
+convergence = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, אם אתה בנתר או בוער: המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. בנוסף, המטרה בוערת למשך 4 שניות אם יש עוין בטווח 6 בלוקים; אחרת 3 הבלוקים הבאים שתשבור מותכים. זמן המתנה 45 שניות."
+
+[mutated.override.pickaxe.unarmed]
+convergence = "בעת כריית עפרה, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. בנוסף, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.pickaxe.ranged]
+convergence = "בעת כריית עפרה, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.pickaxe.blocking]
+convergence = "בעת כריית עפרה, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.pickaxe.hunter]
+echo = "בעת הריגת מוב טבעי, פרץ סלעים מהמם את העוין האחר הקרוב ביותר בטווח 6 בלוקים למשך 1 שנייה."
+
+[mutated.override.pickaxe.agility]
+convergence = "בעת כריית עפרה, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. בנוסף, אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.pickaxe.excavation]
+graft = "בעת כריית עפרה, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.pickaxe.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, פרץ סלעים מהמם את המטרה למשך 1 שנייה."
+
+[mutated.override.pickaxe.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות."
+
+[mutated.signature.pickaxe.excavation.convergence]
+name = "חזית מעורבת"
+description = "אחרי שמרעיד האדמה קודח או שמעצב הקרקע חופר, שאר החזית של 3 על 3, אבן וקרקע רכה כאחד, נשברת בכלי המתאים מסרגל הכלים שלך; כל רמה מגיעה חזית אחת עמוק יותר."
+lore1 = "עומק החזית"
+lore2 = "בלוקים נוספים למכה"
+
+[mutated.signature.pickaxe.architect.convergence]
+name = "בונה המנהרות"
+description = "בזמן שמרעיד האדמה קודח מנהרה ישרה, האבן סביבה הופכת לבלוק שביד המשנית שלך, קודם הרצפה, אחר כך הקירות ואז התקרה, עם לפיד מהמלאי שלך כל 8 בלוקים."
+lore1 = "בלוקים מצופים לקידוח"
+lore2 = "בלוקים בין לפידים"
+
+[mutated.override.excavation.ranged]
+convergence = "בעת חפירת 8 בלוקים רכים בתוך 5 שניות, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: ריבוע 3 על 3 של בלוקים רכים סביב החפירה האחרונה שלך נשבר ונופל. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.excavation.blocking]
+convergence = "בעת חפירת 8 בלוקים רכים בתוך 5 שניות, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: ריבוע 3 על 3 של בלוקים רכים סביב החפירה האחרונה שלך נשבר ונופל. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.excavation.hunter]
+echo = "בעת הריגת מוב טבעי, האדמה מתחת לעוין האחר הקרוב ביותר בטווח 6 בלוקים הופכת לבוץ ומאטה אותו למשך 3 שניות."
+
+[mutated.override.excavation.agility]
+echo = "בעת קפיצה תוך ריצה מהירה, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת חפירת 8 בלוקים רכים בתוך 5 שניות, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: ריבוע 3 על 3 של בלוקים רכים סביב החפירה האחרונה שלך נשבר ונופל. בנוסף, אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.excavation.kinetics]
+echo = "בעת נחיתה מנפילה של 4 בלוקים או יותר, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת חפירת 8 בלוקים רכים בתוך 5 שניות, אם נחתת מקפיצה או מנפילה ב־4 השניות האחרונות: ריבוע 3 על 3 של בלוקים רכים סביב החפירה האחרונה שלך נשבר ונופל. בנוסף, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.excavation.rift]
+echo = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.chronos]
+echo = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.pickaxe]
+echo = "בעת כריית עפרה, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.herbalism]
+echo = "בעת קציר יבול בשל, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.architect]
+echo = "בעת הנחת 8 בלוקים בתוך 5 שניות, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.crafting]
+echo = "בעת יצירת כלי, נשק או פריט שריון, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.enchanting]
+echo = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.brewing]
+echo = "בעת שתייה או זריקה של שיקוי, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.discovery]
+echo = "בעת גילוי של משהו חדש, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות."
+
+[mutated.override.excavation.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.seaborne]
+echo = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.excavation.nether]
+echo = "בעת ספיגת נזק אש, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.signature.excavation.pickaxe.convergence]
+name = "חזית מעורבת"
+description = "אחרי שמרעיד האדמה קודח או שמעצב הקרקע חופר, שאר החזית של 3 על 3, אבן וקרקע רכה כאחד, נשברת בכלי המתאים מסרגל הכלים שלך; כל רמה מגיעה חזית אחת עמוק יותר."
+lore1 = "עומק החזית"
+lore2 = "בלוקים נוספים למכה"
+
+[mutated.signature.excavation.architect.convergence]
+name = "יציקת יסודות"
+description = "לחץ שמאלי עם יתדות יישור כדי לחפור את הקו או המעגל של קו הגיר שלך ולמלא אותו בבלוק שביד המשנית כיסוד, בלוק אחד עמוק יותר לכל רמה."
+lore1 = "עומק היסוד"
+lore2 = "בלוקים ליציקה"
+
+[mutated.override.herbalism.swords]
+graft = "בעת קציר יבול בשל, עשב, עלים ויבולים בשלים בקשת של 3 בלוקים נקצרים ונאספים."
+convergence = "בעת קציר יבול בשל, אם פגעת באויב בחרב ב־4 השניות האחרונות: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. בנוסף, עשב, עלים ויבולים בשלים בקשת של 3 בלוקים נקצרים ונאספים. זמן המתנה 45 שניות."
+
+[mutated.override.herbalism.unarmed]
+barter = "{gesture} כדי לשלם 1 נקודת רעב: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד."
+
+[mutated.override.herbalism.ranged]
+convergence = "בעת קציר יבול בשל, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.herbalism.blocking]
+convergence = "בעת קציר יבול בשל, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.herbalism.hunter]
+echo = "בעת הריגת מוב טבעי, גפנים מרתקים את העוין האחר הקרוב ביותר בטווח 6 בלוקים למקומו למשך 2 שניות."
+barter = "{gesture} כדי לשלם 2 נקודות רעב: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד."
+
+[mutated.override.herbalism.excavation]
+graft = "בעת קציר יבול בשל, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת קציר יבול בשל, אם חפרת בלוק רך ב־4 השניות האחרונות: יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.herbalism.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, גפנים מרתקים את המטרה למקומה למשך 2 שניות."
+
+[mutated.override.herbalism.golemancy]
+echo = "בעת סיום משימה של גולם בבעלותך, יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד."
+
+[mutated.signature.herbalism.chronos.convergence]
+name = "סיבוב עונה"
+description = "פעם ביום משחק, התגנב והחלף ידיים עם שעון כדי שכל יבול סביבך יגדל בשלב אחד. הגדילה נחשבת כקמח עצמות."
+lore1 = "רדיוס השדה"
+
+[mutated.signature.herbalism.axes.convergence]
+name = "שומר היער"
+description = "כל עץ טבעי שמפולת עצים כורתת נשתל מחדש משתיל שאתה נושא, והשתילים סביבו גדלים בשלב אחד."
+lore1 = "שתילים שגדלו לעץ"
+lore2 = "רדיוס חיפוש שתילים"
+
+[mutated.signature.herbalism.taming.convergence]
+name = "שדה הרועה"
+description = "קציר יבול שגדל מעצמו מאכיל את חיות המחמד שלך ואת החיות שהאכלת בטווח של צמיחה פראית, כל אחת בפריט אחד מהתוצרת שלך: הן מחלימות ורועות במקומן בלי לרמוס את השדה, ולעולם אינן מתרבות מכך."
+lore1 = "חיות שהואכלו לכל קציר"
+lore2 = "ריפוי לכל האכלה"
+lore3 = "זמן מרעה"
+
+[mutated.signature.herbalism.seaborne.convergence]
+name = "גן אצות"
+description = "בזמן שאתה שוחה, האצות, מלפפוני הים ומניפות האלמוגים סביבך גדלים כמו יבולים בצמיחה פראית, ומקדשי הגאות שלך שבקרבתך נחשבים לשדות. מעדר על אצות או מלפפוני ים קוצר את קרקעית הים סביבו ומשאיר כל שורש לצמוח מחדש."
+lore1 = "רדיוס צמיחה"
+lore2 = "נקודות שנבדקות בשנייה"
+lore3 = "רדיוס קציר"
+
+[mutated.signature.herbalism.rift.convergence]
+name = "קציר השבר"
+description = "היבול של כל סריקת ירח הקציר עובר למכלים שליד עוגן השבר שבחרת, ובלי עוגן לתיבת האנדר שלך; הזרעים נשארים אצלך. התגנב ולחץ לחיצה ימנית במעדר על אחד העוגנים שלך כדי לבחור בו."
+lore1 = "ערמות לכל סריקה"
+
+[mutated.override.architect.unarmed]
+convergence = "בעת הנחת 8 בלוקים בתוך 5 שניות, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך. בנוסף, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.architect.ranged]
+convergence = "בעת הנחת 8 בלוקים בתוך 5 שניות, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.architect.blocking]
+convergence = "בעת הנחת 8 בלוקים בתוך 5 שניות, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.architect.hunter]
+echo = "בעת הריגת מוב טבעי, חומה זמנית בגובה 2 עולה בינך לבין העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+
+[mutated.override.architect.excavation]
+graft = "בעת הנחת 8 בלוקים בתוך 5 שניות, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+
+[mutated.override.architect.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, חומה זמנית בגובה 2 עולה בינך לבין המטרה."
+
+[mutated.override.architect.golemancy]
+graft = "בעת הנחת 8 בלוקים בתוך 5 שניות, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך."
+
+[mutated.signature.architect.axes.convergence]
+name = "שלד עץ"
+description = "בולי עץ שנכרתים במפולת עצים נופלים מקולפים; מרמה 2 הבחירה שלך לבולי עץ כרותים מנסרת אותם במקום זאת ל־4 קרשים כל אחד."
+lore1 = "בולי עץ מעובדים לעץ"
+lore2 = "קרשים לבול עץ"
+
+[mutated.signature.architect.pickaxe.convergence]
+name = "בונה המנהרות"
+description = "בזמן שמרעיד האדמה קודח מנהרה ישרה, האבן סביבה הופכת לבלוק שביד המשנית שלך, קודם הרצפה, אחר כך הקירות ואז התקרה, עם לפיד מהמלאי שלך כל 8 בלוקים."
+lore1 = "בלוקים מצופים לקידוח"
+lore2 = "בלוקים בין לפידים"
+
+[mutated.signature.architect.excavation.convergence]
+name = "יציקת יסודות"
+description = "לחץ שמאלי עם יתדות יישור כדי לחפור את הקו או המעגל של קו הגיר שלך ולמלא אותו בבלוק שביד המשנית כיסוד, בלוק אחד עמוק יותר לכל רמה."
+lore1 = "עומק היסוד"
+lore2 = "בלוקים ליציקה"
+
+[mutated.signature.architect.crafting.convergence]
+name = "חיתוך תוך כדי"
+description = "כשלמילוי גיר או לבנייה בתבנית נגמרים מדרגות, לוחות, חומות או צורות אחרות, נחתכים עוד מבלוקי הבסיס שאתה נושא, בתפוקת מסור האבן או שולחן המלאכה."
+lore1 = "חלקים שנחתכו לבנייה"
+lore2 = "בלוקי בסיס ממכלים נישאים"
+
+[mutated.signature.architect.golemancy.convergence]
+name = "גולם בנאי"
+description = "הצג תצוגה מקדימה של חותמת תבנית, ואז לחץ ימני על אחד הגולמים שלך עם התבנית: הוא יבנה את החותמת מצומת ההפקדה הקרוב ביותר שלך כל עוד אתה נשאר בטווח 32 בלוקים."
+lore1 = "בלוקים להזמנה"
+lore2 = "בלוקים לשנייה"
+
+[mutated.signature.architect.chronos.convergence]
+name = "ביטול ארוך"
+description = "התגנב והחלף ידיים עם שעון כדי לבטל את מילוי הגיר, החותמת, משטח השרביט או ההחלפה האחרונים שלך, מטווח רחוק פי עשרה ממה שיד ההריסה מגיעה. כל בלוק שעדיין עומד מחזיר את מה שעלה. במשך 10 דקות, השחזור של אדון הזמן ליד המקום מחזיר את המבנה, בתשלום מחדש."
+lore1 = "טווח הביטול"
+
+[mutated.override.crafting.swords]
+barter = "{gesture} כדי לשלם 5 עמידות מהחרב שלך: כל פריט שריון שאתה לובש מתוקן ב־6 עמידות."
+
+[mutated.override.crafting.axes]
+barter = "{gesture} כדי לשלם 5 עמידות מהגרזן שלך: כל פריט שריון שאתה לובש מתוקן ב־6 עמידות."
+
+[mutated.override.crafting.ranged]
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.crafting.blocking]
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.crafting.agility]
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם סיימת ריצה מהירה של 3 שניות או יותר ב־4 השניות האחרונות: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.crafting.kinetics]
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם נחתת מקפיצה או מנפילה ב־4 השניות האחרונות: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.crafting.pickaxe]
+barter = "{gesture} כדי לשלם 5 עמידות מהמכוש שלך: כל פריט שריון שאתה לובש מתוקן ב־6 עמידות."
+
+[mutated.override.crafting.excavation]
+graft = "בעת יצירת כלי, נשק או פריט שריון, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם חפרת בלוק רך ב־4 השניות האחרונות: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.crafting.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה."
+
+[mutated.override.crafting.golemancy]
+graft = "בעת יצירת כלי, נשק או פריט שריון, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, הכלי שבידך מקבל יעילות +1 למשך 20 שניות."
+convergence = "בעת יצירת כלי, נשק או פריט שריון, אם גולם שלך עובד בטווח 16 בלוקים: הכלי שבידך מקבל יעילות +1 למשך 20 שניות. בנוסף, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.crafting.architect.convergence]
+name = "ארגז טרומי"
+description = "תבנית הבנאי ותיבה מתחברות לארגז שמכיל כל בלוק שההעתק צריך. לחץ ימני על מקום כדי לראות את המבנה, שמאלי כדי לסובב אותו, וימני שוב כדי לפרוס אותו שם."
+lore1 = "בלוקים לארגז"
+lore2 = "בלוקים נפרסים לטיק"
+
+[mutated.signature.crafting.enchanting.convergence]
+name = "חישול רוני"
+description = "עם ספר רוני ביד הראשית וציוד מופת ביד השנייה, לחיצה ימנית מטביעה את בונוס המופת שלו בספר; לחיצה ימנית עם הספר המלא וציוד בלי בונוס מעבירה אותו אליו. בונוס אחד לכל פריט."
+lore1 = "בונוס שנשמר"
+lore2 = "להב מרמה"
+
+[mutated.override.enchanting.swords]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם פגעת באויב בחרב ב־4 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.axes]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.unarmed]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם הידיים שלך ריקות ואתה בקרב: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.ranged]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם הקשת שלך דרוכה במלואה: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.blocking]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם המגן שלך מורם: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.stealth]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם אתה מתגנב ואף מוב אינו מכוון אליך: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים זוהר, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת."
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם הבריאות שלך מתחת לחצי: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.tragoul]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם נותרו לך 3 לבבות או פחות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, 1 נקודת רעב הופכת לחצי לב. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.agility]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם רצת ריצה מהירה במשך 3 שניות ללא עצירה: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.kinetics]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם אתה באוויר: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.rift]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם השתגרת ב־5 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.chronos]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם יש שעון ביד המשנית שלך: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.pickaxe]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם כרית בלוק ב־4 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.excavation]
+graft = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם חפרת בלוק רך ב־4 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.herbalism]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם אתה עומד בתוך יבולים, עשב או פרחים: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.architect]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם הנחת בלוק ב־4 השניות האחרונות: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך. זמן המתנה 45 שניות."
+
+[mutated.signature.enchanting.crafting.convergence]
+name = "חישול רוני"
+description = "עם ספר רוני ביד הראשית וציוד מופת ביד השנייה, לחיצה ימנית מטביעה את בונוס המופת שלו בספר; לחיצה ימנית עם הספר המלא וציוד בלי בונוס מעבירה אותו אליו. בונוס אחד לכל פריט."
+lore1 = "בונוס שנשמר"
+lore2 = "להב מרמה"
+
+[mutated.override.enchanting.brewing]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם שיקוי ששתית פעיל: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.signature.enchanting.discovery.convergence]
+name = "שומר הידע"
+description = "בפעם הראשונה שהשלל של תיבת מבנה נקבע כשאתה פותח אותה, הכישופים בספר מכושף אחד מהשלל עולים ברמה אחת כל אחד, אף פעם לא מעבר למקסימום הוונילה."
+lore1 = "כישופים שהועלו"
+
+[mutated.override.enchanting.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת."
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם חיית מחמד שלך נלחמת: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, חיות מחמד בטווח 8 בלוקים מחלימות 1 לב ושומרות על הקצב שלך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.golemancy]
+graft = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר."
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם גולם שלך עובד בטווח 16 בלוקים: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.seaborne]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם אתה רטוב: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. זמן המתנה 45 שניות."
+
+[mutated.override.enchanting.nether]
+convergence = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, אם אתה בנתר או בוער: שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. בנוסף, 3 הבלוקים הבאים שתשבור מותכים. זמן המתנה 45 שניות."
+
+[mutated.override.brewing.unarmed]
+convergence = "בעת שתייה או זריקה של שיקוי, אם הנחתת מכה ביד חשופה ב־4 השניות האחרונות: השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. בנוסף, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.brewing.ranged]
+convergence = "בעת שתייה או זריקה של שיקוי, אם ירית יריה דרוכה במלואה ב־4 השניות האחרונות: השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.brewing.blocking]
+echo = "בעת חסימת מכה במגן שלך, השיקוי הראשון בסרגל הפעולות שלך ניתז על המטרה ומנצל רבע בקבוק."
+convergence = "בעת שתייה או זריקה של שיקוי, אם חסמת מכה במגן שלך ב־4 השניות האחרונות: השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.brewing.hunter]
+echo = "בעת הריגת מוב טבעי, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על העוין האחר הקרוב ביותר בטווח 6 בלוקים ומנצל רבע בקבוק."
+
+[mutated.signature.brewing.chronos.convergence]
+name = "שיקויים מושהים"
+description = "התגנב והחלף ידיים עם שעון כדי להשהות את השפעות השיקוי המועילות שלך. הן חוזרות עם הזמן שנותר להן כשאתה מחליף שוב או כשההשהיה נגמרת."
+lore1 = "ההשהיה הארוכה ביותר"
+
+[mutated.override.brewing.excavation]
+graft = "בעת שתייה או זריקה של שיקוי, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת שתייה או זריקה של שיקוי, אם חפרת בלוק רך ב־4 השניות האחרונות: השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.brewing.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על המטרה ומנצל רבע בקבוק."
+
+[mutated.override.brewing.golemancy]
+graft = "בעת שתייה או זריקה של שיקוי, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק."
+convergence = "בעת שתייה או זריקה של שיקוי, אם גולם שלך עובד בטווח 16 בלוקים: השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. בנוסף, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.brewing.nether.convergence]
+name = "מזקקת אש נשמות"
+description = "מעמדי השיקוי שלך מעל אש נשמות או לבה מבשלים כוח, עמידות לאש, מהירות והתחדשות ברמה אחת גבוהה יותר, עד III, לשני שלישים מהמשך."
+lore1 = "שיקויים מחוזקים לבישול"
+lore2 = "משך שנשמר"
+
+[mutated.override.discovery.hunter]
+echo = "בעת הריגת מוב טבעי, הנתונים של העוין האחר הקרוב ביותר בטווח 6 בלוקים נחשפים, והמכה הבאה שלך בו גורמת 20% יותר."
+
+[mutated.override.discovery.excavation]
+graft = "בעת גילוי של משהו חדש, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת גילוי של משהו חדש, אם חפרת בלוק רך ב־4 השניות האחרונות: התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.discovery.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר."
+
+[mutated.override.discovery.golemancy]
+graft = "בעת גילוי של משהו חדש, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך."
+convergence = "בעת גילוי של משהו חדש, אם גולם שלך עובד בטווח 16 בלוקים: התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך. בנוסף, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.discovery.enchanting.convergence]
+name = "שומר הידע"
+description = "בפעם הראשונה שהשלל של תיבת מבנה נקבע כשאתה פותח אותה, הכישופים בספר מכושף אחד מהשלל עולים ברמה אחת כל אחד, אף פעם לא מעבר למקסימום הוונילה."
+lore1 = "כישופים שהועלו"
+
+[mutated.signature.discovery.rift.convergence]
+name = "אבני דרך"
+description = "הפוך מבנה מהאטלס שלך לאבן דרך: עוגן שבר בלי בלוק, שנספר במגבלת העוגנים שלך, ואליו אתה נוסע מתפריט העוגנים כמו לכל עוגן אחר, תמורת פנינת האנדר והתיעול שלו."
+lore1 = "אבני דרך"
+
+[mutated.override.taming.swords]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה מדממת למשך 4 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם פגעת באויב בחרב ב־4 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה מדממת למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.taming.axes]
+graft = "בעת פגיעה של חיית מחמד שלך, השריון של המטרה נחתך ב־15% למשך 6 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, השריון של המטרה נחתך ב־15% למשך 6 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.taming.unarmed]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה נהדפת לאחור ונחלשת למשך 3 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם הידיים שלך ריקות ואתה בקרב: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.taming.ranged]
+graft = "בעת פגיעה של חיית מחמד שלך, חץ רפאים נורה אל המטרה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם הקשת שלך דרוכה במלואה: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, חץ רפאים נורה אל המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.blocking]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות."
+
+[mutated.override.taming.stealth]
+graft = "בעת פגיעה של חיית מחמד שלך, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם אתה מתגנב ואף מוב אינו מכוון אליך: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.taming.hunter]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה מסומנת וסופגת ממך 15% יותר נזק למשך 6 שניות."
+echo = "בעת הריגת מוב טבעי, חיית המחמד הקרובה ביותר שלך מזנקת על העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+
+[mutated.override.taming.tragoul]
+graft = "בעת פגיעה של חיית מחמד שלך, אתה שואב 1 לב מהמטרה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם נותרו לך 3 לבבות או פחות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, אתה שואב 1 לב מהמטרה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.agility]
+graft = "בעת פגיעה של חיית מחמד שלך, אתה מזנק 3 בלוקים לכיוון המבט שלך."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם רצת ריצה מהירה במשך 3 שניות ללא עצירה: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך. זמן המתנה 45 שניות."
+
+[mutated.override.taming.kinetics]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה מועפת כלפי מעלה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם אתה באוויר: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה מועפת כלפי מעלה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.rift]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה משוגרת 4 בלוקים הרחק ממך."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם השתגרת ב־5 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה משוגרת 4 בלוקים הרחק ממך. זמן המתנה 45 שניות."
+
+[mutated.override.taming.chronos]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה מואטת למשך 2 שניות."
+
+[mutated.signature.taming.chronos.convergence]
+name = "בן לוויה מוחזר"
+description = "חיית מחמד שעומדת למות חוזרת במקום זאת 4 שניות אחורה, למקום שבו עמדה ועם הבריאות שהייתה לה. כל חיית מחמד חוזרת לכל היותר פעם אחת בכל 5 עד 10 דקות."
+lore1 = "חזרה לאחור"
+lore2 = "המתנה לכל חיה"
+
+[mutated.override.taming.pickaxe]
+graft = "בעת פגיעה של חיית מחמד שלך, פרץ סלעים מהמם את המטרה למשך 1 שנייה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם כרית בלוק ב־4 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, פרץ סלעים מהמם את המטרה למשך 1 שנייה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.excavation]
+graft = "בעת פגיעה של חיית מחמד שלך, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם חפרת בלוק רך ב־4 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.taming.herbalism]
+graft = "בעת פגיעה של חיית מחמד שלך, גפנים מרתקים את המטרה למקומה למשך 2 שניות."
+
+[mutated.override.taming.architect]
+graft = "בעת פגיעה של חיית מחמד שלך, חומה זמנית בגובה 2 עולה בינך לבין המטרה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם הנחת בלוק ב־4 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, חומה זמנית בגובה 2 עולה בינך לבין המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.crafting]
+graft = "בעת פגיעה של חיית מחמד שלך, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם יצרת משהו ב־10 השניות האחרונות: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה. זמן המתנה 45 שניות."
+
+[mutated.override.taming.enchanting]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם יש לך 20 רמות XP רגיל או יותר: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת. זמן המתנה 45 שניות."
+
+[mutated.override.taming.brewing]
+graft = "בעת פגיעה של חיית מחמד שלך, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על המטרה ומנצל רבע בקבוק."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם שיקוי ששתית פעיל: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על המטרה ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.override.taming.discovery]
+graft = "בעת פגיעה של חיית מחמד שלך, הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם אתה בצ׳אנק שמעולם לא נכנסת אליו: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר. זמן המתנה 45 שניות."
+
+[mutated.override.taming.golemancy]
+graft = "בעת פגיעה של חיית מחמד שלך, הגולם הקרוב ביותר שלך תוקף את המטרה."
+echo = "בעת סיום משימה של גולם בבעלותך, חיות מחמד בטווח 8 בלוקים מחלימות 1 לב ושומרות על הקצב שלך למשך 5 שניות."
+
+[mutated.override.taming.seaborne]
+graft = "בעת פגיעה של חיית מחמד שלך, פרץ מים הודף את המטרה לאחור ומכבה אש."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם אתה רטוב: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, פרץ מים הודף את המטרה לאחור ומכבה אש. זמן המתנה 45 שניות."
+
+[mutated.override.taming.nether]
+graft = "בעת פגיעה של חיית מחמד שלך, המטרה בוערת למשך 4 שניות."
+convergence = "בעת פגיעה של חיית מחמד שלך, אם אתה בנתר או בוער: חיית המחמד הקרובה ביותר שלך מזנקת על המטרה. בנוסף, המטרה בוערת למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.signature.taming.blocking.convergence]
+name = "להקת נושא המגן"
+description = "חיות המחמד שלך שמאחורי המגן המורם שלך או מאחורי חומת המגן הנטועה שלך אינן סופגות נזק מקליעים ומחלימות לאט."
+lore1 = "עומק החיפוי"
+lore2 = "ריפוי חיית מחמד לשנייה"
+
+[mutated.signature.taming.golemancy.convergence]
+name = "להקת ברזל"
+description = "הגולמים שלך נחשבים לחיות מחמד: החיזוקים של אלפא מגיעים אליהם בתוך ההילה שלו, עם ברית דם הם חולקים את הפגיעות שלך, ומשרוקית אדון החיות שולחת אותם אל מטרה או קוראת להם לחזור."
+lore1 = "נזק ובריאות של גולמים"
+lore2 = "פגיעות שחולקו עם גולמים"
+lore3 = "טווח המשרוקית"
+
+[mutated.signature.taming.herbalism.convergence]
+name = "שדה הרועה"
+description = "קציר יבול שגדל מעצמו מאכיל את חיות המחמד שלך ואת החיות שהאכלת בטווח של צמיחה פראית, כל אחת בפריט אחד מהתוצרת שלך: הן מחלימות ורועות במקומן בלי לרמוס את השדה, ולעולם אינן מתרבות מכך."
+lore1 = "חיות שהואכלו לכל קציר"
+lore2 = "ריפוי לכל האכלה"
+lore3 = "זמן מרעה"
+
+[mutated.signature.taming.hunter.convergence]
+name = "ציד להקה"
+description = "חיות המחמד שלך עוקבות מעצמן אחר שובל הדם שלך או אחר המין של מצפן הגשש, לעולם לא יותר מ־32 בלוקים ממך, ונשיכותיהן בטרף בונות את הצבירה של טורף עליון שלך ומשתמשות בה."
+lore1 = "טווח ציד"
+lore2 = "חיות מחמד לכל ציד"
+lore3 = "נזק חיית מחמד לכל שלב צבירה"
+
+[mutated.override.golemancy.swords]
+graft = "בעת סיום משימה של גולם בבעלותך, עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם פגעת באויב בחרב ב־4 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.axes]
+graft = "בעת סיום משימה של גולם בבעלותך, העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.unarmed]
+graft = "בעת סיום משימה של גולם בבעלותך, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם הידיים שלך ריקות ואתה בקרב: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.ranged]
+graft = "בעת סיום משימה של גולם בבעלותך, פריטים שנפלו בטווח 8 בלוקים עפים אליך."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם הקשת שלך דרוכה במלואה: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.blocking]
+graft = "בעת סיום משימה של גולם בבעלותך, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם המגן שלך מורם: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.stealth]
+graft = "בעת סיום משימה של גולם בבעלותך, הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה מתגנב ואף מוב אינו מכוון אליך: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.hunter]
+graft = "בעת סיום משימה של גולם בבעלותך, חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות."
+echo = "בעת הריגת מוב טבעי, הגולם הקרוב ביותר שלך תוקף את העוין האחר הקרוב ביותר בטווח 6 בלוקים."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם הבריאות שלך מתחת לחצי: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.tragoul]
+graft = "בעת סיום משימה של גולם בבעלותך, 1 נקודת רעב הופכת לחצי לב."
+
+[mutated.override.golemancy.agility]
+graft = "בעת סיום משימה של גולם בבעלותך, אתה מקבל מהירות II למשך 4 שניות."
+echo = "בעת קפיצה תוך ריצה מהירה, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם רצת ריצה מהירה במשך 3 שניות ללא עצירה: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.kinetics]
+graft = "בעת סיום משימה של גולם בבעלותך, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים."
+echo = "בעת נחיתה מנפילה של 4 בלוקים או יותר, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה באוויר: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.rift]
+graft = "בעת סיום משימה של גולם בבעלותך, פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך."
+echo = "בעת השתגרות באמצעות פנינה, הבזק או פרי כורוס, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם השתגרת ב־5 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.chronos]
+graft = "בעת סיום משימה של גולם בבעלותך, יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות."
+echo = "בעת התגנבות והחלפת ידיים תוך כדי נשיאת שעון, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+
+[mutated.signature.golemancy.chronos.convergence]
+name = "האצת שעון"
+description = "התגנב והחלף ידיים עם שעון ליד הגולמים שלך כדי שיעבדו במהירות משולשת, תמורת 60 שניות של זמן שמור בבקבוק כרונו."
+lore1 = "מהירות הגולמים"
+lore2 = "משך"
+lore3 = "זמן בקבוק"
+
+[mutated.override.golemancy.pickaxe]
+graft = "בעת סיום משימה של גולם בבעלותך, עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם כרית בלוק ב־4 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.excavation]
+graft = "בעת סיום משימה של גולם בבעלותך, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם חפרת בלוק רך ב־4 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.herbalism]
+graft = "בעת סיום משימה של גולם בבעלותך, יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה עומד בתוך יבולים, עשב או פרחים: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, יבולים ושתילים בטווח 4 בלוקים גדלים בשלב אחד. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.architect]
+graft = "בעת סיום משימה של גולם בבעלותך, למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך."
+echo = "בעת הנחת 8 בלוקים בתוך 5 שניות, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+
+[mutated.override.golemancy.crafting]
+graft = "בעת סיום משימה של גולם בבעלותך, הכלי שבידך מקבל יעילות +1 למשך 20 שניות."
+echo = "בעת יצירת כלי, נשק או פריט שריון, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם יצרת משהו ב־10 השניות האחרונות: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, הכלי שבידך מקבל יעילות +1 למשך 20 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.enchanting]
+graft = "בעת סיום משימה של גולם בבעלותך, שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר."
+echo = "בעת כישוף חפץ, או איסוף 10 XP רגיל בבת אחת, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם יש לך 20 רמות XP רגיל או יותר: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.brewing]
+graft = "בעת סיום משימה של גולם בבעלותך, השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק."
+echo = "בעת שתייה או זריקה של שיקוי, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם שיקוי ששתית פעיל: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.discovery]
+graft = "בעת סיום משימה של גולם בבעלותך, התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך."
+echo = "בעת גילוי של משהו חדש, הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה בצ׳אנק שמעולם לא נכנסת אליו: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.taming]
+graft = "בעת סיום משימה של גולם בבעלותך, חיות מחמד בטווח 8 בלוקים מחלימות 1 לב ושומרות על הקצב שלך למשך 5 שניות."
+echo = "בעת פגיעה של חיית מחמד שלך, הגולם הקרוב ביותר שלך תוקף את המטרה."
+
+[mutated.override.golemancy.seaborne]
+graft = "בעת סיום משימה של גולם בבעלותך, אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית."
+echo = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה רטוב: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. זמן המתנה 45 שניות."
+
+[mutated.override.golemancy.nether]
+graft = "בעת סיום משימה של גולם בבעלותך, 3 הבלוקים הבאים שתשבור מותכים."
+echo = "בעת ספיגת נזק אש, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+convergence = "בעת סיום משימה של גולם בבעלותך, אם אתה בנתר או בוער: הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. בנוסף, 3 הבלוקים הבאים שתשבור מותכים. זמן המתנה 45 שניות."
+
+[mutated.signature.golemancy.architect.convergence]
+name = "גולם בנאי"
+description = "הצג תצוגה מקדימה של חותמת תבנית, ואז לחץ ימני על אחד הגולמים שלך עם התבנית: הוא יבנה את החותמת מצומת ההפקדה הקרוב ביותר שלך כל עוד אתה נשאר בטווח 32 בלוקים."
+lore1 = "בלוקים להזמנה"
+lore2 = "בלוקים לשנייה"
+
+[mutated.signature.golemancy.taming.convergence]
+name = "ליבת מלונה"
+description = "גולמי הבוקר שלך הופכים לשומרים: בכל סבב הם מרפאים את חיות המחמד שלך ואת החיות שהאכלת או גידלת סביב ביתם ומחזירים את התועים."
+lore1 = "טווח השומר"
+lore2 = "ריפוי לכל סבב"
+lore3 = "חיות לכל סבב"
+lore4 = "זמן סבב"
+
+[mutated.signature.golemancy.tragoul.convergence]
+name = "לגיון העצמות"
+description = "תן ליבת גולם לאחד ממשרתי השלד שלך והוא יעבוד כגולם עצם. זמן החיים שלו רץ רק כשהוא בטל; אחר כך הוא מתפורר ומפיל את הליבה. לגיונרים עדיין נספרים במגבלת המשרתים שלך."
+lore1 = "לגיונרים"
+lore2 = "זמן חיים בבטלה"
+
+[mutated.override.seaborne.swords]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם פגעת באויב בחרב ב־4 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה מדממת למשך 4 שניות אם יש עוין בטווח 6 בלוקים; אחרת עשב, עלים ויבולים בקשת של 3 בלוקים נקצרים ונאספים. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.axes]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם כרתת עץ או פגעת בגרזן ב־4 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, השריון של המטרה נחתך ב־15% למשך 6 שניות אם יש עוין בטווח 6 בלוקים; אחרת העץ הבא שתכרות מפיל בולים מקולפים או קרשים ונשתל מחדש מעצמו. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.unarmed]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם הידיים שלך ריקות ואתה בקרב: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה נהדפת לאחור ונחלשת למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת התגנבות במקום למשך 3 שניות בתוך 30 שניות מעניקה לבבות ספיגה. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.ranged]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם הקשת שלך דרוכה במלואה: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, חץ רפאים נורה אל המטרה אם יש עוין בטווח 6 בלוקים; אחרת פריטים שנפלו בטווח 8 בלוקים עפים אליך. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.blocking]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם המגן שלך מורם: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה מתנודדת ואינה יכולה לחסום למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת המכה הבאה שתספוג בתוך 10 שניות מופחתת בחצי. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.stealth]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם אתה מתגנב ואף מוב אינו מכוון אליך: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, מובים בטווח 8 בלוקים מאבדים את עקבותיך למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הצעדים וצלילי הבלוקים שלך שקטים ומובים מתעלמים ממך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.hunter]
+echo = "בעת הריגת מוב טבעי, פרץ מים הודף את העוין האחר הקרוב ביותר בטווח 6 בלוקים לאחור ומכבה אש."
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם הבריאות שלך מתחת לחצי: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה מסומנת וסופגת ממך 15% יותר נזק למשך 6 שניות אם יש עוין בטווח 6 בלוקים; אחרת חיות ומובים בטווח 16 בלוקים זוהרים עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.tragoul]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם נותרו לך 3 לבבות או פחות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, אתה שואב 1 לב מהמטרה אם יש עוין בטווח 6 בלוקים; אחרת 1 נקודת רעב הופכת לחצי לב. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.agility]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם רצת ריצה מהירה במשך 3 שניות ללא עצירה: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, אתה מזנק 3 בלוקים לכיוון המבט שלך אם יש עוין בטווח 6 בלוקים; אחרת אתה מקבל מהירות II למשך 4 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.kinetics]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם אתה באוויר: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה מועפת כלפי מעלה אם יש עוין בטווח 6 בלוקים; אחרת הקפיצה הבאה שלך בתוך 5 שניות מגיעה לגובה 3 בלוקים. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.rift]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם השתגרת ב־5 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה משוגרת 4 בלוקים הרחק ממך אם יש עוין בטווח 6 בלוקים; אחרת פריטים שנפלו בטווח 6 בלוקים עוברים לתיבת האנדר שלך. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.chronos]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם יש שעון ביד המשנית שלך: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה מואטת למשך 2 שניות אם יש עוין בטווח 6 בלוקים; אחרת יבולים, כבשנים ומעמדי שיקויים בטווח 4 בלוקים מתקדמים ב־10 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.pickaxe]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם כרית בלוק ב־4 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, פרץ סלעים מהמם את המטרה למשך 1 שנייה אם יש עוין בטווח 6 בלוקים; אחרת עפרות בטווח 6 בלוקים זוהרות עבורך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.excavation]
+graft = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם חפרת בלוק רך ב־4 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.signature.seaborne.herbalism.convergence]
+name = "גן אצות"
+description = "בזמן שאתה שוחה, האצות, מלפפוני הים ומניפות האלמוגים סביבך גדלים כמו יבולים בצמיחה פראית, ומקדשי הגאות שלך שבקרבתך נחשבים לשדות. מעדר על אצות או מלפפוני ים קוצר את קרקעית הים סביבו ומשאיר כל שורש לצמוח מחדש."
+lore1 = "רדיוס צמיחה"
+lore2 = "נקודות שנבדקות בשנייה"
+lore3 = "רדיוס קציר"
+
+[mutated.override.seaborne.architect]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם הנחת בלוק ב־4 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, חומה זמנית בגובה 2 עולה בינך לבין המטרה אם יש עוין בטווח 6 בלוקים; אחרת למשך 5 שניות ההנחות שלך מגיעות 3 בלוקים רחוק יותר ונצמדות לקו ההנחיה מגיר שלך. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.crafting]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם יצרת משהו ב־10 השניות האחרונות: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המכה הבאה שלך בתוך 5 שניות מתעלמת מ־20% מהשריון של המטרה אם יש עוין בטווח 6 בלוקים; אחרת הכלי שבידך מקבל יעילות +1 למשך 20 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.enchanting]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם יש לך 20 רמות XP רגיל או יותר: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, המטרה זוהרת, ומוב טבעי שנהרג בתוך 5 שניות מפיל מחצית XP נוספת אם יש עוין בטווח 6 בלוקים; אחרת שבירת הבלוק הבאה שלך מחושבת עם הון ברמה אחת גבוהה יותר. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.brewing]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם שיקוי ששתית פעיל: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, השיקוי שבבנדוליר שלך או ביד המשנית שלך ניתז על המטרה ומנצל רבע בקבוק אם יש עוין בטווח 6 בלוקים; אחרת השיקוי שבבנדוליר שלך או ביד המשנית שלך חל עליך בחצי משך ומנצל רבע בקבוק. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.discovery]
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם אתה בצ׳אנק שמעולם לא נכנסת אליו: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, הנתונים של המטרה נחשפים, והמכה הבאה שלך בה גורמת 20% יותר אם יש עוין בטווח 6 בלוקים; אחרת התיבה, המזמן או המבנה הקרובים ביותר בטווח 24 בלוקים מאותתים לך. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, פרץ מים הודף את המטרה לאחור ומכבה אש."
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם חיית מחמד שלך נלחמת: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, חיית המחמד הקרובה ביותר שלך מזנקת על המטרה אם יש עוין בטווח 6 בלוקים; אחרת חיות מחמד בטווח 8 בלוקים מחלימות 1 לב ושומרות על הקצב שלך למשך 5 שניות. זמן המתנה 45 שניות."
+
+[mutated.override.seaborne.golemancy]
+graft = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית."
+convergence = "בעת צלילה למים, או ספיגת מכה בזמן שאתה רטוב, אם גולם שלך עובד בטווח 16 בלוקים: פרץ מים הודף את המטרה לאחור ומכבה אש אם יש עוין בטווח 6 בלוקים; אחרת אש בטווח 4 בלוקים כבה ואדמה חרושה בטווח 4 בלוקים מושקית. בנוסף, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.seaborne.nether.convergence]
+name = "הולך הקיטור"
+description = "דרוך על לבה כשאתה רטוב והיא מתקררת מתחת לרגליך לרגע, ואז נמסה בחזרה. דליי מים עובדים בשבילך בנת'ר; המים נשארים במקומם ומתאדים אחרי 30 שניות."
+lore1 = "הליכת קיטור"
+lore2 = "רוחב השביל"
+lore3 = "בריכות מים בו־זמנית"
+
+[mutated.override.nether.hunter]
+echo = "בעת הריגת מוב טבעי, העוין האחר הקרוב ביותר בטווח 6 בלוקים בוער למשך 4 שניות."
+
+[mutated.override.nether.excavation]
+graft = "בעת ספיגת נזק אש, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים."
+convergence = "בעת ספיגת נזק אש, אם חפרת בלוק רך ב־4 השניות האחרונות: המטרה בוערת למשך 4 שניות אם יש עוין בטווח 6 בלוקים; אחרת 3 הבלוקים הבאים שתשבור מותכים. בנוסף, האדמה מתחת למטרה הופכת לבוץ ומאטה אותה למשך 3 שניות אם יש עוין בטווח 6 בלוקים; אחרת הבלוק הרך הבא שתחפור בתוך 10 שניות שובר ריבוע 3 על 3 סביבו, וכל הבלוקים נופלים. זמן המתנה 45 שניות."
+
+[mutated.override.nether.taming]
+echo = "בעת פגיעה של חיית מחמד שלך, המטרה בוערת למשך 4 שניות."
+
+[mutated.override.nether.golemancy]
+graft = "בעת ספיגת נזק אש, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא."
+echo = "בעת סיום משימה של גולם בבעלותך, 3 הבלוקים הבאים שתשבור מותכים."
+convergence = "בעת ספיגת נזק אש, אם גולם שלך עובד בטווח 16 בלוקים: המטרה בוערת למשך 4 שניות אם יש עוין בטווח 6 בלוקים; אחרת 3 הבלוקים הבאים שתשבור מותכים. בנוסף, הגולם הקרוב ביותר שלך תוקף את המטרה אם יש עוין בטווח 6 בלוקים; אחרת הגולם הקרוב ביותר שלך חוזר על העבודה האחרונה שלו בבלוק התואם הבא. זמן המתנה 45 שניות."
+
+[mutated.signature.nether.brewing.graft]
+name = "בקבוק גופרית"
+description = "שיקויי ההתזה שאתה זורק משאירים ל־4 שניות טבעת של אש נשמות לא מזיקה שנותנת שוב את השפעותיהם לכל מי שנכנס אליה. טבעת אחת בכל פעם."
+lore1 = "רדיוס הטבעת"
+lore2 = "משך המנה השנייה"
+
+[mutated.signature.nether.tragoul.convergence]
+name = "דם וית'ר"
+description = "כל הריגה מפיצה וית'ר I ליצורים העוינים סביב הגופה, והריגת שלד וית'ר ממלאת את מאגר הדם שלך."
+lore1 = "רדיוס התפשטות"
+lore2 = "מרב עוינים שנבלו"
+lore3 = "דם משלד וית'ר"
+
+[mutated.signature.nether.seaborne.convergence]
+name = "הולך הקיטור"
+description = "דרוך על לבה כשאתה רטוב והיא מתקררת מתחת לרגליך לרגע, ואז נמסה בחזרה. דליי מים עובדים בשבילך בנת'ר; המים נשארים במקומם ומתאדים אחרי 30 שניות."
+lore1 = "הליכת קיטור"
+lore2 = "רוחב השביל"
+lore3 = "בריכות מים בו־זמנית"
+
+[upgrade.swords.witherblade]
+name = "להב הכמישה"
+description = "מכות חרב מטילות כמישה שגם גורמת לדימום, והמטרה לא יכולה להתחדש כל עוד היא נמשכת."
+lore1 = "משך כמישה ודימום"
+lore2 = "נזק דימום לכל פעימה"
+lore3 = "זמן המתנה"
+overcharge = "משך כמישה בטעינת יתר"
+
+[upgrade.swords.tempest_flow]
+name = "זרם הסערה"
+description = "מכות בונות מהירות התקפה, מכה קריטית בערימות מלאות משחררת את החיתוך האזורי, ואבן משחזת משחיזה חרבות למשונן, משוקלל או חד."
+lore1 = "ערימות לשחרור החיתוך"
+lore2 = "נזק החיתוך"
+lore3 = "רדיוס החיתוך"
+lore4 = "דימום משונן לכל פעימה"
+lore5 = "הסטה משוקללת"
+lore6 = "בונוס קריטי חד"
+
+[upgrade.swords.duelists_verdict]
+name = "פסק הדין של הדו־קרבן"
+description = "מול יריב יחיד שאתה נלחם בו אתה גורם יותר נזק וסופג פחות, עם בונוס סיום מתחת ל־30% בריאות, וחרבות בעלות שם מתעוררות דרך הריגות טבעיות."
+lore1 = "תוספת נזק בדו־קרב"
+lore2 = "פחות נזק נספג בדו־קרב"
+lore3 = "בונוס סיום מתחת ל־30% בריאות"
+lore4 = "תקרת נזק של להב מתעורר"
+lore5 = "הריגות לתגובת נגד, זינוק ופסק דין"
+blade = "להב מתעורר: {kills} הריגות"
+
+[tool.swords.whetstone]
+name = "אבן משחזת"
+serrated = "משונן"
+weighted = "משוקלל"
+keen = "חד"
+
+[upgrade.axes.timberfall]
+name = "מפולת עצים"
+description = "הנפה אחת מפילה את כל העץ, כולל העלים, ישר למלאי שלך."
+lore1 = "בולי עץ שנופלים בכל הנפה"
+lore2 = "עלים שמתפנים בכל הנפה"
+lore3 = "רדיוס חיפוש בולי עץ"
+
+[upgrade.axes.sundering_cleave]
+name = "ביקוע מנפץ"
+description = "הנפות פוגעות בכל מה שבקשת שלפניך וקורעות את השריון של כולם."
+lore1 = "רוחב הקשת"
+lore2 = "חלק הנזק בקשת"
+lore3 = "קריעת שריון לכל ערימה"
+
+[upgrade.axes.worldsplitter]
+name = "מבקע העולמות"
+description = "גרזן שנזרק מרסק את הקרקע במקום נחיתתו, ואז עף חזרה דרך כל מה שעומד בדרכו."
+lore1 = "מכפיל נזק זריקה"
+lore2 = "נזק הריסוק"
+lore3 = "רדיוס הריסוק"
+lore4 = "זמן המתנה"
+lore5 = "פגיעות בדרך חזרה"
+
+[upgrade.unarmed.titan_fists]
+name = "אגרופי טיטאן"
+description = "אגרופים מכים כמו יכולות לא חמוש המקוריות ברמה המרבית ואף יותר, ואגרוף בריצה מהירה פורץ דרך בלוקים רכים."
+lore1 = "נזק אגרוף בעוצמה מלאה"
+lore2 = "מכפיל נזק ללא שריון"
+lore3 = "תוספת נזק לכל אגרוף"
+lore4 = "זמן המתנה לאגרוף ריצה"
+lore5 = "בלוקים שנשברים בכל אגרוף ריצה"
+
+[upgrade.unarmed.unbroken_combo]
+name = "קומבו בלתי שבור"
+description = "ערימות קומבו שורדות כשפוגעים בך, כל ערימה מאטה את המטרה, ומכה בהתגנבות בערימות מלאות מנצלת את כולן."
+lore1 = "מקסימום ערימות קומבו"
+lore2 = "תוספת נזק לכל ערימה"
+lore3 = "רמת האטה מרבית"
+lore4 = "נזק מכת הסיום לכל ערימה"
+lore5 = "רמת חולשה של מכת הסיום"
+lore6 = "זמן המתנה למכת הסיום"
+
+[upgrade.unarmed.seismic_throw]
+name = "הטלה סייסמית"
+description = "אויב שהוטל נוחת עם גל הלם."
+lore1 = "כוח ההטלה"
+lore2 = "רדיוס גל ההלם"
+lore3 = "זמן המתנה"
+lore4 = "נזק גל ההלם"
+
+[upgrade.ranged.stormshot]
+name = "ירי סערה"
+description = "חצים טסים מהר יותר, פוגעים חזק יותר וחודרים, ואשפה מאחסנת אותם ומחזירה אותם."
+lore1 = "תוספת מהירות חץ"
+lore2 = "תוספת נזק חץ"
+lore3 = "מטרות שנחדרות"
+lore4 = "פגיעות שחוזרות לאשפה"
+lore5 = "קיבולת האשפה"
+
+[upgrade.ranged.hunters_web]
+name = "רשת הצייד"
+description = "חיצי מלכודת כולאים את מה שהם פוגעים בו בקורי עכביש ומחזיקים אותו מעל הקרקע."
+lore1 = "משך הכליאה"
+lore2 = "עוצמת ההרמה"
+lore3 = "זמן עד כליאה חוזרת של מטרה"
+
+[upgrade.ranged.trueflight]
+name = "מעוף אמת"
+description = "חצים נעולים מתעקלים אל המטרה, חיצי ניתור קופצים הלאה, ומטח נועל כמה מטרות."
+lore1 = "טווח נעילה"
+lore2 = "רדיוס חיפוש לקפיצה"
+lore3 = "תוספת נזק לפגיעה מקפיצה"
+lore4 = "נעילות מטח"
+lore5 = "זמן המתנה למטח"
+
+[tool.ranged.quiver]
+name = "אשפה"
+arrows = "חצים"
+spectral_arrows = "חצים ספקטרליים"
+
+[tool.ranged.snare_arrow]
+name = "חץ מלכודת"
+
+[tool.ranged.ricochet_arrow]
+name = "חץ ניתור"
+
+[upgrade.blocking.mirror_guard]
+name = "משמר המראה"
+description = "חסימה מתוזמנת מבטלת את המכה ומחזירה אותה, בקרב קרוב או מקליע."
+lore1 = "חלון תזמון"
+lore2 = "חלק המכה שמוחזר"
+lore3 = "זמן המתנה"
+
+[upgrade.blocking.living_wall]
+name = "חומה חיה"
+description = "נעץ את המגן שלך כקיר זמני שמגונן על כל מי שמאחוריו ומאט מובים עוינים."
+lore1 = "פחות נזק מאחורי החומה ובזמן חסימה"
+lore2 = "רוחב החומה"
+lore3 = "משך החומה"
+lore4 = "זמן טעינת החומה"
+
+[upgrade.blocking.tempered_aegis]
+name = "מגן מחושל"
+description = "מכות שנחסמו מאויבים אמיתיים מתקנות מגן ושריון, גרזנים לא יכולים לנטרל את המגן שלך, והלמת מגן בקפיצה תוך ריצה מהירה מטיחה אויב."
+lore1 = "עמידות מגן לכל מכה שנחסמה"
+lore2 = "עמידות שריון לכל מכה שנחסמה"
+lore3 = "נזק ההדיפה"
+lore4 = "זמן טעינת ההדיפה"
+
+[upgrade.stealth.umbral_form]
+name = "צורת צל"
+description = "התגנבות בלי שרואים אותך הופכת אותך לבלתי נראה במהירות הליכה מלאה ובונה שכבת שריון שמרככת את המכה הבאה ונשברת."
+lore1 = "שכבת השריון הגדולה ביותר"
+lore2 = "שריון שנבנה לכל פעימה"
+lore3 = "רדיוס תצפית"
+
+[upgrade.stealth.death_mark]
+name = "אות המוות"
+description = "המכה הפותחת שלך מהתגנבות הורגת מיד יצורים כשירים שאינם בוסים, וגונבת ממי שאינה יכולה להרוג."
+lore1 = "בריאות מרבית גבוהה ביותר להריגה מיידית"
+lore2 = "זמן בין הריגות מיידיות"
+lore3 = "ערימות שלל שנגנבות"
+
+[upgrade.stealth.phantom_decoy]
+name = "פיתיון רפאים"
+description = "רימוני עשן משאירים פיתיון שאפשר להחליף איתו מקום, או מעבירים אותך מאחורי יצור בלי שיראו אותך."
+lore1 = "משך חיי הפיתיון"
+lore2 = "רדיוס העשן"
+lore3 = "זמן בין פיתיונות"
+lore4 = "טווח צעד הצל"
+lore5 = "זמן בין צעדי צל"
+
+[tool.stealth.smoke_pellet]
+name = "רימון עשן"
+lore1 = "צעד צל או פיתיון"
+
+[upgrade.hunter.blood_frenzy]
+name = "טירוף דם"
+description = "ספיגת מכה מעניקה כוח, מהירות והתחדשות יחד, חזקים יותר בבריאות נמוכה, במחיר רעב אחד."
+lore1 = "משך החיזוק בבריאות מלאה"
+lore2 = "הגברה בבריאות נמוכה"
+lore3 = "משך רעב לכל טירוף"
+
+[upgrade.hunter.apex_predator]
+name = "טורף עליון"
+description = "הנזק גדל על מטרה אחת, ציד גדול מפיל יותר, ומצפן עוקב אחרי הטרף שלך."
+lore1 = "תוספת נזק לכל ערימה"
+lore2 = "תקרת ערימות"
+lore3 = "ערימות לכל מכה ביצורים גדולים ובוסים"
+lore4 = "סיכוי להטלה נוספת בציד גדול"
+lore5 = "טווח המצפן"
+lore6 = "מינים זכורים"
+
+[upgrade.hunter.stalkers_trail]
+name = "שביל העוקב"
+description = "טרף פצוע משאיר שביל, מלכודות לוכדות חיות שאפשר להוביל הביתה, והריגות גביע מפילות יותר."
+lore1 = "משך שביל הדם"
+lore2 = "אחיזת המלכודת"
+lore3 = "סיכוי לגביע"
+lore4 = "זמן החזקת לכידה"
+
+[tool.hunter.trackers_compass]
+name = "מצפן הגשש"
+lore1 = "מצביע על המין הנעקב הקרוב ביותר"
+tracking = "עוקב אחרי {kind}"
+reading = "{kind} {distance} בלוקים"
+none = "אין {kind} בטווח"
+untrackable = "אי אפשר לעקוב"
+hungry = "רעב מדי"
+empty = "עדיין אין מעקב"
+menu = "מינים נעקבים"
+
+[upgrade.tragoul.crimson_tide]
+name = "גאות ארגמן"
+description = "כל הנזק שאתה גורם מרפא אותך, העודף ממלא מאגר דם, ותוקפים מאבדים לך חיים."
+lore1 = "נזק שגרמת שחוזר כבריאות"
+lore2 = "חיים שנשאבים מכל תוקף"
+lore3 = "נזק קוצים שמוחזר"
+lore4 = "לבבות של דם שנאגרו מעבר לבריאות מלאה"
+
+[upgrade.tragoul.plague_nova]
+name = "נובת המגפה"
+description = "הריגות מתפוצצות, מפיצות את הפגעים שלהן ויורות רמחים."
+lore1 = "רדיוס הנובה"
+lore2 = "רדיוס הפצת המגפה"
+lore3 = "בריאות הגופה שמתווספת לנזק הנובה"
+
+[upgrade.tragoul.deathless]
+name = "נצחי"
+description = "עצמות סופגות מכות, התרסה במוות משאירה אותך עם 1 בריאות, ומשרתי שלד קמים למענך."
+lore1 = "מכה שנספגת לכל עצם"
+lore2 = "מספר משרתים מרבי"
+lore3 = "זמן המתנה להתרסה במוות"
+lore4 = "משך חיי המשרתים"
+lore5 = "עצמות לכל משרת שהוקם ביד"
+lore6 = "בריאות לכל משרת שהוקם ביד, הדם קודם"
+
+[upgrade.agility.slipstream]
+name = "זרם גולש"
+description = "ריצה בונה מהירות עד תקרה, החלקות שומרות עליה, וריצה לא עולה רעב."
+lore1 = "מהירות שנצברת לכל 5 שניות ריצה"
+lore2 = "מהירות החלקה"
+lore3 = "זמן המתנה להחלקה"
+lore4 = "בונוס מהירות מרבי"
+lore5 = "רמת רגל נוצה"
+
+[upgrade.agility.skyrunner]
+name = "רץ השמיים"
+description = "היצמדות לקיר, קפיצה גבוהה, דהירה באוויר וחבל אחיזה חולקים טעינות אוויר שקירות מחדשים."
+lore1 = "גובה קפיצה גבוהה"
+lore2 = "מהירות דהירה באוויר"
+lore3 = "עוצמת קפיצה מקיר"
+lore4 = "טעינות באוויר"
+lore5 = "טווח חבל האחיזה"
+
+[upgrade.agility.untouchable]
+name = "בלתי ניתן לפגיעה"
+description = "התחמק מקליעים בזמן ריצה, התגלגל מנפילות עד גובה מסוים, והפוך פגיעות למהירות."
+lore1 = "דרגת פרץ מהירות אחרי מכה"
+lore2 = "משך פרץ המהירות"
+lore3 = "חלון קפיצת התאוששות"
+lore4 = "סיכוי להתחמק מקליעים"
+lore5 = "הנפילה הגבוהה ביותר שמתגלגלים ממנה"
+
+[tool.agility.grappling_line]
+name = "חבל אחיזה"
+usage = "לחיצה ימנית על בלוק כדי להימשך, לחיצה ימנית נוספת כדי לשחרר"
+
+[upgrade.kinetics.comet]
+name = "שביט"
+description = "ריסוקי צלילה פוגעים ברדיוס רחב וקורעים שריון, ואתה יכול לגדול לצורת טיטאן או להתכווץ לצורת כיס."
+lore1 = "רדיוס גל ההלם"
+lore2 = "שריון שנקרע"
+lore3 = "משך הקריעה"
+lore4 = "נזק גל ההלם"
+lore5 = "שינוי הגודל בצורת טיטאן וכיס"
+lore6 = "רדיוס גל ההלם בצורת טיטאן"
+lore7 = "נזק נחיתה שמוסר בצורת כיס"
+
+[upgrade.kinetics.lancer]
+name = "נושא הרומח"
+description = "מכות חנית או קלשון מגיעות רחוק יותר, מתחזקות עם המהירות שלך ומצמידות."
+lore1 = "תוספת טווח"
+lore2 = "תוספת נזק מרבית ממהירות"
+lore3 = "משך ההצמדה"
+
+[upgrade.kinetics.featherweight]
+name = "קל כנוצה"
+description = "קפיצות גבוהות יותר, נחיתות קפיציות יותר, ואין נזק נפילה על שום בלוק."
+lore1 = "תוספת גובה קפיצה"
+lore2 = "קפיציות הנחיתה"
+lore3 = "נזק נפילה שנמנע"
+
+[upgrade.rift.phase_step]
+name = "צעד פאזה"
+description = "השתגר דרך קירות תמורת פנינת אנדר או חצי לב, החלף מקומות עם מטרות מסומנות, ופנינים קופצות פעם אחת."
+lore1 = "מרחק שיגור"
+lore2 = "התנגדות בהגעה"
+lore3 = "זמן המתנה"
+lore4 = "פנינת אנדר או חצי לב לכל שיגור"
+lore5 = "פגע בזחילה ביצור, והשיגור הבא שלך יחליף איתו מקומות"
+lore6 = "מחליף מקומות גם עם שחקנים היכן ש-PvP מותר"
+
+[upgrade.rift.pocket_realm]
+name = "ממלכת כיס"
+description = "תיבת האנדר שלך נפתחת בכל מקום, מושכת פריטים שנפלו וממלאת מחדש את היד שלך, ועוגני קרע מקשרים בין הבסיסים שלך."
+lore1 = "רדיוס משיכת פריטים"
+lore2 = "פריטים שנמשכים לכל פעימה"
+lore3 = "בלוקים שממולאים לכל הנחה"
+lore4 = "עוגני קרע"
+lore5 = "תיעול עוגן"
+lore6 = "פניני אנדר לכל מסע לעוגן"
+lore7 = "ערימות שנשלחות לכל פנינת אנדר"
+lore8 = "עוגנים פועלים בין ממדים"
+
+[upgrade.rift.voidborn]
+name = "בן הריק"
+description = "נזק קטלני משגר אותך למקום בטוח, אנדרמנים מתעלמים ממך, והריחוף מציית לך."
+lore1 = "זמן המתנה למילוט"
+lore2 = "התנגדות אחרי מילוט"
+lore3 = "זמן המתנה לשחרור ריחוף"
+
+[tool.rift.anchor]
+name = "עוגן קרע"
+usage = "לחיצה ימנית על בלוק כדי להציב"
+title = "עוגני קרע"
+entry = "עוגן {number}"
+here = "אתה כאן"
+travel = "מסע"
+open = "פתח מיכל"
+send = "שלח פריטים לכאן"
+other_dimension = "ממד אחר: ממלכת כיס {level}"
+empty = "אין עוגנים מוצבים"
+placed = "העוגן הוצב ({count}/{max})"
+full = "כל {max} העוגנים מוצבים"
+broken = "{count} מעוגני הקרע שלך נשברו"
+no_pearl = "נדרשות {count} פניני אנדר"
+channel_broken = "התיעול נקטע"
+blocked = "העוגן חסום או נעלם"
+no_container = "אין מיכל ליד העוגן"
+sent = "{count} פריטים נשלחו"
+nothing = "אין מה לשלוח"
+waystone_set = "אבן דרך הוצבה ({count}/{max})"
+waystones_full = "כל {max} אבני הדרך הוצבו"
+remove = "הסר"
+harvests_here = "היבולים מגיעים לכאן"
+harvests_ender = "היבולים הולכים לתיבת האנדר שלך"
+
+[tool.rift.eye]
+name = "עין קרע"
+usage = "לחיצה ימנית כדי לנסוע לעוגן"
+
+[upgrade.chronos.second_chance]
+name = "הזדמנות שנייה"
+description = "החזרה אחורה שאתה מפעיל בעצמך או שמופעלת במכה קטלנית, וחלק מכל פגיעה משולם מאוחר יותר."
+lore1 = "מחזיר אותך אחורה ב"
+lore2 = "זמן המתנה"
+lore3 = "חסינות אחרי מכה קטלנית"
+lore4 = "נזק שישולם מאוחר יותר"
+lore5 = "בריאות מרבית אחרי הצלה"
+
+[upgrade.chronos.time_lord]
+name = "אדון הזמן"
+description = "הבקבוק מאחסן יותר, ההילה מאיצה יבולים ותחנות עבודה, חיזוקים נמשכים יותר, ושעון משחזר נזקי פיצוץ."
+lore1 = "קיבולת הבקבוק"
+lore2 = "רדיוס ההילה"
+lore3 = "שיקויים מועילים ארוכים יותר"
+lore4 = "רדיוס שחזור"
+lore5 = "חלון שחזור"
+lore6 = "בלוקים לכל טעינה"
+lore7 = "זמן שמור לכל טעינה"
+restored = "{count} בלוקים שוחזרו"
+restore_nothing = "אין כאן מה לשחזר"
+restore_no_time = "אין מספיק זמן שמור"
+restore_drops_missing = "חלק מהפריטים שנפלו חסרים"
+restore_protected = "אי אפשר לבנות כאן"
+
+[upgrade.chronos.frozen_moment]
+name = "רגע קפוא"
+description = "שדה קיפאון שאפשר לזרוק; המכות שלך בתוכו משתקות מטרות במקומן."
+lore1 = "רדיוס השדה"
+lore2 = "משך השדה"
+lore3 = "משך השיתוק"
+
+[upgrade.pickaxe.motherlode]
+name = "עורק האם"
+description = "עורקים שלמים נשברים בבת אחת, מותכים, עם עפרה נוספת, ומזמנים נופלים יחד עם היצור שלהם."
+lore1 = "רדיוס העורק"
+lore2 = "מקסימום בלוקים לעורק"
+lore3 = "עפרות נוספות לעורק"
+lore4 = "עמידות לכל מזמן שנשמר"
+spawner_mob = "יצור: {mob}"
+spawner_worn = "נדרשת עמידות מכוש של {durability}"
+
+[upgrade.pickaxe.earthshaker]
+name = "מרעיד האדמה"
+description = "קדח חזית של 3 על 3 דרך אבן, צפחה עמוקה ואובסידיאן במהירות של אבן, ופוצץ עפרות עם מטעני המחפש."
+lore1 = "חזית הקידוח"
+lore2 = "חלק ממהירות אבן על צפחה עמוקה ואובסידיאן"
+lore3 = "עמידות לכל בלוק שנקדח"
+lore4 = "רדיוס המטען"
+
+[upgrade.pickaxe.eternal_pick]
+name = "מכוש נצחי"
+description = "המכוש לעולם לא נשבר, מתתקן בזמן הכרייה, והכרייה מקשיחה אותך."
+lore1 = "סיכוי תיקון לכל בלוק"
+lore2 = "עמידות לכל תיקון"
+lore3 = "דרגת התנגדות גבוהה ביותר"
+
+[tool.pickaxe.prospectors_charge]
+name = "מטען המחפש"
+stone_drop = "אבן: להפיל"
+stone_discard = "אבן: להשליך"
+busy = "כבר הוצב מטען"
+no_pickaxe = "אין מכוש בסרגל המהיר"
+stone_only = "אבן בלבד"
+opened = "{blocks} בלוקים נפתחו"
+worn = "המכוש נשחק"
+protected = "נעצר בקרקע מוגנת"
+
+[upgrade.excavation.landshaper]
+name = "מעצב הקרקע"
+description = "חצוב משטחים או פירים בקרקע רכה, הנחת שורת אדמה, ויישר קרקע עם יתדות יישור."
+lore1 = "בלוקים שנחצבים סביב כל חפירה"
+lore2 = "עומק פיר בהתגנבות"
+lore3 = "חיפזון בזמן חפירה"
+lore4 = "שטח מיושר"
+lore5 = "שינוי גובה מרבי"
+lore6 = "נזק החבטה"
+lore7 = "זמן טעינת החבטה"
+
+[upgrade.excavation.deep_sight]
+name = "ראיית עומק"
+description = "עפרות נראות דרך הקרקע בזמן שאתה חופר, בלי צורך בגרגרים זוהרים."
+lore1 = "רדיוס סריקה"
+lore2 = "עפרות שמסומנות לכל סריקה"
+lore3 = "זמן המתנה"
+
+[upgrade.excavation.gravekeeper]
+name = "שומר הקברים"
+description = "חפירה חושפת אוצרות, עצמות ופריטים נוספים."
+lore1 = "סיכוי לאוצר"
+lore2 = "סיכוי לשלל עצמות"
+lore3 = "סיכוי לפריט נוסף"
+
+[tool.excavation.grading_stakes]
+name = "יתדות יישור"
+stake = "יתד: {x}, {y}, {z}"
+pulled = "היתדות נשלפו"
+too_wide = "לכל היותר {size} על {size}"
+busy = "כבר מיישר"
+no_shovel = "אין את חפירה בסרגל המהיר"
+done = "{dug} נחפרו, {filled} מולאו"
+no_fill = "נגמרו העפר, החול והחצץ"
+worn = "את החפירה נשחק"
+protected = "נעצר בקרקע מוגנת"
+
+[upgrade.herbalism.wildgrowth]
+name = "צמיחה פראית"
+description = "הילת צמיחה רחבה שגם שותלת את הזרעים שלך באדמה חקלאית ריקה."
+lore1 = "רדיוס צמיחה"
+lore2 = "זרעים שנשתלים לכל פעימה"
+lore3 = "עלות מזון לכל שלב"
+
+[upgrade.herbalism.harvest_moon]
+name = "ירח הקציר"
+description = "לחיצה ימנית אחת קוצרת ושותלת מחדש שדה שלם, ודחלילים מטפלים ביבולים כשאתה קרוב."
+lore1 = "רדיוס השדה"
+lore2 = "סיכוי ליבול נוסף לכל גידול"
+lore3 = "זמן המתנה"
+lore4 = "דחלילים"
+lore5 = "ריבוע הדחליל"
+
+[upgrade.herbalism.iron_stomach]
+name = "קיבת ברזל"
+description = "הרעב סופג קודם 50 עד 80% מכל סוג נזק, ואוכל משביע פי שניים."
+lore1 = "נזק שנספג ברעב"
+lore2 = "תוספת מזון מארוחות"
+
+[tool.herbalism.scarecrow]
+name = "דחליל"
+harvests = "קצירים שנותרו"
+placed = "דחלילים"
+
+[upgrade.architect.master_builder]
+name = "אמן הבנייה"
+description = "חזיתות שרביט רחבות, אספקה ממכלים שאתה נושא, וקווי גיר שמתמלאים בבלוקים."
+lore1 = "חזית שרביט הבנאים"
+lore2 = "בלוקים לכל מילוי גיר"
+lore3 = "רדיוס עיגול הגיר"
+lore4 = "גובה חומת הגיר"
+lore5 = "מילוי דיסקה מלאה"
+overcharge = "בלוקים לכל מילוי"
+shape = "צורת מילוי הגיר"
+shape_outline = "קו מתאר"
+shape_disc = "דיסקה מלאה"
+shape_wall = "חומה"
+built = "{placed} הונחו"
+stopped_protected = "{placed} הונחו, נעצר בבלוק מוגן"
+stopped_items = "{placed} הונחו, נגמרו הבלוקים"
+stopped_limit = "{placed} הונחו, הגעת למגבלת הבלוקים"
+stopped_tool = "{placed} הונחו, הכלי שלך כמעט שבור"
+stopped = "{placed} הונחו, נעצר"
+busy = "בנייה כבר מתבצעת"
+wait = "המילוי הבא בעוד {time}"
+nothing = "אין מה למלא"
+
+[upgrade.architect.skyhook]
+name = "וו שמיים"
+description = "דריסת רגל זמנית בלי הדיפה או נפילות, ותבנית הבנאי שמעתיקה מבנים ומטביעה אותם."
+lore1 = "גודל התבנית לכל צלע"
+lore2 = "בלוקים לכל הטבעה"
+lore3 = "הטבעות לאורך קו גיר"
+lore4 = "הטבעות במראה"
+overcharge = "הטבעות לאורך קו"
+gap = "מרווח בין הטבעות חוזרות"
+gap_none = "ללא"
+gap_one = "בלוק 1"
+gap_two = "2 בלוקים"
+gap_four = "4 בלוקים"
+
+[upgrade.architect.wrecking_hand]
+name = "יד ההריסה"
+description = "מחק בלוקים שהנחת, בטל בניות אחרונות, והחלף בלוקים לאורך מבנה שלם."
+lore2 = "חלון ביטול"
+lore3 = "בניות שאפשר לבטל"
+lore4 = "בלוקים לכל החלפה"
+overcharge = "בלוקים לכל החלפה"
+undone = "{count} הוחזרו"
+nothing_to_undo = "אין מה לבטל"
+nothing_to_replace = "אין מה להחליף"
+
+[tool.architect.masons_template]
+name = "תבנית הבנאי"
+usage_copy = "לחץ על שתי פינות נגדיות כדי להעתיק"
+usage_stamp = "לחיצה ימנית לתצוגה מקדימה, שוב כדי לבנות"
+usage_turn = "לחיצה שמאלית מסובבת, התגנבות ולחיצה שמאלית על בלוק משקפת"
+usage_repeat = "התגנבות ולחיצה ימנית על בלוק חוזרת לאורך קו הגיר שלך"
+usage_undo = "התגנבות ולחיצה ימנית באוויר מבטלת"
+usage_mode = "החלפת ידיים עוברת בין הטבעה להחלפה"
+usage_wipe = "צור אותה לבד כדי למחוק"
+pattern = "{width} x {height} x {depth}, {count} בלוקים"
+mode_stamp = "הטבעה"
+mode_replace = "מברשת החלפה"
+corner = "הפינה הראשונה נקבעה"
+copied = "{count} בלוקים הועתקו"
+too_large = "לכל היותר {size} בלוקים לכל צלע"
+empty = "אין מה להעתיק"
+turned = "סובב ב-{degrees} מעלות"
+mirrored = "משוקף"
+unmirrored = "לא משוקף"
+mirror_locked = "שיקוף דורש רמה {level}"
+ready = "{count} בלוקים, לחיצה ימנית נוספת כדי לבנות"
+short = "חסרים: {items}"
+no_guide = "צייר קודם קו גיר"
+replace_locked = "החלפה דורשת {upgrade}"
+
+[upgrade.crafting.grand_artisan]
+name = "אומן גדול"
+description = "ציוד שנוצר מקבל בונוסים טובים יותר, משלב כישופים, מחזיר רכיב ומחושל מחדש בשולחן נפחות."
+lore2 = "הגרלות יצירת מופת חזקות יותר"
+lore3 = "אפשרויות חישול מחדש"
+lore4 = "עלות חישול מחדש ברמות"
+lore5 = "נעילת חישול מחדש"
+lock = "נעילת חישול מחדש"
+lock_none = "אין"
+lock_durability = "עמידות"
+lock_edge = "יתרון יצירת המופת"
+levels = "{levels} רמות"
+
+[upgrade.crafting.unmaker]
+name = "המפרק"
+description = "פרק כל דבר לחלקים, בנה מחדש עפרות ודחוס ערימות בכל מקום."
+lore2 = "זמן המתנה לדחיסה"
+
+[upgrade.crafting.field_workshop]
+name = "סדנת שטח"
+description = "צור מתכונים שמורים ופתח עמדות עבודה מתוך פנקס האומן, וצור ערימות שלמות בבת אחת."
+lore2 = "רעב לכל דף עמדה"
+lore3 = "דפי הפנקס"
+lore4 = "עומק שרשרת בפנקס"
+
+[tool.crafting.runed_book]
+name = "ספר רוני"
+
+[tool.crafting.artisans_ledger]
+name = "פנקס האומן"
+filled = "{pages} דפים מלאים"
+empty = "דף ריק"
+missing = "חסר: {items}"
+unknown = "אין מתכון שאתה יכול לייצר"
+
+[upgrade.enchanting.arcane_hand]
+name = "יד מיסטית"
+description = "העבר, פצל והחל כישופים ביד בלי סדן, ומשוך כישוף אחד אל ספר באבן השחזה."
+lore1 = "מגבלת עוצמת כישוף"
+lore2 = "רמות לכל העברה"
+lore3 = "רמות לכל פיצול"
+lore4 = "סיכוי לספר מאבן משחזת"
+lore5 = "רמות לכל ספר מאבן משחזת"
+library_needs = "צריך ספר ו-{levels} רמות"
+
+[upgrade.enchanting.fate_weaver]
+name = "אורג הגורל"
+description = "ראה כל הצעה והגרל מחדש בעוצמת מדפים גבוהה יותר."
+lore1 = "עוצמת מדפי ספרים וירטואלית"
+lore2 = "לאפיס לכל הגרלה מחדש"
+lore3 = "זמן המתנה להגרלה מחדש"
+
+[upgrade.enchanting.soulforged]
+name = "מחושל בנשמה"
+description = "ציוד מקושר שורד מוות, מתחזק ככל שאתה צובר XP, משיל קללות ומתעלה מעבר לרמה המרבית שלו."
+lore1 = "עלות XP לשמירה"
+lore2 = "קצב טעינת XP"
+lore3 = "זמן המתנה לקישור מחדש"
+lore4 = "התעלויות לכל פריט"
+lore5 = "רמות לכל התעלות"
+ascended = "התעלה"
+ascend_levels = "צריך {levels} רמות"
+
+[upgrade.brewing.master_distiller]
+name = "אמן הזיקוק"
+description = "שיקויים מתבשלים מהר יותר ונמשכים פי שניים, והבנדוליר של האלכימאי נושא את השיקויים שהמנות שלך מנצלות."
+lore1 = "בישול מהיר יותר"
+lore2 = "בישול מהיר יותר לכל בלוק לבה צמוד"
+lore3 = "משך השיקוי שבושל"
+lore4 = "משבצות בנדוליר"
+
+[upgrade.brewing.witchs_shelf]
+name = "מדף המכשפה"
+description = "כל ששת השיקויים העוינים בפתיחה אחת, עם התזה רחבה יותר והתזות עוינות מעורבות."
+lore1 = "שיקויים עוינים שנפתחו"
+lore2 = "רדיוס התזה עוינת"
+lore3 = "השפעות לשיקוי התזה מעורבב"
+lore4 = "משך השפעות מעורבבות"
+mix_name = "קללה מעורבבת"
+
+[upgrade.brewing.apothecary]
+name = "רוקח"
+description = "ארבעת שיקויי ההגנה וחיפזון בפתיחה אחת, ועוד סם ושיקויים מעורבים."
+lore1 = "שיקויי הגנה שנפתחו"
+lore2 = "משך הסם"
+elixir_name = "סם הרוקח"
+lore3 = "השפעות לשיקוי מעורבב"
+lore4 = "משך השפעות מעורבבות"
+mix_name = "טוניק מעורבב"
+
+[tool.brewing.bandolier]
+name = "הבנדוליר של האלכימאי"
+stored = "שיקויים: {count}"
+active = "פעיל: {potion} ({slot}/{count})"
+empty = "אין שיקויים טעונים"
+full = "הבנדוליר מלא"
+nothing = "אין שיקוי לטעינה"
+unreadable = "לא ניתן לקרוא את השיקויים בבנדוליר"
+unstorable = "לא ניתן לאחסן את השיקוי הזה"
+
+[upgrade.discovery.omniscience]
+name = "ידיעת כל"
+description = "נתוני יצורים, תיבות קרובות, מזמנים ומבנים בתצוגה אחת, ואטלס של התגליות שלך."
+lore1 = "טווח התצוגה"
+lore2 = "טווח מבנים"
+chests = "תיבות {count}"
+spawners = "מזמנים {count}"
+lore3 = "נעיצות"
+lore4 = "נקודות ציון"
+lore5 = "רדיוס חיפוש מבנים שלא נמצאו"
+
+[upgrade.discovery.unity_prime]
+name = "אחדות עליונה"
+description = "XP רגיל מזין את המיומנויות הנמוכות שלך, כל מיומנות שעלתה ברמה מגדילה את כל הרווחים, ושריון עולמי ותיקון משופר פועלים."
+lore1 = "XP לכל כדור רגיל"
+lore2 = "מיומנויות נמוכות שמוזנות"
+lore3 = "רווח XP לכל מיומנות שעלתה ברמה"
+lore4 = "דרגת שריון עולמי"
+lore5 = "דרגת תיקון משופר"
+
+[upgrade.discovery.explorers_luck]
+name = "מזל החוקר"
+description = "ביקורים ראשונים, הריגות ראשונות ושרידים משלמים יותר וצוברים בונוסים קבועים."
+lore1 = "תגמול גילוי"
+lore2 = "תגמול שנצבר לכל גילוי"
+lore3 = "נזק שנצבר לכל מין"
+
+[tool.discovery.explorers_atlas]
+name = "אטלס החוקר"
+biomes = "ביומים {count}"
+structures = "מבנים {count}"
+pins = "נעיצות {count}/{max}"
+waypoints = "נקודות ציון {count}/{max}"
+empty = "עוד לא נמצא דבר"
+looted = "נבזז"
+not_looted = "לא נבזז"
+pinned = "נעוץ"
+pin = "נעץ"
+unpin = "בטל נעיצה"
+delete = "מחק"
+elsewhere = "ב-{world}"
+lead = "ממצא חיפוש"
+search = "חיפוש: {structure}"
+search_action = "חפש"
+next_type = "הסוג הבא"
+search_cost = "עולה {paper} נייר ו-{hunger} רעב"
+search_cooldown = "מוכן בעוד {time}"
+searching = "מחפש {structure}"
+search_found = "נמצא {structure}: {direction}, {distance} בלוקים"
+search_none = "אין {structure} שלא נמצא בטווח {range} בלוקים"
+new_waypoint = "נקודת ציון חדשה"
+name_prompt = "הקלד שם לנקודת ציון במקום שבו אתה עומד."
+waypoint_added = "נקודת הציון {name} נקבעה"
+waypoints_full = "נקודות הציון מלאות ({max})"
+pins_full = "הנעיצות מלאות ({max})"
+make_waystone = "צור אבן דרך"
+remove_waystone = "הסר אבן דרך"
+
+[upgrade.taming.alpha]
+name = "אלפא"
+description = "חיות המחמד חזקות יותר, עמידות יותר ומתחדשות, ועוד יותר לידך, ובהמת רכיבה קשורה גדלה ככל שאתה רוכב."
+lore1 = "תוספת נזק לחיות מחמד"
+lore2 = "תוספת בריאות מרבית לחיות מחמד"
+lore3 = "רדיוס ההילה"
+lore4 = "תקרת הצמיחה של בהמת הרכיבה הקשורה"
+lore5 = "טווח הקריאה של בהמת הרכיבה הקשורה"
+
+[upgrade.taming.one_mind]
+name = "מחשבה אחת"
+description = "משרוקית שולחת, קוראת חזרה ומביאה פריטים עם חיות המחמד שלך, וחיות מחמד עם שם לוקחות תפקידי שמירה."
+lore1 = "טווח סימון"
+lore2 = "רדיוס קריאה חזרה"
+lore3 = "זמן המתנה לקריאה חזרה"
+lore4 = "תפקידים לחיות מחמד עם שם"
+
+[upgrade.taming.blood_bond]
+name = "ברית דם"
+description = "אתה וחיות המחמד שלך חולקים נזק, הן מיירטות יריות, וחיה שעומדת למות חוזרת אליך עם 1 HP."
+lore1 = "נזק שמשותף עם חיות המחמד"
+lore2 = "סיכוי ליירוט ירייה"
+lore3 = "זמן המתנה להצלה לכל חיה"
+
+[tool.taming.whistle]
+name = "משרוקית אדון החיות"
+lore1 = "קליק ימני: שלח חיות מחמד"
+lore2 = "התגנבות + קליק ימני: קריאה חזרה"
+lore3 = "קליק שמאלי: תפריט"
+fetch_on = "הבאה: פעיל"
+fetch_off = "הבאה: כבוי"
+bond = "קשור את בהמת הרכיבה הזו"
+bonded = "בהמת רכיבה קשורה"
+role = "תפקיד: {role}"
+role_none = "ללא"
+role_guard_owner = "שמירה עליך"
+role_guard_spot = "שמירה על המקום הזה"
+role_fetch = "הבאה"
+cannot_build = "אינך יכול לבנות כאן"
+
+[upgrade.golemancy.grand_overseer]
+name = "המשגיח העליון"
+description = "פקד על הגולמים שלך, רפא ואסוף אותם מרחוק."
+lore2 = "טווח אותות, תיקון ואריזה"
+
+[upgrade.golemancy.forgemaster]
+name = "אמן החישול"
+description = "כרוך גולמים, טווה צמתים והפעל כל ליבה בעוצמה מלאה; שלדים עולים ברמות עד לשיא שלהם ברמה 3."
+
+[upgrade.golemancy.runeforged]
+name = "מחושל ברונות"
+description = "חריץ רונה נוסף, רונות חזקות יותר וליבה כפולה בכל גולם."
+lore2 = "חריצי רונה נוספים בכל גולם"
+lore3 = "תוספת לרונות דרגה 3, פועלות דרגה אחת גבוה יותר"
+lore4 = "גולמים בעלי ליבה כפולה"
+lore5 = "מהירות העבודה של הליבה השנייה"
+lore6 = "משבצות רונה נוספות ביצירות מופת"
+all = "הכול"
+heart_needed = "ליבה כפולה זו דורשת לב יצירת מופת במלאי שלך"
+
+[upgrade.seaborne.leviathan]
+name = "לווייתן"
+description = "נשום, שחה מהר, החזק מגן גאות, התחדש והישאר שבע כשאתה רטוב, והקם מקדש הגאות."
+lore1 = "אוויר שנחסך מתחת למים"
+lore2 = "יעילות שחייה"
+lore4 = "דרגת התחדשות כשרטוב"
+lore5 = "רדיוס מקדש הגאות"
+lore6 = "מקדשי גאות"
+
+[upgrade.seaborne.maelstrom]
+name = "מערבולת"
+description = "זינוק וסילון חולקים טעינות; קלשונים פוגעים חזק יותר וחוזרים מיד, וסופות עונות למכות שלך."
+lore1 = "טעינות זינוק וסילון משותפות"
+lore2 = "תוספת נזק לקלשון"
+lore3 = "מהירות חזרת הקלשון"
+
+[upgrade.seaborne.deep_fortune]
+name = "הון המעמקים"
+description = "שלל דיג טוב יותר, חיי הים עוזרים לך, תיבות טבועות זוהרות, ואפשר לחלץ אוצרות מספינות טרופות ומהריסות."
+lore1 = "סיכוי לשלל דיג נוסף"
+lore2 = "מזל"
+lore3 = "רדיוס זוהר מכולות"
+lore4 = "מזל חילוץ"
+
+[tool.seaborne.tide_shrine]
+name = "מקדש הגאות"
+lore1 = "ההצבה עולה קונכיית נאוטילוס 1"
+full = "כל מקדשי הגאות שלך מוצבים"
+water = "דורש מים פתוחים"
+shell = "דורש קונכיית נאוטילוס"
+protected = "אינך יכול לבנות כאן"
+
+[upgrade.nether.hellwalker]
+name = "הולך השאול"
+description = "פסע מעל לבת הנתר, שחה בכל לבה עם ראות צלולה, התעלם מאש, ושמור על חפצים שהופלו."
+lore1 = "עוצמת צעידה על לבה"
+lore2 = "תוספת מהירות על חול נשמות"
+lore3 = "רעב לכל צעד על לבה"
+lore4 = "מהירות שחייה בלבה, חלק ממהירות המים"
+lore5 = "זמן בלבה לכל נקודת רעב"
+lore6 = "חפצים שהופלו צפים בלבה"
+
+[upgrade.nether.wither_king]
+name = "מלך הכמישה"
+description = "זרוק גולגלות כמישה, התנער מכמישה, וקבל יותר משלדי כמישה."
+lore1 = "זמן המתנה לזריקת גולגולת"
+lore2 = "סיכוי להתנער מכמישה"
+lore3 = "סיכוי לגולגולת משלד כמישה"
+
+[upgrade.nether.brimstone]
+name = "גופרית"
+description = "תוקפים נדלקים, האש מזינה אותך, פיצוצים כמעט לא פוגעים, ופיגלינים סוחרים איתך ושומרים על הפסקת אש."
+lore1 = "בעירה לתוקפי קרב קרוב"
+lore2 = "רעב שמשוחזר מאש"
+lore3 = "פחות נזק מפיצוצים"
+lore4 = "סיכוי לגלגול סחר נוסף"
+
+[upgrade]
+granted_level = "{adaptation} פועל ברמה {level}"
+overcharge = "טעינת יתר"
+
+[xp_guide]
+title = "השגת XP"
+mutation_title = "מוטציה"
+adaptations = "שימוש בהתאמות שלה והשלמת האתגרים שלה"
+farmed_mobs = "יצורים ממזמנים, ביצים, דליים, רבייה או שערים אינם משלמים"
+placed_blocks = "בלוקים שהנחת אינם משלמים"
+
+[xp_guide.mutation]
+one_bar = "הפעולות של שני ההורים ממלאות את הפס היחיד הזה."
+same_action = "פעולה שמשלמת לשני ההורים משלמת את הפרס הגדול יותר ועוד {share}% מהקטן."
+farmed = "מקורות מחוות לעולם אינם משלמים."
+
+[xp_guide.agility]
+move = "הליכה, ריצה, שחייה, קפיצה וטיפוס"
+riding = "רכיבה, תעופה ודאייה אינן משלמות"
+
+[xp_guide.architect]
+place = "הנחת בלוקים, יותר על בלוקים יקרי ערך"
+storage = "בלוקי אחסון ושבירת בלוקים אינם משלמים"
+throw = "פגיעה ביצורים עם בלוקים זרוקים"
+
+[xp_guide.axes]
+combat = "פגיעה ביצורים עם גרזן"
+chop = "כריתת בולי עץ, עץ, גבעולים ובלוקי פטריות עם גרזן"
+
+[xp_guide.blocking]
+blocked_hit = "חסימת מכות עם מגן, יותר על מכות חזקות יותר"
+shield_hold = "החזקת מגן מורם אחרי חסימה, כשהשרת מאפשר זאת"
+
+[xp_guide.brewing]
+drink = "שתיית שיקויים מבושלים, יותר על חזקים יותר"
+splash = "זריקת שיקויי התזה מבושלים"
+plain = "שיקויי מים, שגרתיים, סמיכים ומגושמים אינם משלמים"
+
+[xp_guide.chronos]
+movement = "תנועה, יותר עם שעון ביד או בתיק"
+active = "הישארות פעיל, יותר בלילה"
+survival = "הישארות בחיים, יותר על כל שעה מאז המוות האחרון"
+sleep = "שינה לאורך הלילה"
+speed = "שתייה או התזה של שיקויי מהירות"
+idle = "עמידה במקום כמעט אינה משלמת"
+
+[xp_guide.crafting]
+craft = "יצירת פריטים, יותר על תוצרים יקרי ערך"
+smelt = "שהייה ליד כבשן בזמן שהוא מתיך"
+convert = "המרת גושונים, מטילים ובלוקים זה לזה אינה משלמת"
+
+[xp_guide.discovery]
+new = "גילוי בלוקים, פריטים, יצורים, ביומות, מזונות, מתכונים וכישופים חדשים"
+chunk = "חקירת צ'אנקים שלא ראית מעולם"
+loot = "פתיחת תיבות שלל"
+advancement = "השלמת הישגים"
+world = "ביקור בעולמות ובממדים חדשים"
+orbs = "צבירת XP רגיל"
+once = "כל גילוי משלם פעם אחת"
+
+[xp_guide.enchanting]
+enchant = "כישוף בשולחן כישוף, יותר על רמות גבוהות"
+
+[xp_guide.excavation]
+combat = "פגיעה ביצורים עם את חפירה"
+dig = "חפירה עם את חפירה, יותר על בלוקים קשים"
+throw = "פגיעה ביצורים עם בלוקים מושלכים"
+
+[xp_guide.golemancy]
+build = "בניית גולמים וקשירתם"
+craft = "יצירת מטות, ליבות, צמתים ורונות, והחדרה על כן"
+fight = "הגולמים שלך נלחמים וחוטפים מכות לידך"
+work = "הגולמים שלך עובדים לידך"
+care = "תיקון, גירוד ושעווה של הגולמים שלך"
+witness = "צפייה בגולם לא קשור הורג יצור עוין"
+
+[xp_guide.herbalism]
+harvest = "קציר יבולים, יותר ככל שהם בשלים יותר"
+eat = "אכילת מזון"
+shear = "גזיזת בעלי חיים"
+compost = "מילוי וריקון מקמפסטים"
+bonemeal = "יבולים שדושנו בקמח עצמות משלמים חצי, ואותו מקום משלם פחות לכמה דקות"
+
+[xp_guide.hunter]
+kill = "הריגת יצורים, יותר על קשוחים ועל קריפרים"
+farmed = "יצורים ממזמנים, ביצים, דליים, רבייה או שערים משלמים הרבה פחות"
+
+[xp_guide.kinetics]
+mace = "ריסוק ופגיעה עם אלה"
+spear = "הסתערויות, דקירות והסתערויות רכובות עם חנית"
+knockback = "הדיפת יצורים לאחור והיהדפות"
+fall = "נפילה, בלימת נפילה, ניתור ושיגור"
+levitation = "ריחוף, או גרימה לאחרים לרחף"
+anvil = "הפלת סדנים על יצורים, ושימוש בסדנים ובאבני משחזת"
+
+[xp_guide.nether]
+ore = "כריית קוורץ נתר, זהב נתר ושרידים עתיקים"
+kill = "הריגת יצורי נתר, שלדי ויתר והויתר"
+wither = "פגיעה בויתר וספיגת נזק ויתר"
+rose = "שבירת ורדי ויתר"
+
+[xp_guide.pickaxe]
+combat = "פגיעה ביצורים עם מכוש"
+mine = "כרייה עם מכוש, הכי הרבה על עפרות ועפרות צפחה עמוקה"
+silk = "מגע משי משלם מעט"
+
+[xp_guide.ranged]
+shoot = "ירי חיצים"
+hit = "פגיעה בחיצים, יותר ממרחק רב"
+kill = "הריגת יצורים עם קשת או קשת מוצלבת ביד"
+
+[xp_guide.rift]
+portal = "מעבר דרך שערים"
+teleport = "השתגרות עם פרי כורוס, פניני אנדר ודרכים אחרות"
+throw = "זריקת פניני אנדר ועיני אנדר"
+ender = "פגיעה באנדרמנים, אנדרמייטים ודרקון האנדר"
+kill = "השמדת גבישי קצה והריגת שולקרים ואנדרמייטים"
+
+[xp_guide.seaborne]
+swim = "שחייה, יותר עם נשימה מתחת למים"
+fish = "דיג, הכי הרבה על אוצר"
+underwater = "שבירת בלוקים מתחת למים"
+kill = "הריגת יצורי ים"
+hit = "פגיעה בטבועים, ופגיעה עם קלשון"
+
+[xp_guide.stealth]
+opener = "תקיפת יצור שלא הבחין בך, יותר מאחור תוך התגנבות"
+combat = "פגיעה תוך התגנבות"
+kill = "הריגה תוך התגנבות"
+sneak = "תנועה תוך התגנבות"
+
+[xp_guide.swords]
+combat = "פגיעה ביצורים עם חרב"
+kill = "הריגת יצורים עם חרב"
+
+[xp_guide.taming]
+tame = "אילוף בעלי חיים"
+breed = "הרבעת בעלי חיים, פעם לכל זוג כל כמה דקות"
+pet_combat = "חיות המחמד שלך פוגעות ביצורים"
+pet_kill = "חיות המחמד שלך הורגות יצורים"
+
+[xp_guide.tragoul]
+damage = "ספיגת נזק מיצורים ומשחקנים"
+low_health = "שרידות ממכה בחיים נמוכים"
+
+[xp_guide.unarmed]
+combat = "פגיעה ביד ריקה או בכל דבר שאינו כלי"
+kill = "הריגת יצורים בדרך זו"
+
+[gui.seats]
+not_started = "לא התחיל"
+
+[gui.knowledge]
+title = "ידע"
+earned = "הורווח: {value}"
+spent = "הוצא: {value}"
+unspent = "לא הוצא: {value}"
+skill = "{skill}: {spent} הוצא, {available} לא הוצא"
+
+[advancement.challenge_excavation_clod_hurler_500]
+title = "משליך הבוץ"
+description = "פגע ביצורים עוינים עם 500 בלוקים מושלכים"
+
+[advancement.challenge_architect_brickbat_500]
+title = "לוחם הלבנים"
+description = "פגע ביצורים עם 500 בלוקים זרוקים"
+
+[architectbrickbat.preferences]
+air-throws = "זריקה למטרות שמכוונים אליהן"
+
+[architect.brickbat]
+name = "זריקת לבנה"
+description = "הכה יצור כשבלוק בידך, או הנף לעבר יצור בטווח, כדי לזרוק עליו בלוק אחד. בלוקים כבדים יותר פוגעים חזק יותר, והבלוק נופל במקום שבו הוא נוחת."
+lore1 = "נזק לכל יחידת משקל"
+lore2 = "טווח זריקה"
+lore3 = "זמן המתנה לזריקת אבן"
+lore = ["נזק לכל יחידת משקל", "טווח זריקה", "זמן המתנה לזריקת אבן"]
+
+[excavation.preferences.excavationclodhurler]
+trigger = "לזרוק כאשר"
+
+[excavation.clod_hurler]
+name = "משליך הגושים"
+description = "חפור אדמה רכה עם את כשיצור עוין נראה לעין כדי להשליך את הבלוק החפור על הקרוב ביותר. הפריט שלו עף בחזרה אליך."
+lore1 = "מכפיל נזק"
+lore2 = "טווח זריקה"
+lore3 = "זמן המתנה לזריקה"
+lore = ["מכפיל נזק", "טווח זריקה", "זמן המתנה לזריקה"]

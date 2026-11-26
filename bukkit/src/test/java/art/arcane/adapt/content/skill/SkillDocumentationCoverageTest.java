@@ -53,7 +53,7 @@ class SkillDocumentationCoverageTest {
       }
     }
 
-    assertThat(sourceCatalog).hasSize(330);
+    assertThat(sourceCatalog).hasSize(333);
     assertThat(documentedIds.keySet()).containsExactlyInAnyOrderElementsOf(sourceCatalog.keySet());
     assertThat(documentedIds.values()).allMatch(count -> count == 1);
   }
@@ -81,8 +81,8 @@ class SkillDocumentationCoverageTest {
       documentedAdaptationFields += documentedFields.size();
     }
 
-    assertThat(documentedSkillFields).isEqualTo(444);
-    assertThat(documentedAdaptationFields).isEqualTo(2350);
+    assertThat(documentedSkillFields).isEqualTo(441);
+    assertThat(documentedAdaptationFields).isEqualTo(2388);
   }
 
   private static int assertSkillConfigTable(
@@ -184,7 +184,7 @@ class SkillDocumentationCoverageTest {
         assertThat(previous).as("duplicate documented adaptation id %s", id).isNull();
       }
     }
-    assertThat(sections).hasSize(330);
+    assertThat(sections).hasSize(333);
     return sections;
   }
 

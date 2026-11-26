@@ -1,0 +1,26 @@
+{
+  "skill": "rift",
+  "upgrades": [
+    {
+      "name": "upgraded-rift-phase-step",
+      "class": "PhaseStep",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PhaseStep.java",
+      "fuses": ["rift-blink", "rift-pearl-rebound", "rift-resist"],
+      "triggers": ["PlayerMoveEvent", "PlayerTeleportEvent", "PlayerQuitEvent", "EntityDamageByEntityEvent", "ProjectileLaunchEvent", "ProjectileHitEvent"]
+    },
+    {
+      "name": "upgraded-rift-pocket-realm",
+      "class": "PocketRealm",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PocketRealm.java",
+      "fuses": ["rift-inflated-pocket-dimension", "rift-void-magnet", "rift-enderchest"],
+      "triggers": ["PlayerToggleSneakEvent", "PlayerMoveEvent", "PlayerQuitEvent", "PlayerJoinEvent", "PlayerInteractEvent", "BlockPlaceEvent", "EntityDamageEvent", "BlockBreakEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockPistonEvent", "EntityChangeBlockEvent", "InventoryCloseEvent", "ChunkEvent"]
+    },
+    {
+      "name": "upgraded-rift-voidborn",
+      "class": "Voidborn",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/Voidborn.java",
+      "fuses": ["rift-void-skin", "rift-visage", "rift-descent"],
+      "triggers": ["EntityDamageEvent", "EntityTargetEvent", "PlayerToggleSneakEvent", "PlayerQuitEvent", "PlayerJoinEvent"]
+    }
+  ]
+}

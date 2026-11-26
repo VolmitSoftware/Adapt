@@ -3,10 +3,11 @@ package art.arcane.adapt.bukkit.port;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.value.MaterialCount;
 import art.arcane.adapt.api.value.MaterialRecipe;
+import art.arcane.adapt.api.value.MaterialRecipeIndex;
 import art.arcane.adapt.api.value.MaterialValuePort;
+import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.value.Id;
-import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.inventory.CookingRecipe;
@@ -25,36 +26,35 @@ import java.util.Map;
 final class BukkitMaterialValuePort implements MaterialValuePort {
   private static final String ADAPT_NAMESPACE = "adapt";
 
+  private final BukkitRecipeRegistry registry;
+  private final MaterialRecipeIndex<Material, Recipe> index =
+      new MaterialRecipeIndex<>(BukkitMaterialValuePort::output, BukkitMaterialValuePort::toMaterial);
+
+  BukkitMaterialValuePort(BukkitRecipeRegistry registry) {
+    this.registry = registry;
+  }
+
   @Override
   public List<MaterialRecipe> recipesFor(Id material) {
     Material mat = BukkitRefs.material(material);
     if (mat == null) {
       return List.of();
     }
-    List<MaterialRecipe> recipes = new ArrayList<>();
-    ItemStack stack = new ItemStack(mat);
-    try {
-      stack.setDurability((short) -1);
-    } catch (Throwable e) {
-      AdaptLog.verbose("Failed to set durability of " + mat.name());
-    }
-    for (Recipe recipe : BukkitRecipeOrder.canonical(Bukkit.getRecipesFor(stack))) {
-      if (isAdaptRecipe(recipe)) {
-        AdaptLog.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((Keyed) recipe).getKey());
-        continue;
-      }
-      MaterialRecipe converted = toMaterial(recipe);
-      if (converted != null) {
-        recipes.add(converted);
-      }
-    }
-    return recipes;
+    return index.recipesFor(registry.generation(), registry::recipes, mat);
   }
 
   @Override
   public boolean breaksInstantly(Id material) {
     Material mat = BukkitRefs.material(material);
     return mat != null && mat.isBlock() && mat.getHardness() == 0;
+  }
+
+  private static Material output(Recipe recipe) {
+    if (isAdaptRecipe(recipe)) {
+      return null;
+    }
+    ItemStack result = recipe.getResult();
+    return result == null ? null : result.getType();
   }
 
   static boolean isAdaptRecipe(Recipe recipe) {
@@ -75,11 +75,13 @@ final class BukkitMaterialValuePort implements MaterialValuePort {
         return MaterialRecipe.builder()
             .input(new ArrayList<>(recipe.getIngredientList().stream().map(BukkitMaterialValuePort::one).toList()))
             .output(count(recipe.getResult()))
+            .kind(MaterialRecipe.Kind.CRAFTING)
             .build();
       } else if (r instanceof ShapedRecipe recipe) {
         MaterialRecipe converted = MaterialRecipe.builder()
             .input(new ArrayList<>())
             .output(count(recipe.getResult()))
+            .kind(MaterialRecipe.Kind.CRAFTING)
             .build();
         Map<Material, Integer> counts = new HashMap<>();
         Map<Character, ItemStack> ingredients = recipe.getIngredientMap();
@@ -96,16 +98,19 @@ final class BukkitMaterialValuePort implements MaterialValuePort {
       } else if (r instanceof CookingRecipe<?> recipe) {
         List<MaterialCount> input = new ArrayList<>();
         input.add(one(recipe.getInput()));
-        return MaterialRecipe.builder().input(input).output(count(recipe.getResult())).build();
+        return MaterialRecipe.builder().input(input).output(count(recipe.getResult())).kind(MaterialRecipe.Kind.OTHER)
+            .build();
       } else if (r instanceof MerchantRecipe recipe) {
         return MaterialRecipe.builder()
             .input(new ArrayList<>(recipe.getIngredients().stream().map(BukkitMaterialValuePort::one).toList()))
             .output(count(recipe.getResult()))
+            .kind(MaterialRecipe.Kind.OTHER)
             .build();
       } else if (r instanceof StonecuttingRecipe recipe) {
         List<MaterialCount> input = new ArrayList<>();
         input.add(one(recipe.getInput()));
-        return MaterialRecipe.builder().input(input).output(count(recipe.getResult())).build();
+        return MaterialRecipe.builder().input(input).output(count(recipe.getResult()))
+            .kind(MaterialRecipe.Kind.STONECUTTING).build();
       }
     } catch (Throwable e) {
       AdaptLog.error(e);

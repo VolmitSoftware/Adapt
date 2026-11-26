@@ -1,5 +1,6 @@
 package art.arcane.adapt.mod.feature.recipe;
 
+import art.arcane.adapt.api.value.MaterialRecipeIndex;
 import art.arcane.adapt.mod.feature.mixin.RecipeManagerAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapedRecipeAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapelessRecipeAccess;
@@ -19,6 +20,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateRecipesPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -47,6 +49,7 @@ public final class ModRecipeHost implements RecipeHost {
     private static volatile ModRecipeHost active;
 
     private final Map<Id, RecipeSpec> specs = new LinkedHashMap<>();
+    private final MaterialRecipeIndex<Item, Recipe<?>> index = new MaterialRecipeIndex<>(ModRecipeHost::output);
     private final Set<ResourceLocation> injected = new HashSet<>();
     private volatile boolean dirty;
 
@@ -152,14 +155,19 @@ public final class ModRecipeHost implements RecipeHost {
             return List.of();
         }
         flushIfPending();
+        RecipeManager manager = server.getRecipeManager();
         List<RecipeView> views = new ArrayList<>();
-        for (Recipe<?> recipe : ordered(server.getRecipeManager())) {
-            ItemStack result = result(recipe);
-            if (!result.isEmpty() && result.is(wanted.getItem()) && result.getDamageValue() == wanted.getDamageValue()) {
+        for (Recipe<?> recipe : index.recipes(((RecipeManagerAccess) manager).adapt$recipes(), () -> ordered(manager), wanted.getItem())) {
+            if (result(recipe).getDamageValue() == wanted.getDamageValue()) {
                 views.add(view(recipe));
             }
         }
         return views;
+    }
+
+    private static Item output(Recipe<?> recipe) {
+        ItemStack result = result(recipe);
+        return result.isEmpty() ? null : result.getItem();
     }
 
     /** Every recipe grouped by recipe type, the order Paper's recipe iterator walks. */

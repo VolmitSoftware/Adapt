@@ -51,7 +51,8 @@ screenshot {path} | wait-screen {class?,title?,none?,timeoutMs} | quit. Coordina
 synthetic and never touches the real pointer. Gameplay input (works with no grabbed pointer):
 hold {action: attack|use|forward|back|left|right|jump|sneak|sprint, down: true|false, ticks?} keeps that key mapping
 down every client tick until released or for `ticks` ticks (a held attack mines the block under the crosshair) |
-release (lets go of every held action) | jump-sequence {presses: [tick offsets], tap} presses jump for tap
+press-action {action} queues one press of that mapping, as a click would (attack hits the crosshair entity or
+swings at the air) | release (lets go of every held action) | jump-sequence {presses: [tick offsets], tap} presses jump for tap
 ticks at each offset (client ticks from the call) and records player.jumpTrace (per tick: jump key, ground, x/y/z,
 mayfly, flying) until landing | look {yaw, pitch} turns the player (pitch 90 = straight down) |
 clear-events (empties the recorded vanilla action bar messages and toasts) |
@@ -400,6 +401,9 @@ class Session:
     def hold(self, action: str, down: bool = True, ticks: int = 0) -> dict:
         return self.op('hold', action=action, down=down, ticks=ticks)
 
+    def press_action(self, action: str) -> dict:
+        return self.op('press-action', action=action)
+
     def release(self) -> dict:
         return self.op('release')
 
@@ -439,7 +443,7 @@ class Session:
                 return state
             widgets: dict[str, dict] = {widget.get('message', ''): widget for widget in (state['screen'] or {}).get('widgets', [])
                                         if widget.get('active', True)}
-            toggle: dict | None = next((widget for message, widget in widgets.items() if message.startswith('Allow Cheats')), None)
+            toggle: dict | None = next((widget for message, widget in widgets.items() if message.startswith(('Allow Cheats', 'Allow Commands'))), None)
             if toggle is not None and not settled:
                 if toggle['message'].endswith('ON') != cheats:
                     self.press(toggle)

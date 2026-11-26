@@ -1,0 +1,26 @@
+{
+  "skill": "herbalism",
+  "upgrades": [
+    {
+      "name": "upgraded-herbalism-wildgrowth",
+      "class": "Wildgrowth",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/herbalism/upgraded/Wildgrowth.java",
+      "fuses": ["herbalism-growth-aura", "herbalism-bee-shepherd", "herbalism-seed-sower"],
+      "triggers": ["PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-herbalism-harvest-moon",
+      "class": "HarvestMoon",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/herbalism/upgraded/HarvestMoon.java",
+      "fuses": ["herbalism-replant", "herbalism-compost-cascade", "herbalism-luck"],
+      "triggers": ["BlockBreakEvent", "BlockBurnEvent", "BlockExplodeEvent", "BlockPistonEvent", "EntityChangeBlockEvent", "EntityExplodeEvent", "PlayerInteractEvent", "PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-herbalism-iron-stomach",
+      "class": "IronStomach",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/herbalism/upgraded/IronStomach.java",
+      "fuses": ["herbalism-hungry-shield", "herbalism-hippo"],
+      "triggers": ["EntityDamageEvent", "PlayerItemConsumeEvent"]
+    }
+  ]
+}

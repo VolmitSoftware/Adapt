@@ -1,0 +1,26 @@
+{
+  "skill": "excavation",
+  "upgrades": [
+    {
+      "name": "upgraded-excavation-landshaper",
+      "class": "Landshaper",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Landshaper.java",
+      "fuses": ["excavation-tunneler", "excavation-burrow", "excavation-haste"],
+      "triggers": ["BlockBreakEvent", "BlockDamageEvent", "BlockDropItemEvent", "PlayerInteractEvent"]
+    },
+    {
+      "name": "upgraded-excavation-deep-sight",
+      "class": "DeepSight",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/DeepSight.java",
+      "fuses": ["excavation-spelunker", "excavation-seismic-ping"],
+      "triggers": ["BlockBreakEvent", "EntityRemoveEvent", "PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-excavation-gravekeeper",
+      "class": "Gravekeeper",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Gravekeeper.java",
+      "fuses": ["excavation-treasure-hunter", "excavation-grave-digger", "excavation-mudlark"],
+      "triggers": ["BlockBreakEvent"]
+    }
+  ]
+}

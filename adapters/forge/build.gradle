@@ -15,6 +15,7 @@ tasks.named('test', Test).configure {
     exclude('art/arcane/adapt/mod/platform/item/ModItemRef*Test*')
     exclude('art/arcane/adapt/mod/platform/ModEngineFeaturesTest*')
     exclude('art/arcane/adapt/mod/feature/recipe/RecipeMapsTest*')
+    exclude('art/arcane/adapt/mod/platform/text/ComponentJsonTest*')
 }
 
 List<String> mixinConfigs = ['adapt.mixins.json', 'adapt-platform.mixins.json', 'adapt.feature.mixins.json', 'adapt.gap-block.mixins.json', 'adapt.gap-entity.mixins.json']

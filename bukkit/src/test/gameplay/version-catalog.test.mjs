@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { catalogForVersion, contractPlan, coreCatalogPath, loadVersionCatalog, parseVersionCatalog, stepBlocker, versionEntry, versionStep } from './version-catalog.mjs'
@@ -118,11 +118,17 @@ test('an unset ADAPT_QA_VERSION_CATALOG reads core golden files for old versions
   withEnv({ ADAPT_QA_VERSION_CATALOG: '' }, () => assert.equal(loadVersionCatalog('1.20.1').size, 0))
 })
 
-test('core golden catalogs name only skills and adaptations the contract matrix knows', () => {
+test('core golden catalogs name only skills and adaptations the contract matrix knows, signatures aside', () => {
   const adaptations = JSON.parse(readFileSync(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
   const names = new Set(adaptations.flatMap(entry => [entry.skill, entry.name]))
+  for (const file of readdirSync(new URL('./upgrades/', import.meta.url)).filter(name => name.endsWith('.json'))) {
+    for (const upgrade of JSON.parse(readFileSync(new URL(`./upgrades/${file}`, import.meta.url), 'utf8')).upgrades) {
+      names.add(upgrade.name)
+    }
+  }
   for (const version of ['1.21.1', '1.20.1']) {
-    const unknown = [...loadVersionCatalog(version, coreCatalogPath(version)).keys()].filter(name => !names.has(name))
+    const unknown = [...loadVersionCatalog(version, coreCatalogPath(version)).keys()]
+      .filter(name => !names.has(name) && !name.startsWith('signature-'))
     assert.deepEqual(unknown, [], version)
   }
 })

@@ -1,0 +1,26 @@
+{
+  "skill": "taming",
+  "upgrades": [
+    {
+      "name": "upgraded-taming-alpha",
+      "class": "Alpha",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/Alpha.java",
+      "fuses": ["tame-damage", "tame-health", "tame-health-regeneration", "tame-pack-leader-aura"],
+      "triggers": ["EntityDamageByEntityEvent"]
+    },
+    {
+      "name": "upgraded-taming-one-mind",
+      "class": "OneMind",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/OneMind.java",
+      "fuses": ["tame-alphas-command", "tame-beast-recall", "tame-fetch"],
+      "triggers": ["PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-taming-blood-bond",
+      "class": "BloodBond",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/BloodBond.java",
+      "fuses": ["tame-shared-pain", "tame-guardian-instinct", "tame-last-breath"],
+      "triggers": ["EntityDamageEvent", "EntityDamageByEntityEvent"]
+    }
+  ]
+}

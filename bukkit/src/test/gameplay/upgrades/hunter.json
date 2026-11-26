@@ -1,0 +1,26 @@
+{
+  "skill": "hunter",
+  "upgrades": [
+    {
+      "name": "upgraded-hunter-blood-frenzy",
+      "class": "BloodFrenzy",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/hunter/upgraded/BloodFrenzy.java",
+      "fuses": ["hunter-adrenaline", "hunter-strength", "hunter-speed", "hunter-regen"],
+      "triggers": ["EntityDamageEvent", "PlayerDeathEvent"]
+    },
+    {
+      "name": "upgraded-hunter-apex-predator",
+      "class": "ApexPredator",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/hunter/upgraded/ApexPredator.java",
+      "fuses": ["hunter-predator-focus", "hunter-big-game"],
+      "triggers": ["EntityDamageByEntityEvent", "EntityDeathEvent", "PlayerQuitEvent"]
+    },
+    {
+      "name": "upgraded-hunter-stalkers-trail",
+      "class": "StalkersTrail",
+      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/hunter/upgraded/StalkersTrail.java",
+      "fuses": ["hunter-blood-trail", "hunter-snare-line", "hunter-trophy-skinner"],
+      "triggers": ["EntityDamageByEntityEvent", "PlayerInteractEvent", "PlayerQuitEvent", "ItemSpawnEvent", "EntityDeathEvent"]
+    }
+  ]
+}
