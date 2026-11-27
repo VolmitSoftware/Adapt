@@ -9,9 +9,11 @@ Usage (from the repository root; run long jobs detached under `caffeinate -ims`)
     python3 bukkit/src/test/client/ui/uiclient.py cleanup
 
     loader: fabric | forge | neoforge     mc: 1.20.1 | 1.21.1 | 26.1.2 | 26.2 | 26.3  (no neoforge 1.20.1)
+    --server: paper | folia | spigot | fabric | forge | neoforge    --server-mc: server version when it differs (Bukkit
+    platforms only; the server then gets ViaVersion and ViaBackwards so the older client can join)
 
 `smoke` builds the bridge, creates a Multiplexor server (the matching loader, or Paper with --server paper) with the
-current Adapt jar, creates a temporary game directory under build/client-ui/instances with the current Adapt mod jar
+current Adapt jar and RCON on a free port, creates a temporary game directory under build/client-ui/instances with the current Adapt mod jar
 and the bridge, starts the client JVM directly (launcher.py: Prism's metadata and its shared library and asset caches,
 no launcher GUI) hidden and offline, joins, runs `/adapt gui`, screenshots the menu, quits and deletes everything it created. `exercise` drives every control op once (hover, click, gui scale,
 resize, inventory drag, shift-click, scroll, chat typing) with screenshots. `hold` does the
@@ -28,6 +30,9 @@ Only one harness client runs on the machine at a time: launch() takes an exclusi
 that file) and then waits while any client from another checkout is running. Forge and NeoForge servers are created
 from the installer of the exact loader build the client runs.
 
+A vanilla viewer is a client with only the bridge: pass client_adapt=Path('none'), so the server sees a client without
+the Adapt mod. The resource pack acceptance run (../acceptance.py) is built on it.
+
 Scenario API, for other scripts:
 
     from uiclient import Target, launch
@@ -42,12 +47,15 @@ Scenario API, for other scripts:
         session.key('escape')
         session.screenshot('menu')
         session.assert_screen(none=True)
+        session.rcon('give CuhAdaptQa minecraft:diamond 3')                # server console through RCON
+        session.answer_pack_prompt(accept=True)                            # server resource pack prompt
 
 Control API (loopback HTTP, header X-Adapt-UI-Token): GET /state, POST /command with {"op": ...}:
 state | command {command} | chat {text} | mouse-move {x,y} | mouse-down/mouse-up {x?,y?,button,mods} |
 click {x,y,button,mods,count} | drag {from:[x,y],to:[x,y],button,mods,steps} | scroll {x?,y?,dx,dy} |
 key {name,mods,action: tap|press|release} | type {text} | close-screen | gui-scale {scale} | resize {width,height} |
-screenshot {path} | wait-screen {class?,title?,none?,timeoutMs} | quit. Coordinates are GUI-scaled; input is
+screenshot {path} | wait-screen {class?,title?,none?,timeoutMs} | connect {address} (26.x: joins host:port, for a
+rejoin after a kick) | quit. Coordinates are GUI-scaled; input is
 synthetic and never touches the real pointer. Gameplay input (works with no grabbed pointer):
 hold {action: attack|use|forward|back|left|right|jump|sneak|sprint, down: true|false, ticks?} keeps that key mapping
 down every client tick until released or for `ticks` ticks (a held attack mines the block under the crosshair) |
@@ -63,9 +71,13 @@ wait-screen and assert_screen match `class` against the runtime class name (full
 screen's `kinds`: the Mojang simple names of the vanilla screens it is an instance of (InventoryScreen,
 CreativeModeInventoryScreen, ContainerScreen, CraftingScreen, AbstractContainerScreen, ChatScreen, PauseScreen,
 TitleScreen, DeathScreen), so the same names work on intermediary-mapped Fabric 1.20.1/1.21.1 and Forge 1.20.1.
-State reports the screen (class, kinds, title, widgets, container slots),
+State reports the screen (class, kinds, title, titleRuns [{text, font, color}] of the title component, widgets,
+container slots with item, count, name and on 26.x model, tooltipStyle and customModelData, hoveredSlot), overlay (the
+loading overlay class while a resource pack reloads, else null), resourcePacks (selected pack ids; a server pack shows as
+an id starting with "server/"),
 uiTree (art.arcane.adapt.client.qa.UiProbe.snapshot() JSON when the Adapt client provides it, else null), window
-(size, gui scale, visible, focused, cursor capture), audio and player (position, yaw, pitch, held actions, and target:
+(size, gui scale, visible, focused, cursor capture), audio and player (position, inventory [{slot, item, count}], yaw,
+pitch, held actions, and target:
 the crosshair hit with block position and block id, or entity type) and events {actionbar: [{time, tick, text,
 animated}], toasts: [{time, tick, kind: advancement|system|recipe|tutorial|other, type, class, title?, description?}]},
 the last 64 of each vanilla action bar message and vanilla toast the client showed (time = epoch ms, tick = client tick).
@@ -110,6 +122,8 @@ CLIENT_LOCK: Path = Path(os.environ.get('ADAPT_UI_CLIENT_LOCK', str(Path(tempfil
 PLAYER: str = 'CuhAdaptQa'
 WIDTH: int = 1280
 HEIGHT: int = 720
+BUKKIT_PLATFORMS: tuple[str, ...] = ('paper', 'folia', 'spigot')
+SERVER_PLATFORMS: tuple[str, ...] = (*BUKKIT_PLATFORMS, 'fabric', 'forge', 'neoforge')
 LWJGL: dict[str, str] = {'1.20.1': '3.3.1', '1.21.1': '3.3.3', '26.1.2': '3.4.1', '26.2': '3.4.1', '26.3': '3.4.3'}
 SOUND_CATEGORIES: tuple[str, ...] = ('master', 'music', 'record', 'weather', 'block', 'hostile', 'neutral', 'player',
                                      'ambient', 'voice', 'ui')
@@ -124,19 +138,37 @@ class Target:
     loader: str
     minecraft: str
     server: str = ''
+    server_mc: str = ''
 
     @property
     def server_platform(self) -> str:
         return self.server or self.loader
 
     @property
+    def server_minecraft(self) -> str:
+        return self.server_mc or self.minecraft
+
+    @property
+    def bukkit(self) -> bool:
+        return self.server_platform in BUKKIT_PLATFORMS
+
+    @property
+    def via(self) -> bool:
+        return self.server_minecraft != self.minecraft
+
+    @property
     def java(self) -> int:
         return int(build_bridge.TARGETS[self.minecraft]['java'])
 
     @property
+    def server_java(self) -> int:
+        return int(build_bridge.TARGETS[self.server_minecraft]['java'])
+
+    @property
     def label(self) -> str:
         server: str = '' if self.server_platform == self.loader else '-' + self.server_platform
-        return f'{self.loader}-{self.minecraft.replace(".", "")}{server}'
+        server_version: str = '' if not self.via else '-' + self.server_minecraft.replace('.', '')
+        return f'{self.loader}-{self.minecraft.replace(".", "")}{server}{server_version}'
 
 
 def targets_json() -> dict:
@@ -298,6 +330,60 @@ class Multiplexor:
         return [re.sub(r'\s*\(active\)$', '', line).strip() for line in listing.splitlines() if line.strip()]
 
 
+class Rcon:
+    """Minimal Source RCON client for the server console; responses are returned as plain text."""
+
+    def __init__(self, port: int, password: str):
+        self.port: int = port
+        self.password: str = password
+        self.connection: socket.socket | None = None
+        self.identifier: int = 0
+
+    def connect(self) -> None:
+        self.connection = socket.create_connection(('127.0.0.1', self.port), timeout=15)
+        self.exchange(3, self.password)
+
+    def receive(self, size: int) -> bytes:
+        assert self.connection is not None
+        data: bytes = b''
+        while len(data) < size:
+            part: bytes = self.connection.recv(size - len(data))
+            if not part:
+                raise ConnectionError('RCON disconnected')
+            data += part
+        return data
+
+    def exchange(self, kind: int, text: str) -> str:
+        assert self.connection is not None
+        self.identifier += 1
+        payload: bytes = struct.pack('<ii', self.identifier, kind) + text.encode() + b'\0\0'
+        self.connection.sendall(struct.pack('<i', len(payload)) + payload)
+        size: int = struct.unpack('<i', self.receive(4))[0]
+        if size < 10 or size > 4 * 1024 * 1024:
+            raise ValueError('Invalid RCON response length ' + str(size))
+        response: bytes = self.receive(size)
+        identifier: int = struct.unpack('<i', response[:4])[0]
+        if identifier != self.identifier:
+            raise RuntimeError('RCON authentication failed or response out of order')
+        return response[8:-2].decode(errors='replace')
+
+    def command(self, text: str) -> str:
+        if self.connection is None:
+            self.connect()
+        try:
+            return self.exchange(2, text)
+        except (OSError, ConnectionError):
+            self.close()
+            self.connect()
+            return self.exchange(2, text)
+
+    def close(self) -> None:
+        if self.connection is not None:
+            with contextlib.suppress(OSError):
+                self.connection.close()
+            self.connection = None
+
+
 class Bridge:
     def __init__(self, port: int, token: str):
         self.url: str = f'http://127.0.0.1:{port}'
@@ -317,6 +403,20 @@ class Bridge:
         return result
 
 
+PACK_PROMPT_TITLE: str = 'This server '
+
+
+def is_server_pack(name: str) -> bool:
+    """True for a pack the server sent: 'server/<id>' on clients that hold several, 'server' on 1.20.1, which holds one."""
+    return name == 'server' or name.startswith('server/')
+
+
+def is_pack_prompt(screen: dict | None) -> bool:
+    """True for the server resource pack confirmation screen: by class where names are mapped (26.x), by its title where
+    the client runs obfuscated (1.21.1, 1.20.1) and the class name says nothing."""
+    return bool(screen) and ('PackConfirmScreen' in screen['class'] or screen.get('title', '').startswith(PACK_PROMPT_TITLE))
+
+
 def screen_is(screen: dict | None, cls: str) -> bool:
     """True when the screen's runtime class is cls (full or simple name) or a mapping-independent kind matches it."""
     if not screen:
@@ -331,7 +431,37 @@ class Session:
     bridge: Bridge
     output: Path
     watch: Callable[[], None]
+    console: Rcon | None = None
+    server_port: int = 0
     steps: list[dict] = field(default_factory=list)
+
+    def rcon(self, text: str) -> str:
+        if self.console is None:
+            raise RuntimeError('No server console: this session has no Multiplexor server')
+        response: str = self.console.command(text)
+        self.steps.append({'op': 'rcon', 'command': text, 'response': response[:2000]})
+        return response
+
+    def pack_prompt(self) -> dict | None:
+        """The server resource pack confirmation screen when it is open, else None."""
+        screen: dict | None = self.state()['screen']
+        return screen if is_pack_prompt(screen) else None
+
+    def answer_pack_prompt(self, accept: bool, timeout: float = 30) -> dict:
+        """Waits for the server resource pack prompt and presses Yes/Proceed or No/Decline. Accepting then waits until a
+        server pack is selected and the reload overlay is gone."""
+        prompt: dict = self.wait(lambda state: is_pack_prompt(state['screen']),
+                                 'resource pack prompt', timeout)['screen']
+        labels: tuple[str, ...] = ('Yes', 'Proceed') if accept else ('No', 'Decline', 'Disconnect')
+        button: dict = next(widget for widget in prompt['widgets'] if widget.get('message', '').startswith(labels))
+        self.press(button)
+        if accept:
+            return self.wait(lambda state: state['overlay'] is None and any(is_server_pack(pack) for pack in state['resourcePacks'])
+                             and not is_pack_prompt(state['screen']), 'resource pack reload', 120)
+        return self.wait(lambda state: not is_pack_prompt(state['screen']), 'prompt closed', 15)
+
+    def connect(self, address: str) -> dict:
+        return self.op('connect', address=address)
 
     def state(self) -> dict:
         self.watch()
@@ -567,12 +697,15 @@ def audit_classpath(classpath: list[Path]) -> dict:
     return {'calls': calls, 'unhandled': unhandled}
 
 
-def options_text() -> str:
+def options_text(gui_scale: int = 2, extra: list[str] | None = None) -> str:
+    """Client options.txt. gui_scale 0 is auto. extra lines (key:value) replace the defaults with the same key."""
     lines: list[str] = ['fullscreen:false', 'enableVsync:false', 'maxFps:60', 'pauseOnLostFocus:false', 'tutorialStep:none',
                         'onboardAccessibility:false', 'narrator:0', 'joinedFirstServer:true', 'skipMultiplayerWarning:true',
-                        'renderDistance:4', 'simulationDistance:5', 'guiScale:2', 'lang:en_us', 'autoJump:false',
+                        'renderDistance:4', 'simulationDistance:5', f'guiScale:{gui_scale}', 'lang:en_us', 'autoJump:false',
                         'realmsNotifications:false', 'rawMouseInput:false']
     lines += [f'soundCategory_{category}:0.0' for category in SOUND_CATEGORIES]
+    overrides: dict[str, str] = {line.split(':', 1)[0]: line for line in extra or [] if ':' in line}
+    lines = [overrides.pop(line.split(':', 1)[0], line) for line in lines] + list(overrides.values())
     return '\n'.join(lines) + '\n'
 
 
@@ -590,9 +723,9 @@ def components(target: Target) -> list[launcher.Component]:
     return result
 
 
-def prepare_game(target: Target, game: Path, mod: Path | None, bridge: Path, extra_mods: list[Path]) -> None:
+def prepare_game(target: Target, game: Path, mod: Path | None, bridge: Path, extra_mods: list[Path], options: str) -> None:
     (game / 'mods').mkdir(parents=True)
-    (game / 'options.txt').write_text(options_text())
+    (game / 'options.txt').write_text(options)
     if target.loader != 'fabric':
         (game / 'config').mkdir()
         (game / 'config' / 'fml.toml').write_text('earlyWindowControl = false\nversionCheck = false\n')
@@ -632,14 +765,15 @@ def server_properties(path: Path) -> dict[str, str]:
     return values
 
 
-def configure_server(server: Path, target: Target, adapt: Path | None, port: int, extra_mods: list[Path]) -> None:
+def configure_server(server: Path, target: Target, adapt: Path | None, port: int, extra_mods: list[Path], rcon: Rcon) -> None:
     properties: dict[str, str] = server_properties(server / 'server.properties')
     properties.update({'online-mode': 'false', 'use-native-transport': 'false', 'server-port': str(port),
                        'level-type': 'minecraft:flat', 'generate-structures': 'false', 'view-distance': '4',
                        'simulation-distance': '4', 'spawn-protection': '0', 'motd': 'Adapt UI harness',
-                       'enforce-secure-profile': 'false'})
+                       'enforce-secure-profile': 'false', 'enable-rcon': 'true',
+                       'rcon.port': str(rcon.port), 'rcon.password': rcon.password, 'broadcast-rcon-to-ops': 'false'})
     (server / 'server.properties').write_text(''.join(f'{key}={value}\n' for key, value in properties.items()))
-    content: Path = server / ('plugins' if target.server_platform == 'paper' else 'mods')
+    content: Path = server / ('plugins' if target.bukkit else 'mods')
     content.mkdir(parents=True, exist_ok=True)
     if adapt is not None:
         shutil.copy2(adapt, content / 'Adapt.jar')
@@ -666,23 +800,28 @@ def wait_server(server: Path, timeout: float = 600) -> None:
 def launch(target: Target, output: Path | None = None, client_adapt: Path | None = None,
            server_adapt: Path | None = None, properties: list[str] | None = None,
            client_mods: list[Path] | None = None, server_mods: list[Path] | None = None,
-           singleplayer: str = '') -> Iterator[Session]:
+           singleplayer: str = '', prefix: str = PREFIX, gui_scale: int = 2, options: list[str] | None = None,
+           server_setup: Callable[[Path], None] | None = None) -> Iterator[Session]:
     """Creates the server and the hidden client, yields a connected-ready Session, then tears everything down. With
     singleplayer set no server is created and the client quick-plays that local world on its integrated server; a world
-    that does not exist yet fails quick play, and Session.create_world then makes a new one from the world list."""
+    that does not exist yet fails quick play, and Session.create_world then makes a new one from the world list.
+    prefix names the client instance and the server, and teardown only deletes names that start with it. gui_scale (0 is
+    auto) and options (extra options.txt lines) shape the client. server_setup runs on the server folder after the jars
+    are copied and before the server starts."""
     run_name: str = f'{target.label}-{int(time.time())}-{secrets.token_hex(2)}'
     output = (output or RUNS / run_name).resolve()
     output.mkdir(parents=True, exist_ok=True)
     report: dict = {'target': target.__dict__, 'run': run_name, 'output': str(output), 'status': 'failed', 'started': time.time()}
-    instance: Path = INSTANCES / (PREFIX + run_name)
-    server_name: str = PREFIX + run_name
-    consumer: str = 'plugin' if target.server_platform == 'paper' else target.server_platform
+    instance: Path = INSTANCES / (prefix + run_name)
+    server_name: str = prefix + run_name
+    consumer: str = 'plugin' if target.bukkit else target.server_platform
     mux = Multiplexor(consumer, output)
     created_server: bool = False
     created_client: bool = False
     token: str = secrets.token_hex(24)
     watchdog = Watchdog(instance, output)
     session: Session | None = None
+    console: Rcon | None = None
     slot = client_slot()
     slot.__enter__()
     try:
@@ -692,26 +831,27 @@ def launch(target: Target, output: Path | None = None, client_adapt: Path | None
         if not checks['ok']:
             raise RuntimeError('Hidden audit failed; refusing to launch: ' + json.dumps(checks)[:1500])
         client_jar: Path | None = None if str(client_adapt) == 'none' else client_adapt or adapt_mod_jar(target)
-        server_jar: Path | None = None if str(server_adapt) == 'none' else server_adapt or (adapt_plugin_jar(target.minecraft) if target.server_platform == 'paper'
-                                            else adapt_mod_jar(Target(target.server_platform, target.minecraft)))
+        server_jar: Path | None = None if str(server_adapt) == 'none' else server_adapt or (adapt_plugin_jar(target.server_minecraft) if target.bukkit
+                                            else adapt_mod_jar(Target(target.server_platform, target.server_minecraft)))
         report['clientAdapt'] = str(client_jar)
         report['serverAdapt'] = str(server_jar)
         server_port: int = 0
         quick_play: list[str] = ['--quickPlaySingleplayer', singleplayer]
         if not singleplayer:
             created_server = True
-            server_port = start_server(target, mux, server_name, server_jar, server_mods or [], report)
+            console = Rcon(free_port(), secrets.token_hex(16))
+            server_port = start_server(target, mux, server_name, server_jar, server_mods or [], report, console, server_setup)
             quick_play = ['--quickPlayMultiplayer', f'127.0.0.1:{server_port}']
         bridge_jar: Path = Path(checks['bridge'])
         port: int = free_port()
         created_client = True
-        prepare_game(target, instance, client_jar, bridge_jar, client_mods or [])
+        prepare_game(target, instance, client_jar, bridge_jar, client_mods or [], options_text(gui_scale, options))
         report['clientInstance'] = str(instance)
         log(f'Launching hidden client {instance.name}')
         client: subprocess.Popen = launch_client(target, instance, output, port, token, quick_play, properties or [])
         watchdog.start(client.pid)
         bridge = Bridge(port, token)
-        session = Session(target, bridge, output, watchdog.check)
+        session = Session(target, bridge, output, watchdog.check, console, server_port)
         deadline: float = time.monotonic() + 1500
         while True:
             watchdog.check()
@@ -745,8 +885,10 @@ def launch(target: Target, output: Path | None = None, client_adapt: Path | None
         report['steps'] = session.steps if session else []
         watchdog.stop()
         report['watchdog'] = {'samples': watchdog.samples, 'violation': watchdog.violation, 'policies': watchdog.policies}
+        if console is not None:
+            console.close()
         report['cleanupErrors'] = teardown(target, mux, server_name if created_server else None, instance if created_client else None,
-                                           session, output, token)
+                                           session, output, token, prefix)
         if report['cleanupErrors'] and report['status'] == 'passed':
             report['status'] = 'failed'
         report['finished'] = time.time()
@@ -756,13 +898,15 @@ def launch(target: Target, output: Path | None = None, client_adapt: Path | None
 
 
 def start_server(target: Target, mux: Multiplexor, server_name: str, server_jar: Path | None, server_mods: list[Path],
-                 report: dict) -> int:
-    log(f'Server {server_name} ({target.server_platform} {target.minecraft})')
+                 report: dict, console: Rcon, server_setup: Callable[[Path], None] | None = None) -> int:
+    log(f'Server {server_name} ({target.server_platform} {target.server_minecraft})')
+    if target.via and not target.bukkit:
+        raise SystemExit('A client older than the server needs ViaBackwards, which only the Bukkit platforms get')
     create_lock: str = f'create-{target.server_platform}' if target.server_platform in ('forge', 'neoforge') else 'multiplexor'
     with machine_lock(create_lock):
-        create: list[str] = ['server', 'create', server_name, '--type', target.server_platform, '--mc', target.minecraft, '--isolated']
+        create: list[str] = ['server', 'create', server_name, '--type', target.server_platform, '--mc', target.server_minecraft, '--isolated']
         if target.server_platform in ('forge', 'neoforge'):
-            installer: Path = server_installer(Target(target.server_platform, target.minecraft))
+            installer: Path = server_installer(Target(target.server_platform, target.server_minecraft))
             report['serverInstaller'] = installer.name
             mux.run(*create, '--jar', str(installer))
         else:
@@ -772,11 +916,16 @@ def start_server(target: Target, mux: Multiplexor, server_name: str, server_jar:
                 mux.run(*create, '--auto-build')
     with machine_lock('multiplexor', 600):
         server: Path = Path(mux.run('instance', 'path', server_name).splitlines()[-1])
-        if target.java != 25:
-            mux.run('runtime', 'settings', 'set-java', str(build_bridge.jdk(target.java) / 'bin' / 'java'), '--instance', server_name)
+        if target.server_java != 25:
+            mux.run('runtime', 'settings', 'set-java', str(build_bridge.jdk(target.server_java) / 'bin' / 'java'), '--instance', server_name)
+        if target.via:
+            mux.run('addons', 'set', server_name, '--select', 'viabackwards', '--mc', target.server_minecraft)
         mux.run('gameplay', 'prepare', server_name)
     server_port: int = free_port()
-    configure_server(server, target, server_jar, server_port, server_mods)
+    configure_server(server, target, server_jar, server_port, server_mods, console)
+    report['serverDir'] = str(server)
+    if server_setup is not None:
+        server_setup(server)
     environment: dict[str, str] = {**os.environ, 'JVM_ARGS': '-XX:+UseG1GC', 'HEAP_SIZE': '3G'}
     with machine_lock('multiplexor', 600):
         subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', mux.consumer, 'runtime', 'start', server_name, '--no-console'],
@@ -788,7 +937,7 @@ def start_server(target: Target, mux: Multiplexor, server_name: str, server_jar:
 
 
 def teardown(target: Target, mux: Multiplexor, server_name: str | None, instance: Path | None, session: Session | None,
-             output: Path, token: str) -> list[str]:
+             output: Path, token: str, prefix: str = PREFIX) -> list[str]:
     errors: list[str] = []
     if instance is not None:
         if session is not None:
@@ -815,11 +964,11 @@ def teardown(target: Target, mux: Multiplexor, server_name: str | None, instance
                     (output / name).write_text(source.read_text(errors='replace').replace(token, '[token]'))
             for crash in sorted((game / 'crash-reports').glob('*.txt')) if (game / 'crash-reports').is_dir() else []:
                 shutil.copy2(crash, output / crash.name)
-            if instance.name.startswith(PREFIX):
+            if instance.name.startswith(prefix):
                 shutil.rmtree(instance, ignore_errors=True)
             if instance.exists():
                 errors.append('Client instance still present')
-    if server_name is not None and server_name.startswith(PREFIX):
+    if server_name is not None and server_name.startswith(prefix):
         try:
             with machine_lock('multiplexor', 600):
                 if server_name in [name.split()[0] for name in mux.run('instance', 'list').splitlines() if name.strip()]:
@@ -929,19 +1078,19 @@ def exercise(target: Target, args: argparse.Namespace) -> dict:
     return {key: str(value) if isinstance(value, Path) else value for key, value in results.items()}
 
 
-def cleanup() -> None:
+def cleanup(prefix: str = PREFIX) -> None:
     for pid, args in processes():
-        if PREFIX in args and args.split(None, 1)[0].endswith('/java') and str(INSTANCES) in args:
+        if prefix in args and args.split(None, 1)[0].endswith('/java') and str(INSTANCES) in args:
             log(f'Killing leftover client {pid}')
             with contextlib.suppress(ProcessLookupError):
                 os.kill(pid, signal.SIGKILL)
-    for instance in INSTANCES.glob(PREFIX + '*'):
+    for instance in INSTANCES.glob(prefix + '*'):
         log(f'Deleting leftover instance {instance.name}')
         shutil.rmtree(instance, ignore_errors=True)
     for consumer in ('plugin', 'fabric', 'forge', 'neoforge'):
         mux = Multiplexor(consumer, Path(tempfile.gettempdir()))
         for name in mux.instances():
-            if name.startswith(PREFIX):
+            if name.startswith(prefix):
                 log(f'Deleting leftover server {name} ({consumer})')
                 with machine_lock('multiplexor', 600):
                     with contextlib.suppress(Exception):
@@ -960,7 +1109,8 @@ def main() -> None:
     parser.add_argument('action', choices=['smoke', 'exercise', 'hold', 'audit', 'cleanup'])
     parser.add_argument('loader', nargs='?', choices=build_bridge.LOADERS)
     parser.add_argument('minecraft', nargs='?', choices=sorted(build_bridge.TARGETS))
-    parser.add_argument('--server', choices=['paper', *build_bridge.LOADERS], default='')
+    parser.add_argument('--server', choices=list(SERVER_PLATFORMS), default='')
+    parser.add_argument('--server-mc', choices=sorted(build_bridge.TARGETS), default='')
     parser.add_argument('--client-adapt', type=Path)
     parser.add_argument('--server-adapt', type=Path)
     parser.add_argument('--minutes', type=float, default=30.0)
@@ -976,7 +1126,7 @@ def main() -> None:
         return
     if not args.loader or not args.minecraft:
         parser.error('loader and minecraft are required')
-    target = Target(args.loader, args.minecraft, args.server)
+    target = Target(args.loader, args.minecraft, args.server, args.server_mc)
     if args.action == 'audit':
         report: dict = audit(target)
         print(json.dumps(report, indent=2))

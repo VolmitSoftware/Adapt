@@ -6,6 +6,7 @@ import art.arcane.adapt.client.ui.kit.UiFrame;
 import art.arcane.adapt.client.ui.kit.UiIcons;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.ToolView;
 

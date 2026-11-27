@@ -6,20 +6,25 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * A plain page theme for a skill that has none, in the authored kits' format: a palette derived from the skill's
- * colour, a small set of dressing pieces, a designed top and foot band with lamps and an orb, all drawn here into one
- * atlas. The skill's icon item picks between an organic and a crystal set. The same look always gives the same bytes.
+ * A page theme for a skill that has none, in the authored kits' format and laid out by the same rules: a palette derived
+ * from the skill's colour, a small set of dressing pieces, a top band as deep and as closed as an authored one with the
+ * skill's icon framed on a plaque at both corners, and a foot of soil with plinths, all drawn here into one atlas. The
+ * skill's icon item picks between an organic and a crystal set. The same look and icon always give the same bytes.
  */
 public final class ThemeGenerator {
   private static final int ATLAS_WIDTH = 128;
   private static final int GAP = 1;
+  /** How far the top band runs below the line every top's base ends on, as the authored bands that cover the window. */
+  static final int TOP_PAST = 2;
+  static final int TOP_HEIGHT = 12;
+  static final int FOOT_HEIGHT = 8;
+  private static final int ICON = AdaptAssetCatalog.ICON_SIZE;
   private static final List<String> ORGANIC = List.of("sapling", "seed", "flower", "leaves", "wheat", "log", "wood", "vine",
       "mushroom", "bone", "egg", "fish", "carrot", "potato", "berry", "apple", "lead", "saddle", "bucket", "kelp", "moss",
       "bamboo", "cactus", "sugar", "hay", "tulip", "poppy", "dandelion", "orchid", "lily", "fern", "grass");
@@ -27,24 +32,28 @@ public final class ThemeGenerator {
   private ThemeGenerator() {
   }
 
-  public static ThemeAssets generate(SkillLook look) {
+  /**
+   * The theme of {@code look}; {@code icon} is the skill's 16x16 icon PNG shown on the band's corner plaques, or null
+   * (or not a readable 16x16 PNG) for the generated emblem instead.
+   */
+  public static ThemeAssets generate(SkillLook look, byte[] icon) {
     Map<Character, Integer> palette = palette(look.rgb());
     boolean organic = organic(look.icon());
     Random random = new Random(seed(look));
-    Map<String, String[]> art = new LinkedHashMap<>();
+    Atlas art = new Atlas(palette);
     JsonObject dress = dress(art, organic);
-    put(art, "mat", MAT);
-    put(art, "matT", MAT_SIDE);
-    put(art, "div", DIVIDER);
+    art.put("mat", MAT);
+    art.put("matT", MAT_SIDE);
+    art.put("div", DIVIDER);
     JsonObject scene = foot(art, random, organic);
-    JsonObject top = top(art);
+    JsonObject top = top(art, emblem(look, icon));
 
     Map<String, int[]> rects = new LinkedHashMap<>();
-    int height = pack(art, rects);
+    int height = pack(art.pictures, rects);
     int[] pixels = new int[ATLAS_WIDTH * height];
-    for (Map.Entry<String, String[]> entry : art.entrySet()) {
+    for (Map.Entry<String, Picture> entry : art.pictures.entrySet()) {
       int[] rect = rects.get(entry.getKey());
-      paint(pixels, rect[0], rect[1], entry.getValue(), palette);
+      paint(pixels, rect[0], rect[1], entry.getValue());
     }
     byte[] atlas = PngImages.encode(ATLAS_WIDTH, height, pixels);
 
@@ -315,39 +324,6 @@ public final class ThemeGenerator {
       "bcbbcbbcbbkpk",
       "aaaaaaaaaakkk",
       "kkkkkkkkkk..."};
-  private static final String[][] LAMP = {{
-      "..kkk..",
-      ".kpqpk.",
-      ".kqqqk.",
-      ".kpqpk.",
-      "..kkk..",
-      "...a...",
-      "...a...",
-      "...b...",
-      "...a...",
-      "...a...",
-      "...b...",
-      "...a...",
-      "..aaa..",
-      ".kbbbk.",
-      ".kbcbk.",
-      "kkkkkkk"}, {
-      "..kkk..",
-      ".kqpqk.",
-      ".kpppk.",
-      ".kqpqk.",
-      "..kkk..",
-      "...a...",
-      "...a...",
-      "...b...",
-      "...a...",
-      "...a...",
-      "...b...",
-      "...a...",
-      "..aaa..",
-      ".kbbbk.",
-      ".kbcbk.",
-      "kkkkkkk"}};
   private static final String[][] ORB = {{
       ".kkk.",
       "kpqpk",
@@ -359,18 +335,36 @@ public final class ThemeGenerator {
       "kpppk",
       "kqpqk",
       ".kkk."}};
-  private static final String[] FINIAL = {
+
+  private static final String[] PLINTH = {
+      "....kkk....",
+      "...kqqpk...",
+      "...kqppk...",
+      "...kpp1k...",
+      "....k1k....",
+      "..kkkkkkk..",
+      "..kcbbbak..",
+      ".kkkkkkkkk.",
+      ".kcbbbbbak.",
+      "kkkkkkkkkkk"};
+  private static final String[] SPRIG = {
+      ".3..3",
+      ".33.3",
+      "..323",
+      "3.22.",
+      ".32..",
+      "..2.."};
+  private static final String[] SHARD = {
       "..k..",
       ".kqk.",
       ".kpk.",
       "kpqpk",
-      ".kpk.",
-      "..b..",
-      "..b..",
-      ".kbk.",
-      "kbcbk"};
+      "kp1pk",
+      "kkkkk"};
+  /** The side of a corner plaque: the icon on a dark inset inside an outline. */
+  private static final int PLAQUE = ICON + 2;
 
-  private static JsonObject dress(Map<String, String[]> art, boolean organic) {
+  private static JsonObject dress(Atlas art, boolean organic) {
     JsonObject slots = new JsonObject();
     for (String slot : List.of("top", "hang", "side", "foot", "corner", "pile", "bit", "reach", "hook", "trim")) {
       List<String[]> pieces = switch (slot) {
@@ -383,13 +377,12 @@ public final class ThemeGenerator {
       };
       JsonArray list = new JsonArray();
       for (int index = 0; index < pieces.size(); index++) {
-        String[] rows = pieces.get(index);
-        put(art, "d/" + slot + index + "/0", rows);
+        Picture piece = art.put("d/" + slot + index + "/0", pieces.get(index));
         JsonObject entry = new JsonObject();
-        entry.addProperty("w", rows[0].length());
-        entry.addProperty("h", rows.length);
+        entry.addProperty("w", piece.width());
+        entry.addProperty("h", piece.height());
         entry.addProperty("frames", 1);
-        entry.add("mask", mask(List.<String[]>of(rows)));
+        entry.add("mask", mask(List.of(piece)));
         list.add(entry);
       }
       slots.add(slot, list);
@@ -397,26 +390,29 @@ public final class ThemeGenerator {
     return slots;
   }
 
-  private static JsonObject foot(Map<String, String[]> art, Random random, boolean organic) {
+  private static JsonObject foot(Atlas art, Random random, boolean organic) {
     for (int variant = 0; variant < 3; variant++) {
-      put(art, "sg/" + variant, groundTile(random, organic));
+      art.put("sg/" + variant, groundTile(random, organic));
     }
-    String[] start = new String[8];
-    String[] fill = new String[8];
-    for (int y = 0; y < 8; y++) {
+    String[] start = new String[FOOT_HEIGHT];
+    String[] fill = new String[FOOT_HEIGHT];
+    for (int y = 0; y < FOOT_HEIGHT; y++) {
       char soil = y == 0 ? '3' : y < 3 ? '2' : '1';
       start[y] = "k" + soil;
       fill[y] = String.valueOf(soil);
     }
     caps(art, "sg/", start, fill);
     JsonObject sprites = new JsonObject();
-    sprites.add("lamp", castSprite(art, "sc/lamp", LAMP, 3, 16, "glow", 2));
-    sprites.add("orb", castSprite(art, "sc/orb", ORB, 2, 5, "glow", 3));
+    sprites.add("plinth", castSprite(art, "sc/plinth", List.of(art.picture(PLINTH)), 5, PLINTH.length, "still", 0));
+    sprites.add("tuft", castSprite(art, "sc/tuft", List.of(art.picture(organic ? SPRIG : SHARD)), 2, 6, "still", 0));
+    sprites.add("orb", castSprite(art, "sc/orb", List.of(art.picture(ORB[0]), art.picture(ORB[1])), 2, 5, "glow", 3));
     JsonObject spots = new JsonObject();
     spots.add("mid", doubles(0.5, 0));
     JsonArray cast = new JsonArray();
-    cast.add(corner("lampA", "lamp", "start", "glow"));
-    cast.add(corner("lampB", "lamp", "end", "glow"));
+    cast.add(corner("plinthA", "plinth", "start", false, "still", 0));
+    cast.add(corner("plinthB", "plinth", "end", false, "still", 0));
+    cast.add(placed("tuftA", "tuft", 0.22));
+    cast.add(placed("tuftB", "tuft", 0.78));
     JsonObject orb = new JsonObject();
     orb.addProperty("id", "orb");
     orb.addProperty("sprite", "orb");
@@ -426,33 +422,59 @@ public final class ThemeGenerator {
     steps.add(step(3, "glow", 8, 5));
     orb.add("steps", steps);
     cast.add(orb);
-    return scene(ground(8, 2), sprites, spots, cast);
+    return scene(ground(FOOT_HEIGHT, 2, 0), sprites, spots, cast);
   }
 
-  private static JsonObject top(Map<String, String[]> art) {
+  /** The top band: a closed strip of cloth over a rail in the skill's colour, the emblem plaque at both corners. */
+  private static JsonObject top(Atlas art, Picture emblem) {
     for (int variant = 0; variant < 3; variant++) {
-      put(art, "tg/" + variant, bannerTile(variant));
+      art.put("tg/" + variant, bannerTile(variant));
     }
-    String[] start = new String[12];
-    String[] fill = new String[12];
+    String[] start = new String[TOP_HEIGHT];
+    String[] fill = new String[TOP_HEIGHT];
     String[] tile = bannerTile(2);
-    for (int y = 0; y < 12; y++) {
-      boolean cloth = y < 8;
-      start[y] = cloth ? (y == 0 || y == 7 ? "kkk" : "kbb") : "...";
+    for (int y = 0; y < TOP_HEIGHT; y++) {
+      boolean line = y == 0 || y == 7 || y == TOP_HEIGHT - 1;
+      start[y] = line ? "kkk" : "k" + (y < 7 ? "cb" : tile[y].substring(0, 2));
       fill[y] = String.valueOf(tile[y].charAt(0));
     }
     caps(art, "tg/", start, fill);
     JsonObject sprites = new JsonObject();
-    sprites.add("finial", castSprite(art, "tc/finial", new String[][]{FINIAL}, 2, 9, "still", 0));
+    sprites.add("emblem", castSprite(art, "tc/emblem", List.of(emblem), PLAQUE / 2, PLAQUE, "still", 0));
     JsonArray cast = new JsonArray();
-    cast.add(corner("finialA", "finial", "start", "still"));
-    cast.add(corner("finialB", "finial", "end", "still"));
-    return scene(ground(12, 3), sprites, new JsonObject(), cast);
+    cast.add(corner("emblemA", "emblem", "start", true, "still", 2));
+    cast.add(corner("emblemB", "emblem", "end", true, "still", 2));
+    return scene(ground(TOP_HEIGHT, 3, TOP_PAST), sprites, new JsonObject(), cast);
+  }
+
+  /** The plaque around {@code icon}, else around the generated emblem; facing the same way at both corners. */
+  private static Picture emblem(SkillLook look, byte[] icon) {
+    int[] size = icon == null ? null : PngImages.size(icon);
+    int[] pixels = size != null && size[0] == ICON && size[1] == ICON ? PngImages.decode(icon) : null;
+    if (pixels == null) {
+      pixels = PngImages.decode(MutationArtGenerator.emblem(look));
+    }
+    return new Picture(PLAQUE, PLAQUE, plaque(palette(look.rgb()), pixels), false);
+  }
+
+  private static int[] plaque(Map<Character, Integer> palette, int[] icon) {
+    int[] argb = new int[PLAQUE * PLAQUE];
+    for (int y = 0; y < PLAQUE; y++) {
+      for (int x = 0; x < PLAQUE; x++) {
+        boolean rim = x == 0 || y == 0 || x == PLAQUE - 1 || y == PLAQUE - 1;
+        boolean corner = (x == 0 || x == PLAQUE - 1) && (y == 0 || y == PLAQUE - 1);
+        if (!corner) {
+          int pixel = rim ? 0 : icon[(y - 1) * ICON + x - 1];
+          argb[y * PLAQUE + x] = pixel >>> 24 >= 0x80 ? 0xFF000000 | pixel : 0xFF000000 | palette.get(rim ? 'k' : 'w');
+        }
+      }
+    }
+    return argb;
   }
 
   private static String[] groundTile(Random random, boolean organic) {
-    char[][] rows = new char[8][16];
-    for (int y = 0; y < 8; y++) {
+    char[][] rows = new char[FOOT_HEIGHT][16];
+    for (int y = 0; y < FOOT_HEIGHT; y++) {
       for (int x = 0; x < 16; x++) {
         rows[y][x] = y == 0 ? (random.next(4) == 0 ? '.' : '3') : y < 3 ? '2' : '1';
       }
@@ -470,29 +492,34 @@ public final class ThemeGenerator {
       rows[1][tuft] = 'c';
       rows[2][tuft] = 'b';
     }
-    String[] tile = new String[8];
-    for (int y = 0; y < 8; y++) {
+    String[] tile = new String[FOOT_HEIGHT];
+    for (int y = 0; y < FOOT_HEIGHT; y++) {
       tile[y] = new String(rows[y]);
     }
     return tile;
   }
 
+  /**
+   * One 16-unit tile of the top band, every pixel opaque so the band closes the window above the page: an outline, the
+   * cloth (an emblem on variant 0, studs on variant 1), an outline, then a rail with a cord in the skill's colour.
+   */
   private static String[] bannerTile(int variant) {
-    String[] tile = new String[12];
-    for (int y = 0; y < 12; y++) {
+    String[] tile = new String[TOP_HEIGHT];
+    for (int y = 0; y < TOP_HEIGHT; y++) {
       StringBuilder row = new StringBuilder(16);
       for (int x = 0; x < 16; x++) {
         char role;
-        if (y == 0 || y == 7) {
+        if (y == 0 || y == 7 || y == TOP_HEIGHT - 1) {
           role = 'k';
         } else if (y < 7) {
           int reach = y == 3 || y == 4 ? 2 : y == 2 || y == 5 ? 1 : 0;
           boolean emblem = variant == 0 && reach > 0 && x >= 8 - reach && x < 8 + reach;
           boolean stud = variant == 1 && (y == 3 || y == 4) && (x == 7 || x == 8);
           role = emblem ? (reach == 2 && (x == 7 || x == 8) ? 'q' : 'p') : stud ? 'q' : y == 1 && x % 5 == 2 ? 'c' : y == 6 ? 'a' : 'b';
+        } else if (y == 9) {
+          role = x % 8 == 7 ? 'k' : 'p';
         } else {
-          int column = x % 4;
-          role = column != 1 ? '.' : y == 11 ? 'p' : 'b';
+          role = y == 8 ? 'w' : 'a';
         }
         row.append(role);
       }
@@ -501,28 +528,26 @@ public final class ThemeGenerator {
     return tile;
   }
 
-  private static void caps(Map<String, String[]> art, String prefix, String[] start, String[] fill) {
-    put(art, prefix + "start", start);
-    put(art, prefix + "fill", fill);
+  private static void caps(Atlas art, String prefix, String[] start, String[] fill) {
+    art.put(prefix + "start", start);
+    art.put(prefix + "fill", fill);
   }
 
-  private static JsonObject castSprite(Map<String, String[]> art, String name, String[][] frames, int anchorX, int anchorY,
-                                       String clip, double fps) {
-    List<String[]> all = new ArrayList<>();
-    int[] order = new int[frames.length];
-    for (int frame = 0; frame < frames.length; frame++) {
-      put(art, name + "/" + frame, frames[frame]);
-      all.add(frames[frame]);
+  private static JsonObject castSprite(Atlas art, String name, List<Picture> frames, int anchorX, int anchorY, String clip, double fps) {
+    int[] order = new int[frames.size()];
+    for (int frame = 0; frame < frames.size(); frame++) {
+      art.put(name + "/" + frame, frames.get(frame));
       order[frame] = frame;
     }
+    Picture first = frames.get(0);
     JsonObject entry = new JsonObject();
-    entry.addProperty("w", frames[0][0].length());
-    entry.addProperty("h", frames[0].length);
+    entry.addProperty("w", first.width());
+    entry.addProperty("h", first.height());
     entry.addProperty("ax", anchorX);
     entry.addProperty("ay", anchorY);
-    entry.addProperty("frames", frames.length);
+    entry.addProperty("frames", frames.size());
     entry.add("pts", new JsonObject());
-    entry.add("mask", mask(all));
+    entry.add("mask", mask(frames));
     JsonObject clips = new JsonObject();
     JsonObject played = new JsonObject();
     played.add("f", ints(order));
@@ -533,15 +558,37 @@ public final class ThemeGenerator {
     return entry;
   }
 
-  private static JsonObject corner(String id, String sprite, String corner, String clip) {
+  private static JsonObject corner(String id, String sprite, String corner, boolean flush, String clip, int lift) {
     JsonObject element = new JsonObject();
     element.addProperty("id", id);
     element.addProperty("sprite", sprite);
     element.addProperty("corner", corner);
+    if (flush) {
+      element.addProperty("flush", true);
+    }
     JsonArray steps = new JsonArray();
     JsonArray step = new JsonArray();
-    step.add(6);
+    step.add(12);
     step.add(clip);
+    if (lift != 0) {
+      JsonObject options = new JsonObject();
+      options.addProperty("y", lift);
+      step.add(options);
+    }
+    steps.add(step);
+    element.add("steps", steps);
+    return element;
+  }
+
+  private static JsonObject placed(String id, String sprite, double at) {
+    JsonObject element = new JsonObject();
+    element.addProperty("id", id);
+    element.addProperty("sprite", sprite);
+    element.add("at", doubles(at, 0));
+    JsonArray steps = new JsonArray();
+    JsonArray step = new JsonArray();
+    step.add(12);
+    step.add("still");
     steps.add(step);
     element.add("steps", steps);
     return element;
@@ -558,14 +605,14 @@ public final class ThemeGenerator {
     return step;
   }
 
-  private static JsonObject ground(int height, int capWidth) {
+  private static JsonObject ground(int height, int capWidth, int past) {
     JsonObject ground = new JsonObject();
     ground.addProperty("h", height);
     ground.addProperty("tw", 16);
     ground.addProperty("sw", capWidth);
     ground.addProperty("ew", capWidth);
     ground.addProperty("tiles", 3);
-    ground.addProperty("past", 0);
+    ground.addProperty("past", past);
     ground.add("weights", ints(1, 1, 1));
     ground.addProperty("frames", 1);
     ground.addProperty("fps", 0);
@@ -584,35 +631,15 @@ public final class ThemeGenerator {
     return scene;
   }
 
-  /** Adds a sprite and its mirror ({@code name + "f"}); a band strip's end is its start mirrored. */
-  private static void put(Map<String, String[]> art, String name, String[] rows) {
-    String[] mirrored = mirror(rows);
-    art.put(name, rows);
-    art.put(name + "f", mirrored);
-    if (name.endsWith("/start")) {
-      String prefix = name.substring(0, name.length() - "start".length());
-      art.put(prefix + "end", mirrored);
-      art.put(prefix + "endf", rows);
-    }
-  }
-
-  private static String[] mirror(String[] rows) {
-    String[] mirrored = new String[rows.length];
-    for (int y = 0; y < rows.length; y++) {
-      mirrored[y] = new StringBuilder(rows[y]).reverse().toString();
-    }
-    return mirrored;
-  }
-
-  private static JsonArray mask(List<String[]> frames) {
+  private static JsonArray mask(List<Picture> frames) {
     JsonArray mask = new JsonArray();
-    String[] first = frames.get(0);
-    for (int y = 0; y < first.length; y++) {
-      StringBuilder row = new StringBuilder(first[y].length());
-      for (int x = 0; x < first[y].length(); x++) {
+    Picture first = frames.get(0);
+    for (int y = 0; y < first.height(); y++) {
+      StringBuilder row = new StringBuilder(first.width());
+      for (int x = 0; x < first.width(); x++) {
         boolean opaque = false;
-        for (String[] frame : frames) {
-          opaque |= frame[y].charAt(x) != '.';
+        for (Picture frame : frames) {
+          opaque |= frame.argb()[y * first.width() + x] >>> 24 != 0;
         }
         row.append(opaque ? '#' : '.');
       }
@@ -621,15 +648,14 @@ public final class ThemeGenerator {
     return mask;
   }
 
-  /** Shelf-packs every sprite in insertion order into the atlas width; returns the atlas height. */
-  private static int pack(Map<String, String[]> art, Map<String, int[]> rects) {
+  /** Shelf-packs every picture in insertion order into the atlas width; returns the atlas height. */
+  private static int pack(Map<String, Picture> art, Map<String, int[]> rects) {
     int x = 0;
     int y = 0;
     int shelf = 0;
-    for (Map.Entry<String, String[]> entry : art.entrySet()) {
-      String[] rows = entry.getValue();
-      int width = rows[0].length();
-      int height = rows.length;
+    for (Map.Entry<String, Picture> entry : art.entrySet()) {
+      int width = entry.getValue().width();
+      int height = entry.getValue().height();
       if (x + width > ATLAS_WIDTH) {
         x = 0;
         y += shelf + GAP;
@@ -647,19 +673,9 @@ public final class ThemeGenerator {
     return height;
   }
 
-  private static void paint(int[] pixels, int left, int top, String[] rows, Map<Character, Integer> palette) {
-    for (int y = 0; y < rows.length; y++) {
-      for (int x = 0; x < rows[y].length(); x++) {
-        char role = rows[y].charAt(x);
-        if (role == '.') {
-          continue;
-        }
-        Integer color = palette.get(role);
-        if (color == null) {
-          throw new IllegalStateException("no colour for role " + role);
-        }
-        pixels[(top + y) * ATLAS_WIDTH + left + x] = 0xFF000000 | color;
-      }
+  private static void paint(int[] pixels, int left, int top, Picture picture) {
+    for (int y = 0; y < picture.height(); y++) {
+      System.arraycopy(picture.argb(), y * picture.width(), pixels, (top + y) * ATLAS_WIDTH + left, picture.width());
     }
   }
 
@@ -677,6 +693,68 @@ public final class ThemeGenerator {
       array.add(new JsonPrimitive(value));
     }
     return array;
+  }
+
+  /** ARGB pixels, row by row; {@code mirrors} when its flipped copy is drawn mirrored (an icon is not). */
+  private record Picture(int width, int height, int[] argb, boolean mirrors) {
+    Picture mirrored() {
+      if (!mirrors) {
+        return this;
+      }
+      int[] flipped = new int[argb.length];
+      for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+          flipped[y * width + x] = argb[y * width + width - 1 - x];
+        }
+      }
+      return new Picture(width, height, flipped, true);
+    }
+  }
+
+  /** The atlas's pictures by sprite name, art given one role character per pixel ({@code '.'} clear) in the palette. */
+  private static final class Atlas {
+    private final Map<Character, Integer> palette;
+    private final Map<String, Picture> pictures = new LinkedHashMap<>();
+
+    Atlas(Map<Character, Integer> palette) {
+      this.palette = palette;
+    }
+
+    Picture picture(String[] rows) {
+      int width = rows[0].length();
+      int[] argb = new int[width * rows.length];
+      for (int y = 0; y < rows.length; y++) {
+        for (int x = 0; x < width; x++) {
+          char role = rows[y].charAt(x);
+          if (role == '.') {
+            continue;
+          }
+          Integer colour = palette.get(role);
+          if (colour == null) {
+            throw new IllegalStateException("no colour for role " + role);
+          }
+          argb[y * width + x] = 0xFF000000 | colour;
+        }
+      }
+      return new Picture(width, rows.length, argb, true);
+    }
+
+    Picture put(String name, String[] rows) {
+      return put(name, picture(rows));
+    }
+
+    /** Adds a picture and its flipped copy ({@code name + "f"}); a band strip's end is its start mirrored. */
+    Picture put(String name, Picture picture) {
+      Picture flipped = picture.mirrored();
+      pictures.put(name, picture);
+      pictures.put(name + "f", flipped);
+      if (name.endsWith("/start")) {
+        String prefix = name.substring(0, name.length() - "start".length());
+        pictures.put(prefix + "end", flipped);
+        pictures.put(prefix + "endf", picture);
+      }
+      return picture;
+    }
   }
 
   /** SplitMix64: a fixed stream for a fixed seed on every JVM. */

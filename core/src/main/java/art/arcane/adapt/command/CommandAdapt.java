@@ -67,6 +67,7 @@ public class CommandAdapt {
   private CommandClear clear;
   private CommandReset reset;
   private CommandDefault defaults;
+  private CommandPack pack;
   private CommandOrphans orphans;
 
   @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "adapt.command.help.version")

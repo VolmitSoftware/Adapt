@@ -9,9 +9,12 @@ import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,6 +331,10 @@ public final class UiBridge {
                 Platform.type(client, Json.string(input, "text", ""));
                 request.result().complete(ok());
             }
+            case "connect" -> {
+                Connect.to(client, Json.string(input, "address", ""));
+                request.result().complete(ok());
+            }
             case "close-screen" -> {
                 Platform.setScreen(client, null);
                 request.result().complete(ok());
@@ -417,6 +424,13 @@ public final class UiBridge {
         result.addProperty("pendingSteps", STEPS.size());
         Screen screen = Platform.screen(client);
         result.add("screen", ScreenInfo.describe(screen));
+        Overlay overlay = Overlays.current(client);
+        result.addProperty("overlay", overlay == null ? null : overlay.getClass().getName());
+        JsonArray packs = new JsonArray();
+        for (String pack : client.getResourcePackRepository().getSelectedIds()) {
+            packs.add(pack);
+        }
+        result.add("resourcePacks", packs);
         result.add("uiTree", UiTree.snapshot());
         JsonObject window = Platform.windowState(client);
         window.addProperty("width", client.getWindow().getWidth());
@@ -445,11 +459,27 @@ public final class UiBridge {
             playerState.addProperty("x", player.getX());
             playerState.addProperty("y", player.getY());
             playerState.addProperty("z", player.getZ());
+            playerState.add("inventory", inventory(player));
         }
         Gameplay.describe(client, playerState);
         result.add("player", playerState);
         result.add("events", Recorder.snapshot());
         return result;
+    }
+
+    private static JsonArray inventory(LocalPlayer player) {
+        JsonArray slots = new JsonArray();
+        for (int index = 0; index < player.getInventory().getContainerSize(); index++) {
+            ItemStack stack = player.getInventory().getItem(index);
+            if (!stack.isEmpty()) {
+                JsonObject entry = new JsonObject();
+                entry.addProperty("slot", index);
+                entry.addProperty("item", String.valueOf(BuiltInRegistries.ITEM.getKey(stack.getItem())));
+                entry.addProperty("count", stack.getCount());
+                slots.add(entry);
+            }
+        }
+        return slots;
     }
 
     static JsonObject ok() {

@@ -20,9 +20,11 @@ package art.arcane.adapt.engine.notification;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.server.hud.ClientToasts;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.pack.hud.PackToasts;
 import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -73,12 +75,15 @@ public class AdvancementNotification implements Notification {
     if (player == null || core == null) {
       return;
     }
-    if (ClientToasts.capable(player.uuid())
-        && ClientToasts.send(player.uuid(), ClientToasts.toast(kind,
-        clientIcon != null ? clientIcon : ClientToasts.icon(getIcon(), getModel()), title, description, skill))) {
+    ServerFrame.Toast toast = ClientToasts.toast(kind,
+        clientIcon != null ? clientIcon : ClientToasts.icon(getIcon(), getModel()), title, description, skill);
+    if (ClientToasts.capable(player.uuid()) && ClientToasts.send(player.uuid(), toast)) {
       return;
     }
     HostPlatform platform = core.getPlatform();
+    if (PackToasts.running().show(platform.advancements(), player, toast, frameType)) {
+      return;
+    }
     ItemRef icon = getModel() != null ? getModel().toItemStack() : platform.host().items().create(getIcon());
     platform.advancements().toast(player, icon, title, frameType);
   }

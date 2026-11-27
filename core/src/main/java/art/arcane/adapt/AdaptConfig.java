@@ -24,6 +24,7 @@ import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.engine.preference.PlayerPreferences;
 import art.arcane.adapt.engine.value.MaterialValue;
 import art.arcane.adapt.engine.xp.Curves;
+import art.arcane.adapt.pack.link.PackOffers;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.TomlCodec;
@@ -45,6 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -140,6 +142,7 @@ public class AdaptConfig {
   private AbilityApi abilityApi = new AbilityApi();
   private LearningEconomy learningEconomy = new LearningEconomy();
   private PermissionXpMultipliers permissionXpMultipliers = new PermissionXpMultipliers();
+  private Pack pack = new Pack();
   private Addons addons = new Addons();
   private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
   private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
@@ -369,6 +372,8 @@ public class AdaptConfig {
     xpEarningLimits.normalize();
     mutations = mutations == null ? new Mutations() : mutations;
     mutations.normalize();
+    pack = pack == null ? new Pack() : pack;
+    pack.normalize();
     blacklistedGrowables = blacklistedGrowables == null ? List.of() : blacklistedGrowables;
     blacklistedGrowableBlocks = growthBlacklist(blacklistedGrowables, AdaptEnvironment.configBinding()::blockName, AdaptEnvironment::warn);
   }
@@ -497,6 +502,64 @@ public class AdaptConfig {
     private Map<String, Double> multipliers = new LinkedHashMap<>();
     @ConfigDoc(value = "Multiplies every held permission multiplier together instead of using only the highest.", impact = "False resolves to the single highest matched node; true returns the product of all matched nodes, so holding 1.5 and 2.0 yields 3.0.")
     private boolean stack = false;
+  }
+
+  @Getter
+  public static class Pack {
+    @ConfigDoc(value = "Offers players without the Adapt client mod a resource pack that turns Adapt menus into book pages.", impact = "The pack is never forced; players who decline or cannot load it keep the chest menus. Applies on restart.")
+    private boolean enabled = true;
+    @ConfigDoc(value = "When the pack is offered: join, first-open or off.", impact = "join offers it once the client mod handshake window after joining has passed, first-open when the player first opens an Adapt menu, off only through /adapt pack offer. Applies on restart.")
+    private String offer = "join";
+    @ConfigDoc(value = "Milliseconds after joining that Adapt waits for the Adapt client mod before offering the pack.", impact = "Players whose client mod answers in this window are never offered the pack. Clamped to 0-60000. Applies on restart.")
+    private long handshakeWindowMillis = 3_000L;
+    @ConfigDoc(value = "Serves the pack from a built-in HTTP listener on its own port.", impact = "The port must be reachable by players. Ignored while externalUrl is set; opened only when releaseUrl is blank, the pack differs from the released one, or a player could not download it from there. Applies on restart.")
+    private boolean serve = true;
+    @ConfigDoc(value = "Address the pack listener binds.", impact = "0.0.0.0 listens on every interface. Applies on restart.")
+    private String bind = "0.0.0.0";
+    @ConfigDoc(value = "TCP port of the pack listener.", impact = "0 picks a free port at start. Applies on restart.")
+    private int port = 8164;
+    @ConfigDoc(value = "Base address players download the served pack from, such as http://play.example.com:8164.", impact = "Blank uses the bind address, or this machine's address when binding 0.0.0.0. Applies on restart.")
+    private String publicUrl = "";
+    @ConfigDoc(value = "Address of a pack you host yourself; {sha1} is replaced with the pack hash.", impact = "When set, the built-in listener stays closed and players download from this address. Applies on restart.")
+    private String externalUrl = "";
+    @ConfigDoc(value = "Address of the released Adapt pack; {version} is replaced with the Adapt version.", impact = "Players download from it while this server's pack is byte for byte the released one and externalUrl is blank. The first failed download before any player loaded it switches to the built-in listener. Blank turns it off. Applies on restart.")
+    private String releaseUrl = "https://github.com/VolmitSoftware/Adapt/releases/download/ResourcePack/Adapt.Pack.v{version}.zip";
+    @ConfigDoc(value = "Language key of the text shown in the pack prompt.", impact = "Unknown keys fall back to the built-in prompt. Applies on restart.")
+    private String promptKey = "adapt.pack.prompt";
+    @ConfigDoc(value = "Writes the pack zip and its unzipped files to pack/export for merging into Nexo, ItemsAdder or CraftEngine.", impact = "Rewritten only when the pack's hash differs from the export already there. Applies on restart.")
+    private boolean export = true;
+    @ConfigDoc(value = "Set when players get the Adapt pack inside another pack, such as one merged into Nexo, ItemsAdder or CraftEngine or set in server.properties.", impact = "Adapt then neither serves nor offers its own pack, but still bakes and exports it; a player gets book menus once their client reports any server pack loaded, until a pack is declined, fails or is discarded. A client that loaded an unrelated pack counts too. Bedrock players and players who chose chest menus keep chest menus. Applies on restart.")
+    private boolean merged = false;
+    @ConfigDoc(value = "Threads that bake the pack at start and after asset changes; 0 uses half the cores, at most four.", impact = "More threads bake faster and need more memory. Clamped to 0-16. Applies on restart.")
+    private int bakeThreads = 0;
+
+    public int bakeThreadCount() {
+      return bakeThreads > 0 ? bakeThreads : Math.max(1, Math.min(4, Runtime.getRuntime().availableProcessors() / 2));
+    }
+
+    public PackOffers.Policy offerPolicy() {
+      return switch (offer) {
+        case "first-open" -> PackOffers.Policy.FIRST_OPEN;
+        case "off" -> PackOffers.Policy.OFF;
+        default -> PackOffers.Policy.JOIN;
+      };
+    }
+
+    private void normalize() {
+      offer = offer == null ? "join" : offer.trim().toLowerCase(Locale.ROOT);
+      if (!offer.equals("join") && !offer.equals("first-open") && !offer.equals("off")) {
+        AdaptEnvironment.warn("Unknown pack.offer \"" + offer + "\" in adapt.toml; using join.");
+        offer = "join";
+      }
+      handshakeWindowMillis = Math.max(0L, Math.min(60_000L, handshakeWindowMillis));
+      bind = bind == null || bind.isBlank() ? "0.0.0.0" : bind.trim();
+      port = port < 0 || port > 65_535 ? 8164 : port;
+      publicUrl = publicUrl == null ? "" : publicUrl.trim();
+      externalUrl = externalUrl == null ? "" : externalUrl.trim();
+      releaseUrl = releaseUrl == null ? "" : releaseUrl.trim();
+      promptKey = promptKey == null || promptKey.isBlank() ? "adapt.pack.prompt" : promptKey.trim();
+      bakeThreads = Math.max(0, Math.min(16, bakeThreads));
+    }
   }
 
   @Getter

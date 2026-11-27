@@ -25,7 +25,7 @@ class ReceivedThemeTest {
     @Test
     void aReceivedForeignThemeIsFoundAndWearsTheGenericFrame() {
         Id skill = Id.of("alchemist", "alchemy");
-        ThemeAssets theme = ThemeGenerator.generate(new SkillLook(skill, 0x7A3FD1, Id.minecraft("brewing_stand")));
+        ThemeAssets theme = ThemeGenerator.generate(new SkillLook(skill, 0x7A3FD1, Id.minecraft("brewing_stand")), null);
         String kitId = ThemeKit.dataId(skill.namespace(), skill.path());
         String atlasId = ThemeKit.atlasId(skill.namespace(), skill.path());
         ReceivedAssets received = new ReceivedAssets();

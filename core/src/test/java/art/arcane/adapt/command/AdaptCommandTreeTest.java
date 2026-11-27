@@ -5,6 +5,9 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.content.golem.command.GolemCommand;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.testkit.FakePlayer;
+import art.arcane.adapt.testkit.FakeWorld;
 import art.arcane.volmlib.util.director.runtime.DirectorInvocation;
 import art.arcane.volmlib.util.director.runtime.DirectorRoute;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
@@ -32,6 +35,7 @@ class AdaptCommandTreeTest extends AdaptTestBase {
       "debug dump", "debug mode", "debug pap", "debug particle", "debug perf", "debug psp", "debug sound", "debug verbose", "debug version",
       "default adaptation", "default all", "default skill",
       "golem give", "golem list", "golem release", "golem returns", "golem roster", "golem wake",
+      "pack menus", "pack offer",
       "orphans list", "orphans purge", "orphans refund",
       "reset confirm");
 
@@ -57,6 +61,16 @@ class AdaptCommandTreeTest extends AdaptTestBase {
       assertThat(route.invocable()).describedAs(command).isTrue();
       assertThat(path(route.node())).describedAs(command).isEqualTo(command);
     }
+  }
+
+  @Test
+  void platformsWithoutThePackHaveNoPackCommand() {
+    DirectorRuntimeEngine engine = AdaptCommands.withoutPack().engine();
+    List<String> found = new ArrayList<>();
+    collect(engine.getRoot(), "", found);
+
+    assertThat(found).containsExactlyInAnyOrderElementsOf(COMMANDS.stream().filter((String command) -> !command.startsWith("pack ")).toList());
+    assertThat(found).noneMatch((String command) -> command.startsWith("pack"));
   }
 
   @Test
@@ -97,6 +111,25 @@ class AdaptCommandTreeTest extends AdaptTestBase {
     assertThat(source.sections).hasSize(2);
     assertThat(source.sections.get(0)).contains(AdaptCommands.ROOT_PERMISSION);
     assertThat(source.sections.get(1)).contains("Unknown Adapt command");
+  }
+
+  @Test
+  void packCommandsNeedOnlyThePackPermission() {
+    PlayerRef player = new FakePlayer("Viewer", new Loc(new FakeWorld("world"), 0, 64, 0));
+    RecordingSource holder = new RecordingSource(Set.of("adapt.pack"), Optional.of(player));
+    RecordingSource stranger = new RecordingSource(Set.of(), Optional.of(player));
+    AdaptScheduler scheduler = core.getPlatform().scheduler();
+    doAnswer(call -> {
+      call.<Runnable>getArgument(0).run();
+      return true;
+    }).when(scheduler).runGlobal(any(Runnable.class), anyLong());
+
+    new AdaptCommands().execute(holder, "adapt", new String[]{"pack", "offer"});
+    new AdaptCommands().execute(stranger, "adapt", new String[]{"pack", "offer"});
+
+    assertThat(holder.sections).noneSatisfy(line -> assertThat(line).contains(AdaptCommands.ROOT_PERMISSION));
+    assertThat(holder.sections).anySatisfy(line -> assertThat(line).contains("does not offer the Adapt pack"));
+    assertThat(stranger.sections).singleElement().satisfies(line -> assertThat(line).contains(AdaptCommands.ROOT_PERMISSION));
   }
 
   @Test

@@ -86,15 +86,15 @@ public final class MutationGui {
         .onLeftClick((MenuClick e) -> AdaptScreens.openMutation(player, skill));
   }
 
-  /** Skills the player can mutate now; picking one opens its partners. */
+  /** Skills the player can mutate now (the pack lead picker for pack viewers); picking one opens its Mutate flow. */
   public static void openLeads(PlayerRef player) {
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     SkillRegistry registry = registry();
-    if (adaptPlayer == null || registry == null) {
+    if (adaptPlayer == null || registry == null || AdaptScreens.openMutationLeads(player)) {
       return;
     }
     List<Skill<?>> leads = MutationOffers.leads(adaptPlayer.getData(), registry.getSkills(), config());
-    skillMenu(player, adaptPlayer.getData(), leads, (Skill<?> lead) -> openPartners(player, lead),
+    skillMenu(player, adaptPlayer.getData(), leads, (Skill<?> lead) -> AdaptScreens.openMutation(player, lead),
         () -> AdaptScreens.openSkills(player));
   }
 

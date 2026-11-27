@@ -5,7 +5,6 @@ import art.arcane.adapt.engine.skill.LegacyContentNames;
 
 import art.arcane.adapt.engine.notification.AdaptHud;
 import art.arcane.adapt.engine.notification.HudStatusSpec;
-import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.engine.skill.SkillHost;
@@ -15,8 +14,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Ability glyphs for players with the client HUD: an adaptation's cooldown, charges, running effect or toggle, sent
- * through {@link AdaptHud#status(UUID, String, HudStatusSpec)} with the adaptation's icon and skill. Every call is a
+ * Ability glyphs for players with the client HUD or the pack strip: an adaptation's cooldown, charges, running effect
+ * or toggle, sent through {@link AdaptHud#status(UUID, String, HudStatusSpec)} with the adaptation's icon and skill. Every call is a
  * cheap capability check for everyone else and changes nothing they see, so callers keep their own feedback. Each
  * adaptation owns one glyph per {@link HudGlyph} kind, purpose {@code adapt:status:<adaptation>.<kind>}, apart from
  * the adaptation's own text status ({@code adapt:status:<adaptation>}).
@@ -89,7 +88,7 @@ public final class AbilityGlyphs {
   }
 
   public static boolean capable(UUID playerId) {
-    return playerId != null && ClientHud.capable(playerId, ClientProtocol.HUD);
+    return AdaptHud.capable(playerId);
   }
 
   /** The status purpose without the {@code adapt:status:} prefix: {@code <adaptation>.<kind>}. */

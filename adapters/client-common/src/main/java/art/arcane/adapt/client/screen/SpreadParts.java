@@ -13,6 +13,7 @@ import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.client.ui.kit.UiTome;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.MutationCandidate;
 import art.arcane.adapt.client.view.MutationEntry;

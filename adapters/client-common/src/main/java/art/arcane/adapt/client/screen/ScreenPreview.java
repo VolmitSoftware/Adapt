@@ -16,6 +16,8 @@ import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.kit.UiMotion;
 import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.PlayerHeader;
 import art.arcane.adapt.client.view.PlayerView;

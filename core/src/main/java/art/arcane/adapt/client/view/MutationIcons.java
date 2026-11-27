@@ -5,13 +5,18 @@ import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.api.mutation.Recipe;
 import art.arcane.adapt.api.mutation.Signature;
 import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.asset.AssetCatalog;
+import art.arcane.adapt.engine.asset.SkillLook;
 import art.arcane.adapt.engine.mutation.MutatedSkill;
 import art.arcane.adapt.engine.mutation.blocks.MutatedText;
 import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
 import art.arcane.adapt.engine.mutation.kit.Kits;
+import art.arcane.adapt.platform.value.Id;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -81,6 +86,16 @@ public final class MutationIcons {
    */
   public static int tint(Skill<?> skill) {
     return lift(Kits.of(skill).tint().orElse(skill.getColor()).packed() & IconSprites.NO_TINT);
+  }
+
+  /** Every colour {@link #tint} returns for a skill registered with {@code catalog}, and white. */
+  public static Set<Integer> tints(AssetCatalog catalog) {
+    Set<Integer> all = new TreeSet<>();
+    for (Id skill : catalog.themes()) {
+      catalog.look(skill).ifPresent((SkillLook look) -> all.add(lift(look.rgb())));
+    }
+    all.add(IconSprites.NO_TINT);
+    return all;
   }
 
   static double luminance(int rgb) {

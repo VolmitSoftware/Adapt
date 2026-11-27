@@ -80,7 +80,7 @@ public final class AdaptModBootstrap {
     private final String loaderVersion;
     private final Path configDirectory;
     private final Predicate<String> modPresent;
-    private final AdaptCommands commands = new AdaptCommands();
+    private final AdaptCommands commands = AdaptCommands.withoutPack();
     private volatile AdaptCore core;
     private static final Object WORLD_DATA_OWNER = new Object();
     private volatile ModWorldDataPort worldData;

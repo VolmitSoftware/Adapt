@@ -39,7 +39,7 @@ public final class AdaptAssetCatalog implements AssetCatalog, AssetInstaller {
   private final Consumer<String> errors;
   private final Object lock = new Object();
   private final List<Listener> listeners = new CopyOnWriteArrayList<>();
-  private final Map<SkillLook, ThemeAssets> generated = new ConcurrentHashMap<>();
+  private final Map<Generated, ThemeAssets> generated = new ConcurrentHashMap<>();
   private final Map<SkillLook, byte[]> generatedEmblems = new ConcurrentHashMap<>();
   private final Map<SkillLook, byte[]> generatedTrims = new ConcurrentHashMap<>();
   private volatile Snapshot snapshot = Snapshot.EMPTY;
@@ -67,6 +67,10 @@ public final class AdaptAssetCatalog implements AssetCatalog, AssetInstaller {
   }
 
   private record Listener(AssetListener listener) {
+  }
+
+  /** A generated theme's inputs: the skill's look and the hash of the icon it frames, empty when it has none. */
+  private record Generated(SkillLook look, String icon) {
   }
 
   @Override
@@ -174,7 +178,9 @@ public final class AdaptAssetCatalog implements AssetCatalog, AssetInstaller {
     if (authored != null) {
       return Optional.of(authored);
     }
-    return skills.look(skill).map((SkillLook look) -> generated.computeIfAbsent(look, ThemeGenerator::generate));
+    byte[] icon = snapshot.sprites().get(Id.of(skill.namespace(), "gui/skill/" + IconSprites.file(skill)));
+    return skills.look(skill).map((SkillLook look) -> generated.computeIfAbsent(
+        new Generated(look, icon == null ? "" : AssetHashes.sha1(icon)), (Generated key) -> ThemeGenerator.generate(look, icon)));
   }
 
   @Override
@@ -185,6 +191,11 @@ public final class AdaptAssetCatalog implements AssetCatalog, AssetInstaller {
   @Override
   public Optional<byte[]> trim(Id skill) {
     return art(skill, "trim", generatedTrims, MutationArtGenerator::trim);
+  }
+
+  @Override
+  public Optional<SkillLook> look(Id skill) {
+    return skill == null ? Optional.empty() : skills.look(skill);
   }
 
   private Optional<byte[]> art(Id skill, String kind, Map<SkillLook, byte[]> cache, Function<SkillLook, byte[]> draw) {

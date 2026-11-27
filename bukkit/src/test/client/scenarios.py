@@ -22,7 +22,7 @@ def wait_ticks(bridge, count: int):
 
 
 def learn(rcon, skill: str, name: str, level: int):
-    response = rcon.command(f'adapt claim-adaptation {skill}:{name} {level} force=true player={PLAYER}')
+    response = rcon.command(f'adapt claim-adaptation {skill}/{name} {level} force=true player={PLAYER}')
     print('[LEVEL] ' + name + ' ' + str(level) + ': ' + response, flush=True)
     return response
 
@@ -130,13 +130,13 @@ def run(bridge, rcon, output: Path, cases):
 
 def run_rubber(bridge, rcon, output: Path):
     results = []
-    learn(rcon, 'kinetics', 'kinetics-rubber-soul', 0)
+    learn(rcon, 'kinetics', 'rubber_soul', 0)
     bridge.wait(lambda value: native_attribute(value) == 0, 'unlearned bounciness zero')
     control = fall(bridge, rcon, -12, 0, 6)
     (output / 'rubber-stone-control.json').write_text(json.dumps(control, indent=2) + '\n')
     require(control['apexAfterLanding'] < 100.1 and control['upwardVelocityAfterLanding'] < 0.05,
             'Unlearned stone landing does not rebound')
-    learn(rcon, 'kinetics', 'kinetics-rubber-soul', 5)
+    learn(rcon, 'kinetics', 'rubber_soul', 5)
     bridge.wait(lambda value: abs(native_attribute(value) - 0.5) < 0.000001, 'learned passive bounciness 0.5')
     active = fall(bridge, rcon, -12, 0, 6, 'rubber-soul-stone', output)
     (output / 'rubber-stone-active.json').write_text(json.dumps(active, indent=2) + '\n')
@@ -145,7 +145,7 @@ def run_rubber(bridge, rcon, output: Path):
     results.append({'name': 'kinetics-rubber-soul-native-bounce', 'status': 'passed', 'control': control, 'active': active})
     print('[PASS] Rubber Soul native stone bounce', flush=True)
 
-    learn(rcon, 'kinetics', 'kinetics-rubber-soul', 0)
+    learn(rcon, 'kinetics', 'rubber_soul', 0)
     bridge.wait(lambda value: native_attribute(value) == 0, 'remove passive bounce before honey control')
     restore(bridge, rcon, 0, 100, 0)
     bridge.wait(lambda value: value['onGround'], 'honey control standing')
@@ -163,7 +163,7 @@ def run_rubber(bridge, rcon, output: Path):
             'Unlearned honey landing has no Rubber Soul sound')
     require(not any(event.get('type') == 'particle' and event.get('name') == 'minecraft:item_slime' for event in control['events']),
             'Unlearned honey landing has no slime particles')
-    learn(rcon, 'kinetics', 'kinetics-rubber-soul', 5)
+    learn(rcon, 'kinetics', 'rubber_soul', 5)
     bridge.wait(lambda value: abs(native_attribute(value) - 0.5) < 0.000001, 'learned honey baseline 0.5')
     wait_ticks(bridge, 25)
     bridge.command('clear-events')
@@ -203,7 +203,7 @@ def run_rubber(bridge, rcon, output: Path):
     restore(bridge, rcon, -12, 100, 0)
     bridge.wait(lambda value: value['onGround'] and abs(native_attribute(value) - 0.5) < 0.000001,
                 'springload expires after bouncy surface trials', 5)
-    learn(rcon, 'kinetics', 'kinetics-rubber-soul', 0)
+    learn(rcon, 'kinetics', 'rubber_soul', 0)
     removed = bridge.wait(lambda value: native_attribute(value) == 0, 'unlearning removes native bounciness')
     results.append({'name': 'kinetics-rubber-soul-feedback', 'status': 'passed', 'control': control,
                     'controlSamples': control_samples, 'before': before, 'landed': landed, 'played': played,
@@ -215,11 +215,11 @@ def run_rubber(bridge, rcon, output: Path):
 
 def run_soft_fall(bridge, rcon, output: Path):
     results = []
-    learn(rcon, 'excavation', 'excavation-soft-fall', 0)
+    learn(rcon, 'excavation', 'soft_fall', 0)
     control = fall(bridge, rcon, 16, 0, 8)
     (output / 'soft-fall-control.json').write_text(json.dumps(control, indent=2) + '\n')
     require(control['minimumHealth'] < control['before']['health'], 'Unlearned dirt fall deals real fall damage')
-    learn(rcon, 'excavation', 'excavation-soft-fall', 5)
+    learn(rcon, 'excavation', 'soft_fall', 5)
     active = fall(bridge, rcon, 16, 0, 8, 'soft-fall-particles', output)
     (output / 'soft-fall-active.json').write_text(json.dumps(active, indent=2) + '\n')
     require(active['minimumHealth'] >= active['before']['health'], 'Learned dirt fall prevents all damage')
@@ -232,7 +232,7 @@ def run_soft_fall(bridge, rcon, output: Path):
         require(any(event.get('type') == 'particle' and event.get('name') == particle and event.get('created') and event.get('rendered') and event.get('renderedFrames', 0) > 0 for event in events),
                 'Native renderer builds geometry for ' + particle)
     require(active['after']['particleRenderLayers'] > active['before']['particleRenderLayers'], 'Soft Fall particle geometry renders')
-    learn(rcon, 'excavation', 'excavation-soft-fall', 0)
+    learn(rcon, 'excavation', 'soft_fall', 0)
     results.append({'name': 'excavation-soft-fall-client', 'status': 'passed', 'control': control, 'active': active})
     print('[PASS] Soft Fall damage, all three real playback channels, and rendered particles', flush=True)
     return results

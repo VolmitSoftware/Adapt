@@ -20,6 +20,8 @@ import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.ui.kit.UiTheme;
 import art.arcane.adapt.client.ui.kit.UiTome;
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;

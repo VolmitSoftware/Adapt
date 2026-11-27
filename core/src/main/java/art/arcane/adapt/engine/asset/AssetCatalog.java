@@ -35,6 +35,9 @@ public interface AssetCatalog {
   /** The trim a skill gives the mutations it joins as partner, found or generated like {@link #emblem(Id)}. */
   Optional<byte[]> trim(Id skill);
 
+  /** The colour and icon generated art of a registered skill is drawn from; empty for an id that is no registered skill. */
+  Optional<SkillLook> look(Id skill);
+
   /**
    * Every skill {@link #theme(Id)} answers for: each registered skill in registry order, then skills that only have an
    * authored kit, by id.

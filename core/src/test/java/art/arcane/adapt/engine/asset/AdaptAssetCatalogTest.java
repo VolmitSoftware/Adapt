@@ -124,7 +124,7 @@ class AdaptAssetCatalogTest {
     assertThat(generated.hash()).isEqualTo(AssetHashes.sha1(generated.kitJson(), generated.atlasPng()));
     assertThat(catalog.theme(Id.of("alchemist", "unknown"))).isEmpty();
 
-    ThemeAssets source = ThemeGenerator.generate(new SkillLook(ALCHEMY, 0x22AA44, Id.minecraft("oak_sapling")));
+    ThemeAssets source = ThemeGenerator.generate(new SkillLook(ALCHEMY, 0x22AA44, Id.minecraft("oak_sapling")), null);
     catalog.install(new MemoryBundle("alchemist").file("themes/alchemy.json", source.kitJson())
         .file("textures/gui/theme/alchemy.png", source.atlasPng()), "A");
 
@@ -137,7 +137,7 @@ class AdaptAssetCatalogTest {
 
   @Test
   void themesListsRegisteredSkillsThenSkillsWithOnlyAnAuthoredKit() {
-    ThemeAssets source = ThemeGenerator.generate(new SkillLook(Id.of("alchemist", "brewing"), 0x22AA44, Id.minecraft("potion")));
+    ThemeAssets source = ThemeGenerator.generate(new SkillLook(Id.of("alchemist", "brewing"), 0x22AA44, Id.minecraft("potion")), null);
     catalog.install(new MemoryBundle("alchemist").file("themes/brewing.json", source.kitJson())
         .file("textures/gui/theme/brewing.png", source.atlasPng()), "A");
 

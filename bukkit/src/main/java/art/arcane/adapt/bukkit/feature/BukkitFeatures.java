@@ -2,6 +2,7 @@ package art.arcane.adapt.bukkit.feature;
 
 
 import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
 import art.arcane.adapt.client.server.panel.PanelLink;
 
@@ -11,6 +12,14 @@ import art.arcane.adapt.bukkit.feature.ai.BukkitGoals;
 import art.arcane.adapt.bukkit.feature.display.BukkitDisplays;
 import art.arcane.adapt.bukkit.feature.fx.BukkitFxHost;
 import art.arcane.adapt.bukkit.feature.menu.BukkitMenuHost;
+import art.arcane.adapt.bukkit.feature.pack.BukkitPackPrompts;
+import art.arcane.adapt.bukkit.feature.pack.BukkitPackWindows;
+import art.arcane.adapt.pack.DeliveredResources;
+import art.arcane.adapt.pack.link.PackAudience;
+import art.arcane.adapt.pack.menu.PackMenuHost;
+import art.arcane.adapt.pack.screen.PackClock;
+import art.arcane.adapt.pack.screen.PackScreens;
+import art.arcane.adapt.pack.screen.ServerPackBackend;
 import art.arcane.adapt.bukkit.feature.protection.BukkitProtectionHost;
 import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeHost;
 import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
@@ -41,7 +50,13 @@ public final class BukkitFeatures {
   public static void install(JavaPlugin plugin, Supplier<EntityGlow> glow, Object glowLock) {
     PlatformLog log = new BukkitLog();
     BukkitHosts.fx(new BukkitFxHost());
-    BukkitHosts.menus(new ClientAwareMenuHost(new BukkitMenuHost(plugin), PanelLink.of(ClientUiService::activeSessions)));
+    BukkitPackWindows packWindows = BukkitPackWindows.install(plugin);
+    BukkitPackPrompts packPrompts = BukkitPackPrompts.install(plugin, packWindows);
+    PackMenuHost packMenus = new PackMenuHost(new BukkitMenuHost(plugin), packWindows, PackAudience.DELIVERED,
+        new DeliveredResources());
+    ServerPackBackend packBackend = new ServerPackBackend();
+    AdaptPorts.install(PackScreens.class, new PackScreens(packMenus, packBackend, packBackend, packPrompts, PackClock.SERVER));
+    BukkitHosts.menus(new ClientAwareMenuHost(packMenus, PanelLink.of(ClientUiService::activeSessions)));
     BukkitRecipeRegistry.shared().listen(plugin);
     BukkitHosts.recipes(new BukkitRecipeHost(plugin.getServer(), BukkitRecipeRegistry.shared()));
     BukkitAdvancementHost advancements = BukkitAdvancementHost.create(plugin,
@@ -54,6 +69,7 @@ public final class BukkitFeatures {
       BukkitHosts.goals(BukkitGoals.server());
     }
     BukkitHosts.onStopping(() -> BukkitHosts.menus().closeAll());
+    BukkitHosts.onStopping(packWindows::closeAll);
     BukkitHosts.onStopping(advancements::shutdown);
   }
 

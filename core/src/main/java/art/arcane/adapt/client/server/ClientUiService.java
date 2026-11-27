@@ -12,18 +12,11 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.engine.mutation.MutatedSkill;
-import art.arcane.adapt.api.player.MutationResult;
-import art.arcane.adapt.engine.mutation.SkillMutations;
-import art.arcane.adapt.engine.mutation.MutationOffers;
 import art.arcane.adapt.api.mutation.SkillPair;
-import art.arcane.adapt.engine.mutation.upgrade.Lending;
-import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.engine.adaptation.AdaptationLevelActions;
-import art.arcane.adapt.engine.preference.PlayerPreferences;
 import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.engine.world.AdaptPlayer;
-import art.arcane.adapt.engine.world.PlayerData;
 import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.engine.asset.AssetCatalog;
 import art.arcane.adapt.engine.asset.AssetSubscription;
@@ -40,7 +33,6 @@ import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.CatalogViews;
 import art.arcane.adapt.client.view.GroupLabelView;
 import art.arcane.adapt.client.view.KeptView;
-import art.arcane.adapt.client.view.MutationSpreadViews;
 import art.arcane.adapt.client.view.PlayerDelta;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.PlayerViewDiff;
@@ -52,6 +44,7 @@ import art.arcane.adapt.client.view.XpGuideViews;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.MutatedMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.pack.screen.PackScreens;
 import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -137,23 +130,32 @@ public final class ClientUiService implements ClientFrameHandler {
 
   /**
    * Notes that what the client shows about this player may have changed. Coalesced to one diff per player per tick
-   * and skipped at once for players without a negotiated client.
+   * and skipped at once for players without a negotiated client. An open pack screen redraws the same way.
    */
   public static void changed(AdaptPlayer player) {
     ClientUiService service = current();
     if (service != null && player != null) {
       service.changed(player.getPlayer());
     }
+    PackScreens pack = PackScreens.current();
+    if (pack != null && player != null) {
+      pack.changed(player.getPlayer());
+    }
   }
 
   /**
    * The once-a-second check for changes nothing reports, such as earned xp. It rebuilds the view only when the
-   * player's stored numbers moved, the catalog went stale, or the access check is due. Call on the player's thread.
+   * player's stored numbers moved, the catalog went stale, or the access check is due; an open pack screen redraws
+   * when the stored numbers moved. Call on the player's thread.
    */
   public static void refresh(AdaptPlayer player) {
     ClientUiService service = current();
     if (service != null && player != null) {
       service.refresh(player, player.getPlayer());
+    }
+    PackScreens pack = PackScreens.current();
+    if (pack != null && player != null) {
+      pack.refresh(player.getPlayer());
     }
   }
 
@@ -374,8 +376,8 @@ public final class ClientUiService implements ClientFrameHandler {
       feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_CATALOG_CHANGED));
       return null;
     }
-    Adaptation<?> adaptation = adaptation(registry, adaptationId);
-    if (adaptation == null || !AdaptationLevelActions.available(adaptation, player)) {
+    Adaptation<?> adaptation = ScreenActions.available(registry, player, adaptationId);
+    if (adaptation == null) {
       feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return null;
     }
@@ -389,30 +391,13 @@ public final class ClientUiService implements ClientFrameHandler {
   }
 
   private void preference(PlayerRef player, Viewer viewer, ClientFrame.SetPreference frame) {
-    AdaptPlayer adaptPlayer = adaptPlayer(player);
-    SkillRegistry registry = registry();
-    boolean accepted = adaptPlayer != null && registry != null && switch (frame.owner()) {
-      case SKILL -> setSkillPreference(registry.getSkill(frame.ownerId()), adaptPlayer, frame.preferenceId(),
-          frame.value());
-      case ADAPTATION -> setAdaptationPreference(adaptation(registry, frame.ownerId()), adaptPlayer,
-          frame.preferenceId(), frame.value());
-    };
+    boolean accepted = ScreenActions.setPreference(registry(), adaptPlayer(player), frame.owner(), frame.ownerId(),
+        frame.preferenceId(), frame.value());
     preferenceReply(player, viewer, accepted);
   }
 
   private void reset(PlayerRef player, Viewer viewer, ClientFrame.ResetPreference frame) {
-    AdaptPlayer adaptPlayer = adaptPlayer(player);
-    SkillRegistry registry = registry();
-    boolean accepted = adaptPlayer != null && registry != null && switch (frame.owner()) {
-      case SKILL -> {
-        Skill<?> skill = registry.getSkill(frame.ownerId());
-        yield skill != null && PlayerPreferences.resetSkill(skill, adaptPlayer);
-      }
-      case ADAPTATION -> {
-        Adaptation<?> adaptation = adaptation(registry, frame.ownerId());
-        yield adaptation != null && PlayerPreferences.reset(adaptation, adaptPlayer);
-      }
-    };
+    boolean accepted = ScreenActions.resetPreference(registry(), adaptPlayer(player), frame.owner(), frame.ownerId());
     preferenceReply(player, viewer, accepted);
   }
 
@@ -420,34 +405,6 @@ public final class ClientUiService implements ClientFrameHandler {
     sync(player, viewer);
     TextKey text = accepted ? GuiMessages.CLIENT_PREFERENCE_SAVED : GuiMessages.CLIENT_PREFERENCE_DENIED;
     feedback(player, accepted ? FeedbackKind.SUCCESS : FeedbackKind.FAILURE, AdaptLanguage.text(text));
-  }
-
-  private static boolean setSkillPreference(Skill<?> skill, AdaptPlayer player, String preferenceId, String value) {
-    if (skill == null || !CommonPreferences.SKILL_ENABLED.id().equals(preferenceId)) {
-      return false;
-    }
-    CommonPreferences.Toggle toggle = CommonPreferences.SKILL_ENABLED.parse(value).orElse(null);
-    return toggle != null && PlayerPreferences.setSkillEnabled(skill, player, toggle);
-  }
-
-  private static boolean setAdaptationPreference(Adaptation<?> adaptation, AdaptPlayer player, String preferenceId,
-                                                 String value) {
-    if (adaptation == null) {
-      return false;
-    }
-    for (PlayerPreference<?> preference : adaptation.getPlayerPreferences()) {
-      if (preference.id().equals(preferenceId)) {
-        return adaptation.isPlayerPreferenceVisible(PlayerApi.profile(player), preference)
-            && setChoice(adaptation, player, preference, value);
-      }
-    }
-    return false;
-  }
-
-  private static <E extends Enum<E>> boolean setChoice(Adaptation<?> adaptation, AdaptPlayer player,
-                                                       PlayerPreference<E> preference, String value) {
-    E choice = preference.parse(value).orElse(null);
-    return choice != null && PlayerPreferences.set(adaptation, player, preference, choice);
   }
 
   private void sync(PlayerRef player, Viewer viewer) {
@@ -612,19 +569,7 @@ public final class ClientUiService implements ClientFrameHandler {
     if (!viewer.labelsDue || !sessions.has(playerId, ClientProtocol.GROUP_LABELS)) {
       return;
     }
-    List<GroupLabelView> skills = LanguageAudience.call(playerId, () -> {
-      List<GroupLabelView> named = new ArrayList<>();
-      for (Skill<?> skill : registry.getSkills()) {
-        List<String> labels = new ArrayList<>();
-        for (AdaptationGroup group : skill.getAdaptationGroups()) {
-          labels.add(group.label().resolve());
-        }
-        if (!labels.isEmpty()) {
-          named.add(new GroupLabelView(SkillHost.lineKey(skill), labels));
-        }
-      }
-      return named;
-    });
+    List<GroupLabelView> skills = LanguageAudience.call(playerId, () -> ScreenActions.groupLabels(registry));
     if (skills.isEmpty() || sessions.send(playerId, new ServerFrame.GroupLabels(skills))) {
       viewer.labelsDue = false;
     }
@@ -650,19 +595,7 @@ public final class ClientUiService implements ClientFrameHandler {
     if (!sessions.has(playerId, ClientProtocol.KEPT)) {
       return;
     }
-    List<KeptView> kept = new ArrayList<>();
-    for (SkillPair mutation : mutations) {
-      MutatedSkill mutated = registry.getMutatedSkill(mutation);
-      if (mutated == null) {
-        continue;
-      }
-      for (Adaptation<?> adaptation : mutated.getKept()) {
-        kept.add(new KeptView(SkillHost.lineKey(mutated), adaptation.getId().toString(), SkillUpgrades.keptLevel(adaptation)));
-      }
-      for (Lending.Running running : Lending.running(player, adaptPlayer, registry, mutation)) {
-        kept.add(new KeptView(running.upgrade().getId().toString(), running.original().getId().toString(), running.level()));
-      }
-    }
+    List<KeptView> kept = ScreenActions.kept(registry, player, adaptPlayer);
     String title = LanguageAudience.call(playerId, () -> AdaptLanguage.text(MutatedMessages.KEPT));
     if (kept.equals(viewer.kept) && (kept.isEmpty() || title.equals(viewer.keptTitle))) {
       return;
@@ -678,10 +611,7 @@ public final class ClientUiService implements ClientFrameHandler {
     if (!sessions.has(playerId, ClientProtocol.MUTATE)) {
       return;
     }
-    List<String> offers = new ArrayList<>();
-    for (Skill<?> skill : MutationOffers.leads(adaptPlayer.getData(), registry.getSkills(), AdaptConfig.get().getMutations())) {
-      offers.add(SkillHost.lineKey(skill));
-    }
+    List<String> offers = ScreenActions.mutateOffers(registry, adaptPlayer);
     if (offers.equals(viewer.mutateOffers)) {
       return;
     }
@@ -695,8 +625,7 @@ public final class ClientUiService implements ClientFrameHandler {
     SkillRegistry registry = registry();
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     Skill<?> skill = registry == null ? null : registry.getSkill(skillId);
-    if (!sessions.has(player.uuid(), ClientProtocol.MUTATE) || skill == null || adaptPlayer == null
-        || !MutationOffers.offered(adaptPlayer.getData(), skill, registry.getSkills(), AdaptConfig.get().getMutations())) {
+    if (!sessions.has(player.uuid(), ClientProtocol.MUTATE) || !ScreenActions.mutateOffered(registry, adaptPlayer, skill)) {
       feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return;
     }
@@ -717,21 +646,14 @@ public final class ClientUiService implements ClientFrameHandler {
       return;
     }
     Skill<?> partner = request.partner().isEmpty() ? null : registry.getSkill(request.partner());
-    AdaptConfig.Mutations config = AdaptConfig.get().getMutations();
-    PlayerData data = adaptPlayer.getData();
     if (!request.confirm()) {
-      sessions.send(player.uuid(), new ServerFrame.MutationSpread(
-          MutationSpreadViews.build(registry, data, lead, partner, config, "")));
+      sessions.send(player.uuid(), new ServerFrame.MutationSpread(ScreenActions.spread(registry, adaptPlayer, lead, partner)));
       return;
     }
-    MutationResult.Status result = MutationGui.merge(player, adaptPlayer, lead, partner);
-    String text = MutationGui.resultText(result, lead, partner);
+    ScreenActions.MutationOutcome outcome = ScreenActions.mutate(registry, player, adaptPlayer, lead, partner);
     sync(player, viewer);
-    boolean mutated = result == MutationResult.Status.MUTATED;
-    String mutatedId = mutated ? data.mutationOf(SkillHost.lineKey(lead)).key() : "";
-    sessions.send(player.uuid(), new ServerFrame.MutationSpread(
-        MutationSpreadViews.build(registry, data, lead, mutated ? null : partner, config, mutatedId)));
-    feedback(player, mutated ? FeedbackKind.SUCCESS : FeedbackKind.FAILURE, text);
+    sessions.send(player.uuid(), new ServerFrame.MutationSpread(outcome.spread()));
+    feedback(player, outcome.mutated() ? FeedbackKind.SUCCESS : FeedbackKind.FAILURE, outcome.text());
   }
 
   /**
@@ -739,15 +661,14 @@ public final class ClientUiService implements ClientFrameHandler {
    * the parents back and the result as feedback.
    */
   private void unmutate(PlayerRef player, Viewer viewer, String skillId) {
-    AdaptPlayer adaptPlayer = adaptPlayer(player);
-    SkillPair mutation = adaptPlayer == null ? null : SkillMutations.mutationNamed(adaptPlayer.getData(), skillId);
-    if (!sessions.has(player.uuid(), ClientProtocol.UNMUTATE) || mutation == null || !MutationGui.mayUnmutate(player)
-        || !MutationGui.unmutate(player, adaptPlayer, mutation)) {
+    String text = sessions.has(player.uuid(), ClientProtocol.UNMUTATE)
+        ? ScreenActions.unmutate(player, adaptPlayer(player), skillId) : null;
+    if (text == null) {
       feedback(player, FeedbackKind.FAILURE, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return;
     }
     sync(player, viewer);
-    feedback(player, FeedbackKind.SUCCESS, MutationGui.unmutatedText(mutation, player.name()));
+    feedback(player, FeedbackKind.SUCCESS, text);
   }
 
   /** Sends the recipe viewer items when the client negotiated ITEMS and the list changed since its last copy. */

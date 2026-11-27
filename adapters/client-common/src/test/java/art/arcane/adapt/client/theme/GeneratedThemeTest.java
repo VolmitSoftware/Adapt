@@ -17,7 +17,7 @@ class GeneratedThemeTest {
     void aGeneratedKitComposesAloneAndBesideAnAuthoredKit() {
         for (Id icon : List.of(Id.minecraft("brewing_stand"), Id.minecraft("oak_sapling"))) {
             ThemeKit generated = ThemeKit.parse("alchemist", new String(ThemeGenerator.generate(
-                    new SkillLook(Id.of("alchemist", "alchemy"), 0x7A3FD1, icon)).kitJson(), StandardCharsets.UTF_8));
+                    new SkillLook(Id.of("alchemist", "alchemy"), 0x7A3FD1, icon), null).kitJson(), StandardCharsets.UTF_8));
             for (PageTheme theme : List.of(new PageTheme(generated, null), new PageTheme(generated, ThemeFixtures.kit("rift")),
                     new PageTheme(ThemeFixtures.kit("herbalism"), generated))) {
                 for (int leaf = 0; leaf < 3; leaf++) {

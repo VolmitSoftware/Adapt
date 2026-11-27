@@ -39,7 +39,11 @@ public final class AdaptChestMenu extends ChestMenu {
     }
 
     static AdaptChestMenu create(int id, Inventory inventory, int rows, Clicks clicks, Closes closes) {
-        MenuType<ChestMenu> type = switch (rows) {
+        return new AdaptChestMenu(type(rows), id, inventory, new SimpleContainer(rows * 9), rows, clicks, closes);
+    }
+
+    static MenuType<ChestMenu> type(int rows) {
+        return switch (rows) {
             case 1 -> MenuType.GENERIC_9x1;
             case 2 -> MenuType.GENERIC_9x2;
             case 3 -> MenuType.GENERIC_9x3;
@@ -47,7 +51,6 @@ public final class AdaptChestMenu extends ChestMenu {
             case 5 -> MenuType.GENERIC_9x5;
             default -> MenuType.GENERIC_9x6;
         };
-        return new AdaptChestMenu(type, id, inventory, new SimpleContainer(rows * 9), rows, clicks, closes);
     }
 
     int windowSize() {

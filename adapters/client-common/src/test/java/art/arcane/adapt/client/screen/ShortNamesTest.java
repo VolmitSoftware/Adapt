@@ -2,6 +2,7 @@ package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.ShortNameView;
 import org.junit.jupiter.api.Test;
 

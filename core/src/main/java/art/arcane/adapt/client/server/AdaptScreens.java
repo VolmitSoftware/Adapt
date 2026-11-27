@@ -12,12 +12,15 @@ import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.engine.gui.SkillsGui;
+import art.arcane.adapt.pack.link.PackDelivery;
+import art.arcane.adapt.pack.screen.PackScreens;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 /**
  * Entry points for the skill screens a player asks for. A player whose client negotiated
- * {@link ClientProtocol#SCREENS} gets the native screen through an {@code OpenRoute} frame; everyone else gets the
- * chest GUI. Navigation inside the chest GUI keeps opening chest windows directly.
+ * {@link ClientProtocol#SCREENS} gets the native screen through an {@code OpenRoute} frame; a player whose client
+ * loaded the Adapt resource pack gets the pack screen; everyone else gets the chest GUI. Navigation inside the chest
+ * GUI keeps opening chest windows directly.
  */
 public final class AdaptScreens {
   private AdaptScreens() {
@@ -27,7 +30,12 @@ public final class AdaptScreens {
     if (player == null) {
       return;
     }
-    if (!route(player, new Route.Skills())) {
+    if (route(player, new Route.Skills())) {
+      return;
+    }
+    PackDelivery.opened(player);
+    PackScreens pack = pack(player);
+    if (pack == null || !pack.openSkills(player)) {
       SkillsGui.open(player);
     }
   }
@@ -41,13 +49,15 @@ public final class AdaptScreens {
     if (player == null || skill == null) {
       return false;
     }
-    if (!screens(player)) {
+    PackScreens pack = pack(player);
+    if (!screens(player) && pack == null) {
       return ComponentHost.of(skill).openGui(player, checkPermissions);
     }
     if (!skill.isEnabled() || (checkPermissions && !skill.hasUsePermission(player))) {
       return false;
     }
-    return route(player, new Route.Skill(SkillHost.lineKey(skill))) || ComponentHost.of(skill).openGui(player, checkPermissions);
+    return route(player, new Route.Skill(SkillHost.lineKey(skill))) || (pack != null && pack.openSkill(player, SkillHost.lineKey(skill)))
+        || ComponentHost.of(skill).openGui(player, checkPermissions);
   }
 
   public static void openAdaptation(PlayerRef player, Adaptation<?> adaptation) {
@@ -59,7 +69,8 @@ public final class AdaptScreens {
     if (player == null || adaptation == null) {
       return false;
     }
-    if (!screens(player)) {
+    PackScreens pack = pack(player);
+    if (!screens(player) && pack == null) {
       return ComponentHost.of(adaptation).openGui(player, checkPermissions);
     }
     if (!adaptation.isEnabled() || adaptation.getSkill() == null || !adaptation.getSkill().isEnabled()
@@ -67,6 +78,7 @@ public final class AdaptScreens {
       return false;
     }
     return route(player, new Route.Adaptation(adaptation.getId().toString()))
+        || (pack != null && pack.openAdaptation(player, adaptation.getId().toString()))
         || ComponentHost.of(adaptation).openGui(player, checkPermissions);
   }
 
@@ -92,15 +104,34 @@ public final class AdaptScreens {
     }
   }
 
-  /** Opens the Mutate flow led by {@code lead}: the client's spread when it has one, otherwise the partner menu. */
+  /**
+   * Opens the Mutate flow led by {@code lead}: the client's spread when it has one, the pack spread for pack viewers,
+   * otherwise the partner menu.
+   */
   public static void openMutation(PlayerRef player, Skill<?> lead) {
-    if (!ClientUiService.negotiated(player, ClientProtocol.MUTATE_SPREAD) || !route(player, new Route.Mutate(SkillHost.lineKey(lead)))) {
+    if (ClientUiService.negotiated(player, ClientProtocol.MUTATE_SPREAD) && route(player, new Route.Mutate(SkillHost.lineKey(lead)))) {
+      return;
+    }
+    PackScreens pack = pack(player);
+    if (pack == null || !pack.openMutate(player, SkillHost.lineKey(lead))) {
       MutationGui.openPartners(player, lead);
     }
   }
 
+  /** Opens the pack's Mutate lead picker for pack viewers; false for everyone else, who get the chest lead menu. */
+  public static boolean openMutationLeads(PlayerRef player) {
+    PackScreens pack = pack(player);
+    return pack != null && pack.openMutateLeads(player);
+  }
+
   private static boolean screens(PlayerRef player) {
     return ClientUiService.negotiated(player, ClientProtocol.SCREENS);
+  }
+
+  /** The pack screens when {@code player} gets them, else null. */
+  private static PackScreens pack(PlayerRef player) {
+    PackScreens screens = PackScreens.current();
+    return screens != null && screens.book(player) ? screens : null;
   }
 
   private static boolean route(PlayerRef player, Route route) {

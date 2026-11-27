@@ -2,6 +2,7 @@ package art.arcane.adapt.client.screen;
 
 import art.arcane.adapt.client.state.ClientState;
 import art.arcane.adapt.client.ui.kit.LegacyText;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;

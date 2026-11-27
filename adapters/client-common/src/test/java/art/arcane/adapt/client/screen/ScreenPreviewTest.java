@@ -10,6 +10,8 @@ import art.arcane.adapt.client.ui.kit.KitDraw;
 import art.arcane.adapt.client.ui.kit.ManualClock;
 import art.arcane.adapt.client.ui.kit.Snackbar;
 import art.arcane.adapt.client.ui.kit.UiNode;
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.PreferenceValue;
 import org.junit.jupiter.api.Test;
 

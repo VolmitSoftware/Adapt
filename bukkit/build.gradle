@@ -88,6 +88,20 @@ def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Ja
     exclude('com/fren_gor/ultimateAdvancementAPI/database/impl/MySQL.class')
 }
 
+// The stock pack's SHA-1: a server whose own pack has it sends players to the released copy (pack.releaseUrl).
+def packReleaseTask = tasks.register('packRelease') {
+    dependsOn(':pack:bakeZip')
+    Provider<RegularFile> zip = project(':pack').layout.buildDirectory.file("packs/Adapt Pack v${project.version}.zip")
+    Provider<Directory> out = layout.buildDirectory.dir('generated/pack-release')
+    inputs.file(zip)
+    outputs.dir(out)
+    doLast {
+        File file = out.get().file('art/arcane/adapt/pack/release.sha1').asFile
+        file.parentFile.mkdirs()
+        file.text = java.security.MessageDigest.getInstance('SHA-1').digest(zip.get().asFile.bytes).encodeHex().toString() + '\n'
+    }
+}
+
 /**
  * Expand properties into plugin yml
  */
@@ -95,6 +109,7 @@ tasks.named('processResources').configure {
     dependsOn(languageSourceManifestTask)
     exclude('*.toml')
     from(languageSourceManifestTask)
+    from(packReleaseTask)
 
     def pluginProperties = [
         name      : rootProject.name,
@@ -159,6 +174,8 @@ def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
 dependencies {
     api(project(':core'))
     implementation(project(':content'))
+    implementation(project(':pack'))
+    implementation(project(':bukkit-native'))
     implementation('com.github.VolmitSoftware.VolmLib:native-api:master-SNAPSHOT') {
         transitive = false
     }
@@ -344,6 +361,8 @@ shadowJarTask.configure {
         exclude(project(':core'))
         exclude(project(':content'))
         exclude(project(':api'))
+        exclude(project(':pack'))
+        exclude(project(':bukkit-native'))
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude('net/kyori/**')
@@ -455,7 +474,8 @@ pluginPackaging {
             keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/',
                             'art/arcane/adapt/util/arcane/volmlib/nativelib/']
             shrinkRules = [file('packaging/shrink.pro')]
-            shrinkDontwarn = ['org.sqlite.**', 'net.minecraft.**', 'org.bukkit.craftbukkit.**']
+            shrinkDontwarn = ['org.sqlite.**', 'net.minecraft.**', 'org.bukkit.craftbukkit.**', 'com.mojang.**',
+                              'art.arcane.adapt.bukkit.canvas.server.**']
             shrinkRelocations = [
                 'net.byteflux.libby': "${lib}.libby",
                 'org.bstats': "${lib}.bstats"

@@ -11,6 +11,7 @@ import art.arcane.adapt.client.ui.UiScreen;
 import art.arcane.adapt.client.theme.PageThemes;
 import art.arcane.adapt.client.ui.kit.UiMotion;
 import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.CatalogView;

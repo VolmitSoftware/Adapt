@@ -52,6 +52,7 @@ final class ScreenInfo {
         }
         result.add("kinds", kinds);
         result.addProperty("title", screen.getTitle().getString());
+        result.add("titleRuns", TextRuns.describe(screen.getTitle()));
         result.addProperty("width", screen.width);
         result.addProperty("height", screen.height);
         JsonArray widgets = new JsonArray();
@@ -74,6 +75,8 @@ final class ScreenInfo {
             ContainerScreenAccessor accessor = (ContainerScreenAccessor) container;
             result.addProperty("left", accessor.adaptUiLeftPos());
             result.addProperty("top", accessor.adaptUiTopPos());
+            Slot hovered = accessor.adaptUiHoveredSlot();
+            result.addProperty("hoveredSlot", hovered == null ? null : hovered.index);
             JsonArray slots = new JsonArray();
             for (Slot slot : container.getMenu().slots) {
                 JsonObject entry = new JsonObject();
@@ -85,6 +88,7 @@ final class ScreenInfo {
                     entry.addProperty("item", String.valueOf(BuiltInRegistries.ITEM.getKey(stack.getItem())));
                     entry.addProperty("count", stack.getCount());
                     entry.addProperty("name", stack.getHoverName().getString());
+                    SlotLooks.describe(stack, entry);
                 }
                 slots.add(entry);
             }

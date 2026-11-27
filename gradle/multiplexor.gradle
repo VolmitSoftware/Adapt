@@ -18,6 +18,23 @@ afterEvaluate {
             minecraftVersions: [bukkitMinecraftRange.toString()]
         ]]
     ]]
+    File packs = project(':pack').layout.buildDirectory.dir('packs').get().asFile
+    targets.add([
+        id: 'pack',
+        tasks: [':pack:bakeZip'],
+        arguments: [],
+        java: 25,
+        memoryMiB: 4096,
+        workers: 2,
+        dependsOn: [],
+        artifacts: [[
+            path: rootProject.relativePath(new File(packs, "Adapt Pack v${project.version}.zip")),
+            role: 'runtime',
+            type: 'resourcepack',
+            platforms: [],
+            minecraftVersions: [bukkitMinecraftRange.toString()]
+        ]]
+    ])
     Map<String, String> loaders = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge']
     loaders.each { String loader, String platform ->
         minecraftTargets.each { String minecraft, Map<String, Object> properties ->

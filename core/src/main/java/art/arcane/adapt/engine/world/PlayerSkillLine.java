@@ -585,7 +585,7 @@ public class PlayerSkillLine {
       String group = "lvl" + getLine();
       long displayDurationMillis = config.getActionbarLevelDurationMillis();
       KList<Notification> notifications = new KList<>();
-      boolean clientToast = showPopup && p.getPlayer() != null && ClientToasts.capable(p.getPlayer().uuid());
+      boolean clientToast = showPopup && ToastNotification.shown(p.getPlayer());
       if (level % 10 == 0) {
         if (playSounds) {
           float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();

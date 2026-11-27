@@ -46,11 +46,14 @@ class SpigotLinkageTest {
       "art/arcane/adapt/bukkit/event/Paper26Translations",
       "art/arcane/adapt/bukkit/event/PaperTranslations",
       "art/arcane/adapt/bukkit/event/RegionRespawns",
+      "art/arcane/adapt/bukkit/feature/pack/PaperDialogPrompts",
+      "art/arcane/adapt/bukkit/feature/pack/PaperPackText",
       "art/arcane/adapt/bukkit/platform/PaperRefRelease",
       "art/arcane/adapt/bukkit/platform/PaperRegistries",
       "art/arcane/adapt/bukkit/platform/data/PaperPdcView",
       "art/arcane/adapt/bukkit/platform/entity/PaperCopperGolems",
-      "art/arcane/adapt/bukkit/platform/entity/PaperTeleports");
+      "art/arcane/adapt/bukkit/platform/entity/PaperTeleports",
+      "art/arcane/adapt/bukkit/port/PaperPackStatus");
   private static final Pattern DESCRIPTOR_CLASS = Pattern.compile("L((?:org/bukkit|com/destroystokyo/paper|io/papermc/paper)/[^;<]+)[;<]");
 
   @Test

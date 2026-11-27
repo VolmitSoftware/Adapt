@@ -100,7 +100,12 @@ public final class Dressing {
 
     /** Composes the dressing of {@code theme} on a book laid out as {@code geometry}. */
     public static Dressing compose(BookGeometry geometry, PageTheme theme) {
-        Composer composer = new Composer(geometry, theme, seed(theme, geometry.leaf()));
+        return compose(geometry, theme, null);
+    }
+
+    /** Composes the dressing of {@code theme} on a book laid out as {@code geometry}, shown on its own as {@code solo} says when given. */
+    public static Dressing compose(BookGeometry geometry, PageTheme theme, Solo solo) {
+        Composer composer = new Composer(geometry, theme, seed(theme, geometry.leaf()), solo);
         composer.run();
         List<Emitter> emitters = new ArrayList<>();
         int prefix = ThemeRandom.prefix("e" + composer.seed);
@@ -134,11 +139,13 @@ public final class Dressing {
         private final Map<ThemeKit, int[]> started = new HashMap<>();
         private final Map<ThemeKit, int[]> turned = new HashMap<>();
         private int trims;
+        private final Solo solo;
 
-        private Composer(BookGeometry geometry, PageTheme pageTheme, long layoutSeed) {
+        private Composer(BookGeometry geometry, PageTheme pageTheme, long layoutSeed, Solo solo) {
             g = geometry;
             theme = pageTheme;
             seed = layoutSeed;
+            this.solo = solo;
             r = new ThemeRandom(layoutSeed);
         }
 
@@ -146,9 +153,27 @@ public final class Dressing {
             return add(kit, slot, index, x, y, flip, drips, spine, Double.NaN);
         }
 
+        /** Whether {@code kit} sets a corner piece at the cover's top corners. */
+        private static boolean cornered(ThemeKit kit) {
+            return (kit.top() == null || !kit.top().cornered()) && kit.dress(DressSlot.CORNER).length > 0;
+        }
+
+        /** Whether {@code kit} sets a pile at the cover's foot corners. */
+        private static boolean piled(ThemeKit kit) {
+            return (kit.foot() == null || !kit.foot().cornered()) && kit.dress(DressSlot.PILE).length > 0;
+        }
+
+        /** How far corner and pile pieces sit in from the cover's corners. */
+        private static int inset(ThemeKit kit) {
+            return kit.solid() ? 0 : 5;
+        }
+
         /** {@code phase} NaN takes the phase from the stream; a piece placed by hashes passes its own. */
         private Piece add(ThemeKit kit, DressSlot slot, int index, int x, int y, boolean flip, int drips, boolean spine, double given) {
             DressSprite[] sprites = kit.dress(slot);
+            if (sprites.length == 0) {
+                return null;
+            }
             int wrapped = index % sprites.length;
             DressSprite sprite = sprites[wrapped];
             if (!fits(sprite, x, y, flip, g.keep(), g.screenWidth(), g.screenHeight())) {
@@ -281,7 +306,15 @@ public final class Dressing {
                         column(kit, right);
                         continue;
                     }
-                    strand(c.y0() + 9, c.y1() - 12, kit, (int n, double at, double end) -> {
+                    int from = c.y0() + 9;
+                    int to = c.y1() - 12;
+                    if (solo != null && cornered(kit)) {
+                        from = Math.max(from, c.y0() - 8 + inset(kit) + kit.dress(DressSlot.CORNER)[0].height() + Solo.APART);
+                    }
+                    if (solo != null && piled(kit)) {
+                        to = Math.min(to, c.y1() + 6 - kit.dress(DressSlot.PILE)[0].height() - inset(kit) - Solo.APART);
+                    }
+                    strand(from, to, kit, (int n, double at, double end) -> {
                         DressSprite[] sides = kit.dress(DressSlot.SIDE);
                         for (int v = 0, i0 = vary(kit, DressSlot.SIDE); v < sides.length; v++) {
                             DressSprite sprite = pick(kit, DressSlot.SIDE, i0 + v);
@@ -323,9 +356,9 @@ public final class Dressing {
             }
             for (BookGeometry.Span s : spans) {
                 ThemeKit kit = s.kit();
-                boolean piles = kit.foot() == null || !kit.foot().cornered();
-                boolean corners = kit.top() == null || !kit.top().cornered();
-                int inset = kit.solid() ? 0 : 5;
+                boolean piles = piled(kit);
+                boolean corners = cornered(kit);
+                int inset = inset(kit);
                 if (s.outerLeft()) {
                     if (piles) {
                         add(kit, DressSlot.PILE, 0, c.x0() - 8 + inset, c.y1() + 6 - kit.dress(DressSlot.PILE)[0].height() - inset, false, 0, false);
@@ -340,7 +373,8 @@ public final class Dressing {
                         add(kit, DressSlot.PILE, 0, c.x1() + 8 - pile.width() - inset, c.y1() + 6 - pile.height() - inset, true, 0, false);
                     }
                     if (corners) {
-                        add(kit, DressSlot.CORNER, 0, c.x1() + 8 - kit.dress(DressSlot.CORNER)[0].width() - inset, c.y0() - 8 + inset, true, 0, false);
+                        int x = c.x1() + 8 - kit.dress(DressSlot.CORNER)[0].width() - inset;
+                        add(kit, DressSlot.CORNER, 0, solo == null ? x : Math.max(x, solo.cornerFrom()), c.y0() - 8 + inset, true, 0, false);
                     }
                 }
             }

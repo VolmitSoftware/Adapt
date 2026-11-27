@@ -25,9 +25,7 @@ import art.arcane.adapt.engine.tick.TickedObject;
 import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.engine.xp.XP;
-import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ServerFrame;
-import art.arcane.adapt.client.server.hud.ClientHud;
 import art.arcane.adapt.client.server.hud.XpEarnCoalescer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.util.common.format.C;
@@ -80,7 +78,7 @@ public class Notifier extends TickedObject {
   }
 
   public void notifyXP(String line, double value) {
-    if (ClientHud.capable(playerId, ClientProtocol.HUD)) {
+    if (AdaptHud.capable(playerId)) {
       return;
     }
     try {
@@ -111,7 +109,7 @@ public class Notifier extends TickedObject {
    * {@link XpEarnCoalescer#INTERVAL_MILLIS} per skill. Pooled payout is unaffected.
    */
   public void xpEarned(PlayerSkillLine line, double amount) {
-    if (!ClientHud.capable(playerId, ClientProtocol.HUD) || !AdaptConfig.get().isActionbarNotifyXp()) {
+    if (!AdaptHud.capable(playerId) || !AdaptConfig.get().isActionbarNotifyXp()) {
       return;
     }
     boolean waiting;
@@ -267,8 +265,7 @@ public class Notifier extends TickedObject {
     double total = line.getXp() + line.getPooledXp();
     double absoluteLevel = XP.getLevelForXp(total);
     int level = (int) Math.floor(absoluteLevel);
-    ClientHud.send(playerId, ClientProtocol.HUD,
-        new ServerFrame.XpEarned(line.getLine(), amount, total, level, absoluteLevel - level));
+    AdaptHud.xpEarned(playerId, new ServerFrame.XpEarned(line.getLine(), amount, total, level, absoluteLevel - level));
   }
 
   private void flushXpNotification() {

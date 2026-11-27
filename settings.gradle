@@ -1,7 +1,8 @@
 import java.io.File
 
 rootProject.name = 'Adapt'
-include(':api', ':core', ':content', ':bukkit')
+include(':api', ':core', ':content', ':bukkit-native', ':bukkit')
+include(':pack')
 
 boolean hasVolmLibSettings(File directory) {
     new File(directory, 'settings.gradle.kts').exists() || new File(directory, 'settings.gradle').exists()

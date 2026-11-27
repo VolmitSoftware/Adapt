@@ -9,6 +9,7 @@ import art.arcane.adapt.api.mutation.Signature;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.protocol.ToastKind;
 import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.pack.hud.PackToasts;
 import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.engine.component.ComponentHost;
 import art.arcane.adapt.engine.mutation.MutatedSkill;
@@ -127,12 +128,17 @@ public class AdvancementManager {
     return skill != null && !(skill instanceof MutatedSkill) && skill.getAdaptations().contains(adaptation);
   }
 
-  /** Grants on the host; a player with client toasts gets the toast frame and no vanilla popup. */
+  /**
+   * Grants on the host; a player with client toasts gets the toast frame and no vanilla popup, a pack viewer the vanilla
+   * popup with the pack icon.
+   */
   static void renderGrant(AdvancementHost host, PlayerRef target, String key, boolean showToast,
                           ServerFrame.Toast clientToast) {
     boolean sentToClient = showToast && clientToast != null && ClientToasts.capable(target.uuid())
         && ClientToasts.send(target.uuid(), clientToast);
-    host.grant(target, AdaptAdvancement.advancementId(key), showToast && !sentToClient);
+    boolean sentToPack = showToast && !sentToClient && clientToast != null
+        && PackToasts.running().show(host, target, clientToast, PackToasts.frame(clientToast.kind()));
+    host.grant(target, AdaptAdvancement.advancementId(key), showToast && !sentToClient && !sentToPack);
   }
 
   static boolean shouldDisplayToast(boolean requested, boolean enabled) {

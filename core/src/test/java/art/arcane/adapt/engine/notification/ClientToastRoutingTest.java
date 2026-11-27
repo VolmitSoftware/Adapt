@@ -141,6 +141,16 @@ class ClientToastRoutingTest {
     assertThat(link.frames()).containsExactly(toast);
   }
 
+  @Test
+  void toastsAreShownToClientToastPlayersAndNotToPlainClients() {
+    assertThat(ToastNotification.shown(player)).isFalse();
+    assertThat(ToastNotification.shown(null)).isFalse();
+
+    link.grant(PLAYER_ID, ClientProtocol.TOASTS);
+
+    assertThat(ToastNotification.shown(player)).isTrue();
+  }
+
   private static AdvancementNotification knowledgeNotification() {
     return AdvancementNotification.builder()
         .kind(ToastKind.KNOWLEDGE)

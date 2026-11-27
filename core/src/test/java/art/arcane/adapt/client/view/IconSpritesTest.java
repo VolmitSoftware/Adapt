@@ -16,6 +16,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,6 +114,20 @@ class IconSpritesTest {
     }
     assertThat(MutationIcons.slug("Shieldbearer's Pack")).isEqualTo("shieldbearers-pack");
     assertThat(MutationIcons.slug("Cutting on the Fly")).isEqualTo("cutting-on-the-fly");
+  }
+
+  @Test
+  void tintsHoldEveryRegisteredSkillTintAndWhite() {
+    List<Class<? extends SimpleSkill<?>>> types = BuiltinAddon.skills().stream()
+        .<Class<? extends SimpleSkill<?>>>map(BuiltinAddon.Entry::type).toList();
+    try (TestAdapt adapt = TestAdapt.start(TestPlatform.builder(dataFolder).build(), types)) {
+      Set<Integer> expected = new TreeSet<>();
+      for (Skill<?> skill : adapt.core().getAdaptServer().getSkillRegistry().getSkills()) {
+        expected.add(MutationIcons.tint(skill));
+      }
+      expected.add(IconSprites.NO_TINT);
+      assertThat(MutationIcons.tints(adapt.core().assets())).isEqualTo(expected).contains(0x6b97ff, 0xb07048);
+    }
   }
 
   @Test

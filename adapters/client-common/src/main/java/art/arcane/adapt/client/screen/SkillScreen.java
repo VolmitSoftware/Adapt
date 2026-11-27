@@ -27,6 +27,8 @@ import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiRect;
 import art.arcane.adapt.client.ui.kit.UiTheme;
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.KeptView;

@@ -5,6 +5,7 @@ import art.arcane.adapt.client.ui.kit.Popover;
 import art.arcane.adapt.client.ui.kit.UiGroup;
 import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
 import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.SkillView;
 import art.arcane.adapt.client.view.XpGuideView;
 

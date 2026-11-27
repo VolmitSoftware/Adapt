@@ -1,0 +1,23 @@
+rows 3 top-only
+run adapt:ui/space ffffff <e00f><e00c>
+run adapt:ui/ledger/page_r3 ffffff <e000>
+run adapt:ui/space ffffff <e012><e010><e00f><e00d><e00c><e00b>
+run adapt:ui/paint ffffff <e397>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e39e>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e39b>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e39a>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e399>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e3a0>
+run adapt:ui/space ffffff <e011><e00f><e00e><e00c><e00b>
+run adapt:ui/text/m1 f6edd8 Adapt
+run adapt:ui/text/m1 b79c6e  / 
+run adapt:ui/text/m1 ffaa00 Settings
+top:0 minecraft:stonex1 click "Stone" | first | second @null adapt:tome
+top:1 minecraft:paperx1 " " @adapt:adapt_ui/art/blank hidden
+top:2 minecraft:paperx1 "Stone" | first | second @adapt:adapt_ui/art/blank hidden
+top:18 minecraft:paperx1 click "Back" | to the list @adapt:adapt_ui/art/ctl/back adapt:tome

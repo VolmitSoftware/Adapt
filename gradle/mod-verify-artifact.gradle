@@ -64,7 +64,8 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
             List<String> forbidden = ['org/bukkit/', 'org/spigotmc/', 'io/papermc/', 'com/destroystokyo/', 'net/md_5/',
                 'net/minecraft/', 'com/mojang/', 'net/minecraftforge/', 'net/neoforged/', 'net/fabricmc/']
             Set<String> classes = new HashSet<>()
-            Pattern clientReference = Pattern.compile('art/arcane/adapt/client/(?!protocol/|view/|link/|server/|theme/(?:ThemeKit|ThemeSprite|DressMove|DressSlot|DressSprite|BandScene)\\b|ui/UiTexture\\b)')
+            Pattern clientReference = Pattern.compile('art/arcane/adapt/client/[A-Za-z0-9_/$]+')
+            Pattern serverShared = Pattern.compile('art/arcane/adapt/client/(?:protocol/|view/|link/|server/|theme/(?:ThemeKit|ThemeSprite|DressMove|DressSlot|DressSprite|BandScene)\\b|ui/UiTexture\\b)')
             List<String> minecraftGson = ['com/mojang/serialization/JsonOps', 'net/minecraft/util/GsonHelper']
             archive.entries().each { JarEntry entry ->
                 if (!entry.name.endsWith('.class')) {
@@ -84,7 +85,13 @@ TaskProvider<Task> verification = tasks.register('verifyArtifact') {
                         String constants = new String(bytecode, StandardCharsets.ISO_8859_1)
                         require(dormantBukkitReferences.contains(classPath) || !constants.contains('org/bukkit/'), "Bukkit reference in ${entry.name}")
                         // A dedicated server must never load client code: only client packages may name it. The protocol, view, link and server packages are shared with the server, as is the theme kit model.
-                        require(classPath.contains('/client/') || !clientReference.matcher(constants).find(), "${entry.name} references client code")
+                        if (!classPath.contains('/client/')) {
+                            Matcher references = clientReference.matcher(constants)
+                            while (references.find()) {
+                                String reference = references.group()
+                                require(serverShared.matcher(reference).lookingAt(), "${entry.name} references client code ${reference}")
+                            }
+                        }
                         // Minecraft's JSON codecs work on its own Gson types, and the bundled relocated Gson is a different set of classes.
                         require(!constants.contains('art/arcane/adapt/shadow/gson/') || !minecraftGson.any { String type -> constants.contains(type) },
                             "${entry.name} hands relocated Gson to Minecraft")

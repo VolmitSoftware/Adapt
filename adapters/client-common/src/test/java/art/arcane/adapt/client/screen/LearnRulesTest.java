@@ -1,5 +1,7 @@
 package art.arcane.adapt.client.screen;
 
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;

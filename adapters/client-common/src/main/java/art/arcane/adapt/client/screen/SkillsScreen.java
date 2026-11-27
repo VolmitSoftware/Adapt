@@ -16,6 +16,8 @@ import art.arcane.adapt.client.ui.kit.UiGroup;
 import art.arcane.adapt.client.ui.kit.UiLayoutPolicy;
 import art.arcane.adapt.client.ui.kit.UiNode;
 import art.arcane.adapt.client.ui.kit.UiOverlay;
+import art.arcane.adapt.client.view.LearnRules;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.view.IconSprites;
 import art.arcane.adapt.client.view.PlayerView;

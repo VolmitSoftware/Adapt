@@ -33,22 +33,29 @@ public final class ThemedBook {
     private final List<BandStage> edges;
     private final int[] jitter = new int[64];
     private final int[] kick = new int[64];
+    private final Solo solo;
 
     private record Band(ThemeKit kit, int x, int tiles) {
     }
 
-    private ThemedBook(BookGeometry geometry, PageTheme pageTheme) {
+    private ThemedBook(BookGeometry geometry, PageTheme pageTheme, Solo solo) {
         g = geometry;
         theme = pageTheme;
-        dressing = Dressing.compose(geometry, pageTheme);
+        this.solo = solo;
+        dressing = Dressing.compose(geometry, pageTheme, solo);
         life = PageLife.of(geometry, pageTheme, dressing);
-        edges = BandStage.of(geometry, pageTheme);
+        edges = BandStage.of(geometry, pageTheme, solo);
         background();
         layer.close();
     }
 
     public static ThemedBook of(BookGeometry geometry, PageTheme theme) {
-        return new ThemedBook(geometry, theme);
+        return new ThemedBook(geometry, theme, null);
+    }
+
+    /** A book shown on its own, as the server pack's page is, dressed as {@code solo} says. */
+    public static ThemedBook alone(BookGeometry geometry, PageTheme theme, Solo solo) {
+        return new ThemedBook(geometry, theme, solo);
     }
 
     public BookGeometry geometry() {
@@ -107,6 +114,9 @@ public final class ThemedBook {
         }
         for (BookGeometry.Span span : g.spans(theme)) {
             cover(span);
+            if (solo != null) {
+                bandToEnd(span);
+            }
         }
         if (theme.mutated() && !g.single()) {
             bandJoint();
@@ -248,6 +258,26 @@ public final class ThemedBook {
         }
         layer.fill(start - 1, c.y0() - 2, start, c.y0() + 3, k);
         layer.fill(start + n * 16, c.y0() - 2, start + n * 16 + 1, c.y0() + 3, k);
+    }
+
+    /**
+     * Carries a solid kit's band of whole tiles on to the far end of a span with an outer edge at both ends, the last
+     * tile cut, and closes it there: whole tiles stop up to fifteen units short of that end.
+     */
+    private void bandToEnd(BookGeometry.Span s) {
+        BookGeometry.Box c = g.cover();
+        ThemeKit kit = s.kit();
+        if (!kit.solid() || kit.top() != null || !s.outerLeft() || !s.outerRight() || s.x1() - s.x0() < 24) {
+            return;
+        }
+        int end = s.x0() + Math.floorDiv(s.x1() - s.x0() - 1, 16) * 16;
+        if (end >= s.x1() - 1) {
+            return;
+        }
+        int k = kit.color('k');
+        layer.fill(end, c.y0(), s.x1() - 1, c.y0() + 6, ThemeColor.lerp(kit.color('4'), k, 0.45));
+        layer.blit(kit.texture(), kit.sprite("band"), end, c.y0() - 3, s.x1() - 1 - end, kit.sprite("band").height());
+        layer.fill(s.x1() - 1, c.y0() - 2, s.x1(), c.y0() + 3, k);
     }
 
     /**

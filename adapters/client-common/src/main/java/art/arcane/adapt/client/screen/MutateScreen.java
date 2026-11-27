@@ -10,6 +10,7 @@ import art.arcane.adapt.client.ui.UiKeyEvent;
 import art.arcane.adapt.client.ui.kit.Label;
 import art.arcane.adapt.client.ui.kit.UiIcons;
 import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.client.view.CatalogIndex;
 import art.arcane.adapt.client.view.MutationEntry;
 import art.arcane.adapt.client.view.MutationSide;
 import art.arcane.adapt.client.view.MutationSpreadView;

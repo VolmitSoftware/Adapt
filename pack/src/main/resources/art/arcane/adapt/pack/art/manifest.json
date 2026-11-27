@@ -1,0 +1,880 @@
+{
+ "note": "New source art for the pack, made by src/art.js from the shipped kit pieces (assets/adapt/textures/gui/kit) and kit palettes (assets/adapt/themes/<kit>.json). Kit-derived pieces carry kitDerived and the rule to regenerate them; art/kit-roles.json holds the resolved colours per shipped kit. Tome ramp colours are UiRamp in client-common.",
+ "files": [
+  {
+   "file": "art/ctl/back.png",
+   "w": 16,
+   "h": 16,
+   "role": "back",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/back_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "back (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/check.png",
+   "w": 16,
+   "h": 16,
+   "role": "toggle sprite: skill.switch, pref.toggle, menu toggles",
+   "derivation": "kit/check.png centred on 16x16"
+  },
+  {
+   "file": "art/ctl/check_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "toggle sprite: skill.switch, pref.toggle, menu toggles",
+   "derivation": "kit/check_on.png centred on 16x16"
+  },
+  {
+   "file": "art/ctl/lock.png",
+   "w": 16,
+   "h": 16,
+   "role": "pref.locked",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/lock_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "pref.locked (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/more.png",
+   "w": 16,
+   "h": 16,
+   "role": "mutate.gain.more, mutate.lose.more",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/more_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "mutate.gain.more, mutate.lose.more (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/next.png",
+   "w": 16,
+   "h": 16,
+   "role": "page.next and pref.choice",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/next_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "page.next and pref.choice (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/prev.png",
+   "w": 16,
+   "h": 16,
+   "role": "page.prev",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/prev_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "page.prev (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/reset.png",
+   "w": 16,
+   "h": 16,
+   "role": "pref.reset in ledger menus",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/reset_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "pref.reset in ledger menus (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/search.png",
+   "w": 16,
+   "h": 16,
+   "role": "search (unused in v2, the field is paint)",
+   "derivation": "kit/button.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/search_off.png",
+   "w": 16,
+   "h": 16,
+   "role": "search (unused in v2, the field is paint) (disabled)",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink glyph with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_kept.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.kept",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_kept_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.kept (selected)",
+   "derivation": "kit/tile_selected.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_levels.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.levels",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_levels_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.levels (selected)",
+   "derivation": "kit/tile_selected.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_list.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.list",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_list_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.list (selected)",
+   "derivation": "kit/tile_selected.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_recipes.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.recipes",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_recipes_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.recipes (selected)",
+   "derivation": "kit/tile_selected.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_settings.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.settings",
+   "derivation": "kit/tile.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl/tab_settings_on.png",
+   "w": 16,
+   "h": 16,
+   "role": "tab.settings (selected)",
+   "derivation": "kit/tile_selected.png nine-slice 16x16 (border 4) + ink pictogram with a 1 px shade"
+  },
+  {
+   "file": "art/ctl13/back.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/back painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/back.png"
+  },
+  {
+   "file": "art/ctl13/back_off.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/back_off painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/back_off.png"
+  },
+  {
+   "file": "art/ctl13/next.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/next painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/next.png"
+  },
+  {
+   "file": "art/ctl13/next_off.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/next_off painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/next_off.png"
+  },
+  {
+   "file": "art/ctl13/prev.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/prev painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/prev.png"
+  },
+  {
+   "file": "art/ctl13/prev_off.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/prev_off painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/prev_off.png"
+  },
+  {
+   "file": "art/ctl13/tab_levels.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_levels painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_levels.png"
+  },
+  {
+   "file": "art/ctl13/tab_levels_on.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_levels_on painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_levels_on.png"
+  },
+  {
+   "file": "art/ctl13/tab_list.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_list painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_list.png"
+  },
+  {
+   "file": "art/ctl13/tab_list_on.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_list_on painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_list_on.png"
+  },
+  {
+   "file": "art/ctl13/tab_recipes.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_recipes painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_recipes.png"
+  },
+  {
+   "file": "art/ctl13/tab_recipes_on.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_recipes_on painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_recipes_on.png"
+  },
+  {
+   "file": "art/ctl13/tab_settings.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_settings painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_settings.png"
+  },
+  {
+   "file": "art/ctl13/tab_settings_on.png",
+   "w": 16,
+   "h": 13,
+   "role": "foot-bar face of ctl/tab_settings_on painted under its hotbar slot, 13 tall so the foot scene below stays clear",
+   "derivation": "design v5 art-v5/ctl13/tab_settings_on.png"
+  },
+  {
+   "file": "art/fx/veil.png",
+   "w": 18,
+   "h": 18,
+   "role": "early page-turn cell (superseded by the page-wide sheet; keep only as colour reference)",
+   "derivation": "PAGE ramp"
+  },
+  {
+   "file": "art/fx/veil_edge.png",
+   "w": 18,
+   "h": 18,
+   "role": "early page-turn cell (superseded by the page-wide sheet; keep only as colour reference)",
+   "derivation": "PAGE ramp"
+  },
+  {
+   "file": "art/hud/cool_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 1 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 2 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 3 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 4 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 5 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 6 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 7 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/cool_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "hud cooldown wipe step 8 of 8",
+   "derivation": "clock wedge of leather at 59% alpha"
+  },
+  {
+   "file": "art/hud/well.png",
+   "w": 20,
+   "h": 20,
+   "role": "hud ability well (optional backing)",
+   "derivation": "kit/tile.png nine-slice 20x20"
+  },
+  {
+   "file": "art/ledger/page_r1.png",
+   "w": 196,
+   "h": 150,
+   "role": "ledger page for 1 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r1.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/ledger/page_r2.png",
+   "w": 196,
+   "h": 168,
+   "role": "ledger page for 2 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r2.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/ledger/page_r3.png",
+   "w": 196,
+   "h": 186,
+   "role": "ledger page for 3 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r3.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/ledger/page_r4.png",
+   "w": 196,
+   "h": 204,
+   "role": "ledger page for 4 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r4.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/ledger/page_r5.png",
+   "w": 196,
+   "h": 222,
+   "role": "ledger page for 5 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r5.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/ledger/page_r6.png",
+   "w": 196,
+   "h": 240,
+   "role": "ledger page for 6 chest rows, drawn at (-10,-9)",
+   "derivation": "design v5 art-v5/ledger5/page_r6.png: page art from y -9 to the container bottom + 9, without the strap; the vanilla Inventory label shows"
+  },
+  {
+   "file": "art/mini/knowledge.png",
+   "w": 7,
+   "h": 8,
+   "role": "knowledge feather at text size (seat.knowledge, mutate.knowledge)",
+   "derivation": "hand drawn, 7x8"
+  },
+  {
+   "file": "art/page/tome.png",
+   "w": 235,
+   "h": 240,
+   "role": "plain tome page for the Skills screen, drawn at (-29,-9)",
+   "derivation": "design v5 pages-v5/A-none still.png (plain tome, book y -7..228), cropped to its bounds, with the composer's header divider at y 19 painted out (v5 tome pages have no divider)"
+  },
+  {
+   "file": "art/pip/empty_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 1",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_10.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 10",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 2",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 3",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 4",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 5",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 6",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 7",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 8",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/empty_9.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip empty, level 9",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/fill.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned fill layer",
+   "derivation": "white disc, tinted with the skill ink at draw time (tint layer of a composite model)"
+  },
+  {
+   "file": "art/pip/kept_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 1",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_10.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 10",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 2",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 3",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 4",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 5",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 6",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 7",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 8",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/kept_9.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip kept, level 9",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/learned_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 1",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_10.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 10",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 2",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 3",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 4",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 5",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 6",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 7",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 8",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/learned_9.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip learned, level 9",
+   "derivation": "disc rim and roman numeral in tome ramp colours; no fill, drawn over pip/fill"
+  },
+  {
+   "file": "art/pip/remove_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 1",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_10.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 10",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 2",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 3",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 4",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 5",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 6",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 7",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 8",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/remove_9.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip remove, level 9",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/ring.png",
+   "w": 18,
+   "h": 18,
+   "role": "level.pip previewed-level ring, 18x18 at (-1,-1)",
+   "derivation": "ink ring"
+  },
+  {
+   "file": "art/pip/target_1.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 1",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_10.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 10",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_2.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 2",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_3.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 3",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_4.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 4",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_5.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 5",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_6.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 6",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_7.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 7",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_8.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 8",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/pip/target_9.png",
+   "w": 16,
+   "h": 16,
+   "role": "level.pip target, level 9",
+   "derivation": "disc rim and roman numeral in tome ramp colours"
+  },
+  {
+   "file": "art/seal/fill_c.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment fill (c), 18x18 at (-1,-1), drawn at 80% alpha",
+   "derivation": "white, tinted with the lead ink (left) or partner ink (right)"
+  },
+  {
+   "file": "art/seal/fill_l.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment fill (l), 18x18 at (-1,-1), drawn at 80% alpha",
+   "derivation": "white, tinted with the lead ink (left) or partner ink (right)"
+  },
+  {
+   "file": "art/seal/fill_m.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment fill (m), 18x18 at (-1,-1), drawn at 80% alpha",
+   "derivation": "white, tinted with the lead ink (left) or partner ink (right)"
+  },
+  {
+   "file": "art/seal/fill_r.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment fill (r), 18x18 at (-1,-1), drawn at 80% alpha",
+   "derivation": "white, tinted with the lead ink (left) or partner ink (right)"
+  },
+  {
+   "file": "art/seal/mark_0.png",
+   "w": 22,
+   "h": 22,
+   "role": "seal.mark frame 0, 22x22 at (-3,-3)",
+   "derivation": "kit/token_maxed.png + mark/confirm.png"
+  },
+  {
+   "file": "art/seal/mark_1.png",
+   "w": 22,
+   "h": 22,
+   "role": "seal.mark frame 1, 22x22 at (-3,-3)",
+   "derivation": "kit/token_maxed.png + mark/confirm.png + one glint"
+  },
+  {
+   "file": "art/seal/mark_2.png",
+   "w": 22,
+   "h": 22,
+   "role": "seal.mark frame 2, 22x22 at (-3,-3)",
+   "derivation": "kit/token_maxed.png + mark/confirm.png + one glint"
+  },
+  {
+   "file": "art/seal/mark_3.png",
+   "w": 22,
+   "h": 22,
+   "role": "seal.mark frame 3, 22x22 at (-3,-3)",
+   "derivation": "kit/token_maxed.png + mark/confirm.png + one glint"
+  },
+  {
+   "file": "art/seal/mark_4.png",
+   "w": 22,
+   "h": 22,
+   "role": "seal.mark frame 4, 22x22 at (-3,-3)",
+   "derivation": "kit/token_maxed.png + mark/confirm.png + one glint"
+  },
+  {
+   "file": "art/seal/track_c.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment track (c), 18x18 at (-1,-1), baked paint",
+   "derivation": "tome ramp"
+  },
+  {
+   "file": "art/seal/track_l.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment track (l), 18x18 at (-1,-1), baked paint",
+   "derivation": "tome ramp"
+  },
+  {
+   "file": "art/seal/track_m.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment track (m), 18x18 at (-1,-1), baked paint",
+   "derivation": "tome ramp"
+  },
+  {
+   "file": "art/seal/track_r.png",
+   "w": 18,
+   "h": 18,
+   "role": "seal.segment track (r), 18x18 at (-1,-1), baked paint",
+   "derivation": "tome ramp"
+  },
+  {
+   "file": "art/tooltip/tome.png",
+   "w": 16,
+   "h": 16,
+   "role": "tooltip frame for the plain tome and ledger",
+   "derivation": "copy of kit/tooltip.png"
+  }
+ ]
+}

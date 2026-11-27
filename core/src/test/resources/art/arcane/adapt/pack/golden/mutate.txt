@@ -1,0 +1,103 @@
+rows 6
+run adapt:ui/space ffffff <e010><e00d><e00c>
+run adapt:page/agility/single ffffff <e000>
+run adapt:ui/space ffffff <e012><e011><e010><e00e><e00d><e00c><e00b>
+run adapt:page/agility/single ffffff <e001>
+run adapt:ui/space ffffff <e012><e010><e00f><e00d><e00b>
+run adapt:ui/paint c99a32 <e109>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint c99a32 <e108>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint c99a32 <e107>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint c99a32 <e106>
+run adapt:ui/space ffffff <e001><e000>
+run adapt:ui/paint ffffff <e094>
+run adapt:ui/space ffffff <e012><e010><e00b>
+run adapt:ui/paint ffffff <e07c>
+run adapt:ui/space ffffff <e010><e00e><e00d>
+run adapt:ui/paint ffffff <e2bb>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c2>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c1>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2bf>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2be>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2bd>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c4>
+run adapt:ui/space ffffff <e011><e010><e00d>
+run adapt:ui/space ffffff <e004><e001><e000>
+run adapt:ui/text/12 165e4e Agility
+run adapt:ui/space ffffff <e00f><e00e><e00d><e00b>
+run adapt:ui/text/21 5a4430 Lead
+run adapt:ui/space ffffff <e006><e001>
+run adapt:ui/text/12 8126a3 Rift
+run adapt:ui/space ffffff <e00f><e00b>
+run adapt:ui/text/21 5a4430 Partner
+run adapt:ui/space ffffff <e012><e010><e00d>
+run adapt:ui/text/34 2e5619 +
+run adapt:ui/space ffffff <e00d><e00c>
+run adapt:ui/text/52 8d261d -
+run adapt:ui/space ffffff <e005><e004><e003><e001>
+run adapt:ui/text/83 2e2216 Blink Runner
+run adapt:ui/space ffffff <e011><e00f><e00d><e00b>
+run adapt:ui/text/92 5a4430 Level 4 · 3 knowledge
+run adapt:ui/space ffffff <e011><e00d><e00b>
+run adapt:ui/text/187 2e5619 Mutate
+run adapt:ui/space ffffff <e011><e00e><e00b>
+run adapt:ui/text/195 8d261d This cannot be undone
+run adapt:ui/space ffffff <e012><e010>
+run adapt:ui/text/m1 f6edd8 Skills
+run adapt:ui/text/m1 b79c6e  / 
+run adapt:ui/text/m1 f6edd8 Agility
+run adapt:ui/text/m1 b79c6e  / 
+run adapt:ui/text/m1 f2d98a Mutate
+top:0 minecraft:paperx1 "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eAgility" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Lead, Level 5 @adapt:adapt_ui/gui/skill/agility adapt:agility
+top:4 minecraft:paperx1 click "Swap lead" @adapt:adapt_ui/gui/mark/swap adapt:agility
+top:5 minecraft:paperx1 "<00a7>x<00a7>8<00a7>1<00a7>2<00a7>6<00a7>a<00a7>3Rift" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Partner, Level 4 @adapt:adapt_ui/gui/skill/rift adapt:agility
+top:9 minecraft:paperx1 "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eBlink Jump" | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9Gained | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump through space. | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>013 knowledge @adapt:jump adapt:agility
+top:18 minecraft:paperx1 "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump I" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dLost @adapt:jump adapt:agility
+top:22 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s22 hidden
+top:31 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s31 hidden
+top:40 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s40 hidden
+top:47 minecraft:paperx1 "<00a7>x<00a7>6<00a7>b<00a7>4<00a7>4<00a7>0<00a7>cBlink Jump" | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9Gained | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump through space. | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>013 knowledge @adapt:jump adapt:agility
+lower:0 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:1 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:2 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:3 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:4 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:5 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:6 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:7 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:8 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:9 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:10 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:11 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:12 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:13 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:14 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:15 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:16 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:17 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:18 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:19 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_l adapt:agility cooldown=adapt:seal
+lower:20 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_m adapt:agility cooldown=adapt:seal
+lower:21 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_m adapt:agility cooldown=adapt:seal
+lower:22 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/mark_idle adapt:agility sprite=seal/mark_idle cooldown=adapt:seal
+lower:23 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_m adapt:agility cooldown=adapt:seal
+lower:24 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_m adapt:agility cooldown=adapt:seal
+lower:25 minecraft:paperx1 click "Mutate" | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dThis cannot be undone @adapt:adapt_ui/art/seal/track_r adapt:agility cooldown=adapt:seal
+lower:26 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:27 minecraft:paperx1 click "" | Back @adapt:adapt_ui/art/blank adapt:agility
+lower:28 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:29 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:30 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:31 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s85 hidden
+lower:32 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:33 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:34 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:35 minecraft:paperx1 click "Partner" @adapt:adapt_ui/art/blank adapt:agility

@@ -1,0 +1,128 @@
+plugins {
+    id 'java'
+}
+
+// The pack bake runs the client's theme composer off screen. It compiles the Minecraft-free client classes straight
+// from client-common's sources; the kit model (ThemeKit, its sprites and dressing, UiTexture) lives in core.
+String clientSources = '../adapters/client-common/src/main/java'
+List<String> composer = [
+    'art/arcane/adapt/client/theme/**',
+    'art/arcane/adapt/client/ui/Ui*.java',
+    'art/arcane/adapt/client/ui/PngLuma.java',
+    'art/arcane/adapt/client/ui/kit/**',
+    'art/arcane/adapt/client/qa/UiProbe.java',
+    'art/arcane/adapt/client/config/UiSettings.java'
+]
+// The native screens, for comparing a bake with the client's own layout; the two left out reach the panel and the mod.
+List<String> screens = [
+    'art/arcane/adapt/client/screen/**',
+    'art/arcane/adapt/client/state/**',
+    'art/arcane/adapt/client/net/FeedbackSink.java',
+    'art/arcane/adapt/client/net/RouteSink.java',
+    'art/arcane/adapt/client/ui/LegacyRun.java',
+    'art/arcane/adapt/client/ui/PackScreenHost.java'
+]
+
+sourceSets {
+    main {
+        java {
+            srcDir(clientSources)
+            include('art/arcane/adapt/pack/**')
+            composer.each { String pattern -> include(pattern) }
+        }
+    }
+    test {
+        java {
+            srcDir(clientSources)
+            include('art/arcane/adapt/pack/**')
+            screens.each { String pattern -> include(pattern) }
+            exclude('art/arcane/adapt/client/screen/ClientScreens.java', 'art/arcane/adapt/client/screen/ScreenPreview.java')
+        }
+    }
+}
+
+String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
+    .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
+    .get()
+
+evaluationDependsOn(':core')
+SourceSetOutput coreTests = project(':core').sourceSets.test.output
+
+dependencies {
+    implementation(project(':core'))
+    // The engine test kit, so a test can build views from registered content through the real view builders.
+    testImplementation(coreTests)
+    testImplementation(testFixtures(project(':core')))
+    testImplementation(project(':content'))
+    testRuntimeOnly('org.mockito:mockito-core:5.14.2')
+    implementation(libs.gson)
+
+    // The pack screens localize through VolmLib, and test content compiles against it; core only compiles against it.
+    testImplementation(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    testRuntimeOnly(libs.toml4j) {
+        transitive = false
+    }
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+File builtinAssets = rootProject.file('adapters/client-common/src/main/resources')
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    maxHeapSize = '2g'
+    systemProperty('java.awt.headless', 'true')
+    systemProperty('adapt.pack.assets', builtinAssets.absolutePath)
+    systemProperty('adapt.pack.references', rootProject.file('adapters/client-common/src/test/resources/theme-reference').absolutePath)
+    for (String key : ['evidence', 'captures']) {
+        String value = providers.gradleProperty('pack' + key.capitalize()).orNull
+        if (value != null) {
+            systemProperty('adapt.pack.' + key, value)
+        }
+    }
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('bakeBuiltin', JavaExec) {
+    group = 'build'
+    description = 'Bakes the 24 built-in page themes and icons into pack/build/bake for inspection.'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass.set('art.arcane.adapt.pack.bake.BuiltinBake')
+    systemProperty('java.awt.headless', 'true')
+    inputs.dir(builtinAssets)
+    File out = layout.buildDirectory.dir('bake').get().asFile
+    outputs.dir(out)
+    args(builtinAssets.absolutePath, out.absolutePath)
+}
+
+tasks.register('languageIndex', JavaExec) {
+    group = 'build'
+    description = 'Writes design/languages.json from client asset indexes: -PassetIndexes=1.20.1=<index.json>,1.21.1=<index.json>,26.1=...,26.2=...,26.3=...'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass.set('art.arcane.adapt.pack.bake.LanguageIndex')
+    String indexes = providers.gradleProperty('assetIndexes').orNull
+    args([file('src/main/resources/art/arcane/adapt/pack/design/languages.json').absolutePath] + (indexes == null ? [] : indexes.split(',').toList()))
+}
+
+// The pack zips operators drop into plugins/Adapt/pack or config/adapt/pack, one per pack family, in pack/build/packs.
+tasks.register('bakeZip', JavaExec) {
+    group = 'build'
+    description = 'Bakes the drop-in pack zip from the built-in content and art into pack/build/packs and prints its SHA-1.'
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass.set('art.arcane.adapt.pack.runtime.PackZips')
+    maxHeapSize = '2g'
+    systemProperty('java.awt.headless', 'true')
+    inputs.dir(builtinAssets)
+    File out = layout.buildDirectory.dir('packs').get().asFile
+    outputs.dir(out)
+    // The Bukkit build declares the Adapt version; every project is configured before this runs.
+    doFirst {
+        args(builtinAssets.absolutePath, out.absolutePath, project(':bukkit').version.toString())
+    }
+}

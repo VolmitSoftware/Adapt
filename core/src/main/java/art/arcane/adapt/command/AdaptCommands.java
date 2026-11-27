@@ -45,11 +45,27 @@ public final class AdaptCommands implements DirectorInvocationHook {
   public static final String ROOT_COMMAND = "adapt";
   public static final String ROOT_PERMISSION = "adapt.main";
   static final String LANGUAGE = "language";
+  private static final String PACK = "pack";
   private static final String UNMUTATE = "unmutate";
 
   private final ThreadLocal<Deque<LanguageAudience.Scope>> languageScopes = ThreadLocal.withInitial(ArrayDeque::new);
   private volatile DirectorRuntimeEngine engine;
   private volatile long grafted = -1;
+  private final boolean pack;
+
+  /** The command tree of a platform that serves the Adapt resource pack, {@code /adapt pack} included. */
+  public AdaptCommands() {
+    this(true);
+  }
+
+  private AdaptCommands(boolean pack) {
+    this.pack = pack;
+  }
+
+  /** The command tree of a platform without the Adapt resource pack: no {@code /adapt pack}. */
+  public static AdaptCommands withoutPack() {
+    return new AdaptCommands(false);
+  }
 
   /** The command permissions with the defaults plugin.yml gives them on Bukkit, for platforms without plugin.yml. */
   public static void registerPermissionDefaults(PermissionHost permissions) {
@@ -87,6 +103,9 @@ public final class AdaptCommands implements DirectorInvocationHook {
             .legacyHandlers(DirectorSystem.handlers)
             .textResolver(AdaptLanguage.directorResolver())
             .build());
+        if (!pack) {
+          built.getRoot().getChildren().removeIf((DirectorRuntimeNode node) -> node.allNames().contains(PACK));
+        }
         AddonCommandRunner.graftAll(built.getRoot());
         engine = built;
         grafted = revision;
@@ -112,6 +131,7 @@ public final class AdaptCommands implements DirectorInvocationHook {
       return;
     }
     if (!(args.length > 1 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("dump"))
+        && !(pack && args.length > 0 && args[0].equalsIgnoreCase(PACK) && source.hasPermission(CommandPack.PERMISSION))
         && !source.hasPermission(ROOT_PERMISSION)) {
       source.sendSection(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", ROOT_PERMISSION)));
       return;

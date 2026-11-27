@@ -1,6 +1,7 @@
 -keep class art.arcane.adapt.api.** { *; }
 -keep class art.arcane.adapt.engine.** { *; }
 -keep class art.arcane.adapt.platform.** { *; }
+-keep class art.arcane.adapt.pack.link.** { public *; }
 -keep class art.arcane.adapt.content.event.** { *; }
 -keep class art.arcane.adapt.util.advancements.nms.** { *; }
 -keep class **.volmlib.integration.** { *; }
@@ -19,6 +20,7 @@
 
 -keep class art.arcane.adapt.util.arcane.volmlib.nativelib.** { *; }
 -keep class art.arcane.adapt.util.advancements.nms.util.ReflectionUtil { *; }
+-keep class art.arcane.adapt.bukkit.canvas.** { *; }
 
 -keep class art.arcane.volmlib.nativelib.**.scoreboard.NativeScoreboardPackets { public <init>(); }
 -keepclassmembers class art.arcane.adapt.content.item.**$Data { <fields>; }

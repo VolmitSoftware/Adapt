@@ -7,6 +7,7 @@ import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.MutatedMessages;
 import art.arcane.adapt.localization.catalog.MutationMessages;
+import art.arcane.adapt.localization.catalog.PackMessages;
 import art.arcane.adapt.localization.catalog.PreferenceMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.localization.catalog.SeatMessages;
@@ -72,6 +73,7 @@ public final class AdaptMessages {
     MutationMessages.addTo(builder);
     XpGuideMessages.addTo(builder);
     SeatMessages.addTo(builder);
+    PackMessages.addTo(builder);
     CommandMessages.addTo(builder);
     CommandRuntimeMessages.addTo(builder);
     return builder.build();

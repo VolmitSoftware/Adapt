@@ -1,0 +1,131 @@
+rows 6
+run adapt:ui/space ffffff <e010><e00d><e00c>
+run adapt:page/agility/single ffffff <e000>
+run adapt:ui/space ffffff <e012><e011><e010><e00e><e00d><e00c><e00b>
+run adapt:page/agility/single ffffff <e001>
+run adapt:ui/space ffffff <e010><e00f><e00e><e00d><e00b>
+run adapt:ui/paint ffffff <e097>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09d>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09a>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e099>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e098>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e0a0>
+run adapt:ui/space ffffff <e010><e00f><e00b>
+run adapt:ui/paint ffffff <e0a2>
+run adapt:ui/space ffffff <e010><e00f><e00b>
+run adapt:ui/paint ffffff <e097>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09c>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09a>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e098>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e0a0>
+run adapt:ui/space ffffff <e00f><e00e><e00d><e00c>
+run adapt:ui/paint ffffff <e0a1>
+run adapt:ui/space ffffff <e010><e00f><e00e><e00d><e00c>
+run adapt:ui/paint ffffff <e27b>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e277>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e275>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e274>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e27b>
+run adapt:ui/space ffffff <e00f><e00e>
+run adapt:ui/paint 165e4e <e115>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint 165e4e <e114>
+run adapt:ui/space ffffff <e005><e002><e001>
+run adapt:ui/paint ffffff <e001>
+run adapt:ui/space ffffff <e012><e010><e00c><e00b>
+run adapt:ui/paint ffffff <e064>
+run adapt:ui/space ffffff <e011><e00f><e00d>
+run adapt:ui/paint 165e4e <e12c>
+run adapt:ui/paint c4b08a <e12c><e12c>
+run adapt:ui/space ffffff <e001>
+run adapt:ui/paint ffffff <e070>
+run adapt:ui/space ffffff <e011><e00f><e00b>
+run adapt:ui/paint c4b08a <e144><e144>
+run adapt:ui/space ffffff <e001><e000>
+run adapt:ui/paint ffffff <e07c>
+run adapt:ui/space ffffff <e00f><e00b>
+run adapt:ui/space ffffff <e007><e004><e003><e002><e001><e000>
+run adapt:ui/text/m1 2e2216 1/12
+run adapt:ui/space ffffff <e010><e00f><e00e><e00b>
+run adapt:ui/text/m1 2e2216 3
+run adapt:ui/space ffffff <e011><e010><e00f><e00b>
+run adapt:ui/text/11 165e4e Agility
+run adapt:ui/space ffffff <e00f><e00e><e00d><e00b>
+run adapt:ui/text/19 2e2216 Level 5
+run adapt:ui/space ffffff <e005><e004><e003><e002><e001>
+run adapt:ui/text/16 2e5619 Mutate
+run adapt:ui/space ffffff <e012><e010><e00e><e00d>
+run adapt:ui/text/43 165e4e 1/3
+run adapt:ui/space ffffff <e00f><e00c>
+run adapt:ui/text/61 766450 0/2
+run adapt:ui/space ffffff <e004><e002><e001>
+run adapt:ui/text/40 2e2216 Super Jump
+run adapt:ui/space ffffff <e010><e00f><e00e><e00c>
+run adapt:ui/text/58 766450 Walls
+run adapt:ui/space ffffff <e006><e005><e002><e001>
+run adapt:ui/text/194 165e4e 1/2
+top:0 minecraft:paperx1 "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eAgility" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Move faster. | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Level 5 | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>050 XP to level 6 | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>e3 Knowledge | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Sprint | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump @adapt:adapt_ui/gui/skill/agility adapt:agility
+top:5 minecraft:paperx1 click "Skill adaptations enabled" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0On @adapt:adapt_ui/art/ctl/check_on adapt:agility
+top:6 minecraft:paperx1 click "Mutate" @adapt:adapt_ui/art/blank adapt:agility
+top:7 minecraft:paperx1 click "Mutate" @adapt:adapt_ui/art/blank adapt:agility
+top:8 minecraft:paperx1 click "Mutate" @adapt:adapt_ui/art/blank adapt:agility
+top:9 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Level I of III | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump higher. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:jump adapt:agility
+top:10 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Level I of III | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump higher. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:11 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Level I of III | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump higher. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:12 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Level I of III | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump higher. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:18 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eWalls" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Not learned | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dRequires: Super Jump Lv 2 | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump off walls. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+1 jump @adapt:adapt_ui/gui/adaptation/agility-wall-jump_dim_d6 adapt:agility
+top:19 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eWalls" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Not learned | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dRequires: Super Jump Lv 2 | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump off walls. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+1 jump @adapt:adapt_ui/art/blank adapt:agility
+top:20 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eWalls" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Not learned | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dRequires: Super Jump Lv 2 | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump off walls. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+1 jump @adapt:adapt_ui/art/blank adapt:agility
+top:21 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eWalls" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Not learned | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dRequires: Super Jump Lv 2 | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump off walls. | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+1 jump @adapt:adapt_ui/art/blank adapt:agility
+top:22 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s22 hidden
+top:31 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s31 hidden
+top:40 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s40 hidden
+lower:0 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:1 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:2 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:3 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:4 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:5 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:6 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:7 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:8 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:9 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:10 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:11 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:12 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:13 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:14 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:15 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:16 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:17 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:18 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:19 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:20 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:21 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:22 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:23 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:24 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:25 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:26 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:27 minecraft:paperx1 click "" | Back @adapt:adapt_ui/art/blank adapt:agility
+lower:28 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:29 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:30 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:31 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/single/s85 hidden
+lower:32 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:33 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:34 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden
+lower:35 minecraft:paperx1 "" @adapt:adapt_ui/art/blank hidden

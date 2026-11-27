@@ -1,0 +1,88 @@
+rows 6 top-only
+run adapt:ui/space ffffff <e010><e00d><e00c>
+run adapt:page/agility/fallback ffffff <e000>
+run adapt:ui/space ffffff <e012><e011><e010><e00e><e00d><e00c><e00b>
+run adapt:page/agility/fallback ffffff <e001>
+run adapt:ui/space ffffff <e010><e00f><e00e><e00d><e00b>
+run adapt:ui/paint ffffff <e097>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09d>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09a>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e099>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e098>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e0a0>
+run adapt:ui/space ffffff <e010><e00f><e00b>
+run adapt:ui/paint ffffff <e0a2>
+run adapt:ui/space ffffff <e010><e00f><e00b>
+run adapt:ui/paint ffffff <e097>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09c>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e09a>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e098>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e0a0>
+run adapt:ui/space ffffff <e00f><e00e><e00d><e00c>
+run adapt:ui/paint ffffff <e0a1>
+run adapt:ui/space ffffff <e010><e00f><e00e><e00c>
+run adapt:ui/paint ffffff <e02f>
+run adapt:ui/space ffffff <e011><e00f><e00c>
+run adapt:ui/paint ffffff <e029>
+run adapt:ui/space ffffff <e005><e004><e002><e000>
+run adapt:ui/paint ffffff <e02a>
+run adapt:ui/space ffffff <e012><e010><e00f><e00e><e00d><e00b>
+run adapt:ui/paint ffffff <e2bb>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c2>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c1>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2bc>
+run adapt:ui/space ffffff <e00b>
+run adapt:ui/paint ffffff <e2c4>
+run adapt:ui/space ffffff <e011><e00f><e00d><e00c><e00b>
+run adapt:ui/space ffffff <e007><e004><e003><e002><e001><e000>
+run adapt:ui/text/m1 2e2216 1/12
+run adapt:ui/space ffffff <e010><e00f><e00e><e00b>
+run adapt:ui/text/m1 2e2216 3
+run adapt:ui/space ffffff <e012><e00d><e00b>
+run adapt:ui/text/49 2e2216 Jump higher.
+run adapt:ui/space ffffff <e010><e00e><e00c>
+run adapt:ui/text/12 165e4e Super Jump
+run adapt:ui/space ffffff <e010><e00f><e00e><e00c>
+run adapt:ui/text/21 5a4430 Level I of III
+run adapt:ui/space ffffff <e011><e00f>
+run adapt:ui/text/88 2e5619 Learn II
+run adapt:ui/space ffffff <e003><e001>
+run adapt:ui/text/88 2e2216 3
+run adapt:ui/space ffffff <e005><e004><e001><e000>
+run adapt:ui/text/88 8d261d Unlearn
+run adapt:ui/space ffffff <e011><e00f><e00e><e00d><e00b>
+run adapt:ui/text/106 165e4e Level II
+run adapt:ui/space ffffff <e011><e010><e00f><e00e><e00c>
+run adapt:ui/text/m1 f6edd8 Agility
+run adapt:ui/text/m1 b79c6e  / 
+run adapt:ui/text/m1 f2d98a Super Jump
+top:0 minecraft:paperx1 "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eSuper Jump" | <00a7>x<00a7>5<00a7>a<00a7>4<00a7>4<00a7>3<00a7>0Jump higher. @adapt:jump adapt:agility
+top:9 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eLevel I" | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+1 block | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eRefund 2 Knowledge @adapt:adapt_ui/art/pip/learned_1 adapt:agility
+top:10 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eLevel II" | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge @adapt:adapt_ui/art/pip/target_2_ring adapt:agility
+top:11 minecraft:paperx1 click "<00a7>x<00a7>1<00a7>6<00a7>5<00a7>e<00a7>4<00a7>eLevel III" | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+3 blocks | <00a7>x<00a7>8<00a7>d<00a7>2<00a7>6<00a7>1<00a7>dNeeds 4 more Knowledge @adapt:adapt_ui/art/pip/empty_3 adapt:agility
+top:22 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/fallback/s22 hidden
+top:31 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/fallback/s31 hidden
+top:36 minecraft:paperx1 click "Learn II" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:37 minecraft:paperx1 click "Learn II" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:38 minecraft:paperx1 click "Learn II" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eLearn II for 3 knowledge | <00a7>x<00a7>2<00a7>e<00a7>5<00a7>6<00a7>1<00a7>9+2 blocks @adapt:adapt_ui/art/blank adapt:agility
+top:40 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/fallback/s40 hidden
+top:42 minecraft:paperx1 click "Unlearn" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eRefund 2 Knowledge @adapt:adapt_ui/art/blank adapt:agility cooldown=adapt:seal
+top:43 minecraft:paperx1 click "Unlearn" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eRefund 2 Knowledge @adapt:adapt_ui/art/blank adapt:agility cooldown=adapt:seal
+top:44 minecraft:paperx1 click "Unlearn" | <00a7>x<00a7>2<00a7>3<00a7>4<00a7>0<00a7>6<00a7>eRefund 2 Knowledge @adapt:adapt_ui/art/blank adapt:agility cooldown=adapt:seal
+top:45 minecraft:paperx1 click "Back" @adapt:adapt_ui/art/ctl/back adapt:agility
+top:46 minecraft:paperx1 "" @adapt:adapt_ui/page/agility/fallback/s46 hidden
+top:51 minecraft:paperx1 click "Levels" @adapt:adapt_ui/art/ctl/tab_levels_on adapt:agility
+top:52 minecraft:paperx1 click "Recipes" @adapt:adapt_ui/art/ctl/tab_recipes adapt:agility
+top:53 minecraft:paperx1 click "Settings" @adapt:adapt_ui/art/ctl/tab_settings adapt:agility
