@@ -2,17 +2,21 @@ package art.arcane.adapt.bukkit.feature.advancement;
 
 import art.arcane.adapt.platform.advancement.AdvancementNode;
 import art.arcane.adapt.platform.value.Id;
+import com.fren_gor.ultimateAdvancementAPI.util.AdvancementKey;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Flattened advancement trees. Each root becomes one UltimateAdvancementAPI tab named {@code adapt_<root path>},
- * matching the tab names the plugin has always used; entries keep parent-before-child order.
+ * Flattened advancement trees. Each root becomes one UltimateAdvancementAPI tab, whose name is the namespace of
+ * every advancement in it: {@code adapt_<root path with / as .>}, so {@code adapt:skill/adapt/agility} is the tab
+ * {@code adapt_skill.adapt.agility}. Each advancement's UAAPI key is its id path. Entries keep parent-before-child order.
  */
 final class AdvancementCatalog {
   static final String TAB_PREFIX = "adapt_";
@@ -29,11 +33,18 @@ final class AdvancementCatalog {
   static AdvancementCatalog build(List<AdvancementNode> roots) {
     Map<Id, Entry> entries = new LinkedHashMap<>();
     List<Entry> rootEntries = new ArrayList<>(roots.size());
+    Set<String> tabs = new HashSet<>();
     for (AdvancementNode root : roots) {
       if (root.background() == null) {
         throw new IllegalArgumentException("Root advancement " + root.key() + " needs a background");
       }
       String tab = tabName(root.key());
+      if (!AdvancementKey.VALID_NAMESPACE.matcher(tab).matches()) {
+        throw new IllegalArgumentException("Root advancement " + root.key() + " gives the invalid tab name " + tab);
+      }
+      if (!tabs.add(tab)) {
+        throw new IllegalArgumentException("Root advancement " + root.key() + " shares the tab name " + tab);
+      }
       Entry entry = new Entry(root, null, root.key(), tab);
       put(entries, entry);
       rootEntries.add(entry);
@@ -43,7 +54,7 @@ final class AdvancementCatalog {
   }
 
   static String tabName(Id rootKey) {
-    return TAB_PREFIX + rootKey.path();
+    return TAB_PREFIX + rootKey.path().replace('/', '.');
   }
 
   private static void appendChildren(Map<Id, Entry> entries, AdvancementNode parent, Id root, String tab) {
@@ -54,6 +65,9 @@ final class AdvancementCatalog {
   }
 
   private static void put(Map<Id, Entry> entries, Entry entry) {
+    if (!AdvancementKey.VALID_KEY.matcher(entry.node().key().path()).matches()) {
+      throw new IllegalArgumentException("Advancement " + entry.node().key() + " has an invalid key for tab " + entry.tab());
+    }
     if (entries.putIfAbsent(entry.node().key(), entry) != null) {
       throw new IllegalArgumentException("Duplicate advancement key " + entry.node().key());
     }

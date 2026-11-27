@@ -1,8 +1,8 @@
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.tick.Ticked;
-import art.arcane.adapt.api.tick.Ticker;
-import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.engine.tick.Ticked;
+import art.arcane.adapt.engine.tick.Ticker;
+import art.arcane.adapt.engine.world.PlayerData;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +58,7 @@ class ConcurrencyStressTest extends AdaptTestBase {
         List<Ticked> tickeds = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
             Ticked m = mock(Ticked.class);
-            lenient().when(m.getId()).thenReturn("t" + i);
+            lenient().when(m.getTickId()).thenReturn("t" + i);
             lenient().when(m.getGroup()).thenReturn("g");
             lenient().when(m.getInterval()).thenReturn(0L);
             lenient().when(m.getLastTick()).thenReturn(0L);

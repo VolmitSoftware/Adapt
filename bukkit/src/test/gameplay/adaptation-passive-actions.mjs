@@ -128,13 +128,13 @@ async function brineHit(input) {
 }
 
 export const passiveBehaviorCases = new Map([
-    ['agility-armor-up', {
+    ['adapt:agility/armor_up', {
         stage: 'agility', attribute: 'minecraft:armor', negativeWindowTicks: 45,
         description: 'sprinting builds armor plating',
         sound: 'minecraft:item.armor.equip_iron', soundVolume: 0.4, soundPitch: 0.8,
         particle: 'end_rod', trigger: sprint,
     }],
-    ['stealth-ghost-armor', {
+    ['adapt:stealth/ghost_armor', {
         stage: 'agility', attribute: 'minecraft:armor', negativeWindowTicks: 130,
         description: 'moving starts passive ghost armor regeneration',
         sound: 'minecraft:item.shield.break', soundVolume: 0.7, soundPitch: 1.2,
@@ -146,7 +146,7 @@ export const passiveBehaviorCases = new Map([
             return { assertions: ['natural movement charges ghost armor only when learned', 'real incoming damage consumes exactly one stored charge'], measurements: { unlearned, active } }
         },
     }],
-    ['stealth-silent-step', versionEntry('stealth-silent-step')?.status === 'emulated' ? {
+    ['adapt:stealth/silent_step', versionEntry('adapt:stealth/silent_step')?.status === 'emulated' ? {
         stage: 'traverse-qa-assassinate', negativeWindowTicks: 10,
         description: 'sneaking makes a real fall harmless (safe fall distance emulated) and an undetected backstab increases actual damage',
         sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.7, soundPitch: 0.9,
@@ -172,19 +172,19 @@ export const passiveBehaviorCases = new Map([
             return { assertions: ['learned sneaking grants fall protection', 'natural undetected hit increases actual damage and records a backstab'], measurements: { unlearned, active } }
         },
     }],
-    ['unarmed-meditation', {
+    ['adapt:unarmed/meditation', {
         stage: 'agility', attribute: 'minecraft:max_absorption', negativeWindowTicks: 50,
         description: 'stationary sneaking with empty hands builds absorption capacity',
         sound: 'minecraft:block.amethyst_block.resonate', soundVolume: 0.4, soundPitch: 1.2,
         particle: 'end_rod', trigger: meditate,
     }],
-    ['excavation-haste', {
+    ['adapt:excavation/haste', {
         stage: 'excavation', attribute: 'minecraft:block_break_speed', negativeWindowTicks: 100,
         description: 'digging clay grants excavation haste',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.4, soundPitch: 1.6,
         particle: 'enchant', trigger: digClay,
     }],
-    ['seaborne-brine-skin', {
+    ['adapt:seaborne/brine_skin', {
         stage: 'seaborne', effect: 'minecraft:regeneration', negativeWindowTicks: 100,
         description: 'remaining in water grants regeneration',
         sound: 'minecraft:item.shield.block', soundVolume: 0.35, soundPitch: 1.4,
@@ -195,13 +195,13 @@ export const passiveBehaviorCases = new Map([
             return { assertions: ['remaining in water grants learned regeneration', 'actual incoming hit produces less health damage with wet protection'], measurements: { unlearned, active } }
         },
     }],
-    ['discovery-world-armor', {
+    ['adapt:discovery/world_armor', {
         stage: 'agility', attribute: 'minecraft:armor', negativeWindowTicks: 50,
         description: 'nearby stone supplies world armor',
         sound: 'minecraft:block.stone.place', soundVolume: 0.5, soundPitch: 0.7,
         particle: 'dust', particleColor: 0x96AABE, trigger: remainStill,
     }],
-    ['blocking-bastion-stance', {
+    ['adapt:blocking/bastion_stance', {
         stage: 'blocking', attribute: 'minecraft:knockback_resistance', negativeWindowTicks: 50,
         description: 'sneaking with a raised shield grants knockback resistance',
         sound: 'minecraft:item.shield.block', soundVolume: 0.75, soundPitch: 0.75,
@@ -213,13 +213,13 @@ export const passiveBehaviorCases = new Map([
         },
         trigger: raiseShield,
     }],
-    ['kinetics-mass-shift', {
+    ['adapt:kinetics/mass_shift', {
         stage: 'agility', attribute: 'minecraft:scale', negativeWindowTicks: 45,
         description: 'sneaking, looking up, and swapping hands activates titan form',
         sound: 'minecraft:entity.iron_golem.repair', soundVolume: 0.7, soundPitch: 0.55,
         particle: 'cloud', trigger: titanForm,
     }],
-    ['seaborne-speed', {
+    ['adapt:seaborne/speed', {
         stage: 'seaborne', attribute: 'minecraft:water_movement_efficiency', negativeWindowTicks: 100,
         description: 'moving underwater grants water movement efficiency',
         sound: 'minecraft:entity.dolphin.splash', soundVolume: 0.45, soundPitch: 1.2,

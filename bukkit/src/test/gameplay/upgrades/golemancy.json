@@ -2,26 +2,26 @@
   "skill": "golemancy",
   "upgrades": [
     {
-      "name": "upgraded-golemancy-grand-overseer",
+      "name": "adapt:golemancy/upgrade/grand_overseer",
       "class": "GrandOverseer",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/GrandOverseer.java",
-      "fuses": ["golem-overseer", "golem-mending", "golem-stasis"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/GrandOverseer.java",
+      "fuses": ["adapt:golem/overseer", "adapt:golem/mending", "adapt:golem/stasis"],
       "triggers": []
     },
     {
-      "name": "upgraded-golemancy-forgemaster",
+      "name": "adapt:golemancy/upgrade/forgemaster",
       "class": "Forgemaster",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Forgemaster.java",
-      "fuses": ["golem-animus-binding", "golem-node-weaving", "golem-guardian-core", "golem-gatherer-core",
-        "golem-harvester-core", "golem-lumber-core", "golem-breaker-core", "golem-rancher-core", "golem-sorter-core",
-        "golem-angler-core", "golem-frost-frame", "golem-copper-frame", "golem-iron-frame", "golem-bone-frame"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Forgemaster.java",
+      "fuses": ["adapt:golem/animus_binding", "adapt:golem/node_weaving", "adapt:golem/guardian_core", "adapt:golem/gatherer_core",
+        "adapt:golem/harvester_core", "adapt:golem/lumber_core", "adapt:golem/breaker_core", "adapt:golem/rancher_core", "adapt:golem/sorter_core",
+        "adapt:golem/angler_core", "adapt:golem/frost_frame", "adapt:golem/copper_frame", "adapt:golem/iron_frame", "adapt:golem/bone_frame"],
       "triggers": []
     },
     {
-      "name": "upgraded-golemancy-runeforged",
+      "name": "adapt:golemancy/upgrade/runeforged",
       "class": "Runeforged",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Runeforged.java",
-      "fuses": ["golem-runic-augments", "golem-masterwork"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/golemancy/upgraded/Runeforged.java",
+      "fuses": ["adapt:golem/runic_augments", "adapt:golem/masterwork"],
       "triggers": []
     }
   ]

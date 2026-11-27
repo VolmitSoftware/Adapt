@@ -16,10 +16,10 @@ test('evidence manifests identify deployed artifacts and harness revisions indep
             'server.properties': 'online-mode=false', 'plugins/Adapt.jar': 'production',
             'plugins/AdaptGameplayFixture.jar': 'observer', 'plugins/Adapt/adapt.toml': 'enabled=true',
             'harness/case.mjs': 'first trigger' })) await writeFile(join(root, path), contents)
-        const first = await captureEvidenceManifest(root, { harnessDirectory, scope: { cases: ['crafting-deconstruction'] } })
+        const first = await captureEvidenceManifest(root, { harnessDirectory, scope: { cases: ['adapt:crafting/deconstruction'] } })
         assert.equal(first.artifacts.find(file => file.path === 'plugins/Adapt.jar').sha256,
             createHash('sha256').update('production').digest('hex'))
-        assert.deepEqual(first.scope.cases, ['crafting-deconstruction'])
+        assert.deepEqual(first.scope.cases, ['adapt:crafting/deconstruction'])
         await writeFile(join(harnessDirectory, 'case.mjs'), 'corrected natural trigger')
         const retry = await captureEvidenceManifest(root, { harnessDirectory })
         assert.deepEqual(retry.artifacts, first.artifacts)

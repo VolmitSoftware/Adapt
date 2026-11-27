@@ -2,24 +2,24 @@
   "skill": "enchanting",
   "upgrades": [
     {
-      "name": "upgraded-enchanting-arcane-hand",
+      "name": "adapt:enchanting/upgrade/arcane_hand",
       "class": "ArcaneHand",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/ArcaneHand.java",
-      "fuses": ["enchanting-quick-enchant", "enchanting-infusion-transfer", "enchanting-tome-rebinding"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/ArcaneHand.java",
+      "fuses": ["adapt:enchanting/quick_enchant", "adapt:enchanting/infusion_transfer", "adapt:enchanting/tome_rebinding"],
       "triggers": ["InventoryClickEvent", "PrepareResultEvent", "PlayerDropItemEvent"]
     },
     {
-      "name": "upgraded-enchanting-fate-weaver",
+      "name": "adapt:enchanting/upgrade/fate_weaver",
       "class": "FateWeaver",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/FateWeaver.java",
-      "fuses": ["enchanting-offer-reroll", "enchanting-rune-sight", "enchanting-bookshelf-attunement"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/FateWeaver.java",
+      "fuses": ["adapt:enchanting/offer_reroll", "adapt:enchanting/rune_sight", "adapt:enchanting/bookshelf_attunement"],
       "triggers": ["PrepareItemEnchantEvent", "PlayerInteractEvent"]
     },
     {
-      "name": "upgraded-enchanting-soulforged",
+      "name": "adapt:enchanting/upgrade/soulforged",
       "class": "Soulforged",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/Soulforged.java",
-      "fuses": ["enchanting-soul-link", "enchanting-echo-of-knowledge", "enchanting-curse-cleansing"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/enchanting/upgraded/Soulforged.java",
+      "fuses": ["adapt:enchanting/soul_link", "adapt:enchanting/echo_of_knowledge", "adapt:enchanting/curse_cleansing"],
       "triggers": ["PlayerInteractEvent", "PlayerDeathEvent", "PlayerDropItemEvent", "InventoryCloseEvent", "PrepareResultEvent", "PlayerRespawnEvent", "PlayerJoinEvent", "PlayerQuitEvent", "PlayerExpChangeEvent"]
     }
   ]

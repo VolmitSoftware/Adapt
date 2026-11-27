@@ -1,6 +1,6 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Skill;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 

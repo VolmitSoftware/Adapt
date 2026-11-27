@@ -12,7 +12,7 @@ test('crafting XP measures natural crafting without requiring a villager fixture
         async craft(actual, count) { assert.equal(actual, recipe); assert.equal(count, 1); bot.experience.points = 7 },
         async waitForTicks() {},
     }
-    const result = await itemBehaviorCases.get('crafting-xp').trigger({
+    const result = await itemBehaviorCases.get('adapt:crafting/xp').trigger({
         actor: { bot }, context: { expect: (condition, message) => assert.ok(condition, message) },
     })
     assert.deepEqual(result, { crafted: 4, xp: 7 })

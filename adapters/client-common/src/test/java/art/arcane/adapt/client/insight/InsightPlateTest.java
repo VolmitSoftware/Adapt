@@ -1,12 +1,9 @@
 package art.arcane.adapt.client.insight;
 
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.ui.kit.FakeHost;
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightEffect;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightStat;
-import art.arcane.adapt.client.view.InsightStatKind;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,8 +25,8 @@ class InsightPlateTest {
 
     @Test
     void rowsAppearOnlyWithContentAndSettingsHideThem() {
-        InsightView full = view(List.of(new InsightStat(InsightStatKind.SPEED, 0.234D), new InsightStat(InsightStatKind.TOUGHNESS, 0D)),
-                List.of(new InsightEffect("minecraft:poison", 0, 100, true)), InsightBond.WILD, 4D);
+        ServerFrame.InsightTarget full = view(List.of(new ServerFrame.InsightTarget.Stat("minecraft:movement_speed", 0.234D), new ServerFrame.InsightTarget.Stat("minecraft:armor_toughness", 0D)),
+                List.of(new ServerFrame.InsightTarget.Effect("minecraft:poison", 0, 100, true)), InsightBond.WILD, 4D);
         InsightPlate shown = measure(full, new InsightSettings());
         InsightSettings quiet = new InsightSettings();
         quiet.showStats(false);
@@ -43,22 +40,32 @@ class InsightPlateTest {
     }
 
     @Test
+    void anAttributeThisClientDoesNotKnowStillShowsAndTheStableHandTagShowsASaddle() {
+        ServerFrame.InsightTarget view = new ServerFrame.InsightTarget(1, "minecraft:horse", "", InsightKind.PASSIVE, 20D,
+                20D, 0D, 0D, InsightBond.WILD, "", List.of("adapt:stable_hand", "example:unknown_tag"),
+                List.of(new ServerFrame.InsightTarget.Stat("example:luck", 2D)), List.of());
+
+        assertEquals(List.of(new InsightPlate.Chip("minecraft:paper", "2"), new InsightPlate.Chip("minecraft:saddle", "")),
+                measure(view, new InsightSettings()).chips());
+    }
+
+    @Test
     void namesAndTexturesComeFromIds() {
         assertEquals("minecraft:textures/mob_effect/speed.png", InsightPlate.effectTexture("minecraft:speed"));
         assertNull(InsightPlate.effectTexture("speed"));
         assertEquals("12.5", InsightPlate.number(12.46D));
         assertEquals("20", InsightPlate.number(19.98D));
         assertEquals("adapt.hud.insight.tamed_by".replace("%s", "Steve"),
-                InsightPlate.owner(new InsightView(1, "minecraft:wolf", "", InsightKind.PASSIVE, 1D, 1D, 0D, 0D,
-                        InsightBond.OWNED, "Steve", false, List.of(), List.of()), HOST));
+                InsightPlate.owner(new ServerFrame.InsightTarget(1, "minecraft:wolf", "", InsightKind.PASSIVE, 1D, 1D, 0D, 0D,
+                        InsightBond.OWNED, "Steve", List.of(), List.of(), List.of()), HOST));
     }
 
-    private static InsightPlate measure(InsightView view, InsightSettings settings) {
+    private static InsightPlate measure(ServerFrame.InsightTarget view, InsightSettings settings) {
         return InsightPlate.measure(view, view.health(), 0D, settings, HOST, (String text) -> text.length() * 6, 9);
     }
 
-    private static InsightView view(List<InsightStat> stats, List<InsightEffect> effects, InsightBond bond, double armor) {
-        return new InsightView(1, "minecraft:zombie_villager", "", InsightKind.HOSTILE, 20D, 20D, 0D, armor, bond, "",
-                false, stats, effects);
+    private static ServerFrame.InsightTarget view(List<ServerFrame.InsightTarget.Stat> stats, List<ServerFrame.InsightTarget.Effect> effects, InsightBond bond, double armor) {
+        return new ServerFrame.InsightTarget(1, "minecraft:zombie_villager", "", InsightKind.HOSTILE, 20D, 20D, 0D, armor, bond, "",
+                List.of(), stats, effects);
     }
 }

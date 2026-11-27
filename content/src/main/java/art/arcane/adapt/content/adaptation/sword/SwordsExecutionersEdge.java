@@ -1,0 +1,177 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.sword;
+
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.config.ConfigDescription;
+import art.arcane.adapt.api.config.ConfigDoc;
+import art.arcane.adapt.api.content.AdaptationConfig;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.StatLines;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.text.Format;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
+import art.arcane.adapt.platform.advancement.AdvancementVisibility;
+import art.arcane.adapt.platform.entity.LivingRef;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Rgb;
+
+public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersEdge.Config> {
+  public static final Id ID = Id.adapt("sword/executioners_edge");
+  private static final Rgb EXECUTE_RED = Rgb.of(0xB00000);
+
+  public SwordsExecutionersEdge() {
+    super(ID);
+    registerConfiguration(Config.class);
+    setIcon(Id.minecraft("stone_sword"));
+    setInterval(1900);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("iron_sword"))
+        .key("challenge_swords_execute_200")
+        .frame(AdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Id.minecraft("netherite_sword"))
+            .key("challenge_swords_execute_2500")
+            .frame(AdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerMilestone("challenge_swords_execute_200", "swords.executioners-edge.executions", 200, 400);
+    registerMilestone("challenge_swords_execute_2500", "swords.executioners-edge.executions", 2500, 1500);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("netherite_axe"))
+        .key("challenge_swords_execute_5in10")
+        .frame(AdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    statLore(v, Format.pc(getBonusDamage(level), 0), 1);
+    statLore(v, Format.pc(getThreshold(level), 0), 2);
+  }
+
+  @Handle(priority = EventPriority.HIGHEST)
+  public void on(EntityDamageByEntityEvent e) {
+    MeleeContext combat = resolveMeleeContext(e, ItemKinds::isSword);
+    if (combat == null) {
+      return;
+    }
+
+    PlayerRef p = combat.attacker();
+    LivingRef target = combat.target();
+
+    double maxHealth = SwordDuels.maxHealth(target);
+    if (maxHealth <= 0) {
+      return;
+    }
+
+    double hpPercent = Math.max(0, target.health() / maxHealth);
+    double threshold = getThreshold(combat.level());
+    if (hpPercent > threshold) {
+      return;
+    }
+
+    double multiplier = 1D + getBonusDamage(combat.level());
+    e.setDamage(e.damage() * multiplier);
+    boolean lethal = e.finalDamage() >= target.health();
+    Loc center = target.location().add(0, 1, 0);
+    fx(center, FxPriority.COMBAT)
+        .particle(Particles.SWEEP_ATTACK, 1, 0, 0, 0, 0, 0)
+        .particle(Particles.CRIT, 12, 0, 0, 0, 0.3D, 0.1D)
+        .particle(Particles.DAMAGE_INDICATOR, 4, 0, 0, 0, 0.1D, 0.05D)
+        .dustBurst(EXECUTE_RED, 6, 0.35D, 1.1F)
+        .chord(Sounds.BLOCK_NOTE_BLOCK_PLING, 0.5F, 1.4F, Sounds.ENTITY_PLAYER_ATTACK_CRIT, 1F, 0.7F, Sounds.BLOCK_ANVIL_LAND, 0.35F, 1.6F);
+    if (lethal) {
+      timeline(target.location())
+          .duration(4)
+          .priority(FxPriority.COMBAT)
+          .cullRadius(24D)
+          .frame((fx, tick, progress) -> {
+            fx.ring(Particles.SOUL, 1.4D - (1.1D * progress), 12, 0.2D);
+            if (tick == 0) {
+              fx.sound(Sounds.ITEM_TRIDENT_RETURN, 0.5F, 0.6F);
+            }
+          })
+          .start();
+    }
+    xp(p, e.damage() * getConfig().xpPerBuffedDamage);
+    addStat(p, "swords.executioners-edge.executions", 1);
+
+    long now = System.currentTimeMillis();
+    long windowStart = getStorageLong(p, "executeWindowStart", 0L);
+    int windowCount = getStorageInt(p, "executeWindowCount", 0);
+    if (now - windowStart > 10000L) {
+      windowStart = now;
+      windowCount = 1;
+    } else {
+      windowCount++;
+    }
+    setStorage(p, "executeWindowStart", windowStart);
+    setStorage(p, "executeWindowCount", windowCount);
+    if (windowCount >= 5 && grantOnce(p, "challenge_swords_execute_5in10")) {
+      fx(p.location().add(0, 1, 0), FxPriority.TRANSITION)
+          .burst(Particles.TOTEM, 10, 0.4D)
+          .particle(Particles.FLASH, 1, 0, 0, 0, 0, 0)
+          .sound(Sounds.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1F);
+    }
+  }
+
+  private double getBonusDamage(int level) {
+    return getConfig().bonusDamageBase + (getLevelPercent(level) * getConfig().bonusDamageFactor);
+  }
+
+  private double getThreshold(int level) {
+    return Math.min(getConfig().maxThreshold, getConfig().thresholdBase + (getLevelPercent(level) * getConfig().thresholdFactor));
+  }
+
+
+  @ConfigDescription("Sword strikes deal bonus damage to low-health targets.")
+  protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Controls Bonus Damage Base for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double bonusDamageBase = 0.08;
+    @ConfigDoc(value = "Controls Bonus Damage Factor for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double bonusDamageFactor = 0.42;
+    @ConfigDoc(value = "Controls Threshold Base for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double thresholdBase = 0.22;
+    @ConfigDoc(value = "Controls Threshold Factor for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double thresholdFactor = 0.33;
+    @ConfigDoc(value = "Controls Max Threshold for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxThreshold = 0.65;
+    @ConfigDoc(value = "Controls Xp Per Buffed Damage for the Swords Executioners Edge adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpPerBuffedDamage = 1.9;
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      maxLevel = 6;
+      initialCost = 2;
+    }
+  }
+}

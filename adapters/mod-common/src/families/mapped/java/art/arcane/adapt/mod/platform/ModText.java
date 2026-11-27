@@ -63,6 +63,14 @@ public final class ModText {
         return MINI_MESSAGE.serialize(adventure(component));
     }
 
+    /** Legacy section-coloured text for a vanilla component: what name and lore reads return on every platform. */
+    public static String legacy(Component component) {
+        if (component == null) {
+            return "";
+        }
+        return LEGACY.serialize(adventure(component));
+    }
+
     /** Plain text of a vanilla component. */
     public static String plain(Component component) {
         return component == null ? "" : component.getString();

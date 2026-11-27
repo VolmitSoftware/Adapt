@@ -1,5 +1,5 @@
 {
-  "golem-animus-binding": {
+  "adapt:golem/animus_binding": {
     "set": "taming-field",
     "level": 5,
     "pre": [
@@ -99,12 +99,12 @@
       }
     ]
   },
-  "golem-frost-frame": {
+  "adapt:golem/frost_frame": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       }
     ],
@@ -207,12 +207,12 @@
       "pitch": 16.0
     }
   },
-  "golem-copper-frame": {
+  "adapt:golem/copper_frame": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       }
     ],
@@ -317,20 +317,20 @@
       }
     ]
   },
-  "golem-gatherer-core": {
+  "adapt:golem/gatherer_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -453,16 +453,16 @@
       "pitch": 24.4
     }
   },
-  "golem-guardian-core": {
+  "adapt:golem/guardian_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-frost-frame",
+        "name": "adapt:golem/frost_frame",
         "level": 5
       }
     ],
@@ -569,16 +569,16 @@
       "pitch": 15.8
     }
   },
-  "golem-harvester-core": {
+  "adapt:golem/harvester_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       }
     ],
@@ -821,20 +821,20 @@
       "pitch": 13.4
     }
   },
-  "golem-breaker-core": {
+  "adapt:golem/breaker_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-iron-frame",
+        "name": "adapt:golem/iron_frame",
         "level": 1
       }
     ],
@@ -1114,20 +1114,20 @@
       "pitch": 18.1
     }
   },
-  "golem-angler-core": {
+  "adapt:golem/angler_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -1281,12 +1281,12 @@
       "pitch": 6.5
     }
   },
-  "golem-iron-frame": {
+  "adapt:golem/iron_frame": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       }
     ],
@@ -1400,20 +1400,20 @@
       }
     ]
   },
-  "golem-bone-frame": {
+  "adapt:golem/bone_frame": {
     "set": "taming-field",
     "level": 3,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "tragoul-skeletal-servant",
+        "name": "adapt:tragoul/skeletal_servant",
         "level": 5
       },
       {
-        "name": "golem-runic-augments",
+        "name": "adapt:golem/runic_augments",
         "level": 5
       }
     ],
@@ -1589,20 +1589,20 @@
       "pitch": 11.6
     }
   },
-  "golem-lumber-core": {
+  "adapt:golem/lumber_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -1817,12 +1817,12 @@
       "pitch": 10.7
     }
   },
-  "golem-node-weaving": {
+  "adapt:golem/node_weaving": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 1
       }
     ],
@@ -2099,20 +2099,20 @@
       }
     ]
   },
-  "golem-rancher-core": {
+  "adapt:golem/rancher_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -2382,16 +2382,16 @@
       "pitch": 17.1
     }
   },
-  "golem-runic-augments": {
+  "adapt:golem/runic_augments": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-iron-frame",
+        "name": "adapt:golem/iron_frame",
         "level": 1
       }
     ],
@@ -2568,16 +2568,16 @@
       }
     ]
   },
-  "golem-overseer": {
+  "adapt:golem/overseer": {
     "set": "taming-field",
     "level": 3,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -2900,12 +2900,12 @@
       "pitch": 17.1
     }
   },
-  "golem-mending": {
+  "adapt:golem/mending": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       }
     ],
@@ -3027,20 +3027,20 @@
       "pitch": 15.5
     }
   },
-  "golem-sorter-core": {
+  "adapt:golem/sorter_core": {
     "set": "taming-field",
     "level": 5,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-node-weaving",
+        "name": "adapt:golem/node_weaving",
         "level": 5
       },
       {
-        "name": "golem-copper-frame",
+        "name": "adapt:golem/copper_frame",
         "level": 1
       }
     ],
@@ -3318,20 +3318,20 @@
       "pitch": 18.1
     }
   },
-  "golem-stasis": {
+  "adapt:golem/stasis": {
     "set": "taming-field",
     "level": 3,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "tragoul-skeletal-servant",
+        "name": "adapt:tragoul/skeletal_servant",
         "level": 5
       },
       {
-        "name": "golem-bone-frame",
+        "name": "adapt:golem/bone_frame",
         "level": 3
       }
     ],
@@ -3551,20 +3551,20 @@
       "pitch": 15.5
     }
   },
-  "golem-masterwork": {
+  "adapt:golem/masterwork": {
     "set": "taming-field",
     "level": 3,
     "prerequisites": [
       {
-        "name": "golem-animus-binding",
+        "name": "adapt:golem/animus_binding",
         "level": 5
       },
       {
-        "name": "golem-runic-augments",
+        "name": "adapt:golem/runic_augments",
         "level": 3
       },
       {
-        "name": "golem-guardian-core",
+        "name": "adapt:golem/guardian_core",
         "level": 1
       }
     ],
@@ -3782,11 +3782,11 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-guardian-core",
+          "name": "adapt:golem/guardian_core",
           "level": 1
         }
       ],
@@ -3933,15 +3933,15 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-copper-frame",
+          "name": "adapt:golem/copper_frame",
           "level": 1
         },
         {
-          "name": "golem-iron-frame",
+          "name": "adapt:golem/iron_frame",
           "level": 5
         }
       ],
@@ -4110,7 +4110,7 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         }
       ],
@@ -4377,27 +4377,27 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-node-weaving",
+          "name": "adapt:golem/node_weaving",
           "level": 5
         },
         {
-          "name": "golem-copper-frame",
+          "name": "adapt:golem/copper_frame",
           "level": 1
         },
         {
-          "name": "golem-gatherer-core",
+          "name": "adapt:golem/gatherer_core",
           "level": 5
         },
         {
-          "name": "golem-runic-augments",
+          "name": "adapt:golem/runic_augments",
           "level": 3
         },
         {
-          "name": "golem-stasis",
+          "name": "adapt:golem/stasis",
           "level": 1
         }
       ],
@@ -4669,19 +4669,19 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-copper-frame",
+          "name": "adapt:golem/copper_frame",
           "level": 1
         },
         {
-          "name": "golem-iron-frame",
+          "name": "adapt:golem/iron_frame",
           "level": 5
         },
         {
-          "name": "golem-stasis",
+          "name": "adapt:golem/stasis",
           "level": 3
         }
       ],
@@ -4820,11 +4820,11 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-runic-augments",
+          "name": "adapt:golem/runic_augments",
           "level": 1
         }
       ],
@@ -5088,11 +5088,11 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-node-weaving",
+          "name": "adapt:golem/node_weaving",
           "level": 5
         }
       ],
@@ -5288,51 +5288,51 @@
       "set": "taming-field",
       "prerequisites": [
         {
-          "name": "golem-animus-binding",
+          "name": "adapt:golem/animus_binding",
           "level": 5
         },
         {
-          "name": "golem-node-weaving",
+          "name": "adapt:golem/node_weaving",
           "level": 5
         },
         {
-          "name": "golem-copper-frame",
+          "name": "adapt:golem/copper_frame",
           "level": 1
         },
         {
-          "name": "golem-iron-frame",
+          "name": "adapt:golem/iron_frame",
           "level": 1
         },
         {
-          "name": "tragoul-skeletal-servant",
+          "name": "adapt:tragoul/skeletal_servant",
           "level": 5
         },
         {
-          "name": "golem-runic-augments",
+          "name": "adapt:golem/runic_augments",
           "level": 5
         },
         {
-          "name": "golem-guardian-core",
+          "name": "adapt:golem/guardian_core",
           "level": 5
         },
         {
-          "name": "golem-gatherer-core",
+          "name": "adapt:golem/gatherer_core",
           "level": 5
         },
         {
-          "name": "golem-harvester-core",
+          "name": "adapt:golem/harvester_core",
           "level": 5
         },
         {
-          "name": "golem-lumber-core",
+          "name": "adapt:golem/lumber_core",
           "level": 5
         },
         {
-          "name": "golem-overseer",
+          "name": "adapt:golem/overseer",
           "level": 5
         },
         {
-          "name": "golem-masterwork",
+          "name": "adapt:golem/masterwork",
           "level": 5
         }
       ],

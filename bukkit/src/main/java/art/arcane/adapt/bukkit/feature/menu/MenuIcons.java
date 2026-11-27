@@ -4,6 +4,7 @@ import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.item.BukkitItemRef;
 import art.arcane.adapt.platform.menu.MenuIcon;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -33,14 +34,14 @@ final class MenuIcons {
       return stack;
     }
     if (icon.name() != null) {
-      meta.displayName(BukkitText.itemText(icon.name()));
+      PaperApi.setDisplayName(meta, BukkitText.itemText(icon.name()));
     }
     if (!icon.lore().isEmpty()) {
       List<Component> lines = new ArrayList<>(icon.lore().size());
       for (String line : icon.lore()) {
         lines.add(BukkitText.itemText(line));
       }
-      meta.lore(lines);
+      PaperApi.setLore(meta, lines);
     }
     stack.setItemMeta(meta);
     BukkitItemRef item = new BukkitItemRef(stack);

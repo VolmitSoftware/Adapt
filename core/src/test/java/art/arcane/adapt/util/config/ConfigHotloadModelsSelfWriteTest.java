@@ -2,6 +2,7 @@ package art.arcane.adapt.util.config;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.item.ItemOps;
@@ -29,7 +30,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class ConfigHotloadModelsSelfWriteTest extends AdaptTestBase {
@@ -156,7 +156,7 @@ class ConfigHotloadModelsSelfWriteTest extends AdaptTestBase {
   }
 
   private MockedStatic<Tasks> countRefreshes() {
-    MockedStatic<Tasks> scheduling = mockStatic(Tasks.class, CALLS_REAL_METHODS);
+    MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks(CALLS_REAL_METHODS);
     scheduling.when(() -> Tasks.s(any(Runnable.class))).thenAnswer(invocation -> {
       refreshes.incrementAndGet();
       return null;

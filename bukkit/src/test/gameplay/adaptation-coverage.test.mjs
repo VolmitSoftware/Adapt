@@ -37,7 +37,7 @@ import { decodeSoundPacket } from './feedback.mjs'
 
 const root = new URL('../../../', import.meta.url)
 const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8'))
-const sourceRoots = ['src/main/java/art/arcane/adapt/content/', '../core/src/main/java/art/arcane/adapt/content/']
+const sourceRoots = ['src/main/java/art/arcane/adapt/content/', '../content/src/main/java/art/arcane/adapt/content/']
 
 async function javaFiles(directory) {
   const entries = await readdir(new URL(directory, root), { withFileTypes: true }).catch(error => {
@@ -62,6 +62,11 @@ const PARTICLE_FACTORIES = {
   dust: 'DUST',
   dustTransition: 'DUST_COLOR_TRANSITION',
   flash: 'FLASH'
+}
+
+function declaredId(code) {
+  if (/\bsuper\(ID\)/.test(code)) return code.match(/\bpublic\s+static\s+final\s+Id\s+ID\s*=\s*Id\.adapt\("([^"]+)"\);/)?.[1]
+  return code.match(/\bsuper\(Id\.adapt\("([^"]+)"\)\)/)?.[1]
 }
 
 function constants(source, expression) {
@@ -115,7 +120,7 @@ test('brewing cases cover every brewing adaptation and require real potion outpu
   const unlearned = { before: base, output: base, received: base, ingredientRemaining: 1, elapsedMillis: 18000 }
   const result = { name: 'potion', count: 1, effects: [{ name: 'Haste', duration: 1200, amplifier: 0 }] }
   const active = { before: base, output: result, received: result, ingredientRemaining: 0, elapsedMillis: 16000 }
-  const verify = brewingBehaviorCases.get('brewing-haste').verify
+  const verify = brewingBehaviorCases.get('adapt:brewing/haste').verify
   assert.ok(verify({ context, unlearned, active }).assertions.length > 0)
   assert.throws(() => verify({ context, unlearned, active: unlearned }), /creates one potion/)
   assert.throws(() => verify({ context, unlearned, active: { ...active, received: base } }), /declared effect/)
@@ -126,7 +131,7 @@ test('brewing cases cover every brewing adaptation and require real potion outpu
 test('brewing fixture prepares base ingredients without creating results or simulating brew events', async () => {
   const fixture = await readFile(new URL('../core/src/gameplayFixture/java/art/arcane/adapt/gameplay/BrewingFixtures.java', root), 'utf8')
   assert.doesNotMatch(fixture, /\.(?:addCustomEffect|addPotionEffect|callEvent|post|setBrewingTime|setFuelLevel)\s*\(/)
-  assert.match(fixture, /setPotionContents\(new PotionContents\(Fixtures\.id\(inputs\.base\(\)\), null, List\.of\(\), null\)\)/)
+  assert.match(fixture, /setPotionContents\(PotionContents\.of\(Fixtures\.id\(inputs\.base\(\)\)\)\)/)
 })
 
 test('adaptation matrix covers every concrete adaptation and its actual skill registration', async () => {
@@ -140,11 +145,11 @@ test('adaptation matrix covers every concrete adaptation and its actual skill re
   const registered = new Map()
   for (const file of await contentFiles('skill/')) {
     const code = await readFile(new URL(file, root), 'utf8')
-    const skill = code.match(/super\("([^"]+)"/)?.[1]
+    const skill = declaredId(code)
     if (!skill) continue
     const locals = new Map([...code.matchAll(/\b(\w+)\s+(\w+)\s*=\s*new\s+\1\s*\(/g)].map(match => [match[2], match[1]]))
     for (const match of code.matchAll(/registerAdaptation\(([^;]+)\);/g)) {
-      const name = match[1].match(/^new (\w+)/)?.[1] ?? locals.get(match[1])
+      const name = match[1].match(/^(\w+)\.ID,\s*(?:\1::new|\(\)\s*->\s*(?:\w+\s*=\s*)?new\s+\1\(.*\))$/)?.[1] ?? match[1].match(/^new (\w+)/)?.[1] ?? locals.get(match[1])
       assert.ok(name, `Unresolved registration in ${file}: ${match[1]}`)
       assert.ok(!registered.has(name), `Duplicate registration: ${name}`)
       registered.set(name, skill)
@@ -163,7 +168,7 @@ test('adaptation matrix covers every concrete adaptation and its actual skill re
 test('matrix trigger, feedback, and behavioral expectations match their source declarations', async () => {
   for (const entry of matrix.adaptations) {
     const code = await readFile(new URL(entry.source, root), 'utf8')
-    assert.equal(entry.name, code.match(/\bsuper\("([^"]+)"\)/)?.[1], entry.class)
+    assert.equal(entry.name, `adapt:${declaredId(code)}`, entry.class)
     const triggers = constants(code, /@(?:EventHandler|Handle)(?:\([^)]*\))?\s+(?:public|protected|private)\s+void\s+\w+\(\s*(\w+Event)\s+\w+\s*\)/g)
     if (/\bvoid\s+onTick\s*\(/.test(code)) triggers.push('tick')
     if (/\bregisterRecipe\s*\(/.test(code)) triggers.push('recipe')
@@ -188,7 +193,7 @@ test('Iris tree feller is explicitly conditional and remains required for full c
   const axesSource = (await contentFiles('skill/')).find(file => file.endsWith('/SkillAxes.java'))
   assert.ok(axesSource, 'SkillAxes source')
   const axes = await readFile(new URL(axesSource, root), 'utf8')
-  assert.match(axes, /if\s*\(irisTreeFellerAvailable\)\s*\{\s*registerAdaptation\(new AxeIrisFeller\(\)\)/)
+  assert.match(axes, /if\s*\(irisTreeFellerAvailable\)\s*\{\s*registerAdaptation\(AxeIrisFeller\.ID, AxeIrisFeller::new\)/)
   assert.throws(() => assertAdaptationEvidence(conditional, []), new RegExp(conditional[0].name))
 })
 

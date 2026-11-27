@@ -197,17 +197,17 @@ function speedCase(stage, tool, feedback) {
 }
 
 export const harvestBehaviorCases = new Map([
-    ['pickaxe-deep-core', speedCase('harvest-deep', 'diamond_pickaxe', {
+    ['adapt:pickaxe/deep_core', speedCase('harvest-deep', 'diamond_pickaxe', {
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.4, soundPitch: 1.4, particle: 'electric_spark',
     })],
-    ['pickaxe-obsidian-rush', speedCase('harvest-obsidian', 'diamond_pickaxe', {
+    ['adapt:pickaxe/obsidian_rush', speedCase('harvest-obsidian', 'diamond_pickaxe', {
         sound: 'minecraft:block.respawn_anchor.charge', soundVolume: 0.5, soundPitch: 0.7, particle: 'dust',
     })],
-    ['excavation-mudlark', speedCase('harvest-wet', 'diamond_shovel', {
+    ['adapt:excavation/mudlark', speedCase('harvest-wet', 'diamond_shovel', {
         sound: 'minecraft:entity.player.splash', soundVolume: 0.3, soundPitch: 1.4,
         particle: 'splash', particleCount: 5, particleOffset: 0.3,
     })],
-    ['pickaxe-stone-skin', {
+    ['adapt:pickaxe/stone_skin', {
         stage: 'harvest-stone', prepare: preparation('diamond_pickaxe'), trigger: fourStones, negativeWindowTicks: 20,
         description: 'four natural stone breaks build a resistance tier',
         sound: 'minecraft:block.stone.place', soundVolume: 0.5, soundPitch: 0.8, particle: 'cloud',
@@ -218,7 +218,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned four-block mining gives no resistance', 'four learned natural breaks grant resistance one'], unlearned, active)
         },
     }],
-    ['pickaxe-unbreakable-pact', {
+    ['adapt:pickaxe/unbreakable_pact', {
         stage: 'harvest-fragile', prepare: preparation('diamond_pickaxe'), trigger: fragilePickaxe, negativeWindowTicks: 20,
         description: 'a pickaxe at one durability survives actual survival mining',
         sound: 'minecraft:block.anvil.place', soundVolume: 0.4, soundPitch: 1.8,
@@ -231,7 +231,7 @@ export const harvestBehaviorCases = new Map([
             return report(['ten unlearned mining trials destroy ten nearly broken pickaxes', 'ten learned mining trials preserve the same remaining durability; probability of all trials skipping last-durability feedback is at most 0.25^10'], unlearned, active)
         },
     }],
-    ['pickaxe-silk-spawner', {
+    ['adapt:pickaxe/silk_spawner', {
         stage: 'harvest-spawner', prepare: preparation('diamond_pickaxe', true), trigger: breakAndSnapshot, negativeWindowTicks: 20,
         description: 'sneaking survival mining recovers an actual spawner item',
         sound: 'minecraft:entity.item.pickup', soundVolume: 0.6, soundPitch: 0.7, particle: 'portal',
@@ -241,7 +241,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned mining yields no spawner', 'learned sneak mining drops one actual spawner'], unlearned, active)
         },
     }],
-    ['excavation-earth-mover', {
+    ['adapt:excavation/earth_mover', {
         stage: 'harvest-earth', prepare: preparation('diamond_shovel', true), trigger: useAir, negativeWindowTicks: 20,
         description: 'sneak shovel activation damages and slows a nearby hostile mob',
         sound: 'minecraft:block.rooted_dirt.break', soundVolume: 1, soundPitch: 0.6, particle: 'cloud',
@@ -253,7 +253,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned remote gesture leaves hostile unchanged', 'learned wave damages and slows hostile while charging hunger'], unlearned, active)
         },
     }],
-    ['excavation-soft-fall', {
+    ['adapt:excavation/soft_fall', {
         stage: 'harvest-fall', trigger: fall, negativeWindowTicks: 20,
         description: 'a real fall onto dirt loses no health at maximum adaptation level',
         sound: 'minecraft:block.sand.break', soundVolume: 0.4, soundPitch: 0.8, particle: 'cloud',
@@ -275,7 +275,7 @@ export const harvestBehaviorCases = new Map([
                 'all three authored landing notes reach the player with exact volume and damage-dependent pitch'], unlearned, active)
         },
     }],
-    ['herbalism-rooted-footing', {
+    ['adapt:herbalism/rooted_footing', {
         stage: 'harvest-fall', trigger: fall, negativeWindowTicks: 20,
         description: 'a real fall onto dirt trades food for reduced health loss',
         sound: 'minecraft:block.grass.break', soundVolume: 0.6, soundPitch: 0.8, particle: 'dust',
@@ -285,7 +285,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned dirt landing establishes fall damage', 'learned landing reduces actual health loss by consuming food'], unlearned, active)
         },
     }],
-    ['herbalism-hungry-shield', {
+    ['adapt:herbalism/hungry_shield', {
         stage: 'harvest-shield', trigger: shield, negativeWindowTicks: 20,
         description: 'a real opponent sword hit trades food for reduced damage',
         sound: 'minecraft:item.shield.block', soundVolume: 0.5, soundPitch: 0.9, particle: 'dust',
@@ -295,7 +295,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned sword hit establishes actual damage', 'learned sword hit spends food and reduces health loss'], unlearned, active)
         },
     }],
-    ['herbalism-seed-sower', {
+    ['adapt:herbalism/seed_sower', {
         stage: 'harvest-seeds', prepare: preparation('wheat_seeds', true), trigger: sow, negativeWindowTicks: 20,
         description: 'one sneak seed use plants multiple farmland cells and pays for every crop',
         sound: 'minecraft:item.crop.plant', soundVolume: 0.6, soundPitch: 1.25, particle: 'dust',
@@ -306,7 +306,7 @@ export const harvestBehaviorCases = new Map([
             return report(['one unlearned seed gesture plants at most one crop', 'one learned gesture plants multiple crops with exact seed conservation'], unlearned, active)
         },
     }],
-    ['herbalism-spore-bloom', {
+    ['adapt:herbalism/spore_bloom', {
         stage: 'harvest-spores', prepare: preparation('red_mushroom', true), trigger: spores, negativeWindowTicks: 20,
         description: 'a naturally placed mushroom spreads mycelium onto surrounding dirt',
         sound: 'minecraft:block.fungus.place', soundVolume: 0.45, soundPitch: 0.75, particle: 'spore_blossom_air',
@@ -318,7 +318,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned mushroom placement leaves surrounding dirt unchanged', 'learned placement converts soil and consumes mushrooms plus food'], unlearned, active)
         },
     }],
-    ['herbalism-compost-cascade', {
+    ['adapt:herbalism/compost_cascade', {
         stage: 'harvest-compost', prepare: preparation(undefined, true), trigger: compost, negativeWindowTicks: 20,
         description: 'an empty-hand sneak composter use consumes nearby seeds and creates compost',
         sound: 'minecraft:block.composter.fill', soundVolume: 0.8, soundPitch: 1.25, particle: 'spore_blossom_air',
@@ -329,7 +329,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned empty-hand use consumes no seeds', 'learned use consumes dropped seeds and creates compost output'], unlearned, active)
         },
     }],
-    ['herbalism-growth-aura', {
+    ['adapt:herbalism/growth_aura', {
         stage: 'harvest-growth', trigger: grow, negativeWindowTicks: 20,
         description: 'normal aura ticks advance real crop ages with vanilla random ticking disabled',
         sound: 'minecraft:item.crop.plant', soundVolume: 0.25, soundPitch: 1.5,
@@ -340,7 +340,7 @@ export const harvestBehaviorCases = new Map([
             return report(['unlearned wheat remains age zero without vanilla random growth', 'learned aura grows actual wheat blocks'], unlearned, active)
         },
     }],
-    ['herbalism-bee-shepherd', {
+    ['adapt:herbalism/bee_shepherd', {
         stage: 'harvest-bees', prepare: preparation('dandelion'), trigger: grow, negativeWindowTicks: 20,
         description: 'holding a flower near a bee grows real crops through shepherd pulses',
         sound: 'minecraft:entity.bee.pollinate', soundVolume: 0.85, soundPitch: 1.25, particle: 'happy_villager',

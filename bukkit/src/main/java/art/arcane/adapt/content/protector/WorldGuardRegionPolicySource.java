@@ -19,8 +19,8 @@
 package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.protection.RegionPolicy;
-import art.arcane.adapt.api.protection.RegionPolicySource;
+import art.arcane.adapt.engine.protection.RegionPolicy;
+import art.arcane.adapt.engine.protection.RegionPolicySource;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Loc;

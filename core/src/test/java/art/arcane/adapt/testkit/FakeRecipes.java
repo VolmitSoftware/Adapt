@@ -1,10 +1,11 @@
 package art.arcane.adapt.testkit;
 
+import art.arcane.adapt.engine.platform.EngineRecipeView;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.Ingredient;
 import art.arcane.adapt.platform.recipe.RecipeChoice;
-import art.arcane.adapt.platform.recipe.RecipeHost;
+import art.arcane.adapt.api.internal.HostRecipes;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
@@ -21,13 +22,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Recipe host that keeps registered specs and each player's discovered recipe keys. */
-public final class FakeRecipes implements RecipeHost {
+public final class FakeRecipes implements HostRecipes {
   private final Map<Id, RecipeSpec> registered = new LinkedHashMap<>();
   private final Map<UUID, Set<Id>> discovered = new ConcurrentHashMap<>();
   private final Map<Id, RecipeView> server = new LinkedHashMap<>();
 
   @Override
-  public synchronized boolean register(RecipeSpec recipe) {
+  public synchronized boolean add(RecipeSpec recipe) {
     registered.put(recipe.key(), recipe);
     return true;
   }
@@ -104,16 +105,16 @@ public final class FakeRecipes implements RecipeHost {
     if (spec instanceof RecipeSpec.Shaped shaped) {
       Map<Character, RecipeChoice> choices = new LinkedHashMap<>();
       shaped.ingredients().forEach((Character symbol, Ingredient ingredient) -> choices.put(symbol, choice(ingredient)));
-      return new RecipeView(spec.key(), RecipeView.Kind.SHAPED, shaped.shape(), choices, List.of(), spec.result());
+      return new EngineRecipeView(spec.key(), RecipeView.Kind.SHAPED, shaped.shape(), choices, List.of(), spec.result());
     }
     if (spec instanceof RecipeSpec.Shapeless shapeless) {
       List<RecipeChoice> choices = new ArrayList<>();
       for (Ingredient ingredient : shapeless.ingredients()) {
         choices.add(choice(ingredient));
       }
-      return new RecipeView(spec.key(), RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, spec.result());
+      return new EngineRecipeView(spec.key(), RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, spec.result());
     }
-    return new RecipeView(spec.key(), RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), spec.result());
+    return new EngineRecipeView(spec.key(), RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), spec.result());
   }
 
   private static RecipeChoice choice(Ingredient ingredient) {

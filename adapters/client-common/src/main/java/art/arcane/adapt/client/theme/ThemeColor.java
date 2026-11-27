@@ -17,7 +17,7 @@ final class ThemeColor {
 
     /** {@code color} at {@code alpha} (0 to 1) of its opacity. */
     static int alpha(int color, double alpha) {
-        return FrameCanvas.alphaByte(alpha) << 24 | color & 0xFFFFFF;
+        return KitFrameCanvas.alphaByte(alpha) << 24 | color & 0xFFFFFF;
     }
 
     /** The WCAG contrast ratio between two colours. */

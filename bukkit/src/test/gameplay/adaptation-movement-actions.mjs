@@ -147,7 +147,7 @@ function verifyGravity({ context, unlearned, active }) {
 }
 
 export const movementBehaviorCases = new Map([
-    ['agility-wind-up', {
+    ['adapt:agility/wind_up', {
         stage: 'move-runway', negativeWindowTicks: 1,
         sound: 'minecraft:entity.blaze.shoot', soundVolume: 0.3, soundPitch: 0.7, particle: 'flame',
         trigger: windUp,
@@ -158,7 +158,7 @@ export const movementBehaviorCases = new Map([
             return { assertions: ['both trials sprint for 80 ticks', 'learned sprint gains speed and covers more ground'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-air-dash', {
+    ['adapt:agility/air_dash', {
         stage: 'move-runway', negativeWindowTicks: 1,
         sound: 'minecraft:entity.phantom.flap', soundVolume: 0.6, soundPitch: 1.4, particle: 'cloud',
         trigger: airDash,
@@ -170,32 +170,32 @@ export const movementBehaviorCases = new Map([
             return { assertions: ['unlearned sprint-jump swing does not dash', 'learned sprint-jump swing travels farther and pays hunger cost'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-kip-up', {
+    ['adapt:agility/kip_up', {
         stage: 'agility', attribute: 'minecraft:movement_speed', negativeWindowTicks: 12,
         sound: 'minecraft:entity.player.attack.sweep', soundVolume: 0.6, soundPitch: 1.3, particle: 'crit',
         trigger: kipUp,
     }],
-    ['kinetics-heavy-frame', {
+    ['adapt:kinetics/heavy_frame', {
         stage: 'move-mace', attribute: 'minecraft:knockback_resistance', negativeWindowTicks: 20,
         sound: 'minecraft:block.chain.place', soundVolume: 0.35, soundPitch: 0.7, particle: 'cloud',
         trigger: input => equipAndSneak(input, 'mace'),
     }],
-    ['kinetics-phalanx-reach', {
+    ['adapt:kinetics/phalanx_reach', {
         stage: 'move-spear', attribute: 'minecraft:entity_interaction_range', negativeWindowTicks: 50,
         trigger: async input => {
             await input.equip('iron_spear')
             await input.actor.bot.waitForTicks(5)
         },
     }],
-    ['kinetics-terminal-toggle', {
+    ['adapt:kinetics/terminal_toggle', {
         stage: 'move-fall', negativeWindowTicks: 1,
         trigger: input => fallToggle(input, false), verify: verifyGravity,
     }],
-    ['kinetics-meteor-cadence', {
+    ['adapt:kinetics/meteor_cadence', {
         stage: 'move-meteor', negativeWindowTicks: 1,
         trigger: input => fallToggle(input, true), verify: verifyGravity,
     }],
-    ['seaborne-pressure-diver', {
+    ['adapt:seaborne/pressure_diver', {
         stage: 'move-pressure', attribute: 'minecraft:max_absorption', negativeWindowTicks: 40,
         sound: 'minecraft:block.conduit.activate', soundVolume: 0.5, soundPitch: 1.4, particle: 'bubble', particleCount: 1, particleOffset: 0,
         trigger: async ({ actor }) => {
@@ -205,7 +205,7 @@ export const movementBehaviorCases = new Map([
             actor.bot.setControlState('forward', false)
         },
     }],
-    ['seaborne-hydro-jet', {
+    ['adapt:seaborne/hydro_jet', {
         stage: 'move-hydro', negativeWindowTicks: 1,
         sound: 'minecraft:entity.dolphin.splash', soundVolume: 0.6, soundPitch: 1.3, particle: 'splash',
         trigger: hydroJet,
@@ -216,12 +216,12 @@ export const movementBehaviorCases = new Map([
             return { assertions: ['unlearned swimming sneak does not jet', 'learned swimming sneak activates one jet and covers more distance'], measurements: { unlearned, active } }
         },
     }],
-    ['stealth-smoke-pellet', {
+    ['adapt:stealth/smoke_pellet', {
         stage: 'move-smoke', effect: 'minecraft:invisibility', negativeWindowTicks: 20,
         sound: 'minecraft:entity.witch.throw', soundVolume: 0.4, soundPitch: 1.4, particle: 'smoke',
         trigger: smoke,
     }],
-    ['stealth-snatch', {
+    ['adapt:stealth/snatch', {
         stage: 'move-snatch', negativeWindowTicks: 1,
         sound: 'minecraft:block.amethyst_block.resonate', soundVolume: 0.4, soundPitch: 1.5, particle: 'enchant',
         trigger: snatch,
@@ -233,7 +233,7 @@ export const movementBehaviorCases = new Map([
             return { assertions: ['unlearned sneak leaves the distant item', 'learned sneak transfers exactly one diamond without moving'], measurements: { unlearned, active } }
         },
     }],
-    ['stealth-umbral-recovery', {
+    ['adapt:stealth/umbral_recovery', {
         stage: 'move-umbral', negativeWindowTicks: 1,
         sound: 'minecraft:entity.generic.eat', soundVolume: 0.35, soundPitch: 1.4, particle: 'happy_villager',
         trigger: recoverMeal,

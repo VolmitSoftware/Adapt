@@ -1,10 +1,10 @@
 package art.arcane.adapt.mod.platform;
 
 import art.arcane.adapt.AdaptEnvironment;
-import art.arcane.adapt.api.value.RegistryConfigBinding;
+import art.arcane.adapt.engine.value.RegistryConfigBinding;
 import art.arcane.adapt.mod.AdaptModIdentity;
 import art.arcane.adapt.mod.platform.schedule.ModScheduler;
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.event.AdaptEvent;
@@ -25,14 +25,14 @@ import java.util.function.Predicate;
 public final class ModPlatform {
     private static final ModLog LOG = new ModLog(AdaptModIdentity.NAME);
     private static final AdaptEventBus BUS = new AdaptEventBus((Object owner, AdaptEvent event, Throwable error) ->
-            LOG.error("Event handler " + owner + " failed on " + event.getClass().getSimpleName(), error));
+            LOG.error("Event handler " + owner + " failed on " + (event == null ? "registration" : event.getClass().getSimpleName()), error));
     private static final int PLAYER_SYNC_TICKS = 20;
 
     private static volatile MinecraftServer server;
     private static volatile ModScheduler scheduler;
     private static volatile ModPlatformHost host;
     private static volatile ModPermissionHost permissions;
-    private static volatile AdaptPlatform platform;
+    private static volatile HostPlatform platform;
 
     private ModPlatform() {
     }
@@ -43,7 +43,7 @@ public final class ModPlatform {
     }
 
     /** The assembled platform, or null before server start or while a registered host is missing. */
-    public static AdaptPlatform platform() {
+    public static HostPlatform platform() {
         return platform;
     }
 
@@ -126,7 +126,7 @@ public final class ModPlatform {
         ModRefs.clear();
     }
 
-    private static AdaptPlatform assemble() {
+    private static HostPlatform assemble() {
         List<String> missing = new ArrayList<>();
         if (ModHosts.fx() == null) {
             missing.add("fx");
@@ -150,7 +150,7 @@ public final class ModPlatform {
             LOG.warn("Platform incomplete, missing hosts: " + String.join(", ", missing));
             return null;
         }
-        return new AdaptPlatform(host, scheduler, ModHosts.fx(), ModHosts.viewers(), ModHosts.menus(), permissions,
+        return new HostPlatform(host, scheduler, ModHosts.fx(), ModHosts.viewers(), ModHosts.menus(), permissions,
                 ModHosts.protection(), ModHosts.recipes(), ModHosts.advancements());
     }
 

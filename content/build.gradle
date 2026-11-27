@@ -1,0 +1,108 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+plugins {
+    id 'java-library'
+}
+
+evaluationDependsOn(':core')
+
+String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
+    .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
+    .get()
+
+dependencies {
+    api(project(':api'))
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+
+    testImplementation(project(':core'))
+    testImplementation(testFixtures(project(':core')))
+    testImplementation(rootProject.project(':core').sourceSets.test.output)
+    testImplementation('org.jetbrains:annotations:26.0.2-1')
+    testImplementation(volmLibCoordinate) {
+        changing = true
+        transitive = false
+    }
+    testImplementation(libs.gson)
+    testImplementation(libs.toml4j) {
+        transitive = false
+    }
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testImplementation('org.assertj:assertj-core:3.26.3')
+    testImplementation('org.mockito:mockito-core:5.14.2')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+sourceSets.test.resources.srcDir('../core/src/test/resources')
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    if (providers.gradleProperty('updatePlatformCatalog').isPresent()) {
+        systemProperty('adapt.updatePlatformCatalog', 'true')
+    }
+    if (providers.gradleProperty('updatePersistedKeys').isPresent()) {
+        systemProperty('adapt.updatePersistedKeys', 'true')
+    }
+    if (providers.gradleProperty('updateAdaptationCosts').isPresent()) {
+        systemProperty('adapt.updateAdaptationCosts', 'true')
+    }
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+
+/*
+ * Built-in content is an addon like any other: it compiles against the public API alone. The dependency rule below
+ * keeps the compile classpath at :api plus the annotations :api uses, and the source scan fails on any name of the
+ * engine, its utilities, VolmLib, Gson or Lombok, including in comments and strings.
+ */
+def verifyContentClasspath = tasks.register('verifyContentClasspath') {
+    group = 'verification'
+    description = 'Fails when the content compile classpath holds anything but the API and its annotations.'
+    FileCollection classpath = configurations.compileClasspath
+    File apiProject = rootProject.project(':api').projectDir
+    inputs.files(classpath)
+    doLast {
+        List<String> foreign = classpath.files.findAll { File file ->
+            !(file.toPath().startsWith(apiProject.toPath()) || file.name.startsWith('annotations-'))
+        }.collect { File file -> file.path }
+        if (!foreign.isEmpty()) {
+            throw new GradleException("Content compiles against more than the API: ${foreign.join(', ')}")
+        }
+    }
+}
+
+FileTree contentSources = fileTree('src/main/java') { include('**/*.java') }
+def verifyContentPurity = tasks.register('verifyContentPurity') {
+    group = 'verification'
+    description = 'Fails when built-in content references the engine, its utilities, VolmLib, Gson or Lombok.'
+    inputs.files(contentSources).withPathSensitivity(PathSensitivity.RELATIVE)
+    File report = layout.buildDirectory.file('reports/content-purity.txt').get().asFile
+    outputs.file(report)
+
+    doLast {
+        Pattern reference = Pattern.compile('\\b(art\\.arcane\\.adapt\\.(?!api\\b|platform\\b|content\\b)[A-Za-z_][A-Za-z0-9_]*'
+            + '|art\\.arcane\\.volmlib\\b|com\\.google\\.gson\\b|lombok\\.[A-Za-z_])')
+        List<String> violations = []
+        contentSources.files.sort { File source -> source.path }.each { File source ->
+            source.readLines('UTF-8').eachWithIndex { String line, int index ->
+                Matcher matcher = reference.matcher(line)
+                if (matcher.find()) {
+                    violations.add("${projectDir.toPath().relativize(source.toPath())}:${index + 1}: ${matcher.group(1)}".toString())
+                }
+            }
+        }
+        report.parentFile.mkdirs()
+        report.setText(violations.join('\n'), 'UTF-8')
+        if (!violations.isEmpty()) {
+            throw new GradleException("Built-in content references engine types:\n${violations.join('\n')}")
+        }
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyContentClasspath)
+    dependsOn(verifyContentPurity)
+}

@@ -1,7 +1,7 @@
 package art.arcane.adapt.mod.platform;
 
-import art.arcane.adapt.api.ComponentPort;
-import art.arcane.adapt.api.protection.ProtectionProbes;
+import art.arcane.adapt.engine.ComponentPort;
+import art.arcane.adapt.engine.protection.ProtectionProbes;
 import art.arcane.adapt.mod.event.PlayerHooks;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.ItemEntityRef;

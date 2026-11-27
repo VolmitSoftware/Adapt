@@ -265,7 +265,7 @@ async function trap(input) {
 }
 
 export const utilityBehaviorCases = new Map([
-    ['agility-cat-reflexes', {
+    ['adapt:agility/cat_reflexes', {
         stage: 'utility-cat', trigger: catReflexes, negativeWindowTicks: 10,
         description: 'bounded real arrows are cancelled only when the learned defender is sprinting',
         sound: 'minecraft:entity.player.attack.sweep', soundVolume: 0.5, soundPitch: 1.7,
@@ -278,7 +278,7 @@ export const utilityBehaviorCases = new Map([
             return report(['twenty natural unlearned projectile hits cause damage', 'learned sprinting cancels actual incoming projectile damage'], unlearned, active)
         },
     }],
-    ['agility-wall-jump', {
+    ['adapt:agility/wall_jump', {
         stage: 'utility-wall', trigger: wall, negativeWindowTicks: 10,
         description: 'an airborne sneak latches to a real wall and releasing sneak kicks upward',
         sound: 'minecraft:item.armor.equip_leather', soundVolume: 0.9, soundPitch: 0.92, particle: 'cloud',
@@ -290,7 +290,7 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned contact has no gravity modifier', 'learned wall latch changes gravity and natural release gains height', 'release restores gravity'], unlearned, active)
         },
     }],
-    ['architect-chalk-line', {
+    ['adapt:architect/chalk_line', {
         stage: 'utility-chalk', prepare: prepare('stick'), trigger: chalk, negativeWindowTicks: 10,
         description: 'natural wand clicks store endpoints, draw a private guide, and clear its saved plan',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.45, soundPitch: 1.7,
@@ -301,7 +301,7 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned wand is denied', 'learned two-point guide is stored on the real item and displayed privately', 'sneak use clears the saved plan'], unlearned, active)
         },
     }],
-    ['architect-elevator', {
+    ['adapt:architect/elevator', {
         stage: 'utility-elevator', prepare: prepare('note_block'), trigger: elevator, negativeWindowTicks: 10,
         description: 'two naturally placed elevator items link and carry the player up and down',
         sound: 'minecraft:entity.enderman.teleport', soundVolume: 0.6, soundPitch: 1.2, particle: 'portal',
@@ -312,7 +312,7 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned placements preserve both items', 'learned placements consume and link two blocks', 'jump and sneak produce actual vertical round-trip travel'], unlearned, active)
         },
     }],
-    ['architect-wireless-redstone', {
+    ['adapt:architect/wireless_redstone', {
         stage: 'utility-wireless', prepare: prepare('redstone_torch'), trigger: wireless, negativeWindowTicks: 10,
         description: 'natural binding and remote use pulse a real lamp and restore its original state',
         sound: 'minecraft:block.note_block.pling', soundVolume: 0.5, soundPitch: 2, particle: 'electric_spark',
@@ -323,8 +323,8 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned remote leaves lamp dark', 'learned natural bind/use sends real lit and unlit block updates'], unlearned, active)
         },
     }],
-    ['stealth-cutpurse', {
-        stage: 'utility-cutpurse', prerequisites: [{ name: 'stealth-silent-step', level: 1 }], trigger: cutpurse, negativeWindowTicks: 10,
+    ['adapt:stealth/cutpurse', {
+        stage: 'utility-cutpurse', prerequisites: [{ name: 'adapt:stealth/silent_step', level: 1 }], trigger: cutpurse, negativeWindowTicks: 10,
         description: 'bounded undetected fist hits steal real loot from a surviving Vindicator',
         sound: 'minecraft:entity.item.pickup', soundVolume: 0.6, soundPitch: 1.5, particle: 'enchant',
         async verify({ context, unlearned, active }) {
@@ -333,7 +333,7 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned surviving target yields no loot', 'learned natural undetected hits transfer loot from a living target'], unlearned, active)
         },
     }],
-    ['stealth-shadow-decoy', {
+    ['adapt:stealth/shadow_decoy', {
         stage: 'utility-decoy', trigger: shadow, negativeWindowTicks: 10,
         description: 'releasing sneak creates a real anchor and client-visible player decoy, then expires',
         sound: 'minecraft:entity.enderman.teleport', soundVolume: 0.6, soundPitch: 1.7, particle: 'reverse_portal',
@@ -345,8 +345,8 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned release creates no decoy', 'learned release creates anchor and visible player decoy while concealing owner', 'natural expiry cleans up the decoy and concealment'], unlearned, active)
         },
     }],
-    ['stealth-decoy-swap', {
-        stage: 'utility-decoy', prerequisites: [{ name: 'stealth-shadow-decoy', level: 1 }],
+    ['adapt:stealth/decoy_swap', {
+        stage: 'utility-decoy', prerequisites: [{ name: 'adapt:stealth/shadow_decoy', level: 1 }],
         prepare: async ({ actor }) => { actor.bot.clearControlStates(); await actor.bot.waitForTicks(365) },
         trigger: swap, negativeWindowTicks: 10,
         description: 'double tapping sneak exchanges the actual player and prerequisite decoy positions',
@@ -359,7 +359,7 @@ export const utilityBehaviorCases = new Map([
             return report(['prerequisite decoy alone does not teleport its owner', 'learned double-sneak exchanges both real positions'], unlearned, active)
         },
     }],
-    ['stealth-enderveil', {
+    ['adapt:stealth/enderveil', {
         stage: 'utility-veil', trigger: veil, negativeWindowTicks: 10,
         description: 'looking into a real Enderman cancels its naturally raised attack intent',
         sound: 'minecraft:entity.enderman.stare', soundVolume: 0.35, soundPitch: 1.5,
@@ -375,7 +375,7 @@ export const utilityBehaviorCases = new Map([
             return report(['unlearned direct gaze allows Enderman attack intent', 'learned direct gaze cancels the natural attack event and target acquisition'], unlearned, active)
         },
     }],
-    ['stealth-trap-sense', {
+    ['adapt:stealth/trap_sense', {
         stage: 'utility-trap', trigger: trap, negativeWindowTicks: 12,
         description: 'real player footsteps reach a sculk sensor ordinarily and are suppressed at maximum level',
         sound: 'minecraft:block.sculk_sensor.clicking_stop', soundVolume: 0.25, soundPitch: 1.4,

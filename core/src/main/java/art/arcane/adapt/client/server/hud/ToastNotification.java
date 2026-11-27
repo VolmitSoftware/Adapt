@@ -1,7 +1,7 @@
 package art.arcane.adapt.client.server.hud;
 
-import art.arcane.adapt.api.notification.Notification;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.notification.Notification;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.platform.entity.PlayerRef;
 

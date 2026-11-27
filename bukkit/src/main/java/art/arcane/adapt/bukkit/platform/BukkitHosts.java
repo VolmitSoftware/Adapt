@@ -1,11 +1,11 @@
 package art.arcane.adapt.bukkit.platform;
 
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.fx.FxHost;
-import art.arcane.adapt.platform.menu.MenuHost;
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.platform.protection.ProtectionHost;
-import art.arcane.adapt.platform.recipe.RecipeHost;
+import art.arcane.adapt.api.internal.HostRecipes;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 
 import java.util.List;
@@ -19,13 +19,13 @@ import java.util.function.Consumer;
  * base hosts remain reachable through {@link BukkitPlatform#host()} and {@link BukkitPlatform#scheduler()}.
  */
 public final class BukkitHosts {
-  private static final List<Consumer<AdaptPlatform>> STARTED = new CopyOnWriteArrayList<>();
+  private static final List<Consumer<HostPlatform>> STARTED = new CopyOnWriteArrayList<>();
   private static final List<Runnable> STOPPING = new CopyOnWriteArrayList<>();
   private static volatile FxHost fx;
   private static volatile ViewerHost viewers;
-  private static volatile MenuHost menus;
+  private static volatile HostMenus menus;
   private static volatile ProtectionHost protection;
-  private static volatile RecipeHost recipes;
+  private static volatile HostRecipes recipes;
   private static volatile AdvancementHost advancements;
   private static volatile BukkitDisplayFactory displays;
   private static volatile BukkitGoalsFactory goals;
@@ -49,11 +49,11 @@ public final class BukkitHosts {
     return viewers;
   }
 
-  public static void menus(MenuHost host) {
+  public static void menus(HostMenus host) {
     menus = host;
   }
 
-  public static MenuHost menus() {
+  public static HostMenus menus() {
     return menus;
   }
 
@@ -65,11 +65,11 @@ public final class BukkitHosts {
     return protection;
   }
 
-  public static void recipes(RecipeHost host) {
+  public static void recipes(HostRecipes host) {
     recipes = host;
   }
 
-  public static RecipeHost recipes() {
+  public static HostRecipes recipes() {
     return recipes;
   }
 
@@ -98,7 +98,7 @@ public final class BukkitHosts {
   }
 
   /** Runs on the main thread right after the platform was assembled during plugin enable. */
-  public static void onStarted(Consumer<AdaptPlatform> listener) {
+  public static void onStarted(Consumer<HostPlatform> listener) {
     STARTED.add(listener);
   }
 
@@ -107,7 +107,7 @@ public final class BukkitHosts {
     STOPPING.add(listener);
   }
 
-  static List<Consumer<AdaptPlatform>> startedListeners() {
+  static List<Consumer<HostPlatform>> startedListeners() {
     return STARTED;
   }
 

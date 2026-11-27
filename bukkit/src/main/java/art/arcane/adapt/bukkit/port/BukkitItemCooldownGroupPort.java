@@ -1,6 +1,6 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.adaptation.ItemCooldownGroupPort;
+import art.arcane.adapt.engine.adaptation.ItemCooldownGroupPort;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.item.ItemRef;

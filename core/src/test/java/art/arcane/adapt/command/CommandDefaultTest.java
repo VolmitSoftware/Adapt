@@ -1,17 +1,23 @@
 package art.arcane.adapt.command;
 
+import static org.mockito.ArgumentMatchers.any;
+
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.AdaptationConfig;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.SimpleSkill;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.content.SkillConfig;
+import art.arcane.adapt.api.content.StatLines;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.localization.SkillPresentation;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.testkit.MockedEngine;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
-import art.arcane.adapt.api.adaptation.StatLines;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +34,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -42,6 +47,7 @@ class CommandDefaultTest extends AdaptTestBase {
   private TestAdaptation veinMiner;
   private TestAdaptation autosmelt;
   private TestAdaptation lure;
+  private MockedEngine engine;
 
   @BeforeEach
   void prepareRuntime() throws Exception {
@@ -50,23 +56,21 @@ class CommandDefaultTest extends AdaptTestBase {
     previousConfig = (AdaptConfig) configField.get(null);
     configField.set(null, null);
 
-    mining = new TestSkill("mining");
-    fishing = new TestSkill("fishing");
-    veinMiner = new TestAdaptation("mining-vein-miner", false);
-    autosmelt = new TestAdaptation("mining-autosmelt", false);
-    lure = new TestAdaptation("fishing-lure", false);
-    mining.registerAdaptation(veinMiner);
-    mining.registerAdaptation(autosmelt);
-    fishing.registerAdaptation(lure);
+    engine = new MockedEngine(core);
+    mining = engine.skill(() -> new TestSkill("mining"));
+    fishing = engine.skill(() -> new TestSkill("fishing"));
+    veinMiner = engine.adaptation(mining, () -> new TestAdaptation("mining-vein-miner", false));
+    autosmelt = engine.adaptation(mining, () -> new TestAdaptation("mining-autosmelt", false));
+    lure = engine.adaptation(fishing, () -> new TestAdaptation("fishing-lure", false));
 
     AdaptServer server = mock(AdaptServer.class);
     SkillRegistry registry = mock(SkillRegistry.class);
     doReturn(server).when(core).getAdaptServer();
     when(server.getSkillRegistry()).thenReturn(registry);
     when(registry.getAllSkills()).thenAnswer(invocation -> new ArrayList<Skill<?>>(List.of(mining, fishing)));
-    when(registry.getSkill(anyString())).thenAnswer(invocation -> skill(invocation.getArgument(0)));
-    when(registry.hotReloadSkillConfig(anyString())).thenAnswer(invocation -> hotReloadSkill(invocation.getArgument(0)));
-    when(registry.hotReloadAdaptationConfig(anyString())).thenAnswer(invocation -> hotReloadAdaptation(invocation.getArgument(0)));
+    when(registry.getAnySkill(any(Id.class))).thenAnswer(invocation -> skill(invocation.getArgument(0).toString()));
+    when(registry.hotReloadSkillConfig(any(Id.class))).thenAnswer(invocation -> hotReloadSkill(invocation.getArgument(0)));
+    when(registry.hotReloadAdaptationConfig(any(Id.class))).thenAnswer(invocation -> hotReloadAdaptation(invocation.getArgument(0)));
 
     sender = mock(CommandSource.class);
     when(sender.hasPermission("adapt.configurator")).thenReturn(true);
@@ -76,6 +80,7 @@ class CommandDefaultTest extends AdaptTestBase {
   @AfterEach
   void restoreRuntime() throws Exception {
     CommandContext.remove();
+    engine.close();
     configField.set(null, previousConfig);
   }
 
@@ -86,18 +91,18 @@ class CommandDefaultTest extends AdaptTestBase {
     new CommandDefault().all();
 
     assertThat(archived("adapt.toml")).contains("welcomeMessage = false");
-    assertThat(archived("skills/mining.toml")).contains("reward = 77");
-    assertThat(archived("skills/fishing.toml")).contains("reward = 77");
-    assertThat(archived("adaptations/mining-vein-miner.toml")).contains("retainedValue = 9");
-    assertThat(archived("adaptations/mining-autosmelt.toml")).contains("retainedValue = 9");
-    assertThat(archived("adaptations/fishing-lure.toml")).contains("retainedValue = 9");
+    assertThat(archived("skills/adapt/mining.toml")).contains("reward = 77");
+    assertThat(archived("skills/adapt/fishing.toml")).contains("reward = 77");
+    assertThat(archived("adaptations/adapt/mining-vein-miner.toml")).contains("retainedValue = 9");
+    assertThat(archived("adaptations/adapt/mining-autosmelt.toml")).contains("retainedValue = 9");
+    assertThat(archived("adaptations/adapt/fishing-lure.toml")).contains("retainedValue = 9");
 
     assertThat(live("adapt.toml")).contains("welcomeMessage = true");
-    assertThat(live("skills/mining.toml")).contains("reward = 10");
-    assertThat(live("skills/fishing.toml")).contains("reward = 10");
-    assertThat(live("adaptations/mining-vein-miner.toml")).contains("retainedValue = 3");
-    assertThat(live("adaptations/mining-autosmelt.toml")).contains("retainedValue = 3");
-    assertThat(live("adaptations/fishing-lure.toml")).contains("retainedValue = 3");
+    assertThat(live("skills/adapt/mining.toml")).contains("reward = 10");
+    assertThat(live("skills/adapt/fishing.toml")).contains("reward = 10");
+    assertThat(live("adaptations/adapt/mining-vein-miner.toml")).contains("retainedValue = 3");
+    assertThat(live("adaptations/adapt/mining-autosmelt.toml")).contains("retainedValue = 3");
+    assertThat(live("adaptations/adapt/fishing-lure.toml")).contains("retainedValue = 3");
 
     assertThat(AdaptConfig.get().isWelcomeMessage()).isTrue();
     assertThat(mining.getConfig().reward).isEqualTo(10D);
@@ -107,33 +112,32 @@ class CommandDefaultTest extends AdaptTestBase {
     assertThat(lure.getConfig().retainedValue).isEqualTo(3);
 
     assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Archived 6 config files"));
-    assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Reset 6 configs"));
+    assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Reset 18 configs"));
     assertThat(messages()).noneSatisfy(message -> assertThat(message).contains("Failed"));
   }
 
   @Test
   void allNamesTheConfigThatFailedAndStillResetsTheRest() throws IOException {
-    TestAdaptation broken = new TestAdaptation("mining-broken", true);
-    mining.registerAdaptation(broken);
+    TestAdaptation broken = engine.adaptation(mining, () -> new TestAdaptation("mining-broken", true));
     customizeEverything();
-    Files.writeString(file("adaptations/mining-broken.toml"), "enabled = true\nretainedValue = 9\n");
-    assertThat(broken.reloadConfigFromDisk(false)).isTrue();
+    Files.writeString(file("adaptations/adapt/mining-broken.toml"), "enabled = true\nretainedValue = 9\n");
+    assertThat(ComponentHost.of(broken).reloadConfigFromDisk(false)).isTrue();
 
     new CommandDefault().all();
 
-    assertThat(archived("adaptations/mining-broken.toml")).contains("retainedValue = 9");
-    assertThat(live("adaptations/mining-broken.toml")).contains("retainedValue = 9");
+    assertThat(archived("adaptations/adapt/mining-broken.toml")).contains("retainedValue = 9");
+    assertThat(live("adaptations/adapt/mining-broken.toml")).contains("retainedValue = 9");
     assertThat(broken.getConfig().retainedValue).isEqualTo(9);
 
-    assertThat(live("skills/mining.toml")).contains("reward = 10");
-    assertThat(live("adaptations/mining-vein-miner.toml")).contains("retainedValue = 3");
-    assertThat(live("adaptations/fishing-lure.toml")).contains("retainedValue = 3");
+    assertThat(live("skills/adapt/mining.toml")).contains("reward = 10");
+    assertThat(live("adaptations/adapt/mining-vein-miner.toml")).contains("retainedValue = 3");
+    assertThat(live("adaptations/adapt/fishing-lure.toml")).contains("retainedValue = 3");
     assertThat(mining.getConfig().reward).isEqualTo(10D);
     assertThat(veinMiner.getConfig().retainedValue).isEqualTo(3);
     assertThat(AdaptConfig.get().isWelcomeMessage()).isTrue();
 
     assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Archived 7 config files"));
-    assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Reset 6 configs"));
+    assertThat(messages()).anySatisfy(message -> assertThat(message).contains("Reset 18 configs"));
     assertThat(messages()).filteredOn(message -> message.contains("Failed"))
         .singleElement()
         .satisfies(message -> assertThat(message).contains("mining-broken"));
@@ -145,57 +149,56 @@ class CommandDefaultTest extends AdaptTestBase {
 
     new CommandDefault().skill(new AdaptationListingHandler.SkillProvider("mining"));
 
-    assertThat(live("skills/mining.toml")).contains("reward = 10");
+    assertThat(live("skills/adapt/mining.toml")).contains("reward = 10");
     assertThat(mining.getConfig().reward).isEqualTo(10D);
-    assertThat(live("skills/fishing.toml")).contains("reward = 77");
-    assertThat(live("adaptations/mining-vein-miner.toml")).contains("retainedValue = 9");
+    assertThat(live("skills/adapt/fishing.toml")).contains("reward = 77");
+    assertThat(live("adaptations/adapt/mining-vein-miner.toml")).contains("retainedValue = 9");
     assertThat(veinMiner.getConfig().retainedValue).isEqualTo(9);
-    assertThat(messages()).singleElement().satisfies(message -> assertThat(message).contains("Reset config for skill mining"));
+    assertThat(messages()).singleElement().satisfies(message -> assertThat(message).contains("Reset config for skill adapt:mining"));
   }
 
   @Test
   void adaptationResetRecreatesOnlyThatAdaptationConfigWithDefaults() throws IOException {
     customizeEverything();
 
-    new CommandDefault().adaptation(new AdaptationListingHandler.AdaptationProvider("mining:mining-vein-miner"));
+    new CommandDefault().adaptation(new AdaptationListingHandler.AdaptationProvider("mining-vein-miner"));
 
-    assertThat(live("adaptations/mining-vein-miner.toml")).contains("retainedValue = 3");
+    assertThat(live("adaptations/adapt/mining-vein-miner.toml")).contains("retainedValue = 3");
     assertThat(veinMiner.getConfig().retainedValue).isEqualTo(3);
-    assertThat(live("adaptations/mining-autosmelt.toml")).contains("retainedValue = 9");
+    assertThat(live("adaptations/adapt/mining-autosmelt.toml")).contains("retainedValue = 9");
     assertThat(autosmelt.getConfig().retainedValue).isEqualTo(9);
-    assertThat(live("skills/mining.toml")).contains("reward = 77");
+    assertThat(live("skills/adapt/mining.toml")).contains("reward = 77");
     assertThat(messages()).singleElement()
-        .satisfies(message -> assertThat(message).contains("Reset config for adaptation mining-vein-miner"));
+        .satisfies(message -> assertThat(message).contains("Reset config for adaptation adapt:mining-vein-miner"));
   }
 
   @Test
   void resetReportsTheConfigByNameWhenDefaultsCannotBeWritten() throws IOException {
-    TestAdaptation broken = new TestAdaptation("mining-broken", true);
-    mining.registerAdaptation(broken);
-    Files.createDirectories(file("adaptations"));
-    Files.writeString(file("adaptations/mining-broken.toml"), "enabled = true\nretainedValue = 9\n");
-    assertThat(broken.reloadConfigFromDisk(false)).isTrue();
+    TestAdaptation broken = engine.adaptation(mining, () -> new TestAdaptation("mining-broken", true));
+    Files.createDirectories(file("adaptations/adapt"));
+    Files.writeString(file("adaptations/adapt/mining-broken.toml"), "enabled = true\nretainedValue = 9\n");
+    assertThat(ComponentHost.of(broken).reloadConfigFromDisk(false)).isTrue();
 
-    new CommandDefault().adaptation(new AdaptationListingHandler.AdaptationProvider("mining:mining-broken"));
+    new CommandDefault().adaptation(new AdaptationListingHandler.AdaptationProvider("mining-broken"));
 
-    assertThat(live("adaptations/mining-broken.toml")).contains("retainedValue = 9");
+    assertThat(live("adaptations/adapt/mining-broken.toml")).contains("retainedValue = 9");
     assertThat(messages()).singleElement()
         .satisfies(message -> assertThat(message).contains("Failed").contains("mining-broken"));
   }
 
   private void customizeEverything() throws IOException {
-    Files.createDirectories(file("skills"));
-    Files.createDirectories(file("adaptations"));
+    Files.createDirectories(file("skills/adapt"));
+    Files.createDirectories(file("adaptations/adapt"));
     Files.writeString(file("adapt.toml"), "welcomeMessage = false\n");
     assertThat(AdaptConfig.get().isWelcomeMessage()).isFalse();
     for (TestSkill skill : List.of(mining, fishing)) {
-      Files.writeString(file("skills/" + skill.getName() + ".toml"), "enabled = true\nreward = 77\n");
-      assertThat(skill.reloadConfigFromDisk(false)).isTrue();
+      Files.writeString(file("skills/adapt/" + skill.getId().path() + ".toml"), "enabled = true\nreward = 77\n");
+      assertThat(ComponentHost.of(skill).reloadConfigFromDisk(false)).isTrue();
       assertThat(skill.getConfig().reward).isEqualTo(77D);
     }
     for (TestAdaptation adaptation : List.of(veinMiner, autosmelt, lure)) {
-      Files.writeString(file("adaptations/" + adaptation.getName() + ".toml"), "enabled = true\nretainedValue = 9\n");
-      assertThat(adaptation.reloadConfigFromDisk(false)).isTrue();
+      Files.writeString(file("adaptations/adapt/" + adaptation.getId().path() + ".toml"), "enabled = true\nretainedValue = 9\n");
+      assertThat(ComponentHost.of(adaptation).reloadConfigFromDisk(false)).isTrue();
       assertThat(adaptation.getConfig().retainedValue).isEqualTo(9);
     }
   }
@@ -235,15 +238,15 @@ class CommandDefaultTest extends AdaptTestBase {
 
   private Skill<?> skill(String name) {
     for (TestSkill skill : List.of(mining, fishing)) {
-      if (skill.getName().equalsIgnoreCase(name)) {
+      if (skill.getId().equals(Id.tryParseAdapt(name))) {
         return skill;
       }
     }
     return null;
   }
 
-  private boolean hotReloadSkill(String name) {
-    if (!(skill(name) instanceof TestSkill skill) || !skill.validateConfigFromDisk()) {
+  private boolean hotReloadSkill(Id name) {
+    if (!(skill(name.toString()) instanceof TestSkill skill) || !ComponentHost.of(skill).validateConfigFromDisk()) {
       return false;
     }
     List<SimpleAdaptation<?>> adaptations = new ArrayList<>();
@@ -251,29 +254,29 @@ class CommandDefaultTest extends AdaptTestBase {
       if (!(adaptation instanceof SimpleAdaptation<?> simple)) {
         continue;
       }
-      if (!simple.validateConfigFromDisk()) {
+      if (!ComponentHost.of(simple).validateConfigFromDisk()) {
         return false;
       }
       adaptations.add(simple);
     }
-    if (!skill.reloadConfigFromDisk(true)) {
+    if (!ComponentHost.of(skill).reloadConfigFromDisk(true)) {
       return false;
     }
     for (SimpleAdaptation<?> adaptation : adaptations) {
-      if (!adaptation.reloadConfigFromDisk(false)) {
+      if (!ComponentHost.of(adaptation).reloadConfigFromDisk(false)) {
         return false;
       }
     }
     return true;
   }
 
-  private boolean hotReloadAdaptation(String name) {
+  private boolean hotReloadAdaptation(Id name) {
     for (TestSkill skill : List.of(mining, fishing)) {
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation.getName().equalsIgnoreCase(name)) {
+        if (adaptation.getId().equals(name)) {
           return adaptation instanceof SimpleAdaptation<?> simple
-              && simple.validateConfigFromDisk()
-              && simple.reloadConfigFromDisk(true);
+              && ComponentHost.of(simple).validateConfigFromDisk()
+              && ComponentHost.of(simple).reloadConfigFromDisk(true);
         }
       }
     }
@@ -282,13 +285,7 @@ class CommandDefaultTest extends AdaptTestBase {
 
   private static final class TestSkill extends SimpleSkill<TestSkillConfig> {
     private TestSkill(String name) {
-      super(name, SkillPresentation.of(
-          TextKey.of("test.skill.name", "Test Skill"),
-          TextKey.of("test.skill.icon", "Test"),
-          TextKey.of("test.skill.description", "Test skill description"),
-          TextKey.of("test.skill.quip", "Test quip"),
-          TextKey.of("test.skill.unlock_quip", "Test unlock quip")
-      ));
+      super(Id.adapt(name));
       registerConfiguration(TestSkillConfig.class);
     }
 
@@ -298,8 +295,7 @@ class CommandDefaultTest extends AdaptTestBase {
     }
   }
 
-  public static final class TestSkillConfig {
-    boolean enabled = true;
+  public static final class TestSkillConfig extends SkillConfig {
     double reward = 10D;
 
     public TestSkillConfig() {
@@ -310,7 +306,7 @@ class CommandDefaultTest extends AdaptTestBase {
     private final boolean rejectsDefaults;
 
     private TestAdaptation(String name, boolean rejectsDefaults) {
-      super(name);
+      super(Id.parseAdapt(name));
       this.rejectsDefaults = rejectsDefaults;
       registerConfiguration(TestAdaptationConfig.class);
     }

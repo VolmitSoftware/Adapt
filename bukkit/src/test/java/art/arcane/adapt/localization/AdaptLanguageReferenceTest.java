@@ -74,7 +74,7 @@ class AdaptLanguageReferenceTest extends AdaptTestBase {
   @Test
   void repeatedInitializeRewritesIdenticalContent() throws Exception {
     AdaptLanguage.initialize();
-    String first = "[command.runtime]\nplayer_only = \"Custom English\"\n";
+    String first = "[adapt.command.runtime]\nplayer_only = \"Custom English\"\n";
     Files.writeString(referencePath(), first, StandardCharsets.UTF_8);
     AdaptLanguage.initialize();
     String second = Files.readString(referencePath(), StandardCharsets.UTF_8);

@@ -1,6 +1,6 @@
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

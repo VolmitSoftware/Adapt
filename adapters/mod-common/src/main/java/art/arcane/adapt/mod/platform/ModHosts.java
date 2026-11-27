@@ -2,9 +2,9 @@ package art.arcane.adapt.mod.platform;
 
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.fx.FxHost;
-import art.arcane.adapt.platform.menu.MenuHost;
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.platform.protection.ProtectionHost;
-import art.arcane.adapt.platform.recipe.RecipeHost;
+import art.arcane.adapt.api.internal.HostRecipes;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 import net.minecraft.server.MinecraftServer;
 
@@ -23,9 +23,9 @@ public final class ModHosts {
     private static final List<Consumer<MinecraftServer>> TICK = new CopyOnWriteArrayList<>();
     private static volatile FxHost fx;
     private static volatile ViewerHost viewers;
-    private static volatile MenuHost menus;
+    private static volatile HostMenus menus;
     private static volatile ProtectionHost protection;
-    private static volatile RecipeHost recipes;
+    private static volatile HostRecipes recipes;
     private static volatile AdvancementHost advancements;
     private static volatile ModDisplayFactory displays;
     private static volatile ModGoalsFactory goals;
@@ -49,11 +49,11 @@ public final class ModHosts {
         return viewers;
     }
 
-    public static void menus(MenuHost host) {
+    public static void menus(HostMenus host) {
         menus = host;
     }
 
-    public static MenuHost menus() {
+    public static HostMenus menus() {
         return menus;
     }
 
@@ -65,11 +65,11 @@ public final class ModHosts {
         return protection;
     }
 
-    public static void recipes(RecipeHost host) {
+    public static void recipes(HostRecipes host) {
         recipes = host;
     }
 
-    public static RecipeHost recipes() {
+    public static HostRecipes recipes() {
         return recipes;
     }
 

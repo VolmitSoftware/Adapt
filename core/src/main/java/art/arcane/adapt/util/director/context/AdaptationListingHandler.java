@@ -1,9 +1,10 @@
 package art.arcane.adapt.util.director.context;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.volmlib.util.collection.KList;
 
 public class AdaptationListingHandler {
@@ -12,9 +13,11 @@ public class AdaptationListingHandler {
   private static KList<AdaptationSkillList> adaptationSkillLists;
   private static KList<AdaptationProvider> adaptationProviders;
   private static KList<SkillProvider> skillProviders;
+  private static long builtRevision = Long.MIN_VALUE;
 
 
   public static void initializeAdaptationListings() {
+    builtRevision = catalogRevision();
     adaptationLists = new KList<>();
     adaptationSkillLists = new KList<>();
     adaptationProviders = new KList<>();
@@ -27,23 +30,24 @@ public class AdaptationListingHandler {
   }
 
   public static KList<AdaptationList> getAdaptionListings() {
+    refreshIfCatalogChanged();
     if (adaptationLists.isNotEmpty()) return adaptationLists;
 
     AdaptationList main = new AdaptationList("main");
     adaptationLists.add(main);
 
-    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+    for (Skill<?> skill : registry().getSkills()) {
       if (!skill.isEnabled()) {
         continue;
       }
-      AdaptationList skillList = new AdaptationList("skill:" + skill.getName());
+      AdaptationList skillList = new AdaptationList("skill:" + SkillHost.lineKey(skill));
       adaptationLists.add(skillList);
 
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
         if (!adaptation.isEnabled()) {
           continue;
         }
-        AdaptationList adaptationList = new AdaptationList("adaptation:" + adaptation.getName());
+        AdaptationList adaptationList = new AdaptationList("adaptation:" + adaptation.getId().toString());
         adaptationLists.add(adaptationList);
       }
     }
@@ -51,6 +55,7 @@ public class AdaptationListingHandler {
   }
 
   public static KList<AdaptationSkillList> getAdaptionSkillListings() {
+    refreshIfCatalogChanged();
     if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
 
     AdaptationSkillList t1 = new AdaptationSkillList("all");
@@ -62,7 +67,7 @@ public class AdaptationListingHandler {
       if (!skill.isEnabled()) {
         continue;
       }
-      AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
+      AdaptationSkillList t3 = new AdaptationSkillList(SkillHost.lineKey(skill));
       adaptationSkillLists.add(t3);
     }
 
@@ -70,21 +75,31 @@ public class AdaptationListingHandler {
     return adaptationSkillLists;
   }
 
-  private static KList<Skill<?>> allSkills() {
-    AdaptCore core = AdaptCore.current();
-    if (core != null
-        && core.getAdaptServer() != null
-        && core.getAdaptServer().getSkillRegistry() != null) {
-      return new KList<>(core.getAdaptServer().getSkillRegistry().getAllSkills());
+  /** Rebuilds every list when content was registered or removed since they were built. */
+  private static void refreshIfCatalogChanged() {
+    if (adaptationLists == null || builtRevision != catalogRevision()) {
+      initializeAdaptationListings();
     }
+  }
 
-    return SkillRegistry.skills.sortV();
+  private static long catalogRevision() {
+    AdaptCore core = AdaptCore.current();
+    return core == null || core.getAdaptServer() == null ? Long.MIN_VALUE : registry().getCatalogRevision();
+  }
+
+  private static KList<Skill<?>> allSkills() {
+    return new KList<>(registry().getAllSkills());
+  }
+
+  private static SkillRegistry registry() {
+    return AdaptCore.get().getAdaptServer().getSkillRegistry();
   }
 
   public static KList<AdaptationProvider> getAdaptationProviders() {
+    refreshIfCatalogChanged();
     if (adaptationProviders.isNotEmpty()) return adaptationProviders;
 
-    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+    for (Skill<?> skill : registry().getSkills()) {
       if (!skill.isEnabled()) {
         continue;
       }
@@ -92,7 +107,7 @@ public class AdaptationListingHandler {
         if (!adaptation.isEnabled()) {
           continue;
         }
-        AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" + adaptation.getName());
+        AdaptationProvider suggestion = new AdaptationProvider(adaptation.getId().toString());
         adaptationProviders.add(suggestion);
       }
     }
@@ -100,13 +115,14 @@ public class AdaptationListingHandler {
   }
 
   public static KList<SkillProvider> getSkillProvider() {
+    refreshIfCatalogChanged();
     if (skillProviders.isNotEmpty()) return skillProviders;
 
-    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+    for (Skill<?> skill : registry().getSkills()) {
       if (!skill.isEnabled()) {
         continue;
       }
-      SkillProvider t1 = new SkillProvider(skill.getName());
+      SkillProvider t1 = new SkillProvider(SkillHost.lineKey(skill));
       skillProviders.add(t1);
     }
     return skillProviders;

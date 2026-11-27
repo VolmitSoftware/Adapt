@@ -14,7 +14,7 @@ import { contentSince, serverVersion } from './version-ids.mjs'
 // partial: the adaptation runs its normal contracts; the reason names the part that version lacks, printed as a note.
 
 const STATUSES = new Set(['disabled', 'emulated', 'partial'])
-const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const NAME = /^[a-z0-9_.-]+:[a-z0-9_.\/-]+$/
 
 function entry(version, name, status, reason, where) {
   if (!/^\d+\.\d+(\.\d+)?$/.test(version ?? '')) throw new Error(`${where}: invalid Minecraft version ${JSON.stringify(version)}`)

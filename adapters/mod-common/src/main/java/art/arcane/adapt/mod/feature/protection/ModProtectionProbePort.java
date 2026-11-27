@@ -1,6 +1,6 @@
 package art.arcane.adapt.mod.feature.protection;
 
-import art.arcane.adapt.api.protection.ProtectionProbePort;
+import art.arcane.adapt.engine.protection.ProtectionProbePort;
 import art.arcane.adapt.mod.event.ModEvents;
 import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.mod.platform.mixin.ItemEntityAccess;

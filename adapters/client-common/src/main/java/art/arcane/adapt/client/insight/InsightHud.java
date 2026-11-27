@@ -1,5 +1,6 @@
 package art.arcane.adapt.client.insight;
 
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.config.ClientConfig;
 import art.arcane.adapt.client.net.ClientNet;
 import art.arcane.adapt.client.net.InsightSink;
@@ -11,8 +12,6 @@ import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.UiProjection;
 import art.arcane.adapt.client.ui.UiScreenPoint;
 import art.arcane.adapt.client.ui.UiWorld;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightView;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -92,7 +91,7 @@ public final class InsightHud {
 
     private String probe() {
         InsightBox plate = lastPlate;
-        InsightView view = state.view();
+        ServerFrame.InsightTarget view = state.view();
         if (plate == null || view == null) {
             return "{\"target\":" + (view == null ? "null" : Integer.toString(view.entityId())) + ",\"plate\":null,\"marks\":"
                     + state.marks().size() + "}";
@@ -114,14 +113,14 @@ public final class InsightHud {
         }
         double scale = InsightLayout.scale(settings.scale(), draw.guiScale());
         if (settings.showMarks()) {
-            for (InsightMark mark : state.marks()) {
+            for (ServerFrame.InsightMarks.Mark mark : state.marks()) {
                 drawMark(draw, camera, mark, partialTick, scale);
             }
         }
         drawTarget(draw, camera, state.view(), partialTick, scale);
     }
 
-    private void drawMark(UiDraw draw, UiCamera camera, InsightMark mark, float partialTick, double scale) {
+    private void drawMark(UiDraw draw, UiCamera camera, ServerFrame.InsightMarks.Mark mark, float partialTick, double scale) {
         UiEntityPose pose = world.entity(mark.entityId(), partialTick);
         if (pose == null) {
             return;
@@ -139,7 +138,7 @@ public final class InsightHud {
         draw.popPose();
     }
 
-    private void drawTarget(UiDraw draw, UiCamera camera, InsightView view, float partialTick, double scale) {
+    private void drawTarget(UiDraw draw, UiCamera camera, ServerFrame.InsightTarget view, float partialTick, double scale) {
         UiEntityPose pose = world.entity(view.entityId(), partialTick);
         if (pose == null) {
             return;

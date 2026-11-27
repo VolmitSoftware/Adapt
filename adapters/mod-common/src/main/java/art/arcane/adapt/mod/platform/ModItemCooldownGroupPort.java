@@ -1,6 +1,6 @@
 package art.arcane.adapt.mod.platform;
 
-import art.arcane.adapt.api.adaptation.ItemCooldownGroupPort;
+import art.arcane.adapt.engine.adaptation.ItemCooldownGroupPort;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import java.util.Optional;

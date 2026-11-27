@@ -1,8 +1,8 @@
 package art.arcane.adapt.client.server.panel;
 
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.ChestMenu;
-import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
 
@@ -10,19 +10,19 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
- * Wraps the platform {@link MenuHost}. Viewers whose client negotiated the panel capability get chest menus as
+ * Wraps the platform's {@link HostMenus}. Viewers whose client negotiated the panel capability get chest menus as
  * native panels; everyone else goes straight to the delegate. Storage windows always use the delegate, since they
  * hold real items. Inbound panel frames go to {@link #panels()}.
  */
-public final class ClientAwareMenuHost implements MenuHost {
-  private final MenuHost delegate;
+public final class ClientAwareMenuHost implements HostMenus {
+  private final HostMenus delegate;
   private final PanelSessions panels;
 
-  public ClientAwareMenuHost(MenuHost delegate, PanelLink link) {
+  public ClientAwareMenuHost(HostMenus delegate, PanelLink link) {
     this(delegate, link, ViewerExecutor.tasks());
   }
 
-  public ClientAwareMenuHost(MenuHost delegate, PanelLink link, ViewerExecutor executor) {
+  public ClientAwareMenuHost(HostMenus delegate, PanelLink link, ViewerExecutor executor) {
     this.delegate = Objects.requireNonNull(delegate, "delegate");
     this.panels = new PanelSessions(delegate, link, executor);
   }

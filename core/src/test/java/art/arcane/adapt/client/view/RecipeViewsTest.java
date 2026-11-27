@@ -1,13 +1,13 @@
 package art.arcane.adapt.client.view;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.tool.MutationTool;
-import art.arcane.adapt.api.mutation.tool.MutationTools;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.content.CoreContent;
-import art.arcane.adapt.content.adaptation.brewing.BrewingMixer;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.mutation.MutationTool;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -41,7 +41,7 @@ class RecipeViewsTest {
   @BeforeAll
   static void start() {
     TestPlatform platform = TestPlatform.builder(data).build();
-    adapt = TestAdapt.start(platform, CoreContent.skillTypes());
+    adapt = TestAdapt.start(platform, new BuiltinAddon());
     registry = adapt.core().getAdaptServer().getSkillRegistry();
     adapt.awaitTicks(registry::isRecipeRegistrationReady, 10_000L);
     registries = AdaptCore.platform().host().registries();
@@ -54,8 +54,8 @@ class RecipeViewsTest {
 
   private static Adaptation<?> adaptation(String name) {
     for (Skill<?> skill : registry.getSkills()) {
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
-        if (adaptation.getName().equals(name)) {
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+        if (adaptation.getId().toString().equals(name)) {
           return adaptation;
         }
       }
@@ -72,9 +72,9 @@ class RecipeViewsTest {
     int unlocking = 0;
     int total = 0;
     for (Skill<?> skill : registry.getSkills()) {
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
         List<RecipeView> views = RecipeViews.of(adaptation, registries);
-        String where = adaptation.getName();
+        String where = adaptation.getId().toString();
         List<Integer> levels = new ArrayList<>();
         for (RecipeSpec recipe : adaptation.getRecipes()) {
           levels.add(recipe.requiredLevel());
@@ -93,7 +93,7 @@ class RecipeViewsTest {
           assertThat(view.requiredLevel()).as(where).isBetween(1, Math.max(1, adaptation.getMaxLevel()));
         }
         assertThat(crafted).as(where).containsExactlyInAnyOrderElementsOf(levels);
-        assertThat(views.size() > levels.size()).as(where).isEqualTo(adaptation instanceof BrewingMixer.Mixes);
+        assertThat(views.size() > levels.size()).as(where).isEqualTo(!adaptation.getMixingRecipes().isEmpty());
         if (!views.isEmpty()) {
           unlocking++;
           total += views.size();
@@ -103,12 +103,12 @@ class RecipeViewsTest {
     }
     assertThat(unlocking).isGreaterThanOrEqualTo(60);
     assertThat(total).isGreaterThan(200);
-    assertThat(RecipeViews.of(adaptation("agility-wall-jump"), registries)).isEmpty();
+    assertThat(RecipeViews.of(adaptation("adapt:agility/wall_jump"), registries)).isEmpty();
   }
 
   @Test
   void apothecaryListsItsBrewsInPairsThenItsElixirThenAMixPerBottleCount() {
-    List<RecipeView> views = RecipeViews.of(adaptation("upgraded-brewing-apothecary"), registries);
+    List<RecipeView> views = RecipeViews.of(adaptation("adapt:brewing/upgrade/apothecary"), registries);
     assertThat(views).hasSize(13);
     assertThat(views.subList(0, 11)).extracting(RecipeView::kind).containsOnly(RecipeView.Kind.BREWING);
     assertThat(views.get(0).group()).isEqualTo(views.get(1).group()).isEqualTo("minecraft:absorption");
@@ -138,9 +138,9 @@ class RecipeViewsTest {
     for (MutationTool<?> tool : MutationTools.all(registry)) {
       List<RecipeView> views = RecipeViews.of(tool.owner(), registries);
       for (RecipeSpec recipe : tool.recipes()) {
-        assertThat(RecipeViews.look(recipe.key().path())).as(recipe.key().toString()).isEqualTo(tool.id());
+        assertThat(MutationTools.ofRecipe(recipe.key())).as(recipe.key().toString()).isSameAs(tool);
       }
-      assertThat(views).extracting(RecipeView::result).extracting(RecipeView.Item::icon).as(tool.id()).contains(ToolViews.icon(tool));
+      assertThat(views).extracting(RecipeView::result).extracting(RecipeView.Item::icon).as(tool.item().id().toString()).contains(ToolViews.icon(tool));
     }
     assertThat(RecipeViews.look("architect-chalk-polyline")).isEqualTo("chalk-polyline");
     assertThat(RecipeViews.look("elevator")).isEmpty();
@@ -148,15 +148,15 @@ class RecipeViewsTest {
 
   @Test
   void shapedRecipesKeepTheirGridAndCountTheirResult() {
-    RecipeView elevator = RecipeViews.of(adaptation("architect-elevator"), registries).get(0);
+    RecipeView elevator = RecipeViews.of(adaptation("adapt:architect/elevator"), registries).get(0);
     assertThat(elevator.kind()).isEqualTo(RecipeView.Kind.SHAPED);
     assertThat(elevator.width()).isEqualTo(3);
     assertThat(elevator.inputs()).hasSize(9);
     assertThat(elevator.inputs().get(4).icon().itemId()).isEqualTo("minecraft:ender_pearl");
-    RecipeView swap = RecipeViews.of(adaptation("axe-logswap"), registries).get(0);
+    RecipeView swap = RecipeViews.of(adaptation("adapt:axe/logswap"), registries).get(0);
     assertThat(swap.kind()).isEqualTo(RecipeView.Kind.SHAPELESS);
     assertThat(swap.result().count()).isEqualTo(8);
-    RecipeView leather = RecipeViews.of(adaptation("crafting-leather"), registries).get(0);
+    RecipeView leather = RecipeViews.of(adaptation("adapt:crafting/leather"), registries).get(0);
     assertThat(leather.kind()).isEqualTo(RecipeView.Kind.COOKING);
     assertThat(leather.inputs()).hasSize(1);
   }

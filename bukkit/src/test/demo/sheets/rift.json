@@ -1,6 +1,6 @@
 {
-  "rift-access": {
-    "set": "rift-access",
+  "adapt:rift/access": {
+    "set": "adapt:rift/access",
     "level": 1,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:ender_pearl 1",
@@ -49,7 +49,7 @@
     "maxTicks": 353,
     "povCapture": true
   },
-  "rift-blink": {
+  "adapt:rift/blink": {
     "set": "arena",
     "level": 2,
     "camera": {
@@ -75,8 +75,8 @@
     },
     "maxTicks": 200
   },
-  "rift-conduit": {
-    "set": "rift-conduit",
+  "adapt:rift/conduit": {
+    "set": "adapt:rift/conduit",
     "level": 2,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1"
@@ -120,7 +120,7 @@
     "maxTicks": 400,
     "povCapture": true
   },
-  "rift-descent": {
+  "adapt:rift/descent": {
     "set": "arena",
     "level": 1,
     "camera": {
@@ -147,7 +147,7 @@
     "maxTicks": 250,
     "povCapture": true
   },
-  "rift-ender-taglock": {
+  "adapt:rift/ender_taglock": {
     "set": "rift-taglock",
     "level": 3,
     "pre": [
@@ -174,7 +174,7 @@
     },
     "maxTicks": 262
   },
-  "rift-enderchest": {
+  "adapt:rift/enderchest": {
     "povCapture": true,
     "set": "arena",
     "level": 1,
@@ -204,8 +204,8 @@
     },
     "maxTicks": 249
   },
-  "rift-gate": {
-    "set": "rift-gate",
+  "adapt:rift/gate": {
+    "set": "adapt:rift/gate",
     "level": 1,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:ender_pearl 1",
@@ -254,7 +254,7 @@
     "maxTicks": 336,
     "povCapture": true
   },
-  "rift-inflated-pocket-dimension": {
+  "adapt:rift/inflated_pocket_dimension": {
     "set": "rift-pocket",
     "level": 1,
     "pre": [
@@ -279,7 +279,7 @@
     "maxTicks": 212,
     "povCapture": true
   },
-  "rift-pearl-rebound": {
+  "adapt:rift/pearl_rebound": {
     "set": "rift-rebound",
     "level": 4,
     "pre": [
@@ -303,7 +303,7 @@
     },
     "maxTicks": 224
   },
-  "rift-resist": {
+  "adapt:rift/resist": {
     "set": "ledge",
     "level": 1,
     "pre": [
@@ -326,7 +326,7 @@
     "maxTicks": 212,
     "povCapture": true
   },
-  "rift-visage": {
+  "adapt:rift/visage": {
     "set": "stealth-veil",
     "level": 1,
     "pre": [
@@ -350,7 +350,7 @@
     },
     "maxTicks": 274
   },
-  "rift-void-magnet": {
+  "adapt:rift/void_magnet": {
     "set": "arena",
     "level": 3,
     "camera": {
@@ -380,7 +380,7 @@
     },
     "maxTicks": 250
   },
-  "rift-void-skin": {
+  "adapt:rift/void_skin": {
     "set": "rift-escape",
     "level": 4,
     "camera": {

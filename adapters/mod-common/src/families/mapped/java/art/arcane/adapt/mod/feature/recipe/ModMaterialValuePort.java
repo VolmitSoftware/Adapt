@@ -1,9 +1,9 @@
 package art.arcane.adapt.mod.feature.recipe;
 
-import art.arcane.adapt.api.value.MaterialCount;
-import art.arcane.adapt.api.value.MaterialRecipe;
-import art.arcane.adapt.api.value.MaterialRecipeIndex;
-import art.arcane.adapt.api.value.MaterialValuePort;
+import art.arcane.adapt.engine.value.MaterialCount;
+import art.arcane.adapt.engine.value.MaterialRecipe;
+import art.arcane.adapt.engine.value.MaterialRecipeIndex;
+import art.arcane.adapt.engine.value.MaterialValuePort;
 import art.arcane.adapt.mod.feature.mixin.ShapedRecipeAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapelessRecipeAccess;
 import art.arcane.adapt.mod.feature.mixin.SingleItemRecipeAccess;

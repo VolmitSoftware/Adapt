@@ -4,6 +4,7 @@ import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
@@ -13,6 +14,7 @@ import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.EquipmentSlotGroup;
 
 final class BukkitLivingVersion {
   private BukkitLivingVersion() {
@@ -33,7 +35,7 @@ final class BukkitLivingVersion {
   }
 
   static void heal(LivingEntity living, double amount) {
-    living.heal(amount);
+    PaperApi.heal(living, amount);
   }
 
   static Attribute attribute(LivingEntity living, Id attribute) {
@@ -41,15 +43,15 @@ final class BukkitLivingVersion {
   }
 
   static AttributeModifier modifier(NamespacedKey key, double amount, AttributeModifier.Operation operation) {
-    return new AttributeModifier(key, amount, operation);
+    return new AttributeModifier(key, amount, operation, EquipmentSlotGroup.ANY);
   }
 
   static AttributeModifier modifier(AttributeInstance instance, NamespacedKey key) {
-    return instance.getModifier(key);
+    return PaperApi.modifier(instance, key);
   }
 
   static void removeModifier(AttributeInstance instance, NamespacedKey key) {
-    instance.removeModifier(key);
+    PaperApi.removeModifier(instance, key);
   }
 
   static Id id(AttributeModifier modifier) {

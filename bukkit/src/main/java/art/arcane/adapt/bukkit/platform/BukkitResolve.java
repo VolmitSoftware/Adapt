@@ -3,8 +3,6 @@ package art.arcane.adapt.bukkit.platform;
 import art.arcane.adapt.platform.ContentAliases;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.value.Id;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -64,7 +62,7 @@ public final class BukkitResolve {
   }
 
   public static Attribute attribute(Id id) {
-    return lookup(ATTRIBUTES, RegistryKey.ATTRIBUTE, RegistryKind.ATTRIBUTE, id);
+    return lookup(ATTRIBUTES, Attribute.class, RegistryKind.ATTRIBUTE, id);
   }
 
   /** The 26.x id of an attribute. */
@@ -73,35 +71,35 @@ public final class BukkitResolve {
   }
 
   public static PotionEffectType effect(Id id) {
-    return lookup(EFFECTS, RegistryKey.MOB_EFFECT, RegistryKind.EFFECT, id);
+    return lookup(EFFECTS, PotionEffectType.class, RegistryKind.EFFECT, id);
   }
 
   public static Enchantment enchantment(Id id) {
-    return lookup(ENCHANTMENTS, RegistryKey.ENCHANTMENT, RegistryKind.ENCHANTMENT, id);
+    return lookup(ENCHANTMENTS, Enchantment.class, RegistryKind.ENCHANTMENT, id);
   }
 
   public static Sound sound(Id id) {
-    return lookup(SOUNDS, RegistryKey.SOUND_EVENT, RegistryKind.SOUND, id);
+    return lookup(SOUNDS, Sound.class, RegistryKind.SOUND, id);
   }
 
   public static Particle particle(Id id) {
-    return lookup(PARTICLES, RegistryKey.PARTICLE_TYPE, RegistryKind.PARTICLE, id);
+    return lookup(PARTICLES, Particle.class, RegistryKind.PARTICLE, id);
   }
 
   public static EntityType entityType(Id id) {
-    return lookup(ENTITY_TYPES, RegistryKey.ENTITY_TYPE, RegistryKind.ENTITY_TYPE, id);
+    return lookup(ENTITY_TYPES, EntityType.class, RegistryKind.ENTITY_TYPE, id);
   }
 
   public static Biome biome(Id id) {
-    return lookup(BIOMES, RegistryKey.BIOME, RegistryKind.BIOME, id);
+    return lookup(BIOMES, Biome.class, RegistryKind.BIOME, id);
   }
 
   public static PotionType potion(Id id) {
-    return lookup(POTIONS, RegistryKey.POTION, RegistryKind.POTION, id);
+    return lookup(POTIONS, PotionType.class, RegistryKind.POTION, id);
   }
 
   public static PatternType bannerPattern(Id id) {
-    return lookup(BANNER_PATTERNS, RegistryKey.BANNER_PATTERN, null, id);
+    return lookup(BANNER_PATTERNS, PatternType.class, null, id);
   }
 
   /** Registry id of a keyed value, or null for values without a key (such as the unknown entity type). */
@@ -116,7 +114,7 @@ public final class BukkitResolve {
     }
   }
 
-  private static <T extends Keyed> T lookup(Map<Id, Optional<T>> cache, RegistryKey<T> key, RegistryKind kind, Id id) {
+  private static <T extends Keyed> T lookup(Map<Id, Optional<T>> cache, Class<T> type, RegistryKind kind, Id id) {
     if (id == null) {
       return null;
     }
@@ -124,9 +122,12 @@ public final class BukkitResolve {
     if (cached != null) {
       return cached.orElse(null);
     }
+    Registry<T> registry = BukkitRegistries.registry(type);
+    if (registry == null) {
+      return null;
+    }
     T value;
     try {
-      Registry<T> registry = RegistryAccess.registryAccess().getRegistry(key);
       Id resolved = kind == null ? id
           : ContentAliases.resolve(kind, id, (Id candidate) -> registry.get(BukkitConversions.key(candidate)) != null);
       value = resolved == null ? null : registry.get(BukkitConversions.key(resolved));

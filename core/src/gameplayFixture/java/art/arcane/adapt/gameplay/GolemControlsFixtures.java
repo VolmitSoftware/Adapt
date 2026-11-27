@@ -1,26 +1,27 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.data.BlockStorePort;
-import art.arcane.adapt.api.golem.GolemAnchor;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.node.NodeArea;
-import art.arcane.adapt.api.golem.node.NodeCodec;
-import art.arcane.adapt.api.golem.node.NodeCuboid;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
-import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.data.BlockStorePort;
+import art.arcane.adapt.content.golem.GolemAnchor;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemRuneType;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.node.NodeArea;
+import art.arcane.adapt.content.golem.node.NodeCodec;
+import art.arcane.adapt.content.golem.node.NodeCuboid;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodePlacementVerdict;
+import art.arcane.adapt.content.golem.node.NodeRecord;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.MobRef;
@@ -58,7 +59,7 @@ public final class GolemControlsFixtures {
             case "runes" -> runes(player);
             case "masterwork" -> GolemancyRuntime.registry().orElseThrow().loadedOf(player.uuid()).stream()
                 .filter(handle -> Fixtures.tags(handle.entity()).contains(GOLEM_TAG)).findFirst().orElseThrow().setMasterwork(true);
-            case "unlearn-runes" -> learn(player, "golem-runic-augments", 0);
+            case "unlearn-runes" -> learn(player, "adapt:golem/runic_augments", 0);
             case "planting" -> planting(player);
             case "snapshot" -> {
             }
@@ -72,7 +73,7 @@ public final class GolemControlsFixtures {
             return false;
         }
         try {
-            BlockStorePort.current().get(world, 0, world.minHeight(), 0, NodeCodec.SLICE);
+            BlockStorePort.current().get(world, 0, world.minHeight(), 0, NodeCodec.slice());
             return true;
         } catch (IllegalStateException unloaded) {
             return false;
@@ -81,8 +82,8 @@ public final class GolemControlsFixtures {
 
     private static void prepare(PlayerRef player, PlayerRef opponent) {
         for (PlayerRef owner : List.of(player, opponent)) {
-            learn(owner, "golem-animus-binding", 5);
-            learn(owner, "golem-node-weaving", 5);
+            learn(owner, "adapt:golem/animus_binding", 5);
+            learn(owner, "adapt:golem/node_weaving", 5);
         }
         Fixtures.clearInventory(player);
         player.inventory().setItem(0, GolemItems.crook());
@@ -113,8 +114,8 @@ public final class GolemControlsFixtures {
     }
 
     private static void runes(PlayerRef player) {
-        learn(player, "golem-runic-augments", 3);
-        learn(player, "golem-masterwork", 3);
+        learn(player, "adapt:golem/runic_augments", 3);
+        learn(player, "adapt:golem/masterwork", 3);
         MobRef entity = (MobRef) Fixtures.spawn(player.world(), "snow_golem", 2.5D, HEIGHT, 3.5D);
         Fixtures.tag(entity, GOLEM_TAG);
         GolemHandle handle = GolemancyRuntime.registry().orElseThrow().bind(player, entity, GolemBody.FROST, GolemCoreType.BLANK);
@@ -193,7 +194,7 @@ public final class GolemControlsFixtures {
     }
 
     private static void planting(PlayerRef player) {
-        learn(player, "golem-harvester-core", 5);
+        learn(player, "adapt:golem/harvester_core", 5);
         WorldRef world = player.world();
         // The arena can sit in a generated overworld biome where snow golems melt; the frost planter needs a mild one.
         Fixtures.commandIn(world, "fillbiome -4 " + (HEIGHT - 4) + " 0 4 " + (HEIGHT + 4) + " 12 minecraft:plains");
@@ -284,6 +285,6 @@ public final class GolemControlsFixtures {
     static void learn(PlayerRef player, String name, int level) {
         AdaptPlayer runtime = Objects.requireNonNull(Fixtures.adaptPlayer(player));
         Adaptation<?> adaptation = Fixtures.adaptation(name);
-        runtime.getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, level);
+        runtime.getData().getSkillLine(SkillHost.lineKey(adaptation.getSkill())).setAdaptation(adaptation, level);
     }
 }

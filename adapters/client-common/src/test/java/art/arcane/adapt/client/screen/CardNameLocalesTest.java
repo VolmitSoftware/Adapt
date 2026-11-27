@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CardNameLocalesTest {
     private static final Path LOCALES = Path.of("../../src/main/resources");
-    private static final Pattern TABLE = Pattern.compile("^\\[([a-z_]+)\\.([a-z0-9_]+)]$");
+    private static final Pattern TABLE = Pattern.compile("^\\[adapt\\.([a-z_]+)\\.([a-z0-9_]+)]$");
     private static final Pattern NAME = Pattern.compile("^name = \"(.*)\"$");
     private static final Pattern SHORT_NAME = Pattern.compile("^short_name = \"(.*)\"$");
     private static final List<String> SKILLS = List.of("agility", "architect", "axe", "axes", "blocking", "brewing", "chronos",
@@ -64,7 +64,7 @@ class CardNameLocalesTest {
         }
     }
 
-    /** The names cards show for the locale's adaptation tables, {@code [skill.adaptation]}: the short name where it has one. */
+    /** The names cards show for the locale's adaptation tables, {@code [adapt.skill.adaptation]}: the short name where it has one. */
     private static List<String> names(Path file) throws IOException {
         List<String> names = new ArrayList<>();
         boolean adaptation = false;

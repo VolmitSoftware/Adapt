@@ -1,6 +1,7 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.platform.value.Id;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -33,7 +34,7 @@ class AdaptCatalogSnapshotTest {
   @Test
   void shouldPrecomputeCumulativeKnowledgeCostsThatMatchTheAdaptationCostContract() {
     Adaptation<?> source = mock(Adaptation.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
-    doReturn("mining-vein").when(source).getName();
+    doReturn(Id.adapt("mining-vein")).when(source).getId();
     doReturn("Vein Miner").when(source).getDisplayName();
     doReturn(5).when(source).getMaxLevel();
     doReturn(4).when(source).getBaseCost();
@@ -101,6 +102,6 @@ class AdaptCatalogSnapshotTest {
     assertTrue(catalog.adaptation("mining-vein").skillEnabled());
     assertTrue(catalog.adaptation("mining-ore-scan").permanent());
     assertTrue(!catalog.adaptation("mining-ore-scan").enabled());
-    assertEquals("mining", catalog.adaptation("mining-vein").skillId());
+    assertEquals("adapt:mining", catalog.adaptation("mining-vein").skillId());
   }
 }

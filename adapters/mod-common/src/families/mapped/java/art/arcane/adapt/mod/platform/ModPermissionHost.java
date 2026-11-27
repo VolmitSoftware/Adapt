@@ -2,7 +2,7 @@ package art.arcane.adapt.mod.platform;
 
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.permission.PermissionDefault;
-import art.arcane.adapt.platform.permission.PermissionHost;
+import art.arcane.adapt.api.internal.HostPermissions;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * default, with operators being players at gamemaster level (2). These versions have no vanilla permission atoms.
  * Unregistered nodes default to operators, as on Bukkit.
  */
-public final class ModPermissionHost implements PermissionHost {
+public final class ModPermissionHost implements HostPermissions {
     private static final int GAMEMASTER_LEVEL = 2;
     private static final Map<String, PermissionDefault> DEFAULTS = new ConcurrentHashMap<>();
     private static volatile PermissionBridge bridge;
@@ -73,9 +73,14 @@ public final class ModPermissionHost implements PermissionHost {
     }
 
     @Override
-    public void register(String node, String description, PermissionDefault fallback) {
-        if (node != null && fallback != null) {
-            DEFAULTS.put(node, fallback);
+    public boolean add(String node, String description, PermissionDefault fallback) {
+        return node != null && fallback != null && DEFAULTS.putIfAbsent(node, fallback) == null;
+    }
+
+    @Override
+    public void unregister(String node) {
+        if (node != null) {
+            DEFAULTS.remove(node);
         }
     }
 }

@@ -1,5 +1,9 @@
 package art.arcane.adapt.localization;
 
+import art.arcane.adapt.api.internal.HostRecipes;
+import art.arcane.adapt.api.internal.HostPermissions;
+import art.arcane.adapt.api.internal.HostMenus;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.TestCores;
@@ -13,7 +17,6 @@ import art.arcane.adapt.client.protocol.PanelTile;
 import art.arcane.adapt.client.protocol.PanelView;
 import art.arcane.adapt.client.protocol.TileRole;
 import art.arcane.adapt.client.server.panel.PanelViews;
-import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.fx.FxHost;
@@ -24,12 +27,9 @@ import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
-import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
-import art.arcane.adapt.platform.permission.PermissionHost;
 import art.arcane.adapt.platform.protection.ProtectionHost;
-import art.arcane.adapt.platform.recipe.RecipeHost;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 import art.arcane.adapt.testkit.ManualScheduler;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
@@ -69,9 +69,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class LanguageEditorGuiTest extends AdaptTestBase {
-  private static final TextKey FIRST = TextKey.of("command.first", "First {player}");
-  private static final TextKey SECOND = TextKey.of("command.second", "Second");
-  private static final TextKey MENU = TextKey.of("gui.title", "Menu");
+  private static final TextKey FIRST = TextKey.of("adapt.command.first", "First {player}");
+  private static final TextKey SECOND = TextKey.of("adapt.command.second", "Second");
+  private static final TextKey MENU = TextKey.of("adapt.gui.title", "Menu");
   private static final MessageCatalog CATALOG = MessageCatalog.of("en_US", FIRST, SECOND, MENU);
 
   private final ManualScheduler scheduler = new ManualScheduler();
@@ -87,8 +87,8 @@ class LanguageEditorGuiTest extends AdaptTestBase {
 
   @BeforeEach
   void openEditor() {
-    AdaptPlatform platform = new AdaptPlatform(mock(PlatformHost.class), scheduler, mock(FxHost.class),
-        mock(ViewerHost.class), host, mock(PermissionHost.class), mock(ProtectionHost.class), mock(RecipeHost.class),
+    HostPlatform platform = new HostPlatform(mock(PlatformHost.class), scheduler, mock(FxHost.class),
+        mock(ViewerHost.class), host, mock(HostPermissions.class), mock(ProtectionHost.class), mock(HostRecipes.class),
         mock(AdvancementHost.class));
     TestCores.setField(core, "platform", platform);
     for (MessageKey key : CATALOG.keys()) {
@@ -169,7 +169,7 @@ class LanguageEditorGuiTest extends AdaptTestBase {
     settle(() -> host.open != null);
     assertThat(edits).hasSize(1);
     assertThat(edits.getFirst().locale()).isEqualTo("de_DE");
-    assertThat(edits.getFirst().key()).isEqualTo("command.first");
+    assertThat(edits.getFirst().key()).isEqualTo("adapt.command.first");
     assertThat(edits.getFirst().value()).isEqualTo(new TextValue("Hello\n{player}"));
     assertThat(host.open.menu().title()).contains("Command");
   }
@@ -241,7 +241,7 @@ class LanguageEditorGuiTest extends AdaptTestBase {
     hint.input().input(new MenuClick(player, host.open, 0, ClickKind.OTHER), "Hello\\n{player}");
 
     settle(() -> !edits.isEmpty() && host.open != null);
-    assertThat(edits.getFirst().key()).isEqualTo("command.first");
+    assertThat(edits.getFirst().key()).isEqualTo("adapt.command.first");
     assertThat(edits.getFirst().value()).isEqualTo(new TextValue("Hello\n{player}"));
     assertThat(host.open.menu().title()).contains("Command");
     PlayerChatEvent later = new PlayerChatEvent(player, "hello", false);
@@ -332,9 +332,9 @@ class LanguageEditorGuiTest extends AdaptTestBase {
 
   @Test
   void groupsAndPagesFollowTheBukkitEditor() {
-    assertThat(LanguageEditorGui.group("command.first")).isEqualTo("command");
-    assertThat(LanguageEditorGui.groupName("gui")).isEqualTo("GUI");
-    assertThat(LanguageEditorGui.groupName("skill_names")).isEqualTo("Skill names");
+    assertThat(LanguageEditorGui.group("adapt.command.first")).isEqualTo("adapt.command");
+    assertThat(LanguageEditorGui.groupName("adapt.gui")).isEqualTo("GUI");
+    assertThat(LanguageEditorGui.groupName("adapt.skill_names")).isEqualTo("Skill names");
     LanguageEditorGui.Page last = LanguageEditorGui.Page.of(80, 9, LanguageEditorGui.PAGE_SIZE);
     assertThat(last.page()).isEqualTo(3);
     assertThat(last.start()).isEqualTo(72);
@@ -386,7 +386,7 @@ class LanguageEditorGuiTest extends AdaptTestBase {
     }
   }
 
-  private final class Menus implements MenuHost {
+  private final class Menus implements HostMenus {
     private volatile Session open;
 
     @Override

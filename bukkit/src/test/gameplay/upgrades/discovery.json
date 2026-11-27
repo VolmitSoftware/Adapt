@@ -2,24 +2,24 @@
   "skill": "discovery",
   "upgrades": [
     {
-      "name": "upgraded-discovery-omniscience",
+      "name": "adapt:discovery/upgrade/omniscience",
       "class": "Omniscience",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/Omniscience.java",
-      "fuses": ["discovery-insight", "discovery-keen-eye", "discovery-sixth-sense"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/Omniscience.java",
+      "fuses": ["adapt:discovery/insight", "adapt:discovery/keen_eye", "adapt:discovery/sixth_sense"],
       "triggers": ["PlayerQuitEvent", "PlayerLootGenerateEvent", "PlayerChatEvent"]
     },
     {
-      "name": "upgraded-discovery-unity-prime",
+      "name": "adapt:discovery/upgrade/unity_prime",
       "class": "UnityPrime",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/UnityPrime.java",
-      "fuses": ["discovery-unity", "discovery-polymath"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/UnityPrime.java",
+      "fuses": ["adapt:discovery/unity", "adapt:discovery/polymath"],
       "triggers": ["PlayerExpChangeEvent", "PlayerInteractEvent"]
     },
     {
-      "name": "upgraded-discovery-explorers-luck",
+      "name": "adapt:discovery/upgrade/explorers_luck",
       "class": "ExplorersLuck",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/ExplorersLuck.java",
-      "fuses": ["discovery-trailblazer", "discovery-field-notes", "discovery-relic-appraiser"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/discovery/upgraded/ExplorersLuck.java",
+      "fuses": ["adapt:discovery/trailblazer", "adapt:discovery/field_notes", "adapt:discovery/relic_appraiser"],
       "triggers": ["EntityDeathEvent", "EntityDamageByEntityEvent", "PlayerInteractEvent", "BlockPlaceEvent", "BlockDropItemEvent"]
     }
   ]

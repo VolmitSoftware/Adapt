@@ -1,23 +1,33 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.PairKeys;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+import art.arcane.adapt.platform.value.Id;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Where the client mod looks for icon art. A sprite id is a texture file id, {@code adapt:textures/gui/<kind>/<name>.png}:
+ * Where the client mod looks for icon art. A sprite id is a texture file id, {@code <namespace>:textures/gui/<kind>/<file>.png}.
+ * Skill, adaptation, preference, emblem and trim art lives in the namespace of the content it belongs to, named by
+ * {@link #file(Id)}; the rest lives in {@value #NAMESPACE}:
  * <ul>
- *   <li>{@code skill/<skill id>.png}, e.g. {@code skill/agility.png}</li>
- *   <li>{@code adaptation/<adaptation id>.png}, e.g. {@code adaptation/agility-wall-jump.png}</li>
+ *   <li>{@code skill/<skill file>.png}, e.g. {@code adapt:textures/gui/skill/agility.png} or
+ *   {@code alchemist:textures/gui/skill/alchemy.png}</li>
+ *   <li>{@code adaptation/<adaptation file>.png}, e.g. {@code adapt:textures/gui/adaptation/agility-wall-jump.png} or
+ *   {@code alchemist:textures/gui/adaptation/alchemy/transmute.png}</li>
  *   <li>{@code toast/<kind>.png}, kind one of {@code level_up unlock discovery knowledge generic challenge signature}</li>
  *   <li>{@code hud/<status>.png}, the HUD status name such as {@code rift_gate}</li>
- *   <li>{@code preference/<owner>/<preference id>/<choice>.png} for a preference choice, falling back to
- *   {@code preference/common/choice/<choice>.png}; the owner is the adaptation id, or the skill id for skill
+ *   <li>{@code preference/<owner file>/<preference id>/<choice>.png} for a preference choice, falling back to
+ *   {@code adapt:textures/gui/preference/common/choice/<choice>.png}; the owner is the adaptation, or the skill for skill
  *   preferences</li>
- *   <li>{@code preference/<owner>/<preference id>.png} for a toggle group member and
- *   {@code preference/<owner>/group-<group id>.png} for a toggle group heading</li>
- *   <li>{@code emblem/<lead id>.png} under {@code trim/<partner id>.png} for a mutated skill, see {@link MutationIcons}</li>
+ *   <li>{@code preference/<owner file>/<preference id>.png} for a toggle group member and
+ *   {@code preference/<owner file>/group-<group id>.png} for a toggle group heading</li>
+ *   <li>{@code emblem/<lead file>.png} under {@code trim/<partner file>.png} for a mutated skill, each in its own skill's
+ *   namespace, see {@link MutationIcons}</li>
  *   <li>{@code glyph/<recipe>.png} with {@code glyph/<recipe>-lead.png} and {@code glyph/<recipe>-partner.png} tinted
  *   with the parents' colours for a mutated adaptation, and {@code signature/<name>.png} for a signature</li>
  *   <li>{@code tool/<tool id>.png} for a mutation tool and {@code mark/<name>.png} for the book's resource and button
@@ -68,12 +78,27 @@ public final class IconSprites {
     return List.copyOf(layers);
   }
 
-  public static String skill(String skillId) {
-    return texture("skill", skillId);
+  public static String skill(Id skill) {
+    return content(skill, "skill");
   }
 
-  public static String adaptation(String adaptationId) {
-    return texture("adaptation", adaptationId);
+  public static String adaptation(Id adaptation) {
+    return content(adaptation, "adaptation");
+  }
+
+  /** A mutation tool's icon. */
+  public static String tool(Id tool) {
+    return content(tool, "tool");
+  }
+
+  /** A mutated skill's emblem drawn for its lead skill. */
+  public static String emblem(Id lead) {
+    return content(lead, "emblem");
+  }
+
+  /** A mutated skill's trim drawn for its partner skill. */
+  public static String trim(Id partner) {
+    return content(partner, "trim");
   }
 
   /** The book's drawn mark {@code name}, such as {@code knowledge}, {@code power} or {@code swap}. */
@@ -89,24 +114,60 @@ public final class IconSprites {
     return texture("hud", name);
   }
 
-  public static String preferenceChoice(String ownerId, String preferenceId, String value) {
-    return preference(pathSegment(ownerId) + '/' + pathSegment(preferenceId) + '/' + pathSegment(value));
+  public static String preferenceChoice(Id owner, String preferenceId, String value) {
+    return preference(owner, file(owner) + '/' + pathSegment(preferenceId) + '/' + pathSegment(value));
   }
 
   public static String commonChoice(String value) {
-    return preference("common/choice/" + pathSegment(value));
+    return NAMESPACE + ':' + ROOT + "preference/common/choice/" + pathSegment(value) + ".png";
   }
 
-  public static String preferenceMember(String ownerId, String preferenceId) {
-    return preference(pathSegment(ownerId) + '/' + pathSegment(preferenceId));
+  public static String preferenceMember(Id owner, String preferenceId) {
+    return preference(owner, file(owner) + '/' + pathSegment(preferenceId));
   }
 
-  public static String preferenceGroup(String ownerId, String groupId) {
-    return preference(pathSegment(ownerId) + "/group-" + pathSegment(groupId));
+  public static String preferenceGroup(Id owner, String groupId) {
+    return preference(owner, file(owner) + "/group-" + pathSegment(groupId));
   }
 
-  private static String preference(String path) {
-    return NAMESPACE + ':' + ROOT + "preference/" + path + ".png";
+  private static String preference(Id owner, String path) {
+    return owner.namespace() + ':' + ROOT + "preference/" + path + ".png";
+  }
+
+  private static String content(Id id, String kind) {
+    return id.namespace() + ':' + ROOT + kind + '/' + file(id) + ".png";
+  }
+
+  /**
+   * The file name content art is filed under, below its kind's folder in the id's namespace: the flat legacy name for
+   * {@code adapt} content (see {@link LegacyContentNames}), the id's path for any other, each segment made a valid
+   * resource path segment.
+   */
+  public static String file(Id id) {
+    if (Id.ADAPT.equals(id.namespace())) {
+      return pathSegment(LegacyContentNames.of(id));
+    }
+    String[] segments = id.path().split("/", -1);
+    StringBuilder file = new StringBuilder(id.path().length());
+    for (String segment : segments) {
+      if (!file.isEmpty()) {
+        file.append('/');
+      }
+      file.append(pathSegment(segment));
+    }
+    return file.toString();
+  }
+
+  /**
+   * The id of content a view names by its id string or line key: a mutated skill's {@code <lead>+<partner>} names
+   * its mutated skill id, and a bare path is in {@value #NAMESPACE}. Null when the key is neither.
+   */
+  public static Id contentId(String key) {
+    if (key == null) {
+      return null;
+    }
+    SkillPair mutation = PairKeys.parse(key);
+    return mutation != null ? mutation.id() : Id.tryParseAdapt(key);
   }
 
   /** {@code icon} with {@code spriteId} when it names none yet; an explicit sprite id is kept. */
@@ -117,7 +178,7 @@ public final class IconSprites {
     return new IconRef(icon.itemId(), icon.customModelData(), icon.itemModelId(), spriteId);
   }
 
-  /** {@code adapt:textures/gui/<kind>/<name>.png} for a catalog id or kind name. */
+  /** {@code adapt:textures/gui/<kind>/<name>.png} for Adapt's own art. */
   public static String texture(String kind, String name) {
     return NAMESPACE + ':' + ROOT + kind + '/' + pathSegment(name) + ".png";
   }

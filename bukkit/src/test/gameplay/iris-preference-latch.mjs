@@ -23,7 +23,7 @@ export default {
     let changedPolicy = false
     async function trial(latched, cancel) {
       await context.command('/adaptqa stage integration-iris-latch', /^ADAPT_QA STAGE integration-iris-latch$/, 30000)
-      await preference(`set axe-iris-feller latched-run ${latched ? 'ON' : 'OFF'}`)
+      await preference(`set adapt:axe/iris_feller latched-run ${latched ? 'ON' : 'OFF'}`)
       await actor.bot.equip(actor.bot.inventory.items().find(item => item.name === 'iron_axe'), 'hand')
       const before = await snapshot()
       context.expect(before.integration.iris?.enabled && before.integration.logs === 40
@@ -65,7 +65,7 @@ export default {
     try {
       await context.command(`/adaptqa setup ${actor.bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 30000)
       setup = true
-      await preference('learn axe-iris-feller')
+      await preference('learn adapt:axe/iris_feller')
       evidence.controlledPolicy = await policy(true)
       changedPolicy = true
       await trial(false, false)
@@ -73,10 +73,10 @@ export default {
       await trial(true, true)
       evidence.restoredPolicy = await policy(false)
       changedPolicy = false
-      await preference('set axe-iris-feller latched-run OFF')
+      await preference('set adapt:axe/iris_feller latched-run OFF')
       evidence.costTrials = []
       for (const level of [0, 3]) {
-        await context.command(`/adaptqa learn axe-iris-feller ${level}`, /^ADAPT_QA LEARN /, 5000)
+        await context.command(`/adaptqa learn adapt:axe/iris_feller ${level}`, /^ADAPT_QA LEARN /, 5000)
         await context.command('/adaptqa stage integration-iris', /^ADAPT_QA STAGE integration-iris$/, 30000)
         await actor.bot.equip(actor.bot.inventory.items().find(item => item.name === 'iron_axe'), 'hand')
         const before = await snapshot()

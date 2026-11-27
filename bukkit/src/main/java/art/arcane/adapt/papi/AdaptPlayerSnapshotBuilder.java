@@ -1,9 +1,9 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.NewtonCurve;
+import art.arcane.adapt.engine.world.PlayerAdaptation;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.NewtonCurve;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderValues;
 import art.arcane.volmlib.util.math.M;
 

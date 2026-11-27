@@ -18,7 +18,9 @@
 
 package art.arcane.adapt.content.matter;
 
-import art.arcane.adapt.api.data.AdaptMatter;
+import art.arcane.adapt.engine.data.BrewingStandOwner;
+
+import art.arcane.adapt.engine.data.AdaptMatter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

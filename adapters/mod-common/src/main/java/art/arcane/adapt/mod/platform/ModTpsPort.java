@@ -1,6 +1,6 @@
 package art.arcane.adapt.mod.platform;
 
-import art.arcane.adapt.api.fx.TpsPort;
+import art.arcane.adapt.engine.fx.TpsPort;
 import net.minecraft.server.MinecraftServer;
 
 public final class ModTpsPort implements TpsPort {

@@ -1,0 +1,13 @@
+[skill.tinkering]
+name = "Tinkering"
+description = "Build small things."
+emoji = "T"
+quip = "Gears turn."
+
+[adaptation.tinkering.gears]
+name = "Gears"
+description = "Turns gears."
+
+[adaptation.tinkering.springs]
+name = "Springs"
+description = "Winds springs."

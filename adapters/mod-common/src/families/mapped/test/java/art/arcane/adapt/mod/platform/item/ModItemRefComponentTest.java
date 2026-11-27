@@ -143,9 +143,9 @@ class ModItemRefComponentTest {
     @Test
     void potionContentsRoundTrip() {
         ModItemRef potion = item(Items.POTION);
-        EffectInstance speed = new EffectInstance(Id.minecraft("speed"), 200, 1, false, true, true);
-        EffectInstance haste = new EffectInstance(Id.minecraft("haste"), EffectInstance.INFINITE, 0, true, false, false);
-        potion.setPotionContents(new PotionContents(Id.minecraft("swiftness"), Rgb.of(0x112233), List.of(speed, haste), null));
+        EffectInstance speed = EffectInstance.of(Id.minecraft("speed"), 200, 1);
+        EffectInstance haste = EffectInstance.of(Id.minecraft("haste"), EffectInstance.INFINITE, 0).withAmbient(true).withParticles(false).withIcon(false);
+        potion.setPotionContents(PotionContents.of(Id.minecraft("swiftness")).withColor(Rgb.of(0x112233)).withCustomEffects(List.of(speed, haste)));
         PotionContents loaded = reload(potion).potionContents().orElseThrow();
         assertEquals(Id.minecraft("swiftness"), loaded.potion());
         assertEquals(Rgb.of(0x112233), loaded.color());

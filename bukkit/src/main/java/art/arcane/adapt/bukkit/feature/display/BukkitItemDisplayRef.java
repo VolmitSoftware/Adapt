@@ -4,6 +4,7 @@ import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.display.ItemDisplayMode;
 import art.arcane.adapt.platform.entity.display.ItemDisplayRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemStack;
 
@@ -19,7 +20,7 @@ final class BukkitItemDisplayRef extends BukkitDisplayRef implements ItemDisplay
   @Override
   public ItemRef item() {
     ItemStack stack = itemDisplay().getItemStack();
-    return BukkitRefs.item(stack == null ? ItemStack.empty() : stack);
+    return BukkitRefs.item(stack == null ? PaperApi.emptyItem() : stack);
   }
 
   @Override

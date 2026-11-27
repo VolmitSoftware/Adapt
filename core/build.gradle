@@ -12,6 +12,7 @@ String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .get()
 
 dependencies {
+    api(project(':api'))
     compileOnly(volmLibCoordinate) {
         changing = true
         transitive = false
@@ -22,11 +23,13 @@ dependencies {
     }
     compileOnly('org.jetbrains:annotations:26.0.2-1')
 
+    testImplementation(project(':content'))
     testImplementation(volmLibCoordinate) {
         changing = true
         transitive = false
     }
     testImplementation(libs.gson)
+    testCompileOnly('org.jetbrains:annotations:26.0.2-1')
     testImplementation(libs.toml4j) {
         transitive = false
     }
@@ -86,6 +89,36 @@ def verifyCorePurity = tasks.register('verifyCorePurity') {
     }
 }
 
+/*
+ * The engine loads built-in content like any addon: through the AdaptAddon a host installs, never by naming a content
+ * class or package.
+ */
+def verifyCoreNamesNoContent = tasks.register('verifyCoreNamesNoContent') {
+    group = 'verification'
+    description = 'Fails when engine sources name a built-in content class or package.'
+    inputs.files(coreSources).withPathSensitivity(PathSensitivity.RELATIVE)
+    File report = layout.buildDirectory.file('reports/core-content-refs.txt').get().asFile
+    outputs.file(report)
+
+    doLast {
+        Pattern reference = Pattern.compile('\\bart[.]arcane[.]adapt[.]content\\b')
+        List<String> violations = []
+        coreSources.files.sort { File source -> source.path }.each { File source ->
+            source.readLines('UTF-8').eachWithIndex { String line, int index ->
+                if (reference.matcher(line).find()) {
+                    violations.add("${projectDir.toPath().relativize(source.toPath())}:${index + 1}".toString())
+                }
+            }
+        }
+        report.parentFile.mkdirs()
+        report.setText(violations.join('\n'), 'UTF-8')
+        if (!violations.isEmpty()) {
+            throw new GradleException("Engine sources name built-in content:\n${violations.join('\n')}")
+        }
+    }
+}
+
 tasks.named('check').configure {
     dependsOn(verifyCorePurity)
+    dependsOn(verifyCoreNamesNoContent)
 }

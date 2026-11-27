@@ -2,24 +2,24 @@
   "skill": "pickaxe",
   "upgrades": [
     {
-      "name": "upgraded-pickaxe-motherlode",
+      "name": "adapt:pickaxe/upgrade/motherlode",
       "class": "Motherlode",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Motherlode.java",
-      "fuses": ["pickaxe-veinminer", "pickaxe-autosmelt", "pickaxe-chisel"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Motherlode.java",
+      "fuses": ["adapt:pickaxe/veinminer", "adapt:pickaxe/autosmelt", "adapt:pickaxe/chisel"],
       "triggers": ["BlockBreakEvent", "BlockDropItemEvent", "BlockPlaceEvent"]
     },
     {
-      "name": "upgraded-pickaxe-earthshaker",
+      "name": "adapt:pickaxe/upgrade/earthshaker",
       "class": "Earthshaker",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Earthshaker.java",
-      "fuses": ["pickaxe-tunnel-bore", "pickaxe-deep-core", "pickaxe-obsidian-rush"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/Earthshaker.java",
+      "fuses": ["adapt:pickaxe/tunnel_bore", "adapt:pickaxe/deep_core", "adapt:pickaxe/obsidian_rush"],
       "triggers": ["BlockBreakEvent", "BlockDamageEvent", "BlockDropItemEvent"]
     },
     {
-      "name": "upgraded-pickaxe-eternal-pick",
+      "name": "adapt:pickaxe/upgrade/eternal_pick",
       "class": "EternalPick",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/EternalPick.java",
-      "fuses": ["pickaxe-unbreakable-pact", "pickaxe-repair-rhythm", "pickaxe-stone-skin"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/pickaxe/upgraded/EternalPick.java",
+      "fuses": ["adapt:pickaxe/unbreakable_pact", "adapt:pickaxe/repair_rhythm", "adapt:pickaxe/stone_skin"],
       "triggers": ["BlockBreakEvent", "PlayerItemDamageEvent"]
     }
   ]

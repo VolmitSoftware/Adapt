@@ -75,7 +75,7 @@ export default {
         try {
             await context.command(`/adaptqa setup ${actor.bot.username} ${opponent.bot.username}`, /^ADAPT_QA SETUP /, 60000)
             setup = true
-            await context.command('/adaptqa stage rift-blink', /^ADAPT_QA STAGE rift-blink$/, 10000)
+            await context.command('/adaptqa stage adapt:rift/blink', /^ADAPT_QA STAGE adapt:rift\/blink$/, 10000)
             await action(actor, 'level', 2)
             await action(opponent, 'level', 2)
             await action(opponent, 'weapons')

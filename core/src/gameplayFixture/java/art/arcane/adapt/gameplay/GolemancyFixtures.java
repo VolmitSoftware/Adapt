@@ -1,27 +1,28 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.data.BlockStorePort;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemRoster;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.item.GolemItemKind;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.plinth.PlinthService;
-import art.arcane.adapt.api.golem.plinth.PlinthSlotCodec;
-import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
-import art.arcane.adapt.api.golem.plinth.PlinthStructure;
-import art.arcane.adapt.api.preference.PlayerPreferenceData;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.data.BlockStorePort;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemState;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.item.GolemItemKind;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodeRecord;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.content.golem.plinth.PlinthService;
+import art.arcane.adapt.content.golem.plinth.PlinthSlotCodec;
+import art.arcane.adapt.content.golem.plinth.PlinthSlotItem;
+import art.arcane.adapt.content.golem.plinth.PlinthStructure;
+import art.arcane.adapt.engine.preference.PlayerPreferenceData;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -45,7 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public final class GolemancyFixtures {
-    private static final String GOLEMANCY_SKILL = "golemancy";
+    private static final String GOLEMANCY_SKILL = "adapt:golemancy";
     private static final String BINDING_STAGE = "golemancy-binding";
     private static final String GATHERER_BINDING_STAGE = "golemancy-gatherer-binding";
     private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
@@ -251,7 +252,7 @@ public final class GolemancyFixtures {
             if (adaptPlayer == null) {
                 continue;
             }
-            clearRoster(adaptPlayer.getData().getGolemancy());
+            clearRoster(adaptPlayer.getData().section(GolemRoster.section()));
             resetPreferences(adaptPlayer);
         }
     }
@@ -287,11 +288,11 @@ public final class GolemancyFixtures {
     private static Map<String, Adaptation<?>> golemancyAdaptations() {
         Map<String, Adaptation<?>> adaptations = new LinkedHashMap<>();
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
-            if (!skill.getName().equals(GOLEMANCY_SKILL)) {
+            if (!SkillHost.lineKey(skill).equals(GOLEMANCY_SKILL)) {
                 continue;
             }
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                adaptations.put(adaptation.getName(), adaptation);
+                adaptations.put(adaptation.getId().toString(), adaptation);
             }
         }
         return adaptations;
@@ -399,7 +400,7 @@ public final class GolemancyFixtures {
         JsonObject result = new JsonObject();
         WorldRef world = player.world();
         Optional<String> stored = Optional.ofNullable(world.isLoaded()
-                ? BlockStorePort.current().get(world, PLINTH_X, PLINTH_Y, PLINTH_Z, PlinthSlotCodec.SLICE) : null)
+                ? BlockStorePort.current().get(world, PLINTH_X, PLINTH_Y, PLINTH_Z, PlinthSlotCodec.slice()) : null)
             .filter(PlinthSlotItem::readable)
             .flatMap(item -> GolemItems.kindOf(item.item()))
             .map(GolemItemKind::id);

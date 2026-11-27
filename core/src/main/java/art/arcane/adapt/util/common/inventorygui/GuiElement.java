@@ -241,19 +241,19 @@ public final class GuiElement {
   public MenuIcon icon() {
     Id type = getMaterial();
     if (item != null) {
-      return new MenuIcon(type, count, name, lore, enchanted, null, 0, decorate(item.copy()));
+      return MenuIcon.of(type, name, lore).withAmount(count).withGlint(enchanted).withItem(decorate(item.copy()));
     }
     if (model == null) {
-      return new MenuIcon(type, count, name, lore, enchanted, null, 0, null);
+      return MenuIcon.of(type, name, lore).withAmount(count).withGlint(enchanted);
     }
     CustomModel base = type.equals(model.material()) ? model : new CustomModel(type, model.model(), model.modelKey(), model.headTexture());
     ItemRef rendered = base.toItemStack();
     if (rendered == null || rendered.isEmpty()) {
-      return new MenuIcon(type, count, name, lore, enchanted, null, 0, null);
+      return MenuIcon.of(type, name, lore).withAmount(count).withGlint(enchanted);
     }
     Id modelKey = base.modelKey();
     Id itemModel = modelKey == null || CustomModel.EMPTY_KEY.equals(modelKey) ? null : modelKey;
-    return new MenuIcon(type, count, name, lore, enchanted, itemModel, base.model(), decorate(rendered));
+    return MenuIcon.of(type, name, lore).withAmount(count).withGlint(enchanted).withItemModel(itemModel).withCustomModelData(base.model()).withItem(decorate(rendered));
   }
 
   private ItemRef decorate(ItemRef shown) {
@@ -292,7 +292,7 @@ public final class GuiElement {
     if (role == null && label == null && section.isEmpty() && value.isEmpty() && description == null && labels.isEmpty()) {
       return MenuMeta.NONE;
     }
-    return new MenuMeta(role, label, section, value, description, labels);
+    return MenuMeta.role(role).withLabel(label).withSection(section).withValue(value).withDescription(description).withActions(labels);
   }
 
   private void addWrappedLore(String line) {

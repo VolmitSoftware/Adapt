@@ -1,0 +1,3059 @@
+adaptation adapt:agility/air_dash
+adaptation adapt:agility/armor_up
+adaptation adapt:agility/cat_reflexes
+adaptation adapt:agility/featherfoot
+adaptation adapt:agility/kip_up
+adaptation adapt:agility/ladder_slide
+adaptation adapt:agility/marathoner
+adaptation adapt:agility/roll_landing
+adaptation adapt:agility/slipstream_slide
+adaptation adapt:agility/super_jump
+adaptation adapt:agility/vault
+adaptation adapt:agility/wall_jump
+adaptation adapt:agility/wind_up
+adaptation adapt:architect/brickbat
+adaptation adapt:architect/chalk_line
+adaptation adapt:architect/demolition
+adaptation adapt:architect/elevator
+adaptation adapt:architect/foundation
+adaptation adapt:architect/glass
+adaptation adapt:architect/placement
+adaptation adapt:architect/scaffolder
+adaptation adapt:architect/smart_shape
+adaptation adapt:architect/steady_hands
+adaptation adapt:architect/stonecutter_savant
+adaptation adapt:architect/supply_line
+adaptation adapt:architect/wireless_redstone
+adaptation adapt:axe/bark_hide
+adaptation adapt:axe/chop
+adaptation adapt:axe/cleave
+adaptation adapt:axe/drop_to_inventory
+adaptation adapt:axe/ground_smash
+adaptation adapt:axe/leaf_veinminer
+adaptation adapt:axe/logswap
+adaptation adapt:axe/shield_splitter
+adaptation adapt:axe/sunder
+adaptation adapt:axe/throwing_axe
+adaptation adapt:axe/wood_veinminer
+adaptation adapt:blocking/bastion_stance
+adaptation adapt:blocking/bulwark_bash
+adaptation adapt:blocking/chainarmorer
+adaptation adapt:blocking/counter_guard
+adaptation adapt:blocking/horsearmorer
+adaptation adapt:blocking/interpose
+adaptation adapt:blocking/mirror_block
+adaptation adapt:blocking/multiarmor
+adaptation adapt:blocking/perfect_guard
+adaptation adapt:blocking/phalanx_crafter
+adaptation adapt:blocking/saddlecrafter
+adaptation adapt:blocking/shield_wall
+adaptation adapt:blocking/shieldbearers_resolve
+adaptation adapt:blocking/tempered_guard
+adaptation adapt:brewing/absorption
+adaptation adapt:brewing/blindness
+adaptation adapt:brewing/darkness
+adaptation adapt:brewing/decay
+adaptation adapt:brewing/fatigue
+adaptation adapt:brewing/haste
+adaptation adapt:brewing/healthboost
+adaptation adapt:brewing/hunger
+adaptation adapt:brewing/lingering
+adaptation adapt:brewing/nausea
+adaptation adapt:brewing/resistance
+adaptation adapt:brewing/saturation
+adaptation adapt:brewing/super_heated
+adaptation adapt:chronos/aberrant_touch
+adaptation adapt:chronos/accelerate
+adaptation adapt:chronos/borrowed_time
+adaptation adapt:chronos/deja_vu
+adaptation adapt:chronos/hourglass_guard
+adaptation adapt:chronos/instant_recall
+adaptation adapt:chronos/overtime
+adaptation adapt:chronos/pocket_watch
+adaptation adapt:chronos/rewind
+adaptation adapt:chronos/stasis_field
+adaptation adapt:chronos/temporal_echo
+adaptation adapt:chronos/time_bomb
+adaptation adapt:chronos/time_bottle
+adaptation adapt:crafting/backpacks
+adaptation adapt:crafting/bulk_artisan
+adaptation adapt:crafting/compactor
+adaptation adapt:crafting/deconstruction
+adaptation adapt:crafting/leather
+adaptation adapt:crafting/masterwork
+adaptation adapt:crafting/provisioner
+adaptation adapt:crafting/reconstruction
+adaptation adapt:crafting/skulls
+adaptation adapt:crafting/stations
+adaptation adapt:crafting/thrifty_hands
+adaptation adapt:crafting/tinkerer
+adaptation adapt:crafting/xp
+adaptation adapt:discovery/archaeologist
+adaptation adapt:discovery/better_mending
+adaptation adapt:discovery/cartographer_pulse
+adaptation adapt:discovery/field_notes
+adaptation adapt:discovery/insight
+adaptation adapt:discovery/keen_eye
+adaptation adapt:discovery/polymath
+adaptation adapt:discovery/relic_appraiser
+adaptation adapt:discovery/sixth_sense
+adaptation adapt:discovery/trailblazer
+adaptation adapt:discovery/unity
+adaptation adapt:discovery/villager_att
+adaptation adapt:discovery/world_armor
+adaptation adapt:discovery/xp_resist
+adaptation adapt:enchanting/anvil_savant
+adaptation adapt:enchanting/arcane_siphon
+adaptation adapt:enchanting/bookshelf_attunement
+adaptation adapt:enchanting/curse_cleansing
+adaptation adapt:enchanting/echo_of_knowledge
+adaptation adapt:enchanting/grindstone_recovery
+adaptation adapt:enchanting/infusion_transfer
+adaptation adapt:enchanting/lapis_return
+adaptation adapt:enchanting/offer_reroll
+adaptation adapt:enchanting/quick_enchant
+adaptation adapt:enchanting/rune_sight
+adaptation adapt:enchanting/soul_link
+adaptation adapt:enchanting/tome_rebinding
+adaptation adapt:enchanting/xp_return
+adaptation adapt:excavation/burrow
+adaptation adapt:excavation/clod_hurler
+adaptation adapt:excavation/drop_to_inventory
+adaptation adapt:excavation/earth_mover
+adaptation adapt:excavation/grave_digger
+adaptation adapt:excavation/haste
+adaptation adapt:excavation/mudlark
+adaptation adapt:excavation/omnitool
+adaptation adapt:excavation/seismic_ping
+adaptation adapt:excavation/soft_fall
+adaptation adapt:excavation/spelunker
+adaptation adapt:excavation/treasure_hunter
+adaptation adapt:excavation/tunneler
+adaptation adapt:golem/angler_core
+adaptation adapt:golem/animus_binding
+adaptation adapt:golem/bone_frame
+adaptation adapt:golem/breaker_core
+adaptation adapt:golem/copper_frame
+adaptation adapt:golem/frost_frame
+adaptation adapt:golem/gatherer_core
+adaptation adapt:golem/guardian_core
+adaptation adapt:golem/harvester_core
+adaptation adapt:golem/iron_frame
+adaptation adapt:golem/lumber_core
+adaptation adapt:golem/masterwork
+adaptation adapt:golem/mending
+adaptation adapt:golem/node_weaving
+adaptation adapt:golem/overseer
+adaptation adapt:golem/rancher_core
+adaptation adapt:golem/runic_augments
+adaptation adapt:golem/sorter_core
+adaptation adapt:golem/stasis
+adaptation adapt:herbalism/bee_shepherd
+adaptation adapt:herbalism/cobweb
+adaptation adapt:herbalism/compost_cascade
+adaptation adapt:herbalism/drop_to_inventory
+adaptation adapt:herbalism/growth_aura
+adaptation adapt:herbalism/hippo
+adaptation adapt:herbalism/hungry_shield
+adaptation adapt:herbalism/luck
+adaptation adapt:herbalism/mushroom_blocks
+adaptation adapt:herbalism/myconid
+adaptation adapt:herbalism/replant
+adaptation adapt:herbalism/rooted_footing
+adaptation adapt:herbalism/seed_sower
+adaptation adapt:herbalism/spore_bloom
+adaptation adapt:herbalism/terralid
+adaptation adapt:hunter/adrenaline
+adaptation adapt:hunter/big_game
+adaptation adapt:hunter/blood_trail
+adaptation adapt:hunter/drop_to_inventory
+adaptation adapt:hunter/invis
+adaptation adapt:hunter/jumpboost
+adaptation adapt:hunter/luck
+adaptation adapt:hunter/predator_focus
+adaptation adapt:hunter/regen
+adaptation adapt:hunter/resistance
+adaptation adapt:hunter/snare_line
+adaptation adapt:hunter/speed
+adaptation adapt:hunter/strength
+adaptation adapt:hunter/trophy_skinner
+adaptation adapt:kinetics/breachwright
+adaptation adapt:kinetics/charge_lance
+adaptation adapt:kinetics/dead_zone
+adaptation adapt:kinetics/heavy_frame
+adaptation adapt:kinetics/impale_pin
+adaptation adapt:kinetics/lunge_conductor
+adaptation adapt:kinetics/mass_shift
+adaptation adapt:kinetics/meteor_cadence
+adaptation adapt:kinetics/moon_jump
+adaptation adapt:kinetics/mounted_shock
+adaptation adapt:kinetics/phalanx_reach
+adaptation adapt:kinetics/quake_guard
+adaptation adapt:kinetics/rebound_anvil
+adaptation adapt:kinetics/rubber_soul
+adaptation adapt:kinetics/soft_catch
+adaptation adapt:kinetics/surface_skate
+adaptation adapt:kinetics/terminal_toggle
+adaptation adapt:kinetics/windburst
+adaptation adapt:nether/ashwalker
+adaptation adapt:nether/blaze_leech
+adaptation adapt:nether/crimson_feast
+adaptation adapt:nether/fire_resist
+adaptation adapt:nether/ghast_ward
+adaptation adapt:nether/lava_walker
+adaptation adapt:nether/magma_skin
+adaptation adapt:nether/netherrack_mason
+adaptation adapt:nether/piglin_broker
+adaptation adapt:nether/skull_toss
+adaptation adapt:nether/soul_strider
+adaptation adapt:nether/strider_bond
+adaptation adapt:nether/wither_harvest
+adaptation adapt:nether/wither_resist
+adaptation adapt:pickaxe/autosmelt
+adaptation adapt:pickaxe/chisel
+adaptation adapt:pickaxe/deep_core
+adaptation adapt:pickaxe/drop_to_inventory
+adaptation adapt:pickaxe/gem_polish
+adaptation adapt:pickaxe/obsidian_rush
+adaptation adapt:pickaxe/quarry_sense
+adaptation adapt:pickaxe/repair_rhythm
+adaptation adapt:pickaxe/silk_spawner
+adaptation adapt:pickaxe/stone_skin
+adaptation adapt:pickaxe/tunnel_bore
+adaptation adapt:pickaxe/unbreakable_pact
+adaptation adapt:pickaxe/veinminer
+adaptation adapt:ranged/fetch_shot
+adaptation adapt:ranged/floaters
+adaptation adapt:ranged/force
+adaptation adapt:ranged/heartseeker
+adaptation adapt:ranged/heavy_draw
+adaptation adapt:ranged/lunge_shot
+adaptation adapt:ranged/piercing
+adaptation adapt:ranged/pinning_shot
+adaptation adapt:ranged/recovery
+adaptation adapt:ranged/ricochet_bolt
+adaptation adapt:ranged/trajectory_sight
+adaptation adapt:ranged/webshot
+adaptation adapt:rift/access
+adaptation adapt:rift/blink
+adaptation adapt:rift/conduit
+adaptation adapt:rift/descent
+adaptation adapt:rift/ender_taglock
+adaptation adapt:rift/enderchest
+adaptation adapt:rift/gate
+adaptation adapt:rift/inflated_pocket_dimension
+adaptation adapt:rift/pearl_rebound
+adaptation adapt:rift/resist
+adaptation adapt:rift/visage
+adaptation adapt:rift/void_magnet
+adaptation adapt:rift/void_skin
+adaptation adapt:seaborne/brine_skin
+adaptation adapt:seaborne/coral_gardener
+adaptation adapt:seaborne/deep_salvager
+adaptation adapt:seaborne/fish_whisperer
+adaptation adapt:seaborne/fishers_fantasy
+adaptation adapt:seaborne/hydro_jet
+adaptation adapt:seaborne/ink_veil
+adaptation adapt:seaborne/oxygen
+adaptation adapt:seaborne/pressure_diver
+adaptation adapt:seaborne/rain_fed
+adaptation adapt:seaborne/speed
+adaptation adapt:seaborne/storm_strike
+adaptation adapt:seaborne/tidecaller
+adaptation adapt:seaborne/trident_mastery
+adaptation adapt:seaborne/turtles_mining_speed
+adaptation adapt:stealth/assassinate
+adaptation adapt:stealth/cutpurse
+adaptation adapt:stealth/decoy_swap
+adaptation adapt:stealth/enderveil
+adaptation adapt:stealth/ghost_armor
+adaptation adapt:stealth/shadow_decoy
+adaptation adapt:stealth/shadowmeld
+adaptation adapt:stealth/silent_step
+adaptation adapt:stealth/smoke_pellet
+adaptation adapt:stealth/snatch
+adaptation adapt:stealth/speed
+adaptation adapt:stealth/trap_sense
+adaptation adapt:stealth/umbral_recovery
+adaptation adapt:stealth/vision
+adaptation adapt:sword/blade_flow
+adaptation adapt:sword/bloody_blade
+adaptation adapt:sword/crescent_guard
+adaptation adapt:sword/crimson_cyclone
+adaptation adapt:sword/dual_wield
+adaptation adapt:sword/duelists_focus
+adaptation adapt:sword/executioners_edge
+adaptation adapt:sword/hamstring
+adaptation adapt:sword/heirloom_edge
+adaptation adapt:sword/lunge_strike
+adaptation adapt:sword/machete
+adaptation adapt:sword/poison_blade
+adaptation adapt:sword/riposte_window
+adaptation adapt:sword/whetstone_ritual
+adaptation adapt:tame/alphas_command
+adaptation adapt:tame/battle_bond
+adaptation adapt:tame/beast_recall
+adaptation adapt:tame/damage
+adaptation adapt:tame/fetch
+adaptation adapt:tame/guardian_instinct
+adaptation adapt:tame/health
+adaptation adapt:tame/health_regeneration
+adaptation adapt:tame/last_breath
+adaptation adapt:tame/mounted_tactics
+adaptation adapt:tame/pack_leader_aura
+adaptation adapt:tame/shared_pain
+adaptation adapt:tame/stable_hand
+adaptation adapt:tame/wild_empathy
+adaptation adapt:tragoul/blood_pact
+adaptation adapt:tragoul/bone_harvest
+adaptation adapt:tragoul/corpse_explosion
+adaptation adapt:tragoul/curse_of_frailty
+adaptation adapt:tragoul/death_sense
+adaptation adapt:tragoul/globe
+adaptation adapt:tragoul/healing
+adaptation adapt:tragoul/lance
+adaptation adapt:tragoul/last_rites
+adaptation adapt:tragoul/marrow_armor
+adaptation adapt:tragoul/plague_bearer
+adaptation adapt:tragoul/skeletal_servant
+adaptation adapt:tragoul/soul_siphon
+adaptation adapt:tragoul/thorns
+adaptation adapt:unarmed/battering_charge
+adaptation adapt:unarmed/combo_chain
+adaptation adapt:unarmed/disarm
+adaptation adapt:unarmed/glass_cannon
+adaptation adapt:unarmed/grapple
+adaptation adapt:unarmed/iron_fists
+adaptation adapt:unarmed/meditation
+adaptation adapt:unarmed/power
+adaptation adapt:unarmed/pressure_point
+adaptation adapt:unarmed/second_wind
+adaptation adapt:unarmed/shockwave_clap
+adaptation adapt:unarmed/sucker_punch
+adaptation-advancement adapt:agility/air_dash adaptation/adapt/agility/air_dash
+adaptation-advancement adapt:agility/armor_up adaptation/adapt/agility/armor_up
+adaptation-advancement adapt:agility/cat_reflexes adaptation/adapt/agility/cat_reflexes
+adaptation-advancement adapt:agility/featherfoot adaptation/adapt/agility/featherfoot
+adaptation-advancement adapt:agility/kip_up adaptation/adapt/agility/kip_up
+adaptation-advancement adapt:agility/ladder_slide adaptation/adapt/agility/ladder_slide
+adaptation-advancement adapt:agility/marathoner adaptation/adapt/agility/marathoner
+adaptation-advancement adapt:agility/roll_landing adaptation/adapt/agility/roll_landing
+adaptation-advancement adapt:agility/slipstream_slide adaptation/adapt/agility/slipstream_slide
+adaptation-advancement adapt:agility/super_jump adaptation/adapt/agility/super_jump
+adaptation-advancement adapt:agility/vault adaptation/adapt/agility/vault
+adaptation-advancement adapt:agility/wall_jump adaptation/adapt/agility/wall_jump
+adaptation-advancement adapt:agility/wind_up adaptation/adapt/agility/wind_up
+adaptation-advancement adapt:architect/brickbat adaptation/adapt/architect/brickbat
+adaptation-advancement adapt:architect/chalk_line adaptation/adapt/architect/chalk_line
+adaptation-advancement adapt:architect/demolition adaptation/adapt/architect/demolition
+adaptation-advancement adapt:architect/elevator adaptation/adapt/architect/elevator
+adaptation-advancement adapt:architect/foundation adaptation/adapt/architect/foundation
+adaptation-advancement adapt:architect/glass adaptation/adapt/architect/glass
+adaptation-advancement adapt:architect/placement adaptation/adapt/architect/placement
+adaptation-advancement adapt:architect/scaffolder adaptation/adapt/architect/scaffolder
+adaptation-advancement adapt:architect/smart_shape adaptation/adapt/architect/smart_shape
+adaptation-advancement adapt:architect/steady_hands adaptation/adapt/architect/steady_hands
+adaptation-advancement adapt:architect/stonecutter_savant adaptation/adapt/architect/stonecutter_savant
+adaptation-advancement adapt:architect/supply_line adaptation/adapt/architect/supply_line
+adaptation-advancement adapt:architect/wireless_redstone adaptation/adapt/architect/wireless_redstone
+adaptation-advancement adapt:axe/bark_hide adaptation/adapt/axe/bark_hide
+adaptation-advancement adapt:axe/chop adaptation/adapt/axe/chop
+adaptation-advancement adapt:axe/cleave adaptation/adapt/axe/cleave
+adaptation-advancement adapt:axe/drop_to_inventory adaptation/adapt/axe/drop_to_inventory
+adaptation-advancement adapt:axe/ground_smash adaptation/adapt/axe/ground_smash
+adaptation-advancement adapt:axe/leaf_veinminer adaptation/adapt/axe/leaf_veinminer
+adaptation-advancement adapt:axe/logswap adaptation/adapt/axe/logswap
+adaptation-advancement adapt:axe/shield_splitter adaptation/adapt/axe/shield_splitter
+adaptation-advancement adapt:axe/sunder adaptation/adapt/axe/sunder
+adaptation-advancement adapt:axe/throwing_axe adaptation/adapt/axe/throwing_axe
+adaptation-advancement adapt:axe/wood_veinminer adaptation/adapt/axe/wood_veinminer
+adaptation-advancement adapt:blocking/bastion_stance adaptation/adapt/blocking/bastion_stance
+adaptation-advancement adapt:blocking/bulwark_bash adaptation/adapt/blocking/bulwark_bash
+adaptation-advancement adapt:blocking/chainarmorer adaptation/adapt/blocking/chainarmorer
+adaptation-advancement adapt:blocking/counter_guard adaptation/adapt/blocking/counter_guard
+adaptation-advancement adapt:blocking/horsearmorer adaptation/adapt/blocking/horsearmorer
+adaptation-advancement adapt:blocking/interpose adaptation/adapt/blocking/interpose
+adaptation-advancement adapt:blocking/mirror_block adaptation/adapt/blocking/mirror_block
+adaptation-advancement adapt:blocking/multiarmor adaptation/adapt/blocking/multiarmor
+adaptation-advancement adapt:blocking/perfect_guard adaptation/adapt/blocking/perfect_guard
+adaptation-advancement adapt:blocking/phalanx_crafter adaptation/adapt/blocking/phalanx_crafter
+adaptation-advancement adapt:blocking/saddlecrafter adaptation/adapt/blocking/saddlecrafter
+adaptation-advancement adapt:blocking/shield_wall adaptation/adapt/blocking/shield_wall
+adaptation-advancement adapt:blocking/shieldbearers_resolve adaptation/adapt/blocking/shieldbearers_resolve
+adaptation-advancement adapt:blocking/tempered_guard adaptation/adapt/blocking/tempered_guard
+adaptation-advancement adapt:brewing/absorption adaptation/adapt/brewing/absorption
+adaptation-advancement adapt:brewing/blindness adaptation/adapt/brewing/blindness
+adaptation-advancement adapt:brewing/darkness adaptation/adapt/brewing/darkness
+adaptation-advancement adapt:brewing/decay adaptation/adapt/brewing/decay
+adaptation-advancement adapt:brewing/fatigue adaptation/adapt/brewing/fatigue
+adaptation-advancement adapt:brewing/haste adaptation/adapt/brewing/haste
+adaptation-advancement adapt:brewing/healthboost adaptation/adapt/brewing/healthboost
+adaptation-advancement adapt:brewing/hunger adaptation/adapt/brewing/hunger
+adaptation-advancement adapt:brewing/lingering adaptation/adapt/brewing/lingering
+adaptation-advancement adapt:brewing/nausea adaptation/adapt/brewing/nausea
+adaptation-advancement adapt:brewing/resistance adaptation/adapt/brewing/resistance
+adaptation-advancement adapt:brewing/saturation adaptation/adapt/brewing/saturation
+adaptation-advancement adapt:brewing/super_heated adaptation/adapt/brewing/super_heated
+adaptation-advancement adapt:chronos/aberrant_touch adaptation/adapt/chronos/aberrant_touch
+adaptation-advancement adapt:chronos/accelerate adaptation/adapt/chronos/accelerate
+adaptation-advancement adapt:chronos/borrowed_time adaptation/adapt/chronos/borrowed_time
+adaptation-advancement adapt:chronos/deja_vu adaptation/adapt/chronos/deja_vu
+adaptation-advancement adapt:chronos/hourglass_guard adaptation/adapt/chronos/hourglass_guard
+adaptation-advancement adapt:chronos/instant_recall adaptation/adapt/chronos/instant_recall
+adaptation-advancement adapt:chronos/overtime adaptation/adapt/chronos/overtime
+adaptation-advancement adapt:chronos/pocket_watch adaptation/adapt/chronos/pocket_watch
+adaptation-advancement adapt:chronos/rewind adaptation/adapt/chronos/rewind
+adaptation-advancement adapt:chronos/stasis_field adaptation/adapt/chronos/stasis_field
+adaptation-advancement adapt:chronos/temporal_echo adaptation/adapt/chronos/temporal_echo
+adaptation-advancement adapt:chronos/time_bomb adaptation/adapt/chronos/time_bomb
+adaptation-advancement adapt:chronos/time_bottle adaptation/adapt/chronos/time_bottle
+adaptation-advancement adapt:crafting/backpacks adaptation/adapt/crafting/backpacks
+adaptation-advancement adapt:crafting/bulk_artisan adaptation/adapt/crafting/bulk_artisan
+adaptation-advancement adapt:crafting/compactor adaptation/adapt/crafting/compactor
+adaptation-advancement adapt:crafting/deconstruction adaptation/adapt/crafting/deconstruction
+adaptation-advancement adapt:crafting/leather adaptation/adapt/crafting/leather
+adaptation-advancement adapt:crafting/masterwork adaptation/adapt/crafting/masterwork
+adaptation-advancement adapt:crafting/provisioner adaptation/adapt/crafting/provisioner
+adaptation-advancement adapt:crafting/reconstruction adaptation/adapt/crafting/reconstruction
+adaptation-advancement adapt:crafting/skulls adaptation/adapt/crafting/skulls
+adaptation-advancement adapt:crafting/stations adaptation/adapt/crafting/stations
+adaptation-advancement adapt:crafting/thrifty_hands adaptation/adapt/crafting/thrifty_hands
+adaptation-advancement adapt:crafting/tinkerer adaptation/adapt/crafting/tinkerer
+adaptation-advancement adapt:crafting/xp adaptation/adapt/crafting/xp
+adaptation-advancement adapt:discovery/archaeologist adaptation/adapt/discovery/archaeologist
+adaptation-advancement adapt:discovery/better_mending adaptation/adapt/discovery/better_mending
+adaptation-advancement adapt:discovery/cartographer_pulse adaptation/adapt/discovery/cartographer_pulse
+adaptation-advancement adapt:discovery/field_notes adaptation/adapt/discovery/field_notes
+adaptation-advancement adapt:discovery/insight adaptation/adapt/discovery/insight
+adaptation-advancement adapt:discovery/keen_eye adaptation/adapt/discovery/keen_eye
+adaptation-advancement adapt:discovery/polymath adaptation/adapt/discovery/polymath
+adaptation-advancement adapt:discovery/relic_appraiser adaptation/adapt/discovery/relic_appraiser
+adaptation-advancement adapt:discovery/sixth_sense adaptation/adapt/discovery/sixth_sense
+adaptation-advancement adapt:discovery/trailblazer adaptation/adapt/discovery/trailblazer
+adaptation-advancement adapt:discovery/unity adaptation/adapt/discovery/unity
+adaptation-advancement adapt:discovery/villager_att adaptation/adapt/discovery/villager_att
+adaptation-advancement adapt:discovery/world_armor adaptation/adapt/discovery/world_armor
+adaptation-advancement adapt:discovery/xp_resist adaptation/adapt/discovery/xp_resist
+adaptation-advancement adapt:enchanting/anvil_savant adaptation/adapt/enchanting/anvil_savant
+adaptation-advancement adapt:enchanting/arcane_siphon adaptation/adapt/enchanting/arcane_siphon
+adaptation-advancement adapt:enchanting/bookshelf_attunement adaptation/adapt/enchanting/bookshelf_attunement
+adaptation-advancement adapt:enchanting/curse_cleansing adaptation/adapt/enchanting/curse_cleansing
+adaptation-advancement adapt:enchanting/echo_of_knowledge adaptation/adapt/enchanting/echo_of_knowledge
+adaptation-advancement adapt:enchanting/grindstone_recovery adaptation/adapt/enchanting/grindstone_recovery
+adaptation-advancement adapt:enchanting/infusion_transfer adaptation/adapt/enchanting/infusion_transfer
+adaptation-advancement adapt:enchanting/lapis_return adaptation/adapt/enchanting/lapis_return
+adaptation-advancement adapt:enchanting/offer_reroll adaptation/adapt/enchanting/offer_reroll
+adaptation-advancement adapt:enchanting/quick_enchant adaptation/adapt/enchanting/quick_enchant
+adaptation-advancement adapt:enchanting/rune_sight adaptation/adapt/enchanting/rune_sight
+adaptation-advancement adapt:enchanting/soul_link adaptation/adapt/enchanting/soul_link
+adaptation-advancement adapt:enchanting/tome_rebinding adaptation/adapt/enchanting/tome_rebinding
+adaptation-advancement adapt:enchanting/xp_return adaptation/adapt/enchanting/xp_return
+adaptation-advancement adapt:excavation/burrow adaptation/adapt/excavation/burrow
+adaptation-advancement adapt:excavation/clod_hurler adaptation/adapt/excavation/clod_hurler
+adaptation-advancement adapt:excavation/drop_to_inventory adaptation/adapt/excavation/drop_to_inventory
+adaptation-advancement adapt:excavation/earth_mover adaptation/adapt/excavation/earth_mover
+adaptation-advancement adapt:excavation/grave_digger adaptation/adapt/excavation/grave_digger
+adaptation-advancement adapt:excavation/haste adaptation/adapt/excavation/haste
+adaptation-advancement adapt:excavation/mudlark adaptation/adapt/excavation/mudlark
+adaptation-advancement adapt:excavation/omnitool adaptation/adapt/excavation/omnitool
+adaptation-advancement adapt:excavation/seismic_ping adaptation/adapt/excavation/seismic_ping
+adaptation-advancement adapt:excavation/soft_fall adaptation/adapt/excavation/soft_fall
+adaptation-advancement adapt:excavation/spelunker adaptation/adapt/excavation/spelunker
+adaptation-advancement adapt:excavation/treasure_hunter adaptation/adapt/excavation/treasure_hunter
+adaptation-advancement adapt:excavation/tunneler adaptation/adapt/excavation/tunneler
+adaptation-advancement adapt:golem/angler_core adaptation/adapt/golem/angler_core
+adaptation-advancement adapt:golem/animus_binding adaptation/adapt/golem/animus_binding
+adaptation-advancement adapt:golem/bone_frame adaptation/adapt/golem/bone_frame
+adaptation-advancement adapt:golem/breaker_core adaptation/adapt/golem/breaker_core
+adaptation-advancement adapt:golem/copper_frame adaptation/adapt/golem/copper_frame
+adaptation-advancement adapt:golem/frost_frame adaptation/adapt/golem/frost_frame
+adaptation-advancement adapt:golem/gatherer_core adaptation/adapt/golem/gatherer_core
+adaptation-advancement adapt:golem/guardian_core adaptation/adapt/golem/guardian_core
+adaptation-advancement adapt:golem/harvester_core adaptation/adapt/golem/harvester_core
+adaptation-advancement adapt:golem/iron_frame adaptation/adapt/golem/iron_frame
+adaptation-advancement adapt:golem/lumber_core adaptation/adapt/golem/lumber_core
+adaptation-advancement adapt:golem/masterwork adaptation/adapt/golem/masterwork
+adaptation-advancement adapt:golem/mending adaptation/adapt/golem/mending
+adaptation-advancement adapt:golem/node_weaving adaptation/adapt/golem/node_weaving
+adaptation-advancement adapt:golem/overseer adaptation/adapt/golem/overseer
+adaptation-advancement adapt:golem/rancher_core adaptation/adapt/golem/rancher_core
+adaptation-advancement adapt:golem/runic_augments adaptation/adapt/golem/runic_augments
+adaptation-advancement adapt:golem/sorter_core adaptation/adapt/golem/sorter_core
+adaptation-advancement adapt:golem/stasis adaptation/adapt/golem/stasis
+adaptation-advancement adapt:herbalism/bee_shepherd adaptation/adapt/herbalism/bee_shepherd
+adaptation-advancement adapt:herbalism/cobweb adaptation/adapt/herbalism/cobweb
+adaptation-advancement adapt:herbalism/compost_cascade adaptation/adapt/herbalism/compost_cascade
+adaptation-advancement adapt:herbalism/drop_to_inventory adaptation/adapt/herbalism/drop_to_inventory
+adaptation-advancement adapt:herbalism/growth_aura adaptation/adapt/herbalism/growth_aura
+adaptation-advancement adapt:herbalism/hippo adaptation/adapt/herbalism/hippo
+adaptation-advancement adapt:herbalism/hungry_shield adaptation/adapt/herbalism/hungry_shield
+adaptation-advancement adapt:herbalism/luck adaptation/adapt/herbalism/luck
+adaptation-advancement adapt:herbalism/mushroom_blocks adaptation/adapt/herbalism/mushroom_blocks
+adaptation-advancement adapt:herbalism/myconid adaptation/adapt/herbalism/myconid
+adaptation-advancement adapt:herbalism/replant adaptation/adapt/herbalism/replant
+adaptation-advancement adapt:herbalism/rooted_footing adaptation/adapt/herbalism/rooted_footing
+adaptation-advancement adapt:herbalism/seed_sower adaptation/adapt/herbalism/seed_sower
+adaptation-advancement adapt:herbalism/spore_bloom adaptation/adapt/herbalism/spore_bloom
+adaptation-advancement adapt:herbalism/terralid adaptation/adapt/herbalism/terralid
+adaptation-advancement adapt:hunter/adrenaline adaptation/adapt/hunter/adrenaline
+adaptation-advancement adapt:hunter/big_game adaptation/adapt/hunter/big_game
+adaptation-advancement adapt:hunter/blood_trail adaptation/adapt/hunter/blood_trail
+adaptation-advancement adapt:hunter/drop_to_inventory adaptation/adapt/hunter/drop_to_inventory
+adaptation-advancement adapt:hunter/invis adaptation/adapt/hunter/invis
+adaptation-advancement adapt:hunter/jumpboost adaptation/adapt/hunter/jumpboost
+adaptation-advancement adapt:hunter/luck adaptation/adapt/hunter/luck
+adaptation-advancement adapt:hunter/predator_focus adaptation/adapt/hunter/predator_focus
+adaptation-advancement adapt:hunter/regen adaptation/adapt/hunter/regen
+adaptation-advancement adapt:hunter/resistance adaptation/adapt/hunter/resistance
+adaptation-advancement adapt:hunter/snare_line adaptation/adapt/hunter/snare_line
+adaptation-advancement adapt:hunter/speed adaptation/adapt/hunter/speed
+adaptation-advancement adapt:hunter/strength adaptation/adapt/hunter/strength
+adaptation-advancement adapt:hunter/trophy_skinner adaptation/adapt/hunter/trophy_skinner
+adaptation-advancement adapt:kinetics/breachwright adaptation/adapt/kinetics/breachwright
+adaptation-advancement adapt:kinetics/charge_lance adaptation/adapt/kinetics/charge_lance
+adaptation-advancement adapt:kinetics/dead_zone adaptation/adapt/kinetics/dead_zone
+adaptation-advancement adapt:kinetics/heavy_frame adaptation/adapt/kinetics/heavy_frame
+adaptation-advancement adapt:kinetics/impale_pin adaptation/adapt/kinetics/impale_pin
+adaptation-advancement adapt:kinetics/lunge_conductor adaptation/adapt/kinetics/lunge_conductor
+adaptation-advancement adapt:kinetics/mass_shift adaptation/adapt/kinetics/mass_shift
+adaptation-advancement adapt:kinetics/meteor_cadence adaptation/adapt/kinetics/meteor_cadence
+adaptation-advancement adapt:kinetics/moon_jump adaptation/adapt/kinetics/moon_jump
+adaptation-advancement adapt:kinetics/mounted_shock adaptation/adapt/kinetics/mounted_shock
+adaptation-advancement adapt:kinetics/phalanx_reach adaptation/adapt/kinetics/phalanx_reach
+adaptation-advancement adapt:kinetics/quake_guard adaptation/adapt/kinetics/quake_guard
+adaptation-advancement adapt:kinetics/rebound_anvil adaptation/adapt/kinetics/rebound_anvil
+adaptation-advancement adapt:kinetics/rubber_soul adaptation/adapt/kinetics/rubber_soul
+adaptation-advancement adapt:kinetics/soft_catch adaptation/adapt/kinetics/soft_catch
+adaptation-advancement adapt:kinetics/surface_skate adaptation/adapt/kinetics/surface_skate
+adaptation-advancement adapt:kinetics/terminal_toggle adaptation/adapt/kinetics/terminal_toggle
+adaptation-advancement adapt:kinetics/windburst adaptation/adapt/kinetics/windburst
+adaptation-advancement adapt:nether/ashwalker adaptation/adapt/nether/ashwalker
+adaptation-advancement adapt:nether/blaze_leech adaptation/adapt/nether/blaze_leech
+adaptation-advancement adapt:nether/crimson_feast adaptation/adapt/nether/crimson_feast
+adaptation-advancement adapt:nether/fire_resist adaptation/adapt/nether/fire_resist
+adaptation-advancement adapt:nether/ghast_ward adaptation/adapt/nether/ghast_ward
+adaptation-advancement adapt:nether/lava_walker adaptation/adapt/nether/lava_walker
+adaptation-advancement adapt:nether/magma_skin adaptation/adapt/nether/magma_skin
+adaptation-advancement adapt:nether/netherrack_mason adaptation/adapt/nether/netherrack_mason
+adaptation-advancement adapt:nether/piglin_broker adaptation/adapt/nether/piglin_broker
+adaptation-advancement adapt:nether/skull_toss adaptation/adapt/nether/skull_toss
+adaptation-advancement adapt:nether/soul_strider adaptation/adapt/nether/soul_strider
+adaptation-advancement adapt:nether/strider_bond adaptation/adapt/nether/strider_bond
+adaptation-advancement adapt:nether/wither_harvest adaptation/adapt/nether/wither_harvest
+adaptation-advancement adapt:nether/wither_resist adaptation/adapt/nether/wither_resist
+adaptation-advancement adapt:pickaxe/autosmelt adaptation/adapt/pickaxe/autosmelt
+adaptation-advancement adapt:pickaxe/chisel adaptation/adapt/pickaxe/chisel
+adaptation-advancement adapt:pickaxe/deep_core adaptation/adapt/pickaxe/deep_core
+adaptation-advancement adapt:pickaxe/drop_to_inventory adaptation/adapt/pickaxe/drop_to_inventory
+adaptation-advancement adapt:pickaxe/gem_polish adaptation/adapt/pickaxe/gem_polish
+adaptation-advancement adapt:pickaxe/obsidian_rush adaptation/adapt/pickaxe/obsidian_rush
+adaptation-advancement adapt:pickaxe/quarry_sense adaptation/adapt/pickaxe/quarry_sense
+adaptation-advancement adapt:pickaxe/repair_rhythm adaptation/adapt/pickaxe/repair_rhythm
+adaptation-advancement adapt:pickaxe/silk_spawner adaptation/adapt/pickaxe/silk_spawner
+adaptation-advancement adapt:pickaxe/stone_skin adaptation/adapt/pickaxe/stone_skin
+adaptation-advancement adapt:pickaxe/tunnel_bore adaptation/adapt/pickaxe/tunnel_bore
+adaptation-advancement adapt:pickaxe/unbreakable_pact adaptation/adapt/pickaxe/unbreakable_pact
+adaptation-advancement adapt:pickaxe/veinminer adaptation/adapt/pickaxe/veinminer
+adaptation-advancement adapt:ranged/fetch_shot adaptation/adapt/ranged/fetch_shot
+adaptation-advancement adapt:ranged/floaters adaptation/adapt/ranged/floaters
+adaptation-advancement adapt:ranged/force adaptation/adapt/ranged/force
+adaptation-advancement adapt:ranged/heartseeker adaptation/adapt/ranged/heartseeker
+adaptation-advancement adapt:ranged/heavy_draw adaptation/adapt/ranged/heavy_draw
+adaptation-advancement adapt:ranged/lunge_shot adaptation/adapt/ranged/lunge_shot
+adaptation-advancement adapt:ranged/piercing adaptation/adapt/ranged/piercing
+adaptation-advancement adapt:ranged/pinning_shot adaptation/adapt/ranged/pinning_shot
+adaptation-advancement adapt:ranged/recovery adaptation/adapt/ranged/recovery
+adaptation-advancement adapt:ranged/ricochet_bolt adaptation/adapt/ranged/ricochet_bolt
+adaptation-advancement adapt:ranged/trajectory_sight adaptation/adapt/ranged/trajectory_sight
+adaptation-advancement adapt:ranged/webshot adaptation/adapt/ranged/webshot
+adaptation-advancement adapt:rift/access adaptation/adapt/rift/access
+adaptation-advancement adapt:rift/blink adaptation/adapt/rift/blink
+adaptation-advancement adapt:rift/conduit adaptation/adapt/rift/conduit
+adaptation-advancement adapt:rift/descent adaptation/adapt/rift/descent
+adaptation-advancement adapt:rift/ender_taglock adaptation/adapt/rift/ender_taglock
+adaptation-advancement adapt:rift/enderchest adaptation/adapt/rift/enderchest
+adaptation-advancement adapt:rift/gate adaptation/adapt/rift/gate
+adaptation-advancement adapt:rift/inflated_pocket_dimension adaptation/adapt/rift/inflated_pocket_dimension
+adaptation-advancement adapt:rift/pearl_rebound adaptation/adapt/rift/pearl_rebound
+adaptation-advancement adapt:rift/resist adaptation/adapt/rift/resist
+adaptation-advancement adapt:rift/visage adaptation/adapt/rift/visage
+adaptation-advancement adapt:rift/void_magnet adaptation/adapt/rift/void_magnet
+adaptation-advancement adapt:rift/void_skin adaptation/adapt/rift/void_skin
+adaptation-advancement adapt:seaborne/brine_skin adaptation/adapt/seaborne/brine_skin
+adaptation-advancement adapt:seaborne/coral_gardener adaptation/adapt/seaborne/coral_gardener
+adaptation-advancement adapt:seaborne/deep_salvager adaptation/adapt/seaborne/deep_salvager
+adaptation-advancement adapt:seaborne/fish_whisperer adaptation/adapt/seaborne/fish_whisperer
+adaptation-advancement adapt:seaborne/fishers_fantasy adaptation/adapt/seaborne/fishers_fantasy
+adaptation-advancement adapt:seaborne/hydro_jet adaptation/adapt/seaborne/hydro_jet
+adaptation-advancement adapt:seaborne/ink_veil adaptation/adapt/seaborne/ink_veil
+adaptation-advancement adapt:seaborne/oxygen adaptation/adapt/seaborne/oxygen
+adaptation-advancement adapt:seaborne/pressure_diver adaptation/adapt/seaborne/pressure_diver
+adaptation-advancement adapt:seaborne/rain_fed adaptation/adapt/seaborne/rain_fed
+adaptation-advancement adapt:seaborne/speed adaptation/adapt/seaborne/speed
+adaptation-advancement adapt:seaborne/storm_strike adaptation/adapt/seaborne/storm_strike
+adaptation-advancement adapt:seaborne/tidecaller adaptation/adapt/seaborne/tidecaller
+adaptation-advancement adapt:seaborne/trident_mastery adaptation/adapt/seaborne/trident_mastery
+adaptation-advancement adapt:seaborne/turtles_mining_speed adaptation/adapt/seaborne/turtles_mining_speed
+adaptation-advancement adapt:stealth/assassinate adaptation/adapt/stealth/assassinate
+adaptation-advancement adapt:stealth/cutpurse adaptation/adapt/stealth/cutpurse
+adaptation-advancement adapt:stealth/decoy_swap adaptation/adapt/stealth/decoy_swap
+adaptation-advancement adapt:stealth/enderveil adaptation/adapt/stealth/enderveil
+adaptation-advancement adapt:stealth/ghost_armor adaptation/adapt/stealth/ghost_armor
+adaptation-advancement adapt:stealth/shadow_decoy adaptation/adapt/stealth/shadow_decoy
+adaptation-advancement adapt:stealth/shadowmeld adaptation/adapt/stealth/shadowmeld
+adaptation-advancement adapt:stealth/silent_step adaptation/adapt/stealth/silent_step
+adaptation-advancement adapt:stealth/smoke_pellet adaptation/adapt/stealth/smoke_pellet
+adaptation-advancement adapt:stealth/snatch adaptation/adapt/stealth/snatch
+adaptation-advancement adapt:stealth/speed adaptation/adapt/stealth/speed
+adaptation-advancement adapt:stealth/trap_sense adaptation/adapt/stealth/trap_sense
+adaptation-advancement adapt:stealth/umbral_recovery adaptation/adapt/stealth/umbral_recovery
+adaptation-advancement adapt:stealth/vision adaptation/adapt/stealth/vision
+adaptation-advancement adapt:sword/blade_flow adaptation/adapt/sword/blade_flow
+adaptation-advancement adapt:sword/bloody_blade adaptation/adapt/sword/bloody_blade
+adaptation-advancement adapt:sword/crescent_guard adaptation/adapt/sword/crescent_guard
+adaptation-advancement adapt:sword/crimson_cyclone adaptation/adapt/sword/crimson_cyclone
+adaptation-advancement adapt:sword/dual_wield adaptation/adapt/sword/dual_wield
+adaptation-advancement adapt:sword/duelists_focus adaptation/adapt/sword/duelists_focus
+adaptation-advancement adapt:sword/executioners_edge adaptation/adapt/sword/executioners_edge
+adaptation-advancement adapt:sword/hamstring adaptation/adapt/sword/hamstring
+adaptation-advancement adapt:sword/heirloom_edge adaptation/adapt/sword/heirloom_edge
+adaptation-advancement adapt:sword/lunge_strike adaptation/adapt/sword/lunge_strike
+adaptation-advancement adapt:sword/machete adaptation/adapt/sword/machete
+adaptation-advancement adapt:sword/poison_blade adaptation/adapt/sword/poison_blade
+adaptation-advancement adapt:sword/riposte_window adaptation/adapt/sword/riposte_window
+adaptation-advancement adapt:sword/whetstone_ritual adaptation/adapt/sword/whetstone_ritual
+adaptation-advancement adapt:tame/alphas_command adaptation/adapt/tame/alphas_command
+adaptation-advancement adapt:tame/battle_bond adaptation/adapt/tame/battle_bond
+adaptation-advancement adapt:tame/beast_recall adaptation/adapt/tame/beast_recall
+adaptation-advancement adapt:tame/damage adaptation/adapt/tame/damage
+adaptation-advancement adapt:tame/fetch adaptation/adapt/tame/fetch
+adaptation-advancement adapt:tame/guardian_instinct adaptation/adapt/tame/guardian_instinct
+adaptation-advancement adapt:tame/health adaptation/adapt/tame/health
+adaptation-advancement adapt:tame/health_regeneration adaptation/adapt/tame/health_regeneration
+adaptation-advancement adapt:tame/last_breath adaptation/adapt/tame/last_breath
+adaptation-advancement adapt:tame/mounted_tactics adaptation/adapt/tame/mounted_tactics
+adaptation-advancement adapt:tame/pack_leader_aura adaptation/adapt/tame/pack_leader_aura
+adaptation-advancement adapt:tame/shared_pain adaptation/adapt/tame/shared_pain
+adaptation-advancement adapt:tame/stable_hand adaptation/adapt/tame/stable_hand
+adaptation-advancement adapt:tame/wild_empathy adaptation/adapt/tame/wild_empathy
+adaptation-advancement adapt:tragoul/blood_pact adaptation/adapt/tragoul/blood_pact
+adaptation-advancement adapt:tragoul/bone_harvest adaptation/adapt/tragoul/bone_harvest
+adaptation-advancement adapt:tragoul/corpse_explosion adaptation/adapt/tragoul/corpse_explosion
+adaptation-advancement adapt:tragoul/curse_of_frailty adaptation/adapt/tragoul/curse_of_frailty
+adaptation-advancement adapt:tragoul/death_sense adaptation/adapt/tragoul/death_sense
+adaptation-advancement adapt:tragoul/globe adaptation/adapt/tragoul/globe
+adaptation-advancement adapt:tragoul/healing adaptation/adapt/tragoul/healing
+adaptation-advancement adapt:tragoul/lance adaptation/adapt/tragoul/lance
+adaptation-advancement adapt:tragoul/last_rites adaptation/adapt/tragoul/last_rites
+adaptation-advancement adapt:tragoul/marrow_armor adaptation/adapt/tragoul/marrow_armor
+adaptation-advancement adapt:tragoul/plague_bearer adaptation/adapt/tragoul/plague_bearer
+adaptation-advancement adapt:tragoul/skeletal_servant adaptation/adapt/tragoul/skeletal_servant
+adaptation-advancement adapt:tragoul/soul_siphon adaptation/adapt/tragoul/soul_siphon
+adaptation-advancement adapt:tragoul/thorns adaptation/adapt/tragoul/thorns
+adaptation-advancement adapt:unarmed/battering_charge adaptation/adapt/unarmed/battering_charge
+adaptation-advancement adapt:unarmed/combo_chain adaptation/adapt/unarmed/combo_chain
+adaptation-advancement adapt:unarmed/disarm adaptation/adapt/unarmed/disarm
+adaptation-advancement adapt:unarmed/glass_cannon adaptation/adapt/unarmed/glass_cannon
+adaptation-advancement adapt:unarmed/grapple adaptation/adapt/unarmed/grapple
+adaptation-advancement adapt:unarmed/iron_fists adaptation/adapt/unarmed/iron_fists
+adaptation-advancement adapt:unarmed/meditation adaptation/adapt/unarmed/meditation
+adaptation-advancement adapt:unarmed/power adaptation/adapt/unarmed/power
+adaptation-advancement adapt:unarmed/pressure_point adaptation/adapt/unarmed/pressure_point
+adaptation-advancement adapt:unarmed/second_wind adaptation/adapt/unarmed/second_wind
+adaptation-advancement adapt:unarmed/shockwave_clap adaptation/adapt/unarmed/shockwave_clap
+adaptation-advancement adapt:unarmed/sucker_punch adaptation/adapt/unarmed/sucker_punch
+adaptation-config adapt/agility/air_dash.toml
+adaptation-config adapt/agility/armor_up.toml
+adaptation-config adapt/agility/cat_reflexes.toml
+adaptation-config adapt/agility/featherfoot.toml
+adaptation-config adapt/agility/kip_up.toml
+adaptation-config adapt/agility/ladder_slide.toml
+adaptation-config adapt/agility/marathoner.toml
+adaptation-config adapt/agility/roll_landing.toml
+adaptation-config adapt/agility/slipstream_slide.toml
+adaptation-config adapt/agility/super_jump.toml
+adaptation-config adapt/agility/vault.toml
+adaptation-config adapt/agility/wall_jump.toml
+adaptation-config adapt/agility/wind_up.toml
+adaptation-config adapt/architect/brickbat.toml
+adaptation-config adapt/architect/chalk_line.toml
+adaptation-config adapt/architect/demolition.toml
+adaptation-config adapt/architect/elevator.toml
+adaptation-config adapt/architect/foundation.toml
+adaptation-config adapt/architect/glass.toml
+adaptation-config adapt/architect/placement.toml
+adaptation-config adapt/architect/scaffolder.toml
+adaptation-config adapt/architect/smart_shape.toml
+adaptation-config adapt/architect/steady_hands.toml
+adaptation-config adapt/architect/stonecutter_savant.toml
+adaptation-config adapt/architect/supply_line.toml
+adaptation-config adapt/architect/wireless_redstone.toml
+adaptation-config adapt/axe/bark_hide.toml
+adaptation-config adapt/axe/chop.toml
+adaptation-config adapt/axe/cleave.toml
+adaptation-config adapt/axe/drop_to_inventory.toml
+adaptation-config adapt/axe/ground_smash.toml
+adaptation-config adapt/axe/leaf_veinminer.toml
+adaptation-config adapt/axe/logswap.toml
+adaptation-config adapt/axe/shield_splitter.toml
+adaptation-config adapt/axe/sunder.toml
+adaptation-config adapt/axe/throwing_axe.toml
+adaptation-config adapt/axe/wood_veinminer.toml
+adaptation-config adapt/blocking/bastion_stance.toml
+adaptation-config adapt/blocking/bulwark_bash.toml
+adaptation-config adapt/blocking/chainarmorer.toml
+adaptation-config adapt/blocking/counter_guard.toml
+adaptation-config adapt/blocking/horsearmorer.toml
+adaptation-config adapt/blocking/interpose.toml
+adaptation-config adapt/blocking/mirror_block.toml
+adaptation-config adapt/blocking/multiarmor.toml
+adaptation-config adapt/blocking/perfect_guard.toml
+adaptation-config adapt/blocking/phalanx_crafter.toml
+adaptation-config adapt/blocking/saddlecrafter.toml
+adaptation-config adapt/blocking/shield_wall.toml
+adaptation-config adapt/blocking/shieldbearers_resolve.toml
+adaptation-config adapt/blocking/tempered_guard.toml
+adaptation-config adapt/brewing/absorption.toml
+adaptation-config adapt/brewing/blindness.toml
+adaptation-config adapt/brewing/darkness.toml
+adaptation-config adapt/brewing/decay.toml
+adaptation-config adapt/brewing/fatigue.toml
+adaptation-config adapt/brewing/haste.toml
+adaptation-config adapt/brewing/healthboost.toml
+adaptation-config adapt/brewing/hunger.toml
+adaptation-config adapt/brewing/lingering.toml
+adaptation-config adapt/brewing/nausea.toml
+adaptation-config adapt/brewing/resistance.toml
+adaptation-config adapt/brewing/saturation.toml
+adaptation-config adapt/brewing/super_heated.toml
+adaptation-config adapt/chronos/aberrant_touch.toml
+adaptation-config adapt/chronos/accelerate.toml
+adaptation-config adapt/chronos/borrowed_time.toml
+adaptation-config adapt/chronos/deja_vu.toml
+adaptation-config adapt/chronos/hourglass_guard.toml
+adaptation-config adapt/chronos/instant_recall.toml
+adaptation-config adapt/chronos/overtime.toml
+adaptation-config adapt/chronos/pocket_watch.toml
+adaptation-config adapt/chronos/rewind.toml
+adaptation-config adapt/chronos/stasis_field.toml
+adaptation-config adapt/chronos/temporal_echo.toml
+adaptation-config adapt/chronos/time_bomb.toml
+adaptation-config adapt/chronos/time_bottle.toml
+adaptation-config adapt/crafting/backpacks.toml
+adaptation-config adapt/crafting/bulk_artisan.toml
+adaptation-config adapt/crafting/compactor.toml
+adaptation-config adapt/crafting/deconstruction.toml
+adaptation-config adapt/crafting/leather.toml
+adaptation-config adapt/crafting/masterwork.toml
+adaptation-config adapt/crafting/provisioner.toml
+adaptation-config adapt/crafting/reconstruction.toml
+adaptation-config adapt/crafting/skulls.toml
+adaptation-config adapt/crafting/stations.toml
+adaptation-config adapt/crafting/thrifty_hands.toml
+adaptation-config adapt/crafting/tinkerer.toml
+adaptation-config adapt/crafting/xp.toml
+adaptation-config adapt/discovery/archaeologist.toml
+adaptation-config adapt/discovery/better_mending.toml
+adaptation-config adapt/discovery/cartographer_pulse.toml
+adaptation-config adapt/discovery/field_notes.toml
+adaptation-config adapt/discovery/insight.toml
+adaptation-config adapt/discovery/keen_eye.toml
+adaptation-config adapt/discovery/polymath.toml
+adaptation-config adapt/discovery/relic_appraiser.toml
+adaptation-config adapt/discovery/sixth_sense.toml
+adaptation-config adapt/discovery/trailblazer.toml
+adaptation-config adapt/discovery/unity.toml
+adaptation-config adapt/discovery/villager_att.toml
+adaptation-config adapt/discovery/world_armor.toml
+adaptation-config adapt/discovery/xp_resist.toml
+adaptation-config adapt/enchanting/anvil_savant.toml
+adaptation-config adapt/enchanting/arcane_siphon.toml
+adaptation-config adapt/enchanting/bookshelf_attunement.toml
+adaptation-config adapt/enchanting/curse_cleansing.toml
+adaptation-config adapt/enchanting/echo_of_knowledge.toml
+adaptation-config adapt/enchanting/grindstone_recovery.toml
+adaptation-config adapt/enchanting/infusion_transfer.toml
+adaptation-config adapt/enchanting/lapis_return.toml
+adaptation-config adapt/enchanting/offer_reroll.toml
+adaptation-config adapt/enchanting/quick_enchant.toml
+adaptation-config adapt/enchanting/rune_sight.toml
+adaptation-config adapt/enchanting/soul_link.toml
+adaptation-config adapt/enchanting/tome_rebinding.toml
+adaptation-config adapt/enchanting/xp_return.toml
+adaptation-config adapt/excavation/burrow.toml
+adaptation-config adapt/excavation/clod_hurler.toml
+adaptation-config adapt/excavation/drop_to_inventory.toml
+adaptation-config adapt/excavation/earth_mover.toml
+adaptation-config adapt/excavation/grave_digger.toml
+adaptation-config adapt/excavation/haste.toml
+adaptation-config adapt/excavation/mudlark.toml
+adaptation-config adapt/excavation/omnitool.toml
+adaptation-config adapt/excavation/seismic_ping.toml
+adaptation-config adapt/excavation/soft_fall.toml
+adaptation-config adapt/excavation/spelunker.toml
+adaptation-config adapt/excavation/treasure_hunter.toml
+adaptation-config adapt/excavation/tunneler.toml
+adaptation-config adapt/golem/angler_core.toml
+adaptation-config adapt/golem/animus_binding.toml
+adaptation-config adapt/golem/bone_frame.toml
+adaptation-config adapt/golem/breaker_core.toml
+adaptation-config adapt/golem/copper_frame.toml
+adaptation-config adapt/golem/frost_frame.toml
+adaptation-config adapt/golem/gatherer_core.toml
+adaptation-config adapt/golem/guardian_core.toml
+adaptation-config adapt/golem/harvester_core.toml
+adaptation-config adapt/golem/iron_frame.toml
+adaptation-config adapt/golem/lumber_core.toml
+adaptation-config adapt/golem/masterwork.toml
+adaptation-config adapt/golem/mending.toml
+adaptation-config adapt/golem/node_weaving.toml
+adaptation-config adapt/golem/overseer.toml
+adaptation-config adapt/golem/rancher_core.toml
+adaptation-config adapt/golem/runic_augments.toml
+adaptation-config adapt/golem/sorter_core.toml
+adaptation-config adapt/golem/stasis.toml
+adaptation-config adapt/herbalism/bee_shepherd.toml
+adaptation-config adapt/herbalism/cobweb.toml
+adaptation-config adapt/herbalism/compost_cascade.toml
+adaptation-config adapt/herbalism/drop_to_inventory.toml
+adaptation-config adapt/herbalism/growth_aura.toml
+adaptation-config adapt/herbalism/hippo.toml
+adaptation-config adapt/herbalism/hungry_shield.toml
+adaptation-config adapt/herbalism/luck.toml
+adaptation-config adapt/herbalism/mushroom_blocks.toml
+adaptation-config adapt/herbalism/myconid.toml
+adaptation-config adapt/herbalism/replant.toml
+adaptation-config adapt/herbalism/rooted_footing.toml
+adaptation-config adapt/herbalism/seed_sower.toml
+adaptation-config adapt/herbalism/spore_bloom.toml
+adaptation-config adapt/herbalism/terralid.toml
+adaptation-config adapt/hunter/adrenaline.toml
+adaptation-config adapt/hunter/big_game.toml
+adaptation-config adapt/hunter/blood_trail.toml
+adaptation-config adapt/hunter/drop_to_inventory.toml
+adaptation-config adapt/hunter/invis.toml
+adaptation-config adapt/hunter/jumpboost.toml
+adaptation-config adapt/hunter/luck.toml
+adaptation-config adapt/hunter/predator_focus.toml
+adaptation-config adapt/hunter/regen.toml
+adaptation-config adapt/hunter/resistance.toml
+adaptation-config adapt/hunter/snare_line.toml
+adaptation-config adapt/hunter/speed.toml
+adaptation-config adapt/hunter/strength.toml
+adaptation-config adapt/hunter/trophy_skinner.toml
+adaptation-config adapt/kinetics/breachwright.toml
+adaptation-config adapt/kinetics/charge_lance.toml
+adaptation-config adapt/kinetics/dead_zone.toml
+adaptation-config adapt/kinetics/heavy_frame.toml
+adaptation-config adapt/kinetics/impale_pin.toml
+adaptation-config adapt/kinetics/lunge_conductor.toml
+adaptation-config adapt/kinetics/mass_shift.toml
+adaptation-config adapt/kinetics/meteor_cadence.toml
+adaptation-config adapt/kinetics/moon_jump.toml
+adaptation-config adapt/kinetics/mounted_shock.toml
+adaptation-config adapt/kinetics/phalanx_reach.toml
+adaptation-config adapt/kinetics/quake_guard.toml
+adaptation-config adapt/kinetics/rebound_anvil.toml
+adaptation-config adapt/kinetics/rubber_soul.toml
+adaptation-config adapt/kinetics/soft_catch.toml
+adaptation-config adapt/kinetics/surface_skate.toml
+adaptation-config adapt/kinetics/terminal_toggle.toml
+adaptation-config adapt/kinetics/windburst.toml
+adaptation-config adapt/nether/ashwalker.toml
+adaptation-config adapt/nether/blaze_leech.toml
+adaptation-config adapt/nether/crimson_feast.toml
+adaptation-config adapt/nether/fire_resist.toml
+adaptation-config adapt/nether/ghast_ward.toml
+adaptation-config adapt/nether/lava_walker.toml
+adaptation-config adapt/nether/magma_skin.toml
+adaptation-config adapt/nether/netherrack_mason.toml
+adaptation-config adapt/nether/piglin_broker.toml
+adaptation-config adapt/nether/skull_toss.toml
+adaptation-config adapt/nether/soul_strider.toml
+adaptation-config adapt/nether/strider_bond.toml
+adaptation-config adapt/nether/wither_harvest.toml
+adaptation-config adapt/nether/wither_resist.toml
+adaptation-config adapt/pickaxe/autosmelt.toml
+adaptation-config adapt/pickaxe/chisel.toml
+adaptation-config adapt/pickaxe/deep_core.toml
+adaptation-config adapt/pickaxe/drop_to_inventory.toml
+adaptation-config adapt/pickaxe/gem_polish.toml
+adaptation-config adapt/pickaxe/obsidian_rush.toml
+adaptation-config adapt/pickaxe/quarry_sense.toml
+adaptation-config adapt/pickaxe/repair_rhythm.toml
+adaptation-config adapt/pickaxe/silk_spawner.toml
+adaptation-config adapt/pickaxe/stone_skin.toml
+adaptation-config adapt/pickaxe/tunnel_bore.toml
+adaptation-config adapt/pickaxe/unbreakable_pact.toml
+adaptation-config adapt/pickaxe/veinminer.toml
+adaptation-config adapt/ranged/fetch_shot.toml
+adaptation-config adapt/ranged/floaters.toml
+adaptation-config adapt/ranged/force.toml
+adaptation-config adapt/ranged/heartseeker.toml
+adaptation-config adapt/ranged/heavy_draw.toml
+adaptation-config adapt/ranged/lunge_shot.toml
+adaptation-config adapt/ranged/piercing.toml
+adaptation-config adapt/ranged/pinning_shot.toml
+adaptation-config adapt/ranged/recovery.toml
+adaptation-config adapt/ranged/ricochet_bolt.toml
+adaptation-config adapt/ranged/trajectory_sight.toml
+adaptation-config adapt/ranged/webshot.toml
+adaptation-config adapt/rift/access.toml
+adaptation-config adapt/rift/blink.toml
+adaptation-config adapt/rift/conduit.toml
+adaptation-config adapt/rift/descent.toml
+adaptation-config adapt/rift/ender_taglock.toml
+adaptation-config adapt/rift/enderchest.toml
+adaptation-config adapt/rift/gate.toml
+adaptation-config adapt/rift/inflated_pocket_dimension.toml
+adaptation-config adapt/rift/pearl_rebound.toml
+adaptation-config adapt/rift/resist.toml
+adaptation-config adapt/rift/visage.toml
+adaptation-config adapt/rift/void_magnet.toml
+adaptation-config adapt/rift/void_skin.toml
+adaptation-config adapt/seaborne/brine_skin.toml
+adaptation-config adapt/seaborne/coral_gardener.toml
+adaptation-config adapt/seaborne/deep_salvager.toml
+adaptation-config adapt/seaborne/fish_whisperer.toml
+adaptation-config adapt/seaborne/fishers_fantasy.toml
+adaptation-config adapt/seaborne/hydro_jet.toml
+adaptation-config adapt/seaborne/ink_veil.toml
+adaptation-config adapt/seaborne/oxygen.toml
+adaptation-config adapt/seaborne/pressure_diver.toml
+adaptation-config adapt/seaborne/rain_fed.toml
+adaptation-config adapt/seaborne/speed.toml
+adaptation-config adapt/seaborne/storm_strike.toml
+adaptation-config adapt/seaborne/tidecaller.toml
+adaptation-config adapt/seaborne/trident_mastery.toml
+adaptation-config adapt/seaborne/turtles_mining_speed.toml
+adaptation-config adapt/stealth/assassinate.toml
+adaptation-config adapt/stealth/cutpurse.toml
+adaptation-config adapt/stealth/decoy_swap.toml
+adaptation-config adapt/stealth/enderveil.toml
+adaptation-config adapt/stealth/ghost_armor.toml
+adaptation-config adapt/stealth/shadow_decoy.toml
+adaptation-config adapt/stealth/shadowmeld.toml
+adaptation-config adapt/stealth/silent_step.toml
+adaptation-config adapt/stealth/smoke_pellet.toml
+adaptation-config adapt/stealth/snatch.toml
+adaptation-config adapt/stealth/speed.toml
+adaptation-config adapt/stealth/trap_sense.toml
+adaptation-config adapt/stealth/umbral_recovery.toml
+adaptation-config adapt/stealth/vision.toml
+adaptation-config adapt/sword/blade_flow.toml
+adaptation-config adapt/sword/bloody_blade.toml
+adaptation-config adapt/sword/crescent_guard.toml
+adaptation-config adapt/sword/crimson_cyclone.toml
+adaptation-config adapt/sword/dual_wield.toml
+adaptation-config adapt/sword/duelists_focus.toml
+adaptation-config adapt/sword/executioners_edge.toml
+adaptation-config adapt/sword/hamstring.toml
+adaptation-config adapt/sword/heirloom_edge.toml
+adaptation-config adapt/sword/lunge_strike.toml
+adaptation-config adapt/sword/machete.toml
+adaptation-config adapt/sword/poison_blade.toml
+adaptation-config adapt/sword/riposte_window.toml
+adaptation-config adapt/sword/whetstone_ritual.toml
+adaptation-config adapt/tame/alphas_command.toml
+adaptation-config adapt/tame/battle_bond.toml
+adaptation-config adapt/tame/beast_recall.toml
+adaptation-config adapt/tame/damage.toml
+adaptation-config adapt/tame/fetch.toml
+adaptation-config adapt/tame/guardian_instinct.toml
+adaptation-config adapt/tame/health.toml
+adaptation-config adapt/tame/health_regeneration.toml
+adaptation-config adapt/tame/last_breath.toml
+adaptation-config adapt/tame/mounted_tactics.toml
+adaptation-config adapt/tame/pack_leader_aura.toml
+adaptation-config adapt/tame/shared_pain.toml
+adaptation-config adapt/tame/stable_hand.toml
+adaptation-config adapt/tame/wild_empathy.toml
+adaptation-config adapt/tragoul/blood_pact.toml
+adaptation-config adapt/tragoul/bone_harvest.toml
+adaptation-config adapt/tragoul/corpse_explosion.toml
+adaptation-config adapt/tragoul/curse_of_frailty.toml
+adaptation-config adapt/tragoul/death_sense.toml
+adaptation-config adapt/tragoul/globe.toml
+adaptation-config adapt/tragoul/healing.toml
+adaptation-config adapt/tragoul/lance.toml
+adaptation-config adapt/tragoul/last_rites.toml
+adaptation-config adapt/tragoul/marrow_armor.toml
+adaptation-config adapt/tragoul/plague_bearer.toml
+adaptation-config adapt/tragoul/skeletal_servant.toml
+adaptation-config adapt/tragoul/soul_siphon.toml
+adaptation-config adapt/tragoul/thorns.toml
+adaptation-config adapt/unarmed/battering_charge.toml
+adaptation-config adapt/unarmed/combo_chain.toml
+adaptation-config adapt/unarmed/disarm.toml
+adaptation-config adapt/unarmed/glass_cannon.toml
+adaptation-config adapt/unarmed/grapple.toml
+adaptation-config adapt/unarmed/iron_fists.toml
+adaptation-config adapt/unarmed/meditation.toml
+adaptation-config adapt/unarmed/power.toml
+adaptation-config adapt/unarmed/pressure_point.toml
+adaptation-config adapt/unarmed/second_wind.toml
+adaptation-config adapt/unarmed/shockwave_clap.toml
+adaptation-config adapt/unarmed/sucker_punch.toml
+adaptation-permission adapt.use.adapt.agility.air_dash
+adaptation-permission adapt.use.adapt.agility.armor_up
+adaptation-permission adapt.use.adapt.agility.cat_reflexes
+adaptation-permission adapt.use.adapt.agility.featherfoot
+adaptation-permission adapt.use.adapt.agility.kip_up
+adaptation-permission adapt.use.adapt.agility.ladder_slide
+adaptation-permission adapt.use.adapt.agility.marathoner
+adaptation-permission adapt.use.adapt.agility.roll_landing
+adaptation-permission adapt.use.adapt.agility.slipstream_slide
+adaptation-permission adapt.use.adapt.agility.super_jump
+adaptation-permission adapt.use.adapt.agility.vault
+adaptation-permission adapt.use.adapt.agility.wall_jump
+adaptation-permission adapt.use.adapt.agility.wind_up
+adaptation-permission adapt.use.adapt.architect.brickbat
+adaptation-permission adapt.use.adapt.architect.chalk_line
+adaptation-permission adapt.use.adapt.architect.demolition
+adaptation-permission adapt.use.adapt.architect.elevator
+adaptation-permission adapt.use.adapt.architect.foundation
+adaptation-permission adapt.use.adapt.architect.glass
+adaptation-permission adapt.use.adapt.architect.placement
+adaptation-permission adapt.use.adapt.architect.scaffolder
+adaptation-permission adapt.use.adapt.architect.smart_shape
+adaptation-permission adapt.use.adapt.architect.steady_hands
+adaptation-permission adapt.use.adapt.architect.stonecutter_savant
+adaptation-permission adapt.use.adapt.architect.supply_line
+adaptation-permission adapt.use.adapt.architect.wireless_redstone
+adaptation-permission adapt.use.adapt.axe.bark_hide
+adaptation-permission adapt.use.adapt.axe.chop
+adaptation-permission adapt.use.adapt.axe.cleave
+adaptation-permission adapt.use.adapt.axe.drop_to_inventory
+adaptation-permission adapt.use.adapt.axe.ground_smash
+adaptation-permission adapt.use.adapt.axe.leaf_veinminer
+adaptation-permission adapt.use.adapt.axe.logswap
+adaptation-permission adapt.use.adapt.axe.shield_splitter
+adaptation-permission adapt.use.adapt.axe.sunder
+adaptation-permission adapt.use.adapt.axe.throwing_axe
+adaptation-permission adapt.use.adapt.axe.wood_veinminer
+adaptation-permission adapt.use.adapt.blocking.bastion_stance
+adaptation-permission adapt.use.adapt.blocking.bulwark_bash
+adaptation-permission adapt.use.adapt.blocking.chainarmorer
+adaptation-permission adapt.use.adapt.blocking.counter_guard
+adaptation-permission adapt.use.adapt.blocking.horsearmorer
+adaptation-permission adapt.use.adapt.blocking.interpose
+adaptation-permission adapt.use.adapt.blocking.mirror_block
+adaptation-permission adapt.use.adapt.blocking.multiarmor
+adaptation-permission adapt.use.adapt.blocking.perfect_guard
+adaptation-permission adapt.use.adapt.blocking.phalanx_crafter
+adaptation-permission adapt.use.adapt.blocking.saddlecrafter
+adaptation-permission adapt.use.adapt.blocking.shield_wall
+adaptation-permission adapt.use.adapt.blocking.shieldbearers_resolve
+adaptation-permission adapt.use.adapt.blocking.tempered_guard
+adaptation-permission adapt.use.adapt.brewing.absorption
+adaptation-permission adapt.use.adapt.brewing.blindness
+adaptation-permission adapt.use.adapt.brewing.darkness
+adaptation-permission adapt.use.adapt.brewing.decay
+adaptation-permission adapt.use.adapt.brewing.fatigue
+adaptation-permission adapt.use.adapt.brewing.haste
+adaptation-permission adapt.use.adapt.brewing.healthboost
+adaptation-permission adapt.use.adapt.brewing.hunger
+adaptation-permission adapt.use.adapt.brewing.lingering
+adaptation-permission adapt.use.adapt.brewing.nausea
+adaptation-permission adapt.use.adapt.brewing.resistance
+adaptation-permission adapt.use.adapt.brewing.saturation
+adaptation-permission adapt.use.adapt.brewing.super_heated
+adaptation-permission adapt.use.adapt.chronos.aberrant_touch
+adaptation-permission adapt.use.adapt.chronos.accelerate
+adaptation-permission adapt.use.adapt.chronos.borrowed_time
+adaptation-permission adapt.use.adapt.chronos.deja_vu
+adaptation-permission adapt.use.adapt.chronos.hourglass_guard
+adaptation-permission adapt.use.adapt.chronos.instant_recall
+adaptation-permission adapt.use.adapt.chronos.overtime
+adaptation-permission adapt.use.adapt.chronos.pocket_watch
+adaptation-permission adapt.use.adapt.chronos.rewind
+adaptation-permission adapt.use.adapt.chronos.stasis_field
+adaptation-permission adapt.use.adapt.chronos.temporal_echo
+adaptation-permission adapt.use.adapt.chronos.time_bomb
+adaptation-permission adapt.use.adapt.chronos.time_bottle
+adaptation-permission adapt.use.adapt.crafting.backpacks
+adaptation-permission adapt.use.adapt.crafting.bulk_artisan
+adaptation-permission adapt.use.adapt.crafting.compactor
+adaptation-permission adapt.use.adapt.crafting.deconstruction
+adaptation-permission adapt.use.adapt.crafting.leather
+adaptation-permission adapt.use.adapt.crafting.masterwork
+adaptation-permission adapt.use.adapt.crafting.provisioner
+adaptation-permission adapt.use.adapt.crafting.reconstruction
+adaptation-permission adapt.use.adapt.crafting.skulls
+adaptation-permission adapt.use.adapt.crafting.stations
+adaptation-permission adapt.use.adapt.crafting.thrifty_hands
+adaptation-permission adapt.use.adapt.crafting.tinkerer
+adaptation-permission adapt.use.adapt.crafting.xp
+adaptation-permission adapt.use.adapt.discovery.archaeologist
+adaptation-permission adapt.use.adapt.discovery.better_mending
+adaptation-permission adapt.use.adapt.discovery.cartographer_pulse
+adaptation-permission adapt.use.adapt.discovery.field_notes
+adaptation-permission adapt.use.adapt.discovery.insight
+adaptation-permission adapt.use.adapt.discovery.keen_eye
+adaptation-permission adapt.use.adapt.discovery.polymath
+adaptation-permission adapt.use.adapt.discovery.relic_appraiser
+adaptation-permission adapt.use.adapt.discovery.sixth_sense
+adaptation-permission adapt.use.adapt.discovery.trailblazer
+adaptation-permission adapt.use.adapt.discovery.unity
+adaptation-permission adapt.use.adapt.discovery.villager_att
+adaptation-permission adapt.use.adapt.discovery.world_armor
+adaptation-permission adapt.use.adapt.discovery.xp_resist
+adaptation-permission adapt.use.adapt.enchanting.anvil_savant
+adaptation-permission adapt.use.adapt.enchanting.arcane_siphon
+adaptation-permission adapt.use.adapt.enchanting.bookshelf_attunement
+adaptation-permission adapt.use.adapt.enchanting.curse_cleansing
+adaptation-permission adapt.use.adapt.enchanting.echo_of_knowledge
+adaptation-permission adapt.use.adapt.enchanting.grindstone_recovery
+adaptation-permission adapt.use.adapt.enchanting.infusion_transfer
+adaptation-permission adapt.use.adapt.enchanting.lapis_return
+adaptation-permission adapt.use.adapt.enchanting.offer_reroll
+adaptation-permission adapt.use.adapt.enchanting.quick_enchant
+adaptation-permission adapt.use.adapt.enchanting.rune_sight
+adaptation-permission adapt.use.adapt.enchanting.soul_link
+adaptation-permission adapt.use.adapt.enchanting.tome_rebinding
+adaptation-permission adapt.use.adapt.enchanting.xp_return
+adaptation-permission adapt.use.adapt.excavation.burrow
+adaptation-permission adapt.use.adapt.excavation.clod_hurler
+adaptation-permission adapt.use.adapt.excavation.drop_to_inventory
+adaptation-permission adapt.use.adapt.excavation.earth_mover
+adaptation-permission adapt.use.adapt.excavation.grave_digger
+adaptation-permission adapt.use.adapt.excavation.haste
+adaptation-permission adapt.use.adapt.excavation.mudlark
+adaptation-permission adapt.use.adapt.excavation.omnitool
+adaptation-permission adapt.use.adapt.excavation.seismic_ping
+adaptation-permission adapt.use.adapt.excavation.soft_fall
+adaptation-permission adapt.use.adapt.excavation.spelunker
+adaptation-permission adapt.use.adapt.excavation.treasure_hunter
+adaptation-permission adapt.use.adapt.excavation.tunneler
+adaptation-permission adapt.use.adapt.golem.angler_core
+adaptation-permission adapt.use.adapt.golem.animus_binding
+adaptation-permission adapt.use.adapt.golem.bone_frame
+adaptation-permission adapt.use.adapt.golem.breaker_core
+adaptation-permission adapt.use.adapt.golem.copper_frame
+adaptation-permission adapt.use.adapt.golem.frost_frame
+adaptation-permission adapt.use.adapt.golem.gatherer_core
+adaptation-permission adapt.use.adapt.golem.guardian_core
+adaptation-permission adapt.use.adapt.golem.harvester_core
+adaptation-permission adapt.use.adapt.golem.iron_frame
+adaptation-permission adapt.use.adapt.golem.lumber_core
+adaptation-permission adapt.use.adapt.golem.masterwork
+adaptation-permission adapt.use.adapt.golem.mending
+adaptation-permission adapt.use.adapt.golem.node_weaving
+adaptation-permission adapt.use.adapt.golem.overseer
+adaptation-permission adapt.use.adapt.golem.rancher_core
+adaptation-permission adapt.use.adapt.golem.runic_augments
+adaptation-permission adapt.use.adapt.golem.sorter_core
+adaptation-permission adapt.use.adapt.golem.stasis
+adaptation-permission adapt.use.adapt.herbalism.bee_shepherd
+adaptation-permission adapt.use.adapt.herbalism.cobweb
+adaptation-permission adapt.use.adapt.herbalism.compost_cascade
+adaptation-permission adapt.use.adapt.herbalism.drop_to_inventory
+adaptation-permission adapt.use.adapt.herbalism.growth_aura
+adaptation-permission adapt.use.adapt.herbalism.hippo
+adaptation-permission adapt.use.adapt.herbalism.hungry_shield
+adaptation-permission adapt.use.adapt.herbalism.luck
+adaptation-permission adapt.use.adapt.herbalism.mushroom_blocks
+adaptation-permission adapt.use.adapt.herbalism.myconid
+adaptation-permission adapt.use.adapt.herbalism.replant
+adaptation-permission adapt.use.adapt.herbalism.rooted_footing
+adaptation-permission adapt.use.adapt.herbalism.seed_sower
+adaptation-permission adapt.use.adapt.herbalism.spore_bloom
+adaptation-permission adapt.use.adapt.herbalism.terralid
+adaptation-permission adapt.use.adapt.hunter.adrenaline
+adaptation-permission adapt.use.adapt.hunter.big_game
+adaptation-permission adapt.use.adapt.hunter.blood_trail
+adaptation-permission adapt.use.adapt.hunter.drop_to_inventory
+adaptation-permission adapt.use.adapt.hunter.invis
+adaptation-permission adapt.use.adapt.hunter.jumpboost
+adaptation-permission adapt.use.adapt.hunter.luck
+adaptation-permission adapt.use.adapt.hunter.predator_focus
+adaptation-permission adapt.use.adapt.hunter.regen
+adaptation-permission adapt.use.adapt.hunter.resistance
+adaptation-permission adapt.use.adapt.hunter.snare_line
+adaptation-permission adapt.use.adapt.hunter.speed
+adaptation-permission adapt.use.adapt.hunter.strength
+adaptation-permission adapt.use.adapt.hunter.trophy_skinner
+adaptation-permission adapt.use.adapt.kinetics.breachwright
+adaptation-permission adapt.use.adapt.kinetics.charge_lance
+adaptation-permission adapt.use.adapt.kinetics.dead_zone
+adaptation-permission adapt.use.adapt.kinetics.heavy_frame
+adaptation-permission adapt.use.adapt.kinetics.impale_pin
+adaptation-permission adapt.use.adapt.kinetics.lunge_conductor
+adaptation-permission adapt.use.adapt.kinetics.mass_shift
+adaptation-permission adapt.use.adapt.kinetics.meteor_cadence
+adaptation-permission adapt.use.adapt.kinetics.moon_jump
+adaptation-permission adapt.use.adapt.kinetics.mounted_shock
+adaptation-permission adapt.use.adapt.kinetics.phalanx_reach
+adaptation-permission adapt.use.adapt.kinetics.quake_guard
+adaptation-permission adapt.use.adapt.kinetics.rebound_anvil
+adaptation-permission adapt.use.adapt.kinetics.rubber_soul
+adaptation-permission adapt.use.adapt.kinetics.soft_catch
+adaptation-permission adapt.use.adapt.kinetics.surface_skate
+adaptation-permission adapt.use.adapt.kinetics.terminal_toggle
+adaptation-permission adapt.use.adapt.kinetics.windburst
+adaptation-permission adapt.use.adapt.nether.ashwalker
+adaptation-permission adapt.use.adapt.nether.blaze_leech
+adaptation-permission adapt.use.adapt.nether.crimson_feast
+adaptation-permission adapt.use.adapt.nether.fire_resist
+adaptation-permission adapt.use.adapt.nether.ghast_ward
+adaptation-permission adapt.use.adapt.nether.lava_walker
+adaptation-permission adapt.use.adapt.nether.magma_skin
+adaptation-permission adapt.use.adapt.nether.netherrack_mason
+adaptation-permission adapt.use.adapt.nether.piglin_broker
+adaptation-permission adapt.use.adapt.nether.skull_toss
+adaptation-permission adapt.use.adapt.nether.soul_strider
+adaptation-permission adapt.use.adapt.nether.strider_bond
+adaptation-permission adapt.use.adapt.nether.wither_harvest
+adaptation-permission adapt.use.adapt.nether.wither_resist
+adaptation-permission adapt.use.adapt.pickaxe.autosmelt
+adaptation-permission adapt.use.adapt.pickaxe.chisel
+adaptation-permission adapt.use.adapt.pickaxe.deep_core
+adaptation-permission adapt.use.adapt.pickaxe.drop_to_inventory
+adaptation-permission adapt.use.adapt.pickaxe.gem_polish
+adaptation-permission adapt.use.adapt.pickaxe.obsidian_rush
+adaptation-permission adapt.use.adapt.pickaxe.quarry_sense
+adaptation-permission adapt.use.adapt.pickaxe.repair_rhythm
+adaptation-permission adapt.use.adapt.pickaxe.silk_spawner
+adaptation-permission adapt.use.adapt.pickaxe.stone_skin
+adaptation-permission adapt.use.adapt.pickaxe.tunnel_bore
+adaptation-permission adapt.use.adapt.pickaxe.unbreakable_pact
+adaptation-permission adapt.use.adapt.pickaxe.veinminer
+adaptation-permission adapt.use.adapt.ranged.fetch_shot
+adaptation-permission adapt.use.adapt.ranged.floaters
+adaptation-permission adapt.use.adapt.ranged.force
+adaptation-permission adapt.use.adapt.ranged.heartseeker
+adaptation-permission adapt.use.adapt.ranged.heavy_draw
+adaptation-permission adapt.use.adapt.ranged.lunge_shot
+adaptation-permission adapt.use.adapt.ranged.piercing
+adaptation-permission adapt.use.adapt.ranged.pinning_shot
+adaptation-permission adapt.use.adapt.ranged.recovery
+adaptation-permission adapt.use.adapt.ranged.ricochet_bolt
+adaptation-permission adapt.use.adapt.ranged.trajectory_sight
+adaptation-permission adapt.use.adapt.ranged.webshot
+adaptation-permission adapt.use.adapt.rift.access
+adaptation-permission adapt.use.adapt.rift.blink
+adaptation-permission adapt.use.adapt.rift.conduit
+adaptation-permission adapt.use.adapt.rift.descent
+adaptation-permission adapt.use.adapt.rift.ender_taglock
+adaptation-permission adapt.use.adapt.rift.enderchest
+adaptation-permission adapt.use.adapt.rift.gate
+adaptation-permission adapt.use.adapt.rift.inflated_pocket_dimension
+adaptation-permission adapt.use.adapt.rift.pearl_rebound
+adaptation-permission adapt.use.adapt.rift.resist
+adaptation-permission adapt.use.adapt.rift.visage
+adaptation-permission adapt.use.adapt.rift.void_magnet
+adaptation-permission adapt.use.adapt.rift.void_skin
+adaptation-permission adapt.use.adapt.seaborne.brine_skin
+adaptation-permission adapt.use.adapt.seaborne.coral_gardener
+adaptation-permission adapt.use.adapt.seaborne.deep_salvager
+adaptation-permission adapt.use.adapt.seaborne.fish_whisperer
+adaptation-permission adapt.use.adapt.seaborne.fishers_fantasy
+adaptation-permission adapt.use.adapt.seaborne.hydro_jet
+adaptation-permission adapt.use.adapt.seaborne.ink_veil
+adaptation-permission adapt.use.adapt.seaborne.oxygen
+adaptation-permission adapt.use.adapt.seaborne.pressure_diver
+adaptation-permission adapt.use.adapt.seaborne.rain_fed
+adaptation-permission adapt.use.adapt.seaborne.speed
+adaptation-permission adapt.use.adapt.seaborne.storm_strike
+adaptation-permission adapt.use.adapt.seaborne.tidecaller
+adaptation-permission adapt.use.adapt.seaborne.trident_mastery
+adaptation-permission adapt.use.adapt.seaborne.turtles_mining_speed
+adaptation-permission adapt.use.adapt.stealth.assassinate
+adaptation-permission adapt.use.adapt.stealth.cutpurse
+adaptation-permission adapt.use.adapt.stealth.decoy_swap
+adaptation-permission adapt.use.adapt.stealth.enderveil
+adaptation-permission adapt.use.adapt.stealth.ghost_armor
+adaptation-permission adapt.use.adapt.stealth.shadow_decoy
+adaptation-permission adapt.use.adapt.stealth.shadowmeld
+adaptation-permission adapt.use.adapt.stealth.silent_step
+adaptation-permission adapt.use.adapt.stealth.smoke_pellet
+adaptation-permission adapt.use.adapt.stealth.snatch
+adaptation-permission adapt.use.adapt.stealth.speed
+adaptation-permission adapt.use.adapt.stealth.trap_sense
+adaptation-permission adapt.use.adapt.stealth.umbral_recovery
+adaptation-permission adapt.use.adapt.stealth.vision
+adaptation-permission adapt.use.adapt.sword.blade_flow
+adaptation-permission adapt.use.adapt.sword.bloody_blade
+adaptation-permission adapt.use.adapt.sword.crescent_guard
+adaptation-permission adapt.use.adapt.sword.crimson_cyclone
+adaptation-permission adapt.use.adapt.sword.dual_wield
+adaptation-permission adapt.use.adapt.sword.duelists_focus
+adaptation-permission adapt.use.adapt.sword.executioners_edge
+adaptation-permission adapt.use.adapt.sword.hamstring
+adaptation-permission adapt.use.adapt.sword.heirloom_edge
+adaptation-permission adapt.use.adapt.sword.lunge_strike
+adaptation-permission adapt.use.adapt.sword.machete
+adaptation-permission adapt.use.adapt.sword.poison_blade
+adaptation-permission adapt.use.adapt.sword.riposte_window
+adaptation-permission adapt.use.adapt.sword.whetstone_ritual
+adaptation-permission adapt.use.adapt.tame.alphas_command
+adaptation-permission adapt.use.adapt.tame.battle_bond
+adaptation-permission adapt.use.adapt.tame.beast_recall
+adaptation-permission adapt.use.adapt.tame.damage
+adaptation-permission adapt.use.adapt.tame.fetch
+adaptation-permission adapt.use.adapt.tame.guardian_instinct
+adaptation-permission adapt.use.adapt.tame.health
+adaptation-permission adapt.use.adapt.tame.health_regeneration
+adaptation-permission adapt.use.adapt.tame.last_breath
+adaptation-permission adapt.use.adapt.tame.mounted_tactics
+adaptation-permission adapt.use.adapt.tame.pack_leader_aura
+adaptation-permission adapt.use.adapt.tame.shared_pain
+adaptation-permission adapt.use.adapt.tame.stable_hand
+adaptation-permission adapt.use.adapt.tame.wild_empathy
+adaptation-permission adapt.use.adapt.tragoul.blood_pact
+adaptation-permission adapt.use.adapt.tragoul.bone_harvest
+adaptation-permission adapt.use.adapt.tragoul.corpse_explosion
+adaptation-permission adapt.use.adapt.tragoul.curse_of_frailty
+adaptation-permission adapt.use.adapt.tragoul.death_sense
+adaptation-permission adapt.use.adapt.tragoul.globe
+adaptation-permission adapt.use.adapt.tragoul.healing
+adaptation-permission adapt.use.adapt.tragoul.lance
+adaptation-permission adapt.use.adapt.tragoul.last_rites
+adaptation-permission adapt.use.adapt.tragoul.marrow_armor
+adaptation-permission adapt.use.adapt.tragoul.plague_bearer
+adaptation-permission adapt.use.adapt.tragoul.skeletal_servant
+adaptation-permission adapt.use.adapt.tragoul.soul_siphon
+adaptation-permission adapt.use.adapt.tragoul.thorns
+adaptation-permission adapt.use.adapt.unarmed.battering_charge
+adaptation-permission adapt.use.adapt.unarmed.combo_chain
+adaptation-permission adapt.use.adapt.unarmed.disarm
+adaptation-permission adapt.use.adapt.unarmed.glass_cannon
+adaptation-permission adapt.use.adapt.unarmed.grapple
+adaptation-permission adapt.use.adapt.unarmed.iron_fists
+adaptation-permission adapt.use.adapt.unarmed.meditation
+adaptation-permission adapt.use.adapt.unarmed.power
+adaptation-permission adapt.use.adapt.unarmed.pressure_point
+adaptation-permission adapt.use.adapt.unarmed.second_wind
+adaptation-permission adapt.use.adapt.unarmed.shockwave_clap
+adaptation-permission adapt.use.adapt.unarmed.sucker_punch
+adaptation-text adapt.agility.air_dash
+adaptation-text adapt.agility.armor_up
+adaptation-text adapt.agility.cat_reflexes
+adaptation-text adapt.agility.featherfoot
+adaptation-text adapt.agility.kip_up
+adaptation-text adapt.agility.ladder_slide
+adaptation-text adapt.agility.marathoner
+adaptation-text adapt.agility.roll_landing
+adaptation-text adapt.agility.slipstream_slide
+adaptation-text adapt.agility.super_jump
+adaptation-text adapt.agility.vault
+adaptation-text adapt.agility.wall_jump
+adaptation-text adapt.agility.wind_up
+adaptation-text adapt.architect.brickbat
+adaptation-text adapt.architect.chalk_line
+adaptation-text adapt.architect.demolition
+adaptation-text adapt.architect.elevator
+adaptation-text adapt.architect.foundation
+adaptation-text adapt.architect.glass
+adaptation-text adapt.architect.placement
+adaptation-text adapt.architect.scaffolder
+adaptation-text adapt.architect.smart_shape
+adaptation-text adapt.architect.steady_hands
+adaptation-text adapt.architect.stonecutter_savant
+adaptation-text adapt.architect.supply_line
+adaptation-text adapt.architect.wireless_redstone
+adaptation-text adapt.axe.bark_hide
+adaptation-text adapt.axe.chop
+adaptation-text adapt.axe.cleave
+adaptation-text adapt.axe.drop_to_inventory
+adaptation-text adapt.axe.ground_smash
+adaptation-text adapt.axe.leaf_miner
+adaptation-text adapt.axe.log_swap
+adaptation-text adapt.axe.shield_splitter
+adaptation-text adapt.axe.sunder
+adaptation-text adapt.axe.throwing_axe
+adaptation-text adapt.axe.wood_miner
+adaptation-text adapt.blocking.bastion_stance
+adaptation-text adapt.blocking.bulwark_bash
+adaptation-text adapt.blocking.chain_armorer
+adaptation-text adapt.blocking.counter_guard
+adaptation-text adapt.blocking.horse_armorer
+adaptation-text adapt.blocking.interpose
+adaptation-text adapt.blocking.mirror_block
+adaptation-text adapt.blocking.multi_armor
+adaptation-text adapt.blocking.perfect_guard
+adaptation-text adapt.blocking.phalanx_crafter
+adaptation-text adapt.blocking.saddle_crafter
+adaptation-text adapt.blocking.shield_wall
+adaptation-text adapt.blocking.shieldbearers_resolve
+adaptation-text adapt.blocking.tempered_guard
+adaptation-text adapt.brewing.absorption
+adaptation-text adapt.brewing.blindness
+adaptation-text adapt.brewing.darkness
+adaptation-text adapt.brewing.decay
+adaptation-text adapt.brewing.fatigue
+adaptation-text adapt.brewing.haste
+adaptation-text adapt.brewing.health_boost
+adaptation-text adapt.brewing.hunger
+adaptation-text adapt.brewing.lingering
+adaptation-text adapt.brewing.nausea
+adaptation-text adapt.brewing.resistance
+adaptation-text adapt.brewing.saturation
+adaptation-text adapt.brewing.super_heated
+adaptation-text adapt.chronos.aberrant_touch
+adaptation-text adapt.chronos.accelerate
+adaptation-text adapt.chronos.borrowed_time
+adaptation-text adapt.chronos.deja_vu
+adaptation-text adapt.chronos.hourglass_guard
+adaptation-text adapt.chronos.instant_recall
+adaptation-text adapt.chronos.overtime
+adaptation-text adapt.chronos.pocket_watch
+adaptation-text adapt.chronos.rewind
+adaptation-text adapt.chronos.stasis_field
+adaptation-text adapt.chronos.temporal_echo
+adaptation-text adapt.chronos.time_bomb
+adaptation-text adapt.chronos.time_in_a_bottle
+adaptation-text adapt.crafting.backpacks
+adaptation-text adapt.crafting.bulk_artisan
+adaptation-text adapt.crafting.compactor
+adaptation-text adapt.crafting.deconstruction
+adaptation-text adapt.crafting.leather
+adaptation-text adapt.crafting.masterwork
+adaptation-text adapt.crafting.provisioner
+adaptation-text adapt.crafting.reconstruction
+adaptation-text adapt.crafting.skulls
+adaptation-text adapt.crafting.stations
+adaptation-text adapt.crafting.thrifty_hands
+adaptation-text adapt.crafting.tinkerer
+adaptation-text adapt.crafting.xp
+adaptation-text adapt.discovery.archaeologist
+adaptation-text adapt.discovery.armor
+adaptation-text adapt.discovery.better_mending
+adaptation-text adapt.discovery.cartographer_pulse
+adaptation-text adapt.discovery.field_notes
+adaptation-text adapt.discovery.insight
+adaptation-text adapt.discovery.keen_eye
+adaptation-text adapt.discovery.polymath
+adaptation-text adapt.discovery.relic_appraiser
+adaptation-text adapt.discovery.resist
+adaptation-text adapt.discovery.sixth_sense
+adaptation-text adapt.discovery.trailblazer
+adaptation-text adapt.discovery.unity
+adaptation-text adapt.discovery.villager
+adaptation-text adapt.enchanting.anvil_savant
+adaptation-text adapt.enchanting.arcane_siphon
+adaptation-text adapt.enchanting.bookshelf_attunement
+adaptation-text adapt.enchanting.curse_cleansing
+adaptation-text adapt.enchanting.echo_of_knowledge
+adaptation-text adapt.enchanting.grindstone_recovery
+adaptation-text adapt.enchanting.infusion_transfer
+adaptation-text adapt.enchanting.lapis_return
+adaptation-text adapt.enchanting.offer_reroll
+adaptation-text adapt.enchanting.quick_enchant
+adaptation-text adapt.enchanting.return
+adaptation-text adapt.enchanting.rune_sight
+adaptation-text adapt.enchanting.soul_link
+adaptation-text adapt.enchanting.tome_rebinding
+adaptation-text adapt.excavation.burrow
+adaptation-text adapt.excavation.clod_hurler
+adaptation-text adapt.excavation.drop_to_inventory
+adaptation-text adapt.excavation.earth_mover
+adaptation-text adapt.excavation.grave_digger
+adaptation-text adapt.excavation.haste
+adaptation-text adapt.excavation.mudlark
+adaptation-text adapt.excavation.omni_tool
+adaptation-text adapt.excavation.seismic_ping
+adaptation-text adapt.excavation.soft_fall
+adaptation-text adapt.excavation.spelunker
+adaptation-text adapt.excavation.treasure_hunter
+adaptation-text adapt.excavation.tunneler
+adaptation-text adapt.golemancy.angler_core
+adaptation-text adapt.golemancy.animus_binding
+adaptation-text adapt.golemancy.bone_frame
+adaptation-text adapt.golemancy.breaker_core
+adaptation-text adapt.golemancy.copper_frame
+adaptation-text adapt.golemancy.frost_frame
+adaptation-text adapt.golemancy.gatherer_core
+adaptation-text adapt.golemancy.guardian_core
+adaptation-text adapt.golemancy.harvester_core
+adaptation-text adapt.golemancy.iron_frame
+adaptation-text adapt.golemancy.lumber_core
+adaptation-text adapt.golemancy.masterwork
+adaptation-text adapt.golemancy.mending
+adaptation-text adapt.golemancy.node_weaving
+adaptation-text adapt.golemancy.overseer
+adaptation-text adapt.golemancy.rancher_core
+adaptation-text adapt.golemancy.runic_augments
+adaptation-text adapt.golemancy.sorter_core
+adaptation-text adapt.golemancy.stasis
+adaptation-text adapt.herbalism.bee_shepherd
+adaptation-text adapt.herbalism.cobweb
+adaptation-text adapt.herbalism.compost_cascade
+adaptation-text adapt.herbalism.drop_to_inventory
+adaptation-text adapt.herbalism.growth_aura
+adaptation-text adapt.herbalism.hippo
+adaptation-text adapt.herbalism.hungry_shield
+adaptation-text adapt.herbalism.luck
+adaptation-text adapt.herbalism.mushroom_blocks
+adaptation-text adapt.herbalism.myconid
+adaptation-text adapt.herbalism.replant
+adaptation-text adapt.herbalism.rooted_footing
+adaptation-text adapt.herbalism.seed_sower
+adaptation-text adapt.herbalism.spore_bloom
+adaptation-text adapt.herbalism.terralid
+adaptation-text adapt.hunter.adrenaline
+adaptation-text adapt.hunter.big_game
+adaptation-text adapt.hunter.blood_trail
+adaptation-text adapt.hunter.drop_to_inventory
+adaptation-text adapt.hunter.invisibility
+adaptation-text adapt.hunter.jump_boost
+adaptation-text adapt.hunter.luck
+adaptation-text adapt.hunter.predator_focus
+adaptation-text adapt.hunter.regen
+adaptation-text adapt.hunter.resistance
+adaptation-text adapt.hunter.snare_line
+adaptation-text adapt.hunter.speed
+adaptation-text adapt.hunter.strength
+adaptation-text adapt.hunter.trophy_skinner
+adaptation-text adapt.kinetics.breachwright
+adaptation-text adapt.kinetics.charge_lance
+adaptation-text adapt.kinetics.dead_zone
+adaptation-text adapt.kinetics.heavy_frame
+adaptation-text adapt.kinetics.impale_pin
+adaptation-text adapt.kinetics.lunge_conductor
+adaptation-text adapt.kinetics.mass_shift
+adaptation-text adapt.kinetics.meteor_cadence
+adaptation-text adapt.kinetics.moon_jump
+adaptation-text adapt.kinetics.mounted_shock
+adaptation-text adapt.kinetics.phalanx_reach
+adaptation-text adapt.kinetics.quake_guard
+adaptation-text adapt.kinetics.rebound_anvil
+adaptation-text adapt.kinetics.rubber_soul
+adaptation-text adapt.kinetics.soft_catch
+adaptation-text adapt.kinetics.surface_skate
+adaptation-text adapt.kinetics.terminal_toggle
+adaptation-text adapt.kinetics.windburst
+adaptation-text adapt.nether.ashwalker
+adaptation-text adapt.nether.blaze_leech
+adaptation-text adapt.nether.crimson_feast
+adaptation-text adapt.nether.fire_resist
+adaptation-text adapt.nether.ghast_ward
+adaptation-text adapt.nether.lava_walker
+adaptation-text adapt.nether.magma_skin
+adaptation-text adapt.nether.netherrack_mason
+adaptation-text adapt.nether.piglin_broker
+adaptation-text adapt.nether.skull_toss
+adaptation-text adapt.nether.soul_strider
+adaptation-text adapt.nether.strider_bond
+adaptation-text adapt.nether.wither_harvest
+adaptation-text adapt.nether.wither_resist
+adaptation-text adapt.pickaxe.auto_smelt
+adaptation-text adapt.pickaxe.chisel
+adaptation-text adapt.pickaxe.deep_core
+adaptation-text adapt.pickaxe.drop_to_inventory
+adaptation-text adapt.pickaxe.gem_polish
+adaptation-text adapt.pickaxe.obsidian_rush
+adaptation-text adapt.pickaxe.quarry_sense
+adaptation-text adapt.pickaxe.repair_rhythm
+adaptation-text adapt.pickaxe.silk_spawner
+adaptation-text adapt.pickaxe.stone_skin
+adaptation-text adapt.pickaxe.tunnel_bore
+adaptation-text adapt.pickaxe.unbreakable_pact
+adaptation-text adapt.pickaxe.vein_miner
+adaptation-text adapt.ranged.arrow_piercing
+adaptation-text adapt.ranged.arrow_recovery
+adaptation-text adapt.ranged.fetch_shot
+adaptation-text adapt.ranged.floaters
+adaptation-text adapt.ranged.force_shot
+adaptation-text adapt.ranged.heartseeker
+adaptation-text adapt.ranged.heavy_draw
+adaptation-text adapt.ranged.lunge_shot
+adaptation-text adapt.ranged.pinning_shot
+adaptation-text adapt.ranged.ricochet_bolt
+adaptation-text adapt.ranged.trajectory_sight
+adaptation-text adapt.ranged.web_shot
+adaptation-text adapt.rift.blink
+adaptation-text adapt.rift.chest
+adaptation-text adapt.rift.conduit
+adaptation-text adapt.rift.descent
+adaptation-text adapt.rift.ender_taglock
+adaptation-text adapt.rift.gate
+adaptation-text adapt.rift.inflated_pocket_dimension
+adaptation-text adapt.rift.pearl_rebound
+adaptation-text adapt.rift.remote_access
+adaptation-text adapt.rift.resist
+adaptation-text adapt.rift.visage
+adaptation-text adapt.rift.void_magnet
+adaptation-text adapt.rift.void_skin
+adaptation-text adapt.seaborn.brine_skin
+adaptation-text adapt.seaborn.coral_gardener
+adaptation-text adapt.seaborn.deep_salvager
+adaptation-text adapt.seaborn.dolphin_grace
+adaptation-text adapt.seaborn.fish_whisperer
+adaptation-text adapt.seaborn.fishers_fantasy
+adaptation-text adapt.seaborn.haste
+adaptation-text adapt.seaborn.hydro_jet
+adaptation-text adapt.seaborn.ink_veil
+adaptation-text adapt.seaborn.oxygen
+adaptation-text adapt.seaborn.rain_fed
+adaptation-text adapt.seaborn.storm_strike
+adaptation-text adapt.seaborn.tidal_ward
+adaptation-text adapt.seaborn.tidecaller
+adaptation-text adapt.seaborn.trident_mastery
+adaptation-text adapt.stealth.assassinate
+adaptation-text adapt.stealth.cutpurse
+adaptation-text adapt.stealth.decoy_swap
+adaptation-text adapt.stealth.ender_veil
+adaptation-text adapt.stealth.ghost_armor
+adaptation-text adapt.stealth.night_vision
+adaptation-text adapt.stealth.shadow_decoy
+adaptation-text adapt.stealth.shadowmeld
+adaptation-text adapt.stealth.silent_step
+adaptation-text adapt.stealth.smoke_pellet
+adaptation-text adapt.stealth.snatch
+adaptation-text adapt.stealth.speed
+adaptation-text adapt.stealth.trap_sense
+adaptation-text adapt.stealth.umbral_recovery
+adaptation-text adapt.sword.blade_flow
+adaptation-text adapt.sword.bloody_blade
+adaptation-text adapt.sword.crescent_guard
+adaptation-text adapt.sword.crimson_cyclone
+adaptation-text adapt.sword.dual_wield
+adaptation-text adapt.sword.duelists_focus
+adaptation-text adapt.sword.executioners_edge
+adaptation-text adapt.sword.hamstring
+adaptation-text adapt.sword.heirloom_edge
+adaptation-text adapt.sword.lunge_strike
+adaptation-text adapt.sword.machete
+adaptation-text adapt.sword.poisoned_blade
+adaptation-text adapt.sword.riposte_window
+adaptation-text adapt.sword.whetstone_ritual
+adaptation-text adapt.taming.alphas_command
+adaptation-text adapt.taming.battle_bond
+adaptation-text adapt.taming.beast_recall
+adaptation-text adapt.taming.damage
+adaptation-text adapt.taming.fetch
+adaptation-text adapt.taming.guardian_instinct
+adaptation-text adapt.taming.health
+adaptation-text adapt.taming.last_breath
+adaptation-text adapt.taming.mounted_tactics
+adaptation-text adapt.taming.pack_leader_aura
+adaptation-text adapt.taming.regeneration
+adaptation-text adapt.taming.shared_pain
+adaptation-text adapt.taming.stable_hand
+adaptation-text adapt.taming.wild_empathy
+adaptation-text adapt.tragoul.blood_pact
+adaptation-text adapt.tragoul.bone_harvest
+adaptation-text adapt.tragoul.corpse_explosion
+adaptation-text adapt.tragoul.curse_of_frailty
+adaptation-text adapt.tragoul.death_sense
+adaptation-text adapt.tragoul.globe
+adaptation-text adapt.tragoul.healing
+adaptation-text adapt.tragoul.lance
+adaptation-text adapt.tragoul.last_rites
+adaptation-text adapt.tragoul.marrow_armor
+adaptation-text adapt.tragoul.plague_bearer
+adaptation-text adapt.tragoul.skeletal_servant
+adaptation-text adapt.tragoul.soul_siphon
+adaptation-text adapt.tragoul.thorns
+adaptation-text adapt.unarmed.battering_charge
+adaptation-text adapt.unarmed.combo_chain
+adaptation-text adapt.unarmed.disarm
+adaptation-text adapt.unarmed.glass_cannon
+adaptation-text adapt.unarmed.grapple
+adaptation-text adapt.unarmed.iron_fists
+adaptation-text adapt.unarmed.meditation
+adaptation-text adapt.unarmed.power
+adaptation-text adapt.unarmed.pressure_point
+adaptation-text adapt.unarmed.second_wind
+adaptation-text adapt.unarmed.shockwave_clap
+adaptation-text adapt.unarmed.sucker_punch
+brewing adapt:brewing/absorption adapt:brewing-absorption-1
+brewing adapt:brewing/absorption adapt:brewing-absorption-2
+brewing adapt:brewing/blindness adapt:brewing-blindness-1
+brewing adapt:brewing/blindness adapt:brewing-blindness-2
+brewing adapt:brewing/darkness adapt:brewing-darkness
+brewing adapt:brewing/decay adapt:brewing-decay-1
+brewing adapt:brewing/decay adapt:brewing-decay-2
+brewing adapt:brewing/fatigue adapt:brewing-fatigue-1
+brewing adapt:brewing/fatigue adapt:brewing-fatigue-2
+brewing adapt:brewing/haste adapt:brewing-haste-1
+brewing adapt:brewing/haste adapt:brewing-haste-2
+brewing adapt:brewing/healthboost adapt:brewing-healthboost-1
+brewing adapt:brewing/healthboost adapt:brewing-healthboost-2
+brewing adapt:brewing/hunger adapt:brewing-hunger-1
+brewing adapt:brewing/hunger adapt:brewing-hunger-2
+brewing adapt:brewing/nausea adapt:brewing-nausea-1
+brewing adapt:brewing/nausea adapt:brewing-nausea-2
+brewing adapt:brewing/resistance adapt:brewing-resistance-1
+brewing adapt:brewing/resistance adapt:brewing-resistance-2
+brewing adapt:brewing/saturation adapt:brewing-saturation-1
+brewing adapt:brewing/saturation adapt:brewing-saturation-2
+catalog-item adapt:agility/tool/grappling_line
+catalog-item adapt:architect/tool/masons_template
+catalog-item adapt:backpack
+catalog-item adapt:bound_ender_pearl
+catalog-item adapt:bound_eye_of_ender
+catalog-item adapt:bound_redstone_torch
+catalog-item adapt:bound_snowball
+catalog-item adapt:brewing/tool/bandolier
+catalog-item adapt:chalk
+catalog-item adapt:chrono_time_bomb
+catalog-item adapt:chrono_time_bottle
+catalog-item adapt:crafting/tool/artisans_ledger
+catalog-item adapt:discovery/tool/explorers_atlas
+catalog-item adapt:excavation/tool/grading_stakes
+catalog-item adapt:golemancy
+catalog-item adapt:herbalism/tool/scarecrow
+catalog-item adapt:hunter/tool/trackers_compass
+catalog-item adapt:pickaxe/tool/prospectors_charge
+catalog-item adapt:ranged/tool/quiver
+catalog-item adapt:ranged/tool/ricochet_arrow
+catalog-item adapt:ranged/tool/snare_arrow
+catalog-item adapt:rift/tool/anchor
+catalog-item adapt:rift/tool/eye
+catalog-item adapt:seaborne/tool/tide_shrine
+catalog-item adapt:snare_line
+catalog-item adapt:stealth/tool/smoke_pellet
+catalog-item adapt:swords/tool/whetstone
+catalog-item adapt:taming/tool/whistle
+item adapt:architect/chalk_line adapt:chalk
+item adapt:architect/wireless_redstone adapt:bound_redstone_torch
+item adapt:chronos/time_bomb adapt:chrono_time_bomb
+item adapt:chronos/time_bottle adapt:chrono_time_bottle
+item adapt:crafting/backpacks adapt:backpack
+item adapt:golem/animus_binding adapt:golemancy
+item adapt:hunter/snare_line adapt:snare_line
+item adapt:ranged/webshot adapt:bound_snowball
+item adapt:rift/access adapt:bound_ender_pearl
+item adapt:rift/gate adapt:bound_eye_of_ender
+recipe adapt:architect/chalk_line adapt:architect-chalk-arc-bow
+recipe adapt:architect/chalk_line adapt:architect-chalk-compass
+recipe adapt:architect/chalk_line adapt:architect-chalk-polyline
+recipe adapt:architect/chalk_line adapt:architect-chalk-straightedge
+recipe adapt:architect/elevator adapt:elevator
+recipe adapt:architect/wireless_redstone adapt:remote-redstone-torch
+recipe adapt:axe/logswap adapt:axe-swapacaciabirch
+recipe adapt:axe/logswap adapt:axe-swapacaciacherry
+recipe adapt:axe/logswap adapt:axe-swapacaciadarkoak
+recipe adapt:axe/logswap adapt:axe-swapacaciajungle
+recipe adapt:axe/logswap adapt:axe-swapacaciamangrove
+recipe adapt:axe/logswap adapt:axe-swapacaciaoak
+recipe adapt:axe/logswap adapt:axe-swapacaciapaleoak
+recipe adapt:axe/logswap adapt:axe-swapacaciaspruce
+recipe adapt:axe/logswap adapt:axe-swapbirchacacia
+recipe adapt:axe/logswap adapt:axe-swapbirchcherry
+recipe adapt:axe/logswap adapt:axe-swapbirchdarkoak
+recipe adapt:axe/logswap adapt:axe-swapbirchjungle
+recipe adapt:axe/logswap adapt:axe-swapbirchmangrove
+recipe adapt:axe/logswap adapt:axe-swapbirchoak
+recipe adapt:axe/logswap adapt:axe-swapbirchpaleoak
+recipe adapt:axe/logswap adapt:axe-swapbirchspruce
+recipe adapt:axe/logswap adapt:axe-swapcherryacacia
+recipe adapt:axe/logswap adapt:axe-swapcherrybirch
+recipe adapt:axe/logswap adapt:axe-swapcherrydarkoak
+recipe adapt:axe/logswap adapt:axe-swapcherryjungle
+recipe adapt:axe/logswap adapt:axe-swapcherryoak
+recipe adapt:axe/logswap adapt:axe-swapcherrypaleoak
+recipe adapt:axe/logswap adapt:axe-swapcherryspruce
+recipe adapt:axe/logswap adapt:axe-swapdarkoakacacia
+recipe adapt:axe/logswap adapt:axe-swapdarkoakbirch
+recipe adapt:axe/logswap adapt:axe-swapdarkoakcherry
+recipe adapt:axe/logswap adapt:axe-swapdarkoakjungle
+recipe adapt:axe/logswap adapt:axe-swapdarkoakmangrove
+recipe adapt:axe/logswap adapt:axe-swapdarkoakoak
+recipe adapt:axe/logswap adapt:axe-swapdarkoakpaleoak
+recipe adapt:axe/logswap adapt:axe-swapdarkoakspruce
+recipe adapt:axe/logswap adapt:axe-swapjungleacacia
+recipe adapt:axe/logswap adapt:axe-swapjunglebirch
+recipe adapt:axe/logswap adapt:axe-swapjunglecherry
+recipe adapt:axe/logswap adapt:axe-swapjungledarkoak
+recipe adapt:axe/logswap adapt:axe-swapjunglemangrove
+recipe adapt:axe/logswap adapt:axe-swapjungleoak
+recipe adapt:axe/logswap adapt:axe-swapjunglepaleoak
+recipe adapt:axe/logswap adapt:axe-swapjunglespruce
+recipe adapt:axe/logswap adapt:axe-swapmangroveacacia
+recipe adapt:axe/logswap adapt:axe-swapmangrovebirch
+recipe adapt:axe/logswap adapt:axe-swapmangrovecherry
+recipe adapt:axe/logswap adapt:axe-swapmangrovedarkoak
+recipe adapt:axe/logswap adapt:axe-swapmangrovejungle
+recipe adapt:axe/logswap adapt:axe-swapmangroveoak
+recipe adapt:axe/logswap adapt:axe-swapmangrovepaleoak
+recipe adapt:axe/logswap adapt:axe-swapmangrovespruce
+recipe adapt:axe/logswap adapt:axe-swapoakacacia
+recipe adapt:axe/logswap adapt:axe-swapoakbirch
+recipe adapt:axe/logswap adapt:axe-swapoakcherry
+recipe adapt:axe/logswap adapt:axe-swapoakdarkoak
+recipe adapt:axe/logswap adapt:axe-swapoakjungle
+recipe adapt:axe/logswap adapt:axe-swapoakmangrove
+recipe adapt:axe/logswap adapt:axe-swapoakpaleoak
+recipe adapt:axe/logswap adapt:axe-swapoakspruce
+recipe adapt:axe/logswap adapt:axe-swappaleoakacacia
+recipe adapt:axe/logswap adapt:axe-swappaleoakbirch
+recipe adapt:axe/logswap adapt:axe-swappaleoakcherry
+recipe adapt:axe/logswap adapt:axe-swappaleoakdarkoak
+recipe adapt:axe/logswap adapt:axe-swappaleoakjungle
+recipe adapt:axe/logswap adapt:axe-swappaleoakoak
+recipe adapt:axe/logswap adapt:axe-swappaleoakspruce
+recipe adapt:axe/logswap adapt:axe-swapspruceacacia
+recipe adapt:axe/logswap adapt:axe-swapsprucebirch
+recipe adapt:axe/logswap adapt:axe-swapsprucecherry
+recipe adapt:axe/logswap adapt:axe-swapsprucedarkoak
+recipe adapt:axe/logswap adapt:axe-swapsprucejungle
+recipe adapt:axe/logswap adapt:axe-swapsprucemangrove
+recipe adapt:axe/logswap adapt:axe-swapspruceoak
+recipe adapt:axe/logswap adapt:axe-swapsprucepaleoak
+recipe adapt:blocking/chainarmorer adapt:blocking-chainarmorer-boots
+recipe adapt:blocking/chainarmorer adapt:blocking-chainarmorer-chestplate
+recipe adapt:blocking/chainarmorer adapt:blocking-chainarmorer-helmet
+recipe adapt:blocking/chainarmorer adapt:blocking-chainarmorer-leggings
+recipe adapt:blocking/horsearmorer adapt:blocking-horsearmorerdiamond
+recipe adapt:blocking/horsearmorer adapt:blocking-horsearmorergold
+recipe adapt:blocking/horsearmorer adapt:blocking-horsearmoreriron
+recipe adapt:blocking/horsearmorer adapt:blocking-horsearmorerleather
+recipe adapt:blocking/phalanx_crafter adapt:blocking-phalanx-field-shield
+recipe adapt:blocking/phalanx_crafter adapt:blocking-phalanx-netherite-shield
+recipe adapt:blocking/saddlecrafter adapt:blocking-saddlecrafter
+recipe adapt:chronos/time_bomb adapt:chronos-time-bomb
+recipe adapt:chronos/time_bottle adapt:chronos-time-in-a-bottle
+recipe adapt:crafting/backpacks adapt:crafting-backpacks
+recipe adapt:crafting/backpacks adapt:crafting-backpacks-mode
+recipe adapt:crafting/leather adapt:crafting-leather
+recipe adapt:crafting/reconstruction adapt:reconstruction-ancient-debris
+recipe adapt:crafting/reconstruction adapt:reconstruction-coal-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-copper-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-coal-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-copper-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-diamond-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-emerald-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-gold-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-iron-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-lapis-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-deepslate-redstone-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-diamond-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-emerald-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-gold-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-iron-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-lapis-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-nether-gold-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-nether-quartz-ore
+recipe adapt:crafting/reconstruction adapt:reconstruction-redstone-ore
+recipe adapt:crafting/skulls adapt:crafting-creeperhead
+recipe adapt:crafting/skulls adapt:crafting-dragonhead
+recipe adapt:crafting/skulls adapt:crafting-skeletonskull
+recipe adapt:crafting/skulls adapt:crafting-witherskeletonskull
+recipe adapt:crafting/skulls adapt:crafting-zombieskull
+recipe adapt:golem/angler_core adapt:golemancy-angler-core
+recipe adapt:golem/angler_core adapt:golemancy-fishing-node
+recipe adapt:golem/animus_binding adapt:golemancy-blank-core
+recipe adapt:golem/animus_binding adapt:golemancy-crook
+recipe adapt:golem/breaker_core adapt:golemancy-breaker-core
+recipe adapt:golem/breaker_core adapt:golemancy-breaker-node
+recipe adapt:golem/gatherer_core adapt:golemancy-collection-node
+recipe adapt:golem/gatherer_core adapt:golemancy-gatherer-core
+recipe adapt:golem/guardian_core adapt:golemancy-guard-node
+recipe adapt:golem/guardian_core adapt:golemancy-guardian-core
+recipe adapt:golem/harvester_core adapt:golemancy-harvest-node
+recipe adapt:golem/harvester_core adapt:golemancy-harvester-core
+recipe adapt:golem/lumber_core adapt:golemancy-lumber-node
+recipe adapt:golem/node_weaving adapt:golemancy-blank-node
+recipe adapt:golem/node_weaving adapt:golemancy-deposit-node
+recipe adapt:golem/rancher_core adapt:golemancy-pasture-node
+recipe adapt:golem/rancher_core adapt:golemancy-rancher-core
+recipe adapt:golem/runic_augments adapt:golemancy-blank-rune
+recipe adapt:golem/sorter_core adapt:golemancy-filter-node
+recipe adapt:golem/sorter_core adapt:golemancy-input-node
+recipe adapt:golem/sorter_core adapt:golemancy-sorter-core
+recipe adapt:herbalism/cobweb adapt:herbalism-cobwebblock
+recipe adapt:herbalism/mushroom_blocks adapt:herbalism-brownmushblock
+recipe adapt:herbalism/mushroom_blocks adapt:herbalism-mushstembrown
+recipe adapt:herbalism/mushroom_blocks adapt:herbalism-mushstemred
+recipe adapt:herbalism/mushroom_blocks adapt:herbalism-redmushblock
+recipe adapt:herbalism/myconid adapt:herbalism-dirt-myconid
+recipe adapt:herbalism/terralid adapt:herbalism-dirt-terralid
+recipe adapt:hunter/snare_line adapt:hunter-snare
+recipe adapt:ranged/webshot adapt:ranged-web-bomb
+recipe adapt:rift/access adapt:rift-remote-access
+recipe adapt:rift/gate adapt:rift-recall-gate
+skill adapt:agility
+skill adapt:architect
+skill adapt:axes
+skill adapt:blocking
+skill adapt:brewing
+skill adapt:chronos
+skill adapt:crafting
+skill adapt:discovery
+skill adapt:enchanting
+skill adapt:excavation
+skill adapt:golemancy
+skill adapt:herbalism
+skill adapt:hunter
+skill adapt:kinetics
+skill adapt:nether
+skill adapt:pickaxe
+skill adapt:ranged
+skill adapt:rift
+skill adapt:seaborne
+skill adapt:stealth
+skill adapt:swords
+skill adapt:taming
+skill adapt:tragoul
+skill adapt:unarmed
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/air_dash
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/armor_up
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/cat_reflexes
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/featherfoot
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/kip_up
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/ladder_slide
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/marathoner
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/roll_landing
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/slipstream_slide
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/super_jump
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/vault
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/wall_jump
+skill-advancement adapt:agility adapt:adaptation/adapt/agility/wind_up
+skill-advancement adapt:agility adapt:challenge_agility_air_dash_500
+skill-advancement adapt:agility adapt:challenge_agility_air_dash_5k
+skill-advancement adapt:agility adapt:challenge_agility_armor_up_30min
+skill-advancement adapt:agility adapt:challenge_agility_cat_reflexes_100
+skill-advancement adapt:agility adapt:challenge_agility_cat_reflexes_1k
+skill-advancement adapt:agility adapt:challenge_agility_fearless
+skill-advancement adapt:agility adapt:challenge_agility_featherfoot_500
+skill-advancement adapt:agility adapt:challenge_agility_featherfoot_5k
+skill-advancement adapt:agility adapt:challenge_agility_kip_up_100
+skill-advancement adapt:agility adapt:challenge_agility_kip_up_1k
+skill-advancement adapt:agility adapt:challenge_agility_ladder_10k
+skill-advancement adapt:agility adapt:challenge_agility_ladder_500
+skill-advancement adapt:agility adapt:challenge_agility_marathoner_50k
+skill-advancement adapt:agility adapt:challenge_agility_marathoner_5k
+skill-advancement adapt:agility adapt:challenge_agility_parkour_master
+skill-advancement adapt:agility adapt:challenge_agility_roll_100
+skill-advancement adapt:agility adapt:challenge_agility_roll_1000
+skill-advancement adapt:agility adapt:challenge_agility_slipstream_500
+skill-advancement adapt:agility adapt:challenge_agility_slipstream_5k
+skill-advancement adapt:agility adapt:challenge_agility_sneak_500
+skill-advancement adapt:agility adapt:challenge_agility_sneak_5k
+skill-advancement adapt:agility adapt:challenge_agility_super_jump_100
+skill-advancement adapt:agility adapt:challenge_agility_super_jump_5k
+skill-advancement adapt:agility adapt:challenge_agility_swim_10k
+skill-advancement adapt:agility adapt:challenge_agility_swim_1k
+skill-advancement adapt:agility adapt:challenge_agility_vault_250
+skill-advancement adapt:agility adapt:challenge_agility_vault_2500
+skill-advancement adapt:agility adapt:challenge_agility_wall_jump_500
+skill-advancement adapt:agility adapt:challenge_agility_wind_up_10min
+skill-advancement adapt:agility adapt:challenge_fly_10k
+skill-advancement adapt:agility adapt:challenge_fly_1k
+skill-advancement adapt:agility adapt:challenge_move_1k
+skill-advancement adapt:agility adapt:challenge_sprint_dist_50k
+skill-advancement adapt:agility adapt:challenge_sprint_dist_5k
+skill-advancement adapt:agility adapt:challenge_sprint_marathon
+skill-advancement adapt:agility adapt:skill/adapt/agility
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/brickbat
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/chalk_line
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/demolition
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/elevator
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/foundation
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/glass
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/placement
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/scaffolder
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/smart_shape
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/steady_hands
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/stonecutter_savant
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/supply_line
+skill-advancement adapt:architect adapt:adaptation/adapt/architect/wireless_redstone
+skill-advancement adapt:architect adapt:challenge_architect_brickbat_500
+skill-advancement adapt:architect adapt:challenge_architect_chalk_line_50
+skill-advancement adapt:architect adapt:challenge_architect_chalk_line_500
+skill-advancement adapt:architect adapt:challenge_architect_demolition_500
+skill-advancement adapt:architect adapt:challenge_architect_demolition_5k
+skill-advancement adapt:architect adapt:challenge_architect_elevator_100
+skill-advancement adapt:architect adapt:challenge_architect_elevator_penthouse
+skill-advancement adapt:architect adapt:challenge_architect_foundation_10k
+skill-advancement adapt:architect adapt:challenge_architect_foundation_1k
+skill-advancement adapt:architect adapt:challenge_architect_glass_200
+skill-advancement adapt:architect adapt:challenge_architect_glass_5k
+skill-advancement adapt:architect adapt:challenge_architect_placement_1k
+skill-advancement adapt:architect adapt:challenge_architect_placement_25k
+skill-advancement adapt:architect adapt:challenge_architect_scaffolder_500
+skill-advancement adapt:architect adapt:challenge_architect_scaffolder_5k
+skill-advancement adapt:architect adapt:challenge_architect_smart_shape_200
+skill-advancement adapt:architect adapt:challenge_architect_smart_shape_5k
+skill-advancement adapt:architect adapt:challenge_architect_steady_hands_500
+skill-advancement adapt:architect adapt:challenge_architect_steady_hands_5k
+skill-advancement adapt:architect adapt:challenge_architect_stonecutter_savant_50
+skill-advancement adapt:architect adapt:challenge_architect_stonecutter_savant_500
+skill-advancement adapt:architect adapt:challenge_architect_supply_line_100
+skill-advancement adapt:architect adapt:challenge_architect_supply_line_1k
+skill-advancement adapt:architect adapt:challenge_architect_wireless_100
+skill-advancement adapt:architect adapt:challenge_architect_wireless_5k
+skill-advancement adapt:architect adapt:challenge_demolish_500
+skill-advancement adapt:architect adapt:challenge_demolish_5k
+skill-advancement adapt:architect adapt:challenge_demolish_val_50k
+skill-advancement adapt:architect adapt:challenge_demolish_val_5k
+skill-advancement adapt:architect adapt:challenge_high_build_100
+skill-advancement adapt:architect adapt:challenge_high_build_1k
+skill-advancement adapt:architect adapt:challenge_place_1k
+skill-advancement adapt:architect adapt:challenge_place_50k
+skill-advancement adapt:architect adapt:challenge_place_5k
+skill-advancement adapt:architect adapt:challenge_value_placed_100k
+skill-advancement adapt:architect adapt:challenge_value_placed_10k
+skill-advancement adapt:architect adapt:skill/adapt/architect
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/bark_hide
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/chop
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/cleave
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/drop_to_inventory
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/ground_smash
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/leaf_veinminer
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/logswap
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/shield_splitter
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/sunder
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/throwing_axe
+skill-advancement adapt:axes adapt:adaptation/adapt/axe/wood_veinminer
+skill-advancement adapt:axes adapt:challenge_axe_bark_hide_2500
+skill-advancement adapt:axes adapt:challenge_axe_chop_100
+skill-advancement adapt:axes adapt:challenge_axe_chop_2500
+skill-advancement adapt:axes adapt:challenge_axe_chop_one_swing
+skill-advancement adapt:axes adapt:challenge_axe_cleave_10k
+skill-advancement adapt:axes adapt:challenge_axe_cleave_1k
+skill-advancement adapt:axes adapt:challenge_axe_damage_10k
+skill-advancement adapt:axes adapt:challenge_axe_damage_1k
+skill-advancement adapt:axes adapt:challenge_axe_dti_5k
+skill-advancement adapt:axes adapt:challenge_axe_ground_smash_5
+skill-advancement adapt:axes adapt:challenge_axe_ground_smash_500
+skill-advancement adapt:axes adapt:challenge_axe_leaf_5k
+skill-advancement adapt:axes adapt:challenge_axe_log_swap_500
+skill-advancement adapt:axes adapt:challenge_axe_shield_splitter_250
+skill-advancement adapt:axes adapt:challenge_axe_sunder_500
+skill-advancement adapt:axes adapt:challenge_axe_sunder_5k
+skill-advancement adapt:axes adapt:challenge_axe_throw_500
+skill-advancement adapt:axes adapt:challenge_axe_throw_5k
+skill-advancement adapt:axes adapt:challenge_axe_value_50k
+skill-advancement adapt:axes adapt:challenge_axe_value_5k
+skill-advancement adapt:axes adapt:challenge_axe_wood_vein_2500
+skill-advancement adapt:axes adapt:challenge_axe_wood_vein_cascade
+skill-advancement adapt:axes adapt:challenge_chop_1k
+skill-advancement adapt:axes adapt:challenge_chop_50k
+skill-advancement adapt:axes adapt:challenge_chop_5k
+skill-advancement adapt:axes adapt:challenge_leaves_500
+skill-advancement adapt:axes adapt:challenge_leaves_5k
+skill-advancement adapt:axes adapt:skill/adapt/axes
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/bastion_stance
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/bulwark_bash
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/chainarmorer
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/counter_guard
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/horsearmorer
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/interpose
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/mirror_block
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/multiarmor
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/perfect_guard
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/phalanx_crafter
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/saddlecrafter
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/shield_wall
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/shieldbearers_resolve
+skill-advancement adapt:blocking adapt:adaptation/adapt/blocking/tempered_guard
+skill-advancement adapt:blocking adapt:challenge_block_1k
+skill-advancement adapt:blocking adapt:challenge_block_50k
+skill-advancement adapt:blocking adapt:challenge_block_5k
+skill-advancement adapt:blocking adapt:challenge_block_dmg_10k
+skill-advancement adapt:blocking adapt:challenge_block_dmg_1k
+skill-advancement adapt:blocking adapt:challenge_block_heavy_50
+skill-advancement adapt:blocking adapt:challenge_block_heavy_500
+skill-advancement adapt:blocking adapt:challenge_block_melee_500
+skill-advancement adapt:blocking adapt:challenge_block_melee_5k
+skill-advancement adapt:blocking adapt:challenge_block_proj_100
+skill-advancement adapt:blocking adapt:challenge_block_proj_1k
+skill-advancement adapt:blocking adapt:challenge_blocking_bastion_10
+skill-advancement adapt:blocking adapt:challenge_blocking_bastion_500
+skill-advancement adapt:blocking adapt:challenge_blocking_bulwark_4
+skill-advancement adapt:blocking adapt:challenge_blocking_bulwark_500
+skill-advancement adapt:blocking adapt:challenge_blocking_chain_25
+skill-advancement adapt:blocking adapt:challenge_blocking_counter_500
+skill-advancement adapt:blocking adapt:challenge_blocking_counter_max
+skill-advancement adapt:blocking adapt:challenge_blocking_horse_armor_10
+skill-advancement adapt:blocking adapt:challenge_blocking_interpose_250
+skill-advancement adapt:blocking adapt:challenge_blocking_interpose_2k
+skill-advancement adapt:blocking adapt:challenge_blocking_mirror_100
+skill-advancement adapt:blocking adapt:challenge_blocking_mirror_3in5
+skill-advancement adapt:blocking adapt:challenge_blocking_multi_200
+skill-advancement adapt:blocking adapt:challenge_blocking_multi_5k
+skill-advancement adapt:blocking adapt:challenge_blocking_perfect_100
+skill-advancement adapt:blocking adapt:challenge_blocking_perfect_1k
+skill-advancement adapt:blocking adapt:challenge_blocking_phalanx_25
+skill-advancement adapt:blocking adapt:challenge_blocking_phalanx_netherite
+skill-advancement adapt:blocking adapt:challenge_blocking_resolve_100
+skill-advancement adapt:blocking adapt:challenge_blocking_resolve_1k
+skill-advancement adapt:blocking adapt:challenge_blocking_saddle_25
+skill-advancement adapt:blocking adapt:challenge_blocking_shieldwall_500
+skill-advancement adapt:blocking adapt:challenge_blocking_shieldwall_5k
+skill-advancement adapt:blocking adapt:challenge_blocking_tempered_500
+skill-advancement adapt:blocking adapt:challenge_blocking_tempered_5k
+skill-advancement adapt:blocking adapt:skill/adapt/blocking
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/absorption
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/blindness
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/darkness
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/decay
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/fatigue
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/haste
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/healthboost
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/hunger
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/lingering
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/nausea
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/resistance
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/saturation
+skill-advancement adapt:brewing adapt:adaptation/adapt/brewing/super_heated
+skill-advancement adapt:brewing adapt:challenge_brew_1k
+skill-advancement adapt:brewing adapt:challenge_brew_5k
+skill-advancement adapt:brewing adapt:challenge_brew_splash_hits_50
+skill-advancement adapt:brewing adapt:challenge_brew_splash_hits_500
+skill-advancement adapt:brewing adapt:challenge_brew_stands_10
+skill-advancement adapt:brewing adapt:challenge_brew_stands_50
+skill-advancement adapt:brewing adapt:challenge_brew_strong_25
+skill-advancement adapt:brewing adapt:challenge_brew_strong_250
+skill-advancement adapt:brewing adapt:challenge_brewing_absorption_25
+skill-advancement adapt:brewing adapt:challenge_brewing_blindness_25
+skill-advancement adapt:brewing adapt:challenge_brewing_darkness_25
+skill-advancement adapt:brewing adapt:challenge_brewing_decay_25
+skill-advancement adapt:brewing adapt:challenge_brewing_fatigue_25
+skill-advancement adapt:brewing adapt:challenge_brewing_haste_25
+skill-advancement adapt:brewing adapt:challenge_brewing_health_boost_25
+skill-advancement adapt:brewing adapt:challenge_brewing_hunger_25
+skill-advancement adapt:brewing adapt:challenge_brewing_lingering_200
+skill-advancement adapt:brewing adapt:challenge_brewing_lingering_5k
+skill-advancement adapt:brewing adapt:challenge_brewing_nausea_25
+skill-advancement adapt:brewing adapt:challenge_brewing_resistance_25
+skill-advancement adapt:brewing adapt:challenge_brewing_saturation_25
+skill-advancement adapt:brewing adapt:challenge_brewing_super_heated_100
+skill-advancement adapt:brewing adapt:challenge_brewing_super_heated_2500
+skill-advancement adapt:brewing adapt:challenge_brewsplash_1k
+skill-advancement adapt:brewing adapt:challenge_brewsplash_5k
+skill-advancement adapt:brewing adapt:skill/adapt/brewing
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/aberrant_touch
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/accelerate
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/borrowed_time
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/deja_vu
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/hourglass_guard
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/instant_recall
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/overtime
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/pocket_watch
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/rewind
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/stasis_field
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/temporal_echo
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/time_bomb
+skill-advancement adapt:chronos adapt:adaptation/adapt/chronos/time_bottle
+skill-advancement adapt:chronos adapt:challenge_active_dist_100k
+skill-advancement adapt:chronos adapt:challenge_active_dist_10k
+skill-advancement adapt:chronos adapt:challenge_active_dist_1k
+skill-advancement adapt:chronos adapt:challenge_beds_10
+skill-advancement adapt:chronos adapt:challenge_beds_100
+skill-advancement adapt:chronos adapt:challenge_chronos_1h
+skill-advancement adapt:chronos adapt:challenge_chronos_24h
+skill-advancement adapt:chronos adapt:challenge_chronos_aberrant_500
+skill-advancement adapt:chronos adapt:challenge_chronos_aberrant_frozen
+skill-advancement adapt:chronos adapt:challenge_chronos_accelerate_1k
+skill-advancement adapt:chronos adapt:challenge_chronos_bomb_crowd_8
+skill-advancement adapt:chronos adapt:challenge_chronos_bomb_freeze_50
+skill-advancement adapt:chronos adapt:challenge_chronos_borrowed_2500
+skill-advancement adapt:chronos adapt:challenge_chronos_bottle_seconds_1k
+skill-advancement adapt:chronos adapt:challenge_chronos_bottle_seconds_25k
+skill-advancement adapt:chronos adapt:challenge_chronos_deja_vu_500
+skill-advancement adapt:chronos adapt:challenge_chronos_echo_200
+skill-advancement adapt:chronos adapt:challenge_chronos_hourglass_10
+skill-advancement adapt:chronos adapt:challenge_chronos_overtime_1k
+skill-advancement adapt:chronos adapt:challenge_chronos_pocket_watch_500
+skill-advancement adapt:chronos adapt:challenge_chronos_recall_1k
+skill-advancement adapt:chronos adapt:challenge_chronos_recall_50
+skill-advancement adapt:chronos adapt:challenge_chronos_recall_cheat_death
+skill-advancement adapt:chronos adapt:challenge_chronos_rewind_50
+skill-advancement adapt:chronos adapt:challenge_chronos_rewind_500
+skill-advancement adapt:chronos adapt:challenge_chronos_stasis_50
+skill-advancement adapt:chronos adapt:challenge_chronos_stasis_500
+skill-advancement adapt:chronos adapt:skill/adapt/chronos
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/backpacks
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/bulk_artisan
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/compactor
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/deconstruction
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/leather
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/masterwork
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/provisioner
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/reconstruction
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/skulls
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/stations
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/thrifty_hands
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/tinkerer
+skill-advancement adapt:crafting adapt:adaptation/adapt/crafting/xp
+skill-advancement adapt:crafting adapt:challenge_craft_1k
+skill-advancement adapt:crafting adapt:challenge_craft_50k
+skill-advancement adapt:crafting adapt:challenge_craft_5k
+skill-advancement adapt:crafting adapt:challenge_craft_armor_25
+skill-advancement adapt:crafting adapt:challenge_craft_armor_250
+skill-advancement adapt:crafting adapt:challenge_craft_tools_25
+skill-advancement adapt:crafting adapt:challenge_craft_tools_250
+skill-advancement adapt:crafting adapt:challenge_craft_value_100k
+skill-advancement adapt:crafting adapt:challenge_craft_value_10k
+skill-advancement adapt:crafting adapt:challenge_crafting_backpack_25
+skill-advancement adapt:crafting adapt:challenge_crafting_bulk_10k
+skill-advancement adapt:crafting adapt:challenge_crafting_bulk_1k
+skill-advancement adapt:crafting adapt:challenge_crafting_compactor_10k
+skill-advancement adapt:crafting adapt:challenge_crafting_compactor_1k
+skill-advancement adapt:crafting adapt:challenge_crafting_decon_200
+skill-advancement adapt:crafting adapt:challenge_crafting_decon_5k
+skill-advancement adapt:crafting adapt:challenge_crafting_leather_100
+skill-advancement adapt:crafting adapt:challenge_crafting_masterwork_50
+skill-advancement adapt:crafting adapt:challenge_crafting_masterwork_500
+skill-advancement adapt:crafting adapt:challenge_crafting_provisioner_500
+skill-advancement adapt:crafting adapt:challenge_crafting_provisioner_5k
+skill-advancement adapt:crafting adapt:challenge_crafting_recon_100
+skill-advancement adapt:crafting adapt:challenge_crafting_skulls_10
+skill-advancement adapt:crafting adapt:challenge_crafting_skulls_100
+skill-advancement adapt:crafting adapt:challenge_crafting_stations_200
+skill-advancement adapt:crafting adapt:challenge_crafting_stations_5k
+skill-advancement adapt:crafting adapt:challenge_crafting_thrifty_500
+skill-advancement adapt:crafting adapt:challenge_crafting_thrifty_5k
+skill-advancement adapt:crafting adapt:challenge_crafting_tinkerer_50
+skill-advancement adapt:crafting adapt:challenge_crafting_tinkerer_500
+skill-advancement adapt:crafting adapt:challenge_crafting_xp_1k
+skill-advancement adapt:crafting adapt:challenge_crafting_xp_25k
+skill-advancement adapt:crafting adapt:skill/adapt/crafting
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/archaeologist
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/better_mending
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/cartographer_pulse
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/field_notes
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/insight
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/keen_eye
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/polymath
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/relic_appraiser
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/sixth_sense
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/trailblazer
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/unity
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/villager_att
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/world_armor
+skill-advancement adapt:discovery adapt:adaptation/adapt/discovery/xp_resist
+skill-advancement adapt:discovery adapt:challenge_discover_biomes_10
+skill-advancement adapt:discovery adapt:challenge_discover_biomes_40
+skill-advancement adapt:discovery adapt:challenge_discover_blocks_250
+skill-advancement adapt:discovery adapt:challenge_discover_blocks_50
+skill-advancement adapt:discovery adapt:challenge_discover_foods_10
+skill-advancement adapt:discovery adapt:challenge_discover_foods_30
+skill-advancement adapt:discovery adapt:challenge_discover_items_250
+skill-advancement adapt:discovery adapt:challenge_discover_items_50
+skill-advancement adapt:discovery adapt:challenge_discover_mobs_25
+skill-advancement adapt:discovery adapt:challenge_discover_mobs_75
+skill-advancement adapt:discovery adapt:challenge_discovery_appraiser_50
+skill-advancement adapt:discovery adapt:challenge_discovery_appraiser_500
+skill-advancement adapt:discovery adapt:challenge_discovery_archaeologist_50
+skill-advancement adapt:discovery adapt:challenge_discovery_archaeologist_500
+skill-advancement adapt:discovery adapt:challenge_discovery_armor_1hr
+skill-advancement adapt:discovery adapt:challenge_discovery_cartographer_100
+skill-advancement adapt:discovery adapt:challenge_discovery_cartographer_1k
+skill-advancement adapt:discovery adapt:challenge_discovery_fieldnotes_100
+skill-advancement adapt:discovery adapt:challenge_discovery_fieldnotes_25
+skill-advancement adapt:discovery adapt:challenge_discovery_insight_100
+skill-advancement adapt:discovery adapt:challenge_discovery_insight_1000
+skill-advancement adapt:discovery adapt:challenge_discovery_keeneye_250
+skill-advancement adapt:discovery adapt:challenge_discovery_keeneye_2500
+skill-advancement adapt:discovery adapt:challenge_discovery_mending_100k
+skill-advancement adapt:discovery adapt:challenge_discovery_mending_10k
+skill-advancement adapt:discovery adapt:challenge_discovery_polymath_500
+skill-advancement adapt:discovery adapt:challenge_discovery_polymath_5k
+skill-advancement adapt:discovery adapt:challenge_discovery_sixthsense_100
+skill-advancement adapt:discovery adapt:challenge_discovery_sixthsense_1k
+skill-advancement adapt:discovery adapt:challenge_discovery_trailblazer_100
+skill-advancement adapt:discovery adapt:challenge_discovery_trailblazer_25
+skill-advancement adapt:discovery adapt:challenge_discovery_unity_50k
+skill-advancement adapt:discovery adapt:challenge_discovery_unity_5k
+skill-advancement adapt:discovery adapt:challenge_discovery_villager_100
+skill-advancement adapt:discovery adapt:challenge_discovery_villager_2500
+skill-advancement adapt:discovery adapt:challenge_discovery_xp_resist_25
+skill-advancement adapt:discovery adapt:challenge_discovery_xp_resist_250
+skill-advancement adapt:discovery adapt:challenge_discovery_xp_resist_clutch
+skill-advancement adapt:discovery adapt:skill/adapt/discovery
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/anvil_savant
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/arcane_siphon
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/bookshelf_attunement
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/curse_cleansing
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/echo_of_knowledge
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/grindstone_recovery
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/infusion_transfer
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/lapis_return
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/offer_reroll
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/quick_enchant
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/rune_sight
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/soul_link
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/tome_rebinding
+skill-advancement adapt:enchanting adapt:adaptation/adapt/enchanting/xp_return
+skill-advancement adapt:enchanting adapt:challenge_enchant_1k
+skill-advancement adapt:enchanting adapt:challenge_enchant_5k
+skill-advancement adapt:enchanting adapt:challenge_enchant_high_25
+skill-advancement adapt:enchanting adapt:challenge_enchant_high_250
+skill-advancement adapt:enchanting adapt:challenge_enchant_power_100
+skill-advancement adapt:enchanting adapt:challenge_enchant_power_1k
+skill-advancement adapt:enchanting adapt:challenge_enchant_total_500
+skill-advancement adapt:enchanting adapt:challenge_enchant_total_5k
+skill-advancement adapt:enchanting adapt:challenge_enchanting_anvil_200
+skill-advancement adapt:enchanting adapt:challenge_enchanting_anvil_5k
+skill-advancement adapt:enchanting adapt:challenge_enchanting_bookshelf_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_cleanse_10
+skill-advancement adapt:enchanting adapt:challenge_enchanting_cleanse_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_echo_25
+skill-advancement adapt:enchanting adapt:challenge_enchanting_echo_250
+skill-advancement adapt:enchanting adapt:challenge_enchanting_grindstone_50
+skill-advancement adapt:enchanting adapt:challenge_enchanting_grindstone_500
+skill-advancement adapt:enchanting adapt:challenge_enchanting_infusion_25
+skill-advancement adapt:enchanting adapt:challenge_enchanting_infusion_250
+skill-advancement adapt:enchanting adapt:challenge_enchanting_lapis_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_lapis_2500
+skill-advancement adapt:enchanting adapt:challenge_enchanting_quick_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_quick_1k
+skill-advancement adapt:enchanting adapt:challenge_enchanting_rebind_50
+skill-advancement adapt:enchanting adapt:challenge_enchanting_rebind_500
+skill-advancement adapt:enchanting adapt:challenge_enchanting_reroll_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_reroll_1k
+skill-advancement adapt:enchanting adapt:challenge_enchanting_rune_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_rune_1k
+skill-advancement adapt:enchanting adapt:challenge_enchanting_siphon_25
+skill-advancement adapt:enchanting adapt:challenge_enchanting_siphon_250
+skill-advancement adapt:enchanting adapt:challenge_enchanting_soul_10
+skill-advancement adapt:enchanting adapt:challenge_enchanting_soul_100
+skill-advancement adapt:enchanting adapt:challenge_enchanting_xp_100
+skill-advancement adapt:enchanting adapt:skill/adapt/enchanting
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/burrow
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/clod_hurler
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/drop_to_inventory
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/earth_mover
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/grave_digger
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/haste
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/mudlark
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/omnitool
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/seismic_ping
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/soft_fall
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/spelunker
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/treasure_hunter
+skill-advancement adapt:excavation adapt:adaptation/adapt/excavation/tunneler
+skill-advancement adapt:excavation adapt:challenge_dig_damage_10k
+skill-advancement adapt:excavation adapt:challenge_dig_damage_1k
+skill-advancement adapt:excavation adapt:challenge_dig_gravel_500
+skill-advancement adapt:excavation adapt:challenge_dig_gravel_5k
+skill-advancement adapt:excavation adapt:challenge_dig_value_50k
+skill-advancement adapt:excavation adapt:challenge_dig_value_5k
+skill-advancement adapt:excavation adapt:challenge_excavate_1k
+skill-advancement adapt:excavation adapt:challenge_excavate_50k
+skill-advancement adapt:excavation adapt:challenge_excavate_5k
+skill-advancement adapt:excavation adapt:challenge_excavation_burrow_100
+skill-advancement adapt:excavation adapt:challenge_excavation_clod_hurler_500
+skill-advancement adapt:excavation adapt:challenge_excavation_dti_10k
+skill-advancement adapt:excavation adapt:challenge_excavation_earthmover_250
+skill-advancement adapt:excavation adapt:challenge_excavation_gravedigger_300
+skill-advancement adapt:excavation adapt:challenge_excavation_haste_50k
+skill-advancement adapt:excavation adapt:challenge_excavation_haste_5k
+skill-advancement adapt:excavation adapt:challenge_excavation_mudlark_1k
+skill-advancement adapt:excavation adapt:challenge_excavation_omni_1k
+skill-advancement adapt:excavation adapt:challenge_excavation_omni_25k
+skill-advancement adapt:excavation adapt:challenge_excavation_seismic_200
+skill-advancement adapt:excavation adapt:challenge_excavation_softfall_1k
+skill-advancement adapt:excavation adapt:challenge_excavation_spelunker_1k
+skill-advancement adapt:excavation adapt:challenge_excavation_spelunker_25k
+skill-advancement adapt:excavation adapt:challenge_excavation_treasure_500
+skill-advancement adapt:excavation adapt:challenge_excavation_tunneler_10k
+skill-advancement adapt:excavation adapt:skill/adapt/excavation
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/angler_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/animus_binding
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/bone_frame
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/breaker_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/copper_frame
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/frost_frame
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/gatherer_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/guardian_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/harvester_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/iron_frame
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/lumber_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/masterwork
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/mending
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/node_weaving
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/overseer
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/rancher_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/runic_augments
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/sorter_core
+skill-advancement adapt:golemancy adapt:adaptation/adapt/golem/stasis
+skill-advancement adapt:golemancy adapt:challenge_golemancy_bound_25
+skill-advancement adapt:golemancy adapt:challenge_golemancy_bound_5
+skill-advancement adapt:golemancy adapt:challenge_golemancy_built_10
+skill-advancement adapt:golemancy adapt:challenge_golemancy_built_100
+skill-advancement adapt:golemancy adapt:challenge_golemancy_first_bind_copper
+skill-advancement adapt:golemancy adapt:challenge_golemancy_first_bind_frost
+skill-advancement adapt:golemancy adapt:challenge_golemancy_first_bind_iron
+skill-advancement adapt:golemancy adapt:challenge_golemancy_golem_kills_50
+skill-advancement adapt:golemancy adapt:challenge_golemancy_golem_kills_500
+skill-advancement adapt:golemancy adapt:challenge_golemancy_golem_kills_5000
+skill-advancement adapt:golemancy adapt:challenge_golemancy_infusions_10
+skill-advancement adapt:golemancy adapt:challenge_golemancy_infusions_100
+skill-advancement adapt:golemancy adapt:challenge_golemancy_items_moved_10000
+skill-advancement adapt:golemancy adapt:challenge_golemancy_items_moved_250000
+skill-advancement adapt:golemancy adapt:challenge_golemancy_tasks_1000
+skill-advancement adapt:golemancy adapt:challenge_golemancy_tasks_25000
+skill-advancement adapt:golemancy adapt:skill/adapt/golemancy
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/bee_shepherd
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/cobweb
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/compost_cascade
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/drop_to_inventory
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/growth_aura
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/hippo
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/hungry_shield
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/luck
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/mushroom_blocks
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/myconid
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/replant
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/rooted_footing
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/seed_sower
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/spore_bloom
+skill-advancement adapt:herbalism adapt:adaptation/adapt/herbalism/terralid
+skill-advancement adapt:herbalism adapt:challenge_compost_50
+skill-advancement adapt:herbalism adapt:challenge_compost_500
+skill-advancement adapt:herbalism adapt:challenge_eat_100
+skill-advancement adapt:herbalism adapt:challenge_eat_1000
+skill-advancement adapt:herbalism adapt:challenge_eat_10000
+skill-advancement adapt:herbalism adapt:challenge_harvest_100
+skill-advancement adapt:herbalism adapt:challenge_harvest_1000
+skill-advancement adapt:herbalism adapt:challenge_herbalism_bee_100
+skill-advancement adapt:herbalism adapt:challenge_herbalism_cobweb_100
+skill-advancement adapt:herbalism adapt:challenge_herbalism_compost_1k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_compost_25k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_dti_10k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_growth_1k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_growth_25k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_hippo_500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_luck_100
+skill-advancement adapt:herbalism adapt:challenge_herbalism_luck_2500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_mushroom_100
+skill-advancement adapt:herbalism adapt:challenge_herbalism_myconid_100
+skill-advancement adapt:herbalism adapt:challenge_herbalism_replant_25k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_replant_500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_rooted_500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_seed_1k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_seed_25k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_shield_500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_shield_5k
+skill-advancement adapt:herbalism adapt:challenge_herbalism_spore_500
+skill-advancement adapt:herbalism adapt:challenge_herbalism_terralid_200
+skill-advancement adapt:herbalism adapt:challenge_plant_100
+skill-advancement adapt:herbalism adapt:challenge_plant_1k
+skill-advancement adapt:herbalism adapt:challenge_plant_5k
+skill-advancement adapt:herbalism adapt:challenge_shear_250
+skill-advancement adapt:herbalism adapt:challenge_shear_50
+skill-advancement adapt:herbalism adapt:skill/adapt/herbalism
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/adrenaline
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/big_game
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/blood_trail
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/drop_to_inventory
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/invis
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/jumpboost
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/luck
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/predator_focus
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/regen
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/resistance
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/snare_line
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/speed
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/strength
+skill-advancement adapt:hunter adapt:adaptation/adapt/hunter/trophy_skinner
+skill-advancement adapt:hunter adapt:challenge_advanced_hunter
+skill-advancement adapt:hunter adapt:challenge_boss_1
+skill-advancement adapt:hunter adapt:challenge_boss_10
+skill-advancement adapt:hunter adapt:challenge_creeper_annihilator
+skill-advancement adapt:hunter adapt:challenge_creeper_conqueror
+skill-advancement adapt:hunter adapt:challenge_hunter_adrenaline_100
+skill-advancement adapt:hunter adapt:challenge_hunter_adrenaline_2500
+skill-advancement adapt:hunter adapt:challenge_hunter_big_game_100
+skill-advancement adapt:hunter adapt:challenge_hunter_big_game_1k
+skill-advancement adapt:hunter adapt:challenge_hunter_blood_trail_250
+skill-advancement adapt:hunter adapt:challenge_hunter_blood_trail_2500
+skill-advancement adapt:hunter adapt:challenge_hunter_dti_10k
+skill-advancement adapt:hunter adapt:challenge_hunter_invis_200
+skill-advancement adapt:hunter adapt:challenge_hunter_jump_200
+skill-advancement adapt:hunter adapt:challenge_hunter_luck_200
+skill-advancement adapt:hunter adapt:challenge_hunter_predator_focus_500
+skill-advancement adapt:hunter adapt:challenge_hunter_predator_focus_5k
+skill-advancement adapt:hunter adapt:challenge_hunter_regen_500
+skill-advancement adapt:hunter adapt:challenge_hunter_resistance_500
+skill-advancement adapt:hunter adapt:challenge_hunter_snare_200
+skill-advancement adapt:hunter adapt:challenge_hunter_snare_2k
+skill-advancement adapt:hunter adapt:challenge_hunter_speed_200
+skill-advancement adapt:hunter adapt:challenge_hunter_strength_200
+skill-advancement adapt:hunter adapt:challenge_hunter_trophy_50
+skill-advancement adapt:hunter adapt:challenge_hunter_trophy_heads_100
+skill-advancement adapt:hunter adapt:challenge_intermediate_hunter
+skill-advancement adapt:hunter adapt:challenge_kills_500
+skill-advancement adapt:hunter adapt:challenge_kills_5k
+skill-advancement adapt:hunter adapt:challenge_novice_hunter
+skill-advancement adapt:hunter adapt:skill/adapt/hunter
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/breachwright
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/charge_lance
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/dead_zone
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/heavy_frame
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/impale_pin
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/lunge_conductor
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/mass_shift
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/meteor_cadence
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/moon_jump
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/mounted_shock
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/phalanx_reach
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/quake_guard
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/rebound_anvil
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/rubber_soul
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/soft_catch
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/surface_skate
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/terminal_toggle
+skill-advancement adapt:kinetics adapt:adaptation/adapt/kinetics/windburst
+skill-advancement adapt:kinetics adapt:challenge_kinetics_anvil_drop
+skill-advancement adapt:kinetics adapt:skill/adapt/kinetics
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/ashwalker
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/blaze_leech
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/crimson_feast
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/fire_resist
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/ghast_ward
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/lava_walker
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/magma_skin
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/netherrack_mason
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/piglin_broker
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/skull_toss
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/soul_strider
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/strider_bond
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/wither_harvest
+skill-advancement adapt:nether adapt:adaptation/adapt/nether/wither_resist
+skill-advancement adapt:nether adapt:challenge_nether_50
+skill-advancement adapt:nether adapt:challenge_nether_500
+skill-advancement adapt:nether adapt:challenge_nether_5k
+skill-advancement adapt:nether adapt:challenge_nether_ash_200
+skill-advancement adapt:nether adapt:challenge_nether_ash_5k
+skill-advancement adapt:nether adapt:challenge_nether_blaze_200
+skill-advancement adapt:nether adapt:challenge_nether_blaze_2500
+skill-advancement adapt:nether adapt:challenge_nether_feast_100
+skill-advancement adapt:nether adapt:challenge_nether_feast_2500
+skill-advancement adapt:nether adapt:challenge_nether_fire_200
+skill-advancement adapt:nether adapt:challenge_nether_fire_5k
+skill-advancement adapt:nether adapt:challenge_nether_ghast_500
+skill-advancement adapt:nether adapt:challenge_nether_harvest_100
+skill-advancement adapt:nether adapt:challenge_nether_harvest_2500
+skill-advancement adapt:nether adapt:challenge_nether_lava_1k
+skill-advancement adapt:nether adapt:challenge_nether_lava_25k
+skill-advancement adapt:nether adapt:challenge_nether_magma_100
+skill-advancement adapt:nether adapt:challenge_nether_magma_2500
+skill-advancement adapt:nether adapt:challenge_nether_mason_1k
+skill-advancement adapt:nether adapt:challenge_nether_mason_25k
+skill-advancement adapt:nether adapt:challenge_nether_piglin_100
+skill-advancement adapt:nether adapt:challenge_nether_piglin_2500
+skill-advancement adapt:nether adapt:challenge_nether_skull_100
+skill-advancement adapt:nether adapt:challenge_nether_skull_kills_50
+skill-advancement adapt:nether adapt:challenge_nether_skull_long_bomb
+skill-advancement adapt:nether adapt:challenge_nether_soul_1k
+skill-advancement adapt:nether adapt:challenge_nether_soul_25k
+skill-advancement adapt:nether adapt:challenge_nether_strider_500
+skill-advancement adapt:nether adapt:challenge_nether_strider_5k
+skill-advancement adapt:nether adapt:challenge_nether_strider_rescue
+skill-advancement adapt:nether adapt:challenge_nether_wither_100
+skill-advancement adapt:nether adapt:challenge_nether_wither_1k
+skill-advancement adapt:nether adapt:challenge_roses_10
+skill-advancement adapt:nether adapt:challenge_roses_100
+skill-advancement adapt:nether adapt:challenge_wither_boss_1
+skill-advancement adapt:nether adapt:challenge_wither_boss_10
+skill-advancement adapt:nether adapt:challenge_wither_dmg_500
+skill-advancement adapt:nether adapt:challenge_wither_dmg_5k
+skill-advancement adapt:nether adapt:challenge_wither_skel_25
+skill-advancement adapt:nether adapt:challenge_wither_skel_250
+skill-advancement adapt:nether adapt:skill/adapt/nether
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/autosmelt
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/chisel
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/deep_core
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/drop_to_inventory
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/gem_polish
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/obsidian_rush
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/quarry_sense
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/repair_rhythm
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/silk_spawner
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/stone_skin
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/tunnel_bore
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/unbreakable_pact
+skill-advancement adapt:pickaxe adapt:adaptation/adapt/pickaxe/veinminer
+skill-advancement adapt:pickaxe adapt:challenge_pick_damage_10k
+skill-advancement adapt:pickaxe adapt:challenge_pick_damage_1k
+skill-advancement adapt:pickaxe adapt:challenge_pick_ores_500
+skill-advancement adapt:pickaxe adapt:challenge_pick_ores_5k
+skill-advancement adapt:pickaxe adapt:challenge_pick_value_50k
+skill-advancement adapt:pickaxe adapt:challenge_pick_value_5k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_1k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_50k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_5k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_autosmelt_1k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_autosmelt_25k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_chisel_500
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_deepcore_5k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_dti_25k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_gempolish_25
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_obsidianrush_1k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_pact_100
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_quarry_200
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_rhythm_5k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_spawner_10
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_spawner_50
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_stoneskin_10k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_tunnelbore_10k
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_veinminer_20
+skill-advancement adapt:pickaxe adapt:challenge_pickaxe_veinminer_2500
+skill-advancement adapt:pickaxe adapt:skill/adapt/pickaxe
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/fetch_shot
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/floaters
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/force
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/heartseeker
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/heavy_draw
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/lunge_shot
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/piercing
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/pinning_shot
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/recovery
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/ricochet_bolt
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/trajectory_sight
+skill-advancement adapt:ranged adapt:adaptation/adapt/ranged/webshot
+skill-advancement adapt:ranged adapt:challenge_force_30
+skill-advancement adapt:ranged adapt:challenge_longshot_25
+skill-advancement adapt:ranged adapt:challenge_longshot_250
+skill-advancement adapt:ranged adapt:challenge_ranged_100
+skill-advancement adapt:ranged adapt:challenge_ranged_10k
+skill-advancement adapt:ranged adapt:challenge_ranged_1k
+skill-advancement adapt:ranged adapt:challenge_ranged_arrow_10k
+skill-advancement adapt:ranged adapt:challenge_ranged_arrow_500
+skill-advancement adapt:ranged adapt:challenge_ranged_dist_50k
+skill-advancement adapt:ranged adapt:challenge_ranged_dist_5k
+skill-advancement adapt:ranged adapt:challenge_ranged_dmg_10k
+skill-advancement adapt:ranged adapt:challenge_ranged_dmg_1k
+skill-advancement adapt:ranged adapt:challenge_ranged_fetch_500
+skill-advancement adapt:ranged adapt:challenge_ranged_fetch_5k
+skill-advancement adapt:ranged adapt:challenge_ranged_floaters_200
+skill-advancement adapt:ranged adapt:challenge_ranged_force_500
+skill-advancement adapt:ranged adapt:challenge_ranged_heartseeker_100
+skill-advancement adapt:ranged adapt:challenge_ranged_heartseeker_1k
+skill-advancement adapt:ranged adapt:challenge_ranged_heavy_hits_250
+skill-advancement adapt:ranged adapt:challenge_ranged_heavy_hits_2500
+skill-advancement adapt:ranged adapt:challenge_ranged_kills_50
+skill-advancement adapt:ranged adapt:challenge_ranged_kills_500
+skill-advancement adapt:ranged adapt:challenge_ranged_lunge_200
+skill-advancement adapt:ranged adapt:challenge_ranged_lunge_2500
+skill-advancement adapt:ranged adapt:challenge_ranged_piercing_4
+skill-advancement adapt:ranged adapt:challenge_ranged_piercing_500
+skill-advancement adapt:ranged adapt:challenge_ranged_pinning_300
+skill-advancement adapt:ranged adapt:challenge_ranged_ricochet_kills_50
+skill-advancement adapt:ranged adapt:challenge_ranged_ricochet_kills_500
+skill-advancement adapt:ranged adapt:challenge_ranged_trajectory_100
+skill-advancement adapt:ranged adapt:challenge_ranged_web_200
+skill-advancement adapt:ranged adapt:skill/adapt/ranged
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/access
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/blink
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/conduit
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/descent
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/ender_taglock
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/enderchest
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/gate
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/inflated_pocket_dimension
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/pearl_rebound
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/resist
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/visage
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/void_magnet
+skill-advancement adapt:rift adapt:adaptation/adapt/rift/void_skin
+skill-advancement adapt:rift adapt:challenge_rift_50
+skill-advancement adapt:rift adapt:challenge_rift_500
+skill-advancement adapt:rift adapt:challenge_rift_5k
+skill-advancement adapt:rift adapt:challenge_rift_access_100
+skill-advancement adapt:rift adapt:challenge_rift_access_2500
+skill-advancement adapt:rift adapt:challenge_rift_blink_500
+skill-advancement adapt:rift adapt:challenge_rift_blink_5k
+skill-advancement adapt:rift adapt:challenge_rift_conduit_10
+skill-advancement adapt:rift adapt:challenge_rift_conduit_10k
+skill-advancement adapt:rift adapt:challenge_rift_crystal_10
+skill-advancement adapt:rift adapt:challenge_rift_crystal_100
+skill-advancement adapt:rift adapt:challenge_rift_descent_100
+skill-advancement adapt:rift adapt:challenge_rift_descent_1k
+skill-advancement adapt:rift adapt:challenge_rift_dragon_500
+skill-advancement adapt:rift adapt:challenge_rift_dragon_5k
+skill-advancement adapt:rift adapt:challenge_rift_enderchest_200
+skill-advancement adapt:rift adapt:challenge_rift_enderman_50
+skill-advancement adapt:rift adapt:challenge_rift_enderman_500
+skill-advancement adapt:rift adapt:challenge_rift_gate_100
+skill-advancement adapt:rift adapt:challenge_rift_gate_50k_dist
+skill-advancement adapt:rift adapt:challenge_rift_pearls_50
+skill-advancement adapt:rift adapt:challenge_rift_pearls_500
+skill-advancement adapt:rift adapt:challenge_rift_pocket_5k
+skill-advancement adapt:rift adapt:challenge_rift_pocket_store_10k
+skill-advancement adapt:rift adapt:challenge_rift_rebound_100
+skill-advancement adapt:rift adapt:challenge_rift_rebound_1k
+skill-advancement adapt:rift adapt:challenge_rift_resist_200
+skill-advancement adapt:rift adapt:challenge_rift_taglock_100
+skill-advancement adapt:rift adapt:challenge_rift_taglock_500
+skill-advancement adapt:rift adapt:challenge_rift_visage_100
+skill-advancement adapt:rift adapt:challenge_rift_visage_1k
+skill-advancement adapt:rift adapt:challenge_rift_void_magnet_50k
+skill-advancement adapt:rift adapt:challenge_rift_void_magnet_5k
+skill-advancement adapt:rift adapt:challenge_rift_void_skin_50
+skill-advancement adapt:rift adapt:challenge_rift_void_skin_500
+skill-advancement adapt:rift adapt:skill/adapt/rift
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/brine_skin
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/coral_gardener
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/deep_salvager
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/fish_whisperer
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/fishers_fantasy
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/hydro_jet
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/ink_veil
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/oxygen
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/pressure_diver
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/rain_fed
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/speed
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/storm_strike
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/tidecaller
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/trident_mastery
+skill-advancement adapt:seaborne adapt:adaptation/adapt/seaborne/turtles_mining_speed
+skill-advancement adapt:seaborne adapt:challenge_drowned_25
+skill-advancement adapt:seaborne adapt:challenge_drowned_250
+skill-advancement adapt:seaborne adapt:challenge_fish_25
+skill-advancement adapt:seaborne adapt:challenge_fish_250
+skill-advancement adapt:seaborne adapt:challenge_guardian_10
+skill-advancement adapt:seaborne adapt:challenge_guardian_100
+skill-advancement adapt:seaborne adapt:challenge_seaborne_brine_72k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_charm_20k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_charm_2k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_coral_500
+skill-advancement adapt:seaborne adapt:challenge_seaborne_coral_5k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_fish_500
+skill-advancement adapt:seaborne adapt:challenge_seaborne_fish_5k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_hydro_200
+skill-advancement adapt:seaborne adapt:challenge_seaborne_hydro_5k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_ink_100
+skill-advancement adapt:seaborne adapt:challenge_seaborne_ink_1k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_mining_2500
+skill-advancement adapt:seaborne adapt:challenge_seaborne_mining_25k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_oxygen_12k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_salvage_100
+skill-advancement adapt:seaborne adapt:challenge_seaborne_salvage_1k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_speed_100k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_speed_10k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_tidecaller_200
+skill-advancement adapt:seaborne adapt:challenge_seaborne_tidecaller_5k
+skill-advancement adapt:seaborne adapt:challenge_seaborne_trident_250
+skill-advancement adapt:seaborne adapt:challenge_seaborne_trident_2500
+skill-advancement adapt:seaborne adapt:challenge_seaborne_vision_72k
+skill-advancement adapt:seaborne adapt:challenge_swim_1nm
+skill-advancement adapt:seaborne adapt:challenge_swim_20k
+skill-advancement adapt:seaborne adapt:challenge_swim_5k
+skill-advancement adapt:seaborne adapt:challenge_underwater_blocks_100
+skill-advancement adapt:seaborne adapt:challenge_underwater_blocks_1k
+skill-advancement adapt:seaborne adapt:skill/adapt/seaborne
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/assassinate
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/cutpurse
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/decoy_swap
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/enderveil
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/ghost_armor
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/shadow_decoy
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/shadowmeld
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/silent_step
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/smoke_pellet
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/snatch
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/speed
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/trap_sense
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/umbral_recovery
+skill-advancement adapt:stealth adapt:adaptation/adapt/stealth/vision
+skill-advancement adapt:stealth adapt:challenge_sneak_1k
+skill-advancement adapt:stealth adapt:challenge_sneak_20k
+skill-advancement adapt:stealth adapt:challenge_sneak_5k
+skill-advancement adapt:stealth adapt:challenge_stealth_arrows_50
+skill-advancement adapt:stealth adapt:challenge_stealth_arrows_500
+skill-advancement adapt:stealth adapt:challenge_stealth_assassinate_50
+skill-advancement adapt:stealth adapt:challenge_stealth_assassinate_500
+skill-advancement adapt:stealth adapt:challenge_stealth_cutpurse_100
+skill-advancement adapt:stealth adapt:challenge_stealth_cutpurse_1k
+skill-advancement adapt:stealth adapt:challenge_stealth_decoy_100
+skill-advancement adapt:stealth adapt:challenge_stealth_decoy_distract_500
+skill-advancement adapt:stealth adapt:challenge_stealth_decoy_swap_100
+skill-advancement adapt:stealth adapt:challenge_stealth_decoy_swap_1k
+skill-advancement adapt:stealth adapt:challenge_stealth_dmg_500
+skill-advancement adapt:stealth adapt:challenge_stealth_dmg_5k
+skill-advancement adapt:stealth adapt:challenge_stealth_ender_veil_200
+skill-advancement adapt:stealth adapt:challenge_stealth_ghost_100
+skill-advancement adapt:stealth adapt:challenge_stealth_ghost_500
+skill-advancement adapt:stealth adapt:challenge_stealth_kills_10
+skill-advancement adapt:stealth adapt:challenge_stealth_kills_100
+skill-advancement adapt:stealth adapt:challenge_stealth_shadowmeld_100
+skill-advancement adapt:stealth adapt:challenge_stealth_shadowmeld_1k
+skill-advancement adapt:stealth adapt:challenge_stealth_sight_sneak_1h
+skill-advancement adapt:stealth adapt:challenge_stealth_silent_200
+skill-advancement adapt:stealth adapt:challenge_stealth_silent_5in10
+skill-advancement adapt:stealth adapt:challenge_stealth_smoke_100
+skill-advancement adapt:stealth adapt:challenge_stealth_smoke_1k
+skill-advancement adapt:stealth adapt:challenge_stealth_snatch_2500
+skill-advancement adapt:stealth adapt:challenge_stealth_snatch_25k
+skill-advancement adapt:stealth adapt:challenge_stealth_speed_5k
+skill-advancement adapt:stealth adapt:challenge_stealth_trap_500
+skill-advancement adapt:stealth adapt:challenge_stealth_trap_5k
+skill-advancement adapt:stealth adapt:challenge_stealth_umbral_200
+skill-advancement adapt:stealth adapt:challenge_stealth_umbral_2k
+skill-advancement adapt:stealth adapt:skill/adapt/stealth
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/blade_flow
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/bloody_blade
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/crescent_guard
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/crimson_cyclone
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/dual_wield
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/duelists_focus
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/executioners_edge
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/hamstring
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/heirloom_edge
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/lunge_strike
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/machete
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/poison_blade
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/riposte_window
+skill-advancement adapt:swords adapt:adaptation/adapt/sword/whetstone_ritual
+skill-advancement adapt:swords adapt:challenge_sword_100
+skill-advancement adapt:swords adapt:challenge_sword_10k
+skill-advancement adapt:swords adapt:challenge_sword_1k
+skill-advancement adapt:swords adapt:challenge_sword_crit_50
+skill-advancement adapt:swords adapt:challenge_sword_crit_500
+skill-advancement adapt:swords adapt:challenge_sword_dmg_10k
+skill-advancement adapt:swords adapt:challenge_sword_dmg_1k
+skill-advancement adapt:swords adapt:challenge_sword_heavy_25
+skill-advancement adapt:swords adapt:challenge_sword_heavy_250
+skill-advancement adapt:swords adapt:challenge_sword_kills_50
+skill-advancement adapt:swords adapt:challenge_sword_kills_500
+skill-advancement adapt:swords adapt:challenge_swords_bloody_500
+skill-advancement adapt:swords adapt:challenge_swords_bloody_kills_100
+skill-advancement adapt:swords adapt:challenge_swords_crescent_200
+skill-advancement adapt:swords adapt:challenge_swords_crescent_2500
+skill-advancement adapt:swords adapt:challenge_swords_cyclone_500
+skill-advancement adapt:swords adapt:challenge_swords_cyclone_5k
+skill-advancement adapt:swords adapt:challenge_swords_cyclone_6
+skill-advancement adapt:swords adapt:challenge_swords_dual_1k
+skill-advancement adapt:swords adapt:challenge_swords_dual_25k
+skill-advancement adapt:swords adapt:challenge_swords_duelist_200
+skill-advancement adapt:swords adapt:challenge_swords_duelist_2500
+skill-advancement adapt:swords adapt:challenge_swords_execute_200
+skill-advancement adapt:swords adapt:challenge_swords_execute_2500
+skill-advancement adapt:swords adapt:challenge_swords_execute_5in10
+skill-advancement adapt:swords adapt:challenge_swords_flow_10k
+skill-advancement adapt:swords adapt:challenge_swords_flow_1k
+skill-advancement adapt:swords adapt:challenge_swords_flow_max
+skill-advancement adapt:swords adapt:challenge_swords_hamstring_200
+skill-advancement adapt:swords adapt:challenge_swords_hamstring_2500
+skill-advancement adapt:swords adapt:challenge_swords_heirloom_10
+skill-advancement adapt:swords adapt:challenge_swords_heirloom_100
+skill-advancement adapt:swords adapt:challenge_swords_lunge_250
+skill-advancement adapt:swords adapt:challenge_swords_lunge_2500
+skill-advancement adapt:swords adapt:challenge_swords_machete_2500
+skill-advancement adapt:swords adapt:challenge_swords_machete_25k
+skill-advancement adapt:swords adapt:challenge_swords_poison_500
+skill-advancement adapt:swords adapt:challenge_swords_poison_kills_50
+skill-advancement adapt:swords adapt:challenge_swords_riposte_200
+skill-advancement adapt:swords adapt:challenge_swords_riposte_2500
+skill-advancement adapt:swords adapt:challenge_swords_riposte_3in5
+skill-advancement adapt:swords adapt:challenge_swords_whetstone_100
+skill-advancement adapt:swords adapt:challenge_swords_whetstone_1000
+skill-advancement adapt:swords adapt:skill/adapt/swords
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/alphas_command
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/battle_bond
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/beast_recall
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/damage
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/fetch
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/guardian_instinct
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/health
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/health_regeneration
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/last_breath
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/mounted_tactics
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/pack_leader_aura
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/shared_pain
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/stable_hand
+skill-advancement adapt:taming adapt:adaptation/adapt/tame/wild_empathy
+skill-advancement adapt:taming adapt:challenge_pet_dmg_500
+skill-advancement adapt:taming adapt:challenge_pet_dmg_5k
+skill-advancement adapt:taming adapt:challenge_pet_kills_25
+skill-advancement adapt:taming adapt:challenge_pet_kills_250
+skill-advancement adapt:taming adapt:challenge_tamed_10
+skill-advancement adapt:taming adapt:challenge_tamed_100
+skill-advancement adapt:taming adapt:challenge_taming_10
+skill-advancement adapt:taming adapt:challenge_taming_50
+skill-advancement adapt:taming adapt:challenge_taming_500
+skill-advancement adapt:taming adapt:challenge_taming_bond_250
+skill-advancement adapt:taming adapt:challenge_taming_bond_2500
+skill-advancement adapt:taming adapt:challenge_taming_command_250
+skill-advancement adapt:taming adapt:challenge_taming_command_2500
+skill-advancement adapt:taming adapt:challenge_taming_damage_500
+skill-advancement adapt:taming adapt:challenge_taming_damage_5k
+skill-advancement adapt:taming adapt:challenge_taming_empathy_100
+skill-advancement adapt:taming adapt:challenge_taming_empathy_1k
+skill-advancement adapt:taming adapt:challenge_taming_fetch_10k
+skill-advancement adapt:taming adapt:challenge_taming_fetch_1k
+skill-advancement adapt:taming adapt:challenge_taming_guardian_250
+skill-advancement adapt:taming adapt:challenge_taming_guardian_2500
+skill-advancement adapt:taming adapt:challenge_taming_health_boost_72k
+skill-advancement adapt:taming adapt:challenge_taming_lastbreath_50
+skill-advancement adapt:taming adapt:challenge_taming_lastbreath_500
+skill-advancement adapt:taming adapt:challenge_taming_mounted_200
+skill-advancement adapt:taming adapt:challenge_taming_mounted_50k
+skill-advancement adapt:taming adapt:challenge_taming_pack_72k
+skill-advancement adapt:taming adapt:challenge_taming_recall_100
+skill-advancement adapt:taming adapt:challenge_taming_recall_1k
+skill-advancement adapt:taming adapt:challenge_taming_regen_1k
+skill-advancement adapt:taming adapt:challenge_taming_shared_500
+skill-advancement adapt:taming adapt:challenge_taming_shared_5k
+skill-advancement adapt:taming adapt:challenge_taming_stable_100
+skill-advancement adapt:taming adapt:challenge_taming_stable_1k
+skill-advancement adapt:taming adapt:skill/adapt/taming
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/blood_pact
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/bone_harvest
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/corpse_explosion
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/curse_of_frailty
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/death_sense
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/globe
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/healing
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/lance
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/last_rites
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/marrow_armor
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/plague_bearer
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/skeletal_servant
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/soul_siphon
+skill-advancement adapt:tragoul adapt:adaptation/adapt/tragoul/thorns
+skill-advancement adapt:tragoul adapt:challenge_trag_100k
+skill-advancement adapt:tragoul adapt:challenge_trag_10k
+skill-advancement adapt:tragoul adapt:challenge_trag_1k
+skill-advancement adapt:tragoul adapt:challenge_trag_hits_500
+skill-advancement adapt:tragoul adapt:challenge_trag_hits_5k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_bone_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_bone_5k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_corpse_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_corpse_5k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_death_sense_1k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_frailty_100
+skill-advancement adapt:tragoul adapt:challenge_tragoul_frailty_1k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_globe_1k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_globe_5
+skill-advancement adapt:tragoul adapt:challenge_tragoul_healing_10k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_healing_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_lance_200
+skill-advancement adapt:tragoul adapt:challenge_tragoul_lance_kills_100
+skill-advancement adapt:tragoul adapt:challenge_tragoul_last_rites_5
+skill-advancement adapt:tragoul adapt:challenge_tragoul_last_rites_50
+skill-advancement adapt:tragoul adapt:challenge_tragoul_marrow_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_marrow_5k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_pact_200
+skill-advancement adapt:tragoul adapt:challenge_tragoul_pact_all_in
+skill-advancement adapt:tragoul adapt:challenge_tragoul_pact_kills_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_plague_100
+skill-advancement adapt:tragoul adapt:challenge_tragoul_plague_1k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_servant_50
+skill-advancement adapt:tragoul adapt:challenge_tragoul_servant_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_siphon_10k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_siphon_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_thorns_500
+skill-advancement adapt:tragoul adapt:challenge_tragoul_thorns_5k
+skill-advancement adapt:tragoul adapt:challenge_tragoul_thorns_kill
+skill-advancement adapt:tragoul adapt:skill/adapt/tragoul
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/battering_charge
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/combo_chain
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/disarm
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/glass_cannon
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/grapple
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/iron_fists
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/meditation
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/power
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/pressure_point
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/second_wind
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/shockwave_clap
+skill-advancement adapt:unarmed adapt:adaptation/adapt/unarmed/sucker_punch
+skill-advancement adapt:unarmed adapt:challenge_unarmed_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_10k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_charge_300
+skill-advancement adapt:unarmed adapt:challenge_unarmed_charge_kills_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_clap_250
+skill-advancement adapt:unarmed adapt:challenge_unarmed_clap_2500
+skill-advancement adapt:unarmed adapt:challenge_unarmed_combo_10
+skill-advancement adapt:unarmed adapt:challenge_unarmed_combo_25
+skill-advancement adapt:unarmed adapt:challenge_unarmed_combo_5k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_crit_25
+skill-advancement adapt:unarmed adapt:challenge_unarmed_crit_250
+skill-advancement adapt:unarmed adapt:challenge_unarmed_disarm_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_disarm_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_dmg_10k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_dmg_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_glass_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_glass_500
+skill-advancement adapt:unarmed adapt:challenge_unarmed_grapple_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_grapple_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_heavy_25
+skill-advancement adapt:unarmed adapt:challenge_unarmed_heavy_250
+skill-advancement adapt:unarmed adapt:challenge_unarmed_iron_10k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_iron_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_kills_25
+skill-advancement adapt:unarmed adapt:challenge_unarmed_kills_250
+skill-advancement adapt:unarmed adapt:challenge_unarmed_knockout
+skill-advancement adapt:unarmed adapt:challenge_unarmed_meditate_500
+skill-advancement adapt:unarmed adapt:challenge_unarmed_meditate_5k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_power_500
+skill-advancement adapt:unarmed adapt:challenge_unarmed_power_5k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_pressure_500
+skill-advancement adapt:unarmed adapt:challenge_unarmed_pressure_5k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_second_wind_100
+skill-advancement adapt:unarmed adapt:challenge_unarmed_second_wind_1k
+skill-advancement adapt:unarmed adapt:challenge_unarmed_sucker_500
+skill-advancement adapt:unarmed adapt:skill/adapt/unarmed
+skill-config adapt/agility.toml
+skill-config adapt/architect.toml
+skill-config adapt/axes.toml
+skill-config adapt/blocking.toml
+skill-config adapt/brewing.toml
+skill-config adapt/chronos.toml
+skill-config adapt/crafting.toml
+skill-config adapt/discovery.toml
+skill-config adapt/enchanting.toml
+skill-config adapt/excavation.toml
+skill-config adapt/golemancy.toml
+skill-config adapt/herbalism.toml
+skill-config adapt/hunter.toml
+skill-config adapt/kinetics.toml
+skill-config adapt/nether.toml
+skill-config adapt/pickaxe.toml
+skill-config adapt/ranged.toml
+skill-config adapt/rift.toml
+skill-config adapt/seaborne.toml
+skill-config adapt/stealth.toml
+skill-config adapt/swords.toml
+skill-config adapt/taming.toml
+skill-config adapt/tragoul.toml
+skill-config adapt/unarmed.toml
+skill-permission adapt.use.adapt.agility
+skill-permission adapt.use.adapt.architect
+skill-permission adapt.use.adapt.axes
+skill-permission adapt.use.adapt.blocking
+skill-permission adapt.use.adapt.brewing
+skill-permission adapt.use.adapt.chronos
+skill-permission adapt.use.adapt.crafting
+skill-permission adapt.use.adapt.discovery
+skill-permission adapt.use.adapt.enchanting
+skill-permission adapt.use.adapt.excavation
+skill-permission adapt.use.adapt.golemancy
+skill-permission adapt.use.adapt.herbalism
+skill-permission adapt.use.adapt.hunter
+skill-permission adapt.use.adapt.kinetics
+skill-permission adapt.use.adapt.nether
+skill-permission adapt.use.adapt.pickaxe
+skill-permission adapt.use.adapt.ranged
+skill-permission adapt.use.adapt.rift
+skill-permission adapt.use.adapt.seaborne
+skill-permission adapt.use.adapt.stealth
+skill-permission adapt.use.adapt.swords
+skill-permission adapt.use.adapt.taming
+skill-permission adapt.use.adapt.tragoul
+skill-permission adapt.use.adapt.unarmed
+skill-text adapt.skill.agility
+skill-text adapt.skill.architect
+skill-text adapt.skill.axes
+skill-text adapt.skill.blocking
+skill-text adapt.skill.brewing
+skill-text adapt.skill.chronos
+skill-text adapt.skill.crafting
+skill-text adapt.skill.discovery
+skill-text adapt.skill.enchanting
+skill-text adapt.skill.excavation
+skill-text adapt.skill.golemancy
+skill-text adapt.skill.herbalism
+skill-text adapt.skill.hunter
+skill-text adapt.skill.kinetics
+skill-text adapt.skill.nether
+skill-text adapt.skill.pickaxe
+skill-text adapt.skill.ranged
+skill-text adapt.skill.rift
+skill-text adapt.skill.seaborne
+skill-text adapt.skill.stealth
+skill-text adapt.skill.swords
+skill-text adapt.skill.taming
+skill-text adapt.skill.tragoul
+skill-text adapt.skill.unarmed

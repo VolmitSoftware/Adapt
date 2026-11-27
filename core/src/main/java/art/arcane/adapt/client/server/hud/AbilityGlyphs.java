@@ -1,11 +1,14 @@
 package art.arcane.adapt.client.server.hud;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.notification.AdaptHud;
-import art.arcane.adapt.api.notification.HudStatusSpec;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
+import art.arcane.adapt.engine.notification.AdaptHud;
+import art.arcane.adapt.engine.notification.HudStatusSpec;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.view.ViewIcons;
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.Locale;
@@ -91,10 +94,10 @@ public final class AbilityGlyphs {
 
   /** The status purpose without the {@code adapt:status:} prefix: {@code <adaptation>.<kind>}. */
   public static String purpose(Adaptation<?> adaptation, HudGlyph glyph) {
-    return adaptation.getName() + "." + glyph.name().toLowerCase(Locale.ROOT);
+    return LegacyContentNames.of(adaptation.getId()) + "." + glyph.name().toLowerCase(Locale.ROOT);
   }
 
   private static String skillId(Adaptation<?> adaptation) {
-    return adaptation.getSkill() == null ? "" : adaptation.getSkill().getName();
+    return adaptation.getSkill() == null ? "" : SkillHost.lineKey(adaptation.getSkill());
   }
 }

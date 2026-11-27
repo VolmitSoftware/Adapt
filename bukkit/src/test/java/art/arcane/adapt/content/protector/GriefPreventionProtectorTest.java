@@ -65,18 +65,18 @@ class GriefPreventionProtectorTest {
 
   @Test
   void containerTrustGatesChestsInsideAClaim() {
-    assertThat(protector.canAccessChest(player, claimed, null)).isFalse();
+    assertThat(protector.canAccessChest(player, claimed)).isFalse();
 
     when(claim.allowContainers(player)).thenReturn(null);
 
-    assertThat(protector.canAccessChest(player, claimed, null)).isTrue();
+    assertThat(protector.canAccessChest(player, claimed)).isTrue();
   }
 
   @Test
   void aMonsterInsideAClaimIsDamageableWithoutAnyTrust() {
     Zombie zombie = entity(Zombie.class, claimed);
 
-    assertThat(protector.canPVE(player, zombie, null)).isTrue();
+    assertThat(protector.canPVE(player, zombie)).isTrue();
   }
 
   @Test
@@ -84,26 +84,26 @@ class GriefPreventionProtectorTest {
     Cow cow = entity(Cow.class, claimed);
     Squid squid = entity(Squid.class, claimed);
 
-    assertThat(protector.canPVE(player, cow, null)).isFalse();
-    assertThat(protector.canPVE(player, squid, null)).isFalse();
+    assertThat(protector.canPVE(player, cow)).isFalse();
+    assertThat(protector.canPVE(player, squid)).isFalse();
 
     when(claim.allowContainers(player)).thenReturn(null);
 
-    assertThat(protector.canPVE(player, cow, null)).isTrue();
-    assertThat(protector.canPVE(player, squid, null)).isTrue();
+    assertThat(protector.canPVE(player, cow)).isTrue();
+    assertThat(protector.canPVE(player, squid)).isTrue();
   }
 
   @Test
   void aCreatureBelowTheClaimFloorIsOutsideTheClaimAsGriefPreventionJudgesIt() {
-    assertThat(protector.canPVE(player, entity(Cow.class, belowFloor), null)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, belowFloor))).isTrue();
   }
 
   @Test
   void creaturesAreUnprotectedWhenGriefPreventionDoesNotProtectThem() {
     plugin.config_claims_protectCreatures = false;
 
-    assertThat(protector.canPVE(player, entity(Cow.class, claimed), null)).isTrue();
-    assertThat(protector.canAccessChest(player, claimed, null)).isFalse();
+    assertThat(protector.canPVE(player, entity(Cow.class, claimed))).isTrue();
+    assertThat(protector.canAccessChest(player, claimed)).isFalse();
   }
 
   @Test
@@ -116,24 +116,24 @@ class GriefPreventionProtectorTest {
     Hoglin lured = hoglin(true, true);
     Hoglin idle = hoglin(false, false);
 
-    assertThat(protector.canPVE(player, killer, null)).isTrue();
-    assertThat(protector.canPVE(player, bunny, null)).isFalse();
-    assertThat(protector.canPVE(player, hunting, null)).isTrue();
-    assertThat(protector.canPVE(player, lured, null)).isFalse();
-    assertThat(protector.canPVE(player, idle, null)).isFalse();
+    assertThat(protector.canPVE(player, killer)).isTrue();
+    assertThat(protector.canPVE(player, bunny)).isFalse();
+    assertThat(protector.canPVE(player, hunting)).isTrue();
+    assertThat(protector.canPVE(player, lured)).isFalse();
+    assertThat(protector.canPVE(player, idle)).isFalse();
   }
 
   @Test
   void locationOnlyDamageChecksAndInteractionsAreNotGatedByClaimTrust() {
-    assertThat(protector.canPVE(player, claimed, null)).isTrue();
-    assertThat(protector.canInteract(player, claimed, null)).isTrue();
+    assertThat(protector.canPVE(player, claimed)).isTrue();
+    assertThat(protector.canInteract(player, claimed)).isTrue();
   }
 
   @Test
   void unclaimedLandAllowsEverything() {
-    assertThat(protector.canInteract(player, wild, null)).isTrue();
-    assertThat(protector.canAccessChest(player, wild, null)).isTrue();
-    assertThat(protector.canPVE(player, entity(Cow.class, wild), null)).isTrue();
+    assertThat(protector.canInteract(player, wild)).isTrue();
+    assertThat(protector.canAccessChest(player, wild)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, wild))).isTrue();
   }
 
   private Hoglin hoglin(boolean targeting, boolean luredByPlayer) {

@@ -1,18 +1,18 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemEquipmentSlot;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.ServantFrame;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.support.PlatformSupport;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemEquipmentSlot;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemRegistry;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemRuneType;
+import art.arcane.adapt.content.golem.GolemState;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.ServantFrame;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.engine.support.PlatformSupport;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
@@ -43,7 +43,7 @@ public final class GolemLifecycleFixtures {
             case "copper" -> copper(player);
             case "bind" -> bindServant(player);
             case "fight" -> fight(player);
-            case "unlearn" -> GolemControlsFixtures.learn(player, "tragoul-skeletal-servant", 0);
+            case "unlearn" -> GolemControlsFixtures.learn(player, "adapt:tragoul/skeletal_servant", 0);
             case "snapshot" -> {
             }
             default -> throw new IllegalArgumentException("Unknown golem lifecycle action: " + args[2]);
@@ -52,13 +52,13 @@ public final class GolemLifecycleFixtures {
     }
 
     private static void prepare(PlayerRef player) {
-        GolemControlsFixtures.learn(player, "golem-animus-binding", 5);
-        if (PlatformSupport.leftOut().stream().noneMatch((PlatformSupport.LeftOut out) -> out.name().equals("golem-copper-frame"))) {
-            GolemControlsFixtures.learn(player, "golem-copper-frame", 1);
+        GolemControlsFixtures.learn(player, "adapt:golem/animus_binding", 5);
+        if (PlatformSupport.leftOut().stream().noneMatch((PlatformSupport.LeftOut out) -> out.name().equals("adapt:golem/copper_frame"))) {
+            GolemControlsFixtures.learn(player, "adapt:golem/copper_frame", 1);
         }
-        GolemControlsFixtures.learn(player, "golem-bone-frame", 1);
-        GolemControlsFixtures.learn(player, "golem-stasis", 2);
-        GolemControlsFixtures.learn(player, "tragoul-skeletal-servant", 1);
+        GolemControlsFixtures.learn(player, "adapt:golem/bone_frame", 1);
+        GolemControlsFixtures.learn(player, "adapt:golem/stasis", 2);
+        GolemControlsFixtures.learn(player, "adapt:tragoul/skeletal_servant", 1);
         Fixtures.clearInventory(player);
         player.inventory().setItem(0, Fixtures.item("bone", 32));
         player.inventory().setItem(1, GolemItems.crook());

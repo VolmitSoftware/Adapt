@@ -1,5 +1,5 @@
 {
-  "discovery-archaeologist": {
+  "adapt:discovery/archaeologist": {
     "set": "discovery-dig", "level": 6,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:brush"],
     "prelude": [
@@ -23,7 +23,7 @@
     ],
     "expect": {"sound": "minecraft:item.brush.brushing.sand.complete", "particle": "enchant"}, "maxTicks": 560
   },
-  "discovery-better-mending": {
+  "adapt:discovery/better_mending": {
     "set": "arena", "level": 6,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe[minecraft:enchantments={'minecraft:mending':1},minecraft:damage=1500]",
@@ -40,7 +40,7 @@
     ],
     "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "enchant"}, "maxTicks": 200
   },
-  "discovery-cartographer-pulse": {
+  "adapt:discovery/cartographer_pulse": {
     "set": "discovery-structure-approach",
     "level": 4,
     "povCapture": true,
@@ -96,7 +96,7 @@
       }
     ]
   },
-  "discovery-field-notes": {
+  "adapt:discovery/field_notes": {
     "set": "discovery-pasture",
     "level": 5,
     "pre": [
@@ -155,7 +155,7 @@
     },
     "maxTicks": 200
   },
-  "discovery-insight": {
+  "adapt:discovery/insight": {
     "plugins": [
       "Gloss"
     ],
@@ -228,7 +228,7 @@
     },
     "maxTicks": 360
   },
-  "discovery-keen-eye": {
+  "adapt:discovery/keen_eye": {
     "set": "discovery-cache",
     "level": 5,
     "prelude": [
@@ -280,7 +280,7 @@
     },
     "maxTicks": 330
   },
-  "discovery-polymath": {
+  "adapt:discovery/polymath": {
     "set": "sparring",
     "level": 5,
     "povCapture": true,
@@ -364,7 +364,7 @@
     },
     "maxTicks": 800
   },
-  "discovery-relic-appraiser": {
+  "adapt:discovery/relic_appraiser": {
     "set": "arena",
     "level": 5,
     "pre": [
@@ -442,7 +442,7 @@
     },
     "maxTicks": 220
   },
-  "discovery-sixth-sense": {
+  "adapt:discovery/sixth_sense": {
     "set": "discovery-structure-approach",
     "level": 5,
     "povCapture": true,
@@ -492,7 +492,7 @@
     },
     "maxTicks": 350
   },
-  "discovery-trailblazer": {
+  "adapt:discovery/trailblazer": {
     "set": "discovery-frontier",
     "level": 5,
     "pre": [
@@ -532,7 +532,7 @@
     },
     "maxTicks": 250
   },
-  "discovery-unity": {
+  "adapt:discovery/unity": {
     "set": "arena", "level": 7,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
     "beats": [
@@ -546,7 +546,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 200
   },
-  "discovery-villager-att": {
+  "adapt:discovery/villager_att": {
     "povCapture": true,
     "set": "discovery-market",
     "level": 5,
@@ -637,7 +637,7 @@
     },
     "maxTicks": 387
   },
-  "discovery-world-armor": {
+  "adapt:discovery/world_armor": {
     "set": "discovery-vault", "level": 3,
     "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}, {"verb": "wait", "ticks": 200}],
@@ -649,7 +649,7 @@
     "expect": {"sound": "minecraft:block.stone.place", "particle": "dust"}, "maxTicks": 400,
     "camera": {"x": 0.5, "y": 5.5, "z": 7.5, "yaw": 180, "pitch": 20}
   },
-  "discovery-xp-resist": {
+  "adapt:discovery/xp_resist": {
     "set": "sparring", "level": 5,
     "pre": [
       "xp add {actor} 10 levels",

@@ -1,5 +1,5 @@
 {
-  "sword-blade-flow": {
+  "adapt:sword/blade_flow": {
     "set": "sparring", "level": 5,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"],
@@ -17,7 +17,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.break"}, "maxTicks": 180
   },
-  "sword-bloody-blade": {
+  "adapt:sword/bloody_blade": {
     "set": "sparring", "level": 7,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"],
@@ -29,7 +29,7 @@
     ],
     "expect": {"sound": "minecraft:block.honey_block.slide", "particle": "dust"}, "maxTicks": 160
   },
-  "sword-crescent-guard": {
+  "adapt:sword/crescent_guard": {
     "povCapture": true,
     "set": "swords-coop", "level": 5,
     "pre": [
@@ -45,7 +45,7 @@
     ],
     "expect": {"sound": "minecraft:item.totem.use", "particle": "heart"}, "maxTicks": 140
   },
-  "sword-crimson-cyclone": {
+  "adapt:sword/crimson_cyclone": {
     "set": "swords-cluster", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
@@ -63,7 +63,7 @@
     ],
     "expect": {"sound": "minecraft:entity.ender_dragon.flap", "particle": "crimson_spore"}, "maxTicks": 150
   },
-  "sword-dual-wield": {
+  "adapt:sword/dual_wield": {
     "set": "sparring", "level": 5,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": [
@@ -81,7 +81,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime"}, "maxTicks": 150
   },
-  "sword-duelists-focus": {
+  "adapt:sword/duelists_focus": {
     "set": "sparring", "level": 5,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"],
@@ -95,7 +95,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 160
   },
-  "sword-executioners-edge": {
+  "adapt:sword/executioners_edge": {
     "set": "sparring", "level": 6,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": [
@@ -115,7 +115,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.land", "particle": "dust"}, "maxTicks": 180
   },
-  "sword-hamstring": {
+  "adapt:sword/hamstring": {
     "set": "swords-pursuit", "level": 5, "opponent": true,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword"],
     "prelude": [
@@ -131,7 +131,7 @@
     ],
     "expect": {"sound": "minecraft:block.honey_block.slide", "particle": "dust"}, "maxTicks": 200
   },
-  "sword-heirloom-edge": {
+  "adapt:sword/heirloom_edge": {
     "set": "swords-heirloom", "level": 5,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
@@ -182,7 +182,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.use"}, "maxTicks": 260
   },
-  "sword-lunge-strike": {
+  "adapt:sword/lunge_strike": {
     "set": "swords-lunge", "level": 5,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b,IsBaby:1b}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.0, -2.5]}],
@@ -195,7 +195,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "sweep_attack"}, "maxTicks": 150
   },
-  "sword-machete": {
+  "adapt:sword/machete": {
     "set": "swords-meadow", "level": 3,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} run gamerule block_drops false"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.3, -2.5]}],
@@ -206,7 +206,7 @@
     ],
     "expect": {"sound": "minecraft:item.axe.strip", "particle": "wax_on"}, "maxTicks": 120
   },
-  "sword-poison-blade": {
+  "adapt:sword/poison_blade": {
     "set": "swords-cow", "level": 7,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:cow,distance=..8] run data merge entity @s {NoAI:1b}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.9, -2.0]}],
@@ -217,7 +217,7 @@
     ],
     "expect": {"sound": "minecraft:entity.bee.sting", "particle": "sneeze"}, "maxTicks": 160
   },
-  "sword-riposte-window": {
+  "adapt:sword/riposte_window": {
     "set": "sparring", "level": 5,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": [
@@ -237,7 +237,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.land"}, "maxTicks": 150
   },
-  "sword-whetstone-ritual": {
+  "adapt:sword/whetstone_ritual": {
     "set": "swords-grindstone", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",

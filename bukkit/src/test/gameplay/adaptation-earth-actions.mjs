@@ -41,7 +41,7 @@ export function observeOreMarkers(actor, opponent, position) {
 }
 
 export const earthBehaviorCases = new Map([
-    ['pickaxe-chisel', {
+    ['adapt:pickaxe/chisel', {
         stage: 'earth-chisel', negativeWindowTicks: 1, prepare: preparePick,
         sound: 'minecraft:block.metal.hit', soundVolume: 1.25, soundPitch: 1.7, particle: 'electric_spark', particleCount: 4,
         async trigger({ actor, snapshot }) {
@@ -55,7 +55,7 @@ export const earthBehaviorCases = new Map([
             return { assertions: ['unlearned ore interaction leaves the tool unchanged', 'learned natural ore interaction runs chiseling and charges one durability point'], measurements: { unlearned, active } }
         },
     }],
-    ['pickaxe-gem-polish', {
+    ['adapt:pickaxe/gem_polish', {
         stage: 'earth-trophy', negativeWindowTicks: 1, prepare: preparePick,
         sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.5, soundPitch: 1.4, particle: 'end_rod', particleCount: 1,
         async trigger({ actor, snapshot }) {
@@ -73,7 +73,7 @@ export const earthBehaviorCases = new Map([
             return { assertions: ['unlearned trophy grants no vanilla XP', 'learned trophy grants positive bounded vanilla XP', 'both actual mining trials retain exactly one trophy'], measurements: { unlearned, active } }
         },
     }],
-    ['excavation-burrow', {
+    ['adapt:excavation/burrow', {
         stage: 'earth-burrow', negativeWindowTicks: 1,
         prepare: input => input.equip('diamond_shovel'),
         sound: 'minecraft:block.rooted_dirt.break', soundVolume: 0.8, soundPitch: 0.6, particle: 'cloud', particleCount: 1,
@@ -96,7 +96,7 @@ export const earthBehaviorCases = new Map([
     }],
 ])
 
-for (const [name, stage, spelunker] of [['pickaxe-quarry-sense', 'earth-quarry', false], ['excavation-spelunker', 'earth-spelunker', true]]) {
+for (const [name, stage, spelunker] of [['adapt:pickaxe/quarry_sense', 'earth-quarry', false], ['adapt:excavation/spelunker', 'earth-spelunker', true]]) {
     earthBehaviorCases.set(name, {
         stage, negativeWindowTicks: 1,
         sound: spelunker ? 'minecraft:block.note_block.bass' : 'minecraft:block.respawn_anchor.charge', soundVolume: spelunker ? 0.5 : 0.9, soundPitch: spelunker ? 1 : 1.6,
@@ -135,7 +135,7 @@ for (const [name, stage, spelunker] of [['pickaxe-quarry-sense', 'earth-quarry',
     })
 }
 
-earthBehaviorCases.set('pickaxe-repair-rhythm', {
+earthBehaviorCases.set('adapt:pickaxe/repair_rhythm', {
     stage: 'earth-repair', negativeWindowTicks: 1, prepare: preparePick,
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.25, soundPitch: 1.95, soundPitchRange: [1.79, 1.96], particle: 'wax_on', particleCount: 2,
     async trigger({ actor, snapshot }) {
@@ -156,7 +156,7 @@ earthBehaviorCases.set('pickaxe-repair-rhythm', {
     },
 })
 
-earthBehaviorCases.set('excavation-omnitool', {
+earthBehaviorCases.set('adapt:excavation/omnitool', {
     stage: 'earth-omni', negativeWindowTicks: 1, prepare: preparePick,
     sound: 'minecraft:item.armor.equip_elytra', soundVolume: 1, soundPitch: 0.77, particle: 'wax_on', particleCount: 10,
     async trigger({ actor, context, snapshot }) {
@@ -191,9 +191,9 @@ earthBehaviorCases.set('excavation-omnitool', {
 })
 
 for (const [name, stage, stat, material, probability] of [
-    ['excavation-grave-digger', 'earth-graves', 'excavation.grave-digger.bones-unearthed', 'dirt', 0.043],
-    ['excavation-treasure-hunter', 'earth-treasure', 'excavation.treasure-hunter.treasures-found', 'sand', 0.06],
-    ['excavation-seismic-ping', 'earth-seismic', 'excavation.seismic-ping.pings-triggered', 'dirt', 0.51],
+    ['adapt:excavation/grave_digger', 'earth-graves', 'excavation.grave-digger.bones-unearthed', 'dirt', 0.043],
+    ['adapt:excavation/treasure_hunter', 'earth-treasure', 'excavation.treasure-hunter.treasures-found', 'sand', 0.06],
+    ['adapt:excavation/seismic_ping', 'earth-seismic', 'excavation.seismic-ping.pings-triggered', 'dirt', 0.51],
 ]) earthBehaviorCases.set(name, {
     stage, negativeWindowTicks: 1, prepare: input => input.equip('diamond_shovel'),
     ...(stage === 'earth-graves' ? { sound: 'minecraft:block.bone_block.break', soundVolume: 0.6, soundPitch: 1, particle: 'ash', particleCount: 8 }

@@ -74,8 +74,8 @@ class PlayerGapTranslationsTest {
       core.setRewardExp(false);
     });
 
-    assertThat(PlayerGapTranslations.TRADE.target(purchase)).isNull();
-    PlayerGapTranslations.TRADE.bridge(trade, core -> bus.post(core, EventPriority.MONITOR));
+    assertThat(PaperTranslations.TRADE.target(purchase)).isNull();
+    PaperTranslations.TRADE.bridge(trade, core -> bus.post(core, EventPriority.MONITOR));
 
     assertThat(seen.get().merchant()).isSameAs(refs.wrap(villager, EntityRef.class));
     assertThat(trade.isRewardingExp()).isFalse();

@@ -1,0 +1,102 @@
+[skill.geology]
+name = "Geologie"
+description = "Lies den Stein, den du abbaust, und lerne, was in ihm steckt."
+quip = "Jeder Stein hat eine Geschichte."
+xp_note = "Platzierte Bloecke bringen nichts."
+
+[skill.geology.unlock_quip]
+"1" = "Dein Blick fuer Stein wird schaerfer."
+
+[skill.geology.group]
+field = "Feldarbeit"
+workshop = "Werkstatt"
+
+[skill.geology.xp]
+stone = "Natuerlichen Stein abbauen"
+ore = "Erz abbauen"
+
+[skill.geology.mutated]
+noun = "Schichten"
+adjective = "Geschichtet"
+
+[skill.geology.block]
+trigger = "natuerlichen Stein abbauen"
+strike_fight = "die Haut haerten"
+strike_work = "die Spitzhacke beschleunigen"
+boon = "ein wenig Erfahrung finden"
+fuel = "einen Bissen Hunger zahlen"
+state = "mit einer Spitzhacke in der Hand"
+
+[adaptation.geology.stone_skin]
+name = "Steinhaut"
+description = "Deine Haut wird hart wie der Stein, den du bearbeitest."
+lore1 = "Ruestung"
+
+[adaptation.geology.prospect]
+name = "Schuerfen"
+description = "Schleiche und klicke mit einer Spitzhacke rechts auf Stein, um Erz in der Naehe zu zeigen."
+lore1 = "Suchradius"
+lore2 = "Abklingzeit"
+
+[adaptation.geology.prospect.hud]
+found = "Erz in der Naehe: {count}"
+
+[adaptation.geology.core_sample]
+name = "Bohrkern"
+description = "Abgebauter Stein liefert manchmal eine Probe."
+lore1 = "Chance pro Block"
+
+[adaptation.geology.core_sample.preference.delivery]
+name = "Wohin Proben gehen"
+
+[adaptation.geology.core_sample.preference.delivery.choice]
+drop = "Auf den Boden fallen lassen"
+inventory = "Direkt ins Inventar"
+
+[adaptation.geology.geode_lens]
+name = "Geodenlinse"
+description = "Stelle eine Linse her, die den Suchradius aus der Nebenhand verdoppelt."
+lore1 = "Schaltet das Rezept der Geodenlinse frei"
+
+[adaptation.pickaxe.aftershock]
+name = "Nachbeben"
+description = "Abgebautes Erz gibt manchmal einen Schub Eile."
+lore1 = "Chance pro Erz"
+
+[item.geode_lens]
+name = "Geodenlinse"
+lore1 = "Beim Schuerfen in der Nebenhand halten."
+
+[advancement.geology_rocks_100]
+title = "Steinsammler"
+description = "Baue 100 natuerlichen Stein ab."
+
+[command]
+geology = "Geologie-Werkzeuge für Operatoren"
+status = "Zeigt deinen Geologie-Fortschritt"
+catalog = "Zeigt, was der Katalog führt"
+notes = "Schreibt eine Feldnotiz"
+text = "Zeigt die Texte des Beispiels in einer Sprache"
+xp = "Gibt dir Geologie-EP"
+knowledge = "Gibt dir Geologie-Wissen"
+learn = "Lernt eine Anpassung"
+unlearn = "Vergisst eine Anpassung"
+delivery = "Wählt, wohin Bohrkerne gehen"
+mutate = "Verschmilzt Geologie mit einer anderen Fertigkeit"
+lead = "Verschmilzt eine andere Fertigkeit mit Geologie als Partner"
+train = "Gibt dir Erfahrung in einer beliebigen Fertigkeit"
+mutation = "Zeigt deine Geologie-Mutation"
+unmutate = "Hebt die Geologie-Mutation auf"
+orphans = "Listet deinen verwaisten Fortschritt"
+addon = "Zeigt den Zustand des Addons"
+uninstall = "Deinstalliert das Beispiel-Addon"
+
+[command.argument]
+amount = "Wie viel"
+adaptation = "Eine Anpassungs-ID, etwa example:geology/prospect"
+level = "Die Zielstufe"
+force = "Ohne Wissenskosten"
+delivery = "drop oder inventory"
+partner = "Die Fertigkeit zum Verschmelzen"
+skill = "Die Fertigkeit zum Trainieren"
+locale = "Eine Sprache, etwa de_DE"

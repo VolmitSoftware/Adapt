@@ -6,8 +6,8 @@ import art.arcane.adapt.platform.item.BannerLayer;
 import art.arcane.adapt.platform.item.ShieldDesign;
 import art.arcane.adapt.platform.value.DyeColor;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import com.google.common.collect.Multimap;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -32,21 +32,12 @@ import java.util.Random;
  * introduced.
  */
 final class BukkitItem120Version {
-  private static volatile boolean enchantWithLevelsSupported = true;
-
   private BukkitItem120Version() {
   }
 
   @SuppressWarnings("deprecation")
   static ItemStack enchantWithLevels(ItemStack stack, int levels, boolean treasure, Random random) {
-    if (enchantWithLevelsSupported) {
-      try {
-        return Bukkit.getItemFactory().enchantWithLevels(stack, levels, treasure, random);
-      } catch (NoSuchMethodError absent) {
-        enchantWithLevelsSupported = false;
-      }
-    }
-    return Bukkit.getItemFactory().enchantItem(stack, levels, treasure);
+    return PaperApi.enchantWithLevels(stack, levels, treasure, random);
   }
 
   static Boolean glintOverride(ItemMeta meta) {
@@ -93,7 +84,7 @@ final class BukkitItem120Version {
   }
 
   static Multimap<Attribute, AttributeModifier> defaultModifiers(Material type) {
-    return type.getDefaultAttributeModifiers();
+    return PaperApi.defaultModifiers(type);
   }
 
   static Id basePotion(PotionMeta meta) {

@@ -1,6 +1,7 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
 import art.arcane.adapt.platform.entity.ExperienceOrbRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.entity.ExperienceOrb;
 
@@ -30,9 +31,6 @@ public final class BukkitExperienceOrbRef extends BukkitEntityRef implements Exp
 
   @Override
   public void setCount(int count) {
-    try {
-      orb().setCount(count);
-    } catch (NoSuchMethodError ignored) {
-    }
+    PaperApi.setOrbCount(orb(), count);
   }
 }

@@ -2,7 +2,7 @@ package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.content.adaptation.golemancy.ReactSuperStackPort;
+import art.arcane.adapt.engine.integration.ReactSuperStackPort;
 import art.arcane.adapt.platform.item.ItemRef;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

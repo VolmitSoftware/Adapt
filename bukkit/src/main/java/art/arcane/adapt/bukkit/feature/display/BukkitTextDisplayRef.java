@@ -3,6 +3,8 @@ package art.arcane.adapt.bukkit.feature.display;
 import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.platform.entity.display.TextAlignment;
 import art.arcane.adapt.platform.entity.display.TextDisplayRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Color;
 import org.bukkit.entity.TextDisplay;
 
@@ -19,12 +21,12 @@ final class BukkitTextDisplayRef extends BukkitDisplayRef implements TextDisplay
 
   @Override
   public String text() {
-    return BukkitText.markup(textDisplay().text());
+    return BukkitText.markup(PaperApi.text(textDisplay()));
   }
 
   @Override
   public void setText(String markup) {
-    textDisplay().text(BukkitText.component(markup));
+    PaperCompat.text(textDisplay(), BukkitText.component(markup));
   }
 
   @Override

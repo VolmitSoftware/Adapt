@@ -34,8 +34,8 @@ export default {
         try {
             await context.command(`/adaptqa setup ${bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 60000)
             setup = true
-            await context.command('/adaptqa learn discovery-unity 7', /^ADAPT_QA LEARN /, TIMEOUT)
-            await context.command('/adaptqa learn-add enchanting-echo-of-knowledge 5', /^ADAPT_QA LEARN-ADD /, TIMEOUT)
+            await context.command('/adaptqa learn adapt:discovery/unity 7', /^ADAPT_QA LEARN /, TIMEOUT)
+            await context.command('/adaptqa learn-add adapt:enchanting/echo_of_knowledge 5', /^ADAPT_QA LEARN-ADD /, TIMEOUT)
             evidence.initial = await fixture('prepare')
             await context.step('Direct reward publishes one event and charges the held enchanted book', async () => {
                 const before = await snapshot()

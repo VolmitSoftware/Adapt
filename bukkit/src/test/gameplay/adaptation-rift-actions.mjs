@@ -332,9 +332,9 @@ function report(assertions, unlearned, active) {
 }
 
 export const riftBehaviorCases = new Map([
-    ['rift-descent', {
-        stage: 'rift-descent', prepare: prepare('potion'), negativeWindowTicks: 10,
-        trigger: versionEntry('rift-descent')?.status === 'emulated'
+    ['adapt:rift/descent', {
+        stage: 'adapt:rift/descent', prepare: prepare('potion'), negativeWindowTicks: 10,
+        trigger: versionEntry('adapt:rift/descent')?.status === 'emulated'
             ? async input => ({ ...await descent(input), fallDamage: await fallDamageTaken(input) })
             : descent,
         description: 'sneaking cancels naturally consumed levitation and grants fall protection',
@@ -348,8 +348,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned sneak retains consumed levitation', 'learned sneak clears levitation and sets zero fall damage'], unlearned, active)
         },
     }],
-    ['rift-blink', {
-        stage: 'rift-blink', trigger: blink, negativeWindowTicks: 10,
+    ['adapt:rift/blink', {
+        stage: 'adapt:rift/blink', trigger: blink, negativeWindowTicks: 10,
         description: 'a natural double jump teleports the player along their aim',
         sound: 'minecraft:entity.enderman.teleport', soundVolume: 0.5, soundPitch: 1, particle: 'reverse_portal',
         async verify({ context, unlearned, active }) {
@@ -358,7 +358,7 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned stationary jump gesture does not travel horizontally', 'learned double jump teleports along the aim'], unlearned, active)
         },
     }],
-    ['rift-void-magnet', {
+    ['adapt:rift/void_magnet', {
         stage: 'rift-magnet', trigger: magnet, negativeWindowTicks: 10,
         description: 'sneaking transfers distant item drops into the ender chest',
         sound: 'minecraft:block.beacon.power_select', soundVolume: 0.4, soundPitch: 1.5, particle: 'end_rod',
@@ -369,7 +369,7 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned sneak leaves three distant diamonds untouched', 'learned stationary sneak moves exactly three diamonds into ender storage'], unlearned, active)
         },
     }],
-    ['rift-inflated-pocket-dimension', {
+    ['adapt:rift/inflated_pocket_dimension', {
         stage: 'rift-pocket', trigger: pocket, negativeWindowTicks: 10,
         description: 'empty-hand block use pulls matching ender items and sneak-dropping stores items',
         sound: 'minecraft:block.ender_chest.open', soundVolume: 0.4, soundPitch: 1.7, particle: 'portal',
@@ -381,7 +381,7 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned gestures neither pull nor store ender items', 'learned pull and deposit conserve sixteen stone and three diamonds'], unlearned, active)
         },
     }],
-    ['rift-pearl-rebound', {
+    ['adapt:rift/pearl_rebound', {
         stage: 'rift-rebound', prepare: prepare('ender_pearl'), trigger: throwPearl, negativeWindowTicks: 10,
         description: 'a naturally thrown pearl rebounds off a wall before teleporting its owner',
         sound: 'minecraft:block.slime_block.hit', soundVolume: 0.7, soundPitch: 1.4, particle: 'reverse_portal',
@@ -393,8 +393,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned pearl resolves at its first forward impact', 'learned pearl rebounds backward and reduces teleport health loss'], unlearned, active)
         },
     }],
-    ['rift-visage', {
-        stage: 'rift-visage', trigger: visage, negativeWindowTicks: 10,
+    ['adapt:rift/visage', {
+        stage: 'adapt:rift/visage', trigger: visage, negativeWindowTicks: 10,
         description: 'carrying a pearl prevents natural Enderman stare aggression',
         sound: 'minecraft:entity.enderman.ambient', soundVolume: 0.3, soundPitch: 0.7, particle: 'reverse_portal',
         async verify({ context, unlearned, active }) {
@@ -403,7 +403,7 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned gaze naturally provokes Enderman targeting', 'learned pearl-bearing gaze cancels targeting and leaves no player target'], unlearned, active)
         },
     }],
-    ['rift-ender-taglock', {
+    ['adapt:rift/ender_taglock', {
         stage: 'rift-taglock', prepare: prepare('ender_pearl'), trigger: taglock, negativeWindowTicks: 10,
         description: 'a sneak pearl strike tags a cow and throwing the taglock teleports that cow',
         sound: 'minecraft:entity.ender_eye.launch', soundVolume: 0.65, soundPitch: 1.25, particle: 'reverse_portal',
@@ -420,8 +420,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned pearl strike hurts cow and throw moves the player', 'learned tag prevents strike damage and throw moves the cow instead'], unlearned, active)
         },
     }],
-    ['rift-void-skin', {
-        stage: 'rift-void-skin', trigger: voidSkin, negativeWindowTicks: 10,
+    ['adapt:rift/void_skin', {
+        stage: 'adapt:rift/void_skin', trigger: voidSkin, negativeWindowTicks: 10,
         description: 'a lethal real sword hit consumes a pearl and teleports the defender to safety',
         sound: 'minecraft:entity.enderman.teleport', soundVolume: 0.6, soundPitch: 1.3, particle: 'reverse_portal',
         async verify({ context, unlearned, active }) {
@@ -432,8 +432,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned lethal sword hit causes death', 'learned lethal hit spends pearl, preserves life, relocates defender and grants resistance'], unlearned, active)
         },
     }],
-    ['rift-gate', {
-        stage: 'rift-gate', prepare: prepare('ender_eye'), trigger: gate, negativeWindowTicks: 10,
+    ['adapt:rift/gate', {
+        stage: 'adapt:rift/gate', prepare: prepare('ender_eye'), trigger: gate, negativeWindowTicks: 10,
         description: 'naturally binding an unbound gate eye returns its user after walking away',
         sound: 'minecraft:block.lodestone.place', soundVolume: 1, soundPitch: 0.8, particle: 'reverse_portal',
         async verify({ context, unlearned, active }) {
@@ -444,8 +444,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned unbound eye neither binds nor recalls', 'learned binding and channel return the distant user and consume the eye'], unlearned, active)
         },
     }],
-    ['rift-access', {
-        stage: 'rift-access', prepare: prepare('ender_pearl'), trigger: access, negativeWindowTicks: 10,
+    ['adapt:rift/access', {
+        stage: 'adapt:rift/access', prepare: prepare('ender_pearl'), trigger: access, negativeWindowTicks: 10,
         description: 'a naturally bound portkey opens and withdraws from a distant chest',
         sound: 'minecraft:particle.soul_escape', soundVolume: 1, soundPitch: 0.8, particle: 'portal',
         async verify({ context, unlearned, active }) {
@@ -455,8 +455,8 @@ export const riftBehaviorCases = new Map([
             return report(['unlearned portkey cannot bind or remotely open chest', 'learned remote window transfers all four physical chest diamonds'], unlearned, active)
         },
     }],
-    ['rift-conduit', {
-        stage: 'rift-conduit', prepare: prepare('ender_pearl'), trigger: conduit, negativeWindowTicks: 10,
+    ['adapt:rift/conduit', {
+        stage: 'adapt:rift/conduit', prepare: prepare('ender_pearl'), trigger: conduit, negativeWindowTicks: 10,
         description: 'natural pearl capture and binding links two chests that transfer items on close',
         sound: 'minecraft:block.conduit.activate', soundVolume: 0.6, soundPitch: 1.1, particle: 'reverse_portal',
         async verify({ context, unlearned, active }) {

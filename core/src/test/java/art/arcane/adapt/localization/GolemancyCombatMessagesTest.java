@@ -1,7 +1,6 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.LocaleOverlay;
 import art.arcane.volmlib.util.localization.MessageValue;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -21,27 +20,27 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GolemancyCombatMessagesTest extends AdaptTestBase {
   private static final Path RESOURCE_ROOT = Path.of("../src/main/resources");
   private static final List<TextKey> COMBAT_KEYS = List.of(
-      GolemancyMessages.GUI_COMBAT_ON,
-      GolemancyMessages.GUI_COMBAT_OFF,
-      GolemancyMessages.GUI_COMBAT_LOCKED,
-      GolemancyMessages.GUI_COMBAT_ON_LORE,
-      GolemancyMessages.GUI_COMBAT_OFF_LORE,
-      GolemancyMessages.GUI_COMBAT_LOCKED_LORE,
-      GolemancyMessages.OVERSEER_SIC_IGNORED);
+      key("golemancy.gui.combat_on"),
+      key("golemancy.gui.combat_off"),
+      key("golemancy.gui.combat_locked"),
+      key("golemancy.gui.combat_on_lore"),
+      key("golemancy.gui.combat_off_lore"),
+      key("golemancy.gui.combat_locked_lore"),
+      key("golemancy.overseer.sic_ignored"));
 
   @Test
   void theIgnoredSicNoteNamesTheCountOfGolems() {
-    assertThat(GolemancyMessages.OVERSEER_SIC_IGNORED.placeholders()).containsExactly("count");
-    assertThat(AdaptLanguage.text(GolemancyMessages.OVERSEER_SIC_IGNORED, trusted("count", 3)))
+    assertThat(key("golemancy.overseer.sic_ignored").placeholders()).containsExactly("count");
+    assertThat(AdaptLanguage.text(key("golemancy.overseer.sic_ignored"), trusted("count", 3)))
         .isEqualTo("Golems with combat off ignored Sic: 3");
-    assertThatThrownBy(() -> AdaptLanguage.text(GolemancyMessages.OVERSEER_SIC_IGNORED))
+    assertThatThrownBy(() -> AdaptLanguage.text(key("golemancy.overseer.sic_ignored")))
         .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("missing=[count]");
   }
 
   @Test
   void theToggleTextsTakeNoPlaceholders() {
     for (TextKey key : COMBAT_KEYS.subList(0, COMBAT_KEYS.size() - 1)) {
-      assertThat(key.placeholders()).as(key.id()).isEmpty();
+      assertThat(key.placeholders()).as(key.id().toString()).isEmpty();
     }
   }
 
@@ -57,5 +56,9 @@ class GolemancyCombatMessagesTest extends AdaptTestBase {
         assertThat(placeholders).as("%s in %s", key.id(), locale).isEqualTo(key.placeholders());
       }
     }
+  }
+
+  private static TextKey key(String id) {
+    return (TextKey) BuiltInText.catalog().key(AdaptKeys.id(id));
   }
 }

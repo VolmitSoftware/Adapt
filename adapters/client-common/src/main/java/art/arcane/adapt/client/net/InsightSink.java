@@ -1,7 +1,6 @@
 package art.arcane.adapt.client.net;
 
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.client.protocol.ServerFrame;
 
 import java.util.List;
 
@@ -9,7 +8,7 @@ import java.util.List;
 public interface InsightSink {
     InsightSink NONE = new InsightSink() {
         @Override
-        public void target(InsightView view) {
+        public void target(ServerFrame.InsightTarget view) {
         }
 
         @Override
@@ -17,7 +16,7 @@ public interface InsightSink {
         }
 
         @Override
-        public void marks(List<InsightMark> marks) {
+        public void marks(List<ServerFrame.InsightMarks.Mark> marks) {
         }
 
         @Override
@@ -29,11 +28,11 @@ public interface InsightSink {
         }
     };
 
-    void target(InsightView view);
+    void target(ServerFrame.InsightTarget view);
 
     void vitals(int entityId, double health, double absorption);
 
-    void marks(List<InsightMark> marks);
+    void marks(List<ServerFrame.InsightMarks.Mark> marks);
 
     /** The server lost the target: drop it and every mark. */
     void clear();

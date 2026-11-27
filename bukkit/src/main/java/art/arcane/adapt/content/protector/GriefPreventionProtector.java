@@ -19,8 +19,6 @@
 package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -34,21 +32,21 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class GriefPreventionProtector implements Protector {
+public class GriefPreventionProtector extends BukkitProtector {
 
 
   @Override
-  public boolean canBlockBreak(Player player, Location location, Adaptation<?> adaptation) {
+  protected boolean canBlockBreak(Player player, Location location) {
     return canEditClaim(player, location);
   }
 
   @Override
-  public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
+  protected boolean canBlockPlace(Player player, Location location) {
     return canEditClaim(player, location);
   }
 
   @Override
-  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+  protected boolean canPVE(Player player, Entity victim) {
     if (!GriefPrevention.instance.config_claims_protectCreatures || !ClaimCreatures.protectedCreature(victim, GriefPreventionProtector::lured)) {
       return true;
     }
@@ -56,24 +54,20 @@ public class GriefPreventionProtector implements Protector {
   }
 
   @Override
-  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+  protected boolean canAccessChest(Player player, Location chestLocation) {
     return allowed(chestLocation, true, claim -> claim.allowContainers(player));
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return "GriefPrevention";
   }
 
   @Override
-  public boolean isEnabledByDefault() {
+  public boolean enabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isGriefprevention();
   }
 
-  @Override
-  public void unregister() {
-    Protector.super.unregister();
-  }
 
 
   private boolean canEditClaim(Player player, Location location) {

@@ -1,12 +1,14 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.text.TextKeys;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 
@@ -64,21 +66,15 @@ public final class AdaptLanguageEditor {
     Map<String, Supplier<ItemRef>> icons = new HashMap<>();
     for (Skill<?> skill : registry.getAllSkills()) {
       Supplier<ItemRef> skillIcon = () -> GuiConfig.skillModel(
-          skill.getName(), skill.getIcon(), skill.getModel()).toItemStack();
-      icons.put(skill.getName(), skillIcon);
-      if (skill instanceof SimpleSkill<?> simple) {
-        String name = simple.getPresentation().name().id();
-        icons.put(name.substring(0, name.lastIndexOf('.')), skillIcon);
-      }
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+          SkillHost.lineKey(skill), skill.getIcon().item(), ComponentHost.of(skill).getModel()).toItemStack();
+      icons.put(SkillHost.lineKey(skill), skillIcon);
+      icons.put(TextKeys.skill(skill.getId()), skillIcon);
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
         if (adaptation instanceof SimpleAdaptation<?> simple) {
           String prefix = simple.getLocalizationKey();
           icons.put(prefix, () -> GuiConfig.adaptationModel(
-              adaptation.getName(), adaptation.getIcon(), adaptation.getModel()).toItemStack());
-          int separator = prefix.indexOf('.');
-          if (separator > 0) {
-            icons.putIfAbsent(prefix.substring(0, separator), skillIcon);
-          }
+              adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel()).toItemStack());
+          icons.putIfAbsent(LanguageEditorGui.group(prefix), skillIcon);
         }
       }
     }

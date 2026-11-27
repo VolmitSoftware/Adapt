@@ -1,5 +1,6 @@
 package art.arcane.adapt.mod.platform.entity;
 
+import art.arcane.adapt.engine.platform.EngineLastDamage;
 import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.platform.entity.LastDamage;
 import art.arcane.adapt.platform.event.entity.DamageCause;
@@ -26,7 +27,7 @@ public final class ModLastDamage {
         if (entry == null) {
             return null;
         }
-        return new LastDamage(entry.cause(), entry.damager() == null ? null : ModRefs.entity(entry.damager()), entry.finalDamage());
+        return new EngineLastDamage(entry.cause(), entry.damager() == null ? null : ModRefs.entity(entry.damager()), entry.finalDamage());
     }
 
     private record Entry(DamageCause cause, Entity damager, double finalDamage) {

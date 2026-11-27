@@ -19,8 +19,6 @@
 package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
@@ -32,32 +30,32 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-public class FactionsClaimProtector implements Protector {
+public class FactionsClaimProtector extends BukkitProtector {
 
   @Override
-  public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+  protected boolean checkRegion(Player player, Location location) {
     Faction f = factionAt(location);
     return checkPerm(player, f) || f.isWilderness();
   }
 
   @Override
-  public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
+  protected boolean canBlockBreak(Player player, Location blockLocation) {
     return hasAccess(player, blockLocation, PermissibleActions.DESTROY);
   }
 
   @Override
-  public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
+  protected boolean canBlockPlace(Player player, Location blockLocation) {
     return hasAccess(player, blockLocation, PermissibleActions.BUILD);
   }
 
   @Override
-  public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
+  protected boolean canPVP(Player player, Location victimLocation) {
     Faction f = factionAt(victimLocation);
     return checkPerm(player, f) || !f.noPvPInTerritory();
   }
 
   @Override
-  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+  protected boolean canPVE(Player player, Entity victim) {
     if (!ClaimCreatures.protectedCreature(victim, entity -> false)) {
       return true;
     }
@@ -66,17 +64,17 @@ public class FactionsClaimProtector implements Protector {
   }
 
   @Override
-  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+  protected boolean canAccessChest(Player player, Location chestLocation) {
     return hasAccess(player, chestLocation, PermissibleActions.CONTAINER);
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return "Factions";
   }
 
   @Override
-  public boolean isEnabledByDefault() {
+  public boolean enabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
   }
 

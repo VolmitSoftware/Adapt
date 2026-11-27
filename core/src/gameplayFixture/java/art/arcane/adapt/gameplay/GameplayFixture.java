@@ -1,17 +1,18 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.fx.Fx;
-import art.arcane.adapt.api.fx.FxBudget;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.fx.Fx;
+import art.arcane.adapt.engine.fx.FxBudget;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -19,11 +20,11 @@ import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.platform.event.player.PlayerInput;
 import art.arcane.adapt.platform.entity.TeleportCause;
+import art.arcane.adapt.platform.event.player.PlayerInput;
 import art.arcane.adapt.platform.fx.ParticleSpec;
-import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
@@ -489,7 +490,7 @@ public final class GameplayFixture {
             }
             case "brewing", "chronos" -> {
                 ItemRef potion = Fixtures.item("potion");
-                potion.setPotionContents(new PotionContents(Id.minecraft("swiftness"), null, java.util.List.of(), null));
+                potion.setPotionContents(PotionContents.of(Id.minecraft("swiftness")));
                 actor.inventory().addItem(potion);
             }
             case "ranged" -> {
@@ -647,12 +648,12 @@ public final class GameplayFixture {
         JsonArray skills = new JsonArray();
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             JsonObject entry = new JsonObject();
-            entry.addProperty("name", skill.getName());
+            entry.addProperty("name", skill.getId().path());
             entry.addProperty("enabled", skill.isEnabled());
             JsonArray adaptations = new JsonArray();
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
                 JsonObject detail = new JsonObject();
-                detail.addProperty("name", adaptation.getName());
+                detail.addProperty("name", adaptation.getId().toString());
                 detail.addProperty("enabled", adaptation.isEnabled());
                 detail.addProperty("maxLevel", adaptation.getMaxLevel());
                 adaptations.add(detail);
@@ -689,11 +690,11 @@ public final class GameplayFixture {
             throw new IllegalArgumentException("Level outside adaptation range");
         }
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
-            PlayerSkillLine line = adaptPlayer.getData().getSkillLine(skill.getName());
+            PlayerSkillLine line = adaptPlayer.getData().getSkillLine(SkillHost.lineKey(skill));
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
                 if (exclusive || adaptation == selected) {
                     int target = adaptation == selected ? level : 0;
-                    boolean unlearned = target == 0 && line.getAdaptationLevel(adaptation.getName()) > 0;
+                    boolean unlearned = target == 0 && line.getAdaptationLevel(adaptation.getId().toString()) > 0;
                     line.setAdaptation(adaptation, target);
                     if (unlearned) {
                         PlayerPreferences.reconcile(adaptation, adaptPlayer);
@@ -806,7 +807,7 @@ public final class GameplayFixture {
         JsonArray registered = new JsonArray();
         JsonArray enabled = new JsonArray();
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
-            String skillName = skill.getName();
+            String skillName = skill.getId().path();
             registered.add(skillName);
             if (skill.isEnabled()) {
                 enabled.add(skillName);
@@ -816,7 +817,7 @@ public final class GameplayFixture {
             committedXp.addProperty(skillName, line == null ? 0 : line.getXp());
             pooledXp.addProperty(skillName, line == null ? 0 : line.getPooledXp());
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                learned.addProperty(adaptation.getName(), line == null ? 0 : line.getAdaptationLevel(adaptation.getName()));
+                learned.addProperty(adaptation.getId().toString(), line == null ? 0 : line.getAdaptationLevel(adaptation.getId().toString()));
             }
         }
         result.add("registered", registered);

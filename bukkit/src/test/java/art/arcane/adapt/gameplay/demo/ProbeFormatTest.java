@@ -46,16 +46,16 @@ class ProbeFormatTest {
     @Test
     void levelsListOnlyTheAdaptationsTheActorHasLearned() {
         Map<String, Integer> levels = new LinkedHashMap<>();
-        levels.put("golem-animus-binding", 5);
-        levels.put("golem-copper-frame", 0);
-        levels.put("golem-runic-augments", 3);
+        levels.put("adapt:golem/animus_binding", 5);
+        levels.put("adapt:golem/copper_frame", 0);
+        levels.put("adapt:golem/runic_augments", 3);
 
-        assertThat(ProbeFormat.levels(levels)).isEqualTo(" | levels golem-animus-binding=5 golem-runic-augments=3");
+        assertThat(ProbeFormat.levels(levels)).isEqualTo(" | levels adapt:golem/animus_binding=5 adapt:golem/runic_augments=3");
     }
 
     @Test
     void levelsKeepTheMarkerWhenNothingIsLearned() {
-        assertThat(ProbeFormat.levels(Map.of("golem-copper-frame", 0))).isEqualTo(" | levels");
+        assertThat(ProbeFormat.levels(Map.of("adapt:golem/copper_frame", 0))).isEqualTo(" | levels");
     }
 
     @Test

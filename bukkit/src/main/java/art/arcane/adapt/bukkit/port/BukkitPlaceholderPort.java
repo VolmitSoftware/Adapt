@@ -1,7 +1,7 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlaceholderPort;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlaceholderPort;
 import art.arcane.adapt.papi.AdaptPlaceholders;
 
 import java.util.UUID;

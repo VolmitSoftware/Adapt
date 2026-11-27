@@ -4,6 +4,7 @@ import art.arcane.volmlib.util.localization.LanguageFileHeader;
 import art.arcane.volmlib.util.localization.LanguageMeta;
 import art.arcane.volmlib.util.localization.LanguageReferenceRenderer;
 import art.arcane.volmlib.util.localization.MessageCatalog;
+import art.arcane.volmlib.util.localization.VolmitLocales;
 
 import java.io.File;
 import java.util.List;
@@ -18,7 +19,7 @@ public final class AdaptLanguageReference {
   }
 
   public static File referenceFile() {
-    return new File(folder(), AdaptMessages.catalog().englishLocale() + ".toml");
+    return new File(folder(), VolmitLocales.ENGLISH + ".toml");
   }
 
   public static boolean write() {
@@ -28,7 +29,7 @@ public final class AdaptLanguageReference {
     return LanguageFileWriter.write(
         referenceFile().toPath(),
         "language reference",
-        render(AdaptMessages.catalog())
+        render(AdaptLanguage.builtInCatalog())
     );
   }
 

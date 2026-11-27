@@ -5,10 +5,7 @@ import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.entity.AreaEffectCloudApplyEvent;
 import art.arcane.adapt.platform.event.entity.CreatureSpawnEvent;
-import art.arcane.adapt.platform.event.entity.EntityInsideBlockEvent;
-import art.arcane.adapt.platform.event.entity.EntityPathfindEvent;
 import art.arcane.adapt.platform.event.entity.EntityToggleGlideEvent;
-import art.arcane.adapt.platform.event.entity.EntityWorldEvent;
 import art.arcane.adapt.platform.event.entity.ItemDespawnEvent;
 import art.arcane.adapt.platform.event.entity.ItemMergeEvent;
 import art.arcane.adapt.platform.event.entity.ItemSpawnEvent;
@@ -27,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static art.arcane.adapt.bukkit.event.BukkitEventMaps.block;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.entity;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.living;
 import static art.arcane.adapt.bukkit.event.BukkitEventMaps.stack;
@@ -38,17 +34,9 @@ final class EntityGapTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(ADD_TO_WORLD, REMOVE_FROM_WORLD, SPAWN, ITEM_MERGE, ITEM_DESPAWN, POTION_SPLASH, LINGERING_SPLASH,
-        CLOUD_APPLY, INSIDE_BLOCK, TOGGLE_GLIDE, PIGLIN_BARTER, PATHFIND);
+    return List.of(SPAWN, ITEM_MERGE, ITEM_DESPAWN, POTION_SPLASH, LINGERING_SPLASH,
+        CLOUD_APPLY, TOGGLE_GLIDE, PIGLIN_BARTER);
   }
-
-  static final Translation<com.destroystokyo.paper.event.entity.EntityAddToWorldEvent> ADD_TO_WORLD = BukkitTranslations.simple(
-      com.destroystokyo.paper.event.entity.EntityAddToWorldEvent.class, EntityWorldEvent.class,
-      (event, poster) -> poster.post(new EntityWorldEvent(entity(event.getEntity()), EntityWorldEvent.Phase.ADD)));
-
-  static final Translation<com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent> REMOVE_FROM_WORLD =
-      BukkitTranslations.simple(com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent.class, EntityWorldEvent.class,
-          (event, poster) -> poster.post(new EntityWorldEvent(entity(event.getEntity()), EntityWorldEvent.Phase.REMOVE)));
 
   static final Translation<org.bukkit.event.entity.EntitySpawnEvent> SPAWN = new Translation<>(
       org.bukkit.event.entity.EntitySpawnEvent.class, List.of(CreatureSpawnEvent.class, ItemSpawnEvent.class)) {
@@ -139,15 +127,6 @@ final class EntityGapTranslations {
         cancel(event, cancelled, core);
       });
 
-  static final Translation<io.papermc.paper.event.entity.EntityInsideBlockEvent> INSIDE_BLOCK = BukkitTranslations.simple(
-      io.papermc.paper.event.entity.EntityInsideBlockEvent.class, EntityInsideBlockEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        EntityInsideBlockEvent core = new EntityInsideBlockEvent(entity(event.getEntity()), block(event.getBlock()));
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
-      });
-
   static final Translation<org.bukkit.event.entity.EntityToggleGlideEvent> TOGGLE_GLIDE = new Translation<>(
       org.bukkit.event.entity.EntityToggleGlideEvent.class, List.of(EntityToggleGlideEvent.class)) {
     @Override
@@ -182,16 +161,6 @@ final class EntityGapTranslations {
             }
           }
         }
-      });
-
-  static final Translation<com.destroystokyo.paper.event.entity.EntityPathfindEvent> PATHFIND = BukkitTranslations.simple(
-      com.destroystokyo.paper.event.entity.EntityPathfindEvent.class, EntityPathfindEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        EntityPathfindEvent core = new EntityPathfindEvent(entity(event.getEntity()), BukkitRefs.loc(event.getLoc()),
-            entity(event.getTargetEntity()));
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
       });
 
   private static boolean sameRefs(List<ItemRef> after, List<ItemRef> before) {

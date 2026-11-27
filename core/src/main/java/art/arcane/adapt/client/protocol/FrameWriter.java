@@ -89,8 +89,9 @@ final class FrameWriter {
     raw(value);
   }
 
+  /** Writes the constant's name, so constants added or reordered later never change what an older reader sees. */
   <E extends Enum<E>> void enumValue(E value) {
-    u8(value.ordinal());
+    string(value.name(), FrameLimits.MAX_ID_BYTES);
   }
 
   <T> void list(List<T> values, int maxCount, BiConsumer<FrameWriter, T> element) {

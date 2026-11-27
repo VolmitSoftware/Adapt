@@ -17,20 +17,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AdaptLanguageEditorTest extends AdaptTestBase {
   @Test
   void savesEnglishDirectlyAndRetainsNeighboringMessages() throws Exception {
-    Path file = write("en_US", "# Local formatting\n[runtime]\nno_description_provided = \"Custom English\"\n"
-        + "[command.runtime]\nplayer_only = \"Players only\"\n");
+    Path file = write("en_US", "# Local formatting\n[adapt.runtime]\nno_description_provided = \"Custom English\"\n"
+        + "[adapt.command.runtime]\nplayer_only = \"Players only\"\n");
 
     LocalizationSnapshot saved = AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
         "en_US", RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), new TextValue("Custom English"), new TextValue("Edited English")));
 
     assertThat(saved.value(RuntimeMessages.NO_DESCRIPTION_PROVIDED)).isEqualTo(new TextValue("Edited English"));
-    assertThat(Files.readString(file)).contains("# Local formatting", "[runtime]", "Edited English", "Players only");
+    assertThat(Files.readString(file)).contains("# Local formatting", "[adapt.runtime]", "Edited English", "Players only");
   }
 
   @Test
   void savesPartialLocaleWhileInvalidSiblingUsesEnglish() throws Exception {
-    Path file = write("de_DE", "[runtime]\nno_description_provided = \"Eigener Text\"\n"
-        + "[command.runtime]\nmissing_permission = 42\n");
+    Path file = write("de_DE", "[adapt.runtime]\nno_description_provided = \"Eigener Text\"\n"
+        + "[adapt.command.runtime]\nmissing_permission = 42\n");
 
     LocalizationSnapshot saved = AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
         "de_DE", RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), new TextValue("Eigener Text"), new TextValue("Neuer Text")));
@@ -42,7 +42,7 @@ class AdaptLanguageEditorTest extends AdaptTestBase {
 
   @Test
   void staleEditorValueCannotOverwriteNewerLocalEdit() throws Exception {
-    String raw = "[runtime]\nno_description_provided = \"Changed on disk\"\n";
+    String raw = "[adapt.runtime]\nno_description_provided = \"Changed on disk\"\n";
     Path file = write("de_DE", raw);
 
     assertThatThrownBy(() -> AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
@@ -54,7 +54,7 @@ class AdaptLanguageEditorTest extends AdaptTestBase {
 
   @Test
   void invalidEditedPlaceholdersCannotReplaceTheFile() throws Exception {
-    String raw = "[runtime]\nno_description_provided = \"Eigener Text\"\n";
+    String raw = "[adapt.runtime]\nno_description_provided = \"Eigener Text\"\n";
     Path file = write("de_DE", raw);
 
     assertThatThrownBy(() -> AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(

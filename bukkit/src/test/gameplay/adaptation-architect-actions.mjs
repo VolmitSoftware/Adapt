@@ -14,12 +14,12 @@ async function place({ context, actor }) {
 }
 
 export const architectBehaviorCases = new Map([
-    ['architect-steady-hands', {
+    ['adapt:architect/steady_hands', {
         stage: 'build-bridge', attribute: 'minecraft:knockback_resistance', negativeWindowTicks: 10,
         sound: 'minecraft:block.wool.step', soundVolume: 0.3, soundPitch: 1.2, particle: 'dust',
         trigger: place,
     }],
-    ['architect-supply-line', {
+    ['adapt:architect/supply_line', {
         stage: 'build-refill', negativeWindowTicks: 10,
         sound: 'minecraft:block.composter.fill', soundVolume: 0.6, soundPitch: 1.3, particle: 'wax_on',
         async trigger(input) {
@@ -37,7 +37,7 @@ export const architectBehaviorCases = new Map([
             return { assertions: ['both trials place and consume one stone', 'only learned placement refills the empty hand', 'reserve transfer conserves remaining inventory'], measurements: { unlearned, active } }
         },
     }],
-    ['architect-demolition', {
+    ['adapt:architect/demolition', {
         stage: 'build-demolition', negativeWindowTicks: 5,
         sound: 'minecraft:block.amethyst_block.hit', soundVolume: 0.5, soundPitch: 0.7, particle: 'scrape',
         async trigger(input) {
@@ -62,7 +62,7 @@ export const architectBehaviorCases = new Map([
     }],
 ])
 
-architectBehaviorCases.set('architect-scaffolder', {
+architectBehaviorCases.set('adapt:architect/scaffolder', {
     stage: 'build-bridge', negativeWindowTicks: 1,
     sound: 'minecraft:block.deepslate.place', soundVolume: 0.6, soundPitch: 1.6, particle: 'reverse_portal',
     async trigger(input) {
@@ -77,7 +77,7 @@ architectBehaviorCases.set('architect-scaffolder', {
         return { assertions: ['unlearned block persists beyond 30 seconds', 'learned scaffold dissolves after its configured lifetime', 'expired scaffold refunds the original block'], measurements: { unlearned, active } }
     },
 })
-architectBehaviorCases.set('architect-foundation', {
+architectBehaviorCases.set('adapt:architect/foundation', {
     stage: 'build-foundation', negativeWindowTicks: 1,
     sound: 'minecraft:block.note_block.hat', soundVolume: 0.5, soundPitch: 0.7, particle: 'dust',
     async trigger({ actor, snapshot, context }) {

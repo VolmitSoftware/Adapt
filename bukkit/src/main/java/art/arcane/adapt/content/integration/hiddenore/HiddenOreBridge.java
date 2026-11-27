@@ -18,17 +18,19 @@
 
 package art.arcane.adapt.content.integration.hiddenore;
 
-import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.content.skill.SkillPickaxes;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.hiddenore.HiddenOre;
 import art.arcane.hiddenore.api.BreakCause;
@@ -50,6 +52,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class HiddenOreBridge implements Listener {
+  private static final Id PICKAXE = Id.adapt("pickaxe");
+
   static List<HiddenOreLink.VeinTarget> veins(Location origin, int radius) {
     HiddenOreAPI api = api();
     if (api == null) {
@@ -153,19 +157,23 @@ public final class HiddenOreBridge implements Listener {
       return;
     }
     Material display = vein.oreDisplay() != null ? vein.oreDisplay() : vein.item();
-    Skill<?> pickaxe = SkillRegistry.skills.get("pickaxe");
-    if (pickaxe == null) {
+    if (!(pickaxe() instanceof SkillPickaxes pickaxe)) {
       return;
     }
-    double value = pickaxe.getValue(BukkitRefs.id(display));
+    double value = pickaxe.blockValue(BukkitRefs.id(display));
     if (value <= 0) {
       return;
     }
     pickaxe.xp(BukkitRefs.player(p), BukkitRefs.loc(e.getBlock().getLocation()), value);
   }
 
+  private static Skill<?> pickaxe() {
+    AdaptServer server = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    return server == null ? null : server.getSkillRegistry().getSkill(PICKAXE);
+  }
+
   private static <T> T adaptation(Class<T> type) {
-    Skill<?> pickaxe = SkillRegistry.skills.get("pickaxe");
+    Skill<?> pickaxe = pickaxe();
     if (pickaxe == null) {
       return null;
     }

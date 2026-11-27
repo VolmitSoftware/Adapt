@@ -2,24 +2,24 @@
   "skill": "axes",
   "upgrades": [
     {
-      "name": "upgraded-axes-timberfall",
+      "name": "adapt:axes/upgrade/timberfall",
       "class": "Timberfall",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Timberfall.java",
-      "fuses": ["axe-chop", "axe-wood-veinminer", "axe-leaf-veinminer"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Timberfall.java",
+      "fuses": ["adapt:axe/chop", "adapt:axe/wood_veinminer", "adapt:axe/leaf_veinminer"],
       "triggers": ["BlockBreakEvent", "BlockDropItemEvent"]
     },
     {
-      "name": "upgraded-axes-sundering-cleave",
+      "name": "adapt:axes/upgrade/sundering_cleave",
       "class": "SunderingCleave",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/SunderingCleave.java",
-      "fuses": ["axe-sunder", "axe-cleave"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/SunderingCleave.java",
+      "fuses": ["adapt:axe/sunder", "adapt:axe/cleave"],
       "triggers": ["EntityDamageByEntityEvent"]
     },
     {
-      "name": "upgraded-axes-worldsplitter",
+      "name": "adapt:axes/upgrade/worldsplitter",
       "class": "Worldsplitter",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Worldsplitter.java",
-      "fuses": ["axe-ground-smash", "axe-throwing-axe"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/axe/upgraded/Worldsplitter.java",
+      "fuses": ["adapt:axe/ground_smash", "adapt:axe/throwing_axe"],
       "triggers": ["PlayerInteractEvent", "BlockBreakEvent", "ProjectileHitEvent", "EntityRemoveEvent", "EntityDamageByEntityEvent", "EntityDeathEvent", "PlayerJoinEvent", "PlayerQuitEvent"]
     }
   ]

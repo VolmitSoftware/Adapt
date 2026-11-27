@@ -1,6 +1,6 @@
 package art.arcane.adapt.util.project.redis;
 
-import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.api.config.ConfigDoc;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.experimental.Accessors;

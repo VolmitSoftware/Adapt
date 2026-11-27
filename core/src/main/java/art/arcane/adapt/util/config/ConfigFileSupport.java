@@ -262,26 +262,6 @@ public final class ConfigFileSupport {
     return isTomlFile(file) || isJsonFile(file);
   }
 
-  public static String configNameFromFileName(String fileName) {
-    if (fileName == null) {
-      return null;
-    }
-    String lower = fileName.toLowerCase(Locale.ROOT);
-    if (lower.endsWith(".toml")) {
-      return fileName.substring(0, fileName.length() - 5).toLowerCase(Locale.ROOT);
-    }
-    if (lower.endsWith(".json")) {
-      return fileName.substring(0, fileName.length() - 5).toLowerCase(Locale.ROOT);
-    }
-    if (lower.endsWith(".yml")) {
-      return fileName.substring(0, fileName.length() - 4).toLowerCase(Locale.ROOT);
-    }
-    if (lower.endsWith(".yaml")) {
-      return fileName.substring(0, fileName.length() - 5).toLowerCase(Locale.ROOT);
-    }
-    return null;
-  }
-
   public static JsonElement parseToJsonElement(String raw, File file) {
     if (raw == null || raw.isBlank()) {
       return null;

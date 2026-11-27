@@ -30,9 +30,9 @@ public final class RiftSets implements DemoSetProvider {
                     (world, x, y, z) -> DemoGeometry.fill(world, Material.STONE_BRICKS, x - 3, y, z - 13, x + 5, y + 2, z - 13)),
             new SimpleSet("rift-escape", ACTOR_CLEARING, new DemoSet.Pose(9.5, 9.0, 7.5, 135f, 30f), false,
                     List.of(new DemoSet.Sparring("ZOMBIE", 0.5, 0, -6.5)), SimpleSet.OPEN_PLATE),
-            new SimpleSet("rift-gate", ACTOR_NORTH, CAMERA_RECALL, false, List.of(), RiftSets::buildWorkbench),
-            new SimpleSet("rift-access", ACTOR_NORTH, CAMERA_RECALL, false, List.of(), RiftSets::buildAccess),
-            new SimpleSet("rift-conduit", ACTOR_EAST, new DemoSet.Pose(-4.5, 3.5, -6.5, 315f, 16f), false, List.of(),
+            new SimpleSet("adapt:rift/gate", ACTOR_NORTH, CAMERA_RECALL, false, List.of(), RiftSets::buildWorkbench),
+            new SimpleSet("adapt:rift/access", ACTOR_NORTH, CAMERA_RECALL, false, List.of(), RiftSets::buildAccess),
+            new SimpleSet("adapt:rift/conduit", ACTOR_EAST, new DemoSet.Pose(-4.5, 3.5, -6.5, 315f, 16f), false, List.of(),
                     RiftSets::buildConduit)
     );
 

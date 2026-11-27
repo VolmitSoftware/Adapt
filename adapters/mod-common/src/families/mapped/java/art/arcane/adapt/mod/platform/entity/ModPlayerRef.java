@@ -636,9 +636,13 @@ public final class ModPlayerRef extends ModLivingRef implements PlayerRef {
 
     @Override
     public void playSound(Loc at, Id sound, SoundCategory category, float volume, float pitch) {
+        if (sound == null) {
+            return;
+        }
+        Loc where = at == null ? location() : at;
         ServerPlayer player = handle();
         player.connection.send(new ClientboundSoundPacket(ModConversions.sound(sound), ModConversions.soundSource(category),
-                at.x(), at.y(), at.z(), volume, pitch, player.getRandom().nextLong()));
+                where.x(), where.y(), where.z(), volume, pitch, player.getRandom().nextLong()));
     }
 
     @Override

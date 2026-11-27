@@ -17,7 +17,7 @@ class ConfigMapOrderStabilityTest extends AdaptTestBase {
 
   static Stream<String> configOwners() throws Exception {
     List<String> owners = new ArrayList<>(List.of("art.arcane.adapt.content.skill.SkillGolemancy"));
-    File dir = new File("src/main/java/art/arcane/adapt/content/adaptation/golemancy");
+    File dir = new File("../content/src/main/java/art/arcane/adapt/content/adaptation/golemancy");
     for (File source : dir.listFiles()) {
       String name = source.getName().replace(".java", "");
       if (name.startsWith("Golem") && Files.readString(source.toPath()).contains("class Config")) {

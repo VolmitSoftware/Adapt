@@ -2,31 +2,37 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.AdaptationLearningTransaction;
-import art.arcane.adapt.api.adaptation.AdaptationRequirements;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.mutation.SkillWords;
-import art.arcane.adapt.content.gui.MutationGui;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.api.player.LearnOptions;
+import art.arcane.adapt.api.player.LearnResult;
+import art.arcane.adapt.api.player.MutationResult;
+import art.arcane.adapt.api.player.SkillProgress;
 import art.arcane.adapt.client.protocol.ClientCapability;
 import art.arcane.adapt.client.server.AdaptScreens;
 import art.arcane.adapt.client.server.ClientUiService;
-import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.item.ExperienceOrb;
-import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.engine.gui.ConfigGui;
+import art.arcane.adapt.engine.gui.MutationGui;
+import art.arcane.adapt.engine.item.ExperienceOrb;
+import art.arcane.adapt.engine.item.KnowledgeOrb;
+import art.arcane.adapt.engine.adaptation.AdaptationRequirements;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.player.EnginePlayerProfile;
+import art.arcane.adapt.engine.player.PlayerApi;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
@@ -49,7 +55,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
-@Director(name = "adapt", description = "Adapt skills, adaptations, and admin tools", descriptionKey = "command.help.adapt_skills_adaptations_and_admin_tools")
+@Director(name = "adapt", description = "Adapt skills, adaptations, and admin tools", descriptionKey = "adapt.command.help.adapt_skills_adaptations_and_admin_tools")
 public class CommandAdapt {
   private static final String NO_SKILL = "---";
 
@@ -61,9 +67,9 @@ public class CommandAdapt {
   private CommandClear clear;
   private CommandReset reset;
   private CommandDefault defaults;
-  private CommandGolem golem;
+  private CommandOrphans orphans;
 
-  @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "command.help.version")
+  @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "adapt.command.help.version")
   public void version(@Param(name = "sender", contextual = true) CommandSource sender) {
     debug.version(sender);
   }
@@ -85,13 +91,13 @@ public class CommandAdapt {
     return Math.multiplyExact(seconds, 1000L);
   }
 
-  @Director(description = "Boost Target player Experience gain.", descriptionKey = "command.help.boost_target_player_experience_gain")
+  @Director(description = "Boost Target player Experience gain.", descriptionKey = "adapt.command.help.boost_target_player_experience_gain")
   public void boost(
-      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
+      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "adapt.command.help.amount_of_seconds")
       long seconds,
-      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
+      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "adapt.command.help.strength_of_the_boost")
       double multiplier,
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -125,12 +131,11 @@ public class CommandAdapt {
   }
 
   private void boostTarget(PlayerRef targetPlayer, long seconds, double multiplier, CommandSource sender) {
-    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+    if (profile == null) {
       return;
     }
-    PlayerData playerData = adaptPlayer.getData();
-    playerData.globalXPMultiplier(multiplier, xpBoostDurationMillis(seconds));
+    profile.boost(multiplier, xpBoostDurationMillis(seconds));
 
     CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.BOOSTED_XP,
@@ -139,11 +144,11 @@ public class CommandAdapt {
     )));
   }
 
-  @Director(description = "Boost Global Experience gain.", name = "global-boost", descriptionKey = "command.help.boost_global_experience_gain")
+  @Director(description = "Boost Global Experience gain.", name = "global-boost", descriptionKey = "adapt.command.help.boost_global_experience_gain")
   public void globalBoost(
-      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
+      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "adapt.command.help.amount_of_seconds")
       long seconds,
-      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
+      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "adapt.command.help.strength_of_the_boost")
       double multiplier
   ) {
     if (!CommandContext.hasPermission("adapt.boost.global")) {
@@ -163,8 +168,7 @@ public class CommandAdapt {
       return;
     }
 
-    AdaptServer adaptServer = AdaptCore.get().getAdaptServer();
-    adaptServer.boostXP(multiplier, xpBoostDurationMillis(seconds));
+    PlayerApi.directory().boost(multiplier, xpBoostDurationMillis(seconds));
 
     FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.BOOSTED_XP,
@@ -173,9 +177,9 @@ public class CommandAdapt {
     )).send(CommandContext.source());
   }
 
-  @Director(description = "Show a player's Adapt client UI status and power use",descriptionKey = "command.help.show_client_ui_status")
+  @Director(description = "Show a player's Adapt client UI status and power use",descriptionKey = "adapt.command.help.show_client_ui_status")
   public void client(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -203,11 +207,11 @@ public class CommandAdapt {
           trusted("capabilities", String.join(", ", ClientUiService.capabilityNames(capability.get().mask())))
       )).send(sender);
     }
-    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+    if (profile == null) {
       return;
     }
-    for (String line : powerReport(adaptPlayer.getData(), targetPlayer.name())) {
+    for (String line : powerReport(profile.runtime().getData(), targetPlayer.name())) {
       FConst.info(line).send(sender);
     }
   }
@@ -216,7 +220,7 @@ public class CommandAdapt {
   static List<String> powerReport(PlayerData data, String playerName) {
     Set<String> held = new HashSet<>();
     for (PlayerData.HeldAdaptation adaptation : data.heldAdaptations()) {
-      held.add(adaptation.line() + ":" + adaptation.adaptation().getName());
+      held.add(adaptation.line() + ":" + adaptation.adaptation().getId().toString());
     }
     List<String> report = new ArrayList<>();
     report.add(AdaptLanguage.text(
@@ -245,13 +249,13 @@ public class CommandAdapt {
     return report;
   }
 
-  @Director(description = "Open the Adapt GUI", descriptionKey = "command.help.open_the_adapt_gui")
+  @Director(description = "Open the Adapt GUI", descriptionKey = "adapt.command.help.open_the_adapt_gui")
   public void gui(
-      @Param(description = "GUI to open: main, skill:<name>, or adaptation:<name>", defaultValue = "main", descriptionKey = "command.help.gui_to_open_main_skill_name_or_adaptation_name")
+      @Param(description = "GUI to open: main, skill:<name>, or adaptation:<name>", defaultValue = "main", descriptionKey = "adapt.command.help.gui_to_open_main_skill_name_or_adaptation_name")
       AdaptationListingHandler.AdaptationList target,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player,
-      @Param(aliases = "force", description = "Bypass adapt.use permission checks when opening", defaultValue = "false", descriptionKey = "command.help.bypass_adapt_use_permission_checks_when_opening")
+      @Param(aliases = "force", description = "Bypass adapt.use permission checks when opening", defaultValue = "false", descriptionKey = "adapt.command.help.bypass_adapt_use_permission_checks_when_opening")
       boolean force
   ) {
     CommandSource sender = CommandContext.source();
@@ -289,25 +293,26 @@ public class CommandAdapt {
     }
 
     if (target.startsWith("skill:")) {
-      for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-        if (target.equals("skill:" + skill.getName())) {
+      Id targetId = CommandTargets.id(target.name().substring("skill:".length()));
+      for (Skill<?> skill : registry().getSkills()) {
+        if (skill.getId().equals(targetId)) {
           if (!skill.isEnabled()) {
             CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                 CommandRuntimeMessages.SKILL_DISABLED,
-                untrusted("skill", skill.getName())
+                untrusted("skill", SkillHost.lineKey(skill))
             )));
             return;
           }
           if (openSkillGui(skill, targetPlayer, force)) {
             CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
                 CommandRuntimeMessages.GUI_OPENED,
-                untrusted("target", skill.getName()),
+                untrusted("target", SkillHost.lineKey(skill)),
                 untrusted("player", targetPlayer.name())
             )));
           } else {
             CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                 CommandRuntimeMessages.GUI_OPEN_DENIED,
-                untrusted("target", skill.getName()),
+                untrusted("target", SkillHost.lineKey(skill)),
                 untrusted("player", targetPlayer.name())
             )));
           }
@@ -317,26 +322,27 @@ public class CommandAdapt {
     }
 
     if (target.startsWith("adaptation:")) {
-      for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      Id targetId = CommandTargets.id(target.name().substring("adaptation:".length()));
+      for (Skill<?> skill : registry().getSkills()) {
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
-          if (target.equals("adaptation:" + adaptation.getName())) {
+          if (adaptation.getId().equals(targetId)) {
             if (!skill.isEnabled() || !adaptation.isEnabled()) {
               CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                   CommandRuntimeMessages.ADAPTATION_DISABLED,
-                  untrusted("adaptation", adaptation.getName())
+                  untrusted("adaptation", adaptation.getId().toString())
               )));
               return;
             }
             if (openAdaptationGui(adaptation, targetPlayer, force)) {
               CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
                   CommandRuntimeMessages.GUI_OPENED,
-                  untrusted("target", adaptation.getName()),
+                  untrusted("target", adaptation.getId().toString()),
                   untrusted("player", targetPlayer.name())
               )));
             } else {
               CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                   CommandRuntimeMessages.GUI_OPEN_DENIED,
-                  untrusted("target", adaptation.getName()),
+                  untrusted("target", adaptation.getId().toString()),
                   untrusted("player", targetPlayer.name())
               )));
             }
@@ -352,9 +358,9 @@ public class CommandAdapt {
     )));
   }
 
-  @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself", descriptionKey = "command.help.toggle_adapt_effect_visibility_for_yourself")
+  @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself", descriptionKey = "adapt.command.help.toggle_adapt_effect_visibility_for_yourself")
   public void effects(
-      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "command.help.explicit_on_off_state_omit_to_toggle")
+      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "adapt.command.help.explicit_on_off_state_omit_to_toggle")
       String enabled
   ) {
     if (!CommandContext.hasPermission("adapt.effects")) {
@@ -365,11 +371,11 @@ public class CommandAdapt {
 
     CommandSource sender = CommandContext.source();
     PlayerRef player = CommandContext.player();
-    AdaptPlayer adaptPlayer = resolveReadyTarget(player, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(player, sender);
+    if (profile == null) {
       return;
     }
-    PlayerData playerData = adaptPlayer.getData();
+    PlayerData playerData = profile.runtime().getData();
     String normalized = enabled == null ? "toggle" : enabled.trim().toLowerCase(Locale.ROOT);
     Boolean target = switch (normalized) {
       case "toggle" -> !playerData.isEffectsEnabled();
@@ -391,11 +397,11 @@ public class CommandAdapt {
     }
   }
 
-  @Director(name = "mutate", origin = DirectorOrigin.PLAYER, description = "Merge two of your skills into one mutated skill. This cannot be undone.", descriptionKey = "command.help.merge_two_of_your_skills")
+  @Director(name = "mutate", origin = DirectorOrigin.PLAYER, description = "Merge two of your skills into one mutated skill. This cannot be undone.", descriptionKey = "adapt.command.help.merge_two_of_your_skills")
   public void mutate(
-      @Param(aliases = "lead", description = "Skill that leads the mutation and names it", defaultValue = NO_SKILL, descriptionKey = "command.help.lead_skill")
+      @Param(aliases = "lead", description = "Skill that leads the mutation and names it", defaultValue = NO_SKILL, descriptionKey = "adapt.command.help.lead_skill")
       AdaptationListingHandler.SkillProvider lead,
-      @Param(aliases = "partner", description = "Skill merged into the lead", defaultValue = NO_SKILL, descriptionKey = "command.help.partner_skill")
+      @Param(aliases = "partner", description = "Skill merged into the lead", defaultValue = NO_SKILL, descriptionKey = "adapt.command.help.partner_skill")
       AdaptationListingHandler.SkillProvider partner
   ) {
     CommandSource sender = CommandContext.source();
@@ -409,8 +415,7 @@ public class CommandAdapt {
   }
 
   private void mutateTarget(String leadName, String partnerName, PlayerRef player, CommandSource sender) {
-    AdaptPlayer adaptPlayer = resolveReadyTarget(player, sender);
-    if (adaptPlayer == null) {
+    if (resolveReadyTarget(player, sender) == null) {
       return;
     }
     if (NO_SKILL.equals(leadName)) {
@@ -425,9 +430,9 @@ public class CommandAdapt {
       return;
     }
     if (lead == null || partner == null) {
-      SkillMutations.Result refused = (lead == null && knownElsewhere(registry, leadName))
+      MutationResult.Status refused = (lead == null && knownElsewhere(registry, leadName))
           || (partner == null && knownElsewhere(registry, partnerName))
-          ? SkillMutations.Result.UNAVAILABLE_SKILL : SkillMutations.Result.UNKNOWN_SKILL;
+          ? MutationResult.Status.UNAVAILABLE_SKILL : MutationResult.Status.UNKNOWN_SKILL;
       CommandTargetExecutor.send(sender, FConst.error(MutationGui.resultText(refused, lead, partner)));
       return;
     }
@@ -435,12 +440,13 @@ public class CommandAdapt {
   }
 
   private static boolean knownElsewhere(SkillRegistry registry, String skill) {
-    return registry.getAnySkill(skill) != null || SkillWords.of(skill.toLowerCase(Locale.ROOT)) != null;
+    Id id = Id.tryParseAdapt(skill.toLowerCase(Locale.ROOT));
+    return id != null && registry.getAnySkill(id) != null;
   }
 
-  @Director(name = "mutation-reset", description = "Remove all of a player's skill mutations; both parent skills of each come back", descriptionKey = "command.help.remove_a_player_s_mutations")
+  @Director(name = "mutation-reset", description = "Remove all of a player's skill mutations; both parent skills of each come back", descriptionKey = "adapt.command.help.remove_a_player_s_mutations")
   public void mutationReset(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -449,22 +455,21 @@ public class CommandAdapt {
       return;
     }
     CommandTargetExecutor.run(targetPlayer, () -> {
-      AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-      if (adaptPlayer == null) {
+      EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+      if (profile == null) {
         return;
       }
-      int removed = SkillMutations.unmutateAll(adaptPlayer.getData(), targetPlayer.name()).size();
-      ClientUiService.changed(adaptPlayer);
+      int removed = profile.unmutateAll().size();
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.MUTATIONS_RESET,
           trusted("count", removed), untrusted("player", targetPlayer.name()))));
     }, sender);
   }
 
-  @Director(name = "unmutate", description = "Remove one of a player's skill mutations; both parent skills come back", descriptionKey = "command.help.unmutate")
+  @Director(name = "unmutate", description = "Remove one of a player's skill mutations; both parent skills come back", descriptionKey = "adapt.command.help.unmutate")
   public void unmutate(
-      @Param(aliases = "player", description = "The player whose mutation to remove", descriptionKey = "command.help.unmutate_player")
+      @Param(aliases = "player", description = "The player whose mutation to remove", descriptionKey = "adapt.command.help.unmutate_player")
       PlayerRef player,
-      @Param(aliases = "skill", description = "The mutated skill, its lead or its partner", descriptionKey = "command.help.mutated_skill")
+      @Param(aliases = "skill", description = "The mutated skill, its lead or its partner", descriptionKey = "adapt.command.help.mutated_skill")
       String skill
   ) {
     CommandSource sender = CommandContext.source();
@@ -473,12 +478,18 @@ public class CommandAdapt {
       return;
     }
     CommandTargetExecutor.run(targetPlayer, () -> {
-      AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-      if (adaptPlayer == null) {
+      EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+      if (profile == null) {
         return;
       }
-      SkillMutation mutation = SkillMutations.mutationNamed(adaptPlayer.getData(), skill);
-      if (mutation == null || !MutationGui.unmutate(targetPlayer, adaptPlayer, mutation)) {
+      SkillPair mutation = SkillMutations.mutationNamed(profile.runtime().getData(), skill);
+      MutationResult.Status result = mutation == null ? MutationResult.Status.NOT_MUTATED
+          : profile.unmutate(mutation.lead()).status();
+      if (result == MutationResult.Status.CANCELLED) {
+        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MUTATION_CANCELLED)));
+        return;
+      }
+      if (result != MutationResult.Status.UNMUTATED) {
         CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MUTATION_NOT_HELD,
             untrusted("player", targetPlayer.name()), untrusted("skill", skill))));
         return;
@@ -516,8 +527,8 @@ public class CommandAdapt {
       if (adaptPlayer == null) {
         continue;
       }
-      for (SkillMutation mutation : adaptPlayer.getData().getMutations()) {
-        for (String option : List.of(mutation.id(), mutation.lead(), mutation.partner())) {
+      for (SkillPair mutation : adaptPlayer.getData().getMutations()) {
+        for (String option : List.of(mutation.key(), mutation.lead().toString(), mutation.partner().toString())) {
           if (option.startsWith(prefix)) {
             suggestions.add(key + option);
           }
@@ -527,7 +538,7 @@ public class CommandAdapt {
     return suggestions;
   }
 
-  @Director(name = "configure", aliases = {"config", "cfg"}, origin = DirectorOrigin.PLAYER, description = "Open the in-game Adapt config editor", descriptionKey = "command.help.open_the_in_game_adapt_config_editor")
+  @Director(name = "configure", aliases = {"config", "cfg"}, origin = DirectorOrigin.PLAYER, description = "Open the in-game Adapt config editor", descriptionKey = "adapt.command.help.open_the_in_game_adapt_config_editor")
   public void configure() {
     PlayerRef player = CommandContext.player();
     if (!ConfigGui.canConfigure(player)) {
@@ -539,13 +550,13 @@ public class CommandAdapt {
     ConfigGui.open(player);
   }
 
-  @Director(description = "Give an experience orb to yourself or a target player", descriptionKey = "command.help.give_an_experience_orb_to_yourself_or_a_target_player")
+  @Director(description = "Give an experience orb to yourself or a target player", descriptionKey = "adapt.command.help.give_an_experience_orb_to_yourself_or_a_target_player")
   public void experience(
-      @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "command.help.skill_name_or_all_random")
+      @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "adapt.command.help.skill_name_or_all_random")
       AdaptationListingHandler.AdaptationSkillList skillName,
-      @Param(aliases = "amount", description = "Experience per orb", defaultValue = "10", descriptionKey = "command.help.experience_per_orb")
+      @Param(aliases = "amount", description = "Experience per orb", defaultValue = "10", descriptionKey = "adapt.command.help.experience_per_orb")
       int amount,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
 
   ) {
@@ -577,7 +588,7 @@ public class CommandAdapt {
     if (skillName.equals("all")) {
       Map<String, Double> experienceMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
-        experienceMap.put(skill.getName(), (double) amount);
+        experienceMap.put(SkillHost.lineKey(skill), (double) amount);
       }
       targetPlayer.inventory().addItem(ExperienceOrb.with(experienceMap));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)));
@@ -591,33 +602,34 @@ public class CommandAdapt {
         return;
       }
 
-      targetPlayer.inventory().addItem(ExperienceOrb.with(Map.of(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), (double) amount)));
+      targetPlayer.inventory().addItem(ExperienceOrb.with(Map.of(SkillHost.lineKey(skills.get(ThreadLocalRandom.current().nextInt(skills.size()))), (double) amount)));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)));
       return;
     }
 
-    Skill<?> skill = AdaptCore.get().getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
+    Id skillId = CommandTargets.id(skillName.name());
+    Skill<?> skill = CommandTargets.findSkill(skillId);
     if (skill != null) {
-      targetPlayer.inventory().addItem(ExperienceOrb.with(Map.of(skill.getName(), (double) amount)));
+      targetPlayer.inventory().addItem(ExperienceOrb.with(Map.of(SkillHost.lineKey(skill), (double) amount)));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.GIVING_SKILL_ORB,
-          untrusted("skill", skill.getName())
+          untrusted("skill", SkillHost.lineKey(skill))
       )));
     } else {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.UNKNOWN_SKILL_ORB,
-          untrusted("skill", skillName.name())
+          untrusted("skill", CommandTargets.shown(skillName.name(), skillId))
       )));
     }
   }
 
-  @Director(description = "Give a knowledge orb to yourself or a target player", descriptionKey = "command.help.give_a_knowledge_orb_to_yourself_or_a_target_player")
+  @Director(description = "Give a knowledge orb to yourself or a target player", descriptionKey = "adapt.command.help.give_a_knowledge_orb_to_yourself_or_a_target_player")
   public void knowledge(
-      @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "command.help.skill_name_or_all_random")
+      @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "adapt.command.help.skill_name_or_all_random")
       AdaptationListingHandler.AdaptationSkillList skillName,
-      @Param(aliases = "amount", description = "Knowledge per orb", defaultValue = "10", descriptionKey = "command.help.knowledge_per_orb")
+      @Param(aliases = "amount", description = "Knowledge per orb", defaultValue = "10", descriptionKey = "adapt.command.help.knowledge_per_orb")
       int amount,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -648,7 +660,7 @@ public class CommandAdapt {
     if (skillName.equals("all")) {
       Map<String, Integer> knowledgeMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
-        knowledgeMap.put(skill.getName(), amount);
+        knowledgeMap.put(SkillHost.lineKey(skill), amount);
       }
       targetPlayer.inventory().addItem(KnowledgeOrb.with(knowledgeMap));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)));
@@ -662,37 +674,38 @@ public class CommandAdapt {
         return;
       }
 
-      targetPlayer.inventory().addItem(KnowledgeOrb.with(Map.of(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount)));
+      targetPlayer.inventory().addItem(KnowledgeOrb.with(Map.of(SkillHost.lineKey(skills.get(ThreadLocalRandom.current().nextInt(skills.size()))), amount)));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)));
       return;
     }
 
-    Skill<?> skill = AdaptCore.get().getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
+    Id skillId = CommandTargets.id(skillName.name());
+    Skill<?> skill = CommandTargets.findSkill(skillId);
     if (skill != null) {
-      targetPlayer.inventory().addItem(KnowledgeOrb.with(Map.of(skill.getName(), amount)));
+      targetPlayer.inventory().addItem(KnowledgeOrb.with(Map.of(SkillHost.lineKey(skill), amount)));
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.GIVING_SKILL_ORB,
-          untrusted("skill", skill.getName())
+          untrusted("skill", SkillHost.lineKey(skill))
       )));
     } else {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.UNKNOWN_SKILL_ORB,
-          untrusted("skill", skillName.name())
+          untrusted("skill", CommandTargets.shown(skillName.name(), skillId))
       )));
     }
   }
 
-  @Director(description = "Assign or unassign an adaptation for a player, as if learning / unlearning it.", descriptionKey = "command.help.assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it")
+  @Director(description = "Assign or unassign an adaptation for a player, as if learning / unlearning it.", descriptionKey = "adapt.command.help.assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it")
   public void determine(
-      @Param(aliases = "adaptationTarget", description = "Adaptation to modify, as skill:adaptation", descriptionKey = "command.help.adaptation_to_modify_as_skill_adaptation")
+      @Param(aliases = "adaptationTarget", description = "Adaptation to modify, by id such as herbalism/luck", descriptionKey = "adapt.command.help.adaptation_to_modify_as_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
-      @Param(aliases = "assign", description = "true to learn, false to unlearn", descriptionKey = "command.help.true_to_learn_false_to_unlearn")
+      @Param(aliases = "assign", description = "true to learn, false to unlearn", descriptionKey = "adapt.command.help.true_to_learn_false_to_unlearn")
       boolean assign,
-      @Param(aliases = "force", description = "Bypass costs and permanence; prerequisites still apply", descriptionKey = "command.help.bypass_costs_and_permanence_prerequisites_still_apply")
+      @Param(aliases = "force", description = "Bypass costs and permanence; prerequisites still apply", descriptionKey = "adapt.command.help.bypass_costs_and_permanence_prerequisites_still_apply")
       boolean force,
-      @Param(aliases = "level", description = "Adaptation level to apply", descriptionKey = "command.help.adaptation_level_to_apply")
+      @Param(aliases = "level", description = "Adaptation level to apply", descriptionKey = "adapt.command.help.adaptation_level_to_apply")
       int level,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
 
   ) {
@@ -708,89 +721,70 @@ public class CommandAdapt {
       return;
     }
 
-    String[] split = adaptationTarget.name().split(":", 2);
-    if (split.length != 2) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.INVALID_ADAPTATION_TARGET))
-          .send(sender);
+    Adaptation<?> adaptation = CommandTargets.adaptation(adaptationTarget.name(), sender);
+    if (adaptation == null) {
       return;
     }
 
     CommandTargetExecutor.run(
         targetPlayer,
-        () -> determineTarget(split[0], split[1], assign, force, level, targetPlayer, sender),
+        () -> determineTarget(adaptation, assign, force, level, targetPlayer, sender),
         sender
     );
   }
 
   private void determineTarget(
-      String skillname,
-      String adaptationname,
+      Adaptation<?> adaptation,
       boolean assign,
       boolean force,
       int level,
       PlayerRef targetPlayer,
       CommandSource sender
   ) {
-    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+    if (profile == null) {
+      return;
+    }
+    if (!adaptation.isEnabled() || adaptation.getSkill() == null || !adaptation.getSkill().isEnabled()) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.ADAPTATION_DISABLED,
+          untrusted("adaptation", adaptation.getId().toString())
+      )));
       return;
     }
 
-    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
-      if (skill.getName().equalsIgnoreCase(skillname)) {
-        for (Adaptation<?> adaptation : skill.getAdaptations()) {
-          if (adaptation.getName().equalsIgnoreCase(adaptationname)) {
-            PlayerSkillLine skillLine = adaptPlayer.getData().getSkillLine(skill.getName());
-            int previousLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
+    Id adaptationId = adaptation.getId();
+    LearnResult result = assign
+        ? profile.learn(adaptationId, level, (force ? LearnOptions.forced() : LearnOptions.paying()).quietly())
+        : profile.unlearn(adaptationId, level - 1, (force || AdaptDebugMode.isActive(targetPlayer) ? LearnOptions.forced() : LearnOptions.paying()).quietly());
 
-            AdaptationLearningTransaction.Result result = assign
-                ? adaptation.learn(targetPlayer, level, force)
-                : adaptation.unlearn(targetPlayer, level, force);
-
-            if (sendRequirementFailure(result, adaptation, targetPlayer, adaptPlayer.getData(), level - 1, sender)) {
-              return;
-            }
-            int resultingLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
-            if (resultingLevel == previousLevel) {
-              CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
-                  CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
-                  untrusted("adaptation", adaptation.getName()),
-                  untrusted("player", targetPlayer.name()),
-                  trusted("level", resultingLevel)
-              )));
-            } else {
-              CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
-                  assign ? CommandRuntimeMessages.LEARNED_ADAPTATION : CommandRuntimeMessages.UNLEARNED_ADAPTATION,
-                  untrusted("adaptation", adaptation.getName()),
-                  untrusted("player", targetPlayer.name()),
-                  trusted("level", resultingLevel)
-              )));
-            }
-            return;
-          }
-        }
-        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
-            CommandRuntimeMessages.UNKNOWN_ADAPTATION_IN_SKILL,
-            untrusted("adaptation", adaptationname),
-            untrusted("skill", skill.getName())
-        )));
-        return;
-      }
+    if (sendRequirementFailure(result.status(), adaptation, targetPlayer, profile, level - 1, sender)) {
+      return;
     }
-
-    CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
-        CommandRuntimeMessages.UNKNOWN_SKILL_QUOTED,
-        untrusted("skill", skillname)
-    )));
+    if (result.toLevel() == result.fromLevel()) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
+          untrusted("adaptation", adaptationId.toString()),
+          untrusted("player", targetPlayer.name()),
+          trusted("level", result.toLevel())
+      )));
+    } else {
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          assign ? CommandRuntimeMessages.LEARNED_ADAPTATION : CommandRuntimeMessages.UNLEARNED_ADAPTATION,
+          untrusted("adaptation", adaptationId.toString()),
+          untrusted("player", targetPlayer.name()),
+          trusted("level", result.toLevel())
+      )));
+    }
   }
 
-  @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.", descriptionKey = "command.help.set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration")
+  @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.", descriptionKey = "adapt.command.help.set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration")
   public void claimSkill(
-      @Param(aliases = "skill", description = "Skill line to set", descriptionKey = "command.help.skill_line_to_set")
+      @Param(aliases = "skill", description = "Skill line to set", descriptionKey = "adapt.command.help.skill_line_to_set")
       AdaptationListingHandler.SkillProvider skillTarget,
-      @Param(aliases = "level", description = "Level between 0 and 100", descriptionKey = "command.help.level_between_0_and_100")
+      @Param(aliases = "level", description = "Level between 0 and 100", descriptionKey = "adapt.command.help.level_between_0_and_100")
       int level,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -810,10 +804,8 @@ public class CommandAdapt {
       return;
     }
 
-    Skill<?> skill = AdaptCore.get().getAdaptServer().getSkillRegistry().getAnySkill(skillTarget.name());
+    Skill<?> skill = CommandTargets.skill(skillTarget.name(), sender);
     if (skill == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", skillTarget.name())))
-          .send(sender);
       return;
     }
 
@@ -825,46 +817,38 @@ public class CommandAdapt {
   }
 
   private void claimSkillTarget(Skill<?> skill, int level, PlayerRef targetPlayer, CommandSource sender) {
-    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+    if (profile == null) {
       return;
     }
-    PlayerData playerData = adaptPlayer.getData();
-    PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
-    if (skillLine == null) {
+    SkillProgress progress = profile.skill(skill.getId());
+    if (!progress.isAvailable()) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE,
-          untrusted("skill", skill.getName())
+          untrusted("skill", SkillHost.lineKey(skill))
       )));
       return;
     }
 
-    double targetXp = XP.getXpForLevel(level);
-    skillLine.setXp(targetXp);
-    if (skillLine.getLastXP() > targetXp) {
-      skillLine.setLastXP(targetXp);
-    }
-    if (skillLine.getLastLevel() > level) {
-      skillLine.setLastLevel(level);
-    }
+    progress.setLevel(level);
 
     CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.SET_SKILL_LEVEL,
         untrusted("player", targetPlayer.name()),
-        untrusted("skill", skill.getName()),
+        untrusted("skill", SkillHost.lineKey(skill)),
         trusted("level", level)
     )));
   }
 
-  @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.", descriptionKey = "command.help.set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it")
+  @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.", descriptionKey = "adapt.command.help.set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it")
   public void claimAdaptation(
-      @Param(aliases = "adaptationTarget", description = "Adaptation to set, as skill:adaptation", descriptionKey = "command.help.adaptation_to_set_as_skill_adaptation")
+      @Param(aliases = "adaptationTarget", description = "Adaptation to set, by id such as herbalism/luck", descriptionKey = "adapt.command.help.adaptation_to_set_as_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
-      @Param(aliases = "level", description = "Level between 0 and 100, clamped to the adaptation max", descriptionKey = "command.help.level_between_0_and_100_clamped_to_the_adaptation_max")
+      @Param(aliases = "level", description = "Level between 0 and 100, clamped to the adaptation max", descriptionKey = "adapt.command.help.level_between_0_and_100_clamped_to_the_adaptation_max")
       int level,
-      @Param(aliases = "force", description = "Bypass power, knowledge, and permanence checks", defaultValue = "false", descriptionKey = "command.help.bypass_power_knowledge_and_permanence_checks")
+      @Param(aliases = "force", description = "Bypass power, knowledge, and permanence checks", defaultValue = "false", descriptionKey = "adapt.command.help.bypass_power_knowledge_and_permanence_checks")
       boolean force,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -885,37 +869,12 @@ public class CommandAdapt {
       return;
     }
 
-    String[] split = adaptationTarget.name().split(":", 2);
-    if (split.length != 2) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.INVALID_ADAPTATION_TARGET))
-          .send(sender);
-      return;
-    }
-
-    Skill<?> skill = AdaptCore.get().getAdaptServer().getSkillRegistry().getAnySkill(split[0]);
-    if (skill == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", split[0])))
-          .send(sender);
-      return;
-    }
-
-    Adaptation<?> adaptation = null;
-    for (Adaptation<?> candidate : skill.getAdaptations()) {
-      if (candidate.getName().equalsIgnoreCase(split[1])) {
-        adaptation = candidate;
-        break;
-      }
-    }
-
+    Adaptation<?> adaptation = CommandTargets.adaptation(adaptationTarget.name(), sender);
     if (adaptation == null) {
-      FConst.error(AdaptLanguage.text(
-          CommandRuntimeMessages.UNKNOWN_ADAPTATION_IN_SKILL_PLAIN,
-          untrusted("adaptation", split[1]),
-          untrusted("skill", skill.getName())
-      )).send(sender);
       return;
     }
 
+    Skill<?> skill = adaptation.getSkill();
     Adaptation<?> targetAdaptation = adaptation;
     CommandTargetExecutor.run(
         targetPlayer,
@@ -932,103 +891,84 @@ public class CommandAdapt {
       PlayerRef targetPlayer,
       CommandSource sender
   ) {
-    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
-    if (adaptPlayer == null) {
+    EnginePlayerProfile profile = resolveReadyTarget(targetPlayer, sender);
+    if (profile == null) {
       return;
     }
-    PlayerData playerData = adaptPlayer.getData();
-    PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
-    if (skillLine == null) {
+    SkillProgress progress = profile.skill(skill.getId());
+    if (!progress.isAvailable()) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE,
-          untrusted("skill", skill.getName())
+          untrusted("skill", SkillHost.lineKey(skill))
       )));
       return;
     }
 
-    int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
+    int currentLevel = progress.adaptations().getOrDefault(adaptation.getId(), 0);
     int targetLevel = Math.max(0, Math.min(level, adaptation.getMaxLevel()));
     if (targetLevel == currentLevel) {
       CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.ADAPTATION_ALREADY_LEVEL,
-          untrusted("adaptation", adaptation.getName()),
+          untrusted("adaptation", adaptation.getId().toString()),
           trusted("level", currentLevel)
       )));
       return;
     }
 
-    if (targetLevel > currentLevel) {
-      int knowledgeCost = adaptation.getCostFor(targetLevel, currentLevel);
-      int powerCost = adaptation.getPowerCostFor(targetLevel, currentLevel);
-      AdaptationLearningTransaction.Result result =
-          AdaptationLearningTransaction.learn(adaptation, targetPlayer, targetLevel, force);
-      if (result != AdaptationLearningTransaction.Result.LEARNED) {
-        if (sendRequirementFailure(result, adaptation, targetPlayer, playerData, targetLevel, sender)) {
-          return;
-        }
-        sendLearningFailure(
-            result,
-            skill,
-            adaptation,
-            targetPlayer,
-            playerData,
-            skillLine,
-            knowledgeCost,
-            powerCost,
-            sender
-        );
+    LearnOptions options = (force ? LearnOptions.forced() : LearnOptions.paying()).quietly();
+    boolean raising = targetLevel > currentLevel;
+    LearnResult result = raising
+        ? profile.learn(adaptation.getId(), targetLevel, options)
+        : profile.unlearn(adaptation.getId(), targetLevel, options);
+    if (!result.succeeded()) {
+      if (sendRequirementFailure(result.status(), adaptation, targetPlayer, profile, targetLevel, sender)) {
         return;
       }
-      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
-          CommandRuntimeMessages.SET_ADAPTATION_LEVEL,
-          untrusted("player", targetPlayer.name()),
-          untrusted("adaptation", adaptation.getName()),
-          trusted("level", targetLevel)
-      )));
+      sendLearningFailure(
+          result.status(),
+          skill,
+          adaptation,
+          targetPlayer,
+          profile,
+          progress,
+          raising ? adaptation.getCostFor(targetLevel, currentLevel) : 0,
+          raising ? adaptation.getPowerCostFor(targetLevel, currentLevel) : 0,
+          sender
+      );
       return;
     }
-
-    AdaptationLearningTransaction.Result result =
-        AdaptationLearningTransaction.unlearn(adaptation, targetPlayer, targetLevel, force);
-    if (result != AdaptationLearningTransaction.Result.UNLEARNED) {
-      if (sendRequirementFailure(result, adaptation, targetPlayer, playerData, targetLevel, sender)) {
-        return;
-      }
-      sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, 0, 0, sender);
-      return;
-    }
-
     CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.SET_ADAPTATION_LEVEL,
         untrusted("player", targetPlayer.name()),
-        untrusted("adaptation", adaptation.getName()),
+        untrusted("adaptation", adaptation.getId().toString()),
         trusted("level", targetLevel)
     )));
   }
 
   private boolean sendRequirementFailure(
-      AdaptationLearningTransaction.Result result,
+      LearnResult.Status result,
       Adaptation<?> adaptation,
       PlayerRef targetPlayer,
-      PlayerData playerData,
+      EnginePlayerProfile profile,
       int targetLevel,
       CommandSource sender
   ) {
-    if (result == AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING) {
+    PlayerData playerData = profile.runtime().getData();
+    if (result == LearnResult.Status.REQUIREMENTS_MISSING) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.REQUIREMENTS_MISSING,
           untrusted("player", targetPlayer.name()),
           untrusted("requirements", AdaptationRequirements.describe(
               AdaptationRequirements.missing(adaptation, playerData)
           )),
-          untrusted("adaptation", adaptation.getName())
+          untrusted("adaptation", adaptation.getId().toString())
       )));
       return true;
     }
-    if (result == AdaptationLearningTransaction.Result.REQUIRED_BY_DEPENDENTS) {
+    if (result == LearnResult.Status.REQUIRED_BY_DEPENDENTS) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.REQUIRED_BY_DEPENDENTS,
-          untrusted("adaptation", adaptation.getName()),
+          untrusted("adaptation", adaptation.getId().toString()),
           untrusted("dependents", AdaptationRequirements.names(
               AdaptationRequirements.dependents(adaptation, playerData, targetLevel)
           )),
@@ -1040,60 +980,66 @@ public class CommandAdapt {
   }
 
   private void sendLearningFailure(
-      AdaptationLearningTransaction.Result result,
+      LearnResult.Status result,
       Skill<?> skill,
       Adaptation<?> adaptation,
       PlayerRef targetPlayer,
-      PlayerData playerData,
-      PlayerSkillLine skillLine,
+      EnginePlayerProfile profile,
+      SkillProgress progress,
       int knowledgeCost,
       int powerCost,
       CommandSource sender
   ) {
-    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_POWER) {
+    if (result == LearnResult.Status.INSUFFICIENT_POWER) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.POWER_INSUFFICIENT,
           trusted("needed", powerCost),
-          trusted("available", playerData.getAvailablePower())
+          trusted("available", profile.maxPower() - profile.power())
       )));
       return;
     }
-    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_KNOWLEDGE) {
+    if (result == LearnResult.Status.INSUFFICIENT_KNOWLEDGE) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.KNOWLEDGE_INSUFFICIENT,
-          untrusted("skill", skill.getName()),
+          untrusted("skill", SkillHost.lineKey(skill)),
           trusted("needed", knowledgeCost),
-          trusted("available", skillLine.getKnowledge())
+          trusted("available", progress.knowledge())
       )));
       return;
     }
-    if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
+    if (result == LearnResult.Status.INSUFFICIENT_FUNDS) {
       CommandTargetExecutor.send(
           sender,
           FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_INSUFFICIENT_FUNDS))
       );
       return;
     }
-    if (result == AdaptationLearningTransaction.Result.ECONOMY_UNAVAILABLE
-        || result == AdaptationLearningTransaction.Result.ECONOMY_FAILED) {
+    if (result == LearnResult.Status.ECONOMY_UNAVAILABLE || result == LearnResult.Status.ECONOMY_FAILED) {
       CommandTargetExecutor.send(
           sender,
           FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_TRANSACTION_FAILED))
       );
       return;
     }
-    if (result == AdaptationLearningTransaction.Result.PERMANENT) {
+    if (result == LearnResult.Status.PERMANENT) {
       CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.PERMANENT_ADAPTATION_LOWER,
-          untrusted("adaptation", adaptation.getName())
+          untrusted("adaptation", adaptation.getId().toString())
+      )));
+      return;
+    }
+    if (result == LearnResult.Status.CANCELLED) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.ADAPTATION_CHANGE_CANCELLED,
+          untrusted("adaptation", adaptation.getId().toString())
       )));
       return;
     }
     CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
         CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
-        untrusted("adaptation", adaptation.getName()),
+        untrusted("adaptation", adaptation.getId().toString()),
         untrusted("player", targetPlayer.name()),
-        trusted("level", skillLine.getAdaptationLevel(adaptation.getName()))
+        trusted("level", progress.adaptations().getOrDefault(adaptation.getId(), 0))
     )));
   }
 
@@ -1106,14 +1052,11 @@ public class CommandAdapt {
   }
 
   private List<Skill<?>> allSkillSnapshot() {
-    AdaptCore core = AdaptCore.current();
-    if (core != null
-        && core.getAdaptServer() != null
-        && core.getAdaptServer().getSkillRegistry() != null) {
-      return core.getAdaptServer().getSkillRegistry().getAllSkills();
-    }
+    return registry().getAllSkills();
+  }
 
-    return SkillRegistry.skills.sortV();
+  private static SkillRegistry registry() {
+    return AdaptCore.get().getAdaptServer().getSkillRegistry();
   }
 
   private PlayerRef resolveTargetPlayer(PlayerRef player, CommandSource sender) {
@@ -1131,15 +1074,10 @@ public class CommandAdapt {
     return senderPlayer;
   }
 
-  private AdaptPlayer resolveReadyTarget(PlayerRef targetPlayer, CommandSource sender) {
-    AdaptCore core = AdaptCore.current();
-    AdaptServer adaptServer = core == null ? null : core.getAdaptServer();
-    AdaptPlayer adaptPlayer = adaptServer == null
-        ? null
-        : adaptServer.getOnlineAdaptPlayer(targetPlayer.uuid());
-    if (adaptPlayer != null && adaptPlayer.isRuntimeReady()
-        && targetPlayer.equals(adaptPlayer.getPlayer())) {
-      return adaptPlayer;
+  private EnginePlayerProfile resolveReadyTarget(PlayerRef targetPlayer, CommandSource sender) {
+    EnginePlayerProfile profile = AdaptCore.current() == null ? null : PlayerApi.directory().profile(targetPlayer);
+    if (profile != null && profile.isReady()) {
+      return profile;
     }
     CommandTargetExecutor.send(
         sender,

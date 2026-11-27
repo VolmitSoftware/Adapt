@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
+import art.arcane.adapt.engine.platform.EngineLastDamage;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.bukkit.event.BukkitEventMaps;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
@@ -18,6 +19,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -30,7 +32,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -363,7 +364,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
       return;
     }
     try {
-      equipment.setDropChance(BukkitConversions.slot(slot), chance);
+      PaperApi.setDropChance(equipment, BukkitConversions.slot(slot), chance);
     } catch (IllegalArgumentException | UnsupportedOperationException unsupported) {
       Adapt.verbose("Equipment drop chance for " + slot + " unsupported on " + type());
     }
@@ -372,13 +373,13 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
   @Override
   public void damageEquipment(EquipmentSlot slot, int amount) {
     if (amount > 0) {
-      living().damageItemStack(BukkitConversions.slot(slot), amount);
+      PaperApi.damageItem(living(), BukkitConversions.slot(slot), amount);
     }
   }
 
   @Override
   public void playEquipmentBreak(EquipmentSlot slot) {
-    living().broadcastSlotBreak(BukkitConversions.slot(slot));
+    PaperApi.breakEffect(living(), BukkitConversions.slot(slot));
   }
 
   @Override
@@ -426,7 +427,7 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
       return null;
     }
     EntityRef damager = last instanceof EntityDamageByEntityEvent byEntity ? BukkitRefs.entity(byEntity.getDamager()) : null;
-    return new LastDamage(BukkitEventMaps.cause(last.getCause()), damager, last.getFinalDamage());
+    return new EngineLastDamage(BukkitEventMaps.cause(last.getCause()), damager, last.getFinalDamage());
   }
 
   @Override
@@ -482,7 +483,6 @@ public class BukkitLivingRef extends BukkitEntityRef implements LivingRef {
 
   private static EffectInstance effect(PotionEffect effect) {
     int duration = effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration();
-    return new EffectInstance(BukkitResolve.id(effect.getType()), duration, effect.getAmplifier(),
-        effect.isAmbient(), effect.hasParticles(), effect.hasIcon());
+    return EffectInstance.of(BukkitResolve.id(effect.getType()), duration, effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.hasParticles()).withIcon(effect.hasIcon());
   }
 }

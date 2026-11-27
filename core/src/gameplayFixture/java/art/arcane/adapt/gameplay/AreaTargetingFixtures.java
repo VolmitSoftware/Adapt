@@ -14,7 +14,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class AreaTargetingFixtures {
@@ -59,7 +58,7 @@ public final class AreaTargetingFixtures {
         if (trial.equals("plague")) {
             Fixtures.give(actor, "bow", 1);
             ItemRef arrows = Fixtures.item("tipped_arrow", 4);
-            arrows.setPotionContents(new PotionContents(Id.minecraft("long_poison"), null, List.of(), null));
+            arrows.setPotionContents(PotionContents.of(Id.minecraft("long_poison")));
             Fixtures.give(actor, arrows);
         }
 

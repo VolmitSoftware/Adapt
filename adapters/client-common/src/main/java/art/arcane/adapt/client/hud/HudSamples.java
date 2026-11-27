@@ -1,6 +1,6 @@
 package art.arcane.adapt.client.hud;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.protocol.HudGlyph;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.protocol.ToastKind;

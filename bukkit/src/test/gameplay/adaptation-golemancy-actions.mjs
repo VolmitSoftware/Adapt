@@ -180,7 +180,7 @@ async function revealServant(input) {
 }
 
 export const golemancyBehaviorCases = new Map([
-    ['golem-animus-binding', {
+    ['adapt:golem/animus_binding', {
         stage: 'golemancy-binding', trigger: bind,
         prepare: ({ equip }) => equip('firework_star'),
         description: 'sneak-right-clicking a snow golem with a Blank Animus Core binds it to the player after the ritual',
@@ -189,7 +189,7 @@ export const golemancyBehaviorCases = new Map([
             context.expect(!unlearned.bound, 'Unlearned sneak-right-click leaves the snow golem unbound')
             context.expect(Math.abs(unlearned.scale - 1) < 0.0001, 'Unlearned snow golem keeps its normal size')
             context.expect(active.bound && active.boundToPlayer, 'Learned ritual binds the snow golem to the player')
-            context.expect(Math.abs(active.scale - boundScale('golem-animus-binding', 0.5)) < 0.0001, 'Bound snow golem takes the configured frost scale where the server has golem scale, else keeps its size')
+            context.expect(Math.abs(active.scale - boundScale('adapt:golem/animus_binding', 0.5)) < 0.0001, 'Bound snow golem takes the configured frost scale where the server has golem scale, else keeps its size')
             context.expect(active.aware, 'Bound snow golem is awake after the ritual')
             return {
                 assertions: ['unlearned snow golem stays unbound at normal size', 'learned ritual binds the golem to the player, shrinks it to 0.5 scale, and wakes it'],
@@ -197,8 +197,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-frost-frame', {
-        stage: 'golemancy-binding', trigger: bind, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+    ['adapt:golem/frost_frame', {
+        stage: 'golemancy-binding', trigger: bind, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a snow golem with Frost Frame learned raises its maximum health and heals it by the bonus',
         async verify({ context, unlearned, active }) {
@@ -213,8 +213,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-copper-frame', {
-        stage: 'golemancy-copper-binding', trigger: bindCopper, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+    ['adapt:golem/copper_frame', {
+        stage: 'golemancy-copper-binding', trigger: bindCopper, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a copper golem needs Copper Frame, which raises its maximum health, heals it by the bonus and makes it faster',
         async verify({ context, unlearned, active }) {
@@ -229,14 +229,14 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-iron-frame', {
-        stage: 'golemancy-iron-binding', trigger: bindIron, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+    ['adapt:golem/iron_frame', {
+        stage: 'golemancy-iron-binding', trigger: bindIron, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding an iron golem needs Iron Frame, which raises its maximum health, armor and attack and heals it by the health bonus',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.bound, 'Without Iron Frame the iron golem stays unbound')
             context.expect(active.bound && active.boundToPlayer, 'With Iron Frame the iron golem binds to the player')
-            context.expect(Math.abs(active.scale - boundScale('golem-iron-frame', 0.36)) < 0.0001, 'The bound iron golem takes the configured iron scale where the server has golem scale, else keeps its size')
+            context.expect(Math.abs(active.scale - boundScale('adapt:golem/iron_frame', 0.36)) < 0.0001, 'The bound iron golem takes the configured iron scale where the server has golem scale, else keeps its size')
             context.expect(Math.abs(active.maxHealth - (active.maxHealthBase + 50)) < 0.0001, 'Iron Frame level 5 adds 50 maximum health to the bound iron golem')
             context.expect(Math.abs(active.health - active.maxHealth) < 0.0001, 'The health bonus also heals the golem to its new maximum')
             context.expect(Math.abs(active.armor - (active.armorBase + 10)) < 0.0001, 'Iron Frame level 5 adds 10 armor')
@@ -247,9 +247,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-gatherer-core', {
+    ['adapt:golem/gatherer_core', {
         stage: 'golemancy-gatherer-binding', trigger: bind,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a snow golem with a Gatherer Core needs Gatherer Core learned and turns the golem into a working Gatherer',
         async verify({ context, unlearned, active }) {
@@ -263,8 +263,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-guardian-core', {
-        stage: 'golemancy-guardian-binding', trigger: bind, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+    ['adapt:golem/guardian_core', {
+        stage: 'golemancy-guardian-binding', trigger: bind, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a snow golem with a Guardian Core needs Guardian Core learned and turns the golem into a working Guardian',
         async verify({ context, unlearned, active }) {
@@ -278,9 +278,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-harvester-core', {
+    ['adapt:golem/harvester_core', {
         stage: 'golemancy-harvester-binding', trigger: bind,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a snow golem with a Harvester Core needs Harvester Core learned and turns the golem into a working Harvester',
         async verify({ context, unlearned, active }) {
@@ -294,9 +294,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-lumber-core', {
+    ['adapt:golem/lumber_core', {
         stage: 'golemancy-lumber-binding', trigger: bindWorker,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }, { name: 'adapt:golem/copper_frame', level: 1 }, { name: 'adapt:golem/iron_frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a copper golem (iron before 1.21.9) with a Lumber Core needs Lumber Core learned and turns the golem into a working Lumber golem',
         async verify({ context, unlearned, active }) {
@@ -310,9 +310,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-breaker-core', {
+    ['adapt:golem/breaker_core', {
         stage: 'golemancy-breaker-binding', trigger: bindIron,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }, { name: 'adapt:golem/iron_frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding an iron golem with a Breaker Core needs Breaker Core learned and turns the golem into a working Breaker',
         async verify({ context, unlearned, active }) {
@@ -326,9 +326,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-rancher-core', {
+    ['adapt:golem/rancher_core', {
         stage: 'golemancy-rancher-binding', trigger: bindWorker,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }, { name: 'adapt:golem/copper_frame', level: 1 }, { name: 'adapt:golem/iron_frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a copper golem (iron before 1.21.9) with a Rancher Core needs Rancher Core learned and turns the golem into a working Rancher',
         async verify({ context, unlearned, active }) {
@@ -342,9 +342,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-sorter-core', {
+    ['adapt:golem/sorter_core', {
         stage: 'golemancy-sorter-binding', trigger: bindCopper,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }, { name: 'adapt:golem/copper_frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a copper golem with a Sorter Core needs Sorter Core learned and turns the golem into a working Sorter',
         async verify({ context, unlearned, active }) {
@@ -358,9 +358,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-angler-core', {
+    ['adapt:golem/angler_core', {
         stage: 'golemancy-angler-binding', trigger: bindWorker,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/node_weaving', level: 1 }, { name: 'adapt:golem/copper_frame', level: 1 }, { name: 'adapt:golem/iron_frame', level: 1 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'binding a copper golem (iron before 1.21.9) with an Angler Core needs Angler Core learned and turns the golem into a working Angler',
         async verify({ context, unlearned, active }) {
@@ -374,8 +374,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-overseer', {
-        stage: 'golemancy-overseer', trigger: signalHold, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+    ['adapt:golem/overseer', {
+        stage: 'golemancy-overseer', trigger: signalHold, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }],
         prepare: ({ equip }) => equip('firework_star'),
         description: 'sneak-left-clicking the air with the Crook cycles the signal to Hold, and left-clicking sends it to the bound companion',
         async verify({ context, unlearned, active }) {
@@ -389,8 +389,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-runic-augments', {
-        stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
+    ['adapt:golem/runic_augments', {
+        stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 2 }],
         prepare: ({ equip }) => equip(contentSince('item', 'scrape_pottery_sherd') ? 'plenty_pottery_sherd' : 'scrape_pottery_sherd'),
         description: 'sneak-right-clicking an Animus Plinth lodestone with a Blank Rune places it on the plinth, and an empty-hand sneak-right-click takes it back',
         async verify({ context, unlearned, active }) {
@@ -403,8 +403,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-node-weaving', {
-        stage: 'golemancy-node', trigger: placeNode, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
+    ['adapt:golem/node_weaving', {
+        stage: 'golemancy-node', trigger: placeNode, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 1 }],
         prepare: ({ equip }) => equip('brick'),
         description: 'sneak-right-clicking the top of a chest with a Deposit Node anchors the node there and uses up one node item',
         sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod', particleCount: 8, particleOffset: 0.2,
@@ -420,9 +420,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-masterwork', {
+    ['adapt:golem/masterwork', {
         stage: 'golemancy-masterwork', trigger: infuseHeart,
-        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-runic-augments', level: 3 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 5 }, { name: 'adapt:golem/runic_augments', level: 3 }],
         description: 'right-clicking a loaded Animus Plinth with the Crook starts the Masterwork Heart infusion once Masterwork is learned',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.ritual, 'Without Masterwork the plinth refuses to start the Masterwork Heart infusion')
@@ -433,8 +433,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-mending', {
-        stage: 'golemancy-mending', trigger: mendGolem, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
+    ['adapt:golem/mending', {
+        stage: 'golemancy-mending', trigger: mendGolem, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 1 }],
         prepare: ({ equip }) => equip('snow_block'),
         description: 'right-clicking your hurt bound snow golem with a snow block heals it by the base amount plus the level bonus',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 1.6, particle: 'heart',
@@ -449,9 +449,9 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-bone-frame', {
+    ['adapt:golem/bone_frame', {
         stage: 'golemancy-bone-frame', trigger: revealServant,
-        prerequisites: [{ name: 'golem-animus-binding', level: 1 }, { name: 'tragoul-skeletal-servant', level: 5 }],
+        prerequisites: [{ name: 'adapt:golem/animus_binding', level: 1 }, { name: 'adapt:tragoul/skeletal_servant', level: 5 }],
         prepare: ({ equip }) => equip('bone'),
         description: 'summoning a skeletal servant with bones and then holding the Crook puts an owner-only status label over the servant',
         async verify({ context, unlearned, active }) {
@@ -463,8 +463,8 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
-    ['golem-stasis', {
-        stage: 'golemancy-stasis', trigger: packGolem, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
+    ['adapt:golem/stasis', {
+        stage: 'golemancy-stasis', trigger: packGolem, prerequisites: [{ name: 'adapt:golem/animus_binding', level: 2 }],
         prepare: ({ equip }) => equip('iron_hoe'),
         description: 'sneak-right-clicking your bound snow golem with the Crook packs it into a Dormant Golem in your inventory',
         sound: 'minecraft:block.respawn_anchor.deplete', soundVolume: 0.8, soundPitch: 1.4, particle: 'reverse_portal',

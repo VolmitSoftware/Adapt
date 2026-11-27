@@ -1,7 +1,8 @@
 package art.arcane.adapt.command;
 
-import art.arcane.adapt.util.command.Feedback;
+import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.util.command.Feedback;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -17,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +28,7 @@ class CommandTargetExecutorTest {
     PlayerRef target = mock(PlayerRef.class);
     AtomicBoolean executed = new AtomicBoolean();
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(Tasks::isFoliaThreading).thenReturn(false);
       scheduling.when(Tasks::isPrimaryThread).thenReturn(true);
 
@@ -45,7 +45,7 @@ class CommandTargetExecutorTest {
     AtomicBoolean executed = new AtomicBoolean();
     AtomicReference<Runnable> ownerTask = new AtomicReference<>();
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(Tasks::isFoliaThreading).thenReturn(true);
       scheduling.when(() -> Tasks.runEntity(same(target), any(Runnable.class))).thenAnswer(invocation -> {
         ownerTask.set(invocation.getArgument(1));
@@ -65,7 +65,7 @@ class CommandTargetExecutorTest {
   void reportsRejectedEntityDispatch() throws IOException {
     PlayerRef target = mock(PlayerRef.class);
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(Tasks::isFoliaThreading).thenReturn(true);
       scheduling.when(() -> Tasks.runEntity(same(target), any(Runnable.class))).thenReturn(false);
 
@@ -86,7 +86,7 @@ class CommandTargetExecutorTest {
     Feedback feedback = mock(Feedback.class);
     AtomicReference<Runnable> ownerTask = new AtomicReference<>();
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(Tasks::isFoliaThreading).thenReturn(true);
       scheduling.when(() -> Tasks.runEntity(same(owner), any(Runnable.class))).thenAnswer(invocation -> {
         ownerTask.set(invocation.getArgument(1));
@@ -107,7 +107,7 @@ class CommandTargetExecutorTest {
     CommandSource sender = mock(CommandSource.class);
     Feedback feedback = mock(Feedback.class);
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       CommandTargetExecutor.send(sender, feedback);
 
       verify(feedback).send(sender);

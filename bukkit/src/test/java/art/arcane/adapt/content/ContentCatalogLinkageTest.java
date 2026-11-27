@@ -1,9 +1,8 @@
 package art.arcane.adapt.content;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -116,8 +115,8 @@ class ContentCatalogLinkageTest {
 
   private static List<String> registeredSkillNames() {
     List<String> names = new ArrayList<>();
-    for (Class<? extends Skill<?>> type : CoreContent.skillTypes()) {
-      names.add(type.getSimpleName());
+    for (BuiltinAddon.Entry skill : BuiltinAddon.skills()) {
+      names.add(skill.type().getSimpleName());
     }
     return names;
   }
@@ -139,7 +138,7 @@ class ContentCatalogLinkageTest {
 
   private static List<String> contentClassNames() throws IOException, URISyntaxException {
     Set<String> names = new TreeSet<>();
-    for (Class<?> anchor : List.of(Adapt.class, AdaptCore.class)) {
+    for (Class<?> anchor : List.of(Adapt.class, BuiltinAddon.class)) {
       Path location = Path.of(anchor.getProtectionDomain().getCodeSource().getLocation().toURI());
       if (Files.isDirectory(location)) {
         collect(location, names);

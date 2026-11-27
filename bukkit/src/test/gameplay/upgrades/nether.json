@@ -2,24 +2,24 @@
   "skill": "nether",
   "upgrades": [
     {
-      "name": "upgraded-nether-hellwalker",
+      "name": "adapt:nether/upgrade/hellwalker",
       "class": "Hellwalker",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/Hellwalker.java",
-      "fuses": ["nether-lava-walker", "nether-fire-resist", "nether-ashwalker", "nether-soul-strider"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/Hellwalker.java",
+      "fuses": ["adapt:nether/lava_walker", "adapt:nether/fire_resist", "adapt:nether/ashwalker", "adapt:nether/soul_strider"],
       "triggers": ["PlayerMoveEvent", "PlayerDropItemEvent", "EntityDamageEvent"]
     },
     {
-      "name": "upgraded-nether-wither-king",
+      "name": "adapt:nether/upgrade/wither_king",
       "class": "WitherKing",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/WitherKing.java",
-      "fuses": ["nether-skull-toss", "nether-wither-resist", "nether-wither-harvest"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/WitherKing.java",
+      "fuses": ["adapt:nether/skull_toss", "adapt:nether/wither_resist", "adapt:nether/wither_harvest"],
       "triggers": ["PlayerInteractEvent", "EntityDamageByEntityEvent", "EntityRemoveEvent", "EntityDamageEvent", "EntityDeathEvent"]
     },
     {
-      "name": "upgraded-nether-brimstone",
+      "name": "adapt:nether/upgrade/brimstone",
       "class": "Brimstone",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/Brimstone.java",
-      "fuses": ["nether-magma-skin", "nether-blaze-leech", "nether-ghast-ward"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/nether/upgraded/Brimstone.java",
+      "fuses": ["adapt:nether/magma_skin", "adapt:nether/blaze_leech", "adapt:nether/ghast_ward"],
       "triggers": ["PiglinBarterEvent", "EntityTargetEvent", "PlayerInteractEvent", "BlockBreakEvent", "EntityDamageByEntityEvent", "EntityDamageEvent"]
     }
   ]

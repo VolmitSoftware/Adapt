@@ -1,5 +1,5 @@
 {
-  "chronos-aberrant-touch": {
+  "adapt:chronos/aberrant_touch": {
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -71,7 +71,7 @@
     },
     "maxTicks": 200
   },
-  "chronos-accelerate": {
+  "adapt:chronos/accelerate": {
     "set": "chronos-workshop",
     "level": 5,
     "pre": [
@@ -96,7 +96,7 @@
     },
     "maxTicks": 420
   },
-  "chronos-borrowed-time": {
+  "adapt:chronos/borrowed_time": {
     "povCapture": true,
     "set": "sparring",
     "level": 5,
@@ -130,7 +130,7 @@
     },
     "maxTicks": 320
   },
-  "chronos-deja-vu": {
+  "adapt:chronos/deja_vu": {
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -179,7 +179,7 @@
     },
     "maxTicks": 200
   },
-  "chronos-hourglass-guard": {
+  "adapt:chronos/hourglass_guard": {
     "povCapture": true,
     "set": "sparring",
     "level": 3,
@@ -213,7 +213,7 @@
     },
     "maxTicks": 160
   },
-  "chronos-instant-recall": {
+  "adapt:chronos/instant_recall": {
     "povCapture": true,
     "set": "chronos-recall",
     "level": 5,
@@ -258,7 +258,7 @@
     },
     "maxTicks": 200
   },
-  "chronos-overtime": {
+  "adapt:chronos/overtime": {
     "povCapture": true,
     "set": "arena",
     "level": 5,
@@ -311,7 +311,7 @@
     },
     "maxTicks": 240
   },
-  "chronos-pocket-watch": {
+  "adapt:chronos/pocket_watch": {
     "povCapture": true,
     "set": "kinetics-spire",
     "level": 5,
@@ -355,7 +355,7 @@
     },
     "maxTicks": 280
   },
-  "chronos-rewind": {
+  "adapt:chronos/rewind": {
     "povCapture": true,
     "set": "arena",
     "level": 5,
@@ -442,7 +442,7 @@
     },
     "maxTicks": 220
   },
-  "chronos-stasis-field": {
+  "adapt:chronos/stasis_field": {
     "set": "chronos-horde",
     "level": 5,
     "pre": [
@@ -507,7 +507,7 @@
     },
     "maxTicks": 280
   },
-  "chronos-temporal-echo": {
+  "adapt:chronos/temporal_echo": {
     "set": "ranged-range",
     "level": 5,
     "pre": [
@@ -554,7 +554,7 @@
     },
     "maxTicks": 220
   },
-  "chronos-time-bomb": {
+  "adapt:chronos/time_bomb": {
     "set": "chronos-horde",
     "level": 5,
     "pre": [
@@ -608,7 +608,7 @@
     },
     "maxTicks": 280
   },
-  "chronos-time-bottle": {
+  "adapt:chronos/time_bottle": {
     "set": "chronos-garden",
     "level": 5,
     "pre": [

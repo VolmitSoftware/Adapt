@@ -155,7 +155,10 @@ ext.distributionJar = tasks.named('shadowJar').flatMap { task -> task.archiveFil
 ext.packagedJar = tasks.named('shadowJar', Jar)
 
 if (providers.gradleProperty('includeCoreSources').getOrElse('true').toBoolean()) {
+    sourceSets.main.java.srcDir('../../api/src/main/java')
     sourceSets.main.java.srcDir('../../core/src/main/java')
+    sourceSets.main.java.srcDir('../../content/src/main/java')
+    sourceSets.main.resources.srcDir('../../content/src/main/resources')
     sourceSets.main.resources.srcDir('../../core/src/main/resources')
 }
 // client-common holds the optional client side; its classes load only behind the loaders' client entry points.
@@ -163,6 +166,7 @@ for (String module : ['mod-common', 'client-common']) {
     sourceSets.main.java.srcDir("../${module}/src/main/java")
     sourceSets.main.resources.srcDir("../${module}/src/main/resources")
 }
+apply from: '../../gradle/adapt-assets.gradle'
 for (String kind : ['java', 'resources']) {
     SourceDirectorySet directories = kind == 'java' ? sourceSets.main.java : sourceSets.main.resources
     List<File> overlays = []

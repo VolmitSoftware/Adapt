@@ -1,54 +1,38 @@
 package art.arcane.adapt.localization;
 
-import art.arcane.adapt.localization.catalog.MutatedMessages;
-import art.arcane.adapt.localization.catalog.MutationMessages;
-import art.arcane.adapt.localization.catalog.UpgradeMessages;
-import art.arcane.adapt.localization.catalog.SeatMessages;
-import art.arcane.adapt.localization.catalog.ShortNameMessages;
-import art.arcane.adapt.localization.catalog.XpGuideMessages;
-import art.arcane.adapt.localization.catalog.AdvancementMessages;
-import art.arcane.adapt.localization.catalog.AgilityMessages;
-import art.arcane.adapt.localization.catalog.ArchitectMessages;
-import art.arcane.adapt.localization.catalog.AxeMessages;
-import art.arcane.adapt.localization.catalog.BlockingMessages;
-import art.arcane.adapt.localization.catalog.BrewingMessages;
-import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.localization.catalog.CommandMessages;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
-import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
-import art.arcane.adapt.localization.catalog.CraftingMessages;
-import art.arcane.adapt.localization.catalog.DiscoveryMessages;
-import art.arcane.adapt.localization.catalog.EnchantingMessages;
-import art.arcane.adapt.localization.catalog.ExcavationMessages;
-import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.localization.catalog.GroupMessages;
-import art.arcane.adapt.localization.catalog.NodeEditorMessages;
-import art.arcane.adapt.localization.catalog.HerbalismMessages;
-import art.arcane.adapt.localization.catalog.HunterMessages;
+import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
-import art.arcane.adapt.localization.catalog.ItemsMessages;
-import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.localization.catalog.NetherMessages;
-import art.arcane.adapt.localization.catalog.PickaxeMessages;
+import art.arcane.adapt.localization.catalog.MutatedMessages;
+import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.localization.catalog.PreferenceMessages;
-import art.arcane.adapt.localization.catalog.RangedMessages;
-import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
-import art.arcane.adapt.localization.catalog.SeabornMessages;
-import art.arcane.adapt.localization.catalog.SkillMessages;
+import art.arcane.adapt.localization.catalog.SeatMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
-import art.arcane.adapt.localization.catalog.StealthMessages;
-import art.arcane.adapt.localization.catalog.SwordMessages;
-import art.arcane.adapt.localization.catalog.TamingMessages;
-import art.arcane.adapt.localization.catalog.TragoulMessages;
-import art.arcane.adapt.localization.catalog.UnarmedMessages;
+import art.arcane.adapt.localization.catalog.UpgradeMessages;
+import art.arcane.adapt.localization.catalog.XpGuideMessages;
 import art.arcane.volmlib.util.director.DirectorMessages;
-import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.BukkitLanguageMessages;
+import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.MessageKey;
 
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
+/**
+ * The engine's own messages. The built-in content's messages come from the addon of namespace {@code adapt}; both
+ * together make the built-in catalog, see {@link AdaptLanguage#builtInCatalog()}. The messages of VolmLib's command
+ * help and language menus are declared under {@code adapt.} like the rest; {@link #declared} maps the library's own
+ * keys to them.
+ */
 public final class AdaptMessages {
+  private static final List<MessageKey> LIBRARY = Stream.concat(DirectorMessages.keys().stream(),
+      BukkitLanguageMessages.keys().stream()).toList();
+  private static final Map<MessageKey, MessageKey> ADOPTED = adopt(LIBRARY);
   private static final MessageCatalog CATALOG = createCatalog();
 
   private AdaptMessages() {
@@ -58,55 +42,36 @@ public final class AdaptMessages {
     return CATALOG;
   }
 
-  public static MessageKey require(String id) {
-    return CATALOG.require(id);
+  /** {@code key} as the built-in namespace declares it: a VolmLib message under {@code adapt.}, any other unchanged. */
+  public static MessageKey declared(MessageKey key) {
+    MessageKey adopted = ADOPTED.get(key);
+    return adopted == null ? key : adopted;
+  }
+
+  private static Map<MessageKey, MessageKey> adopt(List<MessageKey> keys) {
+    Map<MessageKey, MessageKey> adopted = new IdentityHashMap<>();
+    for (MessageKey key : keys) {
+      adopted.put(key, AdaptKeys.adopted(key));
+    }
+    return adopted;
   }
 
   private static MessageCatalog createCatalog() {
     MessageCatalog.Builder builder = MessageCatalog.builder("en_US");
-    builder.addAll(DirectorMessages.keys());
-    builder.addAll(BukkitLanguageMessages.keys());
-    AdvancementMessages.addTo(builder);
-    AgilityMessages.addTo(builder);
-    ArchitectMessages.addTo(builder);
-    AxeMessages.addTo(builder);
-    BlockingMessages.addTo(builder);
-    BrewingMessages.addTo(builder);
-    ChronosMessages.addTo(builder);
+    for (MessageKey key : LIBRARY) {
+      builder.add(ADOPTED.get(key));
+    }
     ConfigMessages.addTo(builder);
     ConfigFieldMessages.addTo(builder);
-    CraftingMessages.addTo(builder);
-    DiscoveryMessages.addTo(builder);
-    EnchantingMessages.addTo(builder);
-    ExcavationMessages.addTo(builder);
-    GolemancyMessages.addTo(builder);
-    NodeEditorMessages.addTo(builder);
-    HerbalismMessages.addTo(builder);
-    HunterMessages.addTo(builder);
     GuiMessages.addTo(builder);
-    ItemsMessages.addTo(builder);
-    KineticsMessages.addTo(builder);
-    NetherMessages.addTo(builder);
-    PickaxeMessages.addTo(builder);
     PreferenceMessages.addTo(builder);
-    RangedMessages.addTo(builder);
-    RiftMessages.addTo(builder);
     RuntimeMessages.addTo(builder);
-    SeabornMessages.addTo(builder);
-    SkillMessages.addTo(builder);
-    GroupMessages.addTo(builder);
     SnippetsMessages.addTo(builder);
-    StealthMessages.addTo(builder);
-    SwordMessages.addTo(builder);
-    TamingMessages.addTo(builder);
-    TragoulMessages.addTo(builder);
-    UnarmedMessages.addTo(builder);
     UpgradeMessages.addTo(builder);
     MutatedMessages.addTo(builder);
     MutationMessages.addTo(builder);
     XpGuideMessages.addTo(builder);
     SeatMessages.addTo(builder);
-    ShortNameMessages.addTo(builder);
     CommandMessages.addTo(builder);
     CommandRuntimeMessages.addTo(builder);
     return builder.build();

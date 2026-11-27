@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.feature.recipe;
 
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
@@ -12,8 +13,9 @@ final class BukkitRecipeVersion {
   private BukkitRecipeVersion() {
   }
 
+  /** Null on Spigot, which has no empty choice, so smithing recipes without an addition are skipped there. */
   static RecipeChoice emptyChoice() {
-    return RecipeChoice.empty();
+    return PaperApi.emptyRecipeChoice();
   }
 
   /** A matching ingredient where the server has no predicate choice: the exact choice of its representative. */

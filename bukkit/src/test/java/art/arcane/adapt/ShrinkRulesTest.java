@@ -26,4 +26,13 @@ class ShrinkRulesTest {
         .as("@Handle methods are only reached through reflection; ProGuard must keep them in every class")
         .isTrue();
   }
+
+  @Test
+  void theAddonCommandMarkerSurvivesShrinking() throws IOException {
+    String rules = Files.readString(SHRINK_RULES, StandardCharsets.UTF_8);
+
+    assertThat(rules)
+        .as("AddonCommandRunner looks the marker method up by name; ProGuard must keep it")
+        .contains("-keepclassmembers class art.arcane.adapt.command.AddonCommandRunner$Graft { void marker(); }");
+  }
 }

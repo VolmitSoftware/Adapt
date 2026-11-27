@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+repositories {
+    exclusiveContent {
+        forRepository { mavenLocal() }
+        filter { includeGroup('art.arcane.adapt') }
+    }
+    maven { url = uri('https://repo.papermc.io/repository/maven-public/') }
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly('art.arcane.adapt:adapt-api:1.0.0')
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+    compileOnly('io.papermc.paper:paper-api:26.1.2.build.74-stable')
+}
+
+sourceSets {
+    main {
+        java.srcDir('../example-content/src/main/java')
+        resources.srcDir('../example-content/src/main/resources')
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-Xlint:all')
+}
+
+tasks.named('processResources', ProcessResources) {
+    inputs.property('version', version)
+    filesMatching('plugin.yml') {
+        expand(version: version)
+    }
+}

@@ -4,15 +4,16 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptEnvironment;
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.api.fx.Sounds;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.tick.TickedObject;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.engine.gui.ConfigGui;
+import art.arcane.adapt.engine.gui.SkillsGui;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.tick.TickedObject;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.platform.AdaptScheduler;
@@ -112,11 +113,14 @@ public final class ConfigHotload {
     skillsFolder = dataFolder("skills");
     adaptationsFolder = dataFolder("adaptations");
     localeLanguageFolder = AdaptLanguage.languageFolder();
+    List<File> folders = new ArrayList<>(List.of(skillsFolder, adaptationsFolder, localeLanguageFolder));
+    addSubfolders(skillsFolder, folders);
+    addSubfolders(adaptationsFolder, folders);
     hotloadEngine.configure(
         WATCHER_POLL_MS,
         HOTLOAD_COOLDOWN_MS,
         List.of(adaptConfigFile, modelsFile),
-        List.of(skillsFolder, adaptationsFolder, localeLanguageFolder)
+        folders
     );
     hotloadGeneration.incrementAndGet();
     hotloadIo = worker("Adapt-Config-Hotload-IO");
@@ -328,7 +332,7 @@ public final class ConfigHotload {
   }
 
   private boolean reloadSkillConfig(File file, String raw) {
-    String skillName = toConfigName(file.getName());
+    Id skillName = contentId(skillsFolder, file);
     SkillRegistry registry = skillRegistry();
     if (skillName == null || registry == null) {
       return false;
@@ -344,15 +348,15 @@ public final class ConfigHotload {
   }
 
   private boolean reloadAdaptationConfig(File file, String raw) {
-    String adaptationName = toConfigName(file.getName());
+    Id adaptationName = contentId(adaptationsFolder, file);
     SkillRegistry registry = skillRegistry();
     if (adaptationName == null || registry == null) {
       return false;
     }
 
     for (Skill<?> skill : registry.getAllSkills()) {
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
-        if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+        if (!adaptation.getId().equals(adaptationName)) {
           continue;
         }
 
@@ -378,8 +382,6 @@ public final class ConfigHotload {
     if (AdaptLanguage.reloadConfiguredLocale() && !previousLocale.equals(AdaptLanguage.activeLocale())) {
       AdaptLanguage.requestConfiguredLocale();
     }
-
-    port().coreConfigReloaded();
 
     if (AdaptConfig.get().isCustomModels()) {
       CustomModel.reloadFromDiskPassive();
@@ -428,11 +430,11 @@ public final class ConfigHotload {
   }
 
   private boolean isSkillConfigFile(File file) {
-    return isDirectChild(skillsFolder, file) && ConfigFileSupport.isTomlFile(file);
+    return isBelow(skillsFolder, file) && ConfigFileSupport.isTomlFile(file);
   }
 
   private boolean isAdaptationConfigFile(File file) {
-    return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isTomlFile(file);
+    return isBelow(adaptationsFolder, file) && ConfigFileSupport.isTomlFile(file);
   }
 
   private boolean isLocaleLanguageFile(File file) {
@@ -479,8 +481,34 @@ public final class ConfigHotload {
     return a != null && b != null && a.getAbsoluteFile().equals(b.getAbsoluteFile());
   }
 
-  private String toConfigName(String fileName) {
-    return ConfigFileSupport.configNameFromFileName(fileName);
+  private boolean isBelow(File parent, File child) {
+    if (parent == null || child == null) {
+      return false;
+    }
+    File current = child.getParentFile();
+    while (current != null) {
+      if (sameFile(parent, current)) {
+        return true;
+      }
+      current = current.getParentFile();
+    }
+    return false;
+  }
+
+  /** The skill or adaptation a config file below {@code folder} belongs to: {@code <namespace>/<path>.toml}. */
+  private Id contentId(File folder, File file) {
+    return AdaptEnvironment.contentIdOfConfig(folder.getAbsoluteFile().toPath().relativize(file.getAbsoluteFile().toPath()).toString());
+  }
+
+  private static void addSubfolders(File folder, List<File> out) {
+    File[] children = folder == null ? null : folder.listFiles(File::isDirectory);
+    if (children == null) {
+      return;
+    }
+    for (File child : children) {
+      out.add(child);
+      addSubfolders(child, out);
+    }
   }
 
   private List<File> listKnownConfigFiles() {
@@ -490,8 +518,8 @@ public final class ConfigHotload {
     addIfManaged(files, added, adaptConfigFile);
     addIfManaged(files, added, modelsFile);
 
-    addDirectChildren(skillsFolder, files, added);
-    addDirectChildren(adaptationsFolder, files, added);
+    addDescendants(skillsFolder, files, added);
+    addDescendants(adaptationsFolder, files, added);
     addDirectChildren(localeLanguageFolder, files, added);
 
     return files;
@@ -512,6 +540,20 @@ public final class ConfigHotload {
         continue;
       }
       addIfManaged(out, added, child);
+    }
+  }
+
+  private void addDescendants(File folder, List<File> out, Map<String, File> added) {
+    File[] children = folder == null ? null : folder.listFiles();
+    if (children == null) {
+      return;
+    }
+    for (File child : children) {
+      if (child.isDirectory()) {
+        addDescendants(child, out, added);
+      } else if (child.isFile()) {
+        addIfManaged(out, added, child);
+      }
     }
   }
 
@@ -708,39 +750,34 @@ public final class ConfigHotload {
       return;
     }
 
-    String[] parts = tag.split("/");
-    if (parts.length < 2) {
-      SkillsGui.open(player);
-      return;
-    }
-
+    String[] parts = tag.substring("skill/".length()).split("\\|");
     SkillRegistry registry = skillRegistry();
-    Skill<?> skill = registry == null ? null : registry.getSkill(parts[1]);
+    Skill<?> skill = registry == null || parts[0].isEmpty() ? null : registry.getSkill(parts[0]);
     if (skill == null || !skill.isEnabled()) {
       SkillsGui.open(player);
       return;
     }
 
-    if (parts.length == 2) {
-      skill.openGui(player);
+    if (parts.length == 1) {
+      ComponentHost.of(skill).openGui(player);
       return;
     }
 
-    String adaptationName = parts[2];
-    for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
-      if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
+    Id adaptationName = Id.tryParse(parts[1]);
+    for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+      if (!adaptation.getId().equals(adaptationName)) {
         continue;
       }
 
       if (adaptation.isEnabled()) {
-        adaptation.openGui(player);
+        ComponentHost.of(adaptation).openGui(player);
       } else {
-        skill.openGui(player);
+        ComponentHost.of(skill).openGui(player);
       }
       return;
     }
 
-    skill.openGui(player);
+    ComponentHost.of(skill).openGui(player);
   }
 
   private static PlayerRef onlinePlayer(UUID playerId) {
@@ -756,9 +793,5 @@ public final class ConfigHotload {
   private static SkillRegistry skillRegistry() {
     AdaptServer server = adaptServer();
     return server == null ? null : server.getSkillRegistry();
-  }
-
-  private static ConfigHotloadPort port() {
-    return AdaptPorts.get(ConfigHotloadPort.class, ConfigHotloadPort.NONE);
   }
 }

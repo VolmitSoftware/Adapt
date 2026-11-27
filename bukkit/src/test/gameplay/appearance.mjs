@@ -73,8 +73,8 @@ export default {
         context.expect(menu.slots.some(item => item.name && plain(item.name).includes('Server locale')),
           'Config field label uses language override', menu)
         actor.bot.closeWindow(actor.bot.currentWindow)
-        await preferences('learn agility-air-dash')
-        await preferences('open agility-air-dash')
+        await preferences('learn adapt:agility/air_dash')
+        await preferences('open adapt:agility/air_dash')
         menu = await appearance('snapshot')
         const reset = menu.slots.find(item => item.name && plain(item.name) === 'Restore choices')
         context.expect(reset?.material === 'COMPASS', 'Personal reset uses language and material overrides', menu)

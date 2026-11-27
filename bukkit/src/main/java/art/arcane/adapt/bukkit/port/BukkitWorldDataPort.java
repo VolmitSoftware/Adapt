@@ -1,10 +1,10 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.data.WorldDataPort;
-import art.arcane.adapt.api.data.unit.PlacementStamp;
+import art.arcane.adapt.engine.data.WorldData;
+import art.arcane.adapt.engine.data.WorldDataPort;
+import art.arcane.adapt.engine.data.unit.PlacementStamp;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.content.matter.BrewingStandOwner;
+import art.arcane.adapt.engine.data.BrewingStandOwner;
 import art.arcane.adapt.platform.world.BlockRef;
 import org.bukkit.block.Block;
 

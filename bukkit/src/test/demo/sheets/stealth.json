@@ -1,5 +1,5 @@
 {
-  "stealth-assassinate": {
+  "adapt:stealth/assassinate": {
     "povCapture": true,
     "set": "stealth-backstab",
     "level": 4,
@@ -84,7 +84,7 @@
     },
     "maxTicks": 276
   },
-  "stealth-cutpurse": {
+  "adapt:stealth/cutpurse": {
     "povCapture": true,
     "set": "stealth-pickpocket",
     "level": 4,
@@ -190,7 +190,7 @@
     },
     "maxTicks": 320
   },
-  "stealth-decoy-swap": {
+  "adapt:stealth/decoy_swap": {
     "povCapture": true,
     "set": "arena",
     "level": 3,
@@ -288,7 +288,7 @@
     },
     "maxTicks": 282
   },
-  "stealth-enderveil": {
+  "adapt:stealth/enderveil": {
     "set": "stealth-veil", "level": 2,
     "pre": [
       "execute at {actor} run gamerule mob_griefing false",
@@ -304,7 +304,7 @@
     ],
     "expect": {"sound": "minecraft:entity.enderman.stare", "particle": "reverse_portal"}, "maxTicks": 250
   },
-  "stealth-ghost-armor": {
+  "adapt:stealth/ghost_armor": {
     "set": "sparring", "level": 7,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..12,limit=1,sort=nearest] {NoAI:1b}"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 15}],
@@ -319,7 +319,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.break", "particle": "crit"}, "maxTicks": 250
   },
-  "stealth-shadow-decoy": {
+  "adapt:stealth/shadow_decoy": {
     "povCapture": true,
     "set": "stealth-lure",
     "level": 5,
@@ -370,7 +370,7 @@
     },
     "maxTicks": 300
   },
-  "stealth-shadowmeld": {
+  "adapt:stealth/shadowmeld": {
     "povCapture": true,
     "set": "arena", "level": 2,
     "pre": ["adapt claim-adaptation stealth:stealth-silent-step 1 force=true player={actor}"],
@@ -383,7 +383,7 @@
     ],
     "expect": {"sound": "minecraft:block.sculk_sensor.clicking_stop", "particle": "squid_ink"}, "maxTicks": 250
   },
-  "stealth-silent-step": {
+  "adapt:stealth/silent_step": {
     "povCapture": true,
     "set": "stealth-backstab",
     "level": 2,
@@ -467,7 +467,7 @@
     },
     "maxTicks": 276
   },
-  "stealth-smoke-pellet": {
+  "adapt:stealth/smoke_pellet": {
     "povCapture": true,
     "set": "stealth-lure",
     "level": 3,
@@ -523,7 +523,7 @@
     },
     "maxTicks": 442
   },
-  "stealth-snatch": {
+  "adapt:stealth/snatch": {
     "set": "arena", "level": 3,
     "camera": {"x": 8.5, "y": 3.5, "z": -1.0, "yaw": 90, "pitch": 14},
     "pre": [
@@ -540,7 +540,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.resonate", "particle": "enchant"}, "maxTicks": 250
   },
-  "stealth-speed": {
+  "adapt:stealth/speed": {
     "set": "runway", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 80}],
     "beats": [
@@ -555,7 +555,7 @@
     ],
     "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul"}, "maxTicks": 300
   },
-  "stealth-trap-sense": {
+  "adapt:stealth/trap_sense": {
     "set": "stealth-traps", "level": 4,
     "camera": {"x": 4.0, "y": 4.2, "z": 2.0, "yaw": 129, "pitch": 27},
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
@@ -568,7 +568,7 @@
     ],
     "expect": {"sound": "minecraft:block.sculk_sensor.clicking_stop"}, "maxTicks": 250
   },
-  "stealth-umbral-recovery": {
+  "adapt:stealth/umbral_recovery": {
     "povCapture": true,
     "set": "stealth-backstab",
     "level": 4,
@@ -657,7 +657,7 @@
     },
     "maxTicks": 276
   },
-  "stealth-vision": {
+  "adapt:stealth/vision": {
     "povCapture": true,
     "set": "arena", "level": 1,
     "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],

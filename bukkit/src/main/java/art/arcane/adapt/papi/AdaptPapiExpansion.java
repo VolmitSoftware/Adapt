@@ -1,5 +1,7 @@
 package art.arcane.adapt.papi;
 
+import art.arcane.adapt.AdaptConfig;
+
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderKeyRegistry;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderSnapshot;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderValues;
@@ -105,7 +107,7 @@ public final class AdaptPapiExpansion extends VolmitPlaceholderExpansion {
       return UNAVAILABLE;
     }
 
-    String skillId = tail.substring(0, split);
+    String skillId = AdaptConfig.contentKey(tail.substring(0, split));
     AdaptCatalogSkill skill = catalogSnapshot.skill(skillId);
 
     if (skill == null) {
@@ -177,7 +179,7 @@ public final class AdaptPapiExpansion extends VolmitPlaceholderExpansion {
       return UNAVAILABLE;
     }
 
-    String adaptationId = tail.substring(0, split);
+    String adaptationId = AdaptConfig.contentKey(tail.substring(0, split));
     AdaptCatalogAdaptation adaptation = catalogSnapshot.adaptation(adaptationId);
 
     if (adaptation == null) {

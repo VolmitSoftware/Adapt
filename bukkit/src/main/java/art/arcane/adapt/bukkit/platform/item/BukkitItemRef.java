@@ -13,6 +13,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.item.ShieldDesign;
 import art.arcane.adapt.platform.item.TooltipPart;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
@@ -161,7 +162,7 @@ public final class BukkitItemRef implements ItemRef {
   @Override
   public List<String> loreJson() {
     ItemMeta meta = stack.getItemMeta();
-    List<Component> lore = meta == null ? null : meta.lore();
+    List<Component> lore = meta == null ? null : PaperApi.lore(meta);
     if (lore == null || lore.isEmpty()) {
       return List.of();
     }
@@ -175,7 +176,7 @@ public final class BukkitItemRef implements ItemRef {
   @Override
   public void setLoreJson(List<String> jsonLines) {
     if (jsonLines == null || jsonLines.isEmpty()) {
-      edit((ItemMeta meta) -> meta.lore(null));
+      edit((ItemMeta meta) -> PaperApi.setLore(meta, null));
       return;
     }
     List<Component> lines = new ArrayList<>(jsonLines.size());
@@ -186,7 +187,7 @@ public final class BukkitItemRef implements ItemRef {
         throw new IllegalArgumentException("Not a text component: " + line, unreadable);
       }
     }
-    edit((ItemMeta meta) -> meta.lore(lines));
+    edit((ItemMeta meta) -> PaperApi.setLore(meta, lines));
   }
 
   @Override
@@ -429,15 +430,12 @@ public final class BukkitItemRef implements ItemRef {
     }
     List<EffectInstance> effects = new ArrayList<>();
     for (PotionEffect effect : meta.getCustomEffects()) {
-      effects.add(new EffectInstance(BukkitResolve.id(effect.getType()),
-          effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(), effect.isAmbient(),
-          effect.hasParticles(), effect.hasIcon()));
+      effects.add(EffectInstance.of(BukkitResolve.id(effect.getType()), effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.hasParticles()).withIcon(effect.hasIcon()));
     }
     Color color = meta.hasColor() ? meta.getColor() : null;
     Component customName = BukkitItemVersion.customName(meta);
     String name = customName == null ? null : BukkitText.markup(customName);
-    return Optional.of(new PotionContents(BukkitItem120Version.basePotion(meta),
-        color == null ? null : Rgb.of(color.asRGB()), effects, name));
+    return Optional.of(PotionContents.of(BukkitItem120Version.basePotion(meta)).withColor(color == null ? null : Rgb.of(color.asRGB())).withCustomEffects(effects).withName(name));
   }
 
   @Override

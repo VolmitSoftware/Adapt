@@ -2,24 +2,24 @@
   "skill": "blocking",
   "upgrades": [
     {
-      "name": "upgraded-blocking-mirror-guard",
+      "name": "adapt:blocking/upgrade/mirror_guard",
       "class": "MirrorGuard",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/MirrorGuard.java",
-      "fuses": ["blocking-perfect-guard", "blocking-mirror-block", "blocking-counter-guard"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/MirrorGuard.java",
+      "fuses": ["adapt:blocking/perfect_guard", "adapt:blocking/mirror_block", "adapt:blocking/counter_guard"],
       "triggers": ["PlayerInteractEvent", "EntityDamageByEntityEvent"]
     },
     {
-      "name": "upgraded-blocking-living-wall",
+      "name": "adapt:blocking/upgrade/living_wall",
       "class": "LivingWall",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/LivingWall.java",
-      "fuses": ["blocking-shield-wall", "blocking-interpose", "blocking-bastion-stance"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/LivingWall.java",
+      "fuses": ["adapt:blocking/shield_wall", "adapt:blocking/interpose", "adapt:blocking/bastion_stance"],
       "triggers": ["PlayerMoveEvent", "PlayerGameModeChangeEvent", "PlayerToggleSneakEvent", "PlayerInteractEvent", "BlockPlaceEvent", "BlockPistonEvent", "BlockBreakEvent", "BlockExplodeEvent", "EntityExplodeEvent", "ChunkEvent", "PlayerJoinEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerRespawnEvent", "EntityDamageEvent"]
     },
     {
-      "name": "upgraded-blocking-tempered-aegis",
+      "name": "adapt:blocking/upgrade/tempered_aegis",
       "class": "TemperedAegis",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/TemperedAegis.java",
-      "fuses": ["blocking-tempered-guard", "blocking-shieldbearers-resolve"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/blocking/upgraded/TemperedAegis.java",
+      "fuses": ["adapt:blocking/tempered_guard", "adapt:blocking/shieldbearers_resolve"],
       "triggers": ["PlayerItemDamageEvent", "EntityDamageByEntityEvent", "PlayerToggleSprintEvent", "PlayerMoveEvent"]
     }
   ]

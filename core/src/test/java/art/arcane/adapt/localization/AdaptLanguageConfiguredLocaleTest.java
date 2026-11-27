@@ -16,7 +16,7 @@ class AdaptLanguageConfiguredLocaleTest extends AdaptTestBase {
     String loaded = AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED);
     Path file = AdaptLanguage.languageFolder().toPath().resolve(AdaptLanguage.activeLocale() + ".toml");
     Files.createDirectories(file.getParent());
-    Files.writeString(file, "[runtime]\nno_description_provided = \"Edited on disk\"\n");
+    Files.writeString(file, "[adapt.runtime]\nno_description_provided = \"Edited on disk\"\n");
 
     assertThat(AdaptLanguage.reloadConfiguredLocale()).isFalse();
     assertThat(AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED)).isEqualTo(loaded);

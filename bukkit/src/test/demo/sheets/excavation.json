@@ -1,5 +1,5 @@
 {
-  "excavation-burrow": {
+  "adapt:excavation/burrow": {
     "set": "excavation-shaft",
     "level": 5,
     "pre": [
@@ -29,7 +29,7 @@
       "pitch": 0
     }
   },
-  "excavation-drop-to-inventory": {
+  "adapt:excavation/drop_to_inventory": {
     "set": "excavation-bank",
     "level": 1,
     "pre": [
@@ -73,7 +73,7 @@
     "maxTicks": 292,
     "povCapture": true
   },
-  "excavation-earth-mover": {
+  "adapt:excavation/earth_mover": {
     "set": "excavation-horde",
     "level": 5,
     "pre": [
@@ -96,7 +96,7 @@
     },
     "maxTicks": 200
   },
-  "excavation-grave-digger": {
+  "adapt:excavation/grave_digger": {
     "set": "excavation-mound",
     "level": 5,
     "pre": [
@@ -295,7 +295,7 @@
     },
     "maxTicks": 834
   },
-  "excavation-haste": {
+  "adapt:excavation/haste": {
     "set": "excavation-bank",
     "level": 3,
     "pre": [
@@ -338,7 +338,7 @@
     },
     "maxTicks": 292
   },
-  "excavation-mudlark": {
+  "adapt:excavation/mudlark": {
     "set": "excavation-mudflat",
     "level": 5,
     "pre": [
@@ -387,7 +387,7 @@
     },
     "maxTicks": 304
   },
-  "excavation-omnitool": {
+  "adapt:excavation/omnitool": {
     "povCapture": true,
     "set": "excavation-workbench",
     "level": 5,
@@ -481,7 +481,7 @@
     "expect": {"sound": "minecraft:item.armor.equip_elytra", "particle": "wax_on"},
     "maxTicks": 1100
   },
-  "excavation-seismic-ping": {
+  "adapt:excavation/seismic_ping": {
     "set": "excavation-seismic",
     "level": 5,
     "pre": [
@@ -529,7 +529,7 @@
     },
     "maxTicks": 354
   },
-  "excavation-soft-fall": {
+  "adapt:excavation/soft_fall": {
     "set": "ledge",
     "level": 5,
     "camera": {
@@ -556,7 +556,7 @@
     },
     "maxTicks": 200
   },
-  "excavation-spelunker": {
+  "adapt:excavation/spelunker": {
     "set": "excavation-outcrop",
     "level": 5,
     "pre": [
@@ -579,7 +579,7 @@
     "maxTicks": 250,
     "povCapture": true
   },
-  "excavation-treasure-hunter": {
+  "adapt:excavation/treasure_hunter": {
     "set": "excavation-dig-site",
     "level": 5,
     "pre": [
@@ -733,7 +733,7 @@
     },
     "maxTicks": 664
   },
-  "excavation-tunneler": {
+  "adapt:excavation/tunneler": {
     "set": "excavation-bank",
     "level": 5,
     "pre": [

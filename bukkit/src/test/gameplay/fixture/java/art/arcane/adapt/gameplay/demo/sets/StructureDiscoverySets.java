@@ -1,12 +1,12 @@
 package art.arcane.adapt.gameplay.demo.sets;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.gameplay.FixtureVersion;
 import art.arcane.adapt.gameplay.demo.DemoSet;
 import art.arcane.adapt.gameplay.demo.DemoSetProvider;
@@ -40,7 +40,7 @@ public final class StructureDiscoverySets implements DemoSetProvider {
         AdaptPlayer learner = Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player));
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (!adaptation.getName().equals(adaptationId)) {
+                if (!adaptation.getId().toString().equals(adaptationId)) {
                     continue;
                 }
                 for (PlayerPreference<?> control : adaptation.getPlayerPreferences()) {
@@ -58,7 +58,7 @@ public final class StructureDiscoverySets implements DemoSetProvider {
     }
 
     private static <E extends Enum<E>> boolean setPreference(Adaptation<?> adaptation, AdaptPlayer learner, PlayerPreference<E> control, String value) {
-        E selected = control.parse(value);
+        E selected = control.parse(value).orElse(null);
         return selected != null && PlayerPreferences.set(adaptation, learner, control, selected);
     }
 

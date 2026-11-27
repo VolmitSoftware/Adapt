@@ -2,24 +2,24 @@
   "skill": "taming",
   "upgrades": [
     {
-      "name": "upgraded-taming-alpha",
+      "name": "adapt:taming/upgrade/alpha",
       "class": "Alpha",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/Alpha.java",
-      "fuses": ["tame-damage", "tame-health", "tame-health-regeneration", "tame-pack-leader-aura"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/Alpha.java",
+      "fuses": ["adapt:tame/damage", "adapt:tame/health", "adapt:tame/health_regeneration", "adapt:tame/pack_leader_aura"],
       "triggers": ["EntityDamageByEntityEvent"]
     },
     {
-      "name": "upgraded-taming-one-mind",
+      "name": "adapt:taming/upgrade/one_mind",
       "class": "OneMind",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/OneMind.java",
-      "fuses": ["tame-alphas-command", "tame-beast-recall", "tame-fetch"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/OneMind.java",
+      "fuses": ["adapt:tame/alphas_command", "adapt:tame/beast_recall", "adapt:tame/fetch"],
       "triggers": ["PlayerQuitEvent"]
     },
     {
-      "name": "upgraded-taming-blood-bond",
+      "name": "adapt:taming/upgrade/blood_bond",
       "class": "BloodBond",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/BloodBond.java",
-      "fuses": ["tame-shared-pain", "tame-guardian-instinct", "tame-last-breath"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/taming/upgraded/BloodBond.java",
+      "fuses": ["adapt:tame/shared_pain", "adapt:tame/guardian_instinct", "adapt:tame/last_breath"],
       "triggers": ["EntityDamageEvent", "EntityDamageByEntityEvent"]
     }
   ]

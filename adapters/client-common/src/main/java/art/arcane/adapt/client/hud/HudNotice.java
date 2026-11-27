@@ -1,6 +1,6 @@
 package art.arcane.adapt.client.hud;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 
 /** A text segment from a {@code HudPublish} frame. {@code text} keeps its legacy section colour codes. */
 public final class HudNotice {

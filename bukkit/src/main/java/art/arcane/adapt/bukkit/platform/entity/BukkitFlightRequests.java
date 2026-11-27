@@ -1,5 +1,6 @@
 package art.arcane.adapt.bukkit.platform.entity;
 
+import art.arcane.adapt.util.common.compat.PaperApi;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -27,8 +28,8 @@ final class BukkitFlightRequests {
     if (granted(player) || player.getAllowFlight() || !survivalLike(player)) {
       return false;
     }
-    GRANTS.put(player.getUniqueId(), player.hasFlyingFallDamage());
-    player.setFlyingFallDamage(TriState.TRUE);
+    GRANTS.put(player.getUniqueId(), PaperApi.flyingFallDamage(player));
+    PaperApi.setFlyingFallDamage(player, TriState.TRUE);
     player.setAllowFlight(true);
     return true;
   }
@@ -48,8 +49,8 @@ final class BukkitFlightRequests {
     if (fallDamage == null) {
       return false;
     }
-    if (player.hasFlyingFallDamage() == TriState.TRUE) {
-      player.setFlyingFallDamage(fallDamage);
+    if (PaperApi.flyingFallDamage(player) == TriState.TRUE) {
+      PaperApi.setFlyingFallDamage(player, fallDamage);
     }
     return true;
   }

@@ -5,6 +5,7 @@ import art.arcane.adapt.bukkit.platform.entity.BukkitInventoryRef;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.StorageView;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -77,7 +78,7 @@ final class BukkitStorageView implements StorageView, InventoryHolder {
   static final class CloseListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void on(InventoryCloseEvent event) {
-      if (event.getInventory().getHolder(false) instanceof BukkitStorageView view) {
+      if (PaperApi.holder(event.getInventory()) instanceof BukkitStorageView view) {
         view.closed();
       }
     }

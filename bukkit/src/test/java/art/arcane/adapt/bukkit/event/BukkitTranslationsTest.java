@@ -1,12 +1,12 @@
 package art.arcane.adapt.bukkit.event;
 
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.TestVersion;
 import art.arcane.adapt.TestCores;
-import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
-import art.arcane.adapt.api.potion.BrewingRecipe;
+import art.arcane.adapt.api.item.BrewingRecipe;
+import art.arcane.adapt.engine.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.bukkit.feature.protection.BukkitProtectionHost;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.AdaptEventBus;
@@ -17,6 +17,8 @@ import art.arcane.adapt.platform.event.player.InteractAction;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.event.ProtectionProbe;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import org.bukkit.Material;
@@ -141,9 +143,9 @@ class BukkitTranslationsTest {
       });
 
       when(block.getType()).thenReturn(Material.STONE);
-      AdaptPlatform mocks = TestCores.mockPlatform();
-      TestCores.install(new AdaptPlatform(mocks.host(), mocks.scheduler(), mocks.fx(), mocks.viewers(), mocks.menus(),
-          mocks.permissions(), new BukkitProtectionHost(id -> null, List::of), mocks.recipes(), mocks.advancements()));
+      HostPlatform mocks = TestCores.mockPlatform();
+      TestCores.install(new HostPlatform(mocks.host(), mocks.scheduler(), mocks.fx(), mocks.viewers(), mocks.menus(),
+          mocks.permissions(), new BukkitProtectionHost(), mocks.recipes(), mocks.advancements()));
 
       BonusBlockBreaks.breakBlock(BukkitRefs.player(player), BukkitRefs.block(block), 0);
 
@@ -161,7 +163,7 @@ class BukkitTranslationsTest {
     BukkitEventBridge bridge = new BukkitEventBridge(adapt, bus, List.of(AdaptApiTranslations.BREW_COMPLETE));
     bridge.start();
     List<String> order = new ArrayList<>();
-    HandlerList handlers = art.arcane.adapt.api.potion.AdaptBrewCompleteEvent.getHandlerList();
+    HandlerList handlers = art.arcane.adapt.engine.potion.AdaptBrewCompleteEvent.getHandlerList();
     RegisteredListener other = new RegisteredListener(new Listener() {
     }, (ignored, event) -> order.add("other"), org.bukkit.event.EventPriority.HIGHEST, mock(Plugin.class), false);
     handlers.register(other);
@@ -172,9 +174,10 @@ class BukkitTranslationsTest {
         seen.set(core);
       });
       UUID brewer = UUID.randomUUID();
-      BrewingRecipe recipe = BrewingRecipe.builder().id("adapt-test").build();
-      art.arcane.adapt.api.potion.AdaptBrewCompleteEvent event =
-          new art.arcane.adapt.api.potion.AdaptBrewCompleteEvent(block, recipe, brewer, 2);
+      BrewingRecipe recipe = new BrewingRecipe(Id.adapt("adapt-test"), Id.minecraft("nether_wart"), mock(ItemRef.class),
+          mock(ItemRef.class), 400, 1);
+      art.arcane.adapt.engine.potion.AdaptBrewCompleteEvent event =
+          new art.arcane.adapt.engine.potion.AdaptBrewCompleteEvent(block, recipe, brewer, 2);
 
       for (RegisteredListener listener : handlers.getRegisteredListeners()) {
         listener.callEvent(event);
@@ -182,7 +185,7 @@ class BukkitTranslationsTest {
 
       assertThat(order).containsExactly("other", "adapt");
       assertThat(seen.get().block()).isSameAs(BukkitRefs.block(block));
-      assertThat(seen.get().recipeId()).isEqualTo("adapt-test");
+      assertThat(seen.get().recipeId()).isEqualTo("adapt:adapt-test");
       assertThat(seen.get().brewerId()).isEqualTo(brewer);
       assertThat(seen.get().brewedPotions()).isEqualTo(2);
     } finally {

@@ -1,9 +1,9 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.LivingRef;

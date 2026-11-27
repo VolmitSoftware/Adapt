@@ -1,6 +1,6 @@
 package art.arcane.adapt.mod.platform.schedule;
 
-import art.arcane.adapt.platform.AdaptScheduler;
+import art.arcane.adapt.api.internal.HostScheduler;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.TaskHandle;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -22,7 +22,7 @@ import java.util.function.BooleanSupplier;
  * Single-threaded server scheduler. Sync work runs on the server thread from {@link #tick()}; async
  * work is released by the same tick counter onto a daemon pool.
  */
-public final class ModScheduler implements AdaptScheduler {
+public final class ModScheduler implements HostScheduler {
     private static final int ASYNC_THREADS = Math.max(2, Math.min(8, Runtime.getRuntime().availableProcessors()));
 
     private final TickQueue queue;
@@ -123,13 +123,15 @@ public final class ModScheduler implements AdaptScheduler {
     }
 
     @Override
-    public void runAsync(Runnable task, long delayTicks) {
+    public TaskHandle runAsync(Runnable task, long delayTicks) {
         Objects.requireNonNull(task, "task");
+        AsyncTask once = new AsyncTask(task);
         if (delayTicks <= 0L) {
-            submitAsync(task);
-            return;
+            submitAsync(once);
+            return once;
         }
-        queue.schedule(() -> submitAsync(task), delayTicks, 0L);
+        once.waitFor(queue.schedule(() -> submitAsync(once), delayTicks, 0L));
+        return once;
     }
 
     @Override
@@ -137,6 +139,12 @@ public final class ModScheduler implements AdaptScheduler {
         Objects.requireNonNull(entity, "entity");
         BooleanSupplier alive = alive(entity);
         TickQueue.Entry entry = queue.schedule(task, delayTicks, Math.max(1L, periodTicks), alive, retired);
+        return entry == null ? CancelledTask.INSTANCE : entry;
+    }
+
+    @Override
+    public TaskHandle repeatAt(Loc location, Runnable task, long delayTicks, long periodTicks) {
+        TickQueue.Entry entry = queue.schedule(task, delayTicks, Math.max(1L, periodTicks));
         return entry == null ? CancelledTask.INSTANCE : entry;
     }
 
@@ -176,6 +184,45 @@ public final class ModScheduler implements AdaptScheduler {
             });
         } catch (RejectedExecutionException rejected) {
             log.verbose("Async task rejected: scheduler is shut down");
+        }
+    }
+
+    private static final class AsyncTask implements Runnable, TaskHandle {
+        private final Runnable task;
+        private volatile boolean cancelled;
+        private volatile TaskHandle waiting;
+
+        private AsyncTask(Runnable task) {
+            this.task = task;
+        }
+
+        private void waitFor(TaskHandle entry) {
+            if (entry == null) {
+                cancelled = true;
+            } else {
+                waiting = entry;
+            }
+        }
+
+        @Override
+        public void run() {
+            if (!cancelled) {
+                task.run();
+            }
+        }
+
+        @Override
+        public void cancel() {
+            cancelled = true;
+            TaskHandle entry = waiting;
+            if (entry != null) {
+                entry.cancel();
+            }
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return cancelled;
         }
     }
 

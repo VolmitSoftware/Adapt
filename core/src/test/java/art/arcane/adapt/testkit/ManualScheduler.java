@@ -1,6 +1,6 @@
 package art.arcane.adapt.testkit;
 
-import art.arcane.adapt.platform.AdaptScheduler;
+import art.arcane.adapt.api.internal.HostScheduler;
 import art.arcane.adapt.platform.TaskHandle;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.value.Loc;
@@ -18,7 +18,7 @@ import java.util.UUID;
  * requested on the tick thread run inline like an owned entity task on Bukkit; everything else, including work
  * handed over from other threads, waits for the tick it is due. Not regionized unless {@link #regionized(boolean)}.
  */
-public final class ManualScheduler implements AdaptScheduler {
+public final class ManualScheduler implements HostScheduler {
   private final List<Scheduled> queue = new ArrayList<>();
   private final Thread tickThread = Thread.currentThread();
   private long tick;
@@ -182,12 +182,20 @@ public final class ManualScheduler implements AdaptScheduler {
   }
 
   @Override
-  public void runAsync(Runnable task, long delayTicks) {
-    schedule(task, delayTicks, 0L);
+  public TaskHandle runAsync(Runnable task, long delayTicks) {
+    return schedule(task, delayTicks, 0L);
   }
 
   @Override
   public TaskHandle repeatEntity(EntityRef entity, Runnable task, long delayTicks, long periodTicks, Runnable retired) {
+    return schedule(task, delayTicks, Math.max(1L, periodTicks));
+  }
+
+  @Override
+  public TaskHandle repeatAt(Loc location, Runnable task, long delayTicks, long periodTicks) {
+    synchronized (this) {
+      regionTaskLocations.add(location);
+    }
     return schedule(task, delayTicks, Math.max(1L, periodTicks));
   }
 

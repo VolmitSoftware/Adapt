@@ -5,6 +5,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.fx.BossBarColor;
 import art.arcane.adapt.platform.fx.BossBarRef;
 import art.arcane.adapt.platform.fx.BossBarStyle;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -51,7 +52,7 @@ final class BukkitBossBar implements BossBarRef {
     Player player = Bukkit.getPlayer(viewer.uuid());
     if (player != null && player.isOnline()) {
       viewers.add(player.getUniqueId());
-      player.showBossBar(bar);
+      PaperApi.showBossBar(player, bar);
     }
   }
 
@@ -60,7 +61,7 @@ final class BukkitBossBar implements BossBarRef {
     viewers.remove(viewer.uuid());
     Player player = Bukkit.getPlayer(viewer.uuid());
     if (player != null) {
-      player.hideBossBar(bar);
+      PaperApi.hideBossBar(player, bar);
     }
   }
 
@@ -71,7 +72,7 @@ final class BukkitBossBar implements BossBarRef {
       viewers.remove(id);
       Player player = Bukkit.getPlayer(id);
       if (player != null) {
-        player.hideBossBar(bar);
+        PaperApi.hideBossBar(player, bar);
       }
     }
   }

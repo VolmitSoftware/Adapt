@@ -2,18 +2,18 @@ package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.fx.ViewerDisplayPort;
-import art.arcane.adapt.api.fx.ViewerGlowPort;
-import art.arcane.adapt.api.protection.ProtectionProbePort;
-import art.arcane.adapt.content.integration.hiddenore.HiddenOrePort;
-import art.arcane.adapt.content.integration.iris.IrisTreeFellerPort;
-import art.arcane.adapt.api.data.BlockStorePort;
-import art.arcane.adapt.api.data.WorldDataPort;
-import art.arcane.adapt.api.skill.SkillRegistryPort;
-import art.arcane.adapt.api.world.EntityMarkerPort;
-import art.arcane.adapt.api.world.PlaceholderPort;
-import art.arcane.adapt.api.world.PlayerSessionPort;
-import art.arcane.adapt.api.world.PlayerTransferPort;
+import art.arcane.adapt.engine.fx.ViewerDisplayPort;
+import art.arcane.adapt.engine.fx.ViewerGlowPort;
+import art.arcane.adapt.engine.protection.ProtectionProbePort;
+import art.arcane.adapt.engine.integration.HiddenOrePort;
+import art.arcane.adapt.engine.integration.IrisTreeFellerPort;
+import art.arcane.adapt.engine.data.BlockStorePort;
+import art.arcane.adapt.engine.data.WorldDataPort;
+import art.arcane.adapt.engine.skill.SkillRegistryPort;
+import art.arcane.adapt.engine.world.EntityMarkerPort;
+import art.arcane.adapt.engine.world.PlaceholderPort;
+import art.arcane.adapt.engine.world.PlayerSessionPort;
+import art.arcane.adapt.engine.world.PlayerTransferPort;
 
 public final class BukkitWorldPorts {
   private BukkitWorldPorts() {

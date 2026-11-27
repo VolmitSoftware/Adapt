@@ -1,0 +1,237 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.hunter;
+
+import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityCharge;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.config.ConfigDescription;
+import art.arcane.adapt.api.config.ConfigDoc;
+import art.arcane.adapt.api.content.AdaptationConfig;
+import art.arcane.adapt.api.content.Cooldowns;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.StatLines;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.player.PlayerProfile;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.text.Text;
+import art.arcane.adapt.api.text.TextFormat;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
+import art.arcane.adapt.platform.advancement.AdvancementVisibility;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.entity.EntityDamageEvent;
+import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.value.Rgb;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
+  public static final Id ID = Id.adapt("hunter/strength");
+  private static final Id HUNGER = Id.minecraft("hunger");
+  private static final Id POISON = Id.minecraft("poison");
+  private static final Rgb RAGE_RED = new Rgb(200, 30, 30);
+  private final Cooldowns fxCooldown = cooldowns();
+  private final HunterStrengthBuff strength = new HunterStrengthBuff(this, playerState());
+
+  public HunterStrength() {
+    super(ID);
+    registerConfiguration(Config.class);
+    setIcon(Id.minecraft("cod_bucket"));
+    setInterval(9044);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("blaze_powder"))
+        .key("challenge_hunter_strength_200")
+        .frame(AdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerMilestone("challenge_hunter_strength_200", "hunter.strength.activations", 200, 300);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(PlayerProfile player) {
+    if (getActiveLevel(player.player()) <= 0) {
+      strength.remove(player.player());
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HunterPreferences.RESERVE);
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    v.addLore(TextFormat.GRAY + Text.key("adapt.hunter.strength.lore1").resolve());
+    statLore(v, level, 2);
+    statLore(v, TextFormat.RED, "- ", (5 + level), 3);
+    statLore(v, TextFormat.GRAY, "* ", level, 4);
+    statLore(v, TextFormat.GRAY, "* ", level, 5);
+    statLore(v, TextFormat.GRAY, "- ", level, TextFormat.RED, Text.key("adapt.hunter.penalty.lore1"));
+
+  }
+
+
+  @Handle
+  public void on(EntityDamageEvent e) {
+    if (!(e.entity() instanceof PlayerRef p) || !isAdaptableDamageCause(e)) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level <= 0 || HunterStruck.suppressed(this, p)) {
+      return;
+    }
+
+    if (!getConfig().useConsumable) {
+      if (p.foodLevel() == 0) {
+        starvePenalty(p, level);
+      } else if (applyStrengthBuff(p, level)) {
+        addPotionStacks(p, HUNGER, getConfig().baseHungerFromLevel - level,
+            getConfig().baseHungerDuration * level, getConfig().stackHungerPenalty);
+        recordActivation(p);
+      }
+      return;
+    }
+
+    Id material = HunterConsumables.resolve(getConfig().consumable);
+    if (material == null) {
+      return;
+    }
+    if (!p.inventory().contains(material, 1)) {
+      starvePenalty(p, level);
+      return;
+    }
+    if (!canApplyStrengthBuff(p, level) || !activateWithConsumable(p, material, level)) {
+      return;
+    }
+    recordActivation(p);
+  }
+
+  private boolean activateWithConsumable(PlayerRef p, Id material, int level) {
+    AtomicBoolean defaultApplied = new AtomicBoolean();
+    AbilityCharge charge = payItemCostDeferred(p, "consumable", AdaptApi.platform().host().items().create(material), 1, () -> {
+      if (!p.inventory().contains(material, 1) || !applyStrengthBuff(p, level)) {
+        return false;
+      }
+      p.inventory().removeItem(material, 1);
+      defaultApplied.set(true);
+      return true;
+    });
+    if (!charge.allowed()) {
+      return false;
+    }
+    if (defaultApplied.get()) {
+      settleCost(charge.activationId());
+      return true;
+    }
+    if (!applyStrengthBuff(p, level)) {
+      refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return false;
+    }
+    settleCost(charge.activationId());
+    return true;
+  }
+
+  @Handle
+  public void on(PlayerDeathEvent e) {
+    strength.forget(e.player().uuid());
+  }
+
+  private boolean canApplyStrengthBuff(PlayerRef p, int level) {
+    return strength.canApply(p, level, getConfig().baseEffectbyLevel, getConfig().stackBuff);
+  }
+
+  private boolean applyStrengthBuff(PlayerRef p, int level) {
+    return strength.apply(p, level, getConfig().baseEffectbyLevel, getConfig().stackBuff,
+        HunterStrengthBuff.strengthDamageBonus(level));
+  }
+
+  private void recordActivation(PlayerRef p) {
+    addStat(p, "hunter.strength.activations", 1);
+    activateFx(p);
+  }
+
+  private void starvePenalty(PlayerRef p, int level) {
+    if (getConfig().poisonPenalty) {
+      addPotionStacks(p, POISON, getConfig().basePoisonFromLevel - level,
+          getConfig().baseHungerDuration, getConfig().stackPoisonPenalty);
+    }
+    starveFx(p);
+  }
+
+  private void activateFx(PlayerRef p) {
+    if (!fxCooldown.isReady(p.uuid(), 1200L)) {
+      return;
+    }
+    fxCooldown.mark(p.uuid());
+    Loc loc = p.eyeLocation();
+    fx(loc, FxPriority.TRANSITION)
+        .dustBurst(RAGE_RED, 10, 0.4D, 1.3F)
+        .particle(Particles.FLAME, 4, 0, 0, 0, 0.2D, 0.02D)
+        .chord(Sounds.ENTITY_ZOGLIN_ATTACK, 0.4F, 1.4F, Sounds.ENTITY_PLAYER_ATTACK_STRONG, 0.5F, 0.8F);
+  }
+
+  private void starveFx(PlayerRef p) {
+    if (!fxCooldown.isReady(p.uuid(), 1200L)) {
+      return;
+    }
+    fxCooldown.mark(p.uuid());
+    FxPresets.failFizzle(this, p);
+  }
+
+
+  @ConfigDescription("Gain strength when struck, at the cost of hunger.")
+  protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Controls Use Consumable for the Hunter Strength adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean useConsumable = false;
+    @ConfigDoc(value = "Controls Poison Penalty for the Hunter Strength adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean poisonPenalty = true;
+    @ConfigDoc(value = "Controls Stack Hunger Penalty for the Hunter Strength adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackHungerPenalty = false;
+    @ConfigDoc(value = "Controls Stack Poison Penalty for the Hunter Strength adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackPoisonPenalty = false;
+    @ConfigDoc(value = "Controls Stack Buff for the Hunter Strength adaptation.", impact = "True enables this behavior and false disables it.")
+    boolean stackBuff = false;
+    @ConfigDoc(value = "Controls Base Effectby Level for the Hunter Strength adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseEffectbyLevel = 25;
+    @ConfigDoc(value = "Controls Base Hunger From Level for the Hunter Strength adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseHungerFromLevel = 10;
+    @ConfigDoc(value = "Controls Base Poison From Level for the Hunter Strength adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int basePoisonFromLevel = 6;
+    @ConfigDoc(value = "Controls Base Hunger Duration for the Hunter Strength adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int baseHungerDuration = 50;
+    @ConfigDoc(value = "Controls Consumable for the Hunter Strength adaptation.", impact = "Changing this alters the identifier or text used by the feature.")
+    String consumable = "ROTTEN_FLESH";
+
+    public Config() {
+      baseCost = 3;
+      costFactor = 0.6;
+      initialCost = 2;
+    }
+  }
+}

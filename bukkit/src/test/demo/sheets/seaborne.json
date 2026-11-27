@@ -1,5 +1,5 @@
 {
-  "seaborne-brine-skin": {
+  "adapt:seaborne/brine_skin": {
     "povCapture": true,
     "set": "seaborne-duel", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
@@ -20,7 +20,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.block", "particle": "glow"}, "maxTicks": 260
   },
-  "seaborne-coral-gardener": {
+  "adapt:seaborne/coral_gardener": {
     "set": "arena", "level": 5,
     "camera": {"x": 0.0, "y": 2.6, "z": -7.5, "yaw": 0, "pitch": 14},
     "pre": ["give {actor} minecraft:tube_coral_block 1"],
@@ -34,7 +34,7 @@
     ],
     "expect": {"sound": "minecraft:block.coral_block.place", "particle": "happy_villager"}, "maxTicks": 260
   },
-  "seaborne-deep-salvager": {
+  "adapt:seaborne/deep_salvager": {
     "set": "seaborne-wreck", "level": 4,
     "camera": {"x": 6.0, "y": 6.5, "z": -3.0, "yaw": 90, "pitch": 45},
     "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
@@ -54,7 +54,7 @@
     ],
     "expect": {"sound": "minecraft:block.conduit.activate", "particle": "end_rod"}, "maxTicks": 240
   },
-  "seaborne-fish-whisperer": {
+  "adapt:seaborne/fish_whisperer": {
     "set": "seaborne-shoal", "level": 5,
     "camera": {"x": 7.0, "y": 7.0, "z": -5.0, "yaw": 90, "pitch": 42},
     "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
@@ -69,7 +69,7 @@
     ],
     "expect": {"particle": "bubble"}, "maxTicks": 260
   },
-  "seaborne-fishers-fantasy": {
+  "adapt:seaborne/fishers_fantasy": {
     "set": "seaborne-pool", "level": 7,
     "pre": ["give {actor} minecraft:fishing_rod 1", "enchant {actor} minecraft:lure 3"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
@@ -100,7 +100,7 @@
     ],
     "expect": {"sound": "minecraft:block.conduit.activate", "particle": "glow"}, "maxTicks": 1600
   },
-  "seaborne-hydro-jet": {
+  "adapt:seaborne/hydro_jet": {
     "set": "seaborne-swim", "level": 5,
     "camera": {"x": 3.0, "y": 4.0, "z": 2.5, "yaw": -50.2, "pitch": 45.7, "follow": true},
     "pre": ["execute at {actor} run tp {actor} ~ ~3 ~2"],
@@ -120,7 +120,7 @@
     ],
     "expect": {"sound": "minecraft:entity.dolphin.splash", "particle": "splash"}, "maxTicks": 160
   },
-  "seaborne-ink-veil": {
+  "adapt:seaborne/ink_veil": {
     "set": "seaborne-duel", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -4.5, "yaw": 90, "pitch": 45},
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:drowned,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
@@ -140,7 +140,7 @@
     ],
     "expect": {"sound": "minecraft:entity.dolphin.splash", "particle": "squid_ink"}, "maxTicks": 200
   },
-  "seaborne-oxygen": {
+  "adapt:seaborne/oxygen": {
     "set": "seaborne-pool", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.0, "yaw": 90, "pitch": 42},
     "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points"],
@@ -154,7 +154,7 @@
     ],
     "expect": {"sound": "minecraft:block.conduit.activate", "particle": "dust"}, "maxTicks": 300
   },
-  "seaborne-pressure-diver": {
+  "adapt:seaborne/pressure_diver": {
     "povCapture": true,
     "set": "seaborne-shaft", "level": 4,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
@@ -167,7 +167,7 @@
     ],
     "expect": {"sound": "minecraft:block.conduit.activate", "particle": "bubble"}, "maxTicks": 260
   },
-  "seaborne-rain-fed": {
+  "adapt:seaborne/rain_fed": {
     "povCapture": true,
     "set": "seaborne-pool", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.0, "yaw": 90, "pitch": 42},
@@ -184,7 +184,7 @@
     ],
     "expect": {"sound": "minecraft:entity.generic.eat", "particle": "splash"}, "maxTicks": 260
   },
-  "seaborne-speed": {
+  "adapt:seaborne/speed": {
     "povCapture": true,
     "set": "seaborne-pool",
     "level": 7,
@@ -247,7 +247,7 @@
     },
     "maxTicks": 226
   },
-  "seaborne-storm-strike": {
+  "adapt:seaborne/storm_strike": {
     "set": "seaborne-duel", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
     "pre": [
@@ -276,7 +276,7 @@
     ],
     "expect": {"sound": "minecraft:entity.lightning_bolt.impact", "particle": "electric_spark"}, "maxTicks": 220
   },
-  "seaborne-tidecaller": {
+  "adapt:seaborne/tidecaller": {
     "set": "seaborne-swim", "level": 5,
     "camera": {"x": 3.0, "y": 4.0, "z": 2.5, "yaw": -50.2, "pitch": 45.7, "follow": true},
     "pre": ["execute at {actor} run tp {actor} ~ ~3 ~2"],
@@ -295,7 +295,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.riptide_2", "particle": "splash"}, "maxTicks": 240
   },
-  "seaborne-trident-mastery": {
+  "adapt:seaborne/trident_mastery": {
     "set": "seaborne-duel", "level": 5,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
     "pre": ["give {actor} minecraft:trident 1",
@@ -316,7 +316,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.hit", "particle": "bubble"}, "maxTicks": 220
   },
-  "seaborne-turtles-mining-speed": {
+  "adapt:seaborne/turtles_mining_speed": {
     "set": "seaborne-dig", "level": 1,
     "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 42},
     "pre": ["give {actor} minecraft:iron_shovel 1", "xp set {actor} 0 levels", "xp set {actor} 0 points"],

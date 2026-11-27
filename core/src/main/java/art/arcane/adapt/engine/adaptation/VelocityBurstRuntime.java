@@ -1,0 +1,726 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.engine.adaptation;
+
+import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.ability.VelocityBurst;
+import art.arcane.adapt.api.ability.VelocityBurst.Feedback;
+import art.arcane.adapt.api.ability.VelocityBurst.Profile;
+import art.arcane.adapt.api.ability.VelocityBurst.Request;
+import art.arcane.adapt.api.ability.VelocityBurst.StartResult;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.tick.TickedObject;
+import art.arcane.adapt.platform.entity.GameMode;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
+import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.platform.value.Vec3;
+import art.arcane.adapt.util.common.math.VelocitySpeed;
+import art.arcane.adapt.util.common.scheduling.Tasks;
+
+import java.util.ArrayDeque;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public final class VelocityBurstRuntime extends TickedObject {
+  public static final int MAX_OWNER_CALLBACKS_PER_TICK = 320;
+  public static final int MAX_OWNER_CALLBACKS_PER_SECOND = MAX_OWNER_CALLBACKS_PER_TICK * 20;
+  public static final int MAX_SESSIONS_PER_PLAYER = 8;
+  public static final int MAX_ELAPSED_TICKS = 4;
+  private static final long UPDATE_INTERVAL_MILLIS = 50L;
+  /** Updates a velocity sent to the client may take to show in its movement; covers local and lagging connections. */
+  private static final int APPLIED_HISTORY = 4;
+  private static final Object INSTANCE_LOCK = new Object();
+  private static VelocityBurstRuntime instance;
+
+  private final Map<UUID, PlayerBucket> buckets = new ConcurrentHashMap<>();
+  private final Queue<PlayerBucket> readyBuckets = new ConcurrentLinkedQueue<>();
+  private final Set<Client> clients = ConcurrentHashMap.newKeySet();
+  private long dispatchCycle;
+
+  private VelocityBurstRuntime() {
+    super("adaptations", "velocity-burst-runtime", UPDATE_INTERVAL_MILLIS);
+  }
+
+  public static Client register(Adaptation<?> source, Feedback feedback) {
+    Objects.requireNonNull(source);
+    Objects.requireNonNull(feedback);
+
+    synchronized (INSTANCE_LOCK) {
+      VelocityBurstRuntime runtime = instance;
+      if (runtime == null) {
+        runtime = new VelocityBurstRuntime();
+        instance = runtime;
+      }
+
+      Client client = new Client(runtime, source, feedback);
+      runtime.clients.add(client);
+      return client;
+    }
+  }
+
+  public static void startRuntime() {
+    synchronized (INSTANCE_LOCK) {
+      if (instance != null) {
+        instance.activateRuntime();
+      }
+    }
+  }
+
+  @Override
+  public boolean hasTickDemand() {
+    return !buckets.isEmpty() || !readyBuckets.isEmpty();
+  }
+
+  @Override
+  public void onTick() {
+    long cycle = ++dispatchCycle;
+    int scheduled = 0;
+    while (scheduled < MAX_OWNER_CALLBACKS_PER_TICK) {
+      PlayerBucket bucket = readyBuckets.poll();
+      if (bucket == null) {
+        return;
+      }
+      if (bucket.lastDispatchCycle == cycle) {
+        readyBuckets.offer(bucket);
+        return;
+      }
+
+      bucket.lastDispatchCycle = cycle;
+      if (!isCurrentWithSessions(bucket)) {
+        removeBucketIfEmpty(bucket);
+        completeDispatch(bucket);
+        continue;
+      }
+
+      boolean accepted = Tasks.runEntity(bucket.player, () -> updateBucket(bucket));
+      if (accepted) {
+        scheduled++;
+      } else {
+        completeDispatch(bucket);
+      }
+    }
+  }
+
+  @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  public void on(PlayerDeathEvent event) {
+    clearPlayer(event.player().uuid());
+  }
+
+  @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
+  public void on(PlayerQuitEvent event) {
+    clearPlayer(event.player().uuid());
+  }
+
+  @Override
+  public void unregister() {
+    synchronized (INSTANCE_LOCK) {
+      if (instance == this) {
+        instance = null;
+      }
+      for (Client client : clients) {
+        synchronized (client) {
+          client.active.set(false);
+          client.sessions.clear();
+        }
+      }
+      clients.clear();
+    }
+
+    buckets.clear();
+    readyBuckets.clear();
+    super.unregister();
+  }
+
+  static int boundedOwnerCallbacks(int activePlayers) {
+    return Math.max(0, Math.min(activePlayers, MAX_OWNER_CALLBACKS_PER_TICK));
+  }
+
+  static double elapsedTickScale(long elapsedMillis) {
+    double elapsedTicks = Math.max(UPDATE_INTERVAL_MILLIS, elapsedMillis) / (double) UPDATE_INTERVAL_MILLIS;
+    return Math.min(MAX_ELAPSED_TICKS, elapsedTicks);
+  }
+
+  static StartDecision decideStart(boolean hasExisting, long existingExpiry, int existingAmplifier,
+                                   long now, long durationMillis, int requestedAmplifier, boolean overlap) {
+    long safeDuration = Math.max(UPDATE_INTERVAL_MILLIS, durationMillis);
+    if (hasExisting && existingExpiry > now) {
+      if (!overlap) {
+        return new StartDecision(StartResult.REJECTED_ACTIVE, existingExpiry, existingAmplifier);
+      }
+      return new StartDecision(
+          StartResult.EXTENDED,
+          saturatedAdd(existingExpiry, safeDuration),
+          Math.max(existingAmplifier, requestedAmplifier)
+      );
+    }
+    return new StartDecision(StartResult.STARTED, saturatedAdd(now, safeDuration), requestedAmplifier);
+  }
+
+  private static long saturatedAdd(long left, long right) {
+    if (right > 0L && left > Long.MAX_VALUE - right) {
+      return Long.MAX_VALUE;
+    }
+    return left + right;
+  }
+
+  private StartResult start(Client client, PlayerRef player, Request request) {
+    if (request.durationTicks() <= 0) {
+      return StartResult.REJECTED_DURATION;
+    }
+
+    synchronized (client) {
+      if (!client.active.get() || !isRuntimeRegistered()) {
+        return StartResult.REJECTED_INACTIVE;
+      }
+
+      UUID playerId = player.uuid();
+      long now = System.currentTimeMillis();
+      long durationMillis = Math.max(UPDATE_INTERVAL_MILLIS, (long) request.durationTicks() * 50L);
+      while (true) {
+        PlayerBucket bucket = buckets.computeIfAbsent(playerId, ignored -> new PlayerBucket(playerId, player, now));
+        StartResult result;
+        BurstSession startedSession = null;
+        synchronized (bucket) {
+          if (buckets.get(playerId) != bucket) {
+            continue;
+          }
+          if (!client.active.get()) {
+            return StartResult.REJECTED_INACTIVE;
+          }
+
+          BurstSession existing = bucket.sessions.get(client);
+          StartDecision decision = decideStart(
+              existing != null,
+              existing == null ? 0L : existing.expiresAt,
+              existing == null ? 0 : existing.amplifier,
+              now,
+              durationMillis,
+              request.amplifier(),
+              request.overlap()
+          );
+          result = decision.result();
+          if (!result.accepted()) {
+            return result;
+          }
+
+          if (result == StartResult.EXTENDED) {
+            existing.expiresAt = decision.expiresAt();
+            existing.amplifier = decision.amplifier();
+            existing.profile = request.profile();
+          } else {
+            BurstSession replacement = new BurstSession(client, decision.expiresAt(), decision.amplifier(), request.profile());
+            if (!bucket.sessions.put(client, replacement)) {
+              return StartResult.REJECTED_CAPACITY;
+            }
+            if (existing != null) {
+              client.sessions.remove(playerId, existing);
+            }
+            client.sessions.put(playerId, replacement);
+            startedSession = replacement;
+          }
+        }
+
+        enqueue(bucket);
+        if (startedSession != null && client.sessions.get(playerId) == startedSession) {
+          notifyStarted(startedSession, player);
+        }
+        return result;
+      }
+    }
+  }
+
+  private void updateBucket(PlayerBucket bucket) {
+    try {
+      if (buckets.get(bucket.playerId) != bucket) {
+        return;
+      }
+      PlayerRef player = bucket.player;
+      if (!player.isOnline()) {
+        clearPlayer(bucket.playerId);
+        return;
+      }
+
+      long now = System.currentTimeMillis();
+      synchronized (bucket) {
+        if (buckets.get(bucket.playerId) != bucket) {
+          return;
+        }
+
+        long elapsed = now >= bucket.lastUpdateMillis ? now - bucket.lastUpdateMillis : UPDATE_INTERVAL_MILLIS;
+        bucket.lastUpdateMillis = now;
+        removeExpiredSessions(bucket, player, now);
+        if (bucket.sessions.isEmpty()) {
+          return;
+        }
+
+        double tickScale = elapsedTickScale(elapsed);
+        if (!isVelocityEligible(player)) {
+          invalidateSessions(bucket, player);
+          return;
+        }
+
+        double fallbackThresholdSquared = minimumFallbackThresholdSquared(bucket);
+        Vec3 movement = VelocitySpeed.horizontalOnly(player.movement());
+        boolean onGround = player.isOnGround();
+        Vec3 expected;
+        if (bucket.controllingVelocity) {
+          expected = VelocitySpeed.closestApplied(movement, bucket.recentlyApplied);
+        } else {
+          expected = onGround ? VelocitySpeed.coasting(bucket.lastMovement, bucket.lastOnGround) : null;
+        }
+        bucket.lastMovement = movement;
+        bucket.lastOnGround = onGround;
+        VelocitySpeed.InputSnapshot input = VelocitySpeed.readInput(player, fallbackThresholdSquared, expected);
+        if (!input.hasHorizontal()) {
+          brakeSessions(bucket, player, tickScale);
+          return;
+        }
+
+        Vec3 direction = VelocitySpeed.resolveHorizontalDirection(player, input);
+        if (direction.lengthSquared() <= VelocitySpeed.EPSILON) {
+          brakeSessions(bucket, player, tickScale);
+          return;
+        }
+
+        accelerateSessions(bucket, player, direction, tickScale);
+      }
+    } catch (Throwable error) {
+      AdaptLog.error("Exception updating velocity bursts for " + bucket.playerId, error);
+    } finally {
+      removeBucketIfEmpty(bucket);
+      completeDispatch(bucket);
+    }
+  }
+
+  private void removeExpiredSessions(PlayerBucket bucket, PlayerRef player, long now) {
+    boolean hardStop = false;
+    Iterator<Map.Entry<Client, BurstSession>> iterator = bucket.sessions.entries().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<Client, BurstSession> entry = iterator.next();
+      Client client = entry.getKey();
+      BurstSession session = entry.getValue();
+      if (!client.active.get() || client.sessions.get(bucket.playerId) != session) {
+        iterator.remove();
+        continue;
+      }
+      boolean active = client.source.getActiveLevel(player) > 0;
+      if (active && session.expiresAt > now) {
+        continue;
+      }
+
+      iterator.remove();
+      client.sessions.remove(bucket.playerId, session);
+      hardStop |= !active && session.boosting && session.profile.hardStopOnInvalidState();
+      notifyEnded(session, player);
+    }
+    if (bucket.sessions.isEmpty()) {
+      bucket.controllingVelocity = false;
+      if (hardStop) {
+        VelocitySpeed.hardStopHorizontal(player);
+      }
+    }
+  }
+
+  private void invalidateSessions(PlayerBucket bucket, PlayerRef player) {
+    bucket.controllingVelocity = false;
+    boolean hardStop = false;
+    for (BurstSession session : bucket.sessions.values()) {
+      if (!session.boosting) {
+        continue;
+      }
+      hardStop |= session.profile.hardStopOnInvalidState();
+      session.boosting = false;
+    }
+    if (hardStop) {
+      VelocitySpeed.hardStopHorizontal(player);
+    }
+  }
+
+  private double minimumFallbackThresholdSquared(PlayerBucket bucket) {
+    double threshold = Double.POSITIVE_INFINITY;
+    for (BurstSession session : bucket.sessions.values()) {
+      double fallback = session.profile.fallbackInputVelocityThreshold();
+      threshold = Math.min(threshold, fallback * fallback);
+    }
+    return threshold == Double.POSITIVE_INFINITY ? 0D : threshold;
+  }
+
+  private void accelerateSessions(PlayerBucket bucket, PlayerRef player, Vec3 direction, double tickScale) {
+    BurstSession controller = null;
+    double targetSpeed = -1D;
+    for (BurstSession session : bucket.sessions.values()) {
+      double candidate = Math.min(
+          session.profile.maxHorizontalSpeed(),
+          session.profile.baseHorizontalSpeed() * VelocitySpeed.speedAmplifierScalar(session.amplifier)
+      );
+      if (candidate > targetSpeed) {
+        targetSpeed = candidate;
+        controller = session;
+      }
+    }
+    if (controller == null) {
+      return;
+    }
+
+    Vec3 horizontal = controlledHorizontal(bucket, player);
+    Vec3 targetHorizontal = direction.multiply(Math.max(0D, targetSpeed));
+    double acceleration = controller.profile.accelerationPerTick() * tickScale;
+    Vec3 nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, acceleration);
+    nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, controller.profile.maxHorizontalSpeed());
+    applyHorizontal(bucket, player, nextHorizontal);
+
+    for (BurstSession session : bucket.sessions.values()) {
+      session.boosting = true;
+      notifyTrail(session, player, nextHorizontal, session.updateIndex++);
+    }
+  }
+
+  private void brakeSessions(PlayerBucket bucket, PlayerRef player, double tickScale) {
+    boolean active = false;
+    double brake = 0D;
+    double stopThreshold = 0D;
+    for (BurstSession session : bucket.sessions.values()) {
+      if (!session.boosting) {
+        continue;
+      }
+      active = true;
+      brake = Math.max(brake, session.profile.brakePerTick());
+      stopThreshold = Math.max(stopThreshold, session.profile.stopThreshold());
+    }
+    if (!active) {
+      return;
+    }
+
+    Vec3 horizontal = controlledHorizontal(bucket, player);
+    double stopThresholdSquared = stopThreshold * stopThreshold;
+    if (horizontal.lengthSquared() <= stopThresholdSquared) {
+      finishBraking(bucket, player);
+      return;
+    }
+
+    Vec3 nextHorizontal = VelocitySpeed.moveTowards(horizontal, Vec3.ZERO, brake * tickScale);
+    if (nextHorizontal.lengthSquared() <= stopThresholdSquared) {
+      finishBraking(bucket, player);
+      return;
+    }
+    applyHorizontal(bucket, player, nextHorizontal);
+  }
+
+  private void finishBraking(PlayerBucket bucket, PlayerRef player) {
+    bucket.controllingVelocity = false;
+    VelocitySpeed.hardStopHorizontal(player);
+    for (BurstSession session : bucket.sessions.values()) {
+      if (!session.boosting) {
+        continue;
+      }
+      session.boosting = false;
+      notifyBraked(session, player);
+    }
+  }
+
+  private Vec3 controlledHorizontal(PlayerBucket bucket, PlayerRef player) {
+    return bucket.controllingVelocity
+        ? new Vec3(bucket.horizontalX, 0D, bucket.horizontalZ)
+        : VelocitySpeed.horizontalOnly(player.velocity());
+  }
+
+  private void applyHorizontal(PlayerBucket bucket, PlayerRef player, Vec3 horizontal) {
+    if (!bucket.controllingVelocity) {
+      bucket.recentlyApplied.clear();
+    }
+    if (bucket.recentlyApplied.size() == APPLIED_HISTORY) {
+      bucket.recentlyApplied.removeFirst();
+    }
+    bucket.recentlyApplied.addLast(horizontal);
+    bucket.horizontalX = horizontal.x();
+    bucket.horizontalZ = horizontal.z();
+    bucket.controllingVelocity = true;
+    VelocitySpeed.setHorizontalVelocity(player, horizontal);
+  }
+
+  private boolean isVelocityEligible(PlayerRef player) {
+    GameMode mode = player.gameMode();
+    if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
+      return false;
+    }
+    return !player.isDead() && !player.isFlying() && !player.isGliding()
+        && !player.isSwimming() && player.vehicle() == null;
+  }
+
+  private void unregisterClient(Client client) {
+    synchronized (client) {
+      if (!client.active.compareAndSet(true, false)) {
+        return;
+      }
+      for (Map.Entry<UUID, BurstSession> entry : client.sessions.entrySet()) {
+        removeSession(client, entry.getKey(), entry.getValue());
+      }
+      client.sessions.clear();
+    }
+
+    synchronized (INSTANCE_LOCK) {
+      clients.remove(client);
+      if (clients.isEmpty() && instance == this) {
+        unregister();
+      }
+    }
+  }
+
+  private void removeSession(Client client, UUID playerId, BurstSession expected) {
+    PlayerBucket bucket = buckets.get(playerId);
+    if (bucket == null) {
+      return;
+    }
+    synchronized (bucket) {
+      bucket.sessions.remove(client, expected);
+      if (bucket.sessions.isEmpty()) {
+        buckets.remove(playerId, bucket);
+      }
+    }
+  }
+
+  private void stop(Client client, PlayerRef player, BurstSession expected) {
+    if (expected == null) {
+      return;
+    }
+    if (!Tasks.isOwnedByCurrentRegion(player)) {
+      Tasks.runEntity(player, () -> stop(client, player, expected));
+      return;
+    }
+    synchronized (client) {
+      if (!client.sessions.remove(player.uuid(), expected)) {
+        return;
+      }
+      removeSession(client, player.uuid(), expected);
+    }
+    notifyEnded(expected, player);
+  }
+
+  private void clearPlayer(UUID playerId) {
+    PlayerBucket bucket = buckets.remove(playerId);
+    if (bucket == null) {
+      return;
+    }
+
+    synchronized (bucket) {
+      for (Map.Entry<Client, BurstSession> entry : bucket.sessions.entries()) {
+        entry.getKey().sessions.remove(playerId, entry.getValue());
+      }
+      bucket.sessions.clear();
+    }
+  }
+
+  private boolean isCurrentWithSessions(PlayerBucket bucket) {
+    if (buckets.get(bucket.playerId) != bucket) {
+      return false;
+    }
+    synchronized (bucket) {
+      return !bucket.sessions.isEmpty();
+    }
+  }
+
+  private void removeBucketIfEmpty(PlayerBucket bucket) {
+    synchronized (bucket) {
+      if (bucket.sessions.isEmpty()) {
+        buckets.remove(bucket.playerId, bucket);
+      }
+    }
+  }
+
+  private void completeDispatch(PlayerBucket bucket) {
+    bucket.queuedOrPending.set(false);
+    if (isCurrentWithSessions(bucket)) {
+      enqueue(bucket);
+    }
+  }
+
+  private void enqueue(PlayerBucket bucket) {
+    if (bucket.queuedOrPending.compareAndSet(false, true)) {
+      readyBuckets.offer(bucket);
+    }
+  }
+
+  private void notifyStarted(BurstSession session, PlayerRef player) {
+    try {
+      session.client.feedback.onStarted(player);
+    } catch (Throwable error) {
+      reportFeedbackFailure(session.client, error);
+    }
+  }
+
+  private void notifyTrail(BurstSession session, PlayerRef player, Vec3 horizontal, int updateIndex) {
+    try {
+      session.client.feedback.onTrail(player, horizontal, updateIndex);
+    } catch (Throwable error) {
+      reportFeedbackFailure(session.client, error);
+    }
+  }
+
+  private void notifyBraked(BurstSession session, PlayerRef player) {
+    try {
+      session.client.feedback.onBraked(player);
+    } catch (Throwable error) {
+      reportFeedbackFailure(session.client, error);
+    }
+  }
+
+  private void notifyEnded(BurstSession session, PlayerRef player) {
+    try {
+      session.client.feedback.onEnded(player);
+    } catch (Throwable error) {
+      reportFeedbackFailure(session.client, error);
+    }
+  }
+
+  private void reportFeedbackFailure(Client client, Throwable error) {
+    AdaptLog.error("Exception rendering velocity burst feedback for " + client.source.getId().toString(), error);
+  }
+
+  public static final class Client implements VelocityBurst.Client {
+    private final VelocityBurstRuntime runtime;
+    private final Adaptation<?> source;
+    private final Feedback feedback;
+    private final Map<UUID, BurstSession> sessions = new ConcurrentHashMap<>();
+    private final AtomicBoolean active = new AtomicBoolean(true);
+
+    private Client(VelocityBurstRuntime runtime, Adaptation<?> source, Feedback feedback) {
+      this.runtime = runtime;
+      this.source = source;
+      this.feedback = feedback;
+    }
+
+    @Override
+    public StartResult start(PlayerRef player, Request request) {
+      Objects.requireNonNull(player);
+      Objects.requireNonNull(request);
+      return runtime.start(this, player, request);
+    }
+
+    @Override
+    public void unregister() {
+      runtime.unregisterClient(this);
+    }
+
+    @Override
+    public void stop(PlayerRef player) {
+      Objects.requireNonNull(player);
+      runtime.stop(this, player, sessions.get(player.uuid()));
+    }
+  }
+
+  static final class SessionLedger<O, S> {
+    private final int capacity;
+    private final IdentityHashMap<O, S> sessions = new IdentityHashMap<>();
+
+    SessionLedger(int capacity) {
+      this.capacity = Math.max(1, capacity);
+    }
+
+    S get(O owner) {
+      return sessions.get(owner);
+    }
+
+    boolean put(O owner, S session) {
+      if (!sessions.containsKey(owner) && sessions.size() >= capacity) {
+        return false;
+      }
+      sessions.put(owner, session);
+      return true;
+    }
+
+    boolean remove(O owner, S expected) {
+      if (sessions.get(owner) != expected) {
+        return false;
+      }
+      sessions.remove(owner);
+      return true;
+    }
+
+    Set<Map.Entry<O, S>> entries() {
+      return sessions.entrySet();
+    }
+
+    Iterable<S> values() {
+      return sessions.values();
+    }
+
+    boolean isEmpty() {
+      return sessions.isEmpty();
+    }
+
+    int size() {
+      return sessions.size();
+    }
+
+    void clear() {
+      sessions.clear();
+    }
+  }
+
+  record StartDecision(StartResult result, long expiresAt, int amplifier) {
+  }
+
+  private static final class BurstSession {
+    private final Client client;
+    private long expiresAt;
+    private int amplifier;
+    private Profile profile;
+    private boolean boosting;
+    private int updateIndex;
+
+    private BurstSession(Client client, long expiresAt, int amplifier, Profile profile) {
+      this.client = client;
+      this.expiresAt = expiresAt;
+      this.amplifier = amplifier;
+      this.profile = profile;
+    }
+  }
+
+  private static final class PlayerBucket {
+    private final UUID playerId;
+    private final PlayerRef player;
+    private final SessionLedger<Client, BurstSession> sessions = new SessionLedger<>(MAX_SESSIONS_PER_PLAYER);
+    private final AtomicBoolean queuedOrPending = new AtomicBoolean(false);
+    private long lastUpdateMillis;
+    private double horizontalX;
+    private double horizontalZ;
+    private boolean controllingVelocity;
+    private Vec3 lastMovement = Vec3.ZERO;
+    private boolean lastOnGround = true;
+    private final ArrayDeque<Vec3> recentlyApplied = new ArrayDeque<>(APPLIED_HISTORY);
+    private volatile long lastDispatchCycle;
+
+    private PlayerBucket(UUID playerId, PlayerRef player, long now) {
+      this.playerId = playerId;
+      this.player = player;
+      this.lastUpdateMillis = now;
+    }
+  }
+}

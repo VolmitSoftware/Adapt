@@ -17,8 +17,7 @@
 
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.engine.world.AdaptServer;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
@@ -43,7 +42,11 @@ public final class AdaptMetrics {
 
   // Chart callables run on the bStats daemon thread; keep them off Bukkit world/entity state.
   private void registerCharts() {
-    metrics.addCustomChart(new SingleLineChart("registered_skills", () -> SkillRegistry.skills.size()));
+    metrics.addCustomChart(new SingleLineChart("registered_skills", () -> {
+      Adapt adapt = Adapt.instance;
+      AdaptServer server = adapt == null ? null : adapt.getAdaptServer();
+      return server == null ? null : server.getSkillRegistry().getSkills().size();
+    }));
     metrics.addCustomChart(new SingleLineChart("learned_adaptations", () -> {
       Adapt adapt = Adapt.instance;
       if (adapt == null) {

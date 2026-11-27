@@ -14,7 +14,7 @@ export default {
       `/adaptqa preferences ${player.bot.username} ${command}`, `PREFERENCES ${command.split(' ')[0]}`)
     const behavior = (player, command) => fixtureJson(context,
       `/adaptqa catalog-behavior ${player.bot.username} ${command}`, `CATALOG_BEHAVIOR ${command.split(' ')[0]}`)
-    const id = 'enchanting-bookshelf-attunement'
+    const id = 'adapt:enchanting/bookshelf_attunement'
     let setup = false
     let locked = false
     async function click(slot, label, name = 'ui.button.click', pitch = 1.2) {
@@ -93,12 +93,12 @@ export default {
         'Other player still picks up both crops and seeds', allDrops)
       evidence.pickup.push({ seedsOnly, allDrops })
       const polymath = await behavior(actor, 'polymath')
-      context.expect(polymath.active === 0 && polymath.learned > 0 && !polymath.sources.includes('discovery-polymath')
+      context.expect(polymath.active === 0 && polymath.learned > 0 && !polymath.sources.includes('adapt:discovery/polymath')
         && polymath.sources.includes('fixture-other') && polymath.sources.includes('unowned'),
         'Disabling Polymath removes only its owned XP grants and preserves progression', polymath)
       evidence.polymath = polymath
-      await preference(actor, 'learn chronos-overtime')
-      state = await preference(actor, 'open chronos-overtime')
+      await preference(actor, 'learn adapt:chronos/overtime')
+      state = await preference(actor, 'open adapt:chronos/overtime')
       await context.waitUntil(() => Boolean(actor.bot.currentWindow), { label: 'Paged Overtime controls open', timeoutMs: 5000 })
       await actor.bot.waitForTicks(3)
       const pagedWindow = actor.bot.currentWindow
@@ -107,7 +107,7 @@ export default {
       await click(rowStart, 'Previous at first settings page', 'block.note_block.bass', 0.7)
       context.expect(actor.bot.currentWindow === pagedWindow, 'Blocked page navigation preserves the menu')
       await click(rowStart + 7, 'Next settings page', 'item.book.page_turn', 1.1)
-      state = await preference(actor, 'snapshot chronos-overtime')
+      state = await preference(actor, 'snapshot adapt:chronos/overtime')
       const secondPage = state.slots.filter(item => item.slot > rowStart && item.slot < rowStart + 7)
       context.expect(actor.bot.currentWindow === pagedWindow && JSON.stringify(firstPage) !== JSON.stringify(secondPage),
         'Paged controls change in the existing inventory')

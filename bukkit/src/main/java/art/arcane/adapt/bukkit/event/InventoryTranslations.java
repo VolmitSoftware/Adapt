@@ -9,6 +9,7 @@ import art.arcane.adapt.platform.event.inventory.InventoryCloseEvent;
 import art.arcane.adapt.platform.event.inventory.InventoryKind;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Keyed;
 import org.bukkit.Registry;
 import org.bukkit.enchantments.Enchantment;
@@ -105,7 +106,7 @@ final class InventoryTranslations {
   private static List<ItemRef> matrix(ItemStack[] matrix) {
     List<ItemRef> cells = new ArrayList<>(matrix.length);
     for (ItemStack cell : matrix) {
-      cells.add(BukkitRefs.item(cell == null ? ItemStack.empty() : cell));
+      cells.add(BukkitRefs.item(cell == null ? PaperApi.emptyItem() : cell));
     }
     return cells;
   }

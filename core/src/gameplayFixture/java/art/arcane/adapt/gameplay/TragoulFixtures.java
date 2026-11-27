@@ -19,7 +19,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -65,7 +64,7 @@ public final class TragoulFixtures {
                 Fixtures.give(actor, "bow", 1);
                 Fixtures.give(actor, "netherite_sword", 1);
                 ItemRef arrows = Fixtures.item("tipped_arrow", 4);
-                arrows.setPotionContents(new PotionContents(Id.minecraft("long_poison"), null, List.of(), null));
+                arrows.setPotionContents(PotionContents.of(Id.minecraft("long_poison")));
                 Fixtures.give(actor, arrows);
                 put("primary", Fixtures.spawnStill(arena, "cow", 2.5, 100, 0.5));
                 put("secondary", Fixtures.spawnStill(arena, "cow", 4.5, 100, 2.5));

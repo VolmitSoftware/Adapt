@@ -1,0 +1,102 @@
+[skill.geology]
+name = "Geology"
+description = "Read the rock you break and learn what lies inside it."
+quip = "Every stone has a story."
+xp_note = "Placed blocks pay nothing."
+
+[skill.geology.unlock_quip]
+"1" = "Your eye for stone sharpens."
+
+[skill.geology.group]
+field = "Field work"
+workshop = "Workshop"
+
+[skill.geology.xp]
+stone = "Break natural stone"
+ore = "Break ore"
+
+[skill.geology.mutated]
+noun = "Strata"
+adjective = "Stratified"
+
+[skill.geology.block]
+trigger = "break natural stone"
+strike_fight = "harden your skin"
+strike_work = "quicken your pick"
+boon = "find a little experience"
+fuel = "spend a bite of hunger"
+state = "while holding a pickaxe"
+
+[adaptation.geology.stone_skin]
+name = "Stone Skin"
+description = "Your skin hardens like the rock you work."
+lore1 = "Armor"
+
+[adaptation.geology.prospect]
+name = "Prospect"
+description = "Sneak and right-click stone with a pickaxe to reveal nearby ore."
+lore1 = "Scan radius"
+lore2 = "Cooldown"
+
+[adaptation.geology.prospect.hud]
+found = "Ore nearby: {count}"
+
+[adaptation.geology.core_sample]
+name = "Core Sample"
+description = "Broken stone sometimes yields a sample."
+lore1 = "Chance per block"
+
+[adaptation.geology.core_sample.preference.delivery]
+name = "Where samples go"
+
+[adaptation.geology.core_sample.preference.delivery.choice]
+drop = "Drop on the ground"
+inventory = "Straight to inventory"
+
+[adaptation.geology.geode_lens]
+name = "Geode Lens"
+description = "Craft a lens that doubles the Prospect radius from your off hand."
+lore1 = "Unlocks the Geode Lens recipe"
+
+[adaptation.pickaxe.aftershock]
+name = "Aftershock"
+description = "Breaking ore sometimes grants a burst of Haste."
+lore1 = "Chance per ore"
+
+[item.geode_lens]
+name = "Geode Lens"
+lore1 = "Hold in your off hand while prospecting."
+
+[advancement.geology_rocks_100]
+title = "Rock Collector"
+description = "Break 100 natural stone."
+
+[command]
+geology = "Geology tools for operators"
+status = "Show your Geology progress"
+catalog = "Show what the catalog lists"
+notes = "Write one field note"
+text = "Show the example's text in a language"
+xp = "Award Geology XP to yourself"
+knowledge = "Add Geology knowledge to yourself"
+learn = "Learn an adaptation"
+unlearn = "Forget an adaptation"
+delivery = "Choose where core samples go"
+mutate = "Merge Geology with another skill"
+lead = "Merge another skill with Geology as its partner"
+train = "Award XP in any skill to yourself"
+mutation = "Show your Geology mutation"
+unmutate = "Undo the Geology mutation"
+orphans = "List your orphaned progress"
+addon = "Show the addon's state"
+uninstall = "Uninstall the example addon"
+
+[command.argument]
+amount = "How much"
+adaptation = "An adaptation id, such as example:geology/prospect"
+level = "The level to reach"
+force = "Skip the knowledge cost"
+delivery = "drop or inventory"
+partner = "The skill to merge with"
+skill = "The skill to train"
+locale = "A language, such as de_DE"

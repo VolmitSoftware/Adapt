@@ -1,8 +1,8 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.platform.GameVersion;
 import art.arcane.adapt.platform.PlatformHost;
@@ -346,9 +346,10 @@ public final class Fixtures {
     }
 
     public static Adaptation<?> adaptation(String name) {
+        Id id = Id.tryParseAdapt(name);
         for (Skill<?> skill : core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (adaptation.getName().equals(name)) {
+                if (adaptation.getId().equals(id)) {
                     return adaptation;
                 }
             }

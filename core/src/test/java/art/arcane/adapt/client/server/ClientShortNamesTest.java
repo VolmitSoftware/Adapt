@@ -1,7 +1,7 @@
 package art.arcane.adapt.client.server;
 
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.client.link.ClientLink;
 import art.arcane.adapt.client.protocol.ClientFrame;
 import art.arcane.adapt.client.protocol.ClientProtocol;
@@ -87,9 +87,9 @@ class ClientShortNamesTest {
     List<ServerFrame.ShortNames> sent = frames.stream().filter(ServerFrame.ShortNames.class::isInstance)
         .map(ServerFrame.ShortNames.class::cast).toList();
     assertThat(sent).hasSize(1);
-    assertThat(sent.get(0).names()).contains(new ShortNameView("hunter-luck", "Luck"),
-        new ShortNameView("hunter-drop-to-inventory", "Drop to Inventory"));
-    assertThat(sent.get(0).names()).extracting(ShortNameView::adaptationId).doesNotContain("hunter-adrenaline");
+    assertThat(sent.get(0).names()).contains(new ShortNameView("adapt:hunter/luck", "Luck"),
+        new ShortNameView("adapt:hunter/drop_to_inventory", "Drop to Inventory"));
+    assertThat(sent.get(0).names()).extracting(ShortNameView::adaptationId).doesNotContain("adapt:hunter/adrenaline");
   }
 
   @Test
@@ -107,6 +107,6 @@ class ClientShortNamesTest {
   }
 
   private void hello(int mask) throws ClientProtocolException {
-    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(1, mask)));
+    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, mask)));
   }
 }

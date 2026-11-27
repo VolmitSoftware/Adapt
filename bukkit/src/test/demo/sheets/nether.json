@@ -1,6 +1,6 @@
 {
   "world": "minecraft:the_nether",
-  "nether-ashwalker": {
+  "adapt:nether/ashwalker": {
     "set": "nether-magma", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 65}],
     "beats": [
@@ -11,7 +11,7 @@
     ],
     "expect": {"particle": "ash"}, "maxTicks": 200
   },
-  "nether-blaze-leech": {
+  "adapt:nether/blaze_leech": {
     "povCapture": true,
     "set": "nether-magma",
     "level": 5,
@@ -56,7 +56,7 @@
     },
     "maxTicks": 260
   },
-  "nether-crimson-feast": {
+  "adapt:nether/crimson_feast": {
     "povCapture": true,
     "set": "nether-feast", "level": 4,
     "pre": ["give {actor} minecraft:crimson_fungus 3", "effect give {actor} minecraft:hunger 6 255 true"],
@@ -72,7 +72,7 @@
     ],
     "expect": {"sound": "minecraft:entity.generic.eat", "particle": "crimson_spore"}, "maxTicks": 200
   },
-  "nether-fire-resist": {
+  "adapt:nether/fire_resist": {
     "set": "nether-fire", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 55}],
     "beats": [
@@ -83,7 +83,7 @@
     ],
     "expect": {"sound": "minecraft:block.fire.extinguish", "particle": "splash"}, "maxTicks": 220
   },
-  "nether-ghast-ward": {
+  "adapt:nether/ghast_ward": {
     "set": "nether-blast", "level": 6,
     "pre": ["give {actor} minecraft:flint_and_steel"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -2.5]}],
@@ -96,7 +96,7 @@
     ],
     "expect": {"sound": "minecraft:block.beacon.deactivate", "particle": "sculk_soul"}, "maxTicks": 220
   },
-  "nether-lava-walker": {
+  "adapt:nether/lava_walker": {
     "povCapture": true,
     "set": "nether-lava",
     "level": 5,
@@ -138,7 +138,7 @@
     },
     "maxTicks": 220
   },
-  "nether-magma-skin": {
+  "adapt:nether/magma_skin": {
     "set": "nether-brawl", "level": 4,
     "pre": ["execute at {actor} as @e[type=minecraft:piglin,distance=..16] run data merge entity @s {NoAI:1b}"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
@@ -154,7 +154,7 @@
     ],
     "expect": {"sound": "minecraft:entity.blaze.hurt", "particle": "soul_fire_flame"}, "maxTicks": 200
   },
-  "nether-netherrack-mason": {
+  "adapt:nether/netherrack_mason": {
     "set": "nether-quarry", "level": 4,
     "pre": ["give {actor} minecraft:stone_pickaxe"],
     "prelude": [{"verb": "lookAt", "offset": [-1.5, 1.5, -0.05]}],
@@ -182,7 +182,7 @@
     ],
     "expect": {"sound": "minecraft:block.netherrack.break", "particle": "lava"}, "maxTicks": 300
   },
-  "nether-piglin-broker": {
+  "adapt:nether/piglin_broker": {
     "set": "nether-barter", "level": 5,
     "pre": [
       "execute at {actor} as @e[type=minecraft:piglin,distance=..16] run attribute @s minecraft:movement_speed base set 0",
@@ -207,7 +207,7 @@
     ],
     "expect": {"sound": "minecraft:entity.piglin.admiring_item", "particle": "wax_on"}, "maxTicks": 300
   },
-  "nether-skull-toss": {
+  "adapt:nether/skull_toss": {
     "set": "nether-skull", "level": 3,
     "pre": ["give {actor} minecraft:wither_skeleton_skull 3", "execute at {actor} run gamerule mob_griefing false"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -222,7 +222,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wither.shoot", "particle": "soul"}, "maxTicks": 200
   },
-  "nether-soul-strider": {
+  "adapt:nether/soul_strider": {
     "set": "nether-soul", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
     "beats": [
@@ -231,7 +231,7 @@
     ],
     "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul_fire_flame"}, "maxTicks": 200
   },
-  "nether-strider-bond": {
+  "adapt:nether/strider_bond": {
     "set": "nether-strider", "level": 4,
     "camera": {"x": 8.5, "y": 3.5, "z": -2.5, "yaw": 90, "pitch": 15},
     "pre": [
@@ -250,7 +250,7 @@
     ],
     "expect": {"sound": "minecraft:entity.strider.happy", "particle": "cloud"}, "maxTicks": 220
   },
-  "nether-wither-harvest": {
+  "adapt:nether/wither_harvest": {
     "set": "nether-harvest", "level": 4,
     "pre": [
       "give {actor} minecraft:stone_sword",
@@ -267,7 +267,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wither_skeleton.hurt", "particle": "soul"}, "maxTicks": 200
   },
-  "nether-wither-resist": {
+  "adapt:nether/wither_resist": {
     "povCapture": true,
     "set": "nether-wither", "level": 3,
     "pre": ["advancement grant {actor} only minecraft:nether/netherite_armor", "experience set {actor} 0 levels", "experience set {actor} 0 points", "item replace entity {actor} armor.chest with minecraft:netherite_chestplate", "item replace entity {actor} armor.head with minecraft:netherite_helmet", "item replace entity {actor} armor.legs with minecraft:netherite_leggings", "item replace entity {actor} armor.feet with minecraft:netherite_boots"],

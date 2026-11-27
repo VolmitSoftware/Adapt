@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.skill;
 
-import art.arcane.adapt.localization.AdaptMessages;
+import art.arcane.adapt.localization.BuiltInText;
+import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextValue;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +21,9 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AchievementCatalogIntegrityTest {
+  private static final MessageCatalog CATALOG = BuiltInText.catalog();
   private static final List<Path> CONTENT_ROOTS = List.of(
-      Path.of("src/main/java/art/arcane/adapt/content"), Path.of("../core/src/main/java/art/arcane/adapt/content"));
+      Path.of("src/main/java/art/arcane/adapt/content"), Path.of("../content/src/main/java/art/arcane/adapt/content"));
   private static final Path RESOURCE_ROOT = Path.of("../src/main/resources");
   private static final Pattern DIRECT_MILESTONE_PATTERN = Pattern.compile(
       "registerMilestone\\(\\s*\"([^\"]+)\"\\s*,\\s*\"([^\"]+)\"\\s*,\\s*([0-9_]+)"
@@ -140,9 +142,10 @@ class AchievementCatalogIntegrityTest {
       assertThat(source).as("retired stat %s", stat).doesNotContain(stat);
     }
     assertThat(source).doesNotContain("RiftStep", "\"rift-step\"", "\"rift.step.", "challenge_rift_step");
-    assertThat(resources).doesNotContain("[rift.step]", "[advancement.challenge_rift_step");
+    assertThat(resources).doesNotContain("[adapt.rift.step]", "[adapt.advancement.challenge_rift_step");
     assertThat(source).doesNotContain("ParkourMomentum", "\"agility-parkour-momentum\"");
-    assertThat(resources).doesNotContain("[agility.parkour_momentum]", "[advancement.challenge_agility_parkour_500]");
+    assertThat(resources).doesNotContain("[adapt.agility.parkour_momentum]",
+        "[adapt.advancement.challenge_agility_parkour_500]");
   }
 
   @Test
@@ -151,9 +154,9 @@ class AchievementCatalogIntegrityTest {
     Set<String> milestoneKeys = matches(DIRECT_MILESTONE_PATTERN, source, 1);
     Set<String> definitionKeys = matches(ADVANCEMENT_KEY_PATTERN, source, 1);
     Set<String> localeKeys = new HashSet<>();
-    for (String id : AdaptMessages.catalog().ids()) {
-      if (id.startsWith("advancement.")) {
-        localeKeys.add(id.substring("advancement.".length()).split("\\.", 2)[0]);
+    for (String id : CATALOG.ids()) {
+      if (id.startsWith("adapt.advancement.")) {
+        localeKeys.add(id.substring("adapt.advancement.".length()).split("\\.", 2)[0]);
       }
     }
 
@@ -280,7 +283,7 @@ class AchievementCatalogIntegrityTest {
   }
 
   private String advancementDescription(String locale, String key) {
-    String header = "[advancement." + key + "]";
+    String header = "[adapt.advancement." + key + "]";
     int start = locale.indexOf(header);
     if (start < 0) {
       throw new IllegalStateException("Missing advancement locale for " + key);
@@ -295,7 +298,7 @@ class AchievementCatalogIntegrityTest {
   }
 
   private String englishAdvancementDescription(String key) {
-    TextValue value = (TextValue) AdaptMessages.require("advancement." + key + ".description").englishValue();
+    TextValue value = (TextValue) CATALOG.require("adapt.advancement." + key + ".description").englishValue();
     return value.template();
   }
 }

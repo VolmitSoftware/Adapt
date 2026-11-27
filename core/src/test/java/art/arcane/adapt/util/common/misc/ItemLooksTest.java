@@ -1,8 +1,10 @@
 package art.arcane.adapt.util.common.misc;
 
-import art.arcane.adapt.api.mutation.tool.MutationTool;
-import art.arcane.adapt.api.mutation.tool.MutationTools;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
+import art.arcane.adapt.api.mutation.MutationTool;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.content.item.ChalkWandItem;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -34,12 +36,12 @@ class ItemLooksTest {
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v26_3());
     List<String> wrong = new ArrayList<>();
-    try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+    try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
       for (MutationTool<?> tool : MutationTools.all(adapt.core().getAdaptServer().getSkillRegistry())) {
-        ItemLooks.Look look = ItemLooks.LOOKS.stream().filter((ItemLooks.Look entry) -> entry.key().equals(tool.id())).findFirst()
+        ItemLooks.Look look = ItemLooks.LOOKS.stream().filter((ItemLooks.Look entry) -> entry.key().equals(LegacyContentNames.of(tool.item().id()))).findFirst()
             .orElse(null);
-        if (look == null || !look.material().equals(tool.material())) {
-          wrong.add(tool.id() + " on " + tool.material());
+        if (look == null || !look.material().equals(tool.item().baseItem())) {
+          wrong.add(tool.item().id() + " on " + tool.item().baseItem());
         }
       }
     }

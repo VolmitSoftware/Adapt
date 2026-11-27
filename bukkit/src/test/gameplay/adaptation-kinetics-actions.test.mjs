@@ -42,7 +42,7 @@ for (const fails of [false, true]) {
             mounted, vehicleSpeed: powered ? 0.4 : 0, mountId: 7,
             targets: { primary: { entityId: 8, x: 1.5, y: 100, z: 1.5, health: 20 - damage } },
         } })
-        const trigger = kineticsBehaviorCases.get('kinetics-mounted-shock').trigger
+        const trigger = kineticsBehaviorCases.get('adapt:kinetics/mounted_shock').trigger
         if (fails) {
             await assert.rejects(trigger({ actor: { bot }, context, snapshot }), /Attack rejected/)
         } else {

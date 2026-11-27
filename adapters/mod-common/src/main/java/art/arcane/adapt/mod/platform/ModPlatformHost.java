@@ -85,7 +85,7 @@ public final class ModPlatformHost implements PlatformHost {
 
     @Override
     public boolean has(Capability capability) {
-        return false;
+        return ModCapabilities.has(capability, this::isPresent);
     }
 
     @Override

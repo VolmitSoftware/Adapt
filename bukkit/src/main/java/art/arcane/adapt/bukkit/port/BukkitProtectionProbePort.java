@@ -1,6 +1,6 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.protection.ProtectionProbePort;
+import art.arcane.adapt.engine.protection.ProtectionProbePort;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.world.BukkitTrees;
 import art.arcane.adapt.platform.entity.ItemEntityRef;

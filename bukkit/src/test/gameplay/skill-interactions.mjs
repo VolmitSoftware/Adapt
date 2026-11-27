@@ -16,7 +16,7 @@ export default {
     const opponent = await context.connectActor(`AQAO${suffix}`)
     const catalogue = await fixtureJson(context, '/adaptqa catalog audit', 'CATALOG audit')
     const levels = Object.fromEntries(catalogue.skills.flatMap(skill => skill.adaptations.map(a => [a.name, a.maxLevel])))
-    const ids = ['tragoul-last-rites', 'chronos-hourglass-guard', 'rift-void-skin']
+    const ids = ['adapt:tragoul/last_rites', 'adapt:chronos/hourglass_guard', 'adapt:rift/void_skin']
     const statKeys = ['tragoul.last-rites.deaths-defied', 'chronos.hourglass-guard.saves', 'rift.void-skin.escapes']
     const cases = [[0], [1], [2], [0, 1], [1, 2], [0, 2], [0, 1, 2], [1, 'debt'], [0, 1, 2, 'totem'], [0, 1, 2, 'priority']]
     context.report.deathSaves = []
@@ -36,8 +36,8 @@ export default {
           const command = n === 0 ? 'learn' : 'learn-add'
           await context.command(`/adaptqa ${command} ${ids[item]} ${levels[ids[item]]}`, /^ADAPT_QA LEARN/)
         }
-        if (combination.includes('debt')) await context.command(`/adaptqa learn-add chronos-borrowed-time ${levels['chronos-borrowed-time']}`, /^ADAPT_QA LEARN/)
-        if (combination.includes('priority')) await fixtureJson(context, `/adaptqa preferences ${actor.bot.username} set rift-void-skin death-save-priority FIRST`, 'PREFERENCES set')
+        if (combination.includes('debt')) await context.command(`/adaptqa learn-add adapt:chronos/borrowed_time ${levels['adapt:chronos/borrowed_time']}`, /^ADAPT_QA LEARN/)
+        if (combination.includes('priority')) await fixtureJson(context, `/adaptqa preferences ${actor.bot.username} set adapt:rift/void_skin death-save-priority FIRST`, 'PREFERENCES set')
         if (combination.includes('totem')) await fixture('totem')
         await context.step(`Competing saves ${combination.map(i => ids[i] ?? i).join(' + ')}`, async () => {
           const before = await snapshot()
@@ -76,11 +76,11 @@ export default {
       await context.command(`/adaptqa setup ${actor.bot.username} ${opponent.bot.username}`, /^ADAPT_QA SETUP /, 30000)
       setup = true
       context.report.pearlInteractions = []
-      const combos = [[], ['ranged-fetch-shot'], ['ranged-floaters'], ['ranged-pinning-shot'], ['ranged-ricochet-bolt'], ['ranged-fetch-shot', 'ranged-floaters', 'ranged-pinning-shot']]
+      const combos = [[], ['adapt:ranged/fetch_shot'], ['adapt:ranged/floaters'], ['adapt:ranged/pinning_shot'], ['adapt:ranged/ricochet_bolt'], ['adapt:ranged/fetch_shot', 'adapt:ranged/floaters', 'adapt:ranged/pinning_shot']]
       for (const additional of combos) {
         await context.step(`Pearl Rebound with ${additional.join(', ') || 'no ranged modifiers'}`, async () => {
           await context.command('/adaptqa stage rift-rebound', /^ADAPT_QA STAGE /)
-          await context.command(`/adaptqa learn rift-pearl-rebound ${levels['rift-pearl-rebound']}`, /^ADAPT_QA LEARN/)
+          await context.command(`/adaptqa learn adapt:rift/pearl_rebound ${levels['adapt:rift/pearl_rebound']}`, /^ADAPT_QA LEARN/)
           for (const id of additional) await context.command(`/adaptqa learn-add ${id} ${levels[id]}`, /^ADAPT_QA LEARN/)
           const snapshot = () => fixtureJson(context, `/adaptqa snapshot ${actor.bot.username} pearl`, 'SNAPSHOT pearl')
           await context.waitUntil(() => actor.bot.inventory.items().some(item => item.name === 'ender_pearl'), { label: 'pearl inventory arrives', timeoutMs: 5000 })

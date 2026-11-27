@@ -541,7 +541,7 @@ public class ModLivingRef extends ModEntityRef implements LivingRef {
         if (type == null) {
             return null;
         }
-        return new EffectInstance(type, instance.getDuration(), instance.getAmplifier(), instance.isAmbient(), instance.isVisible(), instance.showIcon());
+        return EffectInstance.of(type, instance.getDuration(), instance.getAmplifier()).withAmbient(instance.isAmbient()).withParticles(instance.isVisible()).withIcon(instance.showIcon());
     }
 
     private static AttributeModifier.Operation operation(AttributeOperation operation) {

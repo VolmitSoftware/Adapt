@@ -32,7 +32,7 @@ export default {
             await context.command(`/gamemode spectator ${opponent.bot.username}`, /game mode/i, 5000)
             await context.waitUntil(() => opponent.bot.game.gameMode === 'spectator', { label: 'Bystander leaves the golem fight and item pickup', timeoutMs: 5000 })
             evidence.initial = await fixture('prepare')
-            await versionStep(context, 'copper-rod-retention', { adaptations: ['golem-copper-frame'], content: [['entity', 'copper_golem']] },
+            await versionStep(context, 'copper-rod-retention', { adaptations: ['adapt:golem/copper_frame'], content: [['entity', 'copper_golem']] },
                 'Copper retains its rod through both empty-hand interactions', async () => {
                 const before = await fixture('copper')
                 await context.sleep(400)
@@ -62,7 +62,7 @@ export default {
                 const input = await fixtureJson(context, `/adaptqa snapshot ${actor.bot.username} summon`, 'SNAPSHOT summon')
                 evidence.summonInput = input
                 context.expect(input.sneaking, 'The server receives the summon sneak input')
-                context.expect(input.learned['tragoul-skeletal-servant'] === 1, 'Skeletal Servant is learned before summoning')
+                context.expect(input.learned['adapt:tragoul/skeletal_servant'] === 1, 'Skeletal Servant is learned before summoning')
                 actor.bot.activateItem()
                 await context.sleep(800)
                 actor.bot.deactivateItem()

@@ -22,8 +22,9 @@ public final class InteractState {
         return active && useBlock == UseResult.DENY;
     }
 
+    /** True while the item must not be used on the clicked block; see {@link UseRules#usesItemOnBlock}. */
     public boolean denyItem() {
-        return active && useItem == UseResult.DENY;
+        return active && !UseRules.usesItemOnBlock(useBlock, useItem);
     }
 
     public void finish() {

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "adaptgeology",
+  "version": "${version}",
+  "name": "Adapt Geology",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.example.geology.fabric.GeologyFabric"]
+  },
+  "depends": {
+    "adapt": "*"
+  }
+}

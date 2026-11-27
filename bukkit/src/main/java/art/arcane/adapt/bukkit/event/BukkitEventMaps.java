@@ -179,8 +179,7 @@ public final class BukkitEventMaps {
     if (effect == null) {
       return null;
     }
-    return new EffectInstance(BukkitRefs.id(effect.getType().getKey()), effect.getDuration(), effect.getAmplifier(),
-        effect.isAmbient(), effect.hasParticles(), effect.hasIcon());
+    return EffectInstance.of(BukkitRefs.id(effect.getType().getKey()), effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.hasParticles()).withIcon(effect.hasIcon());
   }
 
   static Vec3 vec(Vector vector) {

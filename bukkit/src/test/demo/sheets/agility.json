@@ -1,5 +1,5 @@
 {
-  "agility-wind-up": {
+  "adapt:agility/wind_up": {
     "set": "runway", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
     "beats": [
@@ -7,7 +7,7 @@
     ],
     "expect": {"sound": "minecraft:entity.blaze.shoot", "particle": "flame"}, "maxTicks": 300
   },
-  "agility-wall-jump": {
+  "adapt:agility/wall_jump": {
     "set": "corridor", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": -30}],
     "beats": [
@@ -32,7 +32,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 400
   },
-  "agility-super-jump": {
+  "adapt:agility/super_jump": {
     "set": "arena", "level": 4,
     "camera": {"x": 9.5, "y": 3.0, "z": 0.5, "yaw": 90, "pitch": -8},
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -44,7 +44,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 200
   },
-  "agility-armor-up": {
+  "adapt:agility/armor_up": {
     "set": "runway", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
     "beats": [
@@ -52,7 +52,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_iron", "particle": "end_rod"}, "maxTicks": 300
   },
-  "agility-ladder-slide": {
+  "adapt:agility/ladder_slide": {
     "set": "ladder", "level": 1,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": -70}],
     "beats": [
@@ -63,7 +63,7 @@
     ],
     "expect": {"sound": "minecraft:entity.phantom.flap", "particle": "crit"}, "maxTicks": 300
   },
-  "agility-roll-landing": {
+  "adapt:agility/roll_landing": {
     "set": "ledge", "level": 5,
     "pre": ["execute at {actor} run gamerule fall_damage true"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -75,7 +75,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 200
   },
-  "agility-slipstream-slide": {
+  "adapt:agility/slipstream_slide": {
     "set": "runway", "level": 4,
     "camera": {"x": 12.5, "y": 3.0, "z": -9.5, "yaw": 90, "pitch": 6},
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -87,7 +87,7 @@
     ],
     "expect": {"sound": "minecraft:block.ladder.step", "particle": "cloud"}, "maxTicks": 250
   },
-  "agility-air-dash": {
+  "adapt:agility/air_dash": {
     "set": "runway", "level": 4,
     "camera": {"x": 12.5, "y": 3.0, "z": -9.5, "yaw": 90, "pitch": 6},
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -102,7 +102,7 @@
     ],
     "expect": {"sound": "minecraft:entity.phantom.flap", "particle": "crit"}, "maxTicks": 200
   },
-  "agility-cat-reflexes": {
+  "adapt:agility/cat_reflexes": {
     "set": "archery", "level": 5,
     "pre": ["item replace entity {actor} armor.chest with minecraft:netherite_chestplate", "item replace entity {actor} armor.head with minecraft:netherite_helmet", "item replace entity {actor} armor.legs with minecraft:netherite_leggings", "item replace entity {actor} armor.feet with minecraft:netherite_boots"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -145,7 +145,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.sweep", "particle": "crit"}, "maxTicks": 500
   },
-  "agility-featherfoot": {
+  "adapt:agility/featherfoot": {
     "set": "pressure", "level": 4,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
     "beats": [
@@ -157,7 +157,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 400
   },
-  "agility-vault": {
+  "adapt:agility/vault": {
     "set": "fence", "level": 1,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
     "beats": [
@@ -170,7 +170,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "block"}, "maxTicks": 200
   },
-  "agility-marathoner": {
+  "adapt:agility/marathoner": {
     "set": "runway", "level": 5, "povCapture": true,
     "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 5}],
@@ -192,7 +192,7 @@
     "expect": {"visual": "Two labelled, matched 80-tick sprints start at 20 hunger, zero saturation and the same exhaustion. The unlearned run drops to 19 hunger; the learned run retains 20. The live hunger HUD and Demo comparison sidebar show the measured results; exhaustion is seeded only before each pass, never injected during the sprint."},
     "maxTicks": 650
   },
-  "agility-kip-up": {
+  "adapt:agility/kip_up": {
     "set": "arena", "level": 4, "opponent": true,
     "prelude": [
       {"verb": "look", "yaw": 0, "pitch": 0},

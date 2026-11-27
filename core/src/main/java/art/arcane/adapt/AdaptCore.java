@@ -1,42 +1,52 @@
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.ComponentRegistrar;
-import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
-import art.arcane.adapt.api.item.ItemDurability;
-import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.advancement.AdvancementManager;
-import art.arcane.adapt.api.fx.FxDirector;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.batch.BuildBatches;
-import art.arcane.adapt.api.golem.item.GolemItemGuard;
-import art.arcane.adapt.api.item.AdaptItemGuard;
-import art.arcane.adapt.api.mutation.tool.MutationToolGuard;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.minion.MinionBurden;
-import art.arcane.adapt.api.potion.BrewingManager;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.tick.Ticker;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
-import art.arcane.adapt.api.notification.AdaptHud;
-import art.arcane.adapt.api.value.MaterialValue;
-import art.arcane.adapt.api.xp.XpProvenanceListener;
+import art.arcane.adapt.engine.adaptation.AdaptationHost;
+import art.arcane.adapt.engine.ComponentRegistrar;
+import art.arcane.adapt.engine.adaptation.BonusBlockBreaks;
+import art.arcane.adapt.engine.item.ItemDurability;
+import art.arcane.adapt.engine.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.engine.addon.AddonLifecycle;
+import art.arcane.adapt.api.AdaptClock;
+import art.arcane.adapt.engine.bridge.CoreBridge;
+import art.arcane.adapt.engine.attribute.AdaptAttributeService;
+import art.arcane.adapt.engine.advancement.AdvancementManager;
+import art.arcane.adapt.engine.fx.FxDirector;
+import art.arcane.adapt.engine.batch.BuildBatches;
+import art.arcane.adapt.engine.item.AdaptItemGuard;
+import art.arcane.adapt.engine.mutation.tool.MutationToolGuard;
+import art.arcane.adapt.engine.minion.MinionBurden;
+import art.arcane.adapt.engine.potion.BrewingManager;
+import art.arcane.adapt.engine.tick.Ticker;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerDataPersistenceQueue;
+import art.arcane.adapt.engine.notification.AdaptHud;
+import art.arcane.adapt.engine.value.MaterialValue;
+import art.arcane.adapt.engine.xp.XpProvenanceListener;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.asset.AdaptAssetCatalog;
+import art.arcane.adapt.engine.asset.AssetCatalog;
+import art.arcane.adapt.engine.asset.AssetInstaller;
+import art.arcane.adapt.engine.asset.AssetSkills;
+import art.arcane.adapt.engine.asset.BuiltinAssets;
+import art.arcane.adapt.engine.asset.InstalledBundle;
 import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.client.server.hud.ClientHud;
 import art.arcane.adapt.client.server.hud.HudLink;
 import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
-import art.arcane.adapt.content.adaptation.architect.ArchitectElevator;
-import art.arcane.adapt.content.gui.ConfigInput;
+import art.arcane.adapt.engine.gui.ConfigInput;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.LanguageEditorGui;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.util.common.input.MidairJumps;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostPlatform;
+import art.arcane.adapt.engine.adaptation.AdaptationRequirements;
+import art.arcane.adapt.engine.protection.ProtectionDispatch;
 import art.arcane.adapt.platform.event.AdaptEventBus;
+import art.arcane.adapt.api.ability.AbilityRefundReason;
+import art.arcane.adapt.engine.ability.internal.AbilityHooksRuntime;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.inventorygui.GuiSessions;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.config.ConfigHotload;
@@ -47,8 +57,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * The running Adapt instance shared by every platform. A platform builds its {@link AdaptPlatform}, constructs one
- * core with it and the skill types it ships, calls {@link #start()} on enable and {@link #stop()} on disable. Core code
+ * The running Adapt instance shared by every platform. A platform builds its {@link HostPlatform}, constructs one
+ * core with it, installs its built-in addon, calls {@link #start()} on enable and {@link #stop()} on disable. Core code
  * reaches the running instance through {@link #get()}.
  *
  * <p>Start runs in two halves so a platform can put its own phases between them: {@link #startServices()}
@@ -56,13 +66,12 @@ import java.util.UUID;
  * skills, attributes, advancements, core bus listeners). {@link #start()} runs both. Stop mirrors it.
  */
 public final class AdaptCore {
-  private static final long GOLEM_SHUTDOWN_TIMEOUT_MS = 5_000L;
+  private static final long MINION_SHUTDOWN_TIMEOUT_MS = 5_000L;
   private static volatile AdaptCore current;
   private volatile boolean stopping;
 
-  private final AdaptPlatform platform;
+  private final HostPlatform platform;
   private final AdaptEventBus bus;
-  private final List<Class<? extends Skill<?>>> skillTypes;
   private final ComponentRegistrar registrar;
   private volatile Ticker ticker;
   private volatile FxDirector fxDirector;
@@ -71,16 +80,34 @@ public final class AdaptCore {
   private volatile SQLManager sqlManager;
   private volatile PlayerDataPersistenceQueue playerDataPersistenceQueue;
   private volatile ClientUiService clientUi;
+  private volatile AddonLifecycle addons;
+  private volatile CoreBridge bridge;
+  private volatile boolean languagePending;
+  private final AdaptClock systemClock = new AdaptClock() {
+    @Override
+    public long millis() {
+      return System.currentTimeMillis();
+    }
+
+    @Override
+    public long tick() {
+      return platform.host().currentTick();
+    }
+  };
   private final List<Object> coreListeners = new ArrayList<>();
   private final ConfigHotload hotload = new ConfigHotload();
   private final ConfigInput configInput = new ConfigInput();
+  private final AdaptAssetCatalog assets = new AdaptAssetCatalog(
+      AssetSkills.of(this::skillRegistry), AdaptLog::error);
 
-  public AdaptCore(AdaptPlatform platform, AdaptEventBus bus, ComponentRegistrar registrar,
-                   List<Class<? extends Skill<?>>> skillTypes) {
-    this.platform = Objects.requireNonNull(platform, "platform");
+  public AdaptCore(HostPlatform platform, AdaptEventBus bus, ComponentRegistrar registrar) {
+    Objects.requireNonNull(platform, "platform");
+    this.platform = new HostPlatform(platform.host(), platform.scheduler(), platform.fx(), platform.viewers(),
+        platform.menus(), platform.permissions(),
+        new ProtectionDispatch(platform.protection(), AdaptationRequirements::find), platform.recipes(),
+        platform.advancements());
     this.bus = Objects.requireNonNull(bus, "bus");
     this.registrar = Objects.requireNonNull(registrar, "registrar");
-    this.skillTypes = List.copyOf(Objects.requireNonNull(skillTypes, "skillTypes"));
   }
 
   public void start() {
@@ -95,12 +122,10 @@ public final class AdaptCore {
 
   public synchronized void startServices() {
     current = this;
-    AdaptLanguage.initialize();
-    AdaptLanguage.start();
-    AdaptLanguage.sourceFailure().ifPresent(failure -> AdaptLog.error(
-        "Language source is unavailable; code-owned English and installed language files remain active.", failure));
-    AdaptLanguage.startUpstreamCheck();
-    AdaptLanguage.requestConfiguredLocale();
+    if (assets.bundles().stream().noneMatch((InstalledBundle bundle) -> Id.ADAPT.equals(bundle.namespace()))) {
+      assets.install(BuiltinAssets.bundle(AdaptCore.class.getClassLoader()), Id.ADAPT);
+    }
+    languagePending = true;
     AdaptHud.start();
     if (!CustomModel.reloadFromDisk()) {
       AdaptLog.warn("Failed to load models config during startup migration.");
@@ -111,7 +136,6 @@ public final class AdaptCore {
     AdaptLog.debug("XP Curve: " + AdaptConfig.get().getXpCurve());
     AdaptLog.debug("XP/Level base: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
     AdaptLog.debug("XP/Level multiplier: " + AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier());
-    AdaptLog.info("Language: " + AdaptLanguage.activeLocale());
     sqlManager = new SQLManager();
     if (AdaptConfig.get().getSql().isEnabled() && !sqlManager.establishConnection()) {
       throw new IllegalStateException("SQL persistence is enabled, but its transactional storage gate failed");
@@ -138,8 +162,15 @@ public final class AdaptCore {
     stopping = false;
     startTicking();
     PlayerStateRegistry.start();
+    addons = new AddonLifecycle(this);
+    bridge = new CoreBridge(this, addons);
+    CoreBridge.start(bridge);
     adaptServer = new AdaptServer();
     adaptServer.startRuntime();
+    if (languagePending) {
+      languagePending = false;
+      startLanguage();
+    }
     AdaptAttributeService attributes = AdaptAttributeService.get();
     AdaptAttributeService.startRuntime();
     attributes.reconcileOnline();
@@ -151,9 +182,8 @@ public final class AdaptCore {
     if (platform.menus() instanceof ClientAwareMenuHost panelHost) {
       clientUi.panels(panelHost.panels());
     }
-    registerCoreListener(new ArchitectElevator.BlockGuard());
     registerCoreListener(new XpProvenanceListener());
-    registerCoreListener(new SimpleAdaptation.PlayerDamageListener());
+    registerCoreListener(new AdaptationHost.PlayerDamageListener());
     registerCoreListener(new BonusBlockBreaks());
     if (!ItemDurability.perStack()) {
       registerCoreListener(new ItemDurability());
@@ -169,24 +199,35 @@ public final class AdaptCore {
     }
     hotload.start();
     registerCoreListener(new AdaptItemGuard());
-    registerCoreListener(new GolemItemGuard(GolemItems.recipeBook()));
     registerCoreListener(new MutationToolGuard());
     registerCoreListener(BuildBatches.startRuntime());
-    registerCoreListener(GolemItems.craftCounter());
     MinionBurden burden = MinionBurden.get();
     MinionBurden.startRuntime();
     burden.reconcileOnline();
-    GolemancyRuntime.startRuntime();
+    addons.started();
+  }
+
+  /**
+   * Loads the configured language and checks the language source once the addons are applied: the built-in language
+   * files hold the built-in content's messages too, so they are written and merged against the complete catalog.
+   */
+  private static void startLanguage() {
+    AdaptLanguage.initialize();
+    AdaptLanguage.start();
+    AdaptLanguage.sourceFailure().ifPresent(failure -> AdaptLog.error(
+        "Language source is unavailable; code-owned English and installed language files remain active.", failure));
+    AdaptLanguage.startUpstreamCheck();
+    AdaptLanguage.requestConfiguredLocale();
+    AdaptLog.info("Language: " + AdaptLanguage.activeLocale());
   }
 
   public synchronized void stopRuntime() {
     stopping = true;
+    AddonLifecycle lifecycle = addons;
+    if (lifecycle != null) {
+      phase("addon stopping event", lifecycle::stopping);
+    }
     phase("minion registration gate", MinionBurden::beginShutdown);
-    phase("golemancy runtime", () -> {
-      if (!GolemancyRuntime.shutdown(GOLEM_SHUTDOWN_TIMEOUT_MS)) {
-        AdaptLog.warn("Bound golem saving was incomplete at shutdown.");
-      }
-    });
     phase("build batches", () -> BuildBatches.get().shutdown());
     phase("config hotload", hotload::stop);
     phase("config input", configInput::stop);
@@ -212,6 +253,7 @@ public final class AdaptCore {
       phase("Adapt server", server::unregister);
     }
     phase("components", registrar::unregisterAll);
+    phase("ability cost tickets", () -> AbilityHooksRuntime.get().cost().drain(AbilityRefundReason.SERVER_SHUTDOWN));
     phase("player state registry", PlayerStateRegistry::reset);
     AdvancementManager advancements = advancementManager;
     if (advancements != null) {
@@ -225,10 +267,19 @@ public final class AdaptCore {
     phase("material values", MaterialValue::save);
     phase("custom models", CustomModel::clear);
     phase("minion burden", () -> {
-      if (!MinionBurden.shutdown(GOLEM_SHUTDOWN_TIMEOUT_MS)) {
+      if (!MinionBurden.shutdown(MINION_SHUTDOWN_TIMEOUT_MS)) {
         AdaptLog.warn("Minion-burden cleanup was incomplete at shutdown.");
       }
     });
+    CoreBridge stopped = bridge;
+    bridge = null;
+    addons = null;
+    if (lifecycle != null) {
+      phase("addons", lifecycle::stopped);
+    }
+    if (stopped != null) {
+      phase("engine bridge", () -> CoreBridge.stop(stopped));
+    }
   }
 
   public synchronized void stopServices() {
@@ -286,7 +337,7 @@ public final class AdaptCore {
     return running;
   }
 
-  public static AdaptPlatform platform() {
+  public static HostPlatform platform() {
     return get().platform;
   }
 
@@ -295,8 +346,13 @@ public final class AdaptCore {
     return stopping;
   }
 
-  public AdaptPlatform getPlatform() {
+  public HostPlatform getPlatform() {
     return platform;
+  }
+
+  /** Wall time and the platform's tick counter, as {@code AdaptApi.clock()} reports them. */
+  public AdaptClock clock() {
+    return systemClock;
   }
 
   public AdaptEventBus getBus() {
@@ -320,6 +376,26 @@ public final class AdaptCore {
   }
 
   /** The native client UI service while the runtime runs, else null. */
+  /** Every provider's client art, built-in first; survives a runtime restart. */
+  public AssetCatalog assets() {
+    return assets;
+  }
+
+  /** Where engine code installs and removes asset bundles, such as the addon lifecycle. */
+  public AssetInstaller assetInstaller() {
+    return assets;
+  }
+
+  private SkillRegistry skillRegistry() {
+    AdaptServer server = adaptServer;
+    return server == null ? null : server.getSkillRegistry();
+  }
+
+  /** The addon lifecycle of the running runtime, else null. */
+  public AddonLifecycle addons() {
+    return addons;
+  }
+
   public ClientUiService getClientUi() {
     return clientUi;
   }
@@ -340,8 +416,4 @@ public final class AdaptCore {
     return playerDataPersistenceQueue;
   }
 
-  /** Every skill type this platform ships, in registration order. */
-  public List<Class<? extends Skill<?>>> getSkillTypes() {
-    return skillTypes;
-  }
 }

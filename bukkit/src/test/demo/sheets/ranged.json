@@ -1,5 +1,5 @@
 {
-  "ranged-fetch-shot": {
+  "adapt:ranged/fetch_shot": {
     "set": "ranged-fetch", "level": 3,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bow",
@@ -15,7 +15,7 @@
     ],
     "expect": {"sound": "minecraft:entity.item.pickup", "particle": "enchant"}, "maxTicks": 160
   },
-  "ranged-floaters": {
+  "adapt:ranged/floaters": {
     "set": "ranged-lane", "level": 6,
     "camera": {"x": 12.0, "y": 3.5, "z": -6.0, "yaw": 90, "pitch": -8},
     "pre": [
@@ -38,7 +38,7 @@
     ],
     "expect": {"sound": "minecraft:entity.shulker.shoot", "particle": "end_rod"}, "maxTicks": 260
   },
-  "ranged-force": {
+  "adapt:ranged/force": {
     "set": "ranged-range", "level": 7,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bow",
@@ -53,7 +53,7 @@
     ],
     "expect": {"sound": "minecraft:entity.snowball.throw", "particle": "crit"}, "maxTicks": 200
   },
-  "ranged-heartseeker": {
+  "adapt:ranged/heartseeker": {
     "set": "ranged-lane", "level": 5,
     "camera": {"x": 0.5, "y": 7.0, "z": 6.0, "yaw": 180, "pitch": 28},
     "pre": [
@@ -71,7 +71,7 @@
     ],
     "expect": {"sound": "minecraft:entity.arrow.hit_player", "particle": "dust"}, "maxTicks": 200
   },
-  "ranged-heavy-draw": {
+  "adapt:ranged/heavy_draw": {
     "set": "ranged-lane", "level": 5,
     "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
     "pre": [
@@ -86,7 +86,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.land", "particle": "crit"}, "maxTicks": 160
   },
-  "ranged-lunge-shot": {
+  "adapt:ranged/lunge_shot": {
     "set": "ranged-range", "level": 3,
     "camera": {"x": 11.5, "y": 3.0, "z": 2.0, "yaw": 90, "pitch": 5},
     "pre": [
@@ -102,7 +102,7 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_turtle", "particle": "cloud"}, "maxTicks": 160
   },
-  "ranged-piercing": {
+  "adapt:ranged/piercing": {
     "set": "ranged-column", "level": 5,
     "camera": {"x": 9.5, "y": 2.8, "z": -6.5, "yaw": 90, "pitch": 5},
     "pre": [
@@ -121,7 +121,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "dust"}, "maxTicks": 160
   },
-  "ranged-pinning-shot": {
+  "adapt:ranged/pinning_shot": {
     "set": "ranged-charge", "level": 6,
     "camera": {"x": 11.0, "y": 3.0, "z": -8.0, "yaw": 90, "pitch": 6},
     "pre": [
@@ -144,7 +144,7 @@
     ],
     "expect": {"sound": "minecraft:block.bell.use", "particle": "dust"}, "maxTicks": 220
   },
-  "ranged-recovery": {
+  "adapt:ranged/recovery": {
     "set": "ranged-lane", "level": 8,
     "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
     "pre": [
@@ -166,7 +166,7 @@
     ],
     "expect": {"sound": "minecraft:entity.item.pickup", "particle": "dust"}, "maxTicks": 200
   },
-  "ranged-ricochet-bolt": {
+  "adapt:ranged/ricochet_bolt": {
     "set": "ranged-corridor", "level": 5,
     "camera": {"x": 0.5, "y": 10.0, "z": 6.0, "yaw": 180, "pitch": 32},
     "pre": [
@@ -181,7 +181,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.hit", "particle": "electric_spark"}, "maxTicks": 160
   },
-  "ranged-trajectory-sight": {
+  "adapt:ranged/trajectory_sight": {
     "set": "ranged-lane", "level": 5,
     "camera": {"x": 2.0, "y": 2.9, "z": 4.0, "yaw": 176, "pitch": 14},
     "pre": [
@@ -205,7 +205,7 @@
     ],
     "expect": {"sound": "minecraft:block.note_block.hat", "particle": "dust"}, "maxTicks": 260
   },
-  "ranged-webshot": {
+  "adapt:ranged/webshot": {
     "set": "ranged-charge", "level": 5,
     "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
     "pre": [

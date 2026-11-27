@@ -4,9 +4,9 @@
   "pieces": [
     {"slot": "TRIGGER", "class": "AxesTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
     {"slot": "STRIKE_FIGHT", "class": "AxesFightStrike", "handles": [], "reuses": ["AdaptAttributeService"]},
-    {"slot": "STRIKE_WORK", "class": "AxesWorkStrike", "handles": ["BlockBreakEvent", "BlockDropItemEvent"], "reuses": ["AxeFelling", "BonusBlockBreaks", "BuildBatch"]},
+    {"slot": "STRIKE_WORK", "class": "AxesWorkStrike", "handles": ["BlockBreakEvent", "BlockDropItemEvent"], "reuses": ["AxeFelling", "BonusBreaks", "BuildBatch"]},
     {"slot": "BOON", "class": "AxesBoon", "handles": [], "reuses": []},
-    {"slot": "FUEL", "class": "AxesFuel", "handles": [], "reuses": ["ComponentPort"]},
+    {"slot": "FUEL", "class": "AxesFuel", "handles": [], "reuses": ["ItemWear"]},
     {"slot": "STATE", "class": "AxesState", "handles": ["EntityDamageByEntityEvent", "BlockBreakEvent"], "reuses": ["AxeFelling"]}
   ],
   "unavailableOn": {}

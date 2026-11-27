@@ -124,7 +124,7 @@ public final class InteractHooks {
         state.hand = hand;
         state.pos = pos.immutable();
         state.stack = stack.copy();
-        if (state.useItem == UseResult.DENY) {
+        if (!UseRules.usesItemOnBlock(state.useBlock, state.useItem)) {
             player.containerMenu.sendAllDataToRemote();
         }
         return state.useBlock == UseResult.DENY && state.useItem == UseResult.DENY;

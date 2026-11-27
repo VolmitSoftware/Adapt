@@ -1,6 +1,6 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -63,7 +63,7 @@ class CatalogFitBudgetTest {
         FakeGameContent.v26_3())) {
       TestPlatform platform = TestPlatform.builder(data.resolve(game.version().toString())).build();
       platform.host().runGame(game);
-      try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+      try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
         CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID(), List.of(), false);
         Map<String, String> owners = new LinkedHashMap<>();
         Map<String, Integer> measured = measure(catalog, owners);

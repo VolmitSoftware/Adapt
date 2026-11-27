@@ -1,9 +1,10 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.item.ItemDurability;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.item.ItemDurability;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.LivingRef;
@@ -75,13 +76,13 @@ public final class MiningAuditFixtures {
     AdaptPlayer runtime = Objects.requireNonNull(Fixtures.adaptPlayer(player));
     for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation, 0);
+        runtime.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation, 0);
       }
     }
     if (mode.equals("shared") || mode.equals("guardian")) {
-      learn(player, "tame-shared-pain");
+      learn(player, "adapt:tame/shared_pain");
       if (mode.equals("guardian")) {
-        Adaptation<?> guardian = learn(player, "tame-guardian-instinct");
+        Adaptation<?> guardian = learn(player, "adapt:tame/guardian_instinct");
         configure(guardian, "interceptChanceBase", 1D);
         configure(guardian, "interceptChanceFactor", 0D);
         configure(guardian, "maxInterceptChance", 1D);
@@ -94,17 +95,17 @@ public final class MiningAuditFixtures {
       return;
     }
     boolean shovel = mode.equals("tunneler") || mode.equals("grave");
-    Adaptation<?> adaptation = learn(player, shovel ? "excavation-tunneler" : "pickaxe-tunnel-bore");
+    Adaptation<?> adaptation = learn(player, shovel ? "adapt:excavation/tunneler" : "adapt:pickaxe/tunnel_bore");
     int cost = mode.equals("free") ? 0 : mode.equals("cost") ? 3 : 1;
     configure(adaptation, shovel ? "durabilityCostPerBonusBlock" : "durabilityPerBonusBlock", cost);
     if (mode.equals("pact")) {
-      learn(player, "pickaxe-unbreakable-pact");
+      learn(player, "adapt:pickaxe/unbreakable_pact");
     }
     if (mode.equals("inventory") || mode.equals("tunneler")) {
-      learn(player, shovel ? "excavation-drop-to-inventory" : "pickaxe-drop-to-inventory");
+      learn(player, shovel ? "adapt:excavation/drop_to_inventory" : "adapt:pickaxe/drop_to_inventory");
     }
     if (mode.equals("grave")) {
-      Adaptation<?> grave = learn(player, "excavation-grave-digger");
+      Adaptation<?> grave = learn(player, "adapt:excavation/grave_digger");
       configure(grave, "lootChanceBase", 1D);
       configure(grave, "lootChanceFactor", 0D);
       configure(grave, "maxLootChance", 1D);
@@ -133,7 +134,7 @@ public final class MiningAuditFixtures {
   private static Adaptation<?> learn(PlayerRef player, String id) {
     AdaptPlayer runtime = Objects.requireNonNull(Fixtures.adaptPlayer(player));
     Adaptation<?> adaptation = Fixtures.adaptation(id);
-    runtime.getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, adaptation.getMaxLevel());
+    runtime.getData().getSkillLine(SkillHost.lineKey(adaptation.getSkill())).setAdaptation(adaptation, adaptation.getMaxLevel());
     return adaptation;
   }
 
@@ -144,7 +145,7 @@ public final class MiningAuditFixtures {
       field.setAccessible(true);
       field.set(config, value);
     } catch (ReflectiveOperationException failure) {
-      throw new IllegalStateException("Could not configure " + adaptation.getName() + ": " + name, failure);
+      throw new IllegalStateException("Could not configure " + adaptation.getId().toString() + ": " + name, failure);
     }
   }
 

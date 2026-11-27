@@ -2,6 +2,7 @@ package art.arcane.adapt.client.theme;
 
 import art.arcane.adapt.client.ui.RecordingDraw;
 import art.arcane.adapt.client.ui.kit.UiRect;
+import art.arcane.adapt.platform.value.Id;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class PageThemeTest {
     @Test
     void aMutatedSkillIdNamesItsLeadAndPartner() {
-        PageTheme theme = ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "mutated-herbalism-rift");
+        PageTheme theme = ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "herbalism+rift");
         assertSame(ThemeFixtures.kit("herbalism"), theme.lead());
         assertSame(ThemeFixtures.kit("rift"), theme.partner());
-        assertNull(ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "mutated-herbalism-nothing"));
+        assertNull(ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "herbalism+nothing"));
         assertNull(ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "not-a-skill"));
         assertFalse(ThemeFixtures.LIBRARY.theme(ThemeFixtures.SPRITES, "pickaxe").mutated());
     }

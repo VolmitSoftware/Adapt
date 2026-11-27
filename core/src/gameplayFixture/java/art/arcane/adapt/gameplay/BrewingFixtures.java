@@ -5,8 +5,6 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.world.WorldRef;
 
-import java.util.List;
-
 public final class BrewingFixtures {
     private BrewingFixtures() {
     }
@@ -34,7 +32,7 @@ public final class BrewingFixtures {
         Fixtures.set(arena, 2, 99, 2, inputs.heated() ? "lava" : "stone");
         Fixtures.set(arena, 2, 100, 2, "brewing_stand");
         ItemRef potion = Fixtures.item("potion");
-        potion.setPotionContents(new PotionContents(Fixtures.id(inputs.base()), null, List.of(), null));
+        potion.setPotionContents(PotionContents.of(Fixtures.id(inputs.base())));
         actor.inventory().addItem(potion);
         Fixtures.give(actor, inputs.ingredient(), 1);
         Fixtures.give(actor, "blaze_powder", 4);

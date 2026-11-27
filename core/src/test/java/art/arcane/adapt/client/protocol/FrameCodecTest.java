@@ -52,7 +52,7 @@ class FrameCodecTest {
 
   @Test
   void emptyTruncatedAndTrailingFramesFail() throws ClientProtocolException {
-    byte[] learn = FrameCodec.encodeClient(new ClientFrame.Learn("agility-wall-jump", 3, 42L));
+    byte[] learn = FrameCodec.encodeClient(new ClientFrame.Learn("adapt:agility/wall_jump", 3, 42L));
 
     assertThatThrownBy(() -> FrameCodec.decodeClient(new byte[0])).isInstanceOf(ClientProtocolException.class);
     assertThatThrownBy(() -> FrameCodec.decodeClient(Arrays.copyOf(learn, learn.length - 1)))

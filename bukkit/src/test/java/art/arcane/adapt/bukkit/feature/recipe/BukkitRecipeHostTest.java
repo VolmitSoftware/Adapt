@@ -48,8 +48,7 @@ class BukkitRecipeHostTest {
   @Test
   void shapedRecipesKeepShapeAndResolvedChoices() {
     RecipeTranslator translator = translator();
-    RecipeSpec.Shaped spec = new RecipeSpec.Shaped(Id.adapt("elevator"), List.of("PPP", "PEP", "PPP"),
-        Map.of('P', Ingredient.of(Id.minecraft("oak_planks")), 'E', Ingredient.of(Id.minecraft("ender_pearl"))), resultRef);
+    RecipeSpec.Shaped spec = RecipeSpec.shaped(Id.adapt("elevator"), List.of("PPP", "PEP", "PPP"), Map.of('P', Ingredient.of(Id.minecraft("oak_planks")), 'E', Ingredient.of(Id.minecraft("ender_pearl"))), resultRef);
 
     try (MockedConstruction<ShapedRecipe> shaped = mockConstruction(ShapedRecipe.class, (ShapedRecipe recipe, MockedConstruction.Context context) -> {
       assertThat(context.arguments().get(0)).isEqualTo(new NamespacedKey("adapt", "elevator"));
@@ -88,7 +87,7 @@ class BukkitRecipeHostTest {
   @Test
   void unresolvedIngredientsRejectTheRecipe() {
     RecipeTranslator translator = translator();
-    RecipeSpec.Shapeless spec = new RecipeSpec.Shapeless(Id.adapt("bad"), List.of(Ingredient.of(Id.of("other", "missing"))), resultRef);
+    RecipeSpec.Shapeless spec = RecipeSpec.shapeless(Id.adapt("bad"), List.of(Ingredient.of(Id.of("other", "missing"))), resultRef);
 
     try (MockedConstruction<ShapelessRecipe> ignored = mockConstruction(ShapelessRecipe.class)) {
       assertThat(translator.translate(spec)).isNull();
@@ -98,8 +97,7 @@ class BukkitRecipeHostTest {
   @Test
   void cookingStationsPickTheMatchingRecipeClass() {
     RecipeTranslator translator = translator();
-    RecipeSpec.Cooking spec = new RecipeSpec.Cooking(Id.adapt("smelt"), RecipeSpec.CookingStation.FURNACE,
-        Ingredient.of(Id.minecraft("cobblestone")), resultRef, 0.5F, 100);
+    RecipeSpec.Cooking spec = RecipeSpec.cooking(Id.adapt("smelt"), RecipeSpec.CookingStation.FURNACE, Ingredient.of(Id.minecraft("cobblestone")), resultRef, 0.5F, 100);
 
     try (MockedConstruction<FurnaceRecipe> furnace = mockConstruction(FurnaceRecipe.class, (FurnaceRecipe recipe, MockedConstruction.Context context) -> {
       assertThat(context.arguments().get(3)).isEqualTo(0.5F);
@@ -113,8 +111,7 @@ class BukkitRecipeHostTest {
   @Test
   void smithingWithoutTemplateUsesExactChoicesLikeThePlugin() {
     RecipeTranslator translator = translator();
-    RecipeSpec.Smithing spec = new RecipeSpec.Smithing(Id.adapt("upgrade"), null,
-        Ingredient.of(Id.minecraft("diamond_sword")), Ingredient.of(Id.minecraft("netherite_ingot")), resultRef);
+    RecipeSpec.Smithing spec = RecipeSpec.smithing(Id.adapt("upgrade"), null, Ingredient.of(Id.minecraft("diamond_sword")), Ingredient.of(Id.minecraft("netherite_ingot")), resultRef);
 
     try (MockedConstruction<SmithingRecipe> smithing = mockConstruction(SmithingRecipe.class);
          MockedConstruction<ItemStack> ignoredStacks = mockConstruction(ItemStack.class);
@@ -158,17 +155,17 @@ class BukkitRecipeHostTest {
     Server server = mock(Server.class);
     RecipeTranslator translator = mock(RecipeTranslator.class);
     Recipe recipe = mock(Recipe.class);
-    RecipeSpec spec = new RecipeSpec.Shapeless(Id.adapt("elevator"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
+    RecipeSpec spec = RecipeSpec.shapeless(Id.adapt("elevator"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
     NamespacedKey key = new NamespacedKey("adapt", "elevator");
     when(translator.translate(spec)).thenReturn(recipe);
     when(server.addRecipe(recipe)).thenReturn(true);
     BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry());
 
-    assertThat(host.register(spec)).isTrue();
+    assertThat(host.add(spec)).isTrue();
     verify(server, never()).removeRecipe(key);
     assertThat(host.registered()).containsExactly(Id.adapt("elevator"));
 
-    assertThat(host.register(spec)).isTrue();
+    assertThat(host.add(spec)).isTrue();
     InOrder order = inOrder(server);
     order.verify(server).removeRecipe(key);
     order.verify(server).addRecipe(recipe);
@@ -181,10 +178,10 @@ class BukkitRecipeHostTest {
   void rejectedRecipesAreNotTracked() {
     Server server = mock(Server.class);
     RecipeTranslator translator = mock(RecipeTranslator.class);
-    RecipeSpec spec = new RecipeSpec.Shapeless(Id.adapt("broken"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
+    RecipeSpec spec = RecipeSpec.shapeless(Id.adapt("broken"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
     BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry());
 
-    assertThat(host.register(spec)).isFalse();
+    assertThat(host.add(spec)).isFalse();
     assertThat(host.registered()).isEmpty();
   }
 
@@ -270,7 +267,7 @@ class BukkitRecipeHostTest {
   void registeringInvalidatesTheIndex() {
     Server server = mock(Server.class);
     RecipeTranslator translator = mock(RecipeTranslator.class);
-    RecipeSpec spec = new RecipeSpec.Shapeless(Id.adapt("elevator"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
+    RecipeSpec spec = RecipeSpec.shapeless(Id.adapt("elevator"), List.of(Ingredient.of(Id.minecraft("stone"))), resultRef);
     Recipe recipe = mock(Recipe.class);
     when(translator.translate(spec)).thenReturn(recipe);
     when(server.addRecipe(recipe)).thenReturn(true);
@@ -278,7 +275,7 @@ class BukkitRecipeHostTest {
     BukkitRecipeHost host = new BukkitRecipeHost(server, translator, registry);
     Object before = registry.generation();
 
-    host.register(spec);
+    host.add(spec);
     Object registered = registry.generation();
     host.unregister(Id.adapt("elevator"));
 

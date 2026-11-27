@@ -30,8 +30,8 @@ public final class PdcDataHolder implements DataHolder {
     Objects.requireNonNull(container, "container");
     return new PdcDataHolder(new PdcStore() {
       @Override
-      public PersistentDataContainer read() {
-        return container;
+      public PdcView read() {
+        return PdcView.of(container);
       }
 
       @Override

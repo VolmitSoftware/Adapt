@@ -2,24 +2,24 @@
   "skill": "unarmed",
   "upgrades": [
     {
-      "name": "upgraded-unarmed-titan-fists",
+      "name": "adapt:unarmed/upgrade/titan_fists",
       "class": "TitanFists",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/TitanFists.java",
-      "fuses": ["unarmed-power", "unarmed-iron-fists", "unarmed-glass-cannon"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/TitanFists.java",
+      "fuses": ["adapt:unarmed/power", "adapt:unarmed/iron_fists", "adapt:unarmed/glass_cannon"],
       "triggers": ["EntityDamageByEntityEvent", "BlockDamageEvent"]
     },
     {
-      "name": "upgraded-unarmed-unbroken-combo",
+      "name": "adapt:unarmed/upgrade/unbroken_combo",
       "class": "UnbrokenCombo",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/UnbrokenCombo.java",
-      "fuses": ["unarmed-combo-chain", "unarmed-pressure-point"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/UnbrokenCombo.java",
+      "fuses": ["adapt:unarmed/combo_chain", "adapt:unarmed/pressure_point"],
       "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent", "PlayerInteractEvent"]
     },
     {
-      "name": "upgraded-unarmed-seismic-throw",
+      "name": "adapt:unarmed/upgrade/seismic_throw",
       "class": "SeismicThrow",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/SeismicThrow.java",
-      "fuses": ["unarmed-grapple", "unarmed-shockwave-clap"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/unarmed/upgraded/SeismicThrow.java",
+      "fuses": ["adapt:unarmed/grapple", "adapt:unarmed/shockwave_clap"],
       "triggers": ["EntityDamageByEntityEvent", "PlayerToggleSneakEvent"]
     }
   ]

@@ -207,7 +207,7 @@ async function hunterSpeed(input) {
     try {
         const walked = await walkForward(actor.bot)
         const result = { before, after: await snapshot(), distance: walked.distance, steady: walked.steady, idleDrift, velocities, activeImpulses: velocities.length }
-        if (before.learned['hunter-speed'] > 0) {
+        if (before.learned['adapt:hunter/speed'] > 0) {
             await context.command(`/adapt clear adaptations player=${actor.bot.username}`, /Cleared adaptations/, 5000)
             await actor.bot.waitForTicks(4)
             const clearedPackets = velocities.length
@@ -215,10 +215,10 @@ async function hunterSpeed(input) {
             result.clearedDistance = cleared.distance
             result.clearedSteady = cleared.steady
             result.clearedImpulses = velocities.length - clearedPackets
-            context.expect((await snapshot()).learned['hunter-speed'] === 0, 'Clear adaptations removes Hunter Speed while moving')
+            context.expect((await snapshot()).learned['adapt:hunter/speed'] === 0, 'Clear adaptations removes Hunter Speed while moving')
             actor.bot.clearControlStates()
             await context.command('/adaptqa stage projectile-speed', /^ADAPT_QA STAGE projectile-speed$/, 10000)
-            await context.command(`/adaptqa learn hunter-speed ${before.learned['hunter-speed']}`, /^ADAPT_QA LEARN hunter-speed /, 5000)
+            await context.command(`/adaptqa learn adapt:hunter/speed ${before.learned['adapt:hunter/speed']}`, /^ADAPT_QA LEARN adapt:hunter\/speed /, 5000)
             await actor.bot.waitForTicks(6)
             await actor.bot.lookAt(actor.bot.entity.position.offset(0, 1.6, 15), true)
             const secondVictim = opponent.bot.entities[actor.bot.entity.id]
@@ -228,14 +228,14 @@ async function hunterSpeed(input) {
             actor.bot.setControlState('forward', true)
             await actor.bot.waitForTicks(12)
             context.expect((await snapshot()).stats['hunter.speed.activations'] > result.after.stats['hunter.speed.activations'], 'A fresh real hit starts another burst before unlearning')
-            await context.command(`/adapt determine adaptationTarget=hunter:hunter-speed assign=false force=true level=1 player=${actor.bot.username}`, /Unlearned .*now at level 0/, 5000)
+            await context.command(`/adapt determine adaptationTarget=adapt:hunter/speed assign=false force=true level=1 player=${actor.bot.username}`, /Unlearned .*now at level 0/, 5000)
             await actor.bot.waitForTicks(4)
             const unlearnedPackets = velocities.length
             const unlearnedWalk = await walkForward(actor.bot)
             result.unlearnedDistance = unlearnedWalk.distance
             result.unlearnedSteady = unlearnedWalk.steady
             result.unlearnedImpulses = velocities.length - unlearnedPackets
-            context.expect((await snapshot()).learned['hunter-speed'] === 0, 'Unlearning removes Hunter Speed while moving')
+            context.expect((await snapshot()).learned['adapt:hunter/speed'] === 0, 'Unlearning removes Hunter Speed while moving')
         }
         return result
     } finally {
@@ -357,22 +357,22 @@ function report(assertions, unlearned, active) {
 }
 
 export const projectileBehaviorCases = new Map([
-    ['ranged-floaters', {
+    ['adapt:ranged/floaters', {
         stage: 'projectile-procs', prepare: prepare('bow'), trigger: procTrigger('levitation'), verify: verifyProc, negativeWindowTicks: 10,
         description: 'bounded real arrow hits apply actual levitation to the victim',
         sound: 'minecraft:entity.shulker.shoot', soundVolume: 0.6, soundPitch: 1.45, particle: 'end_rod',
     }],
-    ['ranged-pinning-shot', {
+    ['adapt:ranged/pinning_shot', {
         stage: 'projectile-procs', prepare: prepare('bow'), trigger: procTrigger('pin'), verify: verifyProc, negativeWindowTicks: 10,
         description: 'bounded real arrow hits reduce the actual victim movement attribute',
         sound: 'minecraft:block.bell.use', soundVolume: 1.1, soundPitch: 0.48, particle: 'dust',
     }],
-    ['ranged-recovery', {
+    ['adapt:ranged/recovery', {
         stage: 'projectile-procs', prepare: prepare('bow'), trigger: procTrigger('recovery'), verify: verifyProc, negativeWindowTicks: 10,
         description: 'bounded real arrow hits refund ammunition to the shooter',
         sound: 'minecraft:entity.item.pickup', soundVolume: 0.5, soundPitch: 1.4, particle: 'dust',
     }],
-    ['ranged-heartseeker', {
+    ['adapt:ranged/heartseeker', {
         stage: 'projectile-heart', prepare: prepare('bow'), trigger: heartseeker, negativeWindowTicks: 10,
         description: 'locking a cow then releasing off-target still guides the arrow into that cow',
         sound: 'minecraft:entity.arrow.hit_player', soundVolume: 0.8, soundPitch: 1.2, particle: 'dust', particleColor: 0xFF1E3C,
@@ -382,7 +382,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned off-target release misses', 'learned locked off-target release guides into and damages the cow'], unlearned, active)
         },
     }],
-    ['ranged-ricochet-bolt', {
+    ['adapt:ranged/ricochet_bolt', {
         stage: 'projectile-bounce', prepare: prepare('bow'), trigger: ricochet, negativeWindowTicks: 10,
         description: 'a real wall collision creates a replacement arrow that makes another physical impact',
         sound: 'minecraft:block.anvil.hit', soundVolume: 0.85, soundPitch: 1.27, particle: 'electric_spark',
@@ -393,7 +393,7 @@ export const projectileBehaviorCases = new Map([
             return report(['ordinary arrow stops at its first collision', 'learned wall collision launches a replacement that makes a second physical impact'], unlearned, active)
         },
     }],
-    ['ranged-trajectory-sight', {
+    ['adapt:ranged/trajectory_sight', {
         stage: 'projectile-preview', prepare: prepare('bow'), trigger: preview, negativeWindowTicks: 10,
         description: 'drawing a bow sends a private predicted arc and target glow, then removes glow on cancellation',
         sound: 'minecraft:block.note_block.hat', soundVolume: 0.35, soundPitch: 1.4, particle: 'dust',
@@ -405,7 +405,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned bow draw has no predicted arc or target glow', 'learned draw privately previews the trajectory and victim', 'cancelling clears glow and consumes no arrow'], unlearned, active)
         },
     }],
-    ['ranged-webshot', {
+    ['adapt:ranged/webshot', {
         stage: 'projectile-web', prepare: prepare('snowball'), trigger: webshot, negativeWindowTicks: 10,
         description: 'a naturally thrown prepared web snare creates real temporary cobweb blocks',
         sound: 'minecraft:block.wool.place', soundVolume: 0.9, soundPitch: 0.7, particle: 'cloud',
@@ -417,7 +417,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned throw creates no cobwebs', 'learned impact creates actual cobweb blocks and later removes them'], unlearned, active)
         },
     }],
-    ['hunter-blood-trail', {
+    ['adapt:hunter/blood_trail', {
         stage: 'projectile-blood', trigger: bloodTrail, negativeWindowTicks: 10,
         description: 'a naturally wounded moving cow leaves private client-visible trail segments',
         async verify({ context, unlearned, active }) {
@@ -427,7 +427,7 @@ export const projectileBehaviorCases = new Map([
             return report(['ordinary cow wound emits no trail displays', 'learned moving wound creates display segments only for its hunter'], unlearned, active)
         },
     }],
-    ['hunter-snare-line', {
+    ['adapt:hunter/snare_line', {
         stage: 'projectile-snare', prepare: prepare('tripwire_hook'), trigger: snare, negativeWindowTicks: 10,
         description: 'naturally placing a prepared snare consumes it and roots a nearby hostile mob',
         sound: 'minecraft:block.tripwire.click_on', soundVolume: 0.8, soundPitch: 0.8, particle: 'dust', particleColor: 0x78B45A,
@@ -437,7 +437,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned prepared snare remains unused', 'learned snare placement consumes its item and roots the actual hostile'], unlearned, active)
         },
     }],
-    ['hunter-speed', {
+    ['adapt:hunter/speed', {
         stage: 'projectile-speed', trigger: hunterSpeed, negativeWindowTicks: 10,
         description: 'a real opponent hit grants faster physical movement with a hunger penalty',
         sound: 'minecraft:entity.ender_dragon.flap', soundVolume: 0.5, soundPitch: 1.5, particle: 'cloud',
@@ -453,7 +453,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned hit establishes physical walking distance', 'learned hit grants faster real movement and hunger', 'neutral input does not sustain knockback', 'clear adaptations and unlearning both stop active bursts'], unlearned, active)
         },
     }],
-    ['hunter-trophy-skinner', {
+    ['adapt:hunter/trophy_skinner', {
         stage: 'projectile-trophies', prepare: prepare(undefined, true), trigger: trophy, negativeWindowTicks: 10,
         description: 'bounded natural sneak kills produce blaze powder that vanilla blazes never drop',
         sound: 'minecraft:entity.wolf.shake', soundVolume: 0.55, soundPitch: 1.35, particle: 'happy_villager',
@@ -463,7 +463,7 @@ export const projectileBehaviorCases = new Map([
             return report(['twenty unlearned sneak kills yield no Adapt-only blaze powder', 'bounded learned sneak kills yield actual trophy powder'], unlearned, active)
         },
     }],
-    ['axe-ground-smash', {
+    ['adapt:axe/ground_smash', {
         stage: 'projectile-smash', prepare: prepare('iron_axe'), trigger: smash, negativeWindowTicks: 10,
         description: 'sneaking during a real axe-held jump damages a nearby cow on landing',
         sound: 'minecraft:entity.zombie.attack_iron_door', soundVolume: 0.6, soundPitch: 0.4, particle: 'dust',
@@ -473,7 +473,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned sneak landing leaves nearby cow unharmed', 'learned airborne arming and landing deal actual area damage'], unlearned, active)
         },
     }],
-    ['axe-throwing-axe', {
+    ['adapt:axe/throwing_axe', {
         stage: 'projectile-axe', prepare: prepare('iron_axe'), trigger: throwingAxe, negativeWindowTicks: 10,
         description: 'an air swing throws an axe into a distant cow and returns the damaged tool',
         sound: 'minecraft:item.trident.throw', soundVolume: 0.8, soundPitch: 1.2, particle: 'crit',
@@ -484,7 +484,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned air swing cannot strike beyond melee range', 'learned throw damages the distant cow and returns one axe after paying durability'], unlearned, active)
         },
     }],
-    ['architect-brickbat', {
+    ['adapt:architect/brickbat', {
         stage: 'projectile-brickbat', prepare: prepare('stone'), trigger: brickbat, negativeWindowTicks: 10,
         description: 'an air swing with stone in hand throws one block into a distant cow and drops it there',
         sound: 'minecraft:entity.snowball.throw', soundVolume: 0.7, soundPitch: 0.6, particle: 'block',
@@ -495,7 +495,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned air swing throws nothing', 'learned throw damages the distant cow, spends one block from the stack and drops it at the impact'], unlearned, active)
         },
     }],
-    ['excavation-clod-hurler', {
+    ['adapt:excavation/clod_hurler', {
         stage: 'projectile-clod', prepare: prepare('diamond_shovel'), trigger: clod, negativeWindowTicks: 10,
         description: 'digging dirt with a husk in sight flings the block at the husk and the dirt flies back into the inventory',
         sound: 'minecraft:entity.snowball.throw', soundVolume: 0.7, soundPitch: 0.6, particle: 'block',
@@ -506,7 +506,7 @@ export const projectileBehaviorCases = new Map([
             return report(['unlearned dig is an ordinary dig', 'learned dig flings the block at the husk and returns one dirt to the inventory'], unlearned, active)
         },
     }],
-    ['axe-logswap', {
+    ['adapt:axe/logswap', {
         stage: 'projectile-logswap', trigger: logswap, negativeWindowTicks: 10,
         description: 'actual crafting converts eight birch logs and one oak sapling into eight oak logs',
         sound: 'minecraft:block.sweet_berry_bush.pick_berries', soundVolume: 0.6, soundPitch: 1.2, particle: 'happy_villager',

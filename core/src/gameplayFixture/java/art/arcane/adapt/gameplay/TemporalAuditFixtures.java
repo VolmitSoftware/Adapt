@@ -1,8 +1,9 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.chronos.TemporalFreezeRegistry;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
@@ -38,7 +39,7 @@ public final class TemporalAuditFixtures {
         if (!Tasks.isFoliaThreading() && !Fixtures.isFixtureWorld(player.world())) throw new IllegalStateException("Gameplay arena required");
         switch (args[2]) {
             case "void-prepare" -> {
-                learn(player, "rift-void-skin");
+                learn(player, "adapt:rift/void_skin");
                 Fixtures.clearInventory(player);
                 player.inventory().setItem(0, Fixtures.item("ender_pearl", 2));
                 player.setHealth(6D);
@@ -51,7 +52,7 @@ public final class TemporalAuditFixtures {
             case "totem" -> player.inventory().setOffHand(Fixtures.item("totem_of_undying"));
             case "overlap" -> { return overlap(player, args[3]); }
             case "recall-prepare" -> {
-                learn(player, "chronos-instant-recall");
+                learn(player, "adapt:chronos/instant_recall");
                 Fixtures.clearInventory(player);
                 player.inventory().setItem(0, Fixtures.item("clock", 2));
                 player.setGameMode(GameMode.SURVIVAL);
@@ -60,10 +61,10 @@ public final class TemporalAuditFixtures {
                 player.setGravity(false);
             }
             case "recall" -> {
-                Adaptation<?> bomb = Fixtures.adaptation("chronos-time-bomb");
+                Adaptation<?> bomb = Fixtures.adaptation("adapt:chronos/time_bomb");
                 invoke(bomb, "freezePlayer", player, UUID.randomUUID());
                 Object state = state(bomb, "frozenPlayers", player);
-                invoke(Fixtures.adaptation("chronos-instant-recall"), "attemptRecall", player);
+                invoke(Fixtures.adaptation("adapt:chronos/instant_recall"), "attemptRecall", player);
                 invoke(bomb, "unfreezePlayer", player, state);
                 map(bomb, "frozenPlayers").remove(player.uuid());
             }
@@ -91,9 +92,9 @@ public final class TemporalAuditFixtures {
     }
 
     private static JsonObject overlap(PlayerRef player, String first) {
-        learn(player, "chronos-stasis-field");
-        Adaptation<?> stasis = Fixtures.adaptation("chronos-stasis-field");
-        Adaptation<?> bomb = Fixtures.adaptation("chronos-time-bomb");
+        learn(player, "adapt:chronos/stasis_field");
+        Adaptation<?> stasis = Fixtures.adaptation("adapt:chronos/stasis_field");
+        Adaptation<?> bomb = Fixtures.adaptation("adapt:chronos/time_bomb");
         for (Object existing : map(stasis, "bubbles").values().toArray()) invoke(stasis, "retireBubble", existing, false);
         Fixtures.platform().setSneaking(player, true);
         player.inventory().setMainHand(Fixtures.item("amethyst_shard", 2));
@@ -131,9 +132,9 @@ public final class TemporalAuditFixtures {
     }
 
     private static JsonObject trident(PlayerRef player) {
-        learn(player, "seaborne-trident-mastery");
-        Adaptation<?> mastery = Fixtures.adaptation("seaborne-trident-mastery");
-        Adaptation<?> bomb = Fixtures.adaptation("chronos-time-bomb");
+        learn(player, "adapt:seaborne/trident_mastery");
+        Adaptation<?> mastery = Fixtures.adaptation("adapt:seaborne/trident_mastery");
+        Adaptation<?> bomb = Fixtures.adaptation("adapt:chronos/time_bomb");
         Loc at = player.location().add(0D, 2D, 3D);
         ProjectileRef trident = (ProjectileRef) Fixtures.spawn(player.world(), "trident", at.x(), at.y(), at.z());
         trident.setShooter(player);
@@ -170,7 +171,7 @@ public final class TemporalAuditFixtures {
         result.addProperty("escapes", Fixtures.adaptPlayer(player).getData().getStat("rift.void-skin.escapes"));
         result.addProperty("now", System.currentTimeMillis());
         JsonObject deadlines = new JsonObject();
-        for (String id : new String[]{"tragoul-last-rites", "chronos-hourglass-guard", "rift-void-skin"}) {
+        for (String id : new String[]{"adapt:tragoul/last_rites", "adapt:chronos/hourglass_guard", "adapt:rift/void_skin"}) {
             Long deadline = player.data().get(DataKey.adapt("death_save_" + id.replace('-', '_'), DataCodecs.LONG));
             deadlines.addProperty(id, deadline == null ? 0L : deadline);
         }
@@ -183,8 +184,8 @@ public final class TemporalAuditFixtures {
         AdaptPlayer owner = Fixtures.adaptPlayer(player);
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                owner.getData().getSkillLine(skill.getName()).setAdaptation(adaptation,
-                        adaptation.getName().equals(name) ? adaptation.getMaxLevel() : 0);
+                owner.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation,
+                        adaptation.getId().toString().equals(name) ? adaptation.getMaxLevel() : 0);
             }
         }
     }

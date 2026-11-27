@@ -1,5 +1,6 @@
 package art.arcane.adapt.client.server.panel;
 
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.client.protocol.ClientFrame;
 import art.arcane.adapt.client.protocol.FrameCodec;
 import art.arcane.adapt.client.protocol.FrameLimits;
@@ -19,7 +20,6 @@ import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
-import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.menu.MenuIcon;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
@@ -394,7 +394,7 @@ class ClientAwareMenuHostTest {
 
   @Test
   void iconsCarryModelGlintAndAmount() {
-    MenuIcon icon = new MenuIcon(Id.minecraft("paper"), 7, "Paper", List.of(), true, Id.of("adapt", "gui/back"), 42, null);
+    MenuIcon icon = MenuIcon.of(Id.minecraft("paper"), "Paper", List.of()).withAmount(7).withGlint(true).withItemModel(Id.of("adapt", "gui/back")).withCustomModelData(42);
 
     PanelView view = PanelViews.view(3, 0, ChestMenu.builder("T", 1).set(0, MenuButton.display(icon)).build());
 
@@ -466,7 +466,7 @@ class ClientAwareMenuHostTest {
   }
 
   /** Chest host with the replace and close semantics of the platform hosts. */
-  private static final class FakeHost implements MenuHost {
+  private static final class FakeHost implements HostMenus {
     private final List<ChestMenu> opened = new ArrayList<>();
     private final Map<UUID, Chest> open = new HashMap<>();
     private final StorageView storage = new StorageView() {

@@ -44,28 +44,28 @@ async function receivePunch({ context, actor, opponent }) {
 }
 
 export const behaviorCases = new Map([
-    ['agility-super-jump', {
+    ['adapt:agility/super_jump', {
         stage: 'agility',
         attribute: 'minecraft:jump_strength',
         sound: 'minecraft:item.armor.equip_leather', particle: 'cloud',
         soundVolume: 0.3, soundPitch: 0.35,
         trigger: sneak,
     }],
-    ['stealth-speed', {
+    ['adapt:stealth/speed', {
         stage: 'agility',
         attribute: 'minecraft:sneaking_speed',
         sound: 'minecraft:particle.soul_escape', particle: 'soul',
         soundVolume: 1.6, soundPitch: 0.9,
         trigger: sneak,
     }],
-    ['stealth-vision', {
+    ['adapt:stealth/vision', {
         stage: 'agility',
         effect: 'minecraft:night_vision',
         sound: 'minecraft:block.sculk_sensor.clicking', particle: 'end_rod',
         soundVolume: 0.4, soundPitch: 1.3,
         trigger: sneak,
     }],
-    ['seaborne-oxygen', versionEntry('seaborne-oxygen')?.status === 'emulated' ? {
+    ['adapt:seaborne/oxygen', versionEntry('adapt:seaborne/oxygen')?.status === 'emulated' ? {
         stage: 'seaborne',
         description: 'holding breath underwater loses less air (oxygen bonus emulated: air loss undone per tick)',
         sound: 'minecraft:block.conduit.activate', particle: 'dust',
@@ -83,56 +83,56 @@ export const behaviorCases = new Map([
         soundVolume: 0.35, soundPitch: 1.15,
         trigger: underwater,
     }],
-    ['seaborne-turtles-mining-speed', {
+    ['adapt:seaborne/turtles_mining_speed', {
         stage: 'seaborne',
         attribute: 'minecraft:submerged_mining_speed',
         sound: 'minecraft:block.amethyst_block.hit', particle: 'crit',
         soundVolume: 0.4, soundPitch: 1.5,
         trigger: underwater,
     }],
-    ['kinetics-moon-jump', {
+    ['adapt:kinetics/moon_jump', {
         stage: 'agility',
         attribute: 'minecraft:jump_strength',
         sound: 'minecraft:entity.rabbit.jump', particle: 'cloud',
         soundVolume: 0.6, soundPitch: 0.7,
         trigger: sneakJump,
     }],
-    ['hunter-strength', {
+    ['adapt:hunter/strength', {
         stage: 'agility',
         attribute: 'minecraft:attack_damage',
         sound: 'minecraft:entity.zoglin.attack', particle: 'flame',
         soundVolume: 0.4, soundPitch: 1.4,
         trigger: receivePunch,
     }],
-    ['hunter-jumpboost', {
+    ['adapt:hunter/jumpboost', {
         stage: 'agility',
         attribute: 'minecraft:jump_strength',
         sound: 'minecraft:block.note_block.pling', particle: 'cloud',
         soundVolume: 0.7, soundPitch: 1.2,
         trigger: receivePunch,
     }],
-    ['hunter-luck', {
+    ['adapt:hunter/luck', {
         stage: 'agility',
         attribute: 'minecraft:luck',
         sound: 'minecraft:block.amethyst_block.chime', particle: 'happy_villager',
         soundVolume: 0.4, soundPitch: 1.9,
         trigger: receivePunch,
     }],
-    ['hunter-regen', {
+    ['adapt:hunter/regen', {
         stage: 'agility',
         effect: 'minecraft:regeneration',
         sound: 'minecraft:block.amethyst_block.chime', particle: 'heart',
         soundVolume: 0.5, soundPitch: 1.6,
         trigger: receivePunch,
     }],
-    ['hunter-invis', {
+    ['adapt:hunter/invis', {
         stage: 'agility',
         effect: 'minecraft:invisibility',
         sound: 'minecraft:entity.illusioner.mirror_move', particle: 'portal',
         soundVolume: 0.7, soundPitch: 1.0,
         trigger: receivePunch,
     }],
-    ['hunter-resistance', {
+    ['adapt:hunter/resistance', {
         stage: 'agility',
         effect: 'minecraft:resistance',
         sound: 'minecraft:item.shield.block', particle: 'electric_spark',

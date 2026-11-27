@@ -1,15 +1,16 @@
 package art.arcane.adapt.bukkit.platform.world;
 
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
+import art.arcane.adapt.bukkit.platform.BukkitRegistries;
 import art.arcane.adapt.platform.value.Box;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.GeneratedStructure;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
@@ -28,7 +29,7 @@ final class BukkitWorldVersion {
     for (org.bukkit.generator.structure.GeneratedStructure structure : found) {
       BoundingBox box = structure.getBoundingBox();
       structures.add(new GeneratedStructure(
-          BukkitConversions.id(RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE).getKeyOrThrow(structure.getStructure())),
+          BukkitConversions.id(BukkitRegistries.keyOrThrow(Structure.class, structure.getStructure())),
           BukkitConversions.id(structure.getStructure().getStructureType().getKey()),
           new Box(box.getMinX(), box.getMinY(), box.getMinZ(), box.getMaxX(), box.getMaxY(), box.getMaxZ())));
     }
@@ -36,7 +37,8 @@ final class BukkitWorldVersion {
   }
 
   static StructureType structureType(Id type) {
-    return RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE_TYPE).get(BukkitConversions.key(type));
+    Registry<StructureType> registry = BukkitRegistries.registry(StructureType.class);
+    return registry == null ? null : registry.get(BukkitConversions.key(type));
   }
 
   /** An item entity that is not yet in the world. */

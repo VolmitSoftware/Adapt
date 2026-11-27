@@ -1,5 +1,6 @@
 package art.arcane.adapt.client.screen;
 
+
 import art.arcane.adapt.client.protocol.FeedbackKind;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.state.ClientSubscription;
@@ -82,7 +83,7 @@ public final class MutateScreen extends AdaptScreen {
 
     @Override
     protected String themeSkill() {
-        return draft.paired() ? "mutated-" + draft.lead() + "-" + draft.partner() : draft.lead();
+        return draft.paired() ? draft.lead() + '+' + draft.partner() : draft.lead();
     }
 
     @Override

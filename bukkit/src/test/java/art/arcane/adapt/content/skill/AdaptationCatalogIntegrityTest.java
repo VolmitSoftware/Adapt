@@ -21,21 +21,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AdaptationCatalogIntegrityTest {
   private static final List<Path> ADAPTATION_ROOTS = List.of(
       Path.of("src/main/java/art/arcane/adapt/content/adaptation"),
-      Path.of("../core/src/main/java/art/arcane/adapt/content/adaptation"));
+      Path.of("../content/src/main/java/art/arcane/adapt/content/adaptation"));
   private static final List<Path> SKILL_ROOTS = List.of(
       Path.of("src/main/java/art/arcane/adapt/content/skill"),
-      Path.of("../core/src/main/java/art/arcane/adapt/content/skill"));
+      Path.of("../content/src/main/java/art/arcane/adapt/content/skill"));
   private static final Pattern ADAPTATION_CLASS = Pattern.compile(
       "(?m)^public\\s+(?:final\\s+)?class\\s+(\\w+)\\s+extends\\s+(?:SimpleAdaptation|LegacyAdaptation)<"
   );
-  private static final Pattern ADAPTATION_ID = Pattern.compile("\\bsuper\\(\"([^\"]+)\"\\)");
-  private static final Pattern CONSTRUCTION = Pattern.compile("\\bnew\\s+(\\w+)\\s*\\(");
-  private static final Pattern DIRECT_REGISTRATION =
-      Pattern.compile("\\bregisterAdaptation\\s*\\(\\s*new\\s+(\\w+)\\s*\\(");
-  private static final Pattern LOCAL_CONSTRUCTION =
-      Pattern.compile("\\b([A-Z]\\w*)\\s+(\\w+)\\s*=\\s*new\\s+\\1\\s*\\(");
-  private static final Pattern VARIABLE_REGISTRATION =
-      Pattern.compile("\\bregisterAdaptation\\s*\\(\\s*(\\w+)\\s*\\)");
+  private static final Pattern ADAPTATION_ID =
+      Pattern.compile("\\bpublic\\s+static\\s+final\\s+Id\\s+ID\\s*=\\s*Id\\.adapt\\(\"([^\"]+)\"\\);");
+  private static final Pattern SUPER_ID = Pattern.compile("\\bsuper\\(ID\\)");
+  private static final Pattern CONSTRUCTION = Pattern.compile("\\bnew\\s+(\\w+)\\s*\\(|\\b(\\w+)::new\\b");
+  private static final Pattern REGISTRATION = Pattern.compile(
+      "\\bregisterAdaptation\\s*\\(\\s*(\\w+)\\.ID\\s*,\\s*(?:(\\w+)::new|\\(\\)\\s*->\\s*(?:\\w+\\s*=\\s*)?new\\s+(\\w+)\\s*\\()");
 
   @Test
   void everyConcreteAdaptationHasExactlyOneSkillConstructionPath() throws IOException {
@@ -61,28 +59,19 @@ class AdaptationCatalogIntegrityTest {
     Map<String, Integer> counts = new HashMap<>();
     Matcher matcher = CONSTRUCTION.matcher(source);
     while (matcher.find()) {
-      counts.merge(matcher.group(1), 1, Integer::sum);
+      String type = matcher.group(1) != null ? matcher.group(1) : matcher.group(2);
+      counts.merge(type, 1, Integer::sum);
     }
     return counts;
   }
 
   private static Set<String> registeredClasses(String source) {
     Set<String> registered = new HashSet<>();
-    Matcher direct = DIRECT_REGISTRATION.matcher(source);
-    while (direct.find()) {
-      registered.add(direct.group(1));
-    }
-
-    Set<String> registeredVariables = new HashSet<>();
-    Matcher variables = VARIABLE_REGISTRATION.matcher(source);
-    while (variables.find()) {
-      registeredVariables.add(variables.group(1));
-    }
-
-    Matcher locals = LOCAL_CONSTRUCTION.matcher(source);
-    while (locals.find()) {
-      if (registeredVariables.contains(locals.group(2))) {
-        registered.add(locals.group(1));
+    Matcher matcher = REGISTRATION.matcher(source);
+    while (matcher.find()) {
+      String built = matcher.group(2) != null ? matcher.group(2) : matcher.group(3);
+      if (matcher.group(1).equals(built)) {
+        registered.add(built);
       }
     }
     return registered;
@@ -103,7 +92,8 @@ class AdaptationCatalogIntegrityTest {
 
       Matcher idMatcher = ADAPTATION_ID.matcher(source);
       assertThat(idMatcher.find()).as("missing adaptation id in %s", file).isTrue();
-      String adaptationId = idMatcher.group(1);
+      assertThat(SUPER_ID.matcher(source).find()).as("constructor passes ID in %s", file).isTrue();
+      String adaptationId = "adapt:" + idMatcher.group(1);
       String previousClass = ids.put(adaptationId, className);
       assertThat(previousClass)
           .as("duplicate adaptation id %s in %s and %s", adaptationId, previousClass, className)

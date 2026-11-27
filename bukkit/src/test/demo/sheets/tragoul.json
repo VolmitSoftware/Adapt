@@ -1,5 +1,5 @@
 {
-  "tragoul-blood-pact": {
+  "adapt:tragoul/blood_pact": {
     "povCapture": true,
     "set": "sparring", "level": 5,
     "camera": {"x": 13.5, "y": 3.5, "z": 3.5, "yaw": 90, "pitch": 10},
@@ -23,7 +23,7 @@
     ],
     "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "totem_of_undying"}, "maxTicks": 300
   },
-  "tragoul-bone-harvest": {
+  "adapt:tragoul/bone_harvest": {
     "povCapture": true,
     "set": "tragoul-harvest",
     "level": 5,
@@ -157,7 +157,7 @@
     },
     "maxTicks": 318
   },
-  "tragoul-corpse-explosion": {
+  "adapt:tragoul/corpse_explosion": {
     "set": "tragoul-nova", "level": 5,
     "pre": [
       "execute at {actor} run gamerule mob_drops false",
@@ -173,7 +173,7 @@
     ],
     "expect": {"sound": "minecraft:entity.generic.explode", "particle": "soul"}, "maxTicks": 200
   },
-  "tragoul-curse-of-frailty": {
+  "adapt:tragoul/curse_of_frailty": {
     "set": "sparring", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
@@ -184,7 +184,7 @@
     ],
     "expect": {"sound": "minecraft:entity.elder_guardian.curse", "particle": "warped_spore"}, "maxTicks": 200
   },
-  "tragoul-death-sense": {
+  "adapt:tragoul/death_sense": {
     "set": "tragoul-sense", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
@@ -200,8 +200,8 @@
     ],
     "expect": {"sound": "minecraft:block.note_block.bass"}, "maxTicks": 220
   },
-  "tragoul-globe": {
-    "set": "tragoul-globe", "level": 5,
+  "adapt:tragoul/globe": {
+    "set": "adapt:tragoul/globe", "level": 5,
     "pre": [
       "execute at {actor} run tp @e[type=!minecraft:player,distance=12..48] ~ -200 ~",
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
@@ -219,7 +219,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wither.shoot", "particle": "soul"}, "maxTicks": 220
   },
-  "tragoul-healing": {
+  "adapt:tragoul/healing": {
     "set": "sparring", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
@@ -232,8 +232,8 @@
     ],
     "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "dust_color_transition"}, "maxTicks": 220
   },
-  "tragoul-lance": {
-    "set": "tragoul-lance", "level": 5,
+  "adapt:tragoul/lance": {
+    "set": "adapt:tragoul/lance", "level": 5,
     "pre": [
       "execute at {actor} run gamerule mob_drops false",
       "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,type=!minecraft:husk,distance=..48] ~ -200 ~",
@@ -249,7 +249,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "sculk_soul"}, "maxTicks": 200
   },
-  "tragoul-last-rites": {
+  "adapt:tragoul/last_rites": {
     "povCapture": true,
     "set": "sparring", "level": 5,
     "pre": [
@@ -264,7 +264,7 @@
     ],
     "expect": {"sound": "minecraft:item.totem.use", "particle": "sculk_soul"}, "maxTicks": 220
   },
-  "tragoul-marrow-armor": {
+  "adapt:tragoul/marrow_armor": {
     "set": "sparring", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 8",
@@ -280,7 +280,7 @@
     ],
     "expect": {"sound": "minecraft:block.bone_block.place", "particle": "block"}, "maxTicks": 220
   },
-  "tragoul-plague-bearer": {
+  "adapt:tragoul/plague_bearer": {
     "set": "tragoul-plague", "level": 5,
     "pre": [
       "execute at {actor} run gamerule mob_drops false",
@@ -307,7 +307,7 @@
     ],
     "expect": {"sound": "minecraft:entity.zombie.infect", "particle": "spore_blossom_air"}, "maxTicks": 250
   },
-  "tragoul-skeletal-servant": {
+  "adapt:tragoul/skeletal_servant": {
     "povCapture": true,
     "set": "sparring", "level": 5,
     "camera": {"x": 6.5, "y": 6.0, "z": 5.5, "yaw": 137, "pitch": 25},
@@ -334,7 +334,7 @@
     ],
     "expect": {"sound": "minecraft:block.bone_block.place", "particle": "soul"}, "maxTicks": 460
   },
-  "tragoul-soul-siphon": {
+  "adapt:tragoul/soul_siphon": {
     "set": "sparring", "level": 5,
     "pre": [
       "effect give {actor} minecraft:hunger 4 255 true",
@@ -358,7 +358,7 @@
     ],
     "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul"}, "maxTicks": 200
   },
-  "tragoul-thorns": {
+  "adapt:tragoul/thorns": {
     "set": "sparring", "level": 5,
     "pre": [
       "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~",

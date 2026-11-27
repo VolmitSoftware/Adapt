@@ -130,7 +130,7 @@ public final class ModItemRef implements ItemRef {
     @Override
     public String displayName() {
         Component custom = stack.get(DataComponents.CUSTOM_NAME);
-        return ModText.markup(custom != null ? custom : stack.getHoverName());
+        return ModText.legacy(custom != null ? custom : stack.getHoverName());
     }
 
     @Override
@@ -163,7 +163,7 @@ public final class ModItemRef implements ItemRef {
         }
         List<String> out = new ArrayList<>(lore.lines().size());
         for (Component line : lore.lines()) {
-            out.add(ModText.markup(line));
+            out.add(ModText.legacy(line));
         }
         return out;
     }
@@ -631,9 +631,7 @@ public final class ModItemRef implements ItemRef {
         for (MobEffectInstance effect : contents.customEffects()) {
             Optional<ResourceKey<MobEffect>> key = effect.getEffect().unwrapKey();
             if (key.isPresent()) {
-                effects.add(new EffectInstance(ModConversions.id(key.get().location()),
-                    effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(),
-                    effect.isAmbient(), effect.isVisible(), effect.showIcon()));
+                effects.add(EffectInstance.of(ModConversions.id(key.get().location()), effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon()));
             }
         }
         Id potion = contents.potion()
@@ -642,8 +640,7 @@ public final class ModItemRef implements ItemRef {
             .orElse(null);
         Rgb color = contents.customColor().map((Integer packed) -> Rgb.of(packed & 0xFFFFFF)).orElse(null);
         Component name = stack.get(DataComponents.CUSTOM_NAME);
-        return Optional.of(new art.arcane.adapt.platform.item.PotionContents(potion, color, effects,
-            name == null ? null : ModText.markup(name)));
+        return Optional.of(art.arcane.adapt.platform.item.PotionContents.of(potion).withColor(color).withCustomEffects(effects).withName(name == null ? null : ModText.markup(name)));
     }
 
     @Override

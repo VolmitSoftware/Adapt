@@ -1,10 +1,11 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.player.PlayerApi;
 import art.arcane.adapt.api.preference.CommonPreferences;
-import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.xp.XPMultiplier;
 import art.arcane.adapt.content.adaptation.axe.AxeIrisFeller;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryPolymath;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingBookshelfAttunement;
@@ -97,7 +98,7 @@ public final class CatalogPreferenceFixtures {
     private static JsonObject polymath(PlayerRef player, AdaptPlayer runtime) {
         DiscoveryPolymath polymath = Fixtures.adaptation(DiscoveryPolymath.class);
         runtime.getData().getSkillLine("discovery").setAdaptation(polymath, polymath.getMaxLevel());
-        runtime.getData().globalXPMultiplier(XPMultiplier.owned(polymath.getName(), 0.4D, 60000L));
+        runtime.getData().globalXPMultiplier(XPMultiplier.owned(polymath.getId().toString(), 0.4D, 60000L));
         runtime.getData().globalXPMultiplier(XPMultiplier.owned("fixture-other", 0.7D, 60000L));
         runtime.getData().globalXPMultiplier(0.2D, 60000L);
         if (!PlayerPreferences.set(polymath, runtime, CommonPreferences.ENABLED, CommonPreferences.Toggle.OFF)) {
@@ -105,7 +106,7 @@ public final class CatalogPreferenceFixtures {
         }
         JsonObject result = new JsonObject();
         result.addProperty("active", polymath.getActiveLevel(player));
-        result.addProperty("learned", polymath.getLevel(runtime));
+        result.addProperty("learned", polymath.getLevel(PlayerApi.profile(runtime)));
         JsonArray sources = new JsonArray();
         for (XPMultiplier multiplier : runtime.getData().getMultipliers()) {
             sources.add(multiplier.getSource() == null ? "unowned" : multiplier.getSource());

@@ -2,9 +2,9 @@
   "skill": "enchanting",
   "behaviourTest": "EnchantingBlocksRuntimeTest",
   "pieces": [
-    {"slot": "TRIGGER", "class": "EnchantingTrigger", "handles": ["EnchantItemEvent", "PlayerExpChangeEvent", "EntityDeathEvent"], "reuses": ["MutationPayouts"]},
-    {"slot": "STRIKE_FIGHT", "class": "EnchantingFightStrike", "handles": ["EntityDeathEvent"], "reuses": ["MutationPayouts"]},
-    {"slot": "STRIKE_WORK", "class": "EnchantingWorkStrike", "handles": ["BlockBreakEvent", "BlockDropItemEvent"], "reuses": ["MutationPayouts"]},
+    {"slot": "TRIGGER", "class": "EnchantingTrigger", "handles": ["EnchantItemEvent", "PlayerExpChangeEvent", "EntityDeathEvent"], "reuses": ["Mutations"]},
+    {"slot": "STRIKE_FIGHT", "class": "EnchantingFightStrike", "handles": ["EntityDeathEvent"], "reuses": ["Mutations"]},
+    {"slot": "STRIKE_WORK", "class": "EnchantingWorkStrike", "handles": ["BlockBreakEvent", "BlockDropItemEvent"], "reuses": ["Mutations"]},
     {"slot": "BOON", "class": "EnchantingBoon", "handles": [], "reuses": []},
     {"slot": "FUEL", "class": "EnchantingFuel", "handles": [], "reuses": ["EnchantingBooks"]},
     {"slot": "STATE", "class": "EnchantingState", "handles": [], "reuses": []}

@@ -7,6 +7,7 @@ idea = "1.2"
 slimjar = "2.1.9"
 kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
+japicmp = "0.4.6"
 
 spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
@@ -64,3 +65,4 @@ runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTask" }
 idea = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+japicmp = { id = "me.champeau.gradle.japicmp", version.ref = "japicmp" }

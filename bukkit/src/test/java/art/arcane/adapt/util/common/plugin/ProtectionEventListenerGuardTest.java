@@ -1,7 +1,7 @@
 package art.arcane.adapt.util.common.plugin;
 
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.xp.XpProvenanceListener;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.xp.XpProvenanceListener;
 import art.arcane.adapt.platform.entity.Hand;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;

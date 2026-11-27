@@ -21,7 +21,7 @@ class GriefDefenderProtectorTest {
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
       configured.when(AdaptConfig::get).thenReturn(config);
 
-      assertThat(new GriefDefenderProtector().isEnabledByDefault()).isTrue();
+      assertThat(new GriefDefenderProtector().enabledByDefault()).isTrue();
     }
   }
 }

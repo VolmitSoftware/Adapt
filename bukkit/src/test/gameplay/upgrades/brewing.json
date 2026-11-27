@@ -2,24 +2,24 @@
   "skill": "brewing",
   "upgrades": [
     {
-      "name": "upgraded-brewing-master-distiller",
+      "name": "adapt:brewing/upgrade/master_distiller",
       "class": "MasterDistiller",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/MasterDistiller.java",
-      "fuses": ["brewing-lingering", "brewing-super-heated"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/MasterDistiller.java",
+      "fuses": ["adapt:brewing/lingering", "adapt:brewing/super_heated"],
       "triggers": ["InventoryMoveItemEvent", "InventoryClickEvent", "BrewEvent", "PlayerItemHeldEvent", "PrepareItemCraftEvent"]
     },
     {
-      "name": "upgraded-brewing-witchs-shelf",
+      "name": "adapt:brewing/upgrade/witchs_shelf",
       "class": "WitchsShelf",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/WitchsShelf.java",
-      "fuses": ["brewing-blindness", "brewing-darkness", "brewing-decay", "brewing-fatigue", "brewing-hunger", "brewing-nausea"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/WitchsShelf.java",
+      "fuses": ["adapt:brewing/blindness", "adapt:brewing/darkness", "adapt:brewing/decay", "adapt:brewing/fatigue", "adapt:brewing/hunger", "adapt:brewing/nausea"],
       "triggers": ["AdaptBrewCompleteEvent", "PotionSplashEvent", "InventoryClickEvent", "BrewEvent"]
     },
     {
-      "name": "upgraded-brewing-apothecary",
+      "name": "adapt:brewing/upgrade/apothecary",
       "class": "Apothecary",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/Apothecary.java",
-      "fuses": ["brewing-absorption", "brewing-healthboost", "brewing-resistance", "brewing-saturation"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/brewing/upgraded/Apothecary.java",
+      "fuses": ["adapt:brewing/absorption", "adapt:brewing/healthboost", "adapt:brewing/resistance", "adapt:brewing/saturation"],
       "triggers": ["AdaptBrewCompleteEvent", "InventoryClickEvent", "BrewEvent"]
     }
   ]

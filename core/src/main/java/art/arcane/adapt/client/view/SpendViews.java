@@ -1,13 +1,15 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
-import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.adaptation.AdaptationHost;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.engine.mutation.upgrade.Lending;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +28,20 @@ public final class SpendViews {
     List<SpendView> spends = new ArrayList<>();
     for (PlayerData.HeldAdaptation held : data.heldAdaptations()) {
       int floor = SkillUpgrades.keptFloor(held.adaptation(), data);
-      spends.add(new SpendView(held.line(), held.adaptation().getName(), held.level(),
-          held.adaptation().getRefundCostFor(floor, held.level()), 1, SpendView.Source.LEARNED));
+      spends.add(new SpendView(held.line(), held.adaptation().getId().toString(), held.level(),
+          AdaptationHost.refundCostFor(held.adaptation(), floor, held.level()), 1, SpendView.Source.LEARNED));
     }
-    for (SkillMutation mutation : data.getMutations()) {
-      MutatedSkill mutated = registry.getMutatedSkill(mutation.id());
+    for (SkillPair mutation : data.getMutations()) {
+      MutatedSkill mutated = registry.getMutatedSkill(mutation);
       if (mutated == null) {
         continue;
       }
       for (Adaptation<?> kept : mutated.getKept()) {
-        spends.add(new SpendView(mutated.getName(), kept.getName(), SkillUpgrades.keptLevel(kept), 0, 0, SpendView.Source.KEPT));
+        spends.add(new SpendView(SkillHost.lineKey(mutated), kept.getId().toString(), SkillUpgrades.keptLevel(kept), 0, 0, SpendView.Source.KEPT));
       }
       if (player.getPlayer() != null) {
-        for (UpgradeLoans.Running running : UpgradeLoans.running(player.getPlayer(), player, registry, mutation)) {
-          spends.add(new SpendView(mutated.getName(), running.original().getName(), running.level(), 0, 0, SpendView.Source.LENT));
+        for (Lending.Running running : Lending.running(player.getPlayer(), player, registry, mutation)) {
+          spends.add(new SpendView(SkillHost.lineKey(mutated), running.original().getId().toString(), running.level(), 0, 0, SpendView.Source.LENT));
         }
       }
     }

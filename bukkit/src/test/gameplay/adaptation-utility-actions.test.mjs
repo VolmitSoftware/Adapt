@@ -9,7 +9,7 @@ const state = (events, credited = 0, hasTarget = false) => ({
 })
 
 test('Enderveil proof requires credited native stare cancellation, not vanilla gaze prechecks', async () => {
-    const verify = utilityBehaviorCases.get('stealth-enderveil').verify
+    const verify = utilityBehaviorCases.get('adapt:stealth/enderveil').verify
     const unlearned = state([{ type: 'stare', cancelled: false }])
     const active = state([{ type: 'stare', cancelled: true }], 1)
     const result = await verify({ context, unlearned, active })
@@ -20,7 +20,7 @@ test('Enderveil proof requires credited native stare cancellation, not vanilla g
 })
 
 test('Cat Reflexes requires twenty distinct sprinting control impacts rather than twenty shots', async () => {
-    const verify = utilityBehaviorCases.get('agility-cat-reflexes').verify
+    const verify = utilityBehaviorCases.get('adapt:agility/cat_reflexes').verify
     const events = Array.from({ length: 20 }, (_, index) => ({
         type: 'projectile', projectileId: 100 + index, sprinting: true, cancelled: false,
     }))

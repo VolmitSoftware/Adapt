@@ -1,5 +1,5 @@
 {
-  "axe-bark-hide": {
+  "adapt:axe/bark_hide": {
     "set": "axes-woodpile", "level": 5,
     "camera": {"x": 4.6, "y": 2.6, "z": 3.1, "yaw": 135, "pitch": 16},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "attribute {actor} minecraft:block_break_speed base set 64"],
@@ -23,7 +23,7 @@
     ],
     "expect": {"sound": "minecraft:block.wood.place", "particle": "block"}, "maxTicks": 250
   },
-  "axe-chop": {
+  "adapt:axe/chop": {
     "set": "axes-tree", "level": 4,
     "camera": {"x": 7.3, "y": 3.4, "z": -3.3, "yaw": 75, "pitch": 3},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "execute at {actor} run kill @e[type=minecraft:chicken,distance=..64]", "execute at {actor} run kill @e[type=minecraft:item,distance=..64]"],
@@ -35,7 +35,7 @@
     ],
     "expect": {"sound": "minecraft:item.axe.strip", "particle": "crit"}, "maxTicks": 200
   },
-  "axe-cleave": {
+  "adapt:axe/cleave": {
     "set": "axes-cleave", "level": 3,
     "camera": {"x": 4.8, "y": 3.3, "z": 3.3, "yaw": 135, "pitch": 22},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"],
@@ -47,7 +47,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.sweep", "particle": "crit"}, "maxTicks": 150
   },
-  "axe-drop-to-inventory": {
+  "adapt:axe/drop_to_inventory": {
     "set": "axes-woodpile", "level": 1,
     "camera": {"x": 4.6, "y": 2.6, "z": 3.1, "yaw": 135, "pitch": 16},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "attribute {actor} minecraft:block_break_speed base set 64"],
@@ -67,7 +67,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.hit", "particle": "enchant"}, "maxTicks": 200
   },
-  "axe-ground-smash": {
+  "adapt:axe/ground_smash": {
     "set": "axes-smash", "level": 5,
     "camera": {"x": 7.5, "y": 4.8, "z": 5.5, "yaw": 137, "pitch": 23.7},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "execute at {actor} as @e[type=minecraft:cow,distance=..16] run attribute @s minecraft:movement_speed base set 0"],
@@ -82,7 +82,7 @@
     ],
     "expect": {"sound": "minecraft:entity.zombie.attack_iron_door", "particle": "dust"}, "maxTicks": 200
   },
-  "axe-iris-feller": {
+  "adapt:axe/iris_feller": {
     "set": "axes-iris-tree", "level": 3,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:netherite_axe",
@@ -115,7 +115,7 @@
     "expect": {"visual": "Sneaking with an axe removes multiple genuine Iris tree blocks and returns their drops. The configured five-point hunger reserve stops the run after the affordable log removals; the wider views show the removed section and the remaining tree."},
     "maxTicks": 400
   },
-  "axe-leaf-veinminer": {
+  "adapt:axe/leaf_veinminer": {
     "set": "axes-tree", "level": 5,
     "camera": {"x": 7.3, "y": 3.4, "z": -3.3, "yaw": 75, "pitch": 3},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "attribute {actor} minecraft:block_break_speed base set 64", "execute at {actor} run kill @e[type=minecraft:chicken,distance=..64]", "execute at {actor} run kill @e[type=minecraft:item,distance=..64]"],
@@ -128,7 +128,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.sweep", "particle": "happy_villager"}, "maxTicks": 200
   },
-  "axe-logswap": {
+  "adapt:axe/logswap": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -280,7 +280,7 @@
     "maxTicks": 468,
     "povCapture": true
   },
-  "axe-shield-splitter": {
+  "adapt:axe/shield_splitter": {
     "set": "arena", "level": 4, "opponent": true,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "item replace entity {opponent} weapon.offhand with minecraft:shield"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, 3.5]}, {"verb": "lookAt", "offset": [0.5, 1.4, 0.5], "actor": "opponent"}],
@@ -301,7 +301,7 @@
     ],
     "expect": {"sound": "minecraft:item.axe.strip", "particle": "crit"}, "maxTicks": 250
   },
-  "axe-sunder": {
+  "adapt:axe/sunder": {
     "set": "sparring", "level": 5,
     "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
     "pre": [
@@ -324,7 +324,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.break", "particle": "dust"}, "maxTicks": 200
   },
-  "axe-throwing-axe": {
+  "adapt:axe/throwing_axe": {
     "set": "archery", "level": 4,
     "camera": {"x": 8.5, "y": 2.6, "z": -6.0, "yaw": 90, "pitch": 7},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:1b}"],
@@ -336,7 +336,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.throw", "particle": "crit"}, "maxTicks": 200
   },
-  "axe-wood-veinminer": {
+  "adapt:axe/wood_veinminer": {
     "set": "axes-tree", "level": 5,
     "camera": {"x": 7.3, "y": 3.4, "z": -3.3, "yaw": 75, "pitch": 3},
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_axe", "attribute {actor} minecraft:block_break_speed base set 64", "execute at {actor} run kill @e[type=minecraft:chicken,distance=..64]", "execute at {actor} run kill @e[type=minecraft:item,distance=..64]"],

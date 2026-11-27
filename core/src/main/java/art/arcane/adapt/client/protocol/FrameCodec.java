@@ -1,6 +1,6 @@
 package art.arcane.adapt.client.protocol;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
@@ -9,13 +9,8 @@ import art.arcane.adapt.client.view.MutationEntry;
 import art.arcane.adapt.client.view.MutationSide;
 import art.arcane.adapt.client.view.MutationSpreadView;
 import art.arcane.adapt.client.view.MutationWords;
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightEffect;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightStat;
-import art.arcane.adapt.client.view.InsightStatKind;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.PlayerAccess;
 import art.arcane.adapt.client.view.PlayerDelta;
@@ -39,6 +34,7 @@ import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.platform.menu.ClickKind;
 
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,6 +72,7 @@ public final class FrameCodec {
   public static final int S2C_GROUP_LABELS = 24;
   public static final int S2C_SHORT_NAMES = 25;
   public static final int S2C_ADAPTATION_RECIPES = 26;
+  public static final int S2C_ASSET_MANIFEST = 27;
   public static final int S2C_INSIGHT_TARGET = 28;
   public static final int S2C_INSIGHT_VITALS = 29;
   public static final int S2C_INSIGHT_MARKS = 30;
@@ -93,6 +90,8 @@ public final class FrameCodec {
   public static final int C2S_MUTATE = 42;
   public static final int C2S_MUTATION_REQUEST = 43;
   public static final int C2S_UNMUTATE = 44;
+  public static final int C2S_ASSET_REQUEST = 45;
+  public static final int S2C_ASSET = 46;
   private static final int ROUTE_SKILLS = 0;
   private static final int ROUTE_SKILL = 1;
   private static final int ROUTE_ADAPTATION = 2;
@@ -177,6 +176,10 @@ public final class FrameCodec {
           out.u8(C2S_UNMUTATE);
           out.string(unmutate.skillId(), ID);
         }
+        case ClientFrame.AssetRequest request -> {
+          out.u8(C2S_ASSET_REQUEST);
+          out.list(request.resources(), FrameLimits.MAX_ASSET_REQUEST, FrameCodec::writeId);
+        }
       }
     } catch (IllegalArgumentException exception) {
       throw new ClientProtocolException("cannot encode client frame: " + exception.getMessage(), exception);
@@ -207,6 +210,7 @@ public final class FrameCodec {
         case C2S_MUTATE -> new ClientFrame.Mutate(in.string(ID));
         case C2S_MUTATION_REQUEST -> new ClientFrame.MutationRequest(in.string(ID), in.string(ID), in.bool());
         case C2S_UNMUTATE -> new ClientFrame.Unmutate(in.string(ID));
+        case C2S_ASSET_REQUEST -> new ClientFrame.AssetRequest(in.list(FrameLimits.MAX_ASSET_REQUEST, FrameCodec::readId));
         default -> throw new IllegalArgumentException("unknown client opcode " + opcode);
       };
       in.expectEnd();
@@ -312,7 +316,7 @@ public final class FrameCodec {
         }
         case ServerFrame.InsightTarget target -> {
           out.u8(S2C_INSIGHT_TARGET);
-          writeInsight(out, target.view());
+          writeInsight(out, target);
         }
         case ServerFrame.InsightVitals vitals -> {
           out.u8(S2C_INSIGHT_VITALS);
@@ -364,6 +368,16 @@ public final class FrameCodec {
           out.u8(S2C_ADAPTATION_RECIPES);
           out.list(recipes.recipes(), FrameLimits.MAX_RECIPES, FrameCodec::writeRecipe);
         }
+        case ServerFrame.AssetManifest manifest -> {
+          out.u8(S2C_ASSET_MANIFEST);
+          out.list(manifest.assets(), FrameLimits.MAX_ASSETS, FrameCodec::writeAssetRef);
+        }
+        case ServerFrame.Asset asset -> {
+          out.u8(S2C_ASSET);
+          out.string(asset.resource(), ID);
+          writeHash(out, asset.hash());
+          out.bytes(asset.data(), FrameLimits.MAX_ASSET_BYTES);
+        }
       }
     } catch (IllegalArgumentException exception) {
       throw new ClientProtocolException("cannot encode server frame: " + exception.getMessage(), exception);
@@ -393,13 +407,13 @@ public final class FrameCodec {
             readIcon(in), in.string(TEXT), in.varLong(), in.varLong(), in.varInt(), in.varInt(), in.bool());
         case S2C_HUD_CLEAR_ALL -> new ServerFrame.HudClearAll();
         case S2C_XP_EARNED -> new ServerFrame.XpEarned(in.string(ID), in.f64(), in.f64(), in.varInt(), in.f64());
-        case S2C_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class), readIcon(in), in.string(TEXT),
+        case S2C_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class, ToastKind.GENERIC), readIcon(in), in.string(TEXT),
             in.string(TEXT), "");
-        case S2C_SKILL_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class), readIcon(in), in.string(TEXT),
+        case S2C_SKILL_TOAST -> new ServerFrame.Toast(in.enumValue(ToastKind.class, ToastKind.GENERIC), readIcon(in), in.string(TEXT),
             in.string(TEXT), in.string(ID));
         case S2C_CUSTOM_ITEMS -> new ServerFrame.CustomItems(in.list(FrameLimits.MAX_ITEMS, FrameCodec::readItem));
-        case S2C_FEEDBACK -> new ServerFrame.Feedback(in.enumValue(FeedbackKind.class), in.string(TEXT));
-        case S2C_INSIGHT_TARGET -> new ServerFrame.InsightTarget(readInsight(in));
+        case S2C_FEEDBACK -> new ServerFrame.Feedback(in.enumValue(FeedbackKind.class, FeedbackKind.INFO), in.string(TEXT));
+        case S2C_INSIGHT_TARGET -> readInsight(in);
         case S2C_INSIGHT_VITALS -> new ServerFrame.InsightVitals(in.i32(), in.f64(), in.f64());
         case S2C_INSIGHT_MARKS -> new ServerFrame.InsightMarks(in.list(FrameLimits.MAX_INSIGHT_MARKS, FrameCodec::readMark));
         case S2C_INSIGHT_CLEAR -> new ServerFrame.InsightClear();
@@ -413,6 +427,8 @@ public final class FrameCodec {
         case S2C_GROUP_LABELS -> new ServerFrame.GroupLabels(in.list(FrameLimits.MAX_SKILLS, FrameCodec::readGroupLabels));
         case S2C_SHORT_NAMES -> new ServerFrame.ShortNames(in.list(FrameLimits.MAX_ADAPTATIONS, FrameCodec::readShortName));
         case S2C_ADAPTATION_RECIPES -> new ServerFrame.AdaptationRecipes(in.list(FrameLimits.MAX_RECIPES, FrameCodec::readRecipe));
+        case S2C_ASSET_MANIFEST -> new ServerFrame.AssetManifest(in.list(FrameLimits.MAX_ASSETS, FrameCodec::readAssetRef));
+        case S2C_ASSET -> new ServerFrame.Asset(in.string(ID), readHash(in), in.bytes(FrameLimits.MAX_ASSET_BYTES));
         default -> throw new IllegalArgumentException("unknown server opcode " + opcode);
       };
       in.expectEnd();
@@ -460,6 +476,32 @@ public final class FrameCodec {
       case ROUTE_MUTATE -> new Route.Mutate(in.string(ID));
       default -> throw new IllegalArgumentException("unknown route " + kind);
     };
+  }
+
+  private static void writeAssetRef(FrameWriter out, AssetRef asset) {
+    out.string(asset.resource(), ID);
+    writeHash(out, asset.hash());
+  }
+
+  private static AssetRef readAssetRef(FrameReader in) {
+    return new AssetRef(in.string(ID), readHash(in));
+  }
+
+  /** A SHA-1 hash: written as its 20 raw bytes, read back as lower-case hex. */
+  private static void writeHash(FrameWriter out, String hash) {
+    byte[] raw = HexFormat.of().parseHex(hash);
+    if (raw.length != FrameLimits.ASSET_HASH_BYTES) {
+      throw new IllegalArgumentException("hash of " + raw.length + " bytes, expected " + FrameLimits.ASSET_HASH_BYTES);
+    }
+    out.bytes(raw, FrameLimits.ASSET_HASH_BYTES);
+  }
+
+  private static String readHash(FrameReader in) {
+    byte[] raw = in.bytes(FrameLimits.ASSET_HASH_BYTES);
+    if (raw.length != FrameLimits.ASSET_HASH_BYTES) {
+      throw new IllegalArgumentException("hash of " + raw.length + " bytes, expected " + FrameLimits.ASSET_HASH_BYTES);
+    }
+    return HexFormat.of().formatHex(raw);
   }
 
   private static void writeIcon(FrameWriter out, IconRef icon) {
@@ -946,7 +988,7 @@ public final class FrameCodec {
     int revision = in.varInt();
     String title = in.string(TEXT);
     int rows = in.u8();
-    PanelLayout layout = in.enumValue(PanelLayout.class);
+    PanelLayout layout = in.enumValue(PanelLayout.class, PanelLayout.GRID);
     PanelPaging paging = in.bool() ? new PanelPaging(in.varInt(), in.varInt(), in.varInt()) : null;
     List<String> breadcrumb = in.list(FrameLimits.MAX_BREADCRUMB, FrameCodec::readText);
     return new PanelView(sessionId, revision, title, rows, layout, paging, breadcrumb,
@@ -985,7 +1027,7 @@ public final class FrameCodec {
     List<String> lore = readLines(in);
     boolean glint = in.bool();
     TileHint hint = in.bool() ? readHint(in) : null;
-    TileRole role = in.enumValue(TileRole.class);
+    TileRole role = in.enumValue(TileRole.class, TileRole.INFO);
     String section = in.string(TEXT);
     String value = in.string(TEXT);
     List<String> description = in.bool() ? readLines(in) : null;
@@ -1038,46 +1080,49 @@ public final class FrameCodec {
         in.i32(), in.bytes(FrameLimits.MAX_ITEM_PAYLOAD_BYTES));
   }
 
-  private static void writeInsight(FrameWriter out, InsightView view) {
-    out.i32(view.entityId());
-    out.string(view.typeId(), ID);
-    out.string(view.name(), TEXT);
-    out.enumValue(view.kind());
-    out.f64(view.health());
-    out.f64(view.maxHealth());
-    out.f64(view.absorption());
-    out.f64(view.armor());
-    out.enumValue(view.bond());
-    out.string(view.ownerName(), ID);
-    out.bool(view.stableHand());
-    out.list(view.stats(), FrameLimits.MAX_INSIGHT_STATS, (FrameWriter writer, InsightStat stat) -> {
-      writer.enumValue(stat.kind());
+  private static void writeInsight(FrameWriter out, ServerFrame.InsightTarget target) {
+    out.i32(target.entityId());
+    out.string(target.typeId(), ID);
+    out.string(target.name(), TEXT);
+    out.enumValue(target.kind());
+    out.f64(target.health());
+    out.f64(target.maxHealth());
+    out.f64(target.absorption());
+    out.f64(target.armor());
+    out.enumValue(target.bond());
+    out.string(target.ownerName(), ID);
+    out.list(target.tags(), FrameLimits.MAX_INSIGHT_TAGS, FrameCodec::writeId);
+    out.list(target.stats(), FrameLimits.MAX_INSIGHT_STATS, (FrameWriter writer, ServerFrame.InsightTarget.Stat stat) -> {
+      writer.string(stat.attribute(), ID);
       writer.f64(stat.value());
     });
-    out.list(view.effects(), FrameLimits.MAX_INSIGHT_EFFECTS, (FrameWriter writer, InsightEffect effect) -> {
-      writer.string(effect.effectId(), ID);
-      writer.varInt(effect.amplifier());
-      writer.i32(effect.durationTicks());
-      writer.bool(effect.harmful());
-    });
+    out.list(target.effects(), FrameLimits.MAX_INSIGHT_EFFECTS,
+        (FrameWriter writer, ServerFrame.InsightTarget.Effect effect) -> {
+          writer.string(effect.effectId(), ID);
+          writer.varInt(effect.amplifier());
+          writer.i32(effect.durationTicks());
+          writer.bool(effect.harmful());
+        });
   }
 
-  private static InsightView readInsight(FrameReader in) {
-    return new InsightView(in.i32(), in.string(ID), in.string(TEXT), in.enumValue(InsightKind.class), in.f64(),
-        in.f64(), in.f64(), in.f64(), in.enumValue(InsightBond.class), in.string(ID), in.bool(),
+  private static ServerFrame.InsightTarget readInsight(FrameReader in) {
+    return new ServerFrame.InsightTarget(in.i32(), in.string(ID), in.string(TEXT),
+        in.enumValue(InsightKind.class, InsightKind.PASSIVE), in.f64(), in.f64(), in.f64(), in.f64(),
+        in.enumValue(InsightBond.class, InsightBond.NONE), in.string(ID),
+        in.list(FrameLimits.MAX_INSIGHT_TAGS, FrameCodec::readId),
         in.list(FrameLimits.MAX_INSIGHT_STATS,
-            (FrameReader reader) -> new InsightStat(reader.enumValue(InsightStatKind.class), reader.f64())),
-        in.list(FrameLimits.MAX_INSIGHT_EFFECTS,
-            (FrameReader reader) -> new InsightEffect(reader.string(ID), reader.varInt(), reader.i32(), reader.bool())));
+            (FrameReader reader) -> new ServerFrame.InsightTarget.Stat(reader.string(ID), reader.f64())),
+        in.list(FrameLimits.MAX_INSIGHT_EFFECTS, (FrameReader reader) -> new ServerFrame.InsightTarget.Effect(
+            reader.string(ID), reader.varInt(), reader.i32(), reader.bool())));
   }
 
-  private static void writeMark(FrameWriter out, InsightMark mark) {
+  private static void writeMark(FrameWriter out, ServerFrame.InsightMarks.Mark mark) {
     out.i32(mark.entityId());
     out.enumValue(mark.kind());
     out.f64(mark.health());
   }
 
-  private static InsightMark readMark(FrameReader in) {
-    return new InsightMark(in.i32(), in.enumValue(InsightKind.class), in.f64());
+  private static ServerFrame.InsightMarks.Mark readMark(FrameReader in) {
+    return new ServerFrame.InsightMarks.Mark(in.i32(), in.enumValue(InsightKind.class, InsightKind.PASSIVE), in.f64());
   }
 }

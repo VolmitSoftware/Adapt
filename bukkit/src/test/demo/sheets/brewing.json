@@ -1,5 +1,5 @@
 {
-  "brewing-absorption": {
+  "adapt:brewing/absorption": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -197,7 +197,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-blindness": {
+  "adapt:brewing/blindness": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -395,7 +395,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-darkness": {
+  "adapt:brewing/darkness": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -593,7 +593,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-decay": {
+  "adapt:brewing/decay": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -791,7 +791,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-fatigue": {
+  "adapt:brewing/fatigue": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -989,7 +989,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-haste": {
+  "adapt:brewing/haste": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -1187,7 +1187,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-healthboost": {
+  "adapt:brewing/healthboost": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -1385,7 +1385,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-hunger": {
+  "adapt:brewing/hunger": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -1583,7 +1583,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-lingering": {
+  "adapt:brewing/lingering": {
     "set": "brewing-stand",
     "level": 5,
     "povCapture": true,
@@ -1744,7 +1744,7 @@
     },
     "maxTicks": 483
   },
-  "brewing-nausea": {
+  "adapt:brewing/nausea": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -1942,7 +1942,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-resistance": {
+  "adapt:brewing/resistance": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -2140,7 +2140,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-saturation": {
+  "adapt:brewing/saturation": {
     "set": "brewing-stand",
     "level": 1,
     "povCapture": true,
@@ -2331,7 +2331,7 @@
     },
     "maxTicks": 750
   },
-  "brewing-super-heated": {
+  "adapt:brewing/super_heated": {
     "set": "brewing-heated",
     "level": 5,
     "povCapture": true,

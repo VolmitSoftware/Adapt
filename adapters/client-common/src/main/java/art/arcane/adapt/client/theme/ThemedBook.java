@@ -330,7 +330,7 @@ public final class ThemedBook {
     }
 
     private static void blit(UiDraw draw, ThemeKit kit, ThemeSprite sprite, int x, int y, double alpha) {
-        int a = FrameCanvas.alphaByte(alpha);
+        int a = KitFrameCanvas.alphaByte(alpha);
         if (sprite == null || a == 0) {
             return;
         }

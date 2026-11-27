@@ -1,7 +1,7 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -63,7 +63,7 @@ public final class ChronosFixtures {
             Fixtures.set(arena, 2, 100, 0, "wheat");
             return true;
         }
-        if (name.equals("chronos-accelerate")) {
+        if (name.equals("adapt:chronos/accelerate")) {
             FURNACES.clear();
             for (int x = -8; x <= 8; x++) {
                 for (int z = -8; z <= 8; z++) {
@@ -126,7 +126,7 @@ public final class ChronosFixtures {
         entry.addProperty("sneaking", player.isSneaking());
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (!adaptation.getName().equals(item.type().equals(AMETHYST_SHARD) ? "chronos-stasis-field" : "chronos-time-bomb")) continue;
+                if (!adaptation.getId().toString().equals(item.type().equals(AMETHYST_SHARD) ? "adapt:chronos/stasis_field" : "adapt:chronos/time_bomb")) continue;
                 entry.addProperty("activeLevel", adaptation.getActiveLevel(player));
                 entry.addProperty("canInteract", adaptation.canInteract(player, player.location()));
             }

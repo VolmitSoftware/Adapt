@@ -1,11 +1,13 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.engine.skill.UsePermissions;
+
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
-import art.arcane.adapt.api.world.AdaptDebugMode;
+import art.arcane.adapt.engine.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -26,29 +28,29 @@ import java.util.UUID;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
-@Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"}, descriptionKey = "command.help.adapt_debug_command")
+@Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"}, descriptionKey = "adapt.command.help.adapt_debug_command")
 public class CommandDebug {
 
-  @Director(name = "version", description = "Show the installed plugin version", descriptionKey = "command.help.version")
+  @Director(name = "version", description = "Show the installed plugin version", descriptionKey = "adapt.command.help.version")
   public void version(@Param(name = "sender", contextual = true) CommandSource sender) {
     sender.sendMarkup(AdaptPorts.get(CommandHelpPort.class, CommandHelpPort.NONE)
         .version("Adapt", AdaptCore.platform().host().adaptVersion()));
   }
 
-  @Director(name = "dump", sync = true, description = "Create and optionally upload a diagnostic report", descriptionKey = "command.help.debug_dump")
+  @Director(name = "dump", sync = true, description = "Create and optionally upload a diagnostic report", descriptionKey = "adapt.command.help.debug_dump")
   public void dump(
-    @Param(name = "upload", defaultValue = "true", description = "Upload the report to mclo.gs", descriptionKey = "command.help.debug_upload") boolean upload,
+    @Param(name = "upload", defaultValue = "true", description = "Upload the report to mclo.gs", descriptionKey = "adapt.command.help.debug_upload") boolean upload,
     @Param(name = "sender", contextual = true) CommandSource sender
   ) {
     AdaptPorts.get(DebugDumpPort.class, DebugDumpPort.NONE).request(sender, upload);
   }
 
 
-  @Director(name = "mode", description = "Toggle debug mode: reveals every skill and adaptation and makes learning free and uncapped", descriptionKey = "command.help.toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped")
+  @Director(name = "mode", description = "Toggle debug mode: reveals every skill and adaptation and makes learning free and uncapped", descriptionKey = "adapt.command.help.toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped")
   public void mode(
-      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "command.help.explicit_on_off_state_omit_to_toggle")
+      @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "adapt.command.help.explicit_on_off_state_omit_to_toggle")
       String enabled,
-      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
   ) {
     CommandSource sender = CommandContext.source();
@@ -76,7 +78,7 @@ public class CommandDebug {
     CommandTargetExecutor.run(target, () -> setDebugMode(target, normalized, sender), sender);
   }
 
-  @Director(description = "Toggle verbose mode", descriptionKey = "command.help.toggle_verbose_mode")
+  @Director(description = "Toggle verbose mode", descriptionKey = "adapt.command.help.toggle_verbose_mode")
   public void verbose() {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error(AdaptLanguage.text(
@@ -92,7 +94,7 @@ public class CommandDebug {
         : CommandRuntimeMessages.VERBOSE_DISABLED)).send(CommandContext.source());
   }
 
-  @Director(name = "pap", description = "Generate Perms for Adaptations!", descriptionKey = "command.help.generate_perms_for_adaptations")
+  @Director(name = "pap", description = "Generate Perms for Adaptations!", descriptionKey = "adapt.command.help.generate_perms_for_adaptations")
   public void pap() {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error(AdaptLanguage.text(
@@ -104,15 +106,13 @@ public class CommandDebug {
 
     StringBuilder builder = new StringBuilder();
     AdaptCore.get().getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> skill.getAdaptations().forEach(adaptation -> builder
-        .append("adapt.use.")
-        .append(adaptation.getName()
-            .replaceAll("-", ""))
+        .append(UsePermissions.useNode(adaptation.getId()))
         .append("\n")));
     AdaptLog.info("Permissions: \n" + builder);
     FConst.success(AdaptLanguage.text(CommandRuntimeMessages.PERMISSIONS_PRINTED)).send(CommandContext.source());
   }
 
-  @Director(name = "psp", description = "Generate Perms for Skills!", descriptionKey = "command.help.generate_perms_for_skills")
+  @Director(name = "psp", description = "Generate Perms for Skills!", descriptionKey = "adapt.command.help.generate_perms_for_skills")
   public void psp() {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error(AdaptLanguage.text(
@@ -124,16 +124,14 @@ public class CommandDebug {
 
     StringBuilder builder = new StringBuilder();
     AdaptCore.get().getAdaptServer().getSkillRegistry().getSkills().forEach(skill -> builder
-        .append("adapt.use.")
-        .append(skill.getName()
-            .replaceAll("-", ""))
+        .append(UsePermissions.useNode(skill.getId()))
         .append("\n"));
     AdaptLog.info("Permissions: \n" + builder);
     FConst.success(AdaptLanguage.text(CommandRuntimeMessages.PERMISSIONS_PRINTED)).send(CommandContext.source());
   }
 
-  @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle at your location for testing!", descriptionKey = "command.help.summon_a_particle_at_your_location_for_testing")
-  public void particle(@Param(description = "Particle type to spawn", descriptionKey = "command.help.particle_type_to_spawn") ParticleSpec particle) {
+  @Director(name = "particle", origin = DirectorOrigin.PLAYER, description = "Summon a particle at your location for testing!", descriptionKey = "adapt.command.help.summon_a_particle_at_your_location_for_testing")
+  public void particle(@Param(description = "Particle type to spawn", descriptionKey = "adapt.command.help.particle_type_to_spawn") ParticleSpec particle) {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,
@@ -156,8 +154,8 @@ public class CommandDebug {
         10, 0.5D, 0.5D, 0.5D, 1D, false);
   }
 
-  @Director(name = "sound", origin = DirectorOrigin.PLAYER, description = "Play a sound at your location for testing!", descriptionKey = "command.help.play_a_sound_at_your_location_for_testing")
-  public void sound(@Param(description = "Sound to play", descriptionKey = "command.help.sound_to_play") Id sound) {
+  @Director(name = "sound", origin = DirectorOrigin.PLAYER, description = "Play a sound at your location for testing!", descriptionKey = "adapt.command.help.play_a_sound_at_your_location_for_testing")
+  public void sound(@Param(description = "Sound to play", descriptionKey = "adapt.command.help.sound_to_play") Id sound) {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,
@@ -170,11 +168,11 @@ public class CommandDebug {
     sp.play(CommandContext.player().location(), sound, 1, 1);
   }
 
-  @Director(description = "Show Adapt ticker hotspots", descriptionKey = "command.help.show_adapt_ticker_hotspots")
+  @Director(description = "Show Adapt ticker hotspots", descriptionKey = "adapt.command.help.show_adapt_ticker_hotspots")
   public void perf(
-      @Param(description = "Top results to print", defaultValue = "12", descriptionKey = "command.help.top_results_to_print")
+      @Param(description = "Top results to print", defaultValue = "12", descriptionKey = "adapt.command.help.top_results_to_print")
       int top,
-      @Param(description = "Reset metrics after printing", defaultValue = "false", descriptionKey = "command.help.reset_metrics_after_printing")
+      @Param(description = "Reset metrics after printing", defaultValue = "false", descriptionKey = "adapt.command.help.reset_metrics_after_printing")
       boolean reset
   ) {
     if (!CommandContext.hasPermission("adapt.idontknowwhatimdoingiswear")) {

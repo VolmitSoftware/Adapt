@@ -1,7 +1,6 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.LocaleOverlay;
 import art.arcane.volmlib.util.localization.MessageValue;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -21,38 +20,38 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GolemancyCostMessagesTest extends AdaptTestBase {
   private static final Path RESOURCE_ROOT = Path.of("../src/main/resources");
   private static final List<TextKey> COST_KEYS = List.of(
-      GolemancyMessages.PLINTH_LEVELS,
-      GolemancyMessages.BINDING_LEVELS,
-      GolemancyMessages.PLINTH_PREVIEW,
-      GolemancyMessages.PLINTH_PREVIEW_SHORT,
-      GolemancyMessages.PLINTH_PREVIEW_FREE);
+      key("golemancy.plinth.levels"),
+      key("golemancy.binding.levels"),
+      key("golemancy.plinth.preview"),
+      key("golemancy.plinth.preview_short"),
+      key("golemancy.plinth.preview_free"));
 
   @Test
   void theRefusalsNameTheCostAndTheLevelsYouHave() {
-    assertThat(GolemancyMessages.PLINTH_LEVELS.placeholders()).containsExactlyInAnyOrder("levels", "have");
-    assertThat(GolemancyMessages.BINDING_LEVELS.placeholders()).containsExactlyInAnyOrder("levels", "have");
-    assertThat(AdaptLanguage.text(GolemancyMessages.PLINTH_LEVELS, trusted("levels", 5), trusted("have", 3)))
+    assertThat(key("golemancy.plinth.levels").placeholders()).containsExactlyInAnyOrder("levels", "have");
+    assertThat(key("golemancy.binding.levels").placeholders()).containsExactlyInAnyOrder("levels", "have");
+    assertThat(AdaptLanguage.text(key("golemancy.plinth.levels"), trusted("levels", 5), trusted("have", 3)))
         .isEqualTo("Not enough experience: this infusion costs 5 levels and you have 3");
-    assertThat(AdaptLanguage.text(GolemancyMessages.BINDING_LEVELS, trusted("levels", 2), trusted("have", 0)))
+    assertThat(AdaptLanguage.text(key("golemancy.binding.levels"), trusted("levels", 2), trusted("have", 0)))
         .isEqualTo("Not enough experience: binding this golem costs 2 levels and you have 0");
   }
 
   @Test
   void eachPreviewTakesOnlyThePlaceholdersItShows() {
-    assertThat(GolemancyMessages.PLINTH_PREVIEW.placeholders()).containsExactlyInAnyOrder("result", "levels");
-    assertThat(GolemancyMessages.PLINTH_PREVIEW_SHORT.placeholders()).containsExactlyInAnyOrder("result", "levels", "have");
-    assertThat(GolemancyMessages.PLINTH_PREVIEW_FREE.placeholders()).containsExactly("result");
+    assertThat(key("golemancy.plinth.preview").placeholders()).containsExactlyInAnyOrder("result", "levels");
+    assertThat(key("golemancy.plinth.preview_short").placeholders()).containsExactlyInAnyOrder("result", "levels", "have");
+    assertThat(key("golemancy.plinth.preview_free").placeholders()).containsExactly("result");
   }
 
   @Test
   void aCallThatLeavesOutOrAddsAnArgumentIsRejected() {
-    assertThatThrownBy(() -> AdaptLanguage.text(GolemancyMessages.PLINTH_LEVELS, trusted("levels", 5)))
+    assertThatThrownBy(() -> AdaptLanguage.text(key("golemancy.plinth.levels"), trusted("levels", 5)))
         .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("missing=[have]");
-    assertThatThrownBy(() -> AdaptLanguage.text(GolemancyMessages.BINDING_LEVELS, trusted("levels", 2)))
+    assertThatThrownBy(() -> AdaptLanguage.text(key("golemancy.binding.levels"), trusted("levels", 2)))
         .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("missing=[have]");
-    assertThatThrownBy(() -> AdaptLanguage.text(GolemancyMessages.PLINTH_PREVIEW_FREE, trusted("result", "Rune"), trusted("levels", 2)))
+    assertThatThrownBy(() -> AdaptLanguage.text(key("golemancy.plinth.preview_free"), trusted("result", "Rune"), trusted("levels", 2)))
         .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("unexpected=[levels]");
-    assertThatThrownBy(() -> AdaptLanguage.text(GolemancyMessages.PLINTH_PREVIEW, trusted("result", "Rune"), trusted("levels", 2), trusted("have", 1)))
+    assertThatThrownBy(() -> AdaptLanguage.text(key("golemancy.plinth.preview"), trusted("result", "Rune"), trusted("levels", 2), trusted("have", 1)))
         .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("unexpected=[have]");
   }
 
@@ -68,5 +67,9 @@ class GolemancyCostMessagesTest extends AdaptTestBase {
         assertThat(placeholders).as("%s in %s", key.id(), locale).isEqualTo(key.placeholders());
       }
     }
+  }
+
+  private static TextKey key(String id) {
+    return (TextKey) BuiltInText.catalog().key(AdaptKeys.id(id));
   }
 }

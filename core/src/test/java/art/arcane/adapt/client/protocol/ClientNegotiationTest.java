@@ -16,6 +16,11 @@ class ClientNegotiationTest {
   }
 
   @Test
+  void aClientOfAnOlderWireVersionIsNotServed() {
+    assertThat(ClientNegotiation.accept(ClientProtocol.VERSION - 1, ClientProtocol.ALL, ClientProtocol.ALL)).isEmpty();
+  }
+
+  @Test
   void aNewerClientSpeaksTheServerVersionWithSharedBits() {
     ClientCapability capability = ClientNegotiation.accept(ClientProtocol.VERSION + 3,
         ClientProtocol.SCREENS | ClientProtocol.HUD | 1 << 20, ClientProtocol.SCREENS | ClientProtocol.TOASTS).orElseThrow();
@@ -30,7 +35,7 @@ class ClientNegotiationTest {
   void capabilitiesAreStoredPerPlayerAndForgottenOnWithdrawal() {
     ClientCapabilities capabilities = new ClientCapabilities();
 
-    capabilities.accept(PLAYER, 1, ClientProtocol.PANEL | ClientProtocol.ITEMS, ClientProtocol.ALL);
+    capabilities.accept(PLAYER, ClientProtocol.VERSION, ClientProtocol.PANEL | ClientProtocol.ITEMS, ClientProtocol.ALL);
 
     assertThat(capabilities.has(PLAYER, ClientProtocol.PANEL)).isTrue();
     assertThat(capabilities.has(PLAYER, ClientProtocol.ITEMS)).isTrue();
@@ -45,7 +50,7 @@ class ClientNegotiationTest {
   @Test
   void clearReportsWhetherThePlayerHadACapability() {
     ClientCapabilities capabilities = new ClientCapabilities();
-    capabilities.accept(PLAYER, 1, ClientProtocol.ALL, ClientProtocol.ALL);
+    capabilities.accept(PLAYER, ClientProtocol.VERSION, ClientProtocol.ALL, ClientProtocol.ALL);
 
     assertThat(capabilities.clear(PLAYER)).isTrue();
     assertThat(capabilities.clear(PLAYER)).isFalse();

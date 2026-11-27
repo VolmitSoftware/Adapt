@@ -1,6 +1,7 @@
 package art.arcane.adapt.util.config;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.config.ConfigDoc;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

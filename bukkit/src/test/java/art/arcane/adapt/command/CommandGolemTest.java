@@ -1,40 +1,39 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.engine.addon.GolemData;
 import art.arcane.adapt.TestVersion;
+import art.arcane.adapt.content.golem.command.GolemGiveCatalog;
+import art.arcane.adapt.content.golem.command.GolemCommand;
+import art.arcane.adapt.api.text.Text;
+import art.arcane.adapt.api.command.CommandCaller;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.bukkit.command.BukkitCommandSource;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
+import art.arcane.adapt.localization.BuiltInText;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.WorldRef;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemRoster;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.gui.RosterGui;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemRegistry;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.gui.RosterGui;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.content.golem.NodeType;
 import art.arcane.adapt.platform.value.BlockFace;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.world.AdaptDebugMode;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.volmlib.util.director.DirectorEngineOptions;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerData;
 import art.arcane.volmlib.util.director.DirectorOrigin;
-import art.arcane.volmlib.util.director.compat.DirectorEngineFactory;
-import art.arcane.volmlib.util.director.context.DirectorContextRegistry;
-import art.arcane.volmlib.util.director.runtime.DirectorExecutionMode;
-import art.arcane.volmlib.util.director.runtime.DirectorInvocation;
 import art.arcane.volmlib.util.director.runtime.DirectorParameterDescriptor;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
-import art.arcane.volmlib.util.director.runtime.DirectorRuntimeParameter;
-import art.arcane.volmlib.util.director.runtime.DirectorSender;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -88,6 +87,8 @@ class CommandGolemTest extends AdaptTestBase {
   private static final double FEET_Y = 70.0D;
   private static final double FEET_Z = -3.5D;
 
+  private final GolemCommand command = new GolemCommand();
+  private CommandCaller caller;
   private CommandSender admin;
   private Player target;
   private PlayerRef targetRef;
@@ -109,9 +110,15 @@ class CommandGolemTest extends AdaptTestBase {
   }
 
   @BeforeEach
+  void declareGolemData() {
+    GolemData.declare();
+  }
+
+  @BeforeEach
   void prepareTarget() {
+    BuiltInText.install();
     admin = mock(CommandSender.class);
-    when(admin.hasPermission(CommandGolem.ADMIN_PERMISSION)).thenReturn(true);
+    when(admin.hasPermission(GolemCommand.ADMIN_PERMISSION)).thenReturn(true);
     target = mock(Player.class);
     when(target.getUniqueId()).thenReturn(OWNER);
     when(target.getName()).thenReturn("Steve");
@@ -150,13 +157,15 @@ class CommandGolemTest extends AdaptTestBase {
       return BukkitRefs.item(stack(id, id.equals("crook") ? 1 : id.equals("blank_node") ? 64 : 16));
     });
     items.when(GolemItems::masterworkHeart).thenAnswer(call -> BukkitRefs.item(stack("masterwork_heart", 1)));
-    CommandContext.touch(new BukkitCommandSource(admin));
+    caller = caller(admin);
+    AddonCommands.install("adapt", List.of(command.tree()), null);
   }
 
   @AfterEach
   void clearContext() {
+    BuiltInText.uninstall();
     AdaptDebugMode.setActive(OPERATOR, false);
-    CommandContext.remove();
+    AddonCommands.uninstall("adapt", null);
     items.close();
     runtime.close();
   }
@@ -178,10 +187,11 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveTabCompletesEveryItemIdAndAll() {
-    DirectorRuntimeEngine engine = engine();
+    when(admin.hasPermission(AdaptCommands.ROOT_PERMISSION)).thenReturn(true);
+    BukkitCommandSource source = new BukkitCommandSource(admin);
 
-    List<String> everything = engine.tabComplete(new DirectorInvocation(mock(DirectorSender.class), "adapt", List.of("golem", "give", "item=")));
-    List<String> runes = engine.tabComplete(new DirectorInvocation(mock(DirectorSender.class), "adapt", List.of("golem", "give", "item=rune/might")));
+    List<String> everything = new AdaptCommands().complete(source, "adapt", new String[]{"golem", "give", "item="});
+    List<String> runes = new AdaptCommands().complete(source, "adapt", new String[]{"golem", "give", "item=rune/might"});
 
     assertThat(everything).hasSize(45).contains("item=crook", "item=blank_core", "item=core/guardian", "item=blank_node", "item=node/fishing",
         "item=blank_rune", "item=rune/swiftness/1", "item=rune/bulwark/3", "item=masterwork_heart", "item=all");
@@ -191,9 +201,9 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void rosterOpensTheSendersRosterGui() {
-    CommandContext.touch(new BukkitCommandSource(target));
+    caller = caller(target);
     try (MockedStatic<RosterGui> gui = mockStatic(RosterGui.class)) {
-      new CommandGolem().roster();
+      command.roster(caller);
 
       gui.verify(() -> RosterGui.open(targetRef));
     }
@@ -202,14 +212,13 @@ class CommandGolemTest extends AdaptTestBase {
   @Test
   void adminCommandsRefuseSendersWithoutTheGolemancyAdminPermission() {
     CommandSender player = mock(CommandSender.class);
-    CommandContext.touch(new BukkitCommandSource(player));
-    CommandGolem command = new CommandGolem();
+    caller = caller(player);
 
-    command.list(new KnownPlayer(OWNER, "Steve"));
-    command.release("3f2a", targetRef);
-    command.wake(targetRef);
+    command.list(caller, new GolemCommand.KnownTarget(OWNER, "Steve"));
+    command.release(caller, "3f2a", targetRef);
+    command.wake(caller, targetRef);
 
-    assertThat(messages(player)).hasSize(3).allSatisfy(message -> assertThat(message).contains(CommandGolem.ADMIN_PERMISSION));
+    assertThat(messages(player)).hasSize(3).allSatisfy(message -> assertThat(message).contains(GolemCommand.ADMIN_PERMISSION));
     verify(registry, never()).releaseFor(any(), any());
     verify(registry, never()).wake(any());
   }
@@ -219,7 +228,7 @@ class CommandGolemTest extends AdaptTestBase {
     NodeService nodes = mock(NodeService.class);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
 
-    new CommandGolem().returns("---", "list");
+    command.returns(caller, "---", "list");
 
     verify(nodes, never()).unresolvedReturns();
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("operators"));
@@ -240,9 +249,9 @@ class CommandGolemTest extends AdaptTestBase {
     });
     WorldRef world = mock(WorldRef.class);
     when(core.getPlatform().host().world(WORLD)).thenReturn(world);
-    new CommandGolem().returns("---", "list");
+    command.returns(caller, "---", "list");
     assertThat(messages(admin)).anySatisfy(message -> assertThat(message).contains(NodeService.returnId(key)).contains(OWNER.toString()));
-    new CommandGolem().returns(NodeService.returnId(key), "missing");
+    command.returns(caller, NodeService.returnId(key), "missing");
 
     verify(nodes).resolveReturn(OWNER, key, false);
   }
@@ -254,7 +263,7 @@ class CommandGolemTest extends AdaptTestBase {
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
     when(nodes.unresolvedReturns()).thenReturn(List.of());
 
-    new CommandGolem().returns("---", "retry");
+    command.returns(caller, "---", "retry");
 
     verify(nodes, never()).resolveReturn(any(), any(), anyBoolean());
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("confirming no item"));
@@ -262,14 +271,14 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void listShowsEveryGolemInTheTargetsRoster() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, GolemRoster.chunkKey(2, -1), 0L));
-    data.getGolemancy().add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    data.getGolemancy().stow(SECOND, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, GolemRoster.chunkKey(2, -1), 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).stow(SECOND, GolemRoster.Status.PACKED, "{\"packed\":true}");
     WorldRef world = mock(WorldRef.class);
     when(world.name()).thenReturn("overworld");
     when(core.getPlatform().host().world(WORLD)).thenReturn(world);
 
-    new CommandGolem().list(new KnownPlayer(OWNER, "Steve"));
+    command.list(caller, new GolemCommand.KnownTarget(OWNER, "Steve"));
 
     List<String> sent = messages(admin);
     assertThat(sent).anySatisfy(message -> assertThat(message).contains("Steve").contains("2"));
@@ -280,9 +289,9 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void listUsesTheSingularHeaderForOneGolem() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
 
-    new CommandGolem().list(new KnownPlayer(OWNER, "Steve"));
+    command.list(caller, new GolemCommand.KnownTarget(OWNER, "Steve"));
 
     List<String> sent = messages(admin);
     assertThat(sent).anySatisfy(message -> assertThat(message).contains("Steve has 1 golem:"));
@@ -291,18 +300,18 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void listReportsAnEmptyRoster() {
-    new CommandGolem().list(new KnownPlayer(OWNER, "Steve"));
+    command.list(caller, new GolemCommand.KnownTarget(OWNER, "Steve"));
 
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("Steve").contains("no golems"));
   }
 
   @Test
   void releaseResolvesTheStartOfTheIdAndReleasesThroughTheRegistry() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    data.getGolemancy().add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
     when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.RELEASED));
 
-    new CommandGolem().release("3F2A", targetRef);
+    command.release(caller, "3F2A", targetRef);
 
     verify(registry).releaseFor(OWNER, FIRST);
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("Released").contains("3f2a91c0").contains("Steve"));
@@ -310,20 +319,20 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void aReleaseTheRegistryRefusesIsReported() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
     when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.REFUSED));
 
-    new CommandGolem().release(FIRST.toString(), targetRef);
+    command.release(caller, FIRST.toString(), targetRef);
 
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("could not be released").contains("3f2a91c0"));
   }
 
   @Test
   void anActiveGolemInAnUnloadedChunkIsReportedInsteadOfReleased() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
     when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.ACTIVE_UNLOADED));
 
-    new CommandGolem().release("3f2a", targetRef);
+    command.release(caller, "3f2a", targetRef);
 
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("3f2a91c0").contains("unloaded chunk"));
   }
@@ -331,16 +340,16 @@ class CommandGolemTest extends AdaptTestBase {
   @Test
   void listReadsAnOfflinePlayersRosterWithoutLoadingThem() {
     UUID offlineId = UUID.fromString("00000000-0000-0000-0000-0000000000b2");
-    KnownPlayer offline = new KnownPlayer(offlineId, "Alex");
+    GolemCommand.KnownTarget offline = new GolemCommand.KnownTarget(offlineId, "Alex");
     PlayerData stored = new PlayerData();
-    stored.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    stored.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
     when(server.peekData(offlineId)).thenReturn(stored);
     doAnswer(invocation -> {
       invocation.<Runnable>getArgument(0).run();
       return null;
     }).when(scheduler).runAsync(any(Runnable.class), anyLong());
 
-    new CommandGolem().list(offline);
+    command.list(caller, offline);
 
     verify(scheduler).runAsync(any(Runnable.class), anyLong());
     List<String> sent = messages(admin);
@@ -351,10 +360,10 @@ class CommandGolemTest extends AdaptTestBase {
   @Test
   void rosterRefusesWhileGolemancyIsNotRunning() {
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.empty());
-    CommandContext.touch(new BukkitCommandSource(target));
+    caller = caller(target);
     try (MockedStatic<RosterGui> gui = mockStatic(RosterGui.class); MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(() -> Bukkit.getWorld(TARGET_WORLD)).thenReturn(targetWorld);
-      new CommandGolem().roster();
+      command.roster(caller);
 
       gui.verify(() -> RosterGui.open(any(PlayerRef.class)), never());
     }
@@ -363,12 +372,11 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void releaseRefusesAnUnknownOrAmbiguousIdWithoutTouchingTheRegistry() {
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    data.getGolemancy().add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    CommandGolem command = new CommandGolem();
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
 
-    command.release("ffff", targetRef);
-    command.release("3f2", targetRef);
+    command.release(caller, "ffff", targetRef);
+    command.release(caller, "3f2", targetRef);
 
     List<String> sent = messages(admin);
     assertThat(sent).hasSize(2);
@@ -380,11 +388,10 @@ class CommandGolemTest extends AdaptTestBase {
   @Test
   void releaseAndWakeNeedGolemancyRunning() {
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.empty());
-    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    CommandGolem command = new CommandGolem();
+    data.section(GolemRoster.section()).add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
 
-    command.release("3f2a", targetRef);
-    command.wake(targetRef);
+    command.release(caller, "3f2a", targetRef);
+    command.wake(caller, targetRef);
 
     assertThat(messages(admin)).hasSize(2).allSatisfy(message -> assertThat(message).contains("golemancy").contains("disabled"));
   }
@@ -393,7 +400,7 @@ class CommandGolemTest extends AdaptTestBase {
   void wakeAsksTheRegistryToWakeTheTargetsGolems() {
     when(registry.wake(OWNER)).thenReturn(3);
 
-    new CommandGolem().wake(targetRef);
+    command.wake(caller, targetRef);
 
     verify(registry).wake(OWNER);
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("Steve").contains("3"));
@@ -401,11 +408,10 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void consoleAdminsMustNameAPlayer() {
-    CommandGolem command = new CommandGolem();
 
-    command.list(null);
-    command.release("3f2a", null);
-    command.wake(null);
+    command.list(caller, null);
+    command.release(caller, "3f2a", null);
+    command.wake(caller, null);
 
     assertThat(messages(admin)).hasSize(3);
     verify(registry, never()).wake(any());
@@ -414,7 +420,7 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveHandsTheItemToTheTargetAndConfirmsWhatAndToWhom() {
-    new CommandGolem().give("core/guardian", 1, targetRef);
+    command.give(caller, "core/guardian", 1, targetRef);
 
     assertThat(given()).containsExactly("core/guardian x1");
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("Gave 1").contains("core/guardian").contains("Steve"));
@@ -422,10 +428,9 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveBuildsEveryKindOfItemThroughGolemItems() {
-    CommandGolem command = new CommandGolem();
 
     for (String id : List.of("crook", "blank_core", "core/gatherer", "blank_node", "node/deposit", "blank_rune", "rune/might/3", "masterwork_heart")) {
-      command.give(id, 1, targetRef);
+      command.give(caller, id, 1, targetRef);
     }
 
     assertThat(given()).containsExactly("crook x1", "blank_core x1", "core/gatherer x1", "blank_node x1", "node/deposit x1", "blank_rune x1",
@@ -437,14 +442,14 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveAcceptsIdsInAnyCaseWithSurroundingSpaces() {
-    new CommandGolem().give("  Core/Guardian ", 1, targetRef);
+    command.give(caller, "  Core/Guardian ", 1, targetRef);
 
     assertThat(given()).containsExactly("core/guardian x1");
   }
 
   @Test
   void giveAllHandsOneOfEveryItemWithEveryRuneTierAndIgnoresTheAmount() {
-    new CommandGolem().give("all", 9, targetRef);
+    command.give(caller, "all", 9, targetRef);
 
     List<String> ids = GolemGiveCatalog.ids();
     assertThat(ids).hasSize(44);
@@ -456,13 +461,12 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveClampsTheAmountToOneThroughSixtyFour() {
-    CommandGolem command = new CommandGolem();
 
-    command.give("blank_node", 1000, targetRef);
-    command.give("blank_node", 0, targetRef);
-    command.give("blank_node", -5, targetRef);
-    command.give("blank_node", 64, targetRef);
-    command.give("blank_node", 12, targetRef);
+    command.give(caller, "blank_node", 1000, targetRef);
+    command.give(caller, "blank_node", 0, targetRef);
+    command.give(caller, "blank_node", -5, targetRef);
+    command.give(caller, "blank_node", 64, targetRef);
+    command.give(caller, "blank_node", 12, targetRef);
 
     assertThat(given()).containsExactly("blank_node x64", "blank_node x1", "blank_node x1", "blank_node x64", "blank_node x12");
     List<String> sent = messages(admin);
@@ -476,17 +480,16 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveSplitsTheAmountIntoTheItemsOwnStacksAndSingleStackItemsStaySeparate() {
-    CommandGolem command = new CommandGolem();
 
-    command.give("core/guardian", 40, targetRef);
+    command.give(caller, "core/guardian", 40, targetRef);
     assertThat(given()).containsExactly("core/guardian x16", "core/guardian x16", "core/guardian x8");
 
     given.clear();
-    command.give("crook", 3, targetRef);
+    command.give(caller, "crook", 3, targetRef);
     assertThat(given()).containsExactly("crook x1", "crook x1", "crook x1");
 
     given.clear();
-    command.give("crook", 1000, targetRef);
+    command.give(caller, "crook", 1000, targetRef);
     assertThat(given()).hasSize(64).allMatch("crook x1"::equals);
   }
 
@@ -494,7 +497,7 @@ class CommandGolemTest extends AdaptTestBase {
   void giveDropsWhatDoesNotFitAtTheTargetsFeet() {
     inventoryCapacity = 2;
 
-    new CommandGolem().give("crook", 5, targetRef);
+    command.give(caller, "crook", 5, targetRef);
 
     assertThat(given()).hasSize(2);
     ArgumentCaptor<ItemStack> dropped = ArgumentCaptor.forClass(ItemStack.class);
@@ -510,7 +513,7 @@ class CommandGolemTest extends AdaptTestBase {
   void giveAllDropsTheLeftoversThatDoNotFit() {
     inventoryCapacity = 40;
 
-    new CommandGolem().give("all", 1, targetRef);
+    command.give(caller, "all", 1, targetRef);
 
     assertThat(given()).hasSize(40);
     verify(targetWorld, times(4)).dropItemNaturally(argThat(this::atTheTargetsFeet), any(ItemStack.class));
@@ -520,13 +523,12 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void giveRefusesUnknownAndOwnerBoundItemIds() {
-    CommandGolem command = new CommandGolem();
 
-    command.give("dormant_golem", 1, targetRef);
-    command.give("shattered_core", 1, targetRef);
-    command.give("core/blank", 1, targetRef);
-    command.give("rune/might/4", 1, targetRef);
-    command.give("nonsense", 1, targetRef);
+    command.give(caller, "dormant_golem", 1, targetRef);
+    command.give(caller, "shattered_core", 1, targetRef);
+    command.give(caller, "core/blank", 1, targetRef);
+    command.give(caller, "rune/might/4", 1, targetRef);
+    command.give(caller, "nonsense", 1, targetRef);
 
     assertThat(given()).isEmpty();
     items.verify(() -> GolemItems.resolve(any(Id.class)), never());
@@ -542,33 +544,33 @@ class CommandGolemTest extends AdaptTestBase {
   @Test
   void giveNeedsTheGolemancyAdminPermission() {
     CommandSender nobody = mock(CommandSender.class);
-    CommandContext.touch(new BukkitCommandSource(nobody));
+    caller = caller(nobody);
 
-    new CommandGolem().give("crook", 1, targetRef);
+    command.give(caller, "crook", 1, targetRef);
 
     assertThat(given()).isEmpty();
-    assertThat(messages(nobody)).singleElement().satisfies(message -> assertThat(message).contains(CommandGolem.ADMIN_PERMISSION));
+    assertThat(messages(nobody)).singleElement().satisfies(message -> assertThat(message).contains(GolemCommand.ADMIN_PERMISSION));
   }
 
   @Test
   void aPlayerInDebugModeStillNeedsThePermissionToGive() {
     Player operator = operator(false);
     AdaptDebugMode.setActive(OPERATOR, true);
-    CommandContext.touch(new BukkitCommandSource(operator));
+    caller = caller(operator);
 
-    new CommandGolem().give("crook", 1, targetRef);
+    command.give(caller, "crook", 1, targetRef);
 
     assertThat(given()).isEmpty();
-    assertThat(messages(operator)).singleElement().satisfies(message -> assertThat(message).contains(CommandGolem.ADMIN_PERMISSION));
+    assertThat(messages(operator)).singleElement().satisfies(message -> assertThat(message).contains(GolemCommand.ADMIN_PERMISSION));
   }
 
   @Test
   void aPlayerWithoutDebugModeIsRefusedAndToldHowToEnableIt() {
     Player operator = operator(true);
-    CommandContext.touch(new BukkitCommandSource(operator));
+    caller = caller(operator);
 
-    new CommandGolem().give("crook", 1, targetRef);
-    new CommandGolem().give("all", 1, null);
+    command.give(caller, "crook", 1, targetRef);
+    command.give(caller, "all", 1, null);
 
     assertThat(given()).isEmpty();
     items.verifyNoInteractions();
@@ -586,11 +588,10 @@ class CommandGolemTest extends AdaptTestBase {
     when(operator.getWorld()).thenReturn(ownWorld);
     when(operator.getLocation()).thenReturn(ownLocation);
     AdaptDebugMode.setActive(OPERATOR, true);
-    CommandContext.touch(new BukkitCommandSource(operator));
-    CommandGolem command = new CommandGolem();
+    caller = caller(operator);
 
-    command.give("blank_core", 2, null);
-    command.give("crook", 1, targetRef);
+    command.give(caller, "blank_core", 2, null);
+    command.give(caller, "crook", 1, targetRef);
 
     assertThat(labelsOf(own)).containsExactly("blank_core x2");
     assertThat(given()).containsExactly("crook x1");
@@ -601,13 +602,12 @@ class CommandGolemTest extends AdaptTestBase {
 
   @Test
   void theConsoleGivesWithoutDebugModeButMustNameAPlayer() {
-    CommandGolem command = new CommandGolem();
 
-    command.give("crook", 1, null);
+    command.give(caller, "crook", 1, null);
     assertThat(given()).isEmpty();
     assertThat(messages(admin)).hasSize(1);
 
-    command.give("crook", 1, targetRef);
+    command.give(caller, "crook", 1, targetRef);
     assertThat(given()).containsExactly("crook x1");
     assertThat(messages(admin)).hasSize(2);
   }
@@ -618,7 +618,7 @@ class CommandGolemTest extends AdaptTestBase {
     when(scheduler.isTickThread()).thenReturn(false);
     when(scheduler.runEntity(same(targetRef), any(Runnable.class), anyLong(), any())).thenReturn(true);
 
-    new CommandGolem().give("crook", 1, targetRef);
+    command.give(caller, "crook", 1, targetRef);
 
     assertThat(given()).isEmpty();
     ArgumentCaptor<Runnable> task = ArgumentCaptor.forClass(Runnable.class);
@@ -628,18 +628,44 @@ class CommandGolemTest extends AdaptTestBase {
   }
 
   private DirectorRuntimeEngine engine() {
-    return DirectorEngineFactory.create(new CommandAdapt(), DirectorEngineOptions.builder()
-        .contexts(new DirectorContextRegistry())
-        .dispatcher((DirectorExecutionMode mode, Runnable runnable) -> runnable.run())
-        .legacyHandlers(DirectorHelpRenderTest.resolveHandlers(new StringBuilder()))
-        .build());
+    return new AdaptCommands().engine();
+  }
+
+  private static CommandCaller caller(CommandSender sender) {
+    BukkitCommandSource source = new BukkitCommandSource(sender);
+    return new CommandCaller() {
+      @Override
+      public String name() {
+        return source.name();
+      }
+
+      @Override
+      public Optional<PlayerRef> player() {
+        return source.player();
+      }
+
+      @Override
+      public boolean hasPermission(String node) {
+        return source.hasPermission(node);
+      }
+
+      @Override
+      public boolean isOperator() {
+        return source.isOp();
+      }
+
+      @Override
+      public void send(Text text) {
+        source.sendSection(text.resolve());
+      }
+    };
   }
 
   private Player operator(boolean permitted) {
     Player operator = mock(Player.class);
     when(operator.getUniqueId()).thenReturn(OPERATOR);
     when(operator.getName()).thenReturn("Alex");
-    when(operator.hasPermission(CommandGolem.ADMIN_PERMISSION)).thenReturn(permitted);
+    when(operator.hasPermission(GolemCommand.ADMIN_PERMISSION)).thenReturn(permitted);
     return operator;
   }
 
@@ -704,8 +730,7 @@ class CommandGolemTest extends AdaptTestBase {
 
   private static List<String> parameters(DirectorRuntimeNode node) {
     List<String> names = new ArrayList<>();
-    for (DirectorRuntimeParameter parameter : node.getParameters()) {
-      DirectorParameterDescriptor descriptor = parameter.getDescriptor();
+    for (DirectorParameterDescriptor descriptor : node.getDescriptor().getParameters()) {
       names.add(descriptor.isRequired() ? descriptor.getName() : descriptor.getName() + "=");
     }
     return names;

@@ -1,17 +1,23 @@
 package art.arcane.adapt.client.server;
 
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.AdaptationConfig;
 import art.arcane.adapt.api.preference.PreferencePolicy;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptDebugMode;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
+import art.arcane.adapt.api.asset.AssetBundle;
+import art.arcane.adapt.api.asset.AssetEntry;
+import art.arcane.adapt.engine.asset.AssetHashes;
+import art.arcane.adapt.engine.asset.PngImages;
 import art.arcane.adapt.client.link.ClientLink;
+import art.arcane.adapt.client.protocol.AssetRef;
 import art.arcane.adapt.client.protocol.ClientCapability;
 import art.arcane.adapt.client.protocol.ClientFrame;
 import art.arcane.adapt.client.protocol.ClientProtocol;
@@ -40,14 +46,13 @@ import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.content.skill.SkillAgility;
 import art.arcane.adapt.content.skill.SkillRift;
 import art.arcane.adapt.command.PlayerCommandSource;
-import art.arcane.adapt.content.gui.MutationGui;
+import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
-import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -61,6 +66,7 @@ import org.mockito.MockedStatic;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -83,7 +89,7 @@ class ClientUiServiceTest {
   Path data;
 
   private final RecordingLink link = new RecordingLink();
-  private final MenuHost menus = mock(MenuHost.class);
+  private final HostMenus menus = mock(HostMenus.class);
   private TestAdapt adapt;
   private TestPlatform platform;
   private FakePlayer player;
@@ -101,7 +107,7 @@ class ClientUiServiceTest {
     profile = adapt.join(player);
     service = adapt.core().getClientUi();
     registry = adapt.core().getAdaptServer().getSkillRegistry();
-    blink = ClientUiService.adaptation(registry, "rift-blink");
+    blink = ClientUiService.adaptation(registry, "adapt:rift/blink");
   }
 
   @AfterEach
@@ -118,12 +124,13 @@ class ClientUiServiceTest {
     assertThat(frames.get(0)).isInstanceOf(ServerFrame.Accept.class);
     assertThat(((ServerFrame.Catalog) frames.get(1)).catalog().revision()).isEqualTo(registry.getCatalogRevision());
     assertThat(frames.get(2)).isInstanceOf(ServerFrame.Player.class);
-    assertThat(frames.subList(3, frames.size() - 5)).isNotEmpty().allMatch(ServerFrame.CustomItems.class::isInstance);
-    assertThat(frames.get(frames.size() - 5)).isInstanceOf(ServerFrame.MutationTools.class);
-    assertThat(frames.get(frames.size() - 4)).isInstanceOf(ServerFrame.AdaptationRecipes.class);
-    assertThat(frames.get(frames.size() - 3)).isInstanceOf(ServerFrame.XpGuides.class);
-    assertThat(frames.get(frames.size() - 2)).isInstanceOf(ServerFrame.ShortNames.class);
-    assertThat(frames.getLast()).isInstanceOf(ServerFrame.Spending.class);
+    assertThat(frames.subList(3, frames.size() - 6)).isNotEmpty().allMatch(ServerFrame.CustomItems.class::isInstance);
+    assertThat(frames.get(frames.size() - 6)).isInstanceOf(ServerFrame.MutationTools.class);
+    assertThat(frames.get(frames.size() - 5)).isInstanceOf(ServerFrame.AdaptationRecipes.class);
+    assertThat(frames.get(frames.size() - 4)).isInstanceOf(ServerFrame.XpGuides.class);
+    assertThat(frames.get(frames.size() - 3)).isInstanceOf(ServerFrame.ShortNames.class);
+    assertThat(frames.get(frames.size() - 2)).isInstanceOf(ServerFrame.Spending.class);
+    assertThat(frames.getLast()).isInstanceOf(ServerFrame.AssetManifest.class);
     assertThat(service.has(player.uuid(), ClientProtocol.SCREENS)).isTrue();
   }
 
@@ -144,14 +151,14 @@ class ClientUiServiceTest {
     hello(ClientProtocol.ALL);
     List<ServerFrame> recipes = link.frames(player.uuid()).stream().filter(ServerFrame.AdaptationRecipes.class::isInstance).toList();
     assertThat(recipes).hasSize(1);
-    assertThat(((ServerFrame.AdaptationRecipes) recipes.get(0)).recipes()).extracting(RecipeView::adaptationId).contains("rift-gate");
+    assertThat(((ServerFrame.AdaptationRecipes) recipes.get(0)).recipes()).extracting(RecipeView::adaptationId).contains("adapt:rift/gate");
   }
 
   @Test
   void aClientWithoutTheItemsCapabilityGetsNoItems() throws ClientProtocolException {
     hello(ClientProtocol.ALL & ~ClientProtocol.ITEMS & ~ClientProtocol.TOOLS & ~ClientProtocol.RECIPES);
 
-    assertThat(link.frames(player.uuid())).hasSize(6).noneMatch(ServerFrame.CustomItems.class::isInstance);
+    assertThat(link.frames(player.uuid())).hasSize(7).noneMatch(ServerFrame.CustomItems.class::isInstance);
   }
 
   @Test
@@ -221,16 +228,104 @@ class ClientUiServiceTest {
   }
 
   @Test
+  void aClientLackingOneAssetIsSentExactlyThatAsset() throws ClientProtocolException {
+    byte[] alchemy = PngImages.encode(16, 16, new int[256]);
+    byte[] brewing = PngImages.encode(16, 16, filled(0xFF336699));
+    adapt.core().assetInstaller().install(new AssetBundle() {
+      private final List<AssetEntry> entries = List.of(
+          AssetBundle.classify("alchemist", "textures/gui/skill/alchemy.png"),
+          AssetBundle.classify("alchemist", "textures/gui/skill/brewing.png"));
+
+      @Override
+      public String namespace() {
+        return "alchemist";
+      }
+
+      @Override
+      public List<AssetEntry> entries() {
+        return entries;
+      }
+
+      @Override
+      public byte[] read(AssetEntry entry) {
+        return entry.path().endsWith("alchemy.png") ? alchemy : brewing;
+      }
+    }, "Alchemist");
+    hello(ClientProtocol.ALL);
+
+    ServerFrame.AssetManifest manifest = only(ServerFrame.AssetManifest.class);
+    assertThat(manifest.assets()).contains(
+        new AssetRef("alchemist:textures/gui/skill/alchemy.png", AssetHashes.sha1(alchemy)),
+        new AssetRef("alchemist:textures/gui/skill/brewing.png", AssetHashes.sha1(brewing)));
+    link.clear();
+
+    client(new ClientFrame.AssetRequest(List.of("alchemist:textures/gui/skill/alchemy.png", "alchemist:missing.png")));
+    client(new ClientFrame.AssetRequest(List.of("alchemist:textures/gui/skill/alchemy.png")));
+
+    assertThat(link.frames(player.uuid())).containsExactly(
+        new ServerFrame.Asset("alchemist:textures/gui/skill/alchemy.png", AssetHashes.sha1(alchemy), alchemy));
+  }
+
+  @Test
+  void everyRegisteredSkillWithoutAuthoredArtIsOfferedAGeneratedTheme() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+
+    assertThat(only(ServerFrame.AssetManifest.class).assets()).extracting(AssetRef::resource).contains(
+        "adapt:themes/rift.json", "adapt:textures/gui/theme/rift.png",
+        "adapt:themes/agility.json", "adapt:textures/gui/theme/agility.png");
+  }
+
+  @Test
+  void aChangedCatalogSendsTheManifestAgain() throws ClientProtocolException {
+    hello(ClientProtocol.ALL);
+    link.clear();
+
+    adapt.core().assetInstaller().uninstall("alchemist");
+    adapt.core().assetInstaller().install(new AssetBundle() {
+      @Override
+      public String namespace() {
+        return "alchemist";
+      }
+
+      @Override
+      public List<AssetEntry> entries() {
+        return List.of();
+      }
+
+      @Override
+      public byte[] read(AssetEntry entry) {
+        throw new IllegalArgumentException();
+      }
+    }, "Alchemist");
+    platform.scheduler().advance(2);
+
+    assertThat(only(ServerFrame.AssetManifest.class)).isNotNull();
+  }
+
+  @Test
+  void aClientWithoutAssetsIsNeverSentArt() throws ClientProtocolException {
+    hello(ClientProtocol.ALL & ~ClientProtocol.ASSETS);
+
+    assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.AssetManifest.class::isInstance);
+  }
+
+  private static int[] filled(int argb) {
+    int[] pixels = new int[256];
+    Arrays.fill(pixels, argb);
+    return pixels;
+  }
+
+  @Test
   void learningAnAffordableAdaptationUpdatesThePlayer() throws ClientProtocolException {
     affordLearning();
     hello(ClientProtocol.ALL);
     link.clear();
 
-    client(new ClientFrame.Learn("rift-blink", 1, registry.getCatalogRevision()));
+    client(new ClientFrame.Learn("adapt:rift/blink", 1, registry.getCatalogRevision()));
 
-    assertThat(line().getAdaptationLevel("rift-blink")).isEqualTo(1);
+    assertThat(line().getAdaptationLevel("adapt:rift/blink")).isEqualTo(1);
     ServerFrame.PlayerUpdate update = only(ServerFrame.PlayerUpdate.class);
-    assertThat(update.delta().adaptationLevels()).containsEntry("rift-blink", 1);
+    assertThat(update.delta().adaptationLevels()).containsEntry("adapt:rift/blink", 1);
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
   }
 
@@ -239,9 +334,9 @@ class ClientUiServiceTest {
     hello(ClientProtocol.ALL);
     link.clear();
 
-    client(new ClientFrame.Learn("rift-blink", 1, registry.getCatalogRevision()));
+    client(new ClientFrame.Learn("adapt:rift/blink", 1, registry.getCatalogRevision()));
 
-    assertThat(line().getAdaptationLevel("rift-blink")).isZero();
+    assertThat(line().getAdaptationLevel("adapt:rift/blink")).isZero();
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
     assertThat(link.frames(player.uuid())).noneMatch(ServerFrame.PlayerUpdate.class::isInstance);
   }
@@ -252,9 +347,9 @@ class ClientUiServiceTest {
     hello(ClientProtocol.ALL);
     link.clear();
 
-    client(new ClientFrame.Learn("rift-blink", 1, registry.getCatalogRevision() - 1));
+    client(new ClientFrame.Learn("adapt:rift/blink", 1, registry.getCatalogRevision() - 1));
 
-    assertThat(line().getAdaptationLevel("rift-blink")).isZero();
+    assertThat(line().getAdaptationLevel("adapt:rift/blink")).isZero();
     ServerFrame.Feedback feedback = only(ServerFrame.Feedback.class);
     assertThat(feedback.kind()).isEqualTo(FeedbackKind.FAILURE);
     assertThat(feedback.text()).isEqualTo(AdaptLanguage.text(GuiMessages.CLIENT_CATALOG_CHANGED));
@@ -267,9 +362,9 @@ class ClientUiServiceTest {
     link.clear();
 
     client(new ClientFrame.Learn("rift-nothing", 1, registry.getCatalogRevision()));
-    client(new ClientFrame.Learn("rift-blink", blink.getMaxLevel() + 1, registry.getCatalogRevision()));
+    client(new ClientFrame.Learn("adapt:rift/blink", blink.getMaxLevel() + 1, registry.getCatalogRevision()));
 
-    assertThat(line().getAdaptationLevel("rift-blink")).isZero();
+    assertThat(line().getAdaptationLevel("adapt:rift/blink")).isZero();
     assertThat(link.frames(player.uuid())).hasSize(2).allSatisfy((ServerFrame frame) ->
         assertThat(((ServerFrame.Feedback) frame).kind()).isEqualTo(FeedbackKind.FAILURE));
   }
@@ -278,13 +373,13 @@ class ClientUiServiceTest {
   void unlearningRefundsAndReportsTheLowerLevel() throws ClientProtocolException {
     affordLearning();
     hello(ClientProtocol.ALL);
-    client(new ClientFrame.Learn("rift-blink", 1, registry.getCatalogRevision()));
+    client(new ClientFrame.Learn("adapt:rift/blink", 1, registry.getCatalogRevision()));
     link.clear();
 
-    client(new ClientFrame.Unlearn("rift-blink", 0, registry.getCatalogRevision()));
+    client(new ClientFrame.Unlearn("adapt:rift/blink", 0, registry.getCatalogRevision()));
 
-    assertThat(line().getAdaptationLevel("rift-blink")).isZero();
-    assertThat(only(ServerFrame.PlayerUpdate.class).delta().adaptationLevels()).containsEntry("rift-blink", 0);
+    assertThat(line().getAdaptationLevel("adapt:rift/blink")).isZero();
+    assertThat(only(ServerFrame.PlayerUpdate.class).delta().adaptationLevels()).containsEntry("adapt:rift/blink", 0);
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
   }
 
@@ -293,18 +388,18 @@ class ClientUiServiceTest {
     line().setAdaptation(blink, 1);
     hello(ClientProtocol.ALL);
     link.clear();
-    PreferenceKey landing = new PreferenceKey(PreferenceOwner.ADAPTATION, "rift-blink", "landing");
+    PreferenceKey landing = new PreferenceKey(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing");
 
-    client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "rift-blink", "landing", "NEAR"));
+    client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing", "NEAR"));
 
-    assertThat(profile.getData().getPreferences().get("rift-blink", "landing")).isEqualTo("NEAR");
+    assertThat(profile.getData().getPreferences().get("adapt:rift/blink", "landing")).isEqualTo("NEAR");
     assertThat(only(ServerFrame.PlayerUpdate.class).delta().preferences()).contains(new PreferenceValue(landing, "NEAR"));
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
     link.clear();
 
-    client(new ClientFrame.ResetPreference(PreferenceOwner.ADAPTATION, "rift-blink"));
+    client(new ClientFrame.ResetPreference(PreferenceOwner.ADAPTATION, "adapt:rift/blink"));
 
-    assertThat(profile.getData().getPreferences().get("rift-blink", "landing")).isNull();
+    assertThat(profile.getData().getPreferences().get("adapt:rift/blink", "landing")).isNull();
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
   }
 
@@ -322,11 +417,11 @@ class ClientUiServiceTest {
       hello(ClientProtocol.ALL);
       link.clear();
 
-      client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "rift-blink", "landing", "NEAR"));
-      client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "rift-blink", "landing", "BOGUS"));
+      client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing", "NEAR"));
+      client(new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing", "BOGUS"));
       client(new ClientFrame.SetPreference(PreferenceOwner.SKILL, "rift", "landing", "ON"));
 
-      assertThat(profile.getData().getPreferences().get("rift-blink", "landing")).isNull();
+      assertThat(profile.getData().getPreferences().get("adapt:rift/blink", "landing")).isNull();
       assertThat(link.frames(player.uuid())).hasSize(3).allSatisfy((ServerFrame frame) ->
           assertThat(((ServerFrame.Feedback) frame).kind()).isEqualTo(FeedbackKind.FAILURE));
     } finally {
@@ -374,11 +469,11 @@ class ClientUiServiceTest {
     platform.scheduler().advance(1);
 
     ServerFrame.PlayerUpdate update = only(ServerFrame.PlayerUpdate.class);
-    assertThat(update.delta().adaptationLevels()).containsEntry("rift-blink", 1);
+    assertThat(update.delta().adaptationLevels()).containsEntry("adapt:rift/blink", 1);
     assertThat(update.delta().skills()).anySatisfy((SkillLineView skill) ->
         assertThat(skill.knowledge()).isEqualTo(7L));
     ServerFrame.Spending spending = only(ServerFrame.Spending.class);
-    assertThat(spending.spends()).anySatisfy((SpendView spend) -> assertThat(spend.adaptationId()).isEqualTo("rift-blink"));
+    assertThat(spending.spends()).anySatisfy((SpendView spend) -> assertThat(spend.adaptationId()).isEqualTo("adapt:rift/blink"));
     platform.scheduler().advance(2);
     assertThat(link.frames(player.uuid())).hasSize(2);
   }
@@ -406,7 +501,7 @@ class ClientUiServiceTest {
 
     assertThat(link.frames(player.uuid())).containsExactly(
         new ServerFrame.OpenRoute(new Route.Skills()),
-        new ServerFrame.OpenRoute(new Route.Adaptation("rift-blink")));
+        new ServerFrame.OpenRoute(new Route.Adaptation("adapt:rift/blink")));
     verify(menus, never()).open(eq(player), any(ChestMenu.class));
 
     hello(0);
@@ -498,7 +593,7 @@ class ClientUiServiceTest {
   void everyCapabilityBitHasItsOwnName() {
     assertThat(ClientUiService.capabilityNames(ClientProtocol.ALL))
         .containsExactly("screens", "panel", "hud", "toasts", "items", "insight", "jumps", "mutate", "kept", "tools", "mutate_spread", "xp_guide", "spending",
-            "unmutate", "skill_toasts", "group_labels");
+            "unmutate", "skill_toasts", "group_labels", "short_names", "recipes", "assets");
     assertThat(ClientUiService.capabilityNames(ClientProtocol.INSIGHT | ClientProtocol.JUMPS))
         .containsExactly("insight", "jumps");
   }
@@ -572,7 +667,7 @@ class ClientUiServiceTest {
     qualify("rift", "agility");
     everySecond(1);
 
-    assertThat(only(ServerFrame.MutateOffers.class).skillIds()).containsExactlyInAnyOrder("rift", "agility");
+    assertThat(only(ServerFrame.MutateOffers.class).skillIds()).containsExactlyInAnyOrder("adapt:rift", "adapt:agility");
     everySecond(2);
     assertThat(link.frames(player.uuid())).filteredOn(ServerFrame.MutateOffers.class::isInstance).hasSize(1);
   }
@@ -589,8 +684,8 @@ class ClientUiServiceTest {
     hello(ClientProtocol.ALL);
     everySecond(2);
     ServerFrame.MutationTools tools = only(ServerFrame.MutationTools.class);
-    assertThat(tools.tools()).extracting(ToolView::toolId).containsExactly("tool-rift-anchor", "tool-rift-eye", "tool-agility-grappling-line");
-    assertThat(tools.tools()).extracting(ToolView::adaptationId).allMatch((String page) -> page.startsWith("upgraded-"));
+    assertThat(tools.tools()).extracting(ToolView::toolId).containsExactly("adapt:agility/tool/grappling_line", "adapt:rift/tool/anchor", "adapt:rift/tool/eye");
+    assertThat(tools.tools()).extracting(ToolView::adaptationId).allMatch((String page) -> page.contains("/upgrade/"));
     assertThat(tools.tools()).allMatch((ToolView tool) -> !tool.ingredients().isEmpty() && tool.icon().customModelData() != 0);
   }
 
@@ -662,13 +757,13 @@ class ClientUiServiceTest {
     MutationSpreadView alone = only(ServerFrame.MutationSpread.class).spread();
     assertThat(alone.partner()).isEmpty();
     assertThat(alone.name()).isEmpty();
-    assertThat(alone.leadSide().skillId()).isEqualTo("rift");
-    assertThat(alone.candidate("agility").state()).isEqualTo(MutationCandidate.State.ELIGIBLE);
+    assertThat(alone.leadSide().skillId()).isEqualTo("adapt:rift");
+    assertThat(alone.candidate("adapt:agility").state()).isEqualTo(MutationCandidate.State.ELIGIBLE);
 
     link.clear();
     client(new ClientFrame.MutationRequest("rift", "agility", false));
     MutationSpreadView paired = only(ServerFrame.MutationSpread.class).spread();
-    assertThat(paired.partner()).isEqualTo("agility");
+    assertThat(paired.partner()).isEqualTo("adapt:agility");
     assertThat(paired.name()).isNotEmpty();
     assertThat(paired.mutatedNow()).isFalse();
     assertThat(profile.getData().getMutations()).isEmpty();
@@ -683,8 +778,8 @@ class ClientUiServiceTest {
 
     MutationSpreadView spread = only(ServerFrame.MutationSpread.class).spread();
     assertThat(spread.partner()).isEmpty();
-    assertThat(spread.candidate("agility").state()).isEqualTo(MutationCandidate.State.LEVEL_TOO_LOW);
-    assertThat(spread.candidate("agility").reason()).isEqualTo("Needs level 15");
+    assertThat(spread.candidate("adapt:agility").state()).isEqualTo(MutationCandidate.State.LEVEL_TOO_LOW);
+    assertThat(spread.candidate("adapt:agility").reason()).isEqualTo("Needs level 15");
   }
 
   @Test
@@ -716,15 +811,15 @@ class ClientUiServiceTest {
     qualify("agility");
     client(new ClientFrame.MutationRequest("rift", "agility", true));
 
-    assertThat(profile.getData().getMutations()).extracting(SkillMutation::id).containsExactly("mutated-rift-agility");
-    assertThat(only(ServerFrame.MutationSpread.class).spread().mutatedSkillId()).isEqualTo("mutated-rift-agility");
+    assertThat(profile.getData().getMutations()).extracting(SkillPair::key).containsExactly("adapt:rift+adapt:agility");
+    assertThat(only(ServerFrame.MutationSpread.class).spread().mutatedSkillId()).isEqualTo("adapt:rift+adapt:agility");
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
     List<ServerFrame> frames = link.frames(player.uuid());
     int catalog = -1;
     int spread = -1;
     for (int index = 0; index < frames.size(); index++) {
       if (frames.get(index) instanceof ServerFrame.Catalog sent
-          && sent.catalog().skills().stream().anyMatch((SkillView skill) -> skill.id().equals("mutated-rift-agility"))) {
+          && sent.catalog().skills().stream().anyMatch((SkillView skill) -> skill.id().equals("adapt:rift+adapt:agility"))) {
         catalog = index;
       }
       if (frames.get(index) instanceof ServerFrame.MutationSpread) {
@@ -741,7 +836,7 @@ class ClientUiServiceTest {
     mutateRiftAgility();
     link.clear();
 
-    client(new ClientFrame.Unmutate("mutated-rift-agility"));
+    client(new ClientFrame.Unmutate("adapt:rift+adapt:agility"));
 
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.FAILURE);
     assertThat(profile.getData().getMutations()).hasSize(1);
@@ -764,7 +859,7 @@ class ClientUiServiceTest {
     assertThat(only(ServerFrame.Feedback.class).kind()).isEqualTo(FeedbackKind.SUCCESS);
     List<ServerFrame> frames = link.frames(player.uuid());
     ServerFrame.Catalog catalog = only(ServerFrame.Catalog.class);
-    assertThat(catalog.catalog().skills()).extracting(SkillView::id).contains("rift", "agility").doesNotContain("mutated-rift-agility");
+    assertThat(catalog.catalog().skills()).extracting(SkillView::id).contains("adapt:rift", "adapt:agility").doesNotContain("adapt:rift+adapt:agility");
     assertThat(frames.indexOf(catalog)).isLessThan(frames.indexOf(only(ServerFrame.Feedback.class)));
   }
 
@@ -788,7 +883,7 @@ class ClientUiServiceTest {
 
   private void mutateRiftAgility() {
     qualify("rift", "agility");
-    assertThat(SkillMutations.mutate(profile.getData(), registry.getSkill("rift"), registry.getSkill("agility"), "Viewer"))
+    assertThat(SkillMutations.mutate(profile.getData(), registry.getSkill("adapt:rift"), registry.getSkill("adapt:agility"), "Viewer"))
         .isEqualTo(SkillMutations.Result.MUTATED);
     everySecond(1);
   }
@@ -817,7 +912,7 @@ class ClientUiServiceTest {
   }
 
   private void hello(int mask) throws ClientProtocolException {
-    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(mask == 0 ? 0 : 1, mask)));
+    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(mask == 0 ? 0 : ClientProtocol.VERSION, mask)));
   }
 
   private void client(ClientFrame frame) throws ClientProtocolException {

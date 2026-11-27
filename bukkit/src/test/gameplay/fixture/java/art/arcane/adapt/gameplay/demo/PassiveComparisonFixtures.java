@@ -1,16 +1,17 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.gameplay.FixtureVersion;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.world.PlayerSkillLine.RewardStalenessState;
-import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.world.PlayerSkillLine.RewardStalenessState;
+import art.arcane.adapt.engine.xp.XP;
+import art.arcane.adapt.engine.xp.XpNovelty;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -64,7 +65,7 @@ public final class PassiveComparisonFixtures {
 
         AdaptPlayer runtime = runtimePlayer(player);
         PlayerData data = runtime.getData();
-        PlayerSkillLine adaptationLine = Objects.requireNonNull(data.getSkillLine(adaptation.getSkill().getName()));
+        PlayerSkillLine adaptationLine = Objects.requireNonNull(data.getSkillLine(SkillHost.lineKey(adaptation.getSkill())));
         adaptationLine.setAdaptation(adaptation, learned ? adaptation.getMaxLevel() : 0);
         comparison.learned = learned;
         comparison.origin = player.getLocation();
@@ -141,7 +142,7 @@ public final class PassiveComparisonFixtures {
             if (!skill.isEnabled()) {
                 continue;
             }
-            PlayerSkillLine line = Objects.requireNonNull(data.getSkillLine(skill.getName()));
+            PlayerSkillLine line = Objects.requireNonNull(data.getSkillLine(SkillHost.lineKey(skill)));
             line.setXp(XP.getXpForLevel(5));
             line.setLastLevel(5);
             line.setLastXP(line.getXp());
@@ -163,7 +164,7 @@ public final class PassiveComparisonFixtures {
         sword.getActivityStaleness().clear();
         data.setXpNovelty(new XpNovelty.State());
         if (!comparison.learned) {
-            data.removeGlobalXPMultipliers(comparison.adaptation.getName());
+            data.removeGlobalXPMultipliers(comparison.adaptation.getId().toString());
         }
         comparison.xpBefore = sword.getXp() + sword.getPooledXp();
         comparison.damageBefore = data.getStat("sword.damage");
@@ -186,7 +187,7 @@ public final class PassiveComparisonFixtures {
     private static JsonObject state(Player player, Comparison comparison) {
         PlayerData data = runtimePlayer(player).getData();
         JsonObject result = new JsonObject();
-        result.addProperty("adaptation", comparison.adaptation.getName());
+        result.addProperty("adaptation", comparison.adaptation.getId().toString());
         result.addProperty("learned", comparison.learned);
         result.addProperty("food", player.getFoodLevel());
         result.addProperty("saturation", player.getSaturation());
@@ -196,7 +197,7 @@ public final class PassiveComparisonFixtures {
         result.addProperty("xpMultiplier", data.computeXpMultiplier(BukkitRefs.player(player)));
         result.addProperty("baselineXp", comparison.baselineXp);
         PlayerSkillLine sword = data.getSkillLineNullable("swords");
-        if (sword != null && comparison.adaptation.getName().equals("discovery-polymath")) {
+        if (sword != null && comparison.adaptation.getId().toString().equals("adapt:discovery/polymath")) {
             result.addProperty("earnedXp", sword.getXp() + sword.getPooledXp() - comparison.xpBefore);
             result.addProperty("damage", data.getStat("sword.damage") - comparison.damageBefore);
         }
@@ -213,7 +214,7 @@ public final class PassiveComparisonFixtures {
 
     private static Comparison comparison(Player player, String name) {
         Comparison comparison = COMPARISONS.get(player.getUniqueId());
-        if (comparison == null || !comparison.adaptation.getName().equals(adaptation(name).getName())) {
+        if (comparison == null || !comparison.adaptation.getId().toString().equals(adaptation(name).getId().toString())) {
             throw new IllegalStateException("Prepare the passive comparison first");
         }
         return comparison;
@@ -221,13 +222,13 @@ public final class PassiveComparisonFixtures {
 
     private static Adaptation<?> adaptation(String name) {
         String id = switch (name) {
-            case "marathoner" -> "agility-marathoner";
-            case "polymath" -> "discovery-polymath";
+            case "marathoner" -> "adapt:agility/marathoner";
+            case "polymath" -> "adapt:discovery/polymath";
             default -> throw new IllegalArgumentException("Unknown passive comparison " + name);
         };
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (adaptation.getName().equals(id)) {
+                if (adaptation.getId().toString().equals(id)) {
                     return adaptation;
                 }
             }

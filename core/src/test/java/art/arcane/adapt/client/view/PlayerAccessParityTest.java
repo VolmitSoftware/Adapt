@@ -1,13 +1,14 @@
 package art.arcane.adapt.client.view;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillMenus;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptDebugMode;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillMenus;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.gui.SkillsGui;
 import art.arcane.adapt.content.skill.SkillAgility;
 import art.arcane.adapt.content.skill.SkillRift;
 import art.arcane.adapt.content.skill.SkillStealth;
@@ -64,8 +65,8 @@ class PlayerAccessParityTest {
 
     PlayerAccess access = access();
 
-    assertThat(access.skills()).containsExactly("rift").isEqualTo(chestSkills());
-    assertThat(access.adaptationRows().keySet()).containsExactlyInAnyOrder("rift", "agility", "stealth");
+    assertThat(access.skills()).containsExactly("adapt:rift").isEqualTo(chestSkills());
+    assertThat(access.adaptationRows().keySet()).containsExactlyInAnyOrder("adapt:rift", "adapt:agility", "adapt:stealth");
     assertThat(access.refunds()).isTrue();
     assertThat(access.debug()).isFalse();
   }
@@ -76,22 +77,22 @@ class PlayerAccessParityTest {
 
     PlayerAccess access = access();
 
-    assertThat(access.skills()).containsExactlyInAnyOrder("rift", "agility", "stealth").isEqualTo(chestSkills());
+    assertThat(access.skills()).containsExactlyInAnyOrder("adapt:rift", "adapt:agility", "adapt:stealth").isEqualTo(chestSkills());
   }
 
   @Test
   void deniedSkillsAndAdaptationsAreLeftOut() throws ReflectiveOperationException {
     setFlag("guiShowAllSkills", true);
     player.setOp(false);
-    player.deny("adapt.use.agility");
-    player.deny("adapt.use.riftblink");
+    player.deny("adapt.use.adapt.agility");
+    player.deny("adapt.use.adapt.rift.blink");
 
     PlayerAccess access = access();
 
-    assertThat(access.skills()).doesNotContain("agility").isEqualTo(chestSkills());
-    assertThat(access.canOpen("agility")).isFalse();
-    assertThat(access.shows("rift", "rift-blink")).isFalse();
-    assertThat(access.rows("rift")).isEqualTo(chestRows("rift")).isNotEmpty();
+    assertThat(access.skills()).doesNotContain("adapt:agility").isEqualTo(chestSkills());
+    assertThat(access.canOpen("adapt:agility")).isFalse();
+    assertThat(access.shows("adapt:rift", "adapt:rift/blink")).isFalse();
+    assertThat(access.rows("adapt:rift")).isEqualTo(chestRows("adapt:rift")).isNotEmpty();
   }
 
   @Test
@@ -99,7 +100,7 @@ class PlayerAccessParityTest {
     PlayerAccess access = access();
 
     for (Skill<?> skill : registry.getSkills()) {
-      assertThat(access.rows(skill.getName())).as(skill.getName()).isEqualTo(chestRows(skill.getName()));
+      assertThat(access.rows(SkillHost.lineKey(skill))).as(SkillHost.lineKey(skill)).isEqualTo(chestRows(SkillHost.lineKey(skill)));
     }
   }
 
@@ -112,7 +113,7 @@ class PlayerAccessParityTest {
 
     assertThat(access.refunds()).isFalse();
     assertThat(access.debug()).isTrue();
-    assertThat(access.skills()).containsExactlyInAnyOrder("rift", "agility", "stealth").isEqualTo(chestSkills());
+    assertThat(access.skills()).containsExactlyInAnyOrder("adapt:rift", "adapt:agility", "adapt:stealth").isEqualTo(chestSkills());
   }
 
   @Test
@@ -120,9 +121,9 @@ class PlayerAccessParityTest {
     CatalogView catalog = CatalogViews.build(registry, player.uuid(), List.of(), false);
 
     for (SkillView skill : catalog.skills()) {
-      assertThat(skill.name()).as(skill.id()).doesNotContain("§").matches("^[\\p{L}\\p{N}].*");
+      assertThat(skill.name()).as(skill.id().toString()).doesNotContain("§").matches("^[\\p{L}\\p{N}].*");
       for (AdaptationView adaptation : skill.adaptations()) {
-        assertThat(adaptation.name()).as(adaptation.id()).doesNotContain("§").isNotBlank();
+        assertThat(adaptation.name()).as(adaptation.id().toString()).doesNotContain("§").isNotBlank();
       }
     }
     assertThat(catalog.skills()).extracting(SkillView::name).contains("Rift", "Agility", "Stealth");
@@ -135,7 +136,7 @@ class PlayerAccessParityTest {
   private List<String> chestSkills() {
     List<String> names = new ArrayList<>();
     for (Skill<?> skill : SkillsGui.visibleSkills(profile, player)) {
-      names.add(skill.getName());
+      names.add(SkillHost.lineKey(skill));
     }
     return names;
   }
@@ -145,7 +146,7 @@ class PlayerAccessParityTest {
     for (List<Adaptation<?>> row : SkillMenus.adaptationRows(registry.getSkill(skillId), player)) {
       List<String> ids = new ArrayList<>();
       for (Adaptation<?> adaptation : row) {
-        ids.add(adaptation.getName());
+        ids.add(adaptation.getId().toString());
       }
       rows.add(ids);
     }

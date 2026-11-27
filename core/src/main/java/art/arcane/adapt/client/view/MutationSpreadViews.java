@@ -1,24 +1,24 @@
 package art.arcane.adapt.client.view;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.mutation.MutationOffers;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.mutation.signature.Signature;
-import art.arcane.adapt.api.mutation.tool.MutationTool;
-import art.arcane.adapt.api.mutation.tool.ToolOwner;
-import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.gui.MutationGui;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.engine.mutation.MutationOffers;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
+import art.arcane.adapt.api.mutation.Signature;
+import art.arcane.adapt.api.mutation.MutationTool;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
-import art.arcane.adapt.localization.catalog.MutatedMessages;
 import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -52,7 +52,7 @@ public final class MutationSpreadViews {
     boolean paired = partner != null && SkillMutations.check(data, lead, partner, config) == SkillMutations.Result.MUTATED;
     MutationWords words = words();
     if (!paired) {
-      return new MutationSpreadView(lead.getName(), "", "", "", List.of(), side(data, lead, null),
+      return new MutationSpreadView(SkillHost.lineKey(lead), "", "", "", List.of(), side(data, lead, null),
           MutationSide.NONE, candidates, words, mutatedSkillId);
     }
     MutationOffers.Preview preview = MutationOffers.preview(data, lead, partner);
@@ -62,7 +62,7 @@ public final class MutationSpreadViews {
     }
     String summary = C.stripColor(AdaptLanguage.text(MutationMessages.LEVEL, trusted("level", preview.level())))
         + SEPARATOR + C.stripColor(AdaptLanguage.text(MutationMessages.KNOWLEDGE, trusted("knowledge", preview.knowledge())));
-    return new MutationSpreadView(lead.getName(), partner.getName(), preview.name(), summary, mutated,
+    return new MutationSpreadView(SkillHost.lineKey(lead), SkillHost.lineKey(partner), preview.name(), summary, mutated,
         side(data, lead, preview), side(data, partner, preview), candidates, words, mutatedSkillId);
   }
 
@@ -80,10 +80,10 @@ public final class MutationSpreadViews {
         case LEVEL_TOO_LOW -> MutationCandidate.State.LEVEL_TOO_LOW;
         case ALREADY_MUTATED -> MutationCandidate.State.ALREADY_MUTATED;
         case LIMIT_REACHED -> MutationCandidate.State.LIMIT_REACHED;
-        case UNKNOWN_SKILL, UNAVAILABLE_SKILL, SAME_SKILL -> null;
+        case UNKNOWN_SKILL, UNAVAILABLE_SKILL, SAME_SKILL, CANCELLED -> null;
       };
       if (state != null) {
-        candidates.add(new MutationCandidate(skill.getName(), level(data, skill), state, reason(state, config)));
+        candidates.add(new MutationCandidate(SkillHost.lineKey(skill), level(data, skill), state, reason(state, config)));
       }
     }
     return List.copyOf(candidates);
@@ -118,11 +118,11 @@ public final class MutationSpreadViews {
   private static MutationSide side(PlayerData data, Skill<?> skill, MutationOffers.Preview preview) {
     List<MutationEntry> upgrades = new ArrayList<>();
     List<MutationEntry> tools = new ArrayList<>();
-    for (Adaptation<?> upgrade : skill.getUpgrades()) {
+    for (Adaptation<?> upgrade : SkillHost.of(skill).getUpgrades()) {
       upgrades.add(priced(upgrade));
       tools(upgrade, tools);
     }
-    if (preview != null && preview.mutation().lead().equals(skill.getName())) {
+    if (preview != null && preview.mutation().lead().equals(skill.getId())) {
       for (Adaptation<?> own : preview.mutated()) {
         if (own instanceof MutationAdaptation pair) {
           Signature<?> signature = pair.getSignature();
@@ -136,28 +136,28 @@ public final class MutationSpreadViews {
     Set<String> keptIds = new HashSet<>();
     for (Adaptation<?> adaptation : SkillUpgrades.kept(skill)) {
       if (adaptation.isEnabled()) {
-        keptIds.add(adaptation.getName());
-        kept.add(new MutationEntry(adaptation.getName(), ViewIcons.adaptation(adaptation), MutatedSkill.keptLine(adaptation),
+        keptIds.add(adaptation.getId().toString());
+        kept.add(new MutationEntry(adaptation.getId().toString(), ViewIcons.adaptation(adaptation), MutatedSkill.keptLine(adaptation),
             C.stripColor(adaptation.getDescription()), SkillUpgrades.keptLevel(adaptation)));
       }
     }
     List<MutationEntry> lost = new ArrayList<>();
     Set<String> listed = new HashSet<>();
-    for (SkillMutations.HeldAdaptation held : SkillMutations.held(skill, data.getSkillLineNullable(skill.getName()))) {
+    for (SkillMutations.HeldAdaptation held : SkillMutations.held(skill, data.getSkillLineNullable(SkillHost.lineKey(skill)))) {
       Adaptation<?> adaptation = held.adaptation();
-      listed.add(adaptation.getName());
+      listed.add(adaptation.getId().toString());
       String name = AdaptLanguage.text(adaptation.isPermanent() ? MutationMessages.LOST_PERMANENT_ADAPTATION
               : MutationMessages.LOST_ADAPTATION, trusted("adaptation", C.stripColor(adaptation.getShortName())),
           trusted("level", Form.toRoman(held.level())));
-      lost.add(new MutationEntry(adaptation.getName(), ViewIcons.adaptation(adaptation), C.stripColor(name), "", held.level()));
+      lost.add(new MutationEntry(adaptation.getId().toString(), ViewIcons.adaptation(adaptation), C.stripColor(name), "", held.level()));
     }
     for (Adaptation<?> adaptation : skill.getAdaptations()) {
-      if (adaptation.isEnabled() && !keptIds.contains(adaptation.getName()) && listed.add(adaptation.getName())) {
-        lost.add(new MutationEntry(adaptation.getName(), ViewIcons.adaptation(adaptation), C.stripColor(adaptation.getShortName()),
+      if (adaptation.isEnabled() && !keptIds.contains(adaptation.getId().toString()) && listed.add(adaptation.getId().toString())) {
+        lost.add(new MutationEntry(adaptation.getId().toString(), ViewIcons.adaptation(adaptation), C.stripColor(adaptation.getShortName()),
             "", 0));
       }
     }
-    return new MutationSide(skill.getName(), level(data, skill), upgrades, kept, tools, lost, surplus(skill, preview));
+    return new MutationSide(SkillHost.lineKey(skill), level(data, skill), upgrades, kept, tools, lost, surplus(skill, preview));
   }
 
   private static String surplus(Skill<?> skill, MutationOffers.Preview preview) {
@@ -175,11 +175,8 @@ public final class MutationSpreadViews {
   }
 
   private static void tools(Adaptation<?> owner, List<MutationEntry> tools) {
-    if (!(owner instanceof ToolOwner holder)) {
-      return;
-    }
-    for (MutationTool<?> tool : holder.getTools()) {
-      tools.add(new MutationEntry(tool.id(), ToolViews.icon(tool), C.stripColor(AdaptLanguage.text(tool.nameKey())),
+    for (MutationTool<?> tool : MutationTools.handedOut(owner)) {
+      tools.add(new MutationEntry(tool.item().id().toString(), ToolViews.icon(tool), C.stripColor(MutationTools.name(tool)),
           text(MutationMessages.TOOL) + "\n" + requires(owner, tool.requiredLevel()), 0));
     }
   }
@@ -196,12 +193,12 @@ public final class MutationSpreadViews {
   private static MutationEntry priced(Adaptation<?> adaptation) {
     String costs = C.stripColor(AdaptLanguage.text(MutationMessages.KNOWLEDGE,
         trusted("knowledge", MutationGui.costs(adaptation))));
-    return new MutationEntry(adaptation.getName(), ViewIcons.adaptation(adaptation), C.stripColor(adaptation.getShortName()),
+    return new MutationEntry(adaptation.getId().toString(), ViewIcons.adaptation(adaptation), C.stripColor(adaptation.getShortName()),
         C.stripColor(adaptation.getDescription()) + "\n" + costs, 0);
   }
 
   private static int level(PlayerData data, Skill<?> skill) {
-    PlayerSkillLine line = data.getSkillLineNullable(skill.getName());
+    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(skill));
     return line == null ? 0 : line.getLevel();
   }
 }

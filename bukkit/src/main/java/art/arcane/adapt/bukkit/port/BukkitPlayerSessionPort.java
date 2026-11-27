@@ -1,9 +1,9 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.fx.ViewerDisplayDirector;
-import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
-import art.arcane.adapt.api.world.PlayerSessionPort;
+import art.arcane.adapt.engine.fx.ViewerDisplayDirector;
+import art.arcane.adapt.engine.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.engine.world.PlayerSessionPort;
 
 import java.util.UUID;
 

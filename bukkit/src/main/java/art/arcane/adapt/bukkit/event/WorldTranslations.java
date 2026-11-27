@@ -4,7 +4,6 @@ import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.player.PlayerLootGenerateEvent;
 import art.arcane.adapt.platform.event.server.PluginStateEvent;
-import art.arcane.adapt.platform.event.server.ResourcesReloadedEvent;
 import art.arcane.adapt.platform.event.server.ServiceChangeEvent;
 import art.arcane.adapt.platform.event.world.ChunkEntitiesEvent;
 import art.arcane.adapt.platform.event.world.ChunkEvent;
@@ -13,6 +12,7 @@ import art.arcane.adapt.platform.event.world.NightSkipEvent;
 import art.arcane.adapt.platform.event.world.WorldLifecycleEvent;
 import art.arcane.adapt.platform.value.ChunkPos;
 import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -32,16 +32,16 @@ final class WorldTranslations {
 
   static List<Translation<?>> all() {
     return List.of(CHUNK_LOAD, CHUNK_UNLOAD, ENTITIES_LOAD, ENTITIES_UNLOAD, WORLD_LOAD, WORLD_SAVE, WORLD_UNLOAD, LIGHTNING, NIGHT_SKIP, LOOT_GENERATE,
-        PLUGIN_ENABLE, PLUGIN_DISABLE, SERVICE_REGISTER, SERVICE_UNREGISTER, RESOURCES_RELOADED);
+        PLUGIN_ENABLE, PLUGIN_DISABLE, SERVICE_REGISTER, SERVICE_UNREGISTER);
   }
 
   static final Translation<org.bukkit.event.world.TimeSkipEvent> NIGHT_SKIP = BukkitTranslations.simple(
       org.bukkit.event.world.TimeSkipEvent.class, NightSkipEvent.class, (event, poster) -> {
-        if (event.isCancelled() || event.getSkipReason() != org.bukkit.event.world.TimeSkipEvent.SkipReason.NIGHT_SKIP) {
+        if (event.isCancelled() || !PaperApi.nightSkip(event)) {
           return;
         }
         List<PlayerRef> sleepers = event.getWorld().getPlayers().stream()
-            .filter(Player::isDeeplySleeping)
+            .filter(PaperApi::deeplySleeping)
             .map(BukkitRefs::player)
             .toList();
         poster.post(new NightSkipEvent(BukkitRefs.world(event.getWorld()), sleepers));
@@ -122,10 +122,6 @@ final class WorldTranslations {
   static final Translation<org.bukkit.event.server.ServiceUnregisterEvent> SERVICE_UNREGISTER = BukkitTranslations.simple(
       org.bukkit.event.server.ServiceUnregisterEvent.class, ServiceChangeEvent.class,
       (event, poster) -> service(event.getProvider(), false, poster));
-
-  static final Translation<io.papermc.paper.event.server.ServerResourcesReloadedEvent> RESOURCES_RELOADED =
-      BukkitTranslations.simple(io.papermc.paper.event.server.ServerResourcesReloadedEvent.class, ResourcesReloadedEvent.class,
-          (event, poster) -> poster.post(new ResourcesReloadedEvent(GapEventMaps.reloadCause(event.getCause()))));
 
   private static ChunkEvent chunk(Chunk chunk, ChunkEvent.Phase phase, boolean newChunk) {
     World world = chunk.getWorld();

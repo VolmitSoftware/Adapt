@@ -1,6 +1,8 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.localization.LocaleOverlay;
 import art.arcane.volmlib.util.localization.LocalizationCandidate;
 import art.arcane.volmlib.util.localization.LocalizationIssue;
@@ -19,6 +21,7 @@ import art.arcane.volmlib.util.localization.PluralValue;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.VolmitLocales;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -43,6 +47,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptLanguageTest extends AdaptTestBase {
+  private static final MessageCatalog CATALOG = BuiltInText.installWithConfigText();
   private static final int MAX_INTEGRITY_FAILURES = 100;
   private static final Path RESOURCE_ROOT = Path.of("../src/main/resources");
   private static final List<Path> SOURCE_ROOTS = List.of(Path.of("src/main/java"), Path.of("../core/src/main/java"));
@@ -65,8 +70,9 @@ class AdaptLanguageTest extends AdaptTestBase {
           + "|Adapt|Bukkit|Paper|Folia|Purpur|Fabric|Iris|PAPI|NMS|NBT|JSON"
           + "|TOML|YAML)(?![\\p{IsLatin}\\p{N}])"
   );
+  private static final Set<String> OWNED_KINDS = Set.of("upgrade", "block", "tool");
   private static final Pattern ADAPTATION_ID_TOKEN = adaptationIdToken();
-  private static final Pattern TOAST_QUIP = Pattern.compile("skill\\.[a-z]+\\.(?:quip|unlock_quip_\\d)|gui\\.mutation\\.[a-z]+_quip(?:_\\d)?");
+  private static final Pattern TOAST_QUIP = Pattern.compile("adapt\\.(?:skill\\.[a-z]+\\.(?:quip|unlock_quip_\\d)|gui\\.mutation\\.[a-z]+_quip(?:_\\d)?)");
   private static final int LOCALE_QUIP_LIMIT = 64;
   private static final Pattern WORD_TOKEN = Pattern.compile("[\\p{L}\\p{N}_]+");
   private static final Pattern FRENCH_FALSE_OCCURRENCE_TERM = Pattern.compile("(?iu)\\bheures?\\b");
@@ -243,19 +249,26 @@ class AdaptLanguageTest extends AdaptTestBase {
   private static Map<String, LocaleOverlay> downloadSourceOverlays;
 
   private static Pattern adaptationIdToken() {
-    String prefix = "config.fields.adaptations.";
+    String prefix = "adapt.config.fields.adaptations.";
     Comparator<String> byLength = Comparator.comparingInt(String::length);
     Set<String> ids = new TreeSet<>(byLength.reversed().thenComparing(Comparator.naturalOrder()));
-    for (MessageKey definition : AdaptMessages.catalog().keys()) {
+    for (MessageKey definition : CATALOG.keys()) {
       String id = definition.id();
       if (id.startsWith(prefix)) {
-        String adaptation = id.substring(prefix.length(), id.indexOf('.', prefix.length()));
+        String[] parts = id.substring(prefix.length()).split("\\.");
+        int length = parts.length > 3 && OWNED_KINDS.contains(parts[1]) ? 3 : 2;
+        String adaptation = LegacyContentNames.of(Id.adapt(String.join("/", Arrays.copyOf(parts, length))));
         if (adaptation.contains("-")) {
           ids.add(adaptation);
         }
       }
     }
     return Pattern.compile("(?<![a-z0-9-])(?:" + String.join("|", ids) + ")(?![a-z0-9])");
+  }
+
+  @AfterAll
+  static void uninstallBuiltInText() {
+    BuiltInText.uninstall();
   }
 
   @BeforeAll
@@ -275,7 +288,7 @@ class AdaptLanguageTest extends AdaptTestBase {
 
   @Test
   void codeOwnedCatalogContainsUsableEnglishForEveryKey() {
-    MessageCatalog catalog = AdaptMessages.catalog();
+    MessageCatalog catalog = CATALOG;
 
     assertThat(catalog.englishLocale()).isEqualTo("en_US");
     assertThat(catalog.keys()).isNotEmpty();
@@ -289,7 +302,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   void everyDownloadSourceLocaleParsesAndMatchesCatalogShapes() {
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
       LocalizationValidationResult validation = LocalizationValidator.validate(
-          AdaptMessages.catalog(),
+          CATALOG,
           List.of(entry.getValue())
       );
       assertThat(validation.errors())
@@ -318,7 +331,7 @@ class AdaptLanguageTest extends AdaptTestBase {
 
   @Test
   void everyDownloadSourceLocaleCoversRequiredTranslationsAndContainsOnlyCatalogKeys() {
-    MessageCatalog catalog = AdaptMessages.catalog();
+    MessageCatalog catalog = CATALOG;
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
       assertThat(entry.getValue().values().keySet())
           .describedAs("catalog coverage in %s", entry.getKey())
@@ -329,7 +342,7 @@ class AdaptLanguageTest extends AdaptTestBase {
 
   @Test
   void everyDownloadSourceTranslationIsNonBlankAndPreservesProtocolTokens() {
-    MessageCatalog catalog = AdaptMessages.catalog();
+    MessageCatalog catalog = CATALOG;
     List<String> failures = new ArrayList<>();
     int failureCount = 0;
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
@@ -358,12 +371,12 @@ class AdaptLanguageTest extends AdaptTestBase {
 
   /** Config field labels may stay English. */
   private static boolean translatedLater(String id) {
-    return id.startsWith("config.fields.");
+    return id.startsWith("adapt.config.fields.");
   }
 
   @Test
   void everyToastQuipStaysOneShortLineInEveryLocale() {
-    List<String> quips = AdaptMessages.catalog().ids().stream().filter(id -> TOAST_QUIP.matcher(id).matches()).toList();
+    List<String> quips = CATALOG.ids().stream().filter(id -> TOAST_QUIP.matcher(id).matches()).toList();
     assertThat(quips).hasSize(3 * 24 + 7);
     List<String> failures = new ArrayList<>();
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
@@ -382,13 +395,13 @@ class AdaptLanguageTest extends AdaptTestBase {
     LocaleOverlay overlay = AdaptLanguage.parseOverlay(
         "test",
         "test",
-        "[items.multi_armor.count]\none = \"Ein Gegenstand ({count})\"\nother = \"{count} Gegenstände\"\n"
+        "[adapt.items.multi_armor.count]\none = \"Ein Gegenstand ({count})\"\nother = \"{count} Gegenstände\"\n"
     );
 
-    assertThat(overlay.value("items.multi_armor.count")).isInstanceOf(PluralValue.class);
-    PluralValue value = (PluralValue) overlay.value("items.multi_armor.count");
+    assertThat(overlay.value("adapt.items.multi_armor.count")).isInstanceOf(PluralValue.class);
+    PluralValue value = (PluralValue) overlay.value("adapt.items.multi_armor.count");
     assertThat(value.forms()).containsOnlyKeys("one", "other");
-    assertThat(LocalizationValidator.validate(AdaptMessages.catalog(), List.of(overlay)).errors()).isEmpty();
+    assertThat(LocalizationValidator.validate(CATALOG, List.of(overlay)).errors()).isEmpty();
   }
 
   @Test
@@ -421,13 +434,13 @@ class AdaptLanguageTest extends AdaptTestBase {
 
   @Test
   void rejectedAdaptOverlayRetainsTheLastGoodSnapshot() {
-    MessageCatalog catalog = AdaptMessages.catalog();
+    MessageCatalog catalog = CATALOG;
     LocalizationManager manager = new LocalizationManager(LocalizationCandidate.english(
         catalog,
         PluralSelector.oneOther()
     ));
     LocaleOverlay valid = LocaleOverlay.builder("valid", "test")
-        .text("runtime.no_description_provided", "Translated description")
+        .text("adapt.runtime.no_description_provided", "Translated description")
         .build();
     LocalizationReloadResult applied = manager.reload(new LocalizationCandidate(
         catalog,
@@ -436,7 +449,7 @@ class AdaptLanguageTest extends AdaptTestBase {
     ));
     LocalizationSnapshot lastGood = manager.snapshot();
     LocaleOverlay invalid = LocaleOverlay.builder("invalid", "test")
-        .text("runtime.no_description_provided", "Would replace the last good value")
+        .text("adapt.runtime.no_description_provided", "Would replace the last good value")
         .text("unknown.key", "Invalid")
         .build();
     LocalizationReloadResult rejected = manager.reload(new LocalizationCandidate(
@@ -449,7 +462,7 @@ class AdaptLanguageTest extends AdaptTestBase {
     assertThat(rejected.applied()).isFalse();
     assertThat(rejected.current()).isSameAs(lastGood);
     assertThat(manager.snapshot()).isSameAs(lastGood);
-    assertThat(manager.snapshot().resolve((TextKey) catalog.require("runtime.no_description_provided")).template())
+    assertThat(manager.snapshot().resolve((TextKey) catalog.require("adapt.runtime.no_description_provided")).template())
         .isEqualTo("Translated description");
     assertThat(rejected.validation().errors())
         .extracting(LocalizationIssue::key)

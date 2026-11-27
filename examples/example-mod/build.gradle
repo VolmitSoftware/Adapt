@@ -1,0 +1,89 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+java {
+    disableAutoTargetJvm()
+}
+
+repositories {
+    exclusiveContent {
+        forRepository { mavenLocal() }
+        filter { includeGroup('art.arcane.adapt') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://maven.fabricmc.net/') } }
+        filter { includeGroup('net.fabricmc') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://maven.minecraftforge.net/') } }
+        filter { includeGroup('net.minecraftforge') }
+    }
+    exclusiveContent {
+        forRepository { maven { url = uri('https://maven.neoforged.net/releases') } }
+        filter {
+            includeGroup('net.neoforged.fancymodloader')
+            includeModule('net.neoforged', 'mergetool')
+        }
+    }
+    mavenCentral()
+}
+
+Map<String, String> loaders = [
+    fabric  : 'net.fabricmc:fabric-loader:0.20.1',
+    forge   : 'net.minecraftforge:javafmllanguage:1.20.1-47.4.5',
+    neoforge: 'net.neoforged.fancymodloader:loader:12.0.12',
+]
+
+sourceSets {
+    main {
+        java.srcDir('../example-content/src/main/java')
+        resources.srcDir('../example-content/src/main/resources')
+    }
+    loaders.keySet().each { String loader ->
+        create(loader) {
+            compileClasspath += main.output + main.compileClasspath
+        }
+    }
+}
+
+dependencies {
+    compileOnly('art.arcane.adapt:adapt-api:1.0.0')
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+    loaders.each { String loader, String coordinate ->
+        add("${loader}CompileOnly", coordinate) { transitive = false }
+    }
+    add('neoforgeCompileOnly', 'net.neoforged:mergetool:2.0.7:api') { transitive = false }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xlint:all', '-Xlint:-classfile', '-Xlint:-options'])
+}
+
+loaders.keySet().each { String loader ->
+    SourceSet loaderSet = sourceSets.getByName(loader)
+    tasks.named(loaderSet.processResourcesTaskName, ProcessResources) {
+        inputs.property('version', project.version)
+        filesMatching(['fabric.mod.json', 'META-INF/*.toml']) {
+            expand(version: project.version)
+        }
+    }
+    TaskProvider<Jar> loaderJar = tasks.register("${loader}Jar", Jar) {
+        group = 'build'
+        archiveClassifier.set(loader)
+        from(sourceSets.main.output)
+        from(loaderSet.output)
+    }
+    tasks.named('assemble') {
+        dependsOn(loaderJar)
+    }
+}
+
+tasks.named('jar') {
+    enabled = false
+}

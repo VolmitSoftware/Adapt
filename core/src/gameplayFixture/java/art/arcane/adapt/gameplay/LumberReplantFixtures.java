@@ -1,26 +1,28 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.data.BlockStorePort;
-import art.arcane.adapt.api.golem.GolemAnchor;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemRoster;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.node.NodeCodec;
-import art.arcane.adapt.api.golem.node.NodeCuboid;
-import art.arcane.adapt.api.golem.node.NodeFaces;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
-import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.player.PlayerApi;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.data.BlockStorePort;
+import art.arcane.adapt.content.golem.GolemAnchor;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemRegistry;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.node.NodeCodec;
+import art.arcane.adapt.content.golem.node.NodeCuboid;
+import art.arcane.adapt.content.golem.node.NodeFaces;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodePlacementVerdict;
+import art.arcane.adapt.content.golem.node.NodeRecord;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.content.golem.node.NodeWeavingPolicy;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.MobRef;
@@ -44,7 +46,7 @@ public final class LumberReplantFixtures {
     private static final int TREE_Z = 0;
     private static final int TREE_LOGS = 5;
     private static final int CHEST_X = -4;
-    private static final List<String> REQUIRED = List.of("golem-animus-binding", "golem-node-weaving", "golem-copper-frame", "golem-lumber-core");
+    private static final List<String> REQUIRED = List.of("adapt:golem/animus_binding", "adapt:golem/node_weaving", "adapt:golem/copper_frame", "adapt:golem/lumber_core");
     private static final Map<UUID, Stage> STAGES = new HashMap<>();
     private static final Map<UUID, Long> PREPARED = new HashMap<>();
 
@@ -112,10 +114,10 @@ public final class LumberReplantFixtures {
         Skill<?> skill = Objects.requireNonNull(Fixtures.skill("golemancy"));
         Map<Adaptation<?>, Integer> previous = new HashMap<>();
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
-            if (REQUIRED.contains(adaptation.getName())) {
-                previous.put(adaptation, adaptation.getLevel(runtime));
-                runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation,
-                    adaptation.getName().equals("golem-lumber-core") ? 2 : adaptation.getMaxLevel());
+            if (REQUIRED.contains(adaptation.getId().toString())) {
+                previous.put(adaptation, adaptation.getLevel(PlayerApi.profile(runtime)));
+                runtime.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation,
+                    adaptation.getId().toString().equals("adapt:golem/lumber_core") ? 2 : adaptation.getMaxLevel());
             }
         }
         Fixtures.clearInventory(player);
@@ -218,7 +220,7 @@ public final class LumberReplantFixtures {
         if (!GolemControlsFixtures.storeLoaded(world)) {
             return null;
         }
-        return BlockStorePort.current().get(world, x, y, z, NodeCodec.SLICE);
+        return BlockStorePort.current().get(world, x, y, z, NodeCodec.slice());
     }
 
     private static JsonObject cleanup(PlayerRef player) {
@@ -234,7 +236,7 @@ public final class LumberReplantFixtures {
             }
             AdaptPlayer runtime = Objects.requireNonNull(Fixtures.adaptPlayer(player));
             for (Map.Entry<Adaptation<?>, Integer> entry : stage.previous.entrySet()) {
-                runtime.getData().getSkillLine(entry.getKey().getSkill().getName()).setAdaptation(entry.getKey(), entry.getValue());
+                runtime.getData().getSkillLine(SkillHost.lineKey(entry.getKey().getSkill())).setAdaptation(entry.getKey(), entry.getValue());
             }
         }
         if (PREPARED.remove(player.uuid()) != null) {
@@ -258,7 +260,7 @@ public final class LumberReplantFixtures {
         WorldRef world = player.world();
         boolean settled = false;
         if (GolemControlsFixtures.storeLoaded(world)) {
-            NodeFaces faces = BlockStorePort.current().get(world, 0, TREE_Y - 1, 0, NodeCodec.SLICE);
+            NodeFaces faces = BlockStorePort.current().get(world, 0, TREE_Y - 1, 0, NodeCodec.slice());
             settled = faces == null || faces.get(BlockFace.UP) == null;
         }
         result.addProperty("settled", settled);

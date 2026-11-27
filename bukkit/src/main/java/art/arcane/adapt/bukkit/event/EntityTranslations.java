@@ -23,6 +23,8 @@ import art.arcane.adapt.platform.event.entity.ProjectileLaunchEvent;
 import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -110,7 +112,7 @@ final class EntityTranslations {
     EntityDamageEvent core;
     if (event instanceof org.bukkit.event.entity.EntityDamageByEntityEvent byEntity) {
       core = new EntityDamageByEntityEvent(victim, entity(byEntity.getDamager()), entity(Paper121Access.causingEntity(event)),
-          cause, damageType, damage, byEntity.isCritical(), finalDamage, blockedDamage);
+          cause, damageType, damage, PaperCompat.isCritical(byEntity), finalDamage, blockedDamage);
     } else if (event instanceof org.bukkit.event.entity.EntityDamageByBlockEvent byBlock) {
       core = new EntityDamageByBlockEvent(victim, block(byBlock.getDamager()), cause, damageType, damage,
           finalDamage, blockedDamage);
@@ -182,7 +184,7 @@ final class EntityTranslations {
             PlayerDeathEvent core = new PlayerDeathEvent(player(death.getEntity()), killer, direct, causing, cause, dropRefs,
                 droppedExp, death.getKeepInventory(), death.getKeepLevel(), death.getNewLevel(), death.getNewExp(),
                 death.getNewTotalExp());
-            core.setPlatformCancelled(event.isCancelled());
+            core.setPlatformCancelled(PaperApi.deathCancelled(event));
             poster.post(core);
             writeDeath(event, core, droppedExp);
             if (core.keepInventory() != death.getKeepInventory()) {
@@ -203,7 +205,7 @@ final class EntityTranslations {
             return;
           }
           EntityDeathEvent core = new EntityDeathEvent(living(dead), killer, direct, causing, cause, dropRefs, droppedExp);
-          core.setPlatformCancelled(event.isCancelled());
+          core.setPlatformCancelled(PaperApi.deathCancelled(event));
           poster.post(core);
           writeDeath(event, core, droppedExp);
         }

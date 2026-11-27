@@ -2,9 +2,9 @@ package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.ComponentPort;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.ComponentPort;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
@@ -112,9 +112,8 @@ public final class ItemsAuditFixtures {
             case "bulk", "bulk-valid" -> {
                 AdaptCore.platform().recipes().unregister(EXACT_RECIPE);
                 ItemRef marked = named("diamond", "Marked Diamond", 1);
-                RecipeSpec recipe = new RecipeSpec.Shaped(EXACT_RECIPE, List.of("A"), Map.of('A', new Ingredient.Exact(marked)),
-                    Fixtures.item("emerald"), 0);
-                if (!AdaptCore.platform().recipes().register(recipe)) {
+                RecipeSpec recipe = RecipeSpec.shaped(EXACT_RECIPE, List.of("A"), Map.of('A', new Ingredient.Exact(marked)), Fixtures.item("emerald")).withRequiredLevel(0);
+                if (!AdaptCore.platform().recipes().add(recipe)) {
                     throw new IllegalStateException("Exact-choice recipe registration failed");
                 }
                 player.inventory().setItem(0, named("diamond", "Marked Diamond", mode.equals("bulk-valid") ? 9 : 1));

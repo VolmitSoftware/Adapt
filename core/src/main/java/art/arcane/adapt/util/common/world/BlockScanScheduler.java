@@ -614,7 +614,7 @@ public final class BlockScanScheduler {
       }
 
       int insertion = 0;
-      while (insertion < size && distanceSquared[insertion] <= blockDistanceSquared) {
+      while (insertion < size && !nearer(blockDistanceSquared, blockY, blockX, blockZ, insertion)) {
         insertion++;
       }
       if (insertion >= x.length) {
@@ -639,6 +639,21 @@ public final class BlockScanScheduler {
       if (size < x.length) {
         size++;
       }
+    }
+
+    /** Whether the block goes before the match at {@code index}: nearer, or as near and lower in y, x, then z. */
+    private boolean nearer(double blockDistanceSquared, int blockY, int blockX, int blockZ, int index) {
+      int distance = Double.compare(blockDistanceSquared, distanceSquared[index]);
+      if (distance != 0) {
+        return distance < 0;
+      }
+      if (blockY != y[index]) {
+        return blockY < y[index];
+      }
+      if (blockX != x[index]) {
+        return blockX < x[index];
+      }
+      return blockZ < z[index];
     }
 
     private boolean contains(int blockX, int blockY, int blockZ) {

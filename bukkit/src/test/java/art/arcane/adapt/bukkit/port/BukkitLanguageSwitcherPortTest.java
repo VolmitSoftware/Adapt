@@ -1,6 +1,7 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.bukkit.command.BukkitCommandSource;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.server.ClientUiService;
@@ -37,7 +38,7 @@ class BukkitLanguageSwitcherPortTest extends AdaptTestBase {
     BukkitLanguageSwitcherPort port = new BukkitLanguageSwitcherPort(plugin);
     try (MockedStatic<BukkitLanguageSwitcher> registration = mockStatic(BukkitLanguageSwitcher.class);
          MockedStatic<ClientUiService> sessions = mockStatic(ClientUiService.class);
-         MockedStatic<Tasks> tasks = mockStatic(Tasks.class)) {
+         MockedStatic<Tasks> tasks = SchedulerForwarding.mockTasks()) {
       registration.when(() -> BukkitLanguageSwitcher.register(any(), any(), any(), any())).thenReturn(chest);
       sessions.when(ClientUiService::current).thenReturn(clients);
       port.open(mock(PluginLanguageService.class));

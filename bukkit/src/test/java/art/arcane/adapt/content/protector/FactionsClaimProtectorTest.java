@@ -83,59 +83,59 @@ class FactionsClaimProtectorTest {
     when(foreign.hasAccess(eq(fplayer), eq(PermissibleActions.BUILD), any(FLocation.class))).thenReturn(true);
     when(foreign.hasAccess(eq(fplayer), eq(PermissibleActions.CONTAINER), any(FLocation.class))).thenReturn(false);
 
-    assertThat(protector.canBlockBreak(player, territory, null)).isFalse();
-    assertThat(protector.canBlockPlace(player, territory, null)).isTrue();
-    assertThat(protector.canAccessChest(player, territory, null)).isFalse();
-    assertThat(protector.checkRegion(player, territory, null)).isFalse();
+    assertThat(protector.canBlockBreak(player, territory)).isFalse();
+    assertThat(protector.canBlockPlace(player, territory)).isTrue();
+    assertThat(protector.canAccessChest(player, territory)).isFalse();
+    assertThat(protector.checkRegion(player, territory)).isFalse();
   }
 
   @Test
   void monstersInForeignTerritoryCanBeHitButCreaturesCannot() {
-    assertThat(protector.canPVE(player, entity(Zombie.class, territory), null)).isTrue();
-    assertThat(protector.canPVE(player, entity(ArmorStand.class, territory), null)).isTrue();
-    assertThat(protector.canPVE(player, entity(Cow.class, territory), null)).isFalse();
-    assertThat(protector.canPVE(player, entity(Squid.class, territory), null)).isFalse();
+    assertThat(protector.canPVE(player, entity(Zombie.class, territory))).isTrue();
+    assertThat(protector.canPVE(player, entity(ArmorStand.class, territory))).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, territory))).isFalse();
+    assertThat(protector.canPVE(player, entity(Squid.class, territory))).isFalse();
   }
 
   @Test
   void locationOnlyDamageChecksAreNotLimitedByTerritory() {
-    assertThat(protector.canPVE(player, territory, null)).isTrue();
+    assertThat(protector.canPVE(player, territory)).isTrue();
   }
 
   @Test
   void interactionIsNotGatedByTheFactionsItemPermission() {
     lenient().when(foreign.hasAccess(any(FPlayer.class), any(), any(FLocation.class))).thenReturn(false);
 
-    assertThat(protector.canInteract(player, territory, null)).isTrue();
+    assertThat(protector.canInteract(player, territory)).isTrue();
   }
 
   @Test
   void wildernessAllowsEverything() {
-    assertThat(protector.canBlockBreak(player, wilderness, null)).isTrue();
-    assertThat(protector.canBlockPlace(player, wilderness, null)).isTrue();
-    assertThat(protector.canAccessChest(player, wilderness, null)).isTrue();
-    assertThat(protector.canInteract(player, wilderness, null)).isTrue();
-    assertThat(protector.canPVE(player, entity(Cow.class, wilderness), null)).isTrue();
-    assertThat(protector.checkRegion(player, wilderness, null)).isTrue();
+    assertThat(protector.canBlockBreak(player, wilderness)).isTrue();
+    assertThat(protector.canBlockPlace(player, wilderness)).isTrue();
+    assertThat(protector.canAccessChest(player, wilderness)).isTrue();
+    assertThat(protector.canInteract(player, wilderness)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, wilderness))).isTrue();
+    assertThat(protector.checkRegion(player, wilderness)).isTrue();
   }
 
   @Test
   void adminBypassAndOwnTerritoryAllowEverything() {
     when(fplayer.isAdminBypassing()).thenReturn(true);
-    assertThat(protector.canBlockBreak(player, territory, null)).isTrue();
-    assertThat(protector.canAccessChest(player, territory, null)).isTrue();
+    assertThat(protector.canBlockBreak(player, territory)).isTrue();
+    assertThat(protector.canAccessChest(player, territory)).isTrue();
 
     when(fplayer.isAdminBypassing()).thenReturn(false);
     when(fplayer.getFaction()).thenReturn(foreign);
-    assertThat(protector.canPVE(player, entity(Cow.class, territory), null)).isTrue();
-    assertThat(protector.checkRegion(player, territory, null)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, territory))).isTrue();
+    assertThat(protector.checkRegion(player, territory)).isTrue();
   }
 
   @Test
   void regionChecksLookAtTheGivenLocationNotThePlayer() {
     lenient().when(player.getLocation()).thenReturn(wilderness);
 
-    assertThat(protector.checkRegion(player, territory, null)).isFalse();
+    assertThat(protector.checkRegion(player, territory)).isFalse();
   }
 
   private static <T extends Entity> T entity(Class<T> type, Location at) {

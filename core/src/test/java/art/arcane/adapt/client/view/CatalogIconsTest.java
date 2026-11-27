@@ -1,6 +1,6 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.testkit.FakeGameContent;
@@ -29,7 +29,7 @@ class CatalogIconsTest {
       TestPlatform platform = TestPlatform.builder(data.resolve(game.version().toString())).build();
       platform.host().runGame(game);
       List<String> missing = new ArrayList<>();
-      try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+      try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
         CatalogView catalog = CatalogViews.build(adapt.core().getAdaptServer().getSkillRegistry(), UUID.randomUUID(), List.of(), false);
         for (SkillView skill : catalog.skills()) {
           require(game, "skill " + skill.id(), skill.icon(), missing);

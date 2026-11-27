@@ -6,7 +6,7 @@ import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuHost;
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
 import net.minecraft.network.chat.Component;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /** Adapt chest menus as vanilla chest windows that refuse every click (see {@link AdaptChestMenu}). */
-public final class ModMenuHost implements MenuHost {
+public final class ModMenuHost implements HostMenus {
     private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
     private final Map<UUID, StorageView> storages = new ConcurrentHashMap<>();
 

@@ -5,13 +5,14 @@ import { skillMatrix, assertSkillCoverage, xpEvidence } from './skill-matrix.mjs
 import { hasCommittedXp } from './all-skills.mjs'
 
 test('matrix covers every registered skill and uses its actual stable name', async () => {
-  const registry = await readFile(new URL('../../../../core/src/main/java/art/arcane/adapt/content/CoreContent.java', import.meta.url), 'utf8')
-  const registered = [...registry.matchAll(/^\s+(Skill\w+)\.class[,)]/gm)].map(match => match[1]).sort()
+  const registry = await readFile(new URL('../../../../content/src/main/java/art/arcane/adapt/content/BuiltinAddon.java', import.meta.url), 'utf8')
+  const registered = [...registry.matchAll(/\bnew Entry\([^,]+, (Skill\w+)\.class,/g)].map(match => match[1]).sort()
   assert.deepEqual(skillMatrix.map(entry => entry.source).sort(), registered)
   for (const { source, skill } of skillMatrix) {
     const code = await readFile(new URL(`../../main/java/art/arcane/adapt/content/skill/${source}.java`, import.meta.url), 'utf8')
-      .catch(() => readFile(new URL(`../../../../core/src/main/java/art/arcane/adapt/content/skill/${source}.java`, import.meta.url), 'utf8'))
-    assert.match(code, new RegExp(`super\\("${skill}"`))
+      .catch(() => readFile(new URL(`../../../../content/src/main/java/art/arcane/adapt/content/skill/${source}.java`, import.meta.url), 'utf8'))
+    assert.match(code, new RegExp(`public static final Id ID = Id\\.adapt\\("${skill}"\\);`))
+    assert.match(code, /\bsuper\(ID\)/)
   }
 })
 

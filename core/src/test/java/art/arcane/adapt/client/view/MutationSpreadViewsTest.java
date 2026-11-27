@@ -1,15 +1,18 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.mutation.PairKeys;
+
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.content.skill.SkillAxes;
 import art.arcane.adapt.content.skill.SkillHunter;
 import art.arcane.adapt.content.skill.SkillRanged;
@@ -74,10 +77,10 @@ class MutationSpreadViewsTest {
       MutationSpreadView spread = build(lead, partner);
 
       assertThat(SkillMutations.mutate(playerData, lead, partner, "Spread")).isEqualTo(SkillMutations.Result.MUTATED);
-      PlayerSkillLine merged = playerData.getSkillLine(lead.getName());
+      PlayerSkillLine merged = playerData.getSkillLine(SkillHost.lineKey(lead));
       assertThat(spread.summary()).as("%s", pair)
           .isEqualTo("Level " + merged.getLevel() + " · " + merged.getKnowledge() + " knowledge");
-      assertThat(spread.name()).isEqualTo(registry.getMutatedSkill(merged.getLine()).getLocalizedName());
+      assertThat(spread.name()).isEqualTo(registry.getMutatedSkill(PairKeys.parse(merged.getLine())).getLocalizedName());
     }
   }
 
@@ -92,18 +95,18 @@ class MutationSpreadViewsTest {
 
     MutationSide swords = spread.leadSide();
     MutationSide stealth = spread.partnerSide();
-    assertThat(swords.skillId()).isEqualTo("swords");
+    assertThat(swords.skillId()).isEqualTo("adapt:swords");
     assertThat(swords.level()).isEqualTo(22);
     assertThat(swords.upgrades()).extracting(MutationEntry::id)
-        .containsExactlyElementsOf(skill("swords").getUpgrades().stream().map(Adaptation::getName).toList());
+        .containsExactlyElementsOf(SkillHost.of(skill("adapt:swords")).getUpgrades().stream().map((Adaptation<?> adaptation) -> adaptation.getId().toString()).toList());
     assertThat(swords.kept()).extracting(MutationEntry::id)
-        .containsExactlyElementsOf(SkillUpgrades.kept(skill("swords")).stream().map(Adaptation::getName).toList());
+        .containsExactlyElementsOf(SkillUpgrades.kept(skill("adapt:swords")).stream().map((Adaptation<?> adaptation) -> adaptation.getId().toString()).toList());
     assertThat(swords.surplus()).isEqualTo("5 levels · 9 knowledge");
     assertThat(stealth.surplus()).isEmpty();
-    assertThat(stealth.lost().getFirst().id()).isEqualTo(learned.getName());
+    assertThat(stealth.lost().getFirst().id()).isEqualTo(learned.getId().toString());
     assertThat(stealth.lost().getFirst().level()).isEqualTo(2);
     assertThat(stealth.lost()).extracting(MutationEntry::id).doesNotContainAnyElementsOf(stealth.kept().stream()
-        .filter((MutationEntry kept) -> !kept.id().equals(learned.getName())).map(MutationEntry::id).toList());
+        .filter((MutationEntry kept) -> !kept.id().equals(learned.getId().toString())).map(MutationEntry::id).toList());
     assertThat(spread.mutated()).hasSize(5);
   }
 
@@ -117,7 +120,7 @@ class MutationSpreadViewsTest {
     assertThat(spread.name()).isEmpty();
     assertThat(spread.mutated()).isEmpty();
     assertThat(spread.partnerSide().skillId()).isEmpty();
-    assertThat(spread.leadSide().upgrades()).hasSize(skill("swords").getUpgrades().size());
+    assertThat(spread.leadSide().upgrades()).hasSize(SkillHost.of(skill("adapt:swords")).getUpgrades().size());
     assertThat(spread.leadSide().surplus()).isEmpty();
   }
 
@@ -134,17 +137,17 @@ class MutationSpreadViewsTest {
     MutationSpreadView spread = build(skill("swords"), null);
 
     assertThat(spread.candidates()).extracting(MutationCandidate::skillId)
-        .containsExactlyInAnyOrder("stealth", "axes", "unarmed", "ranged", "hunter");
-    assertThat(spread.candidate("unarmed").state()).isEqualTo(MutationCandidate.State.ELIGIBLE);
-    assertThat(spread.candidate("unarmed").reason()).isEmpty();
-    assertThat(spread.candidate("stealth").state()).isEqualTo(MutationCandidate.State.ALREADY_MUTATED);
-    assertThat(spread.candidate("stealth").reason()).isEqualTo("Already mutated");
-    assertThat(spread.candidate("ranged").state()).isEqualTo(MutationCandidate.State.LEVEL_TOO_LOW);
-    assertThat(spread.candidate("ranged").level()).isEqualTo(9);
+        .containsExactlyInAnyOrder("adapt:stealth", "adapt:axes", "adapt:unarmed", "adapt:ranged", "adapt:hunter");
+    assertThat(spread.candidate("adapt:unarmed").state()).isEqualTo(MutationCandidate.State.ELIGIBLE);
+    assertThat(spread.candidate("adapt:unarmed").reason()).isEmpty();
+    assertThat(spread.candidate("adapt:stealth").state()).isEqualTo(MutationCandidate.State.ALREADY_MUTATED);
+    assertThat(spread.candidate("adapt:stealth").reason()).isEqualTo("Already mutated");
+    assertThat(spread.candidate("adapt:ranged").state()).isEqualTo(MutationCandidate.State.LEVEL_TOO_LOW);
+    assertThat(spread.candidate("adapt:ranged").level()).isEqualTo(9);
 
     AdaptConfig.Mutations capped = TomlCodec.fromToml("maxMutations = 1", AdaptConfig.Mutations.class);
     MutationSpreadView full = MutationSpreadViews.build(registry, playerData, skill("swords"), skill("unarmed"), capped, "");
-    assertThat(full.candidate("unarmed").state()).isEqualTo(MutationCandidate.State.LIMIT_REACHED);
+    assertThat(full.candidate("adapt:unarmed").state()).isEqualTo(MutationCandidate.State.LIMIT_REACHED);
     assertThat(full.partner()).isEmpty();
   }
 

@@ -169,7 +169,7 @@ async function mounted(input) {
 }
 
 export const kineticsBehaviorCases = new Map([
-    ['kinetics-breachwright', {
+    ['adapt:kinetics/breachwright', {
         stage: 'kinetic-smash', prepare: input => prepare(input, 'mace'), trigger: smash,
         verify: ({ context, unlearned, active }) => {
             context.expect(primary(unlearned.after).attributes.armor === 20 && primary(unlearned.after).attributes.armor_toughness === 8, 'Control smash preserves target armor attributes')
@@ -177,7 +177,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural mace smash shreds actual target armor and toughness by configured amounts'], unlearned, active)
         },
     }],
-    ['kinetics-quake-guard', {
+    ['adapt:kinetics/quake_guard', {
         stage: 'kinetic-smash', prepare: input => prepare(input, 'mace'), trigger: smash,
         verify: ({ context, unlearned, active }) => {
             for (const name of ['knockback_resistance', 'armor_toughness', 'safe_fall_distance']) {
@@ -187,7 +187,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural landed mace smash grants all three Quake Guard brace attributes'], unlearned, active)
         },
     }],
-    ['kinetics-rebound-anvil', {
+    ['adapt:kinetics/rebound_anvil', {
         stage: 'kinetic-smash', prepare: input => prepare(input, 'mace'), trigger: smash,
         verify: ({ context, unlearned, active }) => {
             context.expect(unlearned.after.kinetics.attributes.fall_damage_multiplier === unlearned.before.kinetics.attributes.fall_damage_multiplier, 'Control smash grants no fall relief modifier')
@@ -199,7 +199,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural landed mace smash reduces the real fall damage multiplier; bounce checked when registered'], unlearned, active)
         },
     }],
-    ['kinetics-windburst', {
+    ['adapt:kinetics/windburst', {
         stage: 'kinetic-smash', sound: 'minecraft:entity.wind_charge.wind_burst', soundVolume: 0.9, soundPitch: 0.8, particle: 'gust',
         prepare: input => prepare(input, 'mace'), trigger: smash,
         verify: ({ context, unlearned, active }) => {
@@ -211,7 +211,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['falling mace smash pushes a secondary target and grants the blast brace'], unlearned, active)
         },
     }],
-    ['kinetics-charge-lance', {
+    ['adapt:kinetics/charge_lance', {
         stage: 'kinetic-charge', prepare: input => prepare(input, 'wooden_spear'), trigger: charge,
         verify: ({ context, unlearned, active }) => {
             context.expect(primary(active.after).lastHit.attackerMove.distance >= 0.18 && primary(active.after).lastHit.tick - primary(active.after).lastHit.attackerMove.tick <= 1, 'Learned attack actually meets configured natural speed threshold in its latest accepted movement')
@@ -219,7 +219,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural running spear attack gains measured speed-dependent damage'], unlearned, active)
         },
     }],
-    ['kinetics-dead-zone', {
+    ['adapt:kinetics/dead_zone', {
         stage: 'kinetic-dead-zone', sound: 'minecraft:item.shield.block', soundVolume: 0.4, soundPitch: 1.5, particle: 'dust', particleColor: 0xC9D9E8,
         prepare: input => prepare(input, 'wooden_spear'), trigger: deadZone,
         verify: ({ context, unlearned, active }) => {
@@ -228,7 +228,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural close-range hit shoves attacker and arms a stronger immediate spear counterattack'], unlearned, active)
         },
     }],
-    ['kinetics-impale-pin', {
+    ['adapt:kinetics/impale_pin', {
         stage: 'kinetic-pin', sound: 'minecraft:block.chain.place', soundVolume: 0.45, soundPitch: 0.65, particle: 'dust', particleColor: 0xB7D4E8,
         prepare: input => prepare(input, 'wooden_spear'), trigger: spearHit,
         verify: ({ context, unlearned, active }) => {
@@ -237,7 +237,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural spear strike at four blocks applies configured sweet-range slowness'], unlearned, active)
         },
     }],
-    ['kinetics-lunge-conductor', {
+    ['adapt:kinetics/lunge_conductor', {
         stage: 'kinetic-lunge', sound: 'minecraft:item.trident.riptide_1', soundVolume: 0.35, soundPitch: 1.6, particle: 'cloud',
         prepare: input => prepare(input, 'wooden_spear'), trigger: lunge,
         verify: ({ context, unlearned, active }) => {
@@ -247,7 +247,7 @@ export const kineticsBehaviorCases = new Map([
             return report(['natural enchanted spear jab increases lunge power and actual player motion'], unlearned, active)
         },
     }],
-    ['kinetics-mounted-shock', {
+    ['adapt:kinetics/mounted_shock', {
         stage: 'kinetic-mounted', sound: 'minecraft:entity.horse.gallop', soundVolume: 0.4, soundPitch: 1.2, particle: 'sweep_attack',
         prepare: input => prepare(input, 'wooden_spear'), trigger: mounted,
         verify: ({ context, unlearned, active }) => {

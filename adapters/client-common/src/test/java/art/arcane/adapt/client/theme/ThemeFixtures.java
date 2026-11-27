@@ -2,6 +2,7 @@ package art.arcane.adapt.client.theme;
 
 import art.arcane.adapt.client.ui.UiResources;
 import art.arcane.adapt.client.ui.UiSpriteCache;
+import art.arcane.adapt.platform.value.Id;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,7 +39,7 @@ final class ThemeFixtures {
     }
 
     static ThemeKit kit(String skill) {
-        ThemeKit kit = LIBRARY.kit(SPRITES, skill);
+        ThemeKit kit = LIBRARY.kit(SPRITES, Id.adapt(skill));
         if (kit == null) {
             throw new IllegalStateException("no theme for " + skill);
         }

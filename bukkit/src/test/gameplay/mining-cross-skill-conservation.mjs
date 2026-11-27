@@ -50,11 +50,11 @@ export default {
           let valid = broken === expectedBlocks && Boolean(tool)
           if (mode === 'pact') valid &&= tool.damage <= 1560
           if (mode === 'masterwork') {
-            // Without per-stack max durability (crafting-masterwork emulated) every wear point is scaled by type max / 2000
+            // Without per-stack max durability (adapt:crafting/masterwork emulated) every wear point is scaled by type max / 2000
             // with a random round, so the exact total is the sum of the 9 charged wear events as Adapt applied them.
             const charged = after.wear.filter(entry => !entry.cancelled)
             const start = before.items.find(item => item.type === 'DIAMOND_PICKAXE').damage
-            valid &&= tool.maximum === 2000 && (versionEntry('crafting-masterwork')?.status === 'emulated'
+            valid &&= tool.maximum === 2000 && (versionEntry('adapt:crafting/masterwork')?.status === 'emulated'
               ? charged.length === 9 && tool.damage === start + charged.reduce((sum, entry) => sum + entry.damage, 0)
               : tool.damage === 1569)
           }

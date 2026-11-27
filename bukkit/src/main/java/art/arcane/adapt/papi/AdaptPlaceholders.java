@@ -2,10 +2,10 @@ package art.arcane.adapt.papi;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.xp.NewtonCurve;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.xp.NewtonCurve;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderSnapshot;
 import art.arcane.volmlib.util.bukkit.papi.PlayerSnapshotStore;
 

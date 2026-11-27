@@ -1,8 +1,8 @@
 package art.arcane.adapt.client.server.hud;
 
-import art.arcane.adapt.api.notification.HudPriority;
-import art.arcane.adapt.api.notification.HudSegment;
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudPriority;
+import art.arcane.adapt.engine.notification.HudSegment;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.platform.entity.PlayerRef;

@@ -1,8 +1,8 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.world.FencedPlayerSnapshot;
-import art.arcane.adapt.api.world.PlayerTransferPort;
+import art.arcane.adapt.engine.world.FencedPlayerSnapshot;
+import art.arcane.adapt.engine.world.PlayerTransferPort;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.project.redis.codec.ResetNotice;
 

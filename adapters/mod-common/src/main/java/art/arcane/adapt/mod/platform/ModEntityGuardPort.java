@@ -1,7 +1,7 @@
 package art.arcane.adapt.mod.platform;
 
-import art.arcane.adapt.api.adaptation.EntityGuardPort;
-import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.engine.adaptation.EntityGuardPort;
+import art.arcane.adapt.engine.minion.MinionIdentity;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import net.minecraft.server.level.ServerPlayer;

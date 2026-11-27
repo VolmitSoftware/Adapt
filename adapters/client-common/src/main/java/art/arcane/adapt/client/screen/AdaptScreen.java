@@ -560,7 +560,7 @@ public abstract class AdaptScreen extends KitScreen {
         int headerGap = theme.gap() * 2;
         int messageHeight = snackbar.preferredHeight(area.width(), metrics);
         int messageRoom = messageHeight + 2 - MARGIN;
-        pageTheme = router.themes().theme(metrics.sprites(), themeSkill());
+        pageTheme = tileTheming.theme(metrics.sprites(), themeSkill());
         int reserve = pageTheme != null ? THEME_FOOT : 0;
         int height = Math.min(BOOK_HEIGHT, Math.max(0, area.height() - messageRoom));
         int widest = Math.max(0, Math.min(Math.min(BOOK_WIDTH, area.width()), UiLayout.widest(height)) - chrome);

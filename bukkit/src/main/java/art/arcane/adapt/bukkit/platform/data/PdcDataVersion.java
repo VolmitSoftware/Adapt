@@ -2,7 +2,6 @@ package art.arcane.adapt.bukkit.platform.data;
 
 import art.arcane.adapt.platform.data.DataType;
 import art.arcane.adapt.platform.data.DataValue;
-import io.papermc.paper.persistence.PersistentDataContainerView;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -19,19 +18,19 @@ final class PdcDataVersion {
     source.copyTo(target, true);
   }
 
-  static boolean has(PersistentDataContainerView container, NamespacedKey key, DataType type) {
+  static boolean has(PdcView container, NamespacedKey key, DataType type) {
     return container != null && container.has(key, type(type));
   }
 
-  static boolean hasAny(PersistentDataContainerView container, NamespacedKey key) {
+  static boolean hasAny(PdcView container, NamespacedKey key) {
     return container != null && container.has(key);
   }
 
-  static Set<NamespacedKey> keys(PersistentDataContainerView container) {
+  static Set<NamespacedKey> keys(PdcView container) {
     return container == null || container.isEmpty() ? Set.of() : container.getKeys();
   }
 
-  static boolean isEmpty(PersistentDataContainerView container) {
+  static boolean isEmpty(PdcView container) {
     return container == null || container.isEmpty();
   }
 
@@ -51,7 +50,7 @@ final class PdcDataVersion {
     };
   }
 
-  static DataValue read(PersistentDataContainerView container, NamespacedKey key, DataType type) {
+  static DataValue read(PdcView container, NamespacedKey key, DataType type) {
     if (container == null || !container.has(key, type(type))) {
       return null;
     }

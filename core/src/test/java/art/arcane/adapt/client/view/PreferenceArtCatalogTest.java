@@ -1,12 +1,16 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferenceToggleGroup;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.platform.value.Id;
+
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.content.adaptation.axe.AxeIrisFeller;
+import art.arcane.adapt.content.skill.SkillAxes;
+import art.arcane.adapt.testkit.TestContent;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -53,23 +57,23 @@ class PreferenceArtCatalogTest {
     }
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v26_3());
-    try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+    try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
       for (Skill<?> skill : adapt.core().getAdaptServer().getSkillRegistry().getSkills()) {
-        addChoices(skill.getName(), List.of(CommonPreferences.SKILL_ENABLED), Set.of(), expected, overrides);
+        addChoices(skill.getId(), List.of(CommonPreferences.SKILL_ENABLED), Set.of(), expected, overrides);
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
           Set<String> grouped = new HashSet<>();
           for (PreferenceToggleGroup group : adaptation.getPlayerPreferenceGroups()) {
-            expected.add(relative(IconSprites.preferenceGroup(adaptation.getName(), group.id())));
+            expected.add(relative(IconSprites.preferenceGroup(adaptation.getId(), group.id())));
             for (PreferenceToggleGroup.Entry entry : group.entries()) {
               grouped.add(entry.preference().id());
-              expected.add(relative(IconSprites.preferenceMember(adaptation.getName(), entry.preference().id())));
+              expected.add(relative(IconSprites.preferenceMember(adaptation.getId(), entry.preference().id())));
             }
           }
-          addChoices(adaptation.getName(), adaptation.getPlayerPreferences(), grouped, expected, overrides);
+          addChoices(adaptation.getId(), adaptation.getPlayerPreferences(), grouped, expected, overrides);
         }
       }
-      Adaptation<?> irisFeller = new AxeIrisFeller();
-      addChoices(irisFeller.getName(), irisFeller.getPlayerPreferences(), Set.of(), expected, overrides);
+      Adaptation<?> irisFeller = TestContent.adaptation(SkillAxes.ID, AxeIrisFeller::new);
+      addChoices(irisFeller.getId(), irisFeller.getPlayerPreferences(), Set.of(), expected, overrides);
     }
     Files.createDirectories(REPORT.getParent());
     Files.write(REPORT, expected, StandardCharsets.UTF_8);
@@ -91,7 +95,7 @@ class PreferenceArtCatalogTest {
     assertThat(unexpected).as("preference art no lookup uses").isEmpty();
   }
 
-  private static void addChoices(String ownerId, List<PlayerPreference<?>> preferences, Set<String> grouped, Set<String> expected,
+  private static void addChoices(Id ownerId, List<PlayerPreference<?>> preferences, Set<String> grouped, Set<String> expected,
                                  Set<String> overrides) {
     for (PlayerPreference<?> preference : preferences) {
       if (grouped.contains(preference.id()) || values(preference).equals(TOGGLE)) {

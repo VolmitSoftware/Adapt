@@ -17,7 +17,7 @@ public final class TileFrame {
     public static final int REACH_X = 5;
     /** The most a frame starting from nothing advances in one step, so a tile not drawn for a while starts at its start. */
     private static final long FIRST_STEP_MILLIS = 50L;
-    private static final FrameCanvas CANVAS = new FrameCanvas();
+    private static final KitFrameCanvas CANVAS = new KitFrameCanvas();
 
     private double lift;
     private boolean leaving;
@@ -66,15 +66,15 @@ public final class TileFrame {
         ThemeKit partner = theme.partner();
         if (partner == null) {
             CANVAS.begin(draw, lead, x, y, width, height, e, seconds, out, Integer.MIN_VALUE, Integer.MAX_VALUE);
-            HoverFrames.draw(lead.seed(), CANVAS);
+            SkillFrames.draw(lead, CANVAS);
             return;
         }
         CANVAS.begin(draw, lead, x, y, width, height, e, seconds, out, Integer.MIN_VALUE, mid - 2);
-        HoverFrames.draw(lead.seed(), CANVAS);
+        SkillFrames.draw(lead, CANVAS);
         CANVAS.begin(draw, partner, x, y, width, height, e, seconds, out, mid + 2, Integer.MAX_VALUE);
-        HoverFrames.draw(partner.seed(), CANVAS);
-        if (e > 0.5) {
-            int alpha = FrameCanvas.alphaByte(Math.min(1.0, (e - 0.5) * 4)) << 24 | 0xFFFFFF;
+        SkillFrames.draw(partner, CANVAS);
+        if (e > 0.5 && lead.dress(DressSlot.HOOK).length > 0 && partner.dress(DressSlot.HOOK).length > 0) {
+            int alpha = KitFrameCanvas.alphaByte(Math.min(1.0, (e - 0.5) * 4)) << 24 | 0xFFFFFF;
             DressSprite leadHook = lead.dress(DressSlot.HOOK)[0];
             DressSprite partnerHook = partner.dress(DressSlot.HOOK)[0];
             ThemeSprite left = leadHook.frame(0, false);

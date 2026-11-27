@@ -2,24 +2,24 @@
   "skill": "tragoul",
   "upgrades": [
     {
-      "name": "upgraded-tragoul-crimson-tide",
+      "name": "adapt:tragoul/upgrade/crimson_tide",
       "class": "CrimsonTide",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/CrimsonTide.java",
-      "fuses": ["tragoul-soul-siphon", "tragoul-healing", "tragoul-thorns"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/CrimsonTide.java",
+      "fuses": ["adapt:tragoul/soul_siphon", "adapt:tragoul/healing", "adapt:tragoul/thorns"],
       "triggers": ["EntityDamageEvent", "EntityDamageByEntityEvent"]
     },
     {
-      "name": "upgraded-tragoul-plague-nova",
+      "name": "adapt:tragoul/upgrade/plague_nova",
       "class": "PlagueNova",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/PlagueNova.java",
-      "fuses": ["tragoul-corpse-explosion", "tragoul-plague-bearer", "tragoul-lance"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/PlagueNova.java",
+      "fuses": ["adapt:tragoul/corpse_explosion", "adapt:tragoul/plague_bearer", "adapt:tragoul/lance"],
       "triggers": ["EntityDamageByEntityEvent", "EntityDeathEvent", "PlayerQuitEvent", "PlayerDeathEvent"]
     },
     {
-      "name": "upgraded-tragoul-deathless",
+      "name": "adapt:tragoul/upgrade/deathless",
       "class": "Deathless",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/Deathless.java",
-      "fuses": ["tragoul-marrow-armor", "tragoul-last-rites"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/tragoul/upgraded/Deathless.java",
+      "fuses": ["adapt:tragoul/marrow_armor", "adapt:tragoul/last_rites"],
       "triggers": ["EntityDamageEvent", "PlayerInteractEvent"]
     }
   ]

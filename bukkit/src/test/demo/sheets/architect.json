@@ -1,5 +1,5 @@
 {
-  "architect-chalk-line": {
+  "adapt:architect/chalk_line": {
     "set": "architect-lawn",
     "level": 4,
     "povCapture": true,
@@ -365,7 +365,7 @@
     },
     "maxTicks": 1080
   },
-  "architect-demolition": {
+  "adapt:architect/demolition": {
     "set": "architect-yard",
     "level": 5,
     "povCapture": true,
@@ -424,8 +424,8 @@
     },
     "maxTicks": 540
   },
-  "architect-elevator": {
-    "set": "architect-elevator",
+  "adapt:architect/elevator": {
+    "set": "adapt:architect/elevator",
     "level": 1,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:note_block[minecraft:custom_data={PublicBukkitValues:{\"adapt:elevator\":0b}},minecraft:custom_name={text:\"Elevator Block\",italic:false}] 2"
@@ -456,7 +456,7 @@
     },
     "maxTicks": 264
   },
-  "architect-foundation": {
+  "adapt:architect/foundation": {
     "set": "architect-ledge",
     "level": 5,
     "pre": [
@@ -481,7 +481,7 @@
     },
     "maxTicks": 220
   },
-  "architect-glass": {
+  "adapt:architect/glass": {
     "set": "architect-window",
     "level": 1,
     "camera": {
@@ -510,7 +510,7 @@
     },
     "maxTicks": 212
   },
-  "architect-placement": {
+  "adapt:architect/placement": {
     "set": "architect-planks",
     "level": 1,
     "pre": [
@@ -536,7 +536,7 @@
     },
     "maxTicks": 200
   },
-  "architect-scaffolder": {
+  "adapt:architect/scaffolder": {
     "set": "architect-yard",
     "level": 1,
     "pre": [
@@ -569,7 +569,7 @@
     },
     "maxTicks": 384
   },
-  "architect-smart-shape": {
+  "adapt:architect/smart_shape": {
     "set": "architect-logs",
     "level": 1,
     "prelude": [
@@ -592,7 +592,7 @@
     },
     "maxTicks": 200
   },
-  "architect-steady-hands": {
+  "adapt:architect/steady_hands": {
     "set": "architect-ledge",
     "level": 5,
     "pre": [
@@ -634,7 +634,7 @@
     },
     "maxTicks": 276
   },
-  "architect-stonecutter-savant": {
+  "adapt:architect/stonecutter_savant": {
     "set": "architect-cutter",
     "level": 1,
     "povCapture": true,
@@ -681,7 +681,7 @@
     },
     "maxTicks": 335
   },
-  "architect-supply-line": {
+  "adapt:architect/supply_line": {
     "set": "architect-yard",
     "level": 5,
     "pre": [
@@ -713,7 +713,7 @@
     "maxTicks": 224,
     "povCapture": true
   },
-  "architect-wireless-redstone": {
+  "adapt:architect/wireless_redstone": {
     "set": "architect-signal",
     "level": 1,
     "pre": [

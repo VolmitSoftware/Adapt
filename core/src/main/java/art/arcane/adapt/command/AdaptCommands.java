@@ -21,6 +21,7 @@ import art.arcane.volmlib.util.director.runtime.DirectorExecutionMode;
 import art.arcane.volmlib.util.director.runtime.DirectorExecutionResult;
 import art.arcane.volmlib.util.director.runtime.DirectorInvocation;
 import art.arcane.volmlib.util.director.runtime.DirectorInvocationHook;
+import art.arcane.volmlib.util.director.runtime.DirectorRoute;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.director.runtime.DirectorSender;
@@ -43,11 +44,12 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public final class AdaptCommands implements DirectorInvocationHook {
   public static final String ROOT_COMMAND = "adapt";
   public static final String ROOT_PERMISSION = "adapt.main";
-  private static final String LANGUAGE = "language";
+  static final String LANGUAGE = "language";
   private static final String UNMUTATE = "unmutate";
 
   private final ThreadLocal<Deque<LanguageAudience.Scope>> languageScopes = ThreadLocal.withInitial(ArrayDeque::new);
   private volatile DirectorRuntimeEngine engine;
+  private volatile long grafted = -1;
 
   /** The command permissions with the defaults plugin.yml gives them on Bukkit, for platforms without plugin.yml. */
   public static void registerPermissionDefaults(PermissionHost permissions) {
@@ -66,23 +68,28 @@ public final class AdaptCommands implements DirectorInvocationHook {
     permissions.register("adapt.mutate", "Allows merging two of your own skills into a mutated skill", PermissionDefault.TRUE);
     permissions.register("adapt.mutate.reset", "Allows removing a player's skill mutations", PermissionDefault.OP);
     permissions.register("adapt.clear", "Allows clearing player progression data", PermissionDefault.OP);
-    permissions.register(CommandGolem.ADMIN_PERMISSION, "Allows listing, releasing, and waking other players' golems", PermissionDefault.OP);
+    permissions.register(CommandOrphans.PERMISSION, "Allows listing, refunding and deleting progress of missing addons", PermissionDefault.OP);
   }
 
+  /** The Director tree: Adapt's own commands with every installed addon command grafted in, rebuilt when those change. */
   public DirectorRuntimeEngine engine() {
     DirectorRuntimeEngine current = engine;
-    if (current != null) {
+    long revision = AddonCommands.revision();
+    if (current != null && grafted == revision) {
       return current;
     }
     synchronized (this) {
-      if (engine == null) {
-        engine = DirectorEngineFactory.create(new CommandAdapt(), DirectorEngineOptions.builder()
+      if (engine == null || grafted != revision) {
+        DirectorRuntimeEngine built = DirectorEngineFactory.create(new CommandAdapt(), DirectorEngineOptions.builder()
             .contexts(contexts())
             .dispatcher(AdaptCommands::dispatch)
             .invocationHook(this)
             .legacyHandlers(DirectorSystem.handlers)
             .textResolver(AdaptLanguage.directorResolver())
             .build());
+        AddonCommandRunner.graftAll(built.getRoot());
+        engine = built;
+        grafted = revision;
       }
       return engine;
     }
@@ -93,6 +100,15 @@ public final class AdaptCommands implements DirectorInvocationHook {
     AdaptLog.verbose(() -> "Received command from %s: /%s %s".formatted(source.name(), label, String.join(" ", args)));
     if (args.length > 0 && args[0].equalsIgnoreCase(LANGUAGE)) {
       language().command(source, Arrays.copyOfRange(args, 1, args.length));
+      return;
+    }
+    Optional<DirectorRoute> addon = addonRoute(source, label, args);
+    if (addon.isPresent()) {
+      if (sendHelpIfRequested(source, args) || AddonCommandRunner.run(source, addon.get())) {
+        playSuccessSound(source);
+      } else {
+        playFailureSound(source);
+      }
       return;
     }
     if (!(args.length > 1 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("dump"))
@@ -123,6 +139,8 @@ public final class AdaptCommands implements DirectorInvocationHook {
     List<String> suggestions;
     if (args.length > 0 && args[0].equalsIgnoreCase(LANGUAGE)) {
       suggestions = language().complete(source, Arrays.copyOfRange(args, 1, args.length));
+    } else if (args.length > 1 && addonRoute(source, alias, Arrays.copyOf(args, args.length - 1)).isPresent()) {
+      suggestions = addonSuggestions(source, alias, args);
     } else if (args.length == 3 && args[0].equalsIgnoreCase(UNMUTATE)) {
       suggestions = CommandAdapt.mutationSuggestions(source, args[1], args[2]);
     } else {
@@ -154,6 +172,24 @@ public final class AdaptCommands implements DirectorInvocationHook {
     if (scopes.isEmpty()) {
       languageScopes.remove();
     }
+  }
+
+  /** The route of {@code args} when it ends on an addon command. */
+  private Optional<DirectorRoute> addonRoute(CommandSource source, String label, String[] args) {
+    if (args.length == 0 || AddonCommands.installed().isEmpty()) {
+      return Optional.empty();
+    }
+    DirectorRoute route = engine().route(new DirectorInvocation(new SourceSender(source), label, Arrays.asList(args)));
+    return AddonCommandRunner.command(route).isPresent() ? Optional.of(route) : Optional.empty();
+  }
+
+  /** Subcommand names of an addon group come from Director; argument values of a command that runs come from here. */
+  private List<String> addonSuggestions(CommandSource source, String alias, String[] args) {
+    DirectorRoute route = addonRoute(source, alias, Arrays.copyOf(args, args.length - 1)).orElseThrow();
+    if (AddonCommandRunner.command(route).orElseThrow().isGroup()) {
+      return runDirectorTab(source, alias, args);
+    }
+    return AddonCommandRunner.complete(source, route, args[args.length - 1]);
   }
 
   private static LanguageSwitcherPort language() {

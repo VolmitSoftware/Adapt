@@ -1,6 +1,6 @@
 package art.arcane.adapt.util.project.redis;
 
-import art.arcane.adapt.api.world.FencedPlayerSnapshot;
+import art.arcane.adapt.engine.world.FencedPlayerSnapshot;
 import art.arcane.adapt.util.project.redis.codec.DataMessage;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;

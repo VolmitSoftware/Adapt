@@ -1,34 +1,36 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.engine.player.PlayerApi;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemTask;
-import art.arcane.adapt.api.golem.GolemTaskBoard;
-import art.arcane.adapt.api.golem.GolemTaskBoards;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.item.GolemItemKind;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.node.NodeIndex;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.plinth.PlinthService;
-import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.engine.data.WorldData;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemRegistry;
+import art.arcane.adapt.content.golem.GolemTask;
+import art.arcane.adapt.content.golem.GolemTaskBoard;
+import art.arcane.adapt.content.golem.GolemTaskBoards;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemRuneType;
+import art.arcane.adapt.content.golem.GolemState;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.item.GolemItemKind;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.node.NodeIndex;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodeRecord;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.content.golem.plinth.PlinthService;
+import art.arcane.adapt.content.golem.plinth.PlinthSlotItem;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.gameplay.demo.DemoScope;
 import art.arcane.adapt.gameplay.demo.ProbeFormat;
@@ -141,7 +143,7 @@ public final class GolemancyDemoFixtures {
         for (Player owner : owners) {
             AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(owner));
             if (adaptPlayer != null) {
-                golems += adaptPlayer.getData().getGolemancy().golems().size();
+                golems += adaptPlayer.getData().section(GolemRoster.section()).golems().size();
             }
         }
         GolemancyFixtures.clearRosters(owners.stream().map(BukkitRefs::player).toArray(PlayerRef[]::new));
@@ -257,7 +259,7 @@ public final class GolemancyDemoFixtures {
         }
         Map<String, Integer> levels = new LinkedHashMap<>();
         for (Adaptation<?> adaptation : Fixtures.skill(GOLEMANCY_SKILL).getAdaptations()) {
-            levels.put(adaptation.getName(), adaptation.getLevel(learner));
+            levels.put(adaptation.getId().toString(), adaptation.getLevel(PlayerApi.profile(learner)));
         }
         out.append(ProbeFormat.levels(levels));
     }

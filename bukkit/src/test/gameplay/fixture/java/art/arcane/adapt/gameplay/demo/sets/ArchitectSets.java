@@ -38,7 +38,7 @@ public final class ArchitectSets implements DemoSetProvider {
                     ArchitectSets::buildPlankWall),
             new SimpleSet("architect-ledge", new DemoSet.Pose(0.5, LEDGE_HEIGHT, 0.5, 180f, 0f), new DemoSet.Pose(9.5, 5.5, -1.0, 90.0f, 9.5f),
                     false, List.of(), ArchitectSets::buildLedge),
-            new SimpleSet("architect-elevator", ACTOR_NORTH, new DemoSet.Pose(6.5, 4.0, 3.0, 123.7f, 15.5f), false, List.of(),
+            new SimpleSet("adapt:architect/elevator", ACTOR_NORTH, new DemoSet.Pose(6.5, 4.0, 3.0, 123.7f, 15.5f), false, List.of(),
                     ArchitectSets::buildElevatorShaft),
             new SimpleSet("architect-signal", ACTOR_NORTH, new DemoSet.Pose(8.5, 3.0, 0.5, 93.6f, 12.7f), false, List.of(),
                     ArchitectSets::buildSignal)

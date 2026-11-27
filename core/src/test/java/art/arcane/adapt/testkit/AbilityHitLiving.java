@@ -1,6 +1,6 @@
 package art.arcane.adapt.testkit;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.entity.DamageCause;

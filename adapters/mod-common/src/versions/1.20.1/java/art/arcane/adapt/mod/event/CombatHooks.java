@@ -373,8 +373,7 @@ public final class CombatHooks {
 
     static EffectInstance effect(MobEffectInstance effect) {
         int duration = effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration();
-        return new EffectInstance(effectId(effect.getEffect()), duration, Math.max(0, effect.getAmplifier()), effect.isAmbient(),
-            effect.isVisible(), effect.showIcon());
+        return EffectInstance.of(effectId(effect.getEffect()), duration, Math.max(0, effect.getAmplifier())).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon());
     }
 
     public static void targetReason(EntityTargetEvent.Reason reason) {

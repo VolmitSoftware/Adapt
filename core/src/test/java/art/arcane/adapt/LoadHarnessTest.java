@@ -1,8 +1,8 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.xp.XpAward;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.AdaptEventBus;
 import org.junit.jupiter.api.DisplayName;
@@ -44,7 +44,7 @@ class LoadHarnessTest extends AdaptTestBase {
                 PlayerData pd = data.get(i);
                 pd.addStat("blocks", 1.0);
                 PlayerSkillLine line = lines.get(i);
-                line.award(null, new XpAward("test:work", 1.0, null, false, XpAward.Kind.GAMEPLAY), 1.0, pd.getXpEarnings());
+                line.award(null, XpAward.gameplay(1.0, "test:work"), 1.0, pd.getXpEarnings());
                 if ((i & 7) == 0) {
                     line.flushXpPool(null);
                 }

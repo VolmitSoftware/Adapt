@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { frameAssembler } from './client-ui-frames.mjs'
 
 const CHANNEL = 'adapt:ui'
-const ADAPTATION = 'rift-blink'
+const ADAPTATION = 'adapt:rift/blink'
 const S2C = { accept: 1, catalog: 2, player: 3, update: 4, openRoute: 5, feedback: 15 }
 const FEEDBACK = ['SUCCESS', 'FAILURE', 'INFO']
 

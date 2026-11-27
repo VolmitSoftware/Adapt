@@ -8,6 +8,7 @@ import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.MobRef;
 import art.arcane.adapt.platform.entity.ai.MobGoalsRef;
 import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
 import org.bukkit.entity.AbstractSkeleton;
@@ -66,7 +67,7 @@ public final class BukkitMobRef extends BukkitLivingRef implements MobRef {
   public void lookAt(Loc target) {
     Location location = BukkitRefs.location(target);
     if (location != null) {
-      mob().lookAt(location);
+      PaperApi.lookAt(mob(), location);
     }
   }
 
@@ -105,12 +106,14 @@ public final class BukkitMobRef extends BukkitLivingRef implements MobRef {
 
   @Override
   public CopperGolemState copperGolemState() {
-    return BukkitMobVersion.copperGolemState(mob());
+    return PaperApi.isPaper() ? PaperCopperGolems.state(mob()) : CopperGolemState.IDLE;
   }
 
   @Override
   public void setCopperGolemState(CopperGolemState state) {
-    BukkitMobVersion.setCopperGolemState(mob(), state);
+    if (PaperApi.isPaper()) {
+      PaperCopperGolems.setState(mob(), state);
+    }
   }
 
   @Override
@@ -118,10 +121,7 @@ public final class BukkitMobRef extends BukkitLivingRef implements MobRef {
     if (mob() instanceof AbstractSkeleton skeleton) {
       PaperCompat.setShouldBurnInDay(skeleton, burns);
     } else if (mob() instanceof Zombie zombie) {
-      try {
-        zombie.setShouldBurnInDay(burns);
-      } catch (NoSuchMethodError ignored) {
-      }
+      PaperApi.setShouldBurnInDay(zombie, burns);
     }
   }
 

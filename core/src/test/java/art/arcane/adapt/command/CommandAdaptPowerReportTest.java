@@ -1,13 +1,15 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerAdaptation;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.collection.KList;
 import org.junit.jupiter.api.Test;
@@ -28,20 +30,22 @@ class CommandAdaptPowerReportTest extends AdaptTestBase {
     lenient().when(server.getSkillRegistry()).thenReturn(registry);
     doReturn(server).when(core).getAdaptServer();
     Skill<?> axes = mock(Skill.class);
-    lenient().when(axes.getName()).thenReturn("axes");
+    lenient().when(axes.getId()).thenReturn(Id.adapt("axes"));
     lenient().when(axes.isEnabled()).thenReturn(true);
     Adaptation<?> chop = mock(Adaptation.class);
-    lenient().when(chop.getName()).thenReturn("axe-chop");
+    lenient().when(chop.getId()).thenReturn(Id.adapt("axe/chop"));
     lenient().when(chop.isEnabled()).thenReturn(true);
     lenient().doReturn(axes).when(chop).getSkill();
     lenient().when(axes.getAdaptations()).thenReturn(new KList<>(List.of(chop)));
     lenient().doReturn(axes).when(registry).getSkill("axes");
+    lenient().doReturn(axes).when(registry).getSkill(Id.parseAdapt("axes").toString());
+    lenient().doReturn(axes).when(registry).getSkill(Id.parseAdapt("axes"));
     PlayerData data = new PlayerData();
     data.setRegionPowerBonus(3);
     PlayerSkillLine line = new PlayerSkillLine();
-    line.setLine("axes");
-    data.getSkillLines().put("axes", line);
-    store(line, "axe-chop", 2);
+    line.setLine("adapt:axes");
+    data.getSkillLines().put("adapt:axes", line);
+    store(line, "adapt:axe/chop", 2);
     store(line, "kinetics-dive", 1);
 
     List<String> report = new ArrayList<>();
@@ -51,8 +55,8 @@ class CommandAdaptPowerReportTest extends AdaptTestBase {
 
     assertThat(report).containsExactly(
         "Steve uses 1 of " + data.getMaxPower() + " power.",
-        "axes: axe-chop at level 2 uses 1 power.",
-        "axes: kinetics-dive at level 1 uses no power."
+        "adapt:axes: adapt:axe/chop at level 2 uses 1 power.",
+        "adapt:axes: kinetics-dive at level 1 uses no power."
     );
   }
 

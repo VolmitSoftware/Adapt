@@ -51,7 +51,7 @@ export default {
             setup = true
             await context.waitUntil(async () => (await snapshot()).chronos.serverTick > 0, { label: 'snapshot', timeoutMs: 5000 })
             await actor.bot.waitForTicks(70)
-            await context.command(`/adaptqa learn ranged-heartseeker ${level}`, /ADAPT_QA LEARN /, 5000)
+            await context.command(`/adaptqa learn adapt:ranged/heartseeker ${level}`, /ADAPT_QA LEARN /, 5000)
             for (let shot = 0; shot < 2; shot++) {
                 await context.step(`heartseeker flight level ${level} shot ${shot + 1}`, async () => {
                     actor.bot.clearControlStates()

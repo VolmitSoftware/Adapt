@@ -174,6 +174,25 @@ class BukkitSchedulerTest {
     assertThat(runs).hasValue(1);
   }
 
+  @Test
+  void aCancelledAsyncTaskNeverRunsAndCancelAllCancelsItsHandle() {
+    AtomicInteger runs = new AtomicInteger();
+    TaskHandle cancelled = scheduler.runAsync(runs::incrementAndGet, 4L);
+    TaskHandle pending = scheduler.runAsync(runs::incrementAndGet, 4L);
+
+    cancelled.cancel();
+    scheduler.cancelAll();
+
+    ArgumentCaptor<Runnable> tasks = ArgumentCaptor.forClass(Runnable.class);
+    verify(backend, times(2)).runAsync(tasks.capture(), eq(4L));
+    for (Runnable task : tasks.getAllValues()) {
+      task.run();
+    }
+    assertThat(runs).hasValue(0);
+    assertThat(cancelled.isCancelled()).isTrue();
+    assertThat(pending.isCancelled()).isTrue();
+  }
+
   private static Zombie zombie() {
     Zombie zombie = mock(Zombie.class);
     when(zombie.getUniqueId()).thenReturn(UUID.randomUUID());

@@ -1,0 +1,32 @@
+// Puts Adapt's built-in client art on the server classpath with an index of its files, so the asset catalog can read
+// the `adapt` bundle from a jar that cannot be listed. Mod builds already package client-common's resources; the
+// Bukkit build gets the art folders here.
+File artRoot = new File(buildscript.sourceFile.parentFile.parentFile, 'adapters/client-common/src/main/resources').canonicalFile
+List<String> artFolders = ['assets/adapt/textures/gui/**', 'assets/adapt/themes/**']
+FileTree art = fileTree(artRoot) { include(artFolders) }
+Provider<Directory> indexDirectory = layout.buildDirectory.dir('generated/resources/adapt-assets')
+
+TaskProvider<Task> assetIndex = tasks.register('generateAssetIndex') {
+    inputs.files(art).withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.dir(indexDirectory)
+    doLast {
+        List<String> paths = []
+        art.visit { FileVisitDetails file ->
+            if (!file.directory) {
+                paths.add(file.relativePath.pathString.substring('assets/adapt/'.length()))
+            }
+        }
+        paths.sort()
+        File index = indexDirectory.get().file('adapt-asset-index.txt').asFile
+        index.parentFile.mkdirs()
+        index.setText(paths.join('\n') + '\n', 'UTF-8')
+    }
+}
+
+boolean artPackaged = sourceSets.main.resources.srcDirs.any { File directory -> directory.canonicalFile == artRoot }
+tasks.named('processResources', ProcessResources).configure {
+    from(assetIndex)
+    if (!artPackaged) {
+        from(artRoot) { include(artFolders) }
+    }
+}

@@ -1,8 +1,8 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.attribute.AdaptAttributeResolver;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.RuntimeAttribute;
+import art.arcane.adapt.engine.attribute.AdaptAttributeResolver;
+import art.arcane.adapt.engine.version.IAttribute;
+import art.arcane.adapt.engine.version.RuntimeAttribute;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.entity.BukkitLivingRef;

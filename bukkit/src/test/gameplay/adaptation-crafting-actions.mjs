@@ -244,7 +244,7 @@ async function placePlane(input) {
 }
 
 export const craftingBehaviorCases = new Map([
-    ['crafting-bulk-artisan', {
+    ['adapt:crafting/bulk_artisan', {
         stage: 'craft-bulk', sound: 'minecraft:block.barrel.close', soundVolume: 0.5, soundPitch: 1.4, particle: 'crit',
         prepare: input => prepare(input), trigger: input => craft(input, { output: 'oak_planks', grid: [[1, 'oak_log', 1]], shift: true }),
         verify: ({ context, unlearned, active }) => {
@@ -253,7 +253,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural shift craft draws additional materials from inventory at exact recipe ratio'], unlearned, active)
         },
     }],
-    ['crafting-thrifty-hands', {
+    ['adapt:crafting/thrifty_hands', {
         stage: 'craft-thrifty', sound: 'minecraft:entity.item.pickup', soundVolume: 0.4, soundPitch: 1.6, particle: 'crit',
         prepare: input => prepare(input), trigger: async input => {
             const simple = await craft(input, { output: 'oak_planks', grid: [[1, 'oak_log', 20]], trials: 20, stackOutput: true })
@@ -271,7 +271,7 @@ export const craftingBehaviorCases = new Map([
             return report(['single-material recipes never refund', 'eligible crafts preserve exact output and refund at most one ingredient unit per click; no-refund probability 0.4^16', 'blocked full-inventory shift crafting consumes no input and returns no ingredient'], unlearned, active)
         },
     }],
-    ['crafting-provisioner', {
+    ['adapt:crafting/provisioner', {
         stage: 'craft-provision', sound: 'minecraft:entity.generic.eat', soundVolume: 0.4, soundPitch: 1.5, particle: 'crit',
         prepare: input => prepare(input), trigger: input => craft(input, { output: 'bread', grid: [[1, 'wheat', 12], [2, 'wheat', 12], [3, 'wheat', 12]], trials: 12 }),
         verify: ({ context, unlearned, active }) => {
@@ -280,7 +280,7 @@ export const craftingBehaviorCases = new Map([
             return report(['twelve natural recipes grant bonus food at 75 percent per craft; no-bonus probability 0.25^12'], unlearned, active)
         },
     }],
-    ['crafting-masterwork', {
+    ['adapt:crafting/masterwork', {
         stage: 'craft-masterwork', sound: 'minecraft:block.anvil.use', soundVolume: 0.5, soundPitch: 1.3, particle: 'crit',
         prepare: input => prepare(input), trigger: input => craft(input, { output: 'wooden_shovel', grid: [[2, 'oak_planks', 12], [5, 'stick', 12], [8, 'stick', 12]], trials: 12 }),
         verify: ({ context, unlearned, active }) => {
@@ -291,7 +291,7 @@ export const craftingBehaviorCases = new Map([
             return report(['twelve natural tool crafts produce a durable Masterwork at 75 percent per craft; no-proc probability 0.25^12'], unlearned, active)
         },
     }],
-    ['crafting-tinkerer', {
+    ['adapt:crafting/tinkerer', {
         stage: 'craft-tinkerer', sound: 'minecraft:block.anvil.use', soundVolume: 0.5, soundPitch: 1.1, particle: 'enchant', particleCount: 12, particleOffset: 0.4,
         prepare: input => prepare(input), trigger: input => craft(input, { output: 'iron_sword', grid: [[1, 'iron_sword', 1], [2, 'iron_sword', 1]] }),
         verify: ({ context, unlearned, active }) => {
@@ -303,7 +303,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural two-tool grid repair preserves both enchantments and restores durability'], unlearned, active)
         },
     }],
-    ['crafting-deconstruction', {
+    ['adapt:crafting/deconstruction', {
         stage: 'craft-deconstruction', sound: 'minecraft:block.basalt.break', soundVolume: 1, soundPitch: 0.2, particle: 'item',
         prepare: prepareDeconstruction, trigger: deconstruct,
         verify: ({ context, unlearned, active }) => {
@@ -313,7 +313,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural sneak interaction salvages dropped armor into half its recipe metal'], unlearned, active)
         },
     }],
-    ['crafting-leather', {
+    ['adapt:crafting/leather', {
         stage: 'craft-leather', sound: 'minecraft:item.armor.equip_leather', soundVolume: 0.6, soundPitch: 0.9, particle: 'flame',
         prepare: input => prepare(input, 'rotten_flesh'), trigger: leather,
         verify: ({ context, unlearned, active }) => {
@@ -323,7 +323,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural campfire use and 100 cooking ticks convert flesh into leather'], unlearned, active)
         },
     }],
-    ['crafting-backpacks', {
+    ['adapt:crafting/backpacks', {
         stage: 'craft-backpack', sound: 'minecraft:item.bundle.insert', soundVolume: 0.8, soundPitch: 0.8, particle: 'portal',
         prepare: input => prepare(input), trigger: backpack,
         verify: ({ context, unlearned, active }) => {
@@ -335,7 +335,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural backpack craft unlocks persistent deposit, reopen and withdrawal'], unlearned, active)
         },
     }],
-    ['crafting-stations', {
+    ['adapt:crafting/stations', {
         stage: 'craft-station', sound: 'minecraft:block.ender_chest.open', soundVolume: 1, soundPitch: 0.1, particle: 'reverse_portal',
         prepare: input => prepare(input, 'crafting_table'), trigger: input => portable(input, false),
         verify: ({ context, unlearned, active }) => {
@@ -345,7 +345,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural held-station air click opens workbench and pays configured hunger'], unlearned, active)
         },
     }],
-    ['architect-stonecutter-savant', {
+    ['adapt:architect/stonecutter_savant', {
         stage: 'craft-stonecutter', sound: 'minecraft:block.grindstone.use', soundVolume: 0.8, soundPitch: 1.4, particle: 'enchant',
         prepare: input => prepare(input), trigger: input => portable(input, true),
         verify: ({ context, unlearned, active }) => {
@@ -355,7 +355,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural empty-hand sneak punch opens a server stonecutter menu while preserving carried item'], unlearned, active)
         },
     }],
-    ['architect-smart-shape', {
+    ['adapt:architect/smart_shape', {
         stage: 'craft-shape', sound: 'minecraft:item.axe.strip', soundVolume: 0.45, soundPitch: 1.8, particle: 'crit',
         prepare: input => prepare(input), trigger: smartShape,
         verify: ({ context, unlearned, active }) => {
@@ -364,7 +364,7 @@ export const craftingBehaviorCases = new Map([
             return report(['natural empty-hand sneak block click rotates placed block data'], unlearned, active)
         },
     }],
-    ['architect-placement', {
+    ['adapt:architect/placement', {
         stage: 'craft-placement', sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.5, soundPitch: 1.65,
         particle: 'dust', particleColor: 0x55FFFF, particleCount: 1, particleOffset: 0, particleY: 101.5,
         prepare: input => prepare(input, 'oak_planks'), trigger: placePlane,

@@ -17,7 +17,7 @@ public final class TragoulSets implements DemoSetProvider {
     private static final int SENSE_WALL_EAST_X = 3;
     private static final int SENSE_WALL_HEIGHT = 3;
     private static final List<DemoSet> SETS = List.of(
-            new SimpleSet("tragoul-globe", ACTOR_NORTH, CAMERA_PACK, false,
+            new SimpleSet("adapt:tragoul/globe", ACTOR_NORTH, CAMERA_PACK, false,
                     List.of(new DemoSet.Sparring("ZOMBIE", 0.5, 0, -2.0), new DemoSet.Sparring("ZOMBIE", -2.5, 0, -4.5),
                             new DemoSet.Sparring("ZOMBIE", 3.5, 0, -4.5), new DemoSet.Sparring("ZOMBIE", -1.5, 0, -7.0),
                             new DemoSet.Sparring("ZOMBIE", 2.5, 0, -7.0)),
@@ -26,7 +26,7 @@ public final class TragoulSets implements DemoSetProvider {
                     List.of(new DemoSet.Sparring("HUSK", 0.5, 0, -2.0), new DemoSet.Sparring("ZOMBIE", -2.0, 0, -4.5),
                             new DemoSet.Sparring("ZOMBIE", 3.0, 0, -4.5), new DemoSet.Sparring("ZOMBIE", 0.5, 0, -6.0)),
                     SimpleSet.OPEN_PLATE),
-            new SimpleSet("tragoul-lance", ACTOR_NORTH, CAMERA_EAST, false,
+            new SimpleSet("adapt:tragoul/lance", ACTOR_NORTH, CAMERA_EAST, false,
                     List.of(new DemoSet.Sparring("HUSK", 0.5, 0, -2.0), new DemoSet.Sparring("ZOMBIE", 3.5, 0, -7.5)),
                     SimpleSet.OPEN_PLATE),
             new SimpleSet("tragoul-plague", ACTOR_NORTH, CAMERA_PACK, false,

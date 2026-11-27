@@ -3,25 +3,29 @@ package art.arcane.adapt.mod;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.ComponentPort;
-import art.arcane.adapt.api.ComponentRegistrar;
-import art.arcane.adapt.api.adaptation.EntityGuardPort;
-import art.arcane.adapt.api.attribute.AdaptAttributeResolver;
-import art.arcane.adapt.api.adaptation.ItemCooldownGroupPort;
-import art.arcane.adapt.api.data.BlockStorePort;
-import art.arcane.adapt.api.data.WorldDataPort;
-import art.arcane.adapt.api.protection.ProtectionProbePort;
-import art.arcane.adapt.api.fx.TpsPort;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.UsePermissions;
-import art.arcane.adapt.api.value.MaterialValuePort;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.ComponentPort;
+import art.arcane.adapt.engine.ComponentRegistrar;
+import art.arcane.adapt.engine.adaptation.EntityGuardPort;
+import art.arcane.adapt.engine.adaptation.ItemCooldownGroupPort;
+import art.arcane.adapt.engine.attribute.AdaptAttributeResolver;
+import art.arcane.adapt.engine.data.BlockStorePort;
+import art.arcane.adapt.engine.data.WorldDataPort;
+import art.arcane.adapt.engine.fx.TpsPort;
+import art.arcane.adapt.engine.protection.ProtectionProbePort;
+import art.arcane.adapt.engine.skill.SkillRegistryPort;
+import art.arcane.adapt.engine.skill.UsePermissions;
+import art.arcane.adapt.engine.value.MaterialValuePort;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.client.link.ClientLink;
 import art.arcane.adapt.command.AdaptCommands;
 import art.arcane.adapt.command.AdaptDebugDump;
 import art.arcane.adapt.command.CommandHelpPort;
 import art.arcane.adapt.command.DebugDumpPort;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.content.BuiltinAddon;
+import art.arcane.adapt.api.internal.Engine;
+import art.arcane.adapt.api.internal.HostKey;
+import art.arcane.adapt.engine.bridge.HostKeys;
 import art.arcane.adapt.localization.AdaptLanguageSwitcher;
 import art.arcane.adapt.localization.LanguageSwitcherPort;
 import art.arcane.adapt.localization.MarkupPort;
@@ -45,7 +49,7 @@ import art.arcane.adapt.mod.platform.ModTpsPort;
 import art.arcane.adapt.mod.platform.data.ModBlockStorePort;
 import art.arcane.adapt.mod.platform.data.ModWorldDataPort;
 import art.arcane.adapt.mod.platform.text.ModMarkup;
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.util.common.math.PlayerInputPort;
 import art.arcane.adapt.util.common.misc.CustomModelPort;
@@ -64,6 +68,7 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.world.WorldLifecycleEvent;
 import net.minecraft.world.level.storage.LevelResource;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
@@ -81,12 +86,14 @@ public final class AdaptModBootstrap {
     private volatile ModWorldDataPort worldData;
 
     public AdaptModBootstrap(ModLoader loader, String loaderVersion, Path configDirectory, Predicate<String> modPresent) {
+        HostKey key = HostKeys.key();
         this.loader = Objects.requireNonNull(loader, "loader");
         this.loaderVersion = Objects.requireNonNull(loaderVersion, "loaderVersion");
         this.configDirectory = Objects.requireNonNull(configDirectory, "configDirectory");
         this.modPresent = Objects.requireNonNull(modPresent, "modPresent");
         ModFeatures.install();
         WorldHooks.install();
+        Engine.addons().installBuiltin(key, new BuiltinAddon());
     }
 
     /** Server thread, while the server is starting. */
@@ -109,7 +116,7 @@ public final class AdaptModBootstrap {
     }
 
     private void startCore() {
-        AdaptPlatform platform = ModPlatform.platform();
+        HostPlatform platform = ModPlatform.platform();
         if (platform == null) {
             ModPlatform.log().error("Adapt core not started: the platform is incomplete", null);
             return;
@@ -130,16 +137,15 @@ public final class AdaptModBootstrap {
         AdaptPorts.install(AdaptAttributeResolver.class, new ModAttributeResolver());
         AdaptPorts.install(ProtectionProbePort.class, new ModProtectionProbePort());
         AdaptPorts.install(ClientLink.class, ModClientLink.LINK);
+        AdaptPorts.install(SkillRegistryPort.class,
+                (long revision, List<Skill<?>> skills) -> UsePermissions.registerDefaults(platform.permissions(), skills));
         ComponentRegistrar registrar = new ComponentRegistrar(ModPlatform.bus());
-        AdaptCore created = new AdaptCore(platform, ModPlatform.bus(), registrar, CoreContent.skillTypes());
+        AdaptCore created = new AdaptCore(platform, ModPlatform.bus(), registrar);
         try {
             created.start();
             core = created;
             AdaptServer server = created.getAdaptServer();
             int skills = server == null ? 0 : server.getSkillRegistry().getAllSkills().size();
-            if (server != null) {
-                UsePermissions.registerDefaults(platform.permissions(), server.getSkillRegistry().getAllSkills());
-            }
             AdaptCommands.registerPermissionDefaults(platform.permissions());
             AdaptationListingHandler.initializeAdaptationListings();
             AdaptLog.info("Adapt core started with " + skills + " skill(s): " + skillNames(created));
@@ -194,6 +200,7 @@ public final class AdaptModBootstrap {
         AdaptPorts.uninstall(AdaptAttributeResolver.class);
         AdaptPorts.uninstall(ProtectionProbePort.class);
         AdaptPorts.uninstall(ClientLink.class);
+        AdaptPorts.uninstall(SkillRegistryPort.class);
     }
 
     private static String skillNames(AdaptCore running) {
@@ -202,7 +209,7 @@ public final class AdaptModBootstrap {
             if (!names.isEmpty()) {
                 names.append(", ");
             }
-            names.append(skill.getName());
+            names.append(skill.getId());
         }
         return names.toString();
     }

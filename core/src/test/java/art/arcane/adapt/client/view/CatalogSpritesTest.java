@@ -1,16 +1,18 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.SkillWords;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.mutation.signature.Signature;
-import art.arcane.adapt.api.mutation.tool.MutationTool;
-import art.arcane.adapt.api.mutation.tool.MutationTools;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.content.CoreContent;
+
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
+import art.arcane.adapt.api.mutation.Signature;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.PairKeys;
+import art.arcane.adapt.api.mutation.MutationTool;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -54,46 +56,51 @@ class CatalogSpritesTest {
     List<String> missing = new ArrayList<>();
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v26_3());
-    try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+    try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
       SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
-      List<SkillMutation> mutations = new ArrayList<>();
+      List<SkillPair> mutations = new ArrayList<>();
       for (Skill<?> lead : registry.getSkills()) {
-        assertThat(MutationIcons.tint(lead.getName())).as("tint of " + lead.getName()).isNotEqualTo(IconSprites.NO_TINT);
+        assertThat(MutationIcons.tint(lead)).as("tint of " + SkillHost.lineKey(lead)).isNotEqualTo(IconSprites.NO_TINT);
         for (Skill<?> partner : registry.getSkills()) {
-          if (lead != partner && SkillWords.of(lead.getName()) != null && SkillWords.of(partner.getName()) != null) {
-            mutations.add(new SkillMutation(lead.getName(), partner.getName()));
+          if (lead != partner) {
+            mutations.add(new SkillPair(lead.getId(), partner.getId()));
           }
         }
       }
       assertThat(mutations).hasSize(552);
       CatalogView catalog = CatalogViews.build(registry, UUID.randomUUID(), mutations, false);
       for (SkillView skill : catalog.skills()) {
-        MutatedSkill mutated = registry.getMutatedSkill(skill.id());
+        MutatedSkill mutated = registry.getMutatedSkill(PairKeys.parse(skill.id()));
         String kind = mutated == null ? "skill" : "mutated-skill";
-        check(kind + " " + skill.id(), drawn(skill.icon(), mutated == null ? IconSprites.skill(skill.id()) : null), inventory, used, missing);
+        check(kind + " " + skill.id(), drawn(skill.icon(), mutated == null ? IconSprites.skill(IconSprites.contentId(skill.id())) : null),
+            inventory, used, missing);
         Map<String, Adaptation<?>> owners = new HashMap<>();
         for (Adaptation<?> adaptation : (mutated == null ? registry.getSkill(skill.id()) : mutated).getAdaptations()) {
-          owners.put(adaptation.getName(), adaptation);
+          owners.put(adaptation.getId().toString(), adaptation);
         }
         for (AdaptationView view : skill.adaptations()) {
           Adaptation<?> adaptation = owners.get(view.id());
           boolean own = adaptation instanceof MutationAdaptation;
-          check(kind(adaptation) + " " + view.id(), drawn(view.icon(), own ? null : IconSprites.adaptation(view.id())), inventory, used,
+          check(kind(adaptation) + " " + view.id(),
+              drawn(view.icon(), own ? null : IconSprites.adaptation(IconSprites.contentId(view.id()))), inventory, used,
               missing);
         }
         if (mutated != null) {
           for (Adaptation<?> kept : mutated.getKept()) {
-            check("kept " + kept.getName(), IconSprites.adaptation(kept.getName()), inventory, used, missing);
+            check("kept " + kept.getId().toString(), IconSprites.adaptation(kept.getId()), inventory, used, missing);
           }
         }
       }
-      for (Skill<?> skill : registry.getSkills()) {
-        for (Signature<?> signature : skill.getSignatures()) {
-          check("signature " + signature.getName(), MutationIcons.signature(signature), inventory, used, missing);
+      for (SkillPair pair : mutations) {
+        for (MutationAdaptation adaptation : registry.getMutatedSkill(pair).getMutationAdaptations()) {
+          Signature<?> signature = adaptation.getSignature();
+          if (signature != null) {
+            check("signature " + signature.getId().toString(), MutationIcons.signature(signature), inventory, used, missing);
+          }
         }
       }
       for (MutationTool<?> tool : MutationTools.all(registry)) {
-        check("tool " + tool.id(), IconSprites.texture("tool", tool.id()), inventory, used, missing);
+        check("tool " + tool.item().id().toString(), IconSprites.tool(tool.item().id()), inventory, used, missing);
       }
     }
     Files.createDirectories(REPORT.getParent());
@@ -114,7 +121,7 @@ class CatalogSpritesTest {
     if (adaptation instanceof MutationAdaptation mutated) {
       return mutated.getSignature() != null ? "signature-row" : "recipe";
     }
-    return adaptation != null && adaptation.getName().startsWith("upgraded-") ? "upgrade" : "adaptation";
+    return adaptation != null && adaptation.getId().path().contains("/upgrade/") ? "upgrade" : "adaptation";
   }
 
   /** The sprite the client draws for {@code icon}: the one the server named, else {@code convention}, or null for none. */

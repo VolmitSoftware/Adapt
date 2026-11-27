@@ -1,9 +1,9 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.item.GolemItems;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
@@ -68,7 +68,7 @@ public final class CustomRecipeFixtures {
     private static void prepare(PlayerRef player, RecipeCase test) {
         player.closeInventory();
         Fixtures.clearInventory(player);
-        for (String name : List.of("golem-animus-binding", "golem-node-weaving", "golem-guardian-core")) {
+        for (String name : List.of("adapt:golem/animus_binding", "adapt:golem/node_weaving", "adapt:golem/guardian_core")) {
             GolemControlsFixtures.learn(player, name, 1);
         }
         WorldRef world = player.world();

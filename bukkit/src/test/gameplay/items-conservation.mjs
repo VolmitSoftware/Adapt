@@ -49,9 +49,9 @@ export default {
       await context.command(`/adaptqa setup ${actor.bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 30000)
       setup = true
       await context.step('Scaffold expiry retains named shulker and its three diamonds', async () => {
-        await learn('architect-scaffolder')
-        await configure('architect-scaffolder', 'minDurationSeconds', 3)
-        await configure('architect-scaffolder', 'maxDurationSeconds', 3)
+        await learn('adapt:architect/scaffolder')
+        await configure('adapt:architect/scaffolder', 'minDurationSeconds', 3)
+        await configure('adapt:architect/scaffolder', 'maxDurationSeconds', 3)
         const before = await fixture('prepare scaffolder')
         const original = before.inventory.find(item => item.type === 'PURPLE_SHULKER_BOX')
         context.expect(original?.name === 'Retention Box' && original.contents.some(item => item.type === 'DIAMOND' && item.amount === 3), 'Original shulker contains named metadata and three diamonds', before)
@@ -79,8 +79,8 @@ export default {
         evidence.scaffolder = { before, placedContents, after }
       })
       await context.step('Provisioner requires a committed craft before awarding food', async () => {
-        await learn('crafting-provisioner')
-        for (const [field, value] of [['bonusChanceBase', 1], ['bonusChanceFactor', 0], ['bonusChanceMax', 1]]) await configure('crafting-provisioner', field, value)
+        await learn('adapt:crafting/provisioner')
+        for (const [field, value] of [['bonusChanceBase', 1], ['bonusChanceFactor', 0], ['bonusChanceMax', 1]]) await configure('adapt:crafting/provisioner', field, value)
         await fixture('prepare provisioner')
         const window = await open('crafting')
         try {
@@ -104,8 +104,8 @@ export default {
         } finally { actor.bot.closeWindow(window) }
       })
       await context.step('Grindstone recovery requires consumption of its enchanted source', async () => {
-        await learn('enchanting-grindstone-recovery')
-        for (const [field, value] of [['recoverChanceBase', 1], ['recoverChanceFactor', 0], ['maxRecoverChance', 1]]) await configure('enchanting-grindstone-recovery', field, value)
+        await learn('adapt:enchanting/grindstone_recovery')
+        for (const [field, value] of [['recoverChanceBase', 1], ['recoverChanceFactor', 0], ['maxRecoverChance', 1]]) await configure('adapt:enchanting/grindstone_recovery', field, value)
         await fixture('prepare grindstone')
         const window = await open('grindstone')
         try {
@@ -135,7 +135,7 @@ export default {
       })
       for (const mode of ['bulk', 'bulk-valid']) {
         await context.step(`${mode} batch uses exact recipe ingredients`, async () => {
-          await learn('crafting-bulk-artisan')
+          await learn('adapt:crafting/bulk_artisan')
           const before = await fixture(`prepare ${mode}`)
           const window = await open('crafting')
           try {

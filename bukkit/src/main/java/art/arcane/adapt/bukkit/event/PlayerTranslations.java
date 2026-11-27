@@ -13,9 +13,10 @@ import art.arcane.adapt.platform.event.player.PlayerInteractEntityEvent;
 import art.arcane.adapt.platform.event.player.PlayerInteractEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemConsumeEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemDamageEvent;
+import art.arcane.adapt.platform.event.player.PlayerInput;
+import art.arcane.adapt.platform.event.player.PlayerInputEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemHeldEvent;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
-import art.arcane.adapt.platform.event.player.PlayerJumpEvent;
 import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
 import art.arcane.adapt.platform.event.player.PlayerRespawnEvent;
@@ -28,7 +29,8 @@ import art.arcane.adapt.platform.event.player.UseResult;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
-import io.papermc.paper.advancement.AdvancementDisplay;
+import art.arcane.adapt.util.common.compat.PaperApi;
+import org.bukkit.Input;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,9 +50,9 @@ final class PlayerTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(INTERACT, INTERACT_ENTITY, MOVE, TELEPORT, JUMP, JOIN, QUIT, RESPAWN, CHANGED_WORLD, DROP_ITEM,
+    return List.of(INTERACT, INTERACT_ENTITY, MOVE, TELEPORT, JOIN, QUIT, RESPAWN, CHANGED_WORLD, DROP_ITEM,
         EXP_CHANGE, FISH, GAME_MODE_CHANGE, ITEM_CONSUME, ITEM_DAMAGE, ITEM_HELD, SWAP_HANDS, TOGGLE_FLIGHT,
-        TOGGLE_SNEAK, TOGGLE_SPRINT, FOOD_LEVEL, ADVANCEMENT_DONE);
+        TOGGLE_SNEAK, TOGGLE_SPRINT, FOOD_LEVEL, ADVANCEMENT_DONE, INPUT);
   }
 
   static final Translation<org.bukkit.event.player.PlayerInteractEvent> INTERACT = new Translation<>(
@@ -59,7 +61,7 @@ final class PlayerTranslations {
     public void bridge(org.bukkit.event.player.PlayerInteractEvent event, Poster poster) {
       UseResult useBlock = BukkitEventMaps.result(event.useInteractedBlock());
       UseResult useItem = BukkitEventMaps.result(event.useItemInHand());
-      Location point = event.getInteractionPoint();
+      Location point = PaperApi.interactionPoint(event);
       PlayerInteractEvent core = new PlayerInteractEvent(player(event.getPlayer()), BukkitEventMaps.action(event.getAction()),
           hand(event.getHand()), item(event.getItem()), block(event.getClickedBlock()),
           BukkitEventMaps.face(event.getBlockFace()),
@@ -114,16 +116,6 @@ final class PlayerTranslations {
         }
       });
 
-  static final Translation<com.destroystokyo.paper.event.player.PlayerJumpEvent> JUMP = BukkitTranslations.simple(
-      com.destroystokyo.paper.event.player.PlayerJumpEvent.class, PlayerJumpEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        PlayerJumpEvent core = new PlayerJumpEvent(player(event.getPlayer()), BukkitRefs.loc(event.getFrom()),
-            BukkitRefs.loc(event.getTo()));
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
-      });
-
   static final Translation<org.bukkit.event.player.PlayerJoinEvent> JOIN = BukkitTranslations.simple(
       org.bukkit.event.player.PlayerJoinEvent.class, PlayerJoinEvent.class,
       (event, poster) -> poster.post(new PlayerJoinEvent(player(event.getPlayer()))));
@@ -149,16 +141,16 @@ final class PlayerTranslations {
 
   static final Translation<org.bukkit.event.player.PlayerAdvancementDoneEvent> ADVANCEMENT_DONE = BukkitTranslations.simple(
       org.bukkit.event.player.PlayerAdvancementDoneEvent.class, PlayerAdvancementDoneEvent.class, (event, poster) -> {
-        AdvancementDisplay display = event.getAdvancement().getDisplay();
+        String frame = PaperApi.advancementFrame(event.getAdvancement());
         poster.post(new PlayerAdvancementDoneEvent(player(event.getPlayer()), BukkitRefs.id(event.getAdvancement().getKey()),
-            display == null ? null : frame(display.frame())));
+            frame == null ? null : frame(frame)));
       });
 
-  private static AdvancementFrame frame(AdvancementDisplay.Frame frame) {
+  private static AdvancementFrame frame(String frame) {
     return switch (frame) {
-      case GOAL -> AdvancementFrame.GOAL;
-      case CHALLENGE -> AdvancementFrame.CHALLENGE;
-      case TASK -> AdvancementFrame.TASK;
+      case "GOAL" -> AdvancementFrame.GOAL;
+      case "CHALLENGE" -> AdvancementFrame.CHALLENGE;
+      default -> AdvancementFrame.TASK;
     };
   }
 
@@ -209,7 +201,7 @@ final class PlayerTranslations {
       org.bukkit.event.player.PlayerItemConsumeEvent.class, PlayerItemConsumeEvent.class, (event, poster) -> {
         boolean cancelled = event.isCancelled();
         ItemRef item = item(event.getItem());
-        ItemRef replacement = item(event.getReplacement());
+        ItemRef replacement = item(PaperApi.consumeReplacement(event));
         PlayerItemConsumeEvent core = new PlayerItemConsumeEvent(player(event.getPlayer()), item, hand(event.getHand()), replacement);
         core.setCancelled(cancelled);
         poster.post(core);
@@ -220,7 +212,7 @@ final class PlayerTranslations {
           event.setItem(chosen);
         }
         if (core.replacement() != replacement) {
-          event.setReplacement(stack(core.replacement()));
+          PaperApi.setConsumeReplacement(event, stack(core.replacement()));
         }
       });
 
@@ -229,7 +221,7 @@ final class PlayerTranslations {
         boolean cancelled = event.isCancelled();
         int damage = event.getDamage();
         PlayerItemDamageEvent core = new PlayerItemDamageEvent(player(event.getPlayer()), item(event.getItem()), damage,
-            event.getOriginalDamage());
+            PaperApi.originalDamage(event));
         core.setCancelled(cancelled);
         poster.post(core);
         cancel(event, cancelled, core);
@@ -311,4 +303,11 @@ final class PlayerTranslations {
       }
     }
   };
+
+  static final Translation<org.bukkit.event.player.PlayerInputEvent> INPUT = BukkitTranslations.simple(
+      org.bukkit.event.player.PlayerInputEvent.class, PlayerInputEvent.class, (event, poster) -> {
+        Input input = event.getInput();
+        poster.post(new PlayerInputEvent(player(event.getPlayer()), new PlayerInput(input.isForward(), input.isBackward(),
+            input.isLeft(), input.isRight(), input.isJump(), input.isSneak(), input.isSprint())));
+      });
 }

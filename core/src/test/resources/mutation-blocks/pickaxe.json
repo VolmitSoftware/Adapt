@@ -6,7 +6,7 @@
     {"slot": "STRIKE_FIGHT", "class": "PickaxesFightStrike", "handles": [], "reuses": ["AdaptAttributeService"]},
     {"slot": "STRIKE_WORK", "class": "PickaxesWorkStrike", "handles": [], "reuses": ["PickaxeQuarrySense", "PickaxeVein"]},
     {"slot": "BOON", "class": "PickaxesBoon", "handles": [], "reuses": ["PickaxeMiningBoost"]},
-    {"slot": "FUEL", "class": "PickaxesFuel", "handles": [], "reuses": ["ComponentPort"]},
+    {"slot": "FUEL", "class": "PickaxesFuel", "handles": [], "reuses": ["ItemWear"]},
     {"slot": "STATE", "class": "PickaxesState", "handles": ["BlockBreakEvent"], "reuses": []}
   ],
   "unavailableOn": {}

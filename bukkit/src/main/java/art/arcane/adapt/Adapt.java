@@ -18,41 +18,22 @@
 
 package art.arcane.adapt;
 
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CompletableFuture;
-import art.arcane.volmlib.util.diagnostics.BukkitDebugDump;
-import art.arcane.volmlib.util.update.BukkitUpdateService;
-import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
-import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
-import art.arcane.adapt.api.AdaptPermissionRegistrar;
-import art.arcane.adapt.api.ComponentRegistrar;
-import art.arcane.adapt.bukkit.port.BukkitPorts;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.internal.Engine;
+import art.arcane.adapt.engine.bridge.HostKeys;
 import art.arcane.adapt.bukkit.feature.BukkitFeatures;
 import art.arcane.adapt.bukkit.feature.menu.MenuCursor;
+import art.arcane.adapt.bukkit.platform.AddonProviders;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
 import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitPlatform;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitSupportedVersions;
 import art.arcane.adapt.bukkit.platform.data.BlockDataListener;
-import art.arcane.adapt.api.advancement.AdvancementManager;
-import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.notification.AdaptHud;
-import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
-import art.arcane.adapt.api.data.WorldDataLoader;
-import art.arcane.adapt.api.fx.FxDirector;
-import art.arcane.adapt.api.fx.ViewerDisplayDirector;
-import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
-import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
-import art.arcane.adapt.api.protection.ProtectorRegistry;
-import art.arcane.adapt.api.protection.RegionPolicyService;
-import art.arcane.adapt.api.tick.Ticker;
-import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.bukkit.port.BukkitPorts;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
-import art.arcane.adapt.papi.AdaptPlaceholderInstaller;
-import art.arcane.adapt.papi.AdaptPlaceholders;
+import art.arcane.adapt.content.protector.BukkitProtector;
 import art.arcane.adapt.content.protector.ChestProtectProtector;
 import art.arcane.adapt.content.protector.FactionsClaimProtector;
 import art.arcane.adapt.content.protector.GriefDefenderProtector;
@@ -62,7 +43,25 @@ import art.arcane.adapt.content.protector.ResidenceProtector;
 import art.arcane.adapt.content.protector.WorldGuardFlags;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
 import art.arcane.adapt.content.protector.WorldGuardRegionPolicySource;
+import art.arcane.adapt.engine.AdaptPermissionRegistrar;
+import art.arcane.adapt.engine.ComponentRegistrar;
+import art.arcane.adapt.engine.advancement.AdvancementManager;
+import art.arcane.adapt.engine.data.WorldData;
+import art.arcane.adapt.engine.data.WorldDataLoader;
+import art.arcane.adapt.engine.fx.FxDirector;
+import art.arcane.adapt.engine.fx.ViewerDisplayDirector;
+import art.arcane.adapt.engine.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.engine.notification.AdaptHud;
+import art.arcane.adapt.api.projectile.ProjectileReplacements;
+import art.arcane.adapt.engine.protection.RegionPolicyService;
+import art.arcane.adapt.engine.tick.Ticker;
+import art.arcane.adapt.engine.version.Version;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.papi.AdaptPlaceholderInstaller;
+import art.arcane.adapt.papi.AdaptPlaceholders;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -75,21 +74,27 @@ import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
 import art.arcane.volmlib.integration.ReloadAware;
 import art.arcane.volmlib.integration.VaultEconomy;
+import art.arcane.volmlib.nativelib.entity.EntityGlow;
+import art.arcane.volmlib.nativelib.entity.EntityGlowAccess;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderRegistration;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.diagnostics.BukkitDebugDump;
+import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
+import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.io.JarScanner;
 import art.arcane.volmlib.util.plugin.ComponentLog;
 import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import art.arcane.volmlib.util.plugin.ComponentText;
 import art.arcane.volmlib.util.plugin.SplashScreenSupport;
+import art.arcane.volmlib.util.update.BukkitUpdateService;
 import de.crazydev22.platformutils.AudienceProvider;
 import de.crazydev22.platformutils.Platform;
 import de.crazydev22.platformutils.PlatformUtils;
 import de.slikey.effectlib.EffectManager;
-import art.arcane.volmlib.nativelib.entity.EntityGlow;
-import art.arcane.volmlib.nativelib.entity.EntityGlowAccess;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -104,14 +109,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.function.Supplier;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
@@ -149,8 +153,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private ViewerGlowCoordinator viewerGlowCoordinator;
   @Getter
   private volatile AdaptCore core;
-  @Getter
-  private ProtectorRegistry protectorRegistry;
+  private final List<BukkitProtector> protectors = new ArrayList<>();
   @Getter
   private RedisSync redisSync;
   @Getter
@@ -352,6 +355,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   @Override
   public void onLoad() {
+    HostKeys.key();
     if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
       WorldGuardFlags.register();
     }
@@ -370,8 +374,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       BukkitPlatform.start(this);
     });
     BukkitPorts.install(this);
-    core = new AdaptCore(BukkitPlatform.platform(), BukkitPlatform.bus(), new ComponentRegistrar(BukkitPlatform.bus()),
-        CoreContent.skillTypes());
+    if (Engine.addons().find(Id.ADAPT).isEmpty()) {
+      Engine.addons().installBuiltin(HostKeys.key(), new BuiltinAddon());
+    }
+    core = new AdaptCore(BukkitPlatform.platform(), BukkitPlatform.bus(), new ComponentRegistrar(BukkitPlatform.bus()));
     runStartupPhaseVoid("core-services", core::startServices);
     updates = BukkitUpdateService.register(this, new BukkitUpdateService.Options(
         "VolmitSoftware", "Adapt", "adapt.update", () -> AdaptConfig.get().isAutoUpdateCheck()));
@@ -388,33 +394,33 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       return null;
     });
     registerListener(new BlockDataListener(this));
+    registerListener(new AddonProviders());
     registerListener(new MenuCursor());
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen
-    protectorRegistry = new ProtectorRegistry();
     PluginManager pluginManager = getServer().getPluginManager();
     if (pluginManager.isPluginEnabled("WorldGuard")) {
-      protectorRegistry.registerProtector(new WorldGuardProtector());
+      registerProtector(new WorldGuardProtector());
       RegionPolicyService.install(new WorldGuardRegionPolicySource());
     }
     if (pluginManager.isPluginEnabled("Factions")) {
-      protectorRegistry.registerProtector(new FactionsClaimProtector());
+      registerProtector(new FactionsClaimProtector());
     }
     if (pluginManager.isPluginEnabled("ChestProtect")) {
-      protectorRegistry.registerProtector(new ChestProtectProtector());
+      registerProtector(new ChestProtectProtector());
     }
     if (pluginManager.isPluginEnabled("Residence")) {
-      protectorRegistry.registerProtector(new ResidenceProtector());
+      registerProtector(new ResidenceProtector());
     }
     if (pluginManager.isPluginEnabled("GriefDefender")) {
-      protectorRegistry.registerProtector(new GriefDefenderProtector());
+      registerProtector(new GriefDefenderProtector());
     }
     if (pluginManager.isPluginEnabled("GriefPrevention")) {
-      protectorRegistry.registerProtector(new GriefPreventionProtector());
+      registerProtector(new GriefPreventionProtector());
     }
     if (pluginManager.isPluginEnabled("LockettePro")) {
-      protectorRegistry.registerProtector(new LocketteProProtector());
+      registerProtector(new LocketteProProtector());
     }
     if (isHiddenOreIntegrationAvailable(pluginManager)) {
       HiddenOreLink.activate(this);
@@ -485,9 +491,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     long startServer = System.currentTimeMillis();
     core.startRuntime();
     AdaptServer adaptServer = core.getAdaptServer();
-    int registeredPermissions = AdaptPermissionRegistrar.registerAll(Bukkit.getPluginManager(), adaptServer.getSkillRegistry().getAllSkills());
-    registeredPermissions += AdaptPermissionRegistrar.registerXpMultiplierNodes(Bukkit.getPluginManager(), AdaptConfig.get().getPermissionXpMultipliers());
-    verbose("start-sim detail: registered " + registeredPermissions + " use permission nodes");
+    int registeredPermissions = AdaptPermissionRegistrar.registerXpMultiplierNodes(Bukkit.getPluginManager(), AdaptConfig.get().getPermissionXpMultipliers());
+    verbose("start-sim detail: registered " + registeredPermissions + " XP multiplier permission nodes");
     long serverMs = System.currentTimeMillis() - startServer;
     if (serverMs >= STARTUP_SLOW_PHASE_MS) {
       warn("start-sim detail: core runtime init took " + serverMs + "ms.");
@@ -530,7 +535,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (running != null) {
       runShutdownPhase("core runtime", running::stopRuntime);
     }
-    runShutdownPhase("projectile replacements", ProjectileReplacementRegistry::clear);
+    runShutdownPhase("projectile replacements", ProjectileReplacements::clear);
     runShutdownPhase("viewer displays", () -> {
       if (!ViewerDisplayDirector.clearAllAndAwait(SHUTDOWN_CLEANUP_TIMEOUT_MS)) {
         warn("Private display cleanup was incomplete at shutdown.");
@@ -588,17 +593,27 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
     vaultEconomy = null;
     runShutdownPhase("region policy", RegionPolicyService::clear);
-    if (protectorRegistry != null) {
-      ProtectorRegistry activeRegistry = protectorRegistry;
-      protectorRegistry = null;
-      runShutdownPhase("protectors", activeRegistry::unregisterAll);
-    }
+    runShutdownPhase("protectors", this::unregisterProtectors);
     if (services != null) {
       services.clear();
     }
     runShutdownPhase("platform", BukkitPlatform::stop);
     runShutdownPhase("ports", BukkitPorts::uninstall);
     core = null;
+  }
+
+  private void registerProtector(BukkitProtector protector) {
+    AdaptApi.protection().register(protector);
+    protectors.add(protector);
+    verbose("Protector: \"" + protector.name() + "\" registered.");
+  }
+
+  private void unregisterProtectors() {
+    for (BukkitProtector protector : List.copyOf(protectors)) {
+      AdaptApi.protection().unregister(protector);
+      protector.unregister();
+    }
+    protectors.clear();
   }
 
   private void runShutdownPhase(String phase, ShutdownAction action) {

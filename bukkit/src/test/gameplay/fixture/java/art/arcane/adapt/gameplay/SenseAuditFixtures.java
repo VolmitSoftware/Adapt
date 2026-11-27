@@ -1,13 +1,15 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.player.PlayerApi;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.nativelib.chunk.GeneratedChunkStructures;
 import art.arcane.volmlib.nativelib.chunk.ChunkPosition;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
 import com.google.gson.JsonObject;
@@ -77,10 +79,10 @@ public final class SenseAuditFixtures implements Listener {
                 set(config, "detectionRangeBase", range);
                 set(config, "detectionRangeFactor", 0D);
                 set(config, "maxDetectionRange", range);
-                adaptation().onPlayerPreferencesChanged(Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player)));
+                adaptation().onPlayerPreferencesChanged(PlayerApi.profile(Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player))));
             }
             case "preference" -> StructureDiscoverySets.preference(
-                    player, "discovery-sixth-sense", "structures", args[3]);
+                    player, "adapt:discovery/sixth_sense", "structures", args[3]);
             case "unload-target" -> prepareUnloadedTarget(player);
             case "unload" -> {
                 Session session = sessions.get(player.getUniqueId());
@@ -123,7 +125,7 @@ public final class SenseAuditFixtures implements Listener {
             if (start == null) throw new IllegalStateException("Native target start was not observed");
             AdaptPlayer learner = Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player));
             learner.getData().getSkillLine("discovery").setAdaptation(adaptation(), 0);
-            adaptation().onPlayerPreferencesChanged(learner);
+            adaptation().onPlayerPreferencesChanged(PlayerApi.profile(learner));
             double dx = x - (start.position().x() * 16D + 8D);
             double dz = z - (start.position().z() * 16D + 8D);
             double length = Math.hypot(dx, dz);
@@ -241,8 +243,8 @@ public final class SenseAuditFixtures implements Listener {
         AdaptPlayer learner = Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player));
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                learner.getData().getSkillLine(skill.getName()).setAdaptation(adaptation,
-                        adaptation.getName().equals("discovery-sixth-sense") ? 5 : 0);
+                learner.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation,
+                        adaptation.getId().toString().equals("adapt:discovery/sixth_sense") ? 5 : 0);
             }
         }
     }
@@ -264,7 +266,7 @@ public final class SenseAuditFixtures implements Listener {
         result.addProperty("z", player.getZ());
         result.addProperty("dead", player.isDead());
         result.addProperty("activeLevel", adaptation().getActiveLevel(BukkitRefs.player(player)));
-        result.addProperty("hasOnlineLearner", Adapt.instance.getAdaptServer().hasOnlineLearner(player.getUniqueId(), adaptation().getName()));
+        result.addProperty("hasOnlineLearner", Adapt.instance.getAdaptServer().hasOnlineLearner(player.getUniqueId(), adaptation().getId().toString()));
         result.addProperty("newChunks", newChunks.computeIfAbsent(player.getWorld().getUID(), id -> new AtomicInteger()).get());
         result.addProperty("senses", Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player)).getData().getStat("discovery.sixth-sense.senses"));
         if (session != null && session.selected != null) {
@@ -302,7 +304,7 @@ public final class SenseAuditFixtures implements Listener {
     private static Adaptation<?> adaptation() {
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (adaptation.getName().equals("discovery-sixth-sense")) return adaptation;
+                if (adaptation.getId().toString().equals("adapt:discovery/sixth_sense")) return adaptation;
             }
         }
         throw new IllegalStateException("Sixth Sense unavailable");

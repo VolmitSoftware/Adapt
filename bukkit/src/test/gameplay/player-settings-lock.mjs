@@ -29,13 +29,13 @@ export default {
       `/adaptqa preferences ${player.bot.username} ${command}`, `PREFERENCES ${command.split(' ')[0]}`, 10000)
     const snapshot = () => fixtureJson(context, `/adaptqa snapshot ${actor.bot.username} lock`, 'SNAPSHOT lock')
     const evidence = context.report.settingsLock = { reloads: [] }
-    const id = 'agility-air-dash'
+    const id = 'adapt:agility/air_dash'
     const plain = value => value.replace(/§./g, '')
     const setting = (state, key) => state.settings.find(entry => entry.id === key)
-    const emulatedStealth = (versionEntry('stealth-speed')?.reason ?? '').includes('attribute minecraft:sneaking_speed')
+    const emulatedStealth = (versionEntry('adapt:stealth/speed')?.reason ?? '').includes('attribute minecraft:sneaking_speed')
     if (emulatedStealth) {
       notApplicable(context, 'stealth-live-attribute', 'Stealth speed strength reaches the live sneaking_speed attribute',
-        `Minecraft ${serverVersion()} has no sneaking_speed attribute (stealth-speed is ${versionEntry('stealth-speed').status}: ${versionEntry('stealth-speed').reason}); the lock checks still run`)
+        `Minecraft ${serverVersion()} has no sneaking_speed attribute (adapt:stealth/speed is ${versionEntry('adapt:stealth/speed').status}: ${versionEntry('adapt:stealth/speed').reason}); the lock checks still run`)
     }
     let adaptationWindow
     let skillWindow
@@ -63,9 +63,9 @@ export default {
         evidence.registeredControls = catalog.adaptations.reduce((total, adaptation) => total + adaptation.controls, 0)
         await action(actor, `learn ${id}`)
         await action(actor, `set ${id} enabled OFF`)
-        await action(actor, 'learn stealth-speed')
-        await action(actor, 'set stealth-speed speed HALF')
-        await action(other, 'learn agility-air-dash')
+        await action(actor, 'learn adapt:stealth/speed')
+        await action(actor, 'set adapt:stealth/speed speed HALF')
+        await action(other, 'learn adapt:agility/air_dash')
         const skill = await action(other, 'skill agility set OFF')
         context.expect(skill.accepted && skill.enabled === 'OFF', 'Skill master toggle saves while unlocked')
         const adaptationMenu = await open(actor, `open ${id}`)
@@ -98,7 +98,7 @@ export default {
           'Global lock ignores saved adaptation Off and preserves learned level', evidence.locked)
         const skill = await action(other, 'skill agility')
         context.expect(skill.enabled === 'ON' && skill.stored === 'OFF', 'Global lock ignores saved skill Off without deleting it', skill)
-        const stealth = await action(actor, 'snapshot stealth-speed')
+        const stealth = await action(actor, 'snapshot adapt:stealth/speed')
         context.expect(setting(stealth, 'speed').value === 'FULL' && setting(stealth, 'speed').stored === 'HALF',
           'Global lock resolves server strength default without deleting saved Half')
         if (!emulatedStealth) {
@@ -179,7 +179,7 @@ export default {
         await action(actor, `learn ${id}`)
         evidence.restored = await action(actor, `snapshot ${id}`)
         evidence.skillRestored = await action(other, 'skill agility')
-        evidence.strengthRestored = await action(actor, 'snapshot stealth-speed')
+        evidence.strengthRestored = await action(actor, 'snapshot adapt:stealth/speed')
         context.expect(setting(evidence.restored, 'enabled').value === 'OFF' && evidence.restored.active === 0,
           'Unlock restores the original adaptation Off choice')
         context.expect(evidence.skillRestored.enabled === 'OFF', 'Unlock restores the original skill Off choice')

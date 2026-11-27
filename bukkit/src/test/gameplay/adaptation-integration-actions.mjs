@@ -62,7 +62,7 @@ async function fell(input) {
 }
 
 export const integrationBehaviorCases = new Map([
-    ['discovery-insight', {
+    ['adapt:discovery/insight', {
         stage: 'integration-insight', integration: 'gloss', trigger: insight, negativeWindowTicks: 12,
         description: 'looking at a mob adds live attributes to a real private Gloss overlay and clears them when looking away',
         async verify({ context, unlearned, active }) {
@@ -76,7 +76,7 @@ export const integrationBehaviorCases = new Map([
             return { assertions: ['real Gloss API and ordinary baseline overlays exist', 'learned gaze adds live attributes to real private text displays', 'looking away clears those details'], measurements: { unlearned, active } }
         },
     }],
-    ['axe-iris-feller', {
+    ['adapt:axe/iris_feller', {
         stage: 'integration-iris', prepare: async ({ equip }) => equip('iron_axe'), trigger: fell, negativeWindowTicks: 12,
         description: 'one natural sneak axe break invokes the real Iris feller and pays per-log hunger while recovering the whole tree',
         sound: 'minecraft:block.enchantment_table.use', soundVolume: 0.55, soundPitch: 1.35, particle: 'end_rod', particleCount: 8, particleOffset: 0.25,

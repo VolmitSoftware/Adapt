@@ -1,7 +1,7 @@
 package art.arcane.adapt.bukkit.platform.schedule;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.platform.AdaptScheduler;
+import art.arcane.adapt.api.internal.HostScheduler;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.TaskHandle;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * backend after each run, so entity repeats stay on the entity's region. {@link #cancelAll} stops every
  * task this scheduler started, including one-shot tasks still waiting, without touching other plugin tasks.
  */
-public final class BukkitScheduler implements AdaptScheduler {
+public final class BukkitScheduler implements HostScheduler {
   private final SchedulerBackend backend;
   private final PlatformLog log;
   private final Set<Repeating> repeating = ConcurrentHashMap.newKeySet();
@@ -90,9 +90,15 @@ public final class BukkitScheduler implements AdaptScheduler {
   }
 
   @Override
-  public void runAsync(Runnable task, long delayTicks) {
+  public TaskHandle runAsync(Runnable task, long delayTicks) {
     Objects.requireNonNull(task, "task");
-    backend.runAsync(guard(generation, task), delayTicks);
+    Once once = new Once(generation);
+    backend.runAsync(() -> {
+      if (!once.isCancelled()) {
+        run(task);
+      }
+    }, delayTicks);
+    return once;
   }
 
   @Override
@@ -106,6 +112,19 @@ public final class BukkitScheduler implements AdaptScheduler {
       }
     };
     return start(repeat, handle == null ? -1L : delayTicks);
+  }
+
+  @Override
+  public TaskHandle repeatAt(Loc location, Runnable task, long delayTicks, long periodTicks) {
+    Objects.requireNonNull(task, "task");
+    Location target = location == null ? null : BukkitRefs.location(location);
+    Repeating repeat = new Repeating(task, periodTicks, null) {
+      @Override
+      boolean arm(long delay) {
+        return backend.runAt(target, this::fire, delay);
+      }
+    };
+    return start(repeat, target == null ? -1L : delayTicks);
   }
 
   @Override
@@ -174,6 +193,25 @@ public final class BukkitScheduler implements AdaptScheduler {
       throw fatal;
     } catch (Throwable failure) {
       log.error("Scheduled task failed", failure);
+    }
+  }
+
+  private final class Once implements TaskHandle {
+    private final int scheduled;
+    private volatile boolean cancelled;
+
+    private Once(int scheduled) {
+      this.scheduled = scheduled;
+    }
+
+    @Override
+    public void cancel() {
+      cancelled = true;
+    }
+
+    @Override
+    public boolean isCancelled() {
+      return cancelled || generation != scheduled;
     }
   }
 

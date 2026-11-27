@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /** Every skill's atlas and data agree: every sprite the renderer or a hover frame asks for exists and lies in the atlas. */
 class ThemeAtlasTest {
     private static final Pattern METHOD = Pattern.compile("private static void ([a-z]+)[A-Za-z]*\\(FrameCanvas F");
-    private static final Pattern SPRITE_KEY = Pattern.compile("F\\.(spr|raw)\\(([^;]*)");
+    private static final Pattern SPRITE_KEY = Pattern.compile("F\\.(sprite|raw)\\(([^;]*)");
     private static final Pattern LITERAL = Pattern.compile("\"([^\"]+)\"");
 
     @Test
@@ -116,7 +116,7 @@ class ThemeAtlasTest {
         int checked = 0;
         for (Map.Entry<String, String> entry : bodies.entrySet()) {
             ThemeKit kit = ThemeFixtures.kit(entry.getKey().equals("pickaxes") ? "pickaxe" : entry.getKey());
-            String body = entry.getKey().equals("enchanting") ? entry.getValue() + "F.spr(" + glyphs.group(1) : entry.getValue();
+            String body = entry.getKey().equals("enchanting") ? entry.getValue() + "F.sprite(" + glyphs.group(1) : entry.getValue();
             Matcher call = SPRITE_KEY.matcher(body);
             while (call.find()) {
                 Matcher literal = LITERAL.matcher(call.group(2));

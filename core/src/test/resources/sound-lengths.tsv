@@ -36,11 +36,13 @@ block.stone.break	500
 block.stone.hit	609
 block.stone.place	500
 block.tripwire.click_on	280
+block.tuff.hit	454
 block.vine.step	527
 block.wet_grass.step	578
 block.wood.break	500
 block.wood.hit	690
 block.wood.place	500
+block.wooden_button.click_on	178
 block.wool.break	203
 block.wool.hit	203
 block.wool.step	203
@@ -48,6 +50,7 @@ enchant.thorns.hit	532
 entity.arrow.shoot	477
 entity.bat.takeoff	625
 entity.blaze.hurt	500
+entity.chicken.egg	179
 entity.dolphin.attack	700
 entity.ender_pearl.throw	477
 entity.enderman.hurt	463
@@ -68,6 +71,7 @@ entity.parrot.eat	299
 entity.parrot.fly	636
 entity.player.attack.crit	681
 entity.player.attack.knockback	608
+entity.player.attack.nodamage	106
 entity.player.attack.strong	227
 entity.player.attack.sweep	235
 entity.puffer_fish.blow_up	381

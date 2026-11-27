@@ -41,9 +41,9 @@ export default {
     const restart = context.options.command === 'verify-restart'
     const opponent = await context.connectActor('AQADSCopponent')
     const cases = [
-      ['tragoul-last-rites', 'tragoul.last-rites.deaths-defied', 'cooldownMillisBase'],
-      ['chronos-hourglass-guard', 'chronos.hourglass-guard.saves', 'baseCooldownMillis'],
-      ['rift-void-skin', 'rift.void-skin.escapes', 'cooldownBaseMillis'],
+      ['adapt:tragoul/last_rites', 'tragoul.last-rites.deaths-defied', 'cooldownMillisBase'],
+      ['adapt:chronos/hourglass_guard', 'chronos.hourglass-guard.saves', 'baseCooldownMillis'],
+      ['adapt:rift/void_skin', 'rift.void-skin.escapes', 'cooldownBaseMillis'],
     ]
     context.report.cooldownPersistence = []
     if (!restart) await lengthenSaveCooldowns(context, cases)

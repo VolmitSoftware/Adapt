@@ -2,24 +2,24 @@
   "skill": "rift",
   "upgrades": [
     {
-      "name": "upgraded-rift-phase-step",
+      "name": "adapt:rift/upgrade/phase_step",
       "class": "PhaseStep",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PhaseStep.java",
-      "fuses": ["rift-blink", "rift-pearl-rebound", "rift-resist"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PhaseStep.java",
+      "fuses": ["adapt:rift/blink", "adapt:rift/pearl_rebound", "adapt:rift/resist"],
       "triggers": ["PlayerMoveEvent", "PlayerTeleportEvent", "PlayerQuitEvent", "EntityDamageByEntityEvent", "ProjectileLaunchEvent", "ProjectileHitEvent"]
     },
     {
-      "name": "upgraded-rift-pocket-realm",
+      "name": "adapt:rift/upgrade/pocket_realm",
       "class": "PocketRealm",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PocketRealm.java",
-      "fuses": ["rift-inflated-pocket-dimension", "rift-void-magnet", "rift-enderchest"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/PocketRealm.java",
+      "fuses": ["adapt:rift/inflated_pocket_dimension", "adapt:rift/void_magnet", "adapt:rift/enderchest"],
       "triggers": ["PlayerToggleSneakEvent", "PlayerMoveEvent", "PlayerQuitEvent", "PlayerJoinEvent", "PlayerInteractEvent", "BlockPlaceEvent", "EntityDamageEvent", "BlockBreakEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockPistonEvent", "EntityChangeBlockEvent", "InventoryCloseEvent", "ChunkEvent"]
     },
     {
-      "name": "upgraded-rift-voidborn",
+      "name": "adapt:rift/upgrade/voidborn",
       "class": "Voidborn",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/Voidborn.java",
-      "fuses": ["rift-void-skin", "rift-visage", "rift-descent"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/rift/upgraded/Voidborn.java",
+      "fuses": ["adapt:rift/void_skin", "adapt:rift/visage", "adapt:rift/descent"],
       "triggers": ["EntityDamageEvent", "EntityTargetEvent", "PlayerToggleSneakEvent", "PlayerQuitEvent", "PlayerJoinEvent"]
     }
   ]

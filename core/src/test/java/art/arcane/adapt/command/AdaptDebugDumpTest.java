@@ -1,8 +1,8 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.PlatformFamily;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -37,7 +37,7 @@ class AdaptDebugDumpTest extends AdaptTestBase {
 
   @BeforeEach
   void installPlatform() {
-    AdaptPlatform platform = core.getPlatform();
+    HostPlatform platform = core.getPlatform();
     PlatformHost host = platform.host();
     when(host.platformName()).thenReturn("Fabric");
     when(host.family()).thenReturn(PlatformFamily.FABRIC);

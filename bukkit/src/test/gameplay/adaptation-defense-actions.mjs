@@ -219,15 +219,15 @@ async function chop(input) {
 }
 
 export const defenseBehaviorCases = new Map([
-    ['unarmed-iron-fists', {
+    ['adapt:unarmed/iron_fists', {
         stage: 'defense-unarmed', sound: 'minecraft:block.anvil.land', soundVolume: 0.3, soundPitch: 1.7, particle: 'electric_spark',
         prepare, trigger: attack, verify: damageIncrease,
     }],
-    ['unarmed-sucker-punch', {
+    ['adapt:unarmed/sucker_punch', {
         stage: 'defense-unarmed', sound: 'minecraft:entity.player.attack.strong', soundVolume: 1, soundPitch: 1.8, particle: 'sweep_attack',
         prepare, trigger: sprintHit, verify: damageIncrease,
     }],
-    ['unarmed-pressure-point', {
+    ['adapt:unarmed/pressure_point', {
         stage: 'defense-unarmed', sound: 'minecraft:block.pointed_dripstone.land', soundVolume: 0.6, soundPitch: 1.6, particle: 'wax_on',
         prepare, trigger: pressure,
         verify: ({ context, unlearned, active }) => {
@@ -238,7 +238,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural punches add and stack target slowness and weakness'], unlearned, active)
         },
     }],
-    ['unarmed-second-wind', {
+    ['adapt:unarmed/second_wind', {
         stage: 'defense-kill', sound: 'minecraft:entity.player.levelup', soundVolume: 0.5, soundPitch: 1.7, particle: 'heart',
         prepare, trigger: kill,
         verify: ({ context, unlearned, active }) => {
@@ -247,7 +247,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural bare-hand kill restores hunger and grants regeneration'], unlearned, active)
         },
     }],
-    ['unarmed-grapple', {
+    ['adapt:unarmed/grapple', {
         stage: 'defense-unarmed', sound: 'minecraft:entity.player.attack.knockback', soundVolume: 0.9, soundPitch: 1.2, particle: 'cloud',
         prepare, trigger: grapple,
         verify: ({ context, unlearned, active }) => {
@@ -255,7 +255,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural sneak punch followed by release throws the victim farther than control'], unlearned, active)
         },
     }],
-    ['sword-poison-blade', {
+    ['adapt:sword/poison_blade', {
         stage: 'defense-sword', sound: 'minecraft:entity.bee.sting', soundVolume: 0.5, soundPitch: 1.3, particle: 'sneeze',
         prepare: input => prepare(input, 'wooden_sword'), trigger: poison,
         verify: ({ context, unlearned, active }) => {
@@ -264,7 +264,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural learned sword hit applies target poison'], unlearned, active)
         },
     }],
-    ['sword-bloody-blade', {
+    ['adapt:sword/bloody_blade', {
         stage: 'defense-sword', sound: 'minecraft:entity.player.attack.strong', soundVolume: 0.6, soundPitch: 0.8, particle: 'dust', particleColor: 0x9E1414,
         prepare: input => prepare(input, 'wooden_sword'), trigger: bleed,
         verify: ({ context, unlearned, active }) => {
@@ -273,7 +273,7 @@ export const defenseBehaviorCases = new Map([
             return result(['learned sword hit continues damaging target after the initial strike'], unlearned, active)
         },
     }],
-    ['sword-blade-flow', {
+    ['adapt:sword/blade_flow', {
         stage: 'defense-sword', sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.35, soundPitch: 1.02, particle: 'dust',
         prepare: input => prepare(input, 'wooden_sword'), trigger: flow,
         verify: ({ context, unlearned, active }) => {
@@ -283,7 +283,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural landed sword hit applies Blade Flow attack speed'], unlearned, active)
         },
     }],
-    ['sword-hamstring', {
+    ['adapt:sword/hamstring', {
         stage: 'defense-sword', sound: 'minecraft:block.honey_block.slide', soundVolume: 0.5, soundPitch: 0.8, particle: 'dust', particleColor: 0x8FE3FF,
         prepare: input => prepare(input, 'wooden_sword'), trigger: hamstring,
         verify: ({ context, unlearned, active }) => {
@@ -293,16 +293,16 @@ export const defenseBehaviorCases = new Map([
             return result(['natural strike slows a sprinting target and stops its sprint'], unlearned, active)
         },
     }],
-    ['sword-riposte-window', {
+    ['adapt:sword/riposte_window', {
         stage: 'defense-riposte', sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.8, soundPitch: 1.2, particle: 'sweep_attack', particleCount: 2, particleOffset: 0.1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: riposte, verify: damageIncrease,
     }],
-    ['sword-lunge-strike', {
+    ['adapt:sword/lunge_strike', {
         stage: 'defense-sword', sound: 'minecraft:item.trident.riptide_1', soundVolume: 0.4, soundPitch: 1.5, particle: 'sweep_attack',
         prepare: input => prepare(input, 'wooden_sword'), trigger: lunge,
         verify: ({ context, unlearned, active }) => {
             const key = 'minecraft:entity_interaction_range'
-            if (versionEntry('sword-lunge-strike')?.status === 'partial') {
+            if (versionEntry('adapt:sword/lunge_strike')?.status === 'partial') {
                 context.expect(!(key in active.after.attributes), 'The server has no entity interaction range attribute (catalog: partial)')
                 return result(['natural sprinting sword strike lunges; no reach bonus without the entity interaction range attribute'], unlearned, active)
             }
@@ -311,7 +311,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural sprinting sword strike increases entity interaction range'], unlearned, active)
         },
     }],
-    ['axe-cleave', {
+    ['adapt:axe/cleave', {
         stage: 'defense-cleave', sound: 'minecraft:entity.player.attack.sweep', soundVolume: 1, soundPitch: 0.8, particle: 'crit',
         prepare: input => prepare(input, 'wooden_axe'), trigger: cleave,
         verify: ({ context, unlearned, active }) => {
@@ -320,7 +320,7 @@ export const defenseBehaviorCases = new Map([
             return result(['one natural axe strike damages the secondary target only after learning'], unlearned, active)
         },
     }],
-    ['axe-shield-splitter', {
+    ['adapt:axe/shield_splitter', {
         stage: 'defense-splitter', sound: 'minecraft:item.shield.break', soundVolume: 0.8, soundPitch: 0.9, particle: 'crit', particleOffset: 0.3,
         prepare: input => prepare(input, 'wooden_axe'), trigger: splitter,
         verify: ({ context, unlearned, active }) => {
@@ -329,7 +329,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural axe strike extends shield cooldown beyond vanilla control'], unlearned, active)
         },
     }],
-    ['axe-bark-hide', {
+    ['adapt:axe/bark_hide', {
         stage: 'defense-log', sound: 'minecraft:block.wood.place', soundVolume: 0.4, soundPitch: 0.82, particle: 'block',
         prepare: input => prepare(input, 'diamond_axe'), trigger: bark,
         verify: ({ context, unlearned, active }) => {
@@ -339,7 +339,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural log break grants Bark Hide absorption'], unlearned, active)
         },
     }],
-    ['axe-chop', {
+    ['adapt:axe/chop', {
         stage: 'defense-log', sound: 'minecraft:item.axe.strip', soundVolume: 1.25, soundPitch: 0.6, particle: 'crit',
         prepare: input => prepare(input, 'diamond_axe'), trigger: chop,
         verify: ({ context, unlearned, active }) => {
@@ -348,7 +348,7 @@ export const defenseBehaviorCases = new Map([
             return result(['natural axe right-click fells logs beyond the vanilla stripped block'], unlearned, active)
         },
     }],
-    ['blocking-shieldbearers-resolve', {
+    ['adapt:blocking/shieldbearers_resolve', {
         stage: 'defense-resolve', sound: 'minecraft:block.anvil.use', soundVolume: 0.5, soundPitch: 0.8, particle: 'end_rod', particleCount: 1, particleOffset: 0,
         prepare, trigger: resolve,
         verify: ({ context, unlearned, active }) => {

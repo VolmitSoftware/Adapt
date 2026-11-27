@@ -1,11 +1,12 @@
 package art.arcane.adapt.bukkit.feature.recipe;
 
-import art.arcane.adapt.api.value.MaterialRecipeIndex;
+import art.arcane.adapt.engine.platform.EngineRecipeView;
+import art.arcane.adapt.engine.value.MaterialRecipeIndex;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.RecipeChoice;
-import art.arcane.adapt.platform.recipe.RecipeHost;
+import art.arcane.adapt.api.internal.HostRecipes;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
@@ -29,7 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Recipes through {@code Server.addRecipe}/{@code removeRecipe} and player recipe discovery, as {@code AdaptRecipe} does. */
-public final class BukkitRecipeHost implements RecipeHost {
+public final class BukkitRecipeHost implements HostRecipes {
   private final Server server;
   private final RecipeTranslator translator;
   private final BukkitRecipeRegistry registry;
@@ -48,7 +49,7 @@ public final class BukkitRecipeHost implements RecipeHost {
   }
 
   @Override
-  public boolean register(RecipeSpec recipe) {
+  public boolean add(RecipeSpec recipe) {
     Recipe translated;
     try {
       translated = translator.translate(recipe);
@@ -142,7 +143,7 @@ public final class BukkitRecipeHost implements RecipeHost {
           choices.put(entry.getKey(), choice);
         }
       }
-      return new RecipeView(key, RecipeView.Kind.SHAPED, List.of(shaped.getShape()), choices, List.of(), result);
+      return new EngineRecipeView(key, RecipeView.Kind.SHAPED, List.of(shaped.getShape()), choices, List.of(), result);
     }
     if (recipe instanceof ShapelessRecipe shapeless) {
       List<RecipeChoice> choices = new ArrayList<>();
@@ -150,9 +151,9 @@ public final class BukkitRecipeHost implements RecipeHost {
         RecipeChoice converted = choice(choice);
         choices.add(converted == null ? RecipeChoice.ofTypes(List.of()) : converted);
       }
-      return new RecipeView(key, RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, result);
+      return new EngineRecipeView(key, RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, result);
     }
-    return new RecipeView(key, RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), result);
+    return new EngineRecipeView(key, RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), result);
   }
 
   private static RecipeChoice choice(org.bukkit.inventory.RecipeChoice choice) {

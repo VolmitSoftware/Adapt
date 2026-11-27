@@ -1,8 +1,8 @@
 package art.arcane.adapt.gameplay.demo;
 
-import art.arcane.adapt.api.golem.GolemRoster;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.preference.PlayerPreferenceData;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.engine.preference.PlayerPreferenceData;
 import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;

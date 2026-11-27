@@ -1,7 +1,7 @@
 package art.arcane.adapt.client.server.hud;
 
-import art.arcane.adapt.api.notification.HudPort;
-import art.arcane.adapt.api.notification.HudSegment;
+import art.arcane.adapt.engine.notification.HudPort;
+import art.arcane.adapt.engine.notification.HudSegment;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.ArrayList;

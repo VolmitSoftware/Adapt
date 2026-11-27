@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-const source = readFileSync(new URL('../../../../core/src/main/java/art/arcane/adapt/content/adaptation/herbalism/HerbalismLuck.java', import.meta.url), 'utf8')
+const source = readFileSync(new URL('../../../../content/src/main/java/art/arcane/adapt/content/adaptation/herbalism/HerbalismLuck.java', import.meta.url), 'utf8')
 
 function pool(name) {
     const definition = source.match(new RegExp(`\\b${name}\\s*=\\s*List\\.of\\(([\\s\\S]*?)\\);`))

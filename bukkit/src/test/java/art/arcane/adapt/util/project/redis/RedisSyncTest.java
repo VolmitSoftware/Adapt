@@ -1,9 +1,9 @@
 package art.arcane.adapt.util.project.redis;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.FencedPlayerSnapshot;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.FencedPlayerSnapshot;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.util.common.scheduling.J;

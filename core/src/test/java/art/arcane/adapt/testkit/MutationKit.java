@@ -1,14 +1,14 @@
 package art.arcane.adapt.testkit;
 
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.mutation.blocks.Recipe;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.api.mutation.Recipe;
+import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.event.entity.DamageCause;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
@@ -33,7 +33,7 @@ public final class MutationKit {
   }
 
   /** Raises both parents to level 20 and mutates them; fails the test when the merge is refused. */
-  public SkillMutation mutate(String lead, String partner) {
+  public SkillPair mutate(String lead, String partner) {
     profile.getData().setMasterXp(1_000_000D);
     for (String skill : List.of(lead, partner)) {
       PlayerSkillLine line = profile.getData().getSkillLine(skill);
@@ -45,11 +45,11 @@ public final class MutationKit {
     if (result != SkillMutations.Result.MUTATED) {
       throw new AssertionError("Mutation " + lead + " + " + partner + " refused: " + result);
     }
-    return new SkillMutation(lead, partner);
+    return new SkillPair(Id.parseAdapt(lead), Id.parseAdapt(partner));
   }
 
   public MutatedSkill mutated(String lead, String partner) {
-    return registry().getMutatedSkill(new SkillMutation(lead, partner).id());
+    return registry().getMutatedSkill(new SkillPair(Id.parseAdapt(lead), Id.parseAdapt(partner)));
   }
 
   public MutationAdaptation adaptation(String lead, String partner, Recipe recipe) {

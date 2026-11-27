@@ -2,14 +2,12 @@ package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import me.angeschossen.chestprotect.api.addons.ChestProtectAddon;
 import me.angeschossen.chestprotect.api.protection.block.BlockProtection;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class ChestProtectProtector implements Protector {
+public class ChestProtectProtector extends BukkitProtector {
   private final ChestProtectAddon chestProtect;
 
   public ChestProtectProtector() {
@@ -17,7 +15,7 @@ public class ChestProtectProtector implements Protector {
   }
 
   @Override
-  public boolean canAccessChest(Player player, Location chestlocation, Adaptation<?> adaptation) {
+  protected boolean canAccessChest(Player player, Location chestlocation) {
     if (!chestProtect.isProtectable(chestlocation.getBlock())) return true;
     BlockProtection blockProtection = chestProtect.getProtection(chestlocation);
     if (blockProtection == null) return true;
@@ -25,12 +23,12 @@ public class ChestProtectProtector implements Protector {
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return "ChestProtect";
   }
 
   @Override
-  public boolean isEnabledByDefault() {
+  public boolean enabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isChestProtect();
   }
 }

@@ -1,12 +1,13 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.ComponentPort;
+import art.arcane.adapt.engine.ComponentPort;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.EquipmentSlot;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.volmlib.util.bukkit.BukkitExperience;
 import com.francobm.magicosmetics.api.CosmeticType;
@@ -37,7 +38,7 @@ final class BukkitComponentPort implements ComponentPort {
     if (bukkitPlayer == null || slot == null || amount <= 0) {
       return;
     }
-    bukkitPlayer.damageItemStack(BukkitConversions.slot(slot), amount);
+    PaperApi.damageItem(bukkitPlayer, BukkitConversions.slot(slot), amount);
   }
 
   @Override
@@ -49,11 +50,7 @@ final class BukkitComponentPort implements ComponentPort {
     if (bukkitItem.hasMetadata("NPC") || bukkitItem.hasMetadata("shopitem") || bukkitItem.hasMetadata("hologram")) {
       return true;
     }
-    try {
-      return !bukkitItem.canPlayerPickup();
-    } catch (NoSuchMethodError ignored) {
-      return false;
-    }
+    return !PaperApi.canPlayerPickup(bukkitItem);
   }
 
   @Override
@@ -80,17 +77,19 @@ final class BukkitComponentPort implements ComponentPort {
   @Override
   public int totalExperiencePoints(PlayerRef player) {
     Player bukkitPlayer = BukkitRefs.player(player);
-    return bukkitPlayer == null ? ComponentPort.super.totalExperiencePoints(player) : bukkitPlayer.calculateTotalExperiencePoints();
+    return bukkitPlayer == null || !PaperApi.isPaper()
+        ? ComponentPort.super.totalExperiencePoints(player)
+        : PaperApi.totalExperience(bukkitPlayer);
   }
 
   @Override
   public void setExperiencePoints(PlayerRef player, int total) {
     Player bukkitPlayer = BukkitRefs.player(player);
-    if (bukkitPlayer == null) {
+    if (bukkitPlayer == null || !PaperApi.isPaper()) {
       ComponentPort.super.setExperiencePoints(player, total);
       return;
     }
-    bukkitPlayer.setExperienceLevelAndProgress(total);
+    PaperApi.setExperience(bukkitPlayer, total);
   }
 
   @Override

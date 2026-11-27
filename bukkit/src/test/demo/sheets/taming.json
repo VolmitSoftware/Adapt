@@ -1,5 +1,5 @@
 {
-  "tame-alphas-command": {
+  "adapt:tame/alphas_command": {
     "set": "taming-cow", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 16",
@@ -21,7 +21,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wolf.growl", "particle": "happy_villager"}, "maxTicks": 250
   },
-  "tame-battle-bond": {
+  "adapt:tame/battle_bond": {
     "povCapture": true,
     "set": "taming-cow",
     "level": 5,
@@ -83,7 +83,7 @@
     },
     "maxTicks": 256
   },
-  "tame-beast-recall": {
+  "adapt:tame/beast_recall": {
     "set": "taming-field", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:lead",
@@ -103,7 +103,7 @@
     ],
     "expect": {"sound": "minecraft:item.lead.break", "particle": "reverse_portal"}, "maxTicks": 250
   },
-  "tame-damage": {
+  "adapt:tame/damage": {
     "set": "taming-wild", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
@@ -119,7 +119,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wolf.growl", "particle": "dust"}, "maxTicks": 300
   },
-  "tame-fetch": {
+  "adapt:tame/fetch": {
     "set": "taming-run", "level": 5,
     "pre": [
       "execute at {actor} run summon minecraft:wolf ~1 ~ ~1 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
@@ -139,7 +139,7 @@
     ],
     "expect": {"sound": "minecraft:entity.item.pickup", "particle": "happy_villager"}, "maxTicks": 340
   },
-  "tame-guardian-instinct": {
+  "adapt:tame/guardian_instinct": {
     "set": "archery", "level": 5,
     "pre": [
       "execute at {actor} run data merge entity @e[type=minecraft:skeleton,distance=..16,limit=1,sort=nearest] {NoAI:1b}",
@@ -158,7 +158,7 @@
     "camera": {"x": 6.0, "y": 2.8, "z": 3.0, "yaw": 137, "pitch": 9},
     "expect": {"sound": "minecraft:item.shield.block", "particle": "crit"}, "maxTicks": 300
   },
-  "tame-health": {
+  "adapt:tame/health": {
     "set": "taming-wild", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
@@ -174,7 +174,7 @@
     ],
     "expect": {"sound": "minecraft:block.note_block.chime", "particle": "happy_villager"}, "maxTicks": 300
   },
-  "tame-health-regeneration": {
+  "adapt:tame/health_regeneration": {
     "set": "taming-yard", "level": 3,
     "pre": [
       "execute at {actor} run summon minecraft:wolf ~ ~ ~-2.5 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:10.0f}",
@@ -188,7 +188,7 @@
     ],
     "expect": {"sound": "minecraft:entity.wolf.pant", "particle": "heart"}, "maxTicks": 200
   },
-  "tame-last-breath": {
+  "adapt:tame/last_breath": {
     "set": "taming-run", "level": 5,
     "pre": [
       "execute at {actor} run summon minecraft:wolf ~ ~ ~-6 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:1.0f}",
@@ -204,7 +204,7 @@
     ],
     "expect": {"sound": "minecraft:item.totem.use", "particle": "totem_of_undying"}, "maxTicks": 250
   },
-  "tame-mounted-tactics": {
+  "adapt:tame/mounted_tactics": {
     "set": "taming-stable", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
@@ -226,7 +226,7 @@
     ],
     "expect": {"sound": "minecraft:entity.horse.breathe", "particle": "crit"}, "maxTicks": 250
   },
-  "tame-pack-leader-aura": {
+  "adapt:tame/pack_leader_aura": {
     "set": "taming-wild", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
@@ -250,7 +250,7 @@
     ],
     "expect": {"particle": "dust"}, "maxTicks": 250
   },
-  "tame-shared-pain": {
+  "adapt:tame/shared_pain": {
     "set": "sparring", "level": 5,
     "pre": [
       "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
@@ -270,7 +270,7 @@
     "camera": {"x": 6.5, "y": 2.4, "z": 0.5, "yaw": 90, "pitch": 10},
     "expect": {"sound": "minecraft:block.amethyst_cluster.hit", "particle": "crit"}, "maxTicks": 250
   },
-  "tame-stable-hand": {
+  "adapt:tame/stable_hand": {
     "set": "taming-wild", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
@@ -286,7 +286,7 @@
     ],
     "expect": {"sound": "minecraft:entity.horse.breathe", "particle": "heart"}, "maxTicks": 300
   },
-  "tame-wild-empathy": {
+  "adapt:tame/wild_empathy": {
     "set": "taming-pack", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:bone 16",

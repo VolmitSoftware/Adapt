@@ -19,8 +19,6 @@
 package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
@@ -32,44 +30,44 @@ import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class WorldGuardProtector implements Protector {
+public class WorldGuardProtector extends BukkitProtector {
 
   private final RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
   private final StateFlag flag = WorldGuardFlags.useAdaptations();
 
   @Override
-  public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
+  protected boolean checkRegion(Player player, Location location) {
     return checkPerm(player, location, flag);
   }
 
   @Override
-  public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, blockLocation, adaptation) && checkPerm(player, blockLocation, Flags.BLOCK_BREAK);
+  protected boolean canBlockBreak(Player player, Location blockLocation) {
+    return checkRegion(player, blockLocation) && checkPerm(player, blockLocation, Flags.BLOCK_BREAK);
   }
 
   @Override
-  public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, blockLocation, adaptation) && checkPerm(player, blockLocation, Flags.BLOCK_PLACE);
+  protected boolean canBlockPlace(Player player, Location blockLocation) {
+    return checkRegion(player, blockLocation) && checkPerm(player, blockLocation, Flags.BLOCK_PLACE);
   }
 
   @Override
-  public boolean canPVP(Player player, Location entityLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, entityLocation, adaptation) && checkPerm(player, entityLocation, Flags.PVP);
+  protected boolean canPVP(Player player, Location entityLocation) {
+    return checkRegion(player, entityLocation) && checkPerm(player, entityLocation, Flags.PVP);
   }
 
   @Override
-  public boolean canPVE(Player player, Location entityLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, entityLocation, adaptation) && checkPerm(player, entityLocation, Flags.DAMAGE_ANIMALS);
+  protected boolean canPVE(Player player, Location entityLocation) {
+    return checkRegion(player, entityLocation) && checkPerm(player, entityLocation, Flags.DAMAGE_ANIMALS);
   }
 
   @Override
-  public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, targetLocation, adaptation) && checkPerm(player, targetLocation, Flags.INTERACT);
+  protected boolean canInteract(Player player, Location targetLocation) {
+    return checkRegion(player, targetLocation) && checkPerm(player, targetLocation, Flags.INTERACT);
   }
 
   @Override
-  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-    return checkRegion(player, chestLocation, adaptation) && checkPerm(player, chestLocation, Flags.CHEST_ACCESS);
+  protected boolean canAccessChest(Player player, Location chestLocation) {
+    return checkRegion(player, chestLocation) && checkPerm(player, chestLocation, Flags.CHEST_ACCESS);
   }
 
   private boolean checkPerm(Player player, Location location, StateFlag flag) {
@@ -85,12 +83,12 @@ public class WorldGuardProtector implements Protector {
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return "WorldGuard";
   }
 
   @Override
-  public boolean isEnabledByDefault() {
+  public boolean enabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isWorldguard();
   }
 

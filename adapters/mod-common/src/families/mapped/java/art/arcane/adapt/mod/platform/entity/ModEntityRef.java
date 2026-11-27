@@ -30,7 +30,6 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ambient.AmbientCreature;
@@ -50,7 +49,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Spider;
 import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.EvokerFangs;
@@ -111,7 +110,7 @@ public class ModEntityRef implements EntityRef {
             case HORSE -> current instanceof AbstractHorse;
             case WATER_MOB -> current instanceof WaterAnimal;
             case GOLEM -> current instanceof AbstractGolem;
-            case VILLAGER -> current instanceof Villager;
+            case VILLAGER -> current instanceof AbstractVillager;
             case BOSS -> current instanceof EnderDragon || current instanceof WitherBoss;
             case UNDEAD -> current.getType().builtInRegistryHolder().is(EntityTypeTags.UNDEAD);
             case ARMOR_STAND -> current instanceof ArmorStand;
@@ -289,15 +288,12 @@ public class ModEntityRef implements EntityRef {
     public void setPersistent(boolean persistent) {
         Entity current = handle();
         ((AdaptEntityData) current).adapt$setTransient(!persistent);
-        if (persistent && current instanceof Mob mob) {
-            mob.setPersistenceRequired();
-        }
     }
 
     @Override
     public String customName() {
         Component name = handle().getCustomName();
-        return name == null ? null : ModText.markup(name);
+        return name == null ? null : ModText.legacy(name);
     }
 
     @Override

@@ -3,7 +3,7 @@ package art.arcane.adapt.bukkit.port;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.entity.BukkitInventoryRef;
-import art.arcane.adapt.content.adaptation.rift.AdvancedChestsPort;
+import art.arcane.adapt.engine.integration.AdvancedChestsPort;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Loc;

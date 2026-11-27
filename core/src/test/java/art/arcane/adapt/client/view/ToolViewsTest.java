@@ -1,10 +1,13 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
+
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
@@ -28,28 +31,28 @@ class ToolViewsTest {
   void everyToolSitsOnAnAdaptationPageWithItsLookAndARecipe() {
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v26_3());
-    try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+    try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
       SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
       List<ToolView> tools = ToolViews.build(registry, UUID.randomUUID());
       assertThat(tools).hasSize(ItemLooks.LOOKS.stream().filter((ItemLooks.Look look) -> look.key().startsWith("tool-")).toList().size());
       Set<String> pages = new HashSet<>();
       for (Skill<?> skill : registry.getSkills()) {
-        for (Adaptation<?> upgrade : skill.getUpgrades()) {
-          pages.add(upgrade.getName());
+        for (Adaptation<?> upgrade : SkillHost.of(skill).getUpgrades()) {
+          pages.add(upgrade.getId().toString());
         }
       }
       for (ToolView tool : tools) {
         assertThat(tool.name()).as(tool.toolId()).isNotBlank().doesNotContain("§");
         assertThat(tool.ingredients()).as(tool.toolId()).isNotEmpty();
-        assertThat(tool.icon().customModelData()).isEqualTo(ItemLooks.number(tool.toolId()));
-        assertThat(tool.icon().spriteId()).isEqualTo(IconSprites.texture("tool", tool.toolId()));
+        assertThat(tool.icon().customModelData()).isEqualTo(ItemLooks.number(LegacyContentNames.of(tool.toolId())));
+        assertThat(tool.icon().spriteId()).isEqualTo(IconSprites.texture("tool", LegacyContentNames.of(tool.toolId())));
       }
-      assertThat(tools).filteredOn((ToolView tool) -> tool.toolId().equals("tool-signature-crafting-enchanting-runed-book"))
-          .extracting(ToolView::adaptationId).containsExactly("mutated-crafting-enchanting-convergence");
-      assertThat(tools).filteredOn((ToolView tool) -> tool.toolId().startsWith("tool-swords-whetstone"))
-          .extracting(ToolView::adaptationId).allMatch((String page) -> page.startsWith("upgraded-swords-"));
+      assertThat(tools).filteredOn((ToolView tool) -> tool.toolId().equals("adapt:mutated/crafting/adapt/enchanting/tool/runed_book"))
+          .extracting(ToolView::adaptationId).containsExactly("adapt:mutated/crafting/adapt/enchanting/convergence");
+      assertThat(tools).filteredOn((ToolView tool) -> tool.toolId().startsWith("adapt:swords/tool/whetstone"))
+          .extracting(ToolView::adaptationId).allMatch((String page) -> page.startsWith("adapt:swords/upgrade/"));
       assertThat(tools).extracting(ToolView::adaptationId)
-          .allMatch((String page) -> pages.contains(page) || MutationAdaptation.parse(page) != null);
+          .allMatch((String page) -> pages.contains(page) || page.startsWith("adapt:mutated/"));
     }
   }
 }

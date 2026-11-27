@@ -642,17 +642,24 @@ public final class LanguageEditorGui {
     return List.copyOf(sorted);
   }
 
+  /** The category of a message: its namespace and first segment, {@code adapt.gui} for {@code adapt.gui.common.back}. */
   static String group(String messageId) {
-    int separator = messageId.indexOf('.');
+    int namespace = messageId.indexOf('.');
+    int separator = namespace < 0 ? -1 : messageId.indexOf('.', namespace + 1);
     return separator < 0 ? messageId : messageId.substring(0, separator);
   }
 
   static String groupName(String group) {
-    if (group.equalsIgnoreCase("gui") || group.equalsIgnoreCase("hud") || group.equalsIgnoreCase("api")) {
-      return group.toUpperCase(Locale.ROOT);
+    String segment = segment(group);
+    if (segment.equalsIgnoreCase("gui") || segment.equalsIgnoreCase("hud") || segment.equalsIgnoreCase("api")) {
+      return segment.toUpperCase(Locale.ROOT);
     }
-    String normalized = group.replace('_', ' ').replace('-', ' ').trim();
-    return normalized.isEmpty() ? group : Character.toUpperCase(normalized.charAt(0)) + normalized.substring(1);
+    String normalized = segment.replace('_', ' ').replace('-', ' ').trim();
+    return normalized.isEmpty() ? segment : Character.toUpperCase(normalized.charAt(0)) + normalized.substring(1);
+  }
+
+  private static String segment(String group) {
+    return group.substring(group.lastIndexOf('.') + 1);
   }
 
   private static int messageCount(PluginLanguageEditor.Document document, String group) {
@@ -666,7 +673,7 @@ public final class LanguageEditorGui {
   }
 
   private static String groupMaterial(String group) {
-    return switch (group.toLowerCase(Locale.ROOT)) {
+    return switch (segment(group).toLowerCase(Locale.ROOT)) {
       case "command" -> "command_block";
       case "config", "configuration" -> "comparator";
       case "debug", "diagnostics" -> "spyglass";

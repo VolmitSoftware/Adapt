@@ -9,6 +9,7 @@ import org.bukkit.entity.ItemFrame;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import java.util.function.Function;
 import org.bukkit.entity.Player;
+import art.arcane.adapt.bukkit.platform.data.PdcView;
 import art.arcane.adapt.platform.event.AdaptEventBus;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.bukkit.platform.BukkitPlatform;
@@ -26,6 +27,7 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
@@ -66,7 +68,6 @@ import java.util.function.Consumer;
  * object: once Bukkit invalidates it (removal, unload, dimension change) {@link #isValid()} is false.
  */
 public class BukkitEntityRef implements EntityRef {
-  private static final String TELEPORT_FLAG_CLASS = "io.papermc.paper.entity.TeleportFlag";
   private static volatile boolean teleportFlagsSupported = true;
   private final UUID uuid;
   private final int entityId;
@@ -196,7 +197,7 @@ public class BukkitEntityRef implements EntityRef {
 
   @Override
   public boolean isInLava() {
-    return handle().isInLava();
+    return PaperApi.isInLava(handle());
   }
 
   @Override
@@ -236,11 +237,7 @@ public class BukkitEntityRef implements EntityRef {
 
   @Override
   public boolean isFreezeTickingLocked() {
-    try {
-      return handle().isFreezeTickingLocked();
-    } catch (NoSuchMethodError absent) {
-      return false;
-    }
+    return PaperCompat.freezeTicksLocked(handle());
   }
 
   @Override
@@ -373,9 +370,9 @@ public class BukkitEntityRef implements EntityRef {
     }
     Entity entity = handle();
     PlayerTeleportEvent.TeleportCause bukkitCause = BukkitConversions.cause(cause);
-    if (teleportFlagsSupported && PaperCompat.hasClass(TELEPORT_FLAG_CLASS)) {
+    if (teleportFlagsSupported && PaperApi.isPaper()) {
       try {
-        return BukkitTeleportVersion.teleportRetainingPassengers(entity, target, bukkitCause);
+        return PaperTeleports.teleportRetainingPassengers(entity, target, bukkitCause);
       } catch (NoSuchMethodError | NoClassDefFoundError absent) {
         teleportFlagsSupported = false;
       }
@@ -480,8 +477,8 @@ public class BukkitEntityRef implements EntityRef {
 
   private record EntityStore(BukkitEntityRef ref) implements PdcStore {
     @Override
-    public PersistentDataContainer read() {
-      return ref.handle().getPersistentDataContainer();
+    public PdcView read() {
+      return PdcView.of(ref.handle().getPersistentDataContainer());
     }
 
     @Override

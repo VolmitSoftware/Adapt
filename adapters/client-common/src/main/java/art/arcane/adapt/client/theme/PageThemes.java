@@ -60,7 +60,7 @@ public final class PageThemes {
         return motion.reduced() || settings.get().reducedMotion();
     }
 
-    /** The theme of skill {@code skillId}, or null when themes are off or it has none. */
+    /** The theme of skill {@code skillId} as the server names it, or null when themes are off or it has none. */
     public PageTheme theme(UiSprites sprites, String skillId) {
         return enabled() ? library.theme(sprites, skillId) : null;
     }

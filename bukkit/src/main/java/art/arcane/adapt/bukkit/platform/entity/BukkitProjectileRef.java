@@ -9,6 +9,7 @@ import art.arcane.adapt.platform.entity.ProjectileRef;
 import art.arcane.adapt.platform.entity.ProjectileSnapshot;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Arrow;
@@ -41,11 +42,7 @@ public final class BukkitProjectileRef extends BukkitEntityRef implements Projec
 
   @Override
   public UUID shooterId() {
-    UUID owner = projectile().getOwnerUniqueId();
-    if (owner != null) {
-      return owner;
-    }
-    return projectile().getShooter() instanceof Entity entity ? entity.getUniqueId() : null;
+    return PaperApi.shooterId(projectile());
   }
 
   @Override
@@ -166,11 +163,9 @@ public final class BukkitProjectileRef extends BukkitEntityRef implements Projec
     }
     List<EffectInstance> effects = new ArrayList<>();
     for (PotionEffect effect : arrow.getCustomEffects()) {
-      effects.add(new EffectInstance(BukkitResolve.id(effect.getType()),
-          effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(), effect.isAmbient(),
-          effect.hasParticles(), effect.hasIcon()));
+      effects.add(EffectInstance.of(BukkitResolve.id(effect.getType()), effect.isInfinite() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.hasParticles()).withIcon(effect.hasIcon()));
     }
-    return new PotionContents(BukkitProjectileVersion.basePotion(arrow), null, effects, null);
+    return PotionContents.of(BukkitProjectileVersion.basePotion(arrow)).withCustomEffects(effects);
   }
 
   @Override

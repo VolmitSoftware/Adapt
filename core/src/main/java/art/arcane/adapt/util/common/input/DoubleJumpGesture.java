@@ -2,7 +2,8 @@ package art.arcane.adapt.util.common.input;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.api.ability.DoubleJump;
+import art.arcane.adapt.engine.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.player.PlayerInput;
@@ -20,10 +21,11 @@ import java.util.UUID;
  * ({@link MidairJumps}). Never completes while flying, gliding, riding, swimming or climbing, or for a player who
  * may fly.
  */
-public final class DoubleJumpGesture {
+public final class DoubleJumpGesture implements DoubleJump {
   private static final Id CLIMBABLE = Id.minecraft("climbable");
   private final Map<UUID, State> states = PlayerStateRegistry.newPlayerMap();
 
+  @Override
   public boolean update(PlayerRef p) {
     State state = states.computeIfAbsent(p.uuid(), unused -> new State());
     PlayerInput input = AdaptPorts.get(PlayerInputPort.class, PlayerInputPort.NONE).currentInput(p);
@@ -83,14 +85,12 @@ public final class DoubleJumpGesture {
   }
 
   /** Forgets the presses seen so far and keeps listening, for a player who moved without walking (a teleport). */
+  @Override
   public void restart(UUID id) {
     states.remove(id);
   }
 
-  public void reset(PlayerRef p) {
-    reset(p.uuid());
-  }
-
+  @Override
   public void reset(UUID id) {
     states.remove(id);
     MidairJumps midair = MidairJumps.active();

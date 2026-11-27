@@ -1,9 +1,9 @@
 package art.arcane.adapt.gameplay.demo;
 
-import art.arcane.adapt.api.golem.GolemRoster;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.preference.PlayerPreferenceData;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemRuneType;
+import art.arcane.adapt.engine.preference.PlayerPreferenceData;
 import org.bukkit.DyeColor;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
@@ -76,13 +76,13 @@ class DemoScopeTest {
     @Test
     void resettingStoredPreferencesTouchesOnlyTheNamedAdaptationsThatHoldValues() {
         PlayerPreferenceData data = new PlayerPreferenceData();
-        data.set("golem-gatherer-core", "absorb-orbs", "OFF");
-        data.set("agility-wall-jump", "sound", "OFF");
+        data.set("adapt:golem/gatherer_core", "absorb-orbs", "OFF");
+        data.set("adapt:agility/wall_jump", "sound", "OFF");
 
-        List<String> reset = DemoScope.resetStored(data, List.of("golem-gatherer-core", "golem-guardian-core"));
+        List<String> reset = DemoScope.resetStored(data, List.of("adapt:golem/gatherer_core", "adapt:golem/guardian_core"));
 
-        assertThat(reset).containsExactly("golem-gatherer-core");
-        assertThat(data.get("golem-gatherer-core", "absorb-orbs")).isNull();
-        assertThat(data.get("agility-wall-jump", "sound")).isEqualTo("OFF");
+        assertThat(reset).containsExactly("adapt:golem/gatherer_core");
+        assertThat(data.get("adapt:golem/gatherer_core", "absorb-orbs")).isNull();
+        assertThat(data.get("adapt:agility/wall_jump", "sound")).isEqualTo("OFF");
     }
 }

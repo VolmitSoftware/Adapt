@@ -1,15 +1,15 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.ComponentPort;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.engine.ComponentPort;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemRegistry;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.engine.world.PlayerData;
 import art.arcane.adapt.platform.data.DataCodecs;
 import art.arcane.adapt.platform.data.DataKey;
 import art.arcane.adapt.platform.entity.EntityRef;

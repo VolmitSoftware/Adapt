@@ -143,7 +143,7 @@ async function rubber(input) {
         samples.push((await input.snapshot()).attributes['minecraft:bounciness'])
     }
     const reported = samples.filter(value => value !== undefined)
-    return { minecraftVersion: before.minecraftVersion, learned: before.learned['kinetics-rubber-soul'],
+    return { minecraftVersion: before.minecraftVersion, learned: before.learned['adapt:kinetics/rubber_soul'],
         before: samples[0] ?? null, peak: reported.length ? Math.max(...reported) : null, samples: samples.length, samplesWithAttribute: reported.length }
 }
 
@@ -274,7 +274,7 @@ async function assassinate(input) {
 }
 
 export const traversalBehaviorCases = new Map([
-    ['agility-featherfoot', {
+    ['adapt:agility/featherfoot', {
         stage: 'traverse-qa-plate', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: pressurePlate,
         sound: 'minecraft:item.armor.equip_leather', soundVolume: 0.3, soundPitch: 1.6, particle: 'cloud',
         verify: ({ context, unlearned, active }) => {
@@ -283,7 +283,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['both sprint trials cross the plate', 'learned sprint suppresses the plate power transition'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-ladder-slide', {
+    ['adapt:agility/ladder_slide', {
         stage: 'traverse-qa-ladder', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: climb,
         sound: 'minecraft:entity.phantom.flap', soundVolume: 0.22, soundPitch: 1.2, particle: 'crit',
         verify: ({ context, unlearned, active }) => {
@@ -292,7 +292,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned input climbs a real ladder', 'learned upward gaze gains over one extra block in the same interval'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-marathoner', {
+    ['adapt:agility/marathoner', {
         stage: 'traverse-qa-runway', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => sprint(input),
         verify: ({ context, unlearned, active }) => {
             context.expect(unlearned.distance > 10 && active.distance > 10 && Math.abs(active.distance - unlearned.distance) < 1,
@@ -302,7 +302,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['both trials sprint comparable distance', 'learned sprint accumulates less than 60% of ordinary exhaustion'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-roll-landing', {
+    ['adapt:agility/roll_landing', {
         stage: 'traverse-qa-roll', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => fall(input, true),
         sound: 'minecraft:item.armor.equip_leather', soundVolume: 1, soundPitch: 0.89, particle: 'cloud',
         verify: input => {
@@ -312,7 +312,7 @@ export const traversalBehaviorCases = new Map([
             return evidence
         },
     }],
-    ['agility-slipstream-slide', {
+    ['adapt:agility/slipstream_slide', {
         stage: 'traverse-qa-runway', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: slip,
         sound: 'minecraft:block.ladder.step', soundVolume: 0.6, soundPitch: 0.6, particle: 'cloud', particleCount: 1, particleOffset: 0,
         verify: ({ context, unlearned, active }) => {
@@ -322,7 +322,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned sprint-sneak has no prone slide', 'learned slide changes pose, travels farther, and pays its actual stamina cost'], measurements: { unlearned, active } }
         },
     }],
-    ['agility-vault', {
+    ['adapt:agility/vault', {
         stage: 'traverse-qa-vault', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: vault,
         sound: 'minecraft:item.armor.equip_leather', soundVolume: 0.7, soundPitch: 1.2, particle: 'block',
         verify: ({ context, unlearned, active }) => {
@@ -331,7 +331,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['ordinary jump cannot cross the fence', 'learned jump rises above and crosses the fence'], measurements: { unlearned, active } }
         },
     }],
-    ['kinetics-rubber-soul', {
+    ['adapt:kinetics/rubber_soul', {
         stage: 'traverse-qa-rubber', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: rubber,
         sound: 'minecraft:block.slime_block.fall', soundVolume: 0.5, soundPitch: 1.4, particle: 'item_slime',
         verify: ({ context, unlearned, active }) => {
@@ -352,11 +352,11 @@ export const traversalBehaviorCases = new Map([
                 'learned natural landing raises passive bounciness from 0.5 to the native cap of 1.0'], measurements: { unlearned, active } }
         },
     }],
-    ['kinetics-soft-catch', {
+    ['adapt:kinetics/soft_catch', {
         stage: 'traverse-qa-soft', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => fall(input), verify: verifyFall,
         sound: 'minecraft:block.wool.fall', soundVolume: 0.6, soundPitch: 1.1, particle: 'cloud',
     }],
-    ['kinetics-surface-skate', {
+    ['adapt:kinetics/surface_skate', {
         stage: 'traverse-qa-runway', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => sprint(input, 20),
         verify: ({ context, unlearned, active }) => {
             const nativeFriction = Number.isFinite(unlearned.friction)
@@ -369,7 +369,7 @@ export const traversalBehaviorCases = new Map([
             measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-coral-gardener', {
+    ['adapt:seaborne/coral_gardener', {
         stage: 'traverse-qa-coral', negativeWindowTicks: 1, prepare: input => prepare(input, 'tube_coral_block'), trigger: coral,
         sound: 'minecraft:block.coral_block.place', soundVolume: 0.5, soundPitch: 1.3, particle: 'happy_villager',
         verify: ({ context, unlearned, active }) => {
@@ -379,7 +379,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['both trials naturally place dry coral', 'learned coral survives after unlearned coral has died'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-deep-salvager', {
+    ['adapt:seaborne/deep_salvager', {
         stage: 'traverse-qa-salvage', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: salvage,
         sound: 'minecraft:block.conduit.activate', soundVolume: 0.5, soundPitch: 1.3, particle: 'end_rod', particleCount: 6,
         verify: ({ context, unlearned, active }) => {
@@ -389,7 +389,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned opening yields no treasure', 'learned opening adds at least four real items exactly once'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-fish-whisperer', {
+    ['adapt:seaborne/fish_whisperer', {
         stage: 'traverse-qa-fish', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: fish,
         particle: 'bubble', particleCount: 2, particleOffset: 0.1,
         verify: ({ context, unlearned, active }) => {
@@ -399,7 +399,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned underwater presence does not pull fish', 'learned presence moves fish toward the player and increases luck'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-ink-veil', {
+    ['adapt:seaborne/ink_veil', {
         stage: 'traverse-qa-ink', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: ink,
         sound: 'minecraft:entity.dolphin.splash', soundVolume: 0.6, soundPitch: 0.6, particle: 'squid_ink',
         verify: ({ context, unlearned, active }) => {
@@ -409,7 +409,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned underwater damage applies no blindness', 'learned underwater damage blinds a nearby hostile mob'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-tidecaller', {
+    ['adapt:seaborne/tidecaller', {
         stage: 'traverse-qa-tide', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: tide,
         sound: 'minecraft:item.trident.riptide_2', soundVolume: 0.75, soundPitch: 1.2, particle: 'splash',
         verify: ({ context, unlearned, active }) => {
@@ -418,7 +418,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned underwater sneak does not dash', 'learned underwater sneak launches one real movement burst'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-trident-mastery', {
+    ['adapt:seaborne/trident_mastery', {
         stage: 'traverse-qa-trident', negativeWindowTicks: 1, prepare: input => prepare(input, 'trident'), trigger: trident,
         sound: 'minecraft:item.trident.hit', soundVolume: 0.6, soundPitch: 1.1, particle: 'bubble',
         verify: ({ context, unlearned, active }) => {
@@ -426,7 +426,7 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['unlearned trident hit deals ordinary damage', 'learned trident hit deals additional damage'], measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-storm-strike', {
+    ['adapt:seaborne/storm_strike', {
         stage: 'traverse-qa-storm', negativeWindowTicks: 1, prepare: input => prepare(input, 'trident'), trigger: storm,
         sound: 'minecraft:entity.lightning_bolt.impact', soundVolume: 0.7, soundPitch: 1.4, particle: 'electric_spark',
         verify: ({ context, unlearned, active }) => {
@@ -436,7 +436,7 @@ export const traversalBehaviorCases = new Map([
                 measurements: { unlearned, active } }
         },
     }],
-    ['seaborne-rain-fed', {
+    ['adapt:seaborne/rain_fed', {
         stage: 'traverse-qa-rainfed', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: rainFed,
         sound: 'minecraft:entity.generic.eat', soundVolume: 0.25, soundPitch: 1.6, particle: 'splash',
         verify: ({ context, unlearned, active }) => {
@@ -446,8 +446,8 @@ export const traversalBehaviorCases = new Map([
                 measurements: { unlearned, active } }
         },
     }],
-    ['stealth-assassinate', {
-        stage: 'traverse-qa-assassinate', prerequisites: [{ name: 'stealth-silent-step', level: 1 }], negativeWindowTicks: 1,
+    ['adapt:stealth/assassinate', {
+        stage: 'traverse-qa-assassinate', prerequisites: [{ name: 'adapt:stealth/silent_step', level: 1 }], negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: assassinate,
         sound: 'minecraft:entity.player.attack.crit', soundVolume: 1, soundPitch: 0.6, particle: 'soul',
         verify: ({ context, unlearned, active }) => {
@@ -458,8 +458,8 @@ export const traversalBehaviorCases = new Map([
             return { assertions: ['Silent Step alone does not execute the target', 'Assassinate executes the same target with one natural punch'], measurements: { unlearned, active } }
         },
     }],
-    ['stealth-shadowmeld', {
-        stage: 'traverse-qa-shadowmeld', prerequisites: [{ name: 'stealth-silent-step', level: 1 }], negativeWindowTicks: 30,
+    ['adapt:stealth/shadowmeld', {
+        stage: 'traverse-qa-shadowmeld', prerequisites: [{ name: 'adapt:stealth/silent_step', level: 1 }], negativeWindowTicks: 30,
         prepare: input => prepare(input), effect: 'minecraft:invisibility',
         sound: 'minecraft:block.sculk_sensor.clicking_stop', soundVolume: 0.5, soundPitch: 0.6, particle: 'squid_ink',
         trigger: async ({ actor }) => {

@@ -1,8 +1,8 @@
 package art.arcane.adapt.bukkit.platform.item;
 
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
-import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +15,7 @@ final class BukkitItemVersion {
   }
 
   static String effectiveName(ItemStack stack) {
-    return BukkitText.legacy(stack.effectiveName());
+    return PaperApi.effectiveName(stack);
   }
 
   static Id itemModel(ItemMeta meta) {
@@ -27,10 +27,10 @@ final class BukkitItemVersion {
   }
 
   static Component customName(PotionMeta meta) {
-    return meta.customName();
+    return PaperApi.potionName(meta);
   }
 
   static void setCustomName(PotionMeta meta, Component name) {
-    meta.customName(name);
+    PaperApi.setPotionName(meta, name);
   }
 }

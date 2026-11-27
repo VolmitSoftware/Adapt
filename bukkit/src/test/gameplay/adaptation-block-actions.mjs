@@ -135,43 +135,43 @@ const column = [[3, 100, 0], [3, 101, 0], [3, 102, 0]]
 const oreCluster = [[3, 100, 0], [3, 101, 0], [4, 100, 0], [4, 101, 0]]
 
 export const blockBehaviorCases = new Map([
-    ['axe-drop-to-inventory', pickupCase({
+    ['adapt:axe/drop_to_inventory', pickupCase({
         stage: 'block-log', tool: 'diamond_axe', block: 'oak_log', item: 'oak_log', amount: 1,
         sound: 'minecraft:block.amethyst_block.hit', soundVolume: 0.3, soundPitch: 1.8, particle: 'enchant',
     })],
-    ['pickaxe-drop-to-inventory', pickupCase({
+    ['adapt:pickaxe/drop_to_inventory', pickupCase({
         stage: 'block-iron', tool: 'diamond_pickaxe', block: 'iron_ore', item: 'raw_iron', amount: 1,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.25, soundPitch: 1.6, particle: 'wax_on',
     })],
-    ['excavation-drop-to-inventory', pickupCase({
+    ['adapt:excavation/drop_to_inventory', pickupCase({
         stage: 'block-clay', tool: 'diamond_shovel', block: 'clay', item: 'clay_ball', amount: 4,
         sound: 'minecraft:block.calcite.hit', soundVolume: 0.3, soundPitch: 1.6, particle: 'enchant',
     })],
-    ['herbalism-drop-to-inventory', pickupCase({
+    ['adapt:herbalism/drop_to_inventory', pickupCase({
         stage: 'block-pumpkin', tool: 'diamond_hoe', block: 'pumpkin', item: 'pumpkin', amount: 1,
         sound: 'minecraft:block.note_block.chime', soundVolume: 0.5, soundPitch: 1.6, particle: 'happy_villager',
     })],
-    ['axe-wood-veinminer', multiBlockCase({
+    ['adapt:axe/wood_veinminer', multiBlockCase({
         stage: 'block-log', tool: 'diamond_axe', block: 'oak_log', cells: column,
         sound: 'minecraft:item.axe.strip', soundVolume: 1, soundPitch: 0.7, particle: 'crit',
     })],
-    ['axe-leaf-veinminer', multiBlockCase({
+    ['adapt:axe/leaf_veinminer', multiBlockCase({
         stage: 'block-leaves', tool: 'diamond_axe', block: 'oak_leaves', cells: column,
         sound: 'minecraft:entity.player.attack.sweep', soundVolume: 0.5, soundPitch: 1.2, particle: 'happy_villager',
     })],
-    ['pickaxe-veinminer', multiBlockCase({
+    ['adapt:pickaxe/veinminer', multiBlockCase({
         stage: 'block-ore', tool: 'diamond_pickaxe', block: 'diamond_ore', cells: oreCluster,
         sound: 'minecraft:block.amethyst_cluster.break', soundVolume: 0.7, soundPitch: 0.9, particle: 'electric_spark',
     })],
-    ['excavation-tunneler', multiBlockCase({
+    ['adapt:excavation/tunneler', multiBlockCase({
         stage: 'block-clay-plane', tool: 'diamond_shovel', block: 'clay', cells: plane,
         sound: 'minecraft:item.shovel.flatten', soundVolume: 0.7, soundPitch: 0.8, particle: 'block',
     })],
-    ['pickaxe-tunnel-bore', multiBlockCase({
+    ['adapt:pickaxe/tunnel_bore', multiBlockCase({
         stage: 'block-stone-plane', tool: 'diamond_pickaxe', block: 'stone', cells: plane,
         sound: 'minecraft:entity.ravager.step', soundVolume: 0.4, soundPitch: 0.6, particle: 'cloud',
     })],
-    ['pickaxe-autosmelt', {
+    ['adapt:pickaxe/autosmelt', {
         stage: 'block-iron',
         sound: 'minecraft:block.lava.pop', soundVolume: 1, soundPitch: 1, particle: 'flame',
         prepare: input => prepare(input, 'diamond_pickaxe', 'iron_ore'),
@@ -192,7 +192,7 @@ export const blockBehaviorCases = new Map([
             }
         },
     }],
-    ['architect-glass', {
+    ['adapt:architect/glass', {
         stage: 'block-glass',
         sound: 'minecraft:block.large_amethyst_bud.break', soundVolume: 0.7, soundPitch: 1, particle: 'reverse_portal',
         prepare: input => prepare(input, undefined, 'glass'),
@@ -211,7 +211,7 @@ export const blockBehaviorCases = new Map([
             }
         },
     }],
-    ['herbalism-replant', {
+    ['adapt:herbalism/replant', {
         stage: 'block-carrots',
         sound: 'minecraft:item.shovel.flatten', soundVolume: 1, soundPitch: 0.66, particle: 'composter',
         prepare: input => prepare(input, 'diamond_hoe', 'carrots'),

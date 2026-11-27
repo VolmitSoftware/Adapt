@@ -163,7 +163,7 @@ function assertionResult(assertions, unlearned, active) {
 }
 
 export const tamingBehaviorCases = new Map([
-    ['tame-health', {
+    ['adapt:tame/health', {
         stage: 'taming-passive', negativeWindowTicks: 20, trigger: passive,
         description: 'owned wolf receives its maximum-health multiplier during normal scheduler passes',
         sound: 'minecraft:block.note_block.chime', soundVolume: 0.4, soundPitch: 1.5, particle: 'happy_villager',
@@ -173,7 +173,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned pet provides vanilla maximum-health control', 'learned scheduled bonus applies the configured maximum-health multiplier'], unlearned, active)
         },
     }],
-    ['tame-damage', {
+    ['adapt:tame/damage', {
         stage: 'taming-passive', negativeWindowTicks: 20, trigger: passive,
         description: 'owned wolf receives its attack-damage multiplier during normal scheduler passes',
         sound: 'minecraft:entity.wolf.growl', soundVolume: 0.5, soundPitch: 0.8, particle: 'dust', particleColor: 0xB0202A,
@@ -183,7 +183,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned pet provides vanilla attack-attribute control', 'learned scheduled bonus applies the configured damage multiplier'], unlearned, active)
         },
     }],
-    ['tame-pack-leader-aura', {
+    ['adapt:tame/pack_leader_aura', {
         stage: 'taming-passive', negativeWindowTicks: 20, trigger: passive,
         description: 'nearby owned wolf gains movement speed and regeneration',
         async verify({ context, unlearned, active }) {
@@ -193,7 +193,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned pet has no regeneration', 'learned pet receives regeneration and increased movement speed'], unlearned, active)
         },
     }],
-    ['tame-health-regeneration', {
+    ['adapt:tame/health_regeneration', {
         stage: 'taming-regeneration', negativeWindowTicks: 20, trigger: hitPet,
         description: 'a real hit to an injured owned wolf triggers healing',
         sound: 'minecraft:entity.wolf.pant', soundVolume: 0.5, soundPitch: 1.3, particle: 'heart',
@@ -203,7 +203,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['ordinary punch reduces unlearned pet health', 'the same hit triggers actual learned pet healing'], unlearned, active)
         },
     }],
-    ['tame-beast-recall', {
+    ['adapt:tame/beast_recall', {
         stage: 'taming-recall', negativeWindowTicks: 20, prepare: async ({ equip }) => equip('lead'), trigger: recall,
         description: 'sneak right-click with a lead recalls a distant owned wolf',
         sound: 'minecraft:item.lead.break', soundVolume: 0.6, soundPitch: 1.2, particle: 'reverse_portal',
@@ -214,7 +214,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned lead use does not recall pet', 'learned pet teleports beside owner and charges hunger'], unlearned, active)
         },
     }],
-    ['tame-fetch', {
+    ['adapt:tame/fetch', {
         stage: 'taming-fetch', negativeWindowTicks: 20, trigger: fetch,
         description: 'idle wolf walks to distant diamonds and delivers them to the owner',
         sound: 'minecraft:entity.item.pickup', soundVolume: 0.5, soundPitch: 1.4, particle: 'happy_villager',
@@ -225,7 +225,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned owner receives no remote items', 'learned wolf physically approaches the drop and returns three diamonds'], unlearned, active)
         },
     }],
-    ['tame-shared-pain', {
+    ['adapt:tame/shared_pain', {
         stage: 'taming-shared', negativeWindowTicks: 20, trigger: sharedPain,
         description: 'an opponent sword hit splits damage between owner and nearby pet',
         sound: 'minecraft:block.amethyst_cluster.hit', soundVolume: 0.55, soundPitch: 0.8, particle: 'dust', particleColor: 0xF2C14E,
@@ -236,7 +236,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned hit damages only owner', 'learned hit splits conserved actual health loss between owner and pet'], unlearned, active)
         },
     }],
-    ['tame-last-breath', {
+    ['adapt:tame/last_breath', {
         stage: 'taming-last-breath', negativeWindowTicks: 20, prepare: async ({ equip }) => equip('wooden_sword'), trigger: hitPet,
         description: 'a lethal real sword hit saves the owned wolf at one health',
         sound: 'minecraft:item.totem.use', soundVolume: 0.7, soundPitch: 1.2, particle: 'totem_of_undying',
@@ -246,7 +246,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned lethal hit kills pet', 'learned lethal hit preserves the pet at exactly one health'], unlearned, active)
         },
     }],
-    ['tame-alphas-command', {
+    ['adapt:tame/alphas_command', {
         stage: 'taming-alpha', negativeWindowTicks: 20, prepare: async ({ equip }) => equip('bone'), trigger: alpha,
         description: 'sneak bone strike commands the sitting wolf to focus the target',
         sound: 'minecraft:entity.wolf.growl', soundVolume: 0.8, soundPitch: 0.9, particle: 'happy_villager',
@@ -257,7 +257,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['unlearned bone strike leaves pet sitting and bone intact', 'learned strike consumes one bone and focuses the unsitting pet'], unlearned, active)
         },
     }],
-    ['tame-mounted-tactics', {
+    ['adapt:tame/mounted_tactics', {
         stage: 'taming-mounted', negativeWindowTicks: 20, trigger: mount,
         description: 'naturally mounting a saddled horse grants speed and jump bonuses',
         sound: 'minecraft:entity.horse.breathe', soundVolume: 0.4, soundPitch: 0.9,
@@ -273,7 +273,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['both trials mount the actual saddled horse through player interaction', 'learned mount gains speed and jump attributes', 'learned mounted melee increases actual damage and emits its authored feedback'], unlearned, active)
         },
     }],
-    ['tame-stable-hand', {
+    ['adapt:tame/stable_hand', {
         stage: 'taming-stable', negativeWindowTicks: 20, prepare: async ({ equip }) => equip('bone'), trigger: tame,
         description: 'natural bone taming applies inherited animal attribute bonuses',
         sound: 'minecraft:entity.horse.breathe', soundVolume: 0.4, soundPitch: 1.2, particle: 'heart', particleCount: 1, particleOffset: 0,
@@ -283,7 +283,7 @@ export const tamingBehaviorCases = new Map([
             return assertionResult(['both wolves are tamed through bounded real bone feeding', 'learned tame applies greater health and speed attributes'], unlearned, active)
         },
     }],
-    ['tame-battle-bond', {
+    ['adapt:tame/battle_bond', {
         stage: 'taming-battle', negativeWindowTicks: 20, trigger: petKill,
         description: 'a natural owned-wolf kill buffs both the owner and its pet',
         sound: 'minecraft:block.beacon.power_select', soundVolume: 0.8, soundPitch: 1.25, particle: 'dust',

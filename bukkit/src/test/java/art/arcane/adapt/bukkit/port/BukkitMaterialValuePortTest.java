@@ -1,6 +1,6 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.value.MaterialRecipe;
+import art.arcane.adapt.engine.value.MaterialRecipe;
 import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.value.Id;

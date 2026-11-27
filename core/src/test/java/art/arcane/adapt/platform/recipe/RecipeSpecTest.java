@@ -19,11 +19,11 @@ class RecipeSpecTest {
   @Test
   void everyKindDefaultsToLevelOne() {
     List<RecipeSpec> recipes = List.of(
-        new RecipeSpec.Shaped(Id.adapt("shaped"), List.of("S"), Map.of('S', STICK), RESULT),
-        new RecipeSpec.Shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT),
-        new RecipeSpec.Cooking(Id.adapt("smoker"), RecipeSpec.CookingStation.SMOKER, STICK, RESULT, 0.1F, 100),
-        new RecipeSpec.Stonecutting(Id.adapt("cutter"), STICK, RESULT),
-        new RecipeSpec.Smithing(Id.adapt("smithing"), null, STICK, STICK, RESULT));
+        RecipeSpec.shaped(Id.adapt("shaped"), List.of("S"), Map.of('S', STICK), RESULT),
+        RecipeSpec.shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT),
+        RecipeSpec.cooking(Id.adapt("smoker"), RecipeSpec.CookingStation.SMOKER, STICK, RESULT, 0.1F, 100),
+        RecipeSpec.stonecutting(Id.adapt("cutter"), STICK, RESULT),
+        RecipeSpec.smithing(Id.adapt("smithing"), null, STICK, STICK, RESULT));
 
     for (RecipeSpec recipe : recipes) {
       assertThat(recipe.requiredLevel()).as(recipe.key().toString()).isEqualTo(1);
@@ -33,11 +33,11 @@ class RecipeSpecTest {
   @Test
   void withRequiredLevelKeepsEverythingElse() {
     List<RecipeSpec> recipes = List.of(
-        new RecipeSpec.Shaped(Id.adapt("shaped"), List.of("S"), Map.of('S', STICK), RESULT),
-        new RecipeSpec.Shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT),
-        new RecipeSpec.Cooking(Id.adapt("blast"), RecipeSpec.CookingStation.BLAST_FURNACE, STICK, RESULT, 0.7F, 100),
-        new RecipeSpec.Stonecutting(Id.adapt("cutter"), STICK, RESULT),
-        new RecipeSpec.Smithing(Id.adapt("smithing"), STICK, STICK, STICK, RESULT));
+        RecipeSpec.shaped(Id.adapt("shaped"), List.of("S"), Map.of('S', STICK), RESULT),
+        RecipeSpec.shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT),
+        RecipeSpec.cooking(Id.adapt("blast"), RecipeSpec.CookingStation.BLAST_FURNACE, STICK, RESULT, 0.7F, 100),
+        RecipeSpec.stonecutting(Id.adapt("cutter"), STICK, RESULT),
+        RecipeSpec.smithing(Id.adapt("smithing"), STICK, STICK, STICK, RESULT));
 
     for (RecipeSpec recipe : recipes) {
       RecipeSpec leveled = recipe.withRequiredLevel(3);
@@ -49,7 +49,7 @@ class RecipeSpecTest {
 
   @Test
   void levelsBelowOneMeanOne() {
-    RecipeSpec.Shapeless recipe = new RecipeSpec.Shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT, 0);
+    RecipeSpec.Shapeless recipe = RecipeSpec.shapeless(Id.adapt("shapeless"), List.of(STICK), RESULT).withRequiredLevel(0);
 
     assertThat(recipe.requiredLevel()).isEqualTo(1);
     assertThat(recipe.withRequiredLevel(-4).requiredLevel()).isEqualTo(1);
@@ -57,8 +57,7 @@ class RecipeSpecTest {
 
   @Test
   void cookingKeepsStationExperienceAndTime() {
-    RecipeSpec.Cooking campfire = new RecipeSpec.Cooking(Id.adapt("campfire"), RecipeSpec.CookingStation.CAMPFIRE, STICK, RESULT, 0.35F,
-        600, 2);
+    RecipeSpec.Cooking campfire = RecipeSpec.cooking(Id.adapt("campfire"), RecipeSpec.CookingStation.CAMPFIRE, STICK, RESULT, 0.35F, 600).withRequiredLevel(2);
 
     assertThat(campfire.station()).isEqualTo(RecipeSpec.CookingStation.CAMPFIRE);
     assertThat(campfire.experience()).isEqualTo(0.35F);

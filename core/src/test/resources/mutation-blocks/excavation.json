@@ -4,7 +4,7 @@
   "pieces": [
     {"slot": "TRIGGER", "class": "ExcavationTrigger", "handles": ["BlockBreakEvent"], "reuses": ["ExcavationBlocks"]},
     {"slot": "STRIKE_FIGHT", "class": "ExcavationFightStrike", "handles": [], "reuses": ["ExcavationBlocks", "AdaptAttributeService"]},
-    {"slot": "STRIKE_WORK", "class": "ExcavationWorkStrike", "handles": ["BlockBreakEvent"], "reuses": ["ExcavationPlane", "ExcavationBlocks", "BonusBlockBreaks"]},
+    {"slot": "STRIKE_WORK", "class": "ExcavationWorkStrike", "handles": ["BlockBreakEvent"], "reuses": ["ExcavationPlane", "ExcavationBlocks", "BonusBreaks"]},
     {"slot": "BOON", "class": "ExcavationBoon", "handles": ["EntityDamageEvent"], "reuses": ["ExcavationSoftFall"]},
     {"slot": "FUEL", "class": "ExcavationFuel", "handles": [], "reuses": []},
     {"slot": "STATE", "class": "ExcavationState", "handles": ["BlockBreakEvent"], "reuses": ["ExcavationBlocks"]}

@@ -113,6 +113,6 @@ public final class PotionHooks {
         Holder<MobEffect> type = effect.getEffect();
         Id id = type.unwrapKey().map(key -> ModRefs.id(key.identifier())).orElse(new Id("minecraft", "unknown"));
         int duration = effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration();
-        return new EffectInstance(id, duration, Math.max(0, effect.getAmplifier()), effect.isAmbient(), effect.isVisible(), effect.showIcon());
+        return EffectInstance.of(id, duration, Math.max(0, effect.getAmplifier())).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon());
     }
 }

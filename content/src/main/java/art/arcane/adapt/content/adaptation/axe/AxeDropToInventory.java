@@ -1,0 +1,128 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.axe;
+
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.config.ConfigDescription;
+import art.arcane.adapt.api.content.AdaptationConfig;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.StatLines;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.text.Text;
+import art.arcane.adapt.api.text.TextFormat;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
+import art.arcane.adapt.platform.advancement.AdvancementVisibility;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+
+import java.util.List;
+
+public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Config> {
+  public static final Id ID = Id.adapt("axe/drop_to_inventory");
+  public AxeDropToInventory() {
+    super(ID);
+    registerConfiguration(AxeDropToInventory.Config.class);
+    setDescriptionText(Text.key("adapt.pickaxe.drop_to_inventory.description"));
+    setNameText(Text.key("adapt.axe.drop_to_inventory.name"));
+    setIcon(Id.minecraft("barrel"));
+    setInterval(8800);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("chest"))
+        .key("challenge_axe_dti_5k")
+        .frame(AdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerMilestone("challenge_axe_dti_5k", "axe.drop-to-inv.items-caught", 5000, 500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.ITEMS);
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    v.addLore(TextFormat.GRAY + Text.key("adapt.pickaxe.drop_to_inventory.lore1").resolve());
+  }
+
+  @Handle(priority = EventPriority.HIGHEST)
+  public void on(BlockDropItemEvent e) {
+    PlayerRef p = e.player();
+    if (resolveBlockBreakContext(p, e.block().location(), null, true) == null) {
+      return;
+    }
+
+    if (!ItemKinds.isAxe(p.inventory().mainHand())) {
+      return;
+    }
+
+    Id broken = e.brokenState().type();
+    if (!ItemKinds.isLog(broken) && !ItemKinds.isLeaves(broken)) {
+      return;
+    }
+
+    AxeDropCatch.Caught caught = AxeDropCatch.transfer(e, p, preference(p, AxePreferences.ITEMS)::accepts);
+    if (caught.count() <= 0) {
+      return;
+    }
+
+    addStat(p, "axe.drop-to-inv.items-caught", caught.count());
+    int caughtCount = caught.count();
+    Loc from = e.block().location().add(0.5D, 0.5D, 0.5D);
+    Loc to = p.location().add(0.0D, 1.0D, 0.0D);
+    double dx = to.x() - from.x();
+    double dy = to.y() - from.y();
+    double dz = to.z() - from.z();
+    timeline(from)
+        .duration(5)
+        .priority(FxPriority.TRAIL)
+        .cullRadius(16)
+        .frame((fx, tick, progress) -> {
+          fx.particle(Particles.ENCHANT, 2, dx * progress, dy * progress, dz * progress, 0.05D, 0.0D);
+          if (tick == 0) {
+            fx.chord(Sounds.ENTITY_ITEM_PICKUP, 0.5F, (float) Math.min(2.0D, 1.2D + (caughtCount * 0.03D)), Sounds.BLOCK_AMETHYST_BLOCK_HIT, 0.3F, 1.8F);
+          }
+        })
+        .start();
+    if (caught.overflow()) {
+      fx(to, FxPriority.TRANSITION)
+          .burst(Particles.SMOKE, 3, 0.2D)
+          .sound(Sounds.BLOCK_DISPENSER_FAIL, 0.4F, 0.8F);
+    }
+  }
+
+  @ConfigDescription("Chopped wood drops directly into your inventory.")
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 1;
+      costFactor = 1;
+      maxLevel = 1;
+      initialCost = 1;
+    }
+  }
+}

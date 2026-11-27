@@ -2,7 +2,7 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -19,16 +19,16 @@ import java.util.concurrent.CompletableFuture;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
-@Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player")
+@Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player", descriptionKey = "adapt.command.help.permanently_delete_all_adapt_data_for_a_player")
 public class CommandReset {
   private static final long CONFIRMATION_TIMEOUT_MS = 30_000;
 
   private final ResetConfirmationTracker pendingConfirmations =
       new ResetConfirmationTracker(CONFIRMATION_TIMEOUT_MS);
 
-  @Director(description = "Permanently delete all Adapt data for a player. Requires adapt.clear. Run twice to confirm.", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm")
+  @Director(description = "Permanently delete all Adapt data for a player. Requires adapt.clear. Run twice to confirm.", descriptionKey = "adapt.command.help.permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm")
   public void confirm(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullableOfflinePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullableOfflinePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       KnownPlayer player
   ) {
     CommandSource sender = CommandContext.source();

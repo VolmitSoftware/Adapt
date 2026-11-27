@@ -1,5 +1,8 @@
 package art.arcane.adapt.client.protocol;
 
+import art.arcane.adapt.api.insight.InsightFeed;
+import art.arcane.adapt.api.insight.InsightView;
+
 /** Bounds every frame is checked against on encode and decode. */
 public final class FrameLimits {
   public static final int MAX_C2S_BYTES = 32767;
@@ -35,9 +38,15 @@ public final class FrameLimits {
   public static final int MAX_FRAMES_PER_SECOND = 60;
   public static final int VIOLATION_LIMIT = 3;
   public static final long VIOLATION_WINDOW_MILLIS = 10_000L;
-  public static final int MAX_INSIGHT_STATS = 16;
-  public static final int MAX_INSIGHT_EFFECTS = 32;
-  public static final int MAX_INSIGHT_MARKS = 16;
+  public static final int MAX_INSIGHT_STATS = InsightView.MAX_STATS;
+  public static final int MAX_INSIGHT_EFFECTS = InsightView.MAX_EFFECTS;
+  public static final int MAX_INSIGHT_TAGS = InsightView.MAX_TAGS;
+  public static final int MAX_INSIGHT_MARKS = InsightFeed.MAX_MARKS;
+  public static final int MAX_ASSETS = 8192;
+  public static final int MAX_ASSET_BYTES = 512 * 1024;
+  /** Files one {@link ClientFrame.AssetRequest} may name; ids of at most {@link #MAX_ID_BYTES} keep it in one payload. */
+  public static final int MAX_ASSET_REQUEST = 64;
+  public static final int ASSET_HASH_BYTES = 20;
 
   private FrameLimits() {
   }

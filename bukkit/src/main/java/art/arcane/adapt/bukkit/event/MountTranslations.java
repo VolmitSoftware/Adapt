@@ -2,6 +2,7 @@ package art.arcane.adapt.bukkit.event;
 
 import art.arcane.adapt.platform.event.entity.EntityDismountEvent;
 import art.arcane.adapt.platform.event.entity.EntityMountEvent;
+import art.arcane.adapt.util.common.compat.PaperApi;
 
 import java.util.List;
 
@@ -29,10 +30,10 @@ final class MountTranslations {
       org.bukkit.event.entity.EntityDismountEvent.class, EntityDismountEvent.class, (event, poster) -> {
         boolean cancelled = event.isCancelled();
         EntityDismountEvent core = new EntityDismountEvent(entity(event.getEntity()), entity(event.getDismounted()),
-            event.isCancellable());
+            PaperApi.dismountCancellable(event));
         core.setCancelled(cancelled);
         poster.post(core);
-        if (event.isCancellable()) {
+        if (PaperApi.dismountCancellable(event)) {
           cancel(event, cancelled, core);
         }
       });

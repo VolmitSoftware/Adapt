@@ -18,11 +18,13 @@
 
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.value.MaterialValue;
-import art.arcane.adapt.api.xp.Curves;
+import java.util.Locale;
+
+import art.arcane.adapt.api.config.ConfigDoc;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.engine.value.MaterialValue;
+import art.arcane.adapt.engine.xp.Curves;
 import art.arcane.adapt.platform.value.Id;
-import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.TomlCodec;
 import art.arcane.adapt.util.project.redis.RedisConfig;
@@ -138,6 +140,7 @@ public class AdaptConfig {
   private AbilityApi abilityApi = new AbilityApi();
   private LearningEconomy learningEconomy = new LearningEconomy();
   private PermissionXpMultipliers permissionXpMultipliers = new PermissionXpMultipliers();
+  private Addons addons = new Addons();
   private Map<String, List<String>> adaptationUsageConflicts = defaultAdaptationUsageConflicts();
   private Map<String, Map<String, Boolean>> protectionOverrides = Map.of(
       "adaptation-name", Map.of(
@@ -376,6 +379,34 @@ public class AdaptConfig {
     String blockName(String configured);
 
     void reloaded();
+  }
+
+  /**
+   * The id string a config entry names. Entries name skills and adaptations by id, and a bare one is in the
+   * {@code adapt} namespace, so {@code swords} and {@code adapt:swords} name the same skill. Anything that is not an id
+   * is kept, lower-cased.
+   */
+  public static String contentKey(String entry) {
+    String trimmed = entry.trim().toLowerCase(Locale.ROOT);
+    Id id = Id.tryParseAdapt(trimmed);
+    return id == null ? trimmed : id.toString();
+  }
+
+  /** The value {@code entries} gives the skill or adaptation {@code key}, matching entries by {@link #contentKey}. */
+  public static <V> V contentEntry(Map<String, V> entries, String key) {
+    if (entries == null || entries.isEmpty() || key == null) {
+      return null;
+    }
+    V direct = entries.get(key);
+    if (direct != null) {
+      return direct;
+    }
+    for (Map.Entry<String, V> entry : entries.entrySet()) {
+      if (entry.getKey() != null && contentKey(entry.getKey()).equals(key)) {
+        return entry.getValue();
+      }
+    }
+    return null;
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
@@ -643,6 +674,16 @@ public class AdaptConfig {
     private double usageBaselineXp = 0.8;
     private double usageBaselineXpPerLevel = 0.18;
     private long usageBaselineCooldownMillis = 12000;
+  }
+
+  @Getter
+  public static class Addons {
+    @ConfigDoc(value = "Namespaces whose skills and adaptations other addons may not disable at runtime.", impact = "List adapt to keep every built-in skill and adaptation available whatever addons are installed. An addon's attempt to disable listed content is refused and logged. Hot-reloadable for later attempts; vetoes already in force stay until lifted.")
+    private List<String> vetoProtectedNamespaces = List.of();
+
+    public boolean allowsVetoOn(String namespace) {
+      return vetoProtectedNamespaces == null || !vetoProtectedNamespaces.contains(namespace);
+    }
   }
 
 }

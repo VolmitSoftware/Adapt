@@ -2,24 +2,24 @@
   "skill": "kinetics",
   "upgrades": [
     {
-      "name": "upgraded-kinetics-comet",
+      "name": "adapt:kinetics/upgrade/comet",
       "class": "Comet",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Comet.java",
-      "fuses": ["kinetics-meteor-cadence", "kinetics-windburst", "kinetics-breachwright"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Comet.java",
+      "fuses": ["adapt:kinetics/meteor_cadence", "adapt:kinetics/windburst", "adapt:kinetics/breachwright"],
       "triggers": ["PlayerSwapHandItemsEvent", "EntityDamageEvent", "PlayerToggleSneakEvent", "PlayerMoveEvent", "EntityAttemptSmashAttackEvent"]
     },
     {
-      "name": "upgraded-kinetics-lancer",
+      "name": "adapt:kinetics/upgrade/lancer",
       "class": "Lancer",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Lancer.java",
-      "fuses": ["kinetics-charge-lance", "kinetics-phalanx-reach", "kinetics-impale-pin"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Lancer.java",
+      "fuses": ["adapt:kinetics/charge_lance", "adapt:kinetics/phalanx_reach", "adapt:kinetics/impale_pin"],
       "triggers": ["PlayerItemHeldEvent", "PlayerMoveEvent", "PlayerTeleportEvent", "EntityDamageByEntityEvent"]
     },
     {
-      "name": "upgraded-kinetics-featherweight",
+      "name": "adapt:kinetics/upgrade/featherweight",
       "class": "Featherweight",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Featherweight.java",
-      "fuses": ["kinetics-moon-jump", "kinetics-rubber-soul", "kinetics-soft-catch"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/kinetics/upgraded/Featherweight.java",
+      "fuses": ["adapt:kinetics/moon_jump", "adapt:kinetics/rubber_soul", "adapt:kinetics/soft_catch"],
       "triggers": ["PlayerJumpEvent", "PlayerMoveEvent", "PlayerTeleportEvent", "EntityDamageEvent"]
     }
   ]

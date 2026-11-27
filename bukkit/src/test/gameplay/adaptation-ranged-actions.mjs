@@ -152,7 +152,7 @@ async function verifyDamage({ context, unlearned, active }) {
 }
 
 export const rangedBehaviorCases = new Map([
-    ['ranged-force', {
+    ['adapt:ranged/force', {
         stage: 'ranged', negativeWindowTicks: 20,
         description: 'fully drawn bow launches a faster physical arrow',
         prepare: prepareBow, trigger: launchForward,
@@ -165,7 +165,7 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['both launches consume ammunition and spawn on the client', 'learned launch speed increases by the configured multiplier'], measurements: { unlearned, active, ratio } }
         },
     }],
-    ['ranged-heavy-draw', {
+    ['adapt:ranged/heavy_draw', {
         stage: 'ranged', negativeWindowTicks: 20,
         description: 'fully drawn bow launches a slower heavy arrow',
         prepare: prepareBow, trigger: launchForward,
@@ -178,7 +178,7 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['both launches consume ammunition and spawn on the client', 'learned heavy arrow has the configured reduced launch velocity'], measurements: { unlearned, active, ratio } }
         },
     }],
-    ['ranged-piercing', {
+    ['adapt:ranged/piercing', {
         stage: 'ranged-dual-target', negativeWindowTicks: 20,
         description: 'one bow arrow passes through the first cow and damages the second',
         prepare: prepareBow, trigger: shootTargets,
@@ -193,7 +193,7 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['unlearned arrow hits only the front target', 'one learned arrow damages both aligned targets'], measurements: { unlearned, active } }
         },
     }],
-    ['ranged-lunge-shot', {
+    ['adapt:ranged/lunge_shot', {
         stage: 'ranged', negativeWindowTicks: 20,
         description: 'firing a bow during a real jump pushes the shooter backward',
         prepare: prepareBow, trigger: launchAirborne,
@@ -206,7 +206,7 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['both shots occur during real jumps', 'learned shot produces backward player displacement'], measurements: { unlearned, active, control, recoil } }
         },
     }],
-    ['ranged-fetch-shot', {
+    ['adapt:ranged/fetch_shot', {
         stage: 'ranged-fetch', negativeWindowTicks: 20,
         description: 'an arrow impact delivers distant dropped diamonds to its shooter',
         prepare: prepareBow, trigger: fetchItems,
@@ -218,7 +218,7 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['unlearned distant impact leaves diamonds out of inventory', 'learned impact transfers three diamonds without approaching them'], measurements: { unlearned, active } }
         },
     }],
-    ['hunter-drop-to-inventory', {
+    ['adapt:hunter/drop_to_inventory', {
         stage: 'ranged-collection', negativeWindowTicks: 20,
         description: 'a distant natural bow kill delivers beef directly to its shooter',
         prepare: prepareBow, trigger: collectKill,
@@ -229,20 +229,20 @@ export const rangedBehaviorCases = new Map([
             return { assertions: ['both targets die from real player arrows beyond pickup range', 'learned kill places actual beef directly in inventory'], measurements: { unlearned, active } }
         },
     }],
-    ['hunter-big-game', {
-        stage: 'hunter-big-game', negativeWindowTicks: 20,
+    ['adapt:hunter/big_game', {
+        stage: 'adapt:hunter/big_game', negativeWindowTicks: 20,
         description: 'a grounded wooden-sword hit deals bonus damage to an iron golem',
         prepare: prepareSword, trigger: strikeGolem, verify: verifyDamage,
         sound: 'minecraft:entity.player.attack.strong', soundVolume: 0.5, soundPitch: 0.7,
         particle: 'crit', particleCount: 4, particleOffset: 0.25,
     }],
-    ['hunter-adrenaline', {
+    ['adapt:hunter/adrenaline', {
         stage: 'hunter-low-health', negativeWindowTicks: 20,
         description: 'a grounded sword hit gains damage while the attacker has six health',
         prepare: prepareSword, trigger: strikePlayer, verify: verifyDamage,
         sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.6, soundPitch: 0.7, particle: 'dust',
     }],
-    ['hunter-predator-focus', {
+    ['adapt:hunter/predator_focus', {
         stage: 'hunter-predator', negativeWindowTicks: 20,
         description: 'nine real punches ramp damage against one target',
         trigger: predatorRamp,

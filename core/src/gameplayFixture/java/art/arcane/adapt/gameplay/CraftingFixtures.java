@@ -1,7 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.item.ItemDurability;
+import art.arcane.adapt.engine.item.ItemDurability;
 import art.arcane.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.Hand;

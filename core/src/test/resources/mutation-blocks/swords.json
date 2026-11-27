@@ -4,9 +4,9 @@
   "pieces": [
     {"slot": "TRIGGER", "class": "SwordsTrigger", "handles": ["EntityDamageByEntityEvent"], "reuses": []},
     {"slot": "STRIKE_FIGHT", "class": "SwordsFightStrike", "handles": [], "reuses": ["SwordBleed"]},
-    {"slot": "STRIKE_WORK", "class": "SwordsWorkStrike", "handles": ["BlockDropItemEvent"], "reuses": ["SwordsMachete", "BonusBlockBreaks"]},
+    {"slot": "STRIKE_WORK", "class": "SwordsWorkStrike", "handles": ["BlockDropItemEvent"], "reuses": ["SwordsMachete", "BonusBreaks"]},
     {"slot": "BOON", "class": "SwordsBoon", "handles": [], "reuses": ["AdaptAttributeService"]},
-    {"slot": "FUEL", "class": "SwordsFuel", "handles": [], "reuses": ["ComponentPort"]},
+    {"slot": "FUEL", "class": "SwordsFuel", "handles": [], "reuses": ["ItemWear"]},
     {"slot": "STATE", "class": "SwordsState", "handles": ["EntityDamageByEntityEvent"], "reuses": []}
   ],
   "unavailableOn": {}

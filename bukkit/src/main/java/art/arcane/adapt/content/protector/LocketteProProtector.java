@@ -1,25 +1,23 @@
 package art.arcane.adapt.content.protector;
 
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.protection.Protector;
 import me.crafter.mc.lockettepro.LocketteProAPI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class LocketteProProtector implements Protector {
+public class LocketteProProtector extends BukkitProtector {
   @Override
-  public boolean canAccessChest(Player player, Location chestlocation, Adaptation<?> adaptation) {
+  protected boolean canAccessChest(Player player, Location chestlocation) {
     return LocketteProAPI.isOwner(chestlocation.getBlock(), player);
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return "LockettePro";
   }
 
   @Override
-  public boolean isEnabledByDefault() {
+  public boolean enabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isLockettePro();
   }
 }

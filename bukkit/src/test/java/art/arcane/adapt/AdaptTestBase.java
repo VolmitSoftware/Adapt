@@ -1,6 +1,6 @@
 package art.arcane.adapt;
 
-import art.arcane.adapt.api.tick.Ticker;
+import art.arcane.adapt.engine.tick.Ticker;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
 import art.arcane.adapt.bukkit.port.BukkitTextPorts;
 import art.arcane.adapt.platform.PlatformLog;

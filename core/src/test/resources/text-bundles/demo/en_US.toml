@@ -1,0 +1,6 @@
+[demo.skill]
+name = "Tinkering"
+description = "Build {count} small things."
+
+[demo.gears]
+lore = ["First line", "Second line"]

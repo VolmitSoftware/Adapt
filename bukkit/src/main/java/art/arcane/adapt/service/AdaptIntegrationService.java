@@ -3,14 +3,14 @@ package art.arcane.adapt.service;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.api.fx.FxBudget;
-import art.arcane.adapt.api.fx.FxDirector;
-import art.arcane.adapt.api.minion.MinionBurden;
-import art.arcane.adapt.api.protection.WorldPolicyLatencyTelemetry;
-import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
-import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.api.world.PlayerDataPersistenceQueue;
+import art.arcane.adapt.engine.fx.FxBudget;
+import art.arcane.adapt.engine.fx.FxDirector;
+import art.arcane.adapt.engine.minion.MinionBurden;
+import art.arcane.adapt.engine.protection.WorldPolicyLatencyTelemetry;
+import art.arcane.adapt.engine.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.engine.telemetry.AdaptRuntimeTelemetry;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerDataPersistenceQueue;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.volmlib.integration.IntegrationHandshakeRequest;
 import art.arcane.volmlib.integration.IntegrationHandshakeResponse;
@@ -53,6 +53,7 @@ public class AdaptIntegrationService implements AdaptService, IntegrationSnapsho
   private static final int BINDING_CACHE_LIMIT = 8192;
 
   private final Map<String, Set<String>> abilityKeyCache = new ConcurrentHashMap<>();
+  private final Map<String, String> metricAbilityIds = new ConcurrentHashMap<>();
   private final Map<String, Set<IntegrationMetricDescriptor>> abilityDescriptorCache = new ConcurrentHashMap<>();
   private final Map<String, AbilityDetailBinding> abilityDetailBindings = new ConcurrentHashMap<>();
   private final IntegrationMetricPublisher snapshots = new IntegrationMetricPublisher(65_536, 30_000L);
@@ -189,16 +190,24 @@ public class AdaptIntegrationService implements AdaptService, IntegrationSnapsho
     long now = System.currentTimeMillis();
     Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots;
     if (metricKeys == null || metricKeys.isEmpty()) {
-      abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(now);
+      abilitySnapshots = byMetricId(AbilityCheckTelemetry.abilitySnapshots(now));
     } else {
-      Set<String> abilityIds = new HashSet<>();
+      Set<String> wanted = new HashSet<>();
       for (String key : metricKeys) {
         AbilityDetailBinding binding = abilityDetailBinding(key);
         if (binding != NOT_ABILITY_DETAIL) {
-          abilityIds.add(binding.abilityId());
+          wanted.add(binding.abilityId());
         }
       }
-      abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(abilityIds, now);
+      Set<String> abilityIds = new HashSet<>();
+      if (!wanted.isEmpty()) {
+        for (String abilityId : AbilityCheckTelemetry.abilityIds(now)) {
+          if (wanted.contains(metricAbilityId(abilityId))) {
+            abilityIds.add(abilityId);
+          }
+        }
+      }
+      abilitySnapshots = byMetricId(AbilityCheckTelemetry.abilitySnapshots(abilityIds, now));
     }
     Set<String> requested = metricKeys == null || metricKeys.isEmpty()
         ? allSampleKeys(abilitySnapshots.keySet())
@@ -456,6 +465,22 @@ public class AdaptIntegrationService implements AdaptService, IntegrationSnapsho
     cachedSampleKeys = resolved;
     cachedSampleAbilityIds = Set.copyOf(abilityIds);
     return resolved;
+  }
+
+  /** Telemetry snapshots keyed by the ability id as metric keys spell it, such as {@code adapt-excavation-earth_mover}. */
+  private Map<String, AbilityCheckTelemetry.AbilitySnapshot> byMetricId(
+      Map<String, AbilityCheckTelemetry.AbilitySnapshot> snapshots
+  ) {
+    Map<String, AbilityCheckTelemetry.AbilitySnapshot> keyed = new HashMap<>(snapshots.size() * 2);
+    for (Map.Entry<String, AbilityCheckTelemetry.AbilitySnapshot> entry : snapshots.entrySet()) {
+      keyed.putIfAbsent(metricAbilityId(entry.getKey()), entry.getValue());
+    }
+    return keyed;
+  }
+
+  private String metricAbilityId(String abilityId) {
+    return metricAbilityIds.computeIfAbsent(abilityId,
+        (String id) -> IntegrationMetricSchema.adaptAbilityId(abilityKeys(id).iterator().next()));
   }
 
   private Set<String> abilityKeys(String abilityId) {

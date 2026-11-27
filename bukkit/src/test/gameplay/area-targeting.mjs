@@ -4,12 +4,12 @@ import { synchronizePlayerInput } from './player-input.mjs'
 import { synchronizePlayerVelocity } from './player-velocity.mjs'
 
 const cases = [
-    { stage: 'cleave', ability: 'axe-cleave', weapon: 'iron_axe' },
-    { stage: 'smash', ability: 'axe-ground-smash', weapon: 'iron_axe' },
-    { stage: 'cyclone', ability: 'sword-crimson-cyclone', weapon: 'wooden_sword' },
-    { stage: 'earth', ability: 'excavation-earth-mover', weapon: 'diamond_shovel', enemyOnly: true },
-    { stage: 'corpse', ability: 'tragoul-corpse-explosion', weapon: 'wooden_axe', enemyOnly: true },
-    { stage: 'plague', ability: 'tragoul-plague-bearer', weapon: 'netherite_sword' },
+    { stage: 'cleave', ability: 'adapt:axe/cleave', weapon: 'iron_axe' },
+    { stage: 'smash', ability: 'adapt:axe/ground_smash', weapon: 'iron_axe' },
+    { stage: 'cyclone', ability: 'adapt:sword/crimson_cyclone', weapon: 'wooden_sword' },
+    { stage: 'earth', ability: 'adapt:excavation/earth_mover', weapon: 'diamond_shovel', enemyOnly: true },
+    { stage: 'corpse', ability: 'adapt:tragoul/corpse_explosion', weapon: 'wooden_axe', enemyOnly: true },
+    { stage: 'plague', ability: 'adapt:tragoul/plague_bearer', weapon: 'netherite_sword' },
 ]
 
 export default {

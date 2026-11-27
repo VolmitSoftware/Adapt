@@ -8,15 +8,11 @@ import art.arcane.adapt.platform.event.player.PlayerAnimationEvent;
 import art.arcane.adapt.platform.event.player.PlayerBedEnterEvent;
 import art.arcane.adapt.platform.event.player.PlayerBucketEmptyEvent;
 import art.arcane.adapt.platform.event.player.PlayerChatEvent;
-import art.arcane.adapt.platform.event.player.PlayerInventorySlotChangeEvent;
 import art.arcane.adapt.platform.event.player.PlayerItemBreakEvent;
 import art.arcane.adapt.platform.event.player.PlayerPreLoginEvent;
 import art.arcane.adapt.platform.event.player.PlayerRecipeBookClickEvent;
 import art.arcane.adapt.platform.event.player.PlayerShearEntityEvent;
-import art.arcane.adapt.platform.event.player.PlayerStopUsingItemEvent;
-import art.arcane.adapt.platform.event.player.PlayerTradeEvent;
 import art.arcane.adapt.platform.event.player.PlayerVelocityEvent;
-import art.arcane.adapt.platform.event.player.PrePlayerAttackEntityEvent;
 import art.arcane.adapt.platform.value.Vec3;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -35,8 +31,8 @@ final class PlayerGapTranslations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(CHAT, PRE_LOGIN, PRE_ATTACK, ANIMATION, BED_ENTER, BUCKET_EMPTY, SHEAR, VELOCITY, ITEM_BREAK, STOP_USING,
-        SLOT_CHANGE, RECIPE_BOOK, TRADE, EXHAUSTION);
+    return List.of(CHAT, PRE_LOGIN, ANIMATION, BED_ENTER, BUCKET_EMPTY, SHEAR, VELOCITY, ITEM_BREAK,
+        RECIPE_BOOK, EXHAUSTION);
   }
 
   @SuppressWarnings("deprecation")
@@ -53,16 +49,6 @@ final class PlayerGapTranslations {
       AsyncPlayerPreLoginEvent.class, PlayerPreLoginEvent.class,
       (event, poster) -> poster.post(new PlayerPreLoginEvent(event.getUniqueId(), event.getName(),
           event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED)));
-
-  static final Translation<io.papermc.paper.event.player.PrePlayerAttackEntityEvent> PRE_ATTACK = BukkitTranslations.simple(
-      io.papermc.paper.event.player.PrePlayerAttackEntityEvent.class, PrePlayerAttackEntityEvent.class, (event, poster) -> {
-        boolean cancelled = event.isCancelled();
-        PrePlayerAttackEntityEvent core = new PrePlayerAttackEntityEvent(player(event.getPlayer()), entity(event.getAttacked()),
-            event.willAttack());
-        core.setCancelled(cancelled);
-        poster.post(core);
-        cancel(event, cancelled, core);
-      });
 
   static final Translation<org.bukkit.event.player.PlayerAnimationEvent> ANIMATION = BukkitTranslations.simple(
       org.bukkit.event.player.PlayerAnimationEvent.class, PlayerAnimationEvent.class, (event, poster) -> {
@@ -123,17 +109,6 @@ final class PlayerGapTranslations {
       (event, poster) -> poster.post(new PlayerItemBreakEvent(player(event.getPlayer()),
           GapEventMaps.itemOrEmpty(event.getBrokenItem()))));
 
-  static final Translation<io.papermc.paper.event.player.PlayerStopUsingItemEvent> STOP_USING = BukkitTranslations.simple(
-      io.papermc.paper.event.player.PlayerStopUsingItemEvent.class, PlayerStopUsingItemEvent.class,
-      (event, poster) -> poster.post(new PlayerStopUsingItemEvent(player(event.getPlayer()),
-          GapEventMaps.itemOrEmpty(event.getItem()), event.getTicksHeldFor())));
-
-  static final Translation<io.papermc.paper.event.player.PlayerInventorySlotChangeEvent> SLOT_CHANGE = BukkitTranslations.simple(
-      io.papermc.paper.event.player.PlayerInventorySlotChangeEvent.class, PlayerInventorySlotChangeEvent.class,
-      (event, poster) -> poster.post(new PlayerInventorySlotChangeEvent(player(event.getPlayer()), event.getRawSlot(),
-          event.getSlot(), GapEventMaps.itemOrEmpty(event.getOldItemStack()),
-          GapEventMaps.itemOrEmpty(event.getNewItemStack()))));
-
   @SuppressWarnings("removal")
   static final Translation<org.bukkit.event.player.PlayerRecipeBookClickEvent> RECIPE_BOOK = new Translation<>(
       org.bukkit.event.player.PlayerRecipeBookClickEvent.class, List.of(PlayerRecipeBookClickEvent.class)) {
@@ -145,35 +120,6 @@ final class PlayerGapTranslations {
     @Override
     public void bridge(org.bukkit.event.player.PlayerRecipeBookClickEvent event, Poster poster) {
       poster.post(new PlayerRecipeBookClickEvent(player(event.getPlayer()), GapEventMaps.key(event.getRecipe()), event.isShiftClick()));
-    }
-  };
-
-  static final Translation<io.papermc.paper.event.player.PlayerPurchaseEvent> TRADE = new Translation<>(
-      io.papermc.paper.event.player.PlayerPurchaseEvent.class, List.of(PlayerTradeEvent.class)) {
-    @Override
-    public Class<? extends AdaptEvent> target(io.papermc.paper.event.player.PlayerPurchaseEvent event) {
-      return event instanceof io.papermc.paper.event.player.PlayerTradeEvent ? PlayerTradeEvent.class : null;
-    }
-
-    @Override
-    public void bridge(io.papermc.paper.event.player.PlayerPurchaseEvent event, Poster poster) {
-      if (!(event instanceof io.papermc.paper.event.player.PlayerTradeEvent trade)) {
-        return;
-      }
-      boolean cancelled = event.isCancelled();
-      boolean rewardExp = event.isRewardingExp();
-      boolean increaseUses = event.willIncreaseTradeUses();
-      PlayerTradeEvent core = new PlayerTradeEvent(player(event.getPlayer()), entity(trade.getVillager()),
-          GapEventMaps.itemOrEmpty(event.getTrade().getResult()), rewardExp, increaseUses);
-      core.setCancelled(cancelled);
-      poster.post(core);
-      cancel(event, cancelled, core);
-      if (core.rewardExp() != rewardExp) {
-        event.setRewardExp(core.rewardExp());
-      }
-      if (core.increaseTradeUses() != increaseUses) {
-        event.setIncreaseTradeUses(core.increaseTradeUses());
-      }
     }
   };
 

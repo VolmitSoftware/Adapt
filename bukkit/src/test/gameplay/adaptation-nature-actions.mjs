@@ -286,7 +286,7 @@ async function fishing(input) {
 }
 
 export const natureBehaviorCases = new Map([
-    ['nether-blaze-leech', {
+    ['adapt:nether/blaze_leech', {
         stage: 'nature-blaze', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => hazard(input, true),
         sound: 'minecraft:entity.blaze.ambient', soundVolume: 0.45, soundPitch: 1.4, particle: 'happy_villager', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
@@ -297,7 +297,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned magma damage has no leech benefit', 'learned natural hazard proc grants actual food and regeneration'], unlearned, active)
         },
     }],
-    ['nether-fire-resist', {
+    ['adapt:nether/fire_resist', {
         stage: 'nature-fire', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: input => hazard(input, false),
         sound: 'minecraft:block.fire.extinguish', soundVolume: 0.3, soundPitch: 1.5, particle: 'splash', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
@@ -308,7 +308,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned fire damages health', 'learned fire cancellation reduces actual health loss over equal exposure'], unlearned, active)
         },
     }],
-    ['nether-piglin-broker', {
+    ['adapt:nether/piglin_broker', {
         stage: 'nature-broker', negativeWindowTicks: 1, prepare: input => prepare(input, 'gold_ingot'), trigger: barter,
         sound: 'minecraft:entity.piglin.admiring_item', soundVolume: 0.9, soundPitch: 1.25, particle: 'wax_on', particleCount: 6,
         verify: ({ context, unlearned, active }) => {
@@ -321,7 +321,7 @@ export const natureBehaviorCases = new Map([
                 'learned real barter adds a stack and every output item is observed in world drops or player inventory'], unlearned, active)
         },
     }],
-    ['nether-strider-bond', {
+    ['adapt:nether/strider_bond', {
         stage: 'nature-strider', negativeWindowTicks: 1, trigger: strider,
         async prepare(input) {
             await prepare(input)
@@ -340,7 +340,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned strider dismount remains over lava', 'learned dismount teleports the actual rider to safe solid ground'], unlearned, active)
         },
     }],
-    ['herbalism-luck', {
+    ['adapt:herbalism/luck', {
         stage: 'nature-luck', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: flowers,
         sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.6, soundPitch: 1.4, particle: 'wax_on', particleCount: 2,
         verify: ({ context, unlearned, active }) => {
@@ -352,7 +352,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned flower drops contain no bonus food', 'all fifteen learned flower trials produce one usable food for each recorded lucky proc'], unlearned, active)
         },
     }],
-    ['tame-guardian-instinct', {
+    ['adapt:tame/guardian_instinct', {
         stage: 'nature-guardian', negativeWindowTicks: 1, prepare: input => prepare(input, 'bow', true), trigger: guardian,
         sound: 'minecraft:item.shield.block', soundVolume: 0.7, soundPitch: 1.1, particle: 'dust', particleCount: 4,
         verify: ({ context, unlearned, active }) => {
@@ -363,7 +363,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned arrows damage the owner and spare the nearby pet', 'learned pet intercept transfers actual projectile damage away from its owner'], unlearned, active)
         },
     }],
-    ['tame-wild-empathy', {
+    ['adapt:tame/wild_empathy', {
         stage: 'nature-empathy', negativeWindowTicks: 1, prepare: input => prepare(input, 'bone'), trigger: empathy,
         sound: 'minecraft:entity.wolf.pant', soundVolume: 0.7, soundPitch: 1.2, particle: 'heart', particleCount: 4,
         soundControl: 'per-action-count',
@@ -377,7 +377,7 @@ export const natureBehaviorCases = new Map([
                     'the observed forced tame emits at least two exact wolf pants, adding adaptation feedback to core taming feedback'] }
         },
     }],
-    ['tragoul-blood-pact', {
+    ['adapt:tragoul/blood_pact', {
         stage: 'nature-pact', negativeWindowTicks: 1, prepare: input => prepare(input, 'wooden_sword', true), trigger: pact,
         sound: 'minecraft:block.respawn_anchor.charge', soundVolume: 0.6, soundPitch: 1, particle: 'totem_of_undying', particleCount: 8,
         verify: ({ context, unlearned, active }) => {
@@ -388,7 +388,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned qualifying damage grants no buffs', 'learned qualifying health loss grants actual beneficial effects within twenty hits'], unlearned, active)
         },
     }],
-    ['tragoul-bone-harvest', {
+    ['adapt:tragoul/bone_harvest', {
         stage: 'nature-bone', negativeWindowTicks: 1, prepare: input => prepare(input, 'wooden_axe'), trigger: bone,
         sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.5, soundPitch: 1.2, particle: 'dust', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
@@ -398,7 +398,7 @@ export const natureBehaviorCases = new Map([
             return result(['unlearned kills produce no buff globe', 'learned natural kill and pickup consume a real globe and grant beneficial effects'], unlearned, active)
         },
     }],
-    ['seaborne-fishers-fantasy', {
+    ['adapt:seaborne/fishers_fantasy', {
         stage: 'nature-fishing', negativeWindowTicks: 1, prepare: input => prepare(input, 'fishing_rod'), trigger: fishing,
         sound: 'minecraft:block.conduit.activate', soundVolume: 0.4, soundPitch: 1.76, particle: 'glow', particleCount: 4,
         verify: ({ context, unlearned, active }) => {

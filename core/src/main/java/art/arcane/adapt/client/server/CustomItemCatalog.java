@@ -2,16 +2,17 @@ package art.arcane.adapt.client.server;
 
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.client.protocol.ClientProtocolException;
 import art.arcane.adapt.client.protocol.FrameCodec;
 import art.arcane.adapt.client.protocol.FrameLimits;
 import art.arcane.adapt.client.protocol.ItemDescriptor;
 import art.arcane.adapt.client.protocol.ServerFrame;
-import art.arcane.adapt.content.item.ExperienceOrb;
-import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.engine.item.ExperienceOrb;
+import art.arcane.adapt.engine.item.KnowledgeOrb;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
@@ -90,7 +91,7 @@ public final class CustomItemCatalog {
         continue;
       }
       recipes.addAll(skill.getRecipes());
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
         if (adaptation.isEnabled()) {
           recipes.addAll(adaptation.getRecipes());
         }

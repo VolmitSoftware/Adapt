@@ -1,7 +1,7 @@
 package art.arcane.adapt.gameplay.demo.sets;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.engine.xp.XpProvenance;
 import art.arcane.adapt.gameplay.demo.DemoGeometry;
 import art.arcane.adapt.gameplay.demo.DemoSet;
 import art.arcane.adapt.gameplay.demo.DemoSetProvider;

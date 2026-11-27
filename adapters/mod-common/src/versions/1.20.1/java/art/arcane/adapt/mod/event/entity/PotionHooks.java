@@ -110,6 +110,6 @@ public final class PotionHooks {
         Id found = key == null ? null : ModContentAliases.modern(RegistryKind.EFFECT, key);
         Id id = found == null ? new Id("minecraft", "unknown") : found;
         int duration = effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration();
-        return new EffectInstance(id, duration, Math.max(0, effect.getAmplifier()), effect.isAmbient(), effect.isVisible(), effect.showIcon());
+        return EffectInstance.of(id, duration, Math.max(0, effect.getAmplifier())).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon());
     }
 }

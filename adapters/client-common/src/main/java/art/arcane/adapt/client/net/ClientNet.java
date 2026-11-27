@@ -149,7 +149,7 @@ public final class ClientNet {
             return;
         }
         if (frame instanceof ServerFrame.Accept accept) {
-            if (accept.version() < 1 || accept.version() > ClientProtocol.VERSION) {
+            if (accept.version() != ClientProtocol.VERSION) {
                 drop("server accepted unsupported version " + accept.version());
                 return;
             }
@@ -187,7 +187,7 @@ public final class ClientNet {
                 sinks.items().items(items.items());
             }
             case ServerFrame.Feedback feedback -> sinks.feedback().feedback(feedback.kind(), feedback.text());
-            case ServerFrame.InsightTarget target -> sinks.insight().target(target.view());
+            case ServerFrame.InsightTarget target -> sinks.insight().target(target);
             case ServerFrame.InsightVitals vitals -> sinks.insight().vitals(vitals.entityId(), vitals.health(), vitals.absorption());
             case ServerFrame.InsightMarks marks -> sinks.insight().marks(marks.marks());
             case ServerFrame.InsightClear ignored -> sinks.insight().clear();
@@ -200,6 +200,15 @@ public final class ClientNet {
             case ServerFrame.GroupLabels labels -> state.acceptGroupLabels(labels.skills());
             case ServerFrame.ShortNames names -> state.acceptShortNames(names.names());
             case ServerFrame.AdaptationRecipes recipes -> state.acceptRecipes(recipes.recipes());
+            case ServerFrame.AssetManifest manifest -> request(sinks.assets().manifest(manifest.assets()));
+            case ServerFrame.Asset asset -> sinks.assets().asset(asset.resource(), asset.hash(), asset.data());
+        }
+    }
+
+    /** Asks for {@code resources} a bounded batch per frame. */
+    private void request(List<String> resources) {
+        for (int from = 0; from < resources.size(); from += FrameLimits.MAX_ASSET_REQUEST) {
+            write(new ClientFrame.AssetRequest(resources.subList(from, Math.min(resources.size(), from + FrameLimits.MAX_ASSET_REQUEST))));
         }
     }
 
@@ -236,6 +245,7 @@ public final class ClientNet {
         current.hud().reset();
         current.items().reset();
         current.insight().reset();
+        current.assets().reset();
         state.reset();
     }
 

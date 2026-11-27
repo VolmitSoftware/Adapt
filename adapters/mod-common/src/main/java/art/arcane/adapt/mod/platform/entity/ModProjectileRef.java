@@ -175,7 +175,7 @@ public class ModProjectileRef extends ModEntityRef implements ProjectileRef {
             return PotionContents.EMPTY;
         }
         return ModRefs.item(arrow.getPickupItemStackOrigin()).potionContents()
-            .map((PotionContents contents) -> new PotionContents(contents.potion(), null, contents.customEffects(), null))
+            .map((PotionContents contents) -> PotionContents.of(contents.potion()).withCustomEffects(contents.customEffects()))
             .orElse(PotionContents.EMPTY);
     }
 

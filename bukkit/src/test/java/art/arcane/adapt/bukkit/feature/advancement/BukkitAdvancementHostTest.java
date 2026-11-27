@@ -1,5 +1,7 @@
 package art.arcane.adapt.bukkit.feature.advancement;
 
+import art.arcane.adapt.engine.platform.EngineAdvancementNode;
+import art.arcane.adapt.engine.advancement.AdaptAdvancement;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.advancement.AdvancementNode;
@@ -8,6 +10,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import com.fren_gor.ultimateAdvancementAPI.AdvancementMain;
+import com.fren_gor.ultimateAdvancementAPI.util.AdvancementKey;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -26,9 +29,10 @@ import static org.mockito.Mockito.when;
 
 class BukkitAdvancementHostTest {
   private static final ItemRef ICON = mock(ItemRef.class);
-  private static final Id ROOT = Id.adapt("skill_agility");
-  private static final Id CHILD = Id.adapt("agility_walk_1k");
-  private static final Id COUNTER = Id.adapt("agility_walk_10k");
+  private static final Id BACKGROUND = Id.minecraft("textures/block/stone.png");
+  private static final Id ROOT = skill(Id.adapt("agility"));
+  private static final Id CHILD = AdaptAdvancement.advancementId(AdaptAdvancement.adaptationKey(Id.adapt("agility/wall_jump")));
+  private static final Id COUNTER = Id.adapt("challenge_move_1k");
 
   private final PlayerRef player = mock(PlayerRef.class);
   private final BukkitAdvancementHost host = new BukkitAdvancementHost(mock(Plugin.class), mock(Server.class), null,
@@ -44,7 +48,7 @@ class BukkitAdvancementHostTest {
   void catalogFlattensTreesIntoOneTabPerRoot() {
     AdvancementCatalog catalog = AdvancementCatalog.build(List.of(tree()));
 
-    assertThat(catalog.roots()).singleElement().extracting(AdvancementCatalog.Entry::tab).isEqualTo("adapt_skill_agility");
+    assertThat(catalog.roots()).singleElement().extracting(AdvancementCatalog.Entry::tab).isEqualTo("adapt_skill.adapt.agility");
     assertThat(catalog.entries()).extracting((AdvancementCatalog.Entry entry) -> entry.node().key())
         .containsExactly(ROOT, CHILD, COUNTER);
     assertThat(catalog.get(COUNTER).parent()).isEqualTo(CHILD);
@@ -53,9 +57,35 @@ class BukkitAdvancementHostTest {
   }
 
   @Test
+  void everyTabNameAndKeyIsAValidUaapiKeyForBuiltInAndThirdPartySkills() {
+    List<AdvancementNode> roots = List.of(tree(),
+        node(skill(Id.of("alchemist.lab", "alchemy")), BACKGROUND, 1,
+            List.of(node(AdaptAdvancement.advancementId(AdaptAdvancement.adaptationKey(Id.of("alchemist.lab", "alchemy/transmute"))), null, 1, List.of()))),
+        node(skill(Id.adapt("mutated/swords/adapt/stealth")), BACKGROUND, 1, List.of()));
+
+    AdvancementCatalog catalog = AdvancementCatalog.build(roots);
+
+    assertThat(catalog.roots()).extracting(AdvancementCatalog.Entry::tab)
+        .containsExactly("adapt_skill.adapt.agility", "adapt_skill.alchemist.lab.alchemy", "adapt_skill.adapt.mutated.swords.adapt.stealth");
+    assertThat(catalog.entries()).allSatisfy((AdvancementCatalog.Entry entry) ->
+        assertThat(AdvancementKey.VALID_ADVANCEMENT_KEY.matcher(entry.tab() + ":" + entry.node().key().path()).matches())
+            .as("UAAPI key of %s", entry.node().key()).isTrue());
+  }
+
+  @Test
+  void catalogRejectsRootsWhoseTabNamesClashOrAreTooLong() {
+    List<AdvancementNode> clash = List.of(node(skill(Id.of("a.b", "c")), BACKGROUND, 1, List.of()),
+        node(skill(Id.of("a", "b.c")), BACKGROUND, 1, List.of()));
+    List<AdvancementNode> tooLong = List.of(node(skill(Id.adapt("x".repeat(120))), BACKGROUND, 1, List.of()));
+
+    assertThatThrownBy(() -> AdvancementCatalog.build(clash)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> AdvancementCatalog.build(tooLong)).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   void catalogRejectsRootsWithoutBackgroundAndDuplicateKeys() {
     AdvancementNode bare = node(ROOT, null, 1, List.of());
-    AdvancementNode twice = node(ROOT, Id.minecraft("textures/block/stone.png"), 1, List.of(node(ROOT, null, 1, List.of())));
+    AdvancementNode twice = node(ROOT, BACKGROUND, 1, List.of(node(ROOT, null, 1, List.of())));
 
     assertThatThrownBy(() -> AdvancementCatalog.build(List.of(bare))).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> AdvancementCatalog.build(List.of(twice))).isInstanceOf(IllegalArgumentException.class);
@@ -98,10 +128,10 @@ class BukkitAdvancementHostTest {
 
   @Test
   void replacingTheCatalogDropsOldKeys() {
-    host.setCatalog(List.of(node(Id.adapt("skill_mining"), Id.minecraft("textures/block/stone.png"), 1, List.of())));
+    host.setCatalog(List.of(node(skill(Id.adapt("mining")), BACKGROUND, 1, List.of())));
 
     assertThat(host.isRegistered(CHILD)).isFalse();
-    assertThat(host.isRegistered(Id.adapt("skill_mining"))).isTrue();
+    assertThat(host.isRegistered(skill(Id.adapt("mining")))).isTrue();
   }
 
   @Test
@@ -138,11 +168,15 @@ class BukkitAdvancementHostTest {
   private static AdvancementNode tree() {
     AdvancementNode counter = node(COUNTER, null, 10, List.of());
     AdvancementNode child = node(CHILD, null, 1, List.of(counter));
-    return node(ROOT, Id.minecraft("textures/block/stone.png"), 1, List.of(child));
+    return node(ROOT, BACKGROUND, 1, List.of(child));
+  }
+
+  private static Id skill(Id id) {
+    return AdaptAdvancement.advancementId(AdaptAdvancement.skillKey(id));
   }
 
   private static AdvancementNode node(Id key, Id background, int maxProgress, List<AdvancementNode> children) {
-    return new AdvancementNode(key, ICON, key.path(), "", AdvancementFrame.TASK, false, false,
+    return new EngineAdvancementNode(key, ICON, key.path(), "", AdvancementFrame.TASK, false, false,
         AdvancementVisibility.VANILLA, 0F, 0F, maxProgress, background, children);
   }
 

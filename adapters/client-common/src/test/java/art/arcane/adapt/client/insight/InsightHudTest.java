@@ -1,5 +1,6 @@
 package art.arcane.adapt.client.insight;
 
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.config.ClientConfig;
 import art.arcane.adapt.client.net.ClientNet;
 import art.arcane.adapt.client.net.ClientTransport;
@@ -9,13 +10,8 @@ import art.arcane.adapt.client.ui.UiCamera;
 import art.arcane.adapt.client.ui.UiEntityPose;
 import art.arcane.adapt.client.ui.UiWorld;
 import art.arcane.adapt.client.ui.kit.FakeHost;
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightEffect;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightStat;
-import art.arcane.adapt.client.view.InsightStatKind;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import art.arcane.adapt.client.qa.UiProbe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -114,7 +110,7 @@ class InsightHudTest {
         world.entities.put(5, new UiEntityPose(0D, 63D, 6D, 0.6D, 1.95D));
         world.entities.put(9, new UiEntityPose(3D, 63D, 8D, 0.6D, 1.95D));
         hud.state().target(zombie());
-        hud.state().marks(List.of(new InsightMark(9, InsightKind.PASSIVE, 0.5D), new InsightMark(10, InsightKind.HOSTILE, 1D)));
+        hud.state().marks(List.of(new ServerFrame.InsightMarks.Mark(9, InsightKind.PASSIVE, 0.5D), new ServerFrame.InsightMarks.Mark(10, InsightKind.HOSTILE, 1D)));
 
         List<String> calls = render();
 
@@ -128,10 +124,10 @@ class InsightHudTest {
         return draw.calls();
     }
 
-    private static InsightView zombie() {
-        return new InsightView(5, "minecraft:zombie", "", InsightKind.HOSTILE, 15D, 20D, 0D, 2D, InsightBond.NONE, "",
-                false, List.of(new InsightStat(InsightStatKind.ATTACK, 3D)),
-                List.of(new InsightEffect("minecraft:speed", 0, 600, false)));
+    private static ServerFrame.InsightTarget zombie() {
+        return new ServerFrame.InsightTarget(5, "minecraft:zombie", "", InsightKind.HOSTILE, 15D, 20D, 0D, 2D, InsightBond.NONE, "",
+                List.of(), List.of(new ServerFrame.InsightTarget.Stat("minecraft:attack_damage", 3D)),
+                List.of(new ServerFrame.InsightTarget.Effect("minecraft:speed", 0, 600, false)));
     }
 
     private static ClientNet offline() {

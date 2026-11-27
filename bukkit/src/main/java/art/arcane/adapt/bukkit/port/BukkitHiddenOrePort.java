@@ -2,7 +2,7 @@ package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
-import art.arcane.adapt.content.integration.hiddenore.HiddenOrePort;
+import art.arcane.adapt.engine.integration.HiddenOrePort;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.world.BlockRef;
 import org.bukkit.Location;

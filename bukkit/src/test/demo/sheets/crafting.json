@@ -1,5 +1,5 @@
 {
-  "crafting-backpacks": {
+  "adapt:crafting/backpacks": {
     "set": "crafting-bench",
     "level": 1,
     "povCapture": true,
@@ -59,7 +59,7 @@
     },
     "maxTicks": 611
   },
-  "crafting-bulk-artisan": {
+  "adapt:crafting/bulk_artisan": {
     "set": "crafting-bench",
     "level": 5,
     "povCapture": true,
@@ -92,7 +92,7 @@
     },
     "maxTicks": 304
   },
-  "crafting-compactor": {
+  "adapt:crafting/compactor": {
     "set": "crafting-bench",
     "level": 1,
     "pre": [
@@ -132,7 +132,7 @@
     "maxTicks": 330,
     "povCapture": true
   },
-  "crafting-deconstruction": {
+  "adapt:crafting/deconstruction": {
     "set": "crafting-salvage",
     "level": 1,
     "pre": [
@@ -163,7 +163,7 @@
     },
     "maxTicks": 244
   },
-  "crafting-leather": {
+  "adapt:crafting/leather": {
     "set": "crafting-campfire",
     "level": 1,
     "pre": [
@@ -190,7 +190,7 @@
     },
     "maxTicks": 240
   },
-  "crafting-masterwork": {
+  "adapt:crafting/masterwork": {
     "set": "crafting-bench",
     "level": 5,
     "povCapture": true,
@@ -249,7 +249,7 @@
     },
     "maxTicks": 588
   },
-  "crafting-provisioner": {
+  "adapt:crafting/provisioner": {
     "set": "crafting-bench",
     "level": 5,
     "povCapture": true,
@@ -301,7 +301,7 @@
     },
     "maxTicks": 498
   },
-  "crafting-reconstruction": {
+  "adapt:crafting/reconstruction": {
     "set": "crafting-bench",
     "level": 1,
     "povCapture": true,
@@ -345,7 +345,7 @@
     },
     "maxTicks": 441
   },
-  "crafting-skulls": {
+  "adapt:crafting/skulls": {
     "set": "crafting-bench",
     "level": 1,
     "povCapture": true,
@@ -389,7 +389,7 @@
     },
     "maxTicks": 441
   },
-  "crafting-stations": {
+  "adapt:crafting/stations": {
     "set": "crafting-open",
     "level": 1,
     "povCapture": true,
@@ -422,7 +422,7 @@
     },
     "maxTicks": 295
   },
-  "crafting-thrifty-hands": {
+  "adapt:crafting/thrifty_hands": {
     "set": "crafting-bench",
     "level": 5,
     "povCapture": true,
@@ -496,7 +496,7 @@
     },
     "maxTicks": 650
   },
-  "crafting-tinkerer": {
+  "adapt:crafting/tinkerer": {
     "set": "crafting-bench",
     "level": 5,
     "povCapture": true,
@@ -535,7 +535,7 @@
     },
     "maxTicks": 396
   },
-  "crafting-xp": {
+  "adapt:crafting/xp": {
     "set": "crafting-bench",
     "level": 7,
     "povCapture": true,

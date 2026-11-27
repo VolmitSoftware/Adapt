@@ -8,6 +8,7 @@ import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Material;
 import org.bukkit.block.CreatureSpawner;
@@ -170,17 +171,17 @@ public final class BukkitItemOps implements ItemOps {
 
   @Override
   public byte[] serialize(ItemRef item) {
-    return BukkitRefs.item(item).serializeAsBytes();
+    return PaperApi.serialize(BukkitRefs.item(item));
   }
 
   @Override
   public ItemRef deserialize(byte[] data) {
-    return new BukkitItemRef(ItemStack.deserializeBytes(data));
+    return new BukkitItemRef(PaperApi.deserialize(data));
   }
 
   @Override
   public byte[] encodeNbt(ItemRef item) {
-    return BukkitRefs.item(item).serializeAsBytes();
+    return PaperApi.serialize(BukkitRefs.item(item));
   }
 
   @Override

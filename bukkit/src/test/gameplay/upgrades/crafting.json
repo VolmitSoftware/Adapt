@@ -2,24 +2,24 @@
   "skill": "crafting",
   "upgrades": [
     {
-      "name": "upgraded-crafting-grand-artisan",
+      "name": "adapt:crafting/upgrade/grand_artisan",
       "class": "GrandArtisan",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/GrandArtisan.java",
-      "fuses": ["crafting-masterwork", "crafting-tinkerer", "crafting-thrifty-hands"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/GrandArtisan.java",
+      "fuses": ["adapt:crafting/masterwork", "adapt:crafting/tinkerer", "adapt:crafting/thrifty_hands"],
       "triggers": ["PrepareResultEvent", "InventoryClickEvent"]
     },
     {
-      "name": "upgraded-crafting-unmaker",
+      "name": "adapt:crafting/upgrade/unmaker",
       "class": "Unmaker",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/Unmaker.java",
-      "fuses": ["crafting-deconstruction", "crafting-reconstruction", "crafting-compactor"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/Unmaker.java",
+      "fuses": ["adapt:crafting/deconstruction", "adapt:crafting/reconstruction", "adapt:crafting/compactor"],
       "triggers": ["PlayerSwapHandItemsEvent"]
     },
     {
-      "name": "upgraded-crafting-field-workshop",
+      "name": "adapt:crafting/upgrade/field_workshop",
       "class": "FieldWorkshop",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/FieldWorkshop.java",
-      "fuses": ["crafting-stations", "crafting-backpacks", "crafting-bulk-artisan"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/crafting/upgraded/FieldWorkshop.java",
+      "fuses": ["adapt:crafting/stations", "adapt:crafting/backpacks", "adapt:crafting/bulk_artisan"],
       "triggers": []
     }
   ]

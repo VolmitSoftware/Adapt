@@ -39,7 +39,7 @@ export default {
           `${adaptation.id} preserves progression, honors both enable scopes and resolves every unlocked choice`, audit)
         report.adaptations.push(audit)
       }
-      for (const id of ['agility-air-dash', 'pickaxe-veinminer', 'crafting-masterwork', 'ranged-trajectory-sight']) {
+      for (const id of ['adapt:agility/air_dash', 'adapt:pickaxe/veinminer', 'adapt:crafting/masterwork', 'adapt:ranged/trajectory_sight']) {
         await action(actor, `learn ${id}`)
         await action(other, `learn ${id}`)
         let state = await action(actor, `open ${id}`)
@@ -82,7 +82,7 @@ export default {
         return skill.enabled === 'OFF'
       }, { label: 'Skill switch applies', timeoutMs: 5000 }).catch(() => {})
       context.expect(skill.enabled === 'OFF' && actor.bot.currentWindow === skillWindow, 'Skill toggles in the same window')
-      const disabled = await action(actor, 'snapshot agility-air-dash')
+      const disabled = await action(actor, 'snapshot adapt:agility/air_dash')
       context.expect(disabled.active === 0 && disabled.settings.find(setting => setting.id === 'enabled')?.value === 'ON',
         'Skill off suppresses active behavior while preserving child On')
       const reset = skill.slots.find(item => item.material === 'MILK_BUCKET')?.slot

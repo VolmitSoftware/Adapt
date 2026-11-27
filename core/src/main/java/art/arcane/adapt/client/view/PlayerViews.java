@@ -1,25 +1,26 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.upgrade.SkillUpgrades;
-import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillMenus;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptDebugMode;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.engine.mutation.upgrade.Lending;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillMenus;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerAdaptation;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
+import art.arcane.adapt.engine.gui.SkillsGui;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 
@@ -44,32 +45,32 @@ public final class PlayerViews {
       if (skill == null) {
         continue;
       }
-      PlayerSkillLine stored = data.getSkillLineNullable(skill.getName());
+      PlayerSkillLine stored = data.getSkillLineNullable(SkillHost.lineKey(skill));
       PlayerSkillLine line = stored == null ? new PlayerSkillLine() : stored;
-      skills.add(new SkillLineView(skill.getName(), line.getXp(), line.getLevel(), line.getLevelProgress(),
+      skills.add(new SkillLineView(SkillHost.lineKey(skill), line.getXp(), line.getLevel(), line.getLevelProgress(),
           line.getXPForLevelUpAbsolute(), line.getKnowledge()));
       preferences.add(new PreferenceValue(
-          new PreferenceKey(PreferenceOwner.SKILL, skill.getName(), CommonPreferences.SKILL_ENABLED.id()),
+          new PreferenceKey(PreferenceOwner.SKILL, SkillHost.lineKey(skill), CommonPreferences.SKILL_ENABLED.id()),
           PlayerPreferences.resolve(skill, data, CommonPreferences.SKILL_ENABLED).name()));
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        int level = paidLevel(stored, adaptation.getName());
+        int level = paidLevel(stored, adaptation.getId().toString());
         if (level <= 0) {
           continue;
         }
-        levels.put(adaptation.getName(), level);
+        levels.put(adaptation.getId().toString(), level);
         addPreferences(preferences, adaptation, data, level);
       }
       if (skill instanceof MutatedSkill mutated) {
         for (Adaptation<?> kept : mutated.getKept()) {
           int raised = SkillUpgrades.raisedLevel(kept, data);
           if (raised > 0) {
-            levels.put(kept.getName(), raised);
+            levels.put(kept.getId().toString(), raised);
           }
           addPreferences(preferences, kept, data, SkillUpgrades.heritageLevel(kept, data));
         }
         PlayerRef online = player.getPlayer();
         if (online != null) {
-          for (UpgradeLoans.Running running : UpgradeLoans.running(online, player, registry, mutated.getMutation())) {
+          for (Lending.Running running : Lending.running(online, player, registry, mutated.getPair())) {
             addPreferences(preferences, running.original(), data, running.level());
           }
         }
@@ -85,7 +86,7 @@ public final class PlayerViews {
   private static void addPreferences(List<PreferenceValue> preferences, Adaptation<?> adaptation, PlayerData data, int level) {
     for (PlayerPreference<?> preference : adaptation.getPlayerPreferences()) {
       preferences.add(new PreferenceValue(
-          new PreferenceKey(PreferenceOwner.ADAPTATION, adaptation.getName(), preference.id()),
+          new PreferenceKey(PreferenceOwner.ADAPTATION, adaptation.getId().toString(), preference.id()),
           PlayerPreferences.resolve(adaptation, data, level, preference).name()));
     }
   }
@@ -120,19 +121,19 @@ public final class PlayerViews {
   static PlayerAccess access(SkillRegistry registry, AdaptPlayer player, PlayerRef ref) {
     List<String> skills = new ArrayList<>();
     for (Skill<?> skill : SkillsGui.visibleSkills(player, ref)) {
-      skills.add(skill.getName());
+      skills.add(SkillHost.lineKey(skill));
     }
     Map<String, List<List<String>>> rows = new HashMap<>();
     for (Skill<?> skill : registry.getSkills()) {
-      if (skill == null || !skill.isEnabled() || !skill.hasUsePermission(ref, skill)) {
+      if (skill == null || !skill.isEnabled() || !skill.hasUsePermission(ref)) {
         continue;
       }
-      rows.put(skill.getName(), rowIds(skill, ref));
+      rows.put(SkillHost.lineKey(skill), rowIds(skill, ref));
     }
-    for (SkillMutation mutation : player.getData().getMutations()) {
-      MutatedSkill mutated = registry.getMutatedSkill(mutation.id());
-      if (mutated != null && mutated.hasUsePermission(ref, mutated)) {
-        rows.put(mutated.getName(), rowIds(mutated, ref));
+    for (SkillPair mutation : player.getData().getMutations()) {
+      MutatedSkill mutated = registry.getMutatedSkill(mutation);
+      if (mutated != null && mutated.hasUsePermission(ref)) {
+        rows.put(SkillHost.lineKey(mutated), rowIds(mutated, ref));
       }
     }
     AdaptConfig config = AdaptConfig.get();
@@ -145,7 +146,7 @@ public final class PlayerViews {
     for (List<Adaptation<?>> row : SkillMenus.adaptationRows(skill, ref)) {
       List<String> ids = new ArrayList<>(row.size());
       for (Adaptation<?> adaptation : row) {
-        ids.add(adaptation.getName());
+        ids.add(adaptation.getId().toString());
       }
       skillRows.add(ids);
     }

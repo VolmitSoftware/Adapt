@@ -1,7 +1,10 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderValues;
 
 import java.util.HashMap;
@@ -37,7 +40,7 @@ public final class AdaptCatalogSnapshot {
         continue;
       }
 
-      String skillId = normalize(skill.getName());
+      String skillId = normalize(SkillHost.lineKey(skill));
 
       if (skillId == null) {
         continue;
@@ -53,7 +56,7 @@ public final class AdaptCatalogSnapshot {
           continue;
         }
 
-        String adaptationId = normalize(adaptation.getName());
+        String adaptationId = normalize(adaptation.getId().toString());
 
         if (adaptationId == null) {
           continue;
@@ -91,7 +94,7 @@ public final class AdaptCatalogSnapshot {
 
     return new AdaptCatalogAdaptation(
         adaptationId,
-        adaptation.getName(),
+        adaptation.getId().toString(),
         skillId,
         skillName,
         adaptation.isEnabled(),
@@ -117,12 +120,16 @@ public final class AdaptCatalogSnapshot {
     return revision;
   }
 
+  /** The skill a placeholder names by id; a bare id is in the {@code adapt} namespace. */
   public AdaptCatalogSkill skill(String id) {
-    return skills.get(id);
+    Id parsed = id == null ? null : Id.tryParseAdapt(id);
+    return parsed == null ? null : skills.get(parsed.toString());
   }
 
+  /** The adaptation a placeholder names by id; a bare id is in the {@code adapt} namespace. */
   public AdaptCatalogAdaptation adaptation(String id) {
-    return adaptations.get(id);
+    Id parsed = id == null ? null : Id.tryParseAdapt(id);
+    return parsed == null ? null : adaptations.get(parsed.toString());
   }
 
   public String skillCountText() {

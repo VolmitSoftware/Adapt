@@ -238,7 +238,7 @@ async function sixth(input) {
 }
 
 export const discoveryBehaviorCases = new Map([
-    ['discovery-cartographer-pulse', {
+    ['adapt:discovery/cartographer_pulse', {
         stage: 'discovery-qa-cartographer', negativeWindowTicks: 1, prepare: input => prepare(input, 'compass'), trigger: cartographer,
         sound: 'minecraft:item.lodestone_compass.lock', soundVolume: 0.8, soundPitch: 1.3, particle: 'electric_spark', particleCount: 1,
         verify: ({ context, unlearned, active }) => {
@@ -250,7 +250,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned compass has no pulse outcome', 'learned natural compass use targets actual generated structure metadata and pays food'], unlearned, active)
         },
     }],
-    ['discovery-sixth-sense', {
+    ['adapt:discovery/sixth_sense', {
         stage: 'discovery-qa-sixth', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: sixth,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.22, soundPitch: 1.9, particle: 'end_rod', particleCount: 1,
         verify: ({ context, unlearned, active }) => {
@@ -261,7 +261,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned generated structure proximity has no detection', 'learned natural ticks discover a real structure and send HUD and proximity bar packets'], unlearned, active)
         },
     }],
-    ['discovery-archaeologist', {
+    ['adapt:discovery/archaeologist', {
         stage: 'discovery-qa-brush', negativeWindowTicks: 1, prepare: input => prepare(input, 'brush'), trigger: brush,
         sound: 'minecraft:item.brush.brushing.sand.complete', soundVolume: 1, soundPitch: 1.15, particle: 'enchant', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
@@ -270,7 +270,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned completed brushing has no bonus item', 'learned natural brushing creates a source-listed bonus item'], unlearned, active)
         },
     }],
-    ['enchanting-arcane-siphon', {
+    ['adapt:enchanting/arcane_siphon', {
         stage: 'discovery-qa-siphon', negativeWindowTicks: 1, prepare: input => prepare(input, 'wooden_axe'), trigger: siphon,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 1.3, particle: 'enchant', particleCount: 1, particleOffset: 0,
         verify: ({ context, unlearned, active }) => {
@@ -279,7 +279,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned natural kills produce no book', 'learned kill siphons and upgrades the actual equipped enchantment'], unlearned, active)
         },
     }],
-    ['enchanting-grindstone-recovery', {
+    ['adapt:enchanting/grindstone_recovery', {
         stage: 'discovery-qa-grind', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: grind,
         sound: 'minecraft:block.grindstone.use', soundVolume: 0.95, soundPitch: 1.15, particle: 'flash', particleCount: 1,
         verify: ({ context, unlearned, active }) => {
@@ -288,7 +288,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned disenchants produce no book', 'learned actual disenchanted output recovers its removed enchantment'], unlearned, active)
         },
     }],
-    ['enchanting-lapis-return', {
+    ['adapt:enchanting/lapis_return', {
         stage: 'discovery-qa-lapis', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: lapis,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.7, soundPitch: 0.9, particle: 'glow', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
@@ -297,7 +297,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned enchanting consumes ordinary lapis', 'completed enchanting refunds paid lapis without increasing the prepayment balance'], unlearned, active)
         },
     }],
-    ['enchanting-soul-link', {
+    ['adapt:enchanting/soul_link', {
         stage: 'discovery-qa-soul', negativeWindowTicks: 1,
         prepare: async input => { await prepare(input, 'diamond_pickaxe'); await input.equip('wooden_sword', input.opponent) }, trigger: soul,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 0.9, particle: 'end_rod', particleCount: 4,
@@ -308,7 +308,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned death loses the enchanted item', 'learned mark preserves its exact item type and enchantment through death'], unlearned, active)
         },
     }],
-    ['discovery-villager-att', {
+    ['adapt:discovery/villager_att', {
         stage: 'discovery-qa-villager', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: villager,
         sound: 'minecraft:entity.villager.celebrate', soundVolume: 1, soundPitch: 1, particle: 'wax_on', particleCount: 2,
         verify: ({ context, unlearned, active }) => {
@@ -318,7 +318,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned trade costs twenty emeralds', 'learned hero session reduces actual trade cost and consumes its level payment'], unlearned, active)
         },
     }],
-    ['discovery-keen-eye', {
+    ['adapt:discovery/keen_eye', {
         stage: 'discovery-qa-keen', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: glimmer,
         verify: ({ context, unlearned, active }) => {
             context.expect(unlearned.actor.length === 0 && unlearned.opponent.length === 0, 'Unlearned chest has no private glowing display')
@@ -327,7 +327,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['unlearned chest has no glow display', 'learned chest glimmer reaches only its intended client'], unlearned, active)
         },
     }],
-    ['discovery-polymath', {
+    ['adapt:discovery/polymath', {
         stage: 'discovery-qa-polymath', negativeWindowTicks: 1, prepare: input => prepare(input), trigger: polymath,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.25, soundPitch: 1.9, particle: 'enchant', particleCount: 4,
         verify: ({ context, unlearned, active }) => {
@@ -339,7 +339,7 @@ export const discoveryBehaviorCases = new Map([
             return result(['qualifying skill loadout is identical in both trials', 'learned passive ticking increases the effective global XP multiplier'], unlearned, active)
         },
     }],
-    ['discovery-trailblazer', {
+    ['adapt:discovery/trailblazer', {
         stage: 'discovery-qa-trail', negativeWindowTicks: 25, attribute: 'minecraft:movement_speed',
         prepare: input => prepare(input), trigger: async input => {
             input.actor.bot.setControlState('forward', true)

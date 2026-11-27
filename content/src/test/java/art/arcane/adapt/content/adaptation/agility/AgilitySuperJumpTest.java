@@ -1,0 +1,93 @@
+package art.arcane.adapt.content.adaptation.agility;
+
+import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.testkit.TestContent;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.player.PlayerJumpEvent;
+import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.lang.reflect.Method;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
+class AgilitySuperJumpTest extends AdaptTestBase {
+  @Test
+  void personalHeightReducesOnlyTheEarnedBonus() {
+    double baseline = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 1D)).isEqualTo(2.5D);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 0.5D)).isBetween(baseline, 2.5D);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 0D)).isEqualTo(baseline);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 4D)).isEqualTo(2.5D);
+  }
+
+  @Test
+  void defaultConfigHasExactlyFourLevelsAndAMaximumOfThreeVanillaJumps() {
+    AgilitySuperJump.Config config = new AgilitySuperJump.Config();
+    double vanillaHeight = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
+
+    assertThat(config.maxLevel).isEqualTo(4);
+    assertThat(config.minimumJumpHeight).isCloseTo(1.5D, within(1.0E-9D));
+    assertThat(config.maximumJumpHeight).isCloseTo(3.75D, within(1.0E-9D));
+    assertThat(config.maximumJumpHeight / vanillaHeight).isCloseTo(3.0D, within(0.01D));
+  }
+
+  @Test
+  void jumpHeightScalesFromOneAndAHalfToTwoAndAHalfBlocksAcrossFourLevels() {
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 1)).isCloseTo(1.5D, within(1.0E-9D));
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 2)).isCloseTo(1.8333333333333333D, within(1.0E-9D));
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 3)).isCloseTo(2.1666666666666665D, within(1.0E-9D));
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 4)).isCloseTo(2.5D, within(1.0E-9D));
+  }
+
+  @Test
+  void finalLevelConvertsBlockHeightToTheCorrectJumpStrength() {
+    double bonus = AgilityJumpPhysics.bonusForHeight(2.5D);
+    double resultingStrength = AgilityJumpPhysics.VANILLA_JUMP_STRENGTH + bonus;
+
+    assertThat(resultingStrength).isCloseTo(0.6177493682564199D, within(1.0E-12D));
+    assertThat(AgilityJumpPhysics.heightForStrength(resultingStrength)).isCloseTo(2.5D, within(1.0E-9D));
+  }
+
+  @Test
+  void configReloadAppliesTheConfiguredThreeLevelCap() {
+    AgilitySuperJump adaptation = TestContent.adaptation(Id.adapt("agility"), AgilitySuperJump::new);
+
+    boolean reloaded = ComponentHost.of(adaptation).reloadConfigSnapshot("""
+        maxLevel = 3
+        minimumJumpHeight = 1.5
+        maximumJumpHeight = 2.5
+        """, new File("agility-super-jump.toml"), false);
+
+    assertThat(reloaded).isTrue();
+    assertThat(adaptation.getConfig().maxLevel).isEqualTo(3);
+    assertThat(adaptation.getMaxLevel()).isEqualTo(3);
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 3, adaptation.getMaxLevel()))
+        .isCloseTo(2.5D, within(1.0E-9D));
+  }
+
+  @Test
+  void sneakBoostIgnoresCancelledStateChanges() throws NoSuchMethodException {
+    Method handler = AgilitySuperJump.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
+    Handle eventHandler = handler.getAnnotation(Handle.class);
+
+    assertThat(eventHandler).isNotNull();
+    assertThat(eventHandler.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(eventHandler.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void jumpRewardsObserveTheFinalUncancelledJump() throws ReflectiveOperationException {
+    Method handler = AgilitySuperJump.class.getDeclaredMethod("on", PlayerJumpEvent.class);
+    Handle eventHandler = handler.getAnnotation(Handle.class);
+
+    assertThat(eventHandler).isNotNull();
+    assertThat(eventHandler.priority()).isEqualTo(EventPriority.MONITOR);
+    assertThat(eventHandler.ignoreCancelled()).isTrue();
+  }
+}

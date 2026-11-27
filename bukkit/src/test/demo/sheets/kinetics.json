@@ -1,5 +1,5 @@
 {
-  "kinetics-breachwright": {
+  "adapt:kinetics/breachwright": {
     "set": "kinetics-inspection-smash",
     "level": 5,
     "povCapture": true,
@@ -126,7 +126,7 @@
     },
     "maxTicks": 365
   },
-  "kinetics-charge-lance": {
+  "adapt:kinetics/charge_lance": {
     "set": "kinetics-charge-comparison",
     "level": 5,
     "povCapture": true,
@@ -238,7 +238,7 @@
     },
     "maxTicks": 360
   },
-  "kinetics-dead-zone": {
+  "adapt:kinetics/dead_zone": {
     "set": "kinetics-deadzone", "level": 3,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
@@ -255,7 +255,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 160
   },
-  "kinetics-heavy-frame": {
+  "adapt:kinetics/heavy_frame": {
     "set": "sparring", "level": 5,
     "camera": {"x": 6.0, "y": 2.2, "z": -1.0, "yaw": 90, "pitch": 8},
     "pre": [
@@ -274,7 +274,7 @@
     ],
     "expect": {"sound": "minecraft:block.chain.place", "particle": "cloud"}, "maxTicks": 200
   },
-  "kinetics-impale-pin": {
+  "adapt:kinetics/impale_pin": {
     "set": "kinetics-spear", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
@@ -288,7 +288,7 @@
     ],
     "expect": {"sound": "minecraft:block.chain.place", "particle": "dust"}, "maxTicks": 140
   },
-  "kinetics-lunge-conductor": {
+  "adapt:kinetics/lunge_conductor": {
     "set": "kinetics-spear", "level": 3,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
@@ -303,7 +303,7 @@
     ],
     "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "cloud"}, "maxTicks": 140
   },
-  "kinetics-mass-shift": {
+  "adapt:kinetics/mass_shift": {
     "povCapture": true,
     "set": "arena",
     "level": 3,
@@ -427,7 +427,7 @@
     },
     "maxTicks": 304
   },
-  "kinetics-meteor-cadence": {
+  "adapt:kinetics/meteor_cadence": {
     "set": "kinetics-tower", "level": 5,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:mace"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
@@ -440,7 +440,7 @@
     "expect": {"visual": "The actor walks off the tower with a mace, sneaks a moment into the fall and plummets to the ground far faster than a normal fall."},
     "maxTicks": 180
   },
-  "kinetics-moon-jump": {
+  "adapt:kinetics/moon_jump": {
     "set": "arena", "level": 5,
     "camera": {"x": 11.5, "y": 4.0, "z": 0.5, "yaw": 90, "pitch": -10},
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
@@ -455,7 +455,7 @@
     ],
     "expect": {"sound": "minecraft:entity.rabbit.jump", "particle": "cloud"}, "maxTicks": 220
   },
-  "kinetics-mounted-shock": {
+  "adapt:kinetics/mounted_shock": {
     "set": "kinetics-rails", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
@@ -481,7 +481,7 @@
     ],
     "expect": {"sound": "minecraft:entity.horse.gallop", "particle": "sweep_attack"}, "maxTicks": 180
   },
-  "kinetics-phalanx-reach": {
+  "adapt:kinetics/phalanx_reach": {
     "set": "kinetics-reach-comparison",
     "level": 5,
     "povCapture": true,
@@ -574,7 +574,7 @@
     },
     "maxTicks": 380
   },
-  "kinetics-quake-guard": {
+  "adapt:kinetics/quake_guard": {
     "set": "kinetics-brace-inspection",
     "level": 5,
     "opponent": true,
@@ -694,7 +694,7 @@
     },
     "maxTicks": 290
   },
-  "kinetics-rebound-anvil": {
+  "adapt:kinetics/rebound_anvil": {
     "set": "kinetics-rebound",
     "level": 3,
     "camera": {
@@ -752,7 +752,7 @@
     },
     "maxTicks": 200
   },
-  "kinetics-rubber-soul": {
+  "adapt:kinetics/rubber_soul": {
     "set": "kinetics-slime", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 60}],
     "beats": [
@@ -762,7 +762,7 @@
     ],
     "expect": {"sound": "minecraft:block.slime_block.fall", "particle": "item_slime"}, "maxTicks": 180
   },
-  "kinetics-soft-catch": {
+  "adapt:kinetics/soft_catch": {
     "set": "kinetics-sponge", "level": 5,
     "pre": ["execute at {actor} run gamerule fall_damage true"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 45}],
@@ -772,7 +772,7 @@
     ],
     "expect": {"sound": "minecraft:block.wool.fall", "particle": "cloud"}, "maxTicks": 140
   },
-  "kinetics-surface-skate": {
+  "adapt:kinetics/surface_skate": {
     "set": "kinetics-skate-comparison",
     "level": 5,
     "povCapture": true,
@@ -877,7 +877,7 @@
     },
     "maxTicks": 410
   },
-  "kinetics-terminal-toggle": {
+  "adapt:kinetics/terminal_toggle": {
     "set": "kinetics-spire", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
     "beats": [
@@ -894,7 +894,7 @@
     "expect": {"visual": "The actor steps off the 50-block spire, sneaks twice into the hang and falls at a steady capped pace past the bricks, then sneaks once more and dives, accelerating hard into the ground."},
     "maxTicks": 200
   },
-  "kinetics-windburst": {
+  "adapt:kinetics/windburst": {
     "set": "kinetics-smash", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:mace",

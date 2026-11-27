@@ -1,12 +1,18 @@
 package art.arcane.adapt.util.config;
 
+import art.arcane.adapt.SchedulerForwarding;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.adaptation.AdaptationHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.testkit.MockedHosts;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
-import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.engine.gui.ConfigGui;
+import art.arcane.adapt.engine.gui.SkillsGui;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.util.common.inventorygui.GuiSessions;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
@@ -39,6 +45,7 @@ class ConfigHotloadGuiRefreshTest extends AdaptTestBase {
   private PlayerRef player;
   private GuiWindow window;
   private ConfigHotload hotload;
+  private MockedHosts hosts;
 
   @BeforeEach
   void openWindow() {
@@ -51,11 +58,13 @@ class ConfigHotloadGuiRefreshTest extends AdaptTestBase {
     GuiSessions.track(window);
     lenient().when(core.getPlatform().host().player(playerId)).thenReturn(player);
     hotload = new ConfigHotload();
+    hosts = new MockedHosts();
   }
 
   @AfterEach
   void clearSessions() {
     GuiSessions.clear();
+    hosts.close();
   }
 
   @ParameterizedTest
@@ -100,27 +109,29 @@ class ConfigHotloadGuiRefreshTest extends AdaptTestBase {
   @Test
   void skillTagStillReopensThatSkill() throws Exception {
     Skill<?> skill = skill("rift");
+    SkillHost host = hosts.skill(skill);
     when(window.getTag()).thenReturn("skill/rift");
 
     refresh();
 
-    verify(skill).openGui(player);
+    verify(host).openGui(player);
   }
 
   @Test
   void adaptationTagStillReopensThatAdaptation() throws Exception {
     Skill<?> skill = skill("rift");
     Adaptation<?> adaptation = mock(Adaptation.class);
-    when(adaptation.getName()).thenReturn("rift-access");
+    lenient().when(adaptation.getId()).thenReturn(Id.adapt("rift/access"));
     when(adaptation.isEnabled()).thenReturn(true);
     KList<Adaptation<?>> adaptations = new KList<>();
     adaptations.add(adaptation);
     when(skill.getAdaptations()).thenReturn(adaptations);
-    when(window.getTag()).thenReturn("skill/rift/rift-access");
+    AdaptationHost host = hosts.adaptation(adaptation);
+    when(window.getTag()).thenReturn("skill/adapt:rift|adapt:rift/access");
 
     refresh();
 
-    verify(adaptation).openGui(player);
+    verify(host).openGui(player);
   }
 
   private Skill<?> skill(String name) {
@@ -128,6 +139,8 @@ class ConfigHotloadGuiRefreshTest extends AdaptTestBase {
     when(skill.isEnabled()).thenReturn(true);
     SkillRegistry registry = mock(SkillRegistry.class);
     doReturn(skill).when(registry).getSkill(name);
+    lenient().doReturn(skill).when(registry).getSkill(Id.parseAdapt(name).toString());
+    lenient().doReturn(skill).when(registry).getSkill(Id.parseAdapt(name));
     AdaptServer server = mock(AdaptServer.class);
     when(server.getSkillRegistry()).thenReturn(registry);
     doReturn(server).when(core).getAdaptServer();
@@ -137,7 +150,7 @@ class ConfigHotloadGuiRefreshTest extends AdaptTestBase {
   private void refresh() throws Exception {
     Method refresh = ConfigHotload.class.getDeclaredMethod("refreshOpenAdaptGuis");
     refresh.setAccessible(true);
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(() -> Tasks.s(any(Runnable.class))).thenAnswer(invocation -> {
         invocation.<Runnable>getArgument(0).run();
         return null;

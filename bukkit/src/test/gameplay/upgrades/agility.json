@@ -2,24 +2,24 @@
   "skill": "agility",
   "upgrades": [
     {
-      "name": "upgraded-agility-slipstream",
+      "name": "adapt:agility/upgrade/slipstream",
       "class": "Slipstream",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Slipstream.java",
-      "fuses": ["agility-wind-up", "agility-slipstream-slide", "agility-marathoner"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Slipstream.java",
+      "fuses": ["adapt:agility/wind_up", "adapt:agility/slipstream_slide", "adapt:agility/marathoner"],
       "triggers": ["PlayerMoveEvent", "PlayerToggleSprintEvent", "PlayerToggleSneakEvent", "EntityExhaustionEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerTeleportEvent"]
     },
     {
-      "name": "upgraded-agility-skyrunner",
+      "name": "adapt:agility/upgrade/skyrunner",
       "class": "Skyrunner",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Skyrunner.java",
-      "fuses": ["agility-wall-jump", "agility-super-jump", "agility-air-dash"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Skyrunner.java",
+      "fuses": ["adapt:agility/wall_jump", "adapt:agility/super_jump", "adapt:agility/air_dash"],
       "triggers": ["PlayerMoveEvent", "PlayerToggleSneakEvent", "PlayerJumpEvent", "PlayerInteractEvent", "PlayerQuitEvent", "PlayerDeathEvent", "PlayerGameModeChangeEvent"]
     },
     {
-      "name": "upgraded-agility-untouchable",
+      "name": "adapt:agility/upgrade/untouchable",
       "class": "Untouchable",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Untouchable.java",
-      "fuses": ["agility-cat-reflexes", "agility-roll-landing", "agility-kip-up"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/agility/upgraded/Untouchable.java",
+      "fuses": ["adapt:agility/cat_reflexes", "adapt:agility/roll_landing", "adapt:agility/kip_up"],
       "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent", "PlayerMoveEvent", "PlayerQuitEvent"]
     }
   ]

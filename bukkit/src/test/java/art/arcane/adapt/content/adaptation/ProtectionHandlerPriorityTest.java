@@ -1,10 +1,10 @@
 package art.arcane.adapt.content.adaptation;
 
+import art.arcane.adapt.api.content.ReceiveCancelledEvents;
 import art.arcane.adapt.content.adaptation.architect.ArchitectPlacement;
 import art.arcane.adapt.content.adaptation.architect.ArchitectWirelessRedstone;
 import art.arcane.adapt.content.adaptation.crafting.CraftingDeconstruction;
 import art.arcane.adapt.content.adaptation.seaborrne.SeaborneCoralGardener;
-import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.platform.event.Handle;
 import org.junit.jupiter.api.Test;
 

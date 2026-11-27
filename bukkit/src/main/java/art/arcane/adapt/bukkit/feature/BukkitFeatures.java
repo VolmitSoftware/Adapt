@@ -1,12 +1,11 @@
 package art.arcane.adapt.bukkit.feature;
 
+
 import art.arcane.adapt.client.server.ClientUiService;
 import art.arcane.adapt.client.server.panel.ClientAwareMenuHost;
 import art.arcane.adapt.client.server.panel.PanelLink;
-import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.AdaptationRequirements;
-import art.arcane.adapt.api.protection.Protector;
-import art.arcane.adapt.api.protection.ProtectorRegistry;
+
+import art.arcane.adapt.api.AdaptApi;
 import art.arcane.adapt.bukkit.feature.advancement.BukkitAdvancementHost;
 import art.arcane.adapt.bukkit.feature.ai.BukkitGoals;
 import art.arcane.adapt.bukkit.feature.display.BukkitDisplays;
@@ -20,15 +19,14 @@ import art.arcane.adapt.bukkit.platform.BukkitHosts;
 import art.arcane.adapt.bukkit.platform.BukkitLog;
 import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.platform.PlatformLog;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.nativelib.entity.EntityGlow;
 import art.arcane.volmlib.nativelib.entity.VirtualPlayerAccess;
 import art.arcane.volmlib.nativelib.entity.VirtualPlayers;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -50,16 +48,13 @@ public final class BukkitFeatures {
         (Player player, Runnable task, int delayTicks) -> J.runEntity(player, task, delayTicks), log);
     BukkitHosts.advancements(advancements);
     BukkitHosts.viewers(new BukkitViewerHost(plugin, glow, glowLock, virtualPlayers(plugin), log));
-    BukkitHosts.protection(new BukkitProtectionHost(AdaptationRequirements::find, BukkitFeatures::defaultProtectors));
+    BukkitHosts.protection(new BukkitProtectionHost());
     BukkitHosts.displays(new BukkitDisplays());
-    BukkitHosts.goals(new BukkitGoals(Bukkit.getMobGoals()));
+    if (PaperApi.isPaper()) {
+      BukkitHosts.goals(BukkitGoals.server());
+    }
     BukkitHosts.onStopping(() -> BukkitHosts.menus().closeAll());
     BukkitHosts.onStopping(advancements::shutdown);
-  }
-
-  private static List<Protector> defaultProtectors() {
-    ProtectorRegistry registry = Adapt.instance == null ? null : Adapt.instance.getProtectorRegistry();
-    return registry == null ? List.of() : registry.getDefaultProtectors();
   }
 
   private static Supplier<VirtualPlayers> virtualPlayers(JavaPlugin plugin) {

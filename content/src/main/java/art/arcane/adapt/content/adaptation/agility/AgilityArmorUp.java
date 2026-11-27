@@ -1,0 +1,407 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.agility;
+
+import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.attribute.Attributes;
+import art.arcane.adapt.api.config.ConfigDescription;
+import art.arcane.adapt.api.config.ConfigDoc;
+import art.arcane.adapt.api.content.AdaptationConfig;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.StatLines;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.Particles;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.player.PlayerProfile;
+import art.arcane.adapt.api.text.Format;
+import art.arcane.adapt.api.text.TextFormat;
+import art.arcane.adapt.platform.advancement.AdvancementFrame;
+import art.arcane.adapt.platform.advancement.AdvancementVisibility;
+import art.arcane.adapt.platform.entity.AttributeOperation;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.event.EventPriority;
+import art.arcane.adapt.platform.event.Handle;
+import art.arcane.adapt.platform.event.player.PlayerDeathEvent;
+import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
+import art.arcane.adapt.platform.event.player.PlayerMoveEvent;
+import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.platform.event.player.PlayerToggleSneakEvent;
+import art.arcane.adapt.platform.event.player.PlayerToggleSprintEvent;
+import art.arcane.adapt.platform.value.Id;
+
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import java.util.concurrent.ThreadLocalRandom;
+public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
+  public static final Id ID = Id.adapt("agility/armor_up");
+  private static final int DECAY_BATCH_SIZE = 128;
+  private static final String SLOT_PLATING = "plating";
+  static final UUID LEGACY_MODIFIER = UUID.nameUUIDFromBytes("adapt-armor-up".getBytes());
+  static final Id LEGACY_MODIFIER_KEY = Id.parse("adapt:armor-up");
+  private static final Id LEGACY_UUID_MODIFIER_KEY = Id.minecraft(LEGACY_MODIFIER.toString());
+  private final Map<UUID, RuntimeState> states = playerState();
+  private final Queue<UUID> decayQueue = new ConcurrentLinkedQueue<>();
+  private final Set<UUID> queuedDecay = ConcurrentHashMap.newKeySet();
+
+  public AgilityArmorUp() {
+    super(ID);
+    registerConfiguration(Config.class);
+    setIcon(Id.minecraft("iron_chestplate"));
+    setInterval(50);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Id.minecraft("iron_chestplate"))
+        .key("challenge_agility_armor_up_30min")
+        .frame(AdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerMilestone("challenge_agility_armor_up_30min", "agility.armor-up.ticks-armored", 36000, 500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(PlayerProfile player) {
+    clearAndRemoveState(player.player());
+    AdaptAttributeService.get().remove(player.player(), getId().toString(), SLOT_PLATING, Attributes.ARMOR);
+  }
+
+  @Override
+  public void addStats(int level, StatLines v) {
+    statLore(v, Format.f(getWindupArmor(getLevelPercent(level)) * 10, 1), 1);
+    statLore(v, TextFormat.YELLOW, "* ", Format.duration(getWindupTicks(getLevelPercent(level)) * 50D, 1), 2);
+    statLore(v, TextFormat.YELLOW, "* ", Format.duration(getDecaySeconds(getLevelPercent(level)) * 1000D, 1), 3);
+  }
+
+  @Handle
+  public void on(PlayerJoinEvent e) {
+    purgeLegacyModifier(e.player());
+  }
+
+  @Handle
+  public void on(PlayerQuitEvent e) {
+    clearAndRemoveState(e.player());
+  }
+
+  @Handle
+  public void on(PlayerDeathEvent e) {
+    clearAndRemoveState(e.player());
+  }
+
+  @Handle(priority = EventPriority.MONITOR)
+  public void on(PlayerMoveEvent e) {
+    updatePlayer(e.player(), null, null);
+  }
+
+  @Handle
+  public void on(PlayerToggleSprintEvent e) {
+    updatePlayer(e.player(), e.isSprinting(), null);
+  }
+
+  @Handle
+  public void on(PlayerToggleSneakEvent e) {
+    if (e.isSneaking()) {
+      updatePlayer(e.player(), null, true);
+    }
+  }
+
+  @Override
+  public boolean hasTickDemand() {
+    return !queuedDecay.isEmpty() || !decayQueue.isEmpty();
+  }
+
+  @Override
+  public void onTick() {
+    int attempts = Math.min(DECAY_BATCH_SIZE, queuedDecay.size());
+    for (int i = 0; i < attempts; i++) {
+      UUID id = decayQueue.poll();
+      if (id == null) {
+        break;
+      }
+      queuedDecay.remove(id);
+      RuntimeState state = states.get(id);
+      if (state == null || !state.decaying) {
+        continue;
+      }
+      PlayerRef p = AdaptApi.platform().host().player(id);
+      if (p == null || !p.isOnline()) {
+        states.remove(id, state);
+        continue;
+      }
+      withPlayerThread(p, () -> {
+        updatePlayer(p, null, null);
+        RuntimeState current = states.get(id);
+        if (current != null && current.decaying) {
+          queueDecay(id, current);
+        }
+      });
+      RuntimeState current = states.get(id);
+      if (current != null && current.decaying) {
+        queueDecay(id, current);
+      }
+    }
+  }
+
+  private double getWindupTicks(double factor) {
+    return (getConfig().windupTicksSlowest + factor * (getConfig().windupTicksFastest - getConfig().windupTicksSlowest));
+  }
+
+  private double getWindupArmor(double factor) {
+    return getConfig().windupArmorBase + (factor * getConfig().windupArmorLevelMultiplier);
+  }
+
+  private double getDecaySeconds(double factor) {
+    return getConfig().decaySecondsBase + (factor * getConfig().decaySecondsMaxLevelBonus);
+  }
+
+  private void updatePlayer(PlayerRef p, Boolean sprintingOverride, Boolean sneakingOverride) {
+    if (p == null || !p.isOnline()) {
+      return;
+    }
+
+    boolean sprinting = sprintingOverride == null ? p.isSprinting() : sprintingOverride;
+    if (!sprinting && states.isEmpty()) {
+      return;
+    }
+
+    UUID id = p.uuid();
+    RuntimeState state = states.get(id);
+    if (state == null && !sprinting) {
+      return;
+    }
+    boolean sneaking = sneakingOverride == null ? p.isSneaking() : sneakingOverride;
+    boolean platingActive = isPlatingActive(p, sprinting, sneaking);
+    if (!platingActive && state == null) {
+      return;
+    }
+
+    double factor = getLevelPercent(p);
+    if (platingActive) {
+      if (state == null) {
+        state = new RuntimeState();
+        states.put(id, state);
+        purgeLegacyModifier(p);
+      }
+      double elapsedTicks = updateElapsedTicks(state);
+      buildPlating(p, state, factor, elapsedTicks);
+      if (queuedDecay.remove(id)) {
+        decayQueue.remove(id);
+      }
+      return;
+    }
+
+    double elapsedTicks = updateElapsedTicks(state);
+    decayPlating(p, state, factor, elapsedTicks);
+    if (state.plating <= 0D) {
+      states.remove(id, state);
+      if (queuedDecay.remove(id)) {
+        decayQueue.remove(id);
+      }
+      return;
+    }
+    queueDecay(id, state);
+  }
+
+  private boolean isPlatingActive(PlayerRef p, boolean sprinting, boolean sneaking) {
+    if (!hasActiveAdaptation(p)) {
+      return false;
+    }
+    if (p.isSwimming() || p.isFlying() || p.isGliding() || sneaking) {
+      return false;
+    }
+    return sprinting;
+  }
+
+  private void buildPlating(PlayerRef p, RuntimeState state, double factor, double elapsedTicks) {
+    state.decaying = false;
+    double ticksToMax = Math.max(1D, getWindupTicks(factor));
+    state.plating = Math.min(1.0D, state.plating + (elapsedTicks / ticksToMax));
+    emitPlatingFeedback(p, state, state.plating);
+    double armorInc = getWindupArmor(factor) * state.plating;
+    AdaptAttributeService.get().apply(p, getId().toString(), SLOT_PLATING, Attributes.ARMOR, armorInc * 10, AttributeOperation.ADD_VALUE);
+    if (elapsedTicks > 0D) {
+      addStat(p, "agility.armor-up.ticks-armored", elapsedTicks);
+    }
+  }
+
+  private void decayPlating(PlayerRef p, RuntimeState state, double factor, double elapsedTicks) {
+    if (state.plating <= 0D) {
+      AdaptAttributeService.get().remove(p, getId().toString(), SLOT_PLATING, Attributes.ARMOR);
+      return;
+    }
+
+    if (!state.decaying) {
+      state.decaying = true;
+      double decayTicks = Math.max(1D, getDecaySeconds(factor) * 20D);
+      state.decayPerTick = state.plating / decayTicks;
+    }
+
+    state.plating = Math.max(0D, state.plating - (state.decayPerTick * elapsedTicks));
+    if (state.plating <= 0D) {
+      completeDecay(p, state);
+      return;
+    }
+
+    double armorInc = getWindupArmor(factor) * state.plating;
+    AdaptAttributeService.get().apply(p, getId().toString(), SLOT_PLATING, Attributes.ARMOR, armorInc * 10, AttributeOperation.ADD_VALUE);
+    emitDecayShimmer(p);
+  }
+
+  private void completeDecay(PlayerRef p, RuntimeState state) {
+    state.plating = 0D;
+    state.decaying = false;
+    state.lastBracket = 0;
+    state.fullyArmored = false;
+    AdaptAttributeService.get().remove(p, getId().toString(), SLOT_PLATING, Attributes.ARMOR);
+    fx(p.location(), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.1D)
+        .sound(Sounds.ITEM_ARMOR_EQUIP_LEATHER, 0.3F, 0.5F);
+  }
+
+  private void emitPlatingFeedback(PlayerRef p, RuntimeState state, double progress) {
+    if (progress >= 1.0D && (ThreadLocalRandom.current().nextDouble() < 0.2)) {
+      fx(p.location(), FxPriority.AMBIENT).particle(Particles.END_ROD, 1, 0, 0.1D, 0, 0.05D, 0);
+    }
+
+    int bracket = (int) Math.floor(progress / 0.25D);
+    if (bracket <= state.lastBracket) {
+      return;
+    }
+
+    state.lastBracket = bracket;
+    if (progress >= 1.0D) {
+      if (state.fullyArmored) {
+        return;
+      }
+
+      state.fullyArmored = true;
+      fx(p, FxPriority.GAMEPLAY)
+          .dome(Particles.WAX_ON, 0.8D, 10)
+          .chord(Sounds.BLOCK_ANVIL_LAND, 0.25F, 1.6F, Sounds.ITEM_ARMOR_EQUIP_NETHERITE, 0.4F, 1.0F);
+      return;
+    }
+
+    if (bracket < 1) {
+      return;
+    }
+
+    float pitch = switch (bracket) {
+      case 1 -> 0.8F;
+      case 2 -> 1.0F;
+      default -> 1.3F;
+    };
+    fx(p, FxPriority.GAMEPLAY)
+        .helix(Particles.END_ROD, 0.6D, 1.4D, 6, 0)
+        .sound(Sounds.ITEM_ARMOR_EQUIP_IRON, 0.4F, pitch);
+  }
+
+  private void emitDecayShimmer(PlayerRef p) {
+    if (!(ThreadLocalRandom.current().nextDouble() < 0.1)) {
+      return;
+    }
+
+    fx(p.location(), FxPriority.AMBIENT).particle(Particles.END_ROD, 1, 0, 0.1D, 0, 0.02D, 0);
+  }
+
+  private void clearAndRemoveState(PlayerRef p) {
+    if (p == null) {
+      return;
+    }
+
+    states.remove(p.uuid());
+    if (queuedDecay.remove(p.uuid())) {
+      decayQueue.remove(p.uuid());
+    }
+  }
+
+  private void queueDecay(UUID id, RuntimeState state) {
+    if (state.decaying && state.plating > 0D && queuedDecay.add(id)) {
+      decayQueue.add(id);
+    }
+  }
+
+  private double updateElapsedTicks(RuntimeState state) {
+    long now = System.currentTimeMillis();
+    double elapsed = elapsedTicks(state.lastUpdateAt, now);
+    state.lastUpdateAt = now;
+    return elapsed;
+  }
+
+  static double elapsedTicks(long previousUpdateAt, long now) {
+    if (previousUpdateAt <= 0L) {
+      return 1D;
+    }
+    if (now <= previousUpdateAt) {
+      return 0D;
+    }
+    return Math.min(20D, (now - previousUpdateAt) / 50D);
+  }
+
+  private void purgeLegacyModifier(PlayerRef p) {
+    if (p == null) {
+      return;
+    }
+
+    withPlayerThread(p, () -> {
+      if (!p.hasAttribute(Attributes.ARMOR)) {
+        return;
+      }
+
+      p.removeModifier(Attributes.ARMOR, LEGACY_MODIFIER_KEY);
+      p.removeModifier(Attributes.ARMOR, LEGACY_UUID_MODIFIER_KEY);
+    });
+  }
+
+
+  @ConfigDescription("Gain more armor the longer you sprint.")
+  protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Controls Windup Ticks Slowest for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double windupTicksSlowest = 180;
+    @ConfigDoc(value = "Controls Windup Ticks Fastest for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double windupTicksFastest = 60;
+    @ConfigDoc(value = "Controls Windup Armor Base for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double windupArmorBase = 0.22;
+    @ConfigDoc(value = "Controls Windup Armor Level Multiplier for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double windupArmorLevelMultiplier = 0.525;
+    @ConfigDoc(value = "Controls Decay Seconds Base for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double decaySecondsBase = 5.0;
+    @ConfigDoc(value = "Controls Decay Seconds Max Level Bonus for the Agility Armor Up adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double decaySecondsMaxLevelBonus = 5.0;
+
+    public Config() {
+      baseCost = 2;
+      costFactor = 0.5;
+      initialCost = 1;
+    }
+  }
+
+  private static class RuntimeState {
+    private long lastUpdateAt;
+    private volatile double plating;
+    private int lastBracket;
+    private boolean fullyArmored;
+    private volatile boolean decaying;
+    private double decayPerTick;
+  }
+
+}

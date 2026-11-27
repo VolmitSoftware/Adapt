@@ -3,6 +3,7 @@ package art.arcane.adapt.client.protocol;
 import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.platform.menu.ClickKind;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Frames the client sends on {@link ClientProtocol#CHANNEL}. The server validates every one; the client decides nothing. */
@@ -91,5 +92,15 @@ public sealed interface ClientFrame {
 
   /** The jump key went down or up, for servers before 1.21.2 that receive no player input packet. */
   record JumpKey(boolean down) implements ClientFrame {
+  }
+
+  /**
+   * The files of the last {@link ServerFrame.AssetManifest} this client lacks, at most
+   * {@link FrameLimits#MAX_ASSET_REQUEST} per frame; only under {@link ClientProtocol#ASSETS}.
+   */
+  record AssetRequest(List<String> resources) implements ClientFrame {
+    public AssetRequest {
+      resources = List.copyOf(resources);
+    }
   }
 }

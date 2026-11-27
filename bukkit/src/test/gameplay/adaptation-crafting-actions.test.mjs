@@ -22,7 +22,7 @@ test('Deconstruction sends a real floor interaction while preserving the item ey
         blockAt: position => ({ name: 'stone', position: point(Math.floor(position.x), Math.floor(position.y), Math.floor(position.z)) }),
         activateItem() { assert.fail('Item-only use falsely denies the floor interaction on Paper') },
     }
-    await craftingBehaviorCases.get('crafting-deconstruction').trigger({
+    await craftingBehaviorCases.get('adapt:crafting/deconstruction').trigger({
         actor: { bot }, snapshot: async () => snapshot,
         context: { expect: (condition, message) => assert.ok(condition, message),
             waitUntil: async predicate => assert.ok(predicate()) },

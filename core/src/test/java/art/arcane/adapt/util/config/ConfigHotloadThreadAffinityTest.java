@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.config;
 
+import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.fx.SoundCategory;
 import art.arcane.adapt.platform.value.Id;
@@ -15,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,7 +29,7 @@ class ConfigHotloadThreadAffinityTest {
     when(player.isOp()).thenReturn(true);
     when(player.location()).thenReturn(location);
 
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks()) {
       scheduling.when(() -> Tasks.runEntity(same(player), any(Runnable.class))).thenAnswer(invocation -> {
         ownerTask.set(invocation.getArgument(1));
         return true;

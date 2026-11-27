@@ -1,0 +1,14 @@
+name: AdaptGeology
+main: com.example.geology.bukkit.GeologyPlugin
+version: '${version}'
+api-version: '1.21'
+depend: [Adapt]
+folia-supported: true
+commands:
+  adaptgeology:
+    description: Install, uninstall or inspect the Geology addon.
+    usage: /adaptgeology <state|install|uninstall>
+    permission: adaptgeology.admin
+permissions:
+  adaptgeology.admin:
+    default: op

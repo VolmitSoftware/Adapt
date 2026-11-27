@@ -1,5 +1,7 @@
 package art.arcane.adapt.util.config;
 
+import art.arcane.adapt.api.config.ConfigAdvanced;
+import art.arcane.adapt.api.config.ConfigDoc;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;

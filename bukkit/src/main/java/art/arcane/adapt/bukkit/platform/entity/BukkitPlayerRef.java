@@ -17,6 +17,7 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Vec3;
 import art.arcane.adapt.platform.world.BlockRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.volmlib.util.plugin.ComponentMessenger;
@@ -287,7 +288,7 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
     if (merchant.getMerchant() instanceof Entity trader) {
       return BukkitRefs.entity(trader);
     }
-    return merchant.getHolder(false) instanceof Entity holder ? BukkitRefs.entity(holder) : null;
+    return PaperApi.holder(merchant) instanceof Entity holder ? BukkitRefs.entity(holder) : null;
   }
 
   @Override
@@ -318,11 +319,11 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public Optional<BlockRef> openContainerBlock() {
-    InventoryHolder holder = player().getOpenInventory().getTopInventory().getHolder(false);
+    InventoryHolder holder = PaperApi.holder(player().getOpenInventory().getTopInventory());
     if (holder instanceof BlockInventoryHolder blockHolder) {
       return Optional.of(BukkitRefs.block(blockHolder.getBlock()));
     }
-    if (holder instanceof DoubleChest chest && chest.getLeftSide(false) instanceof BlockInventoryHolder left) {
+    if (holder instanceof DoubleChest chest && PaperApi.leftSide(chest) instanceof BlockInventoryHolder left) {
       return Optional.of(BukkitRefs.block(left.getBlock()));
     }
     return Optional.empty();
@@ -521,7 +522,7 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
     if (entityClass == null || !Projectile.class.isAssignableFrom(entityClass)) {
       return null;
     }
-    Projectile projectile = player().launchProjectile(entityClass.asSubclass(Projectile.class), null,
+    Projectile projectile = PaperApi.launchProjectile(player(), entityClass.asSubclass(Projectile.class),
         (Projectile launched) -> beforeSpawn.accept(BukkitRefs.projectile(launched)));
     return BukkitRefs.projectile(projectile);
   }

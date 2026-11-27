@@ -17,8 +17,6 @@
 
 import art.arcane.volmit.packaging.PackagingMode
 import io.github.slimjar.resolver.data.Mirror
-import org.gradle.api.artifacts.component.ComponentIdentifier
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.tasks.WriteProperties
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
@@ -32,6 +30,8 @@ plugins {
     id 'com.gradleup.shadow'
     id 'de.crazydev22.slimjar'
 }
+
+evaluationDependsOn(':core')
 
 apply plugin: 'art.arcane.volmit-packaging'
 
@@ -66,6 +66,7 @@ tasks.named('slimJar') {
 }
 ext.adaptRoot = rootDir
 apply from: rootProject.file('gradle/language-source.gradle')
+apply from: rootProject.file('gradle/adapt-assets.gradle')
 Map<String, Object> languageSource = (Map<String, Object>) ext.languageSource
 TaskProvider<WriteProperties> languageSourceManifestTask = (TaskProvider<WriteProperties>) ext.languageSourceManifestTask
 def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
@@ -110,7 +111,7 @@ tasks.named('processResources').configure {
 
 def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
     group = 'verification'
-    description = 'Verifies that locales are absent from the jar and its language source manifest tracks the build branch.'
+    description = 'Verifies that downloaded locales are absent from the jar and its language source manifest tracks the build branch.'
     dependsOn(shadowJarTask)
 
     doLast {
@@ -121,7 +122,9 @@ def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
             Enumeration<? extends ZipEntry> entries = jar.entries()
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement()
-                if (!entry.isDirectory() && entry.name.toLowerCase(Locale.ROOT).endsWith('.toml')) {
+                // The built-in addon's English message bundles ship in the jar; translations are downloaded.
+                boolean builtInEnglish = entry.name.startsWith('adapt/lang/') && entry.name.endsWith('/en_US.toml')
+                if (!entry.isDirectory() && entry.name.toLowerCase(Locale.ROOT).endsWith('.toml') && !builtInEnglish) {
                     embeddedLocales.add(entry.name)
                 }
             }
@@ -155,6 +158,7 @@ def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
 
 dependencies {
     api(project(':core'))
+    implementation(project(':content'))
     implementation('com.github.VolmitSoftware.VolmLib:native-api:master-SNAPSHOT') {
         transitive = false
     }
@@ -239,6 +243,7 @@ dependencies {
         transitive = false
     }
     testImplementation(testFixtures(project(':core')))
+    testImplementation(rootProject.project(':core').sourceSets.test.output)
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
@@ -251,7 +256,17 @@ dependencies {
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
+def spigotApiConfiguration = configurations.create('spigotApi') {
+    transitive = false
+}
+dependencies {
+    spigotApi('org.spigotmc:spigot-api:26.3-R0.1-SNAPSHOT')
+}
+
 tasks.named('test', Test) {
+    FileCollection spigotApiJar = spigotApiConfiguration
+    inputs.files(spigotApiJar).withPropertyName('spigotApi').withNormalizer(ClasspathNormalizer)
+    jvmArgumentProviders.add({ ["-Dadapt.spigotApi=${spigotApiJar.singleFile.path}".toString()] } as CommandLineArgumentProvider)
     inputs.files(fileTree(rootProject.file('../docs/adapt')))
             .withPropertyName('skillDocumentation')
             .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -327,6 +342,8 @@ shadowJarTask.configure {
         exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))
         exclude(dependency('com.github.VolmitSoftware.VolmLib:.*:.*'))
         exclude(project(':core'))
+        exclude(project(':content'))
+        exclude(project(':api'))
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude('net/kyori/**')
@@ -420,122 +437,6 @@ tasks.named('check').configure {
 
 tasks.named('check').configure {
     dependsOn(verifyLanguagePackagingTask)
-}
-
-// Plugins built against the pre-port API link against Bukkit-typed members that core cannot declare: weaveApiBridges
-// copies the @ApiBridge methods of art.arcane.adapt.bukkit.compat into the core classes of this jar only (mods never).
-sourceSets {
-    apiCompat
-    apiCompatSample
-    apiCompatTest {
-        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
-    }
-}
-
-configurations {
-    apiCompatCore {
-        canBeConsumed = false
-        transitive = false
-    }
-}
-
-File apiBaselineFile = file('api-baseline.txt')
-File wovenCoreJar = layout.buildDirectory.file('tmp/apiCompat/core-bukkit.jar').get().asFile
-File apiStubJarFile = layout.buildDirectory.file('tmp/apiCompat/pre-port-api.jar').get().asFile
-File apiCompatibilityReport = layout.buildDirectory.file('reports/api-compatibility.tsv').get().asFile
-
-def weaveApiBridges = tasks.register('weaveApiBridges', JavaExec) {
-    group = 'build'
-    description = 'Adds the pre-port Bukkit-typed API bridges to the core classes packed into the plugin jar.'
-    dependsOn(tasks.named('compileJava'))
-    inputs.files(configurations.apiCompatCore).withPathSensitivity(PathSensitivity.NONE)
-    inputs.files(sourceSets.main.java.classesDirectory).withPathSensitivity(PathSensitivity.RELATIVE)
-    outputs.file(wovenCoreJar)
-    classpath = sourceSets.apiCompat.runtimeClasspath
-    mainClass = 'art.arcane.adapt.apicompat.ApiBridgeWeaver'
-    argumentProviders.add({
-        [configurations.apiCompatCore.singleFile.path, sourceSets.main.java.classesDirectory.get().asFile.path,
-         wovenCoreJar.path]
-    } as CommandLineArgumentProvider)
-}
-
-def apiCompatStubJar = tasks.register('apiCompatStubJar', JavaExec) {
-    group = 'verification'
-    description = 'Writes a compile-only jar with exactly the pre-port API surface from api-baseline.txt.'
-    inputs.file(apiBaselineFile).withPathSensitivity(PathSensitivity.NONE)
-    outputs.file(apiStubJarFile)
-    classpath = sourceSets.apiCompat.runtimeClasspath
-    mainClass = 'art.arcane.adapt.apicompat.ApiStubJar'
-    args(apiBaselineFile.path, apiStubJarFile.path)
-}
-
-dependencies {
-    apiCompatCore(project(':core'))
-    apiCompatImplementation('org.ow2.asm:asm-tree:9.10.1')
-    apiCompatSampleCompileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
-    apiCompatSampleCompileOnly(files(apiStubJarFile) { builtBy(apiCompatStubJar) })
-    apiCompatTestImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
-    apiCompatTestImplementation('org.mockito:mockito-core:5.14.2')
-    apiCompatTestImplementation('org.ow2.asm:asm-tree:9.10.1')
-    apiCompatTestImplementation("io.papermc.paper:paper-api:${paperDevBundleVersion}")
-    apiCompatTestRuntimeOnly('org.junit.platform:junit-platform-launcher')
-}
-
-shadowJarTask.configure {
-    dependsOn(weaveApiBridges)
-    dependencies {
-        exclude(project(':core'))
-    }
-    from({ zipTree(wovenCoreJar) }) {
-        exclude('META-INF/MANIFEST.MF')
-    }
-}
-
-def verifyPublicApiCompatibility = tasks.register('verifyPublicApiCompatibility', JavaExec) {
-    group = 'verification'
-    description = 'Fails when a pre-port public API member in api-baseline.txt does not link against the built plugin jar.'
-    dependsOn(shadowJarTask)
-    inputs.file(apiBaselineFile).withPathSensitivity(PathSensitivity.NONE)
-    inputs.files(shadowJarTask.flatMap { it.archiveFile }).withPathSensitivity(PathSensitivity.NONE)
-    outputs.file(apiCompatibilityReport)
-    classpath = sourceSets.apiCompat.runtimeClasspath
-    mainClass = 'art.arcane.adapt.apicompat.ApiCompatibilityCheck'
-    argumentProviders.add({
-        [apiBaselineFile.path, shadowJarTask.get().archiveFile.get().asFile.path, apiCompatibilityReport.path]
-    } as CommandLineArgumentProvider)
-}
-
-FileCollection pluginRuntimeLibraries = configurations.runtimeClasspath.incoming.artifactView {
-    componentFilter { ComponentIdentifier component -> !(component instanceof ProjectComponentIdentifier) }
-}.files + configurations.slim + configurations.slimApi
-
-def apiCompatTestTask = tasks.register('apiCompatTest', Test) {
-    group = 'verification'
-    description = 'Loads a sample plugin compiled against the pre-port API against the built plugin jar.'
-    dependsOn(shadowJarTask, tasks.named('apiCompatSampleClasses'))
-    testClassesDirs = sourceSets.apiCompatTest.output.classesDirs
-    classpath = sourceSets.apiCompatTest.runtimeClasspath + files(shadowJarTask.flatMap { it.archiveFile }) + pluginRuntimeLibraries
-    systemProperty('adapt.apicompat.sample', sourceSets.apiCompatSample.output.classesDirs.asPath)
-    jvmArgs('-Dnet.bytebuddy.experimental=true')
-    useJUnitPlatform()
-    testLogging {
-        events('failed')
-        exceptionFormat = 'full'
-    }
-}
-
-tasks.register('generateApiBaseline', JavaExec) {
-    group = 'verification'
-    description = 'Rewrites api-baseline.txt from the pre-port runtime jar: -PprePortRuntimeJar=<extracted runtime.jar>.'
-    classpath = sourceSets.apiCompat.runtimeClasspath
-    mainClass = 'art.arcane.adapt.apicompat.ApiBaselineWriter'
-    argumentProviders.add({
-        [providers.gradleProperty('prePortRuntimeJar').get(), file('api-scope.txt').path, apiBaselineFile.path]
-    } as CommandLineArgumentProvider)
-}
-
-tasks.named('check').configure {
-    dependsOn(verifyPublicApiCompatibility, apiCompatTestTask)
 }
 
 pluginPackaging {

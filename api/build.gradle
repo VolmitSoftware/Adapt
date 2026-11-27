@@ -1,0 +1,138 @@
+import me.champeau.gradle.japicmp.JapicmpTask
+import org.gradle.api.tasks.compile.JavaCompile
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    alias(libs.plugins.japicmp)
+}
+
+group = 'art.arcane.adapt'
+version = '1.0.0'
+base.archivesName.set('adapt-api')
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.named('compileJava', JavaCompile) {
+    options.release.set(17)
+}
+
+dependencies {
+    compileOnly('org.jetbrains:annotations:26.0.2-1')
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
+    testImplementation('org.assertj:assertj-core:3.26.3')
+    testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    testLogging {
+        events('failed')
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.named('javadoc', Javadoc) {
+    options.encoding = 'UTF-8'
+    ((StandardJavadocDocletOptions) options).addStringOption('Xdoclint:all,-missing', '-quiet')
+}
+
+publishing {
+    publications {
+        create('maven', MavenPublication) {
+            artifactId = 'adapt-api'
+            from(components.java)
+        }
+    }
+}
+
+FileTree apiSources = fileTree('src/main/java') { include('**/*.java') }
+def verifyApiPurity = tasks.register('verifyApiPurity') {
+    group = 'verification'
+    description = 'Fails when API sources reference VolmLib, Lombok, Adventure, Gson, Bukkit, Minecraft or Adapt packages outside this project.'
+    inputs.files(apiSources).withPathSensitivity(PathSensitivity.RELATIVE)
+    File report = layout.buildDirectory.file('reports/api-purity.txt').get().asFile
+    outputs.file(report)
+
+    doLast {
+        Pattern forbidden = Pattern.compile('\\b(?:art\\.arcane\\.volmlib|lombok|net\\.kyori|com\\.google\\.gson|org\\.bukkit|net\\.minecraft)\\b')
+        Pattern adaptReference = Pattern.compile('\\bart\\.arcane\\.adapt(?:\\.[a-z_][a-z0-9_]*)*')
+        Pattern packageDeclaration = Pattern.compile('^package\\s+([a-z0-9_.]+)\\s*;')
+        List<File> sources = apiSources.files.sort { File source -> source.path }
+        Set<String> apiPackages = new HashSet<>()
+        sources.each { File source ->
+            for (String line : source.readLines('UTF-8')) {
+                Matcher declaration = packageDeclaration.matcher(line)
+                if (declaration.find()) {
+                    apiPackages.add(declaration.group(1))
+                    break
+                }
+            }
+        }
+        List<String> violations = []
+        sources.each { File source ->
+            source.readLines('UTF-8').eachWithIndex { String line, int index ->
+                String location = "${projectDir.toPath().relativize(source.toPath())}:${index + 1}"
+                Matcher matcher = forbidden.matcher(line)
+                if (matcher.find()) {
+                    violations.add("${location}: ${matcher.group()}".toString())
+                }
+                Matcher adapt = adaptReference.matcher(line)
+                while (adapt.find()) {
+                    if (!apiPackages.contains(adapt.group())) {
+                        violations.add("${location}: ${adapt.group()}".toString())
+                    }
+                }
+            }
+        }
+        report.parentFile.mkdirs()
+        report.setText(violations.join('\n'), 'UTF-8')
+        if (!violations.isEmpty()) {
+            throw new GradleException("API sources reference packages outside the API:\n${violations.join('\n')}")
+        }
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyApiPurity)
+}
+
+String apiBaselineVersion = providers.gradleProperty('apiBaselineVersion').orNull
+if (apiBaselineVersion != null) {
+    repositories {
+        exclusiveContent {
+            forRepository { mavenLocal() }
+            filter { includeModule('art.arcane.adapt', 'adapt-api') }
+        }
+    }
+
+    Configuration apiBaseline = configurations.create('apiBaseline') {
+        canBeConsumed = false
+        transitive = false
+    }
+    dependencies.add(apiBaseline.name, "art.arcane.adapt:adapt-api:${apiBaselineVersion}")
+
+    def apiCompatibility = tasks.register('apiCompatibility', JapicmpTask) {
+        group = 'verification'
+        description = "Fails on binary-incompatible API changes against adapt-api ${apiBaselineVersion} from mavenLocal; -Dmaven.repo.local picks the repository directory."
+        oldClasspath.from(apiBaseline)
+        newClasspath.from(tasks.named('jar'))
+        onlyBinaryIncompatibleModified = true
+        failOnModification = true
+        accessModifier = 'protected'
+        annotationExcludes = ['@org.jetbrains.annotations.ApiStatus$Internal', '@org.jetbrains.annotations.ApiStatus$Experimental']
+        packageExcludes = ['*.internal', '*.internal.*']
+        txtOutputFile = layout.buildDirectory.file('reports/api-compatibility.txt')
+    }
+
+    tasks.named('check').configure {
+        dependsOn(apiCompatibility)
+    }
+}

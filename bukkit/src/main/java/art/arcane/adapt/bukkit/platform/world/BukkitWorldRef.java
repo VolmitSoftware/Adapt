@@ -32,6 +32,7 @@ import art.arcane.adapt.platform.world.Environment;
 import art.arcane.adapt.platform.world.GeneratedStructure;
 import art.arcane.adapt.platform.world.RayHit;
 import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.volmlib.nativelib.chunk.ChunkPosition;
 import art.arcane.volmlib.nativelib.chunk.GeneratedChunkStructures;
@@ -50,7 +51,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
@@ -70,7 +70,6 @@ import java.util.function.Predicate;
 /** World handle. Equality is by Bukkit world UID; the handle goes stale when Bukkit unloads the world. */
 public final class BukkitWorldRef implements WorldRef {
   private static final double RAIN_TEMPERATURE = 0.15D;
-  private static volatile boolean unsnapshotTileScan = true;
   private static volatile Optional<GeneratedChunkStructures> structureMetadata;
   private final World world;
   private final UUID uid;
@@ -150,7 +149,7 @@ public final class BukkitWorldRef implements WorldRef {
 
   @Override
   public boolean isDay() {
-    return world.isDayTime();
+    return PaperApi.isDayTime(world);
   }
 
   @Override
@@ -379,7 +378,7 @@ public final class BukkitWorldRef implements WorldRef {
     if (type == null || target == null || !type.isSpawnable()) {
       return null;
     }
-    Entity spawned = world.spawnEntity(target, type, CreatureSpawnEvent.SpawnReason.CUSTOM, (Entity entity) -> {
+    Entity spawned = PaperApi.spawnEntity(world, target, type, (Entity entity) -> {
       if (prepare != null) {
         prepare.accept(BukkitRefs.entity(entity));
       }
@@ -493,7 +492,7 @@ public final class BukkitWorldRef implements WorldRef {
           "generated structure metadata is unsupported on this server"));
     }
     GeneratedChunkStructures metadata = available.get();
-    return world.getChunkAtAsync(chunkX, chunkZ, false, false)
+    return Adapt.platform.getChunkAtAsync(world, chunkX, chunkZ, false, false)
         .thenApply(chunk -> chunk == null ? null : structures(metadata.read(chunk)));
   }
 
@@ -534,14 +533,7 @@ public final class BukkitWorldRef implements WorldRef {
   }
 
   private static Collection<BlockState> tileEntities(Chunk chunk) {
-    if (unsnapshotTileScan) {
-      try {
-        return chunk.getTileEntities((Block block) -> true, false);
-      } catch (NoSuchMethodError absent) {
-        unsnapshotTileScan = false;
-      }
-    }
-    return List.of(chunk.getTileEntities());
+    return PaperApi.tileEntities(chunk);
   }
 
   @Override

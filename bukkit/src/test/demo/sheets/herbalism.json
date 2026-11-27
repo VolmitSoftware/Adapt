@@ -1,5 +1,5 @@
 {
-  "herbalism-bee-shepherd": {
+  "adapt:herbalism/bee_shepherd": {
     "set": "herbalism-apiary", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}, {"verb": "command", "text": "execute at {actor} run fill ~-13 ~ ~-15 ~12 ~ ~-1 minecraft:wheat[age=5] replace minecraft:wheat"}, {"verb": "command", "text": "item replace entity {actor} weapon.mainhand with minecraft:dandelion"}],
     "beats": [
@@ -7,7 +7,7 @@
     ],
     "expect": {"sound": "minecraft:entity.bee.pollinate", "particle": "happy_villager"}, "maxTicks": 300
   },
-  "herbalism-cobweb": {
+  "adapt:herbalism/cobweb": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -153,7 +153,7 @@
     "maxTicks": 459,
     "povCapture": true
   },
-  "herbalism-compost-cascade": {
+  "adapt:herbalism/compost_cascade": {
     "set": "herbalism-compost", "level": 6,
     "pre": ["execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-3 {Item:{id:\"minecraft:wheat_seeds\",count:24}}", "execute at {actor} run summon minecraft:item ~1 ~0.2 ~-3 {Item:{id:\"minecraft:wheat_seeds\",count:24}}", "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-2 {Item:{id:\"minecraft:beetroot_seeds\",count:16}}", "execute at {actor} run summon minecraft:item ~1 ~0.2 ~-2 {Item:{id:\"minecraft:wheat_seeds\",count:16}}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.85, -2.5]}],
@@ -165,7 +165,7 @@
     ],
     "expect": {"sound": "minecraft:block.composter.fill", "particle": "spore_blossom_air"}, "maxTicks": 200
   },
-  "herbalism-drop-to-inventory": {
+  "adapt:herbalism/drop_to_inventory": {
     "set": "herbalism-wheat", "level": 1,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_hoe"],
     "prelude": [{"verb": "lookAt", "offset": [-1.5, 0.5, -1.5]}],
@@ -212,7 +212,7 @@
     ],
     "expect": {"sound": "minecraft:block.note_block.chime", "particle": "happy_villager"}, "maxTicks": 250
   },
-  "herbalism-growth-aura": {
+  "adapt:herbalism/growth_aura": {
     "set": "herbalism-seedlings", "level": 7,
     "pre": ["execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}, {"verb": "command", "text": "execute at {actor} run fill ~-7 ~ ~-11 ~6 ~ ~-1 minecraft:wheat[age=0] replace minecraft:wheat"}],
@@ -221,7 +221,7 @@
     ],
     "expect": {"sound": "minecraft:item.crop.plant", "particle": "happy_villager"}, "maxTicks": 300
   },
-  "herbalism-hippo": {
+  "adapt:herbalism/hippo": {
     "set": "arena", "level": 7,
     "pre": ["effect give {actor} minecraft:hunger 5 255 true", "item replace entity {actor} weapon.mainhand with minecraft:apple 4"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 60}, {"verb": "wait", "ticks": 60}],
@@ -232,7 +232,7 @@
     ],
     "expect": {"sound": "minecraft:block.pointed_dripstone.land", "particle": "composter"}, "maxTicks": 150
   },
-  "herbalism-hungry-shield": {
+  "adapt:herbalism/hungry_shield": {
     "set": "sparring", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
@@ -244,7 +244,7 @@
     "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 240,
     "camera": {"x": 5.0, "y": 1.0, "z": -1.5, "yaw": -92.9, "pitch": 10.2, "follow": true}
   },
-  "herbalism-luck": {
+  "adapt:herbalism/luck": {
     "set": "herbalism-meadow", "level": 7,
     "prelude": [{"verb": "lookAt", "offset": [-1.5, 0.3, -1.5]}],
     "beats": [
@@ -290,7 +290,7 @@
     ],
     "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "wax_on"}, "maxTicks": 354
   },
-  "herbalism-mushroom-blocks": {
+  "adapt:herbalism/mushroom_blocks": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -406,7 +406,7 @@
     "maxTicks": 414,
     "povCapture": true
   },
-  "herbalism-myconid": {
+  "adapt:herbalism/myconid": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -528,7 +528,7 @@
     "maxTicks": 423,
     "povCapture": true
   },
-  "herbalism-replant": {
+  "adapt:herbalism/replant": {
     "set": "herbalism-wheat", "level": 3,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_hoe"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -1.5]}],
@@ -539,7 +539,7 @@
     ],
     "expect": {"sound": "minecraft:item.shovel.flatten", "particle": "composter"}, "maxTicks": 200
   },
-  "herbalism-rooted-footing": {
+  "adapt:herbalism/rooted_footing": {
     "set": "herbalism-ledge", "level": 1,
     "pre": ["execute at {actor} run gamerule fall_damage true", "execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 40}],
@@ -550,7 +550,7 @@
     "expect": {"sound": "minecraft:block.grass.break", "particle": "dust"}, "maxTicks": 150,
     "camera": {"x": 10.0, "y": 4.8, "z": -0.5, "yaw": 90, "pitch": 0}
   },
-  "herbalism-seed-sower": {
+  "adapt:herbalism/seed_sower": {
     "set": "herbalism-farmland", "level": 5,
     "pre": ["execute at {actor} run gamerule random_tick_speed 0", "item replace entity {actor} weapon.mainhand with minecraft:wheat_seeds 64"],
     "prelude": [{"verb": "lookAt", "offset": [-0.5, 0.29, -2.5]}],
@@ -566,7 +566,7 @@
     ],
     "expect": {"sound": "minecraft:item.crop.plant", "particle": "dust"}, "maxTicks": 200
   },
-  "herbalism-spore-bloom": {
+  "adapt:herbalism/spore_bloom": {
     "set": "herbalism-mycelium", "level": 5,
     "pre": ["item replace entity {actor} weapon.mainhand with minecraft:red_mushroom 16"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 0.25, -2.5]}],
@@ -578,7 +578,7 @@
     ],
     "expect": {"sound": "minecraft:block.fungus.place", "particle": "spore_blossom_air"}, "maxTicks": 200
   },
-  "herbalism-terralid": {
+  "adapt:herbalism/terralid": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [

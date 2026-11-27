@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Advancement tabs through UltimateAdvancementAPI, built the way {@code AdaptAdvancement} builds them: one tab per
- * root named {@code adapt_<root key>}, the root grant shows the tab, children follow Adapt's visibility rules. The
+ * root named by {@link AdvancementCatalog#tabName}, the root grant shows the tab, children follow Adapt's visibility rules. The
  * host owns the {@link AdvancementMain} lifecycle: a catalog restarts an enabled UAAPI, a non-empty one then opens
  * its database (MySQL when Adapt's SQL is enabled, SQLite in {@code data/advancements.db} otherwise) and registers
  * the tabs, and {@link #shutdown()} disables it. Grants and toasts retry while UAAPI has not loaded the player.

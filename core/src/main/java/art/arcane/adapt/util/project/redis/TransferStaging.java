@@ -1,6 +1,6 @@
 package art.arcane.adapt.util.project.redis;
 
-import art.arcane.adapt.api.world.FencedPlayerSnapshot;
+import art.arcane.adapt.engine.world.FencedPlayerSnapshot;
 
 import java.util.Optional;
 import java.util.UUID;

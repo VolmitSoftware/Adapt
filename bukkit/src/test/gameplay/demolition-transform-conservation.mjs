@@ -24,7 +24,7 @@ export default {
     try {
       await context.command(`/adaptqa setup ${actor.bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 30000)
       setup = true
-      await preferences('learn architect-demolition')
+      await preferences('learn adapt:architect/demolition')
       if (context.report.demolitionProfile) {
         evidence.profile = (await fixture('profile')).learned
         context.expect(Object.keys(evidence.profile).length === 21, 'Complete learned profile contains all 21 adaptations', evidence.profile)

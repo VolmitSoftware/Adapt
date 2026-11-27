@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Rules for the files under {@code assets/adapt/textures/gui/}, shared by the sprite cache (a file that breaks them is
+ * Rules for the files under {@code assets/<namespace>/textures/gui/}, shared by the sprite cache (a file that breaks them is
  * not drawn) and the build's artifact check:
  * <ul>
  *   <li>{@code skill/}, {@code adaptation/}, {@code toast/}, {@code hud/}: square PNG icons, a power of two from 16 to 512</li>
@@ -26,7 +26,8 @@ import java.util.TreeMap;
  */
 public final class UiAssetCheck {
     public static final String GUI_ROOT = "assets/adapt/textures/gui/";
-    public static final String GUI_ID_PREFIX = "adapt:textures/gui/";
+    public static final String GUI_PATH = "textures/gui/";
+    public static final String GUI_ID_PREFIX = "adapt:" + GUI_PATH;
     public static final int HEADER_BYTES = 24;
     public static final int MIN_ICON = 16;
     public static final int MAX_ICON = 512;
@@ -74,9 +75,10 @@ public final class UiAssetCheck {
         return null;
     }
 
-    /** {@code id} as a path under the gui root, or null when it is not an Adapt gui texture id. */
+    /** {@code id} as a path under its namespace's gui root, or null when it is not a gui texture id in any namespace. */
     public static String relative(String id) {
-        return id.startsWith(GUI_ID_PREFIX) ? id.substring(GUI_ID_PREFIX.length()) : null;
+        int path = id.indexOf(':') + 1;
+        return id.startsWith(GUI_PATH, path) ? id.substring(path + GUI_PATH.length()) : null;
     }
 
     /** The slice JSON {@code id} for nine-slice texture {@code textureId}: the same name ending in {@code .json}. */

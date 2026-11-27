@@ -16,6 +16,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -65,7 +66,7 @@ public final class BukkitPlatformHost implements PlatformHost {
 
   @Override
   public String minecraftVersion() {
-    return server.getMinecraftVersion();
+    return PaperApi.minecraftVersion(server);
   }
 
   @Override
@@ -131,7 +132,7 @@ public final class BukkitPlatformHost implements PlatformHost {
     if (name == null) {
       return null;
     }
-    OfflinePlayer cached = server.getOfflinePlayerIfCached(name);
+    OfflinePlayer cached = PaperApi.cachedPlayer(server, name);
     return cached == null ? null : cached.getUniqueId();
   }
 
@@ -175,7 +176,7 @@ public final class BukkitPlatformHost implements PlatformHost {
       return null;
     }
     NamespacedKey key = BukkitConversions.key(dimension);
-    return BukkitRefs.world(server.getWorld(key));
+    return BukkitRefs.world(PaperApi.world(server, key));
   }
 
   @Override
@@ -204,7 +205,7 @@ public final class BukkitPlatformHost implements PlatformHost {
 
   @Override
   public long currentTick() {
-    return server.getCurrentTick();
+    return PaperApi.currentTick(server);
   }
 
   @Override

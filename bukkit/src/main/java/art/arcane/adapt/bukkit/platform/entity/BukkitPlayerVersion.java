@@ -3,6 +3,7 @@ package art.arcane.adapt.bukkit.platform.entity;
 import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Vec3;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -11,11 +12,11 @@ final class BukkitPlayerVersion {
   }
 
   static int cooldownTicks(Player player, Id group) {
-    return player.getCooldown(BukkitConversions.key(group));
+    return PaperApi.cooldown(player, BukkitConversions.key(group));
   }
 
   static void setCooldown(Player player, Id group, int ticks) {
-    player.setCooldown(BukkitConversions.key(group), ticks);
+    PaperApi.setCooldown(player, BukkitConversions.key(group), ticks);
   }
 
   static Location respawnLocation(Player player) {

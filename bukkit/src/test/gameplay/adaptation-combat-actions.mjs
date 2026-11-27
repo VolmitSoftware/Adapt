@@ -98,33 +98,33 @@ async function verifySunder({ context, unlearned, active }) {
 }
 
 export const combatBehaviorCases = new Map([
-    ['sword-duelists-focus', {
+    ['adapt:sword/duelists_focus', {
         stage: 'combat-swords',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.6, particle: 'dust',
         prepare: input => prepareMelee(input, 'wooden_sword'), trigger: strike, verify: verifyDamageIncrease,
     }],
-    ['sword-dual-wield', {
+    ['adapt:sword/dual_wield', {
         stage: 'swords-dual',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.25, soundPitch: 1.6, particle: 'wax_on',
         prepare: input => prepareMelee(input, 'wooden_sword'), trigger: strike, verify: verifyDamageIncrease,
     }],
-    ['sword-executioners-edge', {
+    ['adapt:sword/executioners_edge', {
         stage: 'sword-low-health',
         sound: 'minecraft:block.note_block.pling', soundVolume: 0.5, soundPitch: 1.4, particle: 'dust',
         prepare: input => prepareMelee(input, 'wooden_sword'), trigger: strike, verify: verifyDamageIncrease,
     }],
-    ['sword-crescent-guard', {
+    ['adapt:sword/crescent_guard', {
         stage: 'hunter', effect: 'minecraft:absorption',
         sound: 'minecraft:item.totem.use', soundVolume: 0.35, soundPitch: 1.6, particle: 'heart',
         prepare: input => prepareMelee(input, 'wooden_sword'), trigger: killCow,
     }],
-    ['unarmed-power', {
+    ['adapt:unarmed/power', {
         stage: 'combat-unarmed',
         sound: 'minecraft:entity.player.attack.strong', soundVolume: 0.35, soundPitch: 1.2, particle: 'crit',
         prepare: input => prepareMelee(input),
         trigger: async input => {
             const state = await input.snapshot()
-            if (state.learned['unarmed-power'] > 0) {
+            if (state.learned['adapt:unarmed/power'] > 0) {
                 await input.context.waitUntil(async () => (await input.snapshot()).attributes['minecraft:attack_damage'] > 1.1, {
                     label: 'learned bare-hand damage attribute is active before striking', timeoutMs: 7000, intervalMs: 100,
                 })
@@ -133,17 +133,17 @@ export const combatBehaviorCases = new Map([
         },
         verify: verifyDamageIncrease,
     }],
-    ['unarmed-glass-cannon', {
+    ['adapt:unarmed/glass_cannon', {
         stage: 'combat-unarmed',
         sound: 'minecraft:block.glass.break', soundVolume: 0.8, soundPitch: 1.2, particle: 'block',
         prepare: input => prepareMelee(input), trigger: strike, verify: verifyDamageIncrease,
     }],
-    ['unarmed-combo-chain', {
+    ['adapt:unarmed/combo_chain', {
         stage: 'combat-unarmed',
         sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.55, soundPitch: 0.94, particle: 'crit',
         prepare: input => prepareMelee(input), trigger: strikeTwice, verify: verifyCombo,
     }],
-    ['axe-sunder', {
+    ['adapt:axe/sunder', {
         stage: 'axes-armored',
         sound: 'minecraft:item.shield.break', soundVolume: 0.5, soundPitch: 1.2, particle: 'dust',
         prepare: input => prepareMelee(input, 'wooden_axe'), trigger: sunder, verify: verifySunder,

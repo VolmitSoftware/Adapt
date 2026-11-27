@@ -5,7 +5,7 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptEnvironment;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.value.MaterialNames;
+import art.arcane.adapt.api.item.MaterialNames;
 import art.arcane.adapt.platform.EngineFeature;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;

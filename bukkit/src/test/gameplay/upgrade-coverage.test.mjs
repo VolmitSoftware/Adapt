@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile, readdir } from 'node:fs/promises'
 
 const root = new URL('../../../', import.meta.url)
-const upgradeRoot = '../core/src/main/java/art/arcane/adapt/content/'
+const upgradeRoot = '../content/src/main/java/art/arcane/adapt/content/'
 
 async function javaFiles(directory) {
   const entries = await readdir(new URL(directory, root), { withFileTypes: true }).catch(error => {
@@ -28,8 +28,10 @@ const originalIds = new Set()
 for (const file of await javaFiles(`${upgradeRoot}adaptation/`)) {
   const code = await readFile(new URL(file, root), 'utf8')
   if (/extends\s+(?:Simple|Legacy)Adaptation</.test(code)) {
-    const id = code.match(/super\("([^"]+)"\)/)?.[1]
-    if (id) originalIds.add(id)
+    const id = /\bsuper\(ID\)/.test(code)
+      ? code.match(/\bpublic\s+static\s+final\s+Id\s+ID\s*=\s*Id\.adapt\("([^"]+)"\);/)?.[1]
+      : code.match(/super\(Id\.adapt\("([^"]+)"\)\)/)?.[1]
+    if (id) originalIds.add(`adapt:${id}`)
   }
 }
 
@@ -39,9 +41,11 @@ test('every upgraded adaptation has one entry in its own skill file, and every e
     const code = await readFile(new URL(file, root), 'utf8')
     const name = code.match(/public\s+(?:final\s+)?class\s+(\w+)\s+extends\s+SkillUpgrade</)?.[1]
     if (!name) continue
-    const id = code.match(/super\("([a-z0-9-]+)"\)/)?.[1]
+    const id = /\bsuper\(ID\)/.test(code)
+      ? code.match(/\bpublic\s+static\s+final\s+Id\s+ID\s*=\s*Id\.adapt\("([a-z0-9_\/]+)"\);/)?.[1]
+      : code.match(/super\(Id\.adapt\("([a-z0-9_\/]+)"\)\)/)?.[1]
     assert.ok(id, `Missing literal upgrade id in ${file}`)
-    concrete.set(id, { file, name, code })
+    concrete.set(`adapt:${id}`, { file, name, code })
   }
 
   const documented = new Set()
@@ -50,7 +54,7 @@ test('every upgraded adaptation has one entry in its own skill file, and every e
     const entry = JSON.parse(await readFile(new URL(`./upgrades/${fileName}`, import.meta.url), 'utf8'))
     assert.equal(entry.skill, skill, `${fileName} names another skill`)
     for (const upgrade of entry.upgrades) {
-      assert.ok(upgrade.name.startsWith(`upgraded-${skill}-`), `${upgrade.name} is not a ${skill} upgrade`)
+      assert.ok(upgrade.name.startsWith(`adapt:${skill}/upgrade/`), `${upgrade.name} is not a ${skill} upgrade`)
       assert.ok(!documented.has(upgrade.name), `Duplicate entry: ${upgrade.name}`)
       documented.add(upgrade.name)
       const source = concrete.get(upgrade.name)

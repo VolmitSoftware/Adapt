@@ -1,0 +1,999 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.engine.adaptation;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.SimpleComponent;
+import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.mutation.MutationBlock;
+import art.arcane.adapt.api.mutation.Signature;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.mutation.engine.MutationEngine;
+import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.engine.protection.Protectors;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.UsePermissions;
+import art.arcane.adapt.engine.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.engine.world.AdaptDebugMode;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.engine.world.PlayerAdaptation;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.platform.entity.EntityRef;
+import art.arcane.adapt.platform.entity.EntityTrait;
+import art.arcane.adapt.platform.entity.GameMode;
+import art.arcane.adapt.platform.entity.LivingRef;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.entity.ProjectileRef;
+import art.arcane.adapt.platform.event.Cancellable;
+import art.arcane.adapt.platform.event.entity.DamageCause;
+import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.scheduling.Tasks;
+import art.arcane.volmlib.util.math.M;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.IntConsumer;
+import java.util.function.Predicate;
+
+final class AdaptationRuntimeGuards {
+  private static final Id INTERACTION = Id.minecraft("interaction");
+  private static final Map<UUID, Map<String, ActiveLevelCacheEntry>> ACTIVE_LEVEL_CACHE = PlayerStateRegistry.newPlayerMap();
+  private static final Map<Id, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
+  private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
+  private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
+
+  private AdaptationRuntimeGuards() {
+  }
+
+  static void withPlayerThread(Adaptation<?> adaptation, PlayerRef p, Runnable runnable) {
+    try {
+      if (adaptation == null || p == null || runnable == null || !isRuntimeActive(adaptation)) {
+        return;
+      }
+
+      if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p)) {
+        Tasks.runEntity(p, () -> {
+          if (isRuntimeActive(adaptation)) {
+            withPlayerThread(adaptation, p, runnable);
+          }
+        });
+        return;
+      }
+
+      if (isRuntimeActive(adaptation)) {
+        runMeasured(adaptation, runnable);
+      }
+    } catch (Exception ex) {
+      AdaptLog.verbose("Failed guarded player runnable for adaptation " + adaptation.getId().toString() + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+    }
+  }
+
+  static void withPlayerThread(Adaptation<?> adaptation, PlayerRef p, Cancellable cancellable, Runnable runnable) {
+    try {
+      if (adaptation == null || p == null || cancellable == null || runnable == null || !isRuntimeActive(adaptation)) {
+        return;
+      }
+
+      if (cancellable.isCancelled()) {
+        return;
+      }
+
+      if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p)) {
+        Tasks.runEntity(p, () -> {
+          if (isRuntimeActive(adaptation)) {
+            withPlayerThread(adaptation, p, cancellable, runnable);
+          }
+        });
+        return;
+      }
+
+      if (cancellable.isCancelled() || !isRuntimeActive(adaptation)) {
+        return;
+      }
+
+      runMeasured(adaptation, runnable);
+    } catch (Exception ex) {
+      AdaptLog.verbose("Failed guarded cancellable player runnable for adaptation " + adaptation.getId().toString() + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+    }
+  }
+
+  static void withAdaptedPlayer(Adaptation<?> adaptation, PlayerRef p, Runnable runnable) {
+    withPlayerThread(adaptation, p, () -> {
+      if (!adaptation.hasActiveAdaptation(p)) {
+        return;
+      }
+      runnable.run();
+    });
+  }
+
+  static void withAdaptedPlayer(Adaptation<?> adaptation, PlayerRef p, Cancellable cancellable, Runnable runnable) {
+    withPlayerThread(adaptation, p, cancellable, () -> {
+      if (!adaptation.hasActiveAdaptation(p)) {
+        return;
+      }
+      runnable.run();
+    });
+  }
+
+  static void withActiveLevel(Adaptation<?> adaptation, PlayerRef p, IntConsumer consumer) {
+    withPlayerThread(adaptation, p, () -> {
+      int level = adaptation.getActiveLevel(p);
+      if (level <= 0) {
+        return;
+      }
+      consumer.accept(level);
+    });
+  }
+
+  static void withActiveLevel(Adaptation<?> adaptation, PlayerRef p, Cancellable cancellable, IntConsumer consumer) {
+    withPlayerThread(adaptation, p, cancellable, () -> {
+      int level = adaptation.getActiveLevel(p);
+      if (level <= 0) {
+        return;
+      }
+      consumer.accept(level);
+    });
+  }
+
+  static String adaptationRewardKey(Adaptation<?> adaptation, String rewardKey) {
+    String suffix = rewardKey == null ? "" : rewardKey.trim();
+    if (suffix.isEmpty()) {
+      suffix = "use";
+    }
+    return "adaptation:" + adaptation.getId().toString() + ":" + suffix;
+  }
+
+  static void awardUsageBaselineXp(Adaptation<?> adaptation, PlayerRef p, int level) {
+    double reward = claimUsageBaselineXp(adaptation, p, level);
+    if (reward > 0D) {
+      adaptation.getSkill().xpSilent(p, reward, adaptationRewardKey(adaptation, "baseline-use"));
+    }
+  }
+
+  static double claimUsageBaselineXp(Adaptation<?> adaptation, PlayerRef p, int level) {
+    if (adaptation == null || p == null || level <= 0 || !isServerPlayer(p) || runtimePlayer(p) == null) {
+      return 0D;
+    }
+
+    AdaptConfig.AdaptationXp cfg = AdaptConfig.get().getAdaptationXp();
+    if (cfg == null || !cfg.isUsageBaselineEnabled()) {
+      return 0D;
+    }
+
+    long now = M.ms();
+    long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
+    PlayerSkillLine line = runtimePlayer(p).getSkillLine(SkillHost.lineKey(adaptation.getSkill()));
+    PlayerAdaptation learned = line == null ? null : line.getAdaptation(adaptation.getId().toString());
+    if (learned == null) {
+      return 0D;
+    }
+    Object previous = learned.getStorage().get("usage-xp-at");
+    if (previous instanceof Number number && now - number.longValue() < cooldown) {
+      return 0D;
+    }
+
+    double reward = cfg.getUsageBaselineXp() + ((Math.max(1, level) - 1) * cfg.getUsageBaselineXpPerLevel());
+    if (!Double.isFinite(reward) || reward <= 0D) {
+      return 0D;
+    }
+
+    learned.getStorage().put("usage-xp-at", now);
+    return reward;
+  }
+
+  static boolean canUse(Adaptation<?> adaptation, AdaptPlayer player) {
+    if (adaptation == null || player == null || !player.isRuntimeReady() || player.getPlayer() == null) {
+      return false;
+    }
+    if (!PlayerPreferences.isEnabled(adaptation, player.getData(), getLevel(adaptation, player))) {
+      return false;
+    }
+    if (AdaptConfig.get().isVerbose()) {
+      AdaptLog.verbose("Checking if " + player.getPlayer().name() + " can use " + adaptation.getId().toString() + "...");
+    }
+    if (!AdaptationUseEvents.allows(adaptation, player, getLevel(adaptation, player))) {
+      return false;
+    }
+    return AbilityApiBridge.allowedByUsePolicy(adaptation, player);
+  }
+
+  static boolean canUse(Adaptation<?> adaptation, PlayerRef player) {
+    return canUse(adaptation, runtimePlayer(player));
+  }
+
+  static boolean hasUsePermission(Adaptation<?> adaptation, PlayerRef p, Adaptation<?> targetAdaptation) {
+    if (p == null) {
+      return false;
+    }
+    if (AdaptDebugMode.isActive(p)) {
+      return true;
+    }
+    if (p.isOp()) {
+      return true;
+    }
+    Adaptation<?> target = targetAdaptation == null ? adaptation : targetAdaptation;
+    if (target == null) {
+      return false;
+    }
+    String usePermission = USE_PERMISSION_NODES.computeIfAbsent(target.getId(), AdaptationRuntimeGuards::useNode);
+    boolean permissionSet = AdaptCore.platform().permissions().isSet(p, usePermission);
+    if (AdaptConfig.get().isVerbose()) {
+      AdaptLog.verbose("Checking use permission " + usePermission + " for " + p.name()
+          + " (set=" + permissionSet + ", value=" + p.hasPermission(usePermission) + ")");
+    }
+    if (!permissionSet) {
+      return true;
+    }
+    return p.hasPermission(usePermission);
+  }
+
+  static boolean canDamageTarget(Adaptation<?> adaptation, PlayerRef attacker, EntityRef target) {
+    if (attacker == null || target == null) {
+      return false;
+    }
+
+    if (isProtectedFriendly(attacker, target)) {
+      return false;
+    }
+
+    if (target instanceof PlayerRef victim) {
+      return adaptation.canPVP(attacker, victim.location());
+    }
+
+    return adaptation.canPVE(attacker, target);
+  }
+
+  static boolean isProtectedFriendly(PlayerRef actor, EntityRef target) {
+    return isProtectedFriendlyOwned(actor == null ? null : actor.uuid(), target);
+  }
+
+  static boolean isProtectedFriendlyOwned(UUID actorId, EntityRef target) {
+    if (target == null) {
+      return false;
+    }
+
+    if (target.has(EntityTrait.DISPLAY) || INTERACTION.equals(target.type())) {
+      return true;
+    }
+
+    if (target.isInvulnerable()) {
+      return true;
+    }
+
+    if (AdaptPorts.get(EntityGuardPort.class, EntityGuardPort.NONE).isShielded(target)) {
+      return true;
+    }
+
+    if (actorId != null && target.has(EntityTrait.TAMEABLE)) {
+      UUID tamer = target.tameOwner();
+      return tamer != null && actorId.equals(tamer);
+    }
+
+    return false;
+  }
+
+  static int getActiveSurvivalLevel(Adaptation<?> adaptation, PlayerRef player) {
+    if (player == null || player.gameMode() != GameMode.SURVIVAL) {
+      return 0;
+    }
+
+    return getActiveLevel(adaptation, player);
+  }
+
+  static int getActiveLevel(Adaptation<?> adaptation, PlayerRef player, Predicate<PlayerRef> requirement) {
+    int level = getActiveLevel(adaptation, player);
+    if (level <= 0) {
+      return 0;
+    }
+
+    if (requirement != null && !requirement.test(player)) {
+      return 0;
+    }
+
+    return level;
+  }
+
+  static int getActiveSurvivalLevel(Adaptation<?> adaptation, PlayerRef player, Predicate<PlayerRef> requirement) {
+    int level = getActiveSurvivalLevel(adaptation, player);
+    if (level <= 0) {
+      return 0;
+    }
+
+    if (requirement != null && !requirement.test(player)) {
+      return 0;
+    }
+
+    return level;
+  }
+
+  static int getActiveInteractLevel(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    int level = getActiveLevel(adaptation, player);
+    if (level <= 0 || location == null) {
+      return 0;
+    }
+
+    return adaptation.canInteract(player, location) ? level : 0;
+  }
+
+  static int getActiveBlockBreakLevel(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    int level = getActiveLevel(adaptation, player);
+    if (level <= 0 || location == null) {
+      return 0;
+    }
+
+    return adaptation.canBlockBreak(player, location) ? level : 0;
+  }
+
+  static int getActiveBlockPlaceLevel(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    int level = getActiveLevel(adaptation, player);
+    if (level <= 0 || location == null) {
+      return 0;
+    }
+
+    return adaptation.canBlockPlace(player, location) ? level : 0;
+  }
+
+  static int getActiveDamageLevel(Adaptation<?> adaptation, PlayerRef attacker, EntityRef target) {
+    int level = getActiveLevel(adaptation, attacker);
+    if (level <= 0 || target == null) {
+      return 0;
+    }
+
+    return canDamageTarget(adaptation, attacker, target) ? level : 0;
+  }
+
+  static Adaptation.BlockActionContext resolveInteractContext(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    return resolveInteractContext(adaptation, player, location, null, false);
+  }
+
+  static Adaptation.BlockActionContext resolveInteractContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement) {
+    return resolveInteractContext(adaptation, player, location, requirement, false);
+  }
+
+  static Adaptation.BlockActionContext resolveInteractContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement, boolean survivalOnly) {
+    int level = resolveActionLevel(adaptation, player, requirement, survivalOnly);
+    if (level <= 0 || location == null || !adaptation.canInteract(player, location)) {
+      return null;
+    }
+
+    return new Adaptation.BlockActionContext(player, location, level);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    return resolveBlockBreakContext(adaptation, player, location, null, false);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement) {
+    return resolveBlockBreakContext(adaptation, player, location, requirement, false);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement, boolean survivalOnly) {
+    int level = resolveActionLevel(adaptation, player, requirement, survivalOnly);
+    if (level <= 0 || location == null || !adaptation.canBlockBreak(player, location)) {
+      return null;
+    }
+
+    return new Adaptation.BlockActionContext(player, location, level);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockPlaceContext(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    return resolveBlockPlaceContext(adaptation, player, location, null, false);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockPlaceContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement) {
+    return resolveBlockPlaceContext(adaptation, player, location, requirement, false);
+  }
+
+  static Adaptation.BlockActionContext resolveBlockPlaceContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement, boolean survivalOnly) {
+    int level = resolveActionLevel(adaptation, player, requirement, survivalOnly);
+    if (level <= 0 || location == null || !adaptation.canBlockPlace(player, location)) {
+      return null;
+    }
+
+    return new Adaptation.BlockActionContext(player, location, level);
+  }
+
+  static Adaptation.BlockActionContext resolveInteractBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location) {
+    return resolveInteractBreakContext(adaptation, player, location, null, false);
+  }
+
+  static Adaptation.BlockActionContext resolveInteractBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement) {
+    return resolveInteractBreakContext(adaptation, player, location, requirement, false);
+  }
+
+  static Adaptation.BlockActionContext resolveInteractBreakContext(Adaptation<?> adaptation, PlayerRef player, Loc location, Predicate<PlayerRef> requirement, boolean survivalOnly) {
+    Adaptation.BlockActionContext context = resolveInteractContext(adaptation, player, location, requirement, survivalOnly);
+    if (context == null || !adaptation.canBlockBreak(context.player(), context.location())) {
+      return null;
+    }
+
+    return context;
+  }
+
+  static ItemRef readyMainHand(Adaptation<?> adaptation, PlayerRef player, Predicate<ItemRef> requirement) {
+    if (player == null) {
+      return null;
+    }
+
+    ItemRef hand = player.inventory().mainHand();
+    if (!ItemKinds.isItem(hand)) {
+      return null;
+    }
+
+    if (requirement != null && !requirement.test(hand)) {
+      return null;
+    }
+
+    return hand;
+  }
+
+  static Adaptation.MeleeContext resolveMeleeContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ItemRef> mainHandRequirement) {
+    Adaptation.AttackContext attack = resolveAttackContext(adaptation, event, mainHandRequirement);
+    if (attack == null || !(attack.target() instanceof LivingRef target)) {
+      return null;
+    }
+
+    return new Adaptation.MeleeContext(attack.attacker(), target, attack.mainHand(), attack.level());
+  }
+
+  static Adaptation.AttackContext resolveAttackContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ItemRef> mainHandRequirement) {
+    if (event == null || (event.cause() != DamageCause.ENTITY_ATTACK
+        && event.cause() != DamageCause.ENTITY_SWEEP_ATTACK)
+        || !(event.damager() instanceof PlayerRef attacker) || AbilityDamage.dealing()) {
+      return null;
+    }
+
+    int level = getActiveLevel(adaptation, attacker);
+    if (level <= 0) {
+      return null;
+    }
+
+    ItemRef hand = readyMainHand(adaptation, attacker, mainHandRequirement);
+    if (mainHandRequirement != null && hand == null) {
+      return null;
+    }
+
+    EntityRef target = event.entity();
+    if (!canDamageTarget(adaptation, attacker, target)) {
+      return null;
+    }
+
+    return new Adaptation.AttackContext(attacker, target, hand, level);
+  }
+
+  static Adaptation.ProjectileContext resolveProjectileContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ProjectileRef> projectileRequirement) {
+    if (event == null
+        || !(event.damager() instanceof ProjectileRef projectile)
+        || !(projectile.shooter() instanceof PlayerRef attacker)
+        || !(event.entity() instanceof LivingRef target)) {
+      return null;
+    }
+
+    if (projectileRequirement != null && !projectileRequirement.test(projectile)) {
+      return null;
+    }
+
+    int level = getActiveLevel(adaptation, attacker);
+    if (level <= 0) {
+      return null;
+    }
+
+    if (!canDamageTarget(adaptation, attacker, target)) {
+      return null;
+    }
+
+    return new Adaptation.ProjectileContext(attacker, target, projectile, level);
+  }
+
+  static boolean hasUsageConflict(Adaptation<?> adaptation, PlayerRef p) {
+    if (adaptation == null || p == null) {
+      return false;
+    }
+
+    Set<String> denied = resolveUsageConflicts(adaptation);
+    if (denied.isEmpty()) {
+      return false;
+    }
+
+    AdaptPlayer adaptPlayer = runtimePlayer(p);
+    if (adaptPlayer == null) {
+      return false;
+    }
+    for (String conflict : denied) {
+      if (adaptPlayer.hasAdaptation(Id.tryParse(conflict))) {
+        AdaptLog.verbose(() -> "Blocked " + adaptation.getId().toString() + " for " + p.name()
+            + " because adaptation " + conflict + " conflicts with it.");
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  static Set<String> getProtectorNames(Adaptation<?> adaptation) {
+    if (adaptation == null) {
+      return Collections.emptySet();
+    }
+
+    List<String> defaults = Protectors.defaultNames();
+    List<String> allProtectors = Protectors.allNames();
+    Map<String, Boolean> configured = AdaptConfig.contentEntry(AdaptConfig.get().getProtectionOverrides(), adaptation.getId().toString());
+    Map<String, Boolean> overrides = configured == null ? Collections.emptyMap() : configured;
+    int signature = buildProtectorSignature(defaults, allProtectors, overrides);
+    String cacheKey = adaptation.getId().toString();
+    ProtectorCacheEntry cached = PROTECTOR_CACHE.get(cacheKey);
+    if (cached != null && cached.signature() == signature) {
+      return cached.protectors();
+    }
+
+    Set<String> known = new HashSet<>(allProtectors);
+    Set<String> resolved = new HashSet<>(defaults);
+    for (Map.Entry<String, Boolean> entry : overrides.entrySet()) {
+      String protectorName = entry.getKey();
+      Boolean enabled = entry.getValue();
+      if (protectorName == null || enabled == null) {
+        continue;
+      }
+
+      if (enabled) {
+        if (!known.contains(protectorName)) {
+          AdaptLog.error("Could not find protector " + protectorName + " for adaptation " + adaptation.getId().toString() + ". Skipping...");
+          continue;
+        }
+        resolved.add(protectorName);
+        continue;
+      }
+
+      resolved.remove(protectorName);
+    }
+
+    Set<String> immutable = Collections.unmodifiableSet(new HashSet<>(resolved));
+    PROTECTOR_CACHE.put(cacheKey, new ProtectorCacheEntry(signature, immutable));
+    return immutable;
+  }
+
+  static int getActiveLevel(Adaptation<?> adaptation, PlayerRef p) {
+    return getActiveLevel(adaptation, p, false);
+  }
+
+  static int getActiveDeathLevel(Adaptation<?> adaptation, PlayerRef p) {
+    return getActiveLevel(adaptation, p, true);
+  }
+
+  private static int getActiveLevel(Adaptation<?> adaptation, PlayerRef p, boolean allowDead) {
+    try {
+      if (!canEvaluateActiveLevel(p, allowDead)) {
+        return 0;
+      }
+
+      if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p)) {
+        return 0;
+      }
+
+      long nowMs = M.ms();
+      long tick = nowMs / 50L;
+      int learnedLevel = getLevel(adaptation, p);
+      AdaptPlayer preferenceOwner = runtimePlayer(p);
+      if (learnedLevel <= 0 || preferenceOwner == null
+          || !PlayerPreferences.isEnabled(adaptation, preferenceOwner.getData(), learnedLevel)) {
+        return 0;
+      }
+      Map<String, ActiveLevelCacheEntry> playerCache = ACTIVE_LEVEL_CACHE.computeIfAbsent(
+          p.uuid(),
+          ignored -> new ConcurrentHashMap<>()
+      );
+      ActiveLevelCacheEntry cached = playerCache.get(adaptation.getId().toString());
+      int cachedLevel = cached == null ? -1 : cached.readLevel(tick, learnedLevel);
+      if (cachedLevel >= 0) {
+        AbilityCheckTelemetry.recordCacheHit(nowMs);
+        return cachedLevel;
+      }
+
+      long startNs = System.nanoTime();
+      int level = 0;
+      try {
+        level = resolveActiveLevelUncached(adaptation, p, learnedLevel);
+      } finally {
+        AbilityCheckTelemetry.recordUncachedCheck(
+            adaptation.getId().toString(),
+            nowMs,
+            System.nanoTime() - startNs,
+            level > 0
+        );
+      }
+      if (cached == null) {
+        playerCache.put(adaptation.getId().toString(), new ActiveLevelCacheEntry(tick, learnedLevel, level));
+      } else {
+        cached.update(tick, learnedLevel, level);
+      }
+
+      return level;
+    } catch (Exception e) {
+      if (e instanceof IndexOutOfBoundsException) {
+        AdaptLog.verbose(() -> "Skipped adaptation level lookup for packet-spoofed player state: "
+            + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
+      } else {
+        AdaptLog.error(e);
+      }
+      return 0;
+    }
+  }
+
+  static boolean canEvaluateActiveLevel(PlayerRef p, boolean allowDead) {
+    return p != null && (allowDead || !p.isDead());
+  }
+
+  static int getLevel(Adaptation<?> adaptation, PlayerRef p) {
+    if (adaptation == null || p == null) {
+      return 0;
+    }
+    if (Tasks.isFoliaThreading() && !Tasks.isOwnedByCurrentRegion(p)) {
+      return 0;
+    }
+    if (!isServerPlayer(p)) {
+      AdaptLog.verbose(() -> "Skipped adaptation level lookup for unsupported native player type "
+          + p.name() + ".");
+      return 0;
+    }
+    if (!adaptation.isEnabled()) {
+      return 0;
+    }
+    if (!adaptation.getSkill().isEnabled()) {
+      return 0;
+    }
+    AdaptPlayer adaptPlayer = runtimePlayer(p);
+    return getLevel(adaptation, adaptPlayer);
+  }
+
+  static int getLevel(Adaptation<?> adaptation, AdaptPlayer adaptPlayer) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady()) {
+      return 0;
+    }
+    if (!adaptation.isEnabled()) {
+      return 0;
+    }
+    if (!adaptation.getSkill().isEnabled()) {
+      return 0;
+    }
+
+    PlayerData data = adaptPlayer.getData();
+    if (data == null) {
+      return 0;
+    }
+
+    if (adaptation instanceof MutationBlock<?> block) {
+      return MutationEngine.blockLevel(block, data);
+    }
+    if (adaptation instanceof Signature<?> signature) {
+      return MutationEngine.signatureLevel(signature, data);
+    }
+    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(adaptation.getSkill()));
+    if (line == null) {
+      return 0;
+    }
+    if (!SkillUpgrades.holdable(adaptation, data)) {
+      return SkillUpgrades.heritageLevel(adaptation, data);
+    }
+    int storedLevel = line.getAdaptationLevel(adaptation.getId().toString());
+    int maxLevel = adaptation.getMaxLevel();
+    return maxLevel > 0 ? Math.min(storedLevel, maxLevel) : storedLevel;
+  }
+
+  static List<AdaptPlayer> learnedCandidates(Adaptation<?> adaptation, long now) {
+    if (adaptation == null) {
+      return List.of();
+    }
+    return AdaptCore.get().getAdaptServer().getLearnedAdaptPlayerSnapshot(adaptation.getId().toString());
+  }
+
+  static <F> F getStorage(Adaptation<?> adaptation, PlayerRef p, String key, F defaultValue) {
+    return getStorage(adaptation, runtimePlayer(p), key, defaultValue);
+  }
+
+  static <F> F getStorage(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, String key, F defaultValue) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady() || key == null) {
+      return defaultValue;
+    }
+    PlayerData data = adaptPlayer.getData();
+    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(adaptation.getSkill()));
+    if (line == null) {
+      return defaultValue;
+    }
+    PlayerAdaptation playerAdaptation = line.getAdaptation(adaptation.getId().toString());
+    if (playerAdaptation == null) {
+      return defaultValue;
+    }
+    Object o = playerAdaptation.getStorage().get(key);
+    return o == null ? defaultValue : (F) o;
+  }
+
+  static boolean setStorage(Adaptation<?> adaptation, PlayerRef p, String key, Object value) {
+    return setStorage(adaptation, runtimePlayer(p), key, value);
+  }
+
+  static boolean setStorage(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, String key, Object value) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady() || key == null) {
+      return false;
+    }
+    PlayerData data = adaptPlayer.getData();
+    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(adaptation.getSkill()));
+    if (line == null) {
+      return false;
+    }
+    PlayerAdaptation playerAdaptation = line.getAdaptation(adaptation.getId().toString());
+    if (playerAdaptation == null) {
+      return false;
+    }
+    if (value == null) {
+      playerAdaptation.getStorage().remove(key);
+      return true;
+    }
+
+    playerAdaptation.getStorage().put(key, value);
+    return true;
+  }
+
+  private static int resolveActionLevel(Adaptation<?> adaptation, PlayerRef player, Predicate<PlayerRef> requirement, boolean survivalOnly) {
+    if (survivalOnly) {
+      return getActiveSurvivalLevel(adaptation, player, requirement);
+    }
+
+    return getActiveLevel(adaptation, player, requirement);
+  }
+
+  private static void runMeasured(Adaptation<?> adaptation, Runnable runnable) {
+    long startedNanos = AbilityCheckTelemetry.beginExecution(adaptation.getId().toString());
+    try {
+      runnable.run();
+    } finally {
+      AbilityCheckTelemetry.endExecution(adaptation.getId().toString(), startedNanos);
+    }
+  }
+
+  private static int resolveActiveLevelUncached(Adaptation<?> adaptation, PlayerRef p, int learnedLevel) {
+    int level = learnedLevel;
+    if (level <= 0) {
+      return 0;
+    }
+
+    boolean verbose = AdaptConfig.get().isVerbose();
+    if (isWorldBlacklisted(p.world())) {
+      if (verbose) {
+        AdaptLog.verbose("Player " + p.name() + " is in a blacklisted world. Skipping adaptation " + adaptation.getId().toString());
+      }
+      return 0;
+    }
+    if (!isGameModeAllowed(p.gameMode(), AdaptConfig.get().allowAdaptationsInCreative)) {
+      if (verbose) {
+        AdaptLog.verbose("Player " + p.name() + " is in a disabled game mode. Skipping adaptation " + adaptation.getId().toString());
+      }
+      return 0;
+    }
+    if (!adaptation.checkRegion(p)) {
+      if (verbose) {
+        AdaptLog.verbose("Player " + p.name() + " don't have adaptation - " + adaptation.getId().toString() + " permission.");
+      }
+      return 0;
+    }
+
+    if (!adaptation.hasUsePermission(p)) {
+      if (verbose) {
+        AdaptLog.verbose("Player " + p.name() + " is blocked by use permission for adaptation " + adaptation.getId().toString());
+      }
+      return 0;
+    }
+    if (hasUsageConflict(adaptation, p)) {
+      return 0;
+    }
+    if (!adaptation.canUse(p)) {
+      if (verbose) {
+        AdaptLog.verbose("Player " + p.name() + " can't use adaptation, This is an API restriction" + adaptation.getId().toString());
+      }
+      return 0;
+    }
+
+    if (verbose) {
+      AdaptLog.verbose("Player " + p.name() + " used adaptation " + adaptation.getId().toString());
+    }
+    return level;
+  }
+
+  static boolean isGameModeAllowed(GameMode gameMode, boolean allowCreative) {
+    return gameMode != GameMode.SPECTATOR && (gameMode != GameMode.CREATIVE || allowCreative);
+  }
+
+  private static AdaptPlayer runtimePlayer(PlayerRef player) {
+    AdaptCore core = AdaptCore.current();
+    AdaptServer server = core == null ? null : core.getAdaptServer();
+    if (player == null || server == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = server.getOnlineAdaptPlayer(player.uuid());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady() && samePlayer(adaptPlayer.getPlayer(), player)
+        ? adaptPlayer
+        : null;
+  }
+
+  static boolean samePlayer(PlayerRef bound, PlayerRef player) {
+    return bound != null && player != null && bound.uuid().equals(player.uuid());
+  }
+
+  static boolean isServerPlayer(PlayerRef player) {
+    return player != null && AdaptPorts.get(EntityGuardPort.class, EntityGuardPort.NONE).isServerPlayer(player);
+  }
+
+  static String useNode(Id componentName) {
+    return UsePermissions.useNode(componentName);
+  }
+
+  private static boolean isWorldBlacklisted(WorldRef world) {
+    return world != null && AdaptConfig.get().isWorldBlacklisted(world.key().toString());
+  }
+
+
+  private static Set<String> resolveUsageConflicts(Adaptation<?> adaptation) {
+    Map<String, List<String>> conflicts = AdaptConfig.get().getAdaptationUsageConflicts();
+    if (conflicts == null || conflicts.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    String me = adaptation.getId().toString();
+    int signature = buildUsageConflictSignature(conflicts);
+    UsageConflictCacheEntry cached = USAGE_CONFLICT_CACHE.get(me);
+    if (cached != null && cached.signature() == signature) {
+      return cached.denied();
+    }
+
+    Set<String> denied = new HashSet<>();
+    for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
+      String key = entry.getKey();
+      List<String> values = entry.getValue();
+      if (key == null || values == null) {
+        continue;
+      }
+
+      if (AdaptConfig.contentKey(key).equals(me)) {
+        for (String value : values) {
+          if (value != null) {
+            denied.add(AdaptConfig.contentKey(value));
+          }
+        }
+        continue;
+      }
+
+      boolean containsThisAdaptation = false;
+      for (String value : values) {
+        if (value != null && me.equals(AdaptConfig.contentKey(value))) {
+          containsThisAdaptation = true;
+          break;
+        }
+      }
+      if (containsThisAdaptation) {
+        denied.add(AdaptConfig.contentKey(key));
+      }
+    }
+
+    denied.remove(me);
+    Set<String> immutable = Collections.unmodifiableSet(new HashSet<>(denied));
+    USAGE_CONFLICT_CACHE.put(me, new UsageConflictCacheEntry(signature, immutable));
+    return immutable;
+  }
+
+  private static int buildUsageConflictSignature(Map<String, List<String>> conflicts) {
+    int hash = 1;
+    for (Map.Entry<String, List<String>> entry : conflicts.entrySet()) {
+      String key = entry.getKey();
+      List<String> values = entry.getValue();
+      int local = 0;
+      if (key != null) {
+        local += key.toLowerCase(Locale.ROOT).hashCode();
+      }
+      if (values != null) {
+        local += values.size() * 17;
+        for (String value : values) {
+          if (value != null) {
+            local += value.toLowerCase(Locale.ROOT).hashCode();
+          }
+        }
+      }
+      hash += local;
+    }
+    return hash;
+  }
+
+  private static int buildProtectorSignature(List<String> defaults, List<String> allProtectors, Map<String, Boolean> overrides) {
+    int hash = 1;
+    hash += defaults.size() * 31;
+    for (String protector : defaults) {
+      hash += protector.hashCode();
+    }
+    hash += allProtectors.size() * 17;
+    for (String protector : allProtectors) {
+      hash += protector.hashCode();
+    }
+    hash += overrides.size() * 13;
+    for (Map.Entry<String, Boolean> entry : overrides.entrySet()) {
+      String name = entry.getKey();
+      Boolean enabled = entry.getValue();
+      if (name != null) {
+        hash += name.hashCode();
+      }
+      if (enabled != null) {
+        hash += enabled ? 1 : 2;
+      }
+    }
+    return hash;
+  }
+
+  private static boolean isRuntimeActive(Adaptation<?> adaptation) {
+    ComponentHost host = ComponentHost.find(adaptation);
+    return host == null ? !(adaptation instanceof SimpleComponent<?>) : host.isRuntimeRegistered();
+  }
+
+  private static final class ActiveLevelCacheEntry {
+    private long tick;
+    private int learnedLevel;
+    private int level;
+
+    private ActiveLevelCacheEntry(long tick, int learnedLevel, int level) {
+      update(tick, learnedLevel, level);
+    }
+
+    private synchronized int readLevel(long tick, int learnedLevel) {
+      return this.tick == tick && this.learnedLevel == learnedLevel ? level : -1;
+    }
+
+    private synchronized void update(long tick, int learnedLevel, int level) {
+      if (tick < this.tick) {
+        return;
+      }
+      this.tick = tick;
+      this.learnedLevel = learnedLevel;
+      this.level = level;
+    }
+  }
+
+  private record ProtectorCacheEntry(int signature, Set<String> protectors) {
+  }
+
+  private record UsageConflictCacheEntry(int signature, Set<String> denied) {
+  }
+
+}

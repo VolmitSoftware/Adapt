@@ -2,8 +2,9 @@ package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.SchedulerForwarding;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.scheduling.Tasks;
@@ -12,8 +13,8 @@ import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.localization.LocalizationCandidate;
 import art.arcane.volmlib.util.localization.LocalizationManager;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
-import art.arcane.volmlib.util.localization.PluginLanguageService;
 import art.arcane.volmlib.util.localization.PluginLanguageEditor;
+import art.arcane.volmlib.util.localization.PluginLanguageService;
 import art.arcane.volmlib.util.localization.PluralSelector;
 import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.TomlLanguageWriter;
@@ -41,7 +42,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class AdaptLanguageSelectionTest extends AdaptTestBase {
@@ -108,8 +108,8 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
 
   @Test
   void oldPartialFinnishDownloadStaysSelectedWithoutSelfWriteAnnouncementsOrQueuedEnglishRollback() throws Exception {
-    installSource(200, "[runtime]\nno_description_provided = \"Ei kuvausta\"\n"
-        + "[command.runtime]\nmissing_permission = \"Vanha teksti ilman muuttujaa\"\nplayer_only = 42\n");
+    installSource(200, "[adapt.runtime]\nno_description_provided = \"Ei kuvausta\"\n"
+        + "[adapt.command.runtime]\nmissing_permission = \"Vanha teksti ilman muuttujaa\"\nplayer_only = 42\n");
     File configuration = new File(dataFolder, "adapt.toml");
     ConfigHotloadEngine.StableContentSnapshot queuedEnglish = new ConfigHotloadEngine.StableContentSnapshot(
         configuration, "captured-before-selection", Files.readString(configuration.toPath()), 0L);
@@ -181,14 +181,14 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
         }, Logger.getLogger("Adapt")));
     field(AdaptLanguage.class, "selections").set(null, languages);
     Path personal = dataFolder.toPath().resolve("languages/fi_FI.toml");
-    Files.writeString(personal, "[runtime]\nno_description_provided = 'INITIAL'\n");
+    Files.writeString(personal, "[adapt.runtime]\nno_description_provided = 'INITIAL'\n");
     UUID player = UUID.randomUUID();
     languages.selectPlayer(player, "fi_FI").get(ASYNC_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     Path preferences = dataFolder.toPath().resolve("languages/language-preferences.properties");
     String savedPreferences = Files.readString(preferences);
-    try (MockedStatic<Tasks> scheduling = mockStatic(Tasks.class, CALLS_REAL_METHODS)) {
+    try (MockedStatic<Tasks> scheduling = SchedulerForwarding.mockTasks(CALLS_REAL_METHODS)) {
       scheduling.when(() -> Tasks.s(any(Runnable.class))).thenAnswer(invocation -> null);
-      Files.writeString(personal, "[runtime]\nno_description_provided = 'LIVE'\n");
+      Files.writeString(personal, "[adapt.runtime]\nno_description_provided = 'LIVE'\n");
       pollUntil(() -> personalValue(player).equals(new TextValue("LIVE")));
 
       int previousBatches = hotloadBatches;
@@ -197,13 +197,13 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
       assertThat(personalValue(player)).isEqualTo(new TextValue("LIVE"));
 
       Path english = AdaptLanguage.languageFolder().toPath().resolve("en_US.toml");
-      Files.writeString(english, "[runtime]\nno_description_provided = 'SERVER'\n"
-          + "[command.runtime]\nplayer_only = 'SERVER ONLY'\n");
+      Files.writeString(english, "[adapt.runtime]\nno_description_provided = 'SERVER'\n"
+          + "[adapt.command.runtime]\nplayer_only = 'SERVER ONLY'\n");
       pollUntil(() -> AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED).equals("SERVER"));
       assertThat(personalValue(player)).isEqualTo(new TextValue("LIVE"));
       assertThat(Files.readString(personal)).isEqualTo("[runtime\n");
 
-      String partial = "[runtime]\nno_description_provided = 'PARTIAL'\n";
+      String partial = "[adapt.runtime]\nno_description_provided = 'PARTIAL'\n";
       Files.writeString(personal, partial);
       pollUntil(() -> personalValue(player).equals(new TextValue("PARTIAL")));
       assertThat(languages.snapshot(player).value(CommandRuntimeMessages.PLAYER_ONLY))

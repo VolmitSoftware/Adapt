@@ -1,0 +1,15 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "GPL-3.0"
+
+[[mods]]
+modId = "adaptgeology"
+version = "${version}"
+displayName = "Adapt Geology"
+
+[[dependencies.adaptgeology]]
+modId = "adapt"
+type = "required"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"

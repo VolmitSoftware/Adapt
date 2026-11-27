@@ -2,6 +2,7 @@ package art.arcane.adapt.bukkit.event;
 
 import art.arcane.adapt.platform.event.AdaptEvent;
 import art.arcane.adapt.platform.event.Cancellable;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.event.Event;
 
 import java.util.ArrayList;
@@ -27,11 +28,19 @@ public final class BukkitTranslations {
       built.addAll(EntityGapTranslations.all());
       built.addAll(PlayerGapTranslations.all());
       built.addAll(InventoryGapTranslations.all());
-      built.addAll(Paper121Translations.all());
-      built.addAll(Paper26Translations.all());
+      built.addAll(Bukkit121Translations.all());
+      if (PaperApi.isPaper()) {
+        built.addAll(Paper121Translations.all());
+        built.addAll(Paper26Translations.all());
+        built.addAll(PaperTranslations.all());
+      } else {
+        built.addAll(SpigotFallbackTranslations.all());
+      }
       built.addAll(WorldTranslations.all());
       built.addAll(MountTranslations.all());
-      built.addAll(EndermanTranslations.all());
+      if (PaperApi.isPaper()) {
+        built.addAll(EndermanTranslations.all());
+      }
       built.addAll(AdaptApiTranslations.all());
       built.addAll(SpigotTranslations.all());
       cached = List.copyOf(built);

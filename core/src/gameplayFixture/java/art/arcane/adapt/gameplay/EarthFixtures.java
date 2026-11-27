@@ -1,6 +1,6 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.engine.xp.XpProvenance;
 import art.arcane.adapt.content.item.multiItems.OmniTool;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;

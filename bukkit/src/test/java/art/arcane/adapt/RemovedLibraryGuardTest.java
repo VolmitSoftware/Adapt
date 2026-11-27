@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RemovedLibraryGuardTest {
-  private static final List<Path> MAIN_ROOTS = List.of(Path.of("src/main"), Path.of("../core/src/main"));
+  private static final List<Path> MAIN_ROOTS = List.of(Path.of("src/main"), Path.of("../core/src/main"), Path.of("../content/src/main"));
   private static final List<String> REMOVED_PACKAGES = List.of(
       "art.arcane.chrono",
       "art.arcane.spatial",

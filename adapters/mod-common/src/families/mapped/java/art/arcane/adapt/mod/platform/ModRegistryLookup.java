@@ -106,8 +106,7 @@ public final class ModRegistryLookup implements RegistryLookup {
         for (MobEffectInstance effect : type.value().getEffects()) {
             Id id = ModContentAliases.modern(RegistryKind.EFFECT, effect.getEffect());
             if (id != null) {
-                effects.add(new EffectInstance(id, effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(),
-                    effect.getAmplifier(), effect.isAmbient(), effect.isVisible(), effect.showIcon()));
+                effects.add(EffectInstance.of(id, effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon()));
             }
         }
         return effects;

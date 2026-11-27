@@ -5,6 +5,7 @@ import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.Ingredient;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
@@ -55,7 +56,7 @@ final class RecipeTranslator {
 
   Recipe translate(RecipeSpec spec) {
     ItemStack result = items.apply(spec.result());
-    if (result == null || result.isEmpty()) {
+    if (result == null || PaperApi.isEmpty(result)) {
       return null;
     }
     NamespacedKey key = key(spec.key());
@@ -145,7 +146,7 @@ final class RecipeTranslator {
       }
       case Ingredient.Exact exact -> {
         ItemStack stack = items.apply(exact.item());
-        yield stack == null || stack.isEmpty() ? null : new RecipeChoice.ExactChoice(stack);
+        yield stack == null || PaperApi.isEmpty(stack) ? null : new RecipeChoice.ExactChoice(stack);
       }
       case Ingredient.Matching matching -> matchingChoice(matching);
     };
@@ -154,7 +155,7 @@ final class RecipeTranslator {
   private RecipeChoice matchingChoice(Ingredient.Matching matching) {
     Material base = materials.apply(matching.base());
     ItemStack example = items.apply(matching.example());
-    if (base == null || example == null || example.isEmpty()) {
+    if (base == null || example == null || PaperApi.isEmpty(example)) {
       return null;
     }
     ItemStack representative = example.clone();

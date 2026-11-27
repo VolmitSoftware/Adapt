@@ -1,0 +1,1677 @@
+package art.arcane.adapt.engine.gui;
+
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.AdaptEnvironment;
+import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
+import art.arcane.adapt.localization.catalog.ConfigMessages;
+import art.arcane.adapt.localization.catalog.GuiMessages;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.menu.ClickKind;
+import art.arcane.adapt.platform.menu.MenuClick;
+import art.arcane.adapt.platform.menu.MenuHint;
+import art.arcane.adapt.platform.menu.MenuInput;
+import art.arcane.adapt.platform.menu.MenuLayout;
+import art.arcane.adapt.platform.menu.MenuPaging;
+import art.arcane.adapt.platform.menu.MenuRole;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.platform.value.Loc;
+import art.arcane.adapt.api.text.TextFormat;
+import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
+import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.adapt.util.common.inventorygui.GuiWindow;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.util.config.TomlCodec;
+import art.arcane.volmlib.util.io.IO;
+import art.arcane.volmlib.util.localization.LanguageAudience;
+
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
+
+public final class ConfigGui {
+  private static final String TAG_PREFIX = "config/adapt";
+  private static final String SOURCE_TAG_CORE = "core-config";
+  private static final String ROOT_CORE = "core";
+  private static final String ROOT_CORE_GENERAL = ROOT_CORE + ".$general";
+  private static final String ROOT_SKILLS = "skills";
+  private static final String ROOT_ADAPTATIONS = "adaptations";
+  private static final String ROOT_ADAPTATIONS_SKILLS = ROOT_ADAPTATIONS + ".$skills";
+  private static final String ROOT_ADAPTATIONS_ALL = ROOT_ADAPTATIONS + ".$all";
+  private static final Object WRITE_LOCK = new Object();
+  private static final int MAX_VALUE_PREVIEW = 64;
+  private static final int PAGE_JUMP = 5;
+  private static final int CONFIG_CONTENT_ROWS = GuiLayout.MAX_ROWS - 1;
+  private static final Id ARROW = Id.minecraft("arrow");
+  private static final Id BARREL = Id.minecraft("barrel");
+  private static final Id BARRIER = Id.minecraft("barrier");
+  private static final Id BOOK = Id.minecraft("book");
+  private static final Id BOOKSHELF = Id.minecraft("bookshelf");
+  private static final Id CHEST = Id.minecraft("chest");
+  private static final Id CHEST_MINECART = Id.minecraft("chest_minecart");
+  private static final Id CLOCK = Id.minecraft("clock");
+  private static final Id COMPARATOR = Id.minecraft("comparator");
+  private static final Id ENCHANTED_BOOK = Id.minecraft("enchanted_book");
+  private static final Id ENDER_CHEST = Id.minecraft("ender_chest");
+  private static final Id EXPERIENCE_BOTTLE = Id.minecraft("experience_bottle");
+  private static final Id GRASS_BLOCK = Id.minecraft("grass_block");
+  private static final Id GRAY_DYE = Id.minecraft("gray_dye");
+  private static final Id JUKEBOX = Id.minecraft("jukebox");
+  private static final Id KNOWLEDGE_BOOK = Id.minecraft("knowledge_book");
+  private static final Id LECTERN = Id.minecraft("lectern");
+  private static final Id LIME_DYE = Id.minecraft("lime_dye");
+  private static final Id NAME_TAG = Id.minecraft("name_tag");
+  private static final Id NETHER_STAR = Id.minecraft("nether_star");
+  private static final Id PAPER = Id.minecraft("paper");
+  private static final Id REDSTONE = Id.minecraft("redstone");
+  private static final Id SHIELD = Id.minecraft("shield");
+  private static final Id SPYGLASS = Id.minecraft("spyglass");
+  private static final Id WRITABLE_BOOK = Id.minecraft("writable_book");
+
+  private ConfigGui() {
+  }
+
+  public static boolean canConfigure(PlayerRef player) {
+    return player != null && (player.isOp() || player.hasPermission("adapt.configurator"));
+  }
+
+  public static void open(PlayerRef player) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.uuid())) {
+      open(player, "", 0);
+    }
+  }
+
+  public static void open(PlayerRef player, String sectionPath) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.uuid())) {
+      open(player, sectionPath, 0);
+    }
+  }
+
+  public static void open(PlayerRef player, String sectionPath, int page) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.uuid())) {
+      if (player == null) {
+        return;
+      }
+
+      if (!canConfigure(player)) {
+        message(player, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.NO_PERMISSION));
+        return;
+      }
+
+      boolean owned = (!AdaptApi.scheduler().isRegionized() && AdaptApi.scheduler().isTickThread())
+          || (AdaptApi.scheduler().isRegionized() && AdaptApi.scheduler().owns(player));
+      if (!owned) {
+        String path = sectionPath;
+        int targetPage = page;
+        AdaptApi.scheduler().runEntity(player, () -> open(player, path, targetPage));
+        return;
+      }
+
+      playPageTurn(player);
+      String safePath = normalizePath(sectionPath);
+      if (safePath.isBlank()) {
+        openRoot(player, page);
+        return;
+      }
+
+      if (safePath.equals(ROOT_SKILLS)) {
+        openSkillIndex(player, page);
+        return;
+      }
+
+      if (safePath.equals(ROOT_CORE)) {
+        openCoreIndex(player, page);
+        return;
+      }
+
+      if (safePath.equals(ROOT_CORE_GENERAL)) {
+        openCoreGeneral(player, page);
+        return;
+      }
+
+      if (safePath.equals(ROOT_ADAPTATIONS) || safePath.equals(ROOT_ADAPTATIONS_SKILLS)) {
+        openAdaptationSkillIndex(player, page);
+        return;
+      }
+
+      if (safePath.equals(ROOT_ADAPTATIONS_ALL)) {
+        openAdaptationIndex(player, page);
+        return;
+      }
+
+      if (safePath.startsWith(ROOT_ADAPTATIONS_SKILLS + ".")) {
+        String skillName = safePath.substring(ROOT_ADAPTATIONS_SKILLS.length() + 1);
+        openAdaptationIndexForSkill(player, skillName, page);
+        return;
+      }
+
+      SectionTarget target = resolveSectionTarget(safePath, false);
+      if (target == null || target.sectionObject() == null) {
+        message(player, AdaptLanguage.textStyled(TextFormat.RED.toString(),
+            ConfigMessages.UNABLE_OPEN_SECTION,
+            untrusted("path", safePath)
+        ));
+        return;
+      }
+
+      List<FieldEntry> entries = buildEntries(safePath, target.sectionObject(), target.sourceTag());
+      openFieldEntries(player, safePath, entries, page);
+    }
+  }
+
+  public static void reopenFromTag(PlayerRef player, String tag) {
+    if (player == null) {
+      return;
+    }
+
+    if (tag == null || tag.isBlank()) {
+      open(player);
+      return;
+    }
+
+    if (!tag.startsWith(TAG_PREFIX)) {
+      open(player);
+      return;
+    }
+
+    String path = "";
+    if (tag.length() > TAG_PREFIX.length()) {
+      path = tag.substring(TAG_PREFIX.length());
+      if (path.startsWith("/")) {
+        path = path.substring(1);
+      }
+    }
+
+    navigateTo(player, path, 0);
+  }
+
+  public static ParseResult parseInputValue(Class<?> type, String raw) {
+    return ConfigGuiValueCodec.parseInputValue(type, raw);
+  }
+
+  public static boolean applyAndSave(PlayerRef actor, String valuePath, Object value) {
+    String path = normalizePath(valuePath);
+    if (path.isBlank()) {
+      return false;
+    }
+
+    synchronized (WRITE_LOCK) {
+      EditTarget target = resolveEditTarget(path);
+      if (target == null) {
+        if (actor != null) {
+          message(actor, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
+        }
+        return false;
+      }
+
+      Object before = readPathValue(target.rootObject(), target.objectPath());
+      String beforeToml = TomlCodec.toToml(target.rootObject(), target.sourceTag());
+
+      if (!setPathValue(target.rootObject(), target.objectPath(), value, true)) {
+        if (actor != null) {
+          message(actor, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
+        }
+        return false;
+      }
+
+      try {
+        String updatedToml = TomlCodec.toToml(target.rootObject(), target.sourceTag());
+        IO.writeAll(target.file(), updatedToml);
+      } catch (Throwable e) {
+        restore(target.file(), beforeToml);
+        target.reload().getAsBoolean();
+        if (actor != null) {
+          message(actor, AdaptLanguage.textStyled(TextFormat.RED.toString(),
+              ConfigMessages.FAILED_PERSIST_UPDATE,
+              untrusted("error", e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())
+          ));
+        }
+        return false;
+      }
+
+      if (!target.reload().getAsBoolean()) {
+        restore(target.file(), beforeToml);
+        target.reload().getAsBoolean();
+        if (actor != null) {
+          message(actor, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.RELOAD_REVERTED));
+        }
+        return false;
+      }
+
+      target.afterReload().run();
+      if (actor != null) {
+        message(actor, AdaptLanguage.textStyled(TextFormat.GREEN.toString(),
+            ConfigMessages.UPDATED_VALUE,
+            untrusted("path", path),
+            untrusted("before", summarizeValue(before)),
+            untrusted("after", summarizeValue(value))
+        ));
+      }
+      return true;
+    }
+  }
+
+  public static void confirmAndApply(PlayerRef actor, String returnSectionPath, String valuePath, Object value) {
+    confirmAndApply(actor, returnSectionPath, 0, valuePath, value);
+  }
+
+  public static void confirmAndApply(PlayerRef actor, String returnSectionPath, int returnPage, String valuePath, Object value) {
+    String path = normalizePath(valuePath);
+    if (path.isBlank()) {
+      return;
+    }
+
+    String section = normalizePath(returnSectionPath);
+    applyAndSave(actor, path, value);
+    navigateTo(actor, section, Math.max(0, returnPage));
+  }
+
+  public static String typeName(Class<?> type) {
+    return ConfigGuiValueCodec.typeName(type);
+  }
+
+  private static ElementDescriptor describe(Field field, Object value) {
+    Class<?> type = normalizeType(field.getType());
+    if (type == Boolean.class) {
+      return new ElementDescriptor(ElementKind.BOOLEAN, true);
+    }
+
+    if (isNumericType(type)) {
+      return new ElementDescriptor(ElementKind.NUMBER, true);
+    }
+
+    if (type == String.class || type == Character.class) {
+      return new ElementDescriptor(ElementKind.STRING, true);
+    }
+
+    if (type.isEnum()) {
+      return new ElementDescriptor(ElementKind.ENUM, true);
+    }
+
+    if (Map.class.isAssignableFrom(type)) {
+      return new ElementDescriptor(ElementKind.MAP, false);
+    }
+
+    if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+      return new ElementDescriptor(ElementKind.LIST, false);
+    }
+
+    if (value != null || isSectionType(type)) {
+      return new ElementDescriptor(ElementKind.SECTION, false);
+    }
+
+    return new ElementDescriptor(ElementKind.UNSUPPORTED, false);
+  }
+
+  private static GuiElement createElementForEntry(PlayerRef player, String sectionPath, int currentPage, FieldEntry entry) {
+    Id material = materialFor(entry);
+    String typePrefix = switch (entry.descriptor().kind()) {
+      case BOOLEAN -> TextFormat.GREEN + "[" + AdaptLanguage.text(ConfigMessages.TYPE_BOOLEAN) + "] ";
+      case NUMBER -> TextFormat.AQUA + "[" + AdaptLanguage.text(ConfigMessages.TYPE_NUMBER) + "] ";
+      case STRING -> TextFormat.YELLOW + "[" + AdaptLanguage.text(ConfigMessages.TYPE_TEXT) + "] ";
+      case ENUM -> TextFormat.LIGHT_PURPLE + "[" + AdaptLanguage.text(ConfigMessages.TYPE_ENUM) + "] ";
+      case SECTION -> TextFormat.BLUE + "[" + AdaptLanguage.text(ConfigMessages.TYPE_SECTION) + "] ";
+      case MAP -> TextFormat.GOLD + "[" + AdaptLanguage.text(ConfigMessages.TYPE_MAP) + "] ";
+      case LIST -> TextFormat.GOLD + "[" + AdaptLanguage.text(ConfigMessages.TYPE_LIST) + "] ";
+      case UNSUPPORTED -> TextFormat.RED + "[" + AdaptLanguage.text(ConfigMessages.TYPE_UNSUPPORTED) + "] ";
+    };
+    String name = ConfigFieldMessages.label(entry.path());
+    String value = summarizeValue(entry.value());
+
+    GuiElement element = GuiTheme.element("cfg-" + entry.path(), material, "gui", "config", "fields", entry.path(),
+        entry.descriptor().kind() == ElementKind.BOOLEAN ? String.valueOf(entry.value()) : "item")
+        .setName(typePrefix + TextFormat.WHITE + name);
+    element.addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.VALUE, untrusted("value", value)));
+    element.addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())));
+    if (entry.descriptor().kind() == ElementKind.BOOLEAN && Boolean.TRUE.equals(entry.value())) {
+      element.setEnchanted(true);
+    }
+
+    if (entry.descriptor().kind() == ElementKind.SECTION && entry.value() != null) {
+      int nested = getSerializableFields(entry.value().getClass()).size();
+      element.addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.CONTAINS_SETTINGS, trusted("count", nested)));
+      element.addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(),
+          ConfigMessages.CATEGORY,
+          untrusted("category", sectionCategory(entry.field().getName()))
+      ));
+    }
+
+    int docsShown = 0;
+    for (String line : entry.docs()) {
+      if (line == null || line.isBlank()) {
+        continue;
+      }
+      if (docsShown >= 3) {
+        element.addLore(TextFormat.DARK_GRAY + "...");
+        break;
+      }
+      element.addLore(TextFormat.GRAY + line);
+      docsShown++;
+    }
+
+    ElementKind kind = entry.descriptor().kind();
+    if (kind == ElementKind.BOOLEAN) {
+      element.addLore(Boolean.TRUE.equals(entry.value())
+          ? AdaptLanguage.textStyled(TextFormat.GREEN.toString(), ConfigMessages.STATE_ENABLED)
+          : AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.STATE_DISABLED));
+      element.addLore(AdaptLanguage.textStyled(TextFormat.GREEN.toString(), ConfigMessages.LEFT_CLICK_TOGGLE));
+      element.onLeftClick((MenuClick e) -> {
+        boolean toggled = !Boolean.TRUE.equals(entry.value());
+        confirmAndApply(player, sectionPath, currentPage, entry.path(), toggled);
+      });
+    } else if (kind == ElementKind.ENUM) {
+      element.addLore(AdaptLanguage.textStyled(TextFormat.GREEN.toString(), ConfigMessages.LEFT_CLICK_NEXT_VALUE));
+      element.addLore(AdaptLanguage.textStyled(TextFormat.GREEN.toString(), ConfigMessages.RIGHT_CLICK_PREVIOUS_VALUE));
+      element.onLeftClick((MenuClick e) -> {
+        Object next = cycleEnum(entry.field().getType(), entry.value(), 1);
+        if (next != null) {
+          confirmAndApply(player, sectionPath, currentPage, entry.path(), next);
+        }
+      });
+      element.onRightClick((MenuClick e) -> {
+        Object previous = cycleEnum(entry.field().getType(), entry.value(), -1);
+        if (previous != null) {
+          confirmAndApply(player, sectionPath, currentPage, entry.path(), previous);
+        }
+      });
+    } else if (kind == ElementKind.NUMBER || kind == ElementKind.STRING) {
+      element.addLore(AdaptLanguage.textStyled(TextFormat.YELLOW.toString(), ConfigMessages.LEFT_CLICK_EDIT_CHAT));
+      element.onLeftClick((MenuClick e) -> {
+        ConfigInput service = ConfigInput.current();
+        if (service == null) {
+          message(player, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.INPUT_UNAVAILABLE));
+          return;
+        }
+
+        service.beginSession(player, entry.path(), sectionPath, currentPage, entry.field().getType(), ConfigFieldMessages.label(entry.path()));
+      });
+    } else if (kind == ElementKind.SECTION) {
+      element.addLore(AdaptLanguage.textStyled(TextFormat.GREEN.toString(), ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+      element.onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0));
+    } else if (kind == ElementKind.MAP || kind == ElementKind.LIST) {
+      element.addLore(AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.READ_ONLY));
+    } else if (kind == ElementKind.UNSUPPORTED) {
+      element.addLore(AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.UNSUPPORTED_TYPE));
+    }
+
+    present(element, player, sectionPath, currentPage, entry);
+    return element;
+  }
+
+  /** What native clients show for a field: the docs as description and a control matching the value's type. */
+  private static void present(GuiElement element, PlayerRef player, String sectionPath, int currentPage, FieldEntry entry) {
+    List<String> description = new ArrayList<>();
+    for (String line : entry.docs()) {
+      if (line != null && !line.isBlank()) {
+        description.add(TextFormat.GRAY + line);
+      }
+    }
+    element.setDescription(description).setLabel(TextFormat.WHITE + ConfigFieldMessages.label(entry.path()));
+    MenuInput typed = (MenuClick click, String text) -> applyTyped(player, sectionPath, currentPage, entry, text);
+    String raw = entry.value() == null ? "" : String.valueOf(entry.value());
+    switch (entry.descriptor().kind()) {
+      case BOOLEAN -> element.setHint(MenuHint.toggle(Boolean.TRUE.equals(entry.value())))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_TOGGLE));
+      case NUMBER -> element.setHint(MenuHint.number(raw, null, null, numberStep(entry.field().getType(), entry.value()), typed));
+      case STRING -> element.setHint(MenuHint.text(raw, typed));
+      case ENUM -> element.setHint(MenuHint.choice(raw, enumNames(entry.field().getType()), typed))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_NEXT_VALUE))
+          .setActionLabel(ClickKind.RIGHT, AdaptLanguage.text(ConfigMessages.RIGHT_CLICK_PREVIOUS_VALUE));
+      case SECTION -> element.setRole(MenuRole.NAVIGATION)
+          .setSection(sectionCategory(entry.field().getName()))
+          .setValue(entry.value() == null ? "" : Integer.toString(getSerializableFields(entry.value().getClass()).size()))
+          .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+      case MAP, LIST, UNSUPPORTED -> element.setRole(MenuRole.INFO).setValue(summarizeValue(entry.value()));
+    }
+  }
+
+  private static void applyTyped(PlayerRef player, String sectionPath, int currentPage, FieldEntry entry, String text) {
+    ParseResult parsed = parseInputValue(entry.field().getType(), text);
+    if (!parsed.success()) {
+      message(player, TextFormat.RED + parsed.error());
+      return;
+    }
+    confirmAndApply(player, sectionPath, currentPage, entry.path(), parsed.value());
+  }
+
+  static Double numberStep(Class<?> type, Object value) {
+    Class<?> normalized = normalizeType(type);
+    if (normalized != Double.class && normalized != Float.class) {
+      return 1D;
+    }
+    double magnitude = value instanceof Number number ? Math.abs(number.doubleValue()) : 0D;
+    if (magnitude >= 10D) {
+      return 1D;
+    }
+    return magnitude >= 1D || magnitude == 0D ? 0.1D : 0.01D;
+  }
+
+  private static List<String> enumNames(Class<?> type) {
+    Class<?> normalized = normalizeType(type);
+    List<String> names = new ArrayList<>();
+    if (normalized != null && normalized.isEnum()) {
+      for (Object constant : normalized.getEnumConstants()) {
+        names.add(String.valueOf(constant));
+      }
+    }
+    return names;
+  }
+
+  /** The names of the config pages above {@code path}, outermost first. */
+  static List<String> breadcrumb(String path) {
+    List<String> crumbs = new ArrayList<>();
+    String current = normalizePath(path);
+    while (!current.isBlank()) {
+      current = parentPath(current);
+      crumbs.add(0, crumbLabel(current));
+    }
+    return crumbs;
+  }
+
+  private static String crumbLabel(String path) {
+    if (path.isBlank()) {
+      return AdaptLanguage.text(ConfigMessages.CONFIGURE_ADAPT);
+    }
+    return switch (path) {
+      case ROOT_CORE -> AdaptLanguage.text(ConfigMessages.CORE);
+      case ROOT_SKILLS -> AdaptLanguage.text(ConfigMessages.SKILLS);
+      case ROOT_ADAPTATIONS, ROOT_ADAPTATIONS_SKILLS -> AdaptLanguage.text(ConfigMessages.ADAPTATIONS);
+      case ROOT_ADAPTATIONS_ALL -> AdaptLanguage.text(ConfigMessages.ALL_ADAPTATIONS);
+      case ROOT_CORE_GENERAL -> AdaptLanguage.text(ConfigMessages.GENERAL_SETTINGS);
+      default -> path.substring(path.lastIndexOf('.') + 1);
+    };
+  }
+
+  private static void presentWindow(GuiWindow window, MenuLayout layout, String safePath, int currentPage, int pageCount, int total) {
+    window.setLayout(layout).setBreadcrumb(breadcrumb(safePath))
+        .setPaging(pageCount > 1 ? new MenuPaging(currentPage, pageCount, total) : null);
+  }
+
+  private static Id materialFor(FieldEntry entry) {
+    return switch (entry.descriptor().kind()) {
+      case BOOLEAN ->
+          Boolean.TRUE.equals(entry.value()) ? LIME_DYE : GRAY_DYE;
+      case NUMBER -> CLOCK;
+      case STRING -> NAME_TAG;
+      case ENUM -> BOOK;
+      case SECTION -> materialForSection(entry.field().getName());
+      case MAP -> CHEST_MINECART;
+      case LIST -> BARREL;
+      case UNSUPPORTED -> BARRIER;
+    };
+  }
+
+  private static Id materialForSection(String name) {
+    String key = normalizeSortKey(name);
+    if (key.contains("gui") || key.contains("menu") || key.contains("display") || key.contains("hud")) {
+      return BOOKSHELF;
+    }
+    if (key.contains("sound") || key.contains("audio")) {
+      return JUKEBOX;
+    }
+    if (key.contains("lang") || key.contains("locale") || key.contains("translation")) {
+      return WRITABLE_BOOK;
+    }
+    if (key.contains("sql") || key.contains("database") || key.contains("storage") || key.contains("mysql")) {
+      return ENDER_CHEST;
+    }
+    if (key.contains("xp") || key.contains("level") || key.contains("knowledge") || key.contains("power")) {
+      return EXPERIENCE_BOTTLE;
+    }
+    if (key.contains("world") || key.contains("biome") || key.contains("dimension") || key.contains("region")) {
+      return GRASS_BLOCK;
+    }
+    if (key.contains("thread") || key.contains("tick") || key.contains("async") || key.contains("performance") || key.contains("cache")) {
+      return REDSTONE;
+    }
+    if (key.contains("permission") || key.contains("blacklist") || key.contains("whitelist") || key.contains("security")) {
+      return SHIELD;
+    }
+    if (key.contains("debug") || key.contains("dev") || key.contains("test") || key.contains("verbose")) {
+      return SPYGLASS;
+    }
+    return CHEST;
+  }
+
+  private static String sectionCategory(String name) {
+    String key = normalizeSortKey(name);
+    if (key.contains("gui") || key.contains("menu") || key.contains("display") || key.contains("hud")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_UI);
+    }
+    if (key.contains("sound") || key.contains("audio")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_AUDIO);
+    }
+    if (key.contains("lang") || key.contains("locale") || key.contains("translation")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_LOCALIZATION);
+    }
+    if (key.contains("sql") || key.contains("database") || key.contains("storage") || key.contains("mysql")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_STORAGE);
+    }
+    if (key.contains("xp") || key.contains("level") || key.contains("knowledge") || key.contains("power")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_PROGRESSION);
+    }
+    if (key.contains("world") || key.contains("biome") || key.contains("dimension") || key.contains("region")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_WORLD);
+    }
+    if (key.contains("thread") || key.contains("tick") || key.contains("async") || key.contains("performance") || key.contains("cache")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_PERFORMANCE);
+    }
+    if (key.contains("permission") || key.contains("blacklist") || key.contains("whitelist") || key.contains("security")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_ACCESS);
+    }
+    if (key.contains("debug") || key.contains("dev") || key.contains("test") || key.contains("verbose")) {
+      return AdaptLanguage.text(ConfigMessages.CATEGORY_DEBUG);
+    }
+    return AdaptLanguage.text(ConfigMessages.CATEGORY_GENERAL);
+  }
+
+  private static List<FieldEntry> buildEntries(String sectionPath, Object sectionObject, String sourceTag) {
+    List<FieldEntry> sections = new ArrayList<>();
+    List<FieldEntry> values = new ArrayList<>();
+    for (Field field : getSerializableFields(sectionObject.getClass())) {
+      Object value = getFieldValue(field, sectionObject);
+      String childPath = joinPath(sectionPath, field.getName());
+      ElementDescriptor descriptor = describe(field, value);
+      List<String> docs = ConfigFieldMessages.description(childPath, field);
+      FieldEntry entry = new FieldEntry(field, childPath, value, descriptor, docs);
+      if (descriptor.kind() == ElementKind.SECTION) {
+        sections.add(entry);
+      } else {
+        values.add(entry);
+      }
+    }
+
+    sections.sort(Comparator.comparing(e -> normalizeSortKey(e.field().getName())));
+    values.sort(Comparator.comparing(e -> normalizeSortKey(e.field().getName())));
+    sections.addAll(values);
+    return sections;
+  }
+
+  private static List<FieldEntry> buildCoreGeneralEntries() {
+    List<FieldEntry> values = new ArrayList<>();
+    Object root = AdaptConfig.get();
+    for (Field field : getSerializableFields(root.getClass())) {
+      Object value = getFieldValue(field, root);
+      ElementDescriptor descriptor = describe(field, value);
+      if (descriptor.kind() == ElementKind.SECTION) {
+        continue;
+      }
+
+      String childPath = joinPath(ROOT_CORE, field.getName());
+      List<String> docs = ConfigFieldMessages.description(childPath, field);
+      values.add(new FieldEntry(field, childPath, value, descriptor, docs));
+    }
+
+    values.sort(Comparator.comparing(e -> normalizeSortKey(e.field().getName())));
+    return values;
+  }
+
+  private static void openFieldEntries(PlayerRef player, String safePath, List<FieldEntry> entries, int page) {
+    GuiLayout.PagePlan plan = configPagePlan(entries.size());
+    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+    int start = currentPage * plan.itemsPerPage();
+    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+
+    GuiWindow w = new GuiWindow(player);
+    GuiTheme.apply(w, tagForSection(safePath));
+    w.setViewportHeight(plan.rows());
+
+    if (entries.isEmpty()) {
+      w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NO_SETTINGS))
+          .setRole(MenuRole.HEADER));
+    } else {
+      List<GuiEffects.Placement> reveal = new ArrayList<>();
+      for (int row = 0; row < plan.contentRows(); row++) {
+        int rowStart = start + (row * GuiLayout.WIDTH);
+        if (rowStart >= end) {
+          break;
+        }
+
+        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+        for (int i = 0; i < rowCount; i++) {
+          FieldEntry entry = entries.get(rowStart + i);
+          int pos = GuiLayout.centeredPosition(i, rowCount);
+          GuiElement element = createElementForEntry(player, safePath, currentPage, entry);
+          reveal.add(new GuiEffects.Placement(pos, row, element));
+        }
+      }
+      GuiEffects.applyReveal(w, reveal);
+    }
+
+    int navRow = plan.rows() - 1;
+    applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
+    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
+      String parent = parentPath(safePath);
+      w.setElement(0, navRow, GuiTheme.element("cfg-back", ARROW, "gui", "navigation", "back")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.BACK))
+          .onLeftClick((MenuClick e) -> navigateTo(player, parent, 0)));
+    }
+    addSectionOverview(w, navRow, safePath, entries, currentPage, plan.pageCount());
+    presentWindow(w, MenuLayout.FORM, safePath, currentPage, plan.pageCount(), entries.size());
+
+    String titlePath = safePath.isBlank() ? "root" : safePath;
+    if (safePath.equals(ROOT_CORE_GENERAL)) {
+      titlePath = AdaptLanguage.text(ConfigMessages.GENERAL_SETTINGS);
+    } else if (ConfigFieldMessages.declaresLabel(safePath)) {
+      titlePath = ConfigFieldMessages.label(safePath);
+    }
+    if (titlePath.length() > 24) {
+      titlePath = "..." + titlePath.substring(titlePath.length() - 21);
+    }
+    w.setTitle(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
+    w.onClosed((GuiWindow closed) -> onGuiClosed(player, safePath));
+    w.open();
+  }
+
+  private static void openCoreIndex(PlayerRef player, int page) {
+    Object root = AdaptConfig.get();
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    int generalValues = 0;
+    for (Field field : getSerializableFields(root.getClass())) {
+      Object value = getFieldValue(field, root);
+      ElementDescriptor descriptor = describe(field, value);
+      if (descriptor.kind() == ElementKind.SECTION) {
+        int nested = value == null ? 0 : getSerializableFields(value.getClass()).size();
+        entries.add(new SectionIndexEntry(
+            ROOT_CORE + "." + field.getName(),
+            ConfigFieldMessages.label(ROOT_CORE + "." + field.getName()),
+            materialForSection(field.getName()),
+            AdaptLanguage.text(ConfigMessages.OPEN_SETTINGS, trusted("count", nested))
+        ));
+      } else {
+        generalValues++;
+      }
+    }
+
+    if (generalValues > 0) {
+      entries.add(new SectionIndexEntry(
+          ROOT_CORE_GENERAL,
+          AdaptLanguage.text(ConfigMessages.GENERAL_SETTINGS),
+          COMPARATOR,
+          AdaptLanguage.text(ConfigMessages.OPEN_GLOBAL_OPTIONS, trusted("count", generalValues))
+      ));
+    }
+
+    entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    openSectionIndex(player, ROOT_CORE, page, AdaptLanguage.text(
+        ConfigMessages.CONFIGURE_PATH,
+        trusted("path", AdaptLanguage.text(ConfigMessages.CORE))
+    ), entries);
+  }
+
+  private static void openCoreGeneral(PlayerRef player, int page) {
+    openFieldEntries(player, ROOT_CORE_GENERAL, buildCoreGeneralEntries(), page);
+  }
+
+  private static void openRoot(PlayerRef player, int page) {
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    entries.add(new SectionIndexEntry(
+        ROOT_ADAPTATIONS_SKILLS,
+        AdaptLanguage.text(ConfigMessages.ADAPTATIONS),
+        NETHER_STAR,
+        AdaptLanguage.text(ConfigMessages.CONFIGURE_ADAPTATIONS)
+    ));
+    entries.add(new SectionIndexEntry(
+        ROOT_CORE,
+        AdaptLanguage.text(ConfigMessages.CORE),
+        COMPARATOR,
+        AdaptLanguage.text(ConfigMessages.CONFIGURE_CORE)
+    ));
+    entries.add(new SectionIndexEntry(
+        ROOT_SKILLS,
+        AdaptLanguage.text(ConfigMessages.SKILLS),
+        ENCHANTED_BOOK,
+        AdaptLanguage.text(ConfigMessages.CONFIGURE_SKILLS)
+    ));
+    entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    openSectionIndex(player, "", page, AdaptLanguage.text(ConfigMessages.CONFIGURE_ADAPT), entries);
+  }
+
+  private static void openSkillIndex(PlayerRef player, int page) {
+    List<Skill<?>> skills = getLoadedSkills();
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    for (Skill<?> skill : skills) {
+      if (skill == null) {
+        continue;
+      }
+
+      entries.add(new SectionIndexEntry(
+          ROOT_SKILLS + "." + skill.getId(),
+          TextFormat.strip(skill.getDisplayName()),
+          skill.getIcon().item(),
+          AdaptLanguage.text(ConfigMessages.CONFIGURE_TARGET, untrusted("target", SkillHost.lineKey(skill)))
+      ));
+    }
+
+    entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    openSectionIndex(player, ROOT_SKILLS, page, AdaptLanguage.text(
+        ConfigMessages.CONFIGURE_PATH,
+        trusted("path", AdaptLanguage.text(ConfigMessages.SKILLS))
+    ), entries);
+  }
+
+  private static void openAdaptationSkillIndex(PlayerRef player, int page) {
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    entries.add(new SectionIndexEntry(
+        ROOT_ADAPTATIONS_ALL,
+        AdaptLanguage.text(ConfigMessages.ALL_ADAPTATIONS),
+        NETHER_STAR,
+        AdaptLanguage.text(ConfigMessages.BROWSE_ALL_ADAPTATIONS)
+    ));
+
+    for (Skill<?> skill : getLoadedSkills()) {
+      if (skill == null) {
+        continue;
+      }
+
+      int adaptationCount = SkillHost.ownedAdaptations(skill) == null ? 0 : SkillHost.ownedAdaptations(skill).size();
+      if (adaptationCount <= 0) {
+        continue;
+      }
+
+      entries.add(new SectionIndexEntry(
+          ROOT_ADAPTATIONS_SKILLS + "." + skill.getId(),
+          TextFormat.strip(skill.getDisplayName()),
+          skill.getIcon().item(),
+          AdaptLanguage.text(ConfigMessages.BROWSE_ADAPTATIONS, trusted("count", adaptationCount))
+      ));
+    }
+
+    List<SectionIndexEntry> head = new ArrayList<>();
+    List<SectionIndexEntry> skillEntries = new ArrayList<>();
+    for (SectionIndexEntry entry : entries) {
+      if (ROOT_ADAPTATIONS_ALL.equals(entry.path())) {
+        head.add(entry);
+      } else {
+        skillEntries.add(entry);
+      }
+    }
+    skillEntries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    head.addAll(skillEntries);
+    openSectionIndex(player, ROOT_ADAPTATIONS_SKILLS, page, AdaptLanguage.text(
+        ConfigMessages.CONFIGURE_PATH,
+        trusted("path", AdaptLanguage.text(ConfigMessages.ADAPTATIONS))
+    ), head);
+  }
+
+  private static void openAdaptationIndexForSkill(PlayerRef player, String skillName, int page) {
+    Skill<?> skill = resolveSkill(skillName);
+    if (skill == null) {
+      message(player, AdaptLanguage.textStyled(TextFormat.RED.toString(), ConfigMessages.UNKNOWN_SKILL, untrusted("skill", skillName)));
+      navigateTo(player, ROOT_ADAPTATIONS_SKILLS, 0);
+      return;
+    }
+
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+      if (adaptation == null) {
+        continue;
+      }
+      entries.add(new SectionIndexEntry(
+          ROOT_ADAPTATIONS + "." + adaptation.getId(),
+          TextFormat.strip(adaptation.getDisplayName()),
+          adaptation.getIcon().item(),
+          AdaptLanguage.text(ConfigMessages.OPEN_TARGET, untrusted("target", adaptation.getId().toString()))
+      ));
+    }
+
+    entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    openSectionIndex(player, ROOT_ADAPTATIONS_SKILLS + "." + skill.getId(), page, AdaptLanguage.text(
+        ConfigMessages.CONFIGURE_PATH,
+        untrusted("path", TextFormat.strip(skill.getDisplayName()))
+    ), entries);
+  }
+
+  private static void openAdaptationIndex(PlayerRef player, int page) {
+    List<SectionIndexEntry> entries = new ArrayList<>();
+    for (Adaptation<?> adaptation : getLoadedAdaptations()) {
+      if (adaptation == null || adaptation.getSkill() == null) {
+        continue;
+      }
+
+      entries.add(new SectionIndexEntry(
+          ROOT_ADAPTATIONS + "." + adaptation.getId(),
+          TextFormat.strip(adaptation.getDisplayName()),
+          adaptation.getIcon().item(),
+          AdaptLanguage.text(ConfigMessages.SKILL_TARGET, untrusted("skill", SkillHost.lineKey(adaptation.getSkill())))
+      ));
+    }
+
+    entries.sort(Comparator.comparing(e -> normalizeSortKey(e.displayName())));
+    openSectionIndex(player, ROOT_ADAPTATIONS_ALL, page, AdaptLanguage.text(
+        ConfigMessages.CONFIGURE_PATH,
+        trusted("path", AdaptLanguage.text(ConfigMessages.ALL_ADAPTATIONS))
+    ), entries);
+  }
+
+  private static void openSectionIndex(PlayerRef player, String sectionPath, int page, String title, List<SectionIndexEntry> entries) {
+    String safePath = normalizePath(sectionPath);
+    GuiLayout.PagePlan plan = configPagePlan(entries.size());
+    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+    int start = currentPage * plan.itemsPerPage();
+    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+
+    GuiWindow w = new GuiWindow(player);
+    GuiTheme.apply(w, tagForSection(safePath));
+    w.setViewportHeight(plan.rows());
+
+    if (entries.isEmpty()) {
+      w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NO_ENTRIES))
+          .setRole(MenuRole.HEADER));
+    } else {
+      List<GuiEffects.Placement> reveal = new ArrayList<>();
+      for (int row = 0; row < plan.contentRows(); row++) {
+        int rowStart = start + (row * GuiLayout.WIDTH);
+        if (rowStart >= end) {
+          break;
+        }
+
+        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+        for (int i = 0; i < rowCount; i++) {
+          SectionIndexEntry entry = entries.get(rowStart + i);
+          int pos = GuiLayout.centeredPosition(i, rowCount);
+          GuiElement element = GuiTheme.element("cfg-index-" + entry.path(), entry.material(), "gui", "config", "sections", entry.path())
+              .setName(TextFormat.WHITE + entry.displayName())
+              .addLore(TextFormat.GRAY + entry.lore())
+              .addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())))
+              .onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0))
+              .setRole(MenuRole.NAVIGATION)
+              .setDescription(List.of(TextFormat.GRAY + entry.lore()))
+              .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+          reveal.add(new GuiEffects.Placement(pos, row, element));
+        }
+      }
+      GuiEffects.applyReveal(w, reveal);
+    }
+
+    int navRow = plan.rows() - 1;
+    applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
+    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
+      w.setElement(0, navRow, GuiTheme.element("cfg-back", ARROW, "gui", "navigation", "back")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.BACK))
+          .onLeftClick((MenuClick e) -> navigateTo(player, parentPath(safePath), 0)));
+    }
+    addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
+    presentWindow(w, MenuLayout.LIST, safePath, currentPage, plan.pageCount(), entries.size());
+
+    w.setTitle(TextFormat.GRAY + title);
+    w.onClosed((GuiWindow closed) -> onGuiClosed(player, safePath));
+    w.open();
+  }
+
+  private static GuiLayout.PagePlan configPagePlan(int totalEntries) {
+    int items = Math.max(0, totalEntries);
+    int rows = GuiLayout.MAX_ROWS;
+    int contentRows = CONFIG_CONTENT_ROWS;
+    int itemsPerPage = contentRows * GuiLayout.WIDTH;
+    int pageCount = Math.max(1, (int) Math.ceil(items / (double) itemsPerPage));
+    return new GuiLayout.PagePlan(rows, contentRows, true, itemsPerPage, pageCount);
+  }
+
+  private static void applyPageControls(
+      GuiWindow window,
+      PlayerRef player,
+      String safePath,
+      int navRow,
+      int currentPage,
+      int pageCount,
+      int totalEntries,
+      int start,
+      int end
+  ) {
+    if (pageCount <= 1) {
+      return;
+    }
+
+    int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
+    int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
+
+    if (currentPage > 0) {
+      window.setElement(-4, navRow, GuiTheme.element("cfg-prev", ARROW, "gui", "navigation", "previous")
+          .setName(AdaptLanguage.textStyled(TextFormat.WHITE.toString(), GuiMessages.PREVIOUS))
+          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LEFT_CLICK_PREVIOUS))
+          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
+          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, currentPage - 1))
+          .onRightClick((MenuClick e) -> navigateTo(player, safePath, jumpBack)));
+      window.setElement(-3, navRow, GuiTheme.element("cfg-first", LECTERN, "gui", "navigation", "first")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.FIRST))
+          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, 0)));
+    }
+
+    if (currentPage < pageCount - 1) {
+      window.setElement(4, navRow, GuiTheme.element("cfg-next", ARROW, "gui", "navigation", "next")
+          .setName(AdaptLanguage.textStyled(TextFormat.WHITE.toString(), GuiMessages.NEXT))
+          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LEFT_CLICK_NEXT))
+          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
+          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, currentPage + 1))
+          .onRightClick((MenuClick e) -> navigateTo(player, safePath, jumpForward)));
+      window.setElement(3, navRow, GuiTheme.element("cfg-last", LECTERN, "gui", "navigation", "last")
+          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LAST))
+          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, pageCount - 1)));
+    }
+
+    int from = totalEntries <= 0 ? 0 : (start + 1);
+    int to = totalEntries <= 0 ? 0 : end;
+    window.setElement(-1, navRow, GuiTheme.element("cfg-page-info", PAPER, "gui", "navigation", "page-info")
+        .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(),
+            GuiMessages.PAGE_OF,
+            trusted("page", currentPage + 1),
+            trusted("pages", pageCount)
+        ))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(),
+            GuiMessages.SHOWING_RANGE,
+            trusted("from", from),
+            trusted("to", to),
+            trusted("total", totalEntries)
+        )));
+  }
+
+  private static void addSectionOverview(
+      GuiWindow window,
+      int navRow,
+      String path,
+      List<FieldEntry> entries,
+      int currentPage,
+      int pageCount
+  ) {
+    int sections = 0;
+    int editable = 0;
+    for (FieldEntry entry : entries) {
+      if (entry.descriptor().kind() == ElementKind.SECTION) {
+        sections++;
+      }
+      if (entry.descriptor().editable()) {
+        editable++;
+      }
+    }
+
+    String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
+    window.setElement(1, navRow, GuiTheme.element("cfg-overview", BOOK, "gui", "config", "overview")
+        .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(), ConfigMessages.OVERVIEW))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.SECTIONS_COUNT, trusted("count", sections)))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.EDITABLE_COUNT, trusted("count", editable)))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", entries.size()))));
+
+    window.setElement(2, navRow, GuiTheme.element("cfg-help", KNOWLEDGE_BOOK, "gui", "config", "help")
+        .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_LEFT_CLICK))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_RIGHT_CLICK))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_ESCAPE))
+        .addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(),
+            GuiMessages.PAGE_OF,
+            trusted("page", currentPage + 1),
+            trusted("pages", pageCount)
+        )));
+  }
+
+  private static void addIndexOverview(
+      GuiWindow window,
+      int navRow,
+      String path,
+      int totalEntries,
+      int currentPage,
+      int pageCount,
+      String title
+  ) {
+    String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
+    window.setElement(1, navRow, GuiTheme.element("cfg-index-overview", BOOK, "gui", "config", "index-overview")
+        .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(), ConfigMessages.DIRECTORY))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", totalEntries)))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(),
+            ConfigMessages.PAGE,
+            trusted("page", currentPage + 1),
+            trusted("pages", pageCount)
+        ))
+        .addLore(TextFormat.DARK_GRAY + title));
+
+    window.setElement(2, navRow, GuiTheme.element("cfg-index-help", KNOWLEDGE_BOOK, "gui", "config", "index-help")
+        .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAVIGATION))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAV_OPEN_SECTION))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAV_JUMP_PAGES))
+        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_ESCAPE)));
+  }
+
+  private static String tagForSection(String sectionPath) {
+    String path = normalizePath(sectionPath);
+    if (path.isBlank()) {
+      return TAG_PREFIX;
+    }
+    return TAG_PREFIX + "/" + path;
+  }
+
+  private static String normalizePath(String path) {
+    if (path == null) {
+      return "";
+    }
+
+    String normalized = path.trim();
+    while (normalized.startsWith(".")) {
+      normalized = normalized.substring(1);
+    }
+    while (normalized.endsWith(".")) {
+      normalized = normalized.substring(0, normalized.length() - 1);
+    }
+    return normalized;
+  }
+
+  private static String parentPath(String path) {
+    String normalized = normalizePath(path);
+    if (normalized.isBlank()) {
+      return "";
+    }
+
+    if (normalized.equals(ROOT_ADAPTATIONS) || normalized.equals(ROOT_ADAPTATIONS_SKILLS)) {
+      return "";
+    }
+
+    if (normalized.equals(ROOT_CORE_GENERAL)) {
+      return ROOT_CORE;
+    }
+
+    if (normalized.equals(ROOT_ADAPTATIONS_ALL)) {
+      return ROOT_ADAPTATIONS_SKILLS;
+    }
+
+    if (normalized.startsWith(ROOT_ADAPTATIONS_SKILLS + ".")) {
+      return ROOT_ADAPTATIONS_SKILLS;
+    }
+
+    int dot = normalized.lastIndexOf('.');
+    if (dot < 0) {
+      return "";
+    }
+    return normalized.substring(0, dot);
+  }
+
+  private static String joinPath(String base, String child) {
+    String left = normalizePath(base);
+    if (left.isBlank()) {
+      return child;
+    }
+    return left + "." + child;
+  }
+
+  private static Object resolveSectionObject(Object root, String sectionPath, boolean createMissing) {
+    if (root == null) {
+      return null;
+    }
+
+    String normalized = normalizePath(sectionPath);
+    if (normalized.isBlank()) {
+      return root;
+    }
+
+    Object current = root;
+    for (String segment : normalized.split("\\Q.\\E")) {
+      Field field = findField(current.getClass(), segment);
+      if (field == null) {
+        return null;
+      }
+
+      Object next = getFieldValue(field, current);
+      if (next == null && createMissing) {
+        next = instantiate(field.getType());
+        if (next == null) {
+          return null;
+        }
+        if (!setFieldValue(field, current, next)) {
+          return null;
+        }
+      }
+
+      if (next == null) {
+        return null;
+      }
+
+      current = next;
+    }
+
+    return current;
+  }
+
+  private static boolean setPathValue(Object root, String path, Object value, boolean createMissing) {
+    String normalized = normalizePath(path);
+    if (normalized.isBlank()) {
+      return false;
+    }
+
+    String[] segments = normalized.split("\\Q.\\E");
+    if (segments.length == 0) {
+      return false;
+    }
+
+    StringBuilder parentPath = new StringBuilder();
+    for (int i = 0; i < segments.length - 1; i++) {
+      if (i > 0) {
+        parentPath.append('.');
+      }
+      parentPath.append(segments[i]);
+    }
+
+    Object section = resolveSectionObject(root, parentPath.toString(), createMissing);
+    if (section == null) {
+      return false;
+    }
+
+    Field targetField = findField(section.getClass(), segments[segments.length - 1]);
+    if (targetField == null) {
+      return false;
+    }
+
+    Object typedValue = coerceValue(value, targetField.getType());
+    return setFieldValue(targetField, section, typedValue);
+  }
+
+  private static Object readPathValue(Object root, String path) {
+    String normalized = normalizePath(path);
+    if (normalized.isBlank()) {
+      return null;
+    }
+
+    String[] segments = normalized.split("\\Q.\\E");
+    if (segments.length == 0) {
+      return null;
+    }
+
+    StringBuilder parentPath = new StringBuilder();
+    for (int i = 0; i < segments.length - 1; i++) {
+      if (i > 0) {
+        parentPath.append('.');
+      }
+      parentPath.append(segments[i]);
+    }
+
+    Object section = resolveSectionObject(root, parentPath.toString(), false);
+    if (section == null) {
+      return null;
+    }
+
+    Field field = findField(section.getClass(), segments[segments.length - 1]);
+    if (field == null) {
+      return null;
+    }
+
+    return getFieldValue(field, section);
+  }
+
+  private static Field findField(Class<?> type, String name) {
+    Class<?> current = type;
+    while (current != null && current != Object.class) {
+      try {
+        Field field = current.getDeclaredField(name);
+        field.setAccessible(true);
+        return field;
+      } catch (NoSuchFieldException ex) {
+        current = current.getSuperclass();
+      }
+    }
+
+    return null;
+  }
+
+  private static List<Field> getSerializableFields(Class<?> type) {
+    List<Field> fields = new ArrayList<>();
+    collectFields(type, fields);
+    return fields;
+  }
+
+  private static void collectFields(Class<?> type, List<Field> out) {
+    if (type == null || type == Object.class) {
+      return;
+    }
+
+    collectFields(type.getSuperclass(), out);
+    for (Field field : type.getDeclaredFields()) {
+      if (field.isSynthetic()) {
+        continue;
+      }
+
+      int modifiers = field.getModifiers();
+      if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+        continue;
+      }
+
+      field.setAccessible(true);
+      out.add(field);
+    }
+  }
+
+  private static Object instantiate(Class<?> type) {
+    Class<?> normalized = normalizeType(type);
+    if (normalized.isPrimitive() || normalized.isEnum() || normalized == String.class || isNumericType(normalized) || normalized == Boolean.class) {
+      return null;
+    }
+
+    try {
+      return normalized.getDeclaredConstructor().newInstance();
+    } catch (Throwable ex) {
+      AdaptLog.verbose("Failed to instantiate config type " + normalized.getName() + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+      return null;
+    }
+  }
+
+  private static boolean setFieldValue(Field field, Object target, Object value) {
+    try {
+      field.setAccessible(true);
+      field.set(target, value);
+      return true;
+    } catch (Throwable ex) {
+      AdaptLog.verbose("Failed to set field '" + field.getName() + "' on "
+          + (target == null ? "null" : target.getClass().getName()) + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+      return false;
+    }
+  }
+
+  private static Object getFieldValue(Field field, Object target) {
+    try {
+      field.setAccessible(true);
+      return field.get(target);
+    } catch (Throwable ex) {
+      AdaptLog.verbose("Failed to read field '" + field.getName() + "' on "
+          + (target == null ? "null" : target.getClass().getName()) + ": "
+          + ex.getClass().getSimpleName()
+          + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+      return null;
+    }
+  }
+
+  private static Object coerceValue(Object value, Class<?> targetType) {
+    return ConfigGuiValueCodec.coerceValue(value, targetType);
+  }
+
+  private static Class<?> normalizeType(Class<?> type) {
+    return ConfigGuiValueCodec.normalizeType(type);
+  }
+
+  private static boolean isNumericType(Class<?> type) {
+    return ConfigGuiValueCodec.isNumericType(type);
+  }
+
+  private static boolean isSectionType(Class<?> type) {
+    return ConfigGuiValueCodec.isSectionType(type);
+  }
+
+  private static Object cycleEnum(Class<?> enumType, Object current, int direction) {
+    return ConfigGuiValueCodec.cycleEnum(enumType, current, direction);
+  }
+
+  private static Object parseEnumConstant(Class<?> enumType, String value) {
+    return ConfigGuiValueCodec.parseEnumConstant(enumType, value);
+  }
+
+  private static String enumConstants(Class<?> enumType) {
+    return ConfigGuiValueCodec.enumConstants(enumType);
+  }
+
+  private static String summarizeValue(Object value) {
+    if (value == null) {
+      return AdaptLanguage.text(ConfigMessages.NULL);
+    }
+
+    if (value instanceof Map<?, ?> map) {
+      return AdaptLanguage.text(ConfigMessages.MAP_SIZE, trusted("count", map.size()));
+    }
+    if (value instanceof Collection<?> collection) {
+      return AdaptLanguage.text(ConfigMessages.LIST_SIZE, trusted("count", collection.size()));
+    }
+    if (value.getClass().isArray()) {
+      return AdaptLanguage.text(ConfigMessages.ARRAY);
+    }
+
+    String text = String.valueOf(value)
+        .replace("\n", "\\n")
+        .replace("\r", "\\r");
+    if (text.length() > MAX_VALUE_PREVIEW) {
+      return text.substring(0, MAX_VALUE_PREVIEW - 3) + "...";
+    }
+    return text;
+  }
+
+  private static void refreshGlobalRuntimeSettings() {
+    AdaptLanguage.reload();
+    AdaptLanguage.requestConfiguredLocale();
+
+    if (AdaptConfig.get().isCustomModels()) {
+      CustomModel.reloadFromDisk();
+    } else {
+      CustomModel.clear();
+    }
+    synchronizeAdvancementRuntime();
+  }
+
+  private static SectionTarget resolveSectionTarget(String path, boolean createMissing) {
+    String normalized = normalizePath(path);
+    if (normalized.isBlank()) {
+      return new SectionTarget(SOURCE_TAG_CORE, resolveSectionObject(AdaptConfig.get(), "", createMissing));
+    }
+
+    if (normalized.equals(ROOT_CORE) || normalized.startsWith(ROOT_CORE + ".")) {
+      String objectPath = stripPrefix(normalized, ROOT_CORE);
+      return new SectionTarget(SOURCE_TAG_CORE, resolveSectionObject(AdaptConfig.get(), objectPath, createMissing));
+    }
+
+    if (normalized.equals(ROOT_SKILLS) || normalized.startsWith(ROOT_SKILLS + ".")) {
+      String payload = stripPrefix(normalized, ROOT_SKILLS);
+      if (payload.isBlank()) {
+        return null;
+      }
+
+      String[] parts = payload.split("\\Q.\\E", 2);
+      Skill<?> skill = resolveSkill(parts[0]);
+      if (skill == null || skill.getConfig() == null) {
+        return null;
+      }
+
+      String objectPath = parts.length > 1 ? parts[1] : "";
+      return new SectionTarget("skill:" + LegacyContentNames.of(skill.getId()), resolveSectionObject(skill.getConfig(), objectPath, createMissing));
+    }
+
+    if (normalized.equals(ROOT_ADAPTATIONS) || normalized.startsWith(ROOT_ADAPTATIONS + ".")) {
+      String payload = stripPrefix(normalized, ROOT_ADAPTATIONS);
+      if (payload.isBlank()) {
+        return null;
+      }
+
+      String[] parts = payload.split("\\Q.\\E", 2);
+      Adaptation<?> adaptation = resolveAdaptation(parts[0]);
+      if (adaptation == null || adaptation.getConfig() == null) {
+        return null;
+      }
+
+      String objectPath = parts.length > 1 ? parts[1] : "";
+      return new SectionTarget("adaptation:" + LegacyContentNames.of(adaptation.getId()), resolveSectionObject(adaptation.getConfig(), objectPath, createMissing));
+    }
+
+    return new SectionTarget(SOURCE_TAG_CORE, resolveSectionObject(AdaptConfig.get(), normalized, createMissing));
+  }
+
+  private static EditTarget resolveEditTarget(String path) {
+    String normalized = normalizePath(path);
+    if (normalized.isBlank()) {
+      return null;
+    }
+
+    if (normalized.equals(ROOT_CORE) || normalized.startsWith(ROOT_CORE + ".")) {
+      String objectPath = stripPrefix(normalized, ROOT_CORE);
+      if (objectPath.isBlank()) {
+        return null;
+      }
+      return new EditTarget(
+          SOURCE_TAG_CORE,
+          AdaptConfig.get(),
+          objectPath,
+          AdaptEnvironment.dataFile("adapt.toml"),
+          AdaptConfig::reload,
+          ConfigGui::refreshGlobalRuntimeSettings
+      );
+    }
+
+    if (normalized.equals(ROOT_SKILLS) || normalized.startsWith(ROOT_SKILLS + ".")) {
+      String payload = stripPrefix(normalized, ROOT_SKILLS);
+      if (payload.isBlank()) {
+        return null;
+      }
+
+      String[] parts = payload.split("\\Q.\\E", 2);
+      Skill<?> skill = resolveSkill(parts[0]);
+      SkillRegistry registry = skillRegistry();
+      if (skill == null || skill.getConfig() == null || registry == null) {
+        return null;
+      }
+
+      String objectPath = parts.length > 1 ? parts[1] : "";
+      if (objectPath.isBlank()) {
+        return null;
+      }
+
+      return new EditTarget(
+          "skill:" + LegacyContentNames.of(skill.getId()),
+          skill.getConfig(),
+          objectPath,
+          AdaptEnvironment.contentConfigFile("skills", skill.getId()),
+          () -> registry.hotReloadSkillConfig(skill.getId()),
+          () -> {
+          }
+      );
+    }
+
+    if (normalized.equals(ROOT_ADAPTATIONS) || normalized.startsWith(ROOT_ADAPTATIONS + ".")) {
+      String payload = stripPrefix(normalized, ROOT_ADAPTATIONS);
+      if (payload.isBlank()) {
+        return null;
+      }
+
+      String[] parts = payload.split("\\Q.\\E", 2);
+      Adaptation<?> adaptation = resolveAdaptation(parts[0]);
+      SkillRegistry registry = skillRegistry();
+      if (adaptation == null || adaptation.getConfig() == null || !(adaptation instanceof SimpleAdaptation<?>) || registry == null) {
+        return null;
+      }
+
+      String objectPath = parts.length > 1 ? parts[1] : "";
+      if (objectPath.isBlank()) {
+        return null;
+      }
+
+      return new EditTarget(
+          "adaptation:" + LegacyContentNames.of(adaptation.getId()),
+          adaptation.getConfig(),
+          objectPath,
+          AdaptEnvironment.contentConfigFile("adaptations", adaptation.getId()),
+          () -> registry.hotReloadAdaptationConfig(adaptation.getId()),
+          () -> {
+          }
+      );
+    }
+
+    return new EditTarget(
+        SOURCE_TAG_CORE,
+        AdaptConfig.get(),
+        normalized,
+        AdaptEnvironment.dataFile("adapt.toml"),
+        AdaptConfig::reload,
+        ConfigGui::refreshGlobalRuntimeSettings
+    );
+  }
+
+  private static String stripPrefix(String path, String prefix) {
+    String normalized = normalizePath(path);
+    if (normalized.equals(prefix)) {
+      return "";
+    }
+
+    String withDot = prefix + ".";
+    if (normalized.startsWith(withDot)) {
+      return normalized.substring(withDot.length());
+    }
+    return normalized;
+  }
+
+  private static void synchronizeAdvancementRuntime() {
+    SkillRegistry registry = skillRegistry();
+    if (registry != null) {
+      registry.synchronizeAdvancementRuntime();
+    }
+  }
+
+  private static Skill<?> resolveSkill(String skillName) {
+    if (skillName == null || skillName.isBlank()) {
+      return null;
+    }
+    SkillRegistry registry = skillRegistry();
+    if (registry == null) {
+      return null;
+    }
+    for (Skill<?> skill : registry.getAllSkills()) {
+      if (skill.getId().toString().equals(skillName)) {
+        return skill;
+      }
+    }
+    return null;
+  }
+
+  private static Adaptation<?> resolveAdaptation(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return null;
+    }
+
+    for (Skill<?> skill : getLoadedSkills()) {
+      if (skill == null) {
+        continue;
+      }
+
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+        if (adaptation == null) {
+          continue;
+        }
+
+        if (adaptation.getId().toString().equals(adaptationName)) {
+          return adaptation;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private static List<Skill<?>> getLoadedSkills() {
+    SkillRegistry registry = skillRegistry();
+    if (registry == null) {
+      return List.of();
+    }
+
+    List<Skill<?>> skills = new ArrayList<>(registry.getAllSkills());
+    skills.sort(Comparator.comparing(skill -> normalizeSortKey(TextFormat.strip(skill.getDisplayName()))));
+    return skills;
+  }
+
+  private static List<Adaptation<?>> getLoadedAdaptations() {
+    List<Adaptation<?>> adaptations = new ArrayList<>();
+    for (Skill<?> skill : getLoadedSkills()) {
+      if (skill == null) {
+        continue;
+      }
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+        if (adaptation == null) {
+          continue;
+        }
+        adaptations.add(adaptation);
+      }
+    }
+
+    adaptations.sort(Comparator.comparing(adaptation -> normalizeSortKey(TextFormat.strip(adaptation.getDisplayName()))));
+    return adaptations;
+  }
+
+  private static String normalizeSortKey(String value) {
+    if (value == null) {
+      return "";
+    }
+
+    String normalized = TextFormat.strip(value).toLowerCase(Locale.ROOT).trim();
+    return normalized.replaceFirst("^[^\\p{L}\\p{N}]+", "");
+  }
+
+  private static void playPageTurn(PlayerRef player) {
+    SoundPlayer spw = SoundPlayer.of(player.world());
+    Loc location = player.location();
+    spw.play(location, Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
+    spw.play(location, Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
+    spw.play(location, Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
+  }
+
+  static void message(PlayerRef player, String message) {
+    player.sendMessage(TextFormat.GRAY + "[" + TextFormat.DARK_RED + "Adapt" + TextFormat.GRAY + "]: " + message);
+  }
+
+  private static SkillRegistry skillRegistry() {
+    AdaptCore core = AdaptCore.current();
+    AdaptServer server = core == null ? null : core.getAdaptServer();
+    return server == null ? null : server.getSkillRegistry();
+  }
+
+  private static void restore(File file, String content) {
+    try {
+      IO.writeAll(file, content);
+    } catch (Throwable failure) {
+      AdaptLog.verbose("Failed to restore " + file.getPath() + ": " + failure.getMessage());
+    }
+  }
+
+  private static void navigateTo(PlayerRef player, String path, int page) {
+    if (player == null) {
+      return;
+    }
+    open(player, path, page);
+  }
+
+  private static void onGuiClosed(PlayerRef player, String currentPath) {
+    if (player == null) {
+      return;
+    }
+
+    if (GuiCloseSuppression.consume(player.uuid())) {
+      return;
+    }
+
+    if (AdaptConfig.get().isEscClosesAllGuis()) {
+      return;
+    }
+
+    String safePath = normalizePath(currentPath);
+    if (safePath.isBlank()) {
+      return;
+    }
+
+    String parent = parentPath(safePath);
+    AdaptApi.scheduler().runEntity(player, () -> {
+      if (GuiCloseSuppression.windowFree(player)) {
+        open(player, parent, 0);
+      }
+    }, 1);
+  }
+
+  public record ParseResult(boolean success, Object value, String error) {
+    public static ParseResult ok(Object value) {
+      return new ParseResult(true, value, "");
+    }
+
+    public static ParseResult fail(String error) {
+      return new ParseResult(false, null, error == null ? AdaptLanguage.text(ConfigMessages.INVALID_VALUE) : error);
+    }
+  }
+
+}

@@ -1,8 +1,10 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.player.PlayerApi;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.ItemEntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -18,13 +20,13 @@ public final class DemolitionFixtures {
     private static final String TOOL_NAME = "Groundwork Tool";
     private static final String BLOCK_NAME = "Restitution Stone";
     private static final Map<String, Integer> LEARNED_PROFILE = Map.ofEntries(
-        Map.entry("agility-air-dash", 4), Map.entry("agility-super-jump", 4), Map.entry("agility-wall-jump", 5),
-        Map.entry("architect-foundation", 5), Map.entry("architect-demolition", 5), Map.entry("axe-chop", 5),
-        Map.entry("axe-throwing-axe", 4), Map.entry("axe-wood-veinminer", 5), Map.entry("discovery-archaeologist", 6),
-        Map.entry("discovery-better-mending", 6), Map.entry("discovery-insight", 4), Map.entry("discovery-keen-eye", 5),
-        Map.entry("discovery-sixth-sense", 5), Map.entry("discovery-villager-att", 5), Map.entry("hunter-blood-trail", 5),
-        Map.entry("pickaxe-autosmelt", 4), Map.entry("pickaxe-tunnel-bore", 3), Map.entry("pickaxe-unbreakable-pact", 3),
-        Map.entry("excavation-grave-digger", 5), Map.entry("excavation-haste", 3), Map.entry("excavation-tunneler", 5)
+        Map.entry("adapt:agility/air_dash", 4), Map.entry("adapt:agility/super_jump", 4), Map.entry("adapt:agility/wall_jump", 5),
+        Map.entry("adapt:architect/foundation", 5), Map.entry("adapt:architect/demolition", 5), Map.entry("adapt:axe/chop", 5),
+        Map.entry("adapt:axe/throwing_axe", 4), Map.entry("adapt:axe/wood_veinminer", 5), Map.entry("adapt:discovery/archaeologist", 6),
+        Map.entry("adapt:discovery/better_mending", 6), Map.entry("adapt:discovery/insight", 4), Map.entry("adapt:discovery/keen_eye", 5),
+        Map.entry("adapt:discovery/sixth_sense", 5), Map.entry("adapt:discovery/villager_att", 5), Map.entry("adapt:hunter/blood_trail", 5),
+        Map.entry("adapt:pickaxe/autosmelt", 4), Map.entry("adapt:pickaxe/tunnel_bore", 3), Map.entry("adapt:pickaxe/unbreakable_pact", 3),
+        Map.entry("adapt:excavation/grave_digger", 5), Map.entry("adapt:excavation/haste", 3), Map.entry("adapt:excavation/tunneler", 5)
     );
 
     private DemolitionFixtures() {
@@ -42,10 +44,10 @@ public final class DemolitionFixtures {
         int matched = 0;
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                Integer configured = LEARNED_PROFILE.get(adaptation.getName());
+                Integer configured = LEARNED_PROFILE.get(adaptation.getId().toString());
                 int level = configured == null ? 0 : configured;
-                if (level > adaptation.getMaxLevel()) throw new IllegalStateException("Profile level exceeds " + adaptation.getName());
-                runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation, level);
+                if (level > adaptation.getMaxLevel()) throw new IllegalStateException("Profile level exceeds " + adaptation.getId().toString());
+                runtime.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation, level);
                 if (configured != null) matched++;
             }
         }
@@ -96,8 +98,8 @@ public final class DemolitionFixtures {
         AdaptPlayer runtime = Objects.requireNonNull(Fixtures.adaptPlayer(player));
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                int level = adaptation.getLevel(runtime);
-                if (level > 0) learned.addProperty(adaptation.getName(), level);
+                int level = adaptation.getLevel(PlayerApi.profile(runtime));
+                if (level > 0) learned.addProperty(adaptation.getId().toString(), level);
             }
         }
         result.add("learned", learned);

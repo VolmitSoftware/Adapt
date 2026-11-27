@@ -1,10 +1,10 @@
 package art.arcane.adapt.client.protocol;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.MutationSpreadView;
 import art.arcane.adapt.client.view.SpendView;
@@ -16,6 +16,7 @@ import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.ToolView;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -146,10 +147,56 @@ public sealed interface ServerFrame {
     }
   }
 
-  /** Insight's focused target, sent whole when it is new or changes more than its vitals. */
-  record InsightTarget(InsightView view) implements ServerFrame {
+  /**
+   * Insight's focused target, sent whole when it is new or changes more than its vitals. The wire form of
+   * {@link art.arcane.adapt.api.insight.InsightView}: ids travel as strings and {@code tags} lists what the client may
+   * draw as markers.
+   */
+  record InsightTarget(int entityId, String typeId, String name, InsightKind kind, double health, double maxHealth,
+                       double absorption, double armor, InsightBond bond, String ownerName, List<String> tags,
+                       List<Stat> stats, List<Effect> effects) implements ServerFrame {
     public InsightTarget {
-      Objects.requireNonNull(view, "view");
+      Objects.requireNonNull(typeId, "typeId");
+      Objects.requireNonNull(name, "name");
+      Objects.requireNonNull(kind, "kind");
+      Objects.requireNonNull(bond, "bond");
+      Objects.requireNonNull(ownerName, "ownerName");
+      tags = List.copyOf(tags);
+      stats = List.copyOf(stats);
+      effects = List.copyOf(effects);
+    }
+
+    /** True when only health, absorption or effect durations differ, so a vitals frame is enough. */
+    public boolean sameShape(InsightTarget other) {
+      if (other == null || entityId != other.entityId || effects.size() != other.effects.size()) {
+        return false;
+      }
+      for (int index = 0; index < effects.size(); index++) {
+        Effect mine = effects.get(index);
+        Effect theirs = other.effects.get(index);
+        if (!mine.effectId().equals(theirs.effectId()) || mine.amplifier() != theirs.amplifier()
+            || mine.harmful() != theirs.harmful()) {
+          return false;
+        }
+      }
+      return typeId.equals(other.typeId) && name.equals(other.name) && kind == other.kind
+          && Double.compare(maxHealth, other.maxHealth) == 0 && Double.compare(armor, other.armor) == 0
+          && bond == other.bond && ownerName.equals(other.ownerName) && tags.equals(other.tags)
+          && stats.equals(other.stats);
+    }
+
+    /** One attribute chip, keyed by the attribute id. */
+    public record Stat(String attribute, double value) {
+      public Stat {
+        Objects.requireNonNull(attribute, "attribute");
+      }
+    }
+
+    /** One active effect; {@code durationTicks} is -1 for one that never runs out. */
+    public record Effect(String effectId, int amplifier, int durationTicks, boolean harmful) {
+      public Effect {
+        Objects.requireNonNull(effectId, "effectId");
+      }
     }
   }
 
@@ -158,9 +205,16 @@ public sealed interface ServerFrame {
   }
 
   /** Nearby entities Insight tracks without focus; an empty list removes them. */
-  record InsightMarks(List<InsightMark> marks) implements ServerFrame {
+  record InsightMarks(List<Mark> marks) implements ServerFrame {
     public InsightMarks {
       marks = List.copyOf(marks);
+    }
+
+    /** One tracked entity; {@code health} is a fraction of its maximum. */
+    public record Mark(int entityId, InsightKind kind, double health) {
+      public Mark {
+        Objects.requireNonNull(kind, "kind");
+      }
     }
   }
 
@@ -251,6 +305,41 @@ public sealed interface ServerFrame {
   record AdaptationRecipes(List<RecipeView> recipes) implements ServerFrame {
     public AdaptationRecipes {
       recipes = List.copyOf(recipes);
+    }
+  }
+
+  /**
+   * Every file of art the server holds, as resource id and SHA-1 hex hash; sent after negotiation and again whenever the
+   * server's art changes, only under {@link ClientProtocol#ASSETS}.
+   */
+  record AssetManifest(List<AssetRef> assets) implements ServerFrame {
+    public AssetManifest {
+      assets = List.copyOf(assets);
+    }
+  }
+
+  /** One file a client asked for with {@link ClientFrame.AssetRequest}; only under {@link ClientProtocol#ASSETS}. */
+  record Asset(String resource, String hash, byte[] data) implements ServerFrame {
+    public Asset {
+      Objects.requireNonNull(resource, "resource");
+      Objects.requireNonNull(hash, "hash");
+      Objects.requireNonNull(data, "data");
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof Asset that && resource.equals(that.resource) && hash.equals(that.hash)
+          && Arrays.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(resource, hash, Arrays.hashCode(data));
+    }
+
+    @Override
+    public String toString() {
+      return "Asset[" + resource + ", " + hash + ", " + data.length + " bytes]";
     }
   }
 }

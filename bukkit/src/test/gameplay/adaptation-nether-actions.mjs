@@ -178,12 +178,12 @@ async function harvest(input) {
 }
 
 export const netherBehaviorCases = new Map([
-    ['nether-ashwalker', {
+    ['adapt:nether/ashwalker', {
         stage: 'nether-qa-ash', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: input => exposure(input, 20), verify: verifyReduction,
         sound: 'minecraft:block.soul_sand.step', soundVolume: 0.4, soundPitch: 0.8, particle: 'soul_fire_flame',
     }],
-    ['nether-crimson-feast', {
+    ['adapt:nether/crimson_feast', {
         stage: 'nether-qa-feast', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'crimson_fungus'), trigger: feast,
         sound: 'minecraft:entity.generic.eat', soundVolume: 0.6, soundPitch: 1.1, particle: 'crimson_spore',
@@ -197,12 +197,12 @@ export const netherBehaviorCases = new Map([
             return { assertions: ['unlearned fungus cannot be eaten', 'learned fungus consumption restores food, saturation, and Nether fire resistance'], measurements: { unlearned, active } }
         },
     }],
-    ['nether-ghast-ward', {
+    ['adapt:nether/ghast_ward', {
         stage: 'nether-qa-ward', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'flint_and_steel'), trigger: explosion, verify: verifyReduction,
         sound: 'minecraft:block.beacon.deactivate', soundVolume: 0.4, soundPitch: 1.4, particle: 'sculk_soul',
     }],
-    ['nether-lava-walker', {
+    ['adapt:nether/lava_walker', {
         stage: 'nether-qa-lava', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: lava,
         sound: 'minecraft:block.fire.extinguish', soundVolume: 0.25, soundPitch: 1.4, particle: 'lava',
@@ -218,7 +218,7 @@ export const netherBehaviorCases = new Map([
             return { assertions: ['unlearned lava entry has no stride', 'learned lava entry spends food, grants resistance, and sends upward forward motion'], measurements: { unlearned, active } }
         },
     }],
-    ['nether-magma-skin', {
+    ['adapt:nether/magma_skin', {
         stage: 'nether-qa-magma', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: burningStrike,
         sound: 'minecraft:entity.blaze.hurt', soundVolume: 0.35, soundPitch: 1.5, particle: 'soul_fire_flame',
@@ -229,7 +229,7 @@ export const netherBehaviorCases = new Map([
             return { assertions: ['unlearned burning punch does not ignite', 'learned burning punch adds damage and ignites its victim'], measurements: { unlearned, active } }
         },
     }],
-    ['nether-netherrack-mason', {
+    ['adapt:nether/netherrack_mason', {
         stage: 'nether-qa-mason', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_pickaxe'), trigger: mason,
         sound: 'minecraft:block.netherrack.break', soundVolume: 0.6, soundPitch: 1.3, particle: 'lava', particleCount: 3,
@@ -240,7 +240,7 @@ export const netherBehaviorCases = new Map([
             return { assertions: ['unlearned blackstone mining has ordinary break speed', 'learned natural mining increases break speed and removes the block'], measurements: { unlearned, active } }
         },
     }],
-    ['nether-skull-toss', {
+    ['adapt:nether/skull_toss', {
         stage: 'nether-qa-skull', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wither_skeleton_skull'), trigger: skull,
         sound: 'minecraft:entity.wither.shoot', soundVolume: 1, soundPitch: 1, particle: 'soul',
@@ -251,18 +251,18 @@ export const netherBehaviorCases = new Map([
             return { assertions: ['unlearned skull use does not launch', 'learned skull use consumes one item and launches a moving projectile'], measurements: { unlearned, active } }
         },
     }],
-    ['nether-soul-strider', {
+    ['adapt:nether/soul_strider', {
         stage: 'nether-qa-soul', attribute: 'minecraft:movement_speed', negativeWindowTicks: 10,
         prepare: input => prepare(input), trigger: input => stepForward(input.actor, 8),
         sound: 'minecraft:particle.soul_escape', soundVolume: 0.35, soundPitch: 1.3, particle: 'soul_fire_flame',
     }],
-    ['nether-wither-resist', {
+    ['adapt:nether/wither_resist', {
         stage: 'nether-qa-wither', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: input => exposure(input, 65),
         verify: input => verifyReduction(input, true),
         sound: 'minecraft:particle.soul_escape', soundVolume: 0.35, soundPitch: 0.8, particle: 'sculk_soul',
     }],
-    ['nether-wither-harvest', {
+    ['adapt:nether/wither_harvest', {
         stage: 'nether-qa-harvest', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: harvest, particle: 'soul',
         sound: 'minecraft:entity.wither_skeleton.hurt', soundVolume: 0.4, soundPitch: 1.1,

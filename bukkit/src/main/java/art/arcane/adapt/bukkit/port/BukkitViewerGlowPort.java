@@ -1,8 +1,9 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
-import art.arcane.adapt.api.fx.ViewerGlowPort;
+import art.arcane.adapt.api.viewer.GlowLayer;
+import art.arcane.adapt.engine.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.engine.fx.ViewerGlowPort;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -22,34 +23,34 @@ final class BukkitViewerGlowPort implements ViewerGlowPort {
   }
 
   @Override
-  public boolean set(Layer layer, EntityRef entity, PlayerRef viewer, GlowColor color) {
+  public boolean set(GlowLayer layer, EntityRef entity, PlayerRef viewer, GlowColor color) {
     ViewerGlowCoordinator coordinator = coordinator();
     Entity target = entity == null ? null : BukkitRefs.entity(entity);
     Player player = viewer == null ? null : BukkitRefs.player(viewer);
     return coordinator != null && layer != null && color != null
-        && coordinator.set(layer(layer), target, player, ChatColor.valueOf(color.name()));
+        && coordinator.set(layer, target, player, ChatColor.valueOf(color.name()));
   }
 
   @Override
-  public boolean unset(Layer layer, EntityRef entity, PlayerRef viewer) {
+  public boolean unset(GlowLayer layer, EntityRef entity, PlayerRef viewer) {
     ViewerGlowCoordinator coordinator = coordinator();
     Entity target = entity == null ? null : BukkitRefs.entity(entity);
     Player player = viewer == null ? null : BukkitRefs.player(viewer);
-    return coordinator != null && layer != null && coordinator.unset(layer(layer), target, player);
+    return coordinator != null && layer != null && coordinator.unset(layer, target, player);
   }
 
   @Override
-  public boolean unset(Layer layer, UUID targetId, int runtimeEntityId, PlayerRef viewer) {
+  public boolean unset(GlowLayer layer, UUID targetId, int runtimeEntityId, PlayerRef viewer) {
     ViewerGlowCoordinator coordinator = coordinator();
     Player player = viewer == null ? null : BukkitRefs.player(viewer);
-    return coordinator != null && layer != null && coordinator.unset(layer(layer), targetId, runtimeEntityId, player);
+    return coordinator != null && layer != null && coordinator.unset(layer, targetId, runtimeEntityId, player);
   }
 
   @Override
-  public void clearLayer(Layer layer) {
+  public void clearLayer(GlowLayer layer) {
     ViewerGlowCoordinator coordinator = coordinator();
     if (coordinator != null && layer != null) {
-      coordinator.clearLayer(layer(layer));
+      coordinator.clearLayer(layer);
     }
   }
 
@@ -59,10 +60,6 @@ final class BukkitViewerGlowPort implements ViewerGlowPort {
     if (coordinator != null) {
       coordinator.discardViewer(viewerId);
     }
-  }
-
-  private static ViewerGlowCoordinator.Layer layer(Layer layer) {
-    return ViewerGlowCoordinator.Layer.valueOf(layer.name());
   }
 
   private static ViewerGlowCoordinator coordinator() {

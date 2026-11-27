@@ -1,9 +1,11 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.AdaptConfig;
+
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.client.protocol.ClientProtocolException;
 import art.arcane.adapt.client.protocol.FrameCodec;
 import art.arcane.adapt.client.protocol.ServerFrame;
@@ -52,14 +54,14 @@ class ClientViewBuildersTest {
 
     assertThat(catalog.revision()).isEqualTo(registry.getCatalogRevision());
     assertThat(catalog.locale()).isNotBlank();
-    assertThat(catalog.skills()).extracting(SkillView::id).containsExactlyInAnyOrder("rift", "agility");
+    assertThat(catalog.skills()).extracting(SkillView::id).containsExactlyInAnyOrder("adapt:rift", "adapt:agility");
     SkillView rift = skill(catalog, "rift");
-    assertThat(rift.adaptations()).hasSize(registry.getSkill("rift").getAdaptations().size());
+    assertThat(rift.adaptations()).hasSize(registry.getSkill("adapt:rift").getAdaptations().size());
     assertThat(rift.preferences()).extracting(PreferenceView::id).containsExactly("enabled");
     assertThat(rift.color()).isBetween(0, 0xFFFFFF);
 
-    AdaptationView blink = adaptation(rift, "rift-blink");
-    assertThat(blink.skillId()).isEqualTo("rift");
+    AdaptationView blink = adaptation(rift, "adapt:rift/blink");
+    assertThat(blink.skillId()).isEqualTo("adapt:rift");
     assertThat(blink.knowledgeCosts()).hasSize(blink.maxLevel()).allMatch((Integer cost) -> cost > 0);
     assertThat(blink.statLines()).hasSize(blink.maxLevel());
     assertThat(blink.icon().itemId()).contains(":");
@@ -74,22 +76,22 @@ class ClientViewBuildersTest {
 
   @Test
   void playerViewReflectsLearnedAdaptationsAndPreferences() throws ClientProtocolException {
-    Adaptation<?> blink = adaptation(registry.getSkill("rift"), "rift-blink");
+    Adaptation<?> blink = adaptation(registry.getSkill("rift"), "adapt:rift/blink");
     profile.getData().getSkillLine("rift").setAdaptation(blink, 1);
     profile.getData().getSkillLine("rift").giveKnowledge(7L);
-    profile.getData().getPreferences().set("rift-blink", "landing", "NEAR");
+    profile.getData().getPreferences().set("adapt:rift/blink", "landing", "NEAR");
 
     PlayerView view = PlayerViews.build(registry, profile);
 
-    assertThat(view.skills()).extracting(SkillLineView::skillId).containsExactlyInAnyOrder("rift", "agility");
+    assertThat(view.skills()).extracting(SkillLineView::skillId).containsExactlyInAnyOrder("adapt:rift", "adapt:agility");
     SkillLineView rift = view.skills().stream()
-        .filter((SkillLineView line) -> line.skillId().equals("rift")).findFirst().orElseThrow();
+        .filter((SkillLineView line) -> line.skillId().equals("adapt:rift")).findFirst().orElseThrow();
     assertThat(rift.knowledge()).isEqualTo(7L);
-    assertThat(view.adaptationLevels()).containsEntry("rift-blink", 1);
+    assertThat(view.adaptationLevels()).containsEntry("adapt:rift/blink", 1);
     assertThat(view.header().powerUsed()).isEqualTo(1);
     assertThat(view.preferences()).contains(
-        new PreferenceValue(new PreferenceKey(PreferenceOwner.ADAPTATION, "rift-blink", "landing"), "NEAR"),
-        new PreferenceValue(new PreferenceKey(PreferenceOwner.SKILL, "rift", "enabled"), "ON"));
+        new PreferenceValue(new PreferenceKey(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing"), "NEAR"),
+        new PreferenceValue(new PreferenceKey(PreferenceOwner.SKILL, "adapt:rift", "enabled"), "ON"));
     assertThat(view.preferences()).extracting(PreferenceValue::key).isSorted();
 
     ServerFrame frame = new ServerFrame.Player(view);
@@ -98,31 +100,31 @@ class ClientViewBuildersTest {
 
   @Test
   void unlearningShowsUpInTheDelta() {
-    Adaptation<?> blink = adaptation(registry.getSkill("rift"), "rift-blink");
+    Adaptation<?> blink = adaptation(registry.getSkill("rift"), "adapt:rift/blink");
     profile.getData().getSkillLine("rift").setAdaptation(blink, 1);
     PlayerView before = PlayerViews.build(registry, profile);
 
     profile.getData().getSkillLine("rift").setAdaptation(blink, 0);
     PlayerDelta delta = PlayerViewDiff.diff(before, PlayerViews.build(registry, profile));
 
-    assertThat(delta.adaptationLevels()).containsEntry("rift-blink", 0);
+    assertThat(delta.adaptationLevels()).containsEntry("adapt:rift/blink", 0);
     assertThat(delta.clearedPreferences()).contains(
-        new PreferenceKey(PreferenceOwner.ADAPTATION, "rift-blink", "landing"));
+        new PreferenceKey(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing"));
     assertThat(delta.header()).isNotNull();
   }
 
   private static SkillView skill(CatalogView catalog, String id) {
-    return catalog.skills().stream().filter((SkillView skill) -> skill.id().equals(id)).findFirst().orElseThrow();
+    return catalog.skills().stream().filter((SkillView skill) -> skill.id().equals(AdaptConfig.contentKey(id))).findFirst().orElseThrow();
   }
 
   private static AdaptationView adaptation(SkillView skill, String id) {
     return skill.adaptations().stream()
-        .filter((AdaptationView adaptation) -> adaptation.id().equals(id)).findFirst().orElseThrow();
+        .filter((AdaptationView adaptation) -> adaptation.id().equals(AdaptConfig.contentKey(id))).findFirst().orElseThrow();
   }
 
   private static Adaptation<?> adaptation(Skill<?> skill, String id) {
     for (Adaptation<?> adaptation : skill.getAdaptations()) {
-      if (adaptation.getName().equals(id)) {
+      if (adaptation.getId().toString().equals(AdaptConfig.contentKey(id))) {
         return adaptation;
       }
     }

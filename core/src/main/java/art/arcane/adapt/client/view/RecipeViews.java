@@ -1,11 +1,18 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.item.BrewingRecipe;
+import art.arcane.adapt.api.item.MixingRecipe;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+
+import art.arcane.adapt.api.mutation.MutationTool;
+
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.potion.BrewingRecipe;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.content.adaptation.brewing.BrewingMixer;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.RegistryLookup;
 import art.arcane.adapt.platform.entity.EffectCategory;
@@ -33,7 +40,6 @@ import java.util.UUID;
  * the number of bottles it takes changes.
  */
 public final class RecipeViews {
-  private static final int STAND_BOTTLES = 3;
   private static final String POTION_TEXTURES = "minecraft:textures/item/";
   private static final int WATER = 0x385DC6;
   private static final Map<String, Integer> VANILLA_POTIONS = Map.of(
@@ -56,7 +62,7 @@ public final class RecipeViews {
         if (!skill.isEnabled()) {
           continue;
         }
-        for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+        for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
           if (adaptation.isEnabled()) {
             views.addAll(of(adaptation, registries));
           }
@@ -78,10 +84,10 @@ public final class RecipeViews {
     }
     for (BrewingRecipe brew : adaptation.getBrewingRecipes()) {
       views.add(new RecipeView(page, RecipeView.Kind.BREWING, 1, brewGroup(brew), 0,
-          List.of(item(brew.getBasePotion(), registries), plain(brew.getIngredient(), 1)), item(brew.getResult(), registries)));
+          List.of(item(brew.basePotion(), registries), plain(brew.ingredient(), 1)), item(brew.result(), registries)));
     }
-    if (adaptation instanceof BrewingMixer.Mixes mixes) {
-      views.addAll(mixes(page, mixes, adaptation.getMaxLevel(), registries));
+    for (MixingRecipe mix : adaptation.getMixingRecipes()) {
+      views.add(mix(page, mix));
     }
     return ordered(views);
   }
@@ -99,26 +105,15 @@ public final class RecipeViews {
     return List.copyOf(sorted);
   }
 
-  private static List<RecipeView> mixes(String page, BrewingMixer.Mixes mixes, int maxLevel, RegistryLookup registries) {
-    List<RecipeView> views = new ArrayList<>();
-    int bottles = 0;
-    for (int level = 1; level <= maxLevel; level++) {
-      BrewingMixer.Rules rules = mixes.mixRules(level);
-      int taken = Math.min(STAND_BOTTLES, rules.maxEffects());
-      if (taken < 2 || taken == bottles) {
-        continue;
-      }
-      bottles = taken;
-      List<RecipeView.Item> inputs = new ArrayList<>();
-      RecipeView.Item bottle = potion(rules.material(), WATER, "", nameKey(rules.material(), null), List.of());
-      for (int index = 0; index < taken; index++) {
-        inputs.add(bottle);
-      }
-      inputs.add(plain(BrewingMixer.GLOWSTONE, 1));
-      views.add(new RecipeView(page, RecipeView.Kind.MIXING, level, "mix", 0, inputs,
-          potion(rules.material(), rules.color().packed(), CatalogViews.plain(rules.name()), "", List.of())));
+  private static RecipeView mix(String page, MixingRecipe mix) {
+    List<RecipeView.Item> inputs = new ArrayList<>();
+    RecipeView.Item bottle = potion(mix.bottle(), WATER, "", nameKey(mix.bottle(), null), List.of());
+    for (int index = 0; index < mix.bottles(); index++) {
+      inputs.add(bottle);
     }
-    return views;
+    inputs.add(plain(mix.ingredient(), 1));
+    return new RecipeView(page, RecipeView.Kind.MIXING, mix.level(), "mix", 0, inputs,
+        potion(mix.bottle(), mix.color().packed(), CatalogViews.plain(mix.name()), "", List.of()));
   }
 
   private static RecipeView crafted(String page, RecipeSpec recipe, RegistryLookup registries) {
@@ -175,10 +170,10 @@ public final class RecipeViews {
   /** The effects a brew makes, so a brew and its stronger brew sit together and an elixir of several stands apart. */
   private static String brewGroup(BrewingRecipe brew) {
     TreeSet<String> types = new TreeSet<>();
-    for (EffectInstance effect : brew.getResult().potionContents().map(PotionContents::customEffects).orElse(List.of())) {
+    for (EffectInstance effect : brew.result().potionContents().map(PotionContents::customEffects).orElse(List.of())) {
       types.add(effect.type().toString());
     }
-    return types.isEmpty() ? brew.getId() : String.join(",", types);
+    return types.isEmpty() ? brew.id().toString() : String.join(",", types);
   }
 
   private static RecipeView.Item ingredient(Ingredient ingredient, RegistryLookup registries) {
@@ -211,12 +206,13 @@ public final class RecipeViews {
   /** A recipe's result, drawn with the client mod's own look when the recipe makes an Adapt item that has one. */
   private static RecipeView.Item result(RecipeSpec recipe, RegistryLookup registries) {
     RecipeView.Item item = item(recipe.result(), registries);
-    String look = look(recipe.key().path());
+    MutationTool<?> tool = MutationTools.ofRecipe(recipe.key());
+    String look = tool != null ? LegacyContentNames.of(tool.item().id()) : look(recipe.key().path());
     if (look.isEmpty() || !item.effects().isEmpty()) {
       return item;
     }
     IconRef icon = item.icon();
-    String sprite = look.startsWith("tool-") ? IconSprites.texture("tool", look) : icon.spriteId();
+    String sprite = tool != null ? IconSprites.tool(tool.item().id()) : icon.spriteId();
     return new RecipeView.Item(new IconRef(icon.itemId(), ItemLooks.number(look), icon.itemModelId(), sprite), item.name(),
         item.nameKey(), item.count(), item.effects());
   }

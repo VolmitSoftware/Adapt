@@ -37,7 +37,7 @@ function validate(report) { return validateNativeClientEvidence(report, { artifa
 test('native proof covers only Rubber Soul and satisfies its strict behavior and feedback contract', async () => {
   const entry = validate(validReport())
   const matrix = JSON.parse(await readFile(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations
-  assert.equal(entry.name, 'kinetics-rubber-soul')
+  assert.equal(entry.name, 'adapt:kinetics/rubber_soul')
   assert.equal(assertAdaptationEvidence(matrix.filter(item => item.name === entry.name), [entry]).behaviorPassed, 1)
   assert.throws(() => assertAdaptationEvidence(matrix, [entry]), /missing behavior evidence/)
 })
@@ -82,7 +82,7 @@ for (const [label, mutate] of [
   test(`rejects ${label}`, () => {
     const report = validReport()
     mutate(report)
-    assert.throws(() => validate(report), /kinetics-rubber-soul: native client evidence/)
+    assert.throws(() => validate(report), /adapt:kinetics\/rubber_soul: native client evidence/)
   })
 }
 
@@ -170,9 +170,9 @@ test('deployed manifest digest accepts exactly one external slot in the 333-adap
       particles: { status: 'passed', assertions: ['Unit fixture particle evidence'] },
     }))
     assert.equal(protocol.length, 332)
-    assert.throws(() => assertAdaptationEvidence(matrix, protocol), /kinetics-rubber-soul: missing behavior evidence/)
+    assert.throws(() => assertAdaptationEvidence(matrix, protocol), /adapt:kinetics\/rubber_soul: missing behavior evidence/)
     assert.equal(assertAdaptationEvidence(matrix, [...protocol, native]).behaviorPassed, 333)
-    assert.throws(() => assertAdaptationEvidence(matrix, [...protocol, native, native]), /kinetics-rubber-soul: duplicate evidence/)
+    assert.throws(() => assertAdaptationEvidence(matrix, [...protocol, native, native]), /adapt:kinetics\/rubber_soul: duplicate evidence/)
     assert.throws(() => assertAdaptationEvidence(matrix, [...protocol.slice(1), native]), new RegExp(protocol[0].name + ': missing behavior evidence'))
     assert.equal(native.provenance.reportPath, reportPath)
     assert.equal(native.provenance.artifactSha256, deployedSha)

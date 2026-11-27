@@ -1,0 +1,8 @@
+[skill.geology]
+name = "Geology"
+
+[preference]
+delivery = "Delivery"
+
+[preference.delivery]
+fast = "Fast"

@@ -85,7 +85,7 @@ class MutateScreenTest {
         answer(fixture, "agility", "rift");
         assertEquals("Swift Rift", fixture.find("banner").label());
         assertTrue(fixture.find("hold").enabled());
-        assertEquals("mutated-agility-rift", screen.themeSkill());
+        assertEquals("agility+rift", screen.themeSkill());
         assertNotNull(fixture.find("banner:upgraded-rift"));
     }
 
@@ -157,7 +157,7 @@ class MutateScreenTest {
         assertEquals("rift", state(screen).get("lead"));
         assertEquals("agility", state(screen).get("partner"));
         assertEquals(new ClientFrame.MutationRequest("rift", "agility", false), fixture.sent.getLast());
-        assertEquals("mutated-rift-agility", screen.themeSkill());
+        assertEquals("rift+agility", screen.themeSkill());
         assertEquals("Rift", fixture.find("parent:lead").label());
         assertFalse(fixture.find("hold").enabled());
         answer(fixture, "rift", "agility");

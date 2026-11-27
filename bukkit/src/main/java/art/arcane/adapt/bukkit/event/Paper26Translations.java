@@ -6,11 +6,8 @@ import art.arcane.adapt.platform.event.entity.EntityEquipmentChangedEvent;
 import art.arcane.adapt.platform.event.entity.EntityLungeEvent;
 import art.arcane.adapt.platform.event.entity.ItemTransportingEntityValidateTargetEvent;
 import art.arcane.adapt.platform.event.inventory.ItemCraftedEvent;
-import art.arcane.adapt.platform.event.player.PlayerInput;
-import art.arcane.adapt.platform.event.player.PlayerInputEvent;
 import art.arcane.adapt.platform.event.player.UseResult;
 import io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange;
-import org.bukkit.Input;
 import org.bukkit.entity.LivingEntity;
 
 import java.util.EnumMap;
@@ -30,7 +27,7 @@ final class Paper26Translations {
   }
 
   static List<Translation<?>> all() {
-    return List.of(SMASH_ATTEMPT, LUNGE, EQUIPMENT_CHANGED, TRANSPORT_TARGET, INPUT, CRAFTED);
+    return List.of(SMASH_ATTEMPT, LUNGE, EQUIPMENT_CHANGED, TRANSPORT_TARGET, CRAFTED);
   }
 
   static final Translation<io.papermc.paper.event.entity.EntityAttemptSmashAttackEvent> SMASH_ATTEMPT = BukkitTranslations.simple(
@@ -81,13 +78,6 @@ final class Paper26Translations {
               event.setAllowed(core.allowed());
             }
           });
-
-  static final Translation<org.bukkit.event.player.PlayerInputEvent> INPUT = BukkitTranslations.simple(
-      org.bukkit.event.player.PlayerInputEvent.class, PlayerInputEvent.class, (event, poster) -> {
-        Input input = event.getInput();
-        poster.post(new PlayerInputEvent(player(event.getPlayer()), new PlayerInput(input.isForward(), input.isBackward(),
-            input.isLeft(), input.isRight(), input.isJump(), input.isSneak(), input.isSprint())));
-      });
 
   static final Translation<io.papermc.paper.event.inventory.ItemCraftedEvent> CRAFTED = BukkitTranslations.simple(
       io.papermc.paper.event.inventory.ItemCraftedEvent.class, ItemCraftedEvent.class,

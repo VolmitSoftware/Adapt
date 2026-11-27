@@ -1,26 +1,27 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
-import art.arcane.adapt.api.golem.GolemAnchor;
+import art.arcane.adapt.content.golem.GolemAnchor;
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.node.NodeCuboid;
-import art.arcane.adapt.api.golem.node.NodeFaces;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
-import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.data.WorldData;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemState;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.node.NodeCuboid;
+import art.arcane.adapt.content.golem.node.NodeFaces;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodePlacementVerdict;
+import art.arcane.adapt.content.golem.node.NodeRecord;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -89,7 +90,7 @@ public final class GolemFoliaFixture extends JavaPlugin {
 
     private CompletableFuture<JsonObject> prepare(Player player) {
         return entity(player, () -> {
-            for (String adaptation : List.of("golem-animus-binding", "golem-node-weaving", "golem-harvester-core")) {
+            for (String adaptation : List.of("adapt:golem/animus_binding", "adapt:golem/node_weaving", "adapt:golem/harvester_core")) {
                 learn(player, adaptation, 5);
             }
             player.getInventory().clear();
@@ -314,8 +315,8 @@ public final class GolemFoliaFixture extends JavaPlugin {
         AdaptPlayer runtime = Objects.requireNonNull(Adapt.instance.getAdaptServer().getPlayer(BukkitRefs.player(player)));
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (adaptation.getName().equals(name)) {
-                    runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation, level);
+                if (adaptation.getId().toString().equals(name)) {
+                    runtime.getData().getSkillLine(SkillHost.lineKey(skill)).setAdaptation(adaptation, level);
                     return;
                 }
             }

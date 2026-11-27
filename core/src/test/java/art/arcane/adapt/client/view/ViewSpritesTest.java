@@ -1,23 +1,28 @@
 package art.arcane.adapt.client.view;
 
+import art.arcane.adapt.engine.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.platform.value.Id;
+
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.advancement.AdaptAdvancement;
-import art.arcane.adapt.api.advancement.AdvancementManager;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.mutation.MutationOffers;
-import art.arcane.adapt.api.mutation.SkillMutation;
-import art.arcane.adapt.api.mutation.SkillMutations;
-import art.arcane.adapt.api.mutation.SkillWords;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.mutation.upgrade.UpgradeLoans;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
-import art.arcane.adapt.content.CoreContent;
+import art.arcane.adapt.engine.advancement.AdvancementManager;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.engine.mutation.MutationOffers;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.PairKeys;
+import art.arcane.adapt.engine.mutation.SkillMutations;
+import art.arcane.adapt.engine.mutation.kit.Kits;
+import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
+import art.arcane.adapt.engine.mutation.upgrade.Lending;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
+import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.testkit.FakeGameContent;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -73,9 +78,9 @@ class ViewSpritesTest {
   void everyViewIconHasItsOwnArt() throws IOException {
     TestPlatform platform = TestPlatform.builder(dataFolder).build();
     platform.host().runGame(FakeGameContent.v26_3());
-    try (TestAdapt adapt = TestAdapt.start(platform, CoreContent.skillTypes())) {
+    try (TestAdapt adapt = TestAdapt.start(platform, new BuiltinAddon())) {
       SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
-      SkillMutation signaturePair = signaturePair(registry);
+      SkillPair signaturePair = signaturePair(registry);
       AdaptPlayer fresh = adapt.join(platform.player("Fresh", 0.5D, 61D, 0.5D));
       AdaptPlayer played = adapt.join(platform.player("Played", 4.5D, 61D, 0.5D));
       FakePlayer mutatedRef = platform.player("Mutated", 8.5D, 61D, 0.5D);
@@ -83,7 +88,7 @@ class ViewSpritesTest {
       play(registry, played);
       play(registry, mutated);
       mutate(registry, mutated, TOOLS_PAIR_LEAD, TOOLS_PAIR_PARTNER);
-      mutate(registry, mutated, signaturePair.lead(), signaturePair.partner());
+      mutate(registry, mutated, signaturePair.lead().toString(), signaturePair.partner().toString());
       learnMutated(registry, mutated);
 
       for (AdaptPlayer player : List.of(fresh, played, mutated)) {
@@ -103,11 +108,11 @@ class ViewSpritesTest {
     assertThat(duplicates).as("items repeated within one mutate menu").isEmpty();
   }
 
-  private void walk(SkillRegistry registry, AdaptPlayer player, SkillMutation signaturePair) {
+  private void walk(SkillRegistry registry, AdaptPlayer player, SkillPair signaturePair) {
     UUID viewer = player.getPlayer().uuid();
     String who = player.getPlayer().name();
     PlayerData data = player.getData();
-    List<SkillMutation> mutations = data.getMutations();
+    List<SkillPair> mutations = data.getMutations();
     CatalogView catalog = CatalogViews.build(registry, viewer, mutations, true);
     Map<String, SkillView> skills = new HashMap<>();
     Map<String, AdaptationView> adaptations = new HashMap<>();
@@ -116,7 +121,7 @@ class ViewSpritesTest {
       check(who + " catalog", kind(registry, skill.id()), skill.id(), skill.icon());
       for (AdaptationView adaptation : skill.adaptations()) {
         adaptations.putIfAbsent(adaptation.id(), adaptation);
-        check(who + " catalog", kind(registry.getAdaptation(adaptation.id())), adaptation.id(), adaptation.icon());
+        check(who + " catalog", kind(registry.getAdaptation(Id.parse(adaptation.id()))), adaptation.id(), adaptation.icon());
       }
     }
 
@@ -152,25 +157,25 @@ class ViewSpritesTest {
       }
     }
 
-    for (SkillMutation mutation : mutations) {
-      MutatedSkill skill = registry.getMutatedSkill(mutation.id());
+    for (SkillPair mutation : mutations) {
+      MutatedSkill skill = registry.getMutatedSkill(mutation);
       for (Adaptation<?> kept : skill.getKept()) {
-        viaCatalog(who + " kept", "kept", kept.getName(), iconOf(adaptations, kept.getName()));
+        viaCatalog(who + " kept", "kept", kept.getId().toString(), iconOf(adaptations, kept.getId().toString()));
       }
-      for (UpgradeLoans.Running running : UpgradeLoans.running(player.getPlayer(), player, registry, mutation)) {
-        viaCatalog(who + " lent", "lent", running.original().getName(), iconOf(adaptations, running.original().getName()));
+      for (Lending.Running running : Lending.running(player.getPlayer(), player, registry, mutation)) {
+        viaCatalog(who + " lent", "lent", running.original().getId().toString(), iconOf(adaptations, running.original().getId().toString()));
       }
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        check(who + " hud", kind(adaptation), adaptation.getName(), ViewIcons.adaptation(adaptation));
-        check(who + " toast", "unlock " + kind(adaptation), adaptation.getName(),
+        check(who + " hud", kind(adaptation), adaptation.getId().toString(), ViewIcons.adaptation(adaptation));
+        check(who + " toast", "unlock " + kind(adaptation), adaptation.getId().toString(),
             AdvancementManager.unlockToast(viewer, adaptation).icon());
       }
-      check(who + " toast", "level-up mutated-skill", skill.getName(), ViewIcons.skill(skill));
+      check(who + " toast", "level-up mutated-skill", SkillHost.lineKey(skill), ViewIcons.skill(skill));
     }
     check(who + " toast", "knowledge", "knowledge", ViewIcons.knowledge());
 
     List<List<String>> pairs = List.of(List.of(TOOLS_PAIR_LEAD, TOOLS_PAIR_PARTNER),
-        List.of(signaturePair.lead(), signaturePair.partner()), List.of("swords", "stealth"), List.of("ranged", "rift"));
+        List.of(signaturePair.lead().toString(), signaturePair.partner().toString()), List.of("swords", "stealth"), List.of("ranged", "rift"));
     for (List<String> pair : pairs) {
       Skill<?> lead = registry.getSkill(pair.get(0));
       spread(registry, who, skills, MutationSpreadViews.build(registry, data, lead, null, AdaptConfig.get().getMutations(), ""));
@@ -182,7 +187,7 @@ class ViewSpritesTest {
   private void spread(SkillRegistry registry, String who, Map<String, SkillView> skills, MutationSpreadView spread) {
     String view = who + " spread " + spread.lead() + (spread.partner().isEmpty() ? "" : "+" + spread.partner());
     for (MutationEntry entry : spread.mutated()) {
-      check(view, "result " + kind(registry.getAdaptation(entry.id())), entry.id(), entry.icon());
+      check(view, "result " + kind(registry.getAdaptation(Id.parse(entry.id()))), entry.id(), entry.icon());
     }
     for (MutationSide side : List.of(spread.leadSide(), spread.partnerSide())) {
       for (MutationEntry entry : side.upgrades()) {
@@ -206,7 +211,7 @@ class ViewSpritesTest {
   /** The unlock and discovery toasts of every registered skill and original, as the advancement catalog sends them. */
   private void toasts(SkillRegistry registry) {
     for (Skill<?> skill : registry.getSkills()) {
-      toasts(skill.buildAdvancements());
+      toasts(ComponentHost.of(skill).buildAdvancements());
     }
   }
 
@@ -229,10 +234,10 @@ class ViewSpritesTest {
    * Players without the client mod see the mutate menu's upgrades and the mutation's own adaptations as items: within
    * one pair those items must all differ, or two tiles would look the same.
    */
-  private void chestItems(SkillRegistry registry, AdaptPlayer player, SkillMutation signaturePair) {
+  private void chestItems(SkillRegistry registry, AdaptPlayer player, SkillPair signaturePair) {
     for (Skill<?> lead : registry.getSkills()) {
       for (Skill<?> partner : registry.getSkills()) {
-        if (lead == partner || SkillWords.of(lead.getName()) == null || SkillWords.of(partner.getName()) == null) {
+        if (lead == partner || !Kits.mergeable(lead) || !Kits.mergeable(partner)) {
           continue;
         }
         MutationOffers.Preview preview = MutationOffers.preview(player.getData(), lead, partner);
@@ -240,10 +245,10 @@ class ViewSpritesTest {
         List<Adaptation<?>> shown = new ArrayList<>(preview.upgrades());
         shown.addAll(preview.mutated());
         for (Adaptation<?> adaptation : shown) {
-          String item = GuiConfig.adaptationModel(adaptation.getName(), adaptation.getIcon(), adaptation.getModel()).material().toString();
-          String before = seen.putIfAbsent(item, adaptation.getName());
+          String item = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel()).material().toString();
+          String before = seen.putIfAbsent(item, adaptation.getId().toString());
           if (before != null) {
-            duplicates.add(lead.getName() + "+" + partner.getName() + ": " + item + " for " + before + " and " + adaptation.getName());
+            duplicates.add(SkillHost.lineKey(lead) + "+" + SkillHost.lineKey(partner) + ": " + item + " for " + before + " and " + adaptation.getId().toString());
           }
         }
         count("chest mutate menu", "pairs");
@@ -292,28 +297,28 @@ class ViewSpritesTest {
   }
 
   private static String kind(SkillRegistry registry, String skillId) {
-    return registry.getMutatedSkill(skillId) != null ? "mutated-skill" : "skill";
+    return registry.getMutatedSkill(PairKeys.parse(skillId)) != null ? "mutated-skill" : "skill";
   }
 
   private static String kind(Adaptation<?> adaptation) {
     if (adaptation instanceof MutationAdaptation own) {
       return own.getSignature() != null ? "signature" : "mutated";
     }
-    return adaptation != null && adaptation.getName().startsWith("upgraded-") ? "upgrade" : "adaptation";
+    return adaptation != null && adaptation.getId().path().contains("/upgrade/") ? "upgrade" : "adaptation";
   }
 
   /** The first pair, in registry order, whose mutated skill has a signature in place of a recipe. */
-  private static SkillMutation signaturePair(SkillRegistry registry) {
+  private static SkillPair signaturePair(SkillRegistry registry) {
     Set<String> taken = new TreeSet<>(List.of(TOOLS_PAIR_LEAD, TOOLS_PAIR_PARTNER));
     for (Skill<?> lead : registry.getSkills()) {
       for (Skill<?> partner : registry.getSkills()) {
-        if (lead == partner || taken.contains(lead.getName()) || taken.contains(partner.getName())
-            || SkillWords.of(lead.getName()) == null || SkillWords.of(partner.getName()) == null) {
+        if (lead == partner || taken.contains(SkillHost.lineKey(lead)) || taken.contains(SkillHost.lineKey(partner))
+            || !Kits.mergeable(lead) || !Kits.mergeable(partner)) {
           continue;
         }
-        MutatedSkill mutated = registry.getMutatedSkill(new SkillMutation(lead.getName(), partner.getName()).id());
+        MutatedSkill mutated = registry.getMutatedSkill(new SkillPair(lead.getId(), partner.getId()));
         if (mutated != null && mutated.getMutationAdaptations().stream().anyMatch((MutationAdaptation own) -> own.getSignature() != null)) {
-          return mutated.getMutation();
+          return mutated.getPair();
         }
       }
     }
@@ -325,7 +330,7 @@ class ViewSpritesTest {
     PlayerData data = player.getData();
     data.setMasterXp(1_000_000D);
     for (Skill<?> skill : registry.getSkills()) {
-      PlayerSkillLine line = data.getSkillLine(skill.getName());
+      PlayerSkillLine line = data.getSkillLine(SkillHost.lineKey(skill));
       line.setXp(XP.getXpForLevel(30) + 1D);
       line.setKnowledge(200);
       line.settleWithoutRewards();
@@ -343,9 +348,9 @@ class ViewSpritesTest {
 
   /** Learns every adaptation of the player's mutated skills at level 1: upgrades, recipes and signatures. */
   private static void learnMutated(SkillRegistry registry, AdaptPlayer player) {
-    for (SkillMutation mutation : player.getData().getMutations()) {
-      MutatedSkill skill = registry.getMutatedSkill(mutation.id());
-      PlayerSkillLine line = player.getData().getSkillLine(mutation.lead());
+    for (SkillPair mutation : player.getData().getMutations()) {
+      MutatedSkill skill = registry.getMutatedSkill(mutation);
+      PlayerSkillLine line = player.getData().getSkillLine(mutation.lead().toString());
       line.setKnowledge(5_000);
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
         line.setAdaptation(adaptation, 1);

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const name = 'kinetics-rubber-soul'
+const name = 'adapt:kinetics/rubber_soul'
 const attribute = 'minecraft:bounciness'
 const close = (value, expected) => Number.isFinite(value) && Math.abs(value - expected) < 0.000001
 const bounce = state => state?.attributes?.[attribute]

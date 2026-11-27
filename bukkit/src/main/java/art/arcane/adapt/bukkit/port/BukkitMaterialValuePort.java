@@ -1,10 +1,10 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.api.value.MaterialCount;
-import art.arcane.adapt.api.value.MaterialRecipe;
-import art.arcane.adapt.api.value.MaterialRecipeIndex;
-import art.arcane.adapt.api.value.MaterialValuePort;
+import art.arcane.adapt.engine.value.MaterialCount;
+import art.arcane.adapt.engine.value.MaterialRecipe;
+import art.arcane.adapt.engine.value.MaterialRecipeIndex;
+import art.arcane.adapt.engine.value.MaterialValuePort;
 import art.arcane.adapt.bukkit.feature.recipe.BukkitRecipeRegistry;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.value.Id;

@@ -3,7 +3,7 @@ package art.arcane.adapt.util.common.inventorygui;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.api.value.MaterialNames;
+import art.arcane.adapt.api.item.MaterialNames;
 import art.arcane.adapt.platform.RegistryKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -71,7 +71,7 @@ public final class GuiConfig {
       return UNRANKED;
     }
 
-    Integer rank = ranks.get(name.toLowerCase(Locale.ROOT));
+    Integer rank = ranks.get(AdaptConfig.contentKey(name));
     return rank == null ? UNRANKED : rank;
   }
 
@@ -150,7 +150,7 @@ public final class GuiConfig {
     if (knownNames != null) {
       for (String name : knownNames) {
         if (name != null && !name.isBlank()) {
-          known.add(name.toLowerCase(Locale.ROOT));
+          known.add(AdaptConfig.contentKey(name));
         }
       }
     }
@@ -162,7 +162,7 @@ public final class GuiConfig {
         continue;
       }
 
-      String key = entry.trim().toLowerCase(Locale.ROOT);
+      String key = AdaptConfig.contentKey(entry);
       if (!known.isEmpty() && !known.contains(key)) {
         warnOnce(section + ":" + key, section + " lists unknown entry '" + entry.trim() + "', ignoring it.");
         continue;
@@ -191,7 +191,7 @@ public final class GuiConfig {
     }
 
     for (Map.Entry<String, String> entry : overrides.entrySet()) {
-      if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name)) {
+      if (entry.getKey() != null && AdaptConfig.contentKey(entry.getKey()).equals(AdaptConfig.contentKey(name))) {
         return entry.getValue();
       }
     }
@@ -211,7 +211,7 @@ public final class GuiConfig {
 
     KList<String> merged = new KList<>();
     for (Map.Entry<String, List<String>> entry : overrides.entrySet()) {
-      if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(name) && entry.getValue() != null) {
+      if (entry.getKey() != null && AdaptConfig.contentKey(entry.getKey()).equals(AdaptConfig.contentKey(name)) && entry.getValue() != null) {
         merged.addAll(entry.getValue());
       }
     }

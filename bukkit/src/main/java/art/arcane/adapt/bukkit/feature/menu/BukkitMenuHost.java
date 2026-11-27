@@ -7,9 +7,10 @@ import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuHost;
+import art.arcane.adapt.api.internal.HostMenus;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.volmlib.util.inventorygui.Window;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /** Adapt chest menus rendered through VolmLib inventorygui windows, like the plugin's own GUIs. */
-public final class BukkitMenuHost implements MenuHost {
+public final class BukkitMenuHost implements HostMenus {
   private final JavaPlugin plugin;
   private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
   private final AtomicBoolean storageListening = new AtomicBoolean();
@@ -67,7 +68,7 @@ public final class BukkitMenuHost implements MenuHost {
     if (player == null) {
       return null;
     }
-    return player.getOpenInventory().getTopInventory().getHolder(false) instanceof BukkitStorageView view ? view : null;
+    return PaperApi.holder(player.getOpenInventory().getTopInventory()) instanceof BukkitStorageView view ? view : null;
   }
 
   @Override

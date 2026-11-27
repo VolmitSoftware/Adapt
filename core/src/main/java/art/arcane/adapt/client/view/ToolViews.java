@@ -1,13 +1,14 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.engine.MutationAdaptation;
-import art.arcane.adapt.api.mutation.signature.Signature;
-import art.arcane.adapt.api.mutation.tool.MutationTool;
-import art.arcane.adapt.api.mutation.tool.MutationTools;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+
+import art.arcane.adapt.api.mutation.Signature;
+import art.arcane.adapt.api.mutation.MutationTool;
+import art.arcane.adapt.engine.mutation.tool.MutationTools;
+import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.platform.recipe.Ingredient;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.util.common.misc.ItemLooks;
 import art.arcane.volmlib.util.localization.LanguageAudience;
@@ -37,19 +38,20 @@ public final class ToolViews {
 
   static ToolView view(MutationTool<?> tool) {
     List<RecipeSpec> recipes = tool.recipes();
-    return new ToolView(page(tool.owner()), tool.id(), CatalogViews.plain(AdaptLanguage.text(tool.nameKey())), icon(tool),
+    return new ToolView(page(tool.owner()), tool.item().id().toString(), CatalogViews.plain(MutationTools.name(tool)), icon(tool),
         tool.requiredLevel(), recipes.isEmpty() ? List.of() : ingredients(recipes.get(0)));
   }
 
   /** The tool's item with its custom model data and its own sprite. */
   public static IconRef icon(MutationTool<?> tool) {
-    return new IconRef(tool.material().toString(), ItemLooks.number(tool.id()), null, IconSprites.texture("tool", tool.id()));
+    Id id = tool.item().id();
+    return new IconRef(tool.item().baseItem().toString(), ItemLooks.number(LegacyContentNames.of(id)), null, IconSprites.tool(id));
   }
 
   /** The adaptation whose page shows the tool: a signature's tool shows on the mutated adaptation it replaces. */
   static String page(Adaptation<?> owner) {
-    return owner instanceof Signature<?> signature ? MutationAdaptation.id(signature.getMutation(), signature.getRecipe())
-        : owner.getName();
+    return (owner instanceof Signature<?> signature
+        ? signature.getSlot().pair().child(signature.getSlot().adaptationKey()) : owner.getId()).toString();
   }
 
   /** The recipe's ingredients, each item or tag once with how many the recipe takes, in first-use order. */

@@ -1,7 +1,9 @@
 package art.arcane.adapt.testkit;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostMenus;
+import art.arcane.adapt.api.internal.HostPermissions;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.PlatformLog;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -10,10 +12,8 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.block.BlockDropItemEvent;
 import art.arcane.adapt.platform.item.ItemRef;
-import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.permission.PermissionDefault;
-import art.arcane.adapt.platform.permission.PermissionHost;
-import art.arcane.adapt.platform.protection.ProtectedAction;
+import art.arcane.adapt.platform.protection.ProtectionCheck;
 import art.arcane.adapt.platform.protection.ProtectionHost;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
@@ -30,9 +30,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A complete {@link AdaptPlatform} for unit tests: fake host and worlds, a manual scheduler, recording FX and log, an
+ * A complete {@link HostPlatform} for unit tests: fake host and worlds, a manual scheduler, recording FX and log, an
  * allow-all protection host that breaks blocks naturally, a permission host that asks the player, a recording recipe
  * host, and no-op viewer, menu and advancement hosts (the menu host can be replaced). Build one with {@link #builder(Path)}.
  */
@@ -44,7 +45,7 @@ public final class TestPlatform {
   private final Protection protection;
   private final RecordingLog log;
   private final FakeRecipes recipes;
-  private final AdaptPlatform platform;
+  private final HostPlatform platform;
 
   private TestPlatform(Builder builder) {
     scheduler = builder.scheduler;
@@ -54,7 +55,7 @@ public final class TestPlatform {
     protection = new Protection();
     recipes = new FakeRecipes();
     host = new FakeHost(items, builder.dataDirectory, log, scheduler);
-    platform = new AdaptPlatform(host, scheduler, fx, builder.viewers, builder.menus, builder.permissions,
+    platform = new HostPlatform(host, scheduler, fx, builder.viewers, builder.menus, builder.permissions,
         protection, recipes, noop(AdvancementHost.class));
   }
 
@@ -62,7 +63,7 @@ public final class TestPlatform {
     return new Builder(dataDirectory);
   }
 
-  public AdaptPlatform platform() {
+  public HostPlatform platform() {
     return platform;
   }
 
@@ -157,8 +158,8 @@ public final class TestPlatform {
     private RecordingFx fx = new RecordingFx();
     private FakeItems items = new FakeItems();
     private ViewerHost viewers = noop(ViewerHost.class);
-    private PermissionHost permissions = new Permissions();
-    private MenuHost menus = noop(MenuHost.class);
+    private HostPermissions permissions = new Permissions();
+    private HostMenus menus = noop(HostMenus.class);
 
     private Builder(Path dataDirectory) {
       this.dataDirectory = dataDirectory;
@@ -184,12 +185,12 @@ public final class TestPlatform {
       return this;
     }
 
-    public Builder permissions(PermissionHost value) {
+    public Builder permissions(HostPermissions value) {
       permissions = value;
       return this;
     }
 
-    public Builder menus(MenuHost value) {
+    public Builder menus(HostMenus value) {
       menus = value;
       return this;
     }
@@ -217,12 +218,12 @@ public final class TestPlatform {
     }
 
     @Override
-    public boolean allows(PlayerRef actor, ProtectedAction action, Loc at, String adaptationId) {
+    public boolean allows(PlayerRef actor, ProtectionCheck check, Loc at, Id adaptation) {
       return !deny;
     }
 
     @Override
-    public boolean allowsDamage(PlayerRef actor, EntityRef target, String adaptationId) {
+    public boolean allowsDamage(PlayerRef actor, EntityRef target, Id adaptation) {
       return !deny;
     }
 
@@ -259,7 +260,7 @@ public final class TestPlatform {
   }
 
   /** Answers from {@link PlayerRef#hasPermission}, so a fake player's op flag and grants decide. */
-  public static final class Permissions implements PermissionHost {
+  public static final class Permissions implements HostPermissions {
     @Override
     public boolean has(PlayerRef player, String node) {
       return player.hasPermission(node);
@@ -270,8 +271,21 @@ public final class TestPlatform {
       return player instanceof FakePlayer fake && fake.isPermissionSet(node);
     }
 
+    private final Set<String> registered = ConcurrentHashMap.newKeySet();
+
     @Override
-    public void register(String node, String description, PermissionDefault fallback) {
+    public boolean add(String node, String description, PermissionDefault fallback) {
+      return registered.add(node);
+    }
+
+    @Override
+    public void unregister(String node) {
+      registered.remove(node);
+    }
+
+    /** Every node registered and not removed since the platform was built. */
+    public Set<String> registered() {
+      return Set.copyOf(registered);
     }
   }
 

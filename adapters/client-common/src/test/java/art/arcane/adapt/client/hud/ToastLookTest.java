@@ -84,7 +84,7 @@ class ToastLookTest {
 
     @Test
     void aMutatedSkillToastSplitsItsLeadAndPartner() {
-        PageTheme theme = theme("mutated-agility-pickaxe");
+        PageTheme theme = theme("agility+pickaxe");
         assertTrue(theme.mutated());
         ToastLook look = ToastLook.of(ToastKind.LEVEL_UP, theme);
         assertArrayEquals(stud(theme.lead()), look.leftStud);
@@ -121,7 +121,7 @@ class ToastLookTest {
     @Test
     void aSkillWithoutATheme() {
         assertNull(LIBRARY.theme(SPRITES, "no-such-skill"));
-        assertNull(LIBRARY.theme(SPRITES, "mutated-agility-no-such-skill"));
+        assertNull(LIBRARY.theme(SPRITES, "agility+no-such-skill"));
     }
 
     @Test
@@ -131,7 +131,7 @@ class ToastLookTest {
         model.toast(new ServerFrame.Toast(ToastKind.LEVEL_UP, IconRef.item("minecraft:feather"), "Agility 3", "", "agility"));
         model.toast(new ServerFrame.Toast(ToastKind.KNOWLEDGE, IconRef.item("minecraft:book"), "+3", "", ""));
         model.toast(new ServerFrame.Toast(ToastKind.UNLOCK, IconRef.item("minecraft:bow"), "Called Shot", "",
-                "mutated-ranged-stealth"));
+                "ranged+stealth"));
         HudRenderer renderer = new HudRenderer(model, TEXT);
         HudFakes.Draw draw = new HudFakes.Draw(960, 540, 2.0, false);
         draw.sprites = SPRITES;

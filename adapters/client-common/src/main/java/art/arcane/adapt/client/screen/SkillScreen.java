@@ -69,7 +69,7 @@ public final class SkillScreen extends AdaptScreen {
     /** The least lines the pointed adaptation's description keeps before its box scrolls. */
     private static final int DESCRIPTION_LINES = 4;
     /** How an upgrade's id starts, followed by its parent skill's id. */
-    private static final String UPGRADE_PREFIX = "upgraded-";
+    private static final String UPGRADE_SEGMENT = "/upgrade/";
     /** Space between the medallions of kept originals. */
     private static final int KEPT_GAP = 2;
 
@@ -561,7 +561,7 @@ public final class SkillScreen extends AdaptScreen {
     /** The skill a mutation's adaptation comes from: the parent an upgrade's id names, else the mutated skill. */
     private String owner(String adaptationId) {
         for (String parent : parents) {
-            if (adaptationId.startsWith(UPGRADE_PREFIX + parent + "-")) {
+            if (adaptationId.startsWith(parent + UPGRADE_SEGMENT)) {
                 return parent;
             }
         }

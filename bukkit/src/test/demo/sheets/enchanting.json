@@ -1,5 +1,5 @@
 {
-  "enchanting-anvil-savant": {
+  "adapt:enchanting/anvil_savant": {
     "set": "enchanting-anvil",
     "level": 4,
     "povCapture": true,
@@ -36,7 +36,7 @@
     },
     "maxTicks": 431
   },
-  "enchanting-arcane-siphon": {
+  "adapt:enchanting/arcane_siphon": {
     "set": "enchanting-siphon",
     "level": 5,
     "pre": [
@@ -83,7 +83,7 @@
     "maxTicks": 360,
     "povCapture": true
   },
-  "enchanting-bookshelf-attunement": {
+  "adapt:enchanting/bookshelf_attunement": {
     "set": "enchanting-table",
     "level": 4,
     "povCapture": true,
@@ -115,7 +115,7 @@
     },
     "maxTicks": 258
   },
-  "enchanting-curse-cleansing": {
+  "adapt:enchanting/curse_cleansing": {
     "set": "swords-grindstone",
     "level": 4,
     "povCapture": true,
@@ -152,7 +152,7 @@
     },
     "maxTicks": 390
   },
-  "enchanting-echo-of-knowledge": {
+  "adapt:enchanting/echo_of_knowledge": {
     "set": "arena",
     "level": 5,
     "pre": [
@@ -175,7 +175,7 @@
     "maxTicks": 200,
     "povCapture": true
   },
-  "enchanting-grindstone-recovery": {
+  "adapt:enchanting/grindstone_recovery": {
     "set": "swords-grindstone",
     "level": 5,
     "povCapture": true,
@@ -243,7 +243,7 @@
     },
     "maxTicks": 679
   },
-  "enchanting-infusion-transfer": {
+  "adapt:enchanting/infusion_transfer": {
     "set": "enchanting-anvil",
     "level": 5,
     "povCapture": true,
@@ -283,7 +283,7 @@
     },
     "maxTicks": 422
   },
-  "enchanting-lapis-return": {
+  "adapt:enchanting/lapis_return": {
     "set": "enchanting-library",
     "level": 3,
     "povCapture": true,
@@ -428,7 +428,7 @@
     },
     "maxTicks": 520
   },
-  "enchanting-offer-reroll": {
+  "adapt:enchanting/offer_reroll": {
     "set": "enchanting-library",
     "level": 4,
     "povCapture": true,
@@ -476,7 +476,7 @@
     },
     "maxTicks": 420
   },
-  "enchanting-quick-enchant": {
+  "adapt:enchanting/quick_enchant": {
     "set": "enchanting-chest",
     "level": 7,
     "povCapture": true,
@@ -510,7 +510,7 @@
     },
     "maxTicks": 326
   },
-  "enchanting-rune-sight": {
+  "adapt:enchanting/rune_sight": {
     "set": "enchanting-library",
     "level": 3,
     "povCapture": true,
@@ -541,7 +541,7 @@
     },
     "maxTicks": 268
   },
-  "enchanting-soul-link": {
+  "adapt:enchanting/soul_link": {
     "set": "enchanting-anvil",
     "level": 5,
     "pre": [
@@ -576,7 +576,7 @@
     },
     "maxTicks": 272
   },
-  "enchanting-tome-rebinding": {
+  "adapt:enchanting/tome_rebinding": {
     "set": "enchanting-anvil",
     "level": 5,
     "pre": [
@@ -600,7 +600,7 @@
     "maxTicks": 180,
     "povCapture": true
   },
-  "enchanting-xp-return": {
+  "adapt:enchanting/xp_return": {
     "set": "enchanting-library",
     "level": 7,
     "povCapture": true,

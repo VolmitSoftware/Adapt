@@ -1,0 +1,829 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.engine.world;
+
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.AdaptLog;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.fx.FxPresets;
+import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.xp.XpAward;
+import art.arcane.adapt.client.protocol.ToastKind;
+import art.arcane.adapt.client.server.ClientUiService;
+import art.arcane.adapt.client.server.hud.ClientToasts;
+import art.arcane.adapt.client.server.hud.ToastNotification;
+import art.arcane.adapt.client.view.ViewIcons;
+import art.arcane.adapt.engine.advancement.AdaptAdvancement;
+import art.arcane.adapt.engine.attribute.AdaptAttributeService;
+import art.arcane.adapt.engine.notification.ActionBarNotification;
+import art.arcane.adapt.engine.notification.Notification;
+import art.arcane.adapt.engine.notification.Notifier;
+import art.arcane.adapt.engine.notification.SoundNotification;
+import art.arcane.adapt.engine.notification.TitleNotification;
+import art.arcane.adapt.engine.player.ProgressEvents;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.telemetry.AdaptRuntimeTelemetry;
+import art.arcane.adapt.engine.xp.Curves;
+import art.arcane.adapt.engine.xp.XP;
+import art.arcane.adapt.engine.xp.XPMultiplier;
+import art.arcane.adapt.engine.xp.XpEarnings;
+import art.arcane.adapt.engine.xp.XpReceipt;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.localization.LanguageAudience;
+import art.arcane.volmlib.util.math.M;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.List;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+
+@Data
+@NoArgsConstructor
+public class PlayerSkillLine {
+  private static final KMap<String, String> SKILL_ADVANCEMENT_KEYS = new KMap<>();
+  private static final KMap<String, String> ADAPTATION_ADVANCEMENT_KEYS = new KMap<>();
+  private static volatile MaximumXpCache maximumXpCache;
+  private final KMap<String, Object> storage = new KMap<>();
+  private final KMap<String, PlayerAdaptation> adaptations = new KMap<>();
+  private final KList<XPMultiplier> multipliers = new KList<>();
+  private final KMap<String, RewardStalenessState> activityStaleness = new KMap<>();
+  private String line = "";
+  private double xp = 0;
+  private double lastXP = 0;
+  private long knowledge = 0;
+  private double multiplier = 1D;
+  private double freshness = 1D;
+  private double rfreshness = 1D;
+  private int lastLevel = 0;
+  private long last = M.ms();
+  private int monotonyCounter = 0;
+  private long lastXpTimestamp = 0;
+  private double monotonyMultiplier = 1.0;
+  private RewardStalenessState skillStaleness = new RewardStalenessState();
+  private long lastStalenessCleanup = 0;
+  private transient double pooledXp = 0;
+  private transient double pooledNotifyXp = 0;
+  private transient long poolStartedAt = 0;
+  private transient long poolLastEarnAt = 0;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile AdaptPlayer runtimeOwner;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile LevelCache levelCache;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient long sameActionTick = Long.MIN_VALUE;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionLead;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionPartner;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient double sameActionPaid;
+
+  private static double diff(long a, long b) {
+    return Math.abs(a - b / (double) (a == 0 ? 1 : a));
+  }
+
+  public void update(AdaptPlayer p, String line, PlayerData data) {
+    flushPoolIfReady(p);
+    grantSkillsAndAdaptations(p, line);
+    checkMaxLevel(p, line);
+    int level = getLevel();
+    updateFreshness(level);
+    updateMultiplier(data);
+    updateEarnedXP(p, line);
+    updateLevel(p, line, data, level);
+  }
+
+  private void grantSkillsAndAdaptations(AdaptPlayer p, String line) {
+    if (!AdaptConfig.get().isAdvancements()) {
+      return;
+    }
+
+    String skillAdvancement = SKILL_ADVANCEMENT_KEYS.computeIfAbsent(line, PlayerSkillLine::skillAdvancementKey);
+    if (skillAdvancement != null && !p.getData().isGranted(skillAdvancement)) {
+      p.getAdvancementHandler().grant(skillAdvancement);
+    }
+
+    for (String i : getAdaptations().keySet()) {
+      String adaptationAdvancement = ADAPTATION_ADVANCEMENT_KEYS.computeIfAbsent(i, PlayerSkillLine::adaptationAdvancementKey);
+      if (adaptationAdvancement != null && !p.getData().isGranted(adaptationAdvancement)) {
+        p.getAdvancementHandler().grant(adaptationAdvancement);
+      }
+    }
+  }
+
+  private static String skillAdvancementKey(String line) {
+    Id id = Id.tryParse(line);
+    return id == null ? null : AdaptAdvancement.skillKey(id);
+  }
+
+  private static String adaptationAdvancementKey(String adaptation) {
+    Id id = Id.tryParse(adaptation);
+    return id == null ? null : AdaptAdvancement.adaptationKey(id);
+  }
+
+  private void checkMaxLevel(AdaptPlayer p, String line) {
+    AdaptConfig config = AdaptConfig.get();
+    if (!p.isBusy() && getXp() > maximumXp(config)) {
+      p.getData().addWisdom();
+      AdaptLog.warn("A Player has reached the maximum level of " + config.experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
+      setXp(XP.getXpForLevel(config.experienceMaxLevel - 1));
+    }
+  }
+
+  private void updateFreshness(int level) {
+    double max = 1D + (level * 0.004);
+
+    freshness += (0.08 * freshness) + 0.003;
+    if (freshness > max) freshness = max;
+    if (freshness < 0.01) freshness = 0.01;
+    if (freshness < rfreshness)
+      rfreshness -= ((rfreshness - freshness) * 0.003);
+    if (freshness > rfreshness) rfreshness += (freshness - rfreshness) * 0.265;
+  }
+
+  private void updateMultiplier(PlayerData data) {
+    double m = rfreshness;
+    for (int i = multipliers.size() - 1; i >= 0; i--) {
+      XPMultiplier active = multipliers.get(i);
+      if (active == null || !active.isActive()) {
+        multipliers.remove(i);
+        continue;
+      }
+      m += active.getMultiplier();
+    }
+
+    m = Math.max(0.01, Math.min(m, 1000));
+    multiplier = m * data.getMultiplier();
+  }
+
+  private void updateEarnedXP(AdaptPlayer p, String line) {
+    double earned = xp - lastXP;
+    if (earned > p.getServer().getSkillRegistry().getSkill(line).getMinXp())
+      lastXP = xp;
+  }
+
+  public static long knowledgeForLevelUp(int levelLeft) {
+    int reached = levelLeft + 1;
+    if (reached <= 1) {
+      return 0L;
+    }
+    if (reached <= 5) {
+      return 3L;
+    }
+    return reached <= 30 ? 2L : 3L;
+  }
+
+  private void updateLevel(AdaptPlayer p, String line, PlayerData data, int level) {
+    if (lastLevel < level) {
+      int reachedFrom = lastLevel;
+      long[] granted = new long[level - reachedFrom];
+      for (int i = reachedFrom; i < level; i++) {
+        granted[i - reachedFrom] = grantKnowledge(knowledgeForLevelUp(i));
+        p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
+      }
+
+      Skill<?> levelSkill = p.getServer().getSkillRegistry().getSkill(line);
+      PlayerRef player = p.getPlayer();
+      if (levelSkill != null && player != null && player.isOnline()) {
+        FxPresets.levelUpBurst(levelSkill, player, level);
+      }
+      if (levelSkill != null) {
+        notifyLevel(p, levelSkill, level, getKnowledge());
+      }
+      lastLevel = level;
+      for (int i = reachedFrom; i < level; i++) {
+        ProgressEvents.levelUp(player, line, i + 1, granted[i - reachedFrom]);
+      }
+    }
+  }
+
+  /**
+   * The part of a parent's award a mutated line keeps. Awards from both parents in the same player tick count as one
+   * action, which pays the larger parent total plus {@code smallerShare} of the smaller; each call returns what that
+   * total still owes.
+   */
+  public double sameActionPayment(boolean fromLead, double amount, long tick, double smallerShare) {
+    if (!Double.isFinite(amount) || amount <= 0D) {
+      return 0D;
+    }
+    if (tick != sameActionTick) {
+      sameActionTick = tick;
+      sameActionLead = 0D;
+      sameActionPartner = 0D;
+      sameActionPaid = 0D;
+    }
+    if (fromLead) {
+      sameActionLead += amount;
+    } else {
+      sameActionPartner += amount;
+    }
+    double owed = Math.max(sameActionLead, sameActionPartner) + smallerShare * Math.min(sameActionLead, sameActionPartner);
+    double payment = Math.max(0D, owed - sameActionPaid);
+    sameActionPaid += payment;
+    return payment;
+  }
+
+  public XpReceipt award(Notifier p, XpAward award, double contextual, XpEarnings earnings) {
+    long now = System.currentTimeMillis();
+    double accepted = Double.isFinite(contextual) ? Math.max(0D, contextual) : 0D;
+    double boosted = accepted;
+    double eligible = accepted;
+    double credited = accepted;
+    if (award.kind() == XpAward.Kind.GAMEPLAY && accepted > 0D) {
+      freshness -= 0.012 + (accepted * 0.00025);
+      lastXpTimestamp = now;
+      monotonyCounter++;
+      monotonyMultiplier = computeStalenessMultiplier(accepted, award.source(), now);
+      double safeMultiplier = Double.isFinite(multiplier) ? Math.max(0D, multiplier) : 0D;
+      boosted = Math.min(Double.MAX_VALUE, accepted * safeMultiplier);
+      eligible = boosted * monotonyMultiplier;
+      credited = earnings.claim(line, eligible, safeMultiplier, now);
+    }
+    if (Double.isFinite(credited) && credited > 0D) {
+      credited = ProgressEvents.xp(ownerPlayer(), line, credited, award.source(), ProgressEvents.kind(award.kind()));
+    }
+    XpReceipt receipt = new XpReceipt(line, award.source(), award.kind(), award.amount(), accepted,
+        boosted, eligible, credited, now);
+    earnings.record(receipt);
+    AdaptRuntimeTelemetry.recordXpPayout(now, credited);
+    if (!Double.isFinite(credited) || credited <= 0D) {
+      return receipt;
+    }
+    last = now;
+    if (AdaptConfig.get().getXpIntegrity().isPooledPayoutEnabled()) {
+      if (pooledXp == 0) {
+        poolStartedAt = now;
+      }
+      pooledXp += credited;
+      poolLastEarnAt = now;
+      if (p != null) {
+        pooledNotifyXp += credited;
+      }
+    } else {
+      this.xp += credited;
+      if (p != null && AdaptConfig.get().isActionbarNotifyXp()) {
+        p.notifyXP(line, credited);
+      }
+    }
+    if (p != null) {
+      p.xpEarned(this, credited);
+    }
+    return receipt;
+  }
+
+  private void flushPoolIfReady(AdaptPlayer p) {
+    if (pooledXp == 0 && pooledNotifyXp == 0) {
+      return;
+    }
+
+    if (pooledXp != 0) {
+      AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
+      long now = System.currentTimeMillis();
+      if (now - poolStartedAt < integrity.getPooledWindowMillis() && now - poolLastEarnAt < integrity.getPooledIdleFlushMillis()) {
+        return;
+      }
+    }
+
+    flushXpPool(p.getNot());
+  }
+
+  public void flushXpPool(Notifier p) {
+    if (pooledXp == 0 && pooledNotifyXp == 0) {
+      return;
+    }
+
+    double gained = pooledXp;
+    pooledXp = 0;
+    poolStartedAt = 0;
+    poolLastEarnAt = 0;
+    this.xp += gained;
+
+    if (p == null) {
+      return;
+    }
+
+    double display = pooledNotifyXp;
+    pooledNotifyXp = 0;
+    if (display != 0 && AdaptConfig.get().isActionbarNotifyXp()) {
+      p.notifyXP(line, display);
+    }
+  }
+
+  public double recoverStaleness(long now) {
+    AdaptConfig.FarmPrevention prevention = AdaptConfig.get().getFarmPrevention();
+    if (prevention == null || !prevention.isEnabled()) {
+      monotonyCounter = 0;
+      monotonyMultiplier = 1.0;
+      return 0.0D;
+    }
+
+    double curve = prevention.getSkillDecayCurve();
+    RewardStalenessState state = ensureSkillStaleness();
+    double pressure = state.getPressure();
+    decayState(state, now, prevention.getSkillRecoveryMillis());
+    for (RewardStalenessState activityState : activityStaleness.values()) {
+      decayState(activityState, now, prevention.getActivityRecoveryMillis());
+    }
+    return curve > 0D && pressure > curve * 0.25 && state.getPressure() < pressure ? pressure : 0D;
+  }
+
+  private double computeStalenessMultiplier(double awardXp, String rewardKey, long now) {
+    if (awardXp <= 0) {
+      return 1.0;
+    }
+
+    AdaptConfig.FarmPrevention prevention = AdaptConfig.get().getFarmPrevention();
+    if (prevention == null || !prevention.isEnabled()) {
+      return 1.0;
+    }
+
+    double skillGain = prevention.getSkillBasePressure() + (awardXp * prevention.getSkillXpPressure());
+    double skillMultiplier = applyStaleness(
+        ensureSkillStaleness(),
+        now,
+        skillGain,
+        prevention.getSkillRecoveryMillis(),
+        prevention.getSkillDecayCurve(),
+        prevention.getSkillFloorMultiplier()
+    );
+
+    double activityMultiplier = 1.0;
+    if (prevention.isPerActivityTracking()) {
+      String normalizedRewardKey = normalizeRewardKey(rewardKey);
+      if (normalizedRewardKey != null) {
+        cleanupActivityStaleness(now, prevention.getActivityStateTtlMillis());
+        RewardStalenessState activityState = activityStaleness.computeIfAbsent(normalizedRewardKey, k -> new RewardStalenessState());
+        double activityGain = prevention.getActivityBasePressure() + (awardXp * prevention.getActivityXpPressure());
+        activityMultiplier = applyStaleness(
+            activityState,
+            now,
+            activityGain,
+            prevention.getActivityRecoveryMillis(),
+            prevention.getActivityDecayCurve(),
+            prevention.getActivityFloorMultiplier()
+        );
+      }
+    }
+
+    double floor = clamp(prevention.getSkillFloorMultiplier(), 0.0, 1.0);
+    if (prevention.isPerActivityTracking()) {
+      floor = clamp(floor * prevention.getActivityFloorMultiplier(), 0.0, 1.0);
+    }
+    return clamp(skillMultiplier * activityMultiplier, floor, 1.0);
+  }
+
+  private RewardStalenessState ensureSkillStaleness() {
+    if (skillStaleness == null) {
+      skillStaleness = new RewardStalenessState();
+    }
+    return skillStaleness;
+  }
+
+  private double applyStaleness(RewardStalenessState state, long now, double gain, long recoveryMillis, double curve, double floor) {
+    if (state == null) {
+      return 1.0;
+    }
+
+    decayState(state, now, recoveryMillis);
+    double clampedFloor = clamp(floor, 0.0, 1.0);
+    double multiplier = curve <= 0D ? 1D
+        : clamp(clampedFloor + ((1.0 - clampedFloor) * Math.exp(-state.getPressure() / curve)), clampedFloor, 1.0);
+    state.setPressure(clamp(state.getPressure() + Math.max(0.0, gain), 0.0, 100000.0));
+    state.setLastAwardAt(Math.max(state.getLastAwardAt(), now));
+    return multiplier;
+  }
+
+  private void decayState(RewardStalenessState state, long now, long recoveryMillis) {
+    if (state == null || recoveryMillis <= 0) {
+      return;
+    }
+
+    long lastAward = Math.max(state.getLastAwardAt(), state.getLastDecayAt());
+    if (lastAward <= 0) {
+      state.setLastDecayAt(now);
+      return;
+    }
+
+    long elapsed = Math.max(0, now - lastAward);
+    if (elapsed == 0) {
+      return;
+    }
+
+    double decay = Math.exp(-(double) elapsed / (double) recoveryMillis);
+    state.setPressure(Math.max(0.0, state.getPressure() * decay));
+    state.setLastDecayAt(Math.max(state.getLastDecayAt(), now));
+  }
+
+  private void cleanupActivityStaleness(long now, long ttl) {
+    if (ttl <= 0) {
+      return;
+    }
+    if (now - lastStalenessCleanup < 15000) {
+      return;
+    }
+
+    activityStaleness.entrySet().removeIf(entry -> {
+      RewardStalenessState state = entry.getValue();
+      return state == null || (state.getLastAwardAt() > 0 && now - state.getLastAwardAt() > ttl);
+    });
+    lastStalenessCleanup = now;
+  }
+
+  private String normalizeRewardKey(String rewardKey) {
+    if (rewardKey == null) {
+      return null;
+    }
+    String normalized = rewardKey.trim();
+    return normalized.isEmpty() ? null : normalized;
+  }
+
+  private double clamp(double value, double min, double max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  public boolean hasEarnedWithin(long ms) {
+    return M.ms() - last < ms;
+  }
+
+  public PlayerAdaptation getAdaptation(String id) {
+    return adaptations.get(id);
+  }
+
+  public int getAdaptationLevel(String id) {
+    PlayerAdaptation a = getAdaptation(id);
+
+    if (a == null) {
+      return 0;
+    }
+
+    return a.getLevel();
+  }
+
+  public void setAdaptation(Adaptation a, int level) {
+    if (a == null) {
+      return;
+    }
+
+    String adaptationName = a.getId().toString();
+    int previous = getAdaptationLevel(adaptationName);
+    int clamped = Math.max(0, Math.min(level, a.getMaxLevel()));
+    if (clamped <= 0) {
+      adaptations.remove(adaptationName);
+      updateLearnedIndex(adaptationName, 0);
+      removeAdaptationModifiers(adaptationName);
+      notifyLevelChanged(a, previous, 0);
+      return;
+    }
+
+    PlayerAdaptation v = new PlayerAdaptation();
+    v.setId(adaptationName);
+    v.setLevel(clamped);
+    v.setKnowledge(a.getCostFor(clamped, 0));
+    adaptations.put(adaptationName, v);
+    updateLearnedIndex(adaptationName, clamped);
+    if (clamped < previous) {
+      removeAdaptationModifiers(adaptationName);
+    }
+    notifyLevelChanged(a, previous, clamped);
+  }
+
+  void bindRuntimeOwner(AdaptPlayer owner) {
+    runtimeOwner = owner;
+  }
+
+  void unbindRuntimeOwner(AdaptPlayer owner) {
+    if (runtimeOwner == owner) {
+      runtimeOwner = null;
+    }
+  }
+
+  private void updateLearnedIndex(String adaptationName, int level) {
+    AdaptPlayer owner = runtimeOwner;
+    if (owner == null || owner.getServer() == null) {
+      return;
+    }
+    owner.getServer().updateLearnedAdaptation(owner, adaptationName, level);
+  }
+
+  private void notifyLevelChanged(Adaptation<?> adaptation, int previous, int level) {
+    AdaptPlayer owner = runtimeOwner;
+    if (previous == level || owner == null || owner.getPlayer() == null) {
+      return;
+    }
+    adaptation.onLevelChanged(owner.getPlayer(), level);
+    ClientUiService.changed(owner);
+  }
+
+  private void removeAdaptationModifiers(String adaptationName) {
+    AdaptPlayer owner = runtimeOwner;
+    if (owner == null || owner.getPlayer() == null) {
+      return;
+    }
+    AdaptAttributeService.get().removeAll(owner.getPlayer(), adaptationName);
+  }
+
+  public Skill<?> getRawSkill(AdaptPlayer p) {
+    return p.getServer().getSkillRegistry().getSkill(line);
+  }
+
+  private void notifyLevel(AdaptPlayer p, Skill<?> skill, int level, long knowledge) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(p.getPlayer() == null ? null : p.getPlayer().uuid())) {
+      AdaptConfig config = AdaptConfig.get();
+      boolean showPopup = config.isActionbarNotifyLevel();
+      boolean playSounds = config.isProgressionSoundsEnabled();
+      if (!showPopup && !playSounds) {
+        return;
+      }
+
+      String group = "lvl" + getLine();
+      long displayDurationMillis = config.getActionbarLevelDurationMillis();
+      KList<Notification> notifications = new KList<>();
+      boolean clientToast = showPopup && p.getPlayer() != null && ClientToasts.capable(p.getPlayer().uuid());
+      if (level % 10 == 0) {
+        if (playSounds) {
+          float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();
+          notifications.add(SoundNotification.builder()
+              .sound(Sounds.UI_TOAST_CHALLENGE_COMPLETE)
+              .volume(milestoneVolume)
+              .pitch(1.35f)
+              .group(group)
+              .build());
+          notifications.add(SoundNotification.builder()
+              .sound(Sounds.UI_TOAST_CHALLENGE_COMPLETE)
+              .volume(milestoneVolume)
+              .pitch(0.75f)
+              .group(group)
+              .build());
+        }
+        Notification title = TitleNotification.builder()
+            .in(250)
+            .stay(1450)
+            .out(2250)
+            .group(group)
+            .displayDurationMillis(displayDurationMillis)
+            .title("")
+            .subtitle(skill.getDisplayName(level))
+            .build();
+        Notification knowledgeBar = ActionBarNotification.builder()
+            .duration(450)
+            .displayDurationMillis(displayDurationMillis)
+            .group("know" + getLine())
+            .title(knowledgeStatus(skill, knowledge))
+            .build();
+        if (clientToast) {
+          notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP,
+              ViewIcons.skill(skill), toastTitle(skill, level), toastKnowledge(skill, knowledge), SkillHost.lineKey(skill)), group,
+              List.of(title, knowledgeBar)));
+        } else if (showPopup) {
+          notifications.add(title);
+        }
+        if (!notifications.isEmpty()) {
+          p.getNot().queue(notifications.toArray(new Notification[0]));
+        }
+        if (showPopup && !clientToast) {
+          p.getActionBarNotifier().queue(knowledgeBar);
+        }
+        return;
+      }
+
+      if (playSounds) {
+        notifications.add(SoundNotification.builder()
+            .sound(Sounds.BLOCK_AMETHYST_BLOCK_BREAK)
+            .volume(0.5f)
+            .pitch(1.74f)
+            .group(group)
+            .build());
+        notifications.add(SoundNotification.builder()
+            .sound(Sounds.BLOCK_AMETHYST_BLOCK_CHIME)
+            .volume(0.5f)
+            .pitch(0.74f)
+            .group(group)
+            .build());
+      }
+      Notification levelBar = ActionBarNotification.builder()
+          .duration(450)
+          .displayDurationMillis(displayDurationMillis)
+          .group(group)
+          .title(skill.getDisplayName(level))
+          .build();
+      if (clientToast) {
+        notifications.add(new ToastNotification(ClientToasts.toast(ToastKind.LEVEL_UP, ViewIcons.skill(skill),
+            toastTitle(skill, level), "", SkillHost.lineKey(skill)), group, List.of(levelBar)));
+      } else if (showPopup) {
+        notifications.add(levelBar);
+      }
+      if (!notifications.isEmpty()) {
+        p.getActionBarNotifier().queue(notifications.toArray(new Notification[0]));
+      }
+    }
+  }
+
+  /** The level-up toast title: the skill's colour and plain name, then the level, without the menu symbol. */
+  static String toastTitle(Skill<?> skill, int level) {
+    return SkillHost.legacyColor(skill.getColor()) + "" + C.BOLD + skill.getLocalizedName() + C.RESET + " " + C.WHITE + level;
+  }
+
+  /** The level-up toast body: the knowledge line with the skill's plain name, since a menu symbol draws as a fallback glyph. */
+  static String toastKnowledge(Skill<?> skill, long knowledge) {
+    return AdaptLanguage.text(
+        RuntimeMessages.KNOWLEDGE_STATUS,
+        trusted("amount", knowledge),
+        trusted("skill", SkillHost.legacyColor(skill.getColor()) + skill.getLocalizedName() + C.RESET)
+    );
+  }
+
+  private static String knowledgeStatus(Skill<?> skill, long knowledge) {
+    return AdaptLanguage.text(
+        RuntimeMessages.KNOWLEDGE_STATUS,
+        trusted("amount", knowledge),
+        trusted("skill", skill.getShortName())
+    );
+  }
+
+  /** For knowledge that learning, unlearning or a merge moves; their own events report it. */
+  public void giveKnowledge(long points) {
+    this.knowledge += points;
+    ClientUiService.changed(runtimeOwner);
+  }
+
+  /**
+   * Adds knowledge from anything but learning (a level-up, an orb, a command), or removes it for a negative amount,
+   * after {@code KnowledgeEvent}; never drops below 0. Returns the change made.
+   */
+  public long grantKnowledge(long points) {
+    long amount = ProgressEvents.knowledge(ownerPlayer(), line, points);
+    long applied = Math.max(-knowledge, amount);
+    if (applied != 0L) {
+      giveKnowledge(applied);
+    }
+    return applied;
+  }
+
+  private PlayerRef ownerPlayer() {
+    AdaptPlayer owner = runtimeOwner;
+    return owner == null ? null : owner.getPlayer();
+  }
+
+  public double getMinimumXPForLevel() {
+    return XP.getXpForLevel(getLevel());
+  }
+
+  public double getXPForLevelUpAbsolute() {
+    return Math.max(0D, getMaximumXPForLevel() - getXp());
+  }
+
+  public double getXPForLevelUp() {
+    return Math.max(0D, getMaximumXPForLevel() - getMinimumXPForLevel());
+  }
+
+  public double getMaximumXPForLevel() {
+    int level = getLevel();
+    int maximumLevel = Math.max(1, AdaptConfig.get().experienceMaxLevel);
+    int nextLevel = level >= maximumLevel ? maximumLevel : level + 1;
+    return XP.getXpForLevel(nextLevel);
+  }
+
+  public double getAbsoluteLevel() {
+    AdaptConfig config = AdaptConfig.get();
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    long xpBits = Double.doubleToLongBits(xp);
+    LevelCache cached = levelCache;
+    if (cached != null && cached.matches(xpBits, curve, maximumLevel)) {
+      return cached.level();
+    }
+
+    double resolved = XP.getLevelForXp(xp);
+    levelCache = new LevelCache(xpBits, curve, maximumLevel, resolved);
+    return resolved;
+  }
+
+  public double getLevelProgress() {
+    return getAbsoluteLevel() - getLevel();
+  }
+
+  public double getLevelProgressRemaining() {
+    return 1D - getLevelProgress();
+  }
+
+  public int getLevel() {
+    return (int) Math.floor(getAbsoluteLevel());
+  }
+
+  /** Marks the current XP and level as already rewarded, so the next update pays no knowledge, master XP or notice. */
+  public void settleWithoutRewards() {
+    lastXP = xp;
+    lastLevel = getLevel();
+  }
+
+  public void boost(double v, long i) {
+    multipliers.add(new XPMultiplier(v, i));
+  }
+
+  public void boostOwned(String source, double bonus, long durationMillis) {
+    multipliers.removeIf(active -> active != null && source.equals(active.getSource()));
+    multipliers.add(XPMultiplier.owned(source, bonus, durationMillis));
+    if (runtimeOwner != null) {
+      updateMultiplier(runtimeOwner.getData());
+    }
+  }
+
+  public boolean spendKnowledge(int c) {
+    if (isDebugLearning()) {
+      return true;
+    }
+
+    if (getKnowledge() >= c) {
+      setKnowledge(getKnowledge() - c);
+      ClientUiService.changed(runtimeOwner);
+      return true;
+    }
+
+    return false;
+  }
+
+  private boolean isDebugLearning() {
+    AdaptPlayer owner = runtimeOwner;
+    return owner != null && owner.getPlayer() != null && AdaptDebugMode.isActive(owner.getPlayer().uuid());
+  }
+
+  private static double maximumXp(AdaptConfig config) {
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    MaximumXpCache cached = maximumXpCache;
+    if (cached != null && cached.matches(curve, maximumLevel)) {
+      return cached.xp();
+    }
+
+    double resolved = XP.getXpForLevel(maximumLevel);
+    maximumXpCache = new MaximumXpCache(curve, maximumLevel, resolved);
+    return resolved;
+  }
+
+  @Data
+  @NoArgsConstructor
+  public static class RewardStalenessState {
+    private double pressure = 0;
+    private long lastAwardAt = 0;
+    private long lastDecayAt = 0;
+  }
+
+  private record LevelCache(long xpBits, Curves curve, int maximumLevel, double level) {
+    private boolean matches(long candidateXpBits, Curves candidateCurve, int candidateMaximumLevel) {
+      return xpBits == candidateXpBits && curve == candidateCurve && maximumLevel == candidateMaximumLevel;
+    }
+  }
+
+  private record MaximumXpCache(Curves curve, int maximumLevel, double xp) {
+    private boolean matches(Curves candidateCurve, int candidateMaximumLevel) {
+      return curve == candidateCurve && maximumLevel == candidateMaximumLevel;
+    }
+  }
+}

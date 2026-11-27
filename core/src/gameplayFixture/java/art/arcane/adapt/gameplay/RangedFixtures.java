@@ -21,7 +21,7 @@ import java.util.UUID;
 public final class RangedFixtures {
     private static final Set<String> STAGES = Set.of(
             "ranged-dual-target", "ranged-collection", "ranged-fetch",
-            "hunter-big-game", "hunter-low-health", "hunter-predator");
+            "adapt:hunter/big_game", "hunter-low-health", "hunter-predator");
     private static final Map<UUID, JsonObject> LAUNCHES = new HashMap<>();
     private static final Map<UUID, Double> INITIAL_SPEEDS = new HashMap<>();
     private static long launchSequence;
@@ -62,7 +62,7 @@ public final class RangedFixtures {
                 }
                 world.dropItem(new Vec3(7.5, 100.1, 0.5), Fixtures.item("diamond", 3)).setPickupDelay(0);
             }
-            case "hunter-big-game" -> {
+            case "adapt:hunter/big_game" -> {
                 Fixtures.give(actor, "wooden_sword", 1);
                 LivingRef golem = Fixtures.spawnStill(world, "iron_golem", 2.5, 100, 0.5);
                 Fixtures.tag(golem, "adapt-qa-target-bigGame");

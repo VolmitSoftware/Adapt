@@ -1,27 +1,28 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.golem.GolemBody;
-import art.arcane.adapt.api.golem.GolemCoreType;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemMode;
-import art.arcane.adapt.api.golem.GolemRune;
-import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.ServantFrame;
-import art.arcane.adapt.api.golem.gui.CrookGestures;
-import art.arcane.adapt.api.golem.gui.GolemGui;
-import art.arcane.adapt.api.golem.gui.NodeAreaSelector;
-import art.arcane.adapt.api.golem.gui.NodeGui;
-import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
-import art.arcane.adapt.api.golem.gui.RosterGui;
-import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.content.golem.GolemRoster;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.content.golem.GolemBody;
+import art.arcane.adapt.content.golem.GolemCoreType;
+import art.arcane.adapt.content.golem.GolemHandle;
+import art.arcane.adapt.content.golem.GolemMode;
+import art.arcane.adapt.content.golem.GolemRune;
+import art.arcane.adapt.content.golem.GolemRuneType;
+import art.arcane.adapt.content.golem.GolemancyRuntime;
+import art.arcane.adapt.content.golem.NodeType;
+import art.arcane.adapt.content.golem.ServantFrame;
+import art.arcane.adapt.content.golem.gui.CrookGestures;
+import art.arcane.adapt.content.golem.gui.GolemGui;
+import art.arcane.adapt.content.golem.gui.NodeAreaSelector;
+import art.arcane.adapt.content.golem.gui.NodeGui;
+import art.arcane.adapt.content.golem.gui.NodeTagPrompt;
+import art.arcane.adapt.content.golem.gui.RosterGui;
+import art.arcane.adapt.content.golem.item.GolemItems;
+import art.arcane.adapt.content.golem.node.NodeKey;
+import art.arcane.adapt.content.golem.node.NodePlacementVerdict;
+import art.arcane.adapt.content.golem.node.NodeService;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.tick.TickedObject;
 import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.InventoryRef;
@@ -48,8 +49,8 @@ import java.util.UUID;
  * on a stocked chest beside a second stocked chest, and every golemancy adaptation at its top level.
  */
 public final class GolemMenuFixtures {
-    private static final List<String> ADAPTATIONS = List.of("golem-animus-binding", "golem-node-weaving", "golem-iron-frame",
-        "golem-gatherer-core", "golem-runic-augments", "golem-masterwork", "golem-bone-frame", "golem-sorter-core");
+    private static final List<String> ADAPTATIONS = List.of("adapt:golem/animus_binding", "adapt:golem/node_weaving", "adapt:golem/iron_frame",
+        "adapt:golem/gatherer_core", "adapt:golem/runic_augments", "adapt:golem/masterwork", "adapt:golem/bone_frame", "adapt:golem/sorter_core");
     private static final String GOLEM_TAG = "adapt-qa-golem-menu";
     private static final Map<UUID, Setup> setups = new HashMap<>();
 
@@ -79,7 +80,7 @@ public final class GolemMenuFixtures {
         result.addProperty("menu", args[2]);
         result.addProperty("golemEntityId", golem.entity().entityId());
         result.addProperty("golems", GolemancyRuntime.registry().orElseThrow().loadedOf(player.uuid()).size());
-        result.addProperty("nodes", Fixtures.adaptPlayer(player).getData().getGolemancy().nodeCount());
+        result.addProperty("nodes", Fixtures.adaptPlayer(player).getData().section(GolemRoster.section()).nodeCount());
         result.addProperty("origin", setup.x() + " " + setup.y() + " " + setup.z());
         return result;
     }

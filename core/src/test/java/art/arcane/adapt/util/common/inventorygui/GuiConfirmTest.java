@@ -1,6 +1,11 @@
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.adapt.api.internal.HostRecipes;
+import art.arcane.adapt.api.internal.HostPermissions;
+import art.arcane.adapt.api.internal.HostMenus;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.AdaptCore;
+import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.TestCores;
 import art.arcane.adapt.client.protocol.HintKind;
 import art.arcane.adapt.client.protocol.PanelLayout;
@@ -9,17 +14,13 @@ import art.arcane.adapt.client.protocol.PanelView;
 import art.arcane.adapt.client.protocol.TileRole;
 import art.arcane.adapt.client.server.panel.PanelViews;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.platform.AdaptPlatform;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.advancement.AdvancementHost;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.fx.FxHost;
 import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.MenuButton;
-import art.arcane.adapt.platform.menu.MenuHost;
-import art.arcane.adapt.platform.permission.PermissionHost;
 import art.arcane.adapt.platform.protection.ProtectionHost;
-import art.arcane.adapt.platform.recipe.RecipeHost;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 import art.arcane.adapt.testkit.ManualScheduler;
@@ -45,7 +46,7 @@ class GuiConfirmTest {
   private MockedStatic<CustomModel> models;
   private MockedStatic<Tasks> scheduler;
   private MockedStatic<AdaptLanguage> language;
-  private MenuHost menus;
+  private HostMenus menus;
   private PlayerRef player;
 
   @BeforeEach
@@ -56,15 +57,15 @@ class GuiConfirmTest {
       when(model.material()).thenReturn(material);
       return model;
     });
-    scheduler = mockStatic(Tasks.class);
+    scheduler = SchedulerForwarding.mockTasks();
     scheduler.when(Tasks::isPrimaryThread).thenReturn(true);
     language = mockStatic(AdaptLanguage.class,
         invocation -> invocation.getMethod().getReturnType() == String.class ? "Text" : null);
     AdaptCore core = TestCores.install();
-    menus = mock(MenuHost.class);
-    TestCores.setField(core, "platform", new AdaptPlatform(mock(PlatformHost.class), new ManualScheduler(),
-        mock(FxHost.class), mock(ViewerHost.class), menus, mock(PermissionHost.class), mock(ProtectionHost.class),
-        mock(RecipeHost.class), mock(AdvancementHost.class)));
+    menus = mock(HostMenus.class);
+    TestCores.setField(core, "platform", new HostPlatform(mock(PlatformHost.class), new ManualScheduler(),
+        mock(FxHost.class), mock(ViewerHost.class), menus, mock(HostPermissions.class), mock(ProtectionHost.class),
+        mock(HostRecipes.class), mock(AdvancementHost.class)));
     player = mock(PlayerRef.class);
     when(player.uuid()).thenReturn(UUID.randomUUID());
   }

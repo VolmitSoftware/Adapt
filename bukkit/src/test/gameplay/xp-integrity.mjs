@@ -132,7 +132,7 @@ export default {
         for (const mode of modes) {
             let actor = await context.connectActor(`AQAx${mode.slice(0, 3)}${randomBytes(3).toString('hex')}`)
             let prepared = false
-            const evidence = { mode, samples: [], suppliedAdaptations: mode === 'unity' ? ['discovery-unity:7'] : [] }
+            const evidence = { mode, samples: [], suppliedAdaptations: mode === 'unity' ? ['adapt:discovery/unity@7'] : [] }
             if (mode === 'budget') evidence.configurationPurpose = 'One-XP-per-minute refill preserves material allowance debt through process restart; this is not a default-rate progression benchmark.'
             report.trials.push(evidence)
             const snapshot = () => fixture(actor, 'snapshot')
@@ -236,7 +236,7 @@ export default {
                     context.expect(!evidence.initial.operator, 'Measured actor is not an operator')
                     const learned = Object.values(evidence.initial.lines).flatMap(line => Object.entries(line.adaptations)
                         .filter(([, adaptation]) => adaptation.level > 0).map(([id]) => id))
-                    context.expect(mode === 'unity' ? learned.includes('discovery-unity') : learned.length === 0,
+                    context.expect(mode === 'unity' ? learned.includes('adapt:discovery/unity') : learned.length === 0,
                         'The trial records its exact seeded-adaptation condition', learned)
                     if (!report.requirements) report.requirements = progressionRequirements(await fixture(actor, 'catalog'))
                     if (mode === 'budget') context.expect(evidence.initial.config.xpEarningLimits.skillXpPerMinute === 1

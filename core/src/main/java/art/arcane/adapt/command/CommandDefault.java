@@ -1,14 +1,17 @@
 package art.arcane.adapt.command;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.SimpleAdaptation;
+import art.arcane.adapt.api.content.SimpleSkill;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptEnvironment;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.SimpleAdaptation;
-import art.arcane.adapt.api.skill.SimpleSkill;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.command.FConst;
@@ -29,12 +32,12 @@ import java.util.Set;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
-@Director(name = "default", origin = DirectorOrigin.BOTH, description = "Reset configs to defaults", descriptionKey = "command.help.reset_configs_to_defaults")
+@Director(name = "default", origin = DirectorOrigin.BOTH, description = "Reset configs to defaults", descriptionKey = "adapt.command.help.reset_configs_to_defaults")
 public class CommandDefault {
 
-  @Director(description = "Reset a skill config to defaults", descriptionKey = "command.help.reset_a_skill_config_to_defaults")
+  @Director(description = "Reset a skill config to defaults", descriptionKey = "adapt.command.help.reset_a_skill_config_to_defaults")
   public void skill(
-      @Param(description = "skill to reset", descriptionKey = "command.help.skill_to_reset")
+      @Param(description = "skill to reset", descriptionKey = "adapt.command.help.skill_to_reset")
       AdaptationListingHandler.SkillProvider skillTarget
   ) {
     if (!CommandContext.hasPermission("adapt.configurator")) {
@@ -44,31 +47,29 @@ public class CommandDefault {
     }
 
     SkillRegistry registry = AdaptCore.get().getAdaptServer().getSkillRegistry();
-    Skill<?> skill = registry.getSkill(skillTarget.name());
+    Skill<?> skill = CommandTargets.skill(skillTarget.name(), CommandContext.source());
     if (skill == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", skillTarget.name())))
-          .send(CommandContext.source());
       return;
     }
 
     if (!(skill instanceof SimpleSkill<?> simpleSkill)) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET_UNSUPPORTED, untrusted("skill", skill.getName())))
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET_UNSUPPORTED, untrusted("skill", SkillHost.lineKey(skill))))
           .send(CommandContext.source());
       return;
     }
 
-    if (!simpleSkill.writeDefaultConfig() || !registry.hotReloadSkillConfig(skill.getName())) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED, untrusted("target", skill.getName())))
+    if (!ComponentHost.of(simpleSkill).writeDefaultConfig() || !registry.hotReloadSkillConfig(skill.getId())) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED, untrusted("target", SkillHost.lineKey(skill))))
           .send(CommandContext.source());
       return;
     }
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET, untrusted("skill", skill.getName())))
+    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET, untrusted("skill", SkillHost.lineKey(skill))))
         .send(CommandContext.source());
   }
 
-  @Director(description = "Reset an adaptation config to defaults", descriptionKey = "command.help.reset_an_adaptation_config_to_defaults")
+  @Director(description = "Reset an adaptation config to defaults", descriptionKey = "adapt.command.help.reset_an_adaptation_config_to_defaults")
   public void adaptation(
-      @Param(description = "adaptation to reset (skill:adaptation)", descriptionKey = "command.help.adaptation_to_reset_skill_adaptation")
+      @Param(description = "Adaptation to reset, by id such as herbalism/luck", descriptionKey = "adapt.command.help.adaptation_to_reset_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget
   ) {
     if (!CommandContext.hasPermission("adapt.configurator")) {
@@ -77,59 +78,34 @@ public class CommandDefault {
       return;
     }
 
-    String[] split = adaptationTarget.name().split(":", 2);
-    if (split.length != 2) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.INVALID_ADAPTATION_FORMAT)).send(CommandContext.source());
-      return;
-    }
-
-    Skill<?> skill = AdaptCore.get().getAdaptServer().getSkillRegistry().getSkill(split[0]);
-    if (skill == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", split[0])))
-          .send(CommandContext.source());
-      return;
-    }
-
-    Adaptation<?> adaptation = null;
-    for (Adaptation<?> a : Skill.ownedAdaptations(skill)) {
-      if (a.getName().equalsIgnoreCase(split[1])) {
-        adaptation = a;
-        break;
-      }
-    }
-
+    Adaptation<?> adaptation = CommandTargets.adaptation(adaptationTarget.name(), CommandContext.source());
     if (adaptation == null) {
-      FConst.error(AdaptLanguage.text(
-          CommandRuntimeMessages.UNKNOWN_ADAPTATION_IN_SKILL_PLAIN,
-          untrusted("adaptation", split[1]),
-          untrusted("skill", skill.getName())
-      )).send(CommandContext.source());
       return;
     }
 
     if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.ADAPTATION_RESET_UNSUPPORTED,
-          untrusted("adaptation", adaptation.getName())
+          untrusted("adaptation", adaptation.getId().toString())
       )).send(CommandContext.source());
       return;
     }
 
     SkillRegistry registry = AdaptCore.get().getAdaptServer().getSkillRegistry();
-    if (!simpleAdaptation.writeDefaultConfig() || !registry.hotReloadAdaptationConfig(adaptation.getName())) {
+    if (!ComponentHost.of(simpleAdaptation).writeDefaultConfig() || !registry.hotReloadAdaptationConfig(adaptation.getId())) {
       FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.DEFAULT_CONFIG_RELOAD_FAILED,
-          untrusted("target", adaptation.getName())
+          untrusted("target", adaptation.getId().toString())
       )).send(CommandContext.source());
       return;
     }
     FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.ADAPTATION_RESET,
-        untrusted("adaptation", adaptation.getName())
+        untrusted("adaptation", adaptation.getId().toString())
     )).send(CommandContext.source());
   }
 
-  @Director(description = "Reset ALL configs to defaults and archive the old settings", descriptionKey = "command.help.reset_all_configs_to_defaults_and_archive_the_old_settings")
+  @Director(description = "Reset ALL configs to defaults and archive the old settings", descriptionKey = "adapt.command.help.reset_all_configs_to_defaults_and_archive_the_old_settings")
   public void all() {
     if (!CommandContext.hasPermission("adapt.configurator")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.configurator")))
@@ -161,26 +137,26 @@ public class CommandDefault {
     for (Skill<?> skill : registry.getAllSkills()) {
       int written = 0;
       if (skill instanceof SimpleSkill<?> simpleSkill) {
-        if (simpleSkill.writeDefaultConfig()) {
+        if (ComponentHost.of(simpleSkill).writeDefaultConfig()) {
           written++;
         } else {
-          failed.add(skill.getName());
+          failed.add(SkillHost.lineKey(skill));
         }
       }
-      for (Adaptation<?> adaptation : Skill.ownedAdaptations(skill)) {
+      for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
         if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
           continue;
         }
-        if (simpleAdaptation.writeDefaultConfig()) {
+        if (ComponentHost.of(simpleAdaptation).writeDefaultConfig()) {
           written++;
         } else {
-          failed.add(adaptation.getName());
+          failed.add(adaptation.getId().toString());
         }
       }
-      if (registry.hotReloadSkillConfig(skill.getName())) {
+      if (registry.hotReloadSkillConfig(skill.getId())) {
         reset += written;
       } else {
-        failed.add(skill.getName());
+        failed.add(SkillHost.lineKey(skill));
       }
     }
 
@@ -204,14 +180,16 @@ public class CommandDefault {
   }
 
   private int archiveFolder(File source, File destination) {
-    File[] files = source.listFiles((dir, name) -> name.endsWith(".toml"));
+    File[] files = source.listFiles((File file) -> file.isDirectory() || file.getName().endsWith(".toml"));
     if (files == null) {
       return 0;
     }
 
     int archived = 0;
     for (File file : files) {
-      if (archiveFile(file, new File(destination, file.getName()))) {
+      if (file.isDirectory()) {
+        archived += archiveFolder(file, new File(destination, file.getName()));
+      } else if (archiveFile(file, new File(destination, file.getName()))) {
         archived++;
       }
     }

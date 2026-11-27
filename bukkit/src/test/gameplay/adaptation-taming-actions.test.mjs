@@ -16,16 +16,16 @@ test('fetch captures travel packets between slower server snapshots and removes 
         bot.emit('entityMoved', { id: 7, position: { x: 6.5 } })
         bot.emit('entityMoved', { id: 8, position: { x: 100 } })
     }
-    const result = await tamingBehaviorCases.get('tame-fetch').trigger({
+    const result = await tamingBehaviorCases.get('adapt:tame/fetch').trigger({
         actor: { bot }, snapshot: async () => ({ taming: { pet: { entityId: 7, x: 2.5 } } }),
     })
     assert.equal(result.furthestPetX, 6.5)
     assert.equal(result.diamonds, 3)
     assert.equal(bot.listenerCount('entityMoved'), 0)
-    await tamingBehaviorCases.get('tame-fetch').verify({
+    await tamingBehaviorCases.get('adapt:tame/fetch').verify({
         context, unlearned: { diamonds: 0 }, active: result,
     })
-    await assert.rejects(tamingBehaviorCases.get('tame-fetch').verify({
+    await assert.rejects(tamingBehaviorCases.get('adapt:tame/fetch').verify({
         context, unlearned: { diamonds: 0 }, active: { ...result, furthestPetX: 2.5 },
     }), /Wolf travels/)
 })
@@ -48,7 +48,7 @@ test('mounted melee completes without client physics ticks and dismounts after e
     const snapshot = async player => player === opponent
         ? { health: 20 - damage }
         : { taming: { mounted: Boolean(bot.vehicle), pet: { entityId: 7, attributes: {} } } }
-    const entry = tamingBehaviorCases.get('tame-mounted-tactics')
+    const entry = tamingBehaviorCases.get('adapt:tame/mounted_tactics')
     const result = await entry.trigger({ context, actor: { bot }, opponent, snapshot })
     assert.equal(result.damage, 2)
     assert.equal(dismounts, 1)

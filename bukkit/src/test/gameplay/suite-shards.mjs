@@ -13,7 +13,7 @@ const groups = [
   { name: 'xp', plan: 'xp-integrity' },
   { name: 'contracts', plan: 'adaptation-smoke' },
   { name: 'appearance', plan: 'appearance', platforms: ['paper', 'folia'] },
-  { name: 'gloss', plan: 'adaptation-smoke', cases: 'discovery-insight', platforms: ['paper'] },
+  { name: 'gloss', plan: 'adaptation-smoke', cases: 'adapt:discovery/insight', platforms: ['paper'] },
   { name: 'folia', plan: 'blink-folia,golem-folia,temporal-overlap-folia,scaffolder-retirement-folia', platforms: ['folia'] },
 ]
 const matrix = JSON.parse(readFileSync(new URL('./adaptation-matrix.json', import.meta.url), 'utf8')).adaptations

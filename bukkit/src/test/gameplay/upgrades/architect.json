@@ -2,24 +2,24 @@
   "skill": "architect",
   "upgrades": [
     {
-      "name": "upgraded-architect-master-builder",
+      "name": "adapt:architect/upgrade/master_builder",
       "class": "MasterBuilder",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/MasterBuilder.java",
-      "fuses": ["architect-placement", "architect-supply-line", "architect-chalk-line"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/MasterBuilder.java",
+      "fuses": ["adapt:architect/placement", "adapt:architect/supply_line", "adapt:architect/chalk_line"],
       "triggers": ["PlayerInteractEvent"]
     },
     {
-      "name": "upgraded-architect-skyhook",
+      "name": "adapt:architect/upgrade/skyhook",
       "class": "Skyhook",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/Skyhook.java",
-      "fuses": ["architect-foundation", "architect-scaffolder", "architect-steady-hands"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/Skyhook.java",
+      "fuses": ["adapt:architect/foundation", "adapt:architect/scaffolder", "adapt:architect/steady_hands"],
       "triggers": ["PlayerSwapHandItemsEvent"]
     },
     {
-      "name": "upgraded-architect-wrecking-hand",
+      "name": "adapt:architect/upgrade/wrecking_hand",
       "class": "WreckingHand",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/WreckingHand.java",
-      "fuses": ["architect-demolition", "architect-glass", "architect-smart-shape"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/architect/upgraded/WreckingHand.java",
+      "fuses": ["adapt:architect/demolition", "adapt:architect/glass", "adapt:architect/smart_shape"],
       "triggers": ["PlayerInteractEvent"]
     }
   ]

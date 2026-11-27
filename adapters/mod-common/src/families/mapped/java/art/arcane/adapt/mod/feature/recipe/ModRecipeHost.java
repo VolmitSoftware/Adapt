@@ -1,6 +1,7 @@
 package art.arcane.adapt.mod.feature.recipe;
 
-import art.arcane.adapt.api.value.MaterialRecipeIndex;
+import art.arcane.adapt.engine.platform.EngineRecipeView;
+import art.arcane.adapt.engine.value.MaterialRecipeIndex;
 import art.arcane.adapt.mod.feature.mixin.ShapedRecipeAccess;
 import art.arcane.adapt.mod.feature.mixin.ShapelessRecipeAccess;
 import art.arcane.adapt.mod.platform.ModHosts;
@@ -9,7 +10,7 @@ import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.recipe.RecipeChoice;
-import art.arcane.adapt.platform.recipe.RecipeHost;
+import art.arcane.adapt.api.internal.HostRecipes;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
 import art.arcane.adapt.platform.recipe.RecipeView;
 import art.arcane.adapt.platform.value.Id;
@@ -44,7 +45,7 @@ import java.util.Set;
  * (startup and {@code /reload}, once the reloaded tags are bound) and each change made through this host merges
  * them into the loaded recipes, so they survive datapack reloads.
  */
-public final class ModRecipeHost implements RecipeHost {
+public final class ModRecipeHost implements HostRecipes {
     private static final Logger LOGGER = LoggerFactory.getLogger("Adapt");
     private static volatile ModRecipeHost active;
 
@@ -71,7 +72,7 @@ public final class ModRecipeHost implements RecipeHost {
     }
 
     @Override
-    public boolean register(RecipeSpec recipe) {
+    public boolean add(RecipeSpec recipe) {
         try {
             RecipeFactory.build(recipe);
         } catch (RuntimeException rejected) {
@@ -205,16 +206,16 @@ public final class ModRecipeHost implements RecipeHost {
                 }
                 shape.add(line.toString());
             }
-            return new RecipeView(key, RecipeView.Kind.SHAPED, shape, choices, List.of(), result);
+            return new EngineRecipeView(key, RecipeView.Kind.SHAPED, shape, choices, List.of(), result);
         }
         if (recipe instanceof ShapelessRecipe shapeless) {
             List<RecipeChoice> choices = new ArrayList<>();
             for (Ingredient ingredient : shapeless.getIngredients()) {
                 choices.add(choice(ingredient, exact));
             }
-            return new RecipeView(key, RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, result);
+            return new EngineRecipeView(key, RecipeView.Kind.SHAPELESS, List.of(), Map.of(), choices, result);
         }
-        return new RecipeView(key, RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), result);
+        return new EngineRecipeView(key, RecipeView.Kind.OTHER, List.of(), Map.of(), List.of(), result);
     }
 
     private static ItemStack result(Recipe<?> recipe) {

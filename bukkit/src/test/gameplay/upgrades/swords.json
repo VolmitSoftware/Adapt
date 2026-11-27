@@ -2,24 +2,24 @@
   "skill": "swords",
   "upgrades": [
     {
-      "name": "upgraded-swords-witherblade",
+      "name": "adapt:swords/upgrade/witherblade",
       "class": "Witherblade",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/Witherblade.java",
-      "fuses": ["sword-poison-blade", "sword-bloody-blade"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/Witherblade.java",
+      "fuses": ["adapt:sword/poison_blade", "adapt:sword/bloody_blade"],
       "triggers": ["EntityDamageByEntityEvent", "EntityRegainHealthEvent"]
     },
     {
-      "name": "upgraded-swords-tempest-flow",
+      "name": "adapt:swords/upgrade/tempest_flow",
       "class": "TempestFlow",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/TempestFlow.java",
-      "fuses": ["sword-blade-flow", "sword-crimson-cyclone"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/TempestFlow.java",
+      "fuses": ["adapt:sword/blade_flow", "adapt:sword/crimson_cyclone"],
       "triggers": ["EntityDamageByEntityEvent", "EntityDamageEvent"]
     },
     {
-      "name": "upgraded-swords-duelists-verdict",
+      "name": "adapt:swords/upgrade/duelists_verdict",
       "class": "DuelistsVerdict",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/DuelistsVerdict.java",
-      "fuses": ["sword-duelists-focus", "sword-executioners-edge"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/sword/upgraded/DuelistsVerdict.java",
+      "fuses": ["adapt:sword/duelists_focus", "adapt:sword/executioners_edge"],
       "triggers": ["PrepareAnvilEvent", "EntityDeathEvent", "EntityDamageByEntityEvent", "PlayerInteractEvent"]
     }
   ]

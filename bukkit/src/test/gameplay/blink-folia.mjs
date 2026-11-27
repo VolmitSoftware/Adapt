@@ -24,9 +24,9 @@ export default {
             await command(`/tp ${opponent.bot.username} 2.5 100 0.5 90 0`)
             await command(`/gamemode survival ${actor.bot.username}`)
             await command(`/gamemode survival ${opponent.bot.username}`)
-            await command(`/adapt claim-adaptation rift:rift-blink 1 force=true player=${actor.bot.username}`)
+            await command(`/adapt claim-adaptation adapt:rift/blink 1 force=true player=${actor.bot.username}`)
             await context.step('Folia level-one menu hides Reactive direction', async () => {
-                await command(`/adapt gui target=adaptation:rift-blink player=${actor.bot.username} force=true`)
+                await command(`/adapt gui target=adaptation:adapt:rift/blink player=${actor.bot.username} force=true`)
                 await context.waitUntil(() => actor.bot.currentWindow, { label: 'Level-one Blink menu on Folia', timeoutMs: 5000 })
                 await actor.bot.waitForTicks(20)
                 const window = actor.bot.currentWindow
@@ -35,9 +35,9 @@ export default {
                     'Level-one Blink has no Reactive direction control')
                 actor.bot.closeWindow(window)
             })
-            await command(`/adapt claim-adaptation rift:rift-blink 2 force=true player=${actor.bot.username}`)
+            await command(`/adapt claim-adaptation adapt:rift/blink 2 force=true player=${actor.bot.username}`)
             await context.step('Folia player menu updates preference slots on the owning region', async () => {
-                await command(`/adapt gui target=adaptation:rift-blink player=${actor.bot.username} force=true`)
+                await command(`/adapt gui target=adaptation:adapt:rift/blink player=${actor.bot.username} force=true`)
                 await context.waitUntil(() => actor.bot.currentWindow, { label: 'Blink menu on Folia', timeoutMs: 5000 })
                 await actor.bot.waitForTicks(20)
                 const window = actor.bot.currentWindow

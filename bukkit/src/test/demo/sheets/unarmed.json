@@ -1,5 +1,5 @@
 {
-  "unarmed-battering-charge": {
+  "adapt:unarmed/battering_charge": {
     "set": "unarmed-lane", "level": 5,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -6.5]}],
@@ -12,7 +12,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.knockback", "particle": "explosion"}, "maxTicks": 160
   },
-  "unarmed-combo-chain": {
+  "adapt:unarmed/combo_chain": {
     "set": "unarmed-dummy", "level": 3,
     "pre": [
       "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:max_health base set 40",
@@ -36,7 +36,7 @@
     ],
     "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "crit"}, "maxTicks": 200
   },
-  "unarmed-disarm": {
+  "adapt:unarmed/disarm": {
     "set": "unarmed-dummy", "level": 5,
     "pre": [
       "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
@@ -69,7 +69,7 @@
     ],
     "expect": {"sound": "minecraft:item.lead.break", "particle": "crit"}, "maxTicks": 260
   },
-  "unarmed-glass-cannon": {
+  "adapt:unarmed/glass_cannon": {
     "set": "unarmed-dummy", "level": 7,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:15.0f}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
@@ -84,7 +84,7 @@
     ],
     "expect": {"sound": "minecraft:block.glass.break", "particle": "block"}, "maxTicks": 160
   },
-  "unarmed-grapple": {
+  "adapt:unarmed/grapple": {
     "set": "unarmed-throw", "level": 3,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
@@ -99,7 +99,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.knockback", "particle": "cloud"}, "maxTicks": 180
   },
-  "unarmed-iron-fists": {
+  "adapt:unarmed/iron_fists": {
     "set": "unarmed-fists", "level": 5,
     "pre": [
       "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
@@ -125,7 +125,7 @@
     ],
     "expect": {"sound": "minecraft:block.anvil.land", "particle": "electric_spark"}, "maxTicks": 220
   },
-  "unarmed-meditation": {
+  "adapt:unarmed/meditation": {
     "set": "unarmed-calm", "level": 5,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
     "beats": [
@@ -135,7 +135,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.resonate", "particle": "end_rod"}, "maxTicks": 260
   },
-  "unarmed-power": {
+  "adapt:unarmed/power": {
     "set": "unarmed-dummy", "level": 7,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:10.0f}"],
     "prelude": [
@@ -158,7 +158,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.strong", "particle": "crit"}, "maxTicks": 200
   },
-  "unarmed-pressure-point": {
+  "adapt:unarmed/pressure_point": {
     "set": "unarmed-dummy", "level": 5,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
@@ -173,7 +173,7 @@
     ],
     "expect": {"sound": "minecraft:block.pointed_dripstone.land", "particle": "wax_on"}, "maxTicks": 160
   },
-  "unarmed-second-wind": {
+  "adapt:unarmed/second_wind": {
     "povCapture": true,
     "set": "unarmed-dummy", "level": 5,
     "pre": [
@@ -193,7 +193,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.levelup", "particle": "heart"}, "maxTicks": 150
   },
-  "unarmed-shockwave-clap": {
+  "adapt:unarmed/shockwave_clap": {
     "set": "unarmed-trio", "level": 3,
     "pre": [
       "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0",
@@ -209,7 +209,7 @@
     ],
     "expect": {"sound": "minecraft:block.bell.resonate", "particle": "explosion"}, "maxTicks": 150
   },
-  "unarmed-sucker-punch": {
+  "adapt:unarmed/sucker_punch": {
     "set": "unarmed-lane", "level": 5,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -6.5]}],

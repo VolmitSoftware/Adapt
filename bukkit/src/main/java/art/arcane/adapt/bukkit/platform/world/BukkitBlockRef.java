@@ -8,6 +8,7 @@ import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.bukkit.platform.data.BlockDataStore;
 import art.arcane.adapt.bukkit.platform.data.PdcDataHolder;
 import art.arcane.adapt.bukkit.platform.data.PdcStore;
+import art.arcane.adapt.bukkit.platform.data.PdcView;
 import art.arcane.adapt.bukkit.platform.entity.BukkitInventoryRef;
 import art.arcane.adapt.platform.data.DataHolder;
 import art.arcane.adapt.platform.entity.EntityRef;
@@ -25,6 +26,7 @@ import art.arcane.adapt.platform.world.CampfireRef;
 import art.arcane.adapt.platform.world.FurnaceRef;
 import art.arcane.adapt.platform.world.LidRef;
 import art.arcane.adapt.platform.world.WorldRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.block.Campfire;
 import org.bukkit.block.Furnace;
@@ -139,12 +141,12 @@ public final class BukkitBlockRef implements BlockRef {
 
   @Override
   public boolean isSolid() {
-    return block.isSolid();
+    return PaperApi.isSolid(block);
   }
 
   @Override
   public boolean isReplaceable() {
-    return block.isReplaceable();
+    return PaperCompat.isReplaceable(block);
   }
 
   @Override
@@ -324,8 +326,8 @@ public final class BukkitBlockRef implements BlockRef {
 
   private record TileStore(Block block) implements PdcStore {
     @Override
-    public PersistentDataContainer read() {
-      return block.getState() instanceof TileState tile ? tile.getPersistentDataContainer() : null;
+    public PdcView read() {
+      return block.getState() instanceof TileState tile ? PdcView.of(tile.getPersistentDataContainer()) : null;
     }
 
     @Override
@@ -339,9 +341,9 @@ public final class BukkitBlockRef implements BlockRef {
 
   private record BlockStore(Block block) implements PdcStore {
     @Override
-    public PersistentDataContainer read() {
+    public PdcView read() {
       Plugin plugin = BukkitPlatform.plugin();
-      return plugin == null ? null : BlockDataStore.read(plugin, block);
+      return plugin == null ? null : PdcView.of(BlockDataStore.read(plugin, block));
     }
 
     @Override
@@ -361,7 +363,7 @@ public final class BukkitBlockRef implements BlockRef {
 
     @Override
     public boolean isOpen() {
-      return lidded.isOpen();
+      return PaperApi.isOpen(lidded);
     }
 
     @Override

@@ -13,8 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PlayerViewPatchTest {
   private static final PlayerHeader HEADER = new PlayerHeader(10, 0.5D, 3, 10, 0L, true);
   private static final List<String> SKILLS = List.of("rift", "agility", "taming", "herbalism", "nether");
-  private static final List<String> ADAPTATIONS = List.of("rift-blink", "rift-gate", "agility-wall-jump",
-      "taming-health", "herbalism-hungry-shield", "nether-skull-toss");
+  private static final List<String> ADAPTATIONS = List.of("adapt:rift/blink", "adapt:rift/gate", "adapt:agility/wall_jump",
+      "taming-health", "adapt:herbalism/hungry_shield", "adapt:nether/skull_toss");
   private static final List<String> CHOICES = List.of("ON", "OFF", "NEAR", "FAR", "SERVER");
 
   @Test
@@ -22,19 +22,19 @@ class PlayerViewPatchTest {
     PlayerView before = new PlayerView(HEADER, List.of(
         new SkillLineView("rift", 50D, 2, 0.1D, 40D, 4L),
         new SkillLineView("agility", 10D, 1, 0.2D, 30D, 0L)
-    ), Map.of("rift-blink", 1, "rift-gate", 2), sorted(List.of(
+    ), Map.of("adapt:rift/blink", 1, "adapt:rift/gate", 2), sorted(List.of(
         new PreferenceValue(key(PreferenceOwner.SKILL, "rift", "enabled"), "ON"),
-        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "rift-blink", "landing"), "SERVER"),
-        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "rift-gate", "enabled"), "ON")
+        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing"), "SERVER"),
+        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "adapt:rift/gate", "enabled"), "ON")
     )), PlayerAccess.NONE);
     PlayerView after = new PlayerView(new PlayerHeader(11, 0.1D, 2, 12, 5L, false), List.of(
         new SkillLineView("rift", 75D, 3, 0.0D, 60D, 5L),
         new SkillLineView("agility", 10D, 1, 0.2D, 30D, 0L),
         new SkillLineView("taming", 1D, 1, 0.01D, 99D, 0L)
-    ), Map.of("rift-blink", 2, "agility-wall-jump", 1), sorted(List.of(
+    ), Map.of("adapt:rift/blink", 2, "adapt:agility/wall_jump", 1), sorted(List.of(
         new PreferenceValue(key(PreferenceOwner.SKILL, "rift", "enabled"), "ON"),
-        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "rift-blink", "landing"), "NEAR"),
-        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "agility-wall-jump", "enabled"), "OFF")
+        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "adapt:rift/blink", "landing"), "NEAR"),
+        new PreferenceValue(key(PreferenceOwner.ADAPTATION, "adapt:agility/wall_jump", "enabled"), "OFF")
     )), PlayerAccess.NONE);
 
     assertThat(PlayerViewPatch.apply(before, PlayerViewDiff.diff(before, after))).isEqualTo(after);
@@ -50,10 +50,10 @@ class PlayerViewPatchTest {
 
   @Test
   void unlearnedAdaptationsAndClearedPreferencesAreRemoved() {
-    PreferenceKey gate = key(PreferenceOwner.ADAPTATION, "rift-gate", "enabled");
-    PlayerView before = new PlayerView(HEADER, List.of(), Map.of("rift-gate", 3),
+    PreferenceKey gate = key(PreferenceOwner.ADAPTATION, "adapt:rift/gate", "enabled");
+    PlayerView before = new PlayerView(HEADER, List.of(), Map.of("adapt:rift/gate", 3),
         List.of(new PreferenceValue(gate, "ON")), PlayerAccess.NONE);
-    PlayerDelta delta = new PlayerDelta(null, List.of(), Map.of("rift-gate", 0), List.of(), List.of(gate), null);
+    PlayerDelta delta = new PlayerDelta(null, List.of(), Map.of("adapt:rift/gate", 0), List.of(), List.of(gate), null);
 
     PlayerView patched = PlayerViewPatch.apply(before, delta);
 

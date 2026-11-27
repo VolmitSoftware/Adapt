@@ -1,8 +1,10 @@
 package art.arcane.adapt.client.view;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutatedSkill;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -19,13 +21,13 @@ public final class ViewIcons {
 
   public static IconRef skill(Skill<?> skill) {
     Skill<?> item = skill instanceof MutatedSkill mutated ? mutated.getLead() : skill;
-    IconRef model = model(GuiConfig.skillModel(item.getName(), item.getIcon(), item.getModel()));
-    return IconSprites.withSprite(MutationIcons.skill(skill, model), IconSprites.skill(skill.getName()));
+    IconRef model = model(GuiConfig.skillModel(SkillHost.lineKey(item), item.getIcon().item(), ComponentHost.of(item).getModel()));
+    return IconSprites.withSprite(MutationIcons.skill(skill, model), IconSprites.skill(skill.getId()));
   }
 
   public static IconRef adaptation(Adaptation<?> adaptation) {
-    IconRef model = model(GuiConfig.adaptationModel(adaptation.getName(), adaptation.getIcon(), adaptation.getModel()));
-    return IconSprites.withSprite(MutationIcons.adaptation(adaptation, model), IconSprites.adaptation(adaptation.getName()));
+    IconRef model = model(GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel()));
+    return IconSprites.withSprite(MutationIcons.adaptation(adaptation, model), IconSprites.adaptation(adaptation.getId()));
   }
 
   /** Knowledge as a resource: the knowledge mark, the book's knowledge model as the fallback. */

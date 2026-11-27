@@ -78,7 +78,7 @@ class GuiGroupLayoutTest {
 
   @Test
   void configuredOrderAppliesWithinGroupsBeforeDeclaredOrder() {
-    Map<String, Integer> ranks = Map.of("c", 0, "a", 1);
+    Map<String, Integer> ranks = GuiConfig.ranks(List.of("c", "a"), null, "test");
     List<List<String>> groups = GuiGroupLayout.arrange(
         List.of("a", "b", "c", "d", "e"), name -> name, name -> GuiConfig.rankOf(ranks, name), DEFAULT_ORDER,
         List.of(List.of("a", "b", "c"), List.of("d", "e")));
@@ -88,7 +88,7 @@ class GuiGroupLayoutTest {
 
   @Test
   void configuredOrderNeverMovesAnAdaptationAcrossGroups() {
-    Map<String, Integer> ranks = Map.of("d", 0, "a", 1);
+    Map<String, Integer> ranks = GuiConfig.ranks(List.of("d", "a"), null, "test");
     List<List<String>> groups = GuiGroupLayout.arrange(
         List.of("a", "b", "c", "d"), name -> name, name -> GuiConfig.rankOf(ranks, name), DEFAULT_ORDER,
         List.of(List.of("a", "b"), List.of("c", "d")));
@@ -98,7 +98,7 @@ class GuiGroupLayoutTest {
 
   @Test
   void ungroupedAdaptationsFormAFinalGroupSortedTheCurrentWay() {
-    Map<String, Integer> ranks = Map.of("z", 0);
+    Map<String, Integer> ranks = GuiConfig.ranks(List.of("z"), null, "test");
     List<List<String>> groups = GuiGroupLayout.arrange(
         List.of("m", "z", "k", "a", "q"), name -> name, name -> GuiConfig.rankOf(ranks, name),
         Comparator.comparingInt((String name) -> GuiConfig.rankOf(ranks, name)).thenComparing(Comparator.naturalOrder()),

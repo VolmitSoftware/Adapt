@@ -166,36 +166,36 @@ async function enchantPreview({ context, actor, snapshot }) {
 }
 
 export const itemBehaviorCases = new Map([
-    ['herbalism-cobweb', recipeCase({
+    ['adapt:herbalism/cobweb', recipeCase({
         output: 'cobweb', count: 1, ingredients: { string: 9 }, grid: Array(9).fill('string'),
         feedback: { sound: 'minecraft:block.wool.break', soundVolume: 0.6, soundPitch: 1.2, particle: 'end_rod', particleCount: 1, particleOffset: 0 },
     })],
-    ['herbalism-myconid', recipeCase({
+    ['adapt:herbalism/myconid', recipeCase({
         output: 'mycelium', count: 1, ingredients: { dirt: 1, red_mushroom: 1, brown_mushroom: 1 },
         grid: ['dirt', 'red_mushroom', 'brown_mushroom'],
         feedback: { sound: 'minecraft:block.fungus.place', soundVolume: 0.6, soundPitch: 0.8, particle: 'crimson_spore' },
     })],
-    ['herbalism-terralid', recipeCase({
+    ['adapt:herbalism/terralid', recipeCase({
         output: 'grass_block', count: 3, ingredients: { wheat_seeds: 3, dirt: 3 },
         grid: ['wheat_seeds', 'wheat_seeds', 'wheat_seeds', 'dirt', 'dirt', 'dirt'],
         feedback: { sound: 'minecraft:block.grass.break', soundVolume: 0.6, soundPitch: 1.0, particle: 'happy_villager', particleCount: 6 },
     })],
-    ['herbalism-mushroom-blocks', recipeCase({
+    ['adapt:herbalism/mushroom_blocks', recipeCase({
         output: 'red_mushroom_block', count: 1, ingredients: { red_mushroom: 4 },
         grid: ['red_mushroom', 'red_mushroom', null, 'red_mushroom', 'red_mushroom'],
         feedback: { sound: 'minecraft:block.fungus.place', soundVolume: 0.6, soundPitch: 0.9, particle: 'spore_blossom_air' },
     })],
-    ['crafting-skulls', recipeCase({
+    ['adapt:crafting/skulls', recipeCase({
         output: 'skeleton_skull', count: 1, ingredients: { bone: 8, bone_block: 1 },
         grid: ['bone', 'bone', 'bone', 'bone', 'bone_block', 'bone', 'bone', 'bone', 'bone'],
         feedback: { sound: 'minecraft:particle.soul_escape', soundVolume: 0.7, soundPitch: 0.6, particle: 'soul' },
     })],
-    ['crafting-reconstruction', recipeCase({
+    ['adapt:crafting/reconstruction', recipeCase({
         output: 'iron_ore', count: 1, ingredients: { stone: 1, iron_ingot: 8 },
         grid: ['stone', ...Array(8).fill('iron_ingot')],
         feedback: { sound: 'minecraft:block.stone.place', soundVolume: 0.8, soundPitch: 0.6, particle: 'crit' },
     })],
-    ['herbalism-hippo', {
+    ['adapt:herbalism/hippo', {
         stage: 'herbalism', negativeWindowTicks: 20,
         description: 'eating the same apple supplies extra hunger and saturation',
         sound: 'minecraft:block.pointed_dripstone.land', soundVolume: 1, soundPitch: 0.25, particle: 'composter',
@@ -207,7 +207,7 @@ export const itemBehaviorCases = new Map([
             return { assertions: ['identical food starts with equal hunger and saturation', 'learned consumption restores more hunger and saturation'], measurements: { unlearned, active } }
         },
     }],
-    ['crafting-compactor', {
+    ['adapt:crafting/compactor', {
         stage: 'agility', negativeWindowTicks: 45,
         description: 'sneak and swap hands facing a crafting table compacts a full ingredient stack',
         sound: 'minecraft:block.stone.place', soundVolume: 0.4, soundPitch: 1.2, particle: 'crit',
@@ -218,7 +218,7 @@ export const itemBehaviorCases = new Map([
             return { assertions: ['unlearned swap performs no compaction', 'learned swap compacts seven blocks and preserves the remainder'], measurements: { unlearned, active } }
         },
     }],
-    ['enchanting-bookshelf-attunement', {
+    ['adapt:enchanting/bookshelf_attunement', {
         stage: 'enchanting', negativeWindowTicks: 25,
         description: 'enchanting-table previews gain six virtual bookshelf power at maximum level',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.5,
@@ -233,7 +233,7 @@ export const itemBehaviorCases = new Map([
             return { assertions: ['unlearned table supplies vanilla offers', 'learned preview raises each offer by six virtual bookshelf power'], measurements: { unlearned, active } }
         },
     }],
-    ['enchanting-rune-sight', {
+    ['adapt:enchanting/rune_sight', {
         stage: 'enchanting', negativeWindowTicks: 20,
         description: 'enchanting-table preview reveals enchantment names, levels, and costs in the actionbar',
         trigger: enchantPreview,
@@ -243,7 +243,7 @@ export const itemBehaviorCases = new Map([
             return { assertions: ['unlearned preview has no rune reveal', 'learned preview sends enchantment names, levels, and costs through the actionbar'], measurements: { unlearned, active } }
         },
     }],
-    ['discovery-relic-appraiser', {
+    ['adapt:discovery/relic_appraiser', {
         stage: 'agility', negativeWindowTicks: 20,
         description: 'sneak-right-clicking a pottery sherd marks that real item as appraised',
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 1.4, particle: 'wax_on',
@@ -260,27 +260,27 @@ export const itemBehaviorCases = new Map([
     }],
 ])
 
-itemBehaviorCases.set('blocking-chainarmorer', recipeCase({
+itemBehaviorCases.set('adapt:blocking/chainarmorer', recipeCase({
     output: 'chainmail_boots', count: 1, ingredients: { iron_nugget: 4 },
     grid: ['iron_nugget', null, 'iron_nugget', 'iron_nugget', null, 'iron_nugget'],
     feedback: { sound: 'minecraft:item.armor.equip_chain', soundVolume: 0.6, soundPitch: 1.0, particle: 'wax_on' },
 }))
-itemBehaviorCases.set('blocking-horsearmorer', recipeCase({
+itemBehaviorCases.set('adapt:blocking/horsearmorer', recipeCase({
     output: 'iron_horse_armor', count: 1, ingredients: { iron_ingot: 8, saddle: 1 },
     grid: ['iron_ingot', 'iron_ingot', 'iron_ingot', 'iron_ingot', 'saddle', 'iron_ingot', 'iron_ingot', 'iron_ingot', 'iron_ingot'],
     feedback: { sound: 'minecraft:entity.horse.saddle', soundVolume: 0.6, soundPitch: 1.0, particle: 'wax_on' },
 }))
-itemBehaviorCases.set('blocking-saddlecrafter', recipeCase({
+itemBehaviorCases.set('adapt:blocking/saddlecrafter', recipeCase({
     output: 'saddle', count: 1, ingredients: { leather: 5 },
     grid: ['leather', null, 'leather', 'leather', 'leather', 'leather'],
     feedback: { sound: 'minecraft:entity.horse.saddle', soundVolume: 0.7, soundPitch: 1.0, particle: 'wax_on' },
 }))
-itemBehaviorCases.set('blocking-phalanx-crafter', recipeCase({
+itemBehaviorCases.set('adapt:blocking/phalanx_crafter', recipeCase({
     output: 'shield', count: 1, ingredients: { white_wool: 3, oak_planks: 3, iron_ingot: 1 },
     grid: ['white_wool', 'white_wool', 'white_wool', 'oak_planks', 'iron_ingot', 'oak_planks', null, 'oak_planks'],
     feedback: { sound: 'minecraft:block.anvil.use', soundVolume: 0.4, soundPitch: 1.2, particle: 'wax_on' },
 }))
-itemBehaviorCases.set('crafting-xp', {
+itemBehaviorCases.set('adapt:crafting/xp', {
     stage: 'crafting', negativeWindowTicks: 10,
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.3, particle: 'glow',
     async trigger(input) {
@@ -296,7 +296,7 @@ itemBehaviorCases.set('crafting-xp', {
     },
 })
 
-itemBehaviorCases.set('rift-enderchest', {
+itemBehaviorCases.set('adapt:rift/enderchest', {
     stage: 'agility', negativeWindowTicks: 10,
     sound: 'minecraft:block.ender_chest.open', soundVolume: 1, soundPitch: 1, particle: 'reverse_portal',
     async prepare({ context, actor, equip }) {
@@ -320,7 +320,7 @@ itemBehaviorCases.set('rift-enderchest', {
         return { assertions: ['unlearned item use opens no inventory', 'learned item use opens a 27-slot ender chest and records one open'], measurements: { unlearned, active } }
     },
 })
-itemBehaviorCases.set('rift-resist', {
+itemBehaviorCases.set('adapt:rift/resist', {
     stage: 'rift', negativeWindowTicks: 12,
     effect: 'minecraft:resistance', sound: 'minecraft:item.armor.equip_iron', soundVolume: 1, soundPitch: 1.24, particle: 'witch',
     async trigger({ actor, equip }) {

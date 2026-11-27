@@ -1,11 +1,11 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.AdaptEnvironment;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.item.ExperienceOrb;
-import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.gui.ConfigGui;
+import art.arcane.adapt.engine.item.ExperienceOrb;
+import art.arcane.adapt.engine.item.KnowledgeOrb;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.InventoryRef;
 import art.arcane.adapt.platform.entity.PlayerRef;

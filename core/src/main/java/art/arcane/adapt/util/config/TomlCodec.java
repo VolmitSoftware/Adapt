@@ -1,5 +1,6 @@
 package art.arcane.adapt.util.config;
 
+import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.util.common.io.Json;
 import com.google.gson.JsonElement;
 import com.moandjiezana.toml.Toml;

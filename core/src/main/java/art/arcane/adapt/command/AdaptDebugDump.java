@@ -3,10 +3,10 @@ package art.arcane.adapt.command;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.fx.TpsPort;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.engine.fx.TpsPort;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.platform.AdaptPlatform;
+import art.arcane.adapt.api.internal.HostPlatform;
 import art.arcane.adapt.platform.PlatformHost;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.world.WorldRef;
@@ -88,13 +88,13 @@ public final class AdaptDebugDump implements DebugDumpPort {
       return;
     }
     message(source, text(source, BukkitDebugMessages.PREPARING, MessageArgument.untrusted("plugin", PLUGIN)), DESCRIPTION);
-    AdaptPlatform platform = core.getPlatform();
+    HostPlatform platform = core.getPlatform();
     if (!platform.scheduler().runGlobal(() -> capture(source, upload, platform))) {
       finish(source, failure(source, BukkitDebugMessages.SCHEDULE_FAILED));
     }
   }
 
-  private void capture(CommandSource source, boolean upload, AdaptPlatform platform) {
+  private void capture(CommandSource source, boolean upload, HostPlatform platform) {
     AdaptDebugReport.Snapshot snapshot;
     String details;
     try {
@@ -149,7 +149,7 @@ public final class AdaptDebugDump implements DebugDumpPort {
     menu(source, entries);
   }
 
-  static AdaptDebugReport.Snapshot snapshot(AdaptPlatform platform, CommandSource source) {
+  static AdaptDebugReport.Snapshot snapshot(HostPlatform platform, CommandSource source) {
     PlatformHost host = platform.host();
     Map<String, String> server = new LinkedHashMap<>();
     server.put("Implementation", host.platformName());

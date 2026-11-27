@@ -1,7 +1,7 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.notification.HudPort;
-import art.arcane.adapt.api.notification.HudSegment;
+import art.arcane.adapt.engine.notification.HudPort;
+import art.arcane.adapt.engine.notification.HudSegment;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.volmlib.util.hud.HudActionBar;
@@ -27,7 +27,7 @@ final class BukkitHudPort implements HudPort {
       return;
     }
     List<HudSlot> slots = new ArrayList<>(segment.slots().size());
-    for (art.arcane.adapt.api.notification.HudSlot slot : segment.slots()) {
+    for (art.arcane.adapt.engine.notification.HudSlot slot : segment.slots()) {
       slots.add(HudSlot.valueOf(slot.name()));
     }
     bar().publish(bukkit, new art.arcane.volmlib.util.hud.HudSegment(segment.purpose(), segment.priority(),

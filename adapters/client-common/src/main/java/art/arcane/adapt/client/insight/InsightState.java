@@ -1,8 +1,7 @@
 package art.arcane.adapt.client.insight;
 
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.net.InsightSink;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightView;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,21 +17,21 @@ public final class InsightState implements InsightSink {
     static final long GHOST_FADE_MILLIS = 300L;
 
     private final LongSupplier clock;
-    private InsightView view;
+    private ServerFrame.InsightTarget view;
     private double health;
     private double absorption;
     private long heardAt;
     private long receivedAt;
     private double ghostHealth;
     private long ghostAt;
-    private List<InsightMark> marks = List.of();
+    private List<ServerFrame.InsightMarks.Mark> marks = List.of();
 
     public InsightState(LongSupplier clock) {
         this.clock = Objects.requireNonNull(clock, "clock");
     }
 
     @Override
-    public void target(InsightView next) {
+    public void target(ServerFrame.InsightTarget next) {
         long now = clock.getAsLong();
         if (view != null && view.entityId() == next.entityId()) {
             damaged(next.health(), now);
@@ -59,7 +58,7 @@ public final class InsightState implements InsightSink {
     }
 
     @Override
-    public void marks(List<InsightMark> next) {
+    public void marks(List<ServerFrame.InsightMarks.Mark> next) {
         marks = List.copyOf(next);
     }
 
@@ -87,7 +86,7 @@ public final class InsightState implements InsightSink {
     }
 
     /** The focused target, or null. */
-    public InsightView view() {
+    public ServerFrame.InsightTarget view() {
         return view;
     }
 
@@ -99,7 +98,7 @@ public final class InsightState implements InsightSink {
         return absorption;
     }
 
-    public List<InsightMark> marks() {
+    public List<ServerFrame.InsightMarks.Mark> marks() {
         return marks;
     }
 

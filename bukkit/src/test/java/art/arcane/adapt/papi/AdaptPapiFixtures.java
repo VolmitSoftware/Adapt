@@ -1,12 +1,13 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.Curves;
-import art.arcane.adapt.api.xp.NewtonCurve;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.platform.value.Id;
+import art.arcane.adapt.engine.world.PlayerAdaptation;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.Curves;
+import art.arcane.adapt.engine.xp.NewtonCurve;
 import art.arcane.volmlib.util.collection.KList;
 
 import java.util.List;
@@ -56,7 +57,7 @@ final class AdaptPapiFixtures {
 
   static AdaptPlayerSnapshot unheldVeinPlayer(int spentPower) {
     PlayerData data = powerBoundPlayerData(spentPower + 1);
-    data.getSkillLines().get("mining").getAdaptations().remove("mining-vein");
+    data.getSkillLines().get("adapt:mining").getAdaptations().remove("adapt:mining-vein");
     return AdaptPlayerSnapshotBuilder.build(
         null,
         data,
@@ -68,11 +69,11 @@ final class AdaptPapiFixtures {
 
   static PlayerData powerBoundPlayerData(int spentPower) {
     PlayerData data = playerData();
-    PlayerSkillLine mining = data.getSkillLines().get("mining");
+    PlayerSkillLine mining = data.getSkillLines().get("adapt:mining");
     mining.setKnowledge(UNBOUNDED_KNOWLEDGE);
 
     for (int index = 0; index < spentPower - BASE_SPENT_POWER; index++) {
-      mining.getAdaptations().put("power-sink-" + index, playerAdaptation("power-sink-" + index, 1));
+      mining.getAdaptations().put("adapt:power-sink-" + index, playerAdaptation("power-sink-" + index, 1));
     }
 
     return data;
@@ -85,13 +86,13 @@ final class AdaptPapiFixtures {
     data.setWisdom(3L);
 
     PlayerSkillLine mining = new PlayerSkillLine();
-    mining.setLine("mining");
+    mining.setLine("adapt:mining");
     mining.setXp(30.25D);
     mining.setKnowledge(10L);
     mining.setMultiplier(1.5D);
-    mining.getAdaptations().put("mining-vein", playerAdaptation("mining-vein", 1));
-    mining.getAdaptations().put("mining-ore-scan", playerAdaptation("mining-ore-scan", 1));
-    data.getSkillLines().put("mining", mining);
+    mining.getAdaptations().put("adapt:mining-vein", playerAdaptation("mining-vein", 1));
+    mining.getAdaptations().put("adapt:mining-ore-scan", playerAdaptation("mining-ore-scan", 1));
+    data.getSkillLines().put("adapt:mining", mining);
     return data;
   }
 
@@ -110,7 +111,7 @@ final class AdaptPapiFixtures {
       owned.add(adaptation);
     }
 
-    lenient().when(skill.getName()).thenReturn(name);
+    lenient().when(skill.getId()).thenReturn(Id.parseAdapt(name));
     lenient().when(skill.isEnabled()).thenReturn(enabled);
     lenient().when(skill.getLocalizedName()).thenReturn(localizedName);
     lenient().when(skill.getAdaptations()).thenReturn(owned);
@@ -126,7 +127,7 @@ final class AdaptPapiFixtures {
       String displayName
   ) {
     Adaptation<?> adaptation = mock(Adaptation.class);
-    lenient().when(adaptation.getName()).thenReturn(name);
+    lenient().when(adaptation.getId()).thenReturn(Id.parseAdapt(name));
     lenient().when(adaptation.getMaxLevel()).thenReturn(maxLevel);
     lenient().when(adaptation.isEnabled()).thenReturn(enabled);
     lenient().when(adaptation.isPermanent()).thenReturn(permanent);

@@ -101,13 +101,29 @@ final class FrameReader {
     return value;
   }
 
+  /** Reads a constant by name; a name this side does not know rejects the frame. */
   <E extends Enum<E>> E enumValue(Class<E> type) {
-    int ordinal = u8();
-    E[] values = type.getEnumConstants();
-    if (ordinal >= values.length) {
-      throw new IllegalArgumentException("unknown " + type.getSimpleName() + " " + ordinal);
+    String name = string(FrameLimits.MAX_ID_BYTES);
+    E value = constant(type, name);
+    if (value == null) {
+      throw new IllegalArgumentException("unknown " + type.getSimpleName() + " " + name);
     }
-    return values[ordinal];
+    return value;
+  }
+
+  /** Reads a constant by name; a name this side does not know, as from a newer peer, reads as {@code fallback}. */
+  <E extends Enum<E>> E enumValue(Class<E> type, E fallback) {
+    E value = constant(type, string(FrameLimits.MAX_ID_BYTES));
+    return value == null ? fallback : value;
+  }
+
+  private static <E extends Enum<E>> E constant(Class<E> type, String name) {
+    for (E value : type.getEnumConstants()) {
+      if (value.name().equals(name)) {
+        return value;
+      }
+    }
+    return null;
   }
 
   <T> List<T> list(int maxCount, Element<T> element) {

@@ -152,7 +152,7 @@ async function sense(input) {
 }
 
 export const tragoulBehaviorCases = new Map([
-    ['tragoul-thorns', {
+    ['adapt:tragoul/thorns', {
         stage: 'tragoul-qa-defend', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword', true), trigger: defenderHit,
         sound: 'minecraft:entity.player.attack.crit', soundVolume: 0.5, soundPitch: 1.4, particle: 'dust', particleCount: 4,
@@ -164,7 +164,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned attacker loses no health', 'learned defender reflects damage from a natural sword hit'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-healing', {
+    ['adapt:tragoul/healing', {
         stage: 'tragoul-qa-defend', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword', true), trigger: defenderHit,
         sound: 'minecraft:block.respawn_anchor.charge', soundVolume: 0.25, soundPitch: 1.6, particle: 'dust_color_transition',
@@ -175,7 +175,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned hit does not drain', 'learned hit transfers attacker health to the defender'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-soul-siphon', {
+    ['adapt:tragoul/soul_siphon', {
         stage: 'tragoul-qa-siphon', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: siphon,
         sound: 'minecraft:particle.soul_escape', soundVolume: 0.3, soundPitch: 1.4, particle: 'soul', particleCount: 3,
@@ -187,7 +187,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned sword damage grants no healing', 'learned sword damage heals its injured attacker'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-marrow-armor', {
+    ['adapt:tragoul/marrow_armor', {
         stage: 'tragoul-qa-marrow', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword', true), trigger: defenderHit,
         sound: 'minecraft:block.bone_block.place', soundVolume: 0.5, soundPitch: 0.8, particle: 'block',
@@ -201,7 +201,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned hit spends no bone', 'learned hit spends one bone and loses less health'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-curse-of-frailty', {
+    ['adapt:tragoul/curse_of_frailty', {
         stage: 'tragoul-qa-defend', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword', true), trigger: defenderHit,
         sound: 'minecraft:entity.elder_guardian.curse', soundVolume: 0.35, soundPitch: 1.7, particle: 'warped_spore',
@@ -212,17 +212,17 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned attacker has no debuffs', 'learned defender applies weakness II and slowness to its attacker'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-globe', {
+    ['adapt:tragoul/globe', {
         stage: 'tragoul-qa-globe', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: input => secondaryDamage(input, false), verify: verifySecondary,
         sound: 'minecraft:entity.wither.shoot', soundVolume: 0.4, soundPitch: 1.6, particle: 'soul', particleCount: 1,
     }],
-    ['tragoul-corpse-explosion', {
+    ['adapt:tragoul/corpse_explosion', {
         stage: 'tragoul-qa-nova', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: input => secondaryDamage(input, true), verify: verifySecondary,
         sound: 'minecraft:entity.generic.explode', soundVolume: 0.55, soundPitch: 1.35, particle: 'soul',
     }],
-    ['tragoul-lance', {
+    ['adapt:tragoul/lance', {
         stage: 'tragoul-qa-lance', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword'), trigger: input => secondaryDamage(input, true),
         sound: 'minecraft:item.trident.riptide_1', soundVolume: 0.6, soundPitch: 1.3, particle: 'sculk_soul',
@@ -234,7 +234,7 @@ export const tragoulBehaviorCases = new Map([
             return evidence
         },
     }],
-    ['tragoul-last-rites', {
+    ['adapt:tragoul/last_rites', {
         stage: 'tragoul-qa-rites', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'wooden_sword', true), trigger: lastRites,
         sound: 'minecraft:item.totem.use', soundVolume: 0.8, soundPitch: 1.5, particle: 'sculk_soul',
@@ -246,7 +246,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned lethal hit causes death', 'learned lethal hit leaves one health point with invisibility and resistance'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-plague-bearer', {
+    ['adapt:tragoul/plague_bearer', {
         stage: 'tragoul-qa-plague', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: plague,
         sound: 'minecraft:entity.zombie.infect', soundVolume: 0.6, soundPitch: 1.4, particle: 'spore_blossom_air',
@@ -257,7 +257,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned poisoned kill does not spread', 'learned natural poisoned kill spreads stronger poison to a separate mob'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-skeletal-servant', {
+    ['adapt:tragoul/skeletal_servant', {
         stage: 'tragoul-qa-servant', negativeWindowTicks: 1,
         prepare: input => prepare(input, 'bone'), trigger: summon,
         sound: 'minecraft:block.bone_block.place', soundVolume: 0.6, soundPitch: 0.7, particle: 'soul',
@@ -271,7 +271,7 @@ export const tragoulBehaviorCases = new Map([
             return { assertions: ['unlearned bones cannot summon', 'learned summon pays bone and maximum-health costs', 'real servant combat damages its designated target'], measurements: { unlearned, active } }
         },
     }],
-    ['tragoul-death-sense', {
+    ['adapt:tragoul/death_sense', {
         stage: 'tragoul-qa-sense', negativeWindowTicks: 1,
         prepare: input => prepare(input), trigger: sense,
         sound: 'minecraft:block.note_block.bass', soundVolume: 0.2, soundPitch: 0.58, particle: 'sculk_soul',

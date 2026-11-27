@@ -1,8 +1,8 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.insight.GlossInsight;
-import art.arcane.adapt.api.insight.GlossInsightPort;
+import art.arcane.adapt.engine.insight.GlossInsight;
+import art.arcane.adapt.engine.insight.GlossInsightPort;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;

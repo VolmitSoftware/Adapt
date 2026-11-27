@@ -2,6 +2,7 @@ package art.arcane.adapt.command;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.content.golem.command.GolemCommand;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.volmlib.util.director.runtime.DirectorInvocation;
@@ -9,6 +10,8 @@ import art.arcane.volmlib.util.director.runtime.DirectorRoute;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.director.runtime.DirectorSender;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -29,7 +32,18 @@ class AdaptCommandTreeTest extends AdaptTestBase {
       "debug dump", "debug mode", "debug pap", "debug particle", "debug perf", "debug psp", "debug sound", "debug verbose", "debug version",
       "default adaptation", "default all", "default skill",
       "golem give", "golem list", "golem release", "golem returns", "golem roster", "golem wake",
+      "orphans list", "orphans purge", "orphans refund",
       "reset confirm");
+
+  @BeforeEach
+  void installGolemCommands() {
+    AddonCommands.install("adapt", List.of(new GolemCommand().tree()), null);
+  }
+
+  @AfterEach
+  void removeGolemCommands() {
+    AddonCommands.uninstall("adapt", null);
+  }
 
   @Test
   void everySubcommandRoutesToItsInvocableNode() {

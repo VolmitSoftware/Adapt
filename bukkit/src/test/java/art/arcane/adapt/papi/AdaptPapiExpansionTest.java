@@ -109,6 +109,7 @@ class AdaptPapiExpansionTest {
   @Test
   void shouldResolvePerSkillLevelXpAndProgress() {
     assertEquals("5", resolve("skill.mining.level"));
+    assertEquals("5", resolve("skill.adapt:mining.level"));
     assertEquals("30.25", resolve("skill.mining.xp"));
     assertEquals("10", resolve("skill.mining.knowledge"));
     assertEquals("1.50", resolve("skill.mining.multiplier"));
@@ -146,7 +147,7 @@ class AdaptPapiExpansionTest {
     assertEquals("1", resolve("adaptation.mining-vein.level"));
     assertEquals("3", resolve("adaptation.mining-vein.max-level"));
     assertEquals("Vein Miner", resolve("adaptation.mining-vein.name"));
-    assertEquals("mining", resolve("adaptation.mining-vein.skill"));
+    assertEquals("adapt:mining", resolve("adaptation.mining-vein.skill"));
     assertEquals("true", resolve("adaptation.mining-vein.enabled"));
     assertEquals("true", resolve("adaptation.mining-vein.learned"));
     assertEquals("true", resolve("adaptation.mining-vein.can-use"));

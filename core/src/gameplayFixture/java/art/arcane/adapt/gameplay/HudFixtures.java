@@ -1,11 +1,11 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.Cooldowns;
-import art.arcane.adapt.api.adaptation.ItemCooldowns;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Cooldowns;
+import art.arcane.adapt.api.item.ItemCooldowns;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.PlayerRef;
-import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.server.hud.AbilityGlyphs;
@@ -47,9 +47,9 @@ public final class HudFixtures {
         if (player.gameMode() != GameMode.SURVIVAL) {
             player.setGameMode(GameMode.SURVIVAL);
         }
-        Adaptation<?> foundation = Fixtures.adaptation("architect-foundation");
-        GolemControlsFixtures.learn(player, foundation.getName(), foundation.getMaxLevel());
-        GolemControlsFixtures.learn(player, "tragoul-skeletal-servant", SERVANT_LEVEL);
+        Adaptation<?> foundation = Fixtures.adaptation("adapt:architect/foundation");
+        GolemControlsFixtures.learn(player, foundation.getId().toString(), foundation.getMaxLevel());
+        GolemControlsFixtures.learn(player, "adapt:tragoul/skeletal_servant", SERVANT_LEVEL);
         player.inventory().setItem(1, Fixtures.item("bone", 64));
     }
 
@@ -107,6 +107,6 @@ public final class HudFixtures {
                 }
             }
         }
-        throw new IllegalArgumentException(adaptation.getName() + " has no reuse gate");
+        throw new IllegalArgumentException(adaptation.getId().toString() + " has no reuse gate");
     }
 }

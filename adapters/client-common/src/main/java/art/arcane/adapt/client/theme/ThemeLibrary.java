@@ -1,73 +1,88 @@
 package art.arcane.adapt.client.theme;
 
-import art.arcane.adapt.api.mutation.SkillMutation;
+import art.arcane.adapt.api.mutation.SkillPair;
+import art.arcane.adapt.engine.mutation.PairKeys;
 import art.arcane.adapt.client.ui.UiSprites;
+import art.arcane.adapt.platform.value.Id;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * The 24 skills' page themes, read from the resource packs ({@code adapt:themes/<skill>.json} with its atlas
- * {@code adapt:textures/gui/theme/<skill>.png}) the first time each is asked for and again after the packs reload. A skill
- * with no theme file, or a broken one, has no theme and keeps the plain book.
+ * Skills' page themes, read from the resource packs ({@code <namespace>:themes/<path>.json} with its atlas
+ * {@code <namespace>:textures/gui/theme/<path>.png}, from the skill id's own namespace and path) the first time each is
+ * asked for and again after the packs reload. A skill with no theme file, or a broken one, has no theme and keeps the
+ * plain book.
  */
 public final class ThemeLibrary {
-    private final Map<String, Loaded> kits = new HashMap<>();
-    private final Map<String, String> dataIds = new HashMap<>();
+    private final Map<Id, Loaded> kits = new HashMap<>();
+    private final Map<Id, String> dataIds = new HashMap<>();
     private final Map<String, PageTheme> themes = new HashMap<>();
-    /** Each skill id's parents; a base skill is its own lead and partner. */
-    private final Map<String, SkillMutation> parents = new HashMap<>();
+    /** Each skill key's parents: a base skill's own id, or a mutated skill's lead and partner; empty for no skill. */
+    private final Map<String, List<Id>> parents = new HashMap<>();
 
     private record Loaded(byte[] source, ThemeKit kit) {
     }
 
-    /** The theme of base skill {@code skillId}, or null when it has none. */
-    public ThemeKit kit(UiSprites sprites, String skillId) {
-        if (skillId == null) {
+    /** The theme of base skill {@code skill}, or null when it has none. */
+    public ThemeKit kit(UiSprites sprites, Id skill) {
+        if (skill == null) {
             return null;
         }
-        byte[] source = sprites.data(dataIds.computeIfAbsent(skillId, (String id) -> ThemeKit.DATA_PREFIX + id + ".json"));
+        byte[] source = sprites.data(dataIds.computeIfAbsent(skill, (Id id) -> ThemeKit.dataId(id.namespace(), id.path())));
         if (source == null) {
             return null;
         }
-        Loaded loaded = kits.get(skillId);
+        Loaded loaded = kits.get(skill);
         if (loaded == null || loaded.source() != source) {
             ThemeKit kit;
             try {
-                kit = ThemeKit.parse(new String(source, StandardCharsets.UTF_8));
+                kit = ThemeKit.parse(skill.namespace(), new String(source, StandardCharsets.UTF_8));
             } catch (IllegalArgumentException broken) {
                 kit = null;
             }
             loaded = new Loaded(source, kit != null && sprites.exists(kit.texture().id()) ? kit : null);
-            kits.put(skillId, loaded);
+            kits.put(skill, loaded);
         }
         return loaded.kit();
     }
 
     /**
-     * The theme of skill {@code skillId}: its own kit, or for a mutated skill ({@code mutated-<lead>-<partner>}) the
-     * lead's and the partner's. Null when the skill, or either parent, has no theme.
+     * The theme of a skill by its line key as the server sends it: an id such as {@code adapt:swords} or
+     * {@code alchemist:alchemy} (a bare path is in {@code adapt}), or a mutated skill's {@code <lead id>+<partner id>},
+     * whose theme is the lead's and the partner's, each from its own namespace. Null when the skill, or either parent,
+     * has no theme.
      */
-    public PageTheme theme(UiSprites sprites, String skillId) {
-        if (skillId == null) {
+    public PageTheme theme(UiSprites sprites, String skillKey) {
+        if (skillKey == null) {
             return null;
         }
-        SkillMutation mutation = parents.computeIfAbsent(skillId, (String id) -> {
-            SkillMutation parsed = SkillMutation.parse(id);
-            return parsed == null ? new SkillMutation(id, id) : parsed;
-        });
-        boolean mutated = !mutation.lead().equals(mutation.partner());
-        ThemeKit lead = kit(sprites, mutation.lead());
-        ThemeKit partner = mutated ? kit(sprites, mutation.partner()) : null;
+        List<Id> ids = parents.computeIfAbsent(skillKey, ThemeLibrary::parents);
+        if (ids.isEmpty()) {
+            return null;
+        }
+        boolean mutated = ids.size() == 2;
+        ThemeKit lead = kit(sprites, ids.get(0));
+        ThemeKit partner = mutated ? kit(sprites, ids.get(1)) : null;
         if (lead == null || mutated && partner == null) {
             return null;
         }
-        PageTheme known = themes.get(skillId);
+        PageTheme known = themes.get(skillKey);
         if (known == null || known.lead() != lead || known.partner() != partner) {
             known = new PageTheme(lead, partner);
-            themes.put(skillId, known);
+            themes.put(skillKey, known);
         }
         return known;
+    }
+
+    private static List<Id> parents(String skillKey) {
+        SkillPair mutation = PairKeys.parse(skillKey);
+        if (mutation != null) {
+            return List.of(mutation.lead(), mutation.partner());
+        }
+        Id id = Id.tryParseAdapt(skillKey);
+        return id == null ? List.of() : List.of(id);
     }
 }

@@ -215,7 +215,7 @@ async function enchant(input) {
 }
 
 export const knowledgeBehaviorCases = new Map([
-    ['discovery-better-mending', {
+    ['adapt:discovery/better_mending', {
         stage: 'knowledge-mending', sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.5, soundPitch: 1.2, particle: 'enchant',
         prepare: input => prepare(input, 'diamond_pickaxe'), trigger: mend,
         verify: ({ context, unlearned, active }) => {
@@ -225,7 +225,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural sneak attack repairs Mending tool and consumes XP'], unlearned, active)
         },
     }],
-    ['discovery-xp-resist', {
+    ['adapt:discovery/xp_resist', {
         stage: 'knowledge-resist', sound: 'minecraft:entity.iron_golem.repair', soundVolume: 0.8, soundPitch: 0.8, particle: 'electric_spark',
         prepare: input => prepare(input), trigger: resist,
         verify: ({ context, unlearned, active }) => {
@@ -234,7 +234,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['same natural sword hit deals less health damage and spends XP at critical health'], unlearned, active)
         },
     }],
-    ['discovery-field-notes', {
+    ['adapt:discovery/field_notes', {
         stage: 'knowledge-notes', sound: 'minecraft:ui.toast.challenge_complete', soundVolume: 0.4, soundPitch: 1.2, particle: 'totem_of_undying', particleCount: 10, particleOffset: 0.2,
         prepare: input => prepare(input, 'wooden_sword'), trigger: notes,
         verify: ({ context, unlearned, active }) => {
@@ -243,7 +243,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural species kill banks damage used on the next same-species target'], unlearned, active)
         },
     }],
-    ['discovery-unity', {
+    ['adapt:discovery/unity', {
         stage: 'knowledge-unity', sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.4, soundPitch: 1.7, particle: 'wax_on',
         prepare: input => prepare(input), trigger: collectExperience,
         verify: ({ context, unlearned, active }) => {
@@ -254,7 +254,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural experience pickup distributes real skill XP'], unlearned, active)
         },
     }],
-    ['enchanting-quick-enchant', {
+    ['adapt:enchanting/quick_enchant', {
         stage: 'knowledge-quick', sound: 'minecraft:block.enchantment_table.use', soundVolume: 1, soundPitch: 1.7, particle: 'end_rod',
         prepare: input => prepare(input), trigger: quick,
         verify: ({ context, unlearned, active }) => {
@@ -264,7 +264,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural inventory book-on-item click enchants sword and consumes stored enchantment'], unlearned, active)
         },
     }],
-    ['enchanting-infusion-transfer', {
+    ['adapt:enchanting/infusion_transfer', {
         stage: 'knowledge-infusion', sound: 'minecraft:block.anvil.use', soundVolume: 0.6, soundPitch: 1.3, particle: 'crit',
         prepare: input => prepare(input), trigger: infusion,
         verify: ({ context, unlearned, active }) => {
@@ -275,7 +275,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural anvil right-click transfers enchantment, strips source and charges levels'], unlearned, active)
         },
     }],
-    ['enchanting-tome-rebinding', {
+    ['adapt:enchanting/tome_rebinding', {
         stage: 'knowledge-tome', sound: 'minecraft:item.book.page_turn', soundVolume: 0.9, soundPitch: 1.2, particle: 'crit',
         prepare: input => prepare(input, 'enchanted_book'), trigger: tome,
         verify: ({ context, unlearned, active }) => {
@@ -287,7 +287,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural book toss at anvil splits enchantments into two item entities at configured cost'], unlearned, active)
         },
     }],
-    ['enchanting-offer-reroll', {
+    ['adapt:enchanting/offer_reroll', {
         stage: 'knowledge-reroll', sound: 'minecraft:block.enchantment_table.use', soundVolume: 1, soundPitch: 1.2, particle: 'flash',
         prepare: input => prepare(input), trigger: reroll,
         verify: ({ context, unlearned, active }) => {
@@ -298,7 +298,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural sneak use rerolls enchantment seed and consumes configured lapis and XP'], unlearned, active)
         },
     }],
-    ['enchanting-curse-cleansing', {
+    ['adapt:enchanting/curse_cleansing', {
         stage: 'knowledge-cleanse', sound: 'minecraft:block.grindstone.use', soundVolume: 0.8, soundPitch: 0.7, particle: 'smoke',
         prepare: input => prepare(input), trigger: cleanse,
         verify: ({ context, unlearned, active }) => {
@@ -308,7 +308,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural grindstone output click removes an otherwise retained curse'], unlearned, active)
         },
     }],
-    ['enchanting-anvil-savant', {
+    ['adapt:enchanting/anvil_savant', {
         stage: 'knowledge-anvil', prepare: input => prepare(input), trigger: anvil,
         verify: ({ context, unlearned, active }) => {
             context.expect(active.preview.knowledge.repairCost < unlearned.preview.knowledge.repairCost, 'Learned anvil preview has lower actual cost')
@@ -317,7 +317,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural anvil combination previews and charges reduced cost for the same enchanted output'], unlearned, active)
         },
     }],
-    ['enchanting-echo-of-knowledge', {
+    ['adapt:enchanting/echo_of_knowledge', {
         stage: 'knowledge-echo', sound: 'minecraft:block.enchantment_table.use', soundVolume: 0.8, soundPitch: 1.5, particle: 'enchant',
         prepare: input => prepare(input, 'enchanted_book'), trigger: collectExperience,
         verify: ({ context, unlearned, active }) => {
@@ -326,7 +326,7 @@ export const knowledgeBehaviorCases = new Map([
             return outcome(['natural orb pickup charges and upgrades actual held enchanted book'], unlearned, active)
         },
     }],
-    ['enchanting-xp-return', {
+    ['adapt:enchanting/xp_return', {
         stage: 'knowledge-enchant', sound: 'minecraft:entity.experience_orb.pickup', soundVolume: 0.5, soundPitch: 1.6, particle: 'happy_villager',
         prepare: input => prepare(input), trigger: enchant,
         verify: ({ context, unlearned, active }) => {

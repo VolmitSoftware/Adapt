@@ -33,11 +33,11 @@ class ClientSessionsTest {
 
   @Test
   void helloNegotiatesAndAcceptsWithTheSharedMask() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
 
     int shared = ClientProtocol.SCREENS | ClientProtocol.PANEL | ClientProtocol.HUD;
-    assertThat(handler.negotiated).containsExactly(new ClientCapability(1, shared));
-    assertThat(link.decoded()).containsExactly(new ServerFrame.Accept(1, new ServerInfo("neoforge", "26.3", shared)));
+    assertThat(handler.negotiated).containsExactly(new ClientCapability(ClientProtocol.VERSION, shared));
+    assertThat(link.decoded()).containsExactly(new ServerFrame.Accept(ClientProtocol.VERSION, new ServerInfo("neoforge", "26.3", shared)));
     assertThat(sessions.has(PLAYER, ClientProtocol.HUD)).isTrue();
     assertThat(sessions.has(PLAYER, ClientProtocol.TOASTS)).isFalse();
   }
@@ -49,14 +49,14 @@ class ClientSessionsTest {
     sessions.receive(PLAYER, FrameCodec.encodeClient(open));
     assertThat(handler.frames).isEmpty();
 
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     sessions.receive(PLAYER, FrameCodec.encodeClient(open));
     assertThat(handler.frames).containsExactly(open);
   }
 
   @Test
   void helloZeroWithdrawsAndStopsDispatch() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(0, 0)));
     sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.PanelClosed(1)));
 
@@ -76,7 +76,7 @@ class ClientSessionsTest {
 
   @Test
   void quitForgetsTheCapability() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     sessions.quit(PLAYER);
 
     assertThat(sessions.has(PLAYER, ClientProtocol.SCREENS)).isFalse();
@@ -85,7 +85,7 @@ class ClientSessionsTest {
 
   @Test
   void repeatedMalformedFramesResetThePlayerToTheFallback() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
 
     sessions.receive(PLAYER, new byte[] {(byte) 99});
     sessions.receive(PLAYER, new byte[] {(byte) 99});
@@ -98,7 +98,7 @@ class ClientSessionsTest {
 
   @Test
   void floodsBeyondTheRateAreDropped() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     byte[] closed = FrameCodec.encodeClient(new ClientFrame.PanelClosed(1));
     for (int index = 0; index < 100; index++) {
       sessions.receive(PLAYER, closed);
@@ -112,7 +112,7 @@ class ClientSessionsTest {
     ServerFrame toast = new ServerFrame.HudClear("adapt:xp");
     assertThat(sessions.send(PLAYER, toast)).isFalse();
 
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     assertThat(sessions.send(PLAYER, toast)).isTrue();
 
     link.open.remove(PLAYER);
@@ -122,7 +122,7 @@ class ClientSessionsTest {
 
   @Test
   void aFrameOverTheLinkLimitIsSentAsBackToBackFragmentsThatReassemble() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     link.maxPayload = 64;
     ServerFrame feedback = new ServerFrame.Feedback(FeedbackKind.INFO, "x".repeat(300));
     int before = link.sent.size();
@@ -144,7 +144,7 @@ class ClientSessionsTest {
 
   @Test
   void aFrameThatFitsIsSentUnchanged() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     ServerFrame clear = new ServerFrame.HudClear("adapt:xp");
 
     sessions.send(PLAYER, clear);
@@ -154,7 +154,7 @@ class ClientSessionsTest {
 
   @Test
   void fragmentedClientFramesAreJoinedBeforeDispatch() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     ClientFrame input = new ClientFrame.PanelInput(3, 4, 5, "y".repeat(500));
 
     for (byte[] payload : FrameFragments.split(FrameCodec.encodeClient(input), 100)) {
@@ -166,7 +166,7 @@ class ClientSessionsTest {
 
   @Test
   void aFrameBetweenFragmentsIsAViolationAndTheNextFrameStillWorks() throws ClientProtocolException {
-    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(1, ClientProtocol.ALL)));
+    sessions.receive(PLAYER, FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL)));
     List<byte[]> pieces = FrameFragments.split(FrameCodec.encodeClient(new ClientFrame.PanelInput(3, 4, 5, "z".repeat(500))), 100);
     ClientFrame closed = new ClientFrame.PanelClosed(9);
 

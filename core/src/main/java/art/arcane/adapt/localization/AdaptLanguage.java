@@ -8,7 +8,6 @@ import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.util.config.ConfigHotload;
-import art.arcane.volmlib.util.config.TomlCodec;
 import art.arcane.volmlib.util.director.DirectorTextResolver;
 import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.io.AtomicFileIO;
@@ -34,6 +33,7 @@ import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.MessageArgumentKind;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.MessageKey;
+import art.arcane.volmlib.util.localization.MessageValue;
 import art.arcane.volmlib.util.localization.PluginLanguageEditor;
 import art.arcane.volmlib.util.localization.PluginLanguageService;
 import art.arcane.volmlib.util.localization.PluralKey;
@@ -44,9 +44,6 @@ import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.TomlLanguageEditor;
 import art.arcane.volmlib.util.localization.VolmitLocales;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,16 +78,22 @@ public final class AdaptLanguage {
   private static final int MAX_COLOR_CACHE_TEMPLATE_LENGTH = 4096;
   private static final Map<String, Boolean> EXPLICIT_COLORS = new ConcurrentHashMap<>();
   static final Pattern LOCALE_NAME = LanguageDirectory.LOCALE_PATTERN;
-  private static final MessageCatalog CATALOG = AdaptMessages.catalog();
+  private static final String ENGLISH = VolmitLocales.ENGLISH;
+  private static final String MISSING_PREFIX = "[missing:";
+  private static final Set<String> MISSING_KEYS = ConcurrentHashMap.newKeySet();
+  private static final Set<String> REPORTED_PROBLEMS = ConcurrentHashMap.newKeySet();
+  private static final TextStore TEXTS = new TextStore(TextBundle.builtIn(AdaptMessages.catalog()),
+      AdaptLanguage::bundlesChanged);
   private static final LocalizationManager MANAGER = new LocalizationManager(
-      LocalizationCandidate.english(CATALOG, PluralSelector.oneOther())
+      LocalizationCandidate.english(AdaptMessages.catalog(), PluralSelector.oneOther())
   );
-  private static volatile String activeLocale = CATALOG.englishLocale();
+  private static volatile String activeLocale = ENGLISH;
   private static final Set<String> PENDING_INSTALLS = ConcurrentHashMap.newKeySet();
   private static volatile Upstream upstream;
   private static volatile Set<String> locales = Set.of();
   private static volatile Map<String, LanguageMeta> metas = Map.of();
   private static volatile PluginLanguageService selections;
+  private static final Map<String, LocaleSnapshot> LOCALE_SNAPSHOTS = new ConcurrentHashMap<>();
   private static volatile LanguageSwitcherPort switcher;
   private static volatile MarkupPort colorCacheOwner;
 
@@ -99,8 +102,8 @@ public final class AdaptLanguage {
 
   public static boolean initialize() {
     synchronized (SNAPSHOT_LOCK) {
-      MANAGER.install(LocalizationSnapshot.create(LocalizationCandidate.english(CATALOG, PluralSelector.oneOther())));
-      activeLocale = CATALOG.englishLocale();
+      MANAGER.install(LocalizationSnapshot.create(LocalizationCandidate.english(TEXTS.catalog(), PluralSelector.oneOther())));
+      activeLocale = ENGLISH;
     }
     return reload();
   }
@@ -137,6 +140,7 @@ public final class AdaptLanguage {
         return reloadInternal(file, raw, false);
       }
       LocalizationSnapshot prepared = LocalizationSnapshot.create(loadCandidate(locale, file, raw));
+      LOCALE_SNAPSHOTS.remove(locale);
       PluginLanguageService current = selections;
       if (current != null) {
         current.cache(locale, prepared);
@@ -166,7 +170,7 @@ public final class AdaptLanguage {
     }
     String configuredLocale = AdaptConfig.get().getLanguage();
     String requestedLocale = configuredLocale == null || configuredLocale.isBlank()
-        ? CATALOG.englishLocale()
+        ? ENGLISH
         : configuredLocale.trim();
     LocalizationReloadResult result;
     synchronized (SNAPSHOT_LOCK) {
@@ -255,25 +259,122 @@ public final class AdaptLanguage {
     return textStyled(defaultStyle, key, builder.build());
   }
 
+  /**
+   * Renders {@code key} in the viewer's language. A key no installed bundle declares renders as {@link #missing} and is
+   * logged once instead of throwing; arguments that do not match a declared key still throw.
+   */
   public static String textStyled(String defaultStyle, MessageKey key, MessageArgs arguments) {
-    if (key instanceof TextKey textKey) {
-      ResolvedText resolved = snapshot().resolve(textKey, arguments);
+    return render(snapshot(), defaultStyle, key, arguments);
+  }
+
+  /**
+   * Renders {@code key} in {@code locale}, whoever is being rendered for: the language file of that locale and every
+   * bundle's translations into it, then English per message. An invalid name renders in the server's language. The
+   * first call for a locale reads its files; the result is kept until the next reload.
+   */
+  public static String text(String locale, MessageKey key, MessageArgs arguments) {
+    return render(snapshot(locale), "", key, arguments);
+  }
+
+  static LocalizationSnapshot snapshot(String locale) {
+    LocalizationSnapshot base = MANAGER.snapshot();
+    String canonical;
+    try {
+      canonical = canonicalLocale(normalizeLocale(locale));
+    } catch (IllegalArgumentException invalid) {
+      return base;
+    }
+    if (LanguageDirectory.sameLocale(canonical, activeLocale)) {
+      return base;
+    }
+    LocaleSnapshot cached = LOCALE_SNAPSHOTS.get(canonical);
+    if (cached != null && cached.base() == base) {
+      return cached.messages();
+    }
+    boolean english = ENGLISH.equals(canonical);
+    if (!english && AdaptEnvironment.dataDirectory() == null) {
+      return base;
+    }
+    try {
+      LocalizationSnapshot prepared = LocalizationSnapshot.create(AdaptEnvironment.dataDirectory() == null
+          ? LocalizationCandidate.english(TEXTS.catalog(), PluralSelector.oneOther())
+          : loadCandidate(canonical, null, null));
+      LOCALE_SNAPSHOTS.put(canonical, new LocaleSnapshot(base, prepared));
+      return prepared;
+    } catch (Exception failure) {
+      AdaptLog.verbose(() -> "Could not load Adapt language " + canonical + ": " + failure.getMessage());
+      return base;
+    }
+  }
+
+  private static String render(LocalizationSnapshot snapshot, String defaultStyle, MessageKey key,
+                               MessageArgs arguments) {
+    MessageKey definition = definition(snapshot, key);
+    if (definition instanceof TextKey textKey) {
+      ResolvedText resolved = snapshot.resolve(textKey, arguments);
       return renderTemplate(resolved.template(), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
-    if (key instanceof LinesKey linesKey) {
-      ResolvedLines resolved = snapshot().resolve(linesKey, arguments);
+    if (definition instanceof LinesKey linesKey) {
+      ResolvedLines resolved = snapshot.resolve(linesKey, arguments);
       return renderTemplate(String.join("\n", resolved.lines()), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
-    if (key instanceof PluralKey pluralKey) {
-      ResolvedText resolved = snapshot().resolve(pluralKey, arguments);
+    if (definition instanceof PluralKey pluralKey) {
+      ResolvedText resolved = snapshot.resolve(pluralKey, arguments);
       return renderTemplate(resolved.template(), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
-    throw new IllegalArgumentException("Unsupported message key: " + key.id());
+    return missing(key.id());
   }
 
   /** The raw template of {@code key} in the viewer's language, before placeholders and markup are applied. */
   public static String template(TextKey key) {
-    return ((TextValue) snapshot().value(key)).template();
+    LocalizationSnapshot snapshot = snapshot();
+    MessageKey definition = definition(snapshot, key);
+    return definition == null ? missing(key.id()) : ((TextValue) snapshot.value(definition)).template();
+  }
+
+  /** The installed message bundles. */
+  public static TextStore texts() {
+    return TEXTS;
+  }
+
+  /**
+   * The keys of the built-in language files: the engine's messages and those the addon of namespace {@code adapt}
+   * registers. Built-in language files are read, merged and validated against it.
+   */
+  public static MessageCatalog builtInCatalog() {
+    return TEXTS.builtInCatalog();
+  }
+
+  /** The key {@code id} as an installed bundle declares it, or null. */
+  public static MessageKey declared(String id) {
+    return id == null ? null : TEXTS.catalog().key(id);
+  }
+
+  /** The key {@code id} as declared, or an undeclared stand-in that renders as {@link #missing}. */
+  public static MessageKey key(String id) {
+    MessageKey declared = declared(id);
+    return declared != null ? declared : TextKey.of(standInId(id), "");
+  }
+
+  /** What text shows for a key nothing declares: the key itself, marked so it stands out and can be searched for. */
+  public static String missing(String id) {
+    if (MISSING_KEYS.add(id)) {
+      AdaptLog.warn("No installed message bundle declares " + id + "; showing " + MISSING_PREFIX + id + "].");
+    }
+    return MISSING_PREFIX + id + "]";
+  }
+
+  private static MessageKey definition(LocalizationSnapshot snapshot, MessageKey key) {
+    MessageKey definition = snapshot.catalog().key(AdaptMessages.declared(key).id());
+    return definition != null && definition.shape() == key.shape() ? definition : null;
+  }
+
+  private static String standInId(String id) {
+    if (id == null || id.isEmpty()) {
+      return "missing";
+    }
+    String cleaned = id.replaceAll("[^A-Za-z0-9_.-]", "_");
+    return Character.isLetterOrDigit(cleaned.charAt(0)) ? cleaned : "missing" + cleaned;
   }
 
   /** Renders text composed from {@link #template} parts the way {@link #text} renders a single message. */
@@ -283,7 +384,7 @@ public final class AdaptLanguage {
 
   public static DirectorTextResolver directorResolver() {
     return (key, arguments) -> {
-      MessageKey definition = CATALOG.key(key.id());
+      MessageKey definition = definition(snapshot(), key);
       if (!(definition instanceof TextKey textKey)) {
         return C.stripColor(DirectorTextResolver.ENGLISH.resolve(key, arguments));
       }
@@ -291,7 +392,89 @@ public final class AdaptLanguage {
     };
   }
 
+  /** {@code locale} for every installed bundle: the built-in files, then each other bundle's overrides and translations. */
   private static LocalizationCandidate loadCandidate(String locale, File snapshotFile, String snapshotRaw) throws Exception {
+    TextStore.Composition composition = TEXTS.composition();
+    List<LocaleOverlay> overlays = new ArrayList<>(builtInCandidate(locale, snapshotFile, snapshotRaw).overlays());
+    List<String> chain = new ArrayList<>();
+    chain.add(locale);
+    for (LocaleOverlay overlay : overlays) {
+      if (!chain.contains(overlay.locale())) {
+        chain.add(overlay.locale());
+      }
+    }
+    for (String step : chain) {
+      bundleOverlay(composition, step).ifPresent(overlays::add);
+    }
+    return new LocalizationCandidate(composition.catalog(), overlays, PluralSelector.oneOther());
+  }
+
+  /**
+   * One overlay holding every bundle's own translations into {@code locale}: an admin file in
+   * {@code languages/<namespace>/} wins over the translation a non-built-in bundle ships. A broken admin file is
+   * reported and skipped without touching other bundles. The built-in language files come before this overlay.
+   */
+  private static Optional<LocaleOverlay> bundleOverlay(TextStore.Composition composition, String locale) {
+    Map<String, MessageValue> values = new LinkedHashMap<>();
+    for (TextBundle bundle : composition.bundles().values()) {
+      File file = new File(new File(languageFolder(), bundle.namespace()), locale + ".toml");
+      if (!TextBundle.BUILT_IN.equals(bundle.namespace()) && file.exists()) {
+        try {
+          LanguageToml.Read read = LanguageToml.overlay(file.getPath(), locale, readLocaleFile(file), bundle.catalog());
+          read.overlay().values().forEach(values::putIfAbsent);
+          for (String key : read.rejected()) {
+            reportOnce(file.getPath() + " [" + key + "]: not a key of message bundle " + bundle.namespace()
+                + " with a matching shape and placeholders; ignored.");
+          }
+        } catch (Exception broken) {
+          reportOnce(file.getPath() + ": " + broken.getMessage() + "; using the bundle's own text.");
+        }
+      }
+      bundle.translation(locale).ifPresent(translation -> translation.values().forEach(values::putIfAbsent));
+    }
+    if (values.isEmpty()) {
+      return Optional.empty();
+    }
+    LocaleOverlay.Builder builder = LocaleOverlay.builder("bundles:" + locale, locale);
+    values.forEach(builder::put);
+    return Optional.of(builder.build());
+  }
+
+  private static void reportOnce(String problem) {
+    if (REPORTED_PROBLEMS.add(problem)) {
+      AdaptLog.warn("Adapt language: " + problem);
+    }
+  }
+
+  /**
+   * Rebuilds the active and cached snapshots against the new bundle set. A rejected rebuild keeps the previous
+   * snapshot, so the changed bundle's text shows as missing until the language files load again.
+   */
+  private static void bundlesChanged() {
+    for (TextBundle bundle : TEXTS.bundles()) {
+      for (String problem : bundle.problems()) {
+        reportOnce(problem);
+      }
+    }
+    LocalizationReloadResult result;
+    synchronized (SNAPSHOT_LOCK) {
+      String locale = activeLocale;
+      result = MANAGER.reload(() -> AdaptEnvironment.dataDirectory() == null
+          ? LocalizationCandidate.english(TEXTS.catalog(), PluralSelector.oneOther())
+          : loadCandidate(locale, null, null));
+    }
+    if (!result.applied()) {
+      reportRejectedReload(activeLocale, result);
+    }
+    LOCALE_SNAPSHOTS.clear();
+    PluginLanguageService current = selections;
+    if (current != null) {
+      current.invalidate();
+    }
+    runGlobal(AdaptLanguage::refreshConsumers);
+  }
+
+  private static LocalizationCandidate builtInCandidate(String locale, File snapshotFile, String snapshotRaw) throws Exception {
     List<LocaleOverlay> overlays = new ArrayList<>();
     File file = new File(languageFolder(), locale + ".toml");
     String raw = null;
@@ -308,7 +491,7 @@ public final class AdaptLanguage {
       overlays.add(parseOverlay(file.getPath(), locale, raw));
       overlays.addAll(baseOverlays(locale, raw));
     }
-    return new LocalizationCandidate(CATALOG, overlays, PluralSelector.oneOther());
+    return new LocalizationCandidate(builtInCatalog(), overlays, PluralSelector.oneOther());
   }
 
   private static String readLocaleFile(File file) throws IOException {
@@ -330,7 +513,7 @@ public final class AdaptLanguage {
     while (meta.base().isPresent() && depth < MAXIMUM_BASE_DEPTH) {
       String base = canonicalLocale(meta.base().get());
       if (!visited.add(base.replace('-', '_').toLowerCase(Locale.ROOT))
-          || LanguageDirectory.sameLocale(base, CATALOG.englishLocale())) {
+          || LanguageDirectory.sameLocale(base, ENGLISH)) {
         break;
       }
       File baseFile = new File(languageFolder(), base + ".toml");
@@ -374,15 +557,23 @@ public final class AdaptLanguage {
     return LanguageMeta.parse(table.toString());
   }
 
+  /**
+   * The connection to the language source for the current language folder. It merges and validates against the
+   * built-in catalog, so a change of that catalog reconnects to the same source.
+   */
   static Upstream upstream() {
     Path root = languageFolder().toPath().toAbsolutePath().normalize();
     Upstream current = upstream;
-    if (current != null && current.directory().root().equals(root)) {
+    if (current != null && current.serves(root, builtInCatalog())) {
       return current;
     }
     synchronized (AdaptLanguage.class) {
-      if (upstream != null && upstream.directory().root().equals(root)) {
-        return upstream;
+      Upstream held = upstream;
+      if (held != null && held.serves(root, builtInCatalog())) {
+        return held;
+      }
+      if (held != null && held.directory().root().equals(root)) {
+        return connectUpstream(held.apiRoot(), held.rawRoot(), held.minimumCheckInterval());
       }
       return connectUpstream(GitHubLanguageSource.API_ROOT, GitHubLanguageSource.RAW_ROOT,
           LanguageUpstreamSync.MINIMUM_CHECK_INTERVAL);
@@ -394,14 +585,15 @@ public final class AdaptLanguage {
     if (previous != null) {
       previous.close();
     }
-    Upstream connected = openUpstream(new LanguageDirectory(languageFolder()), apiRoot, rawRoot, minimumCheckInterval);
+    Upstream connected = openUpstream(new LanguageDirectory(languageFolder()), builtInCatalog(), apiRoot, rawRoot,
+        minimumCheckInterval);
     upstream = connected;
     locales = Set.of();
     metas = Map.of();
     return connected;
   }
 
-  private static Upstream openUpstream(LanguageDirectory directory, URI apiRoot, URI rawRoot,
+  private static Upstream openUpstream(LanguageDirectory directory, MessageCatalog catalog, URI apiRoot, URI rawRoot,
                                        Duration minimumCheckInterval) {
     try {
       LanguageSourceManifest manifest = LanguageSourceManifest.load(AdaptLanguage.class.getClassLoader(), MANIFEST_RESOURCE);
@@ -409,21 +601,21 @@ public final class AdaptLanguage {
       LanguageUpstreamStore store = new LanguageUpstreamStore(directory, manifest);
       LanguageUpstreamSync sync = new LanguageUpstreamSync(new LanguageUpstreamSync.Options(
           "Adapt",
-          CATALOG,
+          catalog,
           directory,
           manifest,
           source,
           store,
-          () -> AdaptLanguageReference.render(CATALOG),
+          () -> AdaptLanguageReference.render(catalog),
           AdaptLanguage::validateContent,
           AdaptLanguage::commitUpstream,
           AdaptLanguage::noteUpstreamWrite,
           AdaptLanguage::applyUpstream,
           LanguageLogger.get()
       ), minimumCheckInterval);
-      return new Upstream(directory, manifest, sync, null);
+      return new Upstream(directory, manifest, sync, null, catalog, apiRoot, rawRoot, minimumCheckInterval);
     } catch (RuntimeException failure) {
-      return new Upstream(directory, null, null, failure);
+      return new Upstream(directory, null, null, failure, catalog, apiRoot, rawRoot, minimumCheckInterval);
     }
   }
 
@@ -531,7 +723,7 @@ public final class AdaptLanguage {
   public static void requestConfiguredLocale() {
     String locale = canonicalLocale(normalizeLocale(AdaptConfig.get().getLanguage()));
     Upstream current = upstream();
-    if (CATALOG.englishLocale().equals(locale) || current.sync() == null || !current.contains(locale)
+    if (ENGLISH.equals(locale) || current.sync() == null || !current.contains(locale)
         || Files.exists(new File(languageFolder(), locale + ".toml").toPath(), LinkOption.NOFOLLOW_LINKS)
         || !PENDING_INSTALLS.add(locale)) {
       return;
@@ -545,20 +737,29 @@ public final class AdaptLanguage {
     return current == null ? MANAGER.snapshot() : current.snapshot();
   }
 
-  private static LocalizationSnapshot prepareLocale(String locale) throws Exception {
+  static LocalizationSnapshot prepareLocale(String locale) throws Exception {
+    return LocalizationSnapshot.create(loadCandidate(ensureLocale(locale), null, null));
+  }
+
+  /** The editor edits the built-in bundle only, so its documents hold the built-in keys and nothing else. */
+  private static LocalizationSnapshot prepareEditorLocale(String locale) throws Exception {
+    return LocalizationSnapshot.create(builtInCandidate(ensureLocale(locale), null, null));
+  }
+
+  private static String ensureLocale(String locale) throws Exception {
     String requiredLocale = canonicalLocale(locale);
     File file = new File(languageFolder(), requiredLocale + ".toml");
-    if (!CATALOG.englishLocale().equals(requiredLocale) && !file.exists()) {
+    if (!ENGLISH.equals(requiredLocale) && !file.exists()) {
       installLocale(requiredLocale, file);
       refreshAvailableLocales();
     }
-    return LocalizationSnapshot.create(loadCandidate(requiredLocale, null, null));
+    return requiredLocale;
   }
 
   private static void installLocale(String locale, File file) throws Exception {
     Upstream current = upstream();
     if (!current.contains(locale)) {
-      String content = AdaptLanguageReference.renderCustom(CATALOG, locale);
+      String content = AdaptLanguageReference.renderCustom(builtInCatalog(), locale);
       write(file, () -> {
         AtomicFileIO.writeString(file.toPath(), content);
         return new ConfigHotloadEngine.Written<>(content, null);
@@ -596,18 +797,19 @@ public final class AdaptLanguage {
   }
 
   public static PluginLanguageEditor.Options editorOptions() {
-    return new PluginLanguageEditor.Options(AdaptLanguage::prepareLocale, AdaptLanguage::writeMessage);
+    return new PluginLanguageEditor.Options(AdaptLanguage::prepareEditorLocale, AdaptLanguage::writeMessage);
   }
 
   private static LocalizationSnapshot writeMessage(PluginLanguageEditor.Edit edit) throws IOException {
     LocaleOverlay edited = LocaleOverlay.builder("editor", edit.locale()).put(edit.key(), edit.value()).build();
-    LocalizationValidator.validate(CATALOG, List.of(edited)).throwIfInvalid();
+    MessageCatalog catalog = builtInCatalog();
+    LocalizationValidator.validate(catalog, List.of(edited)).throwIfInvalid();
     File file = new File(languageFolder(), edit.locale() + ".toml");
     try {
       LocalizationSnapshot prepared = write(file, () -> {
         ConfigHotloadEngine.Written<LocalizationSnapshot> written = LanguageFileEditor.update(file.toPath(), raw -> {
           LocalizationSnapshot current = editorSnapshot(edit.locale(), file, raw);
-          if (!current.value(CATALOG.require(edit.key())).equals(edit.expected())) {
+          if (!current.value(catalog.require(edit.key())).equals(edit.expected())) {
             throw new IOException("Language message changed; reopen it before saving");
           }
           String updated = TomlLanguageEditor.upsert(raw, edit.key(), edit.value()).content();
@@ -616,7 +818,7 @@ public final class AdaptLanguage {
         });
         synchronized (SNAPSHOT_LOCK) {
           if (edit.locale().equals(activeLocale)) {
-            MANAGER.install(written.value());
+            MANAGER.install(LocalizationSnapshot.create(loadCandidate(edit.locale(), file, written.content())));
           }
         }
         return written;
@@ -632,7 +834,7 @@ public final class AdaptLanguage {
 
   private static LocalizationSnapshot editorSnapshot(String locale, File file, String raw) throws IOException {
     try {
-      return LocalizationSnapshot.create(loadCandidate(locale, file, raw));
+      return LocalizationSnapshot.create(builtInCandidate(locale, file, raw));
     } catch (Exception failure) {
       throw new IOException("Could not validate Adapt language " + locale, failure);
     }
@@ -676,7 +878,7 @@ public final class AdaptLanguage {
     String revision = report.revision().map(sha -> sha.substring(0, 7)).orElse("unknown");
     for (String locale : report.changedLocales()) {
       LanguageCatalogMerge.MergeResult result = report.merged().get(locale);
-      String source = locale.equals(CATALOG.englishLocale())
+      String source = locale.equals(ENGLISH)
           ? "the built-in catalog"
           : sourceDescription() + " (" + revision + ")";
       AdaptLog.info("Updated Adapt language " + locale + " from " + source + ": " + result.summary() + ".");
@@ -698,7 +900,7 @@ public final class AdaptLanguage {
       return;
     }
     sync.mergeEnglish().filter(LanguageCatalogMerge.MergeResult::changed).ifPresent(result -> AdaptLog.info(
-        "Updated Adapt language " + CATALOG.englishLocale() + " from the built-in catalog: " + result.summary() + "."));
+        "Updated Adapt language " + ENGLISH + " from the built-in catalog: " + result.summary() + "."));
   }
 
   private static <T> T commitUpstream(LanguageUpstreamSync.CommitAction<T> action) throws IOException {
@@ -717,6 +919,7 @@ public final class AdaptLanguage {
       throws Exception {
     File file = new File(languageFolder(), locale + ".toml");
     LocalizationSnapshot prepared = LocalizationSnapshot.create(loadCandidate(locale, file, content));
+    LOCALE_SNAPSHOTS.remove(locale);
     refreshAvailableLocales();
     PluginLanguageService current = selections;
     if (current != null) {
@@ -733,7 +936,7 @@ public final class AdaptLanguage {
   }
 
   static void validateContent(String locale, String raw) {
-    LocalizationSnapshot.create(new LocalizationCandidate(CATALOG,
+    LocalizationSnapshot.create(new LocalizationCandidate(builtInCatalog(),
         List.of(parseOverlay("upstream:" + locale, locale, raw)), PluralSelector.oneOther()));
   }
 
@@ -747,7 +950,7 @@ public final class AdaptLanguage {
       installed = List.of();
     }
     Set<String> choices = new LinkedHashSet<>();
-    choices.add(CATALOG.englishLocale());
+    choices.add(ENGLISH);
     if (current.manifest() != null) {
       choices.addAll(current.manifest().locales());
     }
@@ -771,8 +974,8 @@ public final class AdaptLanguage {
 
   private static String canonicalLocale(String locale) {
     String requiredLocale = LanguageDirectory.requireLocale(locale);
-    if (CATALOG.englishLocale().equalsIgnoreCase(requiredLocale)) {
-      return CATALOG.englishLocale();
+    if (ENGLISH.equalsIgnoreCase(requiredLocale)) {
+      return ENGLISH;
     }
     LanguageSourceManifest manifest = upstream().manifest();
     if (manifest != null && manifest.contains(requiredLocale)) {
@@ -782,67 +985,7 @@ public final class AdaptLanguage {
   }
 
   static LocaleOverlay parseOverlay(String source, String locale, String raw) {
-    LocaleOverlay.Builder builder = LocaleOverlay.builder(source, locale);
-    if (raw == null || raw.isBlank()) {
-      return builder.build();
-    }
-    JsonElement parsed;
-    try {
-      parsed = TomlCodec.toJsonElement(raw);
-    } catch (IOException invalid) {
-      throw new IllegalArgumentException("Locale source is not valid TOML: " + source, invalid);
-    }
-    if (parsed == null || !parsed.isJsonObject()) {
-      throw new IllegalArgumentException("Locale source is not valid TOML: " + source);
-    }
-    appendOverlay(builder, parsed.getAsJsonObject(), "");
-    return LocalizationValidator.validValues(CATALOG, builder.build());
-  }
-
-  private static void appendOverlay(LocaleOverlay.Builder builder, JsonObject object, String prefix) {
-    for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-      String key = prefix.isEmpty() ? entry.getKey() : prefix + "." + entry.getKey();
-      JsonElement value = entry.getValue();
-      if (value == null || value.isJsonNull()) {
-        continue;
-      }
-      try {
-        if (value.isJsonObject() && CATALOG.key(key) instanceof PluralKey) {
-          builder.plural(key, readPlural(key, value.getAsJsonObject()));
-        } else if (value.isJsonObject()) {
-          appendOverlay(builder, value.getAsJsonObject(), key);
-        } else if (value.isJsonArray()) {
-          builder.lines(key, readLines(key, value.getAsJsonArray()));
-        } else if (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()) {
-          builder.text(key, value.getAsString());
-        }
-      } catch (IllegalArgumentException invalid) {
-        continue;
-      }
-    }
-  }
-
-  private static List<String> readLines(String key, JsonArray array) {
-    List<String> lines = new ArrayList<>(array.size());
-    for (JsonElement value : array) {
-      if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) {
-        throw new IllegalArgumentException("Locale line must be text: " + key);
-      }
-      lines.add(value.getAsString());
-    }
-    return lines;
-  }
-
-  private static Map<String, String> readPlural(String key, JsonObject object) {
-    Map<String, String> forms = new LinkedHashMap<>();
-    for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-      JsonElement value = entry.getValue();
-      if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) {
-        throw new IllegalArgumentException("Locale plural form must be text: " + key + "." + entry.getKey());
-      }
-      forms.put(entry.getKey(), value.getAsString());
-    }
-    return forms;
+    return LanguageToml.overlay(source, locale, raw, builtInCatalog()).overlay();
   }
 
   static String renderTemplate(String template, MessageArgs arguments) {
@@ -939,7 +1082,7 @@ public final class AdaptLanguage {
   }
 
   static String normalizeLocale(String locale) {
-    String value = locale == null || locale.isBlank() ? CATALOG.englishLocale() : locale.trim();
+    String value = locale == null || locale.isBlank() ? ENGLISH : locale.trim();
     if (!LOCALE_NAME.matcher(value).matches()) {
       throw new IllegalArgumentException("Invalid locale name: " + value);
     }
@@ -965,7 +1108,12 @@ public final class AdaptLanguage {
   }
 
   record Upstream(LanguageDirectory directory, LanguageSourceManifest manifest, LanguageUpstreamSync sync,
-                  RuntimeException failure) {
+                  RuntimeException failure, MessageCatalog catalog, URI apiRoot, URI rawRoot,
+                  Duration minimumCheckInterval) {
+    boolean serves(Path root, MessageCatalog builtIn) {
+      return directory.root().equals(root) && catalog == builtIn;
+    }
+
     boolean contains(String locale) {
       return manifest != null && manifest.contains(locale);
     }
@@ -975,5 +1123,9 @@ public final class AdaptLanguage {
         sync.close();
       }
     }
+  }
+
+  /** A locale's messages and the server-language snapshot they were built beside; a newer one means a reload. */
+  private record LocaleSnapshot(LocalizationSnapshot base, LocalizationSnapshot messages) {
   }
 }

@@ -1,6 +1,6 @@
 package art.arcane.adapt.gameplay;
 
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.platform.entity.EffectInstance;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.EquipmentSlot;

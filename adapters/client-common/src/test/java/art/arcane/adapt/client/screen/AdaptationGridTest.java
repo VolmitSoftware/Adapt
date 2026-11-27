@@ -655,7 +655,7 @@ class AdaptationGridTest {
     /** The id the server gives: a parent's upgrade names its parent, the mutation's own adaptations the mutation. */
     private static String mutatedId(String name) {
         String slug = name.toLowerCase(Locale.ROOT).replace(' ', '-');
-        return LEAD_UPGRADES.contains(name) ? "upgraded-" + LEAD + "-" + slug
-                : PARTNER_UPGRADES.contains(name) ? "upgraded-" + PARTNER + "-" + slug : MUTATED + "-" + slug;
+        return LEAD_UPGRADES.contains(name) ? LEAD + "/upgrade/" + slug
+                : PARTNER_UPGRADES.contains(name) ? PARTNER + "/upgrade/" + slug : MUTATED + "/" + slug;
     }
 }

@@ -1,11 +1,12 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.adaptation.AdaptationHost;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.AdaptationTeleportPort;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.adaptation.AdaptationTeleportPort;
 import art.arcane.adapt.api.preference.CommonPreferences;
-import art.arcane.adapt.api.preference.PlayerPreferences;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.preference.PlayerPreferences;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.entity.TeleportCause;
@@ -44,7 +45,7 @@ public final class BlinkPreferencesFixtures {
         boolean changed = false;
         switch (args[2]) {
             case "snapshot" -> { }
-            case "open" -> blink.openGui(player);
+            case "open" -> AdaptationHost.of(blink).openGui(player);
             case "level" -> runtime.getData().getSkillLine("rift").setAdaptation(blink, Integer.parseInt(args[3]));
             case "enabled" -> changed = PlayerPreferences.set(blink, runtime, CommonPreferences.ENABLED, CommonPreferences.Toggle.valueOf(args[3]));
             case "phasing" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.PHASING, RiftBlink.Phasing.valueOf(args[3]));
@@ -101,7 +102,7 @@ public final class BlinkPreferencesFixtures {
         result.addProperty("targeting", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.TARGETING).name());
         result.addProperty("activation", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.ACTIVATION).name());
         result.addProperty("direction", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.DIRECTION).name());
-        result.addProperty("savedDirection", runtime.getData().getPreferences().get("rift-blink", "direction"));
+        result.addProperty("savedDirection", runtime.getData().getPreferences().get("adapt:rift/blink", "direction"));
         result.addProperty("reactive-direction", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.REACTIVE_DIRECTION).name());
         result.addProperty("health", player.health());
         result.addProperty("x", location.x());
@@ -109,7 +110,7 @@ public final class BlinkPreferencesFixtures {
         result.addProperty("z", location.z());
         result.addProperty("processId", ProcessHandle.current().pid());
         result.addProperty("teleports", teleports.getOrDefault(player.uuid(), 0));
-        result.addProperty("savedActivation", runtime.getData().getPreferences().get("rift-blink", "activation"));
+        result.addProperty("savedActivation", runtime.getData().getPreferences().get("adapt:rift/blink", "activation"));
         result.add("attack", attacks.get(player.uuid()));
         result.add("destination", destinations.get(player.uuid()));
         result.add("slots", FixtureItems.menuSlots(player));

@@ -319,7 +319,7 @@ async function clap(input) {
 }
 
 export const guardBehaviorCases = new Map([
-    ['blocking-perfect-guard', {
+    ['adapt:blocking/perfect_guard', {
         stage: 'guard-block', sound: 'minecraft:item.shield.block', soundVolume: 1, soundPitch: 1.6, particle: 'end_rod',
         prepare: input => prepare(input), trigger: perfect,
         verify: ({ context, unlearned, active }) => {
@@ -329,7 +329,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural timed shield raise negates strike and staggers attacker'], unlearned, active)
         },
     }],
-    ['blocking-counter-guard', {
+    ['adapt:blocking/counter_guard', {
         stage: 'guard-block', sound: 'minecraft:item.trident.return', soundVolume: 0.7, soundPitch: 1.3, particle: 'end_rod',
         prepare: input => prepare(input), trigger: input => repeatedBlocks(input, false),
         verify: ({ context, unlearned, active }) => {
@@ -338,7 +338,7 @@ export const guardBehaviorCases = new Map([
             return report(['bounded natural shield hits reflect damage; configured chance0.35, no-proc bound0.65^40'], unlearned, active)
         },
     }],
-    ['blocking-tempered-guard', {
+    ['adapt:blocking/tempered_guard', {
         stage: 'guard-temper', sound: 'minecraft:block.anvil.land', soundVolume: 0.25, soundPitch: 1.8, particle: 'wax_on',
         prepare: input => prepare(input), trigger: input => repeatedBlocks(input, true),
         verify: ({ context, unlearned, active }) => {
@@ -347,7 +347,7 @@ export const guardBehaviorCases = new Map([
             return report(['bounded natural blocks repair worn equipment; chance0.55, no-proc bound0.45^20'], unlearned, active)
         },
     }],
-    ['blocking-mirror-block', {
+    ['adapt:blocking/mirror_block', {
         stage: 'guard-mirror', sound: 'minecraft:item.shield.block', soundVolume: 1, soundPitch: 1.35, particle: 'end_rod', particleCount: 1, particleOffset: 0,
         prepare: input => prepare(input), trigger: mirror,
         verify: ({ context, unlearned, active }) => {
@@ -356,7 +356,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural bow projectile changes shooter and reverses client velocity; chance0.45, no-proc bound0.55^30'], unlearned, active)
         },
     }],
-    ['blocking-interpose', {
+    ['adapt:blocking/interpose', {
         stage: 'guard-interpose', sound: 'minecraft:item.shield.block', soundVolume: 0.8, soundPitch: 0.9, particle: 'end_rod', particleCount: 1, particleOffset: 0,
         prepare: input => prepare(input), trigger: interpose,
         verify: ({ context, unlearned, active }) => {
@@ -366,7 +366,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural ally damage is reduced and charged to nearby guarding shield durability'], unlearned, active)
         },
     }],
-    ['blocking-shield-wall', {
+    ['adapt:blocking/shield_wall', {
         stage: 'guard-wall', sound: 'minecraft:block.amethyst_block.hit', soundVolume: 0.5, soundPitch: 1.5, particle: 'crit',
         prepare: input => prepare(input), trigger: wall,
         verify: ({ context, unlearned, active }) => {
@@ -376,7 +376,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural projectile damages ally less while inside a learned shield wall'], unlearned, active)
         },
     }],
-    ['blocking-bulwark-bash', {
+    ['adapt:blocking/bulwark_bash', {
         stage: 'guard-bash', sound: 'minecraft:item.shield.block', soundVolume: 1, soundPitch: 0.85, particle: 'cloud',
         prepare: input => prepare(input, 'wooden_sword'), trigger: input => jumpStrike(input, true),
         verify: ({ context, unlearned, active }) => {
@@ -390,7 +390,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural recent-sprint falling strike stuns primary and nearby targets and consumes shield cooldown'], unlearned, active)
         },
     }],
-    ['blocking-multiarmor', {
+    ['adapt:blocking/multiarmor', {
         stage: 'guard-multiarmor', sound: 'minecraft:item.armor.equip_elytra', soundVolume: 1, soundPitch: 0.77, particle: 'end_rod',
         prepare: input => prepare(input), trigger: multiarmor,
         verify: ({ context, unlearned, active }) => {
@@ -399,7 +399,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural armor-Elytra inventory merge produces equipped gear that changes with movement'], unlearned, active)
         },
     }],
-    ['sword-crimson-cyclone', {
+    ['adapt:sword/crimson_cyclone', {
         stage: 'guard-cyclone', sound: 'minecraft:entity.player.attack.sweep', soundVolume: 1, soundPitch: 0.6, particle: 'crimson_spore',
         prepare: input => prepare(input, 'wooden_sword'), trigger: input => jumpStrike(input, false),
         verify: ({ context, unlearned, active }) => {
@@ -409,7 +409,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural sword critical hit damages nearby target and pays cyclone hunger cost'], unlearned, active)
         },
     }],
-    ['sword-heirloom-edge', {
+    ['adapt:sword/heirloom_edge', {
         stage: 'guard-heirloom', sound: 'minecraft:block.anvil.use', soundVolume: 0.3, soundPitch: 1.7, particle: 'totem_of_undying',
         prepare: input => prepare(input, 'wooden_sword'), trigger: heirloom,
         verify: ({ context, unlearned, active }) => {
@@ -420,7 +420,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural anvil rename and five kills grow actual equipped sword damage'], unlearned, active)
         },
     }],
-    ['sword-machete', {
+    ['adapt:sword/machete', {
         stage: 'guard-machete', sound: 'minecraft:item.axe.strip', soundVolume: 0.35, soundPitch: 1.4, particle: 'wax_on',
         prepare: input => prepare(input, 'wooden_sword'), trigger: machete,
         verify: ({ context, unlearned, active }) => {
@@ -429,7 +429,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural sword click clears adjacent foliage inside maximum-level guaranteed radius'], unlearned, active)
         },
     }],
-    ['sword-whetstone-ritual', {
+    ['adapt:sword/whetstone_ritual', {
         stage: 'guard-whetstone', sound: 'minecraft:block.grindstone.use', soundVolume: 0.9, soundPitch: 1.2, particle: 'dust',
         prepare: input => prepare(input, 'wooden_sword'), trigger: whetstone,
         verify: ({ context, unlearned, active }) => {
@@ -440,7 +440,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural sneak grindstone use pays XP and durability and increases subsequent hit damage'], unlearned, active)
         },
     }],
-    ['unarmed-battering-charge', {
+    ['adapt:unarmed/battering_charge', {
         stage: 'guard-charge', sound: 'minecraft:entity.player.attack.knockback', soundVolume: 1, soundPitch: 0.95, particle: 'explosion',
         prepare: input => prepare(input), trigger: charge,
         verify: ({ context, unlearned, active }) => {
@@ -448,7 +448,7 @@ export const guardBehaviorCases = new Map([
             return report(['natural sprint movement followed by bare-hand strike adds charge damage'], unlearned, active)
         },
     }],
-    ['unarmed-disarm', {
+    ['adapt:unarmed/disarm', {
         stage: 'guard-disarm', sound: 'minecraft:item.lead.break', soundVolume: 0.9, soundPitch: 0.8, particle: 'crit', particleOffset: 0.3, particleSpeed: 0.08,
         prepare: input => prepare(input), trigger: disarm,
         verify: ({ context, unlearned, active }) => {
@@ -458,7 +458,7 @@ export const guardBehaviorCases = new Map([
             return report(['bounded natural punches remove and drop mob equipment; chance0.22, no-proc bound0.78^80'], unlearned, active)
         },
     }],
-    ['unarmed-shockwave-clap', {
+    ['adapt:unarmed/shockwave_clap', {
         stage: 'guard-clap', sound: 'minecraft:block.bell.resonate', soundVolume: 0.7, soundPitch: 1.4, particle: 'explosion',
         prepare: input => prepare(input), trigger: clap,
         verify: ({ context, unlearned, active }) => {

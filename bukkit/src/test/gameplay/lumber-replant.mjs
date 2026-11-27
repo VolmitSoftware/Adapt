@@ -11,7 +11,7 @@ export default {
   name: 'adapt-lumber-replant',
   description: 'Fell an oak through the Lumber worker, then replant from a delayed dropped sapling.',
   async run(context) {
-    const blocker = stepBlocker({ adaptations: ['golem-copper-frame'], content: [['entity', 'copper_golem']] })
+    const blocker = stepBlocker({ adaptations: ['adapt:golem/copper_frame'], content: [['entity', 'copper_golem']] })
     if (blocker) {
       for (const [id, title] of STEPS) notApplicable(context, id, title, `the Lumber worker is a copper golem: ${blocker}`)
       return

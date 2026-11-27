@@ -146,7 +146,7 @@ public final class ModItemRef implements ItemRef {
 
     @Override
     public String displayName() {
-        return ModText.markup(stack.getHoverName());
+        return ModText.legacy(stack.getHoverName());
     }
 
     @Override
@@ -175,7 +175,7 @@ public final class ModItemRef implements ItemRef {
     public List<String> lore() {
         List<String> out = new ArrayList<>();
         for (Component line : loreLines()) {
-            out.add(ModText.markup(line));
+            out.add(ModText.legacy(line));
         }
         return out;
     }
@@ -716,9 +716,7 @@ public final class ModItemRef implements ItemRef {
         for (MobEffectInstance effect : custom) {
             ResourceLocation key = BuiltInRegistries.MOB_EFFECT.getKey(effect.getEffect());
             if (key != null) {
-                effects.add(new EffectInstance(ModContentAliases.modern(RegistryKind.EFFECT, key),
-                    effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier(),
-                    effect.isAmbient(), effect.isVisible(), effect.showIcon()));
+                effects.add(EffectInstance.of(ModContentAliases.modern(RegistryKind.EFFECT, key), effect.isInfiniteDuration() ? EffectInstance.INFINITE : effect.getDuration(), effect.getAmplifier()).withAmbient(effect.isAmbient()).withParticles(effect.isVisible()).withIcon(effect.showIcon()));
             }
         }
         Potion stored = PotionUtils.getPotion(stack);
@@ -727,8 +725,7 @@ public final class ModItemRef implements ItemRef {
         Rgb color = tag != null && tag.contains(PotionUtils.TAG_CUSTOM_POTION_COLOR, Tag.TAG_ANY_NUMERIC)
             ? Rgb.of(tag.getInt(PotionUtils.TAG_CUSTOM_POTION_COLOR) & 0xFFFFFF)
             : null;
-        return Optional.of(new art.arcane.adapt.platform.item.PotionContents(potion, color, effects,
-            stack.hasCustomHoverName() ? ModText.markup(stack.getHoverName()) : null));
+        return Optional.of(art.arcane.adapt.platform.item.PotionContents.of(potion).withColor(color).withCustomEffects(effects).withName(stack.hasCustomHoverName() ? ModText.markup(stack.getHoverName()) : null));
     }
 
     @Override

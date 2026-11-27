@@ -1,9 +1,8 @@
 package art.arcane.adapt.client.insight;
 
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.client.protocol.ServerFrame;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -45,7 +44,7 @@ class InsightStateTest {
     @Test
     void aQuietTargetExpiresWithItsMarks() {
         state.target(view(1, 20D));
-        state.marks(List.of(new InsightMark(4, InsightKind.HOSTILE, 0.5D)));
+        state.marks(List.of(new ServerFrame.InsightMarks.Mark(4, InsightKind.HOSTILE, 0.5D)));
         clock.addAndGet(InsightState.TTL_MILLIS);
         state.expire();
         assertTrue(state.active());
@@ -59,7 +58,7 @@ class InsightStateTest {
     @Test
     void clearAndResetDropEverything() {
         state.target(view(1, 20D));
-        state.marks(List.of(new InsightMark(4, InsightKind.HOSTILE, 0.5D)));
+        state.marks(List.of(new ServerFrame.InsightMarks.Mark(4, InsightKind.HOSTILE, 0.5D)));
         state.clear();
         assertNull(state.view());
         assertTrue(state.marks().isEmpty());
@@ -79,8 +78,8 @@ class InsightStateTest {
         assertEquals(-1, state.remainingTicks(-1));
     }
 
-    private static InsightView view(int entityId, double health) {
-        return new InsightView(entityId, "minecraft:zombie", "", InsightKind.HOSTILE, health, 20D, 0D, 2D,
-                InsightBond.NONE, "", false, List.of(), List.of());
+    private static ServerFrame.InsightTarget view(int entityId, double health) {
+        return new ServerFrame.InsightTarget(entityId, "minecraft:zombie", "", InsightKind.HOSTILE, health, 20D, 0D, 2D,
+                InsightBond.NONE, "", List.of(), List.of(), List.of());
     }
 }

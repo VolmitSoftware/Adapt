@@ -1,7 +1,7 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.adaptation.EntityGuardPort;
-import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.engine.adaptation.EntityGuardPort;
+import art.arcane.adapt.engine.minion.MinionIdentity;
 import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.entity.EntityRef;

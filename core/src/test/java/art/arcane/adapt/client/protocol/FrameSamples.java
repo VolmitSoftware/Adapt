@@ -1,16 +1,11 @@
 package art.arcane.adapt.client.protocol;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.view.AdaptationView;
 import art.arcane.adapt.client.view.CatalogView;
 import art.arcane.adapt.client.view.IconRef;
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightEffect;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightMark;
-import art.arcane.adapt.client.view.InsightStat;
-import art.arcane.adapt.client.view.InsightStatKind;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.MutationCandidate;
 import art.arcane.adapt.client.view.MutationEntry;
@@ -52,67 +47,68 @@ final class FrameSamples {
 
   static Map<String, ServerFrame> server() {
     Map<String, ServerFrame> frames = new LinkedHashMap<>();
-    frames.put("server-accept", new ServerFrame.Accept(1, new ServerInfo("paper", "26.3", ClientProtocol.ALL)));
+    frames.put("server-accept", new ServerFrame.Accept(ClientProtocol.VERSION, new ServerInfo("paper", "26.3", ClientProtocol.ALL)));
     frames.put("server-catalog", new ServerFrame.Catalog(catalog()));
     frames.put("server-player", new ServerFrame.Player(player()));
     frames.put("server-player-update", new ServerFrame.PlayerUpdate(new PlayerDelta(
         new PlayerHeader(13, 0.25D, 5, 13, 2L, false),
         List.of(new SkillLineView("agility", 150D, 4, 0.5D, 25D, 3L)),
-        Map.of("agility-wall-jump", 0),
+        Map.of("adapt:agility/wall_jump", 0),
         List.of(new PreferenceValue(new PreferenceKey(PreferenceOwner.SKILL, "agility", "enabled"), "OFF")),
-        List.of(new PreferenceKey(PreferenceOwner.ADAPTATION, "agility-wall-jump", "enabled")),
-        new PlayerAccess(false, false, true, List.of("agility"), Map.of("agility", List.of(List.of("agility-wall-jump"))))
+        List.of(new PreferenceKey(PreferenceOwner.ADAPTATION, "adapt:agility/wall_jump", "enabled")),
+        new PlayerAccess(false, false, true, List.of("agility"), Map.of("agility", List.of(List.of("adapt:agility/wall_jump"))))
     )));
-    frames.put("server-open-route", new ServerFrame.OpenRoute(new Route.Adaptation("agility-wall-jump")));
+    frames.put("server-open-route", new ServerFrame.OpenRoute(new Route.Adaptation("adapt:agility/wall_jump")));
     frames.put("server-panel-open", new ServerFrame.PanelOpen(panel()));
     frames.put("server-panel-update", new ServerFrame.PanelUpdate(panel()));
     frames.put("server-panel-close", new ServerFrame.PanelClose(300));
     frames.put("server-hud-publish", new ServerFrame.HudPublish("adapt:xp", -5, 3000L,
         List.of(HudSlot.LEFT, HudSlot.RIGHT), "§b+12 Agility"));
     frames.put("server-hud-clear", new ServerFrame.HudClear("adapt:xp"));
-    frames.put("server-hud-status", new ServerFrame.HudStatus("rift-blink", HudGlyph.CHARGES, "rift", ICON,
+    frames.put("server-hud-status", new ServerFrame.HudStatus("adapt:rift/blink", HudGlyph.CHARGES, "rift", ICON,
         "Blink", 1_700_000_000_000L, 8000L, 2, 5, false));
     frames.put("server-hud-clear-all", new ServerFrame.HudClearAll());
     frames.put("server-xp-earned", new ServerFrame.XpEarned("agility", 12.5D, 1012.5D, 9, 0.75D));
     frames.put("server-toast", new ServerFrame.Toast(ToastKind.LEVEL_UP, ICON, "Agility 10", "+1 knowledge", ""));
     frames.put("server-toast-challenge", new ServerFrame.Toast(ToastKind.CHALLENGE, ICON, "Marathon", "Run 50 km", ""));
     frames.put("server-toast-skill", new ServerFrame.Toast(ToastKind.SIGNATURE, ICON, "Called Shot", "Mark a target",
-        "mutated-ranged-stealth"));
+        "adapt:ranged+adapt:stealth"));
     frames.put("server-custom-items", new ServerFrame.CustomItems(List.of(
         new ItemDescriptor("adapt:bound_ender_pearl", "minecraft:ender_pearl", "Bound Pearl", List.of("Linked"),
             "adapt:bound_ender_pearl", 0, new byte[] {1, 2, 3, (byte) 0xFF}),
         new ItemDescriptor("adapt:experience_orb", "minecraft:paper", "Orb", List.of(), null, 42, new byte[0])
     )));
     frames.put("server-feedback", new ServerFrame.Feedback(FeedbackKind.FAILURE, "Not enough knowledge"));
-    frames.put("server-insight-target", new ServerFrame.InsightTarget(insight()));
+    frames.put("server-insight-target", insight());
     frames.put("server-insight-vitals", new ServerFrame.InsightVitals(4242, 12.5D, 4D));
     frames.put("server-insight-marks", new ServerFrame.InsightMarks(List.of(
-        new InsightMark(77, InsightKind.HOSTILE, 0.5D), new InsightMark(-3, InsightKind.PLAYER, 1D))));
+        new ServerFrame.InsightMarks.Mark(77, InsightKind.HOSTILE, 0.5D),
+        new ServerFrame.InsightMarks.Mark(-3, InsightKind.PLAYER, 1D))));
     frames.put("server-insight-clear", new ServerFrame.InsightClear());
     frames.put("server-mutate-offers", new ServerFrame.MutateOffers(List.of("swords", "stealth")));
     frames.put("server-mutation-kept", new ServerFrame.MutationKept("Kept without learning",
-        List.of(new KeptView("mutated-swords-stealth", "swords-machete", 1), new KeptView("mutated-swords-stealth", "stealth-sight", 2))));
-    frames.put("server-mutation-tools", new ServerFrame.MutationTools(List.of(new ToolView("upgraded-swords-tempest-flow",
-        "tool-swords-whetstone", "Whetstone", new IconRef("minecraft:flint", 4902919, null, "adapt:textures/gui/tool/tool-swords-whetstone.png"),
+        List.of(new KeptView("adapt:swords+adapt:stealth", "swords-machete", 1), new KeptView("adapt:swords+adapt:stealth", "stealth-sight", 2))));
+    frames.put("server-mutation-tools", new ServerFrame.MutationTools(List.of(new ToolView("adapt:swords/upgrade/tempest_flow",
+        "adapt:swords/tool/whetstone", "Whetstone", new IconRef("minecraft:flint", 4902919, null, "adapt:textures/gui/tool/tool-swords-whetstone.png"),
         2, List.of(new ToolView.Ingredient("minecraft:flint", 2), new ToolView.Ingredient("#minecraft:stone_crafting_materials", 1))))));
     frames.put("server-mutation-spread", new ServerFrame.MutationSpread(spread()));
     frames.put("server-xp-guides", new ServerFrame.XpGuides("Earning XP", List.of(
         new XpGuideView("swords", List.of(), List.of(new XpGuideView.Section("swords", "Swords", List.of("Hit mobs with a sword", "Kill mobs with a sword")))),
-        new XpGuideView("mutated-swords-stealth", List.of("swords", "stealth"), List.of(
+        new XpGuideView("adapt:swords+adapt:stealth", List.of("swords", "stealth"), List.of(
             new XpGuideView.Section("swords", "Swords", List.of("Hit mobs with a sword")),
             new XpGuideView.Section("stealth", "Stealth", List.of("Sneak")),
             new XpGuideView.Section("", "Mutation", List.of("Both parents fill one bar")))))));
     frames.put("server-spending", new ServerFrame.Spending(true, List.of(
-        new SpendView("mutated-swords-stealth", "upgraded-swords-witherblade", 2, 45, 1, SpendView.Source.LEARNED),
-        new SpendView("mutated-swords-stealth", "swords-machete", 1, 0, 0, SpendView.Source.KEPT))));
+        new SpendView("adapt:swords+adapt:stealth", "adapt:swords/upgrade/witherblade", 2, 45, 1, SpendView.Source.LEARNED),
+        new SpendView("adapt:swords+adapt:stealth", "swords-machete", 1, 0, 0, SpendView.Source.KEPT))));
     frames.put("server-group-labels", new ServerFrame.GroupLabels(List.of(
         new GroupLabelView("hunter", List.of("When Struck", "The Hunt")),
         new GroupLabelView("kinetics", List.of("Spear", "Mace", "Movement")))));
     frames.put("server-short-names", new ServerFrame.ShortNames(List.of(
-        new ShortNameView("pickaxe-drop-to-inventory", "Drop to Inventory"),
-        new ShortNameView("hunter-luck", "Luck"))));
+        new ShortNameView("adapt:pickaxe/drop_to_inventory", "Drop to Inventory"),
+        new ShortNameView("adapt:hunter/luck", "Luck"))));
     frames.put("server-adaptation-recipes", new ServerFrame.AdaptationRecipes(List.of(
-        new RecipeView("brewing-haste", RecipeView.Kind.BREWING, 1, "minecraft:haste", 0, List.of(
+        new RecipeView("adapt:brewing/haste", RecipeView.Kind.BREWING, 1, "minecraft:haste", 0, List.of(
             new RecipeView.Item(new IconRef("minecraft:potion", 0, null,
                 "minecraft:textures/item/potion_overlay.png#33ebff|minecraft:textures/item/potion.png"), "",
                 "item.minecraft.potion.effect.swiftness", 1, List.of(new RecipeView.Effect("minecraft:speed", 0, 3600, false))),
@@ -120,20 +116,25 @@ final class FrameSamples {
             new RecipeView.Item(new IconRef("minecraft:potion", 0, null,
                 "minecraft:textures/item/potion_overlay.png#ffff00|minecraft:textures/item/potion.png"), "Bottled Haste", "", 1,
                 List.of(new RecipeView.Effect("minecraft:haste", 1, 600, false)))),
-        new RecipeView("architect-chalk-line", RecipeView.Kind.SHAPED, 2, "minecraft:string", 2, List.of(
+        new RecipeView("adapt:architect/chalk_line", RecipeView.Kind.SHAPED, 2, "minecraft:string", 2, List.of(
             new RecipeView.Item(IconRef.item("minecraft:string"), "", "", 1, List.of()), RecipeView.Item.NONE, RecipeView.Item.NONE,
             new RecipeView.Item(IconRef.item("minecraft:stick"), "", "", 1, List.of())),
             new RecipeView.Item(new IconRef("minecraft:stick", 4902922, null, null), "Chalk Polyline Wand", "", 1, List.of())))));
+    frames.put("server-asset-manifest", new ServerFrame.AssetManifest(List.of(
+        new AssetRef("adapt:textures/gui/skill/agility.png", "da39a3ee5e6b4b0d3255bfef95601890afd80709"),
+        new AssetRef("alchemist:themes/alchemy.json", "0123456789abcdef0123456789abcdef01234567"))));
+    frames.put("server-asset", new ServerFrame.Asset("alchemist:textures/gui/skill/alchemy.png",
+        "0123456789abcdef0123456789abcdef01234567", new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47}));
     return frames;
   }
 
   static Map<String, ClientFrame> client() {
     Map<String, ClientFrame> frames = new LinkedHashMap<>();
-    frames.put("client-hello", new ClientFrame.Hello(1, ClientProtocol.ALL));
+    frames.put("client-hello", new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ALL));
     frames.put("client-hello-withdraw", new ClientFrame.Hello(0, 0));
-    frames.put("client-learn", new ClientFrame.Learn("agility-wall-jump", 3, 42L));
-    frames.put("client-unlearn", new ClientFrame.Unlearn("agility-wall-jump", 1, 42L));
-    frames.put("client-set-preference", new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "rift-blink",
+    frames.put("client-learn", new ClientFrame.Learn("adapt:agility/wall_jump", 3, 42L));
+    frames.put("client-unlearn", new ClientFrame.Unlearn("adapt:agility/wall_jump", 1, 42L));
+    frames.put("client-set-preference", new ClientFrame.SetPreference(PreferenceOwner.ADAPTATION, "adapt:rift/blink",
         "momentum", "STOP"));
     frames.put("client-reset-preference", new ClientFrame.ResetPreference(PreferenceOwner.SKILL, "agility"));
     frames.put("client-open", new ClientFrame.Open(new Route.Skill("agility")));
@@ -146,11 +147,13 @@ final class FrameSamples {
     frames.put("client-mutation-request", new ClientFrame.MutationRequest("swords", "stealth", true));
     frames.put("client-open-mutate", new ClientFrame.Open(new Route.Mutate("swords")));
     frames.put("client-unmutate", new ClientFrame.Unmutate("swords"));
+    frames.put("client-asset-request", new ClientFrame.AssetRequest(List.of("alchemist:textures/gui/skill/alchemy.png",
+        "alchemist:themes/alchemy.json")));
     return frames;
   }
 
   static MutationSpreadView spread() {
-    MutationEntry upgrade = new MutationEntry("upgraded-swords-witherblade", ICON, "Witherblade", "Wither on hit.\n13 / 13 / 16 knowledge", 0);
+    MutationEntry upgrade = new MutationEntry("adapt:swords/upgrade/witherblade", ICON, "Witherblade", "Wither on hit.\n13 / 13 / 16 knowledge", 0);
     MutationEntry kept = new MutationEntry("swords-machete", ICON, "Machete I", "Cut through foliage.", 1);
     MutationEntry tool = new MutationEntry("ledger", IconRef.item("minecraft:book"), "Ledger", "Tool", 0);
     MutationEntry lost = new MutationEntry("stealth-sight", ICON, "Ghost Sight II", "", 2);
@@ -161,13 +164,16 @@ final class FrameSamples {
         new MutationCandidate("axes", 9, MutationCandidate.State.LEVEL_TOO_LOW, "Needs level 15")),
         new MutationWords("Mutate", "Lead", "Partner", "Gains", "Loses", "Hold to mutate", "This cannot be undone", "Swap lead",
             "Level {level}"),
-        "mutated-swords-stealth");
+        "adapt:swords+adapt:stealth");
   }
 
-  static InsightView insight() {
-    return new InsightView(4242, "minecraft:wolf", "Rex", InsightKind.PASSIVE, 16D, 20D, 0D, 4D, InsightBond.OWNED,
-        "Steve", true, List.of(new InsightStat(InsightStatKind.ATTACK, 4D), new InsightStat(InsightStatKind.SPEED, 0.3D)),
-        List.of(new InsightEffect("minecraft:speed", 1, 600, false), new InsightEffect("minecraft:poison", 0, -1, true)));
+  static ServerFrame.InsightTarget insight() {
+    return new ServerFrame.InsightTarget(4242, "minecraft:wolf", "Rex", InsightKind.PASSIVE, 16D, 20D, 0D, 4D,
+        InsightBond.OWNED, "Steve", List.of("adapt:stable_hand"),
+        List.of(new ServerFrame.InsightTarget.Stat("minecraft:attack_damage", 4D),
+            new ServerFrame.InsightTarget.Stat("minecraft:movement_speed", 0.3D)),
+        List.of(new ServerFrame.InsightTarget.Effect("minecraft:speed", 1, 600, false),
+            new ServerFrame.InsightTarget.Effect("minecraft:poison", 0, -1, true)));
   }
 
   static CatalogView catalog() {
@@ -176,7 +182,7 @@ final class FrameSamples {
         new PreferenceChoiceView("OFF", "Off", IconRef.item("minecraft:gray_dye"), 1)
     ), true);
     AdaptationView wallJump = new AdaptationView(
-        "agility-wall-jump",
+        "adapt:agility/wall_jump",
         "agility",
         "Wall Jump",
         "Jump off walls.",
@@ -187,7 +193,7 @@ final class FrameSamples {
         List.of(5, 7),
         List.of(5, 7),
         List.of(1, 1),
-        List.of(new RequirementView("agility-super-jump", 1)),
+        List.of(new RequirementView("adapt:agility/super_jump", 1)),
         List.of(List.of("+1 jump"), List.of("+2 jumps", "Less fall damage")),
         List.of(enabled),
         List.of(new PreferenceGroupView("effects", "Effects", PLAIN_ICON,
@@ -200,7 +206,7 @@ final class FrameSamples {
         ICON,
         0x55FFFF,
         true,
-        List.of(List.of("agility-wall-jump")),
+        List.of(List.of("adapt:agility/wall_jump")),
         List.of(enabled),
         List.of(wallJump)
     );
@@ -211,13 +217,13 @@ final class FrameSamples {
     return new PlayerView(
         new PlayerHeader(12, 0.5D, 3, 12, 1L, true),
         List.of(new SkillLineView("agility", 100D, 3, 0.25D, 50D, 2L)),
-        Map.of("agility-wall-jump", 2, "agility-super-jump", 1),
+        Map.of("adapt:agility/wall_jump", 2, "adapt:agility/super_jump", 1),
         List.of(
             new PreferenceValue(new PreferenceKey(PreferenceOwner.SKILL, "agility", "enabled"), "ON"),
-            new PreferenceValue(new PreferenceKey(PreferenceOwner.ADAPTATION, "agility-wall-jump", "enabled"), "ON")
+            new PreferenceValue(new PreferenceKey(PreferenceOwner.ADAPTATION, "adapt:agility/wall_jump", "enabled"), "ON")
         ),
         new PlayerAccess(true, true, false, List.of("agility"),
-            Map.of("agility", List.of(List.of("agility-wall-jump"), List.of("agility-super-jump")), "rift", List.of()))
+            Map.of("agility", List.of(List.of("adapt:agility/wall_jump"), List.of("adapt:agility/super_jump")), "rift", List.of()))
     );
   }
 

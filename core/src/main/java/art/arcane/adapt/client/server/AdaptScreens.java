@@ -1,15 +1,17 @@
 package art.arcane.adapt.client.server;
 
 import art.arcane.adapt.AdaptCore;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.skill.SkillRegistry;
-import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.component.ComponentHost;
+import art.arcane.adapt.engine.skill.SkillHost;
+import art.arcane.adapt.engine.skill.SkillRegistry;
+import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.protocol.ServerFrame;
-import art.arcane.adapt.content.gui.MutationGui;
-import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.engine.gui.MutationGui;
+import art.arcane.adapt.engine.gui.SkillsGui;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 /**
@@ -40,12 +42,12 @@ public final class AdaptScreens {
       return false;
     }
     if (!screens(player)) {
-      return skill.openGui(player, checkPermissions);
+      return ComponentHost.of(skill).openGui(player, checkPermissions);
     }
-    if (!skill.isEnabled() || (checkPermissions && !skill.hasUsePermission(player, skill))) {
+    if (!skill.isEnabled() || (checkPermissions && !skill.hasUsePermission(player))) {
       return false;
     }
-    return route(player, new Route.Skill(skill.getName())) || skill.openGui(player, checkPermissions);
+    return route(player, new Route.Skill(SkillHost.lineKey(skill))) || ComponentHost.of(skill).openGui(player, checkPermissions);
   }
 
   public static void openAdaptation(PlayerRef player, Adaptation<?> adaptation) {
@@ -58,14 +60,14 @@ public final class AdaptScreens {
       return false;
     }
     if (!screens(player)) {
-      return adaptation.openGui(player, checkPermissions);
+      return ComponentHost.of(adaptation).openGui(player, checkPermissions);
     }
     if (!adaptation.isEnabled() || adaptation.getSkill() == null || !adaptation.getSkill().isEnabled()
-        || (checkPermissions && !adaptation.hasUsePermission(player, adaptation))) {
+        || (checkPermissions && !adaptation.hasUsePermission(player))) {
       return false;
     }
-    return route(player, new Route.Adaptation(adaptation.getName()))
-        || adaptation.openGui(player, checkPermissions);
+    return route(player, new Route.Adaptation(adaptation.getId().toString()))
+        || ComponentHost.of(adaptation).openGui(player, checkPermissions);
   }
 
   /** Opens a route a client asked for, with the permission checks of a player opening it themselves. */
@@ -92,7 +94,7 @@ public final class AdaptScreens {
 
   /** Opens the Mutate flow led by {@code lead}: the client's spread when it has one, otherwise the partner menu. */
   public static void openMutation(PlayerRef player, Skill<?> lead) {
-    if (!ClientUiService.negotiated(player, ClientProtocol.MUTATE_SPREAD) || !route(player, new Route.Mutate(lead.getName()))) {
+    if (!ClientUiService.negotiated(player, ClientProtocol.MUTATE_SPREAD) || !route(player, new Route.Mutate(SkillHost.lineKey(lead)))) {
       MutationGui.openPartners(player, lead);
     }
   }

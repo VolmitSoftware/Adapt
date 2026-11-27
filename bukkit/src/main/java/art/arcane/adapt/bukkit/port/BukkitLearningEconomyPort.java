@@ -1,7 +1,7 @@
 package art.arcane.adapt.bukkit.port;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.api.adaptation.LearningEconomyPort;
+import art.arcane.adapt.engine.adaptation.LearningEconomyPort;
 import art.arcane.volmlib.integration.VaultEconomy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

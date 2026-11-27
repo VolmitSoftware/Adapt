@@ -1,15 +1,17 @@
 package art.arcane.adapt.client.net;
 
-import art.arcane.adapt.api.notification.HudSlot;
+import art.arcane.adapt.engine.notification.HudSlot;
 import art.arcane.adapt.client.config.ClientConfig;
 import art.arcane.adapt.client.hud.HudClock;
 import art.arcane.adapt.client.hud.HudModel;
+import art.arcane.adapt.client.protocol.AssetRef;
 import art.arcane.adapt.client.protocol.ClientFrame;
 import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ClientProtocolException;
 import art.arcane.adapt.client.protocol.FeedbackKind;
 import art.arcane.adapt.client.protocol.FrameCodec;
 import art.arcane.adapt.client.protocol.FrameFragments;
+import art.arcane.adapt.client.protocol.FrameLimits;
 import art.arcane.adapt.client.protocol.PanelLayout;
 import art.arcane.adapt.client.protocol.PanelView;
 import art.arcane.adapt.client.protocol.Route;
@@ -39,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClientNetTest {
     private static final ServerInfo SERVER = new ServerInfo("fabric", "26.3", ClientProtocol.PANEL);
+    private static final String HASH = "0123456789abcdef0123456789abcdef01234567";
     private static final CatalogView CATALOG = new CatalogView(42L, "en_us", List.of());
     private static final PlayerHeader HEADER = new PlayerHeader(3, 0.25D, 1, 10, 0L, true);
     private static final PlayerView PLAYER = new PlayerView(HEADER, List.of(new SkillLineView("rift", 10D, 1, 0.1D, 90D, 0L)),
@@ -102,7 +105,7 @@ class ClientNetTest {
         net.connected();
         transport.ready = true;
         net.tick();
-        net.receive(encode(new ServerFrame.Accept(1, SERVER)));
+        net.receive(encode(new ServerFrame.Accept(ClientProtocol.VERSION, SERVER)));
     }
 
     @Test
@@ -113,7 +116,7 @@ class ClientNetTest {
         assertEquals(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.JUMPS), transport.sent.get(0));
         assertFalse(net.jumpKey(true));
 
-        net.receive(encode(new ServerFrame.Accept(1, new ServerInfo("forge", "1.20.1", ClientProtocol.JUMPS))));
+        net.receive(encode(new ServerFrame.Accept(ClientProtocol.VERSION, new ServerInfo("forge", "1.20.1", ClientProtocol.JUMPS))));
         assertTrue(net.jumpKey(true));
         assertEquals(new ClientFrame.JumpKey(true), transport.sent.get(transport.sent.size() - 1));
     }
@@ -156,7 +159,7 @@ class ClientNetTest {
                 List.of(), List.of(), null))));
 
         assertTrue(net.state().negotiated());
-        assertEquals(1, net.state().version());
+        assertEquals(ClientProtocol.VERSION, net.state().version());
         assertTrue(net.state().has(ClientProtocol.PANEL));
         assertFalse(net.state().has(ClientProtocol.HUD));
         assertEquals(CATALOG, net.state().catalog());
@@ -169,7 +172,7 @@ class ClientNetTest {
     @Test
     void framesBeforeAcceptOrWithoutHelloAreIgnored() {
         net.connected();
-        net.receive(encode(new ServerFrame.Accept(1, SERVER)));
+        net.receive(encode(new ServerFrame.Accept(ClientProtocol.VERSION, SERVER)));
         assertFalse(net.state().negotiated());
 
         transport.ready = true;
@@ -288,7 +291,7 @@ class ClientNetTest {
         assertEquals(new ClientFrame.Hello(0, 0), transport.sent.get(transport.sent.size() - 1));
         int sent = transport.sent.size();
         net.tick();
-        net.receive(encode(new ServerFrame.Accept(1, SERVER)));
+        net.receive(encode(new ServerFrame.Accept(ClientProtocol.VERSION, SERVER)));
         assertEquals(sent, transport.sent.size());
         assertFalse(net.state().negotiated());
 
@@ -379,6 +382,41 @@ class ClientNetTest {
 
         assertTrue(hud.notices().isEmpty());
         assertTrue(hud.statuses().isEmpty());
+    }
+
+    @Test
+    void anAssetManifestAsksForWhatTheSinkLacksInBoundedBatchesAndAssetsReachTheSink() {
+        List<String> received = new ArrayList<>();
+        List<String> lacking = new ArrayList<>();
+        for (int index = 0; index < FrameLimits.MAX_ASSET_REQUEST + 3; index++) {
+            lacking.add("alchemist:textures/gui/adaptation/a" + index + ".png");
+        }
+        net.install(ClientSinks.NONE.withAssets(new AssetSink() {
+            @Override
+            public List<String> manifest(List<AssetRef> assets) {
+                return lacking;
+            }
+
+            @Override
+            public void asset(String resource, String hash, byte[] data) {
+                received.add(resource);
+            }
+
+            @Override
+            public void reset() {
+                received.add("reset");
+            }
+        }));
+        negotiate();
+        assertEquals(new ClientFrame.Hello(ClientProtocol.VERSION, ClientProtocol.ASSETS), transport.sent.get(0));
+
+        net.receive(encode(new ServerFrame.AssetManifest(List.of())));
+        net.receive(encode(new ServerFrame.Asset("alchemist:textures/gui/adaptation/a0.png", HASH, new byte[] {1})));
+        net.disconnected();
+
+        assertEquals(new ClientFrame.AssetRequest(lacking.subList(0, FrameLimits.MAX_ASSET_REQUEST)), transport.sent.get(1));
+        assertEquals(new ClientFrame.AssetRequest(lacking.subList(FrameLimits.MAX_ASSET_REQUEST, lacking.size())), transport.sent.get(2));
+        assertEquals(List.of("reset", "alchemist:textures/gui/adaptation/a0.png", "reset"), received);
     }
 
     @Test

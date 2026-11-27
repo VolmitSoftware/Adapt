@@ -2,24 +2,24 @@
   "skill": "ranged",
   "upgrades": [
     {
-      "name": "upgraded-ranged-stormshot",
+      "name": "adapt:ranged/upgrade/stormshot",
       "class": "Stormshot",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Stormshot.java",
-      "fuses": ["ranged-force", "ranged-heavy-draw", "ranged-piercing"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Stormshot.java",
+      "fuses": ["adapt:ranged/force", "adapt:ranged/heavy_draw", "adapt:ranged/piercing"],
       "triggers": ["ProjectileLaunchEvent", "EntityDamageByEntityEvent", "EntityShootBowEvent"]
     },
     {
-      "name": "upgraded-ranged-hunters-web",
+      "name": "adapt:ranged/upgrade/hunters_web",
       "class": "HuntersWeb",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/HuntersWeb.java",
-      "fuses": ["ranged-webshot", "ranged-pinning-shot", "ranged-floaters"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/HuntersWeb.java",
+      "fuses": ["adapt:ranged/webshot", "adapt:ranged/pinning_shot", "adapt:ranged/floaters"],
       "triggers": ["EntityShootBowEvent", "EntityDamageByEntityEvent", "ChunkEvent", "BlockPistonEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockBreakEvent"]
     },
     {
-      "name": "upgraded-ranged-trueflight",
+      "name": "adapt:ranged/upgrade/trueflight",
       "class": "Trueflight",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Trueflight.java",
-      "fuses": ["ranged-heartseeker", "ranged-ricochet-bolt", "ranged-trajectory-sight"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/ranged/upgraded/Trueflight.java",
+      "fuses": ["adapt:ranged/heartseeker", "adapt:ranged/ricochet_bolt", "adapt:ranged/trajectory_sight"],
       "triggers": ["PlayerInteractEvent", "EntityShootBowEvent", "EntityDamageByEntityEvent", "EntityRemoveEvent", "PlayerQuitEvent"]
     }
   ]

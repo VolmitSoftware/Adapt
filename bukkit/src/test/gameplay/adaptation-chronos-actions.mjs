@@ -48,7 +48,7 @@ async function walkAway(actor) {
 /** Runs {@code action} with one boolean of the Instant Recall config switched on through the watched config file. */
 async function withRecallConfig(context, key, action) {
     const directory = context.report.server.directory
-    const file = join(adaptConfigDirectory(directory), 'adaptations', 'chronos-instant-recall.toml')
+    const file = join(adaptConfigDirectory(directory), 'adaptations', 'adapt', 'chronos', 'instant_recall.toml')
     const log = join(directory, 'logs', 'latest.log')
     const original = await readFile(file, 'utf8')
     const enabled = original.replace(new RegExp(`^${key} = false$`, 'm'), `${key} = true`)
@@ -56,7 +56,7 @@ async function withRecallConfig(context, key, action) {
     const hotloaded = async content => {
         const start = (await readFile(log, 'utf8')).length
         await writeFile(file, content)
-        await context.waitUntil(async () => (await readFile(log, 'utf8')).slice(start).includes('chronos-instant-recall.toml'),
+        await context.waitUntil(async () => (await readFile(log, 'utf8')).slice(start).includes('instant_recall.toml'),
             { label: `Instant Recall config reloads after ${key} changes`, timeoutMs: 15000, intervalMs: 100 })
     }
     await hotloaded(enabled)
@@ -68,7 +68,7 @@ async function withRecallConfig(context, key, action) {
 }
 
 export const chronosBehaviorCases = new Map([
-    ['chronos-aberrant-touch', {
+    ['adapt:chronos/aberrant_touch', {
         stage: 'chronos-combat', negativeWindowTicks: 1, prepare: equipSwords,
         sound: 'minecraft:block.lever.click', soundVolume: 0.34, soundPitch: 1.7, particle: 'sculk_soul',
         async trigger(input) {
@@ -84,7 +84,7 @@ export const chronosBehaviorCases = new Map([
             return { assertions: ['unlearned melee hit has no slowness or cost', 'learned hit applies slowness to the victim and charges one food point'], measurements: { unlearned, active } }
         },
     }],
-    ['chronos-deja-vu', {
+    ['adapt:chronos/deja_vu', {
         stage: 'chronos-combat', negativeWindowTicks: 1, prepare: equipSwords,
         sound: 'minecraft:block.beacon.ambient', soundVolume: 0.3, soundPitch: 1.4, particle: 'reverse_portal',
         async trigger(input) {
@@ -99,7 +99,7 @@ export const chronosBehaviorCases = new Map([
             return { assertions: ['unlearned repeated melee damage is unchanged', 'learned first hit remains normal', 'learned repeated cause deals less damage'], measurements: { unlearned, active } }
         },
     }],
-    ['chronos-borrowed-time', {
+    ['adapt:chronos/borrowed_time', {
         stage: 'chronos-combat', negativeWindowTicks: 1, prepare: equipSwords,
         sound: 'minecraft:block.sculk_catalyst.bloom', soundVolume: 0.4, soundPitch: 0.8, particle: 'soul', particleCount: 4,
         async trigger(input) {
@@ -129,7 +129,7 @@ export const chronosBehaviorCases = new Map([
             return { assertions: ['unlearned damage is immediate', 'learned damage is initially reduced', 'natural payback pulses settle the full deferred damage without additional knockback'], measurements: { unlearned, active } }
         },
     }],
-    ['chronos-overtime', {
+    ['adapt:chronos/overtime', {
         stage: 'chronos', negativeWindowTicks: 1,
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.35, soundPitch: 1.6, particle: 'wax_on',
         async trigger({ actor, equip, snapshot, context }) {
@@ -146,7 +146,7 @@ export const chronosBehaviorCases = new Map([
             return { assertions: ['unlearned potion has its normal duration', 'learned potion receives the configured duration extension with unchanged amplifier'], measurements: { unlearned, active } }
         },
     }],
-    ['chronos-rewind', {
+    ['adapt:chronos/rewind', {
         stage: 'agility', negativeWindowTicks: 1,
         sound: 'minecraft:block.amethyst_cluster.place', soundVolume: 0.5, soundPitch: 1.6, particle: 'reverse_portal',
         async trigger({ actor, context }) {
@@ -175,7 +175,7 @@ export const chronosBehaviorCases = new Map([
     }],
 ])
 
-chronosBehaviorCases.set('chronos-pocket-watch', {
+chronosBehaviorCases.set('adapt:chronos/pocket_watch', {
     stage: 'chronos-fall', negativeWindowTicks: 1, effect: 'minecraft:slow_falling',
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.2, particle: 'cloud',
     async trigger({ actor, context, snapshot }) {
@@ -204,7 +204,7 @@ chronosBehaviorCases.set('chronos-pocket-watch', {
         return { assertions: ['both trials accumulate descent before sneaking', 'only learned sneaking grants Slow Falling', 'learned pulse brakes existing momentum while the control continues falling quickly'], measurements: { unlearned, active } }
     },
 })
-chronosBehaviorCases.set('chronos-temporal-echo', {
+chronosBehaviorCases.set('adapt:chronos/temporal_echo', {
     stage: 'ranged', negativeWindowTicks: 1,
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.75, soundPitch: 1.35, particle: 'reverse_portal',
     async trigger({ actor, equip }) {
@@ -232,7 +232,7 @@ chronosBehaviorCases.set('chronos-temporal-echo', {
         return { assertions: ['unlearned shot creates one arrow', 'learned shot creates an additional delayed arrow', 'both shots consume exactly one arrow item'], measurements: { unlearned, active } }
     },
 })
-chronosBehaviorCases.set('chronos-hourglass-guard', {
+chronosBehaviorCases.set('adapt:chronos/hourglass_guard', {
     stage: 'chronos-lethal', negativeWindowTicks: 1, prepare: equipSwords,
     sound: 'minecraft:block.bell.use', soundVolume: 0.7, soundPitch: 0.5, particle: 'flash',
     async trigger(input) {
@@ -254,7 +254,7 @@ chronosBehaviorCases.set('chronos-hourglass-guard', {
     },
 })
 
-chronosBehaviorCases.set('chronos-instant-recall', {
+chronosBehaviorCases.set('adapt:chronos/instant_recall', {
     stage: 'chronos-recall', negativeWindowTicks: 1,
     sound: 'minecraft:block.note_block.bass', soundVolume: 0.45, soundPitch: 0.82, particle: 'totem_of_undying', particleCount: 26,
     async trigger({ actor, equip, snapshot, context }) {
@@ -298,8 +298,8 @@ chronosBehaviorCases.set('chronos-instant-recall', {
 })
 
 for (const [name, stage, item, amplifier] of [
-    ['chronos-stasis-field', 'chronos-stasis', 'amethyst_shard', 5],
-    ['chronos-time-bomb', 'chronos-bomb', 'lingering_potion', 2],
+    ['adapt:chronos/stasis_field', 'chronos-stasis', 'amethyst_shard', 5],
+    ['adapt:chronos/time_bomb', 'chronos-bomb', 'lingering_potion', 2],
 ]) chronosBehaviorCases.set(name, {
     stage, negativeWindowTicks: 1,
     sound: 'minecraft:block.note_block.bass', soundVolume: 0.8, soundPitch: 0.6, particle: 'flash', particleCount: 1,
@@ -331,7 +331,7 @@ for (const [name, stage, item, amplifier] of [
     },
 })
 
-chronosBehaviorCases.set('chronos-time-bottle', {
+chronosBehaviorCases.set('adapt:chronos/time_bottle', {
     stage: 'chronos-bottle', negativeWindowTicks: 1,
     sound: 'minecraft:block.lever.click', soundVolume: 0.55, soundPitch: 0.8 + 60 / 175, particle: 'composter', particleCount: 6,
     async trigger({ actor, equip, snapshot }) {
@@ -352,8 +352,8 @@ chronosBehaviorCases.set('chronos-time-bottle', {
     },
 })
 
-chronosBehaviorCases.set('chronos-accelerate', {
-    stage: 'chronos-accelerate', negativeWindowTicks: 1,
+chronosBehaviorCases.set('adapt:chronos/accelerate', {
+    stage: 'adapt:chronos/accelerate', negativeWindowTicks: 1,
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.6, particle: 'enchant', particleCount: 2,
     async trigger({ actor, snapshot }) {
         const before = (await snapshot()).chronos

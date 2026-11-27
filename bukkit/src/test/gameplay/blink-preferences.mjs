@@ -67,7 +67,7 @@ export default {
             }
         }
         async function stage() {
-            await context.command('/adaptqa stage rift-blink', /^ADAPT_QA STAGE rift-blink$/, 10000)
+            await context.command('/adaptqa stage adapt:rift/blink', /^ADAPT_QA STAGE adapt:rift\/blink$/, 10000)
             await actor.bot.waitForTicks(5)
         }
         async function readyCombat(x = 0.5) {

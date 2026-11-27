@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.integration.iris;
 
+import art.arcane.adapt.engine.integration.IrisTreeFellerPort;
+
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;

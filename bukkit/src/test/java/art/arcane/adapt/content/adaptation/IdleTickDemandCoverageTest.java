@@ -1,9 +1,8 @@
 package art.arcane.adapt.content.adaptation;
 
-import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
+import art.arcane.adapt.engine.adaptation.AdaptationOwnerPulse;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +31,7 @@ class IdleTickDemandCoverageTest {
       "taming.TamingFetch",
       "unarmed.UnarmedPower"
   );
-  private static final List<String> OWNER_PULSE = List.of(
+  private static final List<String> PUBLIC_OWNER_PULSE = List.of(
       "agility.AgilityVault",
       "kinetics.KineticsHeavyFrame",
       "kinetics.KineticsMoonJump",
@@ -67,14 +66,15 @@ class IdleTickDemandCoverageTest {
       Method method = adaptationClass(className).getDeclaredMethod("hasTickDemand");
       assertThat(method.getReturnType()).isEqualTo(boolean.class);
     }
-    for (String className : OWNER_PULSE) {
-      Field field = adaptationClass(className).getDeclaredField("ownerMaintenance");
-      assertThat(field.getType()).isEqualTo(AdaptationOwnerPulse.Registration.class);
+    for (String className : PUBLIC_OWNER_PULSE) {
+      Class<?> type = adaptationClass(className);
+      assertThat(type.getDeclaredFields()).noneMatch(field -> field.getType() == AdaptationOwnerPulse.Registration.class);
+      assertThat(type.getDeclaredMethods()).noneMatch(method -> method.getName().equals("hasTickDemand"));
     }
 
     Set<String> covered = new HashSet<>(LEARNER_BOUND);
     covered.addAll(STATE_DRIVEN);
-    covered.addAll(OWNER_PULSE);
+    covered.addAll(PUBLIC_OWNER_PULSE);
     assertThat(covered).hasSize(35);
   }
 

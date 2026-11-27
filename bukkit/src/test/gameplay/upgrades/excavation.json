@@ -2,24 +2,24 @@
   "skill": "excavation",
   "upgrades": [
     {
-      "name": "upgraded-excavation-landshaper",
+      "name": "adapt:excavation/upgrade/landshaper",
       "class": "Landshaper",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Landshaper.java",
-      "fuses": ["excavation-tunneler", "excavation-burrow", "excavation-haste"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Landshaper.java",
+      "fuses": ["adapt:excavation/tunneler", "adapt:excavation/burrow", "adapt:excavation/haste"],
       "triggers": ["BlockBreakEvent", "BlockDamageEvent", "BlockDropItemEvent", "PlayerInteractEvent"]
     },
     {
-      "name": "upgraded-excavation-deep-sight",
+      "name": "adapt:excavation/upgrade/deep_sight",
       "class": "DeepSight",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/DeepSight.java",
-      "fuses": ["excavation-spelunker", "excavation-seismic-ping"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/DeepSight.java",
+      "fuses": ["adapt:excavation/spelunker", "adapt:excavation/seismic_ping"],
       "triggers": ["BlockBreakEvent", "EntityRemoveEvent", "PlayerQuitEvent"]
     },
     {
-      "name": "upgraded-excavation-gravekeeper",
+      "name": "adapt:excavation/upgrade/gravekeeper",
       "class": "Gravekeeper",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Gravekeeper.java",
-      "fuses": ["excavation-treasure-hunter", "excavation-grave-digger", "excavation-mudlark"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/excavation/upgraded/Gravekeeper.java",
+      "fuses": ["adapt:excavation/treasure_hunter", "adapt:excavation/grave_digger", "adapt:excavation/mudlark"],
       "triggers": ["BlockBreakEvent"]
     }
   ]

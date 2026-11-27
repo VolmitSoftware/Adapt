@@ -1,15 +1,17 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.ComponentPort;
-import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.adaptation.AdaptationRequirement;
-import art.arcane.adapt.api.skill.Skill;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerData;
-import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.engine.ComponentPort;
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.AdaptationRequirement;
+import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.PlayerData;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.GameMode;
 import art.arcane.adapt.platform.entity.InventoryRef;
@@ -135,8 +137,8 @@ public final class XpIntegrityFixture {
                             player.setLevel(1000);
                         }
                         if (mode.equals("unity")) {
-                            Adaptation<?> unity = Fixtures.adaptation("discovery-unity");
-                            runtime(player).getData().getSkillLine(unity.getSkill().getName()).setAdaptation(unity, unity.getMaxLevel());
+                            Adaptation<?> unity = Fixtures.adaptation("adapt:discovery/unity");
+                            runtime(player).getData().getSkillLine(SkillHost.lineKey(unity.getSkill())).setAdaptation(unity, unity.getMaxLevel());
                         }
                         trials.put(player.uuid(), trial);
                         return snapshot(player, trial);
@@ -158,7 +160,7 @@ public final class XpIntegrityFixture {
     private static CompletableFuture<JsonObject> reload(PlayerRef player) {
         CompletableFuture<Void> loaded = new CompletableFuture<>();
         Tasks.s(() -> complete(loaded, () -> {
-            if (!AdaptConfig.reload() || !Fixtures.core().getAdaptServer().getSkillRegistry().hotReloadSkillConfig("crafting")) {
+            if (!AdaptConfig.reload() || !Fixtures.core().getAdaptServer().getSkillRegistry().hotReloadSkillConfig(Id.adapt("crafting"))) {
                 throw new IllegalStateException("XP fixture configuration reload failed");
             }
             return null;
@@ -313,12 +315,12 @@ public final class XpIntegrityFixture {
         JsonArray skills = new JsonArray();
         for (Skill<?> skill : Fixtures.core().getAdaptServer().getSkillRegistry().getAllSkills()) {
             JsonObject entry = new JsonObject();
-            entry.addProperty("skill", skill.getName());
+            entry.addProperty("skill", SkillHost.lineKey(skill));
             entry.addProperty("enabled", skill.isEnabled());
             JsonArray adaptations = new JsonArray();
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
                 JsonObject detail = new JsonObject();
-                detail.addProperty("id", adaptation.getName());
+                detail.addProperty("id", adaptation.getId().toString());
                 detail.addProperty("enabled", adaptation.isEnabled());
                 detail.addProperty("maximumLevel", adaptation.getMaxLevel());
                 detail.addProperty("knowledge", adaptation.getCostFor(adaptation.getMaxLevel(), 0));

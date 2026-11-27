@@ -1,7 +1,7 @@
 package art.arcane.adapt.client.server;
 
 import art.arcane.adapt.AdaptPorts;
-import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.client.link.ClientLink;
 import art.arcane.adapt.client.protocol.ClientFrame;
 import art.arcane.adapt.client.protocol.ClientProtocol;
@@ -87,7 +87,7 @@ class ClientGroupLabelsTest {
     List<ServerFrame.GroupLabels> sent = frames.stream().filter(ServerFrame.GroupLabels.class::isInstance)
         .map(ServerFrame.GroupLabels.class::cast).toList();
     assertThat(sent).hasSize(1);
-    assertThat(sent.get(0).skills()).containsExactly(new GroupLabelView("hunter", List.of("When Struck", "The Hunt")));
+    assertThat(sent.get(0).skills()).containsExactly(new GroupLabelView("adapt:hunter", List.of("When Struck", "The Hunt")));
   }
 
   @Test
@@ -105,6 +105,6 @@ class ClientGroupLabelsTest {
   }
 
   private void hello(int mask) throws ClientProtocolException {
-    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(1, mask)));
+    service.receive(player.uuid(), FrameCodec.encodeClient(new ClientFrame.Hello(ClientProtocol.VERSION, mask)));
   }
 }

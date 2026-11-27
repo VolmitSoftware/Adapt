@@ -50,9 +50,9 @@ export default {
                 const mobs = family === 'axe' ? ['cow', 'husk', 'servant'] : family === 'heart-loop' ? ['husk'] : ['cow', 'wolf', 'husk', 'servant']
                 for (const mob of mobs) {
                     await context.step(`${family} targeting ${mob}`, async () => {
-                        await learn(family.startsWith('heart') ? 'ranged-heartseeker' : family === 'axe' ? 'axe-throwing-axe' : 'nether-skull-toss', family === 'skull' ? 3 : family === 'axe' ? 4 : 5)
-                        if (family === 'heart-chain' || family === 'heart-loop') await learn('ranged-piercing', 1, true)
-                        if (family === 'axe') await learn('ranged-ricochet-bolt', 1, true)
+                        await learn(family.startsWith('heart') ? 'adapt:ranged/heartseeker' : family === 'axe' ? 'adapt:axe/throwing_axe' : 'adapt:nether/skull_toss', family === 'skull' ? 3 : family === 'axe' ? 4 : 5)
+                        if (family === 'heart-chain' || family === 'heart-loop') await learn('adapt:ranged/piercing', 1, true)
+                        if (family === 'axe') await learn('adapt:ranged/ricochet_bolt', 1, true)
                         await stage(`${family === 'heart-loop' ? 'heart' : family}-${mob}`, family.startsWith('heart') ? 'bow' : family === 'axe' ? 'iron_axe' : 'wither_skeleton_skull')
                         const before = await snapshot()
                         if (family.startsWith('heart')) {

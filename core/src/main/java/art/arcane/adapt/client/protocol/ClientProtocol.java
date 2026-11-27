@@ -5,7 +5,8 @@ public final class ClientProtocol {
   public static final String NAMESPACE = "adapt";
   public static final String PATH = "ui";
   public static final String CHANNEL = NAMESPACE + ":" + PATH;
-  public static final int VERSION = 1;
+  /** The one wire version this codec speaks; version 3 sends enums by name. */
+  public static final int VERSION = 3;
 
   public static final int SCREENS = 1;
   public static final int PANEL = 1 << 1;
@@ -53,8 +54,13 @@ public final class ClientProtocol {
   public static final int SHORT_NAMES = 1 << 16;
   /** The server lists the recipes each adaptation unlocks ({@link ServerFrame.AdaptationRecipes}). */
   public static final int RECIPES = 1 << 17;
+  /**
+   * The server lists the art it holds ({@link ServerFrame.AssetManifest}), the client asks for the files it lacks
+   * ({@link ClientFrame.AssetRequest}) and the server sends each one ({@link ServerFrame.Asset}).
+   */
+  public static final int ASSETS = 1 << 18;
   public static final int ALL = SCREENS | PANEL | HUD | TOASTS | ITEMS | INSIGHT | JUMPS | MUTATE | KEPT | TOOLS | MUTATE_SPREAD
-      | XP_GUIDE | SPENDING | UNMUTATE | SKILL_TOASTS | GROUP_LABELS | SHORT_NAMES | RECIPES;
+      | XP_GUIDE | SPENDING | UNMUTATE | SKILL_TOASTS | GROUP_LABELS | SHORT_NAMES | RECIPES | ASSETS;
 
   private ClientProtocol() {
   }

@@ -11,7 +11,7 @@ export default {
   async run(context) {
     const directory = context.report.server.directory
     context.expect(disposableInstance(context.report.server.instance, 'adapt-catalog-'), 'Policy fixture targets its disposable server')
-    const config = join(adaptConfigDirectory(directory), 'adaptations', 'enchanting-bookshelf-attunement.toml')
+    const config = join(adaptConfigDirectory(directory), 'adaptations', 'adapt', 'enchanting', 'bookshelf_attunement.toml')
     const log = join(directory, 'logs', 'latest.log')
     const original = await readFile(config, 'utf8')
     const initialLog = await readFile(log, 'utf8')
@@ -25,7 +25,7 @@ export default {
     const preference = command => fixtureJson(context,
       `/adaptqa preferences ${actor.bot.username} ${command}`, `PREFERENCES ${command.split(' ')[0]}`)
     const offers = () => fixtureJson(context, `/adaptqa catalog-behavior ${actor.bot.username} offers`, 'CATALOG_BEHAVIOR offers')
-    const id = 'enchanting-bookshelf-attunement'
+    const id = 'adapt:enchanting/bookshelf_attunement'
     const evidence = context.report.policyReload = {}
     let setup = false
     let changed = false
@@ -55,7 +55,7 @@ export default {
       evidence.restoredOffers = await offers()
       context.expect(evidence.restoredOffers.cost === 8, 'Restoring disk policy restores saved Half contribution')
       const lines = (await readFile(log, 'utf8')).slice(initialLog.length).split('\n')
-      evidence.hotloads = lines.filter(line => line.includes('Hotloaded') && line.includes('enchanting-bookshelf-attunement.toml'))
+      evidence.hotloads = lines.filter(line => line.includes('Hotloaded') && line.includes('bookshelf_attunement.toml'))
       evidence.errors = lines.filter(line => /\/(?:ERROR|SEVERE)\]/.test(line))
       context.expect(evidence.hotloads.length >= 2, 'Normal watcher logs both policy reloads', evidence.hotloads)
       context.expect(evidence.errors.length === 0, 'Policy reload emits no runtime errors', evidence.errors)

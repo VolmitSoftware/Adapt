@@ -2,24 +2,24 @@
   "skill": "seaborne",
   "upgrades": [
     {
-      "name": "upgraded-seaborne-leviathan",
+      "name": "adapt:seaborne/upgrade/leviathan",
       "class": "Leviathan",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/Leviathan.java",
-      "fuses": ["seaborne-oxygen", "seaborne-speed", "seaborne-pressure-diver", "seaborne-brine-skin", "seaborne-rain-fed"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/Leviathan.java",
+      "fuses": ["adapt:seaborne/oxygen", "adapt:seaborne/speed", "adapt:seaborne/pressure_diver", "adapt:seaborne/brine_skin", "adapt:seaborne/rain_fed"],
       "triggers": ["PlayerQuitEvent", "EntityTargetEvent", "BlockFadeEvent", "BlockBreakEvent", "BlockExplodeEvent", "EntityExplodeEvent", "BlockPistonEvent"]
     },
     {
-      "name": "upgraded-seaborne-maelstrom",
+      "name": "adapt:seaborne/upgrade/maelstrom",
       "class": "Maelstrom",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/Maelstrom.java",
-      "fuses": ["seaborne-tidecaller", "seaborne-hydro-jet", "seaborne-trident-mastery", "seaborne-storm-strike"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/Maelstrom.java",
+      "fuses": ["adapt:seaborne/tidecaller", "adapt:seaborne/hydro_jet", "adapt:seaborne/trident_mastery", "adapt:seaborne/storm_strike"],
       "triggers": ["PlayerToggleSneakEvent", "PlayerAnimationEvent", "EntityDamageByEntityEvent", "ProjectileLaunchEvent", "PlayerQuitEvent"]
     },
     {
-      "name": "upgraded-seaborne-deep-fortune",
+      "name": "adapt:seaborne/upgrade/deep_fortune",
       "class": "DeepFortune",
-      "source": "../core/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/DeepFortune.java",
-      "fuses": ["seaborne-fishers-fantasy", "seaborne-fish-whisperer", "seaborne-deep-salvager"],
+      "source": "../content/src/main/java/art/arcane/adapt/content/adaptation/seaborrne/upgraded/DeepFortune.java",
+      "fuses": ["adapt:seaborne/fishers_fantasy", "adapt:seaborne/fish_whisperer", "adapt:seaborne/deep_salvager"],
       "triggers": ["PlayerFishEvent", "EntityDamageByEntityEvent", "PlayerQuitEvent"]
     }
   ]

@@ -1,6 +1,7 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.platform.PlatformLog;
+import art.arcane.adapt.platform.value.Id;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -46,6 +47,27 @@ public final class AdaptEnvironment {
   /** Adapt's data directory, or null when no platform has installed one. */
   public static Path dataDirectory() {
     return dataDirectory.get();
+  }
+
+  /** The config file of a skill or adaptation: {@code <kind>/<namespace>/<path>.toml} under the data directory. */
+  public static File contentConfigFile(String kind, Id id) {
+    return dataFile(kind, id.namespace(), id.path().replace('/', File.separatorChar) + ".toml");
+  }
+
+  /** {@link #contentConfigFile}'s path relative to the data directory, with {@code /} separators. */
+  public static String contentConfigPath(String kind, Id id) {
+    return kind + "/" + id.namespace() + "/" + id.path() + ".toml";
+  }
+
+  /** The content id a {@link #contentConfigFile} path names, given its path below {@code <kind>/}; null otherwise. */
+  public static Id contentIdOfConfig(String relativePath) {
+    String normalized = relativePath.replace(File.separatorChar, '/');
+    int slash = normalized.indexOf('/');
+    if (slash <= 0 || !normalized.endsWith(".toml")) {
+      return null;
+    }
+    String path = normalized.substring(slash + 1, normalized.length() - ".toml".length());
+    return path.isEmpty() ? null : Id.tryParse(normalized.substring(0, slash) + ":" + path);
   }
 
   /** A file under the data directory; its parent directories are created. */

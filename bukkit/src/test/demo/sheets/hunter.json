@@ -1,5 +1,5 @@
 {
-  "hunter-adrenaline": {
+  "adapt:hunter/adrenaline": {
     "set": "hunter-duel", "level": 5,
     "pre": [
       "effect give {actor} minecraft:hunger 5 255 true",
@@ -21,7 +21,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.crit", "particle": "dust"}, "maxTicks": 160
   },
-  "hunter-big-game": {
+  "adapt:hunter/big_game": {
     "set": "hunter-golem", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
@@ -37,7 +37,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.strong", "particle": "crit"}, "maxTicks": 180
   },
-  "hunter-blood-trail": {
+  "adapt:hunter/blood_trail": {
     "set": "hunter-wound", "level": 5,
     "camera": {"x": 5.0, "y": 3.2, "z": 4.0, "yaw": 138, "pitch": 20},
     "pre": [
@@ -54,7 +54,7 @@
     ],
     "expect": {"visual": "The wounded cow bolts away and a thin glowing red line trails behind it along the path it runs."}, "maxTicks": 200
   },
-  "hunter-drop-to-inventory": {
+  "adapt:hunter/drop_to_inventory": {
     "set": "hunter-range", "level": 1,
     "pre": [
       "execute at {actor} run tp @e[type=minecraft:cow,distance=11..48] ~ -200 ~",
@@ -71,7 +71,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 160
   },
-  "hunter-invis": {
+  "adapt:hunter/invis": {
     "povCapture": true,
     "set": "hunter-duel", "level": 5,
     "pre": [
@@ -90,7 +90,7 @@
     ],
     "expect": {"sound": "minecraft:entity.illusioner.mirror_move", "particle": "portal"}, "maxTicks": 200
   },
-  "hunter-jumpboost": {
+  "adapt:hunter/jumpboost": {
     "povCapture": true,
     "set": "hunter-duel", "level": 5,
     "camera": {"x": 10.5, "y": 4.2, "z": -0.5, "yaw": 90, "pitch": 0},
@@ -107,7 +107,7 @@
     ],
     "expect": {"sound": "minecraft:block.note_block.pling", "particle": "cloud"}, "maxTicks": 200
   },
-  "hunter-luck": {
+  "adapt:hunter/luck": {
     "povCapture": true,
     "set": "hunter-duel", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
@@ -119,7 +119,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "happy_villager"}, "maxTicks": 140
   },
-  "hunter-predator-focus": {
+  "adapt:hunter/predator_focus": {
     "set": "hunter-duel", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
     "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -1.5]}],
@@ -150,7 +150,7 @@
     ],
     "expect": {"sound": "minecraft:entity.player.attack.crit", "particle": "dust"}, "maxTicks": 260
   },
-  "hunter-regen": {
+  "adapt:hunter/regen": {
     "povCapture": true,
     "set": "hunter-duel", "level": 3,
     "pre": [
@@ -168,7 +168,7 @@
     ],
     "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "heart"}, "maxTicks": 160
   },
-  "hunter-resistance": {
+  "adapt:hunter/resistance": {
     "povCapture": true,
     "set": "hunter-duel", "level": 5,
     "pre": [
@@ -188,7 +188,7 @@
     ],
     "expect": {"sound": "minecraft:item.shield.block", "particle": "electric_spark"}, "maxTicks": 160
   },
-  "hunter-snare-line": {
+  "adapt:hunter/snare_line": {
     "set": "hunter-snare", "level": 5,
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:tripwire_hook[minecraft:custom_data={PublicBukkitValues:{\"adapt:hunter-snare-item\":1b}},minecraft:custom_name={text:\"Hunter's Snare\",color:\"green\",italic:false}] 2",
@@ -204,7 +204,7 @@
     ],
     "expect": {"sound": "minecraft:block.tripwire.click_on", "particle": "dust"}, "maxTicks": 240
   },
-  "hunter-speed": {
+  "adapt:hunter/speed": {
     "povCapture": true,
     "set": "hunter-retreat", "level": 5,
     "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
@@ -218,7 +218,7 @@
     ],
     "expect": {"sound": "minecraft:entity.ender_dragon.flap", "particle": "cloud"}, "maxTicks": 160
   },
-  "hunter-strength": {
+  "adapt:hunter/strength": {
     "povCapture": true,
     "set": "hunter-duel",
     "level": 5,
@@ -291,7 +291,7 @@
     },
     "maxTicks": 186
   },
-  "hunter-trophy-skinner": {
+  "adapt:hunter/trophy_skinner": {
     "set": "hunter-trophy", "level": 5,
     "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:0.5f}"],
     "prelude": [{"verb": "lookAt", "offset": [-1.415, 1.0, -1.107]}],

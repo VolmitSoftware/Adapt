@@ -1,4 +1,5 @@
 -keep class art.arcane.adapt.api.** { *; }
+-keep class art.arcane.adapt.engine.** { *; }
 -keep class art.arcane.adapt.platform.** { *; }
 -keep class art.arcane.adapt.content.event.** { *; }
 -keep class art.arcane.adapt.util.advancements.nms.** { *; }
@@ -9,6 +10,7 @@
 -keepclassmembers class * {
     @art.arcane.adapt.platform.event.Handle <methods>;
 }
+-keepclassmembers class art.arcane.adapt.command.AddonCommandRunner$Graft { void marker(); }
 -keep class art.arcane.adapt.bukkit.platform.BukkitRefs { public static *; }
 -keepclassmembers class * extends org.bukkit.event.Event {
     public static org.bukkit.event.HandlerList getHandlerList();

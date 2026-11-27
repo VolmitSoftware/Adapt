@@ -1,6 +1,6 @@
 package art.arcane.adapt.mod.platform;
 
-import art.arcane.adapt.api.attribute.AdaptAttributeResolver;
+import art.arcane.adapt.engine.attribute.AdaptAttributeResolver;
 import art.arcane.adapt.mod.platform.entity.ModLivingRef;
 import art.arcane.adapt.platform.entity.AttributeMod;
 import art.arcane.adapt.platform.entity.LivingRef;

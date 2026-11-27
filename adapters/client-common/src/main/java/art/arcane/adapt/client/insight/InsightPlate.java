@@ -1,13 +1,11 @@
 package art.arcane.adapt.client.insight;
 
+import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.ui.UiDraw;
 import art.arcane.adapt.client.ui.UiHost;
 import art.arcane.adapt.client.ui.UiTexture;
-import art.arcane.adapt.client.view.InsightBond;
-import art.arcane.adapt.client.view.InsightEffect;
-import art.arcane.adapt.client.view.InsightKind;
-import art.arcane.adapt.client.view.InsightStat;
-import art.arcane.adapt.client.view.InsightView;
+import art.arcane.adapt.api.insight.InsightBond;
+import art.arcane.adapt.api.insight.InsightKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +16,8 @@ import java.util.Locale;
  * and ownership, each row only when it has something to say. Collapsed it is the bar alone.
  */
 public final class InsightPlate {
+    /** The tag of a creature Taming's Stable Hand biased, drawn as a saddle. */
+    static final String STABLE_HAND = "adapt:stable_hand";
     public static final int PAD = 3;
     public static final int BAR_HEIGHT = 3;
     public static final int COLLAPSED_WIDTH = 28;
@@ -31,7 +31,7 @@ public final class InsightPlate {
     private final String healthText;
     private final String absorptionText;
     private final List<Chip> chips;
-    private final List<InsightEffect> effects;
+    private final List<ServerFrame.InsightTarget.Effect> effects;
     private final String owner;
     private final int ownerColor;
     private final int healthWidth;
@@ -40,7 +40,7 @@ public final class InsightPlate {
     private final int height;
 
     private InsightPlate(String name, String healthText, String absorptionText, List<Chip> chips,
-                         List<InsightEffect> effects, String owner, int ownerColor, int healthWidth,
+                         List<ServerFrame.InsightTarget.Effect> effects, String owner, int ownerColor, int healthWidth,
                          int lineHeight, int width, int height) {
         this.name = name;
         this.healthText = healthText;
@@ -56,7 +56,7 @@ public final class InsightPlate {
     }
 
     /** Measures the expanded plate; {@code textWidth} is the font's width in plate units. */
-    public static InsightPlate measure(InsightView view, double health, double absorption, InsightSettings settings,
+    public static InsightPlate measure(ServerFrame.InsightTarget view, double health, double absorption, InsightSettings settings,
                                       UiHost host, TextWidth textWidth, int lineHeight) {
         String name = displayName(view, host);
         String healthText = number(health) + "/" + number(view.maxHealth());
@@ -66,16 +66,16 @@ public final class InsightPlate {
             if (view.armor() > 0D) {
                 chips.add(new Chip("minecraft:iron_chestplate", number(view.armor())));
             }
-            for (InsightStat stat : view.stats()) {
+            for (ServerFrame.InsightTarget.Stat stat : view.stats()) {
                 if (stat.value() != 0D) {
                     chips.add(new Chip(glyph(stat), stat(stat)));
                 }
             }
-            if (view.stableHand()) {
+            if (view.tags().contains(STABLE_HAND)) {
                 chips.add(new Chip("minecraft:saddle", ""));
             }
         }
-        List<InsightEffect> effects = settings.showEffects() ? view.effects() : List.of();
+        List<ServerFrame.InsightTarget.Effect> effects = settings.showEffects() ? view.effects() : List.of();
         String owner = settings.showOwner() ? owner(view, host) : "";
         int ownerColor = view.bond() == InsightBond.YOURS ? InsightColors.YOURS : InsightColors.DIM;
         int nameWidth = textWidth.width(name);
@@ -162,7 +162,7 @@ public final class InsightPlate {
         }
         if (!effects.isEmpty()) {
             int x = PAD;
-            for (InsightEffect effect : effects) {
+            for (ServerFrame.InsightTarget.Effect effect : effects) {
                 drawEffect(draw, state, effect, x, y, alpha, solid);
                 x += EFFECT + 1;
             }
@@ -173,7 +173,7 @@ public final class InsightPlate {
         }
     }
 
-    private static void drawEffect(UiDraw draw, InsightState state, InsightEffect effect, int x, int y, double alpha,
+    private static void drawEffect(UiDraw draw, InsightState state, ServerFrame.InsightTarget.Effect effect, int x, int y, double alpha,
                                    boolean solid) {
         String id = effectTexture(effect.effectId());
         UiTexture texture = id == null ? null : draw.sprites().texture(id);
@@ -198,7 +198,7 @@ public final class InsightPlate {
         return effectId.substring(0, colon) + ":textures/mob_effect/" + effectId.substring(colon + 1) + ".png";
     }
 
-    static String displayName(InsightView view, UiHost host) {
+    static String displayName(ServerFrame.InsightTarget view, UiHost host) {
         if (!view.name().isEmpty()) {
             return view.name();
         }
@@ -222,7 +222,7 @@ public final class InsightPlate {
         return words.toString();
     }
 
-    static String owner(InsightView view, UiHost host) {
+    static String owner(ServerFrame.InsightTarget view, UiHost host) {
         return switch (view.bond()) {
             case NONE -> "";
             case WILD -> host.translate("adapt.hud.insight.wild");
@@ -248,21 +248,23 @@ public final class InsightPlate {
         return String.format(Locale.ROOT, "%.1f", rounded);
     }
 
-    private static String stat(InsightStat stat) {
-        return switch (stat.kind()) {
-            case SPEED, JUMP, KNOCKBACK_RESISTANCE -> String.format(Locale.ROOT, "%.2f", stat.value());
-            case ATTACK, TOUGHNESS, FOLLOW_RANGE -> number(stat.value());
+    private static String stat(ServerFrame.InsightTarget.Stat stat) {
+        return switch (stat.attribute()) {
+            case "minecraft:movement_speed", "minecraft:jump_strength", "minecraft:knockback_resistance" ->
+                    String.format(Locale.ROOT, "%.2f", stat.value());
+            default -> number(stat.value());
         };
     }
 
-    private static String glyph(InsightStat stat) {
-        return switch (stat.kind()) {
-            case ATTACK -> "minecraft:iron_sword";
-            case SPEED -> "minecraft:sugar";
-            case JUMP -> "minecraft:rabbit_foot";
-            case TOUGHNESS -> "minecraft:diamond_chestplate";
-            case KNOCKBACK_RESISTANCE -> "minecraft:anvil";
-            case FOLLOW_RANGE -> "minecraft:ender_eye";
+    private static String glyph(ServerFrame.InsightTarget.Stat stat) {
+        return switch (stat.attribute()) {
+            case "minecraft:attack_damage" -> "minecraft:iron_sword";
+            case "minecraft:movement_speed" -> "minecraft:sugar";
+            case "minecraft:jump_strength" -> "minecraft:rabbit_foot";
+            case "minecraft:armor_toughness" -> "minecraft:diamond_chestplate";
+            case "minecraft:knockback_resistance" -> "minecraft:anvil";
+            case "minecraft:follow_range" -> "minecraft:ender_eye";
+            default -> "minecraft:paper";
         };
     }
 

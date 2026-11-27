@@ -1,6 +1,6 @@
 package art.arcane.adapt.service;
 
-import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
+import art.arcane.adapt.engine.telemetry.AbilityCheckTelemetry;
 import art.arcane.volmlib.integration.IntegrationMetricDescriptor;
 import art.arcane.volmlib.integration.IntegrationMetricSample;
 import art.arcane.volmlib.integration.IntegrationMetricSnapshot;
@@ -42,8 +42,8 @@ class AdaptIntegrationServiceTest {
   @Test
   void snapshotReadsOnlyDemandCachedPublications() {
     long now = System.currentTimeMillis();
-    String key = "adapt.ability-detail.excavation-earth-mover.execution-ops";
-    AbilityCheckTelemetry.recordExecution("excavation-earth-mover", now, 4_000_000L);
+    String key = "adapt.ability-detail.adapt-excavation-earth_mover.execution-ops";
+    AbilityCheckTelemetry.recordExecution("adapt:excavation/earth_mover", now, 4_000_000L);
     AdaptIntegrationService service = new AdaptIntegrationService();
     assertThat(service.capabilities()).contains(IntegrationSnapshotProvider.CAPABILITY);
     assertThat(service.snapshotMetrics(Set.of(key)).samples()).isEmpty();
@@ -51,7 +51,7 @@ class AdaptIntegrationServiceTest {
     service.publishSnapshots();
     IntegrationMetricSnapshot first = service.snapshotMetrics(Set.of(key));
     assertThat(first.samples().get(key).valueOr(-1D)).isEqualTo(1D);
-    AbilityCheckTelemetry.recordExecution("excavation-earth-mover", now, 4_000_000L);
+    AbilityCheckTelemetry.recordExecution("adapt:excavation/earth_mover", now, 4_000_000L);
     assertThat(service.snapshotMetrics(Set.of(key))).isEqualTo(first);
 
     service.publishSnapshots();
@@ -73,10 +73,10 @@ class AdaptIntegrationServiceTest {
   @Test
   void publishesObservedAbilityBreakdownMetrics() {
     long now = System.currentTimeMillis();
-    AbilityCheckTelemetry.recordUncachedCheck("excavation-earth-mover", now, 2_000_000L, true);
-    AbilityCheckTelemetry.recordExecution("excavation-earth-mover", now, 4_000_000L);
+    AbilityCheckTelemetry.recordUncachedCheck("adapt:excavation/earth_mover", now, 2_000_000L, true);
+    AbilityCheckTelemetry.recordExecution("adapt:excavation/earth_mover", now, 4_000_000L);
     AdaptIntegrationService service = new AdaptIntegrationService();
-    Set<String> keys = IntegrationMetricSchema.adaptAbilityDetailKeys("excavation-earth-mover");
+    Set<String> keys = IntegrationMetricSchema.adaptAbilityDetailKeys("adapt:excavation/earth_mover");
 
     Set<IntegrationMetricDescriptor> descriptors = service.metricDescriptors();
     Map<String, IntegrationMetricSample> samples = service.sampleMetrics(keys);
@@ -84,17 +84,17 @@ class AdaptIntegrationServiceTest {
     assertThat(descriptors)
         .extracting(IntegrationMetricDescriptor::key)
         .containsAll(keys);
-    assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.execution-ops").valueOr(-1D)).isEqualTo(1D);
-    assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.execution-timing-ms").valueOr(-1D)).isEqualTo(4D);
-    assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.guard-checks").valueOr(-1D)).isEqualTo(1D);
-    assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.guard-timing-ms").valueOr(-1D)).isEqualTo(2D);
+    assertThat(samples.get("adapt.ability-detail.adapt-excavation-earth_mover.execution-ops").valueOr(-1D)).isEqualTo(1D);
+    assertThat(samples.get("adapt.ability-detail.adapt-excavation-earth_mover.execution-timing-ms").valueOr(-1D)).isEqualTo(4D);
+    assertThat(samples.get("adapt.ability-detail.adapt-excavation-earth_mover.guard-checks").valueOr(-1D)).isEqualTo(1D);
+    assertThat(samples.get("adapt.ability-detail.adapt-excavation-earth_mover.guard-timing-ms").valueOr(-1D)).isEqualTo(2D);
   }
 
   @Test
   void publishesRollingGuardCheckTimingBudget() {
     long now = System.currentTimeMillis();
     for (int i = 0; i < 60; i++) {
-      AbilityCheckTelemetry.recordUncachedCheck("excavation-earth-mover", now, 50_000_000L, true);
+      AbilityCheckTelemetry.recordUncachedCheck("adapt:excavation/earth_mover", now, 50_000_000L, true);
     }
     AdaptIntegrationService service = new AdaptIntegrationService();
 

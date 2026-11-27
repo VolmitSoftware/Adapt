@@ -94,7 +94,7 @@ class AdaptLanguageLoadingTest extends AdaptTestBase {
   @Test
   void malformedMessageDoesNotBlockValidMessages() throws Exception {
     Path file = writeLanguage("de_DE", "Nur eigener Text");
-    Files.writeString(file, Files.readString(file) + "invalid_type = 42\n[command.runtime]\nmissing_permission = \"Missing variable\"\n");
+    Files.writeString(file, Files.readString(file) + "invalid_type = 42\n[adapt.command.runtime]\nmissing_permission = \"Missing variable\"\n");
     AdaptConfig config = localeConfig("de_DE");
 
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
@@ -134,14 +134,14 @@ class AdaptLanguageLoadingTest extends AdaptTestBase {
       configured.when(AdaptConfig::get).thenReturn(config);
       assertThat(AdaptLanguage.reloadLanguageSnapshot(
           override.toFile(),
-          "[runtime]\nno_description_provided = \"Captured value\"\n"
+          "[adapt.runtime]\nno_description_provided = \"Captured value\"\n"
       )).isTrue();
       rendered = AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED);
     }
 
     assertThat(rendered).isEqualTo("Captured value");
     assertThat(Files.readString(override, StandardCharsets.UTF_8))
-        .isEqualTo("[runtime]\nno_description_provided = \"Disk value\"\n");
+        .isEqualTo("[adapt.runtime]\nno_description_provided = \"Disk value\"\n");
     assertThat(referencePath()).doesNotExist();
   }
 
@@ -179,7 +179,7 @@ class AdaptLanguageLoadingTest extends AdaptTestBase {
     Files.createDirectories(override.getParent());
     Files.writeString(
         override,
-        "[runtime]\nno_description_provided = \"" + value + "\"\n",
+        "[adapt.runtime]\nno_description_provided = \"" + value + "\"\n",
         StandardCharsets.UTF_8
     );
     return override;

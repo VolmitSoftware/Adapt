@@ -98,27 +98,27 @@ function verifyVanilla({ context, unlearned, active }) {
 }
 
 const customRecipes = [
-    { name: 'brewing-absorption', ingredient: 'quartz', effect: 'Absorption', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/absorption', ingredient: 'quartz', effect: 'Absorption', duration: 1200, amplifier: 0,
         sound: 'block.beacon.power_select', soundVolume: 0.4, soundPitch: 1.6, particle: 'end_rod', particleOffset: 0.15 },
-    { name: 'brewing-blindness', ingredient: 'ink_sac', effect: 'Blindness', duration: 600, amplifier: 0,
+    { name: 'adapt:brewing/blindness', ingredient: 'ink_sac', effect: 'Blindness', duration: 600, amplifier: 0,
         sound: 'entity.elder_guardian.curse', soundVolume: 0.25, soundPitch: 1.8, particle: 'soul' },
-    { name: 'brewing-darkness', ingredient: 'black_concrete', effect: 'Darkness', duration: 600, amplifier: 0,
+    { name: 'adapt:brewing/darkness', ingredient: 'black_concrete', effect: 'Darkness', duration: 600, amplifier: 0,
         sound: 'block.sculk_catalyst.break', soundVolume: 0.5, soundPitch: 1, particle: 'sculk_soul' },
-    { name: 'brewing-decay', ingredient: 'poisonous_potato', effect: 'Wither', duration: 320, amplifier: 0,
+    { name: 'adapt:brewing/decay', ingredient: 'poisonous_potato', effect: 'Wither', duration: 320, amplifier: 0,
         sound: 'entity.wither.shoot', soundVolume: 0.3, soundPitch: 1.4, particle: 'ash' },
-    { name: 'brewing-fatigue', ingredient: 'slime_ball', effect: 'MiningFatigue', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/fatigue', ingredient: 'slime_ball', effect: 'MiningFatigue', duration: 1200, amplifier: 0,
         sound: 'block.note_block.didgeridoo', soundVolume: 0.4, soundPitch: 0.5, particle: 'smoke' },
-    { name: 'brewing-haste', ingredient: 'amethyst_shard', effect: 'Haste', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/haste', ingredient: 'amethyst_shard', effect: 'Haste', duration: 1200, amplifier: 0,
         sound: 'block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod', particleOffset: 0.2 },
-    { name: 'brewing-healthboost', ingredient: 'golden_apple', effect: 'HealthBoost', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/healthboost', ingredient: 'golden_apple', effect: 'HealthBoost', duration: 1200, amplifier: 0,
         sound: 'entity.player.levelup', soundVolume: 0.25, soundPitch: 1.8, particle: 'heart' },
-    { name: 'brewing-hunger', ingredient: 'rotten_flesh', effect: 'Hunger', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/hunger', ingredient: 'rotten_flesh', effect: 'Hunger', duration: 1200, amplifier: 0,
         sound: 'entity.player.burp', soundVolume: 0.35, soundPitch: 0.7, particle: 'sneeze' },
-    { name: 'brewing-nausea', ingredient: 'brown_mushroom', effect: 'Nausea', duration: 600, amplifier: 0,
+    { name: 'adapt:brewing/nausea', ingredient: 'brown_mushroom', effect: 'Nausea', duration: 600, amplifier: 0,
         sound: 'entity.enderman.teleport', soundVolume: 0.3, soundPitch: 0.7, particle: 'witch' },
-    { name: 'brewing-resistance', ingredient: 'iron_ingot', effect: 'Resistance', duration: 1200, amplifier: 0,
+    { name: 'adapt:brewing/resistance', ingredient: 'iron_ingot', effect: 'Resistance', duration: 1200, amplifier: 0,
         sound: 'block.anvil.land', soundVolume: 0.2, soundPitch: 1.9, particle: 'end_rod', particleOffset: 0.2 },
-    { name: 'brewing-saturation', ingredient: 'baked_potato', effect: 'Saturation', duration: 1, amplifier: 4,
+    { name: 'adapt:brewing/saturation', ingredient: 'baked_potato', effect: 'Saturation', duration: 1, amplifier: 4,
         sound: 'entity.generic.eat', soundVolume: 0.3, soundPitch: 1.2, particle: 'campfire_cosy_smoke' },
 ]
 
@@ -130,10 +130,10 @@ export const brewingBehaviorCases = new Map(customRecipes.map(recipe => [recipe.
     verify: input => verifyCustom(recipe, input),
 }]))
 
-brewingBehaviorCases.set('brewing-lingering', {
+brewingBehaviorCases.set('adapt:brewing/lingering', {
     stage: 'brew-lingering', negativeWindowTicks: 1,
     sound: 'minecraft:entity.ender_dragon.flap', soundVolume: 0.3, soundPitch: 1.2, particle: 'dragon_breath',
-    trigger: input => brew(input, { name: 'brewing-lingering', ingredient: 'sugar', custom: false }),
+    trigger: input => brew(input, { name: 'adapt:brewing/lingering', ingredient: 'sugar', custom: false }),
     verify: input => {
         verifyVanilla(input)
         const effect = input.active.received.effects.find(candidate => candidate.name === 'Speed')
@@ -144,10 +144,10 @@ brewingBehaviorCases.set('brewing-lingering', {
     },
 })
 
-brewingBehaviorCases.set('brewing-super-heated', {
+brewingBehaviorCases.set('adapt:brewing/super_heated', {
     stage: 'brew-super-heated', negativeWindowTicks: 1,
     sound: 'minecraft:block.lava.pop', soundVolume: 0.3, soundPitch: 0.8, particle: 'lava',
-    trigger: input => brew(input, { name: 'brewing-super-heated', ingredient: 'sugar', custom: false }),
+    trigger: input => brew(input, { name: 'adapt:brewing/super_heated', ingredient: 'sugar', custom: false }),
     verify: input => {
         verifyVanilla(input)
         input.context.expect(input.unlearned.elapsedMillis >= 15000, 'Unlearned vanilla brewing takes its normal brew duration')

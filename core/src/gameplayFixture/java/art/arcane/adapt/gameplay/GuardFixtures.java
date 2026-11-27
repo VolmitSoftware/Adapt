@@ -90,7 +90,7 @@ public final class GuardFixtures {
             }
             case "guard-wall" -> {
                 wallAlly = opponent.uuid();
-                actor.addEffect(new EffectInstance(Id.minecraft("invisibility"), 600, 0, false, false, false));
+                actor.addEffect(EffectInstance.of(Id.minecraft("invisibility"), 600, 0).withParticles(false).withIcon(false));
                 Fixtures.teleport(actor, Fixtures.loc(world, 1.5, 100, 1.5, -90, 0));
                 Fixtures.teleport(opponent, world, 0.5, 100, 0.5);
                 actor.inventory().setOffHand(Fixtures.item("shield"));

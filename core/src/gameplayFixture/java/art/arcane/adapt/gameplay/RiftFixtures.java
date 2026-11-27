@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class RiftFixtures {
-    private static final Set<String> STAGES = Set.of("rift-descent", "rift-blink", "rift-magnet", "rift-pocket",
-            "rift-rebound", "rift-visage", "rift-taglock", "rift-void-skin", "rift-gate", "rift-access", "rift-conduit");
+    private static final Set<String> STAGES = Set.of("adapt:rift/descent", "adapt:rift/blink", "rift-magnet", "rift-pocket",
+            "rift-rebound", "adapt:rift/visage", "rift-taglock", "adapt:rift/void_skin", "adapt:rift/gate", "adapt:rift/access", "adapt:rift/conduit");
     private static final Map<UUID, JsonObject> TARGETS = new HashMap<>();
     private static final Map<UUID, JsonObject> TELEPORTS = new HashMap<>();
 
@@ -55,10 +55,9 @@ public final class RiftFixtures {
         Fixtures.gameRule(world, "natural_health_regeneration", "false");
         Fixtures.teleport(opponent, world, 0.5, 100, 10.5);
         switch (name) {
-            case "rift-descent" -> {
+            case "adapt:rift/descent" -> {
                 ItemRef potion = Fixtures.item("potion");
-                potion.setPotionContents(new PotionContents(Id.minecraft("water"), null,
-                        List.of(EffectInstance.of(Id.minecraft("levitation"), 200, 0)), null));
+                potion.setPotionContents(PotionContents.of(Id.minecraft("water")).withCustomEffects(List.of(EffectInstance.of(Id.minecraft("levitation"), 200, 0))));
                 actor.inventory().addItem(potion);
             }
             case "rift-magnet" -> world.dropItem(new Vec3(5.5, 100.1, 0.5), Fixtures.item("diamond", 3)).setPickupDelay(0);
@@ -77,7 +76,7 @@ public final class RiftFixtures {
                     }
                 }
             }
-            case "rift-visage" -> {
+            case "adapt:rift/visage" -> {
                 Fixtures.commandIn(world, "time set 18000");
                 Fixtures.give(actor, "ender_pearl", 1);
                 EntityRef enderman = Fixtures.spawn(world, "enderman", 4.5, 100, 0.5);
@@ -101,18 +100,18 @@ public final class RiftFixtures {
                     }
                 }
             }
-            case "rift-void-skin" -> {
+            case "adapt:rift/void_skin" -> {
                 actor.setHealth(2);
                 Fixtures.give(actor, "ender_pearl", 1);
                 Fixtures.teleport(opponent, world, 2.5, 100, 0.5);
                 Fixtures.give(opponent, "wooden_sword", 1);
             }
-            case "rift-gate" -> Fixtures.give(actor, BoundEyeOfEnder.io.withData(new BoundEyeOfEnder.Data(null)));
-            case "rift-access" -> {
-                Fixtures.give(actor, BoundEnderPearl.io.withData(new BoundEnderPearl.Data(null)));
+            case "adapt:rift/gate" -> Fixtures.give(actor, BoundEyeOfEnder.create(new BoundEyeOfEnder.Data(null)));
+            case "adapt:rift/access" -> {
+                Fixtures.give(actor, BoundEnderPearl.create(new BoundEnderPearl.Data(null)));
                 chest(world, 3, 0, 4);
             }
-            case "rift-conduit" -> {
+            case "adapt:rift/conduit" -> {
                 Fixtures.give(actor, "ender_pearl", 1);
                 chest(world, 3, -2, 7);
                 chest(world, 3, 2, 0);

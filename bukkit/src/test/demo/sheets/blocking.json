@@ -1,5 +1,5 @@
 {
-  "blocking-bastion-stance": {
+  "adapt:blocking/bastion_stance": {
     "set": "blocking-rearguard",
     "level": 5,
     "pre": [
@@ -23,7 +23,7 @@
     },
     "maxTicks": 280
   },
-  "blocking-bulwark-bash": {
+  "adapt:blocking/bulwark_bash": {
     "set": "blocking-bash",
     "level": 5,
     "pre": [
@@ -52,7 +52,7 @@
     },
     "maxTicks": 172
   },
-  "blocking-chainarmorer": {
+  "adapt:blocking/chainarmorer": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -89,7 +89,7 @@
     "maxTicks": 382,
     "povCapture": true
   },
-  "blocking-counter-guard": {
+  "adapt:blocking/counter_guard": {
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -116,7 +116,7 @@
     },
     "maxTicks": 280
   },
-  "blocking-horsearmorer": {
+  "adapt:blocking/horsearmorer": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -160,7 +160,7 @@
     "maxTicks": 436,
     "povCapture": true
   },
-  "blocking-interpose": {
+  "adapt:blocking/interpose": {
     "set": "blocking-cactus",
     "level": 5,
     "opponent": true,
@@ -190,7 +190,7 @@
     },
     "maxTicks": 240
   },
-  "blocking-mirror-block": {
+  "adapt:blocking/mirror_block": {
     "set": "blocking-volley",
     "level": 5,
     "camera": {
@@ -227,7 +227,7 @@
     },
     "maxTicks": 380
   },
-  "blocking-multiarmor": {
+  "adapt:blocking/multiarmor": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -269,7 +269,7 @@
     "maxTicks": 380,
     "povCapture": true
   },
-  "blocking-perfect-guard": {
+  "adapt:blocking/perfect_guard": {
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -297,7 +297,7 @@
     },
     "maxTicks": 232
   },
-  "blocking-phalanx-crafter": {
+  "adapt:blocking/phalanx_crafter": {
     "set": "herbalism-workbench",
     "level": 2,
     "pre": [
@@ -352,7 +352,7 @@
     "maxTicks": 549,
     "povCapture": true
   },
-  "blocking-saddlecrafter": {
+  "adapt:blocking/saddlecrafter": {
     "set": "herbalism-workbench",
     "level": 1,
     "pre": [
@@ -390,7 +390,7 @@
     "maxTicks": 391,
     "povCapture": true
   },
-  "blocking-shield-wall": {
+  "adapt:blocking/shield_wall": {
     "set": "blocking-wall",
     "level": 5,
     "opponent": true,
@@ -416,7 +416,7 @@
     },
     "maxTicks": 280
   },
-  "blocking-shieldbearers-resolve": {
+  "adapt:blocking/shieldbearers_resolve": {
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -443,7 +443,7 @@
     "maxTicks": 220,
     "povCapture": true
   },
-  "blocking-tempered-guard": {
+  "adapt:blocking/tempered_guard": {
     "set": "sparring",
     "level": 5,
     "pre": [

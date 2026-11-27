@@ -2,7 +2,7 @@ package art.arcane.adapt.util.common.misc;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptLog;
-import art.arcane.adapt.api.fx.FxViewers;
+import art.arcane.adapt.engine.fx.FxViewers;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.fx.SoundCategory;

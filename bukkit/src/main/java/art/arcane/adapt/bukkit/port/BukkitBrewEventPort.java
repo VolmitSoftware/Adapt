@@ -1,8 +1,8 @@
 package art.arcane.adapt.bukkit.port;
 
-import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
-import art.arcane.adapt.api.potion.BrewEventPort;
-import art.arcane.adapt.api.potion.BrewingRecipe;
+import art.arcane.adapt.api.item.BrewingRecipe;
+import art.arcane.adapt.engine.potion.AdaptBrewCompleteEvent;
+import art.arcane.adapt.engine.potion.BrewEventPort;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.platform.world.BlockRef;
 import org.bukkit.Bukkit;
