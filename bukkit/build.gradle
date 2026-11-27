@@ -252,7 +252,7 @@ dependencies {
 }
 
 tasks.named('test', Test) {
-    inputs.dir(rootProject.file('../docs/adapt'))
+    inputs.files(fileTree(rootProject.file('../docs/adapt')))
             .withPropertyName('skillDocumentation')
             .withPathSensitivity(PathSensitivity.RELATIVE)
     useJUnitPlatform {

@@ -10,6 +10,7 @@ import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
 import art.arcane.adapt.util.common.format.C;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -100,6 +101,8 @@ class AdaptationCostSheetTest {
 
   @Test
   void costSheetAndProgressionPageMatchTheLiveRegistry() throws IOException {
+    Assumptions.assumeTrue(Files.isRegularFile(SHEET) && Files.isRegularFile(TIMES) && Files.isRegularFile(PAGE),
+        "docs repo is not checked out beside Adapt");
     List<Row> rows = rows();
     List<String> sheet = sheet(rows);
     String page = Files.readString(PAGE, StandardCharsets.UTF_8);

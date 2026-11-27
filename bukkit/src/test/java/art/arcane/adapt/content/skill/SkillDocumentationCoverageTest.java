@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.skill;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -42,8 +43,13 @@ class SkillDocumentationCoverageTest {
       "plugins/Adapt/skills/([a-z0-9-]+)\\.toml"
   );
 
+  private static void assumeDocs() {
+    Assumptions.assumeTrue(Files.isDirectory(DOCS_ROOT), "docs repo is not checked out beside Adapt");
+  }
+
   @Test
   void everyConcreteAdaptationIdAppearsExactlyOnceInSkillDocs() throws IOException {
+    assumeDocs();
     Map<String, AdaptationSource> sourceCatalog = adaptationCatalog();
     Map<String, Integer> documentedIds = new LinkedHashMap<>();
     for (Path doc : skillDocs()) {
@@ -60,6 +66,7 @@ class SkillDocumentationCoverageTest {
 
   @Test
   void everySkillAndAdaptationConfigFieldAppearsInItsOwnTable() throws IOException {
+    assumeDocs();
     List<Path> docs = skillDocs();
     Map<String, SkillSource> skillSourceCatalog = skillCatalog();
     int documentedSkillFields = 0;
