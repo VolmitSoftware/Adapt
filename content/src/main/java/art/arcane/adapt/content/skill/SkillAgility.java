@@ -80,7 +80,6 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
 
   public SkillAgility() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.agility.riding"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x55FF55));
     setInterval(975);

@@ -4,6 +4,7 @@ import art.arcane.adapt.bukkit.platform.BukkitConversions;
 import art.arcane.adapt.bukkit.platform.BukkitNatives;
 import art.arcane.adapt.bukkit.platform.BukkitRefs;
 import art.arcane.adapt.bukkit.platform.BukkitResolve;
+import art.arcane.adapt.bukkit.platform.BukkitText;
 import art.arcane.adapt.platform.entity.CraftingStation;
 import art.arcane.adapt.platform.entity.EntityRef;
 import art.arcane.adapt.platform.entity.GameMode;
@@ -443,7 +444,11 @@ public final class BukkitPlayerRef extends BukkitLivingRef implements PlayerRef 
 
   @Override
   public void sendActionBar(String markup) {
-    ComponentMessenger.sendActionBarMarkup(player(), markup);
+    if (PaperApi.isPaper()) {
+      PaperApi.sendActionBar(player(), BukkitText.component(markup));
+    } else {
+      ComponentMessenger.sendActionBarMarkup(player(), markup);
+    }
   }
 
   @Override

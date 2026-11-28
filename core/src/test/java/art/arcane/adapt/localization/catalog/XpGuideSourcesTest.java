@@ -92,7 +92,7 @@ class XpGuideSourcesTest {
         "adapt.xp_guide.kinetics.anvil");
     Skill<?> excavation = registry.getSkill(Id.adapt("excavation"));
     assertThat(excavation.getXpGuide()).extracting(Text::key).containsExactly("adapt.xp_guide.excavation.combat", "adapt.xp_guide.excavation.dig",
-        "adapt.xp_guide.excavation.throw", "adapt.xp_guide.farmed_mobs", "adapt.xp_guide.placed_blocks");
+        "adapt.xp_guide.excavation.throw");
   }
 
   @Test

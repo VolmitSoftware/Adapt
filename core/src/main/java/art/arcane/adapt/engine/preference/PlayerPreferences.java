@@ -7,12 +7,14 @@ import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.api.content.AdaptationConfig;
 import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.api.content.SkillConfig;
+import art.arcane.adapt.api.mutation.SkillPair;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PreferencePolicy;
 import art.arcane.adapt.api.text.Text;
 import art.arcane.adapt.api.text.TextKeys;
 import art.arcane.adapt.engine.adaptation.AdaptationHost;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
 import art.arcane.adapt.engine.player.PlayerApi;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.support.PlatformSupport;
@@ -24,6 +26,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -116,9 +119,30 @@ public final class PlayerPreferences {
     return resolve(preference, policy(adaptation, preference), level, saved);
   }
 
+  /** {@code preference} of {@code skill} for the player, read from the page that shows the skill to them. */
   public static <E extends Enum<E>> E resolve(Skill<?> skill, PlayerData data, PlayerPreference<E> preference) {
-    return resolve(preference, policy(skill, preference), 1, data == null ? null
-        : data.getPreferences().getSkill(SkillHost.lineKey(skill), preference.id()));
+    Skill<?> page = page(skill, data);
+    return resolve(preference, policy(page, preference), 1, data == null ? null
+        : data.getPreferences().getSkill(SkillHost.lineKey(page), preference.id()));
+  }
+
+  /**
+   * The skill whose page shows {@code skill}'s adaptations to the player: the mutated skill of the player's mutation
+   * that took {@code skill} in, else {@code skill}. That page's switch governs them, as their progress lives on its line.
+   */
+  public static Skill<?> page(Skill<?> skill, @Nullable PlayerData data) {
+    if (data == null || skill instanceof MutatedSkill) {
+      return skill;
+    }
+    for (SkillPair mutation : data.getMutations()) {
+      if (mutation.involves(skill.getId())) {
+        AdaptServer server = server();
+        MutatedSkill mutated = server == null || server.getSkillRegistry() == null ? null
+            : server.getSkillRegistry().getMutatedSkill(mutation);
+        return mutated == null ? skill : mutated;
+      }
+    }
+    return skill;
   }
 
   private static <E extends Enum<E>> E resolve(PlayerPreference<E> preference, PreferencePolicy policy,
@@ -209,10 +233,14 @@ public final class PlayerPreferences {
     if (!canEdit(skill, player)) {
       return false;
     }
-    if (player.getData().getPreferences().removeSkill(SkillHost.lineKey(skill), preference)) {
+    Skill<?> page = page(skill, player.getData());
+    if (page != skill && !canEdit(page, player)) {
+      return false;
+    }
+    if (player.getData().getPreferences().removeSkill(SkillHost.lineKey(page), preference)) {
       player.requestSave();
     }
-    reconcileSkill(skill, player);
+    reconcileSkill(page, player);
     ClientUiService.changed(player);
     return true;
   }
@@ -266,17 +294,22 @@ public final class PlayerPreferences {
     return skill == null || resolve(skill, data, CommonPreferences.SKILL_ENABLED) == CommonPreferences.Toggle.ON;
   }
 
+  /** Sets the switch of the page that shows {@code skill} to the player, see {@link #page}. */
   public static boolean setSkillEnabled(Skill<?> skill, AdaptPlayer player, CommonPreferences.Toggle value) {
     if (!canEdit(skill, player)) {
       return false;
     }
-    PreferencePolicy policy = policy(skill, CommonPreferences.SKILL_ENABLED);
+    Skill<?> page = page(skill, player.getData());
+    if (page != skill && !canEdit(page, player)) {
+      return false;
+    }
+    PreferencePolicy policy = policy(page, CommonPreferences.SKILL_ENABLED);
     if (!policy.playerEditable || !available(CommonPreferences.SKILL_ENABLED, policy, value, 1)) {
       return false;
     }
-    player.getData().getPreferences().setSkill(SkillHost.lineKey(skill), CommonPreferences.SKILL_ENABLED.id(), value.name());
+    player.getData().getPreferences().setSkill(SkillHost.lineKey(page), CommonPreferences.SKILL_ENABLED.id(), value.name());
     player.requestSave();
-    reconcileSkill(skill, player);
+    reconcileSkill(page, player);
     ClientUiService.changed(player);
     return true;
   }
@@ -285,10 +318,14 @@ public final class PlayerPreferences {
     if (!canEdit(skill, player)) {
       return false;
     }
-    if (player.getData().getPreferences().resetSkill(SkillHost.lineKey(skill))) {
+    Skill<?> page = page(skill, player.getData());
+    if (page != skill && !canEdit(page, player)) {
+      return false;
+    }
+    if (player.getData().getPreferences().resetSkill(SkillHost.lineKey(page))) {
       player.requestSave();
     }
-    reconcileSkill(skill, player);
+    reconcileSkill(page, player);
     ClientUiService.changed(player);
     return true;
   }
@@ -350,9 +387,12 @@ public final class PlayerPreferences {
     }
   }
 
+  /** Reconciles every adaptation the switch of {@code skill}'s page governs, a mutated page's parents' included. */
   public static void reconcileSkill(Skill<?> skill, AdaptPlayer player) {
     PreferenceConfirmation.clear(player.getPlayer());
-    for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+    List<Adaptation<?>> governed = skill instanceof MutatedSkill mutated ? mutated.switchedAdaptations()
+        : SkillHost.ownedAdaptations(skill);
+    for (Adaptation<?> adaptation : governed) {
       reconcile(adaptation, player);
     }
   }

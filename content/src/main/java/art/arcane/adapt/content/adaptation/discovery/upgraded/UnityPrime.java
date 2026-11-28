@@ -129,7 +129,7 @@ public class UnityPrime extends SkillUpgrade<UnityPrime.Config> {
     List<SkillProgress> lowest = lowestSkills(adaptPlayer, getLowestSkills(level));
     double each = getOrbXp(level, Math.min(e.amount(), getConfig().maxOrbsPerGain));
     for (SkillProgress line : lowest) {
-      DiscoveryXpShare.feed(line, each, "adaptation:upgraded-discovery-unity-prime:distribution");
+      DiscoveryXpShare.feed(line, each, getId() + ":distribution");
     }
     if (!lowest.isEmpty()) {
       addStat(player, "discovery.unity-prime.skills-fed", lowest.size());

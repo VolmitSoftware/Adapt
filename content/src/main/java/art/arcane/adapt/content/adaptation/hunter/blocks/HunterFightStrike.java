@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.hunter.blocks;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -58,6 +59,9 @@ public class HunterFightStrike extends StrikeBlock<HunterFightStrike.Config> {
 
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
+    if (AbilityDamage.fixed(e)) {
+      return;
+    }
     Mark mark = marks.get(e.entity().uuid());
     if (mark == null) {
       return;

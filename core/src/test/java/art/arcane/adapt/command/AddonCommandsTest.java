@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -97,13 +98,14 @@ class AddonCommandsTest {
   }
 
   @Test
-  void tabCompletionOffersSubcommandsAndArgumentValues() {
+  void tabCompletionOffersPermittedSubcommandsAndArgumentValues() {
     start();
     RecordingSource source = new RecordingSource(Set.of());
     AdaptCommands commands = new AdaptCommands();
 
     assertThat(commands.complete(source, "adapt", new String[] {"roc"})).contains("rocks");
-    assertThat(commands.complete(source, "adapt", new String[] {"rocks", ""})).contains("count", "secret");
+    assertThat(commands.complete(source, "adapt", new String[] {"rocks", ""})).contains("count").doesNotContain("secret");
+    assertThat(commands.complete(new RecordingSource(Set.of("rockcmd.secret")), "adapt", new String[] {"rocks", ""})).contains("count", "secret");
     assertThat(commands.complete(source, "adapt", new String[] {"rocks", "count", ""})).containsExactly("1");
     assertThat(commands.complete(source, "adapt", new String[] {"rocks", "count", "2", "l"})).containsExactly("large");
     assertThat(commands.complete(source, "adapt", new String[] {"rocks", "count", "label="}))
@@ -116,7 +118,7 @@ class AddonCommandsTest {
     List<DirectorRuntimeEngine> engines = new CopyOnWriteArrayList<>();
     AdaptPorts.install(CommandHelpPort.class, new CommandHelpPort() {
       @Override
-      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
+      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
         engines.add(engine);
         return arguments.size() == 1;
       }

@@ -468,6 +468,11 @@ public final class PaperApi {
     }
   }
 
+  /** Sends {@code message} as Paper's own component, so styles Spigot's chat components lack (text shadow colour) arrive. */
+  public static void sendActionBar(Player player, Component message) {
+    player.sendActionBar(message);
+  }
+
   public static void showBossBar(Player player, BossBar bar) {
     if (PAPER) {
       player.showBossBar(bar);

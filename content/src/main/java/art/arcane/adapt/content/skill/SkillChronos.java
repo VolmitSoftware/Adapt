@@ -118,7 +118,6 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
 
   public SkillChronos() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.chronos.idle"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x55FFFF));
     setInterval(getConfig().setInterval);

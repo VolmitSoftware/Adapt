@@ -7253,10 +7253,12 @@ lore = ["Detection Range", "Sculk Movement Suppression"]
 
 [stealth.assassinate]
 name = "Assassinate"
-description = "While Stealth reports you undetected, strike eligible non-boss mobs for exactly their current health instead of synthetic overkill damage."
+description = "While Stealth reports you undetected, strike an eligible non-boss mob for your weapon's own damage times a multiplier, up to a cap."
 lore1 = "Executable Health Cap"
 lore2 = "Cooldown"
-lore = ["Executable Health Cap", "Cooldown"]
+lore3 = "x Weapon Damage"
+lore4 = "Max Strike Damage"
+lore = ["Executable Health Cap", "Cooldown", "x Weapon Damage", "Max Strike Damage"]
 
 [stealth.decoy_swap]
 name = "Decoy Swap"
@@ -9576,18 +9578,12 @@ graft = "When you take fire damage, your nearest golem turns on the target if a 
 echo = "When a golem you own finishes a task, the next 3 blocks you break are smelted."
 convergence = "When you take fire damage while a golem of yours is working within 16 blocks: the target burns for 4 s if a hostile is within 6 blocks; otherwise the next 3 blocks you break are smelted. Also, your nearest golem turns on the target if a hostile is within 6 blocks; otherwise your nearest golem repeats its own last job on the next matching block. 45 s cooldown."
 
-[xp_guide]
-farmed_mobs = "Mobs from spawners, eggs, buckets, breeding or portals pay nothing"
-placed_blocks = "Blocks you placed pay nothing"
-
 [xp_guide.agility]
 move = "Walking, sprinting, swimming, jumping and climbing"
-riding = "Riding, flying and gliding pay nothing"
 
 [xp_guide.architect]
 place = "Placing blocks, more for valuable ones"
 throw = "Hitting mobs with thrown blocks"
-storage = "Storage blocks and breaking blocks pay nothing"
 
 [xp_guide.axes]
 combat = "Hitting mobs with an axe"
@@ -9600,7 +9596,6 @@ shield_hold = "Keeping a shield raised after a block, where the server allows it
 [xp_guide.brewing]
 drink = "Drinking brewed potions, more for stronger ones"
 splash = "Throwing brewed splash potions"
-plain = "Water, mundane, thick and awkward potions pay nothing"
 
 [xp_guide.chronos]
 movement = "Moving about, more with a clock in hand or in your pack"
@@ -9608,12 +9603,10 @@ active = "Staying active, more at night"
 survival = "Staying alive, more for each hour since you last died"
 sleep = "Sleeping through the night"
 speed = "Drinking or splashing speed potions"
-idle = "Standing idle pays almost nothing"
 
 [xp_guide.crafting]
 craft = "Crafting items, more for valuable results"
 smelt = "Being near a furnace as it smelts"
-convert = "Turning nuggets, ingots and blocks into each other pays nothing"
 
 [xp_guide.discovery]
 new = "Finding new blocks, items, mobs, biomes, foods, recipes and enchantments"
@@ -9622,7 +9615,6 @@ loot = "Opening loot chests"
 advancement = "Completing advancements"
 world = "Visiting new worlds and dimensions"
 orbs = "Gaining vanilla experience"
-once = "Each discovery pays once"
 
 [xp_guide.enchanting]
 enchant = "Enchanting at a table, more for higher levels"
@@ -9645,11 +9637,9 @@ harvest = "Harvesting crops, more the riper they are"
 eat = "Eating food"
 shear = "Shearing animals"
 compost = "Filling and emptying composters"
-bonemeal = "Bone-mealed crops pay half, and the same spot pays less for a few minutes"
 
 [xp_guide.hunter]
 kill = "Killing mobs, more for tougher ones and creepers"
-farmed = "Mobs from spawners, eggs, buckets, breeding or portals pay much less"
 
 [xp_guide.kinetics]
 mace = "Smashing and hitting with a mace"
@@ -9668,7 +9658,6 @@ rose = "Breaking wither roses"
 [xp_guide.pickaxe]
 combat = "Hitting mobs with a pickaxe"
 mine = "Mining with a pickaxe, most for ores and deepslate ores"
-silk = "Silk Touch pays a little"
 
 [xp_guide.ranged]
 shoot = "Shooting arrows"

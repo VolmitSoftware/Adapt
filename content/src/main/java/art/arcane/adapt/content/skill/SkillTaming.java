@@ -93,7 +93,6 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
 
   public SkillTaming() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFAA00));
     setInterval(3480);

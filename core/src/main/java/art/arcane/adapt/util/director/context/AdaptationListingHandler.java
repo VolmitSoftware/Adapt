@@ -3,9 +3,12 @@ package art.arcane.adapt.util.director.context;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.volmlib.util.collection.KList;
+
+import java.util.List;
 
 public class AdaptationListingHandler {
 
@@ -95,23 +98,32 @@ public class AdaptationListingHandler {
     return AdaptCore.get().getAdaptServer().getSkillRegistry();
   }
 
+  /**
+   * Every enabled adaptation, upgrade and block of the enabled skills, then the own adaptations and signatures of the
+   * mutated skills built so far, which change without a catalog revision and so are read each time.
+   */
   public static KList<AdaptationProvider> getAdaptationProviders() {
     refreshIfCatalogChanged();
-    if (adaptationProviders.isNotEmpty()) return adaptationProviders;
-
-    for (Skill<?> skill : registry().getSkills()) {
-      if (!skill.isEnabled()) {
-        continue;
-      }
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (!adaptation.isEnabled()) {
-          continue;
+    if (adaptationProviders.isEmpty()) {
+      for (Skill<?> skill : registry().getSkills()) {
+        if (skill.isEnabled()) {
+          addEnabled(SkillHost.ownedAdaptations(skill), adaptationProviders);
         }
-        AdaptationProvider suggestion = new AdaptationProvider(adaptation.getId().toString());
-        adaptationProviders.add(suggestion);
       }
     }
-    return adaptationProviders;
+    KList<AdaptationProvider> providers = new KList<>(adaptationProviders);
+    for (MutatedSkill mutated : registry().getBuiltMutatedSkills()) {
+      addEnabled(mutated.builtParts(), providers);
+    }
+    return providers;
+  }
+
+  private static void addEnabled(List<Adaptation<?>> adaptations, KList<AdaptationProvider> providers) {
+    for (Adaptation<?> adaptation : adaptations) {
+      if (adaptation.isEnabled()) {
+        providers.add(new AdaptationProvider(adaptation.getId().toString()));
+      }
+    }
   }
 
   public static KList<SkillProvider> getSkillProvider() {

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,6 +36,7 @@ class PackHudPortTest {
       List.of(HudSlot.CENTER), "§aSaved");
 
   private final AtomicLong clock = new AtomicLong(10_000L);
+  private final AtomicReference<HudPlacement> placement = new AtomicReference<>(HudPlacement.HOTBAR);
   private final RecordingHudPort platform = new RecordingHudPort();
   private final List<String> sent = new ArrayList<>();
   private final List<Scheduled> scheduled = new ArrayList<>();
@@ -49,8 +51,8 @@ class PackHudPortTest {
 
   @BeforeEach
   void setUp() {
-    port = new PackHudPort(platform, (PlayerRef player) -> book.contains(player.uuid()), (String spriteId) -> null,
-        (String legacy) -> "<green>" + legacy.substring(2), clock::get,
+    port = new PackHudPort(platform, (PlayerRef player) -> book.contains(player.uuid()), placement::get,
+        (String spriteId) -> null, (String legacy) -> "<green>" + legacy.substring(2), (int level) -> "Lv " + level, clock::get,
         (PlayerRef player, Runnable task, int delayTicks, Runnable retired) -> scheduled.add(new Scheduled(delayTicks, task)),
         (PlayerRef player, String markup) -> sent.add(player.uuid() == VIEWER_ID ? markup : "other " + markup));
     viewer = mock(PlayerRef.class);
@@ -113,7 +115,7 @@ class PackHudPortTest {
     held.task().run();
 
     assertThat(sent).hasSize(2);
-    assertThat(sent.get(1).chars().filter((int c) -> c == 0xE010).count()).isEqualTo(3);
+    assertThat(sent.get(1).chars().filter((int c) -> c == HudGlyphs.WELL).count()).isEqualTo(3);
   }
 
   @Test
@@ -145,15 +147,54 @@ class PackHudPortTest {
 
   @Test
   void xpAwardsForTheShownSkillAddUpAndExpire() {
-    port.xp(viewer, new HudXp("herbalism", "Herbalism", 0x4DB344, 3, 0.1, 10.0), 2_000L);
+    port.xp(viewer, new HudXp("herbalism", "Herbalism", "adapt:gui/skill/herbalism", 0x4DB344, 3, 0.1, 10.0), 2_000L);
     clock.addAndGet(300L);
-    port.xp(viewer, new HudXp("herbalism", "Herbalism", 0x4DB344, 3, 0.2, 5.0), 2_000L);
+    port.xp(viewer, new HudXp("herbalism", "Herbalism", "adapt:gui/skill/herbalism", 0x4DB344, 3, 0.2, 5.0), 2_000L);
 
     assertThat(sent.get(sent.size() - 1)).contains("Herbalism 3").contains(" +15");
 
     clock.addAndGet(2_000L);
     scheduled.get(scheduled.size() - 1).task().run();
     assertThat(sent.get(sent.size() - 1)).isEqualTo(" ");
+  }
+
+  @Test
+  void offPlacementSendsPackViewersToTheDelegate() {
+    placement.set(HudPlacement.OFF);
+
+    port.publish(viewer, NOTICE);
+
+    assertThat(platform.calls()).containsExactly("publish adapt:notice");
+    assertThat(port.status(viewer, "adapt:status:x", HudStatusSpec.toggle("s", ICON, "", true))).isFalse();
+    assertThat(sent).isEmpty();
+  }
+
+  @Test
+  void cornerShowsOneRowPerSkillInTheOrderTheyStarted() {
+    placement.set(HudPlacement.CORNER);
+    port.xp(viewer, new HudXp("mining", "Mining", "adapt:gui/skill/mining", 0x808080, 7, 0.4, 3.0), 3_000L);
+    clock.addAndGet(300L);
+    port.xp(viewer, new HudXp("herbalism", "Herbalism", "adapt:gui/skill/herbalism", 0x4DB344, 3, 0.1, 10.0), 3_000L);
+    clock.addAndGet(300L);
+    port.xp(viewer, new HudXp("mining", "Mining", "adapt:gui/skill/mining", 0x808080, 7, 0.5, 2.0), 3_000L);
+
+    String line = sent.get(sent.size() - 1);
+    assertThat(line.indexOf("Mining")).isLessThan(line.indexOf("Herbalism"));
+    assertThat(line).contains("+5").contains("+10").contains("Lv 7").contains("Lv 3");
+    assertThat(line.chars().filter((int c) -> c == HudGlyphs.PLATE_LEFT).count()).isEqualTo(2);
+  }
+
+  @Test
+  void cornerInksALevelUpGoldUntilTheFlourishEnds() {
+    placement.set(HudPlacement.CORNER);
+    port.xp(viewer, new HudXp("mining", "Mining", "adapt:gui/skill/mining", 0x808080, 7, 0.9, 3.0), 10_000L);
+    clock.addAndGet(300L);
+    port.xp(viewer, new HudXp("mining", "Mining", "adapt:gui/skill/mining", 0x808080, 8, 0.0, 3.0), 10_000L);
+    assertThat(sent.get(sent.size() - 1)).contains("<color:#6b440c>Lv 8");
+
+    clock.addAndGet(PackHudPort.LEVEL_MILLIS);
+    scheduled.get(scheduled.size() - 1).task().run();
+    assertThat(sent.get(sent.size() - 1)).contains("<color:#5a4430>Lv 8");
   }
 
   @Test

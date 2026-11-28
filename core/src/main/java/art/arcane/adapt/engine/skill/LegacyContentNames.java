@@ -9,8 +9,8 @@ import java.util.List;
 
 /**
  * The flat name a built-in skill, adaptation or mutation tool had before ids were namespaced, such as
- * {@code herbalism-luck} for {@code adapt:herbalism/luck}. Sprite files, item looks and the config menu's English
- * descriptions, which the shipped translations match, are still named this way; nothing else may use it.
+ * {@code herbalism-luck} for {@code adapt:herbalism/luck}. Sprite files, item looks and the comments written into
+ * content config files are still named this way; nothing else may use it.
  */
 public final class LegacyContentNames {
   private LegacyContentNames() {

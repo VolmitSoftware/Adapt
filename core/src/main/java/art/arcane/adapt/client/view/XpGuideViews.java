@@ -80,7 +80,6 @@ public final class XpGuideViews {
     for (Text line : skill.getXpGuide()) {
       lines.add(line.resolve());
     }
-    lines.add(AdaptLanguage.text(XpGuideMessages.ADAPTATIONS));
     return new XpGuideView.Section(SkillHost.lineKey(skill), CatalogViews.plain(skill.getLocalizedName()), lines);
   }
 }

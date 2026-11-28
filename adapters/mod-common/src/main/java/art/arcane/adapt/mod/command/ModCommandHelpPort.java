@@ -6,9 +6,11 @@ import art.arcane.adapt.command.CommandSource;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
+import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Director help and chat menus in the same VolmLib menu look as on Bukkit: VolmLib delivers pages only to Bukkit
@@ -17,20 +19,22 @@ import java.util.Optional;
  */
 public final class ModCommandHelpPort implements CommandHelpPort {
     @Override
-    public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
-        Optional<DirectorMiniMenu.DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(engine, arguments);
-        if (request.isEmpty()) {
+    public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
+        Optional<DirectorMiniMenu.DirectorHelpPage> resolved = DirectorMiniMenu.resolveHelp(engine, arguments);
+        if (resolved.isEmpty()) {
             return false;
         }
+        DirectorMiniMenu.DirectorHelpPage request = resolved.get().withEntries(
+                resolved.get().entries().stream().filter(visible).toList());
         if (source.player().isEmpty()) {
-            for (String line : DirectorMiniMenu.renderConsole(request.get(), AdaptLanguage.directorResolver())) {
+            for (String line : DirectorMiniMenu.renderConsole(request, AdaptLanguage.directorResolver())) {
                 if (line != null && !line.isBlank()) {
                     source.sendLiteral(line);
                 }
             }
             return true;
         }
-        sendPage(source, DirectorMiniMenu.render(request.get(), DirectorMiniMenu.Theme.adaptRed(), AdaptLanguage.directorResolver()));
+        sendPage(source, DirectorMiniMenu.render(request, DirectorMiniMenu.Theme.adaptRed(), AdaptLanguage.directorResolver()));
         return true;
     }
 

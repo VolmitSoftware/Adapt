@@ -11,13 +11,13 @@ import java.util.function.Function;
 
 /**
  * Composes the action bar strip as Adapt markup: ability glyphs in wells with a clock wipe and counts, the xp line with
- * its bar, then the text notices. Glyph runs use font {@link HudStripFont#FONT} without shadow; text keeps the vanilla
+ * its bar, then the text notices. Glyph runs use font {@link HudGlyphs#FONT} without shadow; text keeps the vanilla
  * font and shadow. The client centres the whole line, so only relative pen moves are needed.
  */
 public final class HudStrip {
   public static final int MAX_ABILITIES = 3;
 
-  private static final String GLYPH_RUN = "<reset><font:" + HudStripFont.FONT + "><shadow:#00000000>";
+  private static final String GLYPH_RUN = "<reset><font:" + HudGlyphs.FONT + "><shadow:#00000000>";
   private static final int ICON_INSET = 2;
   private static final int WELL_WIDTH = 20;
   private static final int WELL_GAP = 2;
@@ -35,12 +35,12 @@ public final class HudStrip {
     int shown = Math.min(MAX_ABILITIES, abilities.size());
     for (int index = 0; index < shown; index++) {
       if (index > 0) {
-        out.append(GLYPH_RUN).append(HudStripFont.shift(WELL_GAP + WELL_WIDTH - (ICON_INSET + HudStripFont.GLYPH_ADVANCE)));
+        out.append(GLYPH_RUN).append(HudGlyphs.shift(WELL_GAP + WELL_WIDTH - (ICON_INSET + HudGlyphs.GLYPH_ADVANCE)));
       }
       ability(out, abilities.get(index), icons, nowMillis);
     }
     if (shown > 0) {
-      out.append(GLYPH_RUN).append(HudStripFont.shift(WELL_WIDTH - (ICON_INSET + HudStripFont.GLYPH_ADVANCE) + SECTION_GAP));
+      out.append(GLYPH_RUN).append(HudGlyphs.shift(WELL_WIDTH - (ICON_INSET + HudGlyphs.GLYPH_ADVANCE) + SECTION_GAP));
     }
     if (xp != null) {
       xp(out, xp);
@@ -51,7 +51,7 @@ public final class HudStrip {
         continue;
       }
       if (!first) {
-        out.append(GLYPH_RUN).append(HudStripFont.shift(NOTICE_GAP));
+        out.append(GLYPH_RUN).append(HudGlyphs.shift(NOTICE_GAP));
       }
       out.append("<reset>").append(notice);
       first = false;
@@ -63,12 +63,12 @@ public final class HudStrip {
   public static int wipeStep(HudStatusSpec spec, long nowMillis) {
     return switch (spec.glyph()) {
       case COOLDOWN -> remainingSteps(spec, nowMillis);
-      case DURATION -> spec.durationMillis() <= 0L ? 0 : HudStripFont.WIPE_STEPS - remainingSteps(spec, nowMillis);
+      case DURATION -> spec.durationMillis() <= 0L ? 0 : HudGlyphs.WIPE_STEPS - remainingSteps(spec, nowMillis);
       case CHARGES -> {
         int recharge = remainingSteps(spec, nowMillis);
-        yield recharge > 0 ? recharge : spec.stacks() == 0 && spec.maxStacks() > 0 ? HudStripFont.WIPE_STEPS : 0;
+        yield recharge > 0 ? recharge : spec.stacks() == 0 && spec.maxStacks() > 0 ? HudGlyphs.WIPE_STEPS : 0;
       }
-      case TOGGLE -> spec.lit() ? 0 : HudStripFont.WIPE_STEPS;
+      case TOGGLE -> spec.lit() ? 0 : HudGlyphs.WIPE_STEPS;
     };
   }
 
@@ -89,7 +89,7 @@ public final class HudStrip {
       }
       long remaining = Math.min(duration, end - nowMillis);
       long step = ceilSteps(remaining, duration);
-      long boundaryRemaining = (step - 1L) * duration / HudStripFont.WIPE_STEPS;
+      long boundaryRemaining = (step - 1L) * duration / HudGlyphs.WIPE_STEPS;
       next = Math.min(next, Math.max(nowMillis + 1L, end - boundaryRemaining));
     }
     return next;
@@ -100,21 +100,21 @@ public final class HudStrip {
     String sprite = PackSprites.packId(spec.icon().spriteId());
     String icon = sprite == null ? null : icons.apply(sprite);
     out.append(GLYPH_RUN)
-        .append(HudStripFont.well())
-        .append(HudStripFont.shift(ICON_INSET - HudStripFont.WELL_ADVANCE))
-        .append(icon == null ? HudStripFont.fallbackIcon() : icon);
+        .append(HudGlyphs.well())
+        .append(HudGlyphs.shift(ICON_INSET - HudGlyphs.WELL_ADVANCE))
+        .append(icon == null ? HudGlyphs.fallbackIcon() : icon);
     int wipe = wipeStep(spec, nowMillis);
     if (wipe > 0) {
-      out.append(HudStripFont.shift(-HudStripFont.GLYPH_ADVANCE)).append(HudStripFont.wipe(wipe));
+      out.append(HudGlyphs.shift(-HudGlyphs.GLYPH_ADVANCE)).append(HudGlyphs.wipe(wipe));
     }
     String count = count(spec);
     if (!count.isEmpty()) {
-      out.append(HudStripFont.shift(-PackFontMetrics.vanilla().width(count)))
+      out.append(HudGlyphs.shift(-PackFontMetrics.vanilla().width(count)))
           .append("<reset><white>").append(count);
     }
   }
 
-  private static String count(HudStatusSpec spec) {
+  static String count(HudStatusSpec spec) {
     if (spec.glyph() == HudGlyph.CHARGES && spec.maxStacks() != 1) {
       return Integer.toString(spec.stacks());
     }
@@ -125,11 +125,11 @@ public final class HudStrip {
   }
 
   private static void xp(StringBuilder out, HudXp xp) {
-    int fill = (int) Math.round(xp.progress() * HudStripFont.XP_FILL_STEPS);
+    int fill = (int) Math.round(xp.progress() * HudGlyphs.XP_FILL_STEPS);
     out.append("<reset>").append(colour(xp.colour())).append(escape(xp.name())).append(' ').append(xp.level())
-        .append(GLYPH_RUN).append(HudStripFont.shift(BAR_GAP)).append(HudStripFont.xpTrack())
-        .append(HudStripFont.shift(-HudStripFont.XP_BAR_ADVANCE))
-        .append(colour(xp.colour())).append(HudStripFont.xpFill(fill));
+        .append(GLYPH_RUN).append(HudGlyphs.shift(BAR_GAP)).append(HudGlyphs.xpTrack())
+        .append(HudGlyphs.shift(-HudGlyphs.XP_BAR_ADVANCE))
+        .append(colour(xp.colour())).append(HudGlyphs.xpFill(fill));
     long gained = (long) Math.floor(xp.gained());
     if (gained > 0L) {
       out.append("<reset>").append(colour(GAINED_COLOUR)).append(" +").append(gained);
@@ -149,7 +149,7 @@ public final class HudStrip {
   }
 
   private static long ceilSteps(long remaining, long duration) {
-    return (remaining * HudStripFont.WIPE_STEPS + duration - 1L) / duration;
+    return (remaining * HudGlyphs.WIPE_STEPS + duration - 1L) / duration;
   }
 
   private static String colour(int rgb) {

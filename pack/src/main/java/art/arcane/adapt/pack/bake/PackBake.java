@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
  */
 public final class PackBake {
     /** Changes whenever a bake's output for the same input changes, so cached kit bakes from older code are not reused. */
-    public static final String VERSION = "26";
+    public static final String VERSION = "28";
     static final Id TOOLTIP = Id.adapt("gui/kit/tooltip");
     static final Id TILE = Id.adapt("gui/kit/tile");
     static final Id TOKEN = Id.adapt("gui/kit/token_learned");

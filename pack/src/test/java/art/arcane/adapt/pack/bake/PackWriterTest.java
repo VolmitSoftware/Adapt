@@ -1,7 +1,8 @@
 package art.arcane.adapt.pack.bake;
 
 import art.arcane.adapt.pack.TestCatalogs;
-import art.arcane.adapt.pack.layout.PackArt;
+import art.arcane.adapt.pack.hud.HudCorner;
+import art.arcane.adapt.pack.hud.HudGlyphs;
 import art.arcane.adapt.pack.raster.Raster;
 import art.arcane.adapt.platform.value.Id;
 import com.google.gson.JsonElement;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,9 +68,9 @@ class PackWriterTest {
     }
 
     @Test
-    void mcmetaStatesTheFormatRangeOfEvery26xClientAndNothingElse() {
+    void mcmetaStatesTheFormatRangeOfEvery26xClientAndItsShaderOverlays() {
         JsonObject root = JsonParser.parseString(new String(build().files().get("pack.mcmeta"), StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(Set.of("pack"), root.keySet());
+        assertEquals(Set.of("pack", "overlays"), root.keySet());
         JsonObject pack = root.getAsJsonObject("pack");
         assertEquals(Set.of("description", "min_format", "max_format"), pack.keySet());
         assertEquals("test", pack.get("description").getAsString());
@@ -162,15 +164,22 @@ class PackWriterTest {
     }
 
     @Test
-    void hudFontKeepsTheStripWritersCodepoints() {
+    void hudFontHoldsTheHudWritersCodepoints() {
         PackWriter.Built built = build();
         String font = new String(built.files().get("assets/adapt/font/hud.json"), StandardCharsets.UTF_8);
-        for (int codepoint : new int[]{0xE000, 0xE00F, 0xE010, 0xE011, 0xE018, 0xE019, 0xE020, 0xE03E, 0xE03F}) {
+        int[] codepoints = {HudGlyphs.NEGATIVE_BASE, HudGlyphs.NEGATIVE_BASE + HudGlyphs.SHIFT_BITS - 1, HudGlyphs.POSITIVE_BASE,
+            HudGlyphs.POSITIVE_BASE + HudGlyphs.SHIFT_BITS - 1, HudGlyphs.WELL, HudGlyphs.WIPE_BASE + 1,
+            HudGlyphs.WIPE_BASE + HudGlyphs.WIPE_STEPS, HudGlyphs.XP_TRACK, HudGlyphs.XP_FILL_BASE,
+            HudGlyphs.XP_FILL_BASE + HudGlyphs.XP_FILL_STEPS, HudGlyphs.FALLBACK_ICON, HudGlyphs.PLATE_LEFT, HudGlyphs.PLATE_RIGHT,
+            HudGlyphs.PLATE_BASE, HudGlyphs.PLATE_BASE + HudGlyphs.PLATE_POWERS - 1, HudGlyphs.BAR_TRACK, HudGlyphs.BAR_FILL_BASE,
+            HudGlyphs.BAR_FILL_BASE + HudGlyphs.BAR_WIDTH, HudGlyphs.FALLBACK_ICON + HudGlyphs.SMALL_ICON_OFFSET};
+        for (int codepoint : codepoints) {
             assertTrue(font.contains(Character.toString(codepoint)), Integer.toHexString(codepoint));
         }
         Map<String, Integer> icons = built.manifest().hud().icons();
-        assertEquals(0xE100, icons.values().stream().mapToInt(Integer::intValue).min().orElseThrow());
-        assertEquals(0xE100 + icons.size() - 1, icons.get("adapt:gui/skill/herbalism"));
+        assertEquals(HudGlyphs.FIRST_ICON, icons.values().stream().mapToInt(Integer::intValue).min().orElseThrow());
+        assertEquals(HudGlyphs.FIRST_ICON + icons.size() - 1, icons.get("adapt:gui/skill/herbalism"));
+        assertTrue(font.contains(Character.toString(icons.get("adapt:gui/skill/herbalism") + HudGlyphs.SMALL_ICON_OFFSET)));
         assertTrue(built.files().containsKey("assets/adapt/textures/font/hud/wipe_8.png"));
     }
 
@@ -180,6 +189,7 @@ class PackWriterTest {
         JsonObject font = JsonParser.parseString(
                 new String(built.files().get("assets/adapt/font/hud.json"), StandardCharsets.UTF_8)).getAsJsonObject();
         int glyphs = 0;
+        int small = 0;
         for (JsonElement element : font.getAsJsonArray("providers")) {
             JsonObject provider = element.getAsJsonObject();
             if (!provider.get("type").getAsString().equals("bitmap")) {
@@ -189,9 +199,39 @@ class PackWriterTest {
             assertTrue(file.startsWith("adapt:font/hud/"), file);
             Raster glyph = Raster.decode(built.files().get("assets/adapt/textures/" + file.substring("adapt:".length())));
             assertEquals(glyph.width() + 1, StillTiles.advance(glyph), file);
+            if (provider.get("height").getAsInt() != glyph.height()) {
+                assertEquals(HudGlyphs.SMALL_ICON_SIZE, provider.get("height").getAsInt(), file);
+                small++;
+            }
             glyphs++;
         }
-        assertEquals(1 + 8 + 1 + HudFont.FILLS + 1 + built.manifest().hud().icons().size(), glyphs);
+        int icons = built.manifest().hud().icons().size();
+        int strip = 1 + HudGlyphs.WIPE_STEPS + 1 + HudGlyphs.XP_FILL_STEPS + 1 + 1;
+        int corner = 2 + HudGlyphs.PLATE_POWERS + 1 + HudGlyphs.BAR_WIDTH + 1;
+        assertEquals(strip + corner + 1 + 2 * icons, glyphs);
+        assertEquals(1 + icons, small);
+    }
+
+    @Test
+    void everyTextShaderMovesTheCornerWhereTheCornerWriterSetsIt() {
+        PackWriter.Built built = build();
+        List<String> shaders = List.of("assets/minecraft/shaders/core/rendertype_text.vsh",
+                "assets/minecraft/shaders/core/rendertype_text_intensity.vsh",
+                "adapt_text_88/assets/minecraft/shaders/core/text.vsh", "adapt_text_97/assets/minecraft/shaders/core/text.vsh");
+        for (String path : shaders) {
+            String shader = new String(built.files().get(path), StandardCharsets.UTF_8);
+            assertTrue(shader.contains("vec4(adaptHudCorner(Position), 1.0)"), path);
+            for (int constant : new int[]{HudCorner.BAND, HudCorner.ROW, HudCorner.ROW_BIAS, HudCorner.MARGIN}) {
+                assertTrue(shader.contains(" " + constant + ".0"), path + " " + constant);
+            }
+        }
+        JsonObject overlays = JsonParser.parseString(new String(built.files().get("pack.mcmeta"), StandardCharsets.UTF_8))
+                .getAsJsonObject().getAsJsonObject("overlays");
+        Set<String> directories = new TreeSet<>();
+        for (JsonElement entry : overlays.getAsJsonArray("entries")) {
+            directories.add(entry.getAsJsonObject().get("directory").getAsString());
+        }
+        assertEquals(Set.of("adapt_text_88", "adapt_text_97"), directories);
     }
 
     @Test
@@ -258,15 +298,15 @@ class PackWriterTest {
     }
 
     @Test
-    void theHoverHighlightIsOneRowOfPaperBelowTheSlotAndNothingOverTheItem() {
+    void theHoverHighlightWashesTheSlotsCellAndNothingOverTheItem() {
         PackWriter.Built modern = build();
         Raster back = Raster.decode(modern.files().get(PackWriter.HIGHLIGHT_BACK));
         Raster front = Raster.decode(modern.files().get(PackWriter.HIGHLIGHT_FRONT));
         for (int y = 0; y < PackWriter.HIGHLIGHT_SIZE; y++) {
             for (int x = 0; x < PackWriter.HIGHLIGHT_SIZE; x++) {
                 assertEquals(0, front.get(x, y) >>> 24, "front " + x + "," + y);
-                boolean paper = y == 20 && x >= 3 && x <= 20;
-                assertEquals(paper ? PackArt.PAPER : 0, back.get(x, y), "back " + x + "," + y);
+                boolean cell = y >= 4 && y <= 20 && x >= 3 && x <= 20;
+                assertEquals(cell ? PackWriter.HOVER : 0, back.get(x, y), "back " + x + "," + y);
             }
         }
         assertFalse(modern.files().keySet().stream().anyMatch((String path) -> path.contains("_d6") || path.contains("_u7")));

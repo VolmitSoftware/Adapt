@@ -222,12 +222,12 @@ public final class PackArt {
     return "wash/" + (strong ? "strong" : "light") + width + "@" + y;
   }
 
-  /** {@code width} columns of a locked row box's dotted top and bottom edges, whose top is {@code y}. */
+  /** {@code width} columns of an unlearned row box's dotted top and bottom edges, whose top is {@code y}. */
   public static String dots(int width, int y) {
     return "box/dots" + width + "@" + y;
   }
 
-  /** A locked row box's dotted side whose top is {@code y}. */
+  /** An unlearned row box's dotted side whose top is {@code y}. */
   public static String dotSide(int y) {
     return "box/dotside@" + y;
   }
@@ -413,7 +413,7 @@ public final class PackArt {
           }
         }
       }
-      for (Card card : screen.cards()) {
+      for (Card card : withGaps(screen.cards())) {
         card.text().values().forEach((TextSpec text) -> rows(rows, text));
       }
     }
@@ -452,10 +452,10 @@ public final class PackArt {
           keep(found, entry.getValue(), entry.getKey(), tracked);
         }
       }
-      for (Card card : screen.cards()) {
+      for (Card card : withGaps(screen.cards())) {
         new TreeMap<>(card.bars()).forEach((String role, BarSpec bar) -> {
           if (role.equals(BOX)) {
-            for (BarSpec edge : border(bar)) {
+            for (BarSpec edge : outline(bar)) {
               keep(found, edge, role, tracked);
             }
             return;
@@ -465,6 +465,25 @@ public final class PackArt {
       }
     }
     return new ArrayList<>(found.values());
+  }
+
+  /** The one-pixel outline of row box {@code box} in its colour: its left and right edges, then its top and bottom rows. */
+  public static List<BarSpec> outline(BarSpec box) {
+    List<BarSpec> edges = new ArrayList<>(border(box));
+    edges.add(new BarSpec(box.x(), box.y(), box.width(), 1, box.colour()));
+    edges.add(new BarSpec(box.x(), box.y() + box.height() - 1, box.width(), 1, box.colour()));
+    return edges;
+  }
+
+  /** {@code cards} and the heading place in each gap between two of them that follow on (see {@link Card#between}). */
+  private static List<Card> withGaps(List<Card> cards) {
+    List<Card> all = new ArrayList<>(cards);
+    for (int index = 1; index < cards.size(); index++) {
+      if (Card.gap(cards.get(index - 1), cards.get(index))) {
+        all.add(Card.between(cards.get(index - 1), cards.get(index)));
+      }
+    }
+    return all;
   }
 
   /** The left and right one-pixel edges of row box {@code box}, in its colour. */

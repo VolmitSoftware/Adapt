@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
@@ -106,7 +107,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.damager() instanceof PlayerRef p) || !(e.entity() instanceof LivingRef originalTarget)) {
+    if (!(e.damager() instanceof PlayerRef p) || !(e.entity() instanceof LivingRef originalTarget) || AbilityDamage.fixed(e)) {
       return;
     }
 

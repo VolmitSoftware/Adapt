@@ -55,9 +55,8 @@ class SkillTuningRulesTest {
   }
 
   @Test
-  void hunterKillsAddAFlatBonusAndFarmedMobsAreReduced() {
-    assertThat(SkillHunter.killXp(20D, 4D, 30D, 1D)).isEqualTo(110D);
-    assertThat(SkillHunter.killXp(20D, 4D, 30D, 0.3D)).isEqualTo(33D);
+  void hunterKillsAddAFlatBonusToMaxHealth() {
+    assertThat(SkillHunter.killXp(20D, 4D, 30D)).isEqualTo(110D);
   }
 
   @Test

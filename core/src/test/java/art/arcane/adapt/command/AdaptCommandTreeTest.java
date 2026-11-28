@@ -1,10 +1,14 @@
 package art.arcane.adapt.command;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.content.golem.command.GolemCommand;
 import art.arcane.adapt.platform.AdaptScheduler;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.platform.permission.PermissionDefault;
+import art.arcane.adapt.platform.permission.PermissionHost;
+import art.arcane.adapt.platform.permission.PermissionRegistration;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.FakeWorld;
@@ -18,9 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -97,39 +104,100 @@ class AdaptCommandTreeTest extends AdaptTestBase {
   }
 
   @Test
-  void theRootPermissionGatesEveryCommandButTheDebugDump() {
+  void aCommandIsGatedByItsOwnNodeOnly() {
     RecordingSource source = new RecordingSource(Set.of(), Optional.empty());
-    AdaptScheduler scheduler = core.getPlatform().scheduler();
-    doAnswer(call -> {
-      call.<Runnable>getArgument(0).run();
-      return true;
-    }).when(scheduler).runGlobal(any(Runnable.class), anyLong());
 
     new AdaptCommands().execute(source, "adapt", new String[]{"debug", "verbose"});
     new AdaptCommands().execute(source, "adapt", new String[]{"debug", "dump"});
+    new AdaptCommands().execute(source, "adapt", new String[]{"debug", "version"});
 
-    assertThat(source.sections).hasSize(2);
-    assertThat(source.sections.get(0)).contains(AdaptCommands.ROOT_PERMISSION);
-    assertThat(source.sections.get(1)).contains("Unknown Adapt command");
+    assertThat(source.sections).hasSize(3);
+    assertThat(source.sections.get(0)).contains("adapt.idontknowwhatimdoingiswear");
+    assertThat(source.sections.get(1)).contains("adapt.debugdump");
+    assertThat(source.sections.get(2)).contains(AdaptCommands.ROOT_PERMISSION);
   }
 
   @Test
-  void packCommandsNeedOnlyThePackPermission() {
-    PlayerRef player = new FakePlayer("Viewer", new Loc(new FakeWorld("world"), 0, 64, 0));
-    RecordingSource holder = new RecordingSource(Set.of("adapt.pack"), Optional.of(player));
-    RecordingSource stranger = new RecordingSource(Set.of(), Optional.of(player));
+  void everyCoreCommandDeclaresItsPermission() {
+    List<String> undeclared = new ArrayList<>();
+    collectUndeclared(new AdaptCommands().engine().getRoot(), undeclared);
+
+    assertThat(undeclared).isEmpty();
+  }
+
+  @Test
+  void aPlayerWithTheDefaultNodesRunsEveryPlayerCommand() {
+    RecordingSource player = defaultPlayer();
     AdaptScheduler scheduler = core.getPlatform().scheduler();
     doAnswer(call -> {
       call.<Runnable>getArgument(0).run();
       return true;
     }).when(scheduler).runGlobal(any(Runnable.class), anyLong());
 
-    new AdaptCommands().execute(holder, "adapt", new String[]{"pack", "offer"});
-    new AdaptCommands().execute(stranger, "adapt", new String[]{"pack", "offer"});
+    for (String[] command : List.of(new String[]{"mutate"}, new String[]{"mutate", "axes"}, new String[]{"effects", "enabled=false"},
+        new String[]{"pack", "offer"}, new String[]{"golem", "roster"})) {
+      new AdaptCommands().execute(player, "adapt", command);
+    }
 
-    assertThat(holder.sections).noneSatisfy(line -> assertThat(line).contains(AdaptCommands.ROOT_PERMISSION));
-    assertThat(holder.sections).anySatisfy(line -> assertThat(line).contains("does not offer the Adapt pack"));
-    assertThat(stranger.sections).singleElement().satisfies(line -> assertThat(line).contains(AdaptCommands.ROOT_PERMISSION));
+    assertThat(player.sections).noneSatisfy(line -> assertThat(line).contains("lack the permission"));
+    assertThat(player.sections).anySatisfy(line -> assertThat(line).contains("does not offer the Adapt pack"));
+  }
+
+  @Test
+  void operatorCommandsStayRefusedToAPlayer() {
+    Map<String, String> refusals = Map.ofEntries(
+        Map.entry("boost", "adapt.boost"),
+        Map.entry("global-boost", "adapt.boost.global"),
+        Map.entry("client", "adapt.debug"),
+        Map.entry("gui", "adapt.gui"),
+        Map.entry("experience swords", "adapt.cheatitem"),
+        Map.entry("knowledge swords", "adapt.cheatitem"),
+        Map.entry("claim-skill swords 5", "adapt.determine"),
+        Map.entry("claim-adaptation sword/poison_blade 1", "adapt.determine"),
+        Map.entry("unmutate Viewer swords", "adapt.mutate.reset"),
+        Map.entry("mutation-reset", "adapt.mutate.reset"),
+        Map.entry("configure", "adapt.configurator"),
+        Map.entry("default all", "adapt.configurator"),
+        Map.entry("clear all", "adapt.clear"),
+        Map.entry("reset confirm", "adapt.clear"),
+        Map.entry("orphans list *", "adapt.orphans"),
+        Map.entry("debug mode", "adapt.debug"),
+        Map.entry("debug version", AdaptCommands.ROOT_PERMISSION),
+        Map.entry("golem list", "adapt.golemancy.admin"));
+
+    for (Map.Entry<String, String> refusal : refusals.entrySet()) {
+      RecordingSource player = defaultPlayer();
+      new AdaptCommands().execute(player, "adapt", refusal.getKey().split(" "));
+
+      assertThat(player.sections).describedAs(refusal.getKey())
+          .singleElement().satisfies(line -> assertThat(line).contains("lack the permission").contains("'" + refusal.getValue() + "'"));
+    }
+  }
+
+  @Test
+  void aPlayerCompletesOnlyTheCommandsTheyMayRun() {
+    RecordingSource player = defaultPlayer();
+
+    List<String> root = new AdaptCommands().complete(player, "adapt", new String[]{""});
+    List<String> golem = new AdaptCommands().complete(player, "adapt", new String[]{"golem", ""});
+    List<String> debug = new AdaptCommands().complete(player, "adapt", new String[]{"debug", ""});
+
+    assertThat(root).containsExactlyInAnyOrder("effects", "golem", "language", "mutate", "pack");
+    assertThat(golem).containsExactly("roster");
+    assertThat(debug).isEmpty();
+  }
+
+  @Test
+  void helpListsOnlyTheCommandsAPlayerMayRun() {
+    List<String> listed = new ArrayList<>();
+    AdaptPorts.install(CommandHelpPort.class, new ListingHelpPort(listed));
+    try {
+      new AdaptCommands().execute(defaultPlayer(), "adapt", new String[0]);
+    } finally {
+      AdaptPorts.uninstall(CommandHelpPort.class);
+    }
+
+    assertThat(listed).containsExactlyInAnyOrder("effects", "golem", "language", "mutate", "pack");
   }
 
   @Test
@@ -152,7 +220,8 @@ class AdaptCommandTreeTest extends AdaptTestBase {
 
   @Test
   void tabCompletionOffersTheVisibleSubcommands() {
-    RecordingSource source = new RecordingSource(Set.of(AdaptCommands.ROOT_PERMISSION), Optional.empty());
+    RecordingSource source = new RecordingSource(Set.of(AdaptCommands.ROOT_PERMISSION, "adapt.boost", "adapt.clear",
+        "adapt.idontknowwhatimdoingiswear"), Optional.empty());
 
     List<String> root = new AdaptCommands().complete(source, "adapt", new String[]{""});
     List<String> debug = new AdaptCommands().complete(source, "adapt", new String[]{"debug", "ver"});
@@ -169,6 +238,63 @@ class AdaptCommandTreeTest extends AdaptTestBase {
       } else {
         collect(child, path, found);
       }
+    }
+  }
+
+  private static void collectUndeclared(DirectorRuntimeNode node, List<String> undeclared) {
+    for (DirectorRuntimeNode child : node.getChildren()) {
+      if (child.isInvocable() && !AddonCommandRunner.isGraft(child) && AdaptCommands.declaredPermission(child).isEmpty()) {
+        undeclared.add(path(child));
+      }
+      collectUndeclared(child, undeclared);
+    }
+  }
+
+  /** A player holding exactly the nodes Adapt gives every player by default, plus plugin.yml's {@code adapt.pack}. */
+  private static RecordingSource defaultPlayer() {
+    Set<String> defaults = new HashSet<>(Set.of(CommandPack.PERMISSION));
+    AdaptCommands.registerPermissionDefaults(new PermissionHost() {
+      @Override
+      public boolean has(PlayerRef player, String node) {
+        return false;
+      }
+
+      @Override
+      public boolean isSet(PlayerRef player, String node) {
+        return false;
+      }
+
+      @Override
+      public PermissionRegistration register(String node, String description, PermissionDefault fallback) {
+        if (fallback == PermissionDefault.TRUE) {
+          defaults.add(node);
+        }
+        return () -> {
+        };
+      }
+    });
+    return new RecordingSource(Set.copyOf(defaults), Optional.of(new FakePlayer("Viewer", new Loc(new FakeWorld("world"), 0, 64, 0))));
+  }
+
+  /** Lists the visible top-level commands that bare {@code /adapt} shows. */
+  private record ListingHelpPort(List<String> listed) implements CommandHelpPort {
+    @Override
+    public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
+      for (DirectorRuntimeNode entry : engine.getRoot().getChildren()) {
+        if (!entry.getDescriptor().isHidden() && visible.test(entry)) {
+          listed.add(entry.getDescriptor().getName());
+        }
+      }
+      return arguments.isEmpty();
+    }
+
+    @Override
+    public void menu(CommandSource source, CommandMenu menu) {
+    }
+
+    @Override
+    public String version(String plugin, String version) {
+      return version;
     }
   }
 

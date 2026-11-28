@@ -11,8 +11,9 @@ class SkillStealthTest {
 
   @Test
   void unawareOpenerPaysTheBaseAndSneakingUnseenAddsTheBonus() {
-    assertThat(SkillStealth.openerXp(150D, 200D, false)).isEqualTo(150D);
-    assertThat(SkillStealth.openerXp(150D, 200D, true)).isEqualTo(350D);
+    SkillStealth.Config defaults = new SkillStealth.Config();
+    assertThat(SkillStealth.openerXp(defaults.unawareOpenerXp, defaults.unseenOpenerBonusXp, false)).isEqualTo(75D);
+    assertThat(SkillStealth.openerXp(defaults.unawareOpenerXp, defaults.unseenOpenerBonusXp, true)).isEqualTo(175D);
   }
 
   @Test

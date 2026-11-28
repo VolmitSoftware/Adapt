@@ -244,12 +244,12 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
 
 
   static void fullSpeedTrailFx(Adaptation<?> owner, PlayerRef p) {
-    Vec3 back = p.velocity();
+    Vec3 back = p.movement();
     Fx.now(owner, p, FxPriority.TRAIL).trail(Particles.SOUL_FIRE_FLAME, -back.x(), 0.05D, -back.z(), 0.8D, 1);
   }
 
   static void igniteFx(Adaptation<?> owner, PlayerRef p) {
-    Vec3 back = p.velocity();
+    Vec3 back = p.movement();
     Fx.now(owner, p, FxPriority.GAMEPLAY)
         .trail(Particles.FLAME, -back.x(), 0.1D, -back.z(), 1.2D, 6)
         .chord(Sounds.ENTITY_BLAZE_SHOOT, 0.3F, 0.7F, Sounds.BLOCK_FIRE_AMBIENT, 0.4F, 1.4F);

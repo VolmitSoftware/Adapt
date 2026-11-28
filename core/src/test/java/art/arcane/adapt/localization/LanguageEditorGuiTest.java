@@ -34,6 +34,7 @@ import art.arcane.adapt.platform.protection.ProtectionHost;
 import art.arcane.adapt.platform.viewer.ViewerHost;
 import art.arcane.adapt.testkit.ManualScheduler;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
+import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.localization.LinesValue;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.MessageCatalog;
@@ -60,6 +61,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,7 +118,7 @@ class LanguageEditorGuiTest extends AdaptTestBase {
     switcher.open(selections);
     AdaptPorts.install(CommandHelpPort.class, new CommandHelpPort() {
       @Override
-      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
+      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
         return false;
       }
 

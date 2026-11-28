@@ -71,11 +71,13 @@ public class CommandAdapt {
   private CommandOrphans orphans;
 
   @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "adapt.command.help.version")
+  @CommandPermission(AdaptCommands.ROOT_PERMISSION)
   public void version(@Param(name = "sender", contextual = true) CommandSource sender) {
     debug.version(sender);
   }
 
   @Director(description = "Choose your language or the server default")
+  @CommandPermission("adapt.language.self")
   public void language() {
     AdaptPorts.get(LanguageSwitcherPort.class, LanguageSwitcherPort.NONE).command(CommandContext.source(), new String[0]);
   }
@@ -93,6 +95,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Boost Target player Experience gain.", descriptionKey = "adapt.command.help.boost_target_player_experience_gain")
+  @CommandPermission("adapt.boost")
   public void boost(
       @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "adapt.command.help.amount_of_seconds")
       long seconds,
@@ -146,6 +149,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Boost Global Experience gain.", name = "global-boost", descriptionKey = "adapt.command.help.boost_global_experience_gain")
+  @CommandPermission("adapt.boost.global")
   public void globalBoost(
       @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "adapt.command.help.amount_of_seconds")
       long seconds,
@@ -179,6 +183,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Show a player's Adapt client UI status and power use",descriptionKey = "adapt.command.help.show_client_ui_status")
+  @CommandPermission("adapt.debug")
   public void client(
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
@@ -251,6 +256,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Open the Adapt GUI", descriptionKey = "adapt.command.help.open_the_adapt_gui")
+  @CommandPermission("adapt.gui")
   public void gui(
       @Param(description = "GUI to open: main, skill:<name>, or adaptation:<name>", defaultValue = "main", descriptionKey = "adapt.command.help.gui_to_open_main_skill_name_or_adaptation_name")
       AdaptationListingHandler.AdaptationList target,
@@ -360,6 +366,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself", descriptionKey = "adapt.command.help.toggle_adapt_effect_visibility_for_yourself")
+  @CommandPermission("adapt.effects")
   public void effects(
       @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "adapt.command.help.explicit_on_off_state_omit_to_toggle")
       String enabled
@@ -399,6 +406,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "mutate", origin = DirectorOrigin.PLAYER, description = "Merge two of your skills into one mutated skill. This cannot be undone.", descriptionKey = "adapt.command.help.merge_two_of_your_skills")
+  @CommandPermission("adapt.mutate")
   public void mutate(
       @Param(aliases = "lead", description = "Skill that leads the mutation and names it", defaultValue = NO_SKILL, descriptionKey = "adapt.command.help.lead_skill")
       AdaptationListingHandler.SkillProvider lead,
@@ -446,6 +454,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "mutation-reset", description = "Remove all of a player's skill mutations; both parent skills of each come back", descriptionKey = "adapt.command.help.remove_a_player_s_mutations")
+  @CommandPermission(MutationGui.UNMUTATE_PERMISSION)
   public void mutationReset(
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "adapt.command.help.target_player_defaults_to_you")
       PlayerRef player
@@ -467,6 +476,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "unmutate", description = "Remove one of a player's skill mutations; both parent skills come back", descriptionKey = "adapt.command.help.unmutate")
+  @CommandPermission(MutationGui.UNMUTATE_PERMISSION)
   public void unmutate(
       @Param(aliases = "player", description = "The player whose mutation to remove", descriptionKey = "adapt.command.help.unmutate_player")
       PlayerRef player,
@@ -540,6 +550,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "configure", aliases = {"config", "cfg"}, origin = DirectorOrigin.PLAYER, description = "Open the in-game Adapt config editor", descriptionKey = "adapt.command.help.open_the_in_game_adapt_config_editor")
+  @CommandPermission("adapt.configurator")
   public void configure() {
     PlayerRef player = CommandContext.player();
     if (!ConfigGui.canConfigure(player)) {
@@ -552,6 +563,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Give an experience orb to yourself or a target player", descriptionKey = "adapt.command.help.give_an_experience_orb_to_yourself_or_a_target_player")
+  @CommandPermission("adapt.cheatitem")
   public void experience(
       @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "adapt.command.help.skill_name_or_all_random")
       AdaptationListingHandler.AdaptationSkillList skillName,
@@ -625,6 +637,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Give a knowledge orb to yourself or a target player", descriptionKey = "adapt.command.help.give_a_knowledge_orb_to_yourself_or_a_target_player")
+  @CommandPermission("adapt.cheatitem")
   public void knowledge(
       @Param(aliases = "skill", description = "Skill name, or all / random", descriptionKey = "adapt.command.help.skill_name_or_all_random")
       AdaptationListingHandler.AdaptationSkillList skillName,
@@ -697,6 +710,7 @@ public class CommandAdapt {
   }
 
   @Director(description = "Assign or unassign an adaptation for a player, as if learning / unlearning it.", descriptionKey = "adapt.command.help.assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it")
+  @CommandPermission("adapt.determine")
   public void determine(
       @Param(aliases = "adaptationTarget", description = "Adaptation to modify, by id such as herbalism/luck", descriptionKey = "adapt.command.help.adaptation_to_modify_as_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
@@ -780,6 +794,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.", descriptionKey = "adapt.command.help.set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration")
+  @CommandPermission("adapt.determine")
   public void claimSkill(
       @Param(aliases = "skill", description = "Skill line to set", descriptionKey = "adapt.command.help.skill_line_to_set")
       AdaptationListingHandler.SkillProvider skillTarget,
@@ -842,6 +857,7 @@ public class CommandAdapt {
   }
 
   @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.", descriptionKey = "adapt.command.help.set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it")
+  @CommandPermission("adapt.determine")
   public void claimAdaptation(
       @Param(aliases = "adaptationTarget", description = "Adaptation to set, by id such as herbalism/luck", descriptionKey = "adapt.command.help.adaptation_to_set_as_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget,

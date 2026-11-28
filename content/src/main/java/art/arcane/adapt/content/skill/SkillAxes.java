@@ -90,8 +90,6 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
 
   SkillAxes(boolean irisTreeFellerAvailable) {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
-    xpNote(Text.key("adapt.xp_guide.placed_blocks"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFFF55));
     setInterval(5251);

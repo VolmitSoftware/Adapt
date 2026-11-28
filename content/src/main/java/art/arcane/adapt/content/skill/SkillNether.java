@@ -90,7 +90,6 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
 
   public SkillNether() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.placed_blocks"));
     registerConfiguration(Config.class);
     setInterval(7425);
     setColor(Rgb.of(0x555555));

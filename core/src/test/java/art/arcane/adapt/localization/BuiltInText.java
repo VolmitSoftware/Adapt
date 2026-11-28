@@ -1,7 +1,11 @@
 package art.arcane.adapt.localization;
 
+import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.engine.integration.IrisTreeFellerPort;
+import art.arcane.adapt.engine.skill.LegacyContentNames;
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
 import art.arcane.adapt.testkit.TestAdapt;
@@ -15,11 +19,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 /** Installs the built-in content's messages without a running core, for tests that read the whole built-in catalog. */
 public final class BuiltInText {
-  private static volatile List<MessageKey> configText;
+  private static volatile Boot boot;
 
   private BuiltInText() {
   }
@@ -49,14 +55,31 @@ public final class BuiltInText {
   }
 
   /** The config field text of every built-in skill, adaptation, upgrade and block, read from a started registry. */
-  public static synchronized List<MessageKey> configText() {
-    if (configText == null) {
-      configText = bootConfigText();
-    }
-    return configText;
+  public static List<MessageKey> configText() {
+    return boot().configText();
   }
 
-  private static List<MessageKey> bootConfigText() {
+  /** The flat pre-namespace name of every built-in skill, read from a started registry: {@code agility}. */
+  public static Set<String> legacySkillNames() {
+    return boot().skillNames();
+  }
+
+  /**
+   * The flat pre-namespace name of every adaptation, upgrade and block the built-in skills own, read from a started
+   * registry: {@code agility-armor-up}.
+   */
+  public static Set<String> legacyAdaptationNames() {
+    return boot().adaptationNames();
+  }
+
+  private static synchronized Boot boot() {
+    if (boot == null) {
+      boot = start();
+    }
+    return boot;
+  }
+
+  private static Boot start() {
     Path data;
     try {
       data = Files.createTempDirectory("adapt-config-text");
@@ -70,8 +93,17 @@ public final class BuiltInText {
       }
     });
     try (TestAdapt adapt = TestAdapt.start(TestPlatform.builder(data).build(), new BuiltinAddon())) {
-      return ConfigFieldMessages.declaredBy(TextBundle.BUILT_IN,
-          adapt.core().getAdaptServer().getSkillRegistry().getAllSkills());
+      List<Skill<?>> skills = adapt.core().getAdaptServer().getSkillRegistry().getAllSkills();
+      Set<String> skillNames = new TreeSet<>();
+      Set<String> adaptationNames = new TreeSet<>();
+      for (Skill<?> skill : skills) {
+        skillNames.add(LegacyContentNames.of(skill.getId()));
+        for (Adaptation<?> adaptation : SkillHost.ownedAdaptations(skill)) {
+          adaptationNames.add(LegacyContentNames.of(adaptation.getId()));
+        }
+      }
+      return new Boot(ConfigFieldMessages.declaredBy(TextBundle.BUILT_IN, skills), Set.copyOf(skillNames),
+          Set.copyOf(adaptationNames));
     } finally {
       AdaptPorts.uninstall(IrisTreeFellerPort.class);
       delete(data);
@@ -86,6 +118,9 @@ public final class BuiltInText {
     } catch (IOException failure) {
       throw new UncheckedIOException(failure);
     }
+  }
+
+  private record Boot(List<MessageKey> configText, Set<String> skillNames, Set<String> adaptationNames) {
   }
 
   private static TextBundle bundle(List<MessageKey> configText) {

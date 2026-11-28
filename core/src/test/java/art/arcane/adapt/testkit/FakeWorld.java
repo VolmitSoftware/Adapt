@@ -53,6 +53,7 @@ public final class FakeWorld implements WorldRef {
   private final UUID uid = UUID.randomUUID();
   private final String name;
   private final Map<BlockPos, BlockStateRef> blocks = new HashMap<>();
+  private final List<Vec3> lightningStrikes = new ArrayList<>();
   private final Map<BlockPos, MemoryData> blockData = new HashMap<>();
   private final Map<BlockPos, MemoryData> blockEntityData = new HashMap<>();
   private final Map<BlockPos, InventoryRef> blockInventories = new HashMap<>();
@@ -584,6 +585,12 @@ public final class FakeWorld implements WorldRef {
 
   @Override
   public void strikeLightningEffect(Vec3 position) {
+    lightningStrikes.add(position);
+  }
+
+  /** Where {@link #strikeLightningEffect} showed lightning, oldest first. */
+  public List<Vec3> lightningStrikes() {
+    return List.copyOf(lightningStrikes);
   }
 
   @Override

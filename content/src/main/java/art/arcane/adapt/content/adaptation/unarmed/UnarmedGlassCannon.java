@@ -92,13 +92,12 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
       return;
     }
 
-    double armor = getArmorValue(p);
-    double damage = e.damage();
+    double fist = UnarmedStrike.fist(e, p);
     int level = attack.level();
     double flatBonus = level * getConfig().perLevelBonusMultiplier;
-
-    e.setDamage(hit(this, e.entity(), damage, armor,
-        getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier), flatBonus));
+    double glass = hit(this, e.entity(), fist, getArmorValue(p),
+        getConfig().maxDamageFactor + (level * getConfig().maxDamagePerLevelMultiplier), flatBonus);
+    e.setDamage(e.damage() + glass - fist);
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -125,8 +124,9 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
 
 
   /**
-   * The Glass Cannon hit: with no armor the damage is multiplied by {@code nakedFactor}, otherwise it is cut by the armor
-   * fraction; both add {@code flatBonus} and never drop below the incoming damage. Plays the matching hit effect.
+   * The Glass Cannon hit on a bare fist: with no armor the fist is multiplied by {@code nakedFactor}, otherwise it is cut
+   * by the armor fraction; both add {@code flatBonus} and never drop below the fist. What it adds over the fist is Glass
+   * Cannon's share of the {@link UnarmedStrike} pool. Plays the matching hit effect.
    */
   public static double hit(Adaptation<?> owner, EntityRef target, double damage, double armor, double nakedFactor,
                            double flatBonus) {
@@ -158,7 +158,7 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
     @ConfigDoc(value = "Controls Per Level Bonus Multiplier for the Unarmed Glass Cannon adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double perLevelBonusMultiplier = 0.25;
     @ConfigDoc(value = "Controls Max Damage Factor for the Unarmed Glass Cannon adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double maxDamageFactor = 4.0;
+    double maxDamageFactor = 2.0;
     @ConfigDoc(value = "Controls Max Damage Per Level Multiplier for the Unarmed Glass Cannon adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxDamagePerLevelMultiplier = 0.15;
 

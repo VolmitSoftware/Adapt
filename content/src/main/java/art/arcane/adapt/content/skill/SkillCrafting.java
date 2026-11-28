@@ -85,7 +85,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   public SkillCrafting() {
     super(ID);
     xpSource("smelt", Text.key("adapt.xp_guide.crafting.smelt"));
-    xpNote(Text.key("adapt.xp_guide.crafting.convert"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFFF55));
     setInterval(3789);

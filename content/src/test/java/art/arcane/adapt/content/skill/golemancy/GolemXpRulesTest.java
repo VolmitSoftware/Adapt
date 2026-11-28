@@ -27,23 +27,15 @@ class GolemXpRulesTest extends AdaptTestBase {
 
   @Test
   void witnessXpPaysTheWitnessShareOfTheKillValue() {
-    assertThat(GolemXpRules.witnessXp(35D, 0.35D, false, 0.3D)).isCloseTo(12.25D, offset(1e-9));
-  }
-
-  @Test
-  void witnessXpAppliesTheSpawnerMultiplierToSpawnerMobs() {
-    assertThat(GolemXpRules.witnessXp(35D, 0.35D, true, 0.3D)).isCloseTo(3.675D, offset(1e-9));
-    assertThat(GolemXpRules.witnessXp(35D, 0.35D, true, 1.0D)).isCloseTo(12.25D, offset(1e-9));
-    assertThat(GolemXpRules.witnessXp(35D, 0.35D, true, 0D)).isZero();
+    assertThat(GolemXpRules.witnessXp(35D, 0.35D)).isCloseTo(12.25D, offset(1e-9));
   }
 
   @Test
   void witnessXpRejectsInvalidInputs() {
-    assertThat(GolemXpRules.witnessXp(-35D, 0.35D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.witnessXp(35D, -0.35D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.witnessXp(Double.NaN, 0.35D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.witnessXp(35D, Double.POSITIVE_INFINITY, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.witnessXp(35D, 0.35D, true, Double.NaN)).isZero();
+    assertThat(GolemXpRules.witnessXp(-35D, 0.35D)).isZero();
+    assertThat(GolemXpRules.witnessXp(35D, -0.35D)).isZero();
+    assertThat(GolemXpRules.witnessXp(Double.NaN, 0.35D)).isZero();
+    assertThat(GolemXpRules.witnessXp(35D, Double.POSITIVE_INFINITY)).isZero();
     assertThat(GolemXpRules.killValue(Double.NaN, 20D, 1.0D)).isZero();
   }
 
@@ -87,61 +79,53 @@ class GolemXpRulesTest extends AdaptTestBase {
 
   @ParameterizedTest
   @CsvSource({
-      "10, 3.0, 2.0, false, 0.3, 60",
-      "10, 3.0, 1.0, false, 0.3, 30",
-      "10, 3.0, 0.35, false, 0.3, 10.5",
-      "10, 3.0, 2.0, true, 0.3, 18",
-      "4, 3.0, 1.0, true, 1.0, 12",
-      "10, 0, 2.0, false, 0.3, 0",
-      "10, 3.0, 0, false, 0.3, 0",
-      "0, 3.0, 2.0, false, 0.3, 0"
+      "10, 3.0, 2.0, 60",
+      "10, 3.0, 1.0, 30",
+      "10, 3.0, 0.35, 10.5",
+      "4, 3.0, 1.0, 12",
+      "10, 0, 2.0, 0",
+      "10, 3.0, 0, 0",
+      "0, 3.0, 2.0, 0"
   })
-  void assistXpScalesDealtDamageByTheAssistBodyAndSpawnerMultipliers(double dealt, double assist, double body, boolean spawner,
-                                                                     double spawnerMultiplier, double expected) {
-    assertThat(GolemXpRules.assistXp(dealt, assist, body, spawner, spawnerMultiplier)).isCloseTo(expected, offset(1e-9));
+  void assistXpScalesDealtDamageByTheAssistAndBodyMultipliers(double dealt, double assist, double body, double expected) {
+    assertThat(GolemXpRules.assistXp(dealt, assist, body)).isCloseTo(expected, offset(1e-9));
   }
 
   @ParameterizedTest
   @CsvSource({
-      "35, false, 1.5, false, 0.3, 35",
-      "39, true, 1.5, false, 0.3, 58.5",
-      "35, false, 1.5, true, 0.3, 10.5",
-      "39, true, 1.5, true, 0.3, 17.55",
-      "39, true, 1.0, false, 0.3, 39",
-      "35, false, 1.5, true, 0, 0"
+      "35, false, 1.5, 35",
+      "39, true, 1.5, 58.5",
+      "39, true, 1.0, 39"
   })
-  void ownedKillXpAppliesTheRaidAndSpawnerMultipliers(double killValue, boolean raid, double raidMultiplier, boolean spawner,
-                                                      double spawnerMultiplier, double expected) {
-    assertThat(GolemXpRules.ownedKillXp(killValue, raid, raidMultiplier, spawner, spawnerMultiplier)).isCloseTo(expected, offset(1e-9));
+  void ownedKillXpAppliesTheRaidMultiplier(double killValue, boolean raid, double raidMultiplier, double expected) {
+    assertThat(GolemXpRules.ownedKillXp(killValue, raid, raidMultiplier)).isCloseTo(expected, offset(1e-9));
   }
 
   @ParameterizedTest
   @CsvSource({
-      "8, 1.5, false, 0.3, 12",
-      "8, 1.5, true, 0.3, 3.6",
-      "8, 0, false, 0.3, 0",
-      "0, 1.5, false, 0.3, 0"
+      "8, 1.5, 12",
+      "8, 0, 0",
+      "0, 1.5, 0"
   })
-  void tankXpScalesDamageTakenByTheTankMultiplier(double taken, double tank, boolean spawner, double spawnerMultiplier, double expected) {
-    assertThat(GolemXpRules.tankXp(taken, tank, spawner, spawnerMultiplier)).isCloseTo(expected, offset(1e-9));
+  void tankXpScalesDamageTakenByTheTankMultiplier(double taken, double tank, double expected) {
+    assertThat(GolemXpRules.tankXp(taken, tank)).isCloseTo(expected, offset(1e-9));
   }
 
   @Test
   void ownedXpRejectsInvalidInputs() {
-    assertThat(GolemXpRules.assistXp(Double.NaN, 3D, 2D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.assistXp(10D, -3D, 2D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.assistXp(10D, 3D, Double.POSITIVE_INFINITY, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.assistXp(10D, 3D, 2D, true, Double.NaN)).isZero();
-    assertThat(GolemXpRules.ownedKillXp(35D, true, -1.5D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.ownedKillXp(35D, true, Double.NaN, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.ownedKillXp(-35D, false, 1.5D, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.tankXp(8D, Double.NaN, false, 0.3D)).isZero();
-    assertThat(GolemXpRules.tankXp(-8D, 1.5D, false, 0.3D)).isZero();
+    assertThat(GolemXpRules.assistXp(Double.NaN, 3D, 2D)).isZero();
+    assertThat(GolemXpRules.assistXp(10D, -3D, 2D)).isZero();
+    assertThat(GolemXpRules.assistXp(10D, 3D, Double.POSITIVE_INFINITY)).isZero();
+    assertThat(GolemXpRules.ownedKillXp(35D, true, -1.5D)).isZero();
+    assertThat(GolemXpRules.ownedKillXp(35D, true, Double.NaN)).isZero();
+    assertThat(GolemXpRules.ownedKillXp(-35D, false, 1.5D)).isZero();
+    assertThat(GolemXpRules.tankXp(8D, Double.NaN)).isZero();
+    assertThat(GolemXpRules.tankXp(-8D, 1.5D)).isZero();
   }
 
   @Test
   void ownedKillXpIgnoresAnInvalidRaidMultiplierOutsideRaids() {
-    assertThat(GolemXpRules.ownedKillXp(35D, false, Double.NaN, false, 0.3D)).isCloseTo(35D, offset(1e-9));
+    assertThat(GolemXpRules.ownedKillXp(35D, false, Double.NaN)).isCloseTo(35D, offset(1e-9));
   }
 
   @ParameterizedTest

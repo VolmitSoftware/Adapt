@@ -73,9 +73,9 @@ public final class HudFixtures {
             if (kind < 6) {
                 shown = AbilityGlyphs.cooldown(player.uuid(), adaptation, now, duration);
             } else if (kind < 8) {
-                shown = AbilityGlyphs.charges(player.uuid(), adaptation, 1 + index % 4, 4);
+                shown = AbilityGlyphs.charges(player.uuid(), adaptation, 1 + index % 4, 4, 0L, 0L);
             } else if (kind == 8) {
-                shown = AbilityGlyphs.duration(player.uuid(), adaptation, now, duration);
+                shown = AbilityGlyphs.duration(player.uuid(), adaptation, now, duration, 0, 0);
             } else {
                 shown = AbilityGlyphs.toggle(player.uuid(), adaptation, true);
             }

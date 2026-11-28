@@ -6,10 +6,12 @@ import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.platform.protection.ProtectionCheck;
 import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismBoonFood;
+import art.arcane.adapt.content.adaptation.seaborrne.upgraded.Maelstrom;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.content.skill.SkillSeaborne;
 import art.arcane.adapt.content.skill.SkillTragOul;
 import art.arcane.adapt.api.mutation.Recipe;
+import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.engine.xp.MobOrigin;
@@ -33,6 +35,7 @@ import art.arcane.adapt.testkit.FakeLiving;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.FakeProjectile;
 import art.arcane.adapt.testkit.MutationKit;
+import art.arcane.adapt.testkit.RecordingFx;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
 import art.arcane.adapt.testkit.XpPaid;
@@ -396,6 +399,92 @@ class SeaborneStormRuntimeTest {
     player.setFoodLevel(fedFood + 4);
     adapt.post(new BlockBreakEvent(player, crop(1, 61, 3), true, 0));
     assertThat(player.health()).isGreaterThan(10D);
+  }
+
+  @Test
+  void stormStrikeCallsLightningOnTheTargetInTheRain() {
+    openStorm(learn(SeaborneStormStrike.class, 1));
+    platform.world().weather(true, false);
+    FakeLiving zombie = zombie();
+
+    assertThat(melee(zombie)).isGreaterThan(HIT);
+    assertThat(platform.world().lightningStrikes()).containsExactly(zombie.location().position());
+  }
+
+  @Test
+  void stormStrikeCallsLightningFromTheWaterUnderAClearSky() {
+    openStorm(learn(SeaborneStormStrike.class, 1));
+    player.setInWater(true);
+    FakeLiving zombie = zombie();
+
+    assertThat(melee(zombie)).isGreaterThan(HIT);
+    assertThat(platform.world().lightningStrikes()).containsExactly(zombie.location().position());
+  }
+
+  @Test
+  void theAttackerHearsAndSeesTheBoltCalledFromTheWater() {
+    openStorm(learn(SeaborneStormStrike.class, 1));
+    player.setInWater(true);
+    FakeLiving zombie = zombie();
+    platform.scheduler().advance(40);
+    platform.fx().clear();
+
+    melee(zombie);
+
+    assertThat(player.heardSounds()).contains(Id.minecraft("entity.lightning_bolt.impact"));
+    assertThat(platform.fx().particles()).anySatisfy((RecordingFx.Particle particle) -> {
+      assertThat(particle.viewer()).isSameAs(player);
+      assertThat(particle.spec().type()).isEqualTo(Id.minecraft("electric_spark"));
+    });
+  }
+
+  @Test
+  void stormStrikeCallsLightningInAThunderstormAndFromAThrownTrident() {
+    openStorm(learn(SeaborneStormStrike.class, 1));
+    platform.world().weather(true, true);
+    FakeLiving zombie = zombie();
+    melee(zombie);
+    FakeProjectile trident = platform.world().add(new FakeProjectile(SeaborneTridents.TRIDENT,
+        new Loc(platform.world(), 2.5D, 61D, 0.5D)));
+    trident.setShooter(player);
+    FakeLiving speared = zombie(6.5D);
+    adapt.post(new EntityDamageByEntityEvent(speared, trident, player, DamageCause.PROJECTILE,
+        Id.minecraft("trident"), HIT, false, FinalDamage.IDENTITY));
+
+    assertThat(platform.world().lightningStrikes())
+        .containsExactly(zombie.location().position(), speared.location().position());
+  }
+
+  @Test
+  void stormStrikeCallsNoLightningOnDryLandOrUnderARoofOrOnTheHitsBetweenStrikes() {
+    openStorm(learn(SeaborneStormStrike.class, 1));
+    FakeLiving zombie = zombie();
+    melee(zombie);
+    platform.world().weather(true, false);
+    platform.world().set(0, 64, 0, "stone");
+    melee(zombie(4.5D));
+    platform.world().set(0, 64, 0, "air");
+    FakeLiving struck = zombie(6.5D);
+    melee(struck);
+    melee(struck);
+
+    assertThat(platform.world().lightningStrikes()).containsExactly(struck.location().position());
+  }
+
+  @Test
+  void aMutatedSeaborneCallsLightningThroughMaelstromsLentStormStrike() {
+    MutationKit kit = new MutationKit(adapt, profile);
+    kit.mutate("seaborne", "herbalism");
+    SeaborneStormStrike storm = openStorm(adaptation(SeaborneStormStrike.class));
+    Maelstrom maelstrom = SkillHost.of(registry.getSkill("seaborne")).getUpgrades().stream()
+        .filter(Maelstrom.class::isInstance).map(Maelstrom.class::cast).findFirst().orElseThrow();
+    profile.getData().getSkillLine("seaborne").setAdaptation(maelstrom, 1);
+    assertThat(storm.getActiveLevel(player)).as("lent Storm Strike").isPositive();
+    platform.world().weather(true, false);
+    FakeLiving zombie = zombie();
+
+    assertThat(melee(zombie)).isGreaterThan(HIT);
+    assertThat(platform.world().lightningStrikes()).containsExactly(zombie.location().position());
   }
 
   @Test

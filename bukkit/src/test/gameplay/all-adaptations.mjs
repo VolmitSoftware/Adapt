@@ -49,6 +49,11 @@ const entries = [...basicBehaviorCases, ...passiveBehaviorCases, ...combatBehavi
 const behaviorCases = new Map(entries)
 if (behaviorCases.size !== entries.length) throw new Error('Duplicate adaptation behavior handlers')
 
+/** The file a case report is written to: the case id with every character a file name or URL treats specially as _. */
+export function caseReportFile(name) {
+  return `${name.replace(/[^A-Za-z0-9._-]/g, '_')}.json`
+}
+
 export function matchesParticle(particle, testCase) {
   return particle.name === testCase.particle?.replace(/^minecraft:/, '')
     && (testCase.particleCount === undefined || particle.count === testCase.particleCount)
@@ -79,8 +84,8 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
   const nativeEvidence = nativeClientReport ? await loadNativeClientEvidence(nativeClientReport,
     manifest.artifacts.find(artifact => artifact.path === 'plugins/Adapt.jar')?.sha256) : undefined
   async function checkpoint(name, record) {
-    const destination = new URL(`${name}.json`, reportDirectory)
-    const temporary = new URL(`${name}.json.tmp`, reportDirectory)
+    const destination = new URL(caseReportFile(name), reportDirectory)
+    const temporary = new URL(`${caseReportFile(name)}.tmp`, reportDirectory)
     await writeFile(temporary, JSON.stringify({ ...record, evidenceManifest: manifestReference }, null, 2))
     await rename(temporary, destination)
   }

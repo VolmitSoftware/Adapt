@@ -8,6 +8,7 @@ import art.arcane.adapt.client.protocol.ClientProtocol;
 import art.arcane.adapt.client.protocol.ServerFrame;
 import art.arcane.adapt.client.server.hud.ClientHud;
 import art.arcane.adapt.client.server.hud.ClientHudPort;
+import art.arcane.adapt.client.view.ViewIcons;
 import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.pack.hud.HudXp;
 import art.arcane.adapt.pack.hud.PackHudPort;
@@ -39,7 +40,7 @@ public final class AdaptHud {
 
   /**
    * Starts the HUD on the platform's installed {@link HudPort}, or on Adapt's own compositor when none is, behind a
-   * {@link PackHudPort} for pack viewers' strip and a {@link ClientHudPort} so players with the client HUD get frames.
+   * {@link PackHudPort} for pack viewers' HUD and a {@link ClientHudPort} so players with the client HUD get frames.
    */
   public static void start() {
     HudPort installed = AdaptPorts.get(HudPort.class, null);
@@ -92,13 +93,13 @@ public final class AdaptHud {
     active.publish(player, new HudSegment(hudPurpose, HudPriority.STATUS, AMBIENT_STATUS_TTL_MILLIS, STATUS_SLOTS, legacyText(message)));
   }
 
-  /** True when the player sees structured statuses and xp: the client HUD or the pack strip. */
+  /** True when the player sees structured statuses and xp: the client HUD or the pack HUD. */
   public static boolean capable(UUID playerId) {
     return playerId != null && (ClientHud.capable(playerId, ClientProtocol.HUD) || packViewer(playerId) != null);
   }
 
   /**
-   * Sends a structured status to a player with the client HUD, or puts it on a pack viewer's strip. Returns false for
+   * Sends a structured status to a player with the client HUD, or puts it on a pack viewer's HUD. Returns false for
    * everyone else, who keep their own output. {@link #clearStatus} with the same purpose removes it.
    */
   public static boolean status(UUID playerId, String purpose, HudStatusSpec spec) {
@@ -111,12 +112,12 @@ public final class AdaptHud {
           spec.glyph(), spec.skillId(), spec.icon(), legacyText(spec.label()), spec.startedAtMillis(), spec.durationMillis(),
           spec.stacks(), spec.maxStacks(), spec.lit()));
     }
-    PackHudPort strip = pack;
+    PackHudPort packHud = pack;
     PlayerRef viewer = packViewer(playerId);
-    return strip != null && viewer != null && strip.status(viewer, hudPurpose, spec);
+    return packHud != null && viewer != null && packHud.status(viewer, hudPurpose, spec);
   }
 
-  /** Removes a structured status from a player with the client HUD or the pack strip; nothing for everyone else. */
+  /** Removes a structured status from a player with the client HUD or the pack HUD; nothing for everyone else. */
   public static void clearStatus(UUID playerId, String purpose) {
     if (playerId == null) {
       return;
@@ -125,27 +126,28 @@ public final class AdaptHud {
       ClientHud.send(playerId, ClientProtocol.HUD, new ServerFrame.HudClear(ambientStatusPurpose(purpose)));
       return;
     }
-    PackHudPort strip = pack;
+    PackHudPort packHud = pack;
     PlayerRef viewer = packViewer(playerId);
-    if (strip != null && viewer != null) {
-      strip.clearStatus(viewer, ambientStatusPurpose(purpose));
+    if (packHud != null && viewer != null) {
+      packHud.clearStatus(viewer, ambientStatusPurpose(purpose));
     }
   }
 
-  /** Sends an xp award to a player with the client HUD, or shows it on a pack viewer's strip. */
+  /** Sends an xp award to a player with the client HUD, or shows it on a pack viewer's HUD. */
   public static boolean xpEarned(UUID playerId, ServerFrame.XpEarned award) {
     if (ClientHud.send(playerId, ClientProtocol.HUD, award)) {
       return true;
     }
-    PackHudPort strip = pack;
-    PlayerRef viewer = strip == null ? null : packViewer(playerId);
+    PackHudPort packHud = pack;
+    PlayerRef viewer = packHud == null ? null : packViewer(playerId);
     Skill<?> skill = viewer == null ? null : AdaptCore.get().getAdaptServer().getSkillRegistry().getSkill(award.skillId());
     if (skill == null) {
       return false;
     }
-    HudXp line = new HudXp(award.skillId(), MarkupPort.current().plain(skill.getLocalizedName()),
+    String icon = ViewIcons.skill(skill).spriteId();
+    HudXp line = new HudXp(award.skillId(), MarkupPort.current().plain(skill.getLocalizedName()), icon == null ? "" : icon,
         skill.getColor().packed(), award.level(), award.progress(), award.amount());
-    return strip.xp(viewer, line, AdaptConfig.get().getActionbarXpDurationMillis());
+    return packHud.xp(viewer, line, AdaptConfig.get().getActionbarXpDurationMillis());
   }
 
   public static void clearAmbientStatus(PlayerRef player, String purpose) {
@@ -204,13 +206,13 @@ public final class AdaptHud {
   }
 
   private static PlayerRef packViewer(UUID playerId) {
-    PackHudPort strip = pack;
+    PackHudPort packHud = pack;
     AdaptCore core = AdaptCore.current();
-    if (strip == null || core == null) {
+    if (packHud == null || core == null) {
       return null;
     }
     PlayerRef player = core.getPlatform().host().player(playerId);
-    return strip.viewing(player) ? player : null;
+    return packHud.viewing(player) ? player : null;
   }
 
   private static String legacyText(String message) {

@@ -24,6 +24,7 @@ import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.engine.preference.PlayerPreferences;
 import art.arcane.adapt.engine.value.MaterialValue;
 import art.arcane.adapt.engine.xp.Curves;
+import art.arcane.adapt.pack.hud.HudPlacement;
 import art.arcane.adapt.pack.link.PackOffers;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.config.ConfigFileSupport;
@@ -72,6 +73,8 @@ public class AdaptConfig {
   public volatile boolean autoUpdateCheck = true;
   public boolean splashScreen = true;
   public boolean xpInCreative = false;
+  @ConfigDoc(value = "Pays skill XP for mobs from spawners, trial spawners, spawn eggs, buckets, breeding, portals, commands and golem, snowman or wither builds.", impact = "False pays nothing for them in every skill, mutation and upgrade. True pays them like naturally spawned mobs.")
+  private boolean rewardSpawnedMobKills = false;
   public boolean allowAdaptationsInCreative = false;
   @ConfigDoc(value = "Allows players to customize their skill and adaptation settings.", impact = "Disable to force server defaults for every skill and adaptation preference and hide their settings controls. Saved choices are retained, and learning and unlearning remain available. Personal effects and language settings remain available. Hot-reloadable.")
   private boolean playerSettingsEnabled = true;
@@ -528,6 +531,8 @@ public class AdaptConfig {
     private boolean required = false;
     @ConfigDoc(value = "Plays vanilla click and page sounds to the player using pack book menus.", impact = "effects.soundsEnabled and the player's effects preference also mute them. Applies on config reload.")
     private boolean uiSounds = true;
+    @ConfigDoc(value = "Where players using the pack see skill xp, ability cooldowns and statuses: corner, hotbar or off.", impact = "corner draws parchment rows in the top left of the screen through the pack's text shader, as the client mod does; hotbar draws one line of icons and bars above the hotbar, for players whose other packs replace the text shader; off shows them the plain text everyone else sees. Notices stay above the hotbar. Applies on config reload.")
+    private String hud = "corner";
     @ConfigDoc(value = "Milliseconds after joining that Adapt waits for the Adapt client mod before offering the pack.", impact = "Players whose client mod answers in this window are never offered the pack. Clamped to 0-60000. Applies on restart.")
     private long handshakeWindowMillis = 3_000L;
     @ConfigDoc(value = "Serves the pack from a built-in HTTP listener on its own port.", impact = "The port must be reachable by players. Ignored while externalUrl is set; opened only when releaseUrl is blank, the pack differs from the released one, or a player could not download it from there. Applies on restart.")
@@ -555,6 +560,11 @@ public class AdaptConfig {
       return bakeThreads > 0 ? bakeThreads : Math.max(1, Math.min(4, Runtime.getRuntime().availableProcessors() / 2));
     }
 
+    public HudPlacement hudPlacement() {
+      HudPlacement placement = HudPlacement.of(hud);
+      return placement == null ? HudPlacement.CORNER : placement;
+    }
+
     public PackOffers.Policy offerPolicy() {
       return switch (offer) {
         case "first-open" -> PackOffers.Policy.FIRST_OPEN;
@@ -569,6 +579,12 @@ public class AdaptConfig {
         AdaptEnvironment.warn("Unknown pack.offer \"" + offer + "\" in adapt.toml; using join.");
         offer = "join";
       }
+      HudPlacement placement = HudPlacement.of(hud);
+      if (placement == null) {
+        AdaptEnvironment.warn("Unknown pack.hud \"" + hud + "\" in adapt.toml; using corner.");
+        placement = HudPlacement.CORNER;
+      }
+      hud = placement.key();
       handshakeWindowMillis = Math.max(0L, Math.min(60_000L, handshakeWindowMillis));
       bind = bind == null || bind.isBlank() ? "0.0.0.0" : bind.trim();
       port = port < 0 || port > 65_535 ? 8164 : port;

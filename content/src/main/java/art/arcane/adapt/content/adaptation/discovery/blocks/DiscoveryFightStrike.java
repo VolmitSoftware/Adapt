@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.discovery.blocks;
 
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -53,6 +54,9 @@ public class DiscoveryFightStrike extends StrikeBlock<DiscoveryFightStrike.Confi
 
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
+    if (AbilityDamage.fixed(e)) {
+      return;
+    }
     if (!(e.damager() instanceof PlayerRef player)) {
       return;
     }

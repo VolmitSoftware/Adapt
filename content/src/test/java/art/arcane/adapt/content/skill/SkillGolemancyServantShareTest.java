@@ -13,15 +13,14 @@ class SkillGolemancyServantShareTest {
 
   @ParameterizedTest
   @CsvSource({
-      "0.35, 20, false, false, 12.25",
-      "1.0, 20, false, false, 35",
-      "0.35, 24, true, false, 20.475",
-      "1.0, 20, false, true, 10.5",
-      "0.0, 20, false, false, 0"
+      "0.35, 20, false, 12.25",
+      "1.0, 20, false, 35",
+      "0.35, 24, true, 20.475",
+      "0.0, 20, false, 0"
   })
-  void aServantKillPaysTheShareOfTheOwnedGolemKill(double share, double victimMaxHealth, boolean raid, boolean spawner, double expected) {
+  void aServantKillPaysTheShareOfTheOwnedGolemKill(double share, double victimMaxHealth, boolean raid, double expected) {
     double killValue = GolemXpRules.killValue(DEFAULTS.golemKillXpBase, victimMaxHealth, DEFAULTS.golemKillMaxHealthMultiplier);
-    double owned = GolemXpRules.ownedKillXp(killValue, raid, DEFAULTS.raidXpMultiplier, spawner, DEFAULTS.spawnerMobXpMultiplier);
+    double owned = GolemXpRules.ownedKillXp(killValue, raid, DEFAULTS.raidXpMultiplier);
 
     assertThat(GolemXpRules.servantShareXp(share, owned)).isCloseTo(expected, offset(1e-9));
   }

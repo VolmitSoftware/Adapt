@@ -7,7 +7,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.platform.value.Id;
 
-/** Assassinate's killing blow: the strike deals the target's remaining health through every reduction. */
+/** Death Mark's killing blow and the mobs Assassinate and Death Mark may strike. */
 public final class StealthExecution {
   private static final Id WARDEN = Id.minecraft("warden");
 

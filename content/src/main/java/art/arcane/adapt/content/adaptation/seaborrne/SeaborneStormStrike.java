@@ -37,8 +37,6 @@ import java.util.UUID;
  */
 public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Config> {
   public static final Id ID = Id.adapt("seaborne/storm_strike");
-  private static final double BOLT_HEIGHT = 7D;
-  private static final int BOLT_SEGMENTS = 4;
   private static final int MAX_REMEMBERED_TARGETS = 32;
 
   private final Map<UUID, Tally> tallies = playerState();
@@ -95,7 +93,7 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
 
   /** A direct melee hit or a thrown trident's hit on a living target the attacker may damage; null otherwise. */
   private Strike resolve(EntityDamageByEntityEvent e) {
-    if (!(e.entity() instanceof LivingRef target) || AbilityDamage.dealing()) {
+    if (!(e.entity() instanceof LivingRef target) || AbilityDamage.dealing() || AbilityDamage.fixed(e)) {
       return null;
     }
     PlayerRef attacker;
@@ -121,16 +119,10 @@ public class SeaborneStormStrike extends SimpleAdaptation<SeaborneStormStrike.Co
     return target.has(EntityTrait.ENEMY) || getConfig().strikePassiveMobs;
   }
 
+  /** A lightning bolt that deals no damage of its own on the target, with sparks and a crack at its feet. */
   private void bolt(LivingRef target, boolean thunder) {
     Loc ground = target.location();
-    Loc from = ground.add(0D, BOLT_HEIGHT, 0D);
-    for (int segment = 1; segment <= BOLT_SEGMENTS; segment++) {
-      double drop = BOLT_HEIGHT * segment / BOLT_SEGMENTS;
-      double sway = segment == BOLT_SEGMENTS ? 0D : (segment % 2 == 0 ? 0.45D : -0.45D);
-      Loc to = ground.add(sway, BOLT_HEIGHT - drop, -sway);
-      fx(from, FxPriority.COMBAT).line(Particles.ELECTRIC_SPARK, to.x(), to.y(), to.z(), 6);
-      from = to;
-    }
+    target.world().strikeLightningEffect(ground.position());
     fx(ground.add(0D, 1D, 0D), FxPriority.COMBAT)
         .particle(Particles.FLASH, 1, 0D, 0D, 0D, 0D, 0D)
         .burst(Particles.ELECTRIC_SPARK, thunder ? 16 : 10, 0.4D)

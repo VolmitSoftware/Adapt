@@ -158,9 +158,9 @@ public final class AgilityRunRamp {
   }
 
   private static boolean isMovingHorizontally(PlayerRef p, double velocityThreshold) {
-    Vec3 velocity = p.velocity();
+    Vec3 movement = p.movement();
     double threshold = Math.max(0D, velocityThreshold);
-    return (velocity.x() * velocity.x()) + (velocity.z() * velocity.z()) > (threshold * threshold);
+    return (movement.x() * movement.x()) + (movement.z() * movement.z()) > (threshold * threshold);
   }
 
   static double smoothedBonus(double currentBonus, double target, float smoothing) {

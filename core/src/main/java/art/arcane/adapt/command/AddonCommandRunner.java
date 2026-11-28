@@ -220,8 +220,13 @@ final class AddonCommandRunner {
     return kept;
   }
 
+  /** True when {@code node} is an addon command or group. */
+  static boolean isGraft(DirectorRuntimeNode node) {
+    return node.getInstance() instanceof Graft;
+  }
+
   /** The first permission along the route's addon commands that the source lacks. */
-  private static Optional<String> deniedPermission(CommandSource source, DirectorRuntimeNode node) {
+  static Optional<String> deniedPermission(CommandSource source, DirectorRuntimeNode node) {
     List<AdaptCommand> chain = new ArrayList<>();
     for (DirectorRuntimeNode cursor = node; cursor != null && cursor.getInstance() instanceof Graft graft;
          cursor = cursor.getParent()) {

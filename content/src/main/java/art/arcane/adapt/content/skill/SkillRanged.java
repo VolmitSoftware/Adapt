@@ -87,7 +87,6 @@ public class SkillRanged extends SimpleSkill<SkillRanged.Config> {
 
   public SkillRanged() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x00AA00));
     setInterval(3044);

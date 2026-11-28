@@ -88,7 +88,6 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
 
   public SkillHerbalism() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.herbalism.bonemeal"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x55FF55));
     setInterval(3990);

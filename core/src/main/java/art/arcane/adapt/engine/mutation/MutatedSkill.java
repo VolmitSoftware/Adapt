@@ -188,6 +188,24 @@ public final class MutatedSkill extends SimpleSkill<MutatedSkill.Config> {
     return List.copyOf(rows);
   }
 
+  /**
+   * Everything this page's switch governs for its players: both parents' originals, upgrades and blocks, the lead's
+   * first, then the pair's own adaptations and signatures.
+   */
+  public List<Adaptation<?>> switchedAdaptations() {
+    List<Adaptation<?>> switched = new ArrayList<>();
+    for (Id parent : List.of(pair.lead(), pair.partner())) {
+      Skill<?> skill = parents.apply(parent);
+      if (skill != null) {
+        switched.addAll(SkillHost.ownedAdaptations(skill));
+      }
+    }
+    Parts current = parts();
+    switched.addAll(current.mutated());
+    switched.addAll(current.signatures());
+    return switched;
+  }
+
   /** The pair's own adaptations and signatures built so far, without rebuilding them; the skill retires these. */
   public List<Adaptation<?>> builtParts() {
     Parts current = parts;

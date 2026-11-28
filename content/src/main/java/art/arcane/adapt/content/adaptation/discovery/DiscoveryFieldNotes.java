@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.discovery;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
@@ -101,7 +102,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
 
   @Handle(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.entity() instanceof LivingRef victim) || victim instanceof PlayerRef) {
+    if (!(e.entity() instanceof LivingRef victim) || victim instanceof PlayerRef || AbilityDamage.fixed(e)) {
       return;
     }
 

@@ -88,8 +88,6 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   public SkillExcavation() {
     super(ID);
     xpNote(Text.key("adapt.xp_guide.excavation.throw"));
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
-    xpNote(Text.key("adapt.xp_guide.placed_blocks"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFFF55));
     setInterval(5953);

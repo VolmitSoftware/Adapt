@@ -99,7 +99,6 @@ public class SkillRift extends SimpleSkill<SkillRift.Config> {
 
   public SkillRift() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xAA00AA));
     setInterval(1154);

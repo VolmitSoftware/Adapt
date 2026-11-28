@@ -20,10 +20,10 @@ class HudStripTest {
 
   @Test
   void shiftsAddUpToThePixelCount() {
-    assertThat(HudStripFont.shift(0)).isEmpty();
-    assertThat(HudStripFont.shift(-19)).isEqualTo("\uE004\uE001\uE000");
-    assertThat(HudStripFont.shift(7)).isEqualTo("\uE00A\uE009\uE008");
-    assertThat(HudStripFont.shift(300)).isEqualTo("\uE00F\uE00F\uE00D\uE00B\uE00A");
+    assertThat(HudGlyphs.shift(0)).isEmpty();
+    assertThat(HudGlyphs.shift(-19)).isEqualTo("\uE004\uE001\uE000");
+    assertThat(HudGlyphs.shift(7)).isEqualTo("\uE022\uE021\uE020");
+    assertThat(HudGlyphs.shift(300)).isEqualTo("\uE028\uE025\uE023\uE022");
   }
 
   @Test
@@ -31,27 +31,27 @@ class HudStripTest {
     List<HudStatusSpec> abilities = List.of(
         HudStatusSpec.cooldown("agility", DASH, "Air Dash", 0L, 8_000L),
         HudStatusSpec.charges("hunter", PLAIN, "Snares", 2, 3));
-    HudXp xp = new HudXp("herbalism", "Herbalism", 0x4DB344, 46, 0.5, 35.4);
+    HudXp xp = new HudXp("herbalism", "Herbalism", "adapt:gui/skill/herbalism", 0x4DB344, 46, 0.5, 35.4);
 
     String strip = HudStrip.compose(abilities, xp, List.of("<yellow>Saved"), GLYPHS::get, 3_000L);
 
     assertThat(strip).isEqualTo(
-        RUN + "\uE010\uE004\uE001\uE000\uE100\uE004\uE000\uE015"
-            + RUN + "\uE009\uE008"
-            + RUN + "\uE010\uE004\uE001\uE000\uE03F\uE002\uE001<reset><white>2"
-            + RUN + "\uE00A\uE009\uE008"
-            + "<reset><color:#4db344>Herbalism 46" + RUN + "\uE00A\uE019\uE005\uE004\uE003\uE002\uE000<color:#4db344>\uE02F"
+        RUN + "\uE040\uE004\uE001\uE000\uE100\uE004\uE000\uE045"
+            + RUN + "\uE021\uE020"
+            + RUN + "\uE040\uE004\uE001\uE000\uE06F\uE002\uE001<reset><white>2"
+            + RUN + "\uE022\uE021\uE020"
+            + "<reset><color:#4db344>Herbalism 46" + RUN + "\uE022\uE049\uE005\uE004\uE003\uE002\uE000<color:#4db344>\uE05F"
             + "<reset><color:#aaaaaa> +35"
-            + RUN + "\uE00B<reset><yellow>Saved");
+            + RUN + "\uE023<reset><yellow>Saved");
   }
 
   @Test
   void onlyThreeAbilitiesAreShownAndNamesAreEscaped() {
     HudStatusSpec toggle = HudStatusSpec.toggle("stealth", PLAIN, "Hide", true);
-    String strip = HudStrip.compose(List.of(toggle, toggle, toggle, toggle), new HudXp("x", "<b>X", 0xFFFFFF, 1, 0, 0),
+    String strip = HudStrip.compose(List.of(toggle, toggle, toggle, toggle), new HudXp("x", "<b>X", "", 0xFFFFFF, 1, 0, 0),
         List.of(), NO_GLYPHS, 0L);
 
-    assertThat(strip.chars().filter((int c) -> c == 0xE010).count()).isEqualTo(3);
+    assertThat(strip.chars().filter((int c) -> c == 0xE040).count()).isEqualTo(3);
     assertThat(strip).contains("\\<b>X 1").doesNotContain(" +");
   }
 

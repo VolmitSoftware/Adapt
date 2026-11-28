@@ -1,8 +1,6 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.adapt.engine.skill.LegacyContentNames;
-import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.localization.LocaleOverlay;
 import art.arcane.volmlib.util.localization.LocalizationCandidate;
 import art.arcane.volmlib.util.localization.LocalizationIssue;
@@ -29,15 +27,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -70,8 +64,6 @@ class AdaptLanguageTest extends AdaptTestBase {
           + "|Adapt|Bukkit|Paper|Folia|Purpur|Fabric|Iris|PAPI|NMS|NBT|JSON"
           + "|TOML|YAML)(?![\\p{IsLatin}\\p{N}])"
   );
-  private static final Set<String> OWNED_KINDS = Set.of("upgrade", "block", "tool");
-  private static final Pattern ADAPTATION_ID_TOKEN = adaptationIdToken();
   private static final Pattern TOAST_QUIP = Pattern.compile("adapt\\.(?:skill\\.[a-z]+\\.(?:quip|unlock_quip_\\d)|gui\\.mutation\\.[a-z]+_quip(?:_\\d)?)");
   private static final int LOCALE_QUIP_LIMIT = 64;
   private static final Pattern WORD_TOKEN = Pattern.compile("[\\p{L}\\p{N}_]+");
@@ -247,24 +239,6 @@ class AdaptLanguageTest extends AdaptTestBase {
   );
 
   private static Map<String, LocaleOverlay> downloadSourceOverlays;
-
-  private static Pattern adaptationIdToken() {
-    String prefix = "adapt.config.fields.adaptations.";
-    Comparator<String> byLength = Comparator.comparingInt(String::length);
-    Set<String> ids = new TreeSet<>(byLength.reversed().thenComparing(Comparator.naturalOrder()));
-    for (MessageKey definition : CATALOG.keys()) {
-      String id = definition.id();
-      if (id.startsWith(prefix)) {
-        String[] parts = id.substring(prefix.length()).split("\\.");
-        int length = parts.length > 3 && OWNED_KINDS.contains(parts[1]) ? 3 : 2;
-        String adaptation = LegacyContentNames.of(Id.adapt(String.join("/", Arrays.copyOf(parts, length))));
-        if (adaptation.contains("-")) {
-          ids.add(adaptation);
-        }
-      }
-    }
-    return Pattern.compile("(?<![a-z0-9-])(?:" + String.join("|", ids) + ")(?![a-z0-9])");
-  }
 
   @AfterAll
   static void uninstallBuiltInText() {
@@ -552,10 +526,7 @@ class AdaptLanguageTest extends AdaptTestBase {
     assertThat(FORBIDDEN_TRANSLATION_ARTIFACT.matcher(translated).find())
         .describedAs("known translation artifact for %s:%s", locale, key)
         .isFalse();
-    assertThat(patternTokens(ADAPTATION_ID_TOKEN, translated))
-        .describedAs("adaptation ids for %s:%s", locale, key)
-        .containsExactlyInAnyOrderElementsOf(patternTokens(ADAPTATION_ID_TOKEN, english));
-    String inspectable = ADAPTATION_ID_TOKEN.matcher(PROTOCOL_TOKEN.matcher(translated).replaceAll("")).replaceAll("");
+    String inspectable = PROTOCOL_TOKEN.matcher(translated).replaceAll("");
     Pattern localeArtifact = LOCALE_TRANSLATION_ARTIFACTS.get(locale);
     if (localeArtifact != null) {
       assertThat(localeArtifact.matcher(inspectable).find())

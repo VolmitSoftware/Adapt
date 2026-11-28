@@ -89,6 +89,7 @@ public final class TraversalFixtures {
             case "traverse-qa-storm" -> {
                 MovementFixtures.stage("move-hydro", arena, actor);
                 Fixtures.give(actor, "trident", 1);
+                target = Fixtures.spawnStill(arena, "drowned", 2.5, 100, -1.5);
             }
             case "traverse-qa-rainfed" -> {
                 MovementFixtures.stage("move-hydro", arena, actor);

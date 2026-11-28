@@ -157,12 +157,16 @@ public final class BuildBatches {
     redoable.remove(id);
   }
 
+  /**
+   * The first step runs on the next tick, never inside the event that started the run: a block place event keeps the
+   * held stack's count until it returns, and the game skips taking the placed block when a handler changed that count.
+   */
   private boolean begin(Run run) {
     PlayerRef player = run.player;
     if (running.putIfAbsent(player.uuid(), run) != null) {
       return false;
     }
-    run.task = Tasks.repeatEntity(player, run::tick, 0, 1, () -> run.end(BuildResult.Stop.CANCELLED));
+    run.task = Tasks.repeatEntity(player, run::tick, 1, 1, () -> run.end(BuildResult.Stop.CANCELLED));
     if (run.task == null) {
       run.end(BuildResult.Stop.CANCELLED);
       return false;

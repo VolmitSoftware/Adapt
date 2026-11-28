@@ -2,10 +2,12 @@ package art.arcane.adapt.localization.catalog;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.api.content.SimpleAdaptation;
 import art.arcane.adapt.api.content.SimpleComponent;
 import art.arcane.adapt.api.content.Skill;
+import art.arcane.adapt.api.mutation.MutationBlock;
 import art.arcane.adapt.api.text.TextKeys;
-import art.arcane.adapt.engine.skill.LegacyContentNames;
+import art.arcane.adapt.engine.mutation.blocks.MutatedText;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.localization.AdaptKeys;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -141,12 +143,22 @@ public final class ConfigFieldMessages {
     }
     List<FieldMessages> fields = new ArrayList<>();
     String kind = skill ? "skill" : "adaptation";
-    addFields(fields, field -> contentKey(skill, id, field), kind + "s." + id, kind + ":" + LegacyContentNames.of(id),
+    addFields(fields, field -> contentKey(skill, id, field), kind + "s." + id, kind + ":" + englishName(id, simple),
         simple.getConfigurationClass());
     for (FieldMessages field : fields) {
       keys.putIfAbsent(field.label().id(), field.label());
       keys.putIfAbsent(field.description().id(), field.description());
     }
+  }
+
+  /** The English display name a component's field descriptions call it by, or its id when it declares no name. */
+  private static String englishName(Id id, SimpleComponent<?> component) {
+    if (component instanceof MutationBlock<?> block) {
+      return MutatedText.blockName(MutatedText.ENGLISH, block.getSkill(), block.getSlot());
+    }
+    String prefix = component instanceof SimpleAdaptation<?> adaptation ? adaptation.getLocalizationKey() : TextKeys.skill(id);
+    MessageKey name = AdaptLanguage.declared(prefix + ".name");
+    return name instanceof TextKey text ? text.english() : id.toString();
   }
 
   private static List<FieldMessages> createFields() {

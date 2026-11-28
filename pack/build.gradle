@@ -11,7 +11,8 @@ List<String> composer = [
     'art/arcane/adapt/client/ui/PngLuma.java',
     'art/arcane/adapt/client/ui/kit/**',
     'art/arcane/adapt/client/qa/UiProbe.java',
-    'art/arcane/adapt/client/config/UiSettings.java'
+    'art/arcane/adapt/client/config/UiSettings.java',
+    'art/arcane/adapt/client/hud/HudPaint.java'
 ]
 // The native screens, for comparing a bake with the client's own layout; the two left out reach the panel and the mod.
 List<String> screens = [

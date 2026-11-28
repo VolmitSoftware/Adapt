@@ -34,7 +34,7 @@ class XpGuideLocalesTest {
   @Test
   void everyLocaleTranslatesEveryGuideLine() throws IOException {
     Set<TextKey> keys = new LinkedHashSet<>(List.of(XpGuideMessages.TITLE, XpGuideMessages.MUTATION,
-        XpGuideMessages.ADAPTATIONS, MutatedMessages.KEPT_STATE, MutatedMessages.LENT_STATE));
+        MutatedMessages.KEPT_STATE, MutatedMessages.LENT_STATE));
     keys.addAll(XpGuideMessages.rules());
     try (TestAdapt adapt = TestAdapt.start(TestPlatform.builder(data).build(), new BuiltinAddon())) {
       for (Skill<?> skill : adapt.core().getAdaptServer().getSkillRegistry().getSkills()) {

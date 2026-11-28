@@ -16,6 +16,8 @@ import art.arcane.adapt.pack.FakePackWindows;
 import art.arcane.adapt.pack.Goldens;
 import art.arcane.adapt.pack.PackResources;
 import art.arcane.adapt.pack.PackSamples;
+import art.arcane.adapt.pack.layout.BarSpec;
+import art.arcane.adapt.pack.layout.Card;
 import art.arcane.adapt.pack.layout.PackArt;
 import art.arcane.adapt.pack.layout.ScreenLayout;
 import art.arcane.adapt.pack.link.PackAudience;
@@ -89,6 +91,9 @@ class PackScreensTest {
   private void click(String screen, String role, ClickKind kind) {
     assertThat(window().click(layout(screen).slot(role), kind)).as(role).isTrue();
   }
+
+  /** The skill page seat right of the first row's, which holds the second adaptation: the first seat of the right column. */
+  private static final int BESIDE_FIRST = 9;
 
   private void clickCard(String screen, int card, ClickKind kind) {
     assertThat(window().click(layout(screen).cards().get(card).icon(), kind)).as("card " + card).isTrue();
@@ -198,8 +203,8 @@ class PackScreensTest {
 
     clickCard("skill", 1, ClickKind.SHIFT_LEFT);
     clickCard("skill", 1, ClickKind.SHIFT_RIGHT);
-    clickCard("skill", 2, ClickKind.SHIFT_LEFT);
-    clickCard("skill", 2, ClickKind.SHIFT_RIGHT);
+    clickCard("skill", BESIDE_FIRST, ClickKind.SHIFT_LEFT);
+    clickCard("skill", BESIDE_FIRST, ClickKind.SHIFT_RIGHT);
 
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2", "unlearn adapt:agility/super_jump 0");
   }
@@ -253,59 +258,72 @@ class PackScreensTest {
   void aPlainClickOnACellOpensTheAdaptation() {
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 2, ClickKind.LEFT);
+    clickCard("skill", BESIDE_FIRST, ClickKind.LEFT);
 
     assertThat(server.routes).containsExactly(new Route.Adaptation("adapt:agility/wall_jump"));
     assertThat(window().menu.title()).isEqualTo("Wall Jump");
   }
 
   @Test
-  void groupsGetHeadingCellsAndKeptOriginalsFollowFourToACell() {
-    List<PackSkillScreen.Cell> cells = List.of(heading(), adaptation(), adaptation(), adaptation(), adaptation(), adaptation(),
-        adaptation(), heading(), adaptation());
+  void adaptationsFillEachLineLeftToRightAndAHeadingTakesTheFreeRightPlace() {
+    List<PackSkillScreen.Cell> cells = new ArrayList<>(List.of(heading()));
+    cells.addAll(Collections.nCopies(3, adaptation()));
+    cells.add(heading());
+    cells.addAll(Collections.nCopies(2, adaptation()));
 
-    List<List<PackSkillScreen.Cell>> leaves = PackSkillScreen.leaves(cells, 16, -1, false);
+    List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16, -1, false).get(0);
 
-    assertThat(leaves).hasSize(1);
-    assertThat(leaves.get(0).get(7)).isNull();
-    assertThat(leaves.get(0).get(8).heading()).isEqualTo("H");
+    assertThat(leaf.get(0).heading()).isEqualTo("H");
+    assertThat(leaf.get(1)).as("a heading has its line to itself").isNull();
+    assertThat(leaf.subList(2, 5)).allMatch((PackSkillScreen.Cell cell) -> cell != null && cell.adaptation() != null);
+    assertThat(leaf.get(5).heading()).as("the next heading takes the free place after the third").isEqualTo("H");
+    assertThat(leaf.subList(6, 8)).allMatch((PackSkillScreen.Cell cell) -> cell != null && cell.adaptation() != null);
     assertThat(PackSkillScreen.leaves(List.of(adaptation(), adaptation(), adaptation()), 2, -1, false)).hasSize(2);
   }
 
   @Test
   void aHeadingByTheGapMovesIntoItAndAnAdaptationPassesItBy() {
     List<PackSkillScreen.Cell> cells = new ArrayList<>(List.of(heading()));
-    cells.addAll(Collections.nCopies(4, adaptation()));
+    cells.addAll(Collections.nCopies(6, adaptation()));
     cells.add(heading());
     cells.add(adaptation());
 
     List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16, 5, true).get(0);
 
     assertThat(leaf.get(0).heading()).isEqualTo("H");
-    assertThat(leaf.get(5).heading()).as("the heading takes the gap place, not the last chest seat").isEqualTo("H");
-    assertThat(leaf.get(6).adaptation()).isNotNull();
+    assertThat(leaf.get(8)).as("the line above the gap stays empty").isNull();
+    assertThat(leaf.get(10).heading()).as("the heading takes the gap line, not the last chest line").isEqualTo("H");
+    assertThat(leaf.get(12).adaptation()).isNotNull();
     List<PackSkillScreen.Cell> plain = PackSkillScreen.leaves(Collections.nCopies(14, adaptation()), 16, 5, true).get(0);
-    assertThat(plain.get(0)).as("the seat under the header holds only a heading").isNull();
-    assertThat(plain.get(5)).isNull();
-    assertThat(plain.get(6).adaptation()).isNotNull();
-    assertThat(plain.get(9)).isNull();
+    assertThat(plain.subList(0, 2)).as("the line under the header holds only a heading").containsOnlyNulls();
+    assertThat(plain.subList(10, 12)).containsOnlyNulls();
+    assertThat(plain.get(12).adaptation()).isNotNull();
     assertThat(plain).hasSize(18).filteredOn((PackSkillScreen.Cell cell) -> cell != null).hasSize(14);
-    assertThat(PackSkillScreen.gap(layout("skill").cards())).isEqualTo(5);
+    List<Card> seats = layout("skill").cards();
+    assertThat(PackSkillScreen.gap(seats)).isEqualTo(5);
+    BarSpec rule = Card.between(seats.get(4), seats.get(5)).bar("heading.rule");
+    assertThat(PackArt.paint(resources.layout())).extracting(PackArt.Paint::key).as("the gap heading's rule is baked")
+        .contains(PackArt.fill(1, rule));
   }
 
   @Test
-  void aGroupThatWouldRunIntoTheRightColumnStartsItWhenItFitsThere() {
-    List<PackSkillScreen.Cell> cells = List.of(heading(), adaptation(), adaptation(), adaptation(), heading(), adaptation(),
-        adaptation(), adaptation(), adaptation(), adaptation());
+  void aGroupThatDoesNotFitTheRestOfALeafStartsTheNextWhole() {
+    List<PackSkillScreen.Cell> cells = new ArrayList<>(List.of(heading()));
+    cells.addAll(Collections.nCopies(7, adaptation()));
+    cells.add(heading());
+    cells.addAll(Collections.nCopies(7, adaptation()));
 
-    List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16, -1, false).get(0);
+    List<List<PackSkillScreen.Cell>> leaves = PackSkillScreen.leaves(cells, 16, -1, false);
 
-    assertThat(leaf.subList(4, 8)).containsOnlyNulls();
-    assertThat(leaf.get(8).heading()).isEqualTo("H");
-    assertThat(leaf).hasSize(14);
-    List<PackSkillScreen.Cell> longGroup = new ArrayList<>(List.of(heading(), adaptation(), heading()));
-    longGroup.addAll(Collections.nCopies(9, adaptation()));
-    assertThat(PackSkillScreen.leaves(longGroup, 16, -1, false).get(0).get(2).heading()).as("a group longer than a column runs on").isEqualTo("H");
+    assertThat(leaves).hasSize(2);
+    assertThat(leaves.get(0).subList(9, 16)).containsOnlyNulls();
+    assertThat(leaves.get(1).get(0).heading()).isEqualTo("H");
+    assertThat(leaves.get(1)).filteredOn((PackSkillScreen.Cell cell) -> cell != null && cell.adaptation() != null).hasSize(7);
+    List<PackSkillScreen.Cell> longGroup = new ArrayList<>(List.of(heading()));
+    longGroup.addAll(Collections.nCopies(20, adaptation()));
+    List<List<PackSkillScreen.Cell>> running = PackSkillScreen.leaves(longGroup, 16, -1, false);
+    assertThat(running).hasSize(2);
+    assertThat(running.get(1).get(0).heading()).as("a group longer than a leaf runs on under its heading again").isEqualTo("H");
   }
 
   @Test

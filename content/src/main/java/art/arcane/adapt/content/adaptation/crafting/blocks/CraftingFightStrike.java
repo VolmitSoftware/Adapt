@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.crafting.blocks;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
@@ -50,6 +51,9 @@ public class CraftingFightStrike extends StrikeBlock<CraftingFightStrike.Config>
 
   @Handle(priority = EventPriority.HIGH)
   public void on(EntityDamageByEntityEvent e) {
+    if (AbilityDamage.fixed(e)) {
+      return;
+    }
     EntityRef source = e.causingEntity() == null ? e.damager() : e.causingEntity();
     if (!(source instanceof PlayerRef player) || !(e.entity() instanceof LivingRef target)) {
       return;

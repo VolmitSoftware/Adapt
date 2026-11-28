@@ -13,6 +13,7 @@ import art.arcane.volmlib.util.localization.TextKey;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
+@CommandPermission(CommandPack.PERMISSION)
 @Director(name = "pack", origin = DirectorOrigin.PLAYER, description = "Adapt resource pack", descriptionKey = "adapt.command.help.adapt_resource_pack")
 public class CommandPack {
   static final String PERMISSION = "adapt.pack";

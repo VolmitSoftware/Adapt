@@ -87,7 +87,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
   public SkillHunter() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.hunter.farmed"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFF5555));
     setInterval(4150);
@@ -237,11 +236,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     shouldReturnForPlayer(p, () -> {
       recordKillStats(p, victim);
       Id type = victim.type();
-      if (!p.uuid().equals(victim.tameOwner())) {
+      if (MobOrigin.paysKillReward(p, victim)) {
         double healthMultiplier = getConfig().killMaxHealthXPMultiplier
             * (type.equals(CREEPER) ? getConfig().creeperKillMultiplier : 1D);
-        double amount = killXp(victim.maxHealth(), healthMultiplier, getConfig().killFlatXp,
-            MobOrigin.isFarmed(victim) ? getConfig().spawnerMobReductionXpMultiplier : 1D);
+        double amount = killXp(victim.maxHealth(), healthMultiplier, getConfig().killFlatXp);
         handleCooldownAndXp(p, amount, type.legacyName().toLowerCase(Locale.ROOT));
       }
       if (BOSSES.contains(type)) {
@@ -261,9 +259,9 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     }
   }
 
-  static double killXp(double maxHealth, double healthMultiplier, double flatXp, double farmedMultiplier) {
+  static double killXp(double maxHealth, double healthMultiplier, double flatXp) {
     double healthXp = Double.isFinite(maxHealth) && maxHealth > 0D ? maxHealth * Math.max(0D, healthMultiplier) : 0D;
-    return (healthXp + Math.max(0D, flatXp)) * Math.max(0D, farmedMultiplier);
+    return healthXp + Math.max(0D, flatXp);
   }
 
 
@@ -278,8 +276,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     double killFlatXp = 30;
     @ConfigDoc(value = "Controls Cooldown Delay for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     long cooldownDelay = 1000;
-    @ConfigDoc(value = "Kill reward multiplier for mobs from spawners, spawn eggs, buckets, breeding, portals, and golem or snowman builds.", impact = "Lower values make mob farms pay less.")
-    double spawnerMobReductionXpMultiplier = 0.3;
     @ConfigDoc(value = "Controls Kills Challenge Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double killsChallengeReward = 500;
     @ConfigDoc(value = "Controls Boss Kill Reward for the Hunter skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

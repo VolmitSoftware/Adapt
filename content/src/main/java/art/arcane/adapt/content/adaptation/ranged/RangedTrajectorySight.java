@@ -154,9 +154,26 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     restartAfterItemChange(e.player());
   }
 
+  /**
+   * A bow fires its arrow after the release, in the same tick, so the session ends a tick later: the shot that follows
+   * the release still counts as aimed, and a bow lowered without a shot still ends the preview.
+   */
   @Handle(priority = EventPriority.MONITOR, ignoreCancelled = false)
   public void on(PlayerStopUsingItemEvent e) {
-    stopAimingSession(e.player());
+    PlayerRef p = e.player();
+    AimingSession released = activeSessions.get(p.uuid());
+    if (released == null) {
+      return;
+    }
+    if (!AdaptApi.scheduler().runEntity(p, () -> stopReleasedSession(p, released), 1)) {
+      stopAimingSession(p);
+    }
+  }
+
+  private void stopReleasedSession(PlayerRef player, AimingSession released) {
+    if (activeSessions.get(player.uuid()) == released) {
+      stopAimingSession(player);
+    }
   }
 
   @Handle(priority = EventPriority.MONITOR)

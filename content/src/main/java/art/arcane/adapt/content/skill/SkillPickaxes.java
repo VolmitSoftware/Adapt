@@ -87,9 +87,6 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
 
   public SkillPickaxes() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.pickaxe.silk"));
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
-    xpNote(Text.key("adapt.xp_guide.placed_blocks"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFAA00));
     setInterval(2750);

@@ -28,7 +28,9 @@ import art.arcane.volmlib.util.director.runtime.DirectorSender;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.math.RNG;
 
+import java.lang.reflect.Method;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
@@ -130,10 +132,11 @@ public final class AdaptCommands implements DirectorInvocationHook {
       }
       return;
     }
-    if (!(args.length > 1 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("dump"))
-        && !(pack && args.length > 0 && args[0].equalsIgnoreCase(PACK) && source.hasPermission(CommandPack.PERMISSION))
-        && !source.hasPermission(ROOT_PERMISSION)) {
-      source.sendSection(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", ROOT_PERMISSION)));
+    DirectorRoute route = engine().route(new DirectorInvocation(new SourceSender(source), label, Arrays.asList(args)));
+    Optional<String> denied = route.invocable() ? deniedPermission(source, route.node()) : Optional.empty();
+    if (denied.isPresent()) {
+      source.sendSection(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", denied.get())));
+      playFailureSound(source);
       return;
     }
 
@@ -164,7 +167,7 @@ public final class AdaptCommands implements DirectorInvocationHook {
     } else if (args.length == 3 && args[0].equalsIgnoreCase(UNMUTATE)) {
       suggestions = CommandAdapt.mutationSuggestions(source, args[1], args[2]);
     } else {
-      suggestions = runDirectorTab(source, alias, args);
+      suggestions = permittedSuggestions(source, alias, args, runDirectorTab(source, alias, args));
     }
 
     Optional<PlayerRef> player = source.player();
@@ -207,9 +210,79 @@ public final class AdaptCommands implements DirectorInvocationHook {
   private List<String> addonSuggestions(CommandSource source, String alias, String[] args) {
     DirectorRoute route = addonRoute(source, alias, Arrays.copyOf(args, args.length - 1)).orElseThrow();
     if (AddonCommandRunner.command(route).orElseThrow().isGroup()) {
-      return runDirectorTab(source, alias, args);
+      return permittedSuggestions(source, alias, args, runDirectorTab(source, alias, args));
     }
     return AddonCommandRunner.complete(source, route, args[args.length - 1]);
+  }
+
+  /**
+   * The node a command's own {@link CommandPermission} names, or its class's when the method names none. Empty for
+   * groups and addon commands, which carry their permissions in their {@link art.arcane.adapt.api.command.AdaptCommand}.
+   */
+  static Optional<String> declaredPermission(DirectorRuntimeNode node) {
+    Method method = node.getMethod();
+    if (method == null || AddonCommandRunner.isGraft(node)) {
+      return Optional.empty();
+    }
+    CommandPermission own = method.getAnnotation(CommandPermission.class);
+    CommandPermission declared = own != null ? own : method.getDeclaringClass().getAnnotation(CommandPermission.class);
+    return declared == null ? Optional.empty() : Optional.of(declared.value());
+  }
+
+  /** The node {@code source} lacks to run the command {@code node}, empty when it may run it. */
+  static Optional<String> deniedPermission(CommandSource source, DirectorRuntimeNode node) {
+    if (AddonCommandRunner.isGraft(node)) {
+      return AddonCommandRunner.deniedPermission(source, node);
+    }
+    String needed = declaredPermission(node).orElse(ROOT_PERMISSION);
+    return source.hasPermission(needed) ? Optional.empty() : Optional.of(needed);
+  }
+
+  /** True when {@code source} may run the command {@code node}, or {@code node} is a group holding one it may run. */
+  static boolean permitted(CommandSource source, DirectorRuntimeNode node) {
+    if (node.isInvocable()) {
+      return deniedPermission(source, node).isEmpty();
+    }
+    if (AddonCommandRunner.isGraft(node) && AddonCommandRunner.deniedPermission(source, node).isPresent()) {
+      return false;
+    }
+    for (DirectorRuntimeNode child : node.getChildren()) {
+      if (permitted(source, child)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** {@code offered} without the commands {@code source} may not run, nor the arguments of one. */
+  private List<String> permittedSuggestions(CommandSource source, String alias, String[] args, List<String> offered) {
+    if (args.length == 0) {
+      return offered;
+    }
+    DirectorRoute parent = engine().route(new DirectorInvocation(new SourceSender(source), alias,
+        Arrays.asList(Arrays.copyOf(args, args.length - 1))));
+    if (parent.invocable()) {
+      return permitted(source, parent.node()) ? offered : List.of();
+    }
+    List<String> kept = new ArrayList<>();
+    for (String option : offered) {
+      Optional<DirectorRuntimeNode> child = child(parent.node(), option);
+      if (child.isEmpty() || permitted(source, child.get())) {
+        kept.add(option);
+      }
+    }
+    return kept;
+  }
+
+  private static Optional<DirectorRuntimeNode> child(DirectorRuntimeNode node, String name) {
+    for (DirectorRuntimeNode child : node.getChildren()) {
+      for (String alias : child.allNames()) {
+        if (alias.equalsIgnoreCase(name)) {
+          return Optional.of(child);
+        }
+      }
+    }
+    return Optional.empty();
   }
 
   private static LanguageSwitcherPort language() {
@@ -233,7 +306,8 @@ public final class AdaptCommands implements DirectorInvocationHook {
 
   private boolean sendHelpIfRequested(CommandSource source, String[] args) {
     try (LanguageAudience.Scope audience = LanguageAudience.open(audience(source))) {
-      return AdaptPorts.get(CommandHelpPort.class, CommandHelpPort.NONE).help(source, engine(), Arrays.asList(args));
+      return AdaptPorts.get(CommandHelpPort.class, CommandHelpPort.NONE).help(source, engine(), Arrays.asList(args),
+          (DirectorRuntimeNode node) -> permitted(source, node));
     }
   }
 

@@ -100,7 +100,6 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
   public SkillStealth() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x555555));
     setInterval(1412);
@@ -357,9 +356,9 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
     @ConfigDoc(value = "Controls Challenge Stealth Arrows 500 Reward for the Stealth skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double challengeStealthArrows500Reward = 5000;
     @ConfigDoc(value = "XP for the first hit on a mob that is not targeting you.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double unawareOpenerXp = 150;
+    double unawareOpenerXp = 75;
     @ConfigDoc(value = "Extra XP for that first hit when you are sneaking and the mob is not looking at you.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double unseenOpenerBonusXp = 200;
+    double unseenOpenerBonusXp = 100;
 
     public Config() {
     }

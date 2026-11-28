@@ -44,6 +44,16 @@ final class CombatBridge implements CombatRuntime {
   }
 
   @Override
+  public void fixHit(long dispatchId) {
+    AbilityDamage.fix(dispatchId);
+  }
+
+  @Override
+  public boolean hitFixed(long dispatchId) {
+    return AbilityDamage.fixed(dispatchId);
+  }
+
+  @Override
   public boolean isMinion(EntityRef entity) {
     return MinionIdentity.isMinion(entity);
   }

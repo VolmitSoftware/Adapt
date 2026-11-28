@@ -29,9 +29,8 @@ import art.arcane.adapt.platform.menu.MenuIcon;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -39,9 +38,9 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
  * A skill's page for pack viewers, in the skill's kit. The identity row holds the icon, the name in the default font with
  * the level and XP bar at the right when Mutate leaves that place free, else on one line with them after it (the level
  * and a longer bar alone when the name does not fit, which the crumb then carries), the skill switch and Mutate
- * (Split on a mutated skill in debug mode, armed then confirmed). Below, the adaptations flow down the left column of
- * cells and then the right, each group under its heading cell; further cells turn to the next leaf, and a last leaf
- * holds the kept originals and the tools when there are any, on the page's still copy. A cell click opens the
+ * (Split on a mutated skill in debug mode, armed then confirmed). Below, the adaptations fill two columns left to right,
+ * each group under its heading and kept to one leaf (see {@link #leaves}); further groups turn to the next leaf, and a
+ * last leaf holds the kept originals and the tools when there are any, on the page's still copy. A cell click opens the
  * adaptation, shift-click learns the next level (armed, then confirmed, when learning is permanent) and shift-right-click
  * unlearns one, each checked by {@link LearnRules} before it is sent.
  */
@@ -61,8 +60,8 @@ final class PackSkillScreen {
   /** Inks below this saturation or above this brightness wash at the stronger alpha. */
   private static final float STRONG_SATURATION = 0.45F;
   private static final float STRONG_BRIGHTNESS = 0.85F;
-  /** An item's height on its slot. */
-  private static final int ICON_SIZE = 16;
+  /** How far a row's outline is mixed from its skill's ink towards the paper. */
+  static final float OUTLINE_SHARE = 0.45F;
 
   private PackSkillScreen() {
   }
@@ -93,17 +92,15 @@ final class PackSkillScreen {
       List<Cell> shown = leaves.get(leaf);
       List<TextSpec> nameSpecs = new ArrayList<>();
       List<String> names = new ArrayList<>();
-      int column = seats.size() / 2;
-      int places = column + (gap < 0 ? 0 : 1);
-      for (int place = 0; place < shown.size() && place < places * 2; place++) {
+      int lines = seats.size() / 2 + (gap < 0 ? 0 : 1);
+      for (int place = 0; place < shown.size() && place < lines * 2; place++) {
         Cell cell = shown.get(place);
         if (cell == null) {
           continue;
         }
-        int within = place % places;
-        int seat = ((place / places) * column) + (gap >= 0 && within > gap ? within - 1 : within);
-        Card card = gap >= 0 && within == gap ? inGap(seats.get(seat - 1), seats.get(seat)) : seats.get(seat);
-        Named name = cell(frame, page, card, skill, cell);
+        Card card = seat(seats, gap, place);
+        Card beside = place % 2 == 0 && cell.heading() != null && shown.get(place + 1) == null ? seat(seats, gap, place + 1) : null;
+        Named name = cell(frame, page, card, beside, skill, cell);
         if (name != null) {
           nameSpecs.add(name.spec());
           names.add(name.markup());
@@ -201,16 +198,26 @@ final class PackSkillScreen {
    * partner, the mutation itself) in that skill's ink; a grouped skill's by their names.
    */
   static List<Cell> cells(PackFrame frame, SkillView skill) {
-    List<List<AdaptationView>> groups = frame.catalog().groups(frame.player(), skill.id());
-    List<String> labels = frame.screens().views().groupLabels(frame.viewer(), skill.id());
-    List<String> owners = frame.screens().views().groupOwners(frame.viewer(), skill.id());
+    List<SkillView> owners = new ArrayList<>();
+    for (String owner : frame.screens().views().groupOwners(frame.viewer(), skill.id())) {
+      owners.add(frame.catalog().skill(owner));
+    }
+    return cells(skill, frame.catalog().groups(frame.player(), skill.id()), frame.screens().views().groupLabels(frame.viewer(), skill.id()),
+        owners);
+  }
+
+  /**
+   * {@code groups} as headings and adaptations: under {@code owners} (one per declared group, null where unknown) when
+   * there are any, else under {@code labels}.
+   */
+  static List<Cell> cells(SkillView skill, List<List<AdaptationView>> groups, List<String> labels, List<SkillView> owners) {
     int ink = PackInk.of(skill.color());
     List<Cell> cells = new ArrayList<>();
     for (int index = 0; index < groups.size(); index++) {
       List<AdaptationView> group = groups.get(index);
       int declared = declared(skill, group, index);
       if (!owners.isEmpty()) {
-        SkillView owner = declared < owners.size() ? frame.catalog().skill(owners.get(declared)) : null;
+        SkillView owner = declared < owners.size() ? owners.get(declared) : null;
         if (owner != null) {
           cells.add(new Cell(owner.name(), PackInk.of(owner.color()), null));
         }
@@ -340,6 +347,14 @@ final class PackSkillScreen {
     return lines;
   }
 
+  /** The card of place {@code place} of a leaf, two places to a line; a place on the gap line is its heading place there. */
+  static Card seat(List<Card> seats, int gap, int place) {
+    int column = seats.size() / 2;
+    int line = place / 2;
+    int seat = ((place % 2) * column) + (gap >= 0 && line > gap ? line - 1 : line);
+    return gap >= 0 && line == gap ? Card.between(seats.get(seat - 1), seats.get(seat)) : seats.get(seat);
+  }
+
   /**
    * The seat in each list column below which the gap between the chest rows and the inventory rows lies (the first seat
    * on the inventory rows), or -1 when the columns do not cross it.
@@ -347,77 +362,147 @@ final class PackSkillScreen {
   static int gap(List<Card> seats) {
     int column = seats.size() / 2;
     for (int seat = 1; seat < column; seat++) {
-      if (seats.get(seat - 1).icon().area() == PackSlot.Area.TOP && seats.get(seat).icon().area() == PackSlot.Area.LOWER) {
+      if (Card.gap(seats.get(seat - 1), seats.get(seat))) {
         return seat;
       }
     }
     return -1;
   }
 
-  /** A heading place in the gap between seat {@code above} and seat {@code below}: {@code below}'s heading and rule, centred in the gap. */
-  private static Card inGap(Card above, Card below) {
-    TextSpec heading = below.text("heading");
-    if (heading == null) {
-      return below;
-    }
-    int top = ((above.top() + ICON_SIZE + below.top()) / 2) - (PackArt.LINE_HEIGHT / 2);
-    int dy = top - heading.y();
-    Map<String, TextSpec> text = new LinkedHashMap<>();
-    text.put("heading", heading.moved(0, dy));
-    Map<String, BarSpec> bars = new LinkedHashMap<>();
-    BarSpec rule = below.bar("heading.rule");
-    if (rule != null) {
-      bars.put("heading.rule", rule.moved(0, dy));
-    }
-    return new Card(below.cells(), below.icon(), text, bars, below.top() + dy);
-  }
-
   /**
-   * Cells split into leaves of {@code seats}, filling the left column and then the right; a group that would run on from
-   * the left column into the right one starts the right one instead when it fits there whole, and a heading that would
-   * end a column moves to the next one, leaving the seats it skips empty (null). With a {@code gap} seat (see
-   * {@link #gap}) each column has one more place, in the gap above that seat, which holds only a heading: a heading
-   * that lands on the seat above the gap or on the gap moves into the gap, and anything else passes it by (null). When
-   * {@code headed}, a column's first seat, under the page header, likewise holds only a heading.
+   * Cells split into leaves of {@code seats}, two to a line and read left to right, line by line. A group never runs
+   * from one leaf onto the next: one that does not fit what is left of a leaf starts the next with its heading, unless
+   * it is too long for a whole leaf, when it runs on under its heading repeated. A heading takes a line of its own, or
+   * the free right place after a group that ends on a left place when its group starts on the next line. With a
+   * {@code gap} seat (see {@link #gap}) each column has one more line, in the gap above that seat, which holds only a
+   * heading: a heading that would land on the line above the gap moves into the gap. When {@code headed}, the first
+   * line, under the page header, likewise holds only a heading. Places left empty are null.
    */
   static List<List<Cell>> leaves(List<Cell> cells, int seats, int gap, boolean headed) {
-    int column = Math.max(1, seats / 2) + (gap < 0 ? 0 : 1);
-    int places = column * 2;
-    List<List<Cell>> leaves = new ArrayList<>();
-    List<Cell> leaf = new ArrayList<>();
-    leaves.add(leaf);
-    for (int index = 0; index < cells.size(); index++) {
+    Flow flow = new Flow(Math.max(1, seats / 2) + (gap < 0 ? 0 : 1), gap, headed);
+    int index = 0;
+    while (index < cells.size()) {
       Cell cell = cells.get(index);
-      int group = cell.heading() == null ? 0 : group(cells, index);
-      if (group > 0 && leaf.size() > 0 && leaf.size() < column && leaf.size() + group > column && group <= column) {
-        while (leaf.size() < column) {
-          leaf.add(null);
-        }
-      } else if (cell.heading() != null && leaf.size() % column == column - 1) {
-        leaf.add(null);
+      if (cell.heading() == null) {
+        flow.item(cell);
+        index++;
+        continue;
       }
-      if (leaf.size() >= places) {
-        leaf = new ArrayList<>();
-        leaves.add(leaf);
+      int end = index + group(cells, index);
+      List<Cell> items = cells.subList(index + 1, end);
+      if (!flow.fits(flow.at, items.size()) && (flow.fits(0, items.size()) || !flow.fits(flow.at, Math.min(1, items.size())))) {
+        flow.turn();
       }
-      while (passes(cell, leaf.size() % column, gap, headed)) {
-        leaf.add(null);
-        if (leaf.size() >= places) {
-          leaf = new ArrayList<>();
-          leaves.add(leaf);
-        }
-      }
-      leaf.add(cell);
+      flow.group(cell, items);
+      index = end;
     }
-    return leaves;
+    return flow.leaves;
   }
 
-  /** Whether {@code cell} leaves place {@code within} of a column empty: a heading-only place, or the seat a heading skips for the gap. */
-  private static boolean passes(Cell cell, int within, int gap, boolean headed) {
-    if (cell.heading() != null) {
-      return gap >= 0 && within == gap - 1;
+  /** The leaves being filled, and the next free place of the last one. */
+  private static final class Flow {
+    private final int lines;
+    private final int gap;
+    private final boolean headed;
+    private final List<List<Cell>> leaves = new ArrayList<>();
+    private List<Cell> leaf;
+    private int at;
+
+    private Flow(int lines, int gap, boolean headed) {
+      this.lines = lines;
+      this.gap = gap;
+      this.headed = headed;
+      turn();
     }
-    return within == gap || (headed && within == 0);
+
+    /** Starts a new leaf, unless the last one is still empty. */
+    private void turn() {
+      if (leaf != null && at == 0) {
+        return;
+      }
+      leaf = new ArrayList<>(Collections.nCopies(lines * 2, (Cell) null));
+      leaves.add(leaf);
+      at = 0;
+    }
+
+    private boolean headingOnly(int line) {
+      return line == gap || (headed && line == 0);
+    }
+
+    /** Where a heading goes from place {@code from} on: its own line, the free right place, or the gap; -1 for none. */
+    private int headingPlace(int from) {
+      int line = from / 2;
+      if (gap >= 0 && line == gap - 1) {
+        return gap * 2;
+      }
+      if (from % 2 == 1) {
+        return line + 1 < lines ? from : -1;
+      }
+      return line < lines ? from : -1;
+    }
+
+    /** The next place an adaptation can take from {@code from} on, passing heading-only lines; -1 for none. */
+    private int itemPlace(int from) {
+      if (from % 2 == 1) {
+        return from;
+      }
+      int line = from / 2;
+      while (line < lines && headingOnly(line)) {
+        line++;
+      }
+      return line < lines ? line * 2 : -1;
+    }
+
+    /** Whether a heading and {@code count} adaptations fit on this leaf from place {@code from}. */
+    private boolean fits(int from, int count) {
+      int place = headingPlace(from);
+      if (place < 0) {
+        return false;
+      }
+      place = (place / 2 + 1) * 2;
+      for (int item = 0; item < count; item++) {
+        place = itemPlace(place);
+        if (place < 0) {
+          return false;
+        }
+        place++;
+      }
+      return true;
+    }
+
+    private void group(Cell heading, List<Cell> items) {
+      heading(heading);
+      for (Cell item : items) {
+        int place = itemPlace(at);
+        if (place < 0) {
+          turn();
+          heading(heading);
+          place = itemPlace(at);
+        }
+        leaf.set(place, item);
+        at = place + 1;
+      }
+    }
+
+    private void heading(Cell heading) {
+      int place = headingPlace(at);
+      if (place < 0) {
+        turn();
+        place = headingPlace(at);
+      }
+      leaf.set(place, heading);
+      at = (place / 2 + 1) * 2;
+    }
+
+    private void item(Cell item) {
+      int place = itemPlace(at);
+      if (place < 0) {
+        turn();
+        place = itemPlace(at);
+      }
+      leaf.set(place, item);
+      at = place + 1;
+    }
   }
 
   /** The seats of the group headed at {@code start}: its heading and the adaptations up to the next heading. */
@@ -429,12 +514,19 @@ final class PackSkillScreen {
     return end - start;
   }
 
-  /** Draws one cell; returns an adaptation cell's name and where it goes for the list's names, null for a heading. */
-  private static Named cell(PackFrame frame, PageBuilder page, Card card, SkillView skill, Cell cell) {
+  /**
+   * Draws one cell; returns an adaptation cell's name and where it goes for the list's names, null for a heading. A
+   * heading with the place {@code beside} it free runs its rule on to the end of that place's rule.
+   */
+  private static Named cell(PackFrame frame, PageBuilder page, Card card, Card beside, SkillView skill, Cell cell) {
     if (cell.heading() != null) {
       Placement heading = page.name(card.text("heading"), PackLabels.coloured(cell.colour(), cell.heading()));
       BarSpec rule = card.bar("heading.rule");
       TextSpec spec = card.text("heading");
+      BarSpec further = beside == null ? null : beside.bar("heading.rule");
+      if (rule != null && further != null) {
+        rule = new BarSpec(rule.x(), rule.y(), further.x() + further.width() - rule.x(), rule.height(), rule.colour());
+      }
       if (rule != null && spec != null) {
         page.rule(rule.from(spec.x() + heading.width() + PackFrame.RULE_GAP));
       }
@@ -443,33 +535,37 @@ final class PackSkillScreen {
     AdaptationView adaptation = cell.adaptation();
     KeptView kept = kept(frame, adaptation.id());
     int level = Math.max(LearnRules.floor(kept), CatalogIndex.level(frame.player(), adaptation.id()));
-    boolean locked = !LearnRules.missing(frame.player(), adaptation).isEmpty();
+    boolean learnable = level < adaptation.maxLevel()
+        && LearnRules.learn(frame.catalog(), frame.player(), adaptation, level + 1, kept).allowed();
+    Row row = Row.of(level, learnable);
     boolean maxed = level >= adaptation.maxLevel() && adaptation.maxLevel() > 0;
     int ink = PackInk.of(skill.color());
     BarSpec box = card.bar(PackArt.BOX);
     if (box != null) {
-      box(page, box, locked, level, adaptation.maxLevel(), ink);
+      box(page, box, row, level, adaptation.maxLevel(), ink);
     }
+    boolean faded = row == Row.CLOSED;
     MenuIcon icon = PageBuilder.icon(adaptation.icon(), PackLabels.coloured(ink, adaptation.name()), detail(frame, adaptation));
     page.group(card.cells(), icon, (MenuClick click) -> click(frame, adaptation, click.kind()),
-        page.resources().icon(adaptation.icon(), page.kit(), locked));
-    return new Named(inBox(card.text("name"), box, maxed), PackLabels.coloured(locked ? PackLabels.FAINT : PackLabels.INK, adaptation.name()));
+        page.resources().icon(adaptation.icon(), page.kit(), faded));
+    return new Named(inBox(card.text("name"), box, maxed), PackLabels.coloured(faded ? PackLabels.FAINT : PackLabels.INK, adaptation.name()));
   }
 
   /**
-   * A row's box, which shows its level at a glance: a locked row only a dotted outline; otherwise the row wash, washed in
-   * {@code ink} from the left by the learned share, and when maxed edged in {@code ink} at both ends, clear of the name's
-   * rows, with the kit's ornament at its right end.
+   * A row's box, outlined in {@link #outline} of {@code ink}: a row not learned dotted, a learned one solid over the row
+   * wash, washed in {@code ink} from the left by the learned share, and when maxed edged in {@code ink} at both ends,
+   * clear of the name's rows, with the kit's ornament at its right end.
    */
-  static void box(PageBuilder page, BarSpec box, boolean locked, int level, int max, int ink) {
-    if (locked) {
+  static void box(PageBuilder page, BarSpec box, Row row, int level, int max, int ink) {
+    int outline = outline(ink);
+    if (row != Row.LEARNED) {
       int at = box.x();
       for (int segment : PackArt.segments(box.width())) {
-        page.paint(PackArt.dots(segment, box.y()), at, PackLabels.FAINT);
+        page.paint(PackArt.dots(segment, box.y()), at, outline);
         at += segment;
       }
-      page.paint(PackArt.dotSide(box.y()), box.x(), PackLabels.FAINT);
-      page.paint(PackArt.dotSide(box.y()), box.x() + box.width() - 1, PackLabels.FAINT);
+      page.paint(PackArt.dotSide(box.y()), box.x(), outline);
+      page.paint(PackArt.dotSide(box.y()), box.x() + box.width() - 1, outline);
       return;
     }
     int at = box.x();
@@ -484,12 +580,27 @@ final class PackSkillScreen {
       page.paint(PackArt.wash(segment, box.y(), strong), at, ink);
       at += segment;
     }
+    for (BarSpec edge : PackArt.outline(box)) {
+      page.rule(new BarSpec(edge.x(), edge.y(), edge.width(), edge.height(), outline));
+    }
     if (max > 0 && level >= max) {
       for (BarSpec edge : PackArt.border(box)) {
         page.rule(new BarSpec(edge.x(), edge.y(), edge.width(), edge.height(), ink));
       }
       page.paint(PackArt.ornament(page.kit(), box.y()), box.x() + box.width() - PackArt.ORNAMENT_GAP);
     }
+  }
+
+  /** The faint line round every row of a page in {@code ink}: the ink {@link #OUTLINE_SHARE} of the way to the paper. */
+  static int outline(int ink) {
+    int paper = PackArt.PAPER & 0xFFFFFF;
+    int mixed = 0;
+    for (int shift = 0; shift <= 16; shift += 8) {
+      int from = (ink >> shift) & 0xFF;
+      int to = (paper >> shift) & 0xFF;
+      mixed |= (from + Math.round((to - from) * OUTLINE_SHARE)) << shift;
+    }
+    return mixed;
   }
 
   /** Whether {@code ink} is pale or grey enough that its learned wash needs the stronger alpha to read on the row wash. */
@@ -603,6 +714,17 @@ final class PackSkillScreen {
     Identity(String level, String bar) {
       this.level = level;
       this.bar = bar;
+    }
+  }
+
+  /** How a row's box reads: learned, open to learning now, or closed by its requirements, its cost or the server. */
+  enum Row {
+    LEARNED,
+    OPEN,
+    CLOSED;
+
+    static Row of(int level, boolean learnable) {
+      return level > 0 ? LEARNED : learnable ? OPEN : CLOSED;
     }
   }
 

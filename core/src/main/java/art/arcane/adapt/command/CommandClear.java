@@ -15,6 +15,7 @@ import art.arcane.volmlib.util.director.annotations.Param;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
+@CommandPermission("adapt.clear")
 @Director(name = "clear", origin = DirectorOrigin.BOTH, description = "Clear player progression data", descriptionKey = "adapt.command.help.clear_player_progression_data")
 public class CommandClear {
 

@@ -42,6 +42,8 @@ public final class PackWriter {
     static final String HIGHLIGHT_BACK = "assets/minecraft/textures/gui/sprites/container/slot_highlight_back.png";
     static final String HIGHLIGHT_FRONT = "assets/minecraft/textures/gui/sprites/container/slot_highlight_front.png";
     static final int HIGHLIGHT_SIZE = 24;
+    /** The hover wash: the page ink at about a fifth. */
+    static final int HOVER = 0x342E2216;
     private static final LocalDateTime ZIP_TIME = LocalDateTime.of(1980, 1, 1, 0, 0);
 
     private final String description;
@@ -144,15 +146,18 @@ public final class PackWriter {
     }
 
     /**
-     * The hover highlight every container draws behind a hovered slot's item: one row of page paper across the slot just
-     * below it, the row no page text uses. On paper it vanishes; on the wash behind a row of the list it lights the
-     * wash's bottom edge. Nothing is drawn over the item.
+     * The hover highlight every container draws behind a hovered slot's item: a wash of ink over the slot's whole cell,
+     * 18 wide and as tall as a list row's box, so the hovered part of a row darkens edge to edge with its neighbours'.
+     * The client draws it at a fixed 24 pixels square on the hovered slot alone, so it can light no more than that cell.
+     * Nothing is drawn over the item.
      */
     static Raster highlight() {
         Raster back = new Raster(HIGHLIGHT_SIZE, HIGHLIGHT_SIZE);
         int inset = (HIGHLIGHT_SIZE - 16) / 2;
-        for (int x = inset - 1; x <= inset + 16; x++) {
-            back.set(x, inset + 16, PackArt.PAPER);
+        for (int y = inset; y <= inset + 16; y++) {
+            for (int x = inset - 1; x <= inset + 16; x++) {
+                back.set(x, y, HOVER);
+            }
         }
         return back;
     }
@@ -190,8 +195,9 @@ public final class PackWriter {
     }
 
     /**
-     * Adds the action bar font {@code adapt:hud} from the design's well and cooldown art, a fallback ability icon cut from
-     * {@code token}, and the skill and adaptation icons among {@code list}, which must also be added with {@link #icons}.
+     * Adds the HUD font {@code adapt:hud} from the design's well and cooldown art, the client HUD's slip and bar, a fallback
+     * ability icon cut from {@code token}, and the skill and adaptation icons among {@code list}, which must also be added
+     * with {@link #icons}; and the text shaders that move the HUD corner to the top left ({@link HudShader}).
      */
     public PackWriter hud(List<IconFiles.Icon> list, List<ArtPieces.Piece> pieces, Raster token) {
         Map<String, Raster> art = new TreeMap<>();
@@ -199,6 +205,7 @@ public final class PackWriter {
             art.put(piece.name(), Raster.decode(piece.png()));
         }
         hud = new PackManifest.Hud(HudFont.FONT, HudFont.write(out.files(), list, art, token));
+        HudShader.write(out.files());
         return this;
     }
 
@@ -285,6 +292,7 @@ public final class PackWriter {
         pack.addProperty("max_format", MAX_FORMAT);
         JsonObject root = new JsonObject();
         root.add("pack", pack);
+        root.add("overlays", HudShader.overlays());
         return root;
     }
 }

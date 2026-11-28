@@ -35,6 +35,7 @@ import art.arcane.adapt.api.mutation.SoundPalette;
 import art.arcane.adapt.api.mutation.TriggerKind;
 import art.arcane.adapt.api.text.Text;
 import art.arcane.adapt.api.xp.CombatXp;
+import art.arcane.adapt.api.xp.MobOrigin;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnglerCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
 import art.arcane.adapt.content.adaptation.golemancy.GolemBoneFrame;
@@ -71,7 +72,6 @@ import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
-import art.arcane.adapt.content.skill.golemancy.SpawnerMobTag;
 import art.arcane.adapt.content.golem.GolemBody;
 import art.arcane.adapt.content.golem.GolemBrainSettings;
 import art.arcane.adapt.content.golem.GolemCoreType;
@@ -369,10 +369,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   public void on(CreatureSpawnEvent e) {
     Reason reason = e.reason();
     LivingRef golem = e.entity();
-    if (SpawnerMobTag.isSpawnerReason(reason) && isEnabled()) {
-      SpawnerMobTag.mark(golem);
-      return;
-    }
     if (reason == Reason.BUILD_COPPERGOLEM && golem instanceof MobRef copper) {
       CopperCare.recordStageFloor(copper, copper.weatheringStage());
     }
@@ -637,7 +633,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       return;
     }
     double killValue = GolemXpRules.killValue(getConfig().golemKillXpBase, maxHealthOf(victim), getConfig().golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SpawnerMobTag.isTagged(victim), getConfig().spawnerMobXpMultiplier);
+    double xp = MobOrigin.isFarmed(victim) ? 0D : GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier);
     if (xp <= 0D) {
       return;
     }
@@ -746,8 +742,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     MobRef golem = handle.entity();
     AdaptApi.scheduler().runEntity(golem, () -> handle.addDamage(dealt));
     Config config = getConfig();
-    double xp = GolemXpRules.assistXp(dealt, config.assistDamageXpMultiplier, assistBodyMultiplier(config, handle.body()),
-        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier);
+    double xp = MobOrigin.isFarmed(victim) ? 0D
+        : GolemXpRules.assistXp(dealt, config.assistDamageXpMultiplier, assistBodyMultiplier(config, handle.body()));
     Loc at = combatLocation(golem, victim);
     rewardOwner(handle.owner(), owner -> payAssist(owner, at, dealt, xp));
   }
@@ -765,8 +761,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     AdaptApi.scheduler().runEntity(golem, () -> handle.addKills(1));
     Config config = getConfig();
     double killValue = GolemXpRules.killValue(config.golemKillXpBase, maxHealthOf(victim), config.golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier,
-        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier);
+    double xp = MobOrigin.isFarmed(victim) ? 0D
+        : GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier);
     String victimType = victim.type().path();
     Loc at = combatLocation(golem, victim);
     rewardOwner(handle.owner(), owner -> payKill(owner, at, xp, victimType));
@@ -780,8 +776,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
     Config config = getConfig();
     double killValue = GolemXpRules.killValue(config.golemKillXpBase, maxHealthOf(victim), config.golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.servantShareXp(share, GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier,
-        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier));
+    double xp = MobOrigin.isFarmed(victim) ? 0D
+        : GolemXpRules.servantShareXp(share, GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier));
     if (xp <= 0D) {
       return;
     }
@@ -801,7 +797,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       return;
     }
     double taken = GolemXpRules.effectiveDamage(damage, golem.health());
-    double xp = GolemXpRules.tankXp(taken, getConfig().tankXpMultiplier, SpawnerMobTag.isTagged(attacker), getConfig().spawnerMobXpMultiplier);
+    double xp = MobOrigin.isFarmed(attacker) ? 0D : GolemXpRules.tankXp(taken, getConfig().tankXpMultiplier);
     if (xp <= 0D) {
       return;
     }
@@ -1024,8 +1020,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double craftNodeXp = 15;
     @ConfigDoc(value = "Skill XP paid for each Blank Rune crafted, counted per craft, not per rune in the result.", impact = "Higher values pay more for crafting blank runes.")
     double craftBlankRuneXp = 10;
-    @ConfigDoc(value = "Multiplier applied to Golemancy XP from mobs that came from a spawner or trial spawner.", impact = "Lower values make spawner farms pay less; 1.0 pays the same as natural mobs.")
-    double spawnerMobXpMultiplier = 0.3;
     @ConfigDoc(value = "Skill XP paid by the golem building challenges.", impact = "Higher values pay more; the 100 builds challenge pays five times this value.")
     double challengeBuiltReward = 500;
     @ConfigDoc(value = "Skill XP paid the first time a frost golem is bound.", impact = "Higher values reward binding frost golems more; a golem that was bound before pays nothing.")

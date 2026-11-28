@@ -106,47 +106,42 @@ class SkillGolemancyOwnedXpTest {
 
   @ParameterizedTest
   @CsvSource({
-      "FROST, 10, 20, false, 60",
-      "COPPER, 10, 20, false, 30",
-      "IRON, 10, 20, false, 30",
-      "BONE, 10, 20, false, 0",
-      "IRON, 30, 12, false, 36",
-      "FROST, 30, 4, false, 24",
-      "IRON, 10, 20, true, 9",
-      "FROST, 10, 0, false, 0"
+      "FROST, 10, 20, 60",
+      "COPPER, 10, 20, 30",
+      "IRON, 10, 20, 30",
+      "BONE, 10, 20, 0",
+      "IRON, 30, 12, 36",
+      "FROST, 30, 4, 24",
+      "FROST, 10, 0, 0"
   })
-  void assistXpTableUsesTheDefaults(GolemBody body, double damage, double victimHealth, boolean spawner, double expected) {
+  void assistXpTableUsesTheDefaults(GolemBody body, double damage, double victimHealth, double expected) {
     double dealt = GolemXpRules.effectiveDamage(damage, victimHealth);
-    double xp = GolemXpRules.assistXp(dealt, DEFAULTS.assistDamageXpMultiplier, SkillGolemancy.assistBodyMultiplier(DEFAULTS, body),
-        spawner, DEFAULTS.spawnerMobXpMultiplier);
+    double xp = GolemXpRules.assistXp(dealt, DEFAULTS.assistDamageXpMultiplier, SkillGolemancy.assistBodyMultiplier(DEFAULTS, body));
 
     assertThat(xp).isCloseTo(expected, offset(1e-9));
   }
 
   @ParameterizedTest
   @CsvSource({
-      "20, false, false, 35",
-      "24, true, false, 58.5",
-      "20, false, true, 10.5",
-      "24, true, true, 17.55",
-      "100, false, false, 115"
+      "20, false, 35",
+      "24, true, 58.5",
+      "100, false, 115"
   })
-  void killXpTableUsesTheDefaults(double victimMaxHealth, boolean raid, boolean spawner, double expected) {
+  void killXpTableUsesTheDefaults(double victimMaxHealth, boolean raid, double expected) {
     double killValue = GolemXpRules.killValue(DEFAULTS.golemKillXpBase, victimMaxHealth, DEFAULTS.golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.ownedKillXp(killValue, raid, DEFAULTS.raidXpMultiplier, spawner, DEFAULTS.spawnerMobXpMultiplier);
+    double xp = GolemXpRules.ownedKillXp(killValue, raid, DEFAULTS.raidXpMultiplier);
 
     assertThat(xp).isCloseTo(expected, offset(1e-9));
   }
 
   @ParameterizedTest
   @CsvSource({
-      "8, 100, false, 12",
-      "8, 5, false, 7.5",
-      "8, 100, true, 3.6"
+      "8, 100, 12",
+      "8, 5, 7.5"
   })
-  void tankXpTableUsesTheDefaults(double damage, double golemHealth, boolean spawner, double expected) {
+  void tankXpTableUsesTheDefaults(double damage, double golemHealth, double expected) {
     double taken = GolemXpRules.effectiveDamage(damage, golemHealth);
-    double xp = GolemXpRules.tankXp(taken, DEFAULTS.tankXpMultiplier, spawner, DEFAULTS.spawnerMobXpMultiplier);
+    double xp = GolemXpRules.tankXp(taken, DEFAULTS.tankXpMultiplier);
 
     assertThat(xp).isCloseTo(expected, offset(1e-9));
   }

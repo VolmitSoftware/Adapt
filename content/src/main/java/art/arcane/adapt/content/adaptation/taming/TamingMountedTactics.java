@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.taming;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.attribute.Attributes;
@@ -385,7 +386,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   @Handle(priority = EventPriority.HIGHEST)
   public void on(EntityDamageByEntityEvent e) {
-    if (e.damager() instanceof PlayerRef attacker && isTacticalMount(attacker.vehicle())) {
+    if (e.damager() instanceof PlayerRef attacker && isTacticalMount(attacker.vehicle()) && !AbilityDamage.fixed(e)) {
       int level = preferenceEnabled(attacker, TamingPreferences.COMBAT) ? mountedLevel(attacker, attacker.vehicle()) : 0;
       if (level > 0) {
         if (!canDamageTarget(attacker, e.entity())) {

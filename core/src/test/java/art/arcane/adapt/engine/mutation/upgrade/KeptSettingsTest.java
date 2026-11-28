@@ -128,10 +128,10 @@ class KeptSettingsTest {
     assertThat(guide.parents()).containsExactly("adapt:" + lead, "adapt:" + partner);
     assertThat(guide.sections()).hasSize(3);
     assertThat(guide.sections().get(0).skillId()).isEqualTo("adapt:" + lead);
-    assertThat(guide.sections().get(0).lines()).hasSize(registry.getSkill(lead).getXpGuide().size() + 1);
+    assertThat(guide.sections().get(0).lines()).hasSize(registry.getSkill(lead).getXpGuide().size());
     assertThat(guide.sections().get(1).skillId()).isEqualTo("adapt:" + partner);
-    assertThat(guide.sections().get(1).lines()).hasSize(registry.getSkill(partner).getXpGuide().size() + 1);
+    assertThat(guide.sections().get(1).lines()).hasSize(registry.getSkill(partner).getXpGuide().size());
     assertThat(guide.sections().get(2).skillId()).isEmpty();
-    assertThat(guide.sections().get(2).lines()).hasSize(3).anyMatch((String line) -> line.contains("25%"));
+    assertThat(guide.sections().get(2).lines()).hasSize(2).anyMatch((String line) -> line.contains("25%"));
   }
 }

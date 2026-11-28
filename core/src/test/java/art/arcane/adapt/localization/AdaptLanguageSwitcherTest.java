@@ -7,6 +7,7 @@ import art.arcane.adapt.command.CommandMenu;
 import art.arcane.adapt.command.CommandSource;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
+import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.PluginLanguageService;
 import org.junit.jupiter.api.AfterEach;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +55,7 @@ class AdaptLanguageSwitcherTest extends AdaptTestBase {
     switcher.open(selections);
     AdaptPorts.install(CommandHelpPort.class, new CommandHelpPort() {
       @Override
-      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
+      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
         return false;
       }
 

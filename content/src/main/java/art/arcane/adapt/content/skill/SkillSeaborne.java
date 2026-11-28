@@ -123,8 +123,6 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
 
   public SkillSeaborne() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
-    xpNote(Text.key("adapt.xp_guide.placed_blocks"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x5555FF));
     setInterval(2120);

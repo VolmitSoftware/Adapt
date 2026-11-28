@@ -81,7 +81,6 @@ public class SkillUnarmed extends SimpleSkill<SkillUnarmed.Config> {
 
   public SkillUnarmed() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.farmed_mobs"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFFFF55));
     setInterval(2579);

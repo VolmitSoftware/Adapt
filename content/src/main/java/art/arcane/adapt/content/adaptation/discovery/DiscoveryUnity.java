@@ -96,7 +96,7 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
     SkillProgress skill = skills.get(random.nextInt(skills.size()));
-    DiscoveryXpShare.feed(skill, getXPGained(getLevelPercent(getLevel(p)), random.nextInt(3) + 1), "adaptation:discovery-unity:distribution");
+    DiscoveryXpShare.feed(skill, getXPGained(getLevelPercent(getLevel(p)), random.nextInt(3) + 1), getId() + ":distribution");
     double distributed = ap.stat("discovery.unity.orbs-distributed");
     ap.addStat("discovery.unity.orbs-distributed", 1);
 

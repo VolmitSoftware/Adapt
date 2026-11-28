@@ -21,6 +21,7 @@ import art.arcane.adapt.content.adaptation.unarmed.UnarmedBatteringCharge;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedFists;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedGlassCannon;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedPreferences;
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedStrike;
 import art.arcane.adapt.content.adaptation.unarmed.UnarmedSuckerPunch;
 import art.arcane.adapt.api.world.BuildBatch;
 import art.arcane.adapt.api.world.BuildBatches;
@@ -43,7 +44,7 @@ import java.util.Set;
 
 /**
  * Unarmed Power, Iron Fists and Glass Cannon fused at full strength: a punch takes all three originals' maxed bonuses,
- * in their order, then a per-level share on top. A sprint punch shoves the target through the soft blocks behind it and
+ * Power's and Glass Cannon's added together on the fist as in {@link UnarmedStrike}, then a per-level share on top. A sprint punch shoves the target through the soft blocks behind it and
  * knocks a raised shield down.
  */
 public class TitanFists extends SkillUpgrade<TitanFists.Config> {
@@ -65,7 +66,7 @@ public class TitanFists extends SkillUpgrade<TitanFists.Config> {
   @Override
   public void addStats(int level, StatLines v) {
     statLore(v, Format.f(damage(1D, 0D, level), 1), 1);
-    statLore(v, Format.f(getConfig().powerMultiplier * getConfig().nakedFactor * boost(level), 2), 2);
+    statLore(v, Format.f((getConfig().powerMultiplier + getConfig().nakedFactor - 1D) * boost(level), 2), 2);
     statLore(v, Format.f((getConfig().flatBonus + getConfig().ironBonus) * boost(level), 2), 3);
     statLore(v, TextFormat.YELLOW, "* ", Format.duration((double) getSprintCooldownMillis(level), 1), 4);
     statLore(v, getConfig().sprintBlocksBroken, 5);
@@ -85,10 +86,10 @@ public class TitanFists extends SkillUpgrade<TitanFists.Config> {
     }
 
     int level = attack.level();
-    double powered = e.damage() * getConfig().powerMultiplier;
-    double glass = UnarmedGlassCannon.hit(this, e.entity(), powered, getArmorValue(p), getConfig().nakedFactor,
+    double fist = UnarmedStrike.fist(e, p);
+    double glass = UnarmedGlassCannon.hit(this, e.entity(), fist, getArmorValue(p), getConfig().nakedFactor,
         getConfig().flatBonus);
-    e.setDamage((glass + getConfig().ironBonus) * boost(level));
+    e.setDamage(e.damage() - fist + strike(fist, glass, level));
     xpOn(p, e.entity(), getConfig().xpPerHit);
     addStat(p, "unarmed.titan-fists.hits", 1);
     if (!sprintPunch(p, e.entity(), level)) {
@@ -184,9 +185,12 @@ public class TitanFists extends SkillUpgrade<TitanFists.Config> {
   }
 
   double damage(double hit, double armor, int level) {
-    double powered = hit * getConfig().powerMultiplier;
-    double glass = UnarmedGlassCannon.damage(powered, armor, getConfig().nakedFactor, getConfig().flatBonus);
-    return (glass + getConfig().ironBonus) * boost(level);
+    return strike(hit, UnarmedGlassCannon.damage(hit, armor, getConfig().nakedFactor, getConfig().flatBonus), level);
+  }
+
+  /** Power's share and what Glass Cannon added over the fist, summed on the fist, then Iron Fists and the boost. */
+  private double strike(double fist, double glass, int level) {
+    return ((fist * getConfig().powerMultiplier) + (glass - fist) + getConfig().ironBonus) * boost(level);
   }
 
   double boost(int level) {
@@ -202,7 +206,7 @@ public class TitanFists extends SkillUpgrade<TitanFists.Config> {
     @ConfigDoc(value = "Attack damage multiplier of Unarmed Power at its top level.", impact = "Higher values make every punch hit harder.")
     double powerMultiplier = 3.57;
     @ConfigDoc(value = "Glass Cannon's no-armor damage multiplier at its top level.", impact = "Higher values reward fighting without armor.")
-    double nakedFactor = 5.05;
+    double nakedFactor = 3.05;
     @ConfigDoc(value = "Glass Cannon's flat damage at its top level.", impact = "Higher values raise every punch.")
     double flatBonus = 1.75;
     @ConfigDoc(value = "Iron Fists' flat damage at its top level.", impact = "Higher values raise every punch.")

@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
+@CommandPermission(CommandOrphans.PERMISSION)
 @Director(name = "orphans", origin = DirectorOrigin.BOTH, description = "Saved progress whose addon is not installed", descriptionKey = "adapt.command.help.orphans")
 public class CommandOrphans {
   public static final String PERMISSION = "adapt.orphans";

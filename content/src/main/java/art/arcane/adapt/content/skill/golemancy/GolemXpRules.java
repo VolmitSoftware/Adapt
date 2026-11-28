@@ -36,9 +36,8 @@ public final class GolemXpRules {
     return finiteOrZero(base + Math.max(0D, victimMaxHealth) * maxHealthMultiplier);
   }
 
-  public static double witnessXp(double killValue, double witnessMultiplier, boolean spawnerMob, double spawnerMultiplier) {
-    double spawnerFactor = spawnerMob ? spawnerMultiplier : 1D;
-    return finiteOrZero(killValue * witnessMultiplier * spawnerFactor, killValue, witnessMultiplier, spawnerFactor);
+  public static double witnessXp(double killValue, double witnessMultiplier) {
+    return finiteOrZero(killValue * witnessMultiplier, killValue, witnessMultiplier);
   }
 
   public static double repairXp(double paidHealth, double xpPerHealth) {
@@ -52,24 +51,21 @@ public final class GolemXpRules {
     return Math.min(damage, remainingHealth);
   }
 
-  public static double assistXp(double dealtDamage, double assistMultiplier, double bodyMultiplier, boolean spawnerMob, double spawnerMultiplier) {
-    double spawnerFactor = spawnerMob ? spawnerMultiplier : 1D;
-    return finiteOrZero(dealtDamage * assistMultiplier * bodyMultiplier * spawnerFactor, dealtDamage, assistMultiplier, bodyMultiplier, spawnerFactor);
+  public static double assistXp(double dealtDamage, double assistMultiplier, double bodyMultiplier) {
+    return finiteOrZero(dealtDamage * assistMultiplier * bodyMultiplier, dealtDamage, assistMultiplier, bodyMultiplier);
   }
 
-  public static double ownedKillXp(double killValue, boolean raidMob, double raidMultiplier, boolean spawnerMob, double spawnerMultiplier) {
+  public static double ownedKillXp(double killValue, boolean raidMob, double raidMultiplier) {
     double raidFactor = raidMob ? raidMultiplier : 1D;
-    double spawnerFactor = spawnerMob ? spawnerMultiplier : 1D;
-    return finiteOrZero(killValue * raidFactor * spawnerFactor, killValue, raidFactor, spawnerFactor);
+    return finiteOrZero(killValue * raidFactor, killValue, raidFactor);
   }
 
   public static double servantShareXp(double share, double ownedKillXp) {
     return finiteOrZero(share * ownedKillXp, share, ownedKillXp);
   }
 
-  public static double tankXp(double takenDamage, double tankMultiplier, boolean spawnerMob, double spawnerMultiplier) {
-    double spawnerFactor = spawnerMob ? spawnerMultiplier : 1D;
-    return finiteOrZero(takenDamage * tankMultiplier * spawnerFactor, takenDamage, tankMultiplier, spawnerFactor);
+  public static double tankXp(double takenDamage, double tankMultiplier) {
+    return finiteOrZero(takenDamage * tankMultiplier, takenDamage, tankMultiplier);
   }
 
   public static double ownerDistanceFactor(double distanceSquared, double proximityRadius, double distantMultiplier) {

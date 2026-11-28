@@ -504,7 +504,8 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   }
 
   private boolean isMovingHorizontally(PlayerRef p, double threshold) {
-    Vec3 horizontal = new Vec3(p.velocity().x(), 0, p.velocity().z());
+    Vec3 movement = p.movement();
+    Vec3 horizontal = new Vec3(movement.x(), 0, movement.z());
     double t = Math.max(0, threshold);
     return horizontal.lengthSquared() > t * t;
   }

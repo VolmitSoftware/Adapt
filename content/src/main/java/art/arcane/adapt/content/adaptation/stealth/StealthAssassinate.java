@@ -18,7 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.attribute.Attributes;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.api.content.Adaptation;
@@ -36,6 +38,8 @@ import art.arcane.adapt.api.text.Text;
 import art.arcane.adapt.api.text.TextFormat;
 import art.arcane.adapt.platform.advancement.AdvancementFrame;
 import art.arcane.adapt.platform.advancement.AdvancementVisibility;
+import art.arcane.adapt.platform.entity.AttributeMod;
+import art.arcane.adapt.platform.entity.AttributeOperation;
 import art.arcane.adapt.platform.entity.EntityTrait;
 import art.arcane.adapt.platform.entity.LivingRef;
 import art.arcane.adapt.platform.entity.PlayerRef;
@@ -49,8 +53,12 @@ import art.arcane.adapt.platform.value.Rgb;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
 import java.util.function.Supplier;
+
+/**
+ * While Stealth reports you undetected, a strike on an eligible mob deals your held weapon's own attack damage times a
+ * level multiplier, capped, and fixed: no other bonus, Strength or crit scales it, and the victim's armor still applies.
+ */
 public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Config> {
   public static final Id ID = Id.adapt("stealth/assassinate");
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", Text.key("adapt.stealthassassinate.preferences.preference_sneak"), CommonPreferences.Toggle.OFF);
@@ -61,6 +69,10 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
 
 
   private static final Rgb ASSASSINATE_PURPLE = Rgb.of(0x2A0A3A);
+  /** Key of the main-hand item's attack damage modifier on the player. */
+  private static final Id BASE_ATTACK_DAMAGE = Id.minecraft("base_attack_damage");
+  /** The same modifier on 1.20.1, keyed by vanilla's fixed UUID. */
+  private static final Id LEGACY_BASE_ATTACK_DAMAGE = Id.minecraft("cb3f55d3-645c-4f38-a497-9c13a33db5cf");
 
   private final Supplier<StealthCore> stealth;
   private final Cooldowns cooldowns = cooldowns();
@@ -90,6 +102,27 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return base + (percent * factor);
   }
 
+  static double computeMultiplier(double base, double factor, double percent) {
+    return base + (percent * factor);
+  }
+
+  static double computeStrike(double weaponDamage, double multiplier, double maxDamage) {
+    return Math.max(0D, Math.min(maxDamage, weaponDamage * multiplier));
+  }
+
+  /**
+   * The held weapon's own attack damage: the player's base attack damage (1) plus the main-hand item's attack damage
+   * modifier. Enchantments, effects and other modifiers are left out.
+   */
+  static double weaponDamage(PlayerRef player) {
+    AttributeMod item = player.modifier(Attributes.ATTACK_DAMAGE, BASE_ATTACK_DAMAGE);
+    if (item == null) {
+      item = player.modifier(Attributes.ATTACK_DAMAGE, LEGACY_BASE_ATTACK_DAMAGE);
+    }
+    double bonus = item != null && item.operation() == AttributeOperation.ADD_VALUE ? item.amount() : 0D;
+    return player.attributeBase(Attributes.ATTACK_DAMAGE) + bonus;
+  }
+
   static long computeCooldown(double base, double factor, double percent) {
     return Math.max(8000L, Math.round(base - (percent * factor)));
   }
@@ -103,9 +136,11 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
   public void addStats(int level, StatLines v) {
     statLore(v, Format.f(getHealthCap(level), 0), 1);
     statLore(v, TextFormat.YELLOW, "* ", Format.duration(getCooldown(level), 1), 2);
+    statLore(v, Format.f(getMultiplier(level), 1), 3);
+    statLore(v, Format.f(getConfig().maxDamage, 0), 4);
   }
 
-  @Handle(priority = EventPriority.HIGHEST)
+  @Handle(priority = EventPriority.LOWEST)
   public void on(EntityDamageByEntityEvent e) {
     Adaptation.MeleeContext combat = resolveMeleeContext(e);
     if (combat == null) {
@@ -140,7 +175,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     }
 
     cooldowns.mark(id, cooldown);
-    StealthExecution.applyExecutionDamage(e, target.health());
+    AbilityDamage.fix(e, computeStrike(weaponDamage(attacker), getMultiplier(combat.level()), getConfig().maxDamage));
     xp(attacker, getConfig().xpOnExecution);
     addStat(attacker, "stealth.get().assassinate.executions", 1);
 
@@ -164,16 +199,26 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return computeHealthCap(getConfig().healthCapBase, getConfig().healthCapFactor, getLevelPercent(level));
   }
 
+  private double getMultiplier(int level) {
+    return computeMultiplier(getConfig().damageMultiplierBase, getConfig().damageMultiplierFactor, getLevelPercent(level));
+  }
+
   private long getCooldown(int level) {
     return computeCooldown(getConfig().cooldownBase, getConfig().cooldownFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("While Stealth reports you undetected, a strike instantly executes non-boss mobs below a max-health cap.")
+  @ConfigDescription("While Stealth reports you undetected, a strike on a mob below a max-health cap deals your weapon's damage times a multiplier, up to a cap.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base maximum health a mob can have to be executable.", impact = "Higher values let you execute tougher mobs.")
     double healthCapBase = 22.0;
     @ConfigDoc(value = "Extra executable health granted across levels.", impact = "Higher values raise the executable health cap more per level.")
     double healthCapFactor = 38.0;
+    @ConfigDoc(value = "Weapon damage multiplier before level scaling.", impact = "Higher values make every strike hit harder.")
+    double damageMultiplierBase = 1.7;
+    @ConfigDoc(value = "Weapon damage multiplier added across levels.", impact = "Higher values make higher levels hit harder.")
+    double damageMultiplierFactor = 1.2;
+    @ConfigDoc(value = "Most damage one strike deals before the victim's armor.", impact = "Higher values let strong weapons hit harder.")
+    double maxDamage = 30;
     @ConfigDoc(value = "Base cooldown between executions, in milliseconds.", impact = "Higher values mean longer waits between assassinations.")
     double cooldownBase = 40000;
     @ConfigDoc(value = "How much the cooldown is reduced by leveling, in milliseconds.", impact = "Higher values shorten the cooldown more at higher levels.")

@@ -571,8 +571,8 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
       return;
     }
     Long lungeAt = lungeStamps.get(p.uuid());
-    Vec3 velocity = p.velocity();
-    double horizontalSpeed = p.isSprinting() ? Math.hypot(velocity.x(), velocity.z()) : 0D;
+    Vec3 movement = p.movement();
+    double horizontalSpeed = p.isSprinting() ? Math.hypot(movement.x(), movement.z()) : 0D;
     if (isChargeHit(System.currentTimeMillis(), lungeAt == null ? 0L : lungeAt, getConfig().lungeChargeWindowMs, horizontalSpeed, getConfig().chargeMinSpeed)) {
       payCombatXp(p, at, getConfig().spearChargeXp, spearCharge);
       return;

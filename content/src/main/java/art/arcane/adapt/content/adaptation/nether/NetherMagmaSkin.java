@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.api.AdaptApi;
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
@@ -105,7 +106,7 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
 
   @Handle(priority = EventPriority.HIGH)
   public void onAttack(EntityDamageByEntityEvent e) {
-    if (!(e.damager() instanceof PlayerRef p) || !(e.entity() instanceof LivingRef target)) {
+    if (!(e.damager() instanceof PlayerRef p) || !(e.entity() instanceof LivingRef target) || AbilityDamage.fixed(e)) {
       return;
     }
 

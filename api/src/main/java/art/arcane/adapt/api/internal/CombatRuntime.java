@@ -16,6 +16,10 @@ public interface CombatRuntime {
 
   boolean dealingAbilityDamage();
 
+  void fixHit(long dispatchId);
+
+  boolean hitFixed(long dispatchId);
+
   boolean isMinion(EntityRef entity);
 
   @Nullable UUID minionOwner(EntityRef entity);

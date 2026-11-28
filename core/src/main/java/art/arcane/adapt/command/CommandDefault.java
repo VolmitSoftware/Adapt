@@ -32,6 +32,7 @@ import java.util.Set;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
+@CommandPermission("adapt.configurator")
 @Director(name = "default", origin = DirectorOrigin.BOTH, description = "Reset configs to defaults", descriptionKey = "adapt.command.help.reset_configs_to_defaults")
 public class CommandDefault {
 

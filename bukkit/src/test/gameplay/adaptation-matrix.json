@@ -6664,7 +6664,7 @@
       "triggers": [
         "EntityDamageByEntityEvent"
       ],
-      "expectation": "While Stealth reports you undetected, a strike instantly executes non-boss mobs below a max-health cap.",
+      "expectation": "While Stealth reports you undetected, a strike on a mob below a max-health cap deals your weapon's damage times a multiplier, up to a cap.",
       "expectationSource": "../content/src/main/java/art/arcane/adapt/content/adaptation/stealth/StealthAssassinate.java",
       "sounds": [
         "BLOCK_SCULK_SHRIEKER_SHRIEK",

@@ -81,7 +81,6 @@ public class SkillArchitect extends SimpleSkill<SkillArchitect.Config> {
   public SkillArchitect() {
     super(ID);
     xpNote(Text.key("adapt.xp_guide.architect.throw"));
-    xpNote(Text.key("adapt.xp_guide.architect.storage"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x55FFFF));
     setInterval(3100);

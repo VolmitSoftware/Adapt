@@ -476,7 +476,8 @@ final class AdaptationRuntimeGuards {
   static Adaptation.AttackContext resolveAttackContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ItemRef> mainHandRequirement) {
     if (event == null || (event.cause() != DamageCause.ENTITY_ATTACK
         && event.cause() != DamageCause.ENTITY_SWEEP_ATTACK)
-        || !(event.damager() instanceof PlayerRef attacker) || AbilityDamage.dealing()) {
+        || !(event.damager() instanceof PlayerRef attacker) || AbilityDamage.dealing()
+        || AbilityDamage.fixed(event.dispatchId())) {
       return null;
     }
 

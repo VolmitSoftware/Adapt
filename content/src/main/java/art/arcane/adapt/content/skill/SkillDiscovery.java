@@ -115,7 +115,6 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
 
   public SkillDiscovery() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.discovery.once"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0x55FFFF));
     setInterval(50);

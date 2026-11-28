@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
+@CommandPermission("adapt.clear")
 @Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player", descriptionKey = "adapt.command.help.permanently_delete_all_adapt_data_for_a_player")
 public class CommandReset {
   private static final long CONFIRMATION_TIMEOUT_MS = 30_000;

@@ -235,16 +235,17 @@ async function trident(input) {
     return { damage: before.health - (await input.snapshot(input.opponent)).health }
 }
 
+// Storm Strike spares players unless strikePlayers is on, so the trial hits a still hostile mob, not the opponent.
 async function storm(input) {
-    const before = await input.snapshot(input.opponent)
-    const actor = await input.snapshot()
-    input.context.expect(actor.inWater, 'Storm Strike trial starts in water')
-    const target = input.actor.bot.entities[input.opponent.bot.entity.id]
-    input.context.expect(Boolean(target), 'Storm Strike trial has a visible melee target')
+    const before = await input.snapshot()
+    input.context.expect(before.inWater, 'Storm Strike trial starts in water')
+    const target = input.actor.bot.entities[before.traversal.target?.entityId]
+    input.context.expect(Boolean(target), 'Storm Strike trial has a visible hostile melee target')
     await input.actor.bot.lookAt(target.position.offset(0, 1, 0), true)
     input.actor.bot.attack(target)
     await input.actor.bot.waitForTicks(8)
-    return { damage: before.health - (await input.snapshot(input.opponent)).health }
+    const after = await input.snapshot()
+    return { damage: before.traversal.target.health - after.traversal.target.health }
 }
 
 async function rainFed(input) {
@@ -453,9 +454,10 @@ export const traversalBehaviorCases = new Map([
         verify: ({ context, unlearned, active }) => {
             context.expect(!unlearned.dead && unlearned.healthAfter > 0 && unlearned.healthAfter < unlearned.healthBefore,
                 'Undetected control punch with Silent Step damages but does not execute the mob')
-            context.expect(active.healthBefore === unlearned.healthBefore && active.dead,
-                'Learned Assassinate executes the same healthy mob in one undetected punch')
-            return { assertions: ['Silent Step alone does not execute the target', 'Assassinate executes the same target with one natural punch'], measurements: { unlearned, active } }
+            const struck = active.healthBefore - active.healthAfter
+            context.expect(active.healthBefore === unlearned.healthBefore && !active.dead && struck >= 2 - 1e-6 && struck <= 2.9 + 1e-6,
+                'Learned Assassinate strikes the same healthy mob for the bare fist times its level multiplier, 2 to 2.9')
+            return { assertions: ['Silent Step alone does not execute the target', 'Assassinate strikes the same target for its fixed bare-hand damage'], measurements: { unlearned, active, struck } }
         },
     }],
     ['adapt:stealth/shadowmeld', {

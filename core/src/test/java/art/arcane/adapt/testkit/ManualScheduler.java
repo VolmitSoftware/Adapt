@@ -186,9 +186,15 @@ public final class ManualScheduler implements HostScheduler {
     return schedule(task, delayTicks, 0L);
   }
 
+  /** A zero delay on the tick thread fires the first run inline, before the handle is returned, as Bukkit does. */
   @Override
   public TaskHandle repeatEntity(EntityRef entity, Runnable task, long delayTicks, long periodTicks, Runnable retired) {
-    return schedule(task, delayTicks, Math.max(1L, periodTicks));
+    long period = Math.max(1L, periodTicks);
+    if (delayTicks <= 0L && isTickThread()) {
+      task.run();
+      return schedule(task, period, period);
+    }
+    return schedule(task, delayTicks, period);
   }
 
   @Override

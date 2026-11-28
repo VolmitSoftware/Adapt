@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.mutation.signature;
 
+import art.arcane.adapt.api.ability.AbilityDamage;
 import art.arcane.adapt.api.config.ConfigDescription;
 import art.arcane.adapt.api.config.ConfigDoc;
 import art.arcane.adapt.api.content.StatLines;
@@ -159,7 +160,7 @@ public final class IronGuard extends Signature<IronGuard.Config> {
   }
 
   private void riposte(EntityDamageByEntityEvent e) {
-    if (!(e.damager() instanceof PlayerRef striker) || e.isCancelled()) {
+    if (!(e.damager() instanceof PlayerRef striker) || e.isCancelled() || AbilityDamage.fixed(e)) {
       return;
     }
     Long parried = ripostes.get(striker.uuid());

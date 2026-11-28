@@ -9,6 +9,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.world.Environment;
 import art.arcane.adapt.platform.world.WorldRef;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
+import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +62,7 @@ class AdaptDebugDumpTest extends AdaptTestBase {
     }).when(platform.scheduler()).runAsync(any(Runnable.class));
     AdaptPorts.install(CommandHelpPort.class, new CommandHelpPort() {
       @Override
-      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
+      public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
         return false;
       }
 

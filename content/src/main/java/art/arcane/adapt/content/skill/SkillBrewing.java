@@ -88,7 +88,6 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
 
   public SkillBrewing() {
     super(ID);
-    xpNote(Text.key("adapt.xp_guide.brewing.plain"));
     registerConfiguration(Config.class);
     setColor(Rgb.of(0xFF55FF));
     setInterval(5851);

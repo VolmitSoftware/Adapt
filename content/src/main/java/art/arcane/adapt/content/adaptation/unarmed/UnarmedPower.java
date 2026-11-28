@@ -57,7 +57,7 @@ import art.arcane.adapt.platform.value.Id;
 
 public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
   public static final Id ID = Id.adapt("unarmed/power");
-  private static final String SLOT_POWER = "power";
+  static final String SLOT_POWER = "power";
   private static final long REFRESH_DURATION_TICKS = 180L;
 
   public UnarmedPower() {

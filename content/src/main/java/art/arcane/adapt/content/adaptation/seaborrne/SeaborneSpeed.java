@@ -217,15 +217,15 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
     }
     swimTrail.mark(playerId);
 
-    Vec3 velocity = player.velocity();
-    double speedSquared = velocity.lengthSquared();
+    Vec3 movement = player.movement();
+    double speedSquared = movement.lengthSquared();
     if (speedSquared <= 0.09D) {
       return;
     }
 
     int count = Math.min(6, 3 + (int) (speedSquared * 2D));
     FxEmitter emitter = fx(player.location(), FxPriority.TRAIL)
-        .trail(Particles.BUBBLE, -velocity.x(), -velocity.y(), -velocity.z(), 1.4D, count)
+        .trail(Particles.BUBBLE, -movement.x(), -movement.y(), -movement.z(), 1.4D, count)
         .particle(Particles.GLOW, 1, 0D, 0.4D, 0D, 0.1D, 0D);
     if (swimSound.isReady(playerId, 2000L)) {
       swimSound.mark(playerId);

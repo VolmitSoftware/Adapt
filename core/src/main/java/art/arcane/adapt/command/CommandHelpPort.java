@@ -1,8 +1,10 @@
 package art.arcane.adapt.command;
 
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
+import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Renders the Director help menu, chat menus and the version line in the platform's chat look. {@link #NONE} shows no
@@ -11,7 +13,7 @@ import java.util.List;
 public interface CommandHelpPort {
   CommandHelpPort NONE = new CommandHelpPort() {
     @Override
-    public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments) {
+    public boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible) {
       return false;
     }
 
@@ -35,8 +37,11 @@ public interface CommandHelpPort {
     }
   };
 
-  /** Sends the help page {@code arguments} ask for and returns true, or returns false when they ask for none. */
-  boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments);
+  /**
+   * Sends the help page {@code arguments} ask for, listing only the entries {@code visible} accepts, and returns true;
+   * returns false when they ask for none.
+   */
+  boolean help(CommandSource source, DirectorRuntimeEngine engine, List<String> arguments, Predicate<DirectorRuntimeNode> visible);
 
   /** Sends a chat menu page. */
   void menu(CommandSource source, CommandMenu menu);

@@ -4,6 +4,7 @@ import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptPorts;
+import art.arcane.adapt.api.AdaptApi;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.engine.fx.Fx;
@@ -375,7 +376,7 @@ public final class GameplayFixture {
                 return false;
             }
         }
-        return Tasks.isOwnedByCurrentRegion(site, 24, 24);
+        return AdaptApi.scheduler().ownsArea(site, 24, 24);
     }
 
     private CompletableFuture<Void> relocate(PlayerRef admin, Loc site) {
@@ -401,7 +402,7 @@ public final class GameplayFixture {
 
     private void stage(String name) {
         requireSetup();
-        boolean arenaOwned = Tasks.isOwnedByCurrentRegion(arena, 0, 0);
+        boolean arenaOwned = AdaptApi.scheduler().owns(arena, 0, 0);
         boolean onArena = stageSite(name).world().uid().equals(arena.uid());
         if (arenaOwned) {
             removeEntities();

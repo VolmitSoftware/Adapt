@@ -99,6 +99,35 @@ class UnarmedUpgradesRuntimeTest {
     assertThat(armored).isLessThan(naked).isGreaterThan(1D);
   }
 
+  /** Power's 2.57 and Glass Cannon's 2.05 add on the fist: ((1 + 2.57 + 2.05) * 1 + 1.75 + 3) * 1.1 = 11.407. */
+  @Test
+  void titanFistsAddsPowerAndGlassCannonToTheFistFor11_407() {
+    mutate();
+    learn(TitanFists.class, 1);
+
+    assertThat(punch(zombie(2.5D), 1D).damage()).isCloseTo(((1D * 5.62D) + 1.75D + 3D) * 1.1D, within(1.0E-9D));
+  }
+
+  @Test
+  void titanFistsCritScalesTheFistFor14_498() {
+    mutate();
+    learn(TitanFists.class, 1);
+
+    assertThat(punch(zombie(2.5D), 1.5D).damage()).isCloseTo(((1.5D * 5.62D) + 1.75D + 3D) * 1.1D, within(1.0E-9D));
+  }
+
+  @Test
+  void titanFistsArmorCutsOnlyTheGlassCannonShare() {
+    mutate();
+    TitanFists titan = learn(TitanFists.class, 1);
+    player.setEquipment(EquipmentSlot.CHEST, FakeItem.of("diamond_chestplate"));
+    double armor = titan.getArmorValue(player);
+
+    assertThat(armor).isPositive();
+    assertThat(punch(zombie(2.5D), 1D).damage())
+        .isCloseTo((3.57D + Math.max(0D, 1.75D - armor) + 3D) * 1.1D, within(1.0E-9D));
+  }
+
   @Test
   void titanFistsOutpunchesTheMaxedOriginalsByATenthPerLevel() {
     player.setAttributeBase(Attributes.ATTACK_DAMAGE, 1D);

@@ -16,15 +16,13 @@ public final class XpGuideMessages {
   public static final TextKey ONE_BAR = AdaptKeys.text("xp_guide.mutation.one_bar", "Both parents' actions fill this one bar.");
   public static final TextKey SAME_ACTION = AdaptKeys.text("xp_guide.mutation.same_action",
       "An action that pays both parents pays the larger award plus {share}% of the smaller.");
-  public static final TextKey FARMED_NEVER = AdaptKeys.text("xp_guide.mutation.farmed", "Farmed sources never pay.");
-  public static final TextKey ADAPTATIONS = AdaptKeys.text("xp_guide.adaptations", "Using its adaptations and finishing its challenges");
 
   private XpGuideMessages() {
   }
 
   /** The mutation's rules, in order. */
   public static List<TextKey> rules() {
-    return List.of(ONE_BAR, SAME_ACTION, FARMED_NEVER);
+    return List.of(ONE_BAR, SAME_ACTION);
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
@@ -33,6 +31,5 @@ public final class XpGuideMessages {
     for (TextKey rule : rules()) {
       builder.add(rule);
     }
-    builder.add(ADAPTATIONS);
   }
 }
