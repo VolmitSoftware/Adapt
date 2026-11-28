@@ -9,6 +9,8 @@ package art.arcane.adapt.pack.text;
 public final class PackInk {
   /** The darkest paper a skill's colour is written on. */
   public static final int PAPER = 0xDCC9A0;
+  /** The ink of plain text on a pack page or tooltip frame. */
+  public static final int TEXT = 0x2E2216;
   /** Contrast on {@link #PAPER} of the ink for a mid-light source colour; light sources get less, dark ones more. */
   private static final double MID_CONTRAST = 6.1;
   private static final double CONTRAST_SPREAD = 1.4;
@@ -98,12 +100,38 @@ public final class PackInk {
       if (chat < 0) {
         out.append(c).append(legacy.charAt(index + 1));
       } else {
-        out.append(SECTION).append('x');
-        for (char digit : String.format("%06x", of(CHAT[chat])).toCharArray()) {
-          out.append(SECTION).append(digit);
-        }
+        out.append(hex(of(CHAT[chat])));
       }
       index += 2;
+    }
+    return out.toString();
+  }
+
+  /**
+   * A tooltip line for a parchment frame: {@link #inked} chat colours, the text ink from the first character unless the
+   * line opens with a colour, and the text ink again after every reset. The client writes an uncoloured name in its
+   * rarity colour (white) and uncoloured lore in purple, both unreadable on parchment.
+   */
+  public static String tooltip(String legacy) {
+    if (legacy == null || legacy.isEmpty()) {
+      return legacy;
+    }
+    String ink = hex(TEXT);
+    String inked = inked(legacy).replace(SECTION + "r", ink).replace(SECTION + "R", ink);
+    int index = 0;
+    while (index + 1 < inked.length() && inked.charAt(index) == SECTION && "klmnoKLMNO".indexOf(inked.charAt(index + 1)) >= 0) {
+      index += 2;
+    }
+    boolean coloured = index + 1 < inked.length() && inked.charAt(index) == SECTION
+        && (DIGITS.indexOf(Character.toLowerCase(inked.charAt(index + 1))) >= 0 || Character.toLowerCase(inked.charAt(index + 1)) == 'x');
+    return coloured ? inked : ink + inked;
+  }
+
+  /** The legacy hex colour code of 0xRRGGBB {@code rgb}. */
+  private static String hex(int rgb) {
+    StringBuilder out = new StringBuilder(HEX_CODE).append(SECTION).append('x');
+    for (char digit : String.format("%06x", rgb & 0xFFFFFF).toCharArray()) {
+      out.append(SECTION).append(digit);
     }
     return out.toString();
   }

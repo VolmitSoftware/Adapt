@@ -71,6 +71,10 @@ public final class GameplayFixture {
         return instance;
     }
 
+    public FixturePlatform platform() {
+        return platform;
+    }
+
     public static GameplayFixture get() {
         return instance;
     }

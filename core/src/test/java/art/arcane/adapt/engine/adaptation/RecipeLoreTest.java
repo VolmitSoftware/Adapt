@@ -1,19 +1,21 @@
 package art.arcane.adapt.engine.adaptation;
 
 import art.arcane.adapt.api.content.Adaptation;
+import art.arcane.adapt.engine.gui.LoreLists;
 import art.arcane.adapt.platform.value.Id;
 
 import art.arcane.adapt.engine.skill.SkillRegistry;
 import art.arcane.adapt.content.BuiltinAddon;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
-import art.arcane.adapt.util.common.format.C;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,14 +40,15 @@ class RecipeLoreTest {
   }
 
   @Test
-  void theLevelThatUnlocksRecipesNamesThreeAndCountsTheRest() {
+  void theLevelThatUnlocksRecipesNamesEveryRecipeAndLeavesToolsOut() {
     Adaptation<?> apothecary = registry.getAdaptation(Id.adapt("brewing/upgrade/apothecary"));
-    assertThat(C.stripColor(AdaptationGuiSupport.recipeLore(apothecary, 1)))
-        .isEqualTo("Recipes: Bottled Absorption, Bottled Absorption 2, Bottled Life +8");
-    assertThat(AdaptationGuiSupport.recipeLore(apothecary, 2)).isEmpty();
+    List<String> brewed = AdaptationGuiSupport.recipeNames(apothecary, 1);
+    assertThat(brewed).hasSize(11).startsWith("Bottled Absorption", "Bottled Absorption 2", "Bottled Life");
+    assertThat(LoreLists.joined(brewed)).endsWith(", and 3 more");
+    assertThat(AdaptationGuiSupport.recipeNames(apothecary, 2)).isEmpty();
     Adaptation<?> chalk = registry.getAdaptation(Id.adapt("architect/chalk_line"));
-    assertThat(C.stripColor(AdaptationGuiSupport.recipeLore(chalk, 2))).isEqualTo("Recipes: Chalk Polyline Wand");
-    assertThat(AdaptationGuiSupport.recipeLore(registry.getAdaptation(Id.adapt("agility/wall_jump")), 1)).isEmpty();
-    assertThat(AdaptationGuiSupport.recipeLore(registry.getAdaptation(Id.adapt("stealth/upgrade/phantom_decoy")), 1)).isEmpty();
+    assertThat(AdaptationGuiSupport.recipeNames(chalk, 2)).containsExactly("Chalk Polyline Wand");
+    assertThat(AdaptationGuiSupport.recipeNames(registry.getAdaptation(Id.adapt("agility/wall_jump")), 1)).isEmpty();
+    assertThat(AdaptationGuiSupport.recipeNames(registry.getAdaptation(Id.adapt("stealth/upgrade/phantom_decoy")), 1)).isEmpty();
   }
 }

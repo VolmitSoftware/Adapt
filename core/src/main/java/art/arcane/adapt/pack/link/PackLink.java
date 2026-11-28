@@ -25,6 +25,10 @@ public interface PackLink {
     }
 
     @Override
+    public void disconnect(UUID playerId, String message) {
+    }
+
+    @Override
     public void listen(StatusListener listener) {
     }
   };
@@ -39,6 +43,9 @@ public interface PackLink {
   void offer(UUID playerId, PackOffer offer);
 
   void remove(UUID playerId, UUID packId);
+
+  /** Disconnects the player with {@code message}, in Adapt markup. */
+  void disconnect(UUID playerId, String message);
 
   /** Sets the one receiver of client status reports; null stops reporting. */
   void listen(StatusListener listener);

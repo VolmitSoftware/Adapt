@@ -14,7 +14,6 @@ import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
-import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
@@ -24,6 +23,8 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
@@ -36,7 +37,6 @@ import java.util.Locale;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class PreferenceGroupGui {
-  private static final Id ARROW = Id.minecraft("arrow");
   private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
 
   private final Adaptation<?> adaptation;
@@ -51,7 +51,7 @@ final class PreferenceGroupGui {
     this.group = group;
     this.window = window;
     this.adaptationPage = adaptationPage;
-    layout = Layout.of(group.entries().size(), AdaptConfig.get().isGuiBackButton());
+    layout = Layout.of(group.entries().size());
   }
 
   static void open(Adaptation<?> adaptation, PreferenceToggleGroup group, PlayerRef player, int adaptationPage) {
@@ -62,8 +62,8 @@ final class PreferenceGroupGui {
     if (AdaptCore.get().getAdaptServer().getPlayer(player) == null) {
       return;
     }
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
     GuiWindow window = new GuiWindow(player);
-    GuiTheme.apply(window, "skill/" + SkillHost.lineKey(adaptation.getSkill()) + "|" + adaptation.getId() + "|" + group.id());
     populate(adaptation, group, window, adaptationPage);
     window.setTitle(SkillHost.legacyColor(adaptation.getSkill().getColor()) + group.label().resolve());
     window.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onClosed(adaptation, player, adaptationPage)));
@@ -72,8 +72,12 @@ final class PreferenceGroupGui {
 
   static void populate(Adaptation<?> adaptation, PreferenceToggleGroup group, GuiWindow window, int adaptationPage) {
     PreferenceGroupGui gui = new PreferenceGroupGui(adaptation, group, window, adaptationPage);
-    window.setViewportHeight(gui.layout.rows());
+    GuiFrame.apply(window, "skill/" + SkillHost.lineKey(adaptation.getSkill()) + "|" + adaptation.getId() + "|" + group.id(),
+        gui.layout.contentRows());
     window.setLayout(MenuLayout.FORM);
+    GuiFrame.subject(window, GuiTheme.element("preference-group", group.icon(), "gui", "preferences", "group")
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), AdaptLanguage.key(group.label().key())))
+        .setRole(MenuRole.HEADER));
     gui.render(false);
   }
 
@@ -92,10 +96,8 @@ final class PreferenceGroupGui {
         window.setElement(slot.position(), slot.row(), element);
       }
     }
-    if (!update && layout.backButton()) {
-      window.setElement(0, layout.rows() - 1, GuiTheme.element("back", ARROW, "gui", "navigation", "back")
-          .setName(C.RESET + "" + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-          .onLeftClick((MenuClick clicked) -> navigateBack()));
+    if (!update) {
+      GuiFrame.back(window, this::navigateBack);
     }
     if (update) {
       window.update();
@@ -185,9 +187,7 @@ final class PreferenceGroupGui {
   }
 
   private void navigateBack() {
-    PlayerRef viewer = window.getViewer();
-    AdaptationGuiSupport.playCloseSound(viewer);
-    AdaptationGuiSupport.openGui(adaptation, viewer, adaptationPage);
+    AdaptationGuiSupport.openSettings(adaptation, window.getViewer(), adaptationPage);
   }
 
   private void onOwner(Runnable action) {
@@ -206,13 +206,13 @@ final class PreferenceGroupGui {
     if (GuiCloseSuppression.consume(player)) {
       return;
     }
-    AdaptationGuiSupport.playCloseSound(player);
+    MenuSounds.play(player, MenuSounds.Action.BACK);
     if (AdaptConfig.get().isEscClosesAllGuis()) {
       return;
     }
     Tasks.runEntity(player, () -> {
       if (GuiCloseSuppression.windowFree(player)) {
-        AdaptationGuiSupport.openGui(adaptation, player, adaptationPage);
+        AdaptationGuiSupport.openSettings(adaptation, player, adaptationPage);
       }
     }, 1);
   }
@@ -220,21 +220,17 @@ final class PreferenceGroupGui {
   private record Slot(int position, int row) {
   }
 
-  private record Layout(int entries, int contentRows, int perRow, boolean backButton) {
-    static Layout of(int entries, boolean backButton) {
-      int contentRows = Math.max(1, (entries + GuiLayout.WIDTH - 1) / GuiLayout.WIDTH);
+  private record Layout(int entries, int contentRows, int perRow) {
+    static Layout of(int entries) {
+      int contentRows = Math.max(1, Math.min(GuiFrame.MAX_BODY_ROWS, (entries + GuiLayout.WIDTH - 1) / GuiLayout.WIDTH));
       int perRow = Math.max(1, (entries + contentRows - 1) / contentRows);
-      return new Layout(entries, contentRows, perRow, backButton);
-    }
-
-    int rows() {
-      return contentRows + (backButton ? 1 : 0);
+      return new Layout(entries, contentRows, perRow);
     }
 
     Slot slot(int index) {
       int row = index / perRow;
       int start = row * perRow;
-      return new Slot(GuiLayout.centeredPosition(index - start, Math.min(perRow, entries - start)), row);
+      return new Slot(GuiLayout.centeredPosition(index - start, Math.min(perRow, entries - start)), row + 1);
     }
   }
 }

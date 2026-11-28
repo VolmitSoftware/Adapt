@@ -11,7 +11,6 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.engine.mutation.MutationNotice;
 import art.arcane.adapt.engine.mutation.MutationOffers;
 import art.arcane.adapt.engine.mutation.SkillMutations;
-import art.arcane.adapt.engine.mutation.engine.MutationAdaptation;
 import art.arcane.adapt.engine.mutation.tool.MutationTools;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.skill.SkillRegistry;
@@ -20,6 +19,12 @@ import art.arcane.adapt.engine.world.PlayerData;
 import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.client.protocol.HintKind;
+import art.arcane.adapt.client.view.MutationWords;
+import art.arcane.adapt.client.view.MutationSpreadViews;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.MutationSide;
+import art.arcane.adapt.client.view.MutationEntry;
+import art.arcane.adapt.client.view.IconRef;
 import art.arcane.adapt.client.protocol.PanelLayout;
 import art.arcane.adapt.client.protocol.PanelTile;
 import art.arcane.adapt.client.protocol.PanelView;
@@ -33,7 +38,6 @@ import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuIcon;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.menu.StorageView;
 import art.arcane.adapt.platform.value.Id;
@@ -58,10 +62,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.when;
 
 class MutationGuiTest {
   @TempDir
@@ -132,7 +134,13 @@ class MutationGuiTest {
         .containsExactlyInAnyOrder(swordsHeld, stealthHeld);
     assertThat(preview.upgrades()).containsExactlyElementsOf(
         Stream.concat(SkillHost.of(skill("swords")).getUpgrades().stream(), SkillHost.of(skill("stealth")).getUpgrades().stream()).toList());
-    assertThat(MutationGui.lostLines(preview)).hasSize(4);
+    List<MutationSummary.Section> losses = MutationSummary.losses(
+        MutationSpreadViews.build(registry, playerData, skill("swords"), skill("stealth"), AdaptConfig.get().getMutations(), ""), registry);
+    assertThat(losses).extracting(MutationSummary.Section::skillId).containsExactly("adapt:swords", "adapt:stealth");
+    assertThat(losses.get(0).detail()).isEqualTo("5 levels · " + preview.lostKnowledge() + " knowledge");
+    assertThat(losses.get(0).entries()).extracting(MutationEntry::name).contains(C.stripColor(swordsHeld.getShortName()) + " I");
+    assertThat(losses.get(1).detail()).isEmpty();
+    assertThat(losses.get(1).entries()).extracting(MutationEntry::name).contains(C.stripColor(stealthHeld.getShortName()) + " II");
 
     SkillMutations.mutate(playerData, skill("swords"), skill("stealth"), "Mutant");
     PlayerSkillLine merged = playerData.getSkillLine("swords");
@@ -141,32 +149,38 @@ class MutationGuiTest {
   }
 
   @Test
-  void thePreviewSaysPermanentAdaptationsAreUnlearnedToo() {
-    Adaptation<?> permanent = mock(Adaptation.class);
-    when(permanent.isPermanent()).thenReturn(true);
-    when(permanent.getDisplayName()).thenReturn("Haste");
-    MutationOffers.Preview preview = new MutationOffers.Preview(null, "Silent Duelist", 17, 0L, List.of(), List.of(),
-        skill("swords"), 0, 0L, List.of(new SkillMutations.HeldAdaptation(permanent, 2, 0L)));
+  void theLossesKeepThePagesWordingForAPermanentAdaptation() {
+    MutationEntry permanent = new MutationEntry("adapt:haste", IconRef.item("minecraft:sugar"), "Haste II (permanent, still unlearned)", "", 2);
+    MutationSide lead = new MutationSide("adapt:swords", 20, List.of(), List.of(), List.of(), List.of(permanent), "");
+    MutationSpreadView spread = new MutationSpreadView("adapt:swords", "adapt:stealth", "Silent Duelist", "", List.of(), lead,
+        MutationSide.NONE, List.of(), new MutationWords("", "", "", "", "", "", "", "", ""), "");
 
-    assertThat(MutationGui.lostLines(preview)).extracting(C::stripColor)
-        .containsExactly("Haste II (permanent, still unlearned)");
+    assertThat(MutationSummary.lore(MutationSummary.losses(spread, registry), registry)).extracting(C::stripColor)
+        .containsExactly("Swords Lv 20", "Haste II (permanent, still unlearned)");
   }
 
   @Test
-  void pickingAPartnerShowsThePreviewInTheSameMenu() {
+  void pickingAPartnerOpensTheConfirmStep() {
     level("swords", 20, 0);
     level("stealth", 20, 0);
 
     MutationGui.openPartners(player, skill("swords"));
     settle();
     assertThat(C.stripColor(menus.menu.title())).isEqualTo("Mutate");
-    assertThat(menus.menu.button(ChestMenu.slot(0, 8)).clickable()).isFalse();
+    assertThat(menus.menu.rows()).isEqualTo(3);
+    assertThat(C.stripColor(menus.menu.button(4).icon().name())).isEqualTo("Lead: Swords");
 
     click(ChestMenu.slot(1, 4));
     assertThat(C.stripColor(menus.menu.title())).isEqualTo("Silent Duelist");
-    assertThat(menus.menu.button(ChestMenu.slot(1, 4)).icon().glint()).isTrue();
-    assertThat(menus.menu.button(ChestMenu.slot(0, 8))).isNotNull();
+    assertThat(C.stripColor(menus.menu.button(ChestMenu.slot(1, 1)).icon().name())).endsWith("Swords");
+    assertThat(C.stripColor(menus.menu.button(ChestMenu.slot(1, 3)).icon().name())).endsWith("Stealth");
+    assertThat(C.stripColor(menus.menu.button(ChestMenu.slot(1, 5)).icon().name())).isEqualTo("You lose");
+    assertThat(C.stripColor(menus.menu.button(ChestMenu.slot(1, 7)).icon().name())).isEqualTo("You gain");
+    assertThat(menus.menu.button(ChestMenu.slot(2, 7)).clickable()).isTrue();
     assertThat(profile.getData().getMutations()).isEmpty();
+
+    click(ChestMenu.slot(2, 0));
+    assertThat(C.stripColor(menus.menu.title())).isEqualTo("Mutate");
   }
 
   @Test
@@ -178,17 +192,17 @@ class MutationGuiTest {
     settle();
     assertThat(C.stripColor(menus.menu.title())).isEqualTo("Silent Duelist");
 
-    click(ChestMenu.slot(0, 8));
+    click(ChestMenu.slot(2, 7));
     assertThat(profile.getData().getMutations()).isEmpty();
-    assertThat(menus.menu.button(ChestMenu.slot(0, 8)).icon().type()).isEqualTo(Id.minecraft("red_stained_glass_pane"));
+    assertThat(menus.menu.button(ChestMenu.slot(2, 7)).icon().type()).isEqualTo(Id.minecraft("red_stained_glass_pane"));
 
-    click(ChestMenu.slot(0, 2));
+    click(ChestMenu.slot(1, 2));
     assertThat(C.stripColor(menus.menu.title())).isEqualTo("Bladed Shade");
-    assertThat(menus.menu.button(ChestMenu.slot(0, 8)).icon().type()).isEqualTo(Id.minecraft("lime_stained_glass_pane"));
+    assertThat(menus.menu.button(ChestMenu.slot(2, 7)).icon().type()).isEqualTo(Id.minecraft("nether_star"));
     assertThat(profile.getData().getMutations()).isEmpty();
 
-    click(ChestMenu.slot(0, 8));
-    click(ChestMenu.slot(0, 8));
+    click(ChestMenu.slot(2, 7));
+    click(ChestMenu.slot(2, 7));
     assertThat(profile.getData().getMutations()).extracting(mutation -> mutation.key()).containsExactly("adapt:stealth+adapt:swords");
   }
 
@@ -199,12 +213,13 @@ class MutationGuiTest {
     for (boolean armed : List.of(false, true)) {
       MutationGui.open(player, skill("swords"), skill("stealth"), armed);
       settle();
-      assertThat(menus.menu.button(ChestMenu.slot(0, 8)).icon().lore()).map(C::stripColor).contains("This cannot be undone");
+      assertThat(menus.menu.button(ChestMenu.slot(2, 7)).icon().lore()).map(C::stripColor).contains("This cannot be undone");
+      assertThat(menus.menu.button(ChestMenu.slot(1, 5)).icon().lore()).map(C::stripColor).contains("This cannot be undone");
     }
   }
 
   @Test
-  void thePreviewBecomesANativePanelWithItsHeaderActionsAndArmedConfirm() {
+  void theConfirmStepBecomesANativePanelWithItsHeaderActionsAndArmedConfirm() {
     level("swords", 20, 0);
     level("stealth", 20, 0);
     MutationGui.open(player, skill("swords"), skill("stealth"), true);
@@ -213,52 +228,66 @@ class MutationGuiTest {
     PanelView view = PanelViews.view(1, 0, menus.menu);
 
     assertThat(view.layout()).isEqualTo(PanelLayout.GRID);
-    assertThat(tile(view, ChestMenu.slot(0, 4)).role()).isEqualTo(TileRole.HEADER);
-    assertThat(tile(view, ChestMenu.slot(0, 2)).role()).isEqualTo(TileRole.ACTION);
-    assertThat(tile(view, ChestMenu.slot(0, 8)).role()).isEqualTo(TileRole.ACTION);
-    assertThat(tile(view, ChestMenu.slot(0, 8)).hint().kind()).isEqualTo(HintKind.DESTRUCTIVE);
-    assertThat(view.tiles()).filteredOn((PanelTile tile) -> tile.slot() / 9 == 2 && tile.role() == TileRole.INFO).hasSize(6);
+    assertThat(tile(view, 4).role()).isEqualTo(TileRole.HEADER);
+    assertThat(tile(view, ChestMenu.slot(1, 2)).role()).isEqualTo(TileRole.ACTION);
+    assertThat(tile(view, ChestMenu.slot(2, 7)).role()).isEqualTo(TileRole.ACTION);
+    assertThat(tile(view, ChestMenu.slot(2, 7)).hint().kind()).isEqualTo(HintKind.DESTRUCTIVE);
+    assertThat(view.tiles()).filteredOn((PanelTile tile) -> tile.slot() / 9 == 1 && tile.role() == TileRole.INFO).hasSize(4);
   }
 
   @Test
-  void thePreviewShowsEveryUpgradeAndTheMutationsOwnAsDistinctItemsWithTheirTools() {
+  void theGainItemNamesEveryUpgradeOwnAdaptationAndToolAndItsListShowsEachOne() {
     level("swords", 20, 0);
     level("stealth", 20, 0);
     MutationGui.open(player, skill("swords"), skill("stealth"), false);
     settle();
 
-    List<MenuIcon> upgrades = row(2);
-    List<MenuIcon> own = row(3);
     MutationOffers.Preview preview = MutationOffers.preview(profile.getData(), skill("swords"), skill("stealth"));
-    assertThat(upgrades).hasSize(preview.upgrades().size()).noneMatch(MenuIcon::glint);
-    assertThat(own).hasSize(5).allMatch(MenuIcon::glint);
-    List<MenuIcon> all = Stream.concat(upgrades.stream(), own.stream()).toList();
-    assertThat(all).extracting(MenuIcon::type).doesNotHaveDuplicates();
+    String gain = String.join(" ", menus.menu.button(ChestMenu.slot(1, 7)).icon().lore().stream().map(C::stripColor).toList());
+    List<String> expected = new ArrayList<>();
     for (Adaptation<?> adaptation : preview.upgrades()) {
-      String tools = MutationTools.lore(adaptation);
-      if (!tools.isEmpty()) {
-        assertThat(upgrades).anyMatch((MenuIcon icon) -> icon.lore().contains(tools));
+      expected.add(C.stripColor(adaptation.getShortName()));
+    }
+    for (Adaptation<?> adaptation : preview.mutated()) {
+      expected.add(C.stripColor(adaptation.getShortName()));
+    }
+    for (Adaptation<?> adaptation : preview.upgrades()) {
+      for (art.arcane.adapt.api.mutation.MutationTool<?> tool : MutationTools.handedOut(adaptation)) {
+        expected.add(C.stripColor(MutationTools.name(tool)));
       }
     }
-    Adaptation<?> signed = preview.mutated().stream()
-        .filter((Adaptation<?> adaptation) -> adaptation instanceof MutationAdaptation mutated && mutated.getSignature() != null)
-        .findFirst().orElseThrow();
-    assertThat(own).extracting(MenuIcon::type).contains(((MutationAdaptation) signed).getSignature().getIcon().item());
-  }
+    assertThat(expected).allMatch(gain::contains);
 
-  private List<MenuIcon> row(int row) {
-    List<MenuIcon> icons = new ArrayList<>();
-    for (int column = 0; column < 9; column++) {
-      MenuButton button = menus.menu.button(ChestMenu.slot(row, column));
-      if (button != null && C.stripColor(button.icon().name()).trim().length() > 0) {
-        icons.add(button.icon());
+    click(ChestMenu.slot(1, 7));
+    assertThat(C.stripColor(menus.menu.title())).isEqualTo("You gain");
+    List<String> listed = new ArrayList<>();
+    while (true) {
+      for (MenuButton button : menus.menu.buttons().values()) {
+        listed.add(C.stripColor(button.icon().name()));
       }
+      MenuButton next = menus.menu.button(ChestMenu.slot(menus.menu.rows() - 1, 5));
+      if (next == null || !next.clickable()) {
+        break;
+      }
+      click(ChestMenu.slot(menus.menu.rows() - 1, 5));
     }
-    return icons;
+    assertThat(listed).containsAll(expected);
+    click(ChestMenu.slot(menus.menu.rows() - 1, 0));
+    assertThat(C.stripColor(menus.menu.title())).isEqualTo("Silent Duelist");
   }
 
-  private static PanelTile tile(PanelView view, int slot) {
-    return view.tiles().stream().filter((PanelTile tile) -> tile.slot() == slot).findFirst().orElseThrow();
+  @Test
+  void eachSummaryListKeepsItsOwnIconAfterTheOtherWasOpened() {
+    level("swords", 20, 0);
+    level("stealth", 20, 0);
+    MutationGui.open(player, skill("swords"), skill("stealth"), false);
+    settle();
+
+    click(ChestMenu.slot(1, 5));
+    assertThat(menus.menu.button(4).icon().type()).isEqualTo(Id.minecraft("barrier"));
+    click(ChestMenu.slot(menus.menu.rows() - 1, 0));
+    click(ChestMenu.slot(1, 7));
+    assertThat(menus.menu.button(4).icon().type()).isEqualTo(Id.minecraft("emerald"));
   }
 
   @Test
@@ -300,6 +329,10 @@ class MutationGuiTest {
       assertThat(MutationNotice.available(profile.getData(), registry.getSkills(), config)).isFalse();
       offers.verify(() -> MutationOffers.leads(any(), any(), any()), never());
     }
+  }
+
+  private static PanelTile tile(PanelView view, int slot) {
+    return view.tiles().stream().filter((PanelTile tile) -> tile.slot() == slot).findFirst().orElseThrow();
   }
 
   private MenuButton mutateButton() {

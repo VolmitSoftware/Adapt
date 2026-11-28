@@ -8,10 +8,8 @@ public final class SnippetsMessages {
   public static final TextKey GUI_LEVEL = AdaptKeys.text("snippets.gui.level", "Level");
   public static final TextKey GUI_LEVEL_VALUE = AdaptKeys.text("snippets.gui.level_value", "Level {level}");
   public static final TextKey GUI_KNOWLEDGE = AdaptKeys.text("snippets.gui.knowledge", "knowledge");
-  public static final TextKey GUI_KNOWLEDGE_VALUE = AdaptKeys.text("snippets.gui.knowledge_value", "{knowledge} knowledge");
   public static final TextKey GUI_POWER_USED = AdaptKeys.text("snippets.gui.power_used", "Power Used");
   public static final TextKey GUI_POWER_USED_VALUE = AdaptKeys.text("snippets.gui.power_used_value", "Power Used {power}");
-  public static final TextKey GUI_NOT_LEARNED = AdaptKeys.text("snippets.gui.not_learned", "Not Learned");
   public static final TextKey GUI_XP = AdaptKeys.text("snippets.gui.xp", "XP to");
   public static final TextKey GUI_WELCOME = AdaptKeys.text("snippets.gui.welcome", "Welcome!");
   public static final TextKey GUI_WELCOME_BACK = AdaptKeys.text("snippets.gui.welcome_back", "Welcome back!");
@@ -21,7 +19,6 @@ public final class SnippetsMessages {
   public static final TextKey GUI_BACK = AdaptKeys.text("snippets.gui.back", "Back");
   public static final TextKey GUI_UNLEARN_ALL = AdaptKeys.text("snippets.gui.unlearn_all", "Unlearn all");
   public static final TextKey GUI_UNLEARNED_ALL = AdaptKeys.text("snippets.gui.unlearned_all", "Unlearned all");
-  public static final TextKey ADAPT_MENU_MAY_NOT_UNLEARN = AdaptKeys.text("snippets.adapt_menu.may_not_unlearn", "YOU MAY NOT UNLEARN");
   public static final TextKey ADAPT_MENU_MAY_UNLEARN = AdaptKeys.text("snippets.adapt_menu.may_unlearn", "YOU MAY LEARN/UNLEARN");
   public static final TextKey ADAPT_MENU_KNOWLEDGE_COST = AdaptKeys.text("snippets.adapt_menu.knowledge_cost", "Knowledge Cost");
   public static final TextKey ADAPT_MENU_KNOWLEDGE_AVAILABLE = AdaptKeys.text("snippets.adapt_menu.knowledge_available", "Knowledge Available");
@@ -68,10 +65,8 @@ public final class SnippetsMessages {
     builder.add(GUI_LEVEL);
     builder.add(GUI_LEVEL_VALUE);
     builder.add(GUI_KNOWLEDGE);
-    builder.add(GUI_KNOWLEDGE_VALUE);
     builder.add(GUI_POWER_USED);
     builder.add(GUI_POWER_USED_VALUE);
-    builder.add(GUI_NOT_LEARNED);
     builder.add(GUI_XP);
     builder.add(GUI_WELCOME);
     builder.add(GUI_WELCOME_BACK);
@@ -81,7 +76,6 @@ public final class SnippetsMessages {
     builder.add(GUI_BACK);
     builder.add(GUI_UNLEARN_ALL);
     builder.add(GUI_UNLEARNED_ALL);
-    builder.add(ADAPT_MENU_MAY_NOT_UNLEARN);
     builder.add(ADAPT_MENU_MAY_UNLEARN);
     builder.add(ADAPT_MENU_KNOWLEDGE_COST);
     builder.add(ADAPT_MENU_KNOWLEDGE_AVAILABLE);

@@ -10,6 +10,8 @@ commands:
     permission: adaptqa.admin
   xpqa:
     permission: adaptqa.admin
+  toolqa:
+    permission: adaptqa.admin
 permissions:
   adaptqa.admin:
     default: op

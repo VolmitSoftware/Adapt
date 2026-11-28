@@ -27,6 +27,31 @@ class PackInkTest {
   }
 
   @Test
+  void aTooltipLineWithoutAColourStartsInTheTextInk() {
+    String ink = "§x§2§e§2§2§1§6";
+    assertThat(PackInk.tooltip("0/0 Power")).isEqualTo(ink + "0/0 Power");
+    assertThat(PackInk.tooltip("§lBold")).isEqualTo(ink + "§lBold");
+    assertThat(PackInk.tooltip("§x§2§3§4§0§6§eBlue")).isEqualTo("§x§2§3§4§0§6§eBlue");
+    assertThat(PackInk.tooltip("§aGreen")).startsWith("§x").doesNotContain("§a");
+  }
+
+  @Test
+  void aResetInATooltipLineReturnsToTheTextInk() {
+    assertThat(PackInk.tooltip("§x§2§3§4§0§6§eBlue§r plain")).isEqualTo("§x§2§3§4§0§6§eBlue§x§2§e§2§2§1§6 plain");
+  }
+
+  @Test
+  void aBlankTooltipLineStaysAsItIs() {
+    assertThat(PackInk.tooltip("")).isEmpty();
+    assertThat(PackInk.tooltip(null)).isNull();
+  }
+
+  @Test
+  void theTextInkReadsOnTheDarkestPaper() {
+    assertThat(PackInk.contrast(PackInk.TEXT, PackInk.PAPER)).isGreaterThanOrEqualTo(7.0);
+  }
+
+  @Test
   void aLightColourStaysLighterThanTheDarkColourOfTheSameHue() {
     assertThat(PackInk.contrast(PackInk.of(0x55FF55), PackInk.PAPER)).isLessThan(PackInk.contrast(PackInk.of(0x00AA00), PackInk.PAPER));
   }

@@ -68,8 +68,11 @@ permissions:
     description: Allows toggling Adapt effect visibility for yourself
     default: true
   adapt.pack:
-    description: Allows asking for the Adapt resource pack and choosing book or chest menus
+    description: Allows asking for the Adapt resource pack again
     default: true
+  adapt.pack.optional:
+    description: Gets the Adapt resource pack as optional while pack.required is on
+    default: false
   adapt.mutate:
     description: Allows merging two of your own skills into a mutated skill
     default: true

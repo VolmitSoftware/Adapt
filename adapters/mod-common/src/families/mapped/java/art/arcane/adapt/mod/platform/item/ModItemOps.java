@@ -2,12 +2,14 @@ package art.arcane.adapt.mod.platform.item;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.EmptyBlockGetter;
+import art.arcane.adapt.mod.feature.loader.LoaderToolActions;
 import art.arcane.adapt.mod.platform.ModConversions;
 import art.arcane.adapt.mod.platform.ModPlatform;
 import art.arcane.adapt.mod.platform.ModRefs;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -56,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ModItemOps implements ItemOps {
@@ -138,6 +141,11 @@ public final class ModItemOps implements ItemOps {
     public BlockStateRef blockState(Id block) {
         Block found = block(block);
         return found == null ? null : ModRefs.state(found.defaultBlockState());
+    }
+
+    @Override
+    public Set<ToolKind> toolActions(ItemRef item) {
+        return LoaderToolActions.kinds(ModRefs.item(item));
     }
 
     @Override

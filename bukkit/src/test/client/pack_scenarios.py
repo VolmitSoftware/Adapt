@@ -23,14 +23,18 @@ import uiclient
 PLAYER: str = uiclient.PLAYER
 PACKED_RUNTIME: str = 'META-INF/volmit/runtime.jar.xz'
 DEFAULT_FONTS: tuple[str, ...] = ('minecraft:default', 'minecraft:uniform', 'None', 'null')
-SKILL_PAGES: tuple[str, ...] = ('herbalism', 'hunter', 'chronos')
+SKILL_PAGES: tuple[str, ...] = ('herbalism', 'hunter', 'chronos', 'stealth')
 RECIPE_ADAPTATION: str = 'herbalism/cobweb'
 PREFERENCE_ADAPTATION: str = 'hunter/resistance'
-NEXT_PAGE: tuple[str, ...] = ('next', 'page', '>>', '→')
+NEXT_PAGE: tuple[str, ...] = ('next', '>>', '→')
+# Chest menu footer (GuiFrame.Slot): Back column 0, page turns columns 3 and 5, the menu's action column 7.
+CHEST_COLUMNS: int = 9
+CHEST_BACK: int = 0
+CHEST_ACTION: int = 7
 LEARN: tuple[str, ...] = ('learn', 'unlock')
 UNLEARN: tuple[str, ...] = ('unlearn', 'forget', 'refund')
 SEAL: tuple[str, ...] = ('seal', 'mutate', 'confirm')
-POWER_CHIP: re.Pattern = re.compile(r'^(\d+)/(\d+) ')
+POWER_TEXT: re.Pattern = re.compile(r'(\d+)/\d+')
 PACK_MODEL: str = 'adapt:adapt_ui/'
 LAYOUT: Path = Path(__file__).resolve().parents[4] / 'core/src/main/resources/art/arcane/adapt/pack/layout/layout.json'
 CHEST_SLOTS: int = 54
@@ -143,7 +147,7 @@ def layout_control(found: dict | None, screen_name: str, role: str, index: int =
 
 
 def layout_slots(screen_name: str) -> set[int]:
-    """The window slots the pack layout gives any control role on screen_name (search, chips, foot ...)."""
+    """The window slots the pack layout gives any control role on screen_name (search, mutate, foot ...)."""
     found: set[int] = set()
     for references in json.loads(LAYOUT.read_text())['screens'][screen_name]['slots'].values():
         for reference in references:
@@ -504,6 +508,43 @@ def mutate_arm_confirm(context: Context) -> None:
     context.record('after confirm', 'info', summary(confirmed))
 
 
+def footer_slot(found: dict, column: int) -> dict | None:
+    """The chest menu's footer control in column (0-8), from the menu's row count."""
+    rows: int = len((found or {}).get('slots', [])) // CHEST_COLUMNS - 4
+    index: int = (rows - 1) * CHEST_COLUMNS + column
+    return next((entry for entry in menu_slots(found) if entry['index'] == index), None)
+
+
+def mutate_chest(context: Context) -> None:
+    """The chest Mutate flow: pick a lead, pick a partner, read You lose and You gain, arm and confirm, land on the
+    mutated skill."""
+    require(context.features.adapt, 'server has no Adapt jar')
+    require(not context.pack_loaded, 'a pack viewer gets the book Mutate page')
+    admin(context, f'adapt claim-skill skillTarget=chronos level=60 player={PLAYER}')
+    admin(context, f'adapt claim-skill skillTarget=hunter level=60 player={PLAYER}')
+    found: dict = open_menu(context, 'adapt mutate', 'mutate-leads')
+    context.shot('leads')
+    found = choose_pair(context, found, 'Chronos', 'Hunter')
+    context.check('the confirm step names the result', bool(found.get('title')), found.get('title'))
+    context.shot('confirm')
+    for needle, label in (('you lose', 'lose'), ('you gain', 'gain')):
+        summary_item: dict | None = named(found, (needle,))
+        require(summary_item is not None, f'no {label} item on the confirm step')
+        hover(context, summary_item)
+        context.shot(label, pointer=True)
+    mutate: dict | None = footer_slot(found, CHEST_ACTION)
+    require(mutate is not None, 'no Mutate control in the footer')
+    armed: dict = click(context, mutate)
+    context.check('the first click arms and keeps the menu open', armed.get('class') == found['class'], armed.get('class'))
+    context.shot('armed', settle=0.2)
+    confirmed: dict = click(context, footer_slot(armed, CHEST_ACTION) or mutate)
+    time.sleep(1.5)
+    mutated: dict = screen(context) or confirmed
+    context.check('confirming opens the mutated skill', 'chronos' not in (mutated.get('title') or '').lower()[:12],
+                  mutated.get('title'))
+    context.shot('mutated')
+
+
 def choose_pair(context: Context, found: dict, lead: str, partner: str) -> dict:
     """Picks the lead's card on the Mutate pick page, then pages the partner list until the partner's card shows and
     picks it; returns the Mutate page for the pair."""
@@ -514,7 +555,7 @@ def choose_pair(context: Context, found: dict, lead: str, partner: str) -> dict:
         card = named_card(found, partner)
         if card is not None:
             return click(context, card)
-        turn: dict | None = layout_control(found, 'mutate.partners', 'foot.next')
+        turn: dict | None = layout_control(found, 'mutate.partners', 'foot.next') if context.pack_loaded else named(found, NEXT_PAGE)
         require(turn is not None, f'no {partner} card among the partners')
         found = click(context, turn)
     raise Skip(f'no {partner} card among the partners')
@@ -523,7 +564,7 @@ def choose_pair(context: Context, found: dict, lead: str, partner: str) -> dict:
 def named_card(found: dict | None, name: str) -> dict | None:
     """The icon slot of the card named name: the first slot with that name, chest rows first, as a card's grid runs on into
     the player rows."""
-    return next((entry for entry in slots(found) if entry.get('name') == name), None)
+    return next((entry for entry in slots(found) if entry.get('name') == name or entry.get('name', '').endswith(' ' + name)), None)
 
 
 def ledger_config(context: Context) -> None:
@@ -558,7 +599,7 @@ def tooltip(context: Context) -> None:
     found: dict = open_menu(context, 'adapt gui target=main', 'skills')
     entries: list[dict] = menu_slots(found)
     require(bool(entries), 'skills menu has no items')
-    entry: dict = next((candidate for candidate in entries if candidate.get('name')), entries[0])
+    entry: dict = next((candidate for candidate in entries if candidate.get('name', '').strip()), entries[0])
     hovered: dict = hover(context, entry)
     context.check('pointer is over the slot', hovered.get('hoveredSlot') == entry['index'],
                   {'expected': entry['index'], 'hovered': hovered.get('hoveredSlot'), 'name': entry.get('name')})
@@ -566,14 +607,11 @@ def tooltip(context: Context) -> None:
 
 
 def power_used(context: Context) -> int:
-    """The power in use: the book's power chip ("used/max Power"), else the chest menu title ("Level N (used/max Power Used)")."""
+    """The power in use: "used/max" in the title, as header text on the book page and as "Level N (used/max Power Used)"
+    on the chest menu."""
     found: dict = open_menu(context, 'adapt gui target=main', 'skills')
     close(context)
-    for entry in slots(found):
-        chip: re.Match | None = POWER_CHIP.match(entry.get('name', ''))
-        if chip is not None:
-            return int(chip.group(1))
-    match: re.Match | None = re.search(r'\((\d+)/\d+', found['title'])
+    match: re.Match | None = POWER_TEXT.search(re.sub('[\ue000-\uf8ff]+', ' ', found['title']))
     if match is None:
         raise Failed('Skills menu shows no power in use: ' + found['title'])
     return int(match.group(1))
@@ -609,8 +647,9 @@ def learn_unlearn(context: Context) -> None:
     permanent: bool = click_confirmed(context, learn)
     context.shot('learned')
     refreshed: dict = screen(context) or {}
-    context.check('the page stays open and refreshes after learning',
-                  refreshed.get('class') == found['class'] and json.dumps(summary(refreshed).get('slots')) != json.dumps(summary(found)['slots']),
+    # A chest menu marks a learned level by enchantment glint only, which the slot summary does not carry; the power
+    # check below proves the learn.
+    context.check('the page stays open after learning', refreshed.get('class') == found['class'],
                   {'class': refreshed.get('class'), 'control': (named(refreshed, LEARN + UNLEARN) or {}).get('name')})
     learned: int = power_used(context)
     context.check('learning by click raised the power in use', learned > before, {'before': before, 'after': learned})
@@ -622,7 +661,7 @@ def learn_unlearn(context: Context) -> None:
     else:
         unlearn = level_control(found, LEARN)
         require(unlearn is not None, 'adaptation page has no unlearn control after learning')
-        click_confirmed(context, unlearn, button='right')
+        click_confirmed(context, unlearn)
     context.shot('unlearned')
     require(PERMANENT not in (screen(context) or {}).get('title', ''), 'learning is permanent in this server config, so there is nothing to unlearn')
     after: int = power_used(context)
@@ -930,6 +969,7 @@ SCENARIOS: dict[str, Scenario] = {scenario.name: scenario for scenario in (
     Scenario('hud', hud_strip, False),
     Scenario('mutate', mutate_arm_confirm, False),
     Scenario('mutated-page', mutated_page, False),
+    Scenario('mutate-chest', mutate_chest, False),
     Scenario('safety-inventory', safety_inventory, False),
     Scenario('safety-add-item', safety_add_item, False),
     Scenario('safety-death', safety_death, False),
@@ -942,8 +982,8 @@ SCREENS: tuple[str, ...] = ('skills', 'skill-pages', 'adaptation-recipes', 'adap
 SAFETY: tuple[str, ...] = ('safety-inventory', 'safety-add-item', 'safety-death', 'safety-disconnect')
 PROFILES: dict[str, tuple[str, ...]] = {
     'pack': ('server-health', 'join-accepted', 'pack-viewer-mode', *SCREENS, 'animation', 'hud', 'mutate', 'mutated-page', *SAFETY),
-    'declined': ('server-health', 'join-declined', *SCREENS, *SAFETY),
-    'vanilla': ('server-health', 'mod-server-no-pack', *SCREENS, *SAFETY),
+    'declined': ('server-health', 'join-declined', *SCREENS, 'mutate-chest', *SAFETY),
+    'vanilla': ('server-health', 'mod-server-no-pack', *SCREENS, 'mutate-chest', *SAFETY),
     'modded': ('modded-not-offered', 'native-hud'),
     'selftest': ('spike',),
 }

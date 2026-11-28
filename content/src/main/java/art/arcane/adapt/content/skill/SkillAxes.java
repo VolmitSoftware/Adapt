@@ -27,6 +27,7 @@ import art.arcane.adapt.api.content.SkillConfig;
 import art.arcane.adapt.api.content.XpSource;
 import art.arcane.adapt.api.integration.Integrations;
 import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.item.Tools;
 import art.arcane.adapt.api.mutation.MutationKit;
 import art.arcane.adapt.api.mutation.SoundPalette;
 import art.arcane.adapt.api.mutation.TriggerKind;
@@ -62,24 +63,26 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.event.server.ResourcesReloadedEvent;
 import art.arcane.adapt.platform.item.ItemOps;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 
+import art.arcane.adapt.platform.world.BlockStateRef;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
   public static final Id ID = Id.adapt("axes");
   private final XpSource combat = xpSource("combat", Text.key("adapt.xp_guide.axes.combat"));
   private final XpSource chop = xpSource("chop", Text.key("adapt.xp_guide.axes.chop"));
-  private static final Set<Id> LOG_LIKE = Set.of(
-      Id.minecraft("mushroom_stem"),
-      Id.minecraft("brown_mushroom_block"),
-      Id.minecraft("red_mushroom_block"),
-      Id.minecraft("mangrove_roots"),
-      Id.minecraft("muddy_mangrove_roots"));
   private final Cooldowns cooldowns = cooldowns();
+  private final ToolSkillRules toolRules = new ToolSkillRules(ToolKind.AXE, ID);
 
   public SkillAxes() {
     this(Integrations.treeFellingAvailable());
@@ -211,7 +214,8 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockBreakEvent e) {
     PlayerRef p = e.player();
-    if (!ItemKinds.isAxe(p.inventory().mainHand())) {
+    BlockStateRef state = e.block().state();
+    if (!Tools.serves(p.inventory().mainHand(), state, ToolKind.AXE)) {
       return;
     }
 
@@ -220,8 +224,9 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
         return;
       }
       Id blockType = e.block().type();
-      if (isLogMaterial(blockType)) {
-        double value = blockValue(blockType);
+      OptionalDouble listed = Tools.rules(ToolKind.AXE).blockXp(blockType);
+      if (listed.isPresent() || ItemKinds.isLog(blockType)) {
+        double value = listed.isPresent() ? listed.getAsDouble() : blockValue(blockType);
         PlayerProfile adaptPlayer = getPlayer(p);
         adaptPlayer.addStat("axes.blocks.broken", 1);
         adaptPlayer.addStat("axes.blocks.value", getValue(e.block().state()));
@@ -240,11 +245,25 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     return Math.max(0D, hitXp) + Math.max(0D, damageMultiplier) * creditedDamage;
   }
 
-  private boolean isLogMaterial(Id type) {
-    String name = type.path();
-    return LOG_LIKE.contains(type)
-        || name.endsWith("_log")
-        || name.endsWith("_wood");
+  @Override
+  protected void onRuntimeActivated() {
+    applyToolRules(getConfig());
+  }
+
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    applyToolRules(newConfig);
+  }
+
+  @Handle
+  public void on(ResourcesReloadedEvent e) {
+    Tools.invalidate();
+  }
+
+  private void applyToolRules(Config c) {
+    toolRules.apply(c, c.extraTools, c.excludedTools, c.extraBlocks, c.excludedBlocks, c.toolTagRule,
+        c.toolCapabilityRule, c.toolBehaviourRule);
   }
 
   private double blockValue(Id type) {
@@ -255,7 +274,7 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     value += Math.min(getConfig().maxHardnessBonus, hardness);
     value += Math.min(getConfig().maxBlastResistanceBonus, items.blastResistance(type));
 
-    if (typeName.endsWith("_log") || typeName.endsWith("_wood")) {
+    if (typeName.endsWith("_log") || typeName.endsWith("_wood") || !type.isMinecraft()) {
       value += getConfig().logOrWoodXPMultiplier;
     }
     if (typeName.endsWith("_leaves")) {
@@ -292,6 +311,21 @@ public class SkillAxes extends SimpleSkill<SkillAxes.Config> {
     double axeDamageXPMultiplier = 7.0;
     @ConfigDoc(value = "Flat XP paid for each credited axe hit, before the damage XP.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double axeHitXp = 5.0;
+
+    @ConfigDoc(value = "Item ids or #tags that also count as an axe for this skill and all its adaptations, such as mekanismtools:osmium_paxel or #forge:tools/hammers.", impact = "Listed tools earn Axes XP and trigger its adaptations; a tag covers every item in it.")
+    public List<String> extraTools = new ArrayList<>();
+    @ConfigDoc(value = "Item ids or #tags that never count as an axe for this skill, whatever a tag or other rule says.", impact = "Wins over every other rule, the extra tools list included.")
+    public List<String> excludedTools = new ArrayList<>();
+    @ConfigDoc(value = "Block ids or #tags that count as this skill's work, each with the XP one block gives before placed-block scaling.", impact = "Listed blocks use this XP instead of the derived value, and any tool of this skill earns it.")
+    public Map<String, Double> extraBlocks = new LinkedHashMap<>();
+    @ConfigDoc(value = "Block ids or #tags that never give Axes XP or count as its work.", impact = "Use it to stop XP from a modded block the automatic rules pick up.")
+    public List<String> excludedBlocks = new ArrayList<>();
+    @ConfigDoc(value = "Counts items in the axe tags minecraft:axes, forge:tools/axes, c:axes and fabric:axes as an axe.", impact = "Set to false to recognise tools only by the other rules.")
+    public boolean toolTagRule = true;
+    @ConfigDoc(value = "Counts items the mod loader says dig as an axe (Forge tool actions, NeoForge 1.21.1 item abilities) as an axe.", impact = "Set to false to ignore loader tool actions; Fabric and newer loaders have none.")
+    public boolean toolCapabilityRule = true;
+    @ConfigDoc(value = "Counts items that are the correct tool for an oak log as an axe, and pays Axes XP for a mineable/axe block broken with its correct tool.", impact = "Set to false to recognise tools only by lists, tags and loader actions.")
+    public boolean toolBehaviourRule = true;
 
     public Config() {
     }

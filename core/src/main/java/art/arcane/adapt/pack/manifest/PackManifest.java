@@ -24,11 +24,9 @@ public record PackManifest(int format, RowFont title, int titleX, ShiftFont shif
   private static final String SPRITE_PREFIX = "sprite:";
   /** The icon id suffix of an icon's greyed copy. */
   public static final String DIM = "#dim";
-  /** Between an item or icon key and how many pixels below its slot that copy is drawn. */
-  public static final String SHIFT = "@";
 
   /** The item type of every pack-drawn slot; its item model decides the picture. */
-  public static final Id CARRIER = Id.minecraft("paper");
+  public static final Id CARRIER = Id.minecraft("book");
 
   public PackManifest {
     Objects.requireNonNull(title, "title");
@@ -60,18 +58,12 @@ public record PackManifest(int format, RowFont title, int titleX, ShiftFont shif
    * pack has one; null when the pack does not list the sprite.
    */
   public ItemArt sprite(String spriteId, boolean dim) {
-    return sprite(spriteId, dim, 0);
-  }
-
-  /** As {@link #sprite(String, boolean)}, drawn {@code dy} pixels below its slot; null when the pack lacks that shift. */
-  public ItemArt sprite(String spriteId, boolean dim, int dy) {
     String packId = PackSprites.packId(spriteId);
     if (packId == null) {
       return null;
     }
-    String shift = dy == 0 ? "" : SHIFT + dy;
-    ItemArt greyed = dim ? items.get(SPRITE_PREFIX + packId + DIM + shift) : null;
-    return greyed != null ? greyed : items.get(SPRITE_PREFIX + packId + shift);
+    ItemArt greyed = dim ? items.get(SPRITE_PREFIX + packId + DIM) : null;
+    return greyed != null ? greyed : items.get(SPRITE_PREFIX + packId);
   }
 
   /** The tooltip frame of {@code kit}, the neutral kit's, or the vanilla tooltip. */

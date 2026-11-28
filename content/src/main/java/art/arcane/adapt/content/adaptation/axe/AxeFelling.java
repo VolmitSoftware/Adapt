@@ -20,24 +20,15 @@ import static art.arcane.adapt.api.world.BlockFlag.VEIN_MINED;
 
 /** Tree felling shared by Axe Chop, the wood and leaf veinminers and Timberfall. */
 public final class AxeFelling {
-  private static final Set<Id> LOG_LIKE = Set.of(
-      Id.minecraft("mushroom_stem"),
-      Id.minecraft("brown_mushroom_block"),
-      Id.minecraft("red_mushroom_block"),
-      Id.minecraft("mangrove_roots"),
-      Id.minecraft("muddy_mangrove_roots"));
   private static final Id MANGROVE_ROOTS = Id.minecraft("mangrove_roots");
   private static final Id MUDDY_MANGROVE_ROOTS = Id.minecraft("muddy_mangrove_roots");
 
   private AxeFelling() {
   }
 
-  /** Logs, wood, stems and the other blocks the wood veinminer fells. */
+  /** Logs, wood, stems and the other blocks the wood veinminer fells, as {@link ItemKinds#isLog(Id)} decides. */
   public static boolean isWood(Id type) {
-    String name = type.path();
-    return LOG_LIKE.contains(type)
-        || name.endsWith("_log")
-        || name.endsWith("_wood");
+    return ItemKinds.isLog(type);
   }
 
   /** Leaves and the mangrove roots the leaf veinminer clears. */

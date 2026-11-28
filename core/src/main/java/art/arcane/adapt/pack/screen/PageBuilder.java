@@ -43,7 +43,6 @@ final class PageBuilder {
   static final String SEPARATOR = " / ";
   /** The first player slot of the hotbar row. */
   static final int HOTBAR = 27;
-  private static final Id PLAIN = Id.minecraft("paper");
 
   private final PackResources resources;
   private final ScreenLayout layout;
@@ -55,7 +54,6 @@ final class PageBuilder {
   private final Set<Integer> lowerUsed = new HashSet<>();
   private final List<String> crumbs;
   private final boolean mutated;
-  private int crumbsRight = Integer.MAX_VALUE;
   private final List<PackManifest.Host> hosts;
   private final ChestMenu.Builder menu;
   /** The viewer's selected hotbar slot (0 to 8), or -1 when unknown. */
@@ -74,11 +72,6 @@ final class PageBuilder {
     this.hosts = resources.page(art, layout, kit);
     this.crumbs = crumbs;
     this.mutated = mutated;
-  }
-
-  /** Keeps the crumb ribbon left of container x {@code right}, as the header chips need. */
-  void crumbsBefore(int right) {
-    crumbsRight = Math.min(crumbsRight, right);
   }
 
   ScreenLayout layout() {
@@ -140,15 +133,15 @@ final class PageBuilder {
     resources.paint(art, key, x);
   }
 
-  /** The kit piece {@code piece} as the face under the run of slots starting at {@code slot}. */
-  void face(String piece, PackSlot slot) {
-    face(piece, slot, 0);
+  /** The white paint glyph {@code key} relative to {@code x} tinted {@code colour}, under every label. */
+  void paint(String key, int x, int colour) {
+    resources.paint(art, key, x, colour);
   }
 
-  /** As {@link #face(String, PackSlot)}, drawn {@code dy} pixels below the slot as the row it belongs to is. */
-  void face(String piece, PackSlot slot, int dy) {
+  /** The kit piece {@code piece} as the face under the run of slots starting at {@code slot}. */
+  void face(String piece, PackSlot slot) {
     if (slot != null && (slot.area() == PackSlot.Area.TOP || lower)) {
-      paint(PackArt.face(piece, resources.layout().grid().y(slot) + dy), resources.layout().grid().x(slot));
+      paint(PackArt.face(piece, resources.layout().grid().y(slot)), resources.layout().grid().x(slot));
     }
   }
 
@@ -267,11 +260,6 @@ final class PageBuilder {
   /** The page with the kit's dressing hosts in the layout's art slots, which hold nothing else. */
   PackPage build() {
     TextSpec crumbSpec = layout.ribbon().shows(mutated) ? layout.text("crumbs") : null;
-    if (crumbSpec != null && crumbsRight != Integer.MAX_VALUE) {
-      int room = crumbsRight - crumbSpec.x() - PackArt.RIBBON_PAD + PackArt.RIBBON_LEAD;
-      crumbSpec = new TextSpec(crumbSpec.x(), crumbSpec.y(), Math.max(1, Math.min(crumbSpec.width(), room)), crumbSpec.align(),
-          crumbSpec.colour(), crumbSpec.lines(), crumbSpec.pitch());
-    }
     resources.crumbs(art, title, crumbSpec, kit, crumbs);
     for (PackSlot slot : layout.slots(PackArt.ART)) {
       PackManifest.Host host = resources.host(hosts, slot);
@@ -333,11 +321,11 @@ final class PageBuilder {
   }
 
   static MenuIcon named(String name) {
-    return MenuIcon.of(PLAIN, name, List.of());
+    return MenuIcon.of(PackManifest.CARRIER, name, List.of());
   }
 
   static MenuIcon named(String name, List<String> lore) {
-    return MenuIcon.of(PLAIN, name, lore);
+    return MenuIcon.of(PackManifest.CARRIER, name, lore);
   }
 
   /**
@@ -352,7 +340,7 @@ final class PageBuilder {
   static MenuIcon stack(IconRef icon, String name, List<String> lore, int count) {
     Id type = Id.tryParse(icon.itemId());
     Id model = icon.itemModelId() == null ? null : Id.tryParse(icon.itemModelId());
-    return MenuIcon.of(type == null ? PLAIN : type, name, lore).withAmount(Math.max(1, Math.min(99, count)))
+    return MenuIcon.of(type == null ? PackManifest.CARRIER : type, name, lore).withAmount(Math.max(1, Math.min(99, count)))
         .withItemModel(model).withCustomModelData(icon.customModelData());
   }
 

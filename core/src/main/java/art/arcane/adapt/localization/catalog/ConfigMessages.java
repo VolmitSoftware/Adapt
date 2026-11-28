@@ -89,10 +89,8 @@ public final class ConfigMessages {
   public static final TextKey ENTRIES_COUNT = AdaptKeys.text("config.gui.entries_count", "Entries: {count}");
   public static final TextKey PAGE = AdaptKeys.text("config.gui.page", "Page: {page}/{pages}");
   public static final TextKey HELP_LEFT_CLICK = AdaptKeys.text("config.gui.help_left_click", "LMB: open/edit/toggle");
-  public static final TextKey HELP_RIGHT_CLICK = AdaptKeys.text("config.gui.help_right_click", "RMB: enum prev / page jump");
   public static final TextKey HELP_ESCAPE = AdaptKeys.text("config.gui.help_escape", "ESC: back to parent page");
   public static final TextKey NAV_OPEN_SECTION = AdaptKeys.text("config.gui.nav_open_section", "LMB: open section");
-  public static final TextKey NAV_JUMP_PAGES = AdaptKeys.text("config.gui.nav_jump_pages", "RMB on arrows: jump pages");
   public static final TextKey ENTER_VALUE = AdaptKeys.text("config.input.enter_value", "&bEnter value for &f{label}");
   public static final TextKey INPUT_PATH = AdaptKeys.text("config.input.path", "&bPath: &f{path}");
   public static final TextKey EXPECTED_TYPE = AdaptKeys.text("config.input.expected_type", "&bExpected type: &f{type}");
@@ -187,10 +185,8 @@ public final class ConfigMessages {
     builder.add(ENTRIES_COUNT);
     builder.add(PAGE);
     builder.add(HELP_LEFT_CLICK);
-    builder.add(HELP_RIGHT_CLICK);
     builder.add(HELP_ESCAPE);
     builder.add(NAV_OPEN_SECTION);
-    builder.add(NAV_JUMP_PAGES);
     builder.add(ENTER_VALUE);
     builder.add(INPUT_PATH);
     builder.add(EXPECTED_TYPE);

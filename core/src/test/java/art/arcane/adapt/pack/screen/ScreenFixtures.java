@@ -23,12 +23,11 @@ import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.RequirementView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;
-import art.arcane.adapt.client.view.SpendView;
 import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.client.view.XpGuideView;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.pack.surface.PackPrompts;
 import art.arcane.adapt.platform.entity.PlayerRef;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,7 +151,6 @@ final class ScreenFixtures {
     long fingerprint = 1L;
     boolean mutateOffered = true;
     boolean inactive = true;
-    MenuStyle style;
     boolean unmutateOffered;
     List<KeptView> kept = List.of();
     Map<String, List<String>> owners = Map.of();
@@ -209,22 +207,6 @@ final class ScreenFixtures {
     @Override
     public List<ToolView> tools(PlayerRef viewer) {
       return tools;
-    }
-
-    @Override
-    public List<SpendView> spending(PlayerRef viewer) {
-      return List.of(new SpendView("adapt:agility", "adapt:agility/super_jump", 1, 2, 1, SpendView.Source.LEARNED));
-    }
-
-    @Override
-    public MenuStyle menuStyle(PlayerRef viewer) {
-      return style;
-    }
-
-    @Override
-    public void menus(PlayerRef viewer, MenuStyle chosen) {
-      calls.add("menus " + chosen);
-      style = chosen;
     }
 
     @Override
@@ -300,6 +282,16 @@ final class ScreenFixtures {
         case Route.Adaptation adaptation -> screens.openAdaptation(viewer, adaptation.adaptationId());
         case Route.Mutate mutate -> screens.openMutate(viewer, mutate.skillId());
       }
+    }
+  }
+
+  /** The menu sounds played, in order. */
+  static final class Speaker implements PackScreens.Speaker {
+    final List<MenuSounds.Action> heard = new ArrayList<>();
+
+    @Override
+    public void play(PlayerRef viewer, MenuSounds.Action action) {
+      heard.add(action);
     }
   }
 

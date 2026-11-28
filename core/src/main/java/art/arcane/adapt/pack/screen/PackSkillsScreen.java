@@ -32,11 +32,10 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 /**
  * Skills for pack viewers, seated as the native client seats them: one card for every enabled skill the player may open
  * or is shown, in name order, a mutation in its lead's seat and its partner left out. A skill the player has not started
- * shows greyed, or is left out when the server hides inactive skills. The search field and the knowledge and power chips
- * head the page, the cards follow, the pager and the book settings take the foot. Each card is a 3 by 2 block of slots
- * with "Lv" and the XP bar beside the icon and the name under it on up to two lines, the names of a page in one font;
- * knowledge and the XP guide are in the tooltip. The search field filters by name through a prompt (right click clears it); the
- * knowledge and power chips open the spending list, the settings slot the book settings.
+ * shows greyed, or is left out when the server hides inactive skills. The search field and the knowledge and power totals
+ * head the page, the cards follow, the pager takes the foot. Each card is a 3 by 2 block of slots with "Lv" and the XP
+ * bar beside the icon and the name under it on up to two lines, the names of a page in one font; knowledge and the XP
+ * guide are in the tooltip. The search field filters by name through a prompt (right click clears it).
  */
 final class PackSkillsScreen {
   static final String SCREEN = "skills";
@@ -81,32 +80,14 @@ final class PackSkillsScreen {
       }
     }, false, null);
     long knowledge = 0L;
-    List<String> perSkill = new ArrayList<>();
     for (Seat seat : seats(frame)) {
-      SkillView skill = seat.skill();
-      SkillLineView line = CatalogIndex.line(player, skill.id());
-      if (line != null && line.knowledge() > 0) {
-        knowledge += line.knowledge();
-        perSkill.add(PackLabels.GREY + skill.name() + ": " + line.knowledge());
-      }
+      SkillLineView line = CatalogIndex.line(player, seat.skill().id());
+      knowledge += line == null ? 0L : Math.max(0L, line.knowledge());
     }
-    String power = player.header().powerUsed() + "/" + player.header().powerMax();
-    page.text("chip.knowledge", String.valueOf(knowledge));
-    page.face(PackArt.CHIP, page.layout().slot("chip.knowledge"));
-    page.group(page.layout().slots("chip.knowledge"), PageBuilder.named(AdaptLanguage.text(GuiMessages.PACK_KNOWLEDGE,
-        trusted("knowledge", knowledge)), perSkill), (MenuClick click) -> PackSpending.open(screens, viewer),
-        page.resources().sprite(PackArt.KNOWLEDGE_SPRITE, KIT, false));
-    page.text("chip.power", power);
-    page.face(PackArt.CHIP, page.layout().slot("chip.power"));
-    page.group(page.layout().slots("chip.power"), PageBuilder.named(AdaptLanguage.text(GuiMessages.PACK_POWER,
-        trusted("used", player.header().powerUsed()), trusted("maximum", player.header().powerMax()))),
-        (MenuClick click) -> PackSpending.open(screens, viewer), page.resources().sprite(PackArt.POWER_SPRITE, KIT, false));
+    frame.stats(page, knowledge);
     if (skills.isEmpty()) {
       page.text("empty", AdaptLanguage.text(state.search.isEmpty() ? GuiMessages.NO_SKILLS_AVAILABLE : GuiMessages.PACK_NO_MATCHES));
     }
-    page.control(page.layout().slot("book.settings"), PageBuilder.named(AdaptLanguage.text(GuiMessages.PACK_SETTINGS)),
-        (MenuClick click) -> PackBookSettings.open(screens, viewer), PackArt.BOOK_SPRITE,
-        page.resources().sprite(PackArt.BOOK_SPRITE, KIT, false));
     page.foot(null, current, pages, (int target) -> screens.page(viewer, target), List.of());
     return page.build();
   }
@@ -118,7 +99,7 @@ final class PackSkillsScreen {
     int level = line == null ? 0 : line.level();
     MenuIcon icon = PageBuilder.icon(skill.icon(), PackLabels.coloured(PackInk.of(skill.color()), skill.name()), lore(frame, skill, line));
     page.group(card.cells(), icon, (MenuClick click) -> screens.route(viewer, new Route.Skill(skill.id())),
-        page.resources().icon(skill.icon(), KIT, !on, card.shift()));
+        page.resources().icon(skill.icon(), KIT, !on));
     page.text(card.text("level"), PackLabels.coloured(on ? PackLabels.INK : PackLabels.FAINT,
         AdaptLanguage.text(GuiMessages.PACK_LV, trusted("level", level))));
     page.bar(card.bar(PackArt.XP), on && line != null ? line.progress() : 0D, PackInk.of(skill.color()));

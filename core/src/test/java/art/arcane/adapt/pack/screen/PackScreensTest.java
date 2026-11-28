@@ -37,6 +37,7 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.testkit.FakePlayer;
 import art.arcane.adapt.testkit.FakeWorld;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +61,8 @@ class PackScreensTest {
   private final ScreenFixtures.Server server = new ScreenFixtures.Server();
   private final ScreenFixtures.Clock clock = new ScreenFixtures.Clock();
   private final ScreenFixtures.Prompts prompts = new ScreenFixtures.Prompts();
-  private final PackScreens screens = new PackScreens(host, server, server, prompts, clock);
+  private final ScreenFixtures.Speaker speaker = new ScreenFixtures.Speaker();
+  private final PackScreens screens = new PackScreens(host, server, server, prompts, clock, speaker);
 
   PackScreensTest() {
     server.screens = screens;
@@ -162,15 +164,11 @@ class PackScreensTest {
   }
 
   @Test
-  void chipsOpenTheSpendingListInTheLedger() {
+  void knowledgeAndPowerAreHeaderTextWithNoSlotOfTheirOwn() {
     screens.openSkills(player);
 
-    click("skills", "chip.knowledge", ClickKind.LEFT);
-
-    assertThat(windows.opened).hasSize(2);
-    assertThat(window().menu.button(0).icon().name()).isEqualTo("Super Jump");
-    window().click(0, ClickKind.LEFT);
-    assertThat(server.routes).containsExactly(new Route.Adaptation("adapt:agility/super_jump"));
+    assertThat(layout("skills").slots().keySet()).noneMatch((String role) -> role.startsWith("chip") || role.startsWith("stat"));
+    assertThat(window().surface.titleText()).contains(server.player.header().powerUsed() + "/" + server.player.header().powerMax());
   }
 
   @Test
@@ -198,36 +196,22 @@ class PackScreensTest {
   void shiftClicksLearnAndUnlearnWhenTheRulesAllowIt() {
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
     clickCard("skill", 1, ClickKind.SHIFT_LEFT);
     clickCard("skill", 1, ClickKind.SHIFT_RIGHT);
+    clickCard("skill", 2, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 2, ClickKind.SHIFT_RIGHT);
 
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2", "unlearn adapt:agility/super_jump 0");
   }
 
   @Test
-  void aShiftRightUnlearnOnTheSkillPageArmsThenConfirms() {
+  void aShiftRightUnlearnOnTheSkillPageActsOnTheFirstClick() {
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
-    assertThat(server.calls).isEmpty();
-    assertThat(noticeShown("Confirm unlearn")).isTrue();
+    clickCard("skill", 1, ClickKind.SHIFT_RIGHT);
 
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
     assertThat(server.calls).containsExactly("unlearn adapt:agility/super_jump 0");
-  }
-
-  @Test
-  void aShiftRightUnlearnLapsesWhenItsWindowRunsOut() {
-    screens.openSkill(player, "adapt:agility");
-
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
-    clock.now += PackScreens.SEAL_WINDOW_MS + 1;
-    clickCard("skill", 0, ClickKind.SHIFT_RIGHT);
-
-    assertThat(server.calls).isEmpty();
+    assertThat(window().isOpen()).isTrue();
   }
 
   @Test
@@ -235,11 +219,11 @@ class PackScreensTest {
     server.catalog = ScreenFixtures.catalog(true);
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
     assertThat(server.calls).isEmpty();
     assertThat(noticeShown("Confirm learn")).isTrue();
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2");
   }
 
@@ -249,7 +233,7 @@ class PackScreensTest {
     server.player = ScreenFixtures.debugPlayer(1, 3L);
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
 
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2");
   }
@@ -259,7 +243,7 @@ class PackScreensTest {
     server.player = ScreenFixtures.player(1, 2L);
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
 
     assertThat(server.calls).isEmpty();
     assertThat(player.actionBars()).anyMatch((String line) -> line.contains("Needs 1 more Kn"));
@@ -269,7 +253,7 @@ class PackScreensTest {
   void aPlainClickOnACellOpensTheAdaptation() {
     screens.openSkill(player, "adapt:agility");
 
-    clickCard("skill", 1, ClickKind.LEFT);
+    clickCard("skill", 2, ClickKind.LEFT);
 
     assertThat(server.routes).containsExactly(new Route.Adaptation("adapt:agility/wall_jump"));
     assertThat(window().menu.title()).isEqualTo("Wall Jump");
@@ -280,12 +264,33 @@ class PackScreensTest {
     List<PackSkillScreen.Cell> cells = List.of(heading(), adaptation(), adaptation(), adaptation(), adaptation(), adaptation(),
         adaptation(), heading(), adaptation());
 
-    List<List<PackSkillScreen.Cell>> leaves = PackSkillScreen.leaves(cells, 16);
+    List<List<PackSkillScreen.Cell>> leaves = PackSkillScreen.leaves(cells, 16, -1, false);
 
     assertThat(leaves).hasSize(1);
     assertThat(leaves.get(0).get(7)).isNull();
     assertThat(leaves.get(0).get(8).heading()).isEqualTo("H");
-    assertThat(PackSkillScreen.leaves(List.of(adaptation(), adaptation(), adaptation()), 2)).hasSize(2);
+    assertThat(PackSkillScreen.leaves(List.of(adaptation(), adaptation(), adaptation()), 2, -1, false)).hasSize(2);
+  }
+
+  @Test
+  void aHeadingByTheGapMovesIntoItAndAnAdaptationPassesItBy() {
+    List<PackSkillScreen.Cell> cells = new ArrayList<>(List.of(heading()));
+    cells.addAll(Collections.nCopies(4, adaptation()));
+    cells.add(heading());
+    cells.add(adaptation());
+
+    List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16, 5, true).get(0);
+
+    assertThat(leaf.get(0).heading()).isEqualTo("H");
+    assertThat(leaf.get(5).heading()).as("the heading takes the gap place, not the last chest seat").isEqualTo("H");
+    assertThat(leaf.get(6).adaptation()).isNotNull();
+    List<PackSkillScreen.Cell> plain = PackSkillScreen.leaves(Collections.nCopies(14, adaptation()), 16, 5, true).get(0);
+    assertThat(plain.get(0)).as("the seat under the header holds only a heading").isNull();
+    assertThat(plain.get(5)).isNull();
+    assertThat(plain.get(6).adaptation()).isNotNull();
+    assertThat(plain.get(9)).isNull();
+    assertThat(plain).hasSize(18).filteredOn((PackSkillScreen.Cell cell) -> cell != null).hasSize(14);
+    assertThat(PackSkillScreen.gap(layout("skill").cards())).isEqualTo(5);
   }
 
   @Test
@@ -293,19 +298,19 @@ class PackScreensTest {
     List<PackSkillScreen.Cell> cells = List.of(heading(), adaptation(), adaptation(), adaptation(), heading(), adaptation(),
         adaptation(), adaptation(), adaptation(), adaptation());
 
-    List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16).get(0);
+    List<PackSkillScreen.Cell> leaf = PackSkillScreen.leaves(cells, 16, -1, false).get(0);
 
     assertThat(leaf.subList(4, 8)).containsOnlyNulls();
     assertThat(leaf.get(8).heading()).isEqualTo("H");
     assertThat(leaf).hasSize(14);
     List<PackSkillScreen.Cell> longGroup = new ArrayList<>(List.of(heading(), adaptation(), heading()));
     longGroup.addAll(Collections.nCopies(9, adaptation()));
-    assertThat(PackSkillScreen.leaves(longGroup, 16).get(0).get(2).heading()).as("a group longer than a column runs on").isEqualTo("H");
+    assertThat(PackSkillScreen.leaves(longGroup, 16, -1, false).get(0).get(2).heading()).as("a group longer than a column runs on").isEqualTo("H");
   }
 
   @Test
-  void theLevelTakesTheFreeSideForAnyNameThatFits() {
-    assertThat(PackSkillScreen.identity(1, true)).isEqualTo(PackSkillScreen.Identity.SIDE);
+  void theLevelSitsUnderAOneLineNameAndBesideATwoLineOne() {
+    assertThat(PackSkillScreen.identity(1, true)).isEqualTo(PackSkillScreen.Identity.BESIDE);
     assertThat(PackSkillScreen.identity(2, true)).isEqualTo(PackSkillScreen.Identity.SIDE);
     assertThat(PackSkillScreen.identity(1, false)).isEqualTo(PackSkillScreen.Identity.BESIDE);
     assertThat(PackSkillScreen.identity(2, false)).isEqualTo(PackSkillScreen.Identity.ALONE);
@@ -371,18 +376,15 @@ class PackScreensTest {
   }
 
   @Test
-  void learnGoesToTheTargetAndUnlearnArmsFirst() {
+  void learnGoesToTheTargetAndUnlearnActsAtOnce() {
     screens.openAdaptation(player, "adapt:agility/super_jump");
 
     click("adaptation.levels", "learn", ClickKind.LEFT);
     click("adaptation.levels", "unlearn", ClickKind.LEFT);
-    assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2");
-    assertThat(button("adaptation.levels", "unlearn").icon().name()).isEqualTo("Confirm unlearn");
-    assertThat(button("adaptation.levels", "learn").icon().name()).isEqualTo("Learn II");
-    assertThat(noticeShown("Confirm unlearn")).isTrue();
-    click("adaptation.levels", "unlearn", ClickKind.LEFT);
 
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2", "unlearn adapt:agility/super_jump 0");
+    assertThat(button("adaptation.levels", "unlearn").icon().name()).isEqualTo("Unlearn");
+    assertThat(button("adaptation.levels", "learn").icon().name()).isEqualTo("Learn II");
   }
 
   @Test
@@ -405,9 +407,10 @@ class PackScreensTest {
 
   @Test
   void armingOneControlDoesNotConfirmAnother() {
+    server.catalog = ScreenFixtures.catalog(true);
     screens.openAdaptation(player, "adapt:agility/super_jump");
 
-    click("adaptation.levels", "unlearn", ClickKind.LEFT);
+    click("adaptation.levels", "learn", ClickKind.LEFT);
     window().click(layout("adaptation.levels").slots("foot.tabs").get(2), ClickKind.LEFT);
     click("adaptation.settings", "pref.reset", ClickKind.LEFT);
 
@@ -549,7 +552,7 @@ class PackScreensTest {
   void anAdaptationRowTooltipReadsLikeTheNativePage() {
     screens.openSkill(player, "adapt:agility");
 
-    List<String> lore = window().button(layout("skill").cards().get(0).icon()).icon().lore();
+    List<String> lore = window().button(layout("skill").cards().get(1).icon()).icon().lore();
 
     assertThat(lore.get(0)).contains("Level I of III");
     assertThat(lore.get(1)).contains("Learn II for 3 knowledge");
@@ -681,18 +684,118 @@ class PackScreensTest {
   }
 
   @Test
-  void bookSettingsSetTheViewersMenusAndReopenSkills() {
+  void openingAndRedrawingPlayNothing() {
     screens.openSkills(player);
+    screens.changed(player);
+    clock.run();
+    clock.now += 1_000L;
+    screens.refresh(player);
 
-    click("skills", "book.settings", ClickKind.LEFT);
+    assertThat(speaker.heard).isEmpty();
+  }
 
-    assertThat(windows.opened).hasSize(2);
-    assertThat(window().menu.button(2).icon().name()).endsWith("Book");
-    assertThat(window().menu.button(4).icon().name()).endsWith("Chest");
-    assertThat(window().menu.button(6).icon().name()).endsWith("> Auto");
-    window().click(4, ClickKind.LEFT);
-    assertThat(server.calls).containsExactly("menus CHEST");
-    assertThat(server.routes).containsExactly(new Route.Skills());
+  @Test
+  void openingASkillFromItsCardOpensAndBackGoesBack() {
+    screens.openSkills(player);
+    clickCard("skills", 0, ClickKind.LEFT);
+    clock.now += PackScreens.SAME_ACTION_MS;
+
+    click("skill", "foot.back", ClickKind.LEFT);
+
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.OPEN, MenuSounds.Action.BACK);
+  }
+
+  @Test
+  void theSearchFieldTogglesAndClearingTurnsBackToTheFirstPage() {
+    screens.openSkills(player);
+    prompts.answer = "rif";
+
+    click("skills", "search", ClickKind.LEFT);
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.TOGGLE);
+    clock.now += PackScreens.SAME_ACTION_MS;
+    click("skills", "search", ClickKind.RIGHT);
+
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.TOGGLE, MenuSounds.Action.TURN);
+  }
+
+  @Test
+  void aTabSoundsTheToggle() {
+    screens.openAdaptation(player, "adapt:agility/super_jump");
+
+    window().click(layout("adaptation.levels").slots("foot.tabs").get(2), ClickKind.LEFT);
+
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.TOGGLE);
+  }
+
+  @Test
+  void aLearnAndAnUnlearnKeepTheSoundOfTheSharedAction() {
+    screens.openSkill(player, "adapt:agility");
+
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
+    clock.now += PackScreens.SAME_ACTION_MS;
+    clickCard("skill", 1, ClickKind.SHIFT_RIGHT);
+
+    assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2", "unlearn adapt:agility/super_jump 0");
+    assertThat(speaker.heard).isEmpty();
+  }
+
+  @Test
+  void armingSoundsArmAndTheConfirmedLearnAddsNothing() {
+    server.catalog = ScreenFixtures.catalog(true);
+    screens.openSkill(player, "adapt:agility");
+
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
+    clock.now += PackScreens.SAME_ACTION_MS;
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
+
+    assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2");
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.ARM);
+  }
+
+  @Test
+  void theSealSoundsArmThenRefusedWhenTheMergeFails() {
+    screens.openMutate(player, "adapt:agility");
+    pick(0);
+    clock.now += PackScreens.SAME_ACTION_MS;
+
+    click("mutate", "seal.mark", ClickKind.LEFT);
+    clock.now += PackScreens.SAME_ACTION_MS;
+    click("mutate", "seal.mark", ClickKind.LEFT);
+
+    assertThat(server.calls).last().isEqualTo("mutate adapt:agility adapt:rift");
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.TOGGLE, MenuSounds.Action.ARM, MenuSounds.Action.REFUSE);
+  }
+
+  @Test
+  void aRefusedLearnSoundsRefused() {
+    server.player = ScreenFixtures.player(1, 2L);
+    screens.openSkill(player, "adapt:agility");
+
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
+
+    assertThat(server.calls).isEmpty();
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.REFUSE);
+  }
+
+  @Test
+  void aToggleSoundsOnce() {
+    screens.openSkill(player, "adapt:agility");
+
+    click("skill", "switch", ClickKind.LEFT);
+
+    assertThat(server.calls).containsExactly("set SKILL adapt:agility enabled OFF");
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.TOGGLE);
+  }
+
+  @Test
+  void twoCuesOfOneClickSoundOnce() {
+    screens.openSkills(player);
+    clock.now += PackScreens.SAME_ACTION_MS - 1L;
+
+    screens.route(player, new Route.Skill("adapt:agility"));
+    screens.page(player, 1);
+
+    assertThat(speaker.heard).containsExactly(MenuSounds.Action.OPEN);
   }
 
   @Test
@@ -765,7 +868,7 @@ class PackScreensTest {
 
     assertThat(window().button(layout("skills").cards().get(1).icon()).icon().name()).contains("Rift");
     assertThat(window().surface.look(layout("skills").cards().get(1).icon()).itemModel())
-        .isEqualTo(resources.manifest().sprite("adapt:gui/skill/rift", true, PackArt.CHEST_SHIFT).model());
+        .isEqualTo(resources.manifest().sprite("adapt:gui/skill/rift", true).model());
     window().close();
 
     server.inactive = false;
@@ -796,25 +899,27 @@ class PackScreensTest {
       window().close();
     }
 
-    player.inventory().setHeldSlot(8);
-    screens.openSkills(player);
-    PackSlot settings = layout("skills").slot("book.settings");
-    assertThat(window().surface.lower().get(settings.index()).icon().name()).isEmpty();
-    assertThat(window().surface.lower().get(settings.index()).icon().lore().get(0)).isEqualTo("Settings");
+    PackSlot back = layout("skill").slot("foot.back");
+    player.inventory().setHeldSlot(back.index() - PageBuilder.HOTBAR);
     screens.openSkill(player, "adapt:agility");
-    assertThat(window().surface.lower().get(layout("skill").slot("foot.back").index()).icon().name()).isNotEmpty();
+    assertThat(window().surface.lower().get(back.index()).icon().name()).isEmpty();
+    assertThat(window().surface.lower().get(back.index()).icon().lore()).isNotEmpty();
+    window().close();
+    player.inventory().setHeldSlot(8);
+    screens.openSkill(player, "adapt:agility");
+    assertThat(window().surface.lower().get(back.index()).icon().name()).isNotEmpty();
   }
 
   @Test
-  void learningByClickRedrawsCountCostAndChipsAndARefusalStaysOnThePage() {
+  void learningByClickRedrawsTheRowBoxAndCostAndARefusalStaysOnThePage() {
     server.onLearn = (int level) -> server.player = ScreenFixtures.player(level, 0L);
     screens.openSkill(player, "adapt:agility");
-    assertThat(window().surface.titleText()).contains("1/3").doesNotContain("2/3");
+    String before = window().surface.titleText();
 
-    clickCard("skill", 0, ClickKind.SHIFT_LEFT);
+    clickCard("skill", 1, ClickKind.SHIFT_LEFT);
 
     assertThat(server.calls).containsExactly("learn adapt:agility/super_jump 2");
-    assertThat(window().surface.titleText()).contains("2/3");
+    assertThat(window().surface.titleText()).isNotEqualTo(before);
     assertThat(window().open).isTrue();
     screens.openAdaptation(player, "adapt:agility/super_jump");
     assertThat(window().surface.titleText()).contains("Learn III").contains("4");

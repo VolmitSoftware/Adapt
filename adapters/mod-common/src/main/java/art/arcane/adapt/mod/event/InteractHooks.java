@@ -276,6 +276,30 @@ public final class InteractHooks {
         return false;
     }
 
+    /**
+     * A block break another mod announces through the loader's break event outside the player's own destroy call,
+     * such as the extra blocks of a Tinkers' Construct hammer, excavator or vein hammer. Posted to Adapt as an
+     * ordinary player break with the block still in place, so skills pay for it under the usual provenance rules; the
+     * player's own break and Adapt's protection probes are skipped because they are posted already or must not pay.
+     * True when a handler cancelled the break.
+     */
+    public static boolean loaderBreak(ServerPlayer player, BlockPos pos) {
+        Break context = currentBreak;
+        if (context != null && context.player == player && context.pos.equals(pos)) {
+            return false;
+        }
+        if (ModEvents.breaksSilenced() || !ModEvents.listening(ModBlockBreakEvent.class)) {
+            return false;
+        }
+        ServerLevel level = HookCompat.level(player);
+        if (level.getBlockState(pos).isAir()) {
+            return false;
+        }
+        ModBlockBreakEvent event = new ModBlockBreakEvent(ModRefs.player(player), ModRefs.block(level, pos));
+        ModEvents.post(event);
+        return event.isCancelled();
+    }
+
     /** The mob a spawner block entity spawns, read before vanilla removes it; null for other blocks or an empty spawner. */
     private static Id spawnerType(ServerLevel level, BlockPos pos) {
         if (!(level.getBlockEntity(pos) instanceof SpawnerBlockEntity spawner)) {
@@ -301,23 +325,28 @@ public final class InteractHooks {
         return true;
     }
 
-    /** End of a player block break: posts the drop event for what vanilla tried to spawn and spawns the rest. */
+    /**
+     * End of a player block break: posts the drop event for what vanilla tried to spawn and spawns the rest. A tool
+     * that breaks the block itself, as Tinkers' Construct tools do, makes the destroy call report false although the
+     * block is gone, so the block's state decides whether it was destroyed.
+     */
     public static void broken(ServerPlayer player, boolean destroyed) {
         Break context = currentBreak;
         if (context == null || context.player != player) {
             return;
         }
         currentBreak = context.parent;
+        boolean removed = destroyed || context.level.getBlockState(context.pos) != context.state;
         DropCapture.Frame frame = DropCapture.close(context);
         List<ItemEntity> items = frame == null ? List.of() : frame.items;
         ModBlockBreakEvent event = context.event;
-        if (destroyed && event != null && event.experienceSet() && !context.experienceApplied && event.experience() > 0) {
+        if (removed && event != null && event.experienceSet() && !context.experienceApplied && event.experience() > 0) {
             ExperienceOrb.award(context.level, Vec3.atCenterOf(context.pos), event.experience());
         }
         if (event != null && !event.dropItems()) {
             return;
         }
-        if (!destroyed || HookCompat.preventsBlockDrops(player) || !ModEvents.listening(BlockDropItemEvent.class)) {
+        if (!removed || HookCompat.preventsBlockDrops(player) || !ModEvents.listening(BlockDropItemEvent.class)) {
             spawn(context.level, items);
             return;
         }

@@ -7,17 +7,13 @@ import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.engine.world.AdaptServer;
 import art.arcane.adapt.client.server.ClientUiService;
-import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.AdaptMessages;
-import art.arcane.adapt.localization.catalog.PackMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.player.PlayerJoinEvent;
 import art.arcane.adapt.platform.event.player.PlayerQuitEvent;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
 import art.arcane.adapt.util.common.scheduling.Tasks;
-import art.arcane.volmlib.util.localization.MessageArgs;
-import art.arcane.volmlib.util.localization.MessageKey;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -35,6 +31,8 @@ import java.util.function.Supplier;
  * the core runtime runs and {@link #stop} before it stops.
  */
 public final class PackDelivery {
+  /** Players holding it get the pack as optional while {@code pack.required} is on. */
+  public static final String OPTIONAL_PERMISSION = "adapt.pack.optional";
   static final String UNHOSTED = "pack.serve is false and pack.externalUrl is blank, so the Adapt pack is not offered to "
       + "players. Set one of them, or set pack.merged when players get the pack inside another pack.";
   private static volatile PackDelivery current;
@@ -58,9 +56,9 @@ public final class PackDelivery {
     this.link = link;
     this.release = config.getExternalUrl().isEmpty() ? release : null;
     BedrockPlayers bedrock = new BedrockPlayers(bedrockLoaders);
-    this.viewers = config.isMerged() ? PackViewers.merged(new StoredStyles(core), bedrock) : new PackViewers(new StoredStyles(core));
-    this.offers = new PackOffers(link, viewers, new StoredDeclines(core), PackDelivery::negotiatedClient, bedrock,
-        this::prompt, this::later, config.offerPolicy(), config.getHandshakeWindowMillis());
+    this.viewers = config.isMerged() ? PackViewers.merged(bedrock) : new PackViewers();
+    this.offers = new PackOffers(link, viewers, new Players(core, link, bedrock), PackOffers.Switches.CONFIG,
+        this::later, System::currentTimeMillis, config.offerPolicy(), config.getHandshakeWindowMillis());
     link.listen(this::status);
     core.getRegistrar().register(this);
     unsubscribe = source.subscribe(this::refresh);
@@ -80,10 +78,14 @@ public final class PackDelivery {
     PackDelivery delivery = new PackDelivery(core, config, PackSource.installed(), PackLink.installed(),
         Objects.requireNonNull(bedrockLoaders, "bedrockLoaders"), release);
     current = delivery;
+    GuiFrame.setMenusOffer(PackInvite::element);
     if (config.isMerged()) {
       AdaptLog.info("pack.merged is on: the Adapt pack is not offered; players get book menus once their client loads a server pack.");
     } else if (unhosted(config) && release == null) {
       AdaptLog.warn(UNHOSTED);
+    }
+    if (config.isRequired() && (config.isMerged() || unhosted(config) && release == null)) {
+      AdaptLog.warn("pack.required is on, but Adapt offers no pack of its own here, so no player is required to load it.");
     }
     delivery.refresh();
     for (PlayerRef player : core.getPlatform().host().onlinePlayers()) {
@@ -94,6 +96,7 @@ public final class PackDelivery {
   public static synchronized void stop() {
     PackDelivery running = current;
     current = null;
+    GuiFrame.setMenusOffer(null);
     if (running != null) {
       running.close();
     }
@@ -127,9 +130,10 @@ public final class PackDelivery {
     return offers.requested(player.uuid());
   }
 
-  /** Sends the pack to a player who picked book menus, unless they declined it. */
-  public PackOffers.Result bookChosen(PlayerRef player) {
-    return offers.bookChosen(player.uuid());
+  /** Where the player stands with the pack, for the chest menu invitation; {@link PackOffers.Standing#NONE} while delivery is off. */
+  public static PackOffers.Standing standing(PlayerRef player) {
+    PackDelivery running = current;
+    return running == null || player == null ? PackOffers.Standing.NONE : running.offers.standing(player.uuid());
   }
 
   @Handle(priority = EventPriority.MONITOR)
@@ -242,12 +246,6 @@ public final class PackDelivery {
     }
   }
 
-  private String prompt(UUID playerId) {
-    MessageKey configured = AdaptMessages.catalog().key(config.getPromptKey());
-    MessageKey key = configured == null ? PackMessages.PROMPT : configured;
-    return AdaptLanguage.text(playerId, key, MessageArgs.empty());
-  }
-
   private void later(UUID playerId, long millis, Runnable task) {
     PlayerRef player = core.getPlatform().host().player(playerId);
     if (player != null) {
@@ -260,53 +258,73 @@ public final class PackDelivery {
     return service != null && service.capability(playerId).isPresent();
   }
 
-  /** Declined pack hashes saved with the player's Adapt data. */
-  private record StoredDeclines(AdaptCore core) implements PackOffers.Declines {
+  private static AdaptPlayer online(AdaptCore core, UUID playerId) {
+    AdaptServer server = core.getAdaptServer();
+    return server == null ? null : server.getOnlineAdaptPlayer(playerId);
+  }
+
+  /** The players offers talk to: their stored decline, their Adapt client, their bypass. */
+  private record Players(AdaptCore core, PackLink link, BedrockPlayers bedrockPlayers) implements PackOffers.Players {
     @Override
     public boolean ready(UUID playerId) {
       return online(core, playerId) != null;
     }
 
     @Override
-    public String get(UUID playerId) {
+    public boolean clientMod(UUID playerId) {
+      return negotiatedClient(playerId);
+    }
+
+    @Override
+    public boolean bedrock(UUID playerId) {
+      return bedrockPlayers.test(playerId);
+    }
+
+    @Override
+    public boolean optional(UUID playerId) {
+      AdaptPlayer player = online(core, playerId);
+      return player == null || player.getPlayer().hasPermission(OPTIONAL_PERMISSION);
+    }
+
+    @Override
+    public String prompt(UUID playerId) {
+      return PackPitch.prompt(playerId);
+    }
+
+    @Override
+    public String declined(UUID playerId) {
       AdaptPlayer player = online(core, playerId);
       return player == null ? null : player.getData().getDeclinedPack();
     }
 
     @Override
-    public void set(UUID playerId, String sha1Hex) {
+    public void declined(UUID playerId, String sha1Hex) {
       AdaptPlayer player = online(core, playerId);
       if (player != null && !Objects.equals(player.getData().getDeclinedPack(), sha1Hex)) {
         player.getData().setDeclinedPack(sha1Hex);
         player.requestSave();
       }
     }
-  }
 
-  private static AdaptPlayer online(AdaptCore core, UUID playerId) {
-    AdaptServer server = core.getAdaptServer();
-    return server == null ? null : server.getOnlineAdaptPlayer(playerId);
-  }
-
-  /** Menu choices saved with the player's Adapt data. */
-  private record StoredStyles(AdaptCore core) implements PackViewers.Styles {
     @Override
-    public boolean ready(UUID playerId) {
-      return online(core, playerId) != null;
+    public void invite(UUID playerId) {
+      send(playerId, PackPitch.invite(playerId));
     }
 
     @Override
-    public MenuStyle get(UUID playerId) {
-      AdaptPlayer player = online(core, playerId);
-      return player == null ? null : player.getData().getMenuStyle();
+    public void steps(UUID playerId) {
+      send(playerId, PackPitch.steps(playerId));
     }
 
     @Override
-    public void set(UUID playerId, MenuStyle style) {
-      AdaptPlayer player = online(core, playerId);
+    public void kick(UUID playerId) {
+      link.disconnect(playerId, PackPitch.required(playerId));
+    }
+
+    private void send(UUID playerId, String markup) {
+      PlayerRef player = core.getPlatform().host().player(playerId);
       if (player != null) {
-        player.getData().setMenuStyle(style);
-        player.requestSave();
+        player.sendMessage(markup);
       }
     }
   }

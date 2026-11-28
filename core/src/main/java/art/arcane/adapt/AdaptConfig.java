@@ -506,10 +506,28 @@ public class AdaptConfig {
 
   @Getter
   public static class Pack {
-    @ConfigDoc(value = "Offers players without the Adapt client mod a resource pack that turns Adapt menus into book pages.", impact = "The pack is never forced; players who decline or cannot load it keep the chest menus. Applies on restart.")
+    @ConfigDoc(value = "Offers players without the Adapt client mod a resource pack that turns Adapt menus into book pages.", impact = "Unless required is on, players who decline or cannot load it keep the chest menus. Applies on restart.")
     private boolean enabled = true;
-    @ConfigDoc(value = "When the pack is offered: join, first-open or off.", impact = "join offers it once the client mod handshake window after joining has passed, first-open when the player first opens an Adapt menu, off only through /adapt pack offer. Applies on restart.")
+    @ConfigDoc(value = "When the pack is offered: join, first-open or off.", impact = "join offers it on every join once the client mod handshake window has passed, first-open when the player first opens an Adapt menu on each join, off only through /adapt pack offer. A player the pack is required for is offered it at join under every value. Applies on restart.")
     private String offer = "join";
+    @ConfigDoc(value = "Offers the pack again on later joins to a player who declined it before.", impact = "Off remembers the declined pack and offers it unasked only once its hash changes or the player runs /adapt pack offer. Applies on config reload.")
+    private boolean reofferAfterDecline = true;
+    @ConfigDoc(value = "Tells a player without the pack about it in chat once after joining: how to load it, or how to let their client accept server packs after a decline.", impact = "Players with the Adapt client mod, Bedrock players and players who loaded the pack hear nothing. Applies on config reload.")
+    private boolean joinNudge = true;
+    @ConfigDoc(value = "Repeats that chat line when a player without the pack opens an Adapt menu, at most every two minutes.", impact = "Applies on config reload.")
+    private boolean menuNudge = true;
+    @ConfigDoc(value = "Puts a Get the book menus item into the chest menus of players without the pack; clicking it offers the pack again or prints how to accept server packs.", impact = "Applies on config reload.")
+    private boolean menuItem = true;
+    @ConfigDoc(value = "Names the Adapt client mod next to the pack in the prompt, the chat lines, the menu item and the required-pack message.", impact = "Applies on config reload.")
+    private boolean mentionMod = true;
+    @ConfigDoc(value = "Download page of the Adapt client mod linked from the chat lines.", impact = "Blank names the mod without a link. Applies on config reload.")
+    private String modUrl = "https://github.com/VolmitSoftware/Adapt/releases";
+    @ConfigDoc(value = "Shows the full pack prompt text that describes the book menus.", impact = "Off shows only the short promptKey text. Applies on config reload.")
+    private boolean strongPrompt = true;
+    @ConfigDoc(value = "Sends the pack as required: the client prompts even with server packs disabled for this server, and declining disconnects the player.", impact = "Players with the Adapt client mod are never sent the pack; players with adapt.pack.optional get it as optional. With nothing to host the pack nobody is required to load it. Applies on config reload for later offers.")
+    private boolean required = false;
+    @ConfigDoc(value = "Plays vanilla click and page sounds to the player using pack book menus.", impact = "effects.soundsEnabled and the player's effects preference also mute them. Applies on config reload.")
+    private boolean uiSounds = true;
     @ConfigDoc(value = "Milliseconds after joining that Adapt waits for the Adapt client mod before offering the pack.", impact = "Players whose client mod answers in this window are never offered the pack. Clamped to 0-60000. Applies on restart.")
     private long handshakeWindowMillis = 3_000L;
     @ConfigDoc(value = "Serves the pack from a built-in HTTP listener on its own port.", impact = "The port must be reachable by players. Ignored while externalUrl is set; opened only when releaseUrl is blank, the pack differs from the released one, or a player could not download it from there. Applies on restart.")
@@ -528,7 +546,7 @@ public class AdaptConfig {
     private String promptKey = "adapt.pack.prompt";
     @ConfigDoc(value = "Writes the pack zip and its unzipped files to pack/export for merging into Nexo, ItemsAdder or CraftEngine.", impact = "Rewritten only when the pack's hash differs from the export already there. Applies on restart.")
     private boolean export = true;
-    @ConfigDoc(value = "Set when players get the Adapt pack inside another pack, such as one merged into Nexo, ItemsAdder or CraftEngine or set in server.properties.", impact = "Adapt then neither serves nor offers its own pack, but still bakes and exports it; a player gets book menus once their client reports any server pack loaded, until a pack is declined, fails or is discarded. A client that loaded an unrelated pack counts too. Bedrock players and players who chose chest menus keep chest menus. Applies on restart.")
+    @ConfigDoc(value = "Set when players get the Adapt pack inside another pack, such as one merged into Nexo, ItemsAdder or CraftEngine or set in server.properties.", impact = "Adapt then neither serves nor offers its own pack, but still bakes and exports it; a player gets book menus once their client reports any server pack loaded, until a pack is declined, fails or is discarded. A client that loaded an unrelated pack counts too. Bedrock players keep chest menus. Applies on restart.")
     private boolean merged = false;
     @ConfigDoc(value = "Threads that bake the pack at start and after asset changes; 0 uses half the cores, at most four.", impact = "More threads bake faster and need more memory. Clamped to 0-16. Applies on restart.")
     private int bakeThreads = 0;
@@ -558,6 +576,7 @@ public class AdaptConfig {
       externalUrl = externalUrl == null ? "" : externalUrl.trim();
       releaseUrl = releaseUrl == null ? "" : releaseUrl.trim();
       promptKey = promptKey == null || promptKey.isBlank() ? "adapt.pack.prompt" : promptKey.trim();
+      modUrl = modUrl == null ? "" : modUrl.trim();
       bakeThreads = Math.max(0, Math.min(16, bakeThreads));
     }
   }

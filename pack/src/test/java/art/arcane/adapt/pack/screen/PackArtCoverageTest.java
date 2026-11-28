@@ -161,6 +161,7 @@ class PackArtCoverageTest {
           Path out = Path.of(evidence).resolve(screen.name() + "-" + size[0] + "x" + size[1] + ".png");
           Files.write(out, scaled(ScreenCompositor.screen(layer, screen.menu(), size[0], size[1]), 2).png());
         }
+        Files.writeString(Path.of(evidence).resolve(screen.name() + ".items"), named(screen));
       }
     }
     if (evidence != null) {
@@ -375,6 +376,8 @@ class PackArtCoverageTest {
         shot(screens, resources, support, "skill-" + Id.parse(kit).path() + suffix, null,
             (ScreenSamples samples) -> samples.screens.openSkill(samples.viewer, kit));
       }
+      shot(screens, resources, support, ScreenSamples.everyKit(), "skill-stealth" + suffix, null,
+          (ScreenSamples samples) -> samples.screens.openSkill(samples.viewer, ScreenSamples.skill("stealth")));
       shot(screens, resources, support, "skill-mutated" + suffix, null,
           (ScreenSamples samples) -> samples.screens.openSkill(samples.viewer, ScreenSamples.MUTATED));
       shot(screens, resources, support, "skill-mutated-leaf2" + suffix, null, (ScreenSamples samples) -> {
@@ -431,7 +434,11 @@ class PackArtCoverageTest {
 
   private static void shot(List<Screen> screens, PackResources resources, PackSupport support, String name, PackSlot hover,
                            Consumer<ScreenSamples> open) {
-    ScreenSamples samples = new ScreenSamples();
+    shot(screens, resources, support, new ScreenSamples(), name, hover, open);
+  }
+
+  private static void shot(List<Screen> screens, PackResources resources, PackSupport support, ScreenSamples samples, String name,
+                           PackSlot hover, Consumer<ScreenSamples> open) {
     samples.windows.support = support;
     samples.screens(resources);
     open.accept(samples);
@@ -439,6 +446,22 @@ class PackArtCoverageTest {
       throw new IllegalStateException(name + " opened nothing");
     }
     screens.add(new Screen(name, samples.windows.menu, samples.windows.surface, hover, 0L));
+  }
+
+  /** The window slots (chest 0 to 53, then player 54 on) whose item has a name, so it shows a tooltip; one per line. */
+  private static String named(Screen screen) {
+    StringBuilder out = new StringBuilder();
+    screen.menu().buttons().forEach((Integer slot, MenuButton button) -> {
+      if (button.icon().name() != null && !button.icon().name().isBlank()) {
+        out.append(slot).append('\n');
+      }
+    });
+    screen.surface().lower().forEach((Integer slot, MenuButton button) -> {
+      if (button.icon().name() != null && !button.icon().name().isBlank()) {
+        out.append(54 + slot).append('\n');
+      }
+    });
+    return out.toString();
   }
 
   /** A config-like menu of {@code rows}: entries, filler, back, paging and page information. */

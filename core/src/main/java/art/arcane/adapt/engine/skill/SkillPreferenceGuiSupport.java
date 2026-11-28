@@ -17,6 +17,7 @@ import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -87,8 +88,8 @@ final class SkillPreferenceGuiSupport {
         .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_RESET_DESCRIPTION))
         .setRole(MenuRole.ACTION)
         .onLeftClick((MenuClick element) -> onOwner(true));
-    window.setElement(-1, row, toggle);
-    window.setElement(1, row, reset);
+    window.setElement(GuiLayout.centeredPosition(0, 2), row, toggle);
+    window.setElement(GuiLayout.centeredPosition(1, 2), row, reset);
     if (update) {
       window.update();
     }

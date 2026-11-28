@@ -88,8 +88,8 @@ class GuiConfirmTest {
     ChestMenu menu = opened.getValue();
 
     assertThat(menu.rows()).isEqualTo(3);
-    assertThat(menu.title()).isEqualTo(C.GRAY + "Text");
-    assertThat(menu.buttons()).hasSize(27);
+    assertThat(menu.title()).isEqualTo("Text");
+    assertThat(menu.buttons()).hasSize(20);
     MenuButton message = menu.button(4);
     assertThat(message.icon().type()).isEqualTo(Id.minecraft("paper"));
     assertThat(message.icon().name()).isEqualTo(C.WHITE + "Delete");
@@ -99,8 +99,13 @@ class GuiConfirmTest {
     assertThat(menu.button(11).clickable()).isTrue();
     assertThat(menu.button(15).icon().type()).isEqualTo(Id.minecraft("red_stained_glass_pane"));
     assertThat(menu.button(15).clickable()).isTrue();
-    assertThat(menu.button(0).icon().type()).isEqualTo(Id.minecraft("black_stained_glass_pane"));
-    assertThat(menu.button(0).clickable()).isFalse();
+    for (int slot : new int[]{0, 8, 18, 22, 26}) {
+      assertThat(menu.button(slot).icon().type()).isEqualTo(GuiFrame.BAR);
+      assertThat(menu.button(slot).clickable()).isFalse();
+    }
+    for (int slot : new int[]{9, 10, 12, 13, 14, 16, 17}) {
+      assertThat(menu.button(slot)).isNull();
+    }
 
     PanelView view = PanelViews.view(1, 0, menu);
     assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
@@ -109,6 +114,7 @@ class GuiConfirmTest {
     assertThat(tile(view, 11).hint().kind()).isEqualTo(HintKind.DESTRUCTIVE);
     assertThat(tile(view, 15).role()).isEqualTo(TileRole.ACTION);
     assertThat(tile(view, 0).role()).isEqualTo(TileRole.DECORATION);
+    assertThat(tile(view, 18).role()).isEqualTo(TileRole.DECORATION);
   }
 
   private static PanelTile tile(PanelView view, int slot) {

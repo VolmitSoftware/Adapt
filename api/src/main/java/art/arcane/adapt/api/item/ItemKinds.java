@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.item;
 
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import org.jetbrains.annotations.ApiStatus;
@@ -8,20 +9,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-/** What kind of vanilla item, block or material something is, the way built-in adaptations ask. */
+/**
+ * What kind of item, block or material something is, the way built-in adaptations ask. Tool kinds come from
+ * {@link Tools}, so modded tools count; the other checks name vanilla content, plus loader tags where noted.
+ */
 @ApiStatus.AvailableSince("1.0.0")
 public final class ItemKinds {
   private static final Set<String> SPEARS = Set.of("wooden_spear", "stone_spear", "copper_spear", "iron_spear",
       "golden_spear", "diamond_spear", "netherite_spear");
   private static final Set<String> RANGED = Set.of("bow", "crossbow");
-  private static final Set<String> SWORDS = Set.of("diamond_sword", "golden_sword", "iron_sword", "netherite_sword",
-      "stone_sword", "wooden_sword", "copper_sword");
-  private static final Set<String> AXES = Set.of("diamond_axe", "golden_axe", "iron_axe", "netherite_axe", "stone_axe",
-      "wooden_axe", "copper_axe");
-  private static final Set<String> PICKAXES = Set.of("diamond_pickaxe", "golden_pickaxe", "iron_pickaxe",
-      "netherite_pickaxe", "stone_pickaxe", "wooden_pickaxe", "copper_pickaxe");
-  private static final Set<String> SHOVELS = Set.of("diamond_shovel", "golden_shovel", "iron_shovel", "netherite_shovel",
-      "stone_shovel", "wooden_shovel", "copper_shovel");
   private static final Set<String> LOG_EXTRAS = Set.of("mushroom_stem", "brown_mushroom_block", "red_mushroom_block",
       "mangrove_roots", "muddy_mangrove_roots");
   private static final Set<String> LEAF_EXTRAS = Set.of("mangrove_roots", "muddy_mangrove_roots");
@@ -33,12 +29,13 @@ public final class ItemKinds {
       "netherite_leggings", "chainmail_leggings", "leather_leggings", "copper_leggings");
   private static final Set<String> CHESTPLATES = Set.of("diamond_chestplate", "golden_chestplate", "iron_chestplate",
       "netherite_chestplate", "chainmail_chestplate", "leather_chestplate", "copper_chestplate");
-  private static final Set<String> HOES = Set.of("diamond_hoe", "golden_hoe", "iron_hoe", "netherite_hoe", "stone_hoe",
-      "wooden_hoe", "copper_hoe");
   private static final Set<String> ORES = Set.of("copper_ore", "deepslate_copper_ore", "coal_ore", "gold_ore", "iron_ore",
       "diamond_ore", "lapis_ore", "emerald_ore", "nether_quartz_ore", "nether_gold_ore", "redstone_ore",
       "deepslate_coal_ore", "deepslate_iron_ore", "deepslate_gold_ore", "deepslate_lapis_ore",
       "deepslate_diamond_ore", "deepslate_emerald_ore", "deepslate_redstone_ore");
+  private static final Id LOGS = Id.minecraft("logs");
+  private static final Id FORGE_ORES = Id.parse("forge:ores");
+  private static final Id COMMON_ORES = Id.parse("c:ores");
   private static final Set<String> STORAGE = Set.of("chest", "smoker", "trapped_chest", "shulker_box", "white_shulker_box",
       "orange_shulker_box", "magenta_shulker_box", "light_blue_shulker_box", "yellow_shulker_box",
       "lime_shulker_box", "pink_shulker_box", "gray_shulker_box", "light_gray_shulker_box", "cyan_shulker_box",
@@ -89,9 +86,9 @@ public final class ItemKinds {
     return isItem(it) && vanilla(it.type(), RANGED);
   }
 
-  /** Whether the stack is a vanilla sword of any material. */
+  /** Whether the stack is a sword, as {@link Tools} decides. */
   public static boolean isSword(ItemRef it) {
-    return isItem(it) && vanilla(it.type(), SWORDS);
+    return isItem(it) && Tools.is(it, ToolKind.SWORD);
   }
 
   /** Whether the stack is a vanilla trident. */
@@ -99,19 +96,19 @@ public final class ItemKinds {
     return isItem(it) && vanilla(it.type(), "trident");
   }
 
-  /** Whether the stack is a vanilla axe of any material. */
+  /** Whether the stack is an axe, as {@link Tools} decides: modded tools by tag, loader action or mining rules count. */
   public static boolean isAxe(ItemRef it) {
-    return isItem(it) && vanilla(it.type(), AXES);
+    return isItem(it) && Tools.is(it, ToolKind.AXE);
   }
 
-  /** Whether the stack is a vanilla pickaxe of any material. */
+  /** Whether the stack is a pickaxe, as {@link Tools} decides: modded tools by tag, loader action or mining rules count. */
   public static boolean isPickaxe(ItemRef it) {
-    return isItem(it) && vanilla(it.type(), PICKAXES);
+    return isItem(it) && Tools.is(it, ToolKind.PICKAXE);
   }
 
-  /** Whether the stack is a vanilla shovel of any material. */
+  /** Whether the stack is a shovel, as {@link Tools} decides: modded tools by tag, loader action or mining rules count. */
   public static boolean isShovel(ItemRef it) {
-    return isItem(it) && vanilla(it.type(), SHOVELS);
+    return isItem(it) && Tools.is(it, ToolKind.SHOVEL);
   }
 
   /** Whether the stack is a log, as {@link #isLog(Id)} decides. */
@@ -120,14 +117,17 @@ public final class ItemKinds {
   }
 
   /**
-   * Whether the id ends in {@code _log} or {@code _wood}, in any namespace, or is a vanilla mushroom stem, mushroom
-   * block or mangrove roots.
+   * Whether the id ends in {@code _log} or {@code _wood}, in any namespace, is a vanilla mushroom stem, mushroom
+   * block or mangrove roots, or is a block of another namespace in {@code minecraft:logs}.
    */
   public static boolean isLog(Id type) {
     if (type == null) {
       return false;
     }
-    return vanilla(type, LOG_EXTRAS) || type.path().endsWith("_log") || type.path().endsWith("_wood");
+    if (vanilla(type, LOG_EXTRAS) || type.path().endsWith("_log") || type.path().endsWith("_wood")) {
+      return true;
+    }
+    return !type.isMinecraft() && Tools.isBlockTagged(type, LOGS);
   }
 
   /** Whether the stack is leaves, as {@link #isLeaves(Id)} decides. */
@@ -168,14 +168,23 @@ public final class ItemKinds {
     return isItem(it) && vanilla(it.type(), "elytra");
   }
 
-  /** Whether the stack is a vanilla hoe of any material. */
+  /** Whether the stack is a hoe, as {@link Tools} decides. */
   public static boolean isHoe(ItemRef it) {
-    return isItem(it) && vanilla(it.type(), HOES);
+    return isItem(it) && Tools.is(it, ToolKind.HOE);
   }
 
-  /** Whether the block is a vanilla ore of the overworld or the nether, deepslate variants included. */
+  /**
+   * Whether the block is a vanilla ore of the overworld or the nether, deepslate variants included, or a block of
+   * another namespace in the loader ore tags {@code forge:ores} or {@code c:ores}.
+   */
   public static boolean isOre(BlockStateRef b) {
-    return b != null && vanilla(b.type(), ORES);
+    if (b == null) {
+      return false;
+    }
+    if (b.type().isMinecraft()) {
+      return vanilla(b.type(), ORES);
+    }
+    return Tools.isBlockTagged(b.type(), FORGE_ORES) || Tools.isBlockTagged(b.type(), COMMON_ORES);
   }
 
   /**

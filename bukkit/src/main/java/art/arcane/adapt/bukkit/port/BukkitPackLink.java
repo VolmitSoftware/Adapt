@@ -63,12 +63,18 @@ public final class BukkitPackLink implements PackLink, Listener {
   public void offer(UUID playerId, PackOffer offer) {
     byte[] hash = HexFormat.of().parseHex(offer.sha1Hex());
     String prompt = offer.prompt().isEmpty() ? null : BukkitText.legacy(offer.prompt());
-    withPlayer(playerId, (Player player) -> player.addResourcePack(offer.packId(), offer.url(), hash, prompt, false));
+    withPlayer(playerId, (Player player) -> player.addResourcePack(offer.packId(), offer.url(), hash, prompt, offer.required()));
   }
 
   @Override
   public void remove(UUID playerId, UUID packId) {
     withPlayer(playerId, (Player player) -> player.removeResourcePack(packId));
+  }
+
+  @Override
+  public void disconnect(UUID playerId, String message) {
+    String reason = BukkitText.legacy(message);
+    withPlayer(playerId, (Player player) -> player.kickPlayer(reason));
   }
 
   @Override

@@ -39,6 +39,7 @@ public final class FakeHost implements PlatformHost {
   private final PlatformLog log;
   private final ManualScheduler scheduler;
   private final Map<Id, Set<Id>> blockTags = new ConcurrentHashMap<>();
+  private final Map<Id, Set<Id>> itemTags = new ConcurrentHashMap<>();
   private final Map<UUID, EntityRef> trackedEntities = new ConcurrentHashMap<>();
   private final Map<Id, EffectCategory> effectCategories = new ConcurrentHashMap<>();
   private final Set<Id> instantEffects = ConcurrentHashMap.newKeySet();
@@ -278,6 +279,11 @@ public final class FakeHost implements PlatformHost {
     blockTags.put(tag, Set.of(blocks));
   }
 
+  /** Sets the members of an item tag. */
+  public void tagItems(Id tag, Id... items) {
+    itemTags.put(tag, Set.of(items));
+  }
+
   /** Makes one registry id unknown; every other id keeps existing. */
   public void removeRegistryId(RegistryKind kind, Id id) {
     missingIds.add(kind.name() + "|" + id);
@@ -301,12 +307,20 @@ public final class FakeHost implements PlatformHost {
 
     @Override
     public boolean isTagged(RegistryKind kind, Id tag, Id value) {
-      return kind == RegistryKind.BLOCK && blockTags.getOrDefault(tag, Set.of()).contains(value);
+      return tags(kind).getOrDefault(tag, Set.of()).contains(value);
     }
 
     @Override
     public Set<Id> tagValues(RegistryKind kind, Id tag) {
-      return kind == RegistryKind.BLOCK ? blockTags.getOrDefault(tag, Set.of()) : Set.of();
+      return tags(kind).getOrDefault(tag, Set.of());
+    }
+
+    private Map<Id, Set<Id>> tags(RegistryKind kind) {
+      return switch (kind) {
+        case BLOCK -> blockTags;
+        case ITEM -> itemTags;
+        default -> Map.of();
+      };
     }
 
     @Override

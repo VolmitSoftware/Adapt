@@ -60,7 +60,6 @@ import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.engine.xp.XPMultiplier;
 import art.arcane.adapt.engine.xp.XpEarnings;
 import art.arcane.adapt.engine.xp.XpNovelty;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
@@ -140,7 +139,6 @@ public class PlayerData {
   private double masterXp = 1;
   private double lastMasterXp = 0;
   private volatile boolean effectsEnabled = true;
-  private volatile MenuStyle menuStyle;
   private volatile String declinedPack;
   private String inspiredSkill = "";
   private long inspiredAssignedAt = 0;

@@ -14,7 +14,8 @@ import java.util.function.Function;
 /**
  * Writes the design's fixed art and the paint the screens ask for by {@link PackArt} key: art pieces as item models drawn
  * at their offset from the slot, the items derived from them (blank, armed wash, seal marks, pips), the fixed pages as
- * glyph fonts through the page writer, and the paint font with every kit's crumb ribbon parts.
+ * glyph fonts through the page writer, and the paint font with every kit's crumb ribbon parts, maxed-row ornament and
+ * Mutate face.
  */
 final class ArtWriter {
     private static final String ART_TEXTURE = "item/adapt_ui/art/";
@@ -28,6 +29,11 @@ final class ArtWriter {
     private static final double SEAL_FILL_ALPHA = 0.8;
     private static final String TOME_RIBBON = "adapt:gui/kit/ribbon";
     private static final int RIBBON_BORDER = 6;
+    /** A list row's box height, which a maxed row's ornament is centred on. */
+    private static final int BOX_HEIGHT = 17;
+    private static final String MUTATE_BUTTON = "adapt:gui/kit/" + PackArt.BUTTON_PRIMARY;
+    private static final int MUTATE_SLOTS = PackArt.FACES.get(PackArt.BUTTON_PRIMARY);
+    private static final int MUTATE_BORDER = 4;
     static final int STACK_LAYERS = 3;
 
     private final PackFiles out;
@@ -68,11 +74,6 @@ final class ArtWriter {
                 boolean fill = name.startsWith("seal/fill_");
                 String texture = texture(name, fill ? ArtRules.faded(raster, SEAL_FILL_ALPHA) : raster);
                 artItem(name, piece.role(), List.of(new Layer(texture, piece.offsetX(), piece.offsetY(), piece.width(), piece.height(), fill)));
-                if (PackArt.SHIFTED_ITEMS.contains(name)) {
-                    for (int dy : PackArt.ICON_SHIFTS) {
-                        shiftedItem(name, texture, piece.role(), dy);
-                    }
-                }
             }
         }
         derived();
@@ -81,19 +82,12 @@ final class ArtWriter {
     /**
      * {@link PackArt#STACK}: up to {@link #STACK_LAYERS} icons drawn over each other, layer {@code i}
      * picked by custom model data string {@code i} (an icon's sprite id) and tinted by custom model data colour {@code i},
-     * from the icons' own generated models; and one per {@link PackArt#ICON_SHIFTS} from the shifted models.
+     * from the icons' own generated models.
      */
     void stack(List<IconFiles.Icon> icons) {
         if (icons.isEmpty()) {
             return;
         }
-        stack(icons, 0);
-        for (int dy : PackArt.ICON_SHIFTS) {
-            stack(icons, dy);
-        }
-    }
-
-    private void stack(List<IconFiles.Icon> icons, int dy) {
         JsonArray layers = new JsonArray();
         for (int index = 0; index < STACK_LAYERS; index++) {
             JsonArray cases = new JsonArray();
@@ -106,7 +100,7 @@ final class ArtWriter {
                 tints.add(tint);
                 JsonObject model = new JsonObject();
                 model.addProperty("type", "minecraft:model");
-                model.addProperty("model", icon.namespace() + ":adapt_ui/" + icon.path() + PackArt.shiftSuffix(dy));
+                model.addProperty("model", icon.namespace() + ":adapt_ui/" + icon.path());
                 model.add("tints", tints);
                 JsonObject when = new JsonObject();
                 when.addProperty("when", icon.sprite());
@@ -128,13 +122,10 @@ final class ArtWriter {
         composite.add("models", layers);
         JsonObject definition = new JsonObject();
         definition.add("model", composite);
-        if (dy != 0) {
-            definition.addProperty("oversized_in_gui", true);
-        }
-        String path = "adapt_ui/" + PackArt.STACK + PackArt.shiftSuffix(dy);
+        String path = "adapt_ui/" + PackArt.STACK;
         out.put("assets/" + PackWriter.NAMESPACE + "/items/" + path + ".json", PackJson.json(definition));
-        art.add(new PackManifest.Art(PackArt.shifted(PackArt.STACK, dy), "icons stacked by custom model data strings and tinted by its colours",
-                PackWriter.NAMESPACE + ":" + path, 0, dy, 16, 16));
+        art.add(new PackManifest.Art(PackArt.STACK, "icons stacked by custom model data strings and tinted by its colours",
+                PackWriter.NAMESPACE + ":" + path, 0, 0, 16, 16));
     }
 
     /** The items the screens ask for that are not one design piece each: see {@link PackArt#items()}. */
@@ -229,15 +220,6 @@ final class ArtWriter {
      * The item {@code name} drawing {@code layers} in order: a generated model for one plain 16x16 layer on its slot,
      * otherwise flat elements under one GUI transform, oversized when they reach past the slot.
      */
-    /** The 16x16 art item {@code name} drawn {@code dy} pixels below its slot, listed as {@link PackArt#shifted}. */
-    private void shiftedItem(String name, String texture, String role, int dy) {
-        String modelPath = ART_MODEL + name + PackArt.shiftSuffix(dy);
-        out.shiftedModel(PackWriter.NAMESPACE, "item/" + modelPath, List.of(texture), dy);
-        String modelId = PackWriter.NAMESPACE + ":item/" + modelPath;
-        out.item(PackWriter.NAMESPACE, modelPath, modelId, true);
-        art.add(new PackManifest.Art(PackArt.shifted(name, dy), role, PackWriter.NAMESPACE + ":" + modelPath, 0, dy, 16, 16));
-    }
-
     private void artItem(String name, String role, List<Layer> layers) {
         int x0 = Integer.MAX_VALUE;
         int y0 = Integer.MAX_VALUE;
@@ -283,8 +265,12 @@ final class ArtWriter {
         art.add(new PackManifest.Art(name, role, PackWriter.NAMESPACE + ":" + modelPath, x0, y0, x1 - x0, y1 - y0));
     }
 
-    /** See {@link PackWriter#paint}; {@code ribbons} are the kits' crumb ribbons, to which the tome's is added. */
-    void paint(List<PackArt.Paint> pieces, Function<String, byte[]> sprites, List<ArtPieces.Piece> artPieces, TreeMap<String, Raster> ribbons) {
+    /** Each skill kit's paint by kit key: its crumb ribbon, its maxed-row ornament and its Mutate face. */
+    record KitPaint(TreeMap<String, Raster> ribbons, TreeMap<String, Raster> ornaments, TreeMap<String, MutateFace> mutateFaces) {
+    }
+
+    /** See {@link PackWriter#paint}; the tome's crumb ribbon is added to {@code kits}' ribbons. */
+    void paint(List<PackArt.Paint> pieces, Function<String, byte[]> sprites, List<ArtPieces.Piece> artPieces, KitPaint kits) {
         Map<String, Raster> named = new TreeMap<>();
         for (ArtPieces.Piece piece : artPieces) {
             named.put(piece.name(), Raster.decode(piece.png()));
@@ -294,6 +280,7 @@ final class ArtWriter {
         for (PackArt.Paint piece : pieces) {
             codepoint = paintGlyph(piece, ArtRules.paint(piece, sprites, named), codepoint, providers);
         }
+        TreeMap<String, Raster> ribbons = kits.ribbons();
         byte[] tome = sprites.apply(TOME_RIBBON);
         if (tome != null) {
             ribbons.put(PackArt.TOME, KitBake.nine(tome, KitBake.RIBBON_WIDTH, KitBake.RIBBON_HEIGHT, RIBBON_BORDER));
@@ -301,6 +288,21 @@ final class ArtWriter {
         for (Map.Entry<String, Raster> ribbon : ribbons.entrySet()) {
             for (PackArt.Paint part : ribbonParts(ribbon.getKey())) {
                 codepoint = paintGlyph(part, ArtRules.ribbon(part, ribbon.getValue()), codepoint, providers);
+            }
+        }
+        for (Map.Entry<String, Raster> ornament : kits.ornaments().entrySet()) {
+            for (PackArt.Paint part : ornamentParts(ornament.getKey(), ornament.getValue())) {
+                codepoint = paintGlyph(part, ornament.getValue(), codepoint, providers);
+            }
+        }
+        byte[] primary = sprites.apply(MUTATE_BUTTON);
+        if (primary != null) {
+            Raster button = KitBake.nine(primary, MUTATE_SLOTS * 18, 18, MUTATE_BORDER);
+            for (Map.Entry<String, MutateFace> face : kits.mutateFaces().entrySet()) {
+                Raster drawn = face.getValue().draw(button);
+                for (PackArt.Paint part : mutateParts(face.getKey())) {
+                    codepoint = paintGlyph(part, drawn, codepoint, providers);
+                }
             }
         }
         JsonObject font = new JsonObject();
@@ -333,6 +335,25 @@ final class ArtWriter {
                     PackArt.RIBBON_Y, 0));
         }
         parts.add(new PackArt.Paint(PackArt.ribbonTail(kit), PackArt.Kind.ART, "tail", PackArt.RIBBON_TAIL, KitBake.RIBBON_HEIGHT, PackArt.RIBBON_Y, 0));
+        return parts;
+    }
+
+    /** {@code kit}'s ornament on every slot row: centred on the row's box, drawn left of its anchor. */
+    static List<PackArt.Paint> ornamentParts(String kit, Raster ornament) {
+        List<PackArt.Paint> parts = new ArrayList<>();
+        for (int rowY : PackArt.ROWS) {
+            parts.add(new PackArt.Paint(PackArt.ornament(kit, rowY), PackArt.Kind.ART, "ornament", ornament.width(), ornament.height(),
+                    rowY + ((BOX_HEIGHT - ornament.height()) / 2), -ornament.width()));
+        }
+        return parts;
+    }
+
+    /** {@code kit}'s Mutate face under a run of slots on every slot row, placed as {@link PackArt#face} pieces are. */
+    static List<PackArt.Paint> mutateParts(String kit) {
+        List<PackArt.Paint> parts = new ArrayList<>();
+        for (int rowY : PackArt.ROWS) {
+            parts.add(new PackArt.Paint(PackArt.face(PackArt.mutate(kit), rowY), PackArt.Kind.NINE, MUTATE_BUTTON, MUTATE_SLOTS * 18, 18, rowY - 1, -1));
+        }
         return parts;
     }
 }

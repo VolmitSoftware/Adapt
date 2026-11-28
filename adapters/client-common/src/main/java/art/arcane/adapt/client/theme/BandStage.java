@@ -182,16 +182,11 @@ public final class BandStage {
 
     /** The bands of a book: its foot stages, then its top stages, one per kit with a scene for that edge. */
     public static List<BandStage> of(BookGeometry g, PageTheme theme) {
-        return of(g, theme, null);
-    }
-
-    /** The bands of a book shown on its own as {@code solo} says, when given: a top's right corner cast starts at or right of its corner line. */
-    public static List<BandStage> of(BookGeometry g, PageTheme theme, Solo solo) {
         List<BandStage> out = new ArrayList<>();
         feet(out, g, theme);
         tops(out, g, theme);
         for (BandStage stage : out) {
-            stage.cast(g, solo);
+            stage.cast(g);
         }
         return out;
     }
@@ -323,7 +318,7 @@ public final class BandStage {
         return spot[0] * width + spot[1];
     }
 
-    private void cast(BookGeometry g, Solo solo) {
+    private void cast(BookGeometry g) {
         Map<String, Actor> byId = new HashMap<>();
         for (BandScene.Element e : scene.cast()) {
             if (("mutated".equals(e.when()) && !neighbour) || ("plain".equals(e.when()) && neighbour)) {
@@ -342,18 +337,18 @@ public final class BandStage {
             if (missing) {
                 continue;
             }
-            Actor actor = resolve(e, byId, solo);
+            Actor actor = resolve(e, byId);
             if (actor == null) {
                 continue;
             }
             byId.put(actor.id, actor);
             // a hop or throw too high for the room under the text is flattened, halving its arcs, before it is dropped
-            boolean fit = fits(actor, g, solo);
+            boolean fit = fits(actor, g);
             for (int k = 0; k < 4 && !fit && arced(actor); k++) {
                 for (int i = 0; i < actor.steps; i++) {
                     actor.arc[i] = k < 3 ? actor.arc[i] / 2 : 0;
                 }
-                fit = fits(actor, g, solo);
+                fit = fits(actor, g);
             }
             if (!fit) {
                 byId.remove(actor.id);
@@ -372,7 +367,7 @@ public final class BandStage {
         return false;
     }
 
-    private Actor resolve(BandScene.Element e, Map<String, Actor> byId, Solo solo) {
+    private Actor resolve(BandScene.Element e, Map<String, Actor> byId) {
         List<BandScene.Step> steps = e.steps();
         Actor a = new Actor(e.id(), scene.sprite(e.sprite()), e.on(), e.cross(), e.behind(), e.corner() != null, steps.size(),
                 (top ? "top:" : "foot:") + kit.seed());
@@ -385,9 +380,6 @@ public final class BandStage {
             int anchor = flip ? sprite.width - 1 - sprite.anchorX : sprite.anchorX;
             boolean right = "end".equals(e.corner()) != mirror;
             int x = !e.flush() ? (right ? cornerTo : cornerFrom) : right ? groundTo - sprite.width + anchor : groundFrom + anchor;
-            if (solo != null && top && right) {
-                x = Math.max(x, solo.cornerFrom() + anchor);
-            }
             u = mirror ? stageTo - x : x - stageFrom;
         } else {
             u = u(e.at());
@@ -501,10 +493,10 @@ public final class BandStage {
         return new int[]{x - ax + px, y - sprite.anchorY + pt[1]};
     }
 
-    /** Whether {@code a} stays in its room; a top's corner cast moved clear of the header on a solo page may reach twice as far out. */
-    private boolean fits(Actor a, BookGeometry g, Solo solo) {
+    /** Whether {@code a} stays in its room. */
+    private boolean fits(Actor a, BookGeometry g) {
         int lo = a.corner ? spanFrom - CORNER_REACH : a.cross ? spanFrom : groundFrom;
-        int hi = a.corner ? spanTo + CORNER_REACH * (solo != null && top ? 2 : 1) : a.cross ? spanTo : groundTo;
+        int hi = a.corner ? spanTo + CORNER_REACH : a.cross ? spanTo : groundTo;
         long[] xy = new long[2];
         for (int i = 0; i < a.steps; i++) {
             if (a.clip[i] == null && a.alt[i] == null) {

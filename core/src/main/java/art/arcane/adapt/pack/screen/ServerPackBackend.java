@@ -27,8 +27,6 @@ import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.RecipeViews;
 import art.arcane.adapt.client.view.ShortNameView;
-import art.arcane.adapt.client.view.SpendView;
-import art.arcane.adapt.client.view.SpendViews;
 import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.client.view.ToolViews;
 import art.arcane.adapt.client.view.XpGuideView;
@@ -36,8 +34,6 @@ import art.arcane.adapt.client.view.XpGuideViews;
 import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
-import art.arcane.adapt.pack.link.MenuStyle;
-import art.arcane.adapt.pack.link.PackDelivery;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
@@ -193,27 +189,6 @@ public final class ServerPackBackend implements PackViews, PackActions {
       tools = cached;
     }
     return cached.all();
-  }
-
-  @Override
-  public List<SpendView> spending(PlayerRef viewer) {
-    SkillRegistry registry = registry();
-    AdaptPlayer player = adaptPlayer(viewer);
-    return registry == null || player == null ? List.of() : SpendViews.build(registry, player);
-  }
-
-  @Override
-  public MenuStyle menuStyle(PlayerRef viewer) {
-    PackDelivery delivery = PackDelivery.current();
-    return delivery == null ? null : delivery.viewers().style(viewer.uuid()).orElse(null);
-  }
-
-  @Override
-  public void menus(PlayerRef viewer, MenuStyle style) {
-    PackDelivery delivery = PackDelivery.current();
-    if (delivery != null) {
-      delivery.viewers().style(viewer.uuid(), style);
-    }
   }
 
   @Override

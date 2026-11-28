@@ -1,11 +1,13 @@
 package art.arcane.adapt.pack.menu;
 
+import art.arcane.adapt.localization.MarkupPort;
 import art.arcane.adapt.pack.PackResources;
 import art.arcane.adapt.pack.layout.PackArt;
 import art.arcane.adapt.pack.layout.ScreenLayout;
 import art.arcane.adapt.pack.surface.PackSlot;
 import art.arcane.adapt.pack.surface.PackSurface;
 import art.arcane.adapt.pack.text.LegacyText;
+import art.arcane.adapt.pack.text.PackInk;
 import art.arcane.adapt.pack.text.TitleComposer;
 import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.MenuAction;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -62,6 +65,7 @@ public final class LedgerSkin {
         bound = carried(bound, resources);
       } else {
         surface.look(packSlot, resources.framed(KIT));
+        bound = inked(bound);
       }
       skinned.set(slot, bound);
     }
@@ -117,8 +121,38 @@ public final class LedgerSkin {
     MenuIcon icon = button.icon();
     String name = icon.name() != null ? icon.name() : icon.item() == null ? null : icon.item().displayName();
     List<String> lore = !icon.lore().isEmpty() || icon.item() == null ? icon.lore() : icon.item().lore();
-    MenuIcon carried = MenuIcon.of(resources.carrier(), name, lore).withAmount(icon.amount());
+    MenuIcon carried = MenuIcon.of(resources.carrier(), tooltip(name), tooltip(lore)).withAmount(icon.amount());
     return new MenuButton(carried, button.action(), button.hint(), button.meta());
+  }
+
+  /**
+   * The button with the chat colours of its name and lore (its item's own when it names none) written as inks; the
+   * button itself when they carry none.
+   */
+  private static MenuButton inked(MenuButton button) {
+    MenuIcon icon = button.icon();
+    String name = icon.name() != null ? icon.name() : icon.item() == null ? null : icon.item().displayName();
+    List<String> lore = !icon.lore().isEmpty() || icon.item() == null ? icon.lore() : icon.item().lore();
+    String inkedName = tooltip(name);
+    List<String> inkedLore = tooltip(lore);
+    if (Objects.equals(inkedName, name) && inkedLore.equals(lore)) {
+      return button;
+    }
+    MenuIcon inked = MenuIcon.of(icon.type(), inkedName, inkedLore).withAmount(icon.amount()).withGlint(icon.glint())
+        .withItemModel(icon.itemModel()).withCustomModelData(icon.customModelData()).withItem(icon.item());
+    return new MenuButton(inked, button.action(), button.hint(), button.meta());
+  }
+
+  private static String tooltip(String markup) {
+    return markup == null ? null : PackInk.inked(MarkupPort.current().legacy(markup));
+  }
+
+  private static List<String> tooltip(List<String> lines) {
+    List<String> inked = new ArrayList<>(lines.size());
+    for (String line : lines) {
+      inked.add(tooltip(line));
+    }
+    return inked;
   }
 
   private static MenuButton rebound(MenuButton button, MenuSession exposed) {

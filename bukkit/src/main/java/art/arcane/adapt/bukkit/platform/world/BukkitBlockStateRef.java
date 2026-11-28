@@ -5,9 +5,11 @@ import art.arcane.adapt.bukkit.platform.BukkitResolve;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
+import art.arcane.adapt.util.common.compat.PaperApi;
 import org.bukkit.Bukkit;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -97,6 +99,15 @@ public final class BukkitBlockStateRef implements BlockStateRef {
   @Override
   public boolean isPreferredTool(ItemRef tool) {
     return data.isPreferredTool(BukkitRefs.item(tool));
+  }
+
+  @Override
+  public boolean isCorrectTool(ItemRef tool) {
+    ItemStack stack = BukkitRefs.item(tool);
+    if (data.requiresCorrectToolForDrops()) {
+      return data.isPreferredTool(stack);
+    }
+    return PaperApi.isPaper() && PaperApi.isCorrectTool(stack, data);
   }
 
   @Override

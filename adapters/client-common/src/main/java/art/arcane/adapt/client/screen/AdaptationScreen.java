@@ -53,8 +53,8 @@ import java.util.Map;
  * Neither changes meaning. Pointing at a pip, or moving keyboard focus to it, shows that level's stats and
  * what reaching it would cost or refund without touching the buttons. Clicking a pip offers to bring the adaptation
  * straight to that level: the row turns into one confirm button with the summed cost or refund and Cancel, until the
- * player confirms, presses Escape or clicks elsewhere. The same offer asks before a learn that cannot be undone and
- * before an unlearn that returns nothing; debug mode, where the server skips both, asks nothing. With no control
+ * player confirms, presses Escape or clicks elsewhere. The same offer asks before a learn that cannot be undone; debug
+ * mode, where the server skips that, asks nothing. The unlearn button and Delete act at once. With no control
  * focused Enter learns the next level or confirms the open offer, and Delete unlearns the top level; Backspace goes
  * back as on every page.
  *
@@ -740,7 +740,7 @@ public final class AdaptationScreen extends AdaptScreen {
         learn(target);
     }
 
-    /** Unlearns the top level, asking first when the server returns nothing for it. */
+    /** Unlearns the top level. */
     void unlearnTop() {
         CatalogIndex catalog = router().index();
         PlayerView player = router().state().player();
@@ -751,12 +751,6 @@ public final class AdaptationScreen extends AdaptScreen {
         int level = Math.max(kept, CatalogIndex.level(player, adaptationId));
         LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, player, adaptation, level - 1, keptBy);
         if (!check.allowed()) {
-            return;
-        }
-        if (!check.refunded() && !player.access().debug()) {
-            offer = new Offer(level - 1, false);
-            refresh();
-            requestLayout();
             return;
         }
         unlearn(level, level - 1);

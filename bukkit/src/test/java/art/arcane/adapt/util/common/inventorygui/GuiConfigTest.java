@@ -210,7 +210,7 @@ class GuiConfigTest extends AdaptTestBase {
       assertThat(GuiConfig.clampSkillsGuiRows(-2)).isZero();
     });
 
-    assertThat(countOf(output, "gui.skillsGuiRows=1 raised to 2")).isEqualTo(1);
+    assertThat(countOf(output, "gui.skillsGuiRows=1 raised to 3")).isEqualTo(1);
     assertThat(countOf(output, "gui.skillsGuiRows=9 clamped to 6")).isEqualTo(1);
     assertThat(countOf(output, "gui.skillsGuiRows=-2 is out of range")).isEqualTo(1);
   }

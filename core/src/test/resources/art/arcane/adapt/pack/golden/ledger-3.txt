@@ -18,6 +18,6 @@ run adapt:ui/text/m1 f6edd8 Adapt
 run adapt:ui/text/m1 b79c6e  / 
 run adapt:ui/text/m1 ffaa00 Settings
 top:0 minecraft:stonex1 click "Stone" | first | second @null adapt:tome
-top:1 minecraft:paperx1 " " @adapt:adapt_ui/art/blank hidden
-top:2 minecraft:paperx1 "Stone" | first | second @adapt:adapt_ui/art/blank hidden
-top:18 minecraft:paperx1 click "Back" | to the list @adapt:adapt_ui/art/ctl/back adapt:tome
+top:1 minecraft:bookx1 " " @adapt:adapt_ui/art/blank hidden
+top:2 minecraft:bookx1 "Stone" | first | second @adapt:adapt_ui/art/blank hidden
+top:18 minecraft:bookx1 click "Back" | to the list @adapt:adapt_ui/art/ctl/back adapt:tome

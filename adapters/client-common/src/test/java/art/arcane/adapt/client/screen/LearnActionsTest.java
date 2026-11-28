@@ -413,15 +413,11 @@ class LearnActionsTest {
     }
 
     @Test
-    void aServerWithoutRefundsAsksBeforeUnlearning() {
+    void aServerWithoutRefundsUnlearnsAtOnce() {
         access(false, false);
         AdaptationScreen screen = open(WALL_JUMP);
         fixture.key(UiKey.DELETE);
-        assertEquals(new AdaptationScreen.Offer(1, false), screen.offer());
-        assertEquals("Unlearn II", fixture.find("confirm").label());
-        assertEquals(ScreenText.NO_REFUND.text(), fixture.find("reason").label());
-        assertTrue(fixture.sent.isEmpty());
-        fixture.key(UiKey.ENTER);
+        assertNull(screen.offer());
         assertEquals(List.of(new ClientFrame.Unlearn(WALL_JUMP, 1, PreviewSamples.REVISION)), fixture.sent);
     }
 

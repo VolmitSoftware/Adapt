@@ -19,6 +19,10 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.Adapt;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Tool;
+import io.papermc.paper.registry.RegistryKey;
+import io.papermc.paper.registry.TypedKey;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -38,8 +42,10 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.BlockType;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Lidded;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -106,6 +112,21 @@ public final class PaperApi {
 
   public static boolean isPaper() {
     return PAPER;
+  }
+
+  /** The vanilla correct-for-drops answer of the stack's tool component: its first rule naming the block decides. */
+  public static boolean isCorrectTool(ItemStack stack, BlockData data) {
+    Tool tool = stack == null || stack.getType().isAir() ? null : stack.getData(DataComponentTypes.TOOL);
+    if (tool == null) {
+      return false;
+    }
+    TypedKey<BlockType> block = TypedKey.create(RegistryKey.BLOCK, data.getMaterial().getKey());
+    for (Tool.Rule rule : tool.rules()) {
+      if (rule.correctForDrops() != TriState.NOT_SET && rule.blocks().contains(block)) {
+        return rule.correctForDrops() == TriState.TRUE;
+      }
+    }
+    return false;
   }
 
   public static String minecraftVersion(Server server) {

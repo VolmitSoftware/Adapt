@@ -10,6 +10,7 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.testkit.TestAdapt;
 import art.arcane.adapt.testkit.TestPlatform;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
 import art.arcane.adapt.util.common.inventorygui.GuiGroupLayout;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -104,13 +105,16 @@ class SkillGroupsTest {
     List<List<String>> arranged = GuiGroupLayout.arrange(all, (String name) -> name, (String name) -> GuiConfig.UNRANKED,
         Comparator.<String>naturalOrder(), rows);
     assertThat(arranged).isEqualTo(rows);
-    for (boolean navigation : new boolean[]{false, true}) {
-      for (boolean settings : new boolean[]{false, true}) {
-        GuiGroupLayout.Plan<String> plan = GuiGroupLayout.plan(arranged, navigation, settings);
-        assertThat(plan.pageCount()).isEqualTo(1);
-        assertThat(plan.pages().get(0).rows()).extracting(List::size).containsExactly(2, 4, 8, 5);
+    GuiFrame.Layout<String> layout = GuiFrame.groups(arranged, true);
+    assertThat(layout.pageCount()).isEqualTo(1);
+    assertThat(layout.bodyRows()).isEqualTo(4);
+    List<Integer> perRow = new ArrayList<>(List.of(0, 0, 0, 0));
+    for (GuiFrame.Cell<String> cell : layout.page(0).cells()) {
+      if (!cell.heading()) {
+        perRow.set(cell.row(), perRow.get(cell.row()) + 1);
       }
     }
+    assertThat(perRow).containsExactly(2, 4, 8, 5);
   }
 
   private static List<List<String>> rows(List<AdaptationGroup> groups) {

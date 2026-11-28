@@ -156,12 +156,13 @@ def spike_setup(spike: Path, output: Path):
 
 
 def adapt_setup():
-    """Gives the Adapt pack listener a free loopback port, so parallel servers never collide on the default."""
+    """Gives the Adapt pack listener a free loopback port, so parallel servers never collide on the default, and serves the
+    baked pack from it instead of the released one."""
     def setup(server: Path) -> None:
         config: Path = server / 'plugins' / 'Adapt' / 'adapt.toml'
         config.parent.mkdir(parents=True, exist_ok=True)
         port: int = uiclient.free_port()
-        config.write_text(f'[pack]\nbind = "127.0.0.1"\nport = {port}\npublicUrl = "http://127.0.0.1:{port}"\n')
+        config.write_text(f'[pack]\nbind = "127.0.0.1"\nport = {port}\npublicUrl = "http://127.0.0.1:{port}"\nreleaseUrl = ""\n')
     return setup
 
 

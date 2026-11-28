@@ -68,7 +68,8 @@ class PackNameFitTest {
   private final PackResources resources = PackSamples.resources();
   private final ScreenFixtures.Server server = new ScreenFixtures.Server();
   private final PackScreens screens = new PackScreens(new PackMenuHost(new FakeMenuHost(), windows, (PlayerRef ignored) -> true,
-      () -> resources), server, server, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock());
+      () -> resources), server, server, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock(),
+      new ScreenFixtures.Speaker());
   private TestAdapt adapt;
   private CatalogIndex catalog;
 

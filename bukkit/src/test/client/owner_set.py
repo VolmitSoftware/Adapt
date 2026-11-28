@@ -53,7 +53,8 @@ VARIANTS: dict[str, tuple[Variant, ...]] = {
              Variant('-gui3', WIDTH, HEIGHT, 3)),
 }
 TOASTS_SETTLE_SECONDS: float = 45.0
-BAKED: re.Pattern = re.compile(r'Adapt pack for (\S+) in [\d.]+ s: ([\d.]+) MB, sha1 ([0-9a-f]{40})')
+BAKED: re.Pattern = re.compile(r'(Baked the Adapt pack|Loaded the cached Adapt pack|Using the Adapt pack zip \S+?(?=,))[^:]*: ([\d.]+) MB, '
+                               r'sha1 ([0-9a-f]{40})')
 HIDDEN_CHAT: str = 'chatVisibility:2'
 NO_CLOUDS: str = 'renderClouds:"false"'
 MUTATE_PAIR: str = 'adapt mutate lead=chronos partner=hunter'
@@ -239,7 +240,7 @@ def shoot(mode: str, target: uiclient.Target, jar: Path, client_adapt: Path, out
     if baked is None or float(baked.group(2)) < min_pack_mb:
         raise SystemExit(f'{mode}: the server baked {baked.group(0) if baked else "no pack"}; build a current jar first')
     return {'mode': mode, 'packLoaded': loaded, 'shots': shots, 'missed': missed, 'commands': replies,
-            'pack': {'target': baked.group(1), 'megabytes': float(baked.group(2)), 'sha1': baked.group(3)}}
+            'pack': {'source': baked.group(1), 'megabytes': float(baked.group(2)), 'sha1': baked.group(3)}}
 
 
 def window(session: uiclient.Session, variant: Variant) -> None:
@@ -304,7 +305,7 @@ def main() -> None:
     (args.output / 'commands.json').write_text(json.dumps(results, indent=1) + '\n')
     commit: str = subprocess.run(['git', '-C', str(HERE), 'rev-parse', '--short', 'HEAD'], capture_output=True, text=True).stdout.strip()
     lines: list[str] = [f'checkout {commit}', f'server jar {jar.name} sha1 {sha1(jar)}', f'client mod {mod.name} sha1 {sha1(mod)}']
-    lines += [f"{result['mode']} pack {result['pack']['target']} {result['pack']['megabytes']} MB sha1 {result['pack']['sha1']}"
+    lines += [f"{result['mode']} pack {result['pack']['source']} {result['pack']['megabytes']} MB sha1 {result['pack']['sha1']}"
               for result in results]
     lines += [f"{result['mode']} not shot: {', '.join(result['missed'])}" for result in results if result['missed']]
     (args.output / 'build.txt').write_text('\n'.join(lines) + '\n')

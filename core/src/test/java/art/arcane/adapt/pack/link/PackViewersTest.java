@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class PackViewersTest {
   private final UUID player = UUID.randomUUID();
   private final UUID pack = UUID.randomUUID();
-  private final PackViewers viewers = new PackViewers(PackViewers.Styles.memory());
+  private final PackViewers viewers = new PackViewers();
   private final List<String> events = new ArrayList<>();
 
   PackViewersTest() {
@@ -107,84 +107,8 @@ class PackViewersTest {
   }
 
   @Test
-  void bookStyleWaitsForTheLoadedReport() {
-    viewers.style(player, MenuStyle.BOOK);
-
-    assertThat(viewers.loaded(player)).isFalse();
-    assertThat(viewers.style(player)).contains(MenuStyle.BOOK);
-    assertThat(events).isEmpty();
-
-    viewers.offered(player, pack);
-    viewers.status(player, pack, PackState.DECLINED);
-    assertThat(viewers.loaded(player)).isFalse();
-
-    viewers.offered(player, pack);
-    viewers.status(player, pack, PackState.LOADED);
-    assertThat(viewers.loaded(player)).isTrue();
-    assertThat(events).containsExactly("loaded player");
-  }
-
-  @Test
-  void chestOverrideWinsOverALoadedPack() {
-    viewers.offered(player, pack);
-    viewers.status(player, pack, PackState.LOADED);
-
-    viewers.style(player, MenuStyle.CHEST);
-    assertThat(viewers.loaded(player)).isFalse();
-
-    viewers.style(player, null);
-    assertThat(viewers.loaded(player)).isTrue();
-    assertThat(viewers.style(player)).isEmpty();
-    assertThat(events).containsExactly("loaded player", "lost player", "loaded player");
-  }
-
-  @Test
-  void overridesAreReadFromTheStore() {
-    PackViewers.Styles store = PackViewers.Styles.memory();
-    store.set(player, MenuStyle.CHEST);
-    PackViewers stored = new PackViewers(store);
-    stored.offered(player, pack);
-    stored.status(player, pack, PackState.LOADED);
-
-    assertThat(stored.loaded(player)).isFalse();
-    assertThat(stored.style(player)).contains(MenuStyle.CHEST);
-  }
-
-  @Test
-  void aLoadedPackWaitsForTheStoredChoiceToBeReadable() {
-    PackViewers.Styles memory = PackViewers.Styles.memory();
-    boolean[] readable = {false};
-    PackViewers.Styles store = new PackViewers.Styles() {
-      @Override
-      public boolean ready(UUID playerId) {
-        return readable[0];
-      }
-
-      @Override
-      public MenuStyle get(UUID playerId) {
-        return readable[0] ? memory.get(playerId) : null;
-      }
-
-      @Override
-      public void set(UUID playerId, MenuStyle style) {
-        memory.set(playerId, style);
-      }
-    };
-    memory.set(player, MenuStyle.CHEST);
-    PackViewers stored = new PackViewers(store);
-    stored.offered(player, pack);
-    stored.status(player, pack, PackState.LOADED);
-
-    assertThat(stored.loaded(player)).isFalse();
-    readable[0] = true;
-    assertThat(stored.loaded(player)).isFalse();
-    memory.set(player, null);
-    assertThat(stored.loaded(player)).isTrue();
-  }
-
-  @Test
   void removedListenersStopHearing() {
-    PackViewers fresh = new PackViewers(PackViewers.Styles.memory());
+    PackViewers fresh = new PackViewers();
     List<UUID> heard = new ArrayList<>();
     Runnable cancel = fresh.onLoaded(heard::add);
     cancel.run();
@@ -237,17 +161,6 @@ class PackViewersTest {
   }
 
   @Test
-  void aChestChoiceWinsOverAMergedPack() {
-    PackViewers merged = merged(Set.of());
-    merged.status(player, pack, PackState.LOADED);
-
-    merged.style(player, MenuStyle.CHEST);
-
-    assertThat(merged.loaded(player)).isFalse();
-    assertThat(events).containsExactly("loaded player", "lost player");
-  }
-
-  @Test
   void mergedViewersForgetAPlayerWhoQuits() {
     PackViewers merged = merged(Set.of());
     merged.status(player, pack, PackState.LOADED);
@@ -264,7 +177,7 @@ class PackViewersTest {
 
   private PackViewers merged(Set<UUID> excluded) {
     Set<UUID> bedrock = new HashSet<>(excluded);
-    PackViewers merged = PackViewers.merged(PackViewers.Styles.memory(), bedrock::contains);
+    PackViewers merged = PackViewers.merged(bedrock::contains);
     events.clear();
     merged.onLoaded((UUID id) -> events.add("loaded " + (id.equals(player) ? "player" : id)));
     merged.onLost((UUID id) -> events.add("lost " + (id.equals(player) ? "player" : id)));

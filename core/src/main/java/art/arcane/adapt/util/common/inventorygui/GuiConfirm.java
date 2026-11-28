@@ -32,16 +32,15 @@ public final class GuiConfirm {
     }
 
     GuiWindow w = new GuiWindow(player);
-    GuiTheme.apply(w, "golemancy-confirm");
-    w.setViewportHeight(3);
+    GuiFrame.apply(w, "confirm", 1);
     w.setLayout(MenuLayout.LIST);
 
-    w.setElement(0, 0, GuiTheme.element("confirm-msg", Id.minecraft("paper"), "gui", "confirmation", "message")
+    GuiFrame.subject(w, GuiTheme.element("confirm-msg", Id.minecraft("paper"), "gui", "confirmation", "message")
         .setName(C.WHITE + (title == null ? AdaptLanguage.text(GuiMessages.CONFIRM) : title))
         .addLore(C.GRAY + (message == null ? AdaptLanguage.text(GuiMessages.APPLY_CHANGE) : message))
         .setRole(MenuRole.HEADER));
 
-    w.setElement(-2, 1, GuiTheme.element("confirm-yes", Id.minecraft("lime_stained_glass_pane"), "gui", "confirmation", "confirm")
+    GuiFrame.body(w, 0, 2, GuiTheme.element("confirm-yes", Id.minecraft("lime_stained_glass_pane"), "gui", "confirmation", "confirm")
         .setName(C.GREEN + AdaptLanguage.text(GuiMessages.CONFIRM))
         .setHint(MenuHint.destructive(AdaptLanguage.text(GuiMessages.CONFIRM)))
         .setRole(MenuRole.ACTION)
@@ -52,7 +51,7 @@ public final class GuiConfirm {
           }
         }));
 
-    w.setElement(2, 1, GuiTheme.element("confirm-no", Id.minecraft("red_stained_glass_pane"), "gui", "confirmation", "cancel")
+    GuiFrame.body(w, 0, 6, GuiTheme.element("confirm-no", Id.minecraft("red_stained_glass_pane"), "gui", "confirmation", "cancel")
         .setName(C.RED + AdaptLanguage.text(GuiMessages.CANCEL))
         .setRole(MenuRole.ACTION)
         .onLeftClick((MenuClick e) -> {
@@ -62,7 +61,7 @@ public final class GuiConfirm {
           }
         }));
 
-    w.setTitle(C.GRAY + AdaptLanguage.text(GuiMessages.CONFIRM));
+    w.setTitle(AdaptLanguage.text(GuiMessages.CONFIRM));
     w.open();
   }
 }

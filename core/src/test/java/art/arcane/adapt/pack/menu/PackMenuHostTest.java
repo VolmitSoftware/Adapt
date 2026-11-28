@@ -96,7 +96,7 @@ class PackMenuHostTest {
     SlotLook back = window.surface.look(PackSlot.top(18));
     assertThat(back.itemModel()).isEqualTo(Id.adapt("adapt_ui/art/ctl/back"));
     assertThat(window.menu.button(18).icon().lore()).containsExactly("to the list");
-    assertThat(window.menu.button(18).icon().type()).isEqualTo(Id.minecraft("paper"));
+    assertThat(window.menu.button(18).icon().type()).isEqualTo(Id.minecraft("book"));
     assertThat(window.menu.button(0).icon()).isSameAs(STONE);
     assertThat(window.surface.look(PackSlot.top(0)).tooltipStyle()).isEqualTo("adapt:tome");
     assertThat(window.surface.lower()).isEmpty();

@@ -23,15 +23,13 @@ import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuInput;
 import art.arcane.adapt.platform.menu.MenuLayout;
-import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.api.text.TextFormat;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -65,9 +63,6 @@ public final class ConfigGui {
   private static final String ROOT_ADAPTATIONS_ALL = ROOT_ADAPTATIONS + ".$all";
   private static final Object WRITE_LOCK = new Object();
   private static final int MAX_VALUE_PREVIEW = 64;
-  private static final int PAGE_JUMP = 5;
-  private static final int CONFIG_CONTENT_ROWS = GuiLayout.MAX_ROWS - 1;
-  private static final Id ARROW = Id.minecraft("arrow");
   private static final Id BARREL = Id.minecraft("barrel");
   private static final Id BARRIER = Id.minecraft("barrier");
   private static final Id BOOK = Id.minecraft("book");
@@ -83,7 +78,6 @@ public final class ConfigGui {
   private static final Id GRAY_DYE = Id.minecraft("gray_dye");
   private static final Id JUKEBOX = Id.minecraft("jukebox");
   private static final Id KNOWLEDGE_BOOK = Id.minecraft("knowledge_book");
-  private static final Id LECTERN = Id.minecraft("lectern");
   private static final Id LIME_DYE = Id.minecraft("lime_dye");
   private static final Id NAME_TAG = Id.minecraft("name_tag");
   private static final Id NETHER_STAR = Id.minecraft("nether_star");
@@ -507,9 +501,8 @@ public final class ConfigGui {
     };
   }
 
-  private static void presentWindow(GuiWindow window, MenuLayout layout, String safePath, int currentPage, int pageCount, int total) {
-    window.setLayout(layout).setBreadcrumb(breadcrumb(safePath))
-        .setPaging(pageCount > 1 ? new MenuPaging(currentPage, pageCount, total) : null);
+  private static void presentWindow(GuiWindow window, MenuLayout layout, String safePath) {
+    window.setLayout(layout).setBreadcrumb(breadcrumb(safePath));
   }
 
   private static Id materialFor(FieldEntry entry) {
@@ -632,48 +625,24 @@ public final class ConfigGui {
   }
 
   private static void openFieldEntries(PlayerRef player, String safePath, List<FieldEntry> entries, int page) {
-    GuiLayout.PagePlan plan = configPagePlan(entries.size());
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+    GuiFrame.Layout<FieldEntry> layout = GuiFrame.grid(entries, GuiFrame.COLUMNS);
+    int currentPage = layout.clampedPage(page);
 
     GuiWindow w = new GuiWindow(player);
-    GuiTheme.apply(w, tagForSection(safePath));
-    w.setViewportHeight(plan.rows());
+    GuiFrame.apply(w, tagForSection(safePath), layout.bodyRows());
 
     if (entries.isEmpty()) {
-      w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
+      GuiFrame.body(w, 0, GuiFrame.SUBJECT_COLUMN, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
           .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NO_SETTINGS))
           .setRole(MenuRole.HEADER));
     } else {
-      List<GuiEffects.Placement> reveal = new ArrayList<>();
-      for (int row = 0; row < plan.contentRows(); row++) {
-        int rowStart = start + (row * GuiLayout.WIDTH);
-        if (rowStart >= end) {
-          break;
-        }
-
-        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
-        for (int i = 0; i < rowCount; i++) {
-          FieldEntry entry = entries.get(rowStart + i);
-          int pos = GuiLayout.centeredPosition(i, rowCount);
-          GuiElement element = createElementForEntry(player, safePath, currentPage, entry);
-          reveal.add(new GuiEffects.Placement(pos, row, element));
-        }
-      }
-      GuiEffects.applyReveal(w, reveal);
+      GuiFrame.body(w, layout.page(currentPage),
+          (GuiFrame.Cell<FieldEntry> cell) -> createElementForEntry(player, safePath, currentPage, cell.item()));
     }
 
-    int navRow = plan.rows() - 1;
-    applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
-    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
-      String parent = parentPath(safePath);
-      w.setElement(0, navRow, GuiTheme.element("cfg-back", ARROW, "gui", "navigation", "back")
-          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.BACK))
-          .onLeftClick((MenuClick e) -> navigateTo(player, parent, 0)));
-    }
-    addSectionOverview(w, navRow, safePath, entries, currentPage, plan.pageCount());
-    presentWindow(w, MenuLayout.FORM, safePath, currentPage, plan.pageCount(), entries.size());
+    frameControls(w, player, safePath, currentPage, layout.pageCount(), entries.size());
+    addSectionOverview(w, safePath, entries, currentPage, layout.pageCount());
+    presentWindow(w, MenuLayout.FORM, safePath);
 
     String titlePath = safePath.isBlank() ? "root" : safePath;
     if (safePath.equals(ROOT_CORE_GENERAL)) {
@@ -684,7 +653,7 @@ public final class ConfigGui {
     if (titlePath.length() > 24) {
       titlePath = "..." + titlePath.substring(titlePath.length() - 21);
     }
-    w.setTitle(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
+    w.setTitle(AdaptLanguage.text(ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
     w.onClosed((GuiWindow closed) -> onGuiClosed(player, safePath));
     w.open();
   }
@@ -872,130 +841,49 @@ public final class ConfigGui {
 
   private static void openSectionIndex(PlayerRef player, String sectionPath, int page, String title, List<SectionIndexEntry> entries) {
     String safePath = normalizePath(sectionPath);
-    GuiLayout.PagePlan plan = configPagePlan(entries.size());
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+    GuiFrame.Layout<SectionIndexEntry> layout = GuiFrame.grid(entries, GuiFrame.COLUMNS);
+    int currentPage = layout.clampedPage(page);
 
     GuiWindow w = new GuiWindow(player);
-    GuiTheme.apply(w, tagForSection(safePath));
-    w.setViewportHeight(plan.rows());
+    GuiFrame.apply(w, tagForSection(safePath), layout.bodyRows());
 
     if (entries.isEmpty()) {
-      w.setElement(0, 0, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
+      GuiFrame.body(w, 0, GuiFrame.SUBJECT_COLUMN, GuiTheme.element("cfg-empty", PAPER, "gui", "navigation", "empty")
           .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NO_ENTRIES))
           .setRole(MenuRole.HEADER));
     } else {
-      List<GuiEffects.Placement> reveal = new ArrayList<>();
-      for (int row = 0; row < plan.contentRows(); row++) {
-        int rowStart = start + (row * GuiLayout.WIDTH);
-        if (rowStart >= end) {
-          break;
-        }
-
-        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
-        for (int i = 0; i < rowCount; i++) {
-          SectionIndexEntry entry = entries.get(rowStart + i);
-          int pos = GuiLayout.centeredPosition(i, rowCount);
-          GuiElement element = GuiTheme.element("cfg-index-" + entry.path(), entry.material(), "gui", "config", "sections", entry.path())
-              .setName(TextFormat.WHITE + entry.displayName())
-              .addLore(TextFormat.GRAY + entry.lore())
-              .addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())))
-              .onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0))
-              .setRole(MenuRole.NAVIGATION)
-              .setDescription(List.of(TextFormat.GRAY + entry.lore()))
-              .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
-          reveal.add(new GuiEffects.Placement(pos, row, element));
-        }
-      }
-      GuiEffects.applyReveal(w, reveal);
+      GuiFrame.body(w, layout.page(currentPage), (GuiFrame.Cell<SectionIndexEntry> cell) -> {
+        SectionIndexEntry entry = cell.item();
+        return GuiTheme.element("cfg-index-" + entry.path(), entry.material(), "gui", "config", "sections", entry.path())
+            .setName(TextFormat.WHITE + entry.displayName())
+            .addLore(TextFormat.GRAY + entry.lore())
+            .addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())))
+            .onLeftClick((MenuClick e) -> navigateTo(player, entry.path(), 0))
+            .setRole(MenuRole.NAVIGATION)
+            .setDescription(List.of(TextFormat.GRAY + entry.lore()))
+            .setActionLabel(ClickKind.LEFT, AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+      });
     }
 
-    int navRow = plan.rows() - 1;
-    applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
-    if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
-      w.setElement(0, navRow, GuiTheme.element("cfg-back", ARROW, "gui", "navigation", "back")
-          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.BACK))
-          .onLeftClick((MenuClick e) -> navigateTo(player, parentPath(safePath), 0)));
-    }
-    addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
-    presentWindow(w, MenuLayout.LIST, safePath, currentPage, plan.pageCount(), entries.size());
+    frameControls(w, player, safePath, currentPage, layout.pageCount(), entries.size());
+    addIndexOverview(w, safePath, entries.size(), currentPage, layout.pageCount(), title);
+    presentWindow(w, MenuLayout.LIST, safePath);
 
-    w.setTitle(TextFormat.GRAY + title);
+    w.setTitle(title);
     w.onClosed((GuiWindow closed) -> onGuiClosed(player, safePath));
     w.open();
   }
 
-  private static GuiLayout.PagePlan configPagePlan(int totalEntries) {
-    int items = Math.max(0, totalEntries);
-    int rows = GuiLayout.MAX_ROWS;
-    int contentRows = CONFIG_CONTENT_ROWS;
-    int itemsPerPage = contentRows * GuiLayout.WIDTH;
-    int pageCount = Math.max(1, (int) Math.ceil(items / (double) itemsPerPage));
-    return new GuiLayout.PagePlan(rows, contentRows, true, itemsPerPage, pageCount);
-  }
-
-  private static void applyPageControls(
-      GuiWindow window,
-      PlayerRef player,
-      String safePath,
-      int navRow,
-      int currentPage,
-      int pageCount,
-      int totalEntries,
-      int start,
-      int end
-  ) {
-    if (pageCount <= 1) {
-      return;
+  private static void frameControls(GuiWindow window, PlayerRef player, String safePath, int currentPage, int pageCount, int total) {
+    if (!safePath.isBlank()) {
+      String parent = parentPath(safePath);
+      GuiFrame.back(window, () -> navigateTo(player, parent, 0));
     }
-
-    int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
-    int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
-
-    if (currentPage > 0) {
-      window.setElement(-4, navRow, GuiTheme.element("cfg-prev", ARROW, "gui", "navigation", "previous")
-          .setName(AdaptLanguage.textStyled(TextFormat.WHITE.toString(), GuiMessages.PREVIOUS))
-          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LEFT_CLICK_PREVIOUS))
-          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
-          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, currentPage - 1))
-          .onRightClick((MenuClick e) -> navigateTo(player, safePath, jumpBack)));
-      window.setElement(-3, navRow, GuiTheme.element("cfg-first", LECTERN, "gui", "navigation", "first")
-          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.FIRST))
-          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, 0)));
-    }
-
-    if (currentPage < pageCount - 1) {
-      window.setElement(4, navRow, GuiTheme.element("cfg-next", ARROW, "gui", "navigation", "next")
-          .setName(AdaptLanguage.textStyled(TextFormat.WHITE.toString(), GuiMessages.NEXT))
-          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LEFT_CLICK_NEXT))
-          .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
-          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, currentPage + 1))
-          .onRightClick((MenuClick e) -> navigateTo(player, safePath, jumpForward)));
-      window.setElement(3, navRow, GuiTheme.element("cfg-last", LECTERN, "gui", "navigation", "last")
-          .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), GuiMessages.LAST))
-          .onLeftClick((MenuClick e) -> navigateTo(player, safePath, pageCount - 1)));
-    }
-
-    int from = totalEntries <= 0 ? 0 : (start + 1);
-    int to = totalEntries <= 0 ? 0 : end;
-    window.setElement(-1, navRow, GuiTheme.element("cfg-page-info", PAPER, "gui", "navigation", "page-info")
-        .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(),
-            GuiMessages.PAGE_OF,
-            trusted("page", currentPage + 1),
-            trusted("pages", pageCount)
-        ))
-        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(),
-            GuiMessages.SHOWING_RANGE,
-            trusted("from", from),
-            trusted("to", to),
-            trusted("total", totalEntries)
-        )));
+    GuiFrame.pager(window, currentPage, pageCount, total, (int target) -> navigateTo(player, safePath, target));
   }
 
   private static void addSectionOverview(
       GuiWindow window,
-      int navRow,
       String path,
       List<FieldEntry> entries,
       int currentPage,
@@ -1013,17 +901,16 @@ public final class ConfigGui {
     }
 
     String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
-    window.setElement(1, navRow, GuiTheme.element("cfg-overview", BOOK, "gui", "config", "overview")
+    GuiFrame.subject(window, GuiTheme.element("cfg-overview", BOOK, "gui", "config", "overview")
         .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(), ConfigMessages.OVERVIEW))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.SECTIONS_COUNT, trusted("count", sections)))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.EDITABLE_COUNT, trusted("count", editable)))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", entries.size()))));
 
-    window.setElement(2, navRow, GuiTheme.element("cfg-help", KNOWLEDGE_BOOK, "gui", "config", "help")
+    GuiFrame.footer(window, GuiFrame.Slot.LIST, GuiTheme.element("cfg-help", KNOWLEDGE_BOOK, "gui", "config", "help")
         .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_LEFT_CLICK))
-        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_RIGHT_CLICK))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_ESCAPE))
         .addLore(AdaptLanguage.textStyled(TextFormat.DARK_GRAY.toString(),
             GuiMessages.PAGE_OF,
@@ -1034,7 +921,6 @@ public final class ConfigGui {
 
   private static void addIndexOverview(
       GuiWindow window,
-      int navRow,
       String path,
       int totalEntries,
       int currentPage,
@@ -1042,7 +928,7 @@ public final class ConfigGui {
       String title
   ) {
     String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
-    window.setElement(1, navRow, GuiTheme.element("cfg-index-overview", BOOK, "gui", "config", "index-overview")
+    GuiFrame.subject(window, GuiTheme.element("cfg-index-overview", BOOK, "gui", "config", "index-overview")
         .setName(AdaptLanguage.textStyled(TextFormat.AQUA.toString(), ConfigMessages.DIRECTORY))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", totalEntries)))
@@ -1053,13 +939,11 @@ public final class ConfigGui {
         ))
         .addLore(TextFormat.DARK_GRAY + title));
 
-    window.setElement(2, navRow, GuiTheme.element("cfg-index-help", KNOWLEDGE_BOOK, "gui", "config", "index-help")
+    GuiFrame.footer(window, GuiFrame.Slot.LIST, GuiTheme.element("cfg-index-help", KNOWLEDGE_BOOK, "gui", "config", "index-help")
         .setName(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAVIGATION))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAV_OPEN_SECTION))
-        .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.NAV_JUMP_PAGES))
         .addLore(AdaptLanguage.textStyled(TextFormat.GRAY.toString(), ConfigMessages.HELP_ESCAPE)));
   }
-
   private static String tagForSection(String sectionPath) {
     String path = normalizePath(sectionPath);
     if (path.isBlank()) {

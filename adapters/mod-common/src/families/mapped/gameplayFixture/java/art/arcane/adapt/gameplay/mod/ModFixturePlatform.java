@@ -61,6 +61,17 @@ public final class ModFixturePlatform implements FixturePlatform {
     }
 
     @Override
+    public PlayerRef spawnProbePlayer(String name) {
+        ServerPlayer player = ModProbePlayers.spawn(server, name);
+        return AdaptCore.platform().host().player(player.getUUID());
+    }
+
+    @Override
+    public void removeProbePlayer(PlayerRef player) {
+        ModProbePlayers.remove(server, player.uuid());
+    }
+
+    @Override
     public WorldRef createArena(String name) {
         WorldRef arena = dimension(Id.minecraft("overworld"));
         Fixtures.commandIn(arena, "time set 6000");

@@ -9,7 +9,6 @@ import java.util.function.Function;
 /** The rules that make art the design describes but ships no file for: greyed icons, faded fills, and paint glyphs. */
 final class ArtRules {
     private static final int ARROW = 0xFF5A4430;
-    private static final int CHIP_WIDTH = 32;
 
     private ArtRules() {
     }
@@ -57,7 +56,7 @@ final class ArtRules {
             }
             case SPRITE -> {
                 byte[] png = sprites.apply(piece.source());
-                return png == null ? null : Raster.decode(png);
+                return png == null ? null : reduced(Raster.decode(png), piece.width(), piece.height());
             }
             case ART -> {
                 return named.get(piece.source());
@@ -75,26 +74,53 @@ final class ArtRules {
             case CAP -> fill(raster, 0, 0, piece.width(), piece.height(), PackArt.OUTLINE);
             case FILL -> fill(raster, 0, 0, piece.width(), piece.height(), 0xFFFFFFFF);
             case SHADE -> fill(raster, 0, 0, piece.width(), piece.height(), PackArt.SHADE);
-            case CHIP -> {
-                int hash = piece.source().indexOf('#');
-                byte[] png = sprites.apply(piece.source().substring(0, hash));
-                return png == null ? null : chip(KitBake.nine(png, CHIP_WIDTH, piece.height(), 4), piece.source().substring(hash + 1), piece.width());
+            case WASH -> fill(raster, 0, 0, piece.width(), piece.height(),
+                    (piece.source().equals("strong") ? PackArt.WASH_STRONG_ALPHA : PackArt.WASH_ALPHA) << 24 | 0xFFFFFF);
+            case DOTS -> {
+                boolean rows = piece.source().equals("rows");
+                for (int along = 0; along < (rows ? piece.width() : piece.height()); along += 2) {
+                    if (rows) {
+                        raster.set(along, 0, 0xFFFFFFFF);
+                        raster.set(along, piece.height() - 1, 0xFFFFFFFF);
+                    } else {
+                        raster.set(0, along, 0xFFFFFFFF);
+                    }
+                }
             }
         }
         return raster;
     }
 
-    /** One part of a chip nine-sliced {@link #CHIP_WIDTH} wide: its left end, its right end, or its middle column repeated. */
-    private static Raster chip(Raster chip, String part, int width) {
-        Raster out = new Raster(width, chip.height());
-        for (int x = 0; x < width; x++) {
-            int from = switch (part) {
-                case "head" -> x;
-                case "tail" -> chip.width() - PackArt.CHIP_END + x;
-                default -> PackArt.CHIP_END;
-            };
-            for (int y = 0; y < chip.height(); y++) {
-                out.set(x, y, chip.get(from, y));
+    /**
+     * {@code sprite} at {@code width} by {@code height} when it is a whole multiple of that size: each pixel the
+     * alpha-weighted mean of its block, kept only where at least half the block is drawn so the edges stay hard.
+     */
+    static Raster reduced(Raster sprite, int width, int height) {
+        if (sprite.width() == width && sprite.height() == height) {
+            return sprite;
+        }
+        int stepX = sprite.width() / width;
+        int stepY = sprite.height() / height;
+        Raster out = new Raster(width, height);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                long alpha = 0;
+                long red = 0;
+                long green = 0;
+                long blue = 0;
+                for (int dy = 0; dy < stepY; dy++) {
+                    for (int dx = 0; dx < stepX; dx++) {
+                        int argb = sprite.get((x * stepX) + dx, (y * stepY) + dy);
+                        int a = argb >>> 24;
+                        alpha += a;
+                        red += (long) ((argb >>> 16) & 0xFF) * a;
+                        green += (long) ((argb >>> 8) & 0xFF) * a;
+                        blue += (long) (argb & 0xFF) * a;
+                    }
+                }
+                if (alpha * 2 >= 255L * stepX * stepY) {
+                    out.set(x, y, 0xFF000000 | (int) (red / alpha) << 16 | (int) (green / alpha) << 8 | (int) (blue / alpha));
+                }
             }
         }
         return out;

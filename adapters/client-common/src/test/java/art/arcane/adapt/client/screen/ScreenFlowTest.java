@@ -344,7 +344,7 @@ class ScreenFlowTest {
     }
 
     @Test
-    void noRefundServersShowNoRefund() {
+    void noRefundServersShowNoRefundAndUnlearnAtOnce() {
         PlayerView player = fixture.state.player();
         fixture.state.acceptPlayer(new PlayerView(player.header(), player.skills(), player.adaptationLevels(), player.preferences(),
                 access(false, false, true)));
@@ -352,11 +352,7 @@ class ScreenFlowTest {
         assertFalse(fixture.find("stat:refund").visible());
         assertTrue(fixture.find("unlearn").enabled());
         fixture.click(fixture.find("unlearn"));
-        assertEquals(new AdaptationScreen.Offer(1, false), screen.offer());
-        assertEquals(ScreenText.NO_REFUND.text(), fixture.find("reason").label());
-        assertFalse(fixture.find("stat:cost").visible());
-        assertTrue(fixture.sent.isEmpty());
-        fixture.click(fixture.find("confirm"));
+        assertNull(screen.offer());
         assertEquals(List.of(new ClientFrame.Unlearn("agility-wall-jump", 1, PreviewSamples.REVISION)), fixture.sent);
     }
 

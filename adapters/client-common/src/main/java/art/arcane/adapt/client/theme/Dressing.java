@@ -373,8 +373,7 @@ public final class Dressing {
                         add(kit, DressSlot.PILE, 0, c.x1() + 8 - pile.width() - inset, c.y1() + 6 - pile.height() - inset, true, 0, false);
                     }
                     if (corners) {
-                        int x = c.x1() + 8 - kit.dress(DressSlot.CORNER)[0].width() - inset;
-                        add(kit, DressSlot.CORNER, 0, solo == null ? x : Math.max(x, solo.cornerFrom()), c.y0() - 8 + inset, true, 0, false);
+                        add(kit, DressSlot.CORNER, 0, c.x1() + 8 - kit.dress(DressSlot.CORNER)[0].width() - inset, c.y0() - 8 + inset, true, 0, false);
                     }
                 }
             }

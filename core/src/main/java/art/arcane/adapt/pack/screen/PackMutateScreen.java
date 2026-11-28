@@ -90,7 +90,7 @@ final class PackMutateScreen {
     page.control(page.layout().slot("tab.partner"), PageBuilder.named(words.partner()), (MenuClick click) -> screens.partners(viewer, true),
         PackArt.tab(PARTNER_TAB, false));
     seal(frame, page, words, PackInk.of(lead.color()), PackInk.of(partner.color()));
-    page.foot((MenuClick click) -> screens.route(viewer, new Route.Skill(spread.lead())), 0, 1, (int ignored) -> { }, List.of());
+    page.foot((MenuClick click) -> screens.back(viewer, new Route.Skill(spread.lead())), 0, 1, (int ignored) -> { }, List.of());
     return page.build();
   }
 
@@ -118,7 +118,7 @@ final class PackMutateScreen {
       picks.add(new Pick(skill, candidate.level(), candidate.eligible(), candidate.skillId().equals(spread.partner()), lore, pick));
     }
     MenuAction back = partner != null ? (MenuClick click) -> screens.partners(viewer, false)
-        : (MenuClick click) -> screens.route(viewer, new Route.Skill(spread.lead()));
+        : (MenuClick click) -> screens.back(viewer, new Route.Skill(spread.lead()));
     return picker(frame, lead.id(), crumbs, AdaptLanguage.text(MutationMessages.PICK_PARTNER), picks, back);
   }
 
@@ -135,11 +135,11 @@ final class PackMutateScreen {
       SkillLineView line = CatalogIndex.line(frame.player(), id);
       int level = line == null ? 0 : line.level();
       List<String> lore = List.of(PackLabels.GREY + AdaptLanguage.text(GuiMessages.PACK_LEVEL, trusted("level", level)));
-      picks.add(new Pick(skill, level, true, false, lore, (MenuClick click) -> screens.openMutate(viewer, id)));
+      picks.add(new Pick(skill, level, true, false, lore, (MenuClick click) -> screens.lead(viewer, id)));
     }
     String title = AdaptLanguage.text(MutationMessages.MUTATE);
     return picker(frame, PackArt.TOME, List.of(AdaptLanguage.text(GuiMessages.SKILLS), title), AdaptLanguage.text(MutationMessages.PICK_LEAD),
-        picks, (MenuClick click) -> screens.route(viewer, new Route.Skills()));
+        picks, (MenuClick click) -> screens.back(viewer, new Route.Skills()));
   }
 
   /**
@@ -165,10 +165,10 @@ final class PackMutateScreen {
       Card card = cards.get(seat);
       SkillView skill = pick.skill();
       if (pick.selected()) {
-        page.face(PackArt.TILE_SELECTED, card.icon(), card.shift());
+        page.face(PackArt.TILE_SELECTED, card.icon());
       }
       page.group(card.cells(), PageBuilder.icon(skill.icon(), PackLabels.coloured(PackInk.of(skill.color()), skill.name()), pick.lore()),
-          pick.action(), page.resources().icon(skill.icon(), page.kit(), !pick.eligible(), card.shift()));
+          pick.action(), page.resources().icon(skill.icon(), page.kit(), !pick.eligible()));
       page.text(card.text("level"), PackLabels.coloured(pick.eligible() ? PackLabels.INK : PackLabels.FAINT,
           AdaptLanguage.text(GuiMessages.PACK_LV, trusted("level", pick.level()))));
       nameSpecs.add(card.text("name"));

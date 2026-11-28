@@ -26,6 +26,7 @@ import art.arcane.adapt.api.content.SimpleSkill;
 import art.arcane.adapt.api.content.SkillConfig;
 import art.arcane.adapt.api.content.XpSource;
 import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.item.Tools;
 import art.arcane.adapt.api.mutation.MutationKit;
 import art.arcane.adapt.api.mutation.SoundPalette;
 import art.arcane.adapt.api.mutation.TriggerKind;
@@ -62,12 +63,18 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.event.server.ResourcesReloadedEvent;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Loc;
 import art.arcane.adapt.platform.value.Rgb;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
@@ -76,6 +83,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   private final XpSource mine = xpSource("mine", Text.key("adapt.xp_guide.pickaxe.mine"));
   private static final Id SILK_TOUCH = Id.minecraft("silk_touch");
   private final Cooldowns cooldowns = cooldowns();
+  private final ToolSkillRules toolRules = new ToolSkillRules(ToolKind.PICKAXE, ID);
 
   public SkillPickaxes() {
     super(ID);
@@ -209,7 +217,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   public void on(BlockBreakEvent e) {
     PlayerRef p = e.player();
     ItemRef mainHand = p.inventory().mainHand();
-    if (!ItemKinds.isPickaxe(mainHand)) {
+    if (!Tools.serves(mainHand, e.block().state(), ToolKind.PICKAXE)) {
       return;
     }
 
@@ -218,7 +226,8 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         return;
       }
       Id blockType = e.block().type();
-      double blockValue = blockValue(blockType);
+      OptionalDouble listed = Tools.rules(ToolKind.PICKAXE).blockXp(blockType);
+      double blockValue = listed.isPresent() ? listed.getAsDouble() : blockValue(blockType);
       PlayerProfile adaptPlayer = getPlayer(p);
 
       adaptPlayer.addStat("pickaxe.blocks.broken", 1);
@@ -234,6 +243,27 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
         mine.award(p, blockLocation, blockXP(e.block(), blockValue));
       }
     });
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    applyToolRules(getConfig());
+  }
+
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    applyToolRules(newConfig);
+  }
+
+  @Handle
+  public void on(ResourcesReloadedEvent e) {
+    Tools.invalidate();
+  }
+
+  private void applyToolRules(Config c) {
+    toolRules.apply(c, c.extraTools, c.excludedTools, c.extraBlocks, c.excludedBlocks, c.toolTagRule,
+        c.toolCapabilityRule, c.toolBehaviourRule);
   }
 
   /** The XP value of mining one block of {@code type}, before tool and level scaling. */
@@ -309,6 +339,21 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
     double netherQuartzBonus = 125;
     @ConfigDoc(value = "Controls Deepslate Multiplier for the Pickaxes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double deepslateMultiplier = 1.35;
+
+    @ConfigDoc(value = "Item ids or #tags that also count as a pickaxe for this skill and all its adaptations, such as mekanismtools:osmium_paxel or #forge:tools/hammers.", impact = "Listed tools earn Pickaxes XP and trigger its adaptations; a tag covers every item in it.")
+    public List<String> extraTools = new ArrayList<>();
+    @ConfigDoc(value = "Item ids or #tags that never count as a pickaxe for this skill, whatever a tag or other rule says.", impact = "Wins over every other rule, the extra tools list included.")
+    public List<String> excludedTools = new ArrayList<>();
+    @ConfigDoc(value = "Block ids or #tags that count as this skill's work, each with the XP one block gives before placed-block scaling.", impact = "Listed blocks use this XP instead of the derived value, and any tool of this skill earns it.")
+    public Map<String, Double> extraBlocks = new LinkedHashMap<>();
+    @ConfigDoc(value = "Block ids or #tags that never give Pickaxes XP or count as its work.", impact = "Use it to stop XP from a modded block the automatic rules pick up.")
+    public List<String> excludedBlocks = new ArrayList<>();
+    @ConfigDoc(value = "Counts items in the pickaxe tags minecraft:pickaxes, forge:tools/pickaxes, c:pickaxes and fabric:pickaxes as a pickaxe.", impact = "Set to false to recognise tools only by the other rules.")
+    public boolean toolTagRule = true;
+    @ConfigDoc(value = "Counts items the mod loader says dig as a pickaxe (Forge tool actions, NeoForge 1.21.1 item abilities) as a pickaxe.", impact = "Set to false to ignore loader tool actions; Fabric and newer loaders have none.")
+    public boolean toolCapabilityRule = true;
+    @ConfigDoc(value = "Counts items that are the correct tool for stone as a pickaxe, and pays Pickaxes XP for a mineable/pickaxe, ore or stone block broken with its correct tool.", impact = "Set to false to recognise tools only by lists, tags and loader actions.")
+    public boolean toolBehaviourRule = true;
 
     public Config() {
     }

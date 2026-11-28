@@ -1,6 +1,7 @@
 package art.arcane.adapt.util.common.inventorygui;
 
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuAction;
@@ -258,6 +259,7 @@ public final class GuiElement {
 
   private ItemRef decorate(ItemRef shown) {
     shown.setAmount(count);
+    shown.hideTooltip(TooltipPart.ATTRIBUTES);
     if (name != null) {
       shown.setDisplayName(name);
     }

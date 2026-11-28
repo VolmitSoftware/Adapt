@@ -45,6 +45,14 @@ public final class AdaptGameplayFixture extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equals("toolqa")) {
+            if (!sender.isOp() || fixture == null) {
+                sender.sendMessage("ADAPT_QA ERROR operator or console required");
+            } else {
+                ToolDetectionFixture.execute(consoleSender(sender), fixture.platform(), args);
+            }
+            return true;
+        }
         if (command.getName().equals("xpqa")) {
             if (!(sender instanceof Player admin) || fixture == null) {
                 sender.sendMessage("ADAPT_QA ERROR operator and actor/action required");
@@ -193,6 +201,25 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             @Override
             public boolean console() {
                 return false;
+            }
+        };
+    }
+
+    private static FixtureSender consoleSender(CommandSender target) {
+        return new FixtureSender() {
+            @Override
+            public void send(String text) {
+                target.sendMessage(text);
+            }
+
+            @Override
+            public PlayerRef player() {
+                return target instanceof Player player ? BukkitRefs.player(player) : null;
+            }
+
+            @Override
+            public boolean console() {
+                return !(target instanceof Player);
             }
         };
     }

@@ -26,6 +26,7 @@ import art.arcane.adapt.api.content.SimpleSkill;
 import art.arcane.adapt.api.content.SkillConfig;
 import art.arcane.adapt.api.content.XpSource;
 import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.item.Tools;
 import art.arcane.adapt.api.mutation.MutationKit;
 import art.arcane.adapt.api.mutation.SoundPalette;
 import art.arcane.adapt.api.mutation.TriggerKind;
@@ -62,12 +63,18 @@ import art.arcane.adapt.platform.event.EventPriority;
 import art.arcane.adapt.platform.event.Handle;
 import art.arcane.adapt.platform.event.block.BlockBreakEvent;
 import art.arcane.adapt.platform.event.entity.EntityDamageByEntityEvent;
+import art.arcane.adapt.platform.event.server.ResourcesReloadedEvent;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
@@ -76,6 +83,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   private final XpSource dig = xpSource("dig", Text.key("adapt.xp_guide.excavation.dig"));
   private static final Set<String> LOOSE_GROUND = Set.of("gravel", "sand", "red_sand", "clay", "soul_sand", "soul_soil");
   private final Cooldowns cooldowns = cooldowns();
+  private final ToolSkillRules toolRules = new ToolSkillRules(ToolKind.SHOVEL, ID);
 
   public SkillExcavation() {
     super(ID);
@@ -209,7 +217,7 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
   @Handle(priority = EventPriority.MONITOR)
   public void on(BlockBreakEvent e) {
     PlayerRef p = e.player();
-    if (!ItemKinds.isShovel(p.inventory().mainHand())) {
+    if (!Tools.serves(p.inventory().mainHand(), e.block().state(), ToolKind.SHOVEL)) {
       return;
     }
     shouldReturnForPlayer(p, e, () -> handleBlockBreakWithShovel(p, e));
@@ -227,8 +235,30 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     if (blockType.isMinecraft() && LOOSE_GROUND.contains(blockType.path())) {
       addStat(p, "excavation.gravel", 1);
     }
-    double v = blockValue(blockType);
+    OptionalDouble listed = Tools.rules(ToolKind.SHOVEL).blockXp(blockType);
+    double v = listed.isPresent() ? listed.getAsDouble() : blockValue(blockType);
     dig.award(p, e.block().center(), blockXP(e.block(), v));
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    applyToolRules(getConfig());
+  }
+
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    applyToolRules(newConfig);
+  }
+
+  @Handle
+  public void on(ResourcesReloadedEvent e) {
+    Tools.invalidate();
+  }
+
+  private void applyToolRules(Config c) {
+    toolRules.apply(c, c.extraTools, c.excludedTools, c.extraBlocks, c.excludedBlocks, c.toolTagRule,
+        c.toolCapabilityRule, c.toolBehaviourRule);
   }
 
   private double blockValue(Id type) {
@@ -256,6 +286,21 @@ public class SkillExcavation extends SimpleSkill<SkillExcavation.Config> {
     long cooldownDelay = 1250;
     @ConfigDoc(value = "Controls Axe Damage XPMultiplier for the Excavation skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double axeDamageXPMultiplier = 4.0;
+
+    @ConfigDoc(value = "Item ids or #tags that also count as a shovel for this skill and all its adaptations, such as mekanismtools:osmium_paxel or #forge:tools/hammers.", impact = "Listed tools earn Excavation XP and trigger its adaptations; a tag covers every item in it.")
+    public List<String> extraTools = new ArrayList<>();
+    @ConfigDoc(value = "Item ids or #tags that never count as a shovel for this skill, whatever a tag or other rule says.", impact = "Wins over every other rule, the extra tools list included.")
+    public List<String> excludedTools = new ArrayList<>();
+    @ConfigDoc(value = "Block ids or #tags that count as this skill's work, each with the XP one block gives before placed-block scaling.", impact = "Listed blocks use this XP instead of the derived value, and any tool of this skill earns it.")
+    public Map<String, Double> extraBlocks = new LinkedHashMap<>();
+    @ConfigDoc(value = "Block ids or #tags that never give Excavation XP or count as its work.", impact = "Use it to stop XP from a modded block the automatic rules pick up.")
+    public List<String> excludedBlocks = new ArrayList<>();
+    @ConfigDoc(value = "Counts items in the shovel tags minecraft:shovels, forge:tools/shovels, c:shovels and fabric:shovels as a shovel.", impact = "Set to false to recognise tools only by the other rules.")
+    public boolean toolTagRule = true;
+    @ConfigDoc(value = "Counts items the mod loader says dig as a shovel (Forge tool actions, NeoForge 1.21.1 item abilities) as a shovel.", impact = "Set to false to ignore loader tool actions; Fabric and newer loaders have none.")
+    public boolean toolCapabilityRule = true;
+    @ConfigDoc(value = "Counts items that are the correct tool for dirt as a shovel, and pays Excavation XP for a mineable/shovel block broken with its correct tool.", impact = "Set to false to recognise tools only by lists, tags and loader actions.")
+    public boolean toolBehaviourRule = true;
 
     public Config() {
     }

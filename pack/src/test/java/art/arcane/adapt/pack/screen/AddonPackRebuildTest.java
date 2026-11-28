@@ -78,7 +78,8 @@ class AddonPackRebuildTest {
             new DeliveredResources(() -> builds.manifests().current()));
         ServerPackBackend backend = new ServerPackBackend();
         ScreenFixtures.Clock clock = new ScreenFixtures.Clock();
-        PackScreens screens = new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), clock);
+        PackScreens screens = new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), clock,
+            new ScreenFixtures.Speaker());
 
         orbit = AdaptApi.addons().install(new OrbitAddon());
 

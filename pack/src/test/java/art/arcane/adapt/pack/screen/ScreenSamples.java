@@ -25,13 +25,11 @@ import art.arcane.adapt.client.view.RecipeView;
 import art.arcane.adapt.client.view.RequirementView;
 import art.arcane.adapt.client.view.SkillLineView;
 import art.arcane.adapt.client.view.SkillView;
-import art.arcane.adapt.client.view.SpendView;
 import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.client.view.XpGuideView;
 import art.arcane.adapt.engine.mutation.PairKeys;
 import art.arcane.adapt.api.mutation.SkillPair;
 import art.arcane.adapt.pack.PackResources;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.pack.menu.PackMenuHost;
 import art.arcane.adapt.pack.surface.PackPrompts;
 import art.arcane.adapt.pack.surface.PackSession;
@@ -207,7 +205,7 @@ final class ScreenSamples implements PackViews, PackActions {
       @Override
       public void later(PlayerRef ignored, int ticks, Runnable task) {
       }
-    });
+    }, new ScreenFixtures.Speaker());
     return screens;
   }
 
@@ -494,20 +492,6 @@ final class ScreenSamples implements PackViews, PackActions {
       }
     }
     return labels;
-  }
-
-  @Override
-  public List<SpendView> spending(PlayerRef ignored) {
-    return List.of();
-  }
-
-  @Override
-  public MenuStyle menuStyle(PlayerRef ignored) {
-    return null;
-  }
-
-  @Override
-  public void menus(PlayerRef ignored, MenuStyle style) {
   }
 
   @Override

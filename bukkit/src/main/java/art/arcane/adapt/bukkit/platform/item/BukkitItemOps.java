@@ -6,6 +6,7 @@ import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
 import art.arcane.adapt.util.common.compat.PaperApi;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /** Item factory. {@link #encode} uses the plugin's framed item byte format, Base64 encoded. */
 public final class BukkitItemOps implements ItemOps {
@@ -107,6 +109,11 @@ public final class BukkitItemOps implements ItemOps {
   public BlockStateRef blockState(Id block) {
     Material material = BukkitResolve.material(block);
     return material == null || !material.isBlock() ? null : BukkitRefs.blockState(material.createBlockData());
+  }
+
+  @Override
+  public Set<ToolKind> toolActions(ItemRef item) {
+    return Set.of();
   }
 
   @Override

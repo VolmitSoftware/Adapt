@@ -8,10 +8,9 @@ import java.util.Objects;
 
 /**
  * One card seat: the slots it covers (each clicks and shows the tooltip), the slot its icon sits in, its labels and bars
- * by role ({@code name}, {@code level}, {@code xp} ...) in container pixels, where its top is drawn ({@code top}) and how
- * far its icon is drawn below the icon slot ({@code shift}, one of {@link PackArt#ICON_SHIFTS} or 0).
+ * by role ({@code name}, {@code level}, {@code xp} ...) in container pixels, and the container y of its top ({@code top}).
  */
-public record Card(List<PackSlot> cells, PackSlot icon, Map<String, TextSpec> text, Map<String, BarSpec> bars, int top, int shift) {
+public record Card(List<PackSlot> cells, PackSlot icon, Map<String, TextSpec> text, Map<String, BarSpec> bars, int top) {
   public Card {
     cells = List.copyOf(cells);
     Objects.requireNonNull(icon, "icon");

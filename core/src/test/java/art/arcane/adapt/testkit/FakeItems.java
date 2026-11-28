@@ -3,6 +3,7 @@ package art.arcane.adapt.testkit;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemOps;
 import art.arcane.adapt.platform.item.ItemRef;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.world.BlockStateRef;
 
@@ -44,8 +45,12 @@ public final class FakeItems implements ItemOps {
   }
 
   public FakeItems hardness(String vanillaPath, float value, float blast) {
-    hardness.put(Id.minecraft(vanillaPath), value);
-    blastResistance.put(Id.minecraft(vanillaPath), blast);
+    return hardness(Id.minecraft(vanillaPath), value, blast);
+  }
+
+  public FakeItems hardness(Id block, float value, float blast) {
+    hardness.put(block, value);
+    blastResistance.put(block, blast);
     return this;
   }
 
@@ -134,6 +139,11 @@ public final class FakeItems implements ItemOps {
   @Override
   public BlockStateRef blockState(Id block) {
     return new FakeBlockState(block);
+  }
+
+  @Override
+  public Set<ToolKind> toolActions(ItemRef item) {
+    return item instanceof FakeItem fake ? fake.toolActions() : Set.of();
   }
 
   @Override

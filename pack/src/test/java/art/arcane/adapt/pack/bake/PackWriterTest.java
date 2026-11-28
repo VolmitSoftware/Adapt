@@ -258,34 +258,17 @@ class PackWriterTest {
     }
 
     @Test
-    void iconsAndListItemsGetCopiesDrawnOffTheirSlotForRowsThatCrossTheGap() {
+    void theHoverHighlightIsOneRowOfPaperBelowTheSlotAndNothingOverTheItem() {
         PackWriter.Built modern = build();
-        IconFiles.Icon icon = icons.get(0);
-        for (int dy : PackArt.ICON_SHIFTS) {
-            String sprite = PackArt.shifted(icon.sprite(), dy);
-            PackManifest.Icon listed = modern.manifest().icons().stream().filter((PackManifest.Icon each) -> each.sprite().equals(sprite)).findFirst()
-                    .orElseThrow();
-            String path = "adapt_ui/" + icon.path() + PackArt.shiftSuffix(dy);
-            JsonObject model = JsonParser.parseString(new String(modern.files().get("assets/" + icon.namespace() + "/models/" + path + ".json"),
-                    StandardCharsets.UTF_8)).getAsJsonObject();
-            assertEquals(icon.sprite(), model.getAsJsonObject("textures").get("l0").getAsString());
-            JsonObject element = model.getAsJsonArray("elements").get(1).getAsJsonObject();
-            assertEquals(0, element.getAsJsonObject("faces").getAsJsonObject("south").get("tintindex").getAsInt());
-            assertEquals(16 - dy, element.getAsJsonArray("to").get(1).getAsInt());
-            JsonObject clear = model.getAsJsonArray("elements").get(0).getAsJsonObject();
-            assertEquals(0, clear.getAsJsonArray("from").get(1).getAsInt());
-            assertEquals(16, clear.getAsJsonArray("to").get(1).getAsInt());
-            JsonObject definition = JsonParser.parseString(new String(modern.files().get("assets/" + icon.namespace() + "/items/" + path + ".json"),
-                    StandardCharsets.UTF_8)).getAsJsonObject();
-            assertTrue(definition.get("oversized_in_gui").getAsBoolean());
-            assertEquals(icon.namespace() + ":" + path, listed.model());
-            assertTrue(modern.manifest().icons().stream().anyMatch((PackManifest.Icon each) -> each.sprite().equals(
-                    PackArt.shifted(icon.sprite() + PackArt.DIM, dy))));
-            assertTrue(modern.manifest().art().stream().anyMatch((PackManifest.Art art) -> art.name().equals(PackArt.shifted(PackArt.STACK, dy))));
-            for (String item : PackArt.SHIFTED_ITEMS) {
-                assertTrue(modern.manifest().art().stream().anyMatch((PackManifest.Art art) -> art.name().equals(PackArt.shifted(item, dy))
-                        && art.y() == dy), item + " " + dy);
+        Raster back = Raster.decode(modern.files().get(PackWriter.HIGHLIGHT_BACK));
+        Raster front = Raster.decode(modern.files().get(PackWriter.HIGHLIGHT_FRONT));
+        for (int y = 0; y < PackWriter.HIGHLIGHT_SIZE; y++) {
+            for (int x = 0; x < PackWriter.HIGHLIGHT_SIZE; x++) {
+                assertEquals(0, front.get(x, y) >>> 24, "front " + x + "," + y);
+                boolean paper = y == 20 && x >= 3 && x <= 20;
+                assertEquals(paper ? PackArt.PAPER : 0, back.get(x, y), "back " + x + "," + y);
             }
         }
+        assertFalse(modern.files().keySet().stream().anyMatch((String path) -> path.contains("_d6") || path.contains("_u7")));
     }
 }

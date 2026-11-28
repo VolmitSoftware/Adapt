@@ -55,7 +55,8 @@ public final class BukkitFeatures {
     PackMenuHost packMenus = new PackMenuHost(new BukkitMenuHost(plugin), packWindows, PackAudience.DELIVERED,
         new DeliveredResources());
     ServerPackBackend packBackend = new ServerPackBackend();
-    AdaptPorts.install(PackScreens.class, new PackScreens(packMenus, packBackend, packBackend, packPrompts, PackClock.SERVER));
+    AdaptPorts.install(PackScreens.class, new PackScreens(packMenus, packBackend, packBackend, packPrompts, PackClock.SERVER,
+        PackScreens.Speaker.SERVER));
     BukkitHosts.menus(new ClientAwareMenuHost(packMenus, PanelLink.of(ClientUiService::activeSessions)));
     BukkitRecipeRegistry.shared().listen(plugin);
     BukkitHosts.recipes(new BukkitRecipeHost(plugin.getServer(), BukkitRecipeRegistry.shared()));

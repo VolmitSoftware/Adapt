@@ -23,38 +23,35 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.api.content.Skill;
-import art.arcane.adapt.api.fx.Sounds;
+import art.arcane.adapt.api.content.AdaptationGroup;
 import art.arcane.adapt.engine.gui.KeptGui;
+import art.arcane.adapt.engine.gui.LoreLists;
+import art.arcane.adapt.engine.gui.SettingsMenus;
+import art.arcane.adapt.engine.gui.SkillCards;
+import art.arcane.adapt.engine.mutation.MutatedSkill;
+import art.arcane.adapt.engine.world.PlayerSkillLine;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import art.arcane.adapt.engine.gui.MutationGui;
 import art.arcane.adapt.engine.gui.SkillsGui;
 import art.arcane.adapt.engine.component.ComponentHost;
-import art.arcane.adapt.engine.mutation.tool.MutationTools;
 import art.arcane.adapt.engine.world.AdaptPlayer;
-import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
-import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuLayout;
-import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiGroupLayout;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
-import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.localization.TextKey;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -64,9 +61,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 final class SkillGuiSupport {
   private static final Id PAPER = Id.minecraft("paper");
-  private static final Id ARROW = Id.minecraft("arrow");
-  private static final Id LECTERN = Id.minecraft("lectern");
-  private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
+  private static final Id MUTATION = Id.minecraft("nether_star");
+  private static final Id GROUP = Id.minecraft("name_tag");
 
   private SkillGuiSupport() {
   }
@@ -131,194 +127,136 @@ final class SkillGuiSupport {
     if (adaptPlayer == null) {
       return;
     }
-
-    SoundPlayer spw = SoundPlayer.of(player.world());
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
 
     List<List<Adaptation<?>>> groups = SkillMenus.adaptationRows(skill, player);
-    int visibleCount = 0;
+    List<Adaptation<?>> shown = new ArrayList<>();
     for (List<Adaptation<?>> group : groups) {
-      visibleCount += group.size();
+      shown.addAll(group);
     }
-
-    GuiElement mutate = MutationGui.entry(skill, player, adaptPlayer.getData());
-    GuiElement action = mutate != null ? mutate : KeptGui.entry(skill, player);
-    boolean reserveNavigation = AdaptConfig.get().isGuiBackButton() || action != null
-        || MutationGui.offersUnmutate(skill, player);
-    boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled();
-    GuiGroupLayout.Plan<Adaptation<?>> plan = GuiGroupLayout.plan(groups, reserveNavigation, hasPreferences);
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    GuiGroupLayout.Page<Adaptation<?>> currentLayout = plan.pages().get(currentPage);
-    int start = currentLayout.offset();
-    int end = start + currentLayout.size();
+    boolean labelled = skill instanceof MutatedSkill || !skill.getAdaptationGroups().isEmpty();
+    GuiFrame.Layout<Adaptation<?>> layout = GuiFrame.groups(groups, labelled);
+    int currentPage = layout.clampedPage(page);
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLine(SkillHost.lineKey(skill));
 
     GuiWindow window = new GuiWindow(player);
-    GuiTheme.apply(window, "skill/" + SkillHost.lineKey(skill));
-    window.setViewportHeight(plan.rows());
-    window.setLayout(MenuLayout.GRID).setPaging(new MenuPaging(currentPage, plan.pageCount(), visibleCount));
-
-    if (visibleCount == 0) {
-      window.setElement(0, 0, new GuiElement("ada-empty")
+    GuiFrame.apply(window, "skill/" + SkillHost.lineKey(skill), layout.bodyRows());
+    window.setLayout(MenuLayout.GRID);
+    GuiFrame.subject(window, SkillCards.header(skill, line, shown, adaptPlayer.getServer().getSkillRegistry()).setRole(MenuRole.HEADER));
+    if (shown.isEmpty()) {
+      GuiFrame.body(window, 0, GuiFrame.SUBJECT_COLUMN, new GuiElement("ada-empty")
           .setMaterial(PAPER)
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_ADAPTATIONS_AVAILABLE))
-          .setRole(MenuRole.HEADER));
-    } else {
-      List<GuiEffects.Placement> reveal = new ArrayList<>();
-      for (int row = 0; row < currentLayout.rows().size(); row++) {
-        List<Adaptation<?>> rowAdaptations = currentLayout.rows().get(row);
-        int rowCount = rowAdaptations.size();
-        for (int i = 0; i < rowCount; i++) {
-          Adaptation<?> adaptation = rowAdaptations.get(i);
-          int level = adaptPlayer.getData().getSkillLine(SkillHost.lineKey(skill)).getAdaptationLevel(adaptation.getId().toString());
-          int pos = GuiLayout.centeredPosition(i, rowCount);
-          CustomModel model = GuiConfig.adaptationModel(
-              adaptation.getId().toString(),
-              adaptation.getIcon().item(),
-              ComponentHost.of(adaptation).getModel()
-          );
-          GuiElement element = new GuiElement("ada-" + adaptation.getId().toString())
-              .setMaterial(model.material())
-              .setModel(model)
-              .setName(adaptation.getShortName(level))
-              .addLore(C.GRAY + adaptation.getDescription())
-              .addLore(level == 0
-                  ? C.DARK_GRAY + AdaptLanguage.text(SnippetsMessages.GUI_NOT_LEARNED)
-                  : C.GRAY + AdaptLanguage.text(
-                      SnippetsMessages.GUI_LEVEL_VALUE,
-                      trusted("level", C.WHITE + Form.toRoman(level))
-                  ))
-              .setRole(MenuRole.NAVIGATION)
-              .onLeftClick((MenuClick e) -> openAdaptation(adaptation, player));
-          String tools = MutationTools.lore(adaptation);
-          if (!tools.isEmpty()) {
-            element.addLore(tools);
-          }
-          reveal.add(new GuiEffects.Placement(pos, row, element));
-        }
-      }
-      GuiEffects.applyReveal(window, reveal);
+          .setRole(MenuRole.INFO));
     }
+    GuiFrame.body(window, layout.page(currentPage), (GuiFrame.Cell<Adaptation<?>> cell) -> cell.heading()
+        ? heading(skill, groups.get(cell.group()))
+        : adaptationElement(cell.item(), line, player));
 
-    if (plan.hasNavigationRow()) {
-      int navRow = plan.rows() - (hasPreferences ? 2 : 1);
-      int jumpPages = 5;
-      int jumpBack = Math.max(0, currentPage - jumpPages);
-      int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-      if (plan.pageCount() > 1 && currentPage > 0) {
-        window.setElement(-4, navRow, GuiTheme.element("skill-first", LECTERN, "gui", "navigation", "first")
-            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
-            .onLeftClick((MenuClick e) -> openSkillPage(skill, player, 0)));
-        window.setElement(-3, navRow, GuiTheme.element("skill-prev", ARROW, "gui", "navigation", "previous")
-            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
-            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
-            .onLeftClick((MenuClick e) -> openSkillPage(skill, player, currentPage - 1))
-            .onRightClick((MenuClick e) -> openSkillPage(skill, player, jumpBack)));
-      } else if (plan.pageCount() > 1) {
-        window.setElement(-4, navRow, boundaryElement("skill-first-disabled", GuiMessages.FIRST_PAGE));
-        window.setElement(-3, navRow, boundaryElement("skill-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
-      }
-      if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
-        window.setElement(3, navRow, GuiTheme.element("skill-next", ARROW, "gui", "navigation", "next")
-            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
-            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
-            .onLeftClick((MenuClick e) -> openSkillPage(skill, player, currentPage + 1))
-            .onRightClick((MenuClick e) -> openSkillPage(skill, player, jumpForward)));
-        window.setElement(4, navRow, GuiTheme.element("skill-last", LECTERN, "gui", "navigation", "last")
-            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
-            .onLeftClick((MenuClick e) -> openSkillPage(skill, player, plan.pageCount() - 1)));
-      } else if (plan.pageCount() > 1) {
-        window.setElement(3, navRow, boundaryElement("skill-next-disabled", GuiMessages.NO_NEXT_PAGE));
-        window.setElement(4, navRow, boundaryElement("skill-last-disabled", GuiMessages.LAST_PAGE));
-      }
-
-      int from = visibleCount == 0 ? 0 : (start + 1);
-      int to = visibleCount == 0 ? 0 : end;
-      GuiElement center;
-      if (AdaptConfig.get().isGuiBackButton()) {
-        center = GuiTheme.element("back", ARROW, "gui", "navigation", "back")
-            .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-            .onLeftClick((MenuClick e) -> navigateBack(player));
-      } else {
-        center = GuiTheme.element("skill-page-info", PAPER, "gui", "navigation", "page")
-            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.ADAPTATIONS))
-            .setHint(MenuHint.navigation("page-info"));
-      }
-      center.addLore(C.DARK_GRAY + AdaptLanguage.text(
-          GuiMessages.PAGE_SHOWING_RANGE,
-          trusted("page", currentPage + 1),
-          trusted("pages", plan.pageCount()),
-          trusted("from", from),
-          trusted("to", to),
-          trusted("total", visibleCount)
-      ));
-      window.setElement(0, navRow, center);
-      if (action != null) {
-        window.setElement(2, navRow, action);
-      }
-      MutationGui.placeUnmutate(window, -2, navRow, skill, player);
+    GuiFrame.back(window, () -> SkillsGui.open(player));
+    GuiFrame.pager(window, currentPage, layout.pageCount(), shown.size(), (int target) -> openGui(skill, player, target));
+    GuiElement tools = LoreLists.tools(shown);
+    if (tools != null) {
+      GuiFrame.footer(window, GuiFrame.Slot.TOOLS, tools);
     }
-
-    if (hasPreferences) {
-      SkillPreferenceGuiSupport.populate(skill, window, plan.rows() - 1);
+    GuiElement kept = KeptGui.entry(skill, player);
+    if (kept != null) {
+      GuiFrame.footer(window, GuiFrame.Slot.LIST, kept);
     }
-    window.setTitle(AdaptLanguage.text(
-        GuiMessages.SKILL_TITLE,
-        trusted("skill", skill.getDisplayName(adaptPlayer.getSkillLine(SkillHost.lineKey(skill)).getLevel())),
-        trusted("progress", Form.pc(XP.getLevelProgress(adaptPlayer.getSkillLine(SkillHost.lineKey(skill)).getXp()))),
-        trusted("xp", Form.f((int) XP.getXpUntilLevelUp(adaptPlayer.getSkillLine(SkillHost.lineKey(skill)).getXp()))),
-        trusted("nextLevel", adaptPlayer.getSkillLine(SkillHost.lineKey(skill)).getLevel() + 1)
-    ));
-    window.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(player, !AdaptConfig.get().isEscClosesAllGuis())));
+    if (AdaptConfig.get().isPlayerSettingsEnabled()) {
+      GuiFrame.footer(window, GuiFrame.Slot.SETTINGS, SettingsMenus.opener("skill-settings", () -> openSettings(skill, player)));
+    }
+    GuiElement mutate = MutationGui.entry(skill, player, adaptPlayer.getData());
+    if (mutate != null) {
+      GuiFrame.footer(window, GuiFrame.Slot.ACTION, mutate);
+    }
+    MutationGui.placeUnmutate(window, skill, player);
+
+    window.setTitle(skill.getDisplayName(line.getLevel()));
+    window.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(player, () -> SkillsGui.open(player))));
     window.open();
   }
 
-  private static void openSkillPage(Skill<?> skill, PlayerRef player, int page) {
-    openGui(skill, player, page);
-  }
-
-  private static void openAdaptation(Adaptation<?> adaptation, PlayerRef player) {
-    ComponentHost.of(adaptation).openGui(player);
-  }
-
-  private static void navigateBack(PlayerRef player) {
-    playCloseSound(player);
-    SkillsGui.open(player);
-  }
-
-  private static void onGuiClosed(PlayerRef player, boolean openPrevGui) {
-    if (player == null) {
+  /** The skill's settings: its on/off switch and reset under the skill's header; Back returns to the skill. */
+  static void openSettings(Skill<?> skill, PlayerRef player) {
+    AdaptPlayer adaptPlayer = AdaptCore.get().getAdaptServer().getPlayer(player);
+    if (adaptPlayer == null) {
       return;
     }
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
+    GuiWindow window = new GuiWindow(player);
+    GuiFrame.apply(window, "skill/" + SkillHost.lineKey(skill), 1);
+    window.setLayout(MenuLayout.LIST);
+    List<Adaptation<?>> shown = new ArrayList<>();
+    for (List<Adaptation<?>> group : SkillMenus.adaptationRows(skill, player)) {
+      shown.addAll(group);
+    }
+    GuiFrame.subject(window, SkillCards.header(skill, adaptPlayer.getData().getSkillLine(SkillHost.lineKey(skill)), shown,
+        adaptPlayer.getServer().getSkillRegistry()).setRole(MenuRole.HEADER));
+    SkillPreferenceGuiSupport.populate(skill, window, 1);
+    GuiFrame.back(window, () -> openGui(skill, player, 0));
+    window.setTitle(AdaptLanguage.text(GuiMessages.PACK_SETTINGS));
+    window.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(player, () -> openGui(skill, player, 0))));
+    window.open();
+  }
 
-    if (GuiCloseSuppression.consume(player)) {
+  /** A group's heading: the skill an upgrade group comes from, the mutation for its own, else the group's name. */
+  private static GuiElement heading(Skill<?> skill, List<Adaptation<?>> group) {
+    if (group.isEmpty()) {
+      return null;
+    }
+    Adaptation<?> first = group.getFirst();
+    if (skill instanceof MutatedSkill mutated) {
+      Skill<?> owner = first.getSkill();
+      if (owner == null || owner == mutated) {
+        return new GuiElement("group-own").setMaterial(MUTATION)
+            .setName(SkillHost.legacyColor(mutated.getColor()) + C.stripColor(mutated.getDisplayName()))
+            .setRole(MenuRole.INFO);
+      }
+      return SkillCards.icon("group-" + SkillHost.lineKey(owner), owner).setRole(MenuRole.INFO);
+    }
+    for (AdaptationGroup declared : skill.getAdaptationGroups()) {
+      if (declared.adaptations().contains(first.getId())) {
+        return GuiTheme.element("group-heading", GROUP, "gui", "navigation", "group")
+            .setName(SkillHost.legacyColor(skill.getColor()) + declared.label().resolve())
+            .setRole(MenuRole.INFO);
+      }
+    }
+    return null;
+  }
+
+  private static GuiElement adaptationElement(Adaptation<?> adaptation, PlayerSkillLine line, PlayerRef player) {
+    int level = line.getAdaptationLevel(adaptation.getId().toString());
+    CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(),
+        ComponentHost.of(adaptation).getModel());
+    return new GuiElement("ada-" + adaptation.getId().toString())
+        .setMaterial(model.material())
+        .setModel(model)
+        .setName(adaptation.getShortName(level))
+        .setEnchanted(level > 0)
+        .addLore(level == 0
+            ? C.DARK_GRAY + AdaptLanguage.text(GuiMessages.PACK_NOT_LEARNED)
+            : C.GREEN + AdaptLanguage.text(GuiMessages.PACK_LEVEL_OF, trusted("level", Form.toRoman(level)),
+                trusted("maximum", Form.toRoman(adaptation.getMaxLevel()))))
+        .addLore(C.GRAY + adaptation.getDescription())
+        .setRole(MenuRole.NAVIGATION)
+        .onLeftClick((MenuClick e) -> ComponentHost.of(adaptation).openGui(player));
+  }
+
+  /** A skill menu closed by Escape: unless a click replaced it, play the close sound and reopen {@code parent}. */
+  private static void onGuiClosed(PlayerRef player, Runnable parent) {
+    if (player == null || GuiCloseSuppression.consume(player)) {
       return;
     }
-
-    playCloseSound(player);
-    if (!openPrevGui) {
+    MenuSounds.play(player, MenuSounds.Action.BACK);
+    if (AdaptConfig.get().isEscClosesAllGuis()) {
       return;
     }
-
     Tasks.runEntity(player, () -> {
       if (GuiCloseSuppression.windowFree(player)) {
-        SkillsGui.open(player);
+        parent.run();
       }
     }, 1);
-  }
-
-  private static void playCloseSound(PlayerRef player) {
-    SoundPlayer spw = SoundPlayer.of(player.world());
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 1.455f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
-  }
-
-  private static GuiElement boundaryElement(String id, TextKey name) {
-    return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(C.DARK_GRAY + AdaptLanguage.text(name))
-        .setRole(MenuRole.DECORATION);
   }
 
   private static Boolean readBooleanField(Object source, String fieldName) {

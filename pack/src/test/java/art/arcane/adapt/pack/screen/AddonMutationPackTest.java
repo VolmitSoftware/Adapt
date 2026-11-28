@@ -195,7 +195,7 @@ class AddonMutationPackTest {
   private static PackScreens screens(FakePackWindows windows, PackBuilds builds, ServerPackBackend backend, ScreenFixtures.Clock clock) {
     PackMenuHost host = new PackMenuHost(new FakeMenuHost(), windows, (PlayerRef viewer) -> true,
         new DeliveredResources(() -> builds.manifests().current()));
-    return new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), clock);
+    return new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), clock, new ScreenFixtures.Speaker());
   }
 
   private static SkillView skill(CatalogIndex catalog, String id) {

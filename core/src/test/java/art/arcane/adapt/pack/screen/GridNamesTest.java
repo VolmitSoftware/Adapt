@@ -26,6 +26,7 @@ import art.arcane.adapt.pack.PackResources;
 import art.arcane.adapt.pack.PackSamples;
 import art.arcane.adapt.pack.layout.BarSpec;
 import art.arcane.adapt.pack.layout.Card;
+import art.arcane.adapt.pack.layout.PackArt;
 import art.arcane.adapt.pack.layout.ScreenLayout;
 import art.arcane.adapt.pack.layout.TextSpec;
 import art.arcane.adapt.pack.menu.PackMenuHost;
@@ -72,6 +73,8 @@ class GridNamesTest {
   private static final int CARD_HEIGHT = 36;
   /** A text line's cell, descenders included. */
   private static final int LINE_CELL = 8;
+  /** The least paper between a list row's text and the edge of its box. */
+  private static final int BOX_PAD = 2;
   /** The least paper between a card's last name line and the next card row. */
   private static final int AIR_BELOW = 3;
   @TempDir
@@ -82,7 +85,8 @@ class GridNamesTest {
   private final PackResources resources = PackSamples.resources();
   private final ScreenFixtures.Server server = new ScreenFixtures.Server();
   private final PackScreens screens = new PackScreens(new PackMenuHost(new FakeMenuHost(), windows, (PlayerRef ignored) -> true,
-      () -> resources), server, server, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock());
+      () -> resources), server, server, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock(),
+      new ScreenFixtures.Speaker());
   private TestAdapt adapt;
   private List<String> names;
   /** Every adaptation name a skill page lists (the short name where there is one): the skills' own and every mutated skill's. */
@@ -178,7 +182,7 @@ class GridNamesTest {
   }
 
   @Test
-  void everyListNameKeepsClearOfItsCountUncut() {
+  void everyListNameStaysUncutInsideItsBox() {
     SkillRegistry registry = adapt.core().getAdaptServer().getSkillRegistry();
     int pairs = 0;
     for (Skill<?> lead : registry.getSkills()) {
@@ -202,24 +206,21 @@ class GridNamesTest {
     for (boolean lower : List.of(true, false)) {
       for (Card card : resources.layout().screen(PackSkillScreen.SCREEN, lower).cards()) {
         TextSpec name = card.text("name");
-        TextSpec count = card.text("level");
+        BarSpec box = card.bar(PackArt.BOX);
+        int boxLeft = box.x() + BOX_PAD;
+        int boxRight = box.x() + box.width() - 1 - BOX_PAD;
+        int ornamentLeft = box.x() + box.width() - PackArt.ORNAMENT_GAP - PackArt.ORNAMENT_WIDTH;
         for (String text : listNames) {
-          for (String level : List.of("0/3", "10/10")) {
-            int countWidth = resources.metrics().width(level);
-            int countLeft = switch (count.align()) {
-              case LEFT -> count.x();
-              case CENTRE -> count.x() + ((count.width() - countWidth) / 2);
-              case RIGHT -> count.x() + count.width() - countWidth;
-            };
-            TextSpec spec = PackSkillScreen.besideCount(name, count, countWidth);
+          for (boolean maxed : List.of(false, true)) {
+            TextSpec spec = PackSkillScreen.inBox(name, box, maxed);
             boolean condensed = resources.condensed(List.of(spec), List.of(text));
             Placement placed = resources.name(resources.composer(), spec, text, condensed);
             int inkEnd = spec.x() + placed.width() - 1;
-            String where = text + " beside " + level + (lower ? "" : " (top rows)") + " at x " + name.x();
+            String where = text + (maxed ? " maxed" : "") + (lower ? "" : " (top rows)") + " at x " + name.x();
             if (placed.status() != Placement.Status.PLACED) {
               problems.add(where + ": " + placed);
-            } else if (countLeft > name.x() && countLeft - inkEnd < PackSkillScreen.COUNT_GAP) {
-              problems.add(where + ": " + (countLeft - inkEnd) + " px");
+            } else if (spec.x() < boxLeft || inkEnd > boxRight || (maxed && ornamentLeft - inkEnd <= PackArt.ORNAMENT_GAP)) {
+              problems.add(where + ": outside its box " + boxLeft + ".." + boxRight);
             }
             checked++;
           }

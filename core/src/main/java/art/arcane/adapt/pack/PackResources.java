@@ -245,6 +245,19 @@ public record PackResources(PackManifest manifest, PackLayout layout, PackFontMe
     return true;
   }
 
+  /** Whether the pack has paint glyph {@code key}. */
+  public boolean hasPaint(String key) {
+    return manifest.paint().containsKey(key);
+  }
+
+  /** As {@link #paint(TitleComposer, String, int)}, the white glyph tinted {@code colour}. */
+  public void paint(TitleComposer title, String key, int x, int colour) {
+    PackManifest.PaintArt art = manifest.paint().get(key);
+    if (art != null) {
+      title.moveTo(x + art.dx()).glyph(art.font(), art.text(), art.advance(), colour);
+    }
+  }
+
   /**
    * The breadcrumb at {@code spec} on {@code kit}'s ribbon (in {@code art}, under every label): parents in paper,
    * separators in the rule colour, the last crumb in gold. Leading crumbs are dropped until the rest fits the label; a
@@ -372,16 +385,8 @@ public record PackResources(PackManifest manifest, PackLayout layout, PackFontMe
    * stack), else the item's own model.
    */
   public SlotLook icon(IconRef icon, String kit, boolean dim) {
-    return icon(icon, kit, dim, 0);
-  }
-
-  /**
-   * As {@link #icon(IconRef, String, boolean)}, drawn {@code dy} pixels below its slot (one of {@link PackArt#ICON_SHIFTS});
-   * an icon the pack has no shifted copy of (an item's own model) stays on its slot.
-   */
-  public SlotLook icon(IconRef icon, String kit, boolean dim, int dy) {
     List<IconSprites.Layer> layers = icon.spriteId() == null ? List.of() : IconSprites.layers(icon.spriteId());
-    PackManifest.ItemArt stack = layers.size() > 1 && !dim ? manifest.item(PackArt.shifted(PackArt.STACK, dy)) : null;
+    PackManifest.ItemArt stack = layers.size() > 1 && !dim ? manifest.item(PackArt.STACK) : null;
     if (stack != null) {
       List<String> sprites = new ArrayList<>(layers.size());
       List<Integer> tints = new ArrayList<>(layers.size());
@@ -391,7 +396,7 @@ public record PackResources(PackManifest manifest, PackLayout layout, PackFontMe
       }
       return look(stack.model(), kit).withModelData(sprites, List.of(), tints);
     }
-    PackManifest.ItemArt art = icon.spriteId() == null ? null : manifest.sprite(icon.spriteId(), dim, dy);
+    PackManifest.ItemArt art = icon.spriteId() == null ? null : manifest.sprite(icon.spriteId(), dim);
     if (art != null) {
       return look(art.model(), kit);
     }

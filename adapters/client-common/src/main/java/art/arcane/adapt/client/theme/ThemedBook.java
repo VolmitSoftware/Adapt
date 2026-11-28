@@ -44,7 +44,7 @@ public final class ThemedBook {
         this.solo = solo;
         dressing = Dressing.compose(geometry, pageTheme, solo);
         life = PageLife.of(geometry, pageTheme, dressing);
-        edges = BandStage.of(geometry, pageTheme, solo);
+        edges = BandStage.of(geometry, pageTheme);
         background();
         layer.close();
     }

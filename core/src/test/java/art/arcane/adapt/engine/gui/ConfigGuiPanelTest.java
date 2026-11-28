@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.SchedulerForwarding;
 import art.arcane.adapt.client.protocol.HintKind;
 import art.arcane.adapt.client.protocol.PanelLayout;
+import art.arcane.adapt.client.protocol.PanelPaging;
 import art.arcane.adapt.client.protocol.PanelTile;
 import art.arcane.adapt.client.protocol.PanelView;
 import art.arcane.adapt.client.protocol.TileRole;
@@ -17,6 +18,7 @@ import art.arcane.adapt.platform.menu.MenuButton;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHost;
 import art.arcane.adapt.platform.menu.MenuSession;
+import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,13 +90,40 @@ class ConfigGuiPanelTest extends AdaptTestBase {
 
   @Test
   void rootIndexIsAListOfNavigationRows() {
-    PanelView view = PanelViews.view(1, 0, open(""));
+    ChestMenu menu = open("");
+    PanelView view = PanelViews.view(1, 0, menu);
 
     assertThat(view.layout()).isEqualTo(PanelLayout.LIST);
     assertThat(view.breadcrumb()).isEmpty();
-    assertThat(view.paging()).isNull();
+    assertThat(view.paging()).isEqualTo(new PanelPaging(0, 1, 3));
     List<PanelTile> rows = view.tiles().stream().filter(tile -> tile.role() == TileRole.NAVIGATION).toList();
     assertThat(rows).hasSize(3).allMatch(tile -> tile.shownDescription().size() == 1);
+    assertThat(rows).extracting(PanelTile::slot).containsExactlyInAnyOrder(12, 13, 14);
+
+    assertThat(menu.rows()).isEqualTo(3);
+    assertThat(menu.button(4).icon().type()).isEqualTo(Id.minecraft("book"));
+    assertThat(menu.button(20).icon().type()).isEqualTo(Id.minecraft("knowledge_book"));
+    for (int slot : new int[]{18, 21, 22, 23}) {
+      assertThat(menu.button(slot).icon().name()).isBlank();
+      assertThat(menu.button(slot).clickable()).isFalse();
+    }
+    for (int slot : new int[]{9, 10, 11, 15, 16, 17}) {
+      assertThat(menu.button(slot)).isNull();
+    }
+  }
+
+  @Test
+  void aSectionKeepsBackAndItsHeadersInTheFrameSlots() {
+    ChestMenu menu = open("core.$general");
+    int footer = (menu.rows() - 1) * 9;
+
+    assertThat(menu.button(4).icon().type()).isEqualTo(Id.minecraft("book"));
+    assertThat(menu.button(footer + 2).icon().type()).isEqualTo(Id.minecraft("knowledge_book"));
+    MenuButton back = menu.button(footer);
+    assertThat(back.icon().type()).isEqualTo(Id.minecraft("arrow"));
+    assertThat(back.clickable()).isTrue();
+    assertThat(PanelViews.chromeTarget(PanelViews.view(1, 0, menu).tiles().stream()
+        .filter((PanelTile tile) -> tile.slot() == footer).findFirst().orElseThrow())).isEqualTo("back");
   }
 
   @Test

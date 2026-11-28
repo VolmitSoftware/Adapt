@@ -11,9 +11,6 @@ import java.util.TreeSet;
 
 /** One pack's files as they are written, by path, and the tooltip styles written. */
 final class PackFiles {
-    /** The see-through texture shifted models stand on, under the pack's namespace. */
-    static final String CLEAR = "item/adapt_ui/clear";
-
     private final TreeMap<String, byte[]> files = new TreeMap<>();
     private final TreeSet<String> styles = new TreeSet<>();
 
@@ -27,18 +24,6 @@ final class PackFiles {
 
     byte[] get(String path) {
         return files.get(path);
-    }
-
-    /**
-     * Writes the model {@code ns:path} drawing the 16x16 textures {@code layers} {@code dy} pixels below its slot (see
-     * {@link PackJson#shiftedModel}), and the see-through texture it stands on once.
-     */
-    void shiftedModel(String ns, String path, List<String> layers, int dy) {
-        String clear = "assets/" + PackWriter.NAMESPACE + "/textures/" + CLEAR + ".png";
-        if (!files.containsKey(clear)) {
-            files.put(clear, new Raster(1, 1).png());
-        }
-        files.put("assets/" + ns + "/models/" + path + ".json", PackJson.json(PackJson.shiftedModel(layers, PackWriter.NAMESPACE + ":" + CLEAR, dy)));
     }
 
     boolean has(String path) {

@@ -1,5 +1,6 @@
 package art.arcane.adapt.pack.screen;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptPorts;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.view.AdaptationView;
@@ -10,7 +11,6 @@ import art.arcane.adapt.client.view.PreferenceOwner;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.pack.PackResources;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.pack.menu.PackMenuHost;
 import art.arcane.adapt.pack.surface.PackPrompts;
 import art.arcane.adapt.pack.surface.PackSession;
@@ -18,6 +18,7 @@ import art.arcane.adapt.pack.surface.PackSlot;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.ChestMenu;
 import art.arcane.adapt.platform.menu.MenuSession;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.TextKey;
 
@@ -40,20 +41,43 @@ public final class PackScreens {
   static final int SEAL_STEP_TICKS = 8;
   static final long SEAL_STEP_MS = SEAL_STEP_TICKS * 50L;
   static final int SEARCH_LENGTH = 32;
+  static final long SAME_ACTION_MS = 50L;
 
   private final PackMenuHost host;
   private final PackViews views;
   private final PackActions actions;
   private final PackPrompts prompts;
   private final PackClock clock;
+  private final Speaker speaker;
+  private final Map<UUID, Long> heard = new ConcurrentHashMap<>();
   private final Map<UUID, PackViewer> viewers = new ConcurrentHashMap<>();
 
-  public PackScreens(PackMenuHost host, PackViews views, PackActions actions, PackPrompts prompts, PackClock clock) {
+  public PackScreens(PackMenuHost host, PackViews views, PackActions actions, PackPrompts prompts, PackClock clock,
+                     Speaker speaker) {
     this.host = Objects.requireNonNull(host, "host");
     this.views = Objects.requireNonNull(views, "views");
     this.actions = Objects.requireNonNull(actions, "actions");
     this.prompts = Objects.requireNonNull(prompts, "prompts");
     this.clock = Objects.requireNonNull(clock, "clock");
+    this.speaker = Objects.requireNonNull(speaker, "speaker");
+  }
+
+  /** Plays a menu sound to one viewer. */
+  @FunctionalInterface
+  public interface Speaker {
+    /** Through {@link MenuSounds}, while {@code pack.uiSounds} is on. */
+    Speaker SERVER = switched(MenuSounds::play);
+
+    /** Plays through {@code inner} while {@code pack.uiSounds} is on, read on every sound so a reload applies. */
+    static Speaker switched(Speaker inner) {
+      return (PlayerRef viewer, MenuSounds.Action action) -> {
+        if (AdaptConfig.get().getPack().isUiSounds()) {
+          inner.play(viewer, action);
+        }
+      };
+    }
+
+    void play(PlayerRef viewer, MenuSounds.Action action);
   }
 
   /** The installed screens, or null when the platform runs none. */
@@ -156,24 +180,20 @@ public final class PackScreens {
   }
 
   void route(PlayerRef viewer, Route route) {
+    sound(viewer, MenuSounds.Action.OPEN);
     actions.open(viewer, route);
   }
 
-  /** Opens an ordinary chest menu for the viewer, dressed by the ledger skin; the pack page closes. */
-  void menu(PlayerRef viewer, ChestMenu menu) {
-    viewers.remove(viewer.uuid());
-    host.open(viewer, menu);
-  }
-
-  /** Applies the viewer's choice of menus and reopens Skills in the menus it picks. */
-  void menus(PlayerRef viewer, MenuStyle style) {
-    actions.menus(viewer, style);
-    actions.open(viewer, new Route.Skills());
+  /** Back to the page above, from a back control. */
+  void back(PlayerRef viewer, Route route) {
+    sound(viewer, MenuSounds.Action.BACK);
+    actions.open(viewer, route);
   }
 
   void page(PlayerRef viewer, int page) {
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
+      sound(viewer, MenuSounds.Action.TURN);
       state.page = Math.max(0, page);
       state.notice = "";
       show(viewer, state);
@@ -183,6 +203,7 @@ public final class PackScreens {
   void tab(PlayerRef viewer, int tab) {
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
+      sound(viewer, MenuSounds.Action.TOGGLE);
       state.tab = Math.max(0, tab);
       state.page = 0;
       state.pickedLevel = -1;
@@ -201,6 +222,7 @@ public final class PackScreens {
   void pick(PlayerRef viewer, int level) {
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
+      sound(viewer, MenuSounds.Action.TOGGLE);
       state.pickedLevel = level;
       state.notice = "";
       show(viewer, state);
@@ -210,26 +232,31 @@ public final class PackScreens {
   void recipe(PlayerRef viewer, int recipe) {
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
+      sound(viewer, MenuSounds.Action.TOGGLE);
       state.recipe = Math.max(0, recipe);
       show(viewer, state);
     }
   }
 
   void learn(PlayerRef viewer, String adaptationId, int level) {
+    quiet(viewer);
     answer(viewer, actions.learn(viewer, adaptationId, level));
   }
 
   void unlearn(PlayerRef viewer, String adaptationId, int level) {
+    quiet(viewer);
     answer(viewer, actions.unlearn(viewer, adaptationId, level));
   }
 
   void preference(PlayerRef viewer, PreferenceOwner owner, String ownerId, String preferenceId, String value) {
     boolean saved = actions.setPreference(viewer, owner, ownerId, preferenceId, value);
+    sound(viewer, saved ? MenuSounds.Action.TOGGLE : MenuSounds.Action.REFUSE);
     notice(viewer, AdaptLanguage.text(saved ? GuiMessages.CLIENT_PREFERENCE_SAVED : GuiMessages.CLIENT_PREFERENCE_DENIED));
   }
 
   void reset(PlayerRef viewer, PreferenceOwner owner, String ownerId) {
     boolean saved = actions.resetPreference(viewer, owner, ownerId);
+    sound(viewer, saved ? MenuSounds.Action.TOGGLE : MenuSounds.Action.REFUSE);
     notice(viewer, AdaptLanguage.text(saved ? GuiMessages.CLIENT_PREFERENCE_SAVED : GuiMessages.CLIENT_PREFERENCE_DENIED));
   }
 
@@ -240,9 +267,10 @@ public final class PackScreens {
   private void unmutateNow(PlayerRef viewer, String skillId) {
     String text = actions.unmutate(viewer, skillId);
     if (text == null) {
-      notice(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      refuse(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return;
     }
+    sound(viewer, MenuSounds.Action.BACK);
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
       state.go(PackViewer.Screen.SKILLS);
@@ -255,6 +283,7 @@ public final class PackScreens {
   void partners(PlayerRef viewer, boolean shown) {
     PackViewer state = viewers.get(viewer.uuid());
     if (state != null) {
+      sound(viewer, MenuSounds.Action.TOGGLE);
       state.partners = shown;
       state.page = 0;
       show(viewer, state);
@@ -266,9 +295,10 @@ public final class PackScreens {
     PackViewer state = viewers.get(viewer.uuid());
     MutationSpreadView spread = views.spread(viewer, lead, partner);
     if (state == null || spread == null) {
-      notice(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      refuse(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return;
     }
+    sound(viewer, MenuSounds.Action.TOGGLE);
     state.skillId = lead;
     state.spread = spread;
     state.partners = false;
@@ -295,6 +325,7 @@ public final class PackScreens {
       confirmed.run();
       return;
     }
+    sound(viewer, MenuSounds.Action.ARM);
     state.armedUntil = clock.now() + SEAL_WINDOW_MS;
     state.armedControl = control;
     state.notice = AdaptLanguage.text(label);
@@ -354,15 +385,17 @@ public final class PackScreens {
   private void mutate(PlayerRef viewer, PackViewer state) {
     PackActions.Mutation mutation = actions.mutate(viewer, state.spread.lead(), state.spread.partner());
     if (mutation == null) {
-      notice(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
+      refuse(viewer, AdaptLanguage.text(GuiMessages.CLIENT_UNAVAILABLE));
       return;
     }
     state.notice = mutation.text();
     state.spread = mutation.spread();
     if (mutation.mutated()) {
+      quiet(viewer);
       actions.open(viewer, new Route.Skill(mutation.spread().mutatedSkillId()));
       return;
     }
+    sound(viewer, MenuSounds.Action.REFUSE);
     show(viewer, state);
   }
 
@@ -371,11 +404,46 @@ public final class PackScreens {
     if (state == null || !prompts.available(viewer)) {
       return;
     }
+    sound(viewer, MenuSounds.Action.TOGGLE);
     prompts.text(viewer, AdaptLanguage.text(GuiMessages.PACK_SEARCH), state.search, SEARCH_LENGTH, (String query) -> {
+      sound(viewer, MenuSounds.Action.TOGGLE);
       state.search = query.strip();
       state.page = 0;
       show(viewer, state);
     }, () -> show(viewer, state));
+  }
+
+  /**
+   * One sound per action: a second cue within {@link #SAME_ACTION_MS} belongs to the same click and stays silent, so a
+   * click that turns a page and redraws plays once. Redraws, retitles and animation frames never call this.
+   */
+  private void sound(PlayerRef viewer, MenuSounds.Action action) {
+    if (fresh(viewer)) {
+      speaker.play(viewer, action);
+    }
+  }
+
+  /** The action plays its own sound through the shared operation, as learning and a finished mutation do. */
+  private void quiet(PlayerRef viewer) {
+    fresh(viewer);
+  }
+
+  private boolean fresh(PlayerRef viewer) {
+    long now = clock.now();
+    Long previous = heard.put(viewer.uuid(), now);
+    return previous == null || now - previous >= SAME_ACTION_MS || now < previous;
+  }
+
+  /** Shows why an action was turned down, with the refused sound. */
+  void refuse(PlayerRef viewer, String text) {
+    sound(viewer, MenuSounds.Action.REFUSE);
+    notice(viewer, text);
+  }
+
+  /** Opens the Mutate spread led by {@code lead} from a click on the lead picker. */
+  void lead(PlayerRef viewer, String lead) {
+    sound(viewer, MenuSounds.Action.OPEN);
+    openMutate(viewer, lead);
   }
 
   void notice(PlayerRef viewer, String text) {
@@ -456,6 +524,7 @@ public final class PackScreens {
   private void closed(PlayerRef viewer, PackViewer state, MenuSession closing) {
     if (state.session == closing) {
       viewers.remove(viewer.uuid(), state);
+      heard.remove(viewer.uuid());
     }
   }
 }

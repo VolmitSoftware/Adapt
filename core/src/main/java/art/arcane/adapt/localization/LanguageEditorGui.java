@@ -15,11 +15,12 @@ import art.arcane.adapt.platform.menu.MenuAction;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuLayout;
-import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.volmlib.util.localization.BukkitLanguageMessages;
@@ -58,14 +59,8 @@ import java.util.function.Consumer;
  * checks as chat. Same layout, texts and rules as the VolmLib Bukkit editor.
  */
 public final class LanguageEditorGui {
-  static final int PAGE_SIZE = 36;
-  private static final int ROWS = 6;
-  private static final int NAVIGATION_ROW = 5;
-  private static final int BACK = -4;
-  private static final int PREVIOUS = -1;
-  private static final int SEARCH = 0;
-  private static final int NEXT = 1;
-  private static final int CLOSE = 4;
+  static final int PAGE_SIZE = GuiFrame.MAX_BODY_ROWS * GuiFrame.COLUMNS;
+  private static final Id BACK = Id.minecraft("arrow");
   private static final int MAXIMUM_INPUT_LENGTH = 512;
   private static final int PROMPT_TICKS = 1200;
   private static final int PREVIEW_LINES = 6;
@@ -130,26 +125,10 @@ public final class LanguageEditorGui {
     }
   }
 
-  private void click(PlayerRef player, View view, int position, int row) {
-    if (!allowed(player) || views.get(player.uuid()) != view) {
-      return;
+  private void click(PlayerRef player, View view, Runnable action) {
+    if (allowed(player) && views.get(player.uuid()) == view) {
+      action.run();
     }
-    if (row == NAVIGATION_ROW) {
-      if (position == CLOSE) {
-        cancel(player.uuid());
-        player.closeInventory();
-      } else if (position == BACK) {
-        back(player, view);
-      } else if (position == PREVIOUS || position == NEXT) {
-        show(player, view.withPage(view.page() + (position == NEXT ? 1 : -1)));
-      } else if (position == SEARCH && view.searchable()) {
-        beginPrompt(player, new Prompt(view, null, null, null));
-      } else if (position == SEARCH && view.searching()) {
-        show(player, new View(view.locale(), view.document(), view.group(), "", 1, null));
-      }
-      return;
-    }
-    selectEntry(player, view, row * 9 + position + 4);
   }
 
   private void back(PlayerRef player, View view) {
@@ -339,13 +318,9 @@ public final class LanguageEditorGui {
     Page page = Page.of(count, requested.page(), PAGE_SIZE);
     View view = requested.withPage(page.page());
     GuiWindow window = new GuiWindow(player)
-        .setTag("adapt/language-editor")
-        .setViewportHeight(ROWS)
         .setTitle(title(view))
-        .setLayout(MenuLayout.LIST)
-        .setPaging(new MenuPaging(page.page() - 1, page.pages(), count))
-        .setDecorator((GuiWindow ignored, int position, int row) -> new GuiElement("filler")
-            .setMaterial(Id.minecraft("black_stained_glass_pane")).setName(" ").setRole(MenuRole.DECORATION));
+        .setLayout(MenuLayout.LIST);
+    GuiFrame.apply(window, "adapt/language-editor", GuiFrame.MAX_BODY_ROWS);
     for (int index = page.start(); index < page.end(); index++) {
       GuiElement entry;
       if (view.locale() == null) {
@@ -360,41 +335,40 @@ public final class LanguageEditorGui {
         entry = messageItem(player, view, view.key(), view.document().snapshot().value(view.key()), parts.get(index));
       }
       int slot = index - page.start();
-      place(window, player, view, slot % 9 - 4, slot / 9, entry);
+      GuiFrame.body(window, slot / GuiFrame.COLUMNS, slot % GuiFrame.COLUMNS,
+          bind(entry, player, view, () -> selectEntry(player, view, slot)));
     }
-    place(window, player, view, BACK, NAVIGATION_ROW, button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_BACK))
-        .setHint(MenuHint.navigation("back")));
-    place(window, player, view, CLOSE, NAVIGATION_ROW, button("barrier", C.RED + text(BukkitLanguageMessages.EDITOR_CLOSE))
-        .setRole(MenuRole.ACTION));
-    if (page.hasPrevious()) {
-      place(window, player, view, PREVIOUS, NAVIGATION_ROW,
-          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_PREVIOUS_PAGE)).setHint(MenuHint.navigation("previous")));
-    }
-    if (page.hasNext()) {
-      place(window, player, view, NEXT, NAVIGATION_ROW,
-          button("arrow", C.YELLOW + text(BukkitLanguageMessages.EDITOR_NEXT_PAGE)).setHint(MenuHint.navigation("next")));
-    }
+    GuiFrame.footer(window, GuiFrame.Slot.BACK, bind(GuiTheme.element("back", BACK, "gui", "navigation", "back")
+        .setName(C.WHITE + text(BukkitLanguageMessages.EDITOR_BACK))
+        .setRole(MenuRole.NAVIGATION), player, view, () -> back(player, view)));
     if (view.searchable()) {
       Prompt search = new Prompt(view, null, null, null);
-      place(window, player, view, SEARCH, NAVIGATION_ROW,
-          button("compass", C.RED + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES))
-              .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES_LORE))
-              .setHint(MenuHint.text(view.filter(), (MenuClick context, String input) -> typed(player, search, input)))
-              .setDescription(List.of()));
+      GuiFrame.footer(window, GuiFrame.Slot.TOOLS, bind(button("compass", C.RED + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES))
+          .addLore(C.GRAY + text(BukkitLanguageMessages.EDITOR_SEARCH_MESSAGES_LORE))
+          .setHint(MenuHint.text(view.filter(), (MenuClick context, String input) -> typed(player, search, input)))
+          .setDescription(List.of()), player, view, () -> beginPrompt(player, search)));
     } else if (view.searching()) {
-      place(window, player, view, SEARCH, NAVIGATION_ROW, button("paper", C.RED + text(BukkitLanguageMessages.EDITOR_CLEAR_SEARCH))
+      GuiFrame.footer(window, GuiFrame.Slot.TOOLS, bind(button("paper", C.RED + text(BukkitLanguageMessages.EDITOR_CLEAR_SEARCH))
           .setRole(MenuRole.ACTION)
-          .setValue(view.filter()));
+          .setValue(view.filter()), player, view,
+          () -> show(player, new View(view.locale(), view.document(), view.group(), "", 1, null))));
     }
+    GuiFrame.pager(window, page.page() - 1, page.pages(), count,
+        (int target) -> click(player, view, () -> show(player, view.withPage(target + 1))));
+    GuiFrame.footer(window, GuiFrame.Slot.ACTION, bind(button("barrier", C.RED + text(BukkitLanguageMessages.EDITOR_CLOSE))
+        .setRole(MenuRole.ACTION), player, view, () -> {
+          cancel(player.uuid());
+          player.closeInventory();
+        }));
     window.onClosed((GuiWindow closedWindow) -> windowClosed(player.uuid(), closedWindow));
     views.put(player.uuid(), view);
     windows.put(player.uuid(), window);
     window.open();
   }
 
-  private void place(GuiWindow window, PlayerRef player, View view, int position, int row, GuiElement element) {
-    MenuAction action = (MenuClick click) -> click(player, view, position, row);
-    window.setElement(position, row, element.onLeftClick(action).onRightClick(action).onShiftLeftClick(action));
+  private GuiElement bind(GuiElement element, PlayerRef player, View view, Runnable action) {
+    MenuAction click = (MenuClick context) -> click(player, view, action);
+    return element.onLeftClick(click).onRightClick(click).onShiftLeftClick(click);
   }
 
   private void windowClosed(UUID playerId, GuiWindow window) {
@@ -761,12 +735,12 @@ public final class LanguageEditorGui {
     }
   }
 
-  record Page(int page, int pages, int start, int end, boolean hasPrevious, boolean hasNext) {
+  record Page(int page, int pages, int start, int end) {
     static Page of(int count, int requested, int size) {
       int pages = Math.max(1, (count + size - 1) / size);
       int page = Math.max(1, Math.min(requested, pages));
       int start = (page - 1) * size;
-      return new Page(page, pages, start, Math.min(count, start + size), page > 1, page < pages);
+      return new Page(page, pages, start, Math.min(count, start + size));
     }
   }
 

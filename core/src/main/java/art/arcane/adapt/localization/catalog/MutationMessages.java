@@ -13,14 +13,11 @@ public final class MutationMessages {
   public static final TextKey KNOWLEDGE = AdaptKeys.text("gui.mutation.knowledge", "{knowledge} knowledge");
   public static final TextKey LEAD = AdaptKeys.text("gui.mutation.lead", "Lead: {skill}");
   public static final TextKey SWAP_LEAD = AdaptKeys.text("gui.mutation.swap_lead", "Swap lead");
-  public static final TextKey ADAPTATIONS = AdaptKeys.text("gui.mutation.adaptations", "Adaptations");
-  public static final TextKey LOST = AdaptKeys.text("gui.mutation.lost", "Lost");
-  public static final TextKey LOST_LEVELS = AdaptKeys.text("gui.mutation.lost_levels", "{count} {skill} levels");
-  public static final TextKey LOST_KNOWLEDGE = AdaptKeys.text("gui.mutation.lost_knowledge", "{count} {skill} knowledge");
+  public static final TextKey YOU_LOSE = AdaptKeys.text("gui.mutation.you_lose", "You lose");
+  public static final TextKey YOU_GAIN = AdaptKeys.text("gui.mutation.you_gain", "You gain");
   public static final TextKey LOST_ADAPTATION = AdaptKeys.text("gui.mutation.lost_adaptation", "{adaptation} {level}");
   public static final TextKey LOST_PERMANENT_ADAPTATION = AdaptKeys.text("gui.mutation.lost_permanent_adaptation",
       "{adaptation} {level} (permanent, still unlearned)");
-  public static final TextKey NOTHING_LOST = AdaptKeys.text("gui.mutation.nothing_lost", "Nothing");
   public static final TextKey CONFIRM_AGAIN = AdaptKeys.text("gui.mutation.confirm_again", "Confirm: permanent");
   public static final TextKey UNMUTATE = AdaptKeys.text("gui.mutation.unmutate", "Unmutate");
   public static final TextKey UNMUTATE_CONFIRM = AdaptKeys.text("gui.mutation.unmutate_confirm", "Confirm unmutate");
@@ -54,13 +51,10 @@ public final class MutationMessages {
     builder.add(KNOWLEDGE);
     builder.add(LEAD);
     builder.add(SWAP_LEAD);
-    builder.add(ADAPTATIONS);
-    builder.add(LOST);
-    builder.add(LOST_LEVELS);
-    builder.add(LOST_KNOWLEDGE);
+    builder.add(YOU_LOSE);
+    builder.add(YOU_GAIN);
     builder.add(LOST_ADAPTATION);
     builder.add(LOST_PERMANENT_ADAPTATION);
-    builder.add(NOTHING_LOST);
     builder.add(CONFIRM_AGAIN);
     builder.add(UNMUTATE);
     builder.add(UNMUTATE_CONFIRM);

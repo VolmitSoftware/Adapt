@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class GuiConfig {
-  public static final int MIN_FIXED_SKILL_ROWS = 2;
+  public static final int MIN_FIXED_SKILL_ROWS = 3;
   public static final int UNRANKED = Integer.MAX_VALUE;
   private static final String SKILL_ICONS = "gui.skillIcons";
   private static final String ADAPTATION_ICONS = "gui.adaptationIcons";
@@ -91,7 +91,7 @@ public final class GuiConfig {
     if (configured < MIN_FIXED_SKILL_ROWS) {
       warnOnce(
           "skillsGuiRows:" + configured,
-          "gui.skillsGuiRows=" + configured + " raised to " + MIN_FIXED_SKILL_ROWS + ", the navigation row needs its own row."
+          "gui.skillsGuiRows=" + configured + " raised to " + MIN_FIXED_SKILL_ROWS + ", the header and footer need their own rows."
       );
       return MIN_FIXED_SKILL_ROWS;
     }

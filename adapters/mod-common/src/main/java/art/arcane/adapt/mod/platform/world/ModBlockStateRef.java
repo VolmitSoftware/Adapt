@@ -102,6 +102,11 @@ public final class ModBlockStateRef implements BlockStateRef {
     }
 
     @Override
+    public boolean isCorrectTool(ItemRef tool) {
+        return ModRefs.item(tool).isCorrectToolForDrops(state);
+    }
+
+    @Override
     public String asString() {
         return BlockStateParser.serialize(state);
     }

@@ -11,7 +11,6 @@ import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.MutatedMessages;
-import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuLayout;
@@ -20,7 +19,8 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.api.text.TextFormat;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -38,12 +38,12 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
  */
 public final class KeptGui {
   private static final Id KEPT = Id.minecraft("chest");
-  private static final int COLUMNS = GuiLayout.WIDTH;
+  private static final int COLUMNS = 7;
 
   private KeptGui() {
   }
 
-  /** The kept originals' item for a mutated skill's page; null for any other skill or when it works with none. */
+  /** The kept originals' item for a mutated skill's footer; null for any other skill or when it works with none. */
   public static GuiElement entry(Skill<?> skill, PlayerRef player) {
     if (!(skill instanceof MutatedSkill mutated)) {
       return null;
@@ -52,49 +52,50 @@ public final class KeptGui {
     if (held.isEmpty()) {
       return null;
     }
-    GuiElement element = new GuiElement("mutation-kept")
-        .setMaterial(KEPT)
-        .setName(TextFormat.GREEN + AdaptLanguage.text(MutatedMessages.KEPT))
-        .setRole(MenuRole.NAVIGATION)
-        .onLeftClick((MenuClick e) -> open(player, mutated));
+    List<String> names = new ArrayList<>(held.size());
     for (Held entry : held) {
-      element.addLore(TextFormat.GRAY + entry.line());
+      names.add(entry.line());
     }
-    return element;
+    return GuiTheme.element("mutation-kept", KEPT, "gui", "navigation", "kept")
+        .setName(TextFormat.GREEN + AdaptLanguage.text(MutatedMessages.KEPT))
+        .addLore(LoreLists.lines(TextFormat.GRAY.toString(), names))
+        .setRole(MenuRole.NAVIGATION)
+        .onLeftClick((MenuClick e) -> open(player, mutated, 0));
   }
 
   /** Lists the originals; picking one opens its page. */
-  public static void open(PlayerRef player, MutatedSkill mutated) {
+  public static void open(PlayerRef player, MutatedSkill mutated, int page) {
     if (!AdaptApi.scheduler().isTickThread()) {
-      AdaptApi.scheduler().runEntity(player, () -> open(player, mutated));
+      AdaptApi.scheduler().runEntity(player, () -> open(player, mutated, page));
       return;
     }
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
     List<Held> held = held(mutated, player);
-    int rows = Math.max(1, (held.size() + COLUMNS - 1) / COLUMNS);
+    GuiFrame.Layout<Held> layout = GuiFrame.grid(held, COLUMNS);
+    int currentPage = layout.clampedPage(page);
     GuiWindow window = new GuiWindow(player);
-    GuiTheme.apply(window, "skill/" + SkillHost.lineKey(mutated));
-    window.setViewportHeight(rows + 1);
+    GuiFrame.apply(window, "skill/" + SkillHost.lineKey(mutated), layout.bodyRows());
     window.setLayout(MenuLayout.GRID);
-    for (int index = 0; index < held.size(); index++) {
-      Held entry = held.get(index);
-      Adaptation<?> adaptation = entry.adaptation();
-      int row = index / COLUMNS;
-      int inRow = Math.min(COLUMNS, held.size() - row * COLUMNS);
-      CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel());
-      window.setElement(GuiLayout.centeredPosition(index % COLUMNS, inRow), row, new GuiElement("kept-" + adaptation.getId().toString())
-          .setMaterial(model.material())
-          .setModel(model)
-          .setName(adaptation.getDisplayName(entry.level()))
-          .addLore(TextFormat.GREEN + entry.state())
-          .addLore(TextFormat.GRAY + adaptation.getDescription())
-          .setRole(MenuRole.NAVIGATION)
-          .onLeftClick((MenuClick e) -> ComponentHost.of(adaptation).openGui(player)));
-    }
-    window.setElement(0, rows, GuiTheme.element("kept-back", Id.minecraft("arrow"), "gui", "navigation", "back")
-        .setName(TextFormat.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-        .onLeftClick((MenuClick e) -> ComponentHost.of(mutated).openGui(player)));
-    window.setTitle(TextFormat.GRAY + AdaptLanguage.text(MutatedMessages.KEPT));
+    GuiFrame.subject(window, SkillCards.icon("kept-skill", mutated).setEnchanted(true).setRole(MenuRole.HEADER));
+    GuiFrame.body(window, layout.page(currentPage), (GuiFrame.Cell<Held> cell) -> element(cell.item(), player));
+    GuiFrame.back(window, () -> ComponentHost.of(mutated).openGui(player));
+    GuiFrame.pager(window, currentPage, layout.pageCount(), held.size(), (int target) -> open(player, mutated, target));
+    window.setTitle(AdaptLanguage.text(MutatedMessages.KEPT));
     window.open();
+  }
+
+  private static GuiElement element(Held entry, PlayerRef player) {
+    Adaptation<?> adaptation = entry.adaptation();
+    CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel());
+    return new GuiElement("kept-" + adaptation.getId().toString())
+        .setMaterial(model.material())
+        .setModel(model)
+        .setName(adaptation.getDisplayName(entry.level()))
+        .setEnchanted(true)
+        .addLore(TextFormat.GREEN + entry.state())
+        .addLore(TextFormat.GRAY + adaptation.getDescription())
+        .setRole(MenuRole.NAVIGATION)
+        .onLeftClick((MenuClick e) -> ComponentHost.of(adaptation).openGui(player));
   }
 
   private static List<Held> held(MutatedSkill mutated, PlayerRef player) {

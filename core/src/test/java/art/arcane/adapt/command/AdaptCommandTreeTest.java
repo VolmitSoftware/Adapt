@@ -35,7 +35,7 @@ class AdaptCommandTreeTest extends AdaptTestBase {
       "debug dump", "debug mode", "debug pap", "debug particle", "debug perf", "debug psp", "debug sound", "debug verbose", "debug version",
       "default adaptation", "default all", "default skill",
       "golem give", "golem list", "golem release", "golem returns", "golem roster", "golem wake",
-      "pack menus", "pack offer",
+      "pack offer",
       "orphans list", "orphans purge", "orphans refund",
       "reset confirm");
 

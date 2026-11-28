@@ -46,10 +46,12 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 import art.arcane.adapt.platform.world.BlockRef;
 
+import java.util.Set;
 
 public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Config> {
   public static final Id ID = Id.adapt("pickaxe/obsidian_rush");
   private static final Id OBSIDIAN = Id.minecraft("obsidian");
+  private static final Set<String> RUSH_PICKAXES = Set.of("diamond_pickaxe", "netherite_pickaxe");
   private static final Id CRYING_OBSIDIAN = Id.minecraft("crying_obsidian");
 
   private final PickaxeMiningBoost rush = new PickaxeMiningBoost(this, "rush", Attributes.BLOCK_BREAK_SPEED, playerState());
@@ -99,15 +101,9 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
     return OBSIDIAN.equals(type) || CRYING_OBSIDIAN.equals(type);
   }
 
+  /** A diamond or netherite pickaxe, or a modded pickaxe that mines obsidian. */
   public static boolean isRushPickaxe(ItemRef is) {
-    if (is == null || is.type().isAir() || !is.type().isMinecraft()) {
-      return false;
-    }
-
-    return switch (is.type().path()) {
-      case "diamond_pickaxe", "netherite_pickaxe" -> true;
-      default -> false;
-    };
+    return PickaxeTiers.reaches(is, RUSH_PICKAXES, OBSIDIAN);
   }
 
   @Handle(priority = EventPriority.HIGHEST, ignoreCancelled = false)

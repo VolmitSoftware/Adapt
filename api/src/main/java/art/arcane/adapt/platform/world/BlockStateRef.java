@@ -45,6 +45,14 @@ public interface BlockStateRef {
   /** True when {@code tool} gets this state's drops (no tool needed, or the correct tool). */
   boolean isPreferredTool(ItemRef tool);
 
+  /**
+   * True when {@code tool}'s mining rules name this state at a high enough tier (vanilla
+   * {@code isCorrectToolForDrops}), whether or not the state needs a tool for its drops. A log is correct for an
+   * axe and not for a pickaxe.
+   */
+  @ApiStatus.Experimental
+  boolean isCorrectTool(ItemRef tool);
+
   /** Vanilla string form, such as {@code minecraft:wheat[age=7]}. */
   String asString();
 

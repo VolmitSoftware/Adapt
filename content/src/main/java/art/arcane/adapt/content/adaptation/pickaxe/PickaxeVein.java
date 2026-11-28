@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.pickaxe;
 import art.arcane.adapt.api.AdaptApi;
 import art.arcane.adapt.api.content.Adaptation;
 import art.arcane.adapt.api.item.ItemKinds;
+import art.arcane.adapt.api.item.Tools;
 import art.arcane.adapt.api.protection.ProtectionProbes;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.value.Id;
@@ -23,6 +24,8 @@ import static art.arcane.adapt.api.world.BlockFlag.VEIN_MINED;
 /** Finds and breaks a connected ore vein for the adaptation that owns the break. */
 public final class PickaxeVein {
   private static final String DEEPSLATE_PREFIX = "deepslate_";
+  private static final Id FORGE_ORES = Id.parse("forge:ores");
+  private static final Id COMMON_ORES = Id.parse("c:ores");
 
   private PickaxeVein() {
   }
@@ -39,9 +42,12 @@ public final class PickaxeVein {
     return isOre(material) || material.equals(Id.minecraft("obsidian"));
   }
 
-  /** Any ore block, deepslate and nether ores included, and ancient debris. */
+  /** Any ore block, deepslate and nether ores included, ancient debris, and modded blocks in the loader ore tags. */
   public static boolean isOre(Id material) {
-    return material.path().endsWith("_ore") || material.equals(Id.minecraft("ancient_debris"));
+    if (material.path().endsWith("_ore") || material.equals(Id.minecraft("ancient_debris"))) {
+      return true;
+    }
+    return !material.isMinecraft() && (Tools.isBlockTagged(material, FORGE_ORES) || Tools.isBlockTagged(material, COMMON_ORES));
   }
 
   /** The blocks of {@code origin}'s vein within {@code radius}, without {@code origin} itself. */

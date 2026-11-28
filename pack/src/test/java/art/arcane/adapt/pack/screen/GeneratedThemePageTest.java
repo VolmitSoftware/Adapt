@@ -96,7 +96,8 @@ class GeneratedThemePageTest {
         FakePackWindows windows = new FakePackWindows();
         PackMenuHost host = new PackMenuHost(new FakeMenuHost(), windows, (PlayerRef viewer) -> true,
             new DeliveredResources(() -> builds.manifests().current()));
-        PackScreens screens = new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock());
+        PackScreens screens = new PackScreens(host, backend, backend, new ScreenFixtures.Prompts(), new ScreenFixtures.Clock(),
+            new ScreenFixtures.Speaker());
         PackResources resources = new DeliveredResources(() -> builds.manifests().current()).get();
         TextSpec nameSpec = resources.layout().screen(PackSkillScreen.SCREEN, true).text("name");
 

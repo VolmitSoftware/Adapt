@@ -184,6 +184,11 @@ class ArchitectSmartShapeOrientationTest {
     }
 
     @Override
+    public boolean isCorrectTool(ItemRef tool) {
+      return false;
+    }
+
+    @Override
     public String asString() {
       return type + properties.toString();
     }

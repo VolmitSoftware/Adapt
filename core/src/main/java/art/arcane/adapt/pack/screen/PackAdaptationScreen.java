@@ -38,7 +38,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 /**
  * An adaptation's page for pack viewers, in its skill's kit, as Levels, Recipes and Settings tabs. Levels: identity,
  * one pip per level (a click makes that level the target), description, the target level's stats, Learn up to the
- * target (armed, then confirmed, when learning is permanent) and Unlearn (armed, then confirmed). Recipes: the 3x3 grid
+ * target (armed, then confirmed, when learning is permanent) and Unlearn (on the first click). Recipes: the 3x3 grid
  * and result of the picked recipe group, its alternatives cycling every {@link #RECIPE_TICKS} ticks, and one pick slot
  * per group when there are several. Settings: one row per preference with its control (next or previous choice, a
  * switch for on and off, a lock when it cannot change) and Reset (armed, then confirmed).
@@ -80,7 +80,7 @@ final class PackAdaptationScreen {
     }
     String tab = tabs.get(Math.min(state.tab, tabs.size() - 1));
     PageBuilder page = frame.page(SCREEN + "." + tab, skill.id(), 0, List.of(skill.name(), adaptation.name()));
-    frame.chips(page, skill.id());
+    frame.stats(page, skill.id());
     switch (tab) {
       case RECIPES -> recipes(frame, page, skill, recipes);
       case SETTINGS -> settings(frame, page, adaptation);
@@ -94,7 +94,7 @@ final class PackAdaptationScreen {
             (MenuClick click) -> screens.tab(viewer, target)));
       }
     }
-    page.foot((MenuClick click) -> screens.route(viewer, new Route.Skill(skill.id())), 0, 1, (int ignored) -> { }, foot);
+    page.foot((MenuClick click) -> screens.back(viewer, new Route.Skill(skill.id())), 0, 1, (int ignored) -> { }, foot);
     return page.build();
   }
 
@@ -157,7 +157,7 @@ final class PackAdaptationScreen {
       boolean armed = frame.state().armed(LEARN, screens.now());
       String label = armed ? AdaptLanguage.text(GuiMessages.PACK_CONFIRM_LEARN)
           : AdaptLanguage.text(GuiMessages.PACK_LEARN, trusted("level", PackLabels.roman(learnTo)));
-      page.text("learn", label);
+      page.name("learn", armed ? AdaptLanguage.text(GuiMessages.CONFIRM) : label);
       TextSpec cost = page.layout().text("learn.cost");
       Placement costPlaced = page.text(cost, String.valueOf(check.knowledgeCost()));
       PackSlot learn = page.layout().slot("learn");
@@ -180,19 +180,17 @@ final class PackAdaptationScreen {
     }
     if (level > floor) {
       int unlearnTo = target < level ? target : level - 1;
-      boolean armed = frame.state().armed(UNLEARN, screens.now());
       LearnRules.UnlearnCheck check = LearnRules.unlearn(catalog, frame.player(), adaptation, unlearnTo, kept);
-      String label = AdaptLanguage.text(armed ? GuiMessages.PACK_CONFIRM_UNLEARN : GuiMessages.PACK_UNLEARN);
+      String label = AdaptLanguage.text(GuiMessages.PACK_UNLEARN);
       page.text(UNLEARN, label);
-      PackSlot slot = page.layout().slot(UNLEARN);
       page.button(UNLEARN, PackArt.BUTTON_DESTRUCTIVE, PageBuilder.named(label, PackLabels.unlearn(adaptation, check)),
           (MenuClick click) -> {
             if (check.allowed()) {
-              screens.armed(viewer, UNLEARN, slot, GuiMessages.PACK_CONFIRM_UNLEARN, () -> change(frame, adaptation, kept, unlearnTo));
+              change(frame, adaptation, kept, unlearnTo);
             } else {
-              screens.notice(viewer, PackLabels.refusal(adaptation, check));
+              screens.refuse(viewer, PackLabels.refusal(adaptation, check));
             }
-          }, armed, PackMutateScreen.SEAL_COOLDOWN);
+          }, false, null);
     }
     TextSpec targetSpec = page.layout().text(FOOT_COUNT);
     page.text(targetSpec == null ? null : targetSpec.coloured(PackInk.of(skill.color())),
@@ -278,7 +276,7 @@ final class PackAdaptationScreen {
       if (check.allowed()) {
         screens.learn(viewer, adaptation.id(), check.to());
       } else {
-        screens.notice(viewer, PackLabels.refusal(frame.catalog(), check));
+        screens.refuse(viewer, PackLabels.refusal(frame.catalog(), check));
       }
       return;
     }
@@ -286,7 +284,7 @@ final class PackAdaptationScreen {
     if (check.allowed()) {
       screens.unlearn(viewer, adaptation.id(), check.to());
     } else {
-      screens.notice(viewer, PackLabels.refusal(adaptation, check));
+      screens.refuse(viewer, PackLabels.refusal(adaptation, check));
     }
   }
 
@@ -394,9 +392,8 @@ final class PackAdaptationScreen {
       PreferenceView preference = adaptation.preferences().get(row);
       String current = CatalogIndex.preference(frame.player(), PreferenceOwner.ADAPTATION, adaptation.id(), preference);
       PackSlot control = rows.get(row);
-      int shift = page.layout().shift(PREF_ROWS, control);
       int x = page.resources().layout().grid().x(control);
-      int y = page.resources().layout().grid().y(control) + shift;
+      int y = page.resources().layout().grid().y(control);
       String refusal = refusal(preference, level);
       boolean toggle = toggle(preference);
       TextSpec labelSpec = page.layout().text("pref.label");
@@ -413,21 +410,21 @@ final class PackAdaptationScreen {
       }
       if (refusal != null) {
         page.put(control, PageBuilder.named(preference.label(), List.of(PackLabels.GREY + refusal)), null,
-            page.resources().item(PackArt.shifted(PackArt.LOCK_OFF, shift), page.kit()));
+            page.resources().item(PackArt.LOCK_OFF, page.kit()));
         continue;
       }
       if (toggle) {
         boolean on = PackSkillScreen.ON.equals(current);
         page.put(control, PageBuilder.named(preference.label(), List.of(PackLabels.GREY + label(preference, current))),
             (MenuClick click) -> screens.preference(viewer, PreferenceOwner.ADAPTATION, adaptation.id(), preference.id(),
-                on ? PackSkillScreen.OFF : PackSkillScreen.ON), page.resources().item(PackArt.shifted(on ? PackArt.CHECK_ON : PackArt.CHECK, shift), page.kit()));
+                on ? PackSkillScreen.OFF : PackSkillScreen.ON), page.resources().item(on ? PackArt.CHECK_ON : PackArt.CHECK, page.kit()));
         continue;
       }
       List<String> lore = new ArrayList<>();
       for (PreferenceChoiceView choice : preference.choices()) {
         boolean chosen = choice.value().equals(current);
         boolean open = choice.minimumLevel() <= level;
-        lore.add(PackLabels.coloured(chosen ? PackLabels.BLUE : open ? PackLabels.MUTED : PackLabels.FAINT,
+        lore.add(PackLabels.coloured(chosen ? PackLabels.BLUE : PackLabels.MUTED,
             (chosen ? "> " : "  ") + choice.label() + (open ? "" : " (" + AdaptLanguage.text(GuiMessages.PACK_LV,
                 trusted("level", choice.minimumLevel())) + ")")));
       }
@@ -436,7 +433,7 @@ final class PackAdaptationScreen {
         if (next != null) {
           screens.preference(viewer, PreferenceOwner.ADAPTATION, adaptation.id(), preference.id(), next);
         }
-      }, page.resources().item(PackArt.shifted(PackArt.NEXT, shift), page.kit()));
+      }, page.resources().item(PackArt.NEXT, page.kit()));
     }
     boolean armed = frame.state().armed(RESET, screens.now());
     String label = AdaptLanguage.text(armed ? GuiMessages.PACK_CONFIRM_RESET : GuiMessages.PACK_RESET);

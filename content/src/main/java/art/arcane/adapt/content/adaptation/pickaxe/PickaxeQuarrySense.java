@@ -31,7 +31,6 @@ import art.arcane.adapt.api.fx.Particles;
 import art.arcane.adapt.api.fx.Sounds;
 import art.arcane.adapt.api.integration.HiddenVein;
 import art.arcane.adapt.api.integration.Integrations;
-import art.arcane.adapt.api.item.ItemKinds;
 import art.arcane.adapt.api.player.PlayerProfile;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -70,6 +69,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   private static final int MAX_SCAN_RADIUS = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 4096;
   private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
+  private static final Id DIAMOND_ORE = Id.minecraft("diamond_ore");
   private static final Set<String> ELIGIBLE_PICKAXES = Set.of("iron_pickaxe", "diamond_pickaxe", "netherite_pickaxe");
   private static final Set<String> QUARRY_ORES = Set.of(
       "copper_ore", "deepslate_copper_ore", "coal_ore", "gold_ore", "iron_ore",
@@ -375,7 +375,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   }
 
   private boolean isEligiblePickaxe(ItemRef hand) {
-    return ItemKinds.isItem(hand) && hand.type().isMinecraft() && ELIGIBLE_PICKAXES.contains(hand.type().path());
+    return PickaxeTiers.reaches(hand, ELIGIBLE_PICKAXES, DIAMOND_ORE);
   }
 
   private boolean isQuarryOre(Id type) {

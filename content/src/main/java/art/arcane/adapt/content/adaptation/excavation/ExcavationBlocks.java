@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.item.ToolRules;
+import art.arcane.adapt.api.item.Tools;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.value.Id;
 
 import java.util.Set;
@@ -12,7 +15,18 @@ public final class ExcavationBlocks {
   private ExcavationBlocks() {
   }
 
+  /**
+   * Soil the Excavation adaptations dig: the vanilla list, a block of another namespace in {@code mineable/shovel},
+   * or a block on the Excavation extra-blocks list; never one on its excluded-blocks list.
+   */
   public static boolean isShovelable(Id type) {
-    return type.isMinecraft() && SHOVELABLE.contains(type.path());
+    ToolRules rules = Tools.rules(ToolKind.SHOVEL);
+    if (rules.excludesBlock(type)) {
+      return false;
+    }
+    if (type.isMinecraft()) {
+      return SHOVELABLE.contains(type.path()) || rules.blockXp(type).isPresent();
+    }
+    return Tools.claims(ToolKind.SHOVEL, type);
   }
 }

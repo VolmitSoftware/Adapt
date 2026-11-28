@@ -3,6 +3,7 @@ package art.arcane.adapt.gameplay.mod;
 import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.gameplay.FixtureSender;
 import art.arcane.adapt.gameplay.GameplayFixture;
+import art.arcane.adapt.gameplay.ToolDetectionFixture;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -29,6 +30,10 @@ public final class ModFixtureCommand {
                 .executes((CommandContext<CommandSourceStack> context) -> run(context.getSource(), ""))
                 .then(Commands.argument(ARGUMENTS, StringArgumentType.greedyString())
                         .executes((CommandContext<CommandSourceStack> context) -> run(context.getSource(),
+                                StringArgumentType.getString(context, ARGUMENTS)))));
+        dispatcher.register(Commands.literal("toolqa")
+                .then(Commands.argument(ARGUMENTS, StringArgumentType.greedyString())
+                        .executes((CommandContext<CommandSourceStack> context) -> runTools(context.getSource(),
                                 StringArgumentType.getString(context, ARGUMENTS)))));
         dispatcher.register(Commands.literal("xpqa")
                 .executes((CommandContext<CommandSourceStack> context) -> runXp(context.getSource(), ""))
@@ -66,6 +71,17 @@ public final class ModFixtureCommand {
             return 0;
         }
         active.xp(sender, text.isBlank() ? new String[0] : text.trim().split(" +"));
+        return 1;
+    }
+
+    private int runTools(CommandSourceStack source, String text) {
+        FixtureSender sender = sender(source);
+        GameplayFixture active = active(source.getServer());
+        if (active == null) {
+            sender.send("ADAPT_QA ERROR " + failure);
+            return 0;
+        }
+        ToolDetectionFixture.execute(sender, active.platform(), text.trim().split(" +"));
         return 1;
     }
 

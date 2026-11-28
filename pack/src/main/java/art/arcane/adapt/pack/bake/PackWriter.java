@@ -38,6 +38,10 @@ public final class PackWriter {
     public static final int MIN_FORMAT = 84;
     public static final int MAX_FORMAT = 97;
     private static final int SPACE_POWERS = 11;
+    /** The client's hover highlight sprites, drawn 24 pixels square centred on the hovered slot. */
+    static final String HIGHLIGHT_BACK = "assets/minecraft/textures/gui/sprites/container/slot_highlight_back.png";
+    static final String HIGHLIGHT_FRONT = "assets/minecraft/textures/gui/sprites/container/slot_highlight_front.png";
+    static final int HIGHLIGHT_SIZE = 24;
     private static final LocalDateTime ZIP_TIME = LocalDateTime.of(1980, 1, 1, 0, 0);
 
     private final String description;
@@ -50,6 +54,8 @@ public final class PackWriter {
     private final TreeSet<String> iconFolders = new TreeSet<>();
     private final Map<Integer, Integer> spaces = new TreeMap<>();
     private final TreeMap<String, Raster> ribbons = new TreeMap<>();
+    private final TreeMap<String, Raster> ornaments = new TreeMap<>();
+    private final TreeMap<String, MutateFace> mutateFaces = new TreeMap<>();
     private final List<PackManifest.KitStyle> kitStyles = new ArrayList<>();
     private Raster tooltipShape;
     private PackManifest.Hud hud;
@@ -97,7 +103,8 @@ public final class PackWriter {
 
     /**
      * Adds one baked kit's layouts, its tooltip style from its palette, and its toast icon: the skill's icon
-     * ({@link PackKeys#skillSprite}, when the icons added include it) with the kit's corner brackets over it.
+     * ({@link PackKeys#skillSprite}, when the icons added include it) with the kit's corner brackets over it. Its crumb
+     * ribbon, maxed-row ornament and Mutate face go into the paint {@link #paint} writes.
      */
     public PackWriter kit(KitBake.Result result) {
         Id skill = result.kit().skill();
@@ -107,6 +114,8 @@ public final class PackWriter {
             pageWriter.page(skill, page);
         }
         ribbons.put(kit, result.ribbon());
+        ornaments.put(kit, KitOrnament.of(result.kit()));
+        mutateFaces.put(kit, MutateFace.of(result.kit()));
         KitArt palette = KitArt.of(result.kit().kitJson());
         String style = null;
         if (tooltipShape != null) {
@@ -134,7 +143,21 @@ public final class PackWriter {
         return this;
     }
 
-    /** Adds an item model for each icon, its greyed and shifted copies, and the stack item drawing icons in layers. */
+    /**
+     * The hover highlight every container draws behind a hovered slot's item: one row of page paper across the slot just
+     * below it, the row no page text uses. On paper it vanishes; on the wash behind a row of the list it lights the
+     * wash's bottom edge. Nothing is drawn over the item.
+     */
+    static Raster highlight() {
+        Raster back = new Raster(HIGHLIGHT_SIZE, HIGHLIGHT_SIZE);
+        int inset = (HIGHLIGHT_SIZE - 16) / 2;
+        for (int x = inset - 1; x <= inset + 16; x++) {
+            back.set(x, inset + 16, PackArt.PAPER);
+        }
+        return back;
+    }
+
+    /** Adds an item model for each icon, its greyed copy, and the stack item drawing icons in layers. */
     public PackWriter icons(List<IconFiles.Icon> list) {
         for (IconFiles.Icon icon : list) {
             String ns = icon.namespace();
@@ -161,24 +184,9 @@ public final class PackWriter {
             out.put("assets/" + ns + "/models/adapt_ui/" + dim + ".json", PackJson.json(dimJson));
             out.item(ns, "adapt_ui/" + dim, ns + ":adapt_ui/" + dim, false);
             icons.add(new PackManifest.Icon(icon.sprite() + PackArt.DIM, ns + ":adapt_ui/" + dim, "assets/" + ns + "/textures/" + dim + ".png"));
-            for (int dy : PackArt.ICON_SHIFTS) {
-                shifted(ns, path, icon.sprite(), dy);
-                shifted(ns, dim, icon.sprite() + PackArt.DIM, dy);
-            }
         }
         artWriter.stack(list);
         return this;
-    }
-
-    /**
-     * The icon texture {@code ns:path} as a model drawing it {@code dy} pixels below its slot, listed as
-     * {@link PackArt#shifted} of {@code sprite}.
-     */
-    private void shifted(String ns, String path, String sprite, int dy) {
-        String shifted = path + PackArt.shiftSuffix(dy);
-        out.shiftedModel(ns, "adapt_ui/" + shifted, List.of(ns + ":" + path), dy);
-        out.item(ns, "adapt_ui/" + shifted, ns + ":adapt_ui/" + shifted, true);
-        icons.add(new PackManifest.Icon(PackArt.shifted(sprite, dy), ns + ":adapt_ui/" + shifted, "assets/" + ns + "/textures/" + path + ".png"));
     }
 
     /**
@@ -220,6 +228,8 @@ public final class PackWriter {
         for (String locale : Languages.locales()) {
             out.put("assets/minecraft/lang/" + locale + ".json", PackJson.json(blankLabel));
         }
+        out.put(HIGHLIGHT_BACK, highlight().png());
+        out.put(HIGHLIGHT_FRONT, new Raster(HIGHLIGHT_SIZE, HIGHLIGHT_SIZE).png());
 
         atlas();
         out.put("pack.mcmeta", PackJson.json(mcmeta()));
@@ -246,7 +256,7 @@ public final class PackWriter {
      * {@code sprites} gives a catalog sprite's PNG by id (null when missing); {@code pieces} without art are left out.
      */
     public PackWriter paint(List<PackArt.Paint> pieces, Function<String, byte[]> sprites, List<ArtPieces.Piece> artPieces) {
-        artWriter.paint(pieces, sprites, artPieces, ribbons);
+        artWriter.paint(pieces, sprites, artPieces, new ArtWriter.KitPaint(ribbons, ornaments, mutateFaces));
         return this;
     }
 

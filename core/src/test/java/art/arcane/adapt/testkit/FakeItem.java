@@ -7,12 +7,14 @@ import art.arcane.adapt.platform.entity.EquipmentSlotGroup;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.item.ShieldDesign;
+import art.arcane.adapt.platform.item.ToolKind;
 import art.arcane.adapt.platform.item.TooltipPart;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.platform.value.Rgb;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,8 @@ public final class FakeItem implements ItemRef {
   private boolean tooltipHidden;
   private List<ItemRef> bundle;
   private List<ItemRef> container;
+  private final Set<ToolKind> toolActions = EnumSet.noneOf(ToolKind.class);
+  private final Set<Id> correctFor = new HashSet<>();
 
   public FakeItem(Id type, int amount) {
     this.type = Objects.requireNonNull(type, "type");
@@ -77,10 +81,35 @@ public final class FakeItem implements ItemRef {
 
   /** A damageable tool, for example {@code tool("iron_pickaxe", 250)}. */
   public static FakeItem tool(String vanillaPath, int maxDamage) {
-    FakeItem item = of(vanillaPath);
+    return tool(Id.minecraft(vanillaPath), maxDamage);
+  }
+
+  /** A damageable tool of any namespace, for example a modded pickaxe. */
+  public static FakeItem tool(Id type, int maxDamage) {
+    FakeItem item = new FakeItem(type, 1);
     item.maxDamage = maxDamage;
     item.maxStackSize = 1;
     return item;
+  }
+
+  /** Makes the stack answer the loader digging action of each kind, as a Forge paxel does. */
+  public FakeItem withToolActions(ToolKind... kinds) {
+    toolActions.addAll(List.of(kinds));
+    return this;
+  }
+
+  /** Makes the stack the correct tool for these blocks, as a modded tool's mining rules would. */
+  public FakeItem correctFor(Id... blocks) {
+    correctFor.addAll(List.of(blocks));
+    return this;
+  }
+
+  public Set<ToolKind> toolActions() {
+    return Set.copyOf(toolActions);
+  }
+
+  public boolean isCorrectFor(Id block) {
+    return correctFor.contains(block);
   }
 
   public FakeItem enchant(String vanillaPath, int level) {
@@ -206,6 +235,8 @@ public final class FakeItem implements ItemRef {
   private FakeItem copyOf(Id type, int amount) {
     FakeItem copy = new FakeItem(type, amount);
     copy.potionContents = potionContents;
+    copy.toolActions.addAll(toolActions);
+    copy.correctFor.addAll(correctFor);
     copy.fireworkStarColor = fireworkStarColor;
     copy.shieldDesign = shieldDesign;
     copy.damage = damage;

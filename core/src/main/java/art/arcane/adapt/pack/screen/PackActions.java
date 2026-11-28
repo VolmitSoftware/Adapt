@@ -3,7 +3,6 @@ package art.arcane.adapt.pack.screen;
 import art.arcane.adapt.client.protocol.Route;
 import art.arcane.adapt.client.view.MutationSpreadView;
 import art.arcane.adapt.client.view.PreferenceOwner;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.Objects;
@@ -26,9 +25,6 @@ public interface PackActions {
 
   /** Undoes the viewer's mutation {@code skillId}; the result text, or null when nothing was undone. */
   String unmutate(PlayerRef viewer, String skillId);
-
-  /** Sets the viewer's own choice of menus; null follows the pack status again. */
-  void menus(PlayerRef viewer, MenuStyle style);
 
   /** Opens a screen with the checks of a player opening it themselves, as the native client's Open frame does. */
   void open(PlayerRef viewer, Route route);

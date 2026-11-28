@@ -273,6 +273,11 @@ final class CropField {
     }
 
     @Override
+    public boolean isCorrectTool(ItemRef tool) {
+      return false;
+    }
+
+    @Override
     public boolean isSolid() {
       return !type.isAir();
     }

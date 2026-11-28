@@ -177,7 +177,7 @@ class PreferenceGuiSupportTest {
     verify(window).setElement(eq(-1), eq(2), initial.capture());
     control = initial.getValue();
     ArgumentCaptor<GuiElement> resetControl = ArgumentCaptor.forClass(GuiElement.class);
-    verify(window).setElement(eq(1), eq(2), resetControl.capture());
+    verify(window).setElement(eq(0), eq(2), resetControl.capture());
     reset = resetControl.getValue();
     clearInvocations(window);
   }
@@ -354,8 +354,8 @@ class PreferenceGuiSupportTest {
     ArgumentCaptor<GuiElement> otherControl = ArgumentCaptor.forClass(GuiElement.class);
     ArgumentCaptor<GuiElement> resetControl = ArgumentCaptor.forClass(GuiElement.class);
     verify(window).setElement(eq(-2), eq(2), toggle.capture());
-    verify(window).setElement(eq(1), eq(2), otherControl.capture());
-    verify(window).setElement(eq(2), eq(2), resetControl.capture());
+    verify(window).setElement(eq(0), eq(2), otherControl.capture());
+    verify(window).setElement(eq(1), eq(2), resetControl.capture());
     verify(window, never()).setElement(eq(-1), eq(2), any());
     clearInvocations(window);
 
@@ -365,8 +365,8 @@ class PreferenceGuiSupportTest {
     ArgumentCaptor<GuiElement> enabledToggle = ArgumentCaptor.forClass(GuiElement.class);
     verify(window).setElement(eq(-2), eq(2), enabledToggle.capture());
     verify(window).setElement(eq(-1), eq(2), shown.capture());
-    verify(window).setElement(eq(1), eq(2), otherControl.capture());
-    verify(window).setElement(eq(2), eq(2), resetControl.capture());
+    verify(window).setElement(eq(0), eq(2), otherControl.capture());
+    verify(window).setElement(eq(1), eq(2), resetControl.capture());
     verify(window).update();
     assertThat(enabledToggle.getValue().getId()).isEqualTo("preference-mode");
     assertThat(enabledToggle.getValue().getMaterial()).isEqualTo(Id.minecraft("lime_stained_glass_pane"));
@@ -380,8 +380,8 @@ class PreferenceGuiSupportTest {
     ArgumentCaptor<GuiElement> disabledToggle = ArgumentCaptor.forClass(GuiElement.class);
     verify(window).setElement(eq(-2), eq(2), disabledToggle.capture());
     verify(window).setElement(-1, 2, null);
-    verify(window).setElement(eq(1), eq(2), otherControl.capture());
-    verify(window).setElement(eq(2), eq(2), resetControl.capture());
+    verify(window).setElement(eq(0), eq(2), otherControl.capture());
+    verify(window).setElement(eq(1), eq(2), resetControl.capture());
     verify(window).update();
     assertThat(disabledToggle.getValue().getId()).isEqualTo("preference-mode");
     assertThat(disabledToggle.getValue().getMaterial()).isEqualTo(Id.minecraft("red_stained_glass_pane"));
@@ -447,11 +447,10 @@ class PreferenceGuiSupportTest {
       configured.when(AdaptConfig::get).thenReturn(defaults);
       PreferenceGroupGui.populate(adaptation, GROWABLES, window, 0);
       ArgumentCaptor<GuiElement> wheat = ArgumentCaptor.forClass(GuiElement.class);
-      verify(window).setViewportHeight(2);
-      verify(window).setElement(eq(-1), eq(0), wheat.capture());
-      verify(window).setElement(eq(0), eq(0), any(GuiElement.class));
-      verify(window).setElement(eq(1), eq(0), any(GuiElement.class));
+      verify(window).setViewportHeight(3);
+      verify(window).setElement(eq(-1), eq(1), wheat.capture());
       verify(window).setElement(eq(0), eq(1), any(GuiElement.class));
+      verify(window).setElement(eq(1), eq(1), any(GuiElement.class));
       assertThat(wheat.getValue().getMaterial()).isEqualTo(Id.minecraft("wheat"));
       assertThat(wheat.getValue().isEnchanted()).isTrue();
 
@@ -460,7 +459,7 @@ class PreferenceGuiSupportTest {
       assertThat(preferences.get("adapt:test-adaptation", WHEAT.id())).isEqualTo("OFF");
       assertThat(preferences.get("adapt:test-adaptation", KELP.id())).isNull();
       ArgumentCaptor<GuiElement> replacement = ArgumentCaptor.forClass(GuiElement.class);
-      verify(window).updateElement(eq(-1), eq(0), replacement.capture());
+      verify(window).updateElement(eq(-1), eq(1), replacement.capture());
       assertThat(replacement.getValue().getMaterial()).isEqualTo(Id.minecraft("wheat"));
       assertThat(replacement.getValue().isEnchanted()).isFalse();
       verify(sounds).play(player.location(), Sounds.UI_BUTTON_CLICK, 0.3F, 1.2F);
@@ -476,7 +475,7 @@ class PreferenceGuiSupportTest {
       configured.when(AdaptConfig::get).thenReturn(defaults);
       PreferenceGroupGui.populate(adaptation, GROWABLES, window, 0);
       ArgumentCaptor<GuiElement> blocked = ArgumentCaptor.forClass(GuiElement.class);
-      verify(window).setElement(eq(0), eq(0), blocked.capture());
+      verify(window).setElement(eq(0), eq(1), blocked.capture());
       assertThat(blocked.getValue().getMaterial()).isEqualTo(Id.minecraft("gray_stained_glass_pane"));
       assertThat(blocked.getValue().isEnchanted()).isFalse();
       models.verify(() -> CustomModel.get(Id.minecraft("gray_stained_glass_pane"),
@@ -533,28 +532,32 @@ class PreferenceGuiSupportTest {
     }
     ChestMenu menu = real.build();
 
-    assertThat(menu.rows()).isEqualTo(2);
-    assertThat(menu.buttons().keySet()).containsExactlyInAnyOrder(3, 4, 5, 13);
-    MenuIcon wheat = menu.button(3).icon();
+    assertThat(menu.rows()).isEqualTo(3);
+    assertThat(menu.button(4).icon().type()).isEqualTo(Id.minecraft("wheat_seeds"));
+    assertThat(menu.button(18).icon().type()).isEqualTo(Id.minecraft("arrow"));
+    for (int slot = 9; slot < 18; slot++) {
+      assertThat(menu.button(slot) != null).as("slot %s", slot).isEqualTo(slot >= 12 && slot <= 14);
+    }
+    MenuIcon wheat = menu.button(12).icon();
     assertThat(wheat.type()).isEqualTo(Id.minecraft("wheat"));
     assertThat(wheat.name()).isEqualTo("Text");
     assertThat(wheat.lore()).containsExactly("Text", "Text");
     assertThat(wheat.glint()).isTrue();
-    assertThat(menu.button(4).icon().type()).isEqualTo(Id.minecraft("gray_stained_glass_pane"));
-    assertThat(menu.button(4).icon().lore()).containsExactly("Text");
-    assertThat(menu.buttons().values()).allMatch(MenuButton::clickable);
+    assertThat(menu.button(13).icon().type()).isEqualTo(Id.minecraft("gray_stained_glass_pane"));
+    assertThat(menu.button(13).icon().lore()).containsExactly("Text");
+    assertThat(List.of(menu.button(12), menu.button(13), menu.button(14), menu.button(18))).allMatch(MenuButton::clickable);
 
     PanelView view = PanelViews.view(1, 0, menu);
     assertThat(view.layout()).isEqualTo(PanelLayout.FORM);
-    PanelTile wheatTile = tile(view, 3);
+    PanelTile wheatTile = tile(view, 12);
     assertThat(wheatTile.role()).isEqualTo(TileRole.SETTING);
     assertThat(wheatTile.hint().kind()).isEqualTo(HintKind.TOGGLE);
     assertThat(wheatTile.description()).isEmpty();
-    PanelTile blocked = tile(view, 4);
+    PanelTile blocked = tile(view, 13);
     assertThat(blocked.role()).isEqualTo(TileRole.INFO);
     assertThat(blocked.hint()).isNull();
     assertThat(blocked.value()).isEqualTo("Text");
-    assertThat(PanelViews.chromeTarget(tile(view, 13))).isEqualTo("back");
+    assertThat(PanelViews.chromeTarget(tile(view, 18))).isEqualTo("back");
   }
 
   private static PanelTile tile(PanelView view, int slot) {

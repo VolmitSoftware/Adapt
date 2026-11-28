@@ -109,7 +109,7 @@ class SkillPreferenceGuiSupportTest {
     ArgumentCaptor<GuiElement> elements = ArgumentCaptor.forClass(GuiElement.class);
     verify(window).setElement(eq(-1), eq(3), elements.capture());
     toggle = elements.getValue();
-    verify(window).setElement(eq(1), eq(3), elements.capture());
+    verify(window).setElement(eq(0), eq(3), elements.capture());
     reset = elements.getValue();
     clearInvocations(window);
   }
@@ -151,7 +151,7 @@ class SkillPreferenceGuiSupportTest {
     ArgumentCaptor<GuiElement> replacement = ArgumentCaptor.forClass(GuiElement.class);
     verify(window).setElement(eq(-1), eq(3), replacement.capture());
     assertThat(replacement.getValue().getMaterial()).isEqualTo(Id.minecraft("red_stained_glass_pane"));
-    verify(window).setElement(eq(1), eq(3), any(GuiElement.class));
+    verify(window).setElement(eq(0), eq(3), any(GuiElement.class));
     verify(window).update();
     verify(window, never()).open();
     verify(window, never()).close();

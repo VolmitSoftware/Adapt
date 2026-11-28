@@ -7,6 +7,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /** Item factory and item-type facts. Callable from any thread. */
 @ApiStatus.AvailableSince("1.0.0")
@@ -54,6 +55,13 @@ public interface ItemOps {
 
   /** Default state of the block type, or null for non-blocks. */
   BlockStateRef blockState(Id block);
+
+  /**
+   * Kinds whose digging action the mod loader says the stack performs (Forge {@code ToolActions}, NeoForge
+   * {@code ItemAbilities}); empty where the loader or version has no digging actions.
+   */
+  @ApiStatus.Experimental
+  Set<ToolKind> toolActions(ItemRef item);
 
   /** A spawner item that places a spawner of {@code spawnedType}; a plain spawner when it is null. */
   ItemRef spawner(Id spawnedType);

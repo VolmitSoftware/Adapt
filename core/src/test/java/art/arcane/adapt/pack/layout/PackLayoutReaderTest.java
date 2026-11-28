@@ -58,32 +58,30 @@ class PackLayoutReaderTest {
   }
 
   @Test
-  void skillsHaveTwelveSeatsUnderTheControlsOverTheFullCanvasAndSixOnTopRows() {
+  void skillsHaveNineSeatsOnWholeSlotRowsOverTheFullCanvasAndSixOnTopRows() {
     ScreenLayout full = layout.screen("skills", true);
     ScreenLayout top = layout.screen("skills", false);
-    assertThat(full.cards()).hasSize(12);
+    assertThat(full.cards()).hasSize(9);
     assertThat(top.cards()).hasSize(6);
     Card first = full.cards().get(0);
-    assertThat(first.cells()).hasSize(6).contains(PackSlot.top(9), PackSlot.top(20));
-    assertThat(first.icon()).isEqualTo(PackSlot.top(9));
-    assertThat(first.top()).isEqualTo(36 + PackArt.CHEST_SHIFT);
+    assertThat(first.cells()).hasSize(6).contains(PackSlot.top(18), PackSlot.top(29));
+    assertThat(first.icon()).isEqualTo(PackSlot.top(18));
+    assertThat(first.top()).isEqualTo(54);
     assertThat(first.text("name").x()).isEqualTo(8);
-    Card straddling = full.cards().get(6);
-    assertThat(straddling.cells()).contains(PackSlot.top(45), PackSlot.lower(0));
-    assertThat(full.cards().get(9).icon()).isEqualTo(PackSlot.lower(9));
-    assertThat(full.cards().get(9).shift()).isEqualTo(PackArt.LOWER_SHIFT);
+    assertThat(full.cards().get(6).icon()).isEqualTo(PackSlot.lower(0));
+    assertThat(full.cards().get(6).top()).isEqualTo(139);
     assertThat(full.slots("search")).containsExactly(PackSlot.top(0), PackSlot.top(1), PackSlot.top(2));
-    assertThat(top.cards().get(0).shift()).isZero();
+    assertThat(top.cards().get(0).top()).isEqualTo(36);
   }
 
   @Test
   void theSkillPageFlowsDownTheLeftColumnThenTheRight() {
     ScreenLayout full = layout.screen("skill", true);
     assertThat(full.cards()).hasSize(16);
-    assertThat(full.cards().get(0).cells()).containsExactly(PackSlot.top(9), PackSlot.top(10), PackSlot.top(11), PackSlot.top(12));
+    assertThat(full.cards().get(0).cells()).containsExactly(PackSlot.top(9), PackSlot.top(10), PackSlot.top(11), PackSlot.top(12), PackSlot.top(13));
     assertThat(full.cards().get(5).icon()).isEqualTo(PackSlot.lower(0));
     assertThat(full.cards().get(8).icon()).isEqualTo(PackSlot.top(14));
-    assertThat(full.cards().get(0).text("level").x()).isEqualTo(-18);
+    assertThat(full.cards().get(0).bar(PackArt.BOX).x()).isEqualTo(7);
     assertThat(layout.screen("skill", false).cards()).hasSize(8);
   }
 

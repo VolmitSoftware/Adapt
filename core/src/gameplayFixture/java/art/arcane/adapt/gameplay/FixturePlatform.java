@@ -39,6 +39,16 @@ public interface FixturePlatform {
         return null;
     }
 
+    /** Joins a player with no client behind it, for console-driven checks; only some platforms can. */
+    default PlayerRef spawnProbePlayer(String name) {
+        throw new UnsupportedOperationException(name() + " cannot join in-process players");
+    }
+
+    /** Disconnects a player {@link #spawnProbePlayer} joined. */
+    default void removeProbePlayer(PlayerRef player) {
+        throw new UnsupportedOperationException(name() + " cannot join in-process players");
+    }
+
     boolean nativeOwns(EntityRef entity);
 
     JsonObject fishingHookState(EntityRef hook);

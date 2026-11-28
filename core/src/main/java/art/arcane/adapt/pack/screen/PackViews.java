@@ -5,10 +5,8 @@ import art.arcane.adapt.client.view.KeptView;
 import art.arcane.adapt.client.view.MutationSpreadView;
 import art.arcane.adapt.client.view.PlayerView;
 import art.arcane.adapt.client.view.RecipeView;
-import art.arcane.adapt.client.view.SpendView;
 import art.arcane.adapt.client.view.ToolView;
 import art.arcane.adapt.client.view.XpGuideView;
-import art.arcane.adapt.pack.link.MenuStyle;
 import art.arcane.adapt.platform.entity.PlayerRef;
 
 import java.util.List;
@@ -43,11 +41,6 @@ public interface PackViews {
 
   /** Every mutation tool, each under the adaptation whose page hands it out. */
   List<ToolView> tools(PlayerRef viewer);
-
-  List<SpendView> spending(PlayerRef viewer);
-
-  /** The viewer's own choice of menus, or null when they follow the pack status. */
-  MenuStyle menuStyle(PlayerRef viewer);
 
   /** Whether Skills shows the skills the viewer has not started, greyed, or leaves them out. */
   boolean inactiveSkills(PlayerRef viewer);

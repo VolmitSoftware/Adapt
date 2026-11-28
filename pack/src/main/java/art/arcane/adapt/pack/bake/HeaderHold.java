@@ -12,24 +12,24 @@ import java.util.List;
 
 /**
  * The header row (crumb ribbon and chips) is title art and slot items draw over title art, so nothing a slot item draws
- * may lie in it: from the ribbon's left edge ({@link #X}) to the chips' right edge, container y {@link #Y} to
+ * may lie in it: from the ribbon's left edge ({@link #X}) to the header row's right edge, container y {@link #Y} to
  * {@link #Y} + {@link #HEIGHT}, a moving region's pixels leave its frames and join the still layer in the region's rest
  * pose (the frame it holds longest). Dressing above and below the row keeps moving.
  * <p>A gap in the top band along the header row reads as a stray strip: the backing below a clear window pixel is the
- * wash or paper, and above the ribbon plate and the chips ({@link #PLATE_TOP}) only a sliver of the band shows. So a clear
+ * wash or paper, and above the ribbon plate ({@link #PLATE_TOP}) only a sliver of the band shows. So a clear
  * pixel of the header row that has band art on both sides in its row is closed with the band that follows the gap,
  * repeated across it (the nearer side's colour where that runs out), inside the window and, above the plate, outside it
  * too; the band runs unbroken up to the plate.
  */
 final class HeaderHold {
-    /** The chips' right edge, exclusive. */
+    /** The header row's right edge, exclusive. */
     static final int RIGHT = 196;
     static final int X = ribbonLeft(PackLayoutReader.builtIn());
     static final int Y = 0;
     static final int WIDTH = RIGHT - X;
     static final int HEIGHT = 18;
-    /** The first container row the ribbon plate and the chips cover; the ribbon art leaves its own first row clear. */
-    static final int PLATE_TOP = Math.min(PackArt.RIBBON_Y + 1, PackArt.CHIP_Y);
+    /** The first container row the ribbon plate covers; the ribbon art leaves its own first row clear. */
+    static final int PLATE_TOP = PackArt.RIBBON_Y + 1;
     /** How far past the header row's right end the band's art is looked for when closing a gap. */
     static final int BEYOND = 16;
 

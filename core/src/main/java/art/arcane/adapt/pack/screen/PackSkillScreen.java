@@ -19,7 +19,6 @@ import art.arcane.adapt.pack.layout.Card;
 import art.arcane.adapt.pack.layout.PackArt;
 import art.arcane.adapt.pack.layout.TextSpec;
 import art.arcane.adapt.pack.surface.PackSlot;
-import art.arcane.adapt.pack.text.Align;
 import art.arcane.adapt.pack.text.LegacyText;
 import art.arcane.adapt.pack.text.PackInk;
 import art.arcane.adapt.pack.text.Placement;
@@ -28,8 +27,11 @@ import art.arcane.adapt.platform.menu.ClickKind;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuIcon;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -41,7 +43,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
  * cells and then the right, each group under its heading cell; further cells turn to the next leaf, and a last leaf
  * holds the kept originals and the tools when there are any, on the page's still copy. A cell click opens the
  * adaptation, shift-click learns the next level (armed, then confirmed, when learning is permanent) and shift-right-click
- * unlearns one (armed, then confirmed), each checked by {@link LearnRules} before it is sent.
+ * unlearns one, each checked by {@link LearnRules} before it is sent.
  */
 final class PackSkillScreen {
   static final String SCREEN = "skill";
@@ -52,13 +54,15 @@ final class PackSkillScreen {
   static final String OFF = "OFF";
   static final String SPLIT = "split";
   static final String LEARN = "learn:";
-  static final String UNLEARN = "unlearn:";
   /** Paper between the level and the XP bar after it. */
   static final int XP_GAP = 6;
-  /** A margin pip and the gap after it. */
-  static final int PIP_PITCH = 3;
-  /** The least paper between a list row's name and its level count beside it; a name that would come closer wraps. */
-  static final int COUNT_GAP = 6;
+  /** The least paper between a list row's name and its box's right edge. */
+  static final int BOX_PAD = 2;
+  /** Inks below this saturation or above this brightness wash at the stronger alpha. */
+  private static final float STRONG_SATURATION = 0.45F;
+  private static final float STRONG_BRIGHTNESS = 0.85F;
+  /** An item's height on its slot. */
+  private static final int ICON_SIZE = 16;
 
   private PackSkillScreen() {
   }
@@ -74,7 +78,8 @@ final class PackSkillScreen {
     PackScreens screens = frame.screens();
     PlayerRef viewer = frame.viewer();
     List<Card> seats = frame.layout(SCREEN).cards();
-    List<List<Cell>> leaves = leaves(cells(frame, skill), seats.size());
+    int gap = gap(seats);
+    List<List<Cell>> leaves = leaves(cells(frame, skill), seats.size(), gap, frame.lower());
     List<KeptView> kept = kept(frame, skill);
     List<ToolView> tools = tools(frame, skill);
     boolean shelf = !kept.isEmpty() || !tools.isEmpty();
@@ -82,20 +87,26 @@ final class PackSkillScreen {
     int leaf = Math.min(state.page, count - 1);
     PageBuilder page = frame.page(leaf < leaves.size() ? SCREEN : SHELF, skill.id(), leaf,
         List.of(AdaptLanguage.text(GuiMessages.SKILLS), skill.name()));
-    frame.chips(page, skill.id());
+    frame.stats(page, skill.id());
     identity(frame, page, skill);
     if (leaf < leaves.size()) {
       List<Cell> shown = leaves.get(leaf);
       List<TextSpec> nameSpecs = new ArrayList<>();
       List<String> names = new ArrayList<>();
-      for (int seat = 0; seat < shown.size() && seat < seats.size(); seat++) {
-        Cell cell = shown.get(seat);
-        if (cell != null) {
-          Named name = cell(frame, page, seats.get(seat), skill, cell);
-          if (name != null) {
-            nameSpecs.add(name.spec());
-            names.add(name.markup());
-          }
+      int column = seats.size() / 2;
+      int places = column + (gap < 0 ? 0 : 1);
+      for (int place = 0; place < shown.size() && place < places * 2; place++) {
+        Cell cell = shown.get(place);
+        if (cell == null) {
+          continue;
+        }
+        int within = place % places;
+        int seat = ((place / places) * column) + (gap >= 0 && within > gap ? within - 1 : within);
+        Card card = gap >= 0 && within == gap ? inGap(seats.get(seat - 1), seats.get(seat)) : seats.get(seat);
+        Named name = cell(frame, page, card, skill, cell);
+        if (name != null) {
+          nameSpecs.add(name.spec());
+          names.add(name.markup());
         }
       }
       page.names(nameSpecs, names);
@@ -116,7 +127,7 @@ final class PackSkillScreen {
       boolean fits = page.resources().metrics().fits(LegacyText.plain(words), learnedSpec.width());
       page.text(learnedSpec.coloured(PackInk.of(skill.color())), fits ? words : learned + "/" + total);
     }
-    page.foot((MenuClick click) -> screens.route(viewer, new Route.Skills()), leaf, count,
+    page.foot((MenuClick click) -> screens.back(viewer, new Route.Skills()), leaf, count,
         (int target) -> screens.page(viewer, target), List.of());
     return page.build();
   }
@@ -152,29 +163,37 @@ final class PackSkillScreen {
     PreferenceView enabled = enabledPreference(skill);
     if (enabled != null && player.access().preferences()) {
       boolean on = ON.equals(CatalogIndex.preference(player, PreferenceOwner.SKILL, skill.id(), enabled));
-      page.put(page.layout().slot("switch"), PageBuilder.named(AdaptLanguage.text(GuiMessages.PACK_SKILL_SWITCH),
+      page.control(page.layout().slot("switch"), PageBuilder.named(AdaptLanguage.text(GuiMessages.PACK_SKILL_SWITCH),
               List.of(PackLabels.GREY + AdaptLanguage.text(on ? GuiMessages.PACK_ON : GuiMessages.PACK_OFF))),
           (MenuClick click) -> screens.preference(viewer, PreferenceOwner.SKILL, skill.id(), ENABLED, on ? OFF : ON),
-          page.resources().item(on ? PackArt.CHECK_ON : PackArt.CHECK, page.kit()));
+          on ? PackArt.CHECK_ON : PackArt.CHECK);
     }
     if (screens.views().unmutateOffered(viewer, skill.id())) {
       boolean armed = frame.state().armed(SPLIT, screens.now());
       String label = AdaptLanguage.text(armed ? GuiMessages.PACK_CONFIRM_SPLIT : GuiMessages.PACK_UNMUTATE);
       PackSlot slot = page.layout().slot("mutate");
       page.text("mutate", label);
-      page.button("mutate", PackArt.BUTTON_PRIMARY, PageBuilder.named(label), (MenuClick click) -> screens.unmutate(viewer, skill.id(), slot),
+      page.button("mutate", mutateFace(page), PageBuilder.named(label), (MenuClick click) -> screens.unmutate(viewer, skill.id(), slot),
           armed, PackMutateScreen.SEAL_COOLDOWN);
     } else if (screens.views().mutateOffered(viewer, skill.id())) {
       String label = AdaptLanguage.text(GuiMessages.PACK_MUTATE);
       page.text("mutate", label);
-      page.button("mutate", PackArt.BUTTON_PRIMARY, PageBuilder.named(label),
+      page.button("mutate", mutateFace(page), PageBuilder.named(label),
           (MenuClick click) -> screens.route(viewer, new Route.Mutate(skill.id())), false, null);
     }
   }
 
-  /** Where the identity row puts the level for a name of {@code nameLines} default-font lines (0 when it does not fit). */
+  /** The kit's own Mutate face when the pack has one for the Mutate row, else the plain primary button. */
+  static String mutateFace(PageBuilder page) {
+    PackSlot slot = page.layout().slot("mutate");
+    String face = PackArt.mutate(page.kit());
+    boolean baked = slot != null && page.resources().hasPaint(PackArt.face(face, page.resources().layout().grid().y(slot)));
+    return baked ? face : PackArt.BUTTON_PRIMARY;
+  }
+
+  /** Where the identity row puts the level: under a one-line name, at the free side of a two-line one, else alone. */
   static Identity identity(int nameLines, boolean sideFree) {
-    return nameLines > 0 && sideFree ? Identity.SIDE : nameLines == 1 ? Identity.BESIDE : Identity.ALONE;
+    return nameLines == 1 ? Identity.BESIDE : nameLines > 1 && sideFree ? Identity.SIDE : Identity.ALONE;
   }
 
   /**
@@ -322,12 +341,48 @@ final class PackSkillScreen {
   }
 
   /**
+   * The seat in each list column below which the gap between the chest rows and the inventory rows lies (the first seat
+   * on the inventory rows), or -1 when the columns do not cross it.
+   */
+  static int gap(List<Card> seats) {
+    int column = seats.size() / 2;
+    for (int seat = 1; seat < column; seat++) {
+      if (seats.get(seat - 1).icon().area() == PackSlot.Area.TOP && seats.get(seat).icon().area() == PackSlot.Area.LOWER) {
+        return seat;
+      }
+    }
+    return -1;
+  }
+
+  /** A heading place in the gap between seat {@code above} and seat {@code below}: {@code below}'s heading and rule, centred in the gap. */
+  private static Card inGap(Card above, Card below) {
+    TextSpec heading = below.text("heading");
+    if (heading == null) {
+      return below;
+    }
+    int top = ((above.top() + ICON_SIZE + below.top()) / 2) - (PackArt.LINE_HEIGHT / 2);
+    int dy = top - heading.y();
+    Map<String, TextSpec> text = new LinkedHashMap<>();
+    text.put("heading", heading.moved(0, dy));
+    Map<String, BarSpec> bars = new LinkedHashMap<>();
+    BarSpec rule = below.bar("heading.rule");
+    if (rule != null) {
+      bars.put("heading.rule", rule.moved(0, dy));
+    }
+    return new Card(below.cells(), below.icon(), text, bars, below.top() + dy);
+  }
+
+  /**
    * Cells split into leaves of {@code seats}, filling the left column and then the right; a group that would run on from
    * the left column into the right one starts the right one instead when it fits there whole, and a heading that would
-   * end a column moves to the next one, leaving the seats it skips empty (null).
+   * end a column moves to the next one, leaving the seats it skips empty (null). With a {@code gap} seat (see
+   * {@link #gap}) each column has one more place, in the gap above that seat, which holds only a heading: a heading
+   * that lands on the seat above the gap or on the gap moves into the gap, and anything else passes it by (null). When
+   * {@code headed}, a column's first seat, under the page header, likewise holds only a heading.
    */
-  static List<List<Cell>> leaves(List<Cell> cells, int seats) {
-    int column = Math.max(1, seats / 2);
+  static List<List<Cell>> leaves(List<Cell> cells, int seats, int gap, boolean headed) {
+    int column = Math.max(1, seats / 2) + (gap < 0 ? 0 : 1);
+    int places = column * 2;
     List<List<Cell>> leaves = new ArrayList<>();
     List<Cell> leaf = new ArrayList<>();
     leaves.add(leaf);
@@ -341,13 +396,28 @@ final class PackSkillScreen {
       } else if (cell.heading() != null && leaf.size() % column == column - 1) {
         leaf.add(null);
       }
-      if (leaf.size() >= seats) {
+      if (leaf.size() >= places) {
         leaf = new ArrayList<>();
         leaves.add(leaf);
+      }
+      while (passes(cell, leaf.size() % column, gap, headed)) {
+        leaf.add(null);
+        if (leaf.size() >= places) {
+          leaf = new ArrayList<>();
+          leaves.add(leaf);
+        }
       }
       leaf.add(cell);
     }
     return leaves;
+  }
+
+  /** Whether {@code cell} leaves place {@code within} of a column empty: a heading-only place, or the seat a heading skips for the gap. */
+  private static boolean passes(Cell cell, int within, int gap, boolean headed) {
+    if (cell.heading() != null) {
+      return gap >= 0 && within == gap - 1;
+    }
+    return within == gap || (headed && within == 0);
   }
 
   /** The seats of the group headed at {@code start}: its heading and the adaptations up to the next heading. */
@@ -370,80 +440,79 @@ final class PackSkillScreen {
       }
       return null;
     }
-    PackSlot first = card.cells().get(0);
-    page.paint(PackArt.shade(card.top()), page.resources().layout().grid().x(first));
     AdaptationView adaptation = cell.adaptation();
     KeptView kept = kept(frame, adaptation.id());
     int level = Math.max(LearnRules.floor(kept), CatalogIndex.level(frame.player(), adaptation.id()));
     boolean locked = !LearnRules.missing(frame.player(), adaptation).isEmpty();
-    MenuIcon icon = PageBuilder.icon(adaptation.icon(), PackLabels.coloured(PackInk.of(skill.color()), adaptation.name()),
-        detail(frame, adaptation));
+    boolean maxed = level >= adaptation.maxLevel() && adaptation.maxLevel() > 0;
+    int ink = PackInk.of(skill.color());
+    BarSpec box = card.bar(PackArt.BOX);
+    if (box != null) {
+      box(page, box, locked, level, adaptation.maxLevel(), ink);
+    }
+    MenuIcon icon = PageBuilder.icon(adaptation.icon(), PackLabels.coloured(ink, adaptation.name()), detail(frame, adaptation));
     page.group(card.cells(), icon, (MenuClick click) -> click(frame, adaptation, click.kind()),
-        page.resources().icon(adaptation.icon(), page.kit(), locked, card.shift()));
-    TextSpec count = card.text("level");
-    Placement counted = page.text(count, PackLabels.coloured(level > 0 ? PackInk.of(skill.color()) : PackLabels.FAINT,
-        level + "/" + adaptation.maxLevel()));
-    pips(page, card.bar(PackArt.PIPS), count, counted.width(), level, adaptation.maxLevel(), PackInk.of(skill.color()));
-    return new Named(besideCount(card.text("name"), count, counted.width()),
-        PackLabels.coloured(locked ? PackLabels.FAINT : PackLabels.INK, adaptation.name()));
+        page.resources().icon(adaptation.icon(), page.kit(), locked));
+    return new Named(inBox(card.text("name"), box, maxed), PackLabels.coloured(locked ? PackLabels.FAINT : PackLabels.INK, adaptation.name()));
   }
 
   /**
-   * A row's name label kept {@link #COUNT_GAP} clear of its level count of {@code countWidth} when the count sits after
-   * the name on its line, so a longer name wraps or breaks by the label's rule instead of running up to the count.
+   * A row's box, which shows its level at a glance: a locked row only a dotted outline; otherwise the row wash, washed in
+   * {@code ink} from the left by the learned share, and when maxed edged in {@code ink} at both ends, clear of the name's
+   * rows, with the kit's ornament at its right end.
    */
-  static TextSpec besideCount(TextSpec name, TextSpec count, int countWidth) {
-    if (name == null || count == null) {
+  static void box(PageBuilder page, BarSpec box, boolean locked, int level, int max, int ink) {
+    if (locked) {
+      int at = box.x();
+      for (int segment : PackArt.segments(box.width())) {
+        page.paint(PackArt.dots(segment, box.y()), at, PackLabels.FAINT);
+        at += segment;
+      }
+      page.paint(PackArt.dotSide(box.y()), box.x(), PackLabels.FAINT);
+      page.paint(PackArt.dotSide(box.y()), box.x() + box.width() - 1, PackLabels.FAINT);
+      return;
+    }
+    int at = box.x();
+    for (int segment : PackArt.segments(box.width())) {
+      page.paint(PackArt.box(segment, box.y()), at);
+      at += segment;
+    }
+    int washed = max < 1 ? 0 : (int) Math.round((double) box.width() * Math.min(level, max) / max);
+    boolean strong = strong(ink);
+    at = box.x();
+    for (int segment : PackArt.segments(washed)) {
+      page.paint(PackArt.wash(segment, box.y(), strong), at, ink);
+      at += segment;
+    }
+    if (max > 0 && level >= max) {
+      for (BarSpec edge : PackArt.border(box)) {
+        page.rule(new BarSpec(edge.x(), edge.y(), edge.width(), edge.height(), ink));
+      }
+      page.paint(PackArt.ornament(page.kit(), box.y()), box.x() + box.width() - PackArt.ORNAMENT_GAP);
+    }
+  }
+
+  /** Whether {@code ink} is pale or grey enough that its learned wash needs the stronger alpha to read on the row wash. */
+  static boolean strong(int ink) {
+    float[] hsb = Color.RGBtoHSB((ink >> 16) & 0xFF, (ink >> 8) & 0xFF, ink & 0xFF, null);
+    return hsb[1] < STRONG_SATURATION || hsb[2] > STRONG_BRIGHTNESS;
+  }
+
+  /**
+   * A row's name label kept {@link #BOX_PAD} inside its box, and on a maxed row clear of the ornament at the box's end,
+   * so a longer name wraps or breaks by the label's rule instead of crossing the box's edge.
+   */
+  static TextSpec inBox(TextSpec name, BarSpec box, boolean maxed) {
+    if (name == null || box == null) {
       return name;
     }
-    int countLeft = switch (count.align()) {
-      case LEFT -> count.x();
-      case CENTRE -> count.x() + ((count.width() - countWidth) / 2);
-      case RIGHT -> count.x() + count.width() - countWidth;
-    };
-    int room = countLeft - COUNT_GAP - name.x();
-    if (countLeft <= name.x() || room >= name.width()) {
+    int right = box.x() + box.width() - (maxed ? PackArt.ORNAMENT_GAP + PackArt.ORNAMENT_WIDTH + PackArt.ORNAMENT_GAP + 1 : BOX_PAD + 1);
+    int room = right - name.x();
+    if (room >= name.width()) {
       return name;
     }
     return new TextSpec(name.x(), name.y(), Math.max(1, room), name.align(), name.colour(), name.lines(), name.pitch(), name.top(),
         name.breaks());
-  }
-
-  /** One small pip per level in the page margin above the row's count, learned ones in {@code colour} (see {@link #pipBoxes}). */
-  static void pips(PageBuilder page, BarSpec bar, TextSpec count, int countWidth, int level, int max, int colour) {
-    if (bar == null || count == null) {
-      return;
-    }
-    List<BarSpec> boxes = pipBoxes(bar, count.align(), countWidth, max);
-    for (int pip = 0; pip < boxes.size(); pip++) {
-      BarSpec box = boxes.get(pip);
-      page.rule(new BarSpec(box.x(), box.y(), box.width(), box.height(), pip < level ? colour : bar.colour()));
-    }
-  }
-
-  /**
-   * Where the {@code max} pips of a row go in {@code bar}: aligned to the count's side ({@code align}) and no wider than
-   * the count text ({@code countWidth}), in one row when it fits, else in two (the first holding the extra pip); none when
-   * two rows do not fit either.
-   */
-  static List<BarSpec> pipBoxes(BarSpec bar, Align align, int countWidth, int max) {
-    List<BarSpec> boxes = new ArrayList<>();
-    if (max < 1) {
-      return boxes;
-    }
-    int room = Math.min(bar.width(), Math.max(countWidth, PIP_PITCH));
-    int perRow = (max * PIP_PITCH) - 1 <= room ? max : (max + 1) / 2;
-    if ((perRow * PIP_PITCH) - 1 > room) {
-      return boxes;
-    }
-    for (int pip = 0; pip < max; pip++) {
-      int row = pip / perRow;
-      int inRow = Math.min(perRow, max - (row * perRow));
-      int width = (inRow * PIP_PITCH) - 1;
-      int x = align == Align.RIGHT ? bar.x() + bar.width() - width : bar.x();
-      boxes.add(new BarSpec(x + ((pip % perRow) * PIP_PITCH), PackArt.pipRowY(bar, row), PIP_PITCH - 1, bar.height(), bar.colour()));
-    }
-    return boxes;
   }
 
   /** What a click on an adaptation cell does: open it, or learn or unlearn one level when the rules allow it. */
@@ -460,15 +529,14 @@ final class PackSkillScreen {
       } else if (check.allowed()) {
         screens.learn(viewer, adaptation.id(), check.to());
       } else {
-        screens.notice(viewer, PackLabels.refusal(frame.catalog(), check));
+        screens.refuse(viewer, PackLabels.refusal(frame.catalog(), check));
       }
     } else if (kind == ClickKind.SHIFT_RIGHT) {
       LearnRules.UnlearnCheck check = LearnRules.unlearn(frame.catalog(), frame.player(), adaptation, level - 1, kept);
       if (check.allowed()) {
-        screens.armed(viewer, UNLEARN + adaptation.id(), null, GuiMessages.PACK_CONFIRM_UNLEARN,
-            () -> screens.unlearn(viewer, adaptation.id(), check.to()));
+        screens.unlearn(viewer, adaptation.id(), check.to());
       } else {
-        screens.notice(viewer, PackLabels.refusal(adaptation, check));
+        screens.refuse(viewer, PackLabels.refusal(adaptation, check));
       }
     } else if (kind.isLeft() || kind.isRight()) {
       screens.route(viewer, new Route.Adaptation(adaptation.id()));

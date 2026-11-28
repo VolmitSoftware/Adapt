@@ -65,34 +65,24 @@ public final class PackArt {
   public static final String KNOWLEDGE_SPRITE = "adapt:gui/mark/knowledge";
   public static final String POWER_SPRITE = "adapt:gui/mark/power";
   public static final String SWAP_SPRITE = "adapt:gui/mark/swap";
-  public static final String BOOK_SPRITE = "adapt:gui/mark/book";
   /** The icon id suffix of an icon's greyed copy. */
   public static final String DIM = PackManifest.DIM;
 
   public static final String BUTTON = "button";
   public static final String BUTTON_PRIMARY = "button_primary";
   public static final String BUTTON_DESTRUCTIVE = "button_destructive";
-  public static final String CHIP = "chip";
   public static final String FIELD = "field";
   public static final String TILE = "tile";
   public static final String TILE_SELECTED = "tile_selected";
   /** Kit pieces drawn under a run of slots, and how many slots wide. */
   public static final Map<String, Integer> FACES = faces();
-  public static final String HEADER_KNOWLEDGE_MARK = "header/knowledge.mark";
-  public static final String HEADER_POWER_MARK = "header/power.mark";
-  /** A header chip sized to its text: its left end, its middle stretched, its right end, on the header row. */
-  public static final String CHIP_HEAD = "header/chip.head";
-  public static final String CHIP_TAIL = "header/chip.tail";
-  public static final int CHIP_Y = 2;
-  public static final int CHIP_HEIGHT = 14;
-  public static final int CHIP_END = 4;
-  /** The header marks' left edge relative to their chip's left edge. */
-  public static final int CHIP_MARK_DX = -1;
+  /** The header labels of knowledge and power, and the size of the mark drawn before each number. */
+  public static final String STAT_KNOWLEDGE = "stat.knowledge";
+  public static final String STAT_POWER = "stat.power";
+  public static final int STAT_MARK = 8;
 
   /** The crumb ribbon: its top, and the columns of its two ends; the middle column between them repeats. */
   public static final int RIBBON_Y = 1;
-  /** A row card's margin pips; a row with more levels than its count is wide takes a second pip row below the first. */
-  public static final String PIPS = "pips";
   public static final int RIBBON_HEAD = 6;
   public static final int RIBBON_TAIL = 10;
   /** Ribbon width past the crumbs' text: four before it, eight after. */
@@ -119,6 +109,8 @@ public final class PackArt {
   public static final int LINE_HEIGHT = 9;
   public static final int OUTLINE = 0xFF896C48;
   public static final int TRACK = 0xFFDCC9A0;
+  /** The plain paper of every kit's page. */
+  public static final int PAPER = 0xFFEDE1C6;
   /** Bars and rules are built from runs of these widths. */
   public static final int SEGMENT_POWERS = 8;
 
@@ -130,21 +122,16 @@ public final class PackArt {
 
   /** Container y of the top of each slot row: six chest rows, three inventory rows, the hotbar. */
   public static final List<Integer> ROWS = List.of(18, 36, 54, 72, 90, 108, 139, 157, 175, 197);
-  /**
-   * How far a row of a grid that runs from the chest rows into the inventory rows is drawn below its slots (above, when
-   * negative): the chest rows' content sits lower and the inventory rows' higher, which closes the 13 pixel gap between
-   * the two so every row of the grid is one slot pitch from the next.
-   */
-  public static final int CHEST_SHIFT = 6;
-  public static final int LOWER_SHIFT = -7;
-  /** The shifts icons are baked at besides their own place, see {@link #shifted}. */
-  public static final List<Integer> ICON_SHIFTS = List.of(CHEST_SHIFT, LOWER_SHIFT);
-  /** The fixed items a list row can show, baked at {@link #ICON_SHIFTS} too. */
-  public static final List<String> SHIFTED_ITEMS = List.of(NEXT, CHECK, CHECK_ON, LOCK_OFF);
-  /** The light wash behind an adaptation row: four slots wide, one pixel short of the row pitch. */
-  public static final int SHADE_WIDTH = 72;
-  public static final int SHADE_HEIGHT = 17;
+  /** A list row's box: the light wash under its count, icon and name; its role among a card's bars. */
+  public static final String BOX = "box";
   public static final int SHADE = 0x165A4430;
+  /** How strongly a row's learned share is washed in its skill's ink: the usual alpha, and the one for pale or grey inks. */
+  public static final int WASH_ALPHA = 0x40;
+  public static final int WASH_STRONG_ALPHA = 0x70;
+  /** The widest a kit's ornament on a maxed row may be, and the paper kept between it and the box's end and the name. */
+  public static final int ORNAMENT_WIDTH = 7;
+  public static final int ORNAMENT_HEIGHT = 13;
+  public static final int ORNAMENT_GAP = 2;
 
   private PackArt() {
   }
@@ -167,8 +154,10 @@ public final class PackArt {
     FILL,
     /** The row wash colour {@link #SHADE} across the piece. */
     SHADE,
-    /** A part of the kit chip ({@code source} is its sprite id, {@code #head}, {@code #body} or {@code #tail}). */
-    CHIP
+    /** White at {@link #WASH_ALPHA} ({@code source} "light") or {@link #WASH_STRONG_ALPHA} ("strong"), tinted by the run colour. */
+    WASH,
+    /** White dots on every other pixel of the top and bottom rows ({@code source} "rows") or of the one column ("column"). */
+    DOTS
   }
 
   /** A fixed item: its key, its art's size and offset from the slot's corner, and where the bake takes it from. */
@@ -177,16 +166,6 @@ public final class PackArt {
 
   /** A paint glyph: its key, how it is made, its size and container y, and its left edge relative to its anchor x. */
   public record Paint(String key, Kind kind, String source, int width, int height, int y, int dx) {
-  }
-
-  /** The key of item or icon {@code key} drawn {@code dy} pixels below its slot; {@code key} itself for 0. */
-  public static String shifted(String key, int dy) {
-    return dy == 0 ? key : key + PackManifest.SHIFT + dy;
-  }
-
-  /** The model path suffix of an item drawn {@code dy} pixels below its slot. */
-  public static String shiftSuffix(int dy) {
-    return dy == 0 ? "" : dy > 0 ? "_d" + dy : "_u" + (-dy);
   }
 
   public static String tab(String id, boolean on) {
@@ -210,11 +189,6 @@ public final class PackArt {
     return LEDGER + rows;
   }
 
-  /** The top of pip row {@code row} (0 or 1) of margin pips laid out in {@code bar}. */
-  public static int pipRowY(BarSpec bar, int row) {
-    return bar.y() + (row * (bar.height() + 1));
-  }
-
   /** The face of kit piece {@code piece} under the run of slots starting at a slot whose top is {@code rowY}. */
   public static String face(String piece, int rowY) {
     return "face/" + piece + "@" + rowY;
@@ -233,14 +207,42 @@ public final class PackArt {
     return "face/" + key + "@" + rowY;
   }
 
-  /** {@code width} columns of the middle of a header chip. */
-  public static String chipBody(int width) {
-    return "header/chip.body" + width;
+  /** The small mark of sprite {@code sprite} before a header number whose line top is {@code lineY}. */
+  public static String statMark(String sprite, int lineY) {
+    return "mark/" + sprite.substring(sprite.lastIndexOf('/') + 1) + ".small@" + lineY;
   }
 
-  /** The wash behind an adaptation row whose slots' top is {@code rowY}, drawn from the row's first slot. */
-  public static String shade(int rowY) {
-    return "shade@" + rowY;
+  /** {@code width} columns of a row box whose top is {@code y}. */
+  public static String box(int width, int y) {
+    return "box/" + width + "@" + y;
+  }
+
+  /** {@code width} columns of the learned wash over a row box whose top is {@code y}, tinted by the run colour. */
+  public static String wash(int width, int y, boolean strong) {
+    return "wash/" + (strong ? "strong" : "light") + width + "@" + y;
+  }
+
+  /** {@code width} columns of a locked row box's dotted top and bottom edges, whose top is {@code y}. */
+  public static String dots(int width, int y) {
+    return "box/dots" + width + "@" + y;
+  }
+
+  /** A locked row box's dotted side whose top is {@code y}. */
+  public static String dotSide(int y) {
+    return "box/dotside@" + y;
+  }
+
+  /** {@code kit}'s ornament at the end of a maxed row whose slots' top is {@code rowY}, drawn left of its anchor. */
+  public static String ornament(String kit, int rowY) {
+    return "ornament/" + kit + "@" + rowY;
+  }
+
+  /**
+   * {@code kit}'s Mutate button: the primary button framed in the kit's colours, a piece {@link #face} draws 3 slots wide
+   * on every row of {@link #ROWS} for every skill kit (not the tome).
+   */
+  public static String mutate(String kit) {
+    return "mutate/" + kit;
   }
 
   /** The arrow pointing at a recipe result slot whose top is {@code rowY}, drawn relative to that slot's x. */
@@ -325,11 +327,6 @@ public final class PackArt {
     }
     items.add(new Item(SEAL_IDLE, 22, 22, -3, -3, "rule: design animation.seal.idle over art/seal/mark_0-4.png"));
     items.add(new Item(SEAL_ARMED, 22, 22, -3, -3, "rule: design animation.seal.armed over art/seal/mark_1-4.png"));
-    for (String key : SHIFTED_ITEMS) {
-      for (int dy : ICON_SHIFTS) {
-        items.add(new Item(shifted(key, dy), 16, 16, 0, dy, "art/" + key + ".png drawn " + dy + " below its slot"));
-      }
-    }
     return items;
   }
 
@@ -346,21 +343,27 @@ public final class PackArt {
       }
       add(paint, new Paint(knowledgeMark(rowY), Kind.SPRITE, KNOWLEDGE_SPRITE, 16, 16, rowY, 0));
       add(paint, new Paint(arrow(rowY), Kind.ARROW, "rule: design recipe arrow", 19, 11, rowY + 3, -30));
-      add(paint, shadePaint(rowY));
     }
     for (String id : new TreeSet<>(layout.screens().keySet())) {
       for (Card card : layout.screens().get(id).cards()) {
-        int iconY = layout.grid().y(card.icon()) + card.shift();
-        add(paint, shadePaint(card.top()));
+        int iconY = layout.grid().y(card.icon());
+        BarSpec box = card.bar(BOX);
+        for (int power = 0; box != null && power < SEGMENT_POWERS; power++) {
+          int width = 1 << power;
+          add(paint, new Paint(box(width, box.y()), Kind.SHADE, "rule: design row wash", width, box.height(), box.y(), 0));
+          add(paint, new Paint(wash(width, box.y(), false), Kind.WASH, "light", width, box.height(), box.y(), 0));
+          add(paint, new Paint(wash(width, box.y(), true), Kind.WASH, "strong", width, box.height(), box.y(), 0));
+          add(paint, new Paint(dots(width, box.y()), Kind.DOTS, "rows", width, box.height(), box.y(), 0));
+        }
+        if (box != null) {
+          add(paint, new Paint(dotSide(box.y()), Kind.DOTS, "column", 1, box.height(), box.y(), 0));
+        }
         add(paint, face(TILE, FACES.get(TILE), iconY));
         add(paint, face(TILE_SELECTED, FACES.get(TILE_SELECTED), iconY));
       }
     }
     int hotbar = ROWS.get(ROWS.size() - 1);
     for (Item item : items()) {
-      if (item.key().contains(PackManifest.SHIFT)) {
-        continue;
-      }
       String control = item.key().substring(item.key().indexOf('/') + 1);
       if (item.key().startsWith("ctl/") && FOOT_FACES.contains(control)) {
         add(paint, new Paint(controlFace(item.key(), hotbar), Kind.ART, FOOT_FACE_ART + control, 16, FOOT_FACE_HEIGHT, hotbar, 0));
@@ -368,14 +371,14 @@ public final class PackArt {
         add(paint, new Paint(controlFace(item.key(), hotbar), Kind.ART, item.key(), 16, 16, hotbar, 0));
       }
     }
-    add(paint, new Paint(controlFace(BOOK_SPRITE, hotbar), Kind.SPRITE, BOOK_SPRITE, 16, 16, hotbar, 0));
-    add(paint, new Paint(CHIP_HEAD, Kind.CHIP, "adapt:gui/kit/" + CHIP + "#head", CHIP_END, CHIP_HEIGHT, CHIP_Y, 0));
-    for (int power = 0; power < SEGMENT_POWERS; power++) {
-      add(paint, new Paint(chipBody(1 << power), Kind.CHIP, "adapt:gui/kit/" + CHIP + "#body", 1 << power, CHIP_HEIGHT, CHIP_Y, 0));
+    for (ScreenLayout screen : layout.screens().values()) {
+      for (List<String> stat : List.of(List.of(STAT_KNOWLEDGE, KNOWLEDGE_SPRITE), List.of(STAT_POWER, POWER_SPRITE))) {
+        TextSpec spec = screen.text(stat.get(0));
+        if (spec != null) {
+          add(paint, new Paint(statMark(stat.get(1), spec.y()), Kind.SPRITE, stat.get(1), STAT_MARK, STAT_MARK, spec.y(), 0));
+        }
+      }
     }
-    add(paint, new Paint(CHIP_TAIL, Kind.CHIP, "adapt:gui/kit/" + CHIP + "#tail", CHIP_END, CHIP_HEIGHT, CHIP_Y, 0));
-    add(paint, new Paint(HEADER_KNOWLEDGE_MARK, Kind.SPRITE, KNOWLEDGE_SPRITE, 16, 16, 1, 0));
-    add(paint, new Paint(HEADER_POWER_MARK, Kind.SPRITE, POWER_SPRITE, 16, 16, 1, 0));
     for (BarSpec bar : bars(layout, false)) {
       for (int power = 0; power < SEGMENT_POWERS; power++) {
         int width = 1 << power;
@@ -406,7 +409,7 @@ public final class PackArt {
           rows(rows, entry.getValue());
         } else {
           for (PackSlot slot : screen.slots(repeated)) {
-            rows(rows, entry.getValue().moved(0, layout.grid().y(slot) + screen.shift(repeated, slot)));
+            rows(rows, entry.getValue().moved(0, layout.grid().y(slot)));
           }
         }
       }
@@ -430,10 +433,6 @@ public final class PackArt {
     return new Paint(face(piece, rowY), Kind.NINE, "adapt:gui/kit/" + piece, 18 * slots, 18, rowY - 1, -1);
   }
 
-  private static Paint shadePaint(int rowY) {
-    return new Paint(shade(rowY), Kind.SHADE, "rule: design row wash", SHADE_WIDTH, SHADE_HEIGHT, rowY - 1, -1);
-  }
-
   private static void add(Map<String, Paint> paint, Paint piece) {
     paint.putIfAbsent(piece.key(), piece);
   }
@@ -447,7 +446,7 @@ public final class PackArt {
         String rows = ROW_RULES.get(entry.getKey());
         if (rows != null) {
           for (PackSlot slot : screen.slots(rows)) {
-            keep(found, entry.getValue().moved(layout.grid().x(slot), layout.grid().y(slot) + screen.shift(rows, slot)), entry.getKey(), tracked);
+            keep(found, entry.getValue().moved(layout.grid().x(slot), layout.grid().y(slot)), entry.getKey(), tracked);
           }
         } else {
           keep(found, entry.getValue(), entry.getKey(), tracked);
@@ -455,14 +454,23 @@ public final class PackArt {
       }
       for (Card card : screen.cards()) {
         new TreeMap<>(card.bars()).forEach((String role, BarSpec bar) -> {
-          keep(found, bar, role, tracked);
-          if (role.equals(PIPS)) {
-            keep(found, bar.moved(0, pipRowY(bar, 1) - bar.y()), role, tracked);
+          if (role.equals(BOX)) {
+            for (BarSpec edge : border(bar)) {
+              keep(found, edge, role, tracked);
+            }
+            return;
           }
+          keep(found, bar, role, tracked);
         });
       }
     }
     return new ArrayList<>(found.values());
+  }
+
+  /** The left and right one-pixel edges of row box {@code box}, in its colour. */
+  public static List<BarSpec> border(BarSpec box) {
+    int right = box.x() + box.width() - 1;
+    return List.of(new BarSpec(box.x(), box.y(), 1, box.height(), box.colour()), new BarSpec(right, box.y(), 1, box.height(), box.colour()));
   }
 
   private static void keep(Map<String, BarSpec> found, BarSpec bar, String role, boolean tracked) {
@@ -473,7 +481,7 @@ public final class PackArt {
 
   private static Map<String, Integer> faces() {
     Map<String, Integer> faces = new LinkedHashMap<>();
-    for (String piece : List.of(BUTTON, BUTTON_PRIMARY, BUTTON_DESTRUCTIVE, CHIP, FIELD)) {
+    for (String piece : List.of(BUTTON, BUTTON_PRIMARY, BUTTON_DESTRUCTIVE, FIELD)) {
       faces.put(piece, 3);
     }
     faces.put(TILE, 1);

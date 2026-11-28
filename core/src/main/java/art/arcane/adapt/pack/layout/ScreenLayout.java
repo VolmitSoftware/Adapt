@@ -46,23 +46,6 @@ public record ScreenLayout(String id, String pageKind, Rect page, CrumbRibbon ri
     return bars.get(role);
   }
 
-  /**
-   * How far a row of the list of slots {@code role} is drawn below {@code slot}: when the list runs from the chest rows
-   * into the inventory rows, {@link PackArt#CHEST_SHIFT} or {@link PackArt#LOWER_SHIFT} so it keeps one pitch, else 0.
-   */
-  public int shift(String role, PackSlot slot) {
-    boolean chest = false;
-    boolean player = false;
-    for (PackSlot listed : slots(role)) {
-      chest |= listed.area() == PackSlot.Area.TOP;
-      player |= listed.area() == PackSlot.Area.LOWER;
-    }
-    if (!chest || !player) {
-      return 0;
-    }
-    return slot.area() == PackSlot.Area.TOP ? PackArt.CHEST_SHIFT : PackArt.LOWER_SHIFT;
-  }
-
   /** True when the layout uses the player slots. */
   public boolean usesLower() {
     for (Card card : cards) {

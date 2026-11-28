@@ -15,7 +15,6 @@ import art.arcane.adapt.engine.mutation.blocks.MutatedText;
 import art.arcane.adapt.engine.mutation.kit.Kits;
 import art.arcane.adapt.engine.mutation.pair.PairRegistry;
 import art.arcane.adapt.engine.mutation.sound.SoundStage;
-import art.arcane.adapt.engine.mutation.tool.MutationTools;
 import art.arcane.adapt.engine.mutation.upgrade.SkillUpgrades;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.skill.SkillRegistry;
@@ -28,7 +27,6 @@ import art.arcane.adapt.command.PlayerCommandSource;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.MutationMessages;
-import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
 import art.arcane.adapt.platform.menu.MenuHint;
@@ -39,33 +37,38 @@ import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.api.text.TextFormat;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.api.AdaptApi;
-import art.arcane.adapt.api.text.Format;
 
+import art.arcane.adapt.client.view.MutationEntry;
+import art.arcane.adapt.client.view.MutationSpreadView;
+import art.arcane.adapt.client.view.MutationSpreadViews;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 /**
- * The Mutate flow as ordinary menus: a skill to lead (from {@code /adapt mutate}), then one menu with the partners to
- * pick from and, once one is picked, the preview with a lead swap and a two-step confirm. Players with the client mod
- * get the same menus as native panels unless their client draws its own spread.
+ * The Mutate flow as ordinary menus: a skill to lead (from {@code /adapt mutate}), then a menu of partners, then a
+ * confirm menu with a lead swap, one list of what is lost, one of what is gained, and a two-step confirm. Players with
+ * the client mod get the same menus as native panels unless their client draws its own spread.
  */
 public final class MutationGui {
-  private static final int COLUMNS = 9;
-  private static final int MAX_PARTNER_ROWS = 3;
-  private static final Id CONFIRM = Id.minecraft("lime_stained_glass_pane");
-  private static final Id CONFIRM_ARMED = Id.minecraft("red_stained_glass_pane");
-  private static final Id LOST = Id.minecraft("barrier");
+  private static final int COLUMNS = 7;
+  private static final Id MUTATE = Id.minecraft("nether_star");
+  private static final Id ARMED = Id.minecraft("red_stained_glass_pane");
+  private static final Id LOSE = Id.minecraft("barrier");
+  private static final Id GAIN = Id.minecraft("emerald");
   private static final Id SWAP = Id.minecraft("compass");
-  private static final Id EMPTY_PARTNER = Id.minecraft("gray_stained_glass_pane");
+  private static final Id KEPT = Id.minecraft("chest");
+  private static final Id TOOLS = Id.minecraft("iron_pickaxe");
   private static final Id UNMUTATE = Id.minecraft("grindstone");
   /** Lets a player undo anyone's mutations by command, and their own from the skill page without debug mode. */
   public static final String UNMUTATE_PERMISSION = "adapt.mutate.reset";
@@ -79,34 +82,77 @@ public final class MutationGui {
     if (registry == null || !MutationOffers.offered(data, skill, registry.getSkills(), config())) {
       return null;
     }
-    return new GuiElement("mutate")
-        .setMaterial(Id.minecraft("nether_star"))
+    return mutateButton("mutate").onLeftClick((MenuClick e) -> AdaptScreens.openMutation(player, skill));
+  }
+
+  /** The Mutate button for the skills menu, opening the skills that can lead; null while none can. */
+  public static GuiElement leadsEntry(PlayerRef player, PlayerData data) {
+    SkillRegistry registry = registry();
+    if (registry == null || MutationOffers.leads(data, registry.getSkills(), config()).isEmpty()) {
+      return null;
+    }
+    return mutateButton("mutate-leads").onLeftClick((MenuClick e) -> openLeads(player));
+  }
+
+  private static GuiElement mutateButton(String id) {
+    return GuiTheme.element(id, MUTATE, "gui", "mutation", "mutate")
         .setName(TextFormat.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.MUTATE))
-        .setRole(MenuRole.ACTION)
-        .onLeftClick((MenuClick e) -> AdaptScreens.openMutation(player, skill));
+        .setRole(MenuRole.ACTION);
   }
 
   /** Skills the player can mutate now (the pack lead picker for pack viewers); picking one opens its Mutate flow. */
   public static void openLeads(PlayerRef player) {
+    openLeads(player, 0);
+  }
+
+  private static void openLeads(PlayerRef player, int page) {
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     SkillRegistry registry = registry();
     if (adaptPlayer == null || registry == null || AdaptScreens.openMutationLeads(player)) {
       return;
     }
+    if (!AdaptApi.scheduler().isTickThread()) {
+      AdaptApi.scheduler().runEntity(player, () -> openLeads(player, page));
+      return;
+    }
     List<Skill<?>> leads = MutationOffers.leads(adaptPlayer.getData(), registry.getSkills(), config());
-    skillMenu(player, adaptPlayer.getData(), leads, (Skill<?> lead) -> AdaptScreens.openMutation(player, lead),
-        () -> AdaptScreens.openSkills(player));
+    GuiElement heading = GuiTheme.element("mutation-heading", MUTATE, "gui", "mutation", "heading")
+        .setName(TextFormat.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.PICK_LEAD))
+        .setRole(MenuRole.HEADER);
+    skillMenu(player, "mutation/pick", heading, adaptPlayer.getData(), leads, page,
+        (Skill<?> lead) -> AdaptScreens.openMutation(player, lead), () -> AdaptScreens.openSkills(player),
+        (int target) -> openLeads(player, target));
   }
 
-  /** The partners that can join {@code lead}, with nothing picked yet. */
+  /** The partners that can join {@code lead}; picking one opens the confirm step. */
   public static void openPartners(PlayerRef player, Skill<?> lead) {
-    open(player, lead, null, false);
+    openPartners(player, lead, 0);
+  }
+
+  private static void openPartners(PlayerRef player, Skill<?> lead, int page) {
+    AdaptPlayer adaptPlayer = adaptPlayer(player);
+    SkillRegistry registry = registry();
+    if (adaptPlayer == null || registry == null) {
+      return;
+    }
+    if (!AdaptApi.scheduler().isTickThread()) {
+      AdaptApi.scheduler().runEntity(player, () -> openPartners(player, lead, page));
+      return;
+    }
+    PlayerData data = adaptPlayer.getData();
+    List<Skill<?>> partners = MutationOffers.partners(data, lead, registry.getSkills(), config());
+    GuiElement heading = skillTile("mutation-lead", lead, data)
+        .setName(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.LEAD, trusted("skill", lead.getLocalizedName())))
+        .setRole(MenuRole.HEADER);
+    skillMenu(player, "mutation/partners", heading, data, partners, page,
+        (Skill<?> partner) -> open(player, lead, partner, false), () -> ComponentHost.of(lead).openGui(player),
+        (int target) -> openPartners(player, lead, target));
   }
 
   /**
-   * One menu for the whole choice: the lead, the picked partner and the result on the top row with the swap, the lost
-   * list and the confirm, then the partners to pick from, then the upgrades and the mutation's own adaptations. The
-   * confirm arms on the first click and mutates on the second; picking another partner or swapping disarms it.
+   * The confirm step: the result in the header; the lead, the swap and the partner; one item listing everything lost
+   * and one listing everything gained; Mutate in the footer, which arms on the first click and mutates on the
+   * second. A partner the rules refuse, or none, shows the partners instead.
    */
   public static void open(PlayerRef player, Skill<?> lead, Skill<?> partner, boolean armed) {
     AdaptPlayer adaptPlayer = adaptPlayer(player);
@@ -119,117 +165,155 @@ public final class MutationGui {
       return;
     }
     PlayerData data = adaptPlayer.getData();
-    List<Skill<?>> partners = MutationOffers.partners(data, lead, registry.getSkills(), config());
-    Skill<?> picked = partner != null && partners.contains(partner) ? partner : null;
-    MutationOffers.Preview preview = picked == null ? null : MutationOffers.preview(data, lead, picked);
-    int partnerRows = Math.max(1, Math.min(MAX_PARTNER_ROWS, (partners.size() + COLUMNS - 1) / COLUMNS));
+    if (partner == null || SkillMutations.check(data, lead, partner, config()) != SkillMutations.Result.MUTATED) {
+      openPartners(player, lead, 0);
+      return;
+    }
+    MutationOffers.Preview preview = MutationOffers.preview(data, lead, partner);
+    MutationSpreadView spread = MutationSpreadViews.build(registry, data, lead, partner, config(), "");
+    MenuSounds.play(player, armed ? MenuSounds.Action.ARM : MenuSounds.Action.OPEN);
     GuiWindow window = new GuiWindow(player);
-    GuiTheme.apply(window, "mutation/preview");
-    window.setViewportHeight(1 + partnerRows + (preview == null ? 0 : 2));
+    GuiFrame.apply(window, "mutation/preview", 1);
     window.setLayout(MenuLayout.GRID);
-
-    window.setElement(-4, 0, GuiTheme.element("mutation-back", Id.minecraft("arrow"), "gui", "navigation", "back")
-        .setName(TextFormat.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-        .onLeftClick((MenuClick e) -> ComponentHost.of(lead).openGui(player)));
-    window.setElement(-3, 0, skillTile("mutation-lead", lead, data)
-        .setName(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.LEAD, trusted("skill", lead.getLocalizedName())))
+    CustomModel leadModel = GuiConfig.skillModel(SkillHost.lineKey(lead), lead.getIcon().item(), ComponentHost.of(lead).getModel());
+    GuiFrame.subject(window, new GuiElement("mutation-result")
+        .setMaterial(leadModel.material())
+        .setModel(leadModel)
+        .setEnchanted(true)
+        .setName(TextFormat.RESET + "" + TextFormat.BOLD + SkillHost.legacyColor(lead.getColor()) + preview.name())
+        .addLore(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.LEVEL, trusted("level", preview.level())))
+        .addLore(TextFormat.AQUA + AdaptLanguage.text(MutationMessages.KNOWLEDGE, trusted("knowledge", preview.knowledge())))
         .setRole(MenuRole.HEADER));
-    if (preview == null) {
-      window.setElement(-1, 0, new GuiElement("mutation-partner")
-          .setMaterial(EMPTY_PARTNER)
-          .setName(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.PICK_PARTNER))
-          .setRole(MenuRole.INFO));
-    } else {
-      window.setElement(-2, 0, new GuiElement("mutation-swap")
-          .setMaterial(SWAP)
-          .setName(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.SWAP_LEAD))
-          .setRole(MenuRole.ACTION)
-          .onLeftClick((MenuClick e) -> open(player, picked, lead, false)));
-      window.setElement(-1, 0, skillTile("mutation-partner", picked, data).setRole(MenuRole.INFO));
-      CustomModel leadModel = GuiConfig.skillModel(SkillHost.lineKey(lead), lead.getIcon().item(), ComponentHost.of(lead).getModel());
-      window.setElement(0, 0, new GuiElement("mutation-result")
-          .setMaterial(leadModel.material())
-          .setModel(leadModel)
-          .setName(TextFormat.RESET + "" + TextFormat.BOLD + SkillHost.legacyColor(lead.getColor()) + preview.name())
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.LEVEL, trusted("level", TextFormat.WHITE + "" + preview.level())))
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.KNOWLEDGE, trusted("knowledge", TextFormat.WHITE + "" + preview.knowledge())))
-          .setRole(MenuRole.HEADER));
-      GuiElement lost = new GuiElement("mutation-lost")
-          .setMaterial(LOST)
-          .setName(TextFormat.RED + AdaptLanguage.text(MutationMessages.LOST))
-          .setRole(MenuRole.INFO);
-      for (String line : lostLines(preview)) {
-        lost.addLore(line);
-      }
-      window.setElement(2, 0, lost);
-      window.setElement(4, 0, armed
-          ? new GuiElement("mutation-confirm")
-              .setMaterial(CONFIRM_ARMED)
-              .setName(TextFormat.RED + AdaptLanguage.text(MutationMessages.CONFIRM_AGAIN))
-              .addLore(TextFormat.RED + AdaptLanguage.text(MutationMessages.PERMANENT))
-              .setHint(MenuHint.destructive(AdaptLanguage.text(MutationMessages.CONFIRM_AGAIN)))
-              .setRole(MenuRole.ACTION)
-              .onLeftClick((MenuClick e) -> {
-                window.close();
-                complete(player, lead, picked);
-              })
-          : new GuiElement("mutation-confirm")
-              .setMaterial(CONFIRM)
-              .setName(TextFormat.GREEN + AdaptLanguage.text(MutationMessages.MUTATE))
-              .addLore(TextFormat.RED + AdaptLanguage.text(MutationMessages.PERMANENT))
-              .setRole(MenuRole.ACTION)
-              .onLeftClick((MenuClick e) -> open(player, lead, picked, true)));
-    }
-
-    int shown = Math.min(partners.size(), partnerRows * COLUMNS);
-    for (int index = 0; index < shown; index++) {
-      Skill<?> candidate = partners.get(index);
-      int row = index / COLUMNS;
-      int inRow = Math.min(COLUMNS, shown - (row * COLUMNS));
-      boolean chosen = candidate == picked;
-      window.setElement(GuiLayout.centeredPosition(index % COLUMNS, inRow), row + 1,
-          skillTile("mutation-skill-" + SkillHost.lineKey(candidate), candidate, data)
-              .setEnchanted(chosen)
-              .setRole(MenuRole.NAVIGATION)
-              .onLeftClick((MenuClick e) -> open(player, lead, candidate, false)));
-    }
-    if (preview != null) {
-      adaptationRow(window, partnerRows + 1, preview.upgrades(), false);
-      adaptationRow(window, partnerRows + 2, preview.mutated(), true);
-    }
-    window.setTitle(TextFormat.GRAY + (preview == null ? AdaptLanguage.text(MutationMessages.MUTATE) : preview.name()));
+    GuiFrame.body(window, 0, 1, skillTile("mutation-lead", lead, data)
+        .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.LEAD_ROLE))
+        .setRole(MenuRole.INFO));
+    GuiFrame.body(window, 0, 2, GuiTheme.element("mutation-swap", SWAP, "gui", "mutation", "swap")
+        .setName(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.SWAP_LEAD))
+        .setRole(MenuRole.ACTION)
+        .onLeftClick((MenuClick e) -> open(player, partner, lead, false)));
+    GuiFrame.body(window, 0, 3, skillTile("mutation-partner", partner, data)
+        .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.PARTNER_ROLE))
+        .setRole(MenuRole.INFO));
+    GuiFrame.body(window, 0, 5, summaryItem("mutation-lose", LOSE, TextFormat.RED + AdaptLanguage.text(MutationMessages.YOU_LOSE),
+        MutationSummary.losses(spread, registry), registry)
+        .addLore(" ")
+        .addLore(TextFormat.RED + AdaptLanguage.text(MutationMessages.PERMANENT))
+        .onLeftClick((MenuClick e) -> openDetails(player, lead, partner, false)));
+    GuiFrame.body(window, 0, 7, summaryItem("mutation-gain", GAIN, TextFormat.GREEN + AdaptLanguage.text(MutationMessages.YOU_GAIN),
+        MutationSummary.gains(spread, registry), registry)
+        .onLeftClick((MenuClick e) -> openDetails(player, lead, partner, true)));
+    GuiFrame.back(window, () -> openPartners(player, lead, 0));
+    GuiFrame.footer(window, GuiFrame.Slot.ACTION, armed
+        ? GuiTheme.element("mutation-confirm", ARMED, "gui", "mutation", "armed")
+            .setName(TextFormat.RED + AdaptLanguage.text(MutationMessages.CONFIRM_AGAIN))
+            .addLore(TextFormat.RED + AdaptLanguage.text(MutationMessages.PERMANENT))
+            .setHint(MenuHint.destructive(AdaptLanguage.text(MutationMessages.CONFIRM_AGAIN)))
+            .setRole(MenuRole.ACTION)
+            .onLeftClick((MenuClick e) -> {
+              window.close();
+              complete(player, lead, partner);
+            })
+        : mutateButton("mutation-confirm")
+            .addLore(TextFormat.RED + AdaptLanguage.text(MutationMessages.PERMANENT))
+            .onLeftClick((MenuClick e) -> open(player, lead, partner, true)));
+    window.setTitle(preview.name());
     window.open();
   }
 
-  private static GuiElement skillTile(String id, Skill<?> skill, PlayerData data) {
-    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(skill));
-    CustomModel model = GuiConfig.skillModel(SkillHost.lineKey(skill), skill.getIcon().item(), ComponentHost.of(skill).getModel());
-    return new GuiElement(id)
-        .setMaterial(model.material())
-        .setModel(model)
-        .setName(skill.getDisplayName())
-        .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.LEVEL, trusted("level", TextFormat.WHITE + "" + (line == null ? 0 : line.getLevel()))));
+  /** Everything lost, or everything gained, as a list: one row per heading with the heading's icon in column 0. */
+  static void openDetails(PlayerRef player, Skill<?> lead, Skill<?> partner, boolean gains) {
+    AdaptPlayer adaptPlayer = adaptPlayer(player);
+    SkillRegistry registry = registry();
+    if (adaptPlayer == null || registry == null) {
+      return;
+    }
+    MutationSpreadView spread = MutationSpreadViews.build(registry, adaptPlayer.getData(), lead, partner, config(), "");
+    List<MutationSummary.Section> sections = gains ? MutationSummary.gains(spread, registry) : MutationSummary.losses(spread, registry);
+    List<MutationSummary.Section> listed = new ArrayList<>(sections.size());
+    List<List<MutationEntry>> groups = new ArrayList<>(sections.size());
+    for (MutationSummary.Section section : sections) {
+      if (!section.entries().isEmpty()) {
+        listed.add(section);
+        groups.add(section.entries());
+      }
+    }
+    GuiFrame.Layout<MutationEntry> layout = GuiFrame.groups(groups, true);
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
+    String title = gains ? TextFormat.GREEN + AdaptLanguage.text(MutationMessages.YOU_GAIN)
+        : TextFormat.RED + AdaptLanguage.text(MutationMessages.YOU_LOSE);
+    detailsPage(player, lead, partner, gains, title, sections, listed, layout, registry, 0);
   }
 
-  /** One tile per adaptation with its description, costs and tools; {@code own} marks the mutation's own with a glint. */
-  private static void adaptationRow(GuiWindow window, int row, List<Adaptation<?>> adaptations, boolean own) {
-    for (int index = 0; index < adaptations.size(); index++) {
-      Adaptation<?> adaptation = adaptations.get(index);
-      CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(), ComponentHost.of(adaptation).getModel());
-      GuiElement tile = new GuiElement("mutation-" + adaptation.getId().toString())
-          .setMaterial(model.material())
-          .setModel(model)
-          .setEnchanted(own)
-          .setName(adaptation.getShortName())
-          .addLore(TextFormat.GRAY + adaptation.getDescription())
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.KNOWLEDGE, trusted("knowledge", TextFormat.WHITE + costs(adaptation) + TextFormat.GRAY)))
-          .setRole(MenuRole.INFO);
-      String tools = MutationTools.lore(adaptation);
-      if (!tools.isEmpty()) {
-        tile.addLore(tools);
-      }
-      window.setElement(GuiLayout.centeredPosition(index, adaptations.size()), row, tile);
+  private static void detailsPage(PlayerRef player, Skill<?> lead, Skill<?> partner, boolean gains, String title,
+                                  List<MutationSummary.Section> sections, List<MutationSummary.Section> listed,
+                                  GuiFrame.Layout<MutationEntry> layout,
+                                  SkillRegistry registry, int page) {
+    int currentPage = layout.clampedPage(page);
+    GuiWindow window = new GuiWindow(player);
+    GuiFrame.apply(window, "mutation/details", layout.bodyRows());
+    window.setLayout(MenuLayout.GRID);
+    GuiFrame.subject(window, summaryItem(gains ? "mutation-gain" : "mutation-lose", gains ? GAIN : LOSE, title, sections, registry).setRole(MenuRole.HEADER));
+    GuiFrame.body(window, layout.page(currentPage), (GuiFrame.Cell<MutationEntry> cell) -> cell.heading()
+        ? sectionHeading(listed.get(cell.group()), registry)
+        : entryElement(cell.item()));
+    GuiFrame.back(window, () -> open(player, lead, partner, false));
+    int total = 0;
+    for (MutationSummary.Section section : listed) {
+      total += section.entries().size();
     }
+    GuiFrame.pager(window, currentPage, layout.pageCount(), total,
+        (int target) -> detailsPage(player, lead, partner, gains, title, sections, listed, layout, registry, target));
+    window.setTitle(title);
+    window.open();
+  }
+
+  private static GuiElement summaryItem(String id, Id icon, String name, List<MutationSummary.Section> sections, SkillRegistry registry) {
+    return GuiTheme.element(id, icon, "gui", "mutation", id)
+        .setName(name)
+        .addLore(MutationSummary.lore(sections, registry))
+        .setRole(MenuRole.INFO);
+  }
+
+  private static GuiElement sectionHeading(MutationSummary.Section section, SkillRegistry registry) {
+    GuiElement heading = switch (section.kind()) {
+      case PARENT -> {
+        Skill<?> skill = registry.getSkill(section.skillId());
+        yield skill == null ? new GuiElement("section").setMaterial(Id.minecraft("book")) : SkillCards.icon("section-" + section.skillId(), skill);
+      }
+      case RESULT -> new GuiElement("section-result").setMaterial(MUTATE).setEnchanted(true);
+      case KEPT -> new GuiElement("section-kept").setMaterial(KEPT);
+      case TOOLS -> new GuiElement("section-tools").setMaterial(TOOLS);
+    };
+    heading.setName(section.heading()).setRole(MenuRole.INFO);
+    if (!section.detail().isEmpty()) {
+      heading.addLore(TextFormat.WHITE + section.detail());
+    }
+    return heading;
+  }
+
+  private static GuiElement entryElement(MutationEntry entry) {
+    Id item = Id.tryParse(entry.icon().itemId());
+    Id model = entry.icon().itemModelId() == null ? null : Id.tryParse(entry.icon().itemModelId());
+    GuiElement element = new GuiElement("entry-" + entry.id())
+        .setName(TextFormat.WHITE + entry.name())
+        .setEnchanted(entry.level() > 0)
+        .setRole(MenuRole.INFO);
+    if (item == null) {
+      element.setMaterial(Id.minecraft("paper"));
+    } else {
+      element.setModel(new CustomModel(item, entry.icon().customModelData(), model == null ? CustomModel.EMPTY_KEY : model, null));
+    }
+    if (!entry.detail().isEmpty()) {
+      element.addLore(TextFormat.GRAY + entry.detail());
+    }
+    return element;
+  }
+
+  /** A skill's icon with its name and the player's level in it. */
+  private static GuiElement skillTile(String id, Skill<?> skill, PlayerData data) {
+    PlayerSkillLine line = data.getSkillLineNullable(SkillHost.lineKey(skill));
+    return SkillCards.icon(id, skill)
+        .addLore(TextFormat.WHITE + AdaptLanguage.text(MutationMessages.LEVEL, trusted("level", line == null ? 0 : line.getLevel())));
   }
 
   /** The knowledge each level costs, such as "15 / 14 / 18". */
@@ -286,27 +370,30 @@ public final class MutationGui {
   }
 
   /**
-   * Puts the Unmutate button on a mutated skill's menu when {@link #offersUnmutate} allows it. The first click arms it
-   * and the second undoes the mutation and opens the lead skill's menu.
+   * Puts Unmutate in the footer's action slot of a mutated skill's menu when {@link #offersUnmutate} allows it. The
+   * first click arms it and the second undoes the mutation and opens the lead skill's menu.
    */
-  public static void placeUnmutate(GuiWindow window, int position, int row, Skill<?> skill, PlayerRef player) {
+  public static void placeUnmutate(GuiWindow window, Skill<?> skill, PlayerRef player) {
     if (offersUnmutate(skill, player)) {
-      window.setElement(position, row, unmutateButton(window, position, row, (MutatedSkill) skill, player, false));
+      GuiFrame.footer(window, GuiFrame.Slot.ACTION, unmutateButton(window, (MutatedSkill) skill, player, false));
     }
   }
 
-  private static GuiElement unmutateButton(GuiWindow window, int position, int row, MutatedSkill mutated, PlayerRef player,
-                                           boolean armed) {
-    GuiElement button = new GuiElement("mutation-unmutate").setRole(MenuRole.ACTION);
+  private static GuiElement unmutateButton(GuiWindow window, MutatedSkill mutated, PlayerRef player, boolean armed) {
     if (!armed) {
-      return button.setMaterial(UNMUTATE)
+      return GuiTheme.element("mutation-unmutate", UNMUTATE, "gui", "mutation", "unmutate")
           .setName(TextFormat.RED + AdaptLanguage.text(MutationMessages.UNMUTATE))
-          .onLeftClick((MenuClick e) -> window.updateElement(position, row,
-              unmutateButton(window, position, row, mutated, player, true)));
+          .setRole(MenuRole.ACTION)
+          .onLeftClick((MenuClick e) -> {
+            MenuSounds.play(player, MenuSounds.Action.ARM);
+            GuiFrame.footer(window, GuiFrame.Slot.ACTION, unmutateButton(window, mutated, player, true));
+            window.update();
+          });
     }
-    return button.setMaterial(CONFIRM_ARMED)
+    return GuiTheme.element("mutation-unmutate", ARMED, "gui", "mutation", "armed")
         .setName(TextFormat.RED + AdaptLanguage.text(MutationMessages.UNMUTATE_CONFIRM))
         .setHint(MenuHint.destructive(AdaptLanguage.text(MutationMessages.UNMUTATE_CONFIRM)))
+        .setRole(MenuRole.ACTION)
         .onLeftClick((MenuClick e) -> {
           window.close();
           AdaptPlayer adaptPlayer = adaptPlayer(player);
@@ -379,57 +466,23 @@ public final class MutationGui {
     };
   }
 
-  static List<String> lostLines(MutationOffers.Preview preview) {
-    List<String> lines = new ArrayList<>();
-    String higher = preview.higher().getLocalizedName();
-    if (preview.lostLevels() > 0) {
-      lines.add(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.LOST_LEVELS,
-          trusted("count", TextFormat.WHITE + "" + preview.lostLevels() + TextFormat.GRAY), trusted("skill", higher)));
-    }
-    if (preview.lostKnowledge() > 0) {
-      lines.add(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.LOST_KNOWLEDGE,
-          trusted("count", TextFormat.WHITE + "" + preview.lostKnowledge() + TextFormat.GRAY), trusted("skill", higher)));
-    }
-    for (SkillMutations.HeldAdaptation held : preview.unlearned()) {
-      lines.add(TextFormat.GRAY + AdaptLanguage.text(held.adaptation().isPermanent()
-              ? MutationMessages.LOST_PERMANENT_ADAPTATION : MutationMessages.LOST_ADAPTATION,
-          trusted("adaptation", TextFormat.strip(held.adaptation().getDisplayName())),
-          trusted("level", Format.toRoman(held.level()))));
-    }
-    if (lines.isEmpty()) {
-      lines.add(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.NOTHING_LOST));
-    }
-    return lines;
-  }
-
-  private static void skillMenu(PlayerRef player, PlayerData data, List<Skill<?>> skills, Consumer<Skill<?>> pick,
-                                Runnable back) {
-    if (!AdaptApi.scheduler().isTickThread()) {
-      AdaptApi.scheduler().runEntity(player, () -> skillMenu(player, data, skills, pick, back));
-      return;
-    }
-    int skillRows = Math.max(1, (skills.size() + COLUMNS - 1) / COLUMNS);
+  /** A picking menu of skills: the heading, the skills seven a row, Back and the pager. */
+  private static void skillMenu(PlayerRef player, String tag, GuiElement heading, PlayerData data, List<Skill<?>> skills,
+                                int page, Consumer<Skill<?>> pick, Runnable back, IntConsumer turn) {
+    GuiFrame.Layout<Skill<?>> layout = GuiFrame.grid(skills, COLUMNS);
+    int currentPage = layout.clampedPage(page);
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
     GuiWindow window = new GuiWindow(player);
-    GuiTheme.apply(window, "mutation/pick");
-    window.setViewportHeight(skillRows + 2);
+    GuiFrame.apply(window, tag, layout.bodyRows());
     window.setLayout(MenuLayout.GRID);
-    window.setElement(0, 0, new GuiElement("mutation-heading")
-        .setMaterial(Id.minecraft("nether_star"))
-        .setName(TextFormat.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.PICK_LEAD))
-        .setRole(MenuRole.HEADER));
-    for (int index = 0; index < skills.size(); index++) {
-      Skill<?> skill = skills.get(index);
-      int row = index / COLUMNS;
-      int inRow = Math.min(COLUMNS, skills.size() - (row * COLUMNS));
-      window.setElement(GuiLayout.centeredPosition(index % COLUMNS, inRow), row + 1,
-          skillTile("mutation-skill-" + SkillHost.lineKey(skill), skill, data)
-              .setRole(MenuRole.NAVIGATION)
-              .onLeftClick((MenuClick e) -> pick.accept(skill)));
-    }
-    window.setElement(0, skillRows + 1, GuiTheme.element("mutation-back", Id.minecraft("arrow"), "gui", "navigation", "back")
-        .setName(TextFormat.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-        .onLeftClick((MenuClick e) -> back.run()));
-    window.setTitle(TextFormat.GRAY + AdaptLanguage.text(MutationMessages.MUTATE));
+    GuiFrame.subject(window, heading);
+    GuiFrame.body(window, layout.page(currentPage), (GuiFrame.Cell<Skill<?>> cell) ->
+        skillTile("mutation-skill-" + SkillHost.lineKey(cell.item()), cell.item(), data)
+            .setRole(MenuRole.NAVIGATION)
+            .onLeftClick((MenuClick e) -> pick.accept(cell.item())));
+    GuiFrame.back(window, back);
+    GuiFrame.pager(window, currentPage, layout.pageCount(), skills.size(), turn);
+    window.setTitle(AdaptLanguage.text(MutationMessages.MUTATE));
     window.open();
   }
 

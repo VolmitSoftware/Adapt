@@ -4,9 +4,12 @@ import art.arcane.adapt.forge.client.AdaptForgeClient;
 import art.arcane.adapt.mod.AdaptModBootstrap;
 import art.arcane.adapt.mod.AdaptModIdentity;
 import art.arcane.adapt.mod.ModLoader;
+import art.arcane.adapt.mod.event.InteractHooks;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -34,6 +37,11 @@ public final class AdaptForge {
         bus.addListener((ServerStartedEvent event) -> bootstrap.serverStarted(event.getServer()));
         bus.addListener(EventPriority.LOWEST, false, ServerStartedEvent.class, (ServerStartedEvent event) -> permissions.remember());
         bus.addListener((ServerStoppingEvent event) -> bootstrap.serverStopping(event.getServer()));
+        bus.addListener(EventPriority.LOWEST, false, BlockEvent.BreakEvent.class, (BlockEvent.BreakEvent event) -> {
+            if (event.getPlayer() instanceof ServerPlayer player && InteractHooks.loaderBreak(player, event.getPos())) {
+                event.setCanceled(true);
+            }
+        });
         ForgeUiChannel.register();
         if (FMLEnvironment.dist == Dist.CLIENT) {
             AdaptForgeClient.initialize();

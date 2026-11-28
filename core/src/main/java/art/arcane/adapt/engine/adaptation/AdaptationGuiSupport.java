@@ -51,9 +51,7 @@ import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.item.ItemRef;
 import art.arcane.adapt.platform.item.PotionContents;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuLayout;
-import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.menu.MenuSession;
 import art.arcane.adapt.platform.recipe.RecipeSpec;
@@ -61,16 +59,17 @@ import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.engine.gui.LoreLists;
+import art.arcane.adapt.engine.gui.SettingsMenus;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
+import art.arcane.adapt.util.common.misc.MenuSounds;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.Tasks;
 import art.arcane.volmlib.util.format.Form;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 
 import java.lang.reflect.Field;
@@ -88,11 +87,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 final class AdaptationGuiSupport {
   private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
   private static final long PERMANENT_LEARN_CONFIRM_WINDOW_MS = 6_000L;
-  private static final int RECIPE_NAMES = 3;
   private static final Id PAPER = Id.minecraft("paper");
-  private static final Id ARROW = Id.minecraft("arrow");
-  private static final Id LECTERN = Id.minecraft("lectern");
-  private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
+  private static final Id RECIPE_BOOK = Id.minecraft("crafting_table");
 
   private AdaptationGuiSupport() {
   }
@@ -246,173 +242,159 @@ final class AdaptationGuiSupport {
     if (adaptPlayer == null) {
       return;
     }
-
-    SoundPlayer spw = SoundPlayer.of(player.world());
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-
-    boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-    boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled() && !adaptation.getPlayerPreferences().isEmpty();
-    GuiLayout.PagePlan plan = GuiLayout.planWithSettings(adaptation.getMaxLevel(), reserveNavigation, hasPreferences);
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(adaptation.getMaxLevel(), start + plan.itemsPerPage());
-
     PlayerSkillLine line = adaptPlayer.getSkillLine(SkillHost.lineKey(adaptation.getSkill()));
     if (line == null) {
       return;
     }
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
+    SoundPlayer spw = SoundPlayer.of(player.world());
+
     int keptFloor = SkillUpgrades.keptFloor(adaptation, adaptPlayer.getData());
     int mylevel = Math.max(keptFloor, paidLevel(line, adaptation.getId().toString()));
-
-    long k = line.getKnowledge();
-    List<String> requirementLore = requirementLore(adaptation, adaptPlayer.getData());
-    String toolLore = MutationTools.lore(adaptation);
-
     boolean debugLearning = AdaptDebugMode.isActive(player);
     int heldLevel = SkillUpgrades.holdable(adaptation, adaptPlayer.getData()) ? 0
         : keptFloor > 0 ? keptFloor : PlayerPreferences.editLevel(adaptation, adaptPlayer);
     String heldState = heldLevel > 0 ? heldState(adaptation, player, adaptPlayer, heldLevel) : null;
+    boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled() && !adaptation.getPlayerPreferences().isEmpty();
+
+    List<Integer> levels = new ArrayList<>(adaptation.getMaxLevel());
+    for (int level = 1; level <= adaptation.getMaxLevel(); level++) {
+      levels.add(level);
+    }
+    GuiFrame.Layout<Integer> layout = GuiFrame.grid(levels, GuiFrame.COLUMNS);
+    int currentPage = layout.clampedPage(page);
 
     GuiWindow w = new GuiWindow(player);
-    GuiTheme.apply(w, "skill/" + SkillHost.lineKey(adaptation.getSkill()) + "|" + adaptation.getId());
-    w.setViewportHeight(plan.rows());
-    w.setLayout(MenuLayout.GRID).setPaging(new MenuPaging(currentPage, plan.pageCount(), Math.max(0, adaptation.getMaxLevel())));
-
-    List<GuiEffects.Placement> reveal = new ArrayList<>();
-    for (int row = 0; row < plan.contentRows(); row++) {
-      int rowStart = start + (row * GuiLayout.WIDTH);
-      if (rowStart >= end) {
-        break;
-      }
-
-      int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
-      for (int i = 0; i < rowCount; i++) {
-        int lvl = rowStart + i + 1;
-        int pos = GuiLayout.centeredPosition(i, rowCount);
-        int c = adaptation.getCostFor(lvl, mylevel);
-        int rc = AdaptationHost.refundCostFor(adaptation, lvl - 1, mylevel);
-        int pc = adaptation.getPowerCostFor(lvl - keptFloor, mylevel - keptFloor);
-        boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, adaptation, lvl);
-        CustomModel model = GuiConfig.adaptationModel(
-            adaptation.getId().toString(),
-            adaptation.getIcon().item(),
-            AdaptationHost.of(adaptation).getModel(lvl)
-        );
-        if (heldState != null && (keptFloor <= 0 || lvl <= keptFloor)) {
-          GuiElement held = new GuiElement("lp-" + lvl + "g")
-              .setMaterial(model.material())
-              .setModel(model)
-              .setName(adaptation.getShortName(lvl))
-              .setEnchanted(lvl <= heldLevel)
-              .addLore(C.GRAY + adaptation.getDescription())
-              .addLore(lvl <= heldLevel ? C.GREEN + heldState : "")
-              .addLore(" ");
-          StatLines heldStats = new StatLines();
-          adaptation.addLevelStats(lvl, heldStats);
-          held.addLore(heldStats.lines());
-          reveal.add(new GuiEffects.Placement(pos, row, held));
-          continue;
+    GuiFrame.apply(w, "skill/" + SkillHost.lineKey(adaptation.getSkill()) + "|" + adaptation.getId(), layout.bodyRows());
+    w.setLayout(MenuLayout.GRID);
+    GuiFrame.subject(w, header(adaptation, adaptPlayer, line, mylevel, heldState));
+    GuiFrame.body(w, layout.page(currentPage), (GuiFrame.Cell<Integer> cell) -> {
+      int lvl = cell.item();
+      CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(),
+          AdaptationHost.of(adaptation).getModel(lvl));
+      GuiElement element = new GuiElement("lp-" + lvl + "g")
+          .setMaterial(model.material())
+          .setModel(model);
+      if (heldState != null && (keptFloor <= 0 || lvl <= keptFloor)) {
+        element.setName(adaptation.getShortName(lvl)).setEnchanted(lvl <= heldLevel);
+        if (lvl <= heldLevel) {
+          element.addLore(C.GREEN + heldState);
         }
-        GuiElement de = new GuiElement("lp-" + lvl + "g")
-            .setMaterial(model.material())
-            .setModel(model)
-            .setName(adaptation.getShortName(lvl))
-            .setEnchanted(ownsLevel(mylevel, lvl))
-            .addLore(C.GRAY + adaptation.getDescription())
-            .addLore(knowledgeCostLore(mylevel, lvl, c))
-            .addLore(vaultCostLore(adaptation, player, mylevel, lvl, c))
-            .addLore(learningActionLore(adaptation, mylevel, lvl, rc, k, c, debugLearning))
-            .addLore(powerLore(adaptation, adaptPlayer, mylevel, lvl, debugLearning ? 0 : pc, keptFloor))
-            .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN) : ""))
-            .addLore(adaptation.isPermanent() && mylevel < lvl
-                ? (pendingPermanentConfirm
-                ? C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM_NOW)
-                : C.YELLOW + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_DOUBLE_CLICK))
-                : "")
-            .onLeftClick((MenuClick e) -> clickLevel(adaptation, player, spw, lvl, c, pc, currentPage));
-        for (String requirementLine : requirementLore) {
-          de.addLore(requirementLine);
-        }
-        de.addLore(" ");
-        StatLines stats = new StatLines();
-        adaptation.addLevelStats(lvl, stats);
-        de.addLore(stats.lines());
-        if (!toolLore.isEmpty()) {
-          de.addLore(toolLore);
-        }
-        String recipeLore = recipeLore(adaptation, lvl);
-        if (!recipeLore.isEmpty()) {
-          de.addLore(recipeLore);
-        }
-        reveal.add(new GuiEffects.Placement(pos, row, de));
-      }
-    }
-    GuiEffects.applyReveal(w, reveal);
-
-    if (plan.hasNavigationRow()) {
-      int navRow = plan.rows() - (hasPreferences ? 2 : 1);
-      int jumpPages = 5;
-      int jumpBack = Math.max(0, currentPage - jumpPages);
-      int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
-      if (plan.pageCount() > 1 && currentPage > 0) {
-        w.setElement(-4, navRow, GuiTheme.element("adapt-first", LECTERN, "gui", "navigation", "first")
-            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
-            .onLeftClick((MenuClick e) -> openAdaptationPage(adaptation, player, 0)));
-        w.setElement(-3, navRow, GuiTheme.element("adapt-prev", ARROW, "gui", "navigation", "previous")
-            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
-            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
-            .onLeftClick((MenuClick e) -> openAdaptationPage(adaptation, player, currentPage - 1))
-            .onRightClick((MenuClick e) -> openAdaptationPage(adaptation, player, jumpBack)));
-      } else if (plan.pageCount() > 1) {
-        w.setElement(-4, navRow, boundaryElement("adapt-first-disabled", GuiMessages.FIRST_PAGE));
-        w.setElement(-3, navRow, boundaryElement("adapt-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
-      }
-      if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
-        w.setElement(3, navRow, GuiTheme.element("adapt-next", ARROW, "gui", "navigation", "next")
-            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
-            .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
-            .onLeftClick((MenuClick e) -> openAdaptationPage(adaptation, player, currentPage + 1))
-            .onRightClick((MenuClick e) -> openAdaptationPage(adaptation, player, jumpForward)));
-        w.setElement(4, navRow, GuiTheme.element("adapt-last", LECTERN, "gui", "navigation", "last")
-            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
-            .onLeftClick((MenuClick e) -> openAdaptationPage(adaptation, player, plan.pageCount() - 1)));
-      } else if (plan.pageCount() > 1) {
-        w.setElement(3, navRow, boundaryElement("adapt-next-disabled", GuiMessages.NO_NEXT_PAGE));
-        w.setElement(4, navRow, boundaryElement("adapt-last-disabled", GuiMessages.LAST_PAGE));
-      }
-
-      int from = adaptation.getMaxLevel() <= 0 ? 0 : (start + 1);
-      int to = adaptation.getMaxLevel() <= 0 ? 0 : end;
-      GuiElement center;
-      if (AdaptConfig.get().isGuiBackButton()) {
-        center = GuiTheme.element("back", ARROW, "gui", "navigation", "back")
-            .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
-            .onLeftClick((MenuClick e) -> navigateBack(adaptation, player));
       } else {
-        center = GuiTheme.element("adapt-page-info", PAPER, "gui", "navigation", "page")
-            .setName(C.AQUA + AdaptLanguage.text(GuiMessages.LEVELS))
-            .setHint(MenuHint.navigation("page-info"));
+        int c = adaptation.getCostFor(lvl, mylevel);
+        int pc = debugLearning ? 0 : adaptation.getPowerCostFor(lvl - keptFloor, mylevel - keptFloor);
+        LevelLore.State state = LevelLore.state(adaptation, adaptPlayer, mylevel, lvl, c, pc, debugLearning, keptFloor);
+        element.setName(state.reachable() ? adaptation.getShortName(lvl) : C.DARK_GRAY + C.stripColor(adaptation.getShortName(lvl)))
+            .setEnchanted(ownsLevel(mylevel, lvl))
+            .addLore(state.lines());
+        if (adaptation.isPermanent() && mylevel < lvl && isPermanentLearnConfirmationPending(player, adaptation, lvl)) {
+          element.addLore(C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PACK_CONFIRM_LEARN));
+        }
+        element.onLeftClick((MenuClick e) -> clickLevel(adaptation, player, spw, lvl, c, pc, currentPage));
       }
-      center.addLore(C.DARK_GRAY + AdaptLanguage.text(
-          GuiMessages.PAGE_SHOWING_RANGE,
-          trusted("page", currentPage + 1),
-          trusted("pages", plan.pageCount()),
-          trusted("from", from),
-          trusted("to", to),
-          trusted("total", adaptation.getMaxLevel())
-      ));
-      w.setElement(0, navRow, center);
-    }
+      StatLines stats = new StatLines();
+      adaptation.addLevelStats(lvl, stats);
+      if (!stats.lines().isEmpty()) {
+        element.addLore(" ").addLore(stats.lines());
+      }
+      List<String> recipes = recipeNames(adaptation, lvl);
+      if (!recipes.isEmpty()) {
+        element.addLore(C.AQUA + AdaptLanguage.text(GuiMessages.RECIPES, trusted("recipes", LoreLists.joined(recipes))));
+      }
+      return element;
+    });
 
+    GuiFrame.back(w, () -> ComponentHost.of(pageSkill(adaptation, player)).openGui(player));
+    GuiFrame.pager(w, currentPage, layout.pageCount(), adaptation.getMaxLevel(), (int target) -> openGui(adaptation, player, target));
+    GuiElement tools = LoreLists.tools(List.of(adaptation));
+    if (tools != null) {
+      GuiFrame.footer(w, GuiFrame.Slot.TOOLS, tools);
+    }
+    GuiElement recipes = recipesElement(adaptation);
+    if (recipes != null) {
+      GuiFrame.footer(w, GuiFrame.Slot.LIST, recipes);
+    }
     if (hasPreferences) {
-      PreferenceGuiSupport.populate(adaptation, w, plan.rows() - 1, currentPage);
+      GuiFrame.footer(w, GuiFrame.Slot.SETTINGS, SettingsMenus.opener("adaptation-settings", () -> openSettings(adaptation, player, currentPage)));
     }
 
     w.setTitle(adaptation.getShortName());
-    w.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(adaptation, player, !AdaptConfig.get().isEscClosesAllGuis())));
+    w.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(player,
+        () -> ComponentHost.of(pageSkill(adaptation, player)).openGui(player))));
     w.open();
+  }
+
+  /** The adaptation's settings under its header; Back returns to its levels at {@code adaptationPage}. */
+  static void openSettings(Adaptation<?> adaptation, PlayerRef player, int adaptationPage) {
+    if (!Tasks.isPrimaryThread()) {
+      Tasks.runEntity(player, () -> openSettings(adaptation, player, adaptationPage));
+      return;
+    }
+    AdaptPlayer adaptPlayer = AdaptCore.get().getAdaptServer().getPlayer(player);
+    PlayerSkillLine line = adaptPlayer == null ? null : adaptPlayer.getSkillLine(SkillHost.lineKey(adaptation.getSkill()));
+    if (line == null || !adaptation.isEnabled() || !adaptation.getSkill().isEnabled()) {
+      return;
+    }
+    MenuSounds.play(player, MenuSounds.Action.OPEN);
+    int mylevel = Math.max(SkillUpgrades.keptFloor(adaptation, adaptPlayer.getData()), paidLevel(line, adaptation.getId().toString()));
+    GuiWindow w = new GuiWindow(player);
+    GuiFrame.apply(w, "skill/" + SkillHost.lineKey(adaptation.getSkill()) + "|" + adaptation.getId() + "|settings", 1);
+    w.setLayout(MenuLayout.LIST);
+    GuiFrame.subject(w, header(adaptation, adaptPlayer, line, mylevel, null));
+    PreferenceGuiSupport.populate(adaptation, w, 1, adaptationPage);
+    GuiFrame.back(w, () -> openGui(adaptation, player, adaptationPage));
+    w.setTitle(AdaptLanguage.text(GuiMessages.PACK_SETTINGS));
+    w.onClosed((GuiWindow closed) -> Tasks.runEntity(player, () -> onGuiClosed(player, () -> openGui(adaptation, player, adaptationPage))));
+    w.open();
+  }
+
+  /** The header: the adaptation at the player's level, its state, description and requirements. */
+  private static GuiElement header(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, PlayerSkillLine line, int level, String heldState) {
+    CustomModel model = GuiConfig.adaptationModel(adaptation.getId().toString(), adaptation.getIcon().item(),
+        AdaptationHost.of(adaptation).getModel(Math.max(1, level)));
+    GuiElement element = new GuiElement("adaptation-header")
+        .setMaterial(model.material())
+        .setModel(model)
+        .setName(adaptation.getDisplayName())
+        .setEnchanted(level > 0)
+        .addLore(level > 0
+            ? C.GREEN + AdaptLanguage.text(GuiMessages.PACK_LEVEL_OF, trusted("level", Form.toRoman(level)),
+                trusted("maximum", Form.toRoman(adaptation.getMaxLevel())))
+            : C.DARK_GRAY + AdaptLanguage.text(GuiMessages.PACK_NOT_LEARNED))
+        .setRole(MenuRole.HEADER);
+    if (heldState != null) {
+      element.addLore(C.GREEN + heldState);
+    }
+    if (adaptation.isPermanent()) {
+      element.addLore(C.RED + AdaptLanguage.text(GuiMessages.PACK_PERMANENT));
+    }
+    element.addLore(C.AQUA + AdaptLanguage.text(GuiMessages.PACK_KNOWLEDGE, trusted("knowledge", line.getKnowledge())))
+        .addLore(" ")
+        .addLore(C.GRAY + adaptation.getDescription());
+    List<String> requirements = requirementLore(adaptation, adaptPlayer.getData());
+    if (!requirements.isEmpty()) {
+      element.addLore(" ").addLore(requirements);
+    }
+    return element;
+  }
+
+  /** The footer's Recipes item: what each level's recipes make, by level; null when there are none. */
+  private static GuiElement recipesElement(Adaptation<?> adaptation) {
+    GuiElement element = null;
+    for (int level = 1; level <= adaptation.getMaxLevel(); level++) {
+      List<String> names = recipeNames(adaptation, level);
+      if (names.isEmpty()) {
+        continue;
+      }
+      if (element == null) {
+        element = GuiTheme.element("recipes", RECIPE_BOOK, "gui", "navigation", "recipes")
+            .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PACK_RECIPES))
+            .setRole(MenuRole.INFO);
+      }
+      element.addLore(C.WHITE + AdaptLanguage.text(GuiMessages.PACK_LEVEL, trusted("level", Form.toRoman(level))))
+          .addLore(C.GRAY + LoreLists.joined(names));
+    }
+    return element;
   }
 
   private static void clickLevel(Adaptation<?> adaptation, PlayerRef player, SoundPlayer spw, int lvl, int c, int pc, int currentPage) {
@@ -505,8 +487,7 @@ final class AdaptationGuiSupport {
   }
 
   static void playUnlearned(Adaptation<?> adaptation, PlayerRef player, SoundPlayer spw) {
-    spw.play(player.location(), Sounds.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
-    spw.play(player.location(), Sounds.BLOCK_BEACON_DEACTIVATE, 0.4f, 0.755f);
+    MenuSounds.play(player, MenuSounds.Action.UNLEARN);
     FxPresets.failFizzle(adaptation, player);
   }
 
@@ -611,12 +592,6 @@ final class AdaptationGuiSupport {
     return null;
   }
 
-  private static GuiElement boundaryElement(String id, TextKey name) {
-    return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(C.DARK_GRAY + AdaptLanguage.text(name))
-        .setRole(MenuRole.DECORATION);
-  }
-
   private static void openAdaptationPage(Adaptation<?> adaptation, PlayerRef player, int page) {
     openGui(adaptation, player, page);
   }
@@ -672,44 +647,24 @@ final class AdaptationGuiSupport {
     return mutated == null ? adaptation.getSkill() : mutated;
   }
 
-  private static void navigateBack(Adaptation<?> adaptation, PlayerRef player) {
-    playCloseSound(player);
-    ComponentHost.of(pageSkill(adaptation, player)).openGui(player);
-  }
-
-  private static void onGuiClosed(Adaptation<?> adaptation, PlayerRef player, boolean openPrevGui) {
-    if (player == null) {
+  /** A menu closed by Escape: unless a click replaced it, play the close sound and reopen {@code parent}. */
+  private static void onGuiClosed(PlayerRef player, Runnable parent) {
+    if (player == null || GuiCloseSuppression.consume(player)) {
       return;
     }
-
-    if (GuiCloseSuppression.consume(player)) {
+    MenuSounds.play(player, MenuSounds.Action.BACK);
+    if (AdaptConfig.get().isEscClosesAllGuis()) {
       return;
     }
-
-    playCloseSound(player);
-    if (!openPrevGui) {
-      return;
-    }
-
     Tasks.runEntity(player, () -> {
       if (GuiCloseSuppression.windowFree(player)) {
-        ComponentHost.of(pageSkill(adaptation, player)).openGui(player);
+        parent.run();
       }
     }, 1);
   }
 
-  static void playCloseSound(PlayerRef player) {
-    SoundPlayer spw = SoundPlayer.of(player.world());
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 1.1f, 1.255f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.7f, 0.655f);
-    spw.play(player.location(), Sounds.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
-  }
-
-  /**
-   * What the recipes {@code level} unlocks make, at most {@link #RECIPE_NAMES} names and a count of the rest; tools are
-   * left to the tools line.
-   */
-  static String recipeLore(Adaptation<?> adaptation, int level) {
+  /** What the recipes {@code level} unlocks make, in recipe order; tools are left to the Tools item. */
+  static List<String> recipeNames(Adaptation<?> adaptation, int level) {
     Set<Id> tools = new HashSet<>();
     for (MutationTool<?> tool : MutationTools.handedOut(adaptation)) {
       for (RecipeSpec recipe : tool.recipes()) {
@@ -730,57 +685,7 @@ final class AdaptationGuiSupport {
       }
     }
     names.remove("");
-    if (names.isEmpty()) {
-      return "";
-    }
-    List<String> shown = new ArrayList<>(names).subList(0, Math.min(RECIPE_NAMES, names.size()));
-    String listed = String.join(", ", shown) + (names.size() > shown.size() ? " +" + (names.size() - shown.size()) : "");
-    return C.AQUA + AdaptLanguage.text(GuiMessages.RECIPES, trusted("recipes", listed));
-  }
-
-  private static String knowledgeCostLore(int currentLevel, int targetLevel, int cost) {
-    if (currentLevel >= targetLevel) {
-      return "";
-    }
-
-    return C.GRAY + AdaptLanguage.text(
-        AdaptConfig.get().isHardcoreNoRefunds()
-            ? GuiMessages.KNOWLEDGE_COST_NO_REFUNDS
-            : GuiMessages.KNOWLEDGE_COST,
-        trusted("cost", C.WHITE + String.valueOf(cost) + C.GRAY)
-    );
-  }
-
-  private static String vaultCostLore(
-      Adaptation<?> adaptation,
-      PlayerRef player,
-      int currentLevel,
-      int targetLevel,
-      int knowledgeCost
-  ) {
-    if (!AdaptationLearningTransaction.isConfigured()) {
-      return "";
-    }
-    if (currentLevel >= targetLevel) {
-      String refund = AdaptationLearningTransaction.formattedRefund(
-          adaptation,
-          player,
-          targetLevel - 1,
-          currentLevel
-      );
-      return refund.isBlank() ? "" : C.GREEN + AdaptLanguage.text(
-          GuiMessages.VAULT_REFUND,
-          trusted("amount", refund)
-      );
-    }
-    String cost = AdaptationLearningTransaction.formattedLearnCost(knowledgeCost);
-    if (cost.isBlank()) {
-      return C.YELLOW + AdaptLanguage.text(GuiMessages.VAULT_UNAVAILABLE_FALLBACK);
-    }
-    return C.GRAY + AdaptLanguage.text(
-        GuiMessages.VAULT_LEARN_COST,
-        trusted("amount", cost)
-    );
+    return List.copyOf(names);
   }
 
   private static List<String> requirementLore(Adaptation<?> adaptation, PlayerData data) {
@@ -856,43 +761,6 @@ final class AdaptationGuiSupport {
 
   private static void messagePlayer(PlayerRef player, String message) {
     player.sendMessage(C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + message);
-  }
-
-  private static String learningActionLore(
-      Adaptation<?> adaptation,
-      int currentLevel,
-      int targetLevel,
-      int refund,
-      long knowledge,
-      int cost,
-      boolean debugLearning
-  ) {
-    if (currentLevel >= targetLevel) {
-      if (AdaptConfig.get().isHardcoreNoRefunds()) {
-        return C.GREEN + AdaptLanguage.text(GuiMessages.ALREADY_LEARNED_NO_REFUNDS);
-      }
-      if (adaptation.isPermanent()) {
-        return "";
-      }
-      return C.GREEN + AdaptLanguage.text(
-          GuiMessages.ALREADY_LEARNED_REFUND,
-          trusted("refund", refund)
-      );
-    }
-
-    if (debugLearning || knowledge >= cost) {
-      return C.BLUE + AdaptLanguage.text(
-          GuiMessages.CLICK_TO_LEARN,
-          trusted("adaptation", adaptation.getShortName(targetLevel))
-      );
-    }
-    if (knowledge == 0) {
-      return C.RED + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_NO_KNOWLEDGE);
-    }
-    return C.RED + AdaptLanguage.text(
-        GuiMessages.KNOWLEDGE_SHORTAGE,
-        trusted("knowledge", C.WHITE + String.valueOf(knowledge) + C.RED)
-    );
   }
 
   /**

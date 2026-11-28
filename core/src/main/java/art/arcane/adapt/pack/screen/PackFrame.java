@@ -18,11 +18,8 @@ import java.util.List;
 final class PackFrame {
   /** Paper between a heading and the rule running on from it. */
   static final int RULE_GAP = 4;
-  /** Paper between the two header chips, and between them and the crumb ribbon. */
-  static final int CHIP_GAP = 3;
-  /** A chip's mark and the paper after it, before the number. */
-  static final int CHIP_MARK = 19;
-  static final int CHIP_MIN = 26;
+  /** Paper between a header number's mark and the number. */
+  static final int STAT_GAP = 1;
   private final PackScreens screens;
   private final PlayerRef viewer;
   private final PackViewer state;
@@ -87,38 +84,28 @@ final class PackFrame {
   }
 
   /**
-   * The knowledge of {@code skillId} and the player's power in the header, each on a chip sized to its number with its
-   * mark at the chip's left, the power chip ending at its label's right edge and the knowledge chip before it; the crumb
-   * ribbon keeps left of them.
+   * The knowledge {@code knowledge} and the player's power as plain header text, each number right-aligned in its label
+   * with its small mark before it.
    */
-  void chips(PageBuilder page, String skillId) {
-    SkillLineView line = CatalogIndex.line(player, skillId);
-    int right = chip(page, "chip.power", PackArt.HEADER_POWER_MARK, player.header().powerUsed() + "/" + player.header().powerMax(),
-        Integer.MAX_VALUE);
-    int left = chip(page, "chip.knowledge", PackArt.HEADER_KNOWLEDGE_MARK, String.valueOf(line == null ? 0L : line.knowledge()),
-        right - CHIP_GAP);
-    page.crumbsBefore(left - CHIP_GAP);
+  void stats(PageBuilder page, long knowledge) {
+    stat(page, PackArt.STAT_KNOWLEDGE, PackArt.KNOWLEDGE_SPRITE, String.valueOf(knowledge));
+    stat(page, PackArt.STAT_POWER, PackArt.POWER_SPRITE, player.header().powerUsed() + "/" + player.header().powerMax());
   }
 
-  /** One header chip whose right edge is the label's ({@code right} when smaller); returns its left edge. */
-  private int chip(PageBuilder page, String role, String mark, String text, int right) {
+  /** The knowledge of {@code skillId} and the player's power in the header. */
+  void stats(PageBuilder page, String skillId) {
+    SkillLineView line = CatalogIndex.line(player, skillId);
+    stats(page, line == null ? 0L : line.knowledge());
+  }
+
+  private void stat(PageBuilder page, String role, String sprite, String text) {
     TextSpec spec = page.layout().text(role);
     if (spec == null) {
-      return right;
+      return;
     }
-    int end = Math.min(right, spec.x() + spec.width() + PackArt.CHIP_END);
-    int textWidth = resources.metrics().width(text);
-    int width = Math.max(CHIP_MIN, CHIP_MARK + textWidth + PackArt.CHIP_END);
-    int left = end - width;
-    page.paint(PackArt.CHIP_HEAD, left);
-    int at = left + PackArt.CHIP_END;
-    for (int segment : PackArt.segments(width - (PackArt.CHIP_END * 2))) {
-      page.paint(PackArt.chipBody(segment), at);
-      at += segment;
-    }
-    page.paint(PackArt.CHIP_TAIL, at);
-    page.paint(mark, left + PackArt.CHIP_MARK_DX);
-    page.text(new TextSpec(end - PackArt.CHIP_END - textWidth, spec.y(), textWidth, Align.RIGHT, spec.colour()), text);
-    return left;
+    int width = resources.metrics().width(text);
+    int x = spec.x() + spec.width() - width;
+    page.text(new TextSpec(x, spec.y(), width, Align.RIGHT, spec.colour()), text);
+    page.paint(PackArt.statMark(sprite, spec.y()), x - STAT_GAP - PackArt.STAT_MARK);
   }
 }

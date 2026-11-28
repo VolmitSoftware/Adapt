@@ -39,12 +39,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * the mutated page on the lead's and the partner's leaf, and the Mutate partner picker the kit leads) and draws them
  * from the built pack. With {@code adapt.pack.evidence} set, writes contact sheets of the page corners at four times
  * scale there: the top left and top right of the ribbon pages ({@code corners-left.png}, {@code corners-right.png}) and
- * all four corners of the plain skill page and the partner picker ({@code corners-four.png}, {@code corners-partners.png}).
+ * all four corners of the plain skill page and the partner picker ({@code corners-four.png}, {@code corners-partners.png}),
+ * and the foot of the plain skill page, the partner's leaf and the partner picker across their whole width ({@code feet.png}).
  */
 class KitCornersTest {
   private static final int SCALE = 4;
   private static final int CROP_WIDTH = 64;
   private static final int CROP_HEIGHT = 44;
+  private static final int FOOT_HEIGHT = 24;
   /** Container pixels of a crop outside the page's drawn extent. */
   private static final int OUTSIDE = 4;
   private static final int LABEL = 120;
@@ -90,6 +92,7 @@ class KitCornersTest {
       ImageIO.write(sheet(pages, ribbon, List.of(Corner.TOP_RIGHT)), "png", out.resolve("corners-right.png").toFile());
       ImageIO.write(sheet(pages, List.of("skill"), List.of(Corner.values())), "png", out.resolve("corners-four.png").toFile());
       ImageIO.write(sheet(pages, List.of("partners"), List.of(Corner.values())), "png", out.resolve("corners-partners.png").toFile());
+      ImageIO.write(feet(pages, List.of("skill", "partner", "partners")), "png", out.resolve("feet.png").toFile());
     }
     assertEquals(List.of(), problems);
   }
@@ -163,6 +166,39 @@ class KitCornersTest {
           graphics.drawImage(scaled(crop).image(), LABEL + column * (cell + GAP), top, null);
           column++;
         }
+      }
+    }
+    graphics.dispose();
+    return image;
+  }
+
+  /** One row per kit: its name, then the bottom {@link #FOOT_HEIGHT} rows of each of {@code names}' pages across their drawn width. */
+  private static BufferedImage feet(List<Page> pages, List<String> names) {
+    int width = 0;
+    for (Page page : pages) {
+      width = Math.max(width, page.bounds()[2] - page.bounds()[0] + 1 + OUTSIDE * 2);
+    }
+    int cell = width * SCALE;
+    int rowHeight = (FOOT_HEIGHT + OUTSIDE) * SCALE + GAP;
+    BufferedImage image = new BufferedImage(LABEL + names.size() * (cell + GAP), 24 + ScreenSamples.KITS.size() * rowHeight, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D graphics = image.createGraphics();
+    graphics.setColor(new Color(0x15171A));
+    graphics.fillRect(0, 0, image.getWidth(), image.getHeight());
+    graphics.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+    graphics.setColor(Color.WHITE);
+    for (int column = 0; column < names.size(); column++) {
+      graphics.drawString(names.get(column) + " foot", LABEL + column * (cell + GAP), 16);
+    }
+    for (int row = 0; row < ScreenSamples.KITS.size(); row++) {
+      String kit = ScreenSamples.KITS.get(row);
+      int top = 24 + row * rowHeight;
+      graphics.drawString(kit, 6, top + 20);
+      for (int column = 0; column < names.size(); column++) {
+        String name = names.get(column);
+        Page page = pages.stream().filter((Page each) -> each.kit().equals(kit) && each.name().equals(name)).findFirst().orElseThrow();
+        Raster crop = page.screen().crop(page.bounds()[0] - OUTSIDE - ScreenCompositor.LEFT, page.bounds()[3] + 1 - FOOT_HEIGHT - ScreenCompositor.TOP,
+            width, FOOT_HEIGHT + OUTSIDE);
+        graphics.drawImage(scaled(crop).image(), LABEL + column * (cell + GAP), top, null);
       }
     }
     graphics.dispose();

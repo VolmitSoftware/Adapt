@@ -23,7 +23,6 @@ import art.arcane.adapt.AdaptCore;
 import art.arcane.adapt.AdaptLog;
 import art.arcane.adapt.api.content.Skill;
 import art.arcane.adapt.engine.component.ComponentHost;
-import art.arcane.adapt.engine.mutation.MutatedSkill;
 import art.arcane.adapt.engine.mutation.SkillMutations;
 import art.arcane.adapt.engine.skill.SkillHost;
 import art.arcane.adapt.engine.skill.SkillMenus;
@@ -36,30 +35,22 @@ import art.arcane.adapt.engine.world.PlayerSkillLine;
 import art.arcane.adapt.engine.xp.XP;
 import art.arcane.adapt.client.view.SpendView;
 import art.arcane.adapt.client.view.SpendViews;
-import art.arcane.adapt.client.view.XpGuideView;
-import art.arcane.adapt.client.view.XpGuideViews;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SeatMessages;
-import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.platform.entity.PlayerRef;
 import art.arcane.adapt.platform.menu.MenuClick;
-import art.arcane.adapt.platform.menu.MenuHint;
 import art.arcane.adapt.platform.menu.MenuLayout;
-import art.arcane.adapt.platform.menu.MenuPaging;
 import art.arcane.adapt.platform.menu.MenuRole;
 import art.arcane.adapt.platform.value.Id;
 import art.arcane.adapt.api.text.TextFormat;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
-import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiElement;
-import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiFrame;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.inventorygui.GuiWindow;
-import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.api.AdaptApi;
 import art.arcane.volmlib.util.localization.LanguageAudience;
-import art.arcane.volmlib.util.localization.TextKey;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -70,12 +61,8 @@ import java.util.Map;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SkillsGui {
-  private static final int PAGE_JUMP = 5;
-  private static final int SKILLS_PER_ROW = GuiLayout.FIVE_WIDTH;
+  private static final int SKILLS_PER_ROW = 7;
   private static final Id PAPER = Id.minecraft("paper");
-  private static final Id ARROW = Id.minecraft("arrow");
-  private static final Id LECTERN = Id.minecraft("lectern");
-  private static final Id GRAY_PANE = Id.minecraft("gray_stained_glass_pane");
   private static final Id KNOWLEDGE = Id.minecraft("knowledge_book");
 
   public static void open(PlayerRef player) {
@@ -103,46 +90,34 @@ public class SkillsGui {
         return;
       }
 
+      SkillRegistry registry = adaptPlayer.getServer().getSkillRegistry();
       List<Seat> seats = seats(adaptPlayer, player);
-
+      List<Seat> shown = new ArrayList<>(seats.size());
+      for (Seat seat : seats) {
+        shown.add(seat.empty() ? null : seat);
+      }
       int configuredRows = GuiConfig.skillsGuiRows();
-      GuiLayout.PagePlan plan = GuiLayout.planFiveWide(seats.size(), configuredRows);
-      int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-      int start = currentPage * plan.itemsPerPage();
-      int end = Math.min(seats.size(), start + plan.itemsPerPage());
-      int viewportRows = GuiLayout.fiveWideRowsForPage(end - start, configuredRows);
-      int contentRows = viewportRows - 1;
-      int navRow = viewportRows - 1;
+      GuiFrame.Layout<Seat> layout = configuredRows > 0
+          ? GuiFrame.grid(shown, SKILLS_PER_ROW, configuredRows - 2)
+          : GuiFrame.grid(shown, SKILLS_PER_ROW);
+      int currentPage = layout.clampedPage(page);
 
       GuiWindow w = new GuiWindow(player);
-      GuiTheme.apply(w, "/");
-      w.setViewportHeight(viewportRows);
-      w.setLayout(MenuLayout.LIST).setPaging(new MenuPaging(currentPage, plan.pageCount(), seats.size()));
-
+      GuiFrame.apply(w, "/", configuredRows > 0 ? configuredRows - 2 : layout.bodyRows());
+      w.setLayout(MenuLayout.LIST);
+      GuiFrame.subject(w, summary(adaptPlayer, seats));
       if (seats.isEmpty()) {
-        w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new GuiElement("skills-empty")
+        GuiFrame.body(w, 0, GuiFrame.SUBJECT_COLUMN, new GuiElement("skills-empty")
             .setMaterial(PAPER)
             .setName(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
-            .addLore(TextFormat.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS))
-            .setRole(MenuRole.HEADER));
-      } else {
-        List<GuiEffects.Placement> reveal = new ArrayList<>();
-        int usedRows = Math.max(1, (int) Math.ceil((end - start) / (double) SKILLS_PER_ROW));
-        for (int index = start; index < end; index++) {
-          Seat seat = seats.get(index);
-          if (seat.empty()) {
-            continue;
-          }
-          int logicalRow = (index - start) / SKILLS_PER_ROW;
-          int row = GuiLayout.centeredFiveRow(logicalRow, usedRows, contentRows);
-          int pos = GuiLayout.spacedFivePosition((index - start) % SKILLS_PER_ROW, SKILLS_PER_ROW);
-          reveal.add(new GuiEffects.Placement(pos, row, seatElement(seat, player, adaptPlayer.getServer().getSkillRegistry())));
-        }
-        GuiEffects.applyReveal(w, reveal);
+            .setRole(MenuRole.INFO));
       }
-
-      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), seats.size(), start, end);
-      w.setElement(1, navRow, knowledgeElement(adaptPlayer, seats));
+      GuiFrame.body(w, layout.page(currentPage), (GuiFrame.Cell<Seat> cell) -> seatElement(cell.item(), player, registry));
+      GuiFrame.pager(w, currentPage, layout.pageCount(), seats.size(), (int target) -> open(player, target));
+      GuiElement mutate = MutationGui.leadsEntry(player, adaptPlayer.getData());
+      if (mutate != null) {
+        GuiFrame.footer(w, GuiFrame.Slot.ACTION, mutate);
+      }
 
       w.setTitle(AdaptLanguage.text(
           GuiMessages.SKILLS_TITLE,
@@ -154,38 +129,16 @@ public class SkillsGui {
     }
   }
 
-  /** A seat's item: the skill as usual, or greyed out when the player has not started it. */
+  /** A seat's card; clicking it opens the skill. */
   private static GuiElement seatElement(Seat seat, PlayerRef player, SkillRegistry registry) {
     Skill<?> skill = seat.skill();
-    CustomModel model = GuiConfig.skillModel(SkillHost.lineKey(skill), skill.getIcon().item(), ComponentHost.of(skill).getModel());
-    GuiElement element = new GuiElement("skill-" + SkillHost.lineKey(skill))
-        .setMaterial(model.material())
-        .setModel(model)
-        .setRole(MenuRole.NAVIGATION);
-    if (!seat.started()) {
-      element.setName(TextFormat.DARK_GRAY + TextFormat.strip(skill.getDisplayName()))
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(SeatMessages.NOT_STARTED))
-          .addLore(TextFormat.ITALIC + "" + TextFormat.DARK_GRAY + skill.getDescription());
-    } else {
-      element.setName(skill.getDisplayName(seat.line().getLevel()))
-          .setEnchanted(skill instanceof MutatedSkill)
-          .addLore(TextFormat.ITALIC + "" + TextFormat.GRAY + skill.getDescription())
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(
-              SnippetsMessages.GUI_KNOWLEDGE_VALUE,
-              trusted("knowledge", TextFormat.UNDERLINE + "" + TextFormat.WHITE + seat.line().getKnowledge() + TextFormat.RESET + " " + TextFormat.GRAY)
-          ))
-          .addLore(TextFormat.ITALIC + "" + TextFormat.GRAY + AdaptLanguage.text(
-              SnippetsMessages.GUI_POWER_USED_VALUE,
-              trusted("power", TextFormat.DARK_GREEN + String.valueOf(seat.adaptationLevel()))
-          ));
-    }
-    element.onLeftClick((MenuClick e) -> ComponentHost.of(skill).openGui(player));
-    addGuideLore(element, skill, registry);
-    return element;
+    return SkillCards.card("skill-" + SkillHost.lineKey(skill), skill, seat.line(), seat.started(), registry)
+        .setRole(MenuRole.NAVIGATION)
+        .onLeftClick((MenuClick e) -> ComponentHost.of(skill).openGui(player));
   }
 
-  /** Knowledge earned, spent and unspent, then each seat's spent and unspent knowledge in seat order. */
-  private static GuiElement knowledgeElement(AdaptPlayer adaptPlayer, List<Seat> seats) {
+  /** The header: the player's level and power, knowledge earned, spent and unspent, then each seat's knowledge. */
+  private static GuiElement summary(AdaptPlayer adaptPlayer, List<Seat> seats) {
     Map<String, Integer> spent = new HashMap<>();
     for (SpendView spend : SpendViews.build(adaptPlayer.getServer().getSkillRegistry(), adaptPlayer)) {
       spent.merge(spend.skillId(), spend.knowledge(), Integer::sum);
@@ -206,15 +159,22 @@ public class SkillsGui {
             trusted("spent", TextFormat.WHITE + String.valueOf(skillSpent) + TextFormat.GRAY), trusted("available", String.valueOf(available))));
       }
     }
+    PlayerData data = adaptPlayer.getData();
     GuiElement element = GuiTheme.element("skills-knowledge", KNOWLEDGE, "gui", "navigation", "knowledge")
-        .setName(TextFormat.AQUA + AdaptLanguage.text(SeatMessages.KNOWLEDGE))
-        .setRole(MenuRole.INFO)
+        .setName(TextFormat.WHITE + AdaptLanguage.text(GuiMessages.PACK_LEVEL, trusted("level", (int) XP.getLevelForXp(data.getMasterXp()))))
+        .setRole(MenuRole.HEADER)
+        .addLore(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.PACK_POWER, trusted("used", data.getUsedPower()),
+            trusted("maximum", data.getMaxPower())))
+        .addLore(" ")
+        .addLore(TextFormat.AQUA + AdaptLanguage.text(SeatMessages.KNOWLEDGE))
         .addLore(TextFormat.GRAY + AdaptLanguage.text(SeatMessages.EARNED, trusted("value", totalSpent + unspent)))
         .addLore(TextFormat.GRAY + AdaptLanguage.text(SeatMessages.SPENT, trusted("value", totalSpent)))
-        .addLore(TextFormat.GRAY + AdaptLanguage.text(SeatMessages.UNSPENT, trusted("value", unspent)))
-        .addLore(" ");
-    for (String line : lines) {
-      element.addLore(line);
+        .addLore(TextFormat.GRAY + AdaptLanguage.text(SeatMessages.UNSPENT, trusted("value", unspent)));
+    if (!lines.isEmpty()) {
+      element.addLore(" ");
+      for (String line : lines) {
+        element.addLore(line);
+      }
     }
     return element;
   }
@@ -309,22 +269,6 @@ public class SkillsGui {
     return entries;
   }
 
-  /** How the skill earns XP, under the guide's heading: a mutated skill's parents each under their name, then its rules. */
-  static void addGuideLore(GuiElement element, Skill<?> skill, SkillRegistry registry) {
-    XpGuideView guide = XpGuideViews.guide(registry, skill);
-    element.addLore(" ");
-    element.addLore(TextFormat.GOLD + XpGuideViews.title());
-    for (XpGuideView.Section section : guide.sections()) {
-      if (guide.mutated()) {
-        Skill<?> source = section.skillId().isEmpty() ? null : registry.getSkill(section.skillId());
-        element.addLore((source == null ? TextFormat.LIGHT_PURPLE.toString() : SkillHost.legacyColor(source.getColor()).toString()) + section.title());
-      }
-      for (String line : section.lines()) {
-        element.addLore(TextFormat.GRAY + "- " + line);
-      }
-    }
-  }
-
   static PlayerSkillLine resolveSkillLine(PlayerData data, String skillName, boolean debugMode, boolean showAll) {
     if (debugMode) {
       return data.getSkillLine(skillName);
@@ -369,69 +313,6 @@ public class SkillsGui {
 
   private static boolean hasVisibleProgress(PlayerSkillLine line, int adaptationLevel) {
     return line.getXp() > 0D || line.getKnowledge() > 0L || adaptationLevel > 0;
-  }
-
-  private static void applyPageControls(
-      GuiWindow window,
-      PlayerRef player,
-      int navRow,
-      int currentPage,
-      int pageCount,
-      int totalEntries,
-      int start,
-      int end
-  ) {
-    int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
-    int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
-
-    if (pageCount > 1 && currentPage > 0) {
-      window.setElement(-4, navRow, GuiTheme.element("skills-first", LECTERN, "gui", "navigation", "first")
-          .setName(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
-          .onLeftClick((MenuClick e) -> open(player, 0)));
-      window.setElement(-3, navRow, GuiTheme.element("skills-prev", ARROW, "gui", "navigation", "previous")
-          .setName(TextFormat.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
-          .onLeftClick((MenuClick e) -> open(player, currentPage - 1))
-          .onRightClick((MenuClick e) -> open(player, jumpBack)));
-    } else if (pageCount > 1) {
-      window.setElement(-4, navRow, boundaryElement("skills-first-disabled", GuiMessages.FIRST_PAGE));
-      window.setElement(-3, navRow, boundaryElement("skills-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
-    }
-
-    if (pageCount > 1 && currentPage < pageCount - 1) {
-      window.setElement(3, navRow, GuiTheme.element("skills-next", ARROW, "gui", "navigation", "next")
-          .setName(TextFormat.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
-          .addLore(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
-          .onLeftClick((MenuClick e) -> open(player, currentPage + 1))
-          .onRightClick((MenuClick e) -> open(player, jumpForward)));
-      window.setElement(4, navRow, GuiTheme.element("skills-last", LECTERN, "gui", "navigation", "last")
-          .setName(TextFormat.GRAY + AdaptLanguage.text(GuiMessages.LAST))
-          .onLeftClick((MenuClick e) -> open(player, pageCount - 1)));
-    } else if (pageCount > 1) {
-      window.setElement(3, navRow, boundaryElement("skills-next-disabled", GuiMessages.NO_NEXT_PAGE));
-      window.setElement(4, navRow, boundaryElement("skills-last-disabled", GuiMessages.LAST_PAGE));
-    }
-
-    int from = totalEntries <= 0 ? 0 : (start + 1);
-    int to = totalEntries <= 0 ? 0 : end;
-    GuiElement center = GuiTheme.element("skills-page-info", PAPER, "gui", "navigation", "page")
-        .setName(TextFormat.AQUA + AdaptLanguage.text(GuiMessages.SKILLS))
-        .setHint(MenuHint.navigation("page-info"));
-    center.addLore(TextFormat.DARK_GRAY + AdaptLanguage.text(
-        GuiMessages.PAGE_SHOWING_RANGE,
-        trusted("page", currentPage + 1),
-        trusted("pages", pageCount),
-        trusted("from", from),
-        trusted("to", to),
-        trusted("total", totalEntries)
-    ));
-    window.setElement(0, navRow, center);
-  }
-
-  private static GuiElement boundaryElement(String id, TextKey name) {
-    return GuiTheme.element(id, GRAY_PANE, "gui", "navigation", "disabled")
-        .setName(TextFormat.DARK_GRAY + AdaptLanguage.text(name))
-        .setRole(MenuRole.DECORATION);
   }
 
   private record SkillPageEntry(Skill<?> skill, PlayerSkillLine line,

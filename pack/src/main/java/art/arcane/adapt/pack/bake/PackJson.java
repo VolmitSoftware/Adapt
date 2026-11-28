@@ -70,29 +70,6 @@ public final class PackJson {
         return model;
     }
 
-    /**
-     * A flat model of the 16x16 textures {@code layers}, bottom first, drawn {@code dy} pixels below its slot, the bottom
-     * one tinted as a stack layer is, over the see-through texture {@code clear} across the slot itself. The offset lies
-     * in the elements, and the clear one makes them taller than a slot: the client draws an item whose elements fit a slot
-     * only inside that slot, even when its definition says it is oversized.
-     */
-    static JsonObject shiftedModel(List<String> layers, String clear, int dy) {
-        MotionItems.Transform transform = new MotionItems.Transform(1, 0, 0);
-        JsonObject textures = new JsonObject();
-        for (int index = 0; index < layers.size(); index++) {
-            textures.addProperty("l" + index, layers.get(index));
-        }
-        textures.addProperty("clear", clear);
-        textures.addProperty("particle", layers.get(0));
-        JsonArray elements = new JsonArray();
-        elements.add(element("clear", new MotionItems.Area(0, SlotGrid.x(0), SlotGrid.y(0), 16, 16), SlotGrid.x(0), SlotGrid.y(0), transform, 7.9, false));
-        for (int index = 0; index < layers.size(); index++) {
-            elements.add(element("l" + index, new MotionItems.Area(1 + index, SlotGrid.x(0), SlotGrid.y(0) + dy, 16, 16), SlotGrid.x(0), SlotGrid.y(0),
-                    transform, 8 + index * 0.01, index == 0));
-        }
-        return flatModel(textures, elements, transform);
-    }
-
     /** One flat element showing texture {@code name} over {@code area}, for an item in the slot at ({@code slotX}, {@code slotY}). */
     static JsonObject element(String name, MotionItems.Area area, int slotX, int slotY, MotionItems.Transform transform) {
         return element(name, area, slotX, slotY, transform, 8, false);
